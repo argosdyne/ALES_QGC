@@ -54,6 +54,8 @@
 		<file>../resources/icons/qgroundcontrol.ico</file>
 		<file alias="Gripper.svg">../resources/Gripper.svg</file>
 		<file alias="NoVideoBackground.jpg">../resources/NoVideoBackground.jpg</file>
+		<file alias="armed.svg">../resources/armed.svg</file>
+		<file alias="disarmed.svg">../resources/disarmed.svg</file>
 	</qresource>
 	<qresource prefix="/res/firmware">
 		<file alias="3drradio.png">../resources/firmware/3drradio.png</file>
