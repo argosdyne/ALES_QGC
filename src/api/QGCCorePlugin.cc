@@ -233,7 +233,7 @@ bool QGCCorePlugin::adjustSettingMetaData(const QString& settingsGroup, FactMeta
         if (metaData.name() == AppSettings::indoorPaletteName) {
             QVariant outdoorPalette;
 #if defined (__mobile__)
-            outdoorPalette = 0;
+            outdoorPalette = 1;
 #else
             outdoorPalette = 1;
 #endif

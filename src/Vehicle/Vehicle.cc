@@ -1794,6 +1794,10 @@ void Vehicle::_handleHeartbeat(mavlink_message_t& message)
         if (previousFlightMode != flightMode()) {
             emit flightModeChanged(flightMode());
         }
+        qInfo() << "Flight mode changed:" << flightMode();
+        qInfo() << "HEARTBEAT received - base_mode:" << heartbeat.base_mode
+                << ", custom_mode:" << heartbeat.custom_mode;
+
     }
 }
 
@@ -2252,7 +2256,7 @@ bool Vehicle::flightModeSetAvailable()
 }
 
 QStringList Vehicle::flightModes()
-{
+{    
 	if (_standardModes->supported()) {
 		return _standardModes->flightModes();
 	}
@@ -2281,7 +2285,10 @@ void Vehicle::setFlightMode(const QString& flightMode)
     uint8_t     base_mode;
     uint32_t    custom_mode;
 
+    qInfo() << "Send flightMode : " << flightMode;
+
     if (setFlightModeCustom(flightMode, &base_mode, &custom_mode)) {
+        qInfo() << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
         SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
         if (!sharedLink) {
             qCDebug(VehicleLog) << "setFlightMode: primary link gone!";
@@ -2300,6 +2307,8 @@ void Vehicle::setFlightMode(const QString& flightMode)
                            true,    // show error if fails
                            MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                            custom_mode);
+
+            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported";
         } else {
             mavlink_message_t msg;
             mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
@@ -2310,6 +2319,8 @@ void Vehicle::setFlightMode(const QString& flightMode)
                                            newBaseMode,
                                            custom_mode);
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported not";
         }
     } else {
         qCWarning(VehicleLog) << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
@@ -2670,6 +2681,7 @@ QString Vehicle::_vehicleIdSpeech()
 void Vehicle::_handleFlightModeChanged(const QString& flightMode)
 {
     _say(tr("%1 %2 flight mode").arg(_vehicleIdSpeech()).arg(flightMode));
+    qInfo() << "_handleFlightModeChanged : " << flightMode;
     emit guidedModeChanged(_firmwarePlugin->isGuidedMode(this));
 }
 

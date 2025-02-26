@@ -384,7 +384,7 @@ ApplicationWindow {
                                             QGroundControl.corePlugin.showTouchAreas = !QGroundControl.corePlugin.showTouchAreas
                                         } else if (mouse.modifiers & Qt.ShiftModifier) {
                                             if(!QGroundControl.corePlugin.showAdvancedUI) {
-                                                advancedModeConfirmation.open()
+                                                advancedModeOnConfirmation.open()
                                             } else {
                                                 QGroundControl.corePlugin.showAdvancedUI = false
                                             }

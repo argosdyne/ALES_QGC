@@ -32,6 +32,7 @@ Item {
     Component.onCompleted: _activeVehicleChanged()
 
     function _activeVehicleChanged() {
+        console.log("_activeVehicleChanged");
         if (activeVehicle.flightModeSetAvailable) {
             var maxFMChars = 0
             for (var i=0; i<activeVehicle.flightModes.length; i++) {

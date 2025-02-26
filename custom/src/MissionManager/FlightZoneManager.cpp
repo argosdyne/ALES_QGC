@@ -111,15 +111,15 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply)
         QByteArray responseData = reply->readAll();
 
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
-        if(!jsonDoc.isNull()){
+        if(!jsonDoc.isNull()){            
             //qInfo() << "GeoJson Data" << jsonDoc.toJson(QJsonDocument::Indented);
             processJsonFile(jsonDoc);
-        } else {
+        } else {           
             qInfo() << "Failed to parse GeoJson";
         }
 
     }
-    else {
+    else {        
         qInfo() << "Error fetching GeoJson" << reply->errorString();
     }
 
@@ -211,28 +211,9 @@ void createPolyhedron(const std::vector<Point_3>& vertices, const std::vector<st
 
 // Polyhedron 내부 확인 및 로그 출력
 bool checkPointInsidePolyhedron(const Polyhedron& polyhedron, const Point_3& point) {
-    // 상하로 내부 비교할 때 11M정도의 오차가 있는듯?
-    //50 ~ 200이 기준이면
-    // 상 : 190에서 out
-    // 하 : 39에서 out
-    //10 ~ 11M 정도의 오차가 있는 듯함. 이 오차를 줄여야됨
+
     bool ret = false;
     try {
-        //qInfo() << "CheckPointInsidePolyhedron";
-
-        // Polyhedron의 정점이 있는지 확인
-        // if (polyhedron.size_of_vertices() == 0) {
-        //     qInfo() << "Polyhedron has no vertices!";
-        // } else {
-        //     qInfo() << "Polyhedron vertices:";
-        //     for (auto v = polyhedron.vertices_begin(); v != polyhedron.vertices_end(); ++v) {
-        //         const Point_3& vertex = v->point();
-        //         qInfo() << "Vertex:" << vertex.x() << vertex.y() << vertex.z();
-        //     }
-        // }
-
-        // Point의 좌표 출력
-        //qInfo() << "Point to check:" << point.x() << point.y() << point.z();
 
         Point_inside inside(polyhedron);
         if (inside(point) == CGAL::ON_BOUNDED_SIDE) {
@@ -257,7 +238,7 @@ bool checkPointInsidePolyhedron(const Polyhedron& polyhedron, const Point_3& poi
 void createPolyhedron(const std::vector<Point_3>& bottomVertices,
                       const std::vector<Point_3>& topVertices,
                       Polyhedron& polyhedron) {
-    if (bottomVertices.size() != topVertices.size()) {
+    if (bottomVertices.size() != topVertices.size()) {        
         qInfo() << "Error: Bottom and top vertices must have the same count!";
         return;
     }
@@ -436,12 +417,6 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
                     // Convert drone's position to Cartesian coordinates
                     Point_3 dronePosition = latLonAltToCartesian(droneLat, droneLon, droneAlt);
 
-                    // Query the distance between the drone's position and the polyhedron
-                    // double distance = std::sqrt(tree.squared_distance(dronePosition)); // distance in meters
-                    // std::cout << "Shortest distance from the drone to the polyhedron is: " << distance << " meters" << std::endl;
-
-                    // // Test if a point is inside
-                    // Point_3 testPoint = latLonAltToCartesian(37.5667, 126.9785, 150);
                     checkPointInsidePolyhedron(polyhedron, dronePosition);
 
                 }
@@ -794,12 +769,12 @@ void FlightZoneManager::updatePolygonVisibility() {
     }
 }
 
-void FlightZoneManager::processJsonFile(const QString& filePath) {
+void FlightZoneManager::processJsonFile(const QString& filePath) {    
     qInfo() << "filePath :" << filePath;
 
     //File이 없다면 온라인에서 읽어오도록 하는게 맞을듯함
     QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {        
         qWarning() << "Failed to open file:" << filePath;
         return;
     }
@@ -808,7 +783,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     file.close();
 
     QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
+    if (!doc.isObject()) {        
         qWarning() << "Invalid JSON format";
         return;
     }
@@ -892,17 +867,17 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
             polygon->setstrokeOpacity(0.5);
 
             // validFrom 시간과 현재 시간을 비교
-            if (currentTime < validFromDateTime) {
+            if (currentTime < validFromDateTime) {                
                 qInfo() << "Polygon is not yet valid. Skipping. validFromDateTime : " << validFromDateTime << "," << validToDateTime;
                 validTimeList.append(FlightValidTime(polygonid, validFromDateTime, validToDateTime, false));
                 continue; // 유효하지 않으면 건너뛴다.
             }
-            else {
+            else {                
                 qInfo() << "Polygon valid. Skipping. validToDateTime" << validFromDateTime << "," << validToDateTime;
                 validTimeList.append(FlightValidTime(polygonid, validFromDateTime, validToDateTime, true));
             }
             // if(currentTime > validToDateTime) // 현재시간이 목표시간을 넘으면 표시를 해줄 이유가 없으므로.
-            // {
+            // {            
             //     qInfo() << "Polygon is not yet valid. Skipping.";
             //     continue;
             // }
@@ -932,7 +907,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
         // 그렇다면 고유한 ID로 비교해서
         qInfo() << "polygon ID : " << polygonid;
 
-    }
+    }    
     qInfo() << "validTimeList Count" << validTimeList.count();
 
 }
@@ -1006,36 +981,9 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                     QGeoCoordinate coordinate(lat, lon);
 
 
-
-                    // if(category == "airspace"){
-                    //     if(geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
-                    //     {
-                    //         qInfo() << "geoJsonNameList count = 0";
-                    //         geoJsonNameList.append(GeoJsonNameList(name));
-                    //     }
-
-                    //     if(!geoJsonNameList.contains(GeoJsonNameList(name))) //객체가 없으면
-                    //     {
-                    //         geoJsonNameList.append(GeoJsonNameList(name));
-
-                    //         qInfo() << "geoJsonNameList Count : " << geoJsonNameList.count();
-
-                    //     }
-                    //     //현재 날짜가 validTo를 넘으면 결국에는 유효기간이 지난거니까 그 부분은 리스트에 안넣도록 한다.
-                    //     polygon->appendVertex(coordinate);
-
-                    //     // qInfo() << "altitudeCeiling : " << ceilingMeters;
-                    //     // qInfo() << "altitudeFloor : " << floorMeters;
-
-                    //     // list에 바닥 높이와 천장 높이를 추가
-                    //     noFlyZones.append(NoFlyZone(QGeoCoordinate(lat, lon), floorMeters, ceilingMeters));
-
-                    //     //qInfo() << "Properties JSON:" << QString(QJsonDocument(properties).toJson(QJsonDocument::Compact));
-                    // }
-
                     if (currentTime < validTo) {
                         if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
-                        {
+                        {        
                             qInfo() << "geoJsonNameList count = 0";
                             geoJsonNameList.append(name);
                         }
@@ -1154,7 +1102,7 @@ void FlightZoneManager::_init(void){
         processJsonFile(getFilePath());
     }
     else // Online
-    {
+    {        
         qInfo() << "Make with Online dataType = " << dataType;
         getOnlineGeoJsonData();
     }

@@ -286,7 +286,7 @@ void SerialLink::_emitLinkError(const QString& errorMsg)
 {
     QString msg("Error on link %1. %2");
     qDebug() << errorMsg;
-    emit communicationError(tr("Link Error"), msg.arg(_config->name()).arg(errorMsg));
+    //emit communicationError(tr("Link Error"), msg.arg(_config->name()).arg(errorMsg));
 }
 
 //--------------------------------------------------------------------------

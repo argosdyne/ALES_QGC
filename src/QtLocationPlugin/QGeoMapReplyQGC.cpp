@@ -149,7 +149,7 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             // It instead returns an image of a missing tile graphic. We need to detect that
             // and error out so Qt will deal with zooming correctly even if it doesn't have the tile.
             // This allows us to zoom up to level 23 even though the tiles don't actually exist
-            setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
+            //setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
         } else {
             //-- This is a map tile. Process and cache it if valid.
             setMapImageData(a);
