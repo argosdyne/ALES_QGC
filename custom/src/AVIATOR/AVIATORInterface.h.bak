@@ -8,7 +8,6 @@
 
 Q_DECLARE_LOGGING_CATEGORY(AVIATORInterfaceLog)
 #define MAVLINK_AVIATOR_COMM_ID (MAVLINK_COMM_NUM_BUFFERS - 2)
-class CustomPlugin;
 class AVIATORInterface : public FactGroup
 {
     Q_OBJECT
@@ -74,7 +73,6 @@ private:
     static const char* _batteryCurrentFactName;
     static const char* _batteryChargingFactName;
 
-    CustomPlugin* _plugin{nullptr};
     QSerialPort* _port{nullptr};
     QString _portName;
     int _baudRate;
@@ -101,5 +99,6 @@ private:
     bool _cn13Pressed{false};
     bool _cn17Pressed{false};
     bool _cn18Pressed{false};
+
     QVector<uint16_t> _prevChannelValues = QVector<uint16_t>(18, 0);
 };

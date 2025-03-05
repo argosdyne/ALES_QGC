@@ -14,7 +14,12 @@
 #ifndef MultiVehicleManager_H
 #define MultiVehicleManager_H
 
+#if defined(CUSTOMVEHICLEHEADER)
+#include CUSTOMVEHICLEHEADER
+#else
 #include "Vehicle.h"
+#endif
+
 #include "QGCMAVLink.h"
 #include "QmlObjectListModel.h"
 #include "QGCToolbox.h"

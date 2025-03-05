@@ -44,6 +44,9 @@ DEFINES += QGC_APPLICATION_NAME='"\\\"Ales QGC\\\""'
 DEFINES += QGC_ORG_NAME=\"\\\"argosdyne.org\\\"\"
 DEFINES += QGC_ORG_DOMAIN=\"\\\"org.argosdyne\\\"\"
 
+DEFINES += CUSTOMVEHICLEHEADER=\\\"CustomVehicle.h\\\"
+DEFINES += CUSTOMVEHICLECLASS=CustomVehicle
+
 QGC_APP_NAME        = "Ales QGC"
 QGC_BINARY_NAME     = "Ales QGC"
 QGC_ORG_NAME        = "Agosdyne"
@@ -122,6 +125,14 @@ INCLUDEPATH += \
     $$PWD/src/FirmwarePlugin \
     $$PWD/src/AutoPilotPlugin
     $$PWD/src/FirmwarePlugin/APM/
+
+HEADERS += \
+    $$PWD/src/FirmwarePlugin/CustomVehicle.h \
+    $$PWD/src/FirmwarePlugin/VehicleESCFactGroup.h
+
+SOURCES += \
+    $$PWD/src/FirmwarePlugin/CustomVehicle.cc \
+    $$PWD/src/FirmwarePlugin/VehicleESCFactGroup.cc
 
 # HEADERS+= \
 #     $$PWD/src/AutoPilotPlugin/CustomAutoPilotPlugin.h \

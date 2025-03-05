@@ -27,6 +27,8 @@
 
 QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 
+static const char *kSlaveMode = "SlaveMode";
+
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
     : QGCFlyViewOptions(options, parent)
 {
@@ -85,6 +87,16 @@ CustomPlugin::~CustomPlugin()
 {
 }
 
+void CustomPlugin::setSlaveMode(bool mode)
+{
+    if(_slaveMode != mode) {
+        _slaveMode = mode;
+        QSettings settings;
+        settings.setValue(kSlaveMode, _slaveMode);
+        emit slaveModeChanged(_slaveMode);
+    }
+}
+
 void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 {
     QGCCorePlugin::setToolbox(toolbox);
@@ -105,7 +117,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 }
 
 void CustomPlugin::_handleRCChannelValues(const quint16* channels, int count)
-{
+{    
     static quint16 inlChannels[18];
     memcpy(inlChannels, channels, 18 * 2);
     emit rcChannelValuesChanged(inlChannels, count);
@@ -399,4 +411,10 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
         connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);        
     }
     return qmlEngine;
+}
+void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMessageType type)
+{
+    if(_qmlInterface) {
+        _qmlInterface->showMessage(message, type);
+    }
 }

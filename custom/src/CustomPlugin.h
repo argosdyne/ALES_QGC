@@ -65,6 +65,13 @@ public:
     bool coachMode() { return _coachMode; }
     void setCoachMode(const bool& coachMode);
 
+    Q_PROPERTY(bool slaveMode READ slaveMode WRITE setSlaveMode NOTIFY slaveModeChanged)
+    bool slaveMode() { return _slaveMode; }
+    void setSlaveMode(bool mode);
+    bool forceSendRC() { return _forceSendRC; }
+    void setForceSendRC(const bool& force) {
+        _forceSendRC = force;
+    }
 
     CustomPlugin(QGCApplication* app, QGCToolbox *toolbox);
     ~CustomPlugin();
@@ -89,6 +96,10 @@ public:
 
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
+    void slaveModeChanged(bool slaveMode);
+
+public slots:
+    void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
 
 private slots:
     void _advancedChanged(bool advanced);
@@ -109,4 +120,6 @@ private:
     CustomQmlInterface* _qmlInterface{nullptr};
     AVIATORInterface* _aviatorInterface{nullptr};
     bool _coachMode{false};
+    bool _slaveMode{false};
+    bool _forceSendRC{false};
 };

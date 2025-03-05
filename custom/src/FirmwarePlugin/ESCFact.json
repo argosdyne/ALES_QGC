@@ -1,0 +1,55 @@
+{
+    "version":      1,
+    "fileType":  "FactMetaData",
+    "QGC.MetaData.Facts":
+[
+{
+    "name":             "temperature0",
+    "shortDesc":        "ESC0 Temp",
+    "type":             "int32",
+    "units":            "degC"
+},
+{
+    "name":             "temperature1",
+    "shortDesc":        "ESC1 Temp",
+    "type":             "int32",
+    "units":            "degC"
+},
+{
+    "name":             "temperature2",
+    "shortDesc":        "ESC2 Temp",
+    "type":             "int32",
+    "units":            "degC"
+},
+{
+    "name":             "temperature3",
+    "shortDesc":        "ESC3 Temp",
+    "type":             "int32",
+    "units":            "degC"
+},
+{
+    "name":             "rpm0",
+    "shortDesc":        "ESC0 RPM",
+    "type":             "int32",
+    "units":            "rpm"
+},
+{
+    "name":             "rpm1",
+    "shortDesc":        "ESC1 RPM",
+    "type":             "int32",
+    "units":            "rpm"
+},
+{
+    "name":             "rpm2",
+    "shortDesc":        "ESC2 RPM",
+    "type":             "int32",
+    "units":            "rpm"
+},
+{
+    "name":             "rpm3",
+    "shortDesc":        "ESC3 RPM",
+    "type":             "int32",
+    "units":            "rpm"
+}
+]
+}

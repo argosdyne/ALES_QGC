@@ -124,6 +124,7 @@ public slots:
     void handleCustomButtonFunction(int type, bool pressed);
 
 private slots:
+    void _slaveModeChanged(bool slaveMode);
 
 private:
     void _refreshSystemMessageUI(bool from);
@@ -135,7 +136,7 @@ private:
     ARManager* _arManager{nullptr};
     CodevRTCMManager* _codevRTCMManager{nullptr};    
     mDNSManager* _mDNSManager{nullptr};
-    LTEManager* _lteManager{nullptr};    
+    LTEManager* _lteManager{nullptr};
 
     QSoundEffect _actionSound;
 

@@ -572,7 +572,9 @@ bool QGCApplication::_initForNormalAppBoot()
     // Safe to show popup error messages now that main window is created
     UASMessageHandler* msgHandler = qgcApp()->toolbox()->uasMessageHandler();
     if (msgHandler) {
+#if !defined(CUSTOMVEHICLECLASS)
         msgHandler->showErrorsInToolbar();
+#endif
     }
 
     // Now that main window is up check for lost log files

@@ -29,6 +29,15 @@ void CustomQmlInterface::setToolbox(QGCToolbox* toolbox)
     _arManager->setToolbox(toolbox);
     _codevRTCMManager->setToolbox(toolbox);
 
+    //-- Check for persistent slave mode
+    if(_plugin->slaveMode()) {
+        _slaveModeChanged(true);
+    } else {
+        //-- Reset Slave Link
+        _toolbox->settingsManager()->appSettings()->audioMuted()->setRawValue(false);
+    }
+    connect(_plugin, &CustomPlugin::slaveModeChanged, this, &CustomQmlInterface::_slaveModeChanged);
+
 #if defined(ENABLE_WIFI_P2P)
     connect(qgcApp(), &QGCApplication::teamModeLocalNameChanged, _teamModeRouter, &TeamModeRouter::setLocalDeviceName);
     connect(qgcApp(), &QGCApplication::teamModeConnectionChanged, _teamModeRouter, &TeamModeRouter::p2pConnectStateChanged);
@@ -43,6 +52,43 @@ void CustomQmlInterface::playActionSound()
     if(_actionSound.isPlaying()) return;
     _actionSound.setLoopCount(1);
     _actionSound.play();
+}
+
+void CustomQmlInterface::_slaveModeChanged(bool slaveMode)
+{
+    // _teamModeLinkconfig.reset();
+    // if(slaveMode) {
+    //     //-- Stop auto connect and disconnect all links
+    //     LinkManager* pLinkMgr = _toolbox->linkManager();
+    //     pLinkMgr->setConnectionsSuspended(QString(tr("Switching to Slave Mode")));
+    //     pLinkMgr->disconnectAll();
+    //     //-- Set Slave Link
+    //     _toolbox->settingsManager()->appSettings()->audioMuted()->setRawValue(false);
+    //     _toolbox->settingsManager()->autoConnectSettings()->autoConnectUDP()->setRawValue(false);
+    //     _toolbox->settingsManager()->autoConnectSettings()->disableConnectSerial()->setRawValue(true);
+    //     TeamModeConfiguration* teammodeConfig = new TeamModeConfiguration("TeamMode Link");
+    //     //UDPConfiguration* udpConfig = new UDPConfiguration("UDP Link (AutoConnect)");
+    //     teammodeConfig->setDynamic(true);
+    //     teammodeConfig->setAutoConnect(true);
+    //     teammodeConfig->setHighLatency(true);
+    //     teammodeConfig->setLocalPort(DEFAULT_REMOTE_PORT_UDP_QGC_SLAVE);
+    //     _teamModeLinkconfig = pLinkMgr->addConfiguration(teammodeConfig);
+    //     //-- Enable slave link
+    //     pLinkMgr->setConnectionsAllowed();
+    //     pLinkMgr->createConnectedLink(_teamModeLinkconfig);
+    // } else {
+    //     //-- Disconnect all links
+    //     LinkManager* pLinkMgr = _toolbox->linkManager();
+    //     pLinkMgr->setConnectionsSuspended(QString(tr("Switching to Master Mode")));
+    //     pLinkMgr->disconnectAll();
+    //     //-- Reset Slave Link
+    //     _toolbox->settingsManager()->appSettings()->audioMuted()->setRawValue(true);
+    //     _toolbox->settingsManager()->autoConnectSettings()->autoConnectUDP()->setRawValue(true);
+    //     _toolbox->settingsManager()->autoConnectSettings()->disableConnectSerial()->setRawValue(false);
+    //     //-- Enable normal link
+    //     pLinkMgr->setConnectionsAllowed();
+    // }
+    // emit teamModeLinkChanged();
 }
 
 

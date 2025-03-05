@@ -62,10 +62,10 @@
         <file alias="Custom/Widgets/CustomBusyIndicator.qml">res/Custom/Widgets/CustomBusyIndicator.qml</file>
     </qresource>
     <qresource prefix="/qml">
-        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/CustomFlyViewOverlay.qml</file>        
+        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/CustomFlyViewOverlay.qml</file>
         <file alias="QGroundControl/FlightDisplay/CustomCameraControl.qml">CustomCameraControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
-        <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>        
+        <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
     </qresource>
     <qresource prefix="/res">
@@ -113,6 +113,7 @@
         <file alias="RTCMBase.SettingsGroup.json">src/RTCM/RTCMBase.SettingsGroup.json</file>
         <file alias="SerialPortRTCM.SettingsGroup.json">src/RTCM/SerialPortRTCM.SettingsGroup.json</file>
         <file alias="AVIATORFact.json">src/AVIATOR/AVIATORFact.json</file>
+        <file alias="Vehicle/ESCFact.json">src/FirmwarePlugin/ESCFact.json</file>
     </qresource>
     <qresource prefix="/RTCM">
         <file alias="NTRIPClient.qml">src/RTCM/NTRIPClient.qml</file>

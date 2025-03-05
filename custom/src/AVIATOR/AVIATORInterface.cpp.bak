@@ -3,8 +3,6 @@
 #include <QQmlEngine>
 #include <QString>
 #include "CustomQmlInterface.h"
-#include "QGCApplication.h"
-#include "CustomPlugin.h"
 
 QGC_LOGGING_CATEGORY(AVIATORInterfaceLog, "AVIATORInterfaceLog")
 
@@ -25,7 +23,6 @@ AVIATORInterface::AVIATORInterface(QObject* parent)
     , _usbOutFact(0, _usbOutFactName, FactMetaData::valueTypeFloat)
     , _batteryCurrentFact(0, _batteryCurrentFactName, FactMetaData::valueTypeFloat)
     , _batteryChargingFact(0, _batteryChargingFactName, FactMetaData::valueTypeFloat)
-    , _plugin(qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()))
     , _portName("/dev/ttysWK0")
     , _baudRate(115200)
 {
@@ -134,22 +131,6 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     _rcChannelValues.clear();
     mavlink_rc_channels_t channels;
     mavlink_msg_rc_channels_decode(&message, &channels);
-    //qInfo(AVIATORInterfaceLog) <<  "AVIATORInterface _handle_mavlink_rc_channels";
-    {
-        static int index = 0;
-        //qInfo() << "Aviator _handle_Mavlink_rc_Channels rssi Value = " << channels.rssi;
-        _plugin->setForceSendRC(channels.rssi == 254);        
-        // Keep alive.
-        if(index++ > 25) {
-            index = 0;
-            mavlink_message_t msg;
-            mavlink_msg_rc_channels_encode(0,0,&msg,&channels);
-            uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-            int len = mavlink_msg_to_send_buffer(buf, &msg);
-            QByteArray buffer((const char*)buf, len);
-            emit write(buffer);
-        }
-    }
 
     // _rcChannelValues.append(channels.chan1_raw);
     // _rcChannelValues.append(channels.chan2_raw);
