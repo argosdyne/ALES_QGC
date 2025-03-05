@@ -175,6 +175,17 @@ ApplicationWindow {
         simpleMessageDialogComponent.createObject(mainWindow, { title: dialogTitle, text: dialogText, buttons: buttons, acceptFunction: acceptFunction }).open()
     }
 
+    // -- Custom Simple message dialog
+
+    function showCustomMessageDialog(dialogComponent) {
+       var dialogInstance = dialogComponent.createObject(mainWindow, {});
+       if (dialogInstance) {
+           dialogInstance.open();
+       } else {
+           console.log("Failed to create dialog.");
+       }
+   }
+
     // This variant is only meant to be called by QGCApplication
     function _showMessageDialog(dialogTitle, dialogText) {
         showMessageDialog(dialogTitle, dialogText)

@@ -116,6 +116,7 @@ Rectangle {
     //-------------------------------------------------------------------------
     //-- Branding Logo
     Image {
+        anchors.rightMargin:    arLinkIndicator.item.width + ScreenTools.defaultFontPixelHeight
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
@@ -165,6 +166,16 @@ Rectangle {
                 }
             }
         }
+    }
+
+    //Add ARLink Indicator
+    Loader {
+        id:                 arLinkIndicator
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        source:             "qrc:/toolbar/ARLinkIndicator.qml"
     }
 
     // Small parameter download progress bar

@@ -284,9 +284,9 @@ Item {
         onClicked: {
             if (_connected) {
                 mainWindow.showIndicatorPopup(_root, arRssiInfo)
-            } else {
+            } else {                
                 mainWindow.hideIndicatorPopup()
-                mainWindow.showPopupDialogFromComponent(arPairGuideComponent)
+                mainWindow.showCustomMessageDialog(arPairGuideComponent)
             }
         }
     }
