@@ -590,7 +590,7 @@ QString getExternalStoragePath() {
 QString FlightZoneManager::getFilePath() {
 
     QString savePath = _settingsManager->flyViewSettings()->filePath()->rawValueString();
-    qInfo() << "FlightZoneManger savePath : " << savePath;
+    //qInfo() << "FlightZoneManger savePath : " << savePath;
 
 #ifdef Q_OS_ANDROID
     // Android에서 파일 경로
@@ -660,7 +660,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
         if(_polygons.count() == 0) { // 이미 생성되어 있음
 
             //왜 여러번 실행되는지 확인필요
-            qInfo()<< "init polygons";
+            //qInfo()<< "init polygons";
             geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
             _init();
         }
@@ -673,7 +673,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
             if(_polygons.count() == 0) { // 이미 생성되어 있음
 
                 //왜 여러번 실행되는지 확인필요
-                qInfo()<< "init polygons";
+                //qInfo()<< "init polygons";
                 geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
                 _init();
             }
@@ -770,12 +770,12 @@ void FlightZoneManager::updatePolygonVisibility() {
 }
 
 void FlightZoneManager::processJsonFile(const QString& filePath) {    
-    qInfo() << "filePath :" << filePath;
+    //qInfo() << "filePath :" << filePath;
 
     //File이 없다면 온라인에서 읽어오도록 하는게 맞을듯함
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {        
-        qWarning() << "Failed to open file:" << filePath;
+        //qWarning() << "Failed to open file:" << filePath;
         return;
     }
 
@@ -1081,7 +1081,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 }
 
 void FlightZoneManager::_init(void){
-    qInfo() << "flightZone Manager";
+    //qInfo() << "flightZone Manager";
 
     // 알람을 울릴 거리값을 가져오는 코드
     double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
@@ -1094,11 +1094,11 @@ void FlightZoneManager::_init(void){
 
     // 읽어올 파일의 저장위치를 가져온다
     QString savePath = _settingsManager->flyViewSettings()->filePath()->rawValueString();
-    qInfo() << "FlightZoneManger savePath : " << savePath;
+    //qInfo() << "FlightZoneManger savePath : " << savePath;
 
     if(dataType == "0") // USB
     {
-        qInfo() << "Make with USB dataType = " << dataType;
+        //qInfo() << "Make with USB dataType = " << dataType;
         processJsonFile(getFilePath());
     }
     else // Online
