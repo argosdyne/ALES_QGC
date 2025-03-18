@@ -767,7 +767,7 @@ ApplicationWindow {
                }
                TextEdit {
                    id:             geoAwarenessMessageText
-                   width:          criticalVehicleMessagePopup.width - criticalVehicleMessageClose.width - (ScreenTools.defaultFontPixelHeight * 2)
+                   width:          criticalVehicleMessagePopup.width - (ScreenTools.defaultFontPixelHeight * 2)
                    anchors.centerIn: parent
                    readOnly:       true
                    textFormat:     TextEdit.RichText
