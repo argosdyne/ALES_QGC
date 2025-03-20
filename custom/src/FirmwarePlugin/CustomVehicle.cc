@@ -20,7 +20,7 @@ CustomVehicle::CustomVehicle(LinkInterface*             link,
     , _escFactGroup(this)
     , _plugin(qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()))
 {
-    qInfo() << "CutomVehicle Start!!";
+  //  qInfo() << "CutomVehicle Start!!";
     connect(this, &CustomVehicle::capabilityBitsChanged, this, &CustomVehicle::supportMissionChanged);
     connect(parameterManager(), &ParameterManager::parametersReadyChanged, this, &CustomVehicle::vehicleFactChanged);
     connect(parameterManager(), &ParameterManager::parametersReadyChanged, this, &CustomVehicle::flightModesChanged);
@@ -32,10 +32,10 @@ CustomVehicle::CustomVehicle(LinkInterface*             link,
     _addFactGroup(&_escFactGroup, _escFactGroupName);
 
     if(_plugin->forceSendRC()) {
-        qInfo() << "CustomVehicle.cc forDceSendRC true";
+       // qInfo() << "CustomVehicle.cc forDceSendRC true";
         connect(_plugin, &CustomPlugin::rcChannelValuesChanged, this, &CustomVehicle::_sendRcChannelValues, Qt::UniqueConnection);
     } else {
-        qInfo() << "CustomVehicle.cc else";
+      //  qInfo() << "CustomVehicle.cc else";
         _rcChannelsTimer.setSingleShot(true);
         connect(&_rcChannelsTimer, &QTimer::timeout, this, &CustomVehicle::_rcChannelsTimeOut);
         _initRcChannelsTimer(false);
@@ -48,11 +48,11 @@ void CustomVehicle::_initRcChannelsTimer(bool lost)
 {
     _rcChannelsTimer.stop();
     if(lost) {
-        qInfo() << "_initRcChannelsTimer lost";
+       // qInfo() << "_initRcChannelsTimer lost";
         disconnect(_plugin, &CustomPlugin::rcChannelValuesChanged, this, &CustomVehicle::_sendRcChannelValues);
-        qInfo() << "CustomVehicle.cc disconnect rcChannelValuesChanged";
+       // qInfo() << "CustomVehicle.cc disconnect rcChannelValuesChanged";
     } else {
-        qInfo() << "lost is false _rcChannelTimer Start";
+        //qInfo() << "lost is false _rcChannelTimer Start";
         _rcChannelsTimer.start(2000);
         connect(this, &CustomVehicle::rcChannelsChanged, this, &CustomVehicle::_rcChannelsComing, Qt::UniqueConnection);
     }
@@ -75,7 +75,7 @@ void CustomVehicle::_rcChannelsTimeOut()
 //    _plugin->showMessage(text, SystemMessage::Warning);
     qgcApp()->toolbox()->audioOutput()->say(text);
     disconnect(this, &CustomVehicle::rcChannelsChanged, this, &CustomVehicle::_rcChannelsComing);
-    qInfo() << "CustomVehicle.cc _rcChannelsTimeout Connect";
+    //qInfo() << "CustomVehicle.cc _rcChannelsTimeout Connect";
     connect(_plugin, &CustomPlugin::rcChannelValuesChanged, this, &CustomVehicle::_sendRcChannelValues, Qt::UniqueConnection);
     _rcOnUDP = true;
     emit rcOnUDPChanged();
@@ -83,12 +83,12 @@ void CustomVehicle::_rcChannelsTimeOut()
 
 void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
-    qInfo() << "CustomVehicle.cc -> SendRcChannelValues";
+    //qInfo() << "CustomVehicle.cc -> SendRcChannelValues";
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
         mavlink_message_t msg;
         if(_plugin->slaveMode()) {
-            qInfo() << "_plugin->slaveMode()";
+            //qInfo() << "_plugin->slaveMode()";
             mavlink_msg_rc_channels_override_pack(
                 static_cast<uint8_t>(mavlink->getSystemId()),
                 static_cast<uint8_t>(mavlink->getComponentId()),
@@ -115,7 +115,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                 channels[17]
             );
         } else {
-            qInfo()<< "else slave mode";
+           // qInfo()<< "else slave mode";
             mavlink_rc_channels_t rc_channels;
             memcpy(&rc_channels.chan1_raw, channels, 18 * 2);
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
@@ -130,19 +130,19 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
         WeakLinkInterfacePtr weakLink = vehicleLinkManager()->primaryLink();
         if (!weakLink.expired()) {
             SharedLinkInterfacePtr sharedLink = weakLink.lock();
-            qInfo() << "!weakLink.expired";
+            //qInfo() << "!weakLink.expired";
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-            qInfo() << "sendMessageOnLinkThreadSafe Success";
+            //qInfo() << "sendMessageOnLinkThreadSafe Success";
         }
         else {
-            qInfo() << "weakLink.expired";
+            //qInfo() << "weakLink.expired";
         }
     }
 }
 
 QString CustomVehicle::mainLinkName()
 {
-    qInfo() << "Main Link Name ";
+    //qInfo() << "Main Link Name ";
     if (!vehicleLinkManager()->primaryLink().expired()) {
         LinkConfiguration::LinkType type = vehicleLinkManager()->primaryLink().lock()->linkConfiguration()->type();
         if(type == LinkConfiguration::TypeUdp) {
