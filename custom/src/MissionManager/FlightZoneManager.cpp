@@ -36,8 +36,6 @@
 #include <CGAL/Side_of_triangle_mesh.h>
 #include <vector>
 
-//#include <CGAL/convex_hull_3.h> //-> 이거는 쓰면 빌드오류남. 안쓰는게 좋을듯?
-
 #include <CGAL/Delaunay_triangulation_3.h>
 
 
@@ -272,17 +270,6 @@ void createPolyhedron(const std::vector<Point_3>& bottomVertices,
     qInfo(FlightZoneManagerLog) << "No Error in this time";
 
     createPolyhedron(allVertices, faces, polyhedron);
-}
-
-// Polyhedron 생성 함수
-void createPolyhedronFromDelaunay(const std::vector<Point_3>& vertices, Polyhedron& polyhedron) {
-    Delaunay dt;
-    dt.insert(vertices.begin(), vertices.end());
-    //CGAL::copy_face_graph(dt, polyhedron);
-
-    // if (!polyhedron.is_valid() || !polyhedron.is_closed()) {
-    //     throw std::runtime_error("Invalid or non-closed polyhedron.");
-    // }
 }
 
 void createPolyhedron(const std::vector<Point_3>& vertices, Polyhedron& polyhedron) {

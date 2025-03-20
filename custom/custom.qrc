@@ -44,6 +44,10 @@
         <file alias="yes.svg">res/Images/yes.svg</file>
         <file alias="CustomAppIconOutdoor.png">res/Images/argoBrandLogoBlack.png</file>
         <file alias="png/aircraftBindTip.png">res/Images/aircraftBindTip.png</file>
+		<file alias="png/error.png">res/Images/error.png</file>
+		<file alias="png/info.png">res/Images/info.png</file>
+		<file alias="png/success.png">res/Images/success.png</file>
+		<file alias="png/warning.png">res/Images/warning.png</file>
     </qresource>
     <qresource prefix="/qmlimages">
         <file alias="PaperPlane.svg">res/Images/CustomVehicleIcon.svg</file>
@@ -60,13 +64,14 @@
         <file alias="Custom/Widgets/qmldir">res/Custom/Widgets/qmldir</file>
         <file alias="Custom/Widgets/CustomDelayButton.qml">res/Custom/Widgets/CustomDelayButton.qml</file>
         <file alias="Custom/Widgets/CustomBusyIndicator.qml">res/Custom/Widgets/CustomBusyIndicator.qml</file>
+		<file alias="Custom/Widgets/CustomVehicleAttitude.qml">res/Custom/Widgets/CustomVehicleAttitude.qml</file>
     </qresource>
     <qresource prefix="/qml">
-        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/CustomFlyViewOverlay.qml</file>
+        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
         <file alias="QGroundControl/FlightDisplay/CustomCameraControl.qml">CustomCameraControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
-        <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
+        <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>		
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>
