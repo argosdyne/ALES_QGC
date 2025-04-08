@@ -504,8 +504,14 @@ void Rhythm::setParameter(const QString &paramId, const QString &paramValue, int
     char paramIdBuf[16] = {0};  // Ensure 16-byte limit
     char paramValueBuf[128] = {0};  // Ensure 128-byte limit
 
+    #ifdef _WIN32
     strncpy_s(paramIdBuf, sizeof(paramIdBuf), paramId.toUtf8().data(), _TRUNCATE);
     strncpy_s(paramValueBuf, sizeof(paramValueBuf), paramValue.toUtf8().data(), _TRUNCATE);
+    #else
+    strncpy(paramIdBuf, paramId.toUtf8().data(), sizeof(paramIdBuf) - 1);
+    paramIdBuf[sizeof(paramIdBuf) - 1] = '\0';
+    #endif
+
 
     qDebug() << "Sending MAVLink SET request with ID:" << paramIdBuf << "Value:" << paramValueBuf;
 
@@ -887,10 +893,22 @@ void Rhythm::startDetection(const QString &detection_algo) {
 
     mavlink_message_t msg;
     char param_id[16] = {0};
-    strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
-
     char param_value[128] = {0};
+
+    // strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
+    // strncpy_s(param_value, sizeof(param_value), detection_model.c_str(), _TRUNCATE);
+
+#ifdef _WIN32
+    strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
     strncpy_s(param_value, sizeof(param_value), detection_model.c_str(), _TRUNCATE);
+#else
+    strncpy(param_id, param_to_set.c_str(), sizeof(param_id) - 1);
+    param_id[sizeof(param_id) - 1] = '\0';
+
+    strncpy(param_value, detection_model.c_str(), sizeof(param_value) - 1);
+    param_value[sizeof(param_value) - 1] = '\0';
+#endif
+
 
     mavlink_msg_param_ext_set_pack(
         m_systemId, m_componentId, &msg,
@@ -908,7 +926,13 @@ void Rhythm::getDetectionStatus() {
 
     mavlink_message_t msg;
     char param_id[16] = {0};
+    // strncpy_s(param_id, sizeof(param_id), param_to_get.c_str(), _TRUNCATE);
+#ifdef _WIN32
     strncpy_s(param_id, sizeof(param_id), param_to_get.c_str(), _TRUNCATE);
+#else
+    strncpy(param_id, param_to_get.c_str(), sizeof(param_id) - 1);
+    param_id[sizeof(param_id) - 1] = '\0';
+#endif
 
     mavlink_msg_param_ext_request_read_pack(
         m_systemId, m_componentId, &msg,
@@ -928,10 +952,22 @@ void Rhythm::startTracking(const QString& track_algo) {
     // Set the parameter for the tracking algorithm
     mavlink_message_t msg;
     char param_id[16] = {0};
-    strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
-
     char param_value[128] = {0};
+
+    // strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
+    // strncpy_s(param_value, sizeof(param_value), track_model.c_str(), _TRUNCATE);
+
+#ifdef _WIN32
+    strncpy_s(param_id, sizeof(param_id), param_to_set.c_str(), _TRUNCATE);
     strncpy_s(param_value, sizeof(param_value), track_model.c_str(), _TRUNCATE);
+#else
+    strncpy(param_id, param_to_set.c_str(), sizeof(param_id) - 1);
+    param_id[sizeof(param_id) - 1] = '\0';
+
+    strncpy(param_value, track_model.c_str(), sizeof(param_value) - 1);
+    param_value[sizeof(param_value) - 1] = '\0';
+#endif
+
 
     mavlink_msg_param_ext_set_pack(
         m_systemId, m_componentId, &msg,
