@@ -35,12 +35,104 @@ Item {
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
     property bool   _hasZoom:           _camera && _camera.hasZoom
     property int    _fitMode:           QGroundControl.settingsManager.videoSettings.videoFit.rawValue
-
+    property bool detectionEnabled: GlobalResults.detectionEnabled
+    property var cameraRhythm   // <-- receive it here
+    
     function getWidth() {
         return videoBackground.getWidth()
     }
     function getHeight() {
         return videoBackground.getHeight()
+    }
+
+    MouseArea {
+            id: trackingClickArea
+            anchors.fill: parent
+            z: 3
+            hoverEnabled: true
+            acceptedButtons: Qt.AllButtons // Only accept left button
+            // enabled: true //root.detectionEnabled && QGroundControl.videoManager.decoding
+            enabled: true //GlobalResults.trackingModeActive
+            cursorShape: Qt.CrossCursor
+
+            onClicked: {
+                var normX = mouse.x / width
+                var normY = mouse.y / height
+                var radius = 0.05
+
+                console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
+
+                // Start tracking using the globally available camera
+                GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.05)
+                GlobalResults.setDetectionEnabled(false)
+                // Exit tracking mode
+                GlobalResults.trackingModeActive = false
+            }
+        }
+
+    // Tracking overlay
+    Item {
+        id: trackingOverlay
+        anchors.fill: parent
+        z: 2
+        visible: GlobalResults.trackingObjects.length > 0
+
+        Repeater {
+            id: trackingRepeater
+            model: GlobalResults.trackingObjects
+            delegate: Rectangle {
+                width: (modelData.rec_bottom_x - modelData.rec_top_x) * parent.width
+                height: (modelData.rec_bottom_y - modelData.rec_top_y) * parent.height
+                x: modelData.rec_top_x * parent.width
+                y: modelData.rec_top_y * parent.height
+
+                color: "transparent"
+                border.color: "blue"  // Tracking rectangle color
+                border.width: 2
+                z: 2 // Ensure it's on top
+            }
+        }
+    }
+
+        // Add this item to wrap your Repeater
+    Item {
+        id: detectionOverlay
+        anchors.fill: parent
+        z: 2
+        visible: root.detectionEnabled && QGroundControl.videoManager.decoding
+
+        Repeater {
+            id: bboxRepeater
+            // model: GlobalResults.detectionObjects
+
+            model: root.detectionEnabled ? GlobalResults.detectionObjects : []
+
+
+            delegate: Rectangle {
+                width: modelData.width * parent.width
+                height: modelData.height * parent.height
+                x: modelData.x * parent.width
+                y: modelData.y * parent.height
+                color: "transparent"
+                // border.color: "red"
+                border.color: GlobalResults.getColorForType(modelData.type) // Use type-specific color
+                border.width: 2
+                z: 2 // Ensure it's on top
+
+                Text {
+                    // text: `${modelData.type}, ${modelData.score.toFixed(1)}%`
+                    text: `${GlobalResults.getClassName(modelData.type)}, ${modelData.score.toFixed(1)}%`
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    // color: "white"
+                    color: GlobalResults.getColorForType(modelData.type) // Text color matches bounding box
+                    font.pixelSize: 15
+                    font.bold: true
+                    font.weight: Font.ExtraBold
+                    padding: 5
+                }
+            }
+        }
     }
 
     property double _thermalHeightFactor: 0.85 //-- TODO
