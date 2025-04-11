@@ -107,6 +107,8 @@
 #include "CustomActionManager.h"
 #include "GimbalController.h"
 #include "FlightZoneManager.h"
+#include "Rhythm/rhythm.h"
+// #include "rhythm.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -484,6 +486,8 @@ void QGCApplication::_initCommon()
     qmlRegisterUncreatableType<InstrumentValueData> (kQGroundControl,                       1, 0, "InstrumentValueData",        kRefOnly);
     qmlRegisterType<LogReplayLinkController>        (kQGroundControl,                       1, 0, "LogReplayLinkController");
     qmlRegisterType<FlightZoneManager>              (kQGCControllers,                       1, 0, "FlightZoneManager");
+    qmlRegisterType<Rhythm>                         (kQGCControllers,                       1, 0, "Rhythm");
+    qmlRegisterSingletonType(QUrl("qrc:/qml/GlobalResults.qml"), "QGroundControl",          1, 0, "GlobalResults");
 #if !defined(QGC_DISABLE_MAVLINK_INSPECTOR)
     qmlRegisterUncreatableType<MAVLinkChartController> (kQGroundControl,                    1, 0, "MAVLinkChart",               kRefOnly);
 #endif
