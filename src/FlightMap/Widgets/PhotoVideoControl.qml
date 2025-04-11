@@ -165,37 +165,37 @@ Rectangle {
         //         cameraRhythm.stopTracking();
         //     }
         // }
-        Button {
-            text: "reset"
-            onClicked:{
-                cameraRhythm.controlGimbal(0,0,0)
-            }
-        }
-        Button {
-            text: "+"
-            onClicked: {
-                // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
+        // Button {
+        //     text: "reset Gimbal"
+        //     onClicked:{
+        //         cameraRhythm.controlGimbal(0,0,0)
+        //     }
+        // }
+        // Button {
+        //     text: "+"
+        //     onClicked: {
+        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
 
-                // cameraRhythm.zoom(1, 1) // ZOOM_TYPE_STEP, zoom in
-                if (zoomLevel < maxZoom) {
-                    zoomLevel += zoomStep
-                    cameraRhythm.zoomRangeLevel(zoomLevel)
-                }
-            }
-        }
-        Button {
-            text: "-"
-            onClicked: {
-                // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
+        //         // cameraRhythm.zoom(1, 1) // ZOOM_TYPE_STEP, zoom in
+        //         if (zoomLevel < maxZoom) {
+        //             zoomLevel += zoomStep
+        //             cameraRhythm.zoomRangeLevel(zoomLevel)
+        //         }
+        //     }
+        // }
+        // Button {
+        //     text: "-"
+        //     onClicked: {
+        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
 
-                // cameraRhythm.zoom(1, -1) // ZOOM_TYPE_STEP, zoom in
+        //         // cameraRhythm.zoom(1, -1) // ZOOM_TYPE_STEP, zoom in
 
-                if (zoomLevel > minZoom) {
-                    zoomLevel -= zoomStep
-                    cameraRhythm.zoomRangeLevel(zoomLevel)
-                }
-            }
-        }
+        //         if (zoomLevel > minZoom) {
+        //             zoomLevel -= zoomStep
+        //             cameraRhythm.zoomRangeLevel(zoomLevel)
+        //         }
+        //     }
+        // }
         // Button {
         //     text: "Resolution"
         //     onClicked: {
