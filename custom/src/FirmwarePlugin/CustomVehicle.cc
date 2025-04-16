@@ -62,6 +62,9 @@ void CustomVehicle::_rcChannelsComing()
 {
     if(_rcChannelsTimer.remainingTime() < 1000 && !_plugin->forceSendRC()) {
         disconnect(this, &CustomVehicle::rcChannelsChanged, this, &CustomVehicle::_rcChannelsComing);
+
+        connect(_plugin, &CustomPlugin::rcChannelValuesChanged, this, &CustomVehicle::_sendRcChannelValues, Qt::UniqueConnection);
+
         _rcChannelsTimer.stop();
         _rcOnUDP = false;
         emit rcOnUDPChanged();
