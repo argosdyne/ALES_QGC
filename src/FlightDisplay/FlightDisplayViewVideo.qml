@@ -45,31 +45,6 @@ Item {
         return videoBackground.getHeight()
     }
 
-    MouseArea {
-            id: trackingClickArea
-            anchors.fill: parent
-            z: 3
-            hoverEnabled: true
-            acceptedButtons: Qt.AllButtons // Only accept left button
-            // enabled: true //root.detectionEnabled && QGroundControl.videoManager.decoding
-            enabled: true //GlobalResults.trackingModeActive
-            cursorShape: Qt.CrossCursor
-
-            onClicked: {
-                var normX = mouse.x / width
-                var normY = mouse.y / height
-                var radius = 0.05
-
-                console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
-
-                // Start tracking using the globally available camera
-                GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.05)
-                GlobalResults.setDetectionEnabled(false)
-                // Exit tracking mode
-                GlobalResults.trackingModeActive = false
-            }
-        }
-
     // Tracking overlay
     Item {
         id: trackingOverlay

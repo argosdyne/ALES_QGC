@@ -165,12 +165,12 @@ Rectangle {
         //         cameraRhythm.stopTracking();
         //     }
         // }
-        // Button {
-        //     text: "reset Gimbal"
-        //     onClicked:{
-        //         cameraRhythm.controlGimbal(0,0,0)
-        //     }
-        // }
+        Button {
+            text: "reset Gimbal"
+            onClicked:{
+                cameraRhythm.controlGimbal(0,0,0)
+            }
+        }
         // Button {
         //     text: "+"
         //     onClicked: {

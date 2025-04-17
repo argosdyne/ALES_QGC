@@ -1010,7 +1010,7 @@ bool Rhythm::trackPoint(float x, float y, float radius) {
 
     // Send the message
     sendMavlinkMessage(msg);
-    qDebug() << "Starting point tracking at x:" << x << "y:" << y << "radius:" << radius;
+    // qDebug() << "Starting point tracking at x:" << x << "y:" << y << "radius:" << radius;
     // Update tracking state
     m_isTracking = true;
     emit trackingStateChanged();

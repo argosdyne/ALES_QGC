@@ -42,6 +42,30 @@ Item {
         }
     }
 
+    MouseArea {
+            id: trackingClickArea
+            anchors.fill: parent
+            z: 1
+            hoverEnabled: true
+            acceptedButtons: Qt.AllButtons
+            enabled: true
+            // cursorShape: Qt.CrossCursor
+
+            onDoubleClicked: {
+                var normX = mouse.x / width
+                var normY = mouse.y / height
+                var radius = 0.1
+
+                console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
+
+                // Start tracking using the globally available camera
+                GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.1)
+                GlobalResults.setDetectionEnabled(false)
+                // Exit tracking mode
+                GlobalResults.trackingModeActive = false
+            }
+        }
+
     Timer {
         id:           videoStartDelay
         interval:     2000;
