@@ -1073,8 +1073,8 @@ void FlightZoneManager::_init(void){
     //qInfo() << "flightZone Manager";
 
     // 알람을 울릴 거리값을 가져오는 코드
-    double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
-    qInfo(FlightZoneManagerLog)<< "FlightZoneManager alarmDistance : " << alarmDistance;
+    //double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
+    //qInfo(FlightZoneManagerLog)<< "FlightZoneManager alarmDistance : " << alarmDistance;
 
     // 읽어올 파일의 타입을 정하는 코드
     //Index 번호를 가져오는 듯함 0 = USB, 1 = Online
