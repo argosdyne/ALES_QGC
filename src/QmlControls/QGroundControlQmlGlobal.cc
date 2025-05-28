@@ -262,7 +262,7 @@ void QGroundControlQmlGlobal::setFlightMapZoom(double zoom)
 QString QGroundControlQmlGlobal::qgcVersion(void) const
 {
     //QString versionStr = qgcApp()->applicationVersion();
-    QString versionStr = "v1.0.3";
+    QString versionStr = "v1.0.4";
 #ifdef __androidArm32__
     versionStr += QStringLiteral(" %1").arg(tr("32 bit"));
 #elif __androidArm64__
