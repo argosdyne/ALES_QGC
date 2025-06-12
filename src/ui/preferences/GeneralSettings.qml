@@ -761,7 +761,7 @@ Rectangle {
                             }
                             QGCButton {
                                 text:       qsTr("Browse")
-                                onClicked:  savePathBrowseDialog.openForLoad()
+                                onClicked:  savePathBrowseDialog.geoAwarenessOpenForLoad()
                                 QGCFileDialog {
                                     id:             savePathBrowseDialog
                                     title:          qsTr("Choose the location to save/load files")

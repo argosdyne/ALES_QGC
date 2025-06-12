@@ -27,13 +27,24 @@ Item {
     function openForLoad() {
         _openForLoad = true
 
+        //androidFileDialog.open()
+
+        if (_mobileDlg && folder.length !== 0) {
+            mobileFileOpenDialogComponent.createObject(mainWindow).open()
+        } else {
+            fullFileDialog.open()
+        }
+        if (_mobileDlg && folder.length !== 0) {
+            mainWindow.showComponentDialog(mobileFileOpenDialog, title, mainWindow.showDialogDefaultWidth, StandardButton.Cancel)
+        } else {
+            fullFileDialog.open()
+        }
+    }
+
+    function geoAwarenessOpenForLoad() {
+        _openForLoad = true
 
         androidFileDialog.open()
-        // if (_mobileDlg && folder.length !== 0) {
-        //     mainWindow.showComponentDialog(mobileFileOpenDialog, title, mainWindow.showDialogDefaultWidth, StandardButton.Cancel)
-        // } else {
-        //     fullFileDialog.open()
-        // }
     }
 
     function openForSave() {
