@@ -14,6 +14,8 @@
 #include "MissionItem.h"
 #include "FirmwarePluginManager.h"
 #include "QGCApplication.h"
+#include "QGCToolbox.h"
+#include "SettingsManager.h"
 #include "JsonHelper.h"
 #include "VisualMissionItem.h"
 
@@ -48,7 +50,11 @@ MissionItem::MissionItem(QObject* parent)
 {
     // Need a good command and frame before we start passing signals around
     _commandFact.setRawValue(MAV_CMD_NAV_WAYPOINT);
-    _frameFact.setRawValue(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+    _frameFact.setRawValue(qgcApp()->toolbox()->settingsManager()->appSettings()->defaultMissionAltitudeSetting()->rawValue().toDouble()); // Here
+
+    // Get Data Like this
+    qInfo()<< "MissionItem.cc :: "<< qgcApp()->toolbox()->settingsManager()->appSettings()->defaultMissionAltitudeSetting()->rawValue().toDouble();;
+
 
     setAutoContinue(true);
 
@@ -86,7 +92,7 @@ MissionItem::MissionItem(int             sequenceNumber,
 {
     // Need a good command and frame before we start passing signals around
     _commandFact.setRawValue(MAV_CMD_NAV_WAYPOINT);
-    _frameFact.setRawValue(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+    _frameFact.setRawValue(qgcApp()->toolbox()->settingsManager()->appSettings()->defaultMissionAltitudeSetting()->rawValue().toDouble());
 
     setCommand(command);
     setFrame(frame);
@@ -121,7 +127,7 @@ MissionItem::MissionItem(const MissionItem& other, QObject* parent)
 {
     // Need a good command and frame before we start passing signals around
     _commandFact.setRawValue(MAV_CMD_NAV_WAYPOINT);
-    _frameFact.setRawValue(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+    _frameFact.setRawValue(qgcApp()->toolbox()->settingsManager()->appSettings()->defaultMissionAltitudeSetting()->rawValue().toDouble());
 
     *this = other;
 

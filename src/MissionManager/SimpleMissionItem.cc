@@ -700,7 +700,8 @@ void SimpleMissionItem::_altitudeModeChanged(void)
         _missionItem.setFrame(MAV_FRAME_GLOBAL);
         break;
     case QGroundControlQmlGlobal::AltitudeModeRelative:
-        _missionItem.setFrame(MAV_FRAME_GLOBAL_RELATIVE_ALT);
+        qInfo()<< "AltitudeModeRelative Change Function";
+        //_missionItem.setFrame(MAV_FRAME_GLOBAL_RELATIVE_ALT); // This Command Change Default Mode
         break;
     case QGroundControlQmlGlobal::AltitudeModeNone:
         qWarning() << "Internal Error SimpleMissionItem::_altitudeModeChanged: Invalid altitudeMode == AltitudeModeNone";

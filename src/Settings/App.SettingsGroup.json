@@ -80,6 +80,16 @@
     "decimalPlaces":    1
 },
 {
+    "name": "defaultMissionAltitudeSetting",
+    "shortDesc" : "Default value for mission altitude setting",
+    "longDesc" : "This value can choose mission altitude type Terrain or Relative",
+    "type": "uint32",
+    "enumStrings": "Terrain Follow, Relative",
+    "enumValues": "10,3",
+    "default": 10,
+    "qgcRebootRequired": true
+},
+{
     "name":             "telemetrySave",
     "shortDesc": "Save telemetry Log after each flight",
     "longDesc":  "If this option is enabled a telemetry will be saved after each flight completes.",
