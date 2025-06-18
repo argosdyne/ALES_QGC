@@ -61,7 +61,7 @@ bool Rhythm::setup(const QString& cameraIp, int port)
     // Start checking connection
     m_connectionTimer.start();
 
-    qDebug() << "Camera connection setup initiated to" << m_cameraAddress.toString() << ":" << m_cameraPort;
+    //qDebug() << "Camera connection setup initiated to" << m_cameraAddress.toString() << ":" << m_cameraPort;
     return true;
 }
 

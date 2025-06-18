@@ -414,6 +414,7 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
 }
 void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMessageType type)
 {
+    qInfo() << "Show Message : "<< message;
     if(_qmlInterface) {
         _qmlInterface->showMessage(message, type);
     }

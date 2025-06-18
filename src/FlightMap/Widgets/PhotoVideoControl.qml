@@ -125,7 +125,7 @@ Rectangle {
         running: _rhythmCameraEnabled && !_rhythmCameraConnected
 
         onTriggered: {
-            console.log("Retrying Rhythm camera connection...")
+            //console.log("Retrying Rhythm camera connection...")
             cameraRhythm.setup("192.168.2.119", 14551)
         }
     }

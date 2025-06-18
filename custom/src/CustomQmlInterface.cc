@@ -15,6 +15,40 @@ CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
     // We clear the parent on this object since we run into shutdown problems caused by hybrid qml app. Instead we let it leak on shutdown.
     setParent(nullptr);
     setToolbox(toolbox);
+
+    //Check latest map cache update date & time
+    //showMapUpdateDate();
+
+    QString msg = "Please download the map of the flight\n area, currently only loading 10%.";
+    //showMessage(msg, SystemMessage::Error);
+    qInfo() << "CusstomQmlInterface showmessage";
+
+
+
+    QTimer::singleShot(3000, this, SLOT(showMapUpdateDate()));
+
+}
+static const char* kDbFileName = "qgcMapCache.db";
+#define CACHE_PATH_VERSION  "300"
+
+void CustomQmlInterface::showMapUpdateDate(){
+#ifdef __mobile__
+    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)      + QLatin1String("/QGCMapCache" CACHE_PATH_VERSION);
+#else
+    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + QStringLiteral("/QGCMapCache" CACHE_PATH_VERSION);
+#endif
+    _cachePath = cacheDir;
+    if(!_cachePath.isEmpty()) {
+        _cacheFile = kDbFileName;
+    }
+
+    QString fullCachePath = _cachePath + "/" + _cacheFile;
+    QFileInfo cacheFileInfo(fullCachePath);
+    if (cacheFileInfo.exists()) {
+        QDateTime lastModified = cacheFileInfo.lastModified();
+        QString msg = "Map tiles updated at " + lastModified.toString();
+        showMessage(msg, SystemMessage::Info);
+    }
 }
 
 CustomQmlInterface::~CustomQmlInterface()
@@ -165,7 +199,7 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     opacityAnimation->start();
 
     _timer.setSingleShot(true);
-    connect(&_timer, &QTimer::timeout, this, &SystemMessage::startCloseItstyle);
+    connect(&_timer, &QTimer::timeout, this, &SystemMessage::startCloseItstyle);    
 }
 
 QPropertyAnimation* SystemMessage::createYAnimation(QVariant from, QVariant to)
@@ -247,8 +281,8 @@ void SystemMessage::setType(const SystemMessageType &type)
     _type = type;
     if(_timer.isActive()) _timer.stop();
     if(type == SystemMessageType::Error) {
-        _timer.start(10000);
-    } else _timer.start(5000);
+        _timer.start(20000);
+    } else _timer.start(15000);
 }
 
 void SystemMessage::setOpacity(const float &opacity)

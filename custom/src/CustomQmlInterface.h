@@ -122,6 +122,7 @@ public slots:
      */
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
     void handleCustomButtonFunction(int type, bool pressed);
+    void showMapUpdateDate();
 
 private slots:
     void _slaveModeChanged(bool slaveMode);
@@ -142,4 +143,6 @@ private:
 
     float _defaultFontPixelHeight{16.0f};
     float _defaultFontPixelWidth{10.0f};
+    QString                 _cachePath;
+    QString                 _cacheFile;
 };
