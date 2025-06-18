@@ -456,18 +456,7 @@ Rectangle {
                                 FactTextField {
                                     Layout.preferredWidth:  _valueFieldWidth
                                     fact:                   QGroundControl.settingsManager.planViewSettings.vtolTransitionDistance
-                                }
-
-                                QGCLabel { text:       qsTr("Mission Altitude Setting") }
-
-                                FactComboBox {
-                                    //id:                     forceVideoDecoderComboBox
-                                    Layout.preferredWidth:  _comboFieldWidth
-                                    fact:                   QGroundControl.settingsManager.appSettings.defaultMissionAltitudeSetting
-                                    visible:                fact.visible
-                                    indexModel:             false
-                                }
-
+                                }                            
                             }
 
                             FactCheckBox {
