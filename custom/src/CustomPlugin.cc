@@ -404,6 +404,7 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
     QQmlApplicationEngine* qmlEngine = QGCCorePlugin::createQmlApplicationEngine(parent);
     qmlEngine->addImportPath("qrc:/Custom/Widgets");
     _qmlInterface = new CustomQmlInterface(qgcApp(), qgcApp()->toolbox());
+    CustomQmlInterface::setInstance(_qmlInterface);
     qmlEngine->rootContext()->setContextProperty("CustomQmlInterface", _qmlInterface);
 
     if(_aviatorInterface) {

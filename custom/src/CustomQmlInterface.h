@@ -104,6 +104,10 @@ public:
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;
+    static CustomQmlInterface* instance();
+    static void setInstance(CustomQmlInterface*);
+
+    explicit CustomQmlInterface(QObject* parent = nullptr);
 
 signals:
     void coachWaypointTigger(bool start);
@@ -145,4 +149,8 @@ private:
     float _defaultFontPixelWidth{10.0f};
     QString                 _cachePath;
     QString                 _cacheFile;
+    QGCApplication*         _app;
+    static CustomQmlInterface* _instance;
+    QString errorMessage = "";
+    QSet<QString> _shownMessages;
 };

@@ -52,7 +52,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QFile>
 #include "TerrainTile.h"
-
+#include "CustomQmlInterface.h"
 int         QGeoTiledMapReplyQGC::_requestCount = 0;
 QByteArray  QGeoTiledMapReplyQGC::_bingNoTileImage;
 
@@ -121,10 +121,12 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
 {
     _timer.stop();
     if (!_reply) {
+        CustomQmlInterface::instance()->showMessage("Please download the map of the flight area.", SystemMessage::Error);
         emit aborted();
         return;
     }
     if (_reply->error() != QNetworkReply::NoError) {
+        CustomQmlInterface::instance()->showMessage("Please download the map of the flight area.", SystemMessage::Error);
         emit aborted();
         return;
     }
@@ -150,6 +152,7 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             // and error out so Qt will deal with zooming correctly even if it doesn't have the tile.
             // This allows us to zoom up to level 23 even though the tiles don't actually exist
             //setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
+            CustomQmlInterface::instance()->showMessage("Please download the map of the flight area.", SystemMessage::Error);
         } else {
             //-- This is a map tile. Process and cache it if valid.
             setMapImageData(a);
@@ -194,6 +197,7 @@ QGeoTiledMapReplyQGC::cacheError(QGCMapTask::TaskType type, QString /*errorStrin
             emit terrainDone(QByteArray(), QNetworkReply::NetworkSessionFailedError);
         } else {
             setError(QGeoTiledMapReply::CommunicationError, "Network not available");
+            CustomQmlInterface::instance()->showMessage("Please download the map of the flight area.", SystemMessage::Error);
             setFinished(true);
         }
     } else {

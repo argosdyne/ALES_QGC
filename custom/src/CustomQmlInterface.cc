@@ -55,6 +55,15 @@ CustomQmlInterface::~CustomQmlInterface()
 {
 }
 
+CustomQmlInterface* CustomQmlInterface::_instance = nullptr;
+
+CustomQmlInterface* CustomQmlInterface::instance() {
+    return _instance;
+}
+void CustomQmlInterface::setInstance(CustomQmlInterface* instance) {
+    _instance = instance;
+}
+
 void CustomQmlInterface::setToolbox(QGCToolbox* toolbox)
 {
     QGCTool::setToolbox(toolbox);
@@ -128,12 +137,37 @@ void CustomQmlInterface::_slaveModeChanged(bool slaveMode)
 
 void CustomQmlInterface::showMessage(const QString& message, SystemMessage::SystemMessageType type)
 {
+    static bool mapMessageShown = false;
+    if (message.contains("Please download the map")) {
+        if (mapMessageShown)
+            return;
+        mapMessageShown = true;
+    }
+
     SystemMessage* m = new SystemMessage(this);
     m->setContext(message);
     m->setType(type);
-    if(type != SystemMessage::SystemMessageType::Warning && type != SystemMessage::SystemMessageType::Error) {
-        while (_normalSystemMessages.count() >= 5) _normalSystemMessages.first()->closeItstyle();
+
+    if (message.contains("Please download the map")) {
         _normalSystemMessages.append(m);
+    }
+    else if (type != SystemMessage::SystemMessageType::Warning && type != SystemMessage::SystemMessageType::Error) {
+        bool alreadyExists = false;
+        for (SystemMessage* existing : _normalSystemMessages) {
+            if (existing->context() == message) {
+                alreadyExists = true;
+                break;
+            }
+        }
+        if (!alreadyExists) {
+            while (_normalSystemMessages.count() >= 5) {
+                _normalSystemMessages.first()->closeItstyle();
+            }
+            _normalSystemMessages.append(m);
+        } else {
+            m->deleteLater();
+            return;
+        }
     }
     _systemMessages.append(m);
     _refreshSystemMessageUI(true);
@@ -242,7 +276,7 @@ QString SystemMessage::icon() const
     switch (_type) {
     case SystemMessageType::Info:
         return QString("qrc:/custom/img/png/info.png");
-    case SystemMessageType::Error:
+    case SystemMessageType::Error:    
         return QString("qrc:/custom/img/png/error.png");
     case SystemMessageType::Warning:
         return QString("qrc:/custom/img/png/warning.png");
@@ -258,7 +292,7 @@ QString SystemMessage::color() const
     switch (_type) {
     case SystemMessageType::Info:
         return QString("#00DA90");
-    case SystemMessageType::Error:
+    case SystemMessageType::Error:    
         return QString("red");
     case SystemMessageType::Warning:
         return QString("#FFC21E");
@@ -280,8 +314,10 @@ void SystemMessage::setType(const SystemMessageType &type)
 {
     _type = type;
     if(_timer.isActive()) _timer.stop();
-    if(type == SystemMessageType::Error) {
-        _timer.start(20000);
+    if(_context.contains("Please download the map")){
+    }
+    else if(type == SystemMessageType::Error) {
+        _timer.start(20000);    
     } else _timer.start(15000);
 }
 
