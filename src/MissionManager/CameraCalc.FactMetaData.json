@@ -68,6 +68,22 @@
     "min":              0,
     "units":            "m",
     "default":          25
+},
+{
+    "name":             "YellowScanFOV",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "min":              0,
+    "units":            "deg",
+    "default":          90
+},
+{
+    "name":             "YellowScanOverlap",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "min":              0,
+    "units":            "%",
+    "default":          50
 }
 ]
 }

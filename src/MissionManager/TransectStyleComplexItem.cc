@@ -55,6 +55,7 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
     , _terrainAdjustMaxClimbRateFact    (settingsGroup, _metaDataMap[terrainAdjustMaxClimbRateName])
     , _terrainAdjustMaxDescentRateFact  (settingsGroup, _metaDataMap[terrainAdjustMaxDescentRateName])
 {
+    _cameraCalc.setTransectItem(this);
     _terrainPolyPathQueryTimer.setInterval(qgcApp()->runningUnitTests() ? 10 : _terrainQueryTimeoutMsecs);
     _terrainPolyPathQueryTimer.setSingleShot(true);
     connect(&_terrainPolyPathQueryTimer, &QTimer::timeout, this, &TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo);
@@ -400,9 +401,101 @@ bool TransectStyleComplexItem::hoverAndCaptureAllowed(void) const
 {
     return _controllerVehicle->multiRotor() || _controllerVehicle->vtol();
 }
+void TransectStyleComplexItem::replaceSpacing(void){
+    qInfo() << "replaceSpacing";
+    if (_ignoreRecalc) {
+        return;
+    }
+
+    _transects.clear();
+    _rgPathHeightInfo.clear();
+    _rgFlightPathCoordInfo.clear();
+
+    _rebuildTransectsPhase1();
+
+    _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
+
+    switch (_cameraCalc.distanceMode()) {
+    case QGroundControlQmlGlobal::AltitudeModeMixed:
+    case QGroundControlQmlGlobal::AltitudeModeNone:
+        qCWarning(TransectStyleComplexItemLog) << "Internal Error: _rebuildTransects - invalid _cameraCalc.distanceMode()" << _cameraCalc.distanceMode();
+        return;
+    case QGroundControlQmlGlobal::AltitudeModeRelative:
+    case QGroundControlQmlGlobal::AltitudeModeAbsolute:
+    case QGroundControlQmlGlobal::AltitudeModeTerrainFrame:
+        // Terrain height not needed to calculate path, as TerrainFrame specifies a fixed altitude over terrain, doesn't need to know the actual terrain height
+        // so vehicle is responsible for having or not this altitude calculation, so we can build the flight path right away.
+        _buildFlightPathCoordInfoFromTransects();
+        break;
+    case QGroundControlQmlGlobal::AltitudeModeCalcAboveTerrain:
+        // Query the terrain data. Once available flight path will be calculated, as on this mode QGC actually calculates the individual altitude for each waypoint
+        // having into account terrain data.
+        _queryTransectsPathHeightInfo();
+        break;
+    }
+
+    // Calc bounding cube
+    double north = 0.0;
+    double south = 180.0;
+    double east  = 0.0;
+    double west  = 360.0;
+    double bottom = 100000.;
+    double top = 0.;
+    // Generate the visuals transect representation
+    _visualTransectPoints.clear();
+    for (const QList<CoordInfo_t>& transect: _transects) {
+        for (const CoordInfo_t& coordInfo: transect) {
+            _visualTransectPoints.append(QVariant::fromValue(coordInfo.coord));
+            double lat = coordInfo.coord.latitude()  + 90.0;
+            double lon = coordInfo.coord.longitude() + 180.0;
+            north   = fmax(north, lat);
+            south   = fmin(south, lat);
+            east    = fmax(east,  lon);
+            west    = fmin(west,  lon);
+            bottom  = fmin(bottom, coordInfo.coord.altitude());
+            top     = fmax(top, coordInfo.coord.altitude());
+        }
+    }
+    //-- Update bounding cube for airspace management control
+    _setBoundingCube(QGCGeoBoundingCube(
+        QGeoCoordinate(north - 90.0, west - 180.0, bottom),
+        QGeoCoordinate(south - 90.0, east - 180.0, top)));
+    emit visualTransectPointsChanged();
+
+    _coordinate = _visualTransectPoints.count() ? _visualTransectPoints.first().value<QGeoCoordinate>() : QGeoCoordinate();
+    _exitCoordinate = _visualTransectPoints.count() ? _visualTransectPoints.last().value<QGeoCoordinate>() : QGeoCoordinate();
+    emit coordinateChanged(_coordinate);
+    emit exitCoordinateChanged(_exitCoordinate);
+
+    if (_isIncomplete) {
+        _isIncomplete = false;
+        emit isIncompleteChanged();
+    }
+
+    _recalcComplexDistance();
+    _recalcCameraShots();
+
+    emit lastSequenceNumberChanged(lastSequenceNumber());
+    emit timeBetweenShotsChanged();
+    emit additionalTimeDelayChanged();
+
+    emit minAMSLAltitudeChanged();
+    emit maxAMSLAltitudeChanged();
+
+    emit _updateFlightPathSegmentsSignal();
+    _amslEntryAltChanged();
+    _amslExitAltChanged();
+}
 
 void TransectStyleComplexItem::_rebuildTransects(void)
 {
+    qInfo() << "rebuildTransects";
+    qInfo() << "_cameraBrand = " << _cameraCalc._cameraBrand;
+    if(_cameraCalc._cameraBrand == "Yellow Scan"){
+        qInfo() << "transects is ys lidar";
+        return;
+    }
+
     if (_ignoreRecalc) {
         return;
     }

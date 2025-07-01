@@ -119,6 +119,8 @@ public:
     static const char* terrainAdjustMaxClimbRateName;
     static const char* terrainAdjustMaxDescentRateName;
 
+    void replaceSpacing (void);
+
 signals:
     void cameraShotsChanged             (void);
     void timeBetweenShotsChanged        (void);

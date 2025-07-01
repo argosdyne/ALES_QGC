@@ -119,25 +119,197 @@ Column {
         columnSpacing:  _margin
         rowSpacing:     _margin
         columns:        2
-        visible:        cameraCalc.isManualCamera
+        visible: {
+            var visibleState = cameraCalc.isManualCamera
+            if (cameraCalc.cameraBrand.includes("Yellow Scan")) {
+                console.log("Yellow Scan camera detected")
+                ysGrid.visible = true
+                ysAltitudeCheckbox.visible = true
+                ysSpacingCheckbox.visible = true
+                ysCalcBtn.visible = true
+                triggerDistLabel.visible = false
+                ysDistanceLabel.visible = false
+                triggerDistTextField.visible = false
+                columns = 3
+                if(ysAltitudeCheckbox.checked === true){
+                    altitudeFactTextField.enabled = true
+                }
+                else {
+                    altitudeFactTextField.enabled = false
+                }
+                if(ysSpacingCheckbox.checked === true){
+                    spacingTextField.enabled = true
+                }
+                else {
+                    spacingTextField.enabled = false
+                }
+                if(ysOverlapCheckbox.checked === true){
+                    overlapTextField.enabled = true
+                }
+                else {
+                    overlapTextField.enabled = false
+                }
+                if(ysFOVCheckbox.checked === true){
+                    fovTextField.enabled = true
+                }
+                else {
+                    fovTextField.enabled = false
+                }
+            }
+            else {
+                ysGrid.visible = false
+                ysAltitudeCheckbox.visible = false
+                ysSpacingCheckbox.visible = false
+                ysDistanceLabel.visible = false
+                ysCalcBtn.visible = false
+                altitudeFactTextField.enabled = true
+                spacingTextField.enabled = true
+
+                triggerDistLabel.visible = true
+                triggerDistTextField.visible = true
+
+                cameraCalc.calcSpacing();
+                columns = 2
+            }
+
+            console.log(cameraCalc.cameraBrand);
+            return visibleState
+        }
+
 
         QGCLabel { text: distanceToSurfaceLabel }
+
+        FactCheckBox {
+            Layout.fillWidth:  true
+            id:             ysAltitudeCheckbox
+            fact:           cameraCalc.isYSAltitudeUse
+            visible:  true
+
+            onCheckedChanged: {
+                if(checked) {
+                    altitudeFactTextField.enabled = true
+                }
+                else {
+                    altitudeFactTextField.enabled = false
+                }
+            }
+        }
+
         AltitudeFactTextField {
+            id:                         altitudeFactTextField
             fact:                       cameraCalc.distanceToSurface
             altitudeMode:               cameraCalc.distanceMode
             Layout.fillWidth:           true
         }
 
-        QGCLabel { text: frontalDistanceLabel }
+        QGCLabel { id: triggerDistLabel; text: frontalDistanceLabel }
+        QGCLabel { id: ysDistanceLabel }
         FactTextField {
+            id:                 triggerDistTextField
             Layout.fillWidth:   true
             fact:               cameraCalc.adjustedFootprintFrontal
         }
 
         QGCLabel { text: sideDistanceLabel }
+
+        FactCheckBox {
+            Layout.fillWidth:  true
+            id:             ysSpacingCheckbox
+            fact:           cameraCalc.isYSSpacingUse
+            visible:  true
+
+            onCheckedChanged: {
+                if(checked){
+                    spacingTextField.enabled = true
+                }
+                else {
+                    spacingTextField.enabled = false
+                }
+            }
+        }
+
         FactTextField {
+            id: spacingTextField
             Layout.fillWidth:   true
             fact:               cameraCalc.adjustedFootprintSide
         }
     } // GridLayout
+
+    //Only for Yellow Scan Lidar
+    GridLayout {
+        id: ysGrid
+        anchors.left: parent.left
+        anchors.right: parent.right
+        columnSpacing: _margin
+        rowSpacing: _margin
+        columns: 3
+        visible : cameraCalc.isYSLidar
+
+        QGCLabel { text: "Yellow Scan Overlap" }
+
+        FactCheckBox {
+            Layout.fillWidth:  true
+            id:             ysOverlapCheckbox
+            fact:           cameraCalc.isYSOverlapUse
+            visible:  true
+
+            onCheckedChanged: {
+                if(checked){
+                    overlapTextField.enabled = true
+                }
+                else {
+                    overlapTextField.enabled = false
+                }
+            }
+        }
+
+        FactTextField {
+            id: overlapTextField
+            Layout.fillWidth:  true
+            fact: cameraCalc.yellowScanOverlapFact
+        }
+
+        QGCLabel { text: "Yellow Scan FOV" }
+
+        FactCheckBox {
+            id: ysFOVCheckbox
+            Layout.fillWidth:  true
+            fact:           cameraCalc.isYSFOVuse
+            visible:  true
+
+            onCheckedChanged: {
+                if(checked){
+                    fovTextField.enabled = true
+                }
+                else {
+                    fovTextField.enabled = false
+                }
+            }
+        }
+
+        FactTextField {
+            id: fovTextField
+            Layout.fillWidth: true
+            fact: cameraCalc.yellowScanFOVFact
+        }
+    }
+    QGCButton {
+        id: ysCalcBtn
+        anchors.left: parent.left
+        text:                       qsTr("Calculate")
+        width:                      ScreenTools.defaultFontPixelWidth * 15
+        anchors.horizontalCenter:   parent.horizontalCenter
+
+        property int checkedCount: (ysAltitudeCheckbox.checked ? 1 : 0)
+                                  + (ysSpacingCheckbox.checked ? 1 : 0)
+                                  + (ysOverlapCheckbox.checked ? 1 : 0)
+                                  + (ysFOVCheckbox.checked ? 1 : 0)
+
+        enabled: { if(checkedCount === 3){ return true } else { return false } }
+
+        onClicked: {
+            cameraCalc.calculate();
+        }
+
+    }
 } // Column

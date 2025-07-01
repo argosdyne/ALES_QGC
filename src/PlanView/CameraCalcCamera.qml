@@ -51,9 +51,17 @@ ColumnLayout {
             id:                 cameraModelCombo
             Layout.fillWidth:   true
             model:              cameraCalc.cameraModelList
-            visible:            !cameraCalc.isManualCamera && !cameraCalc.isCustomCamera
+            //visible:            !cameraCalc.isManualCamera && !cameraCalc.isCustomCamera
             onModelChanged:     selectCurrentModel()
             onActivated:        cameraCalc.cameraModel = currentText
+            visible: {
+                var visibleState = !cameraCalc.isManualCamera && !cameraCalc.isCustomCamera
+                if (cameraCalc.cameraBrand.includes("Yellow Scan")) {
+                    console.log("Yellow Scan camera detected")
+                    visibleState = true
+                }
+                return visibleState
+            }
 
             Connections {
                 target:                 cameraCalc

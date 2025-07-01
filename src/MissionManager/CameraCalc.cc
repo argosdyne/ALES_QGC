@@ -13,6 +13,8 @@
 #include "CameraMetaData.h"
 #include "PlanMasterController.h"
 
+#include "TransectStyleComplexItem.h"
+
 #include <QQmlEngine>
 
 const char* CameraCalc::cameraNameName                  = "CameraName";
@@ -28,6 +30,10 @@ const char* CameraCalc::adjustedFootprintSideName       = "AdjustedFootprintSide
 const char* CameraCalc::_jsonCameraSpecTypeKeyDeprecated            = "CameraSpecType";
 const char* CameraCalc::_jsonDistanceToSurfaceRelativeKeyDeprecated = "DistanceToSurfaceRelative";
 
+//Yellow Scan
+const char* CameraCalc::yellowScanFOVFactName           = "YellowScanFOV";
+const char* CameraCalc::yellowScanOverlapName           = "YellowScanOverlap";
+
 CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& settingsGroup, QObject* parent)
     : CameraSpec                    (settingsGroup, parent)
     , _distanceMode                 (masterController->missionController()->globalAltitudeModeDefault())
@@ -41,6 +47,9 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     , _sideOverlapFact              (settingsGroup, _metaDataMap[sideOverlapName])
     , _adjustedFootprintSideFact    (settingsGroup, _metaDataMap[adjustedFootprintSideName])
     , _adjustedFootprintFrontalFact (settingsGroup, _metaDataMap[adjustedFootprintFrontalName])
+    , _yellowScanFact               (settingsGroup, _metaDataMap[cameraNameName])
+    , _yellowScanFOVFact            (settingsGroup, _metaDataMap[yellowScanFOVFactName])
+    , _yellowScanOverlapFact        (settingsGroup, _metaDataMap[yellowScanOverlapName])
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
@@ -57,6 +66,24 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::_cameraNameChanged);
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::isManualCameraChanged);
     connect(&_cameraNameFact, &Fact::valueChanged, this, &CameraCalc::isCustomCameraChanged);
+
+    //Yellow Scan
+    connect(&_yellowScanFact,               &Fact::valueChanged,                this, &CameraCalc::isYSLidarChanged);
+    connect(&_yellowScanFact,               &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_yellowScanFOVFact,            &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_yellowScanOverlapFact,        &Fact::valueChanged,                this, &CameraCalc::_setDirty);    
+
+    //Checkbox
+    connect(&_yellowScanAltitude,           & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanSpacing,            & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanOverlap,            & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanFOV,                & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+
+    //Enable Check
+    //connect(&_yellowScanAltitudeEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanSpacingEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanOverlapEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
+    connect(&_yellowScanFOVEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
 
     connect(&_distanceToSurfaceFact,    &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
     connect(&_imageDensityFact,         &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
@@ -83,6 +110,118 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     _setBrandModelFromCanonicalName(_cameraNameFact.rawValue().toString());
 
     setDirty(false);
+
+    //Checkbox default value
+    qInfo() << "Checkbox default value";
+    _yellowScanAltitude.setRawValue(true);
+    _yellowScanOverlap.setRawValue(true);
+    _yellowScanFOV.setRawValue(true);
+}
+// Constants
+constexpr double DEG_TO_RAD = M_PI / 180.0;
+constexpr double RAD_TO_DEG = 180.0 / M_PI;
+
+// Compute horizontal field of view (FOV) in degrees given altitude (H), overlap ratio (O), and line spacing (S)
+double computeFOV(double H, double O, double S) {
+    // Convert percent input to ratio
+    if (O > 1.0) {
+        O = O / 100.0;
+    }
+    if (H <= 0 || O >= 1.0 || O < 0 || S <= 0) {
+        throw std::invalid_argument("Invalid input for computing FOV");
+    }
+    // Ground footprint corrected for overlap
+    double footprint = S / (1.0 - O);
+    // Compute half-angle in radians
+    double halfAngleRad = std::atan((footprint * 0.5) / H);
+    // Return full horizontal FOV in degrees
+    return 2.0 * halfAngleRad * RAD_TO_DEG;
+}
+
+// Compute altitude (H) given overlap (O), line spacing (S), and FOV in degrees
+double computeAltitude(double O, double S, double fovDeg) {
+    if (O > 1.0) {
+        O = O / 100.0;
+    }
+    if (O >= 1.0 || O < 0 || S <=   0) {
+        throw std::invalid_argument("Invalid input for computing altitude");
+    }
+    double fovRad = fovDeg * DEG_TO_RAD;
+    double footprint = S / (1.0 - O);
+    return (footprint * 0.5) / std::tan(fovRad * 0.5);
+}
+
+// Compute overlap ratio (O) given altitude (H), line spacing (S), and FOV in degrees
+double computeOverlap(double H, double S, double fovDeg) {
+    if (H <= 0 || S <= 0) {
+        throw std::invalid_argument("Invalid input for computing overlap");
+    }
+    double fovRad = fovDeg * DEG_TO_RAD;
+    double footprint = 2.0 * H * std::tan(fovRad * 0.5);
+    double overlapRatio = 1.0 - (S / footprint);
+    return overlapRatio * 100.0; // return as percentage
+}
+
+// Compute line spacing (S) given altitude (H), overlap (O), and FOV in degrees
+double computeSpacing(double H, double O, double fovDeg) {
+    if (O > 1.0) {
+        O = O / 100.0;
+    }
+    if (H <= 0 || O >= 1.0 || O < 0) {
+        throw std::invalid_argument("Invalid input for computing spacing");
+    }
+    double fovRad = fovDeg * DEG_TO_RAD;
+    double footprint = 2.0 * H * std::tan(fovRad * 0.5);
+    return footprint * (1.0 - O);
+}
+
+void CameraCalc::calcSpacing() {
+    if (_transectItem) {
+        _transectItem->replaceSpacing();
+    }
+}
+
+void CameraCalc::calculate(){
+    qInfo() << "calculate CameraCalc";
+    //Calc value
+    double alt = _distanceToSurfaceFact.rawValue().toDouble();
+    double overlap = _yellowScanOverlapFact.rawValue().toDouble();
+    double spacing = _adjustedFootprintSideFact.rawValue().toDouble();
+    double fov = _yellowScanFOVFact.rawValue().toDouble();
+
+    //Enable Check
+    bool altEnable = _yellowScanAltitude.rawValue().toBool();
+    bool spacingEnable = _yellowScanSpacing.rawValue().toBool();
+    bool overlapEnable = _yellowScanOverlap.rawValue().toBool();
+    bool fovEnable = _yellowScanFOV.rawValue().toBool();
+
+    int enabledCount = altEnable + spacingEnable + overlapEnable + fovEnable;
+    if (enabledCount == 3) {
+        if (!altEnable) {
+            alt = computeAltitude(overlap, spacing, fov);
+            _distanceToSurfaceFact.setRawValue(alt);
+            qDebug() << "False: Altitude";
+        }
+        else if (!spacingEnable) {
+            spacing = computeSpacing(alt, overlap, fov);
+            _adjustedFootprintSideFact.setRawValue(spacing);
+            qDebug() << "False: Spacing";
+        }
+        else if (!overlapEnable) {
+            overlap = computeOverlap(alt, spacing, fov);
+            _yellowScanOverlapFact.setRawValue(overlap);
+            qDebug() << "False: Overlap";
+        }
+        else /* if (!fovEnable) */ {
+            fov = computeFOV(alt, overlap, spacing);
+            _yellowScanFOVFact.setRawValue(fov);
+            qDebug() << "False: FOV";
+        }
+    }
+
+    calcSpacing();
+
+    return;
 }
 
 void CameraCalc::_cameraNameChanged(void)
@@ -108,6 +247,29 @@ void CameraCalc::_cameraNameChanged(void)
                 knownCameraMetaData = cameraMetaData;
                 break;
             }
+        }
+
+        _yellowScanFact.setRawValue(cameraName);
+
+        qInfo() << "CameraName = " << cameraName;
+        qInfo() << "_yelloScanFact rawVAlue = " << _yellowScanFact.rawValue().toString();
+        qInfo() << "_cameraNameFact rawValue = " << _cameraNameFact.rawValue().toString();
+        qInfo() << "contains Yello Scan";
+        qInfo() << "isYSLidar = " << isYSLidar();
+        emit isYSLidarChanged();
+
+        if(cameraName.contains("Yellow Scan"))  {
+
+            qInfo() << "yellowScanFOVChange";
+            qInfo() << "isYSAltitudeUse = " << _yellowScanAltitude.rawValue().toBool();
+            qInfo() << "_yellowScanSpacing = " << _yellowScanSpacing.rawValue().toBool();
+            qInfo() << "_yellowScanOverlap = " << _yellowScanOverlap.rawValue().toBool();
+            qInfo() << "_yellowScanFOV = " << _yellowScanFOV.rawValue().toBool();
+
+            _cameraNameFact.setRawValue(canonicalManualCameraName());
+            _yellowScanAltitudeEnable = _yellowScanAltitude.rawValue().toBool();
+            emit isYSAltitudeEnableChanged();
+            return;
         }
 
         if (!knownCameraMetaData) {
@@ -190,6 +352,10 @@ void CameraCalc::save(QJsonObject& json) const
     json[distanceModeName]              = _distanceMode;
     json[cameraNameName]                = _cameraNameFact.rawValue().toString();
 
+    //YellowScan
+    json[yellowScanFOVFactName]         = _yellowScanFOVFact.rawValue().toDouble();
+    json[yellowScanOverlapName]         = _yellowScanOverlapFact.rawValue().toDouble();
+
     if (!isManualCamera()) {
         CameraSpec::save(json);
         json[valueSetIsDistanceName] = _valueSetIsDistanceFact.rawValue().toBool();
@@ -201,6 +367,7 @@ void CameraCalc::save(QJsonObject& json) const
 
 bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerrain, QString& errorString, bool forPresets)
 {
+    qInfo() << "load cameraCalc";
     QJsonObject json = originalJson;
 
     int version = 0;
@@ -214,9 +381,12 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
         //  - _jsonCameraSpecTypeKeyDeprecated is only in v0 files and stores CameraSpecType. V2 files store same info in cameraNameName.
         //  - _jsonCameraNameKey only set if CameraSpecKnown
         int cameraSpec = json[_jsonCameraSpecTypeKeyDeprecated].toInt(CameraSpecNone);
+        qInfo() << "cameraSpec No = " << cameraSpec;
         if (cameraSpec == CameraSpecCustom) {
+            qInfo() << "Camera Custom Spec";
             json[cameraNameName] = canonicalCustomCameraName();
         } else if (cameraSpec == CameraSpecNone) {
+            qInfo() << "Camera None Spec";
             json[cameraNameName] = canonicalManualCameraName();
         }
         json.remove(_jsonCameraSpecTypeKeyDeprecated);
@@ -245,6 +415,8 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
         { adjustedFootprintFrontalName,     QJsonValue::Double, true },
         { distanceToSurfaceName,            QJsonValue::Double, true },
         { distanceModeName,                 QJsonValue::Double, true },
+        { yellowScanFOVFactName,            QJsonValue::Double, true },
+        { yellowScanOverlapName,            QJsonValue::Double, true },
     };
     if (!JsonHelper::validateKeys(json, keyInfoList1, errorString)) {
         return false;
@@ -262,6 +434,10 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
     _adjustedFootprintSideFact.setRawValue      (json[adjustedFootprintSideName].toDouble());
     _adjustedFootprintFrontalFact.setRawValue   (json[adjustedFootprintFrontalName].toDouble());
     _distanceToSurfaceFact.setRawValue          (json[distanceToSurfaceName].toDouble());
+
+    //Yellow Scan
+    _yellowScanFOVFact.setRawValue              (json[yellowScanFOVFactName].toDouble());
+    _yellowScanOverlapFact.setRawValue          (json[yellowScanOverlapName].toDouble());
 
     if (!isManualCamera()) {
         QList<JsonHelper::KeyValidateInfo> keyInfoList2 = {
@@ -293,8 +469,10 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
     return true;
 }
 
+
 QString CameraCalc::canonicalCustomCameraName(void)
 {
+
     // This string should NOT be translated
     return "Custom Camera";
 }
@@ -302,6 +480,9 @@ QString CameraCalc::canonicalCustomCameraName(void)
 QString CameraCalc::canonicalManualCameraName(void)
 {
     // This string should NOT be translated
+    qInfo() << "canonicalManualCamera";
+
+    //if(_cameraNameFact.rawValue().toString().contains)
     return "Manual (no camera specs)";
 }
 
@@ -312,6 +493,7 @@ QString CameraCalc::xlatCustomCameraName(void)
 
 QString CameraCalc::xlatManualCameraName(void)
 {
+    qInfo() << "xlatManualCameraName";
     return tr("Manual (no camera specs)");
 }
 
@@ -381,7 +563,14 @@ void CameraCalc::_setBrandModelFromCanonicalName(const QString& cameraName)
     _cameraModel.clear();
     _cameraModelList.clear();
 
-    if (cameraName != canonicalManualCameraName() && cameraName != canonicalCustomCameraName()) {
+    qInfo() << "setBrandModelFromeCanonicalName";
+
+    if(cameraName == canonicalManualCameraName()){
+        qInfo() << "This is Manual Camera = "<< cameraName;
+        calcSpacing();
+    }
+
+    if (cameraName != canonicalManualCameraName() && cameraName != canonicalCustomCameraName() && cameraName.contains("Yellow Scan") == false) {
         for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
             CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
             if (cameraMetaData->canonicalName == cameraName) {
@@ -425,8 +614,13 @@ void CameraCalc::_setCameraNameFromV3TransectLoad(const QString& cameraName)
 QString CameraCalc::_validCanonicalCameraName(const QString& cameraName)
 {
     QString canonicalCameraName = cameraName;
-
+    qInfo() << "Cmaera Name Name = "<< canonicalCameraName;
     if (canonicalCameraName != canonicalCustomCameraName() && canonicalCameraName != canonicalManualCameraName()) {
+
+        if(cameraName.contains("Yellow Scan")){
+            canonicalCameraName = canonicalManualCameraName();               
+        }
+
         if (cameraName == xlatManualCameraName()) {
             canonicalCameraName = canonicalManualCameraName();
         } else if (cameraName == xlatCustomCameraName()) {
