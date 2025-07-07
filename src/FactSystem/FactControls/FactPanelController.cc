@@ -74,6 +74,16 @@ Fact* FactPanelController::getParameterFact(int componentId, const QString& name
     }
 }
 
+QString FactPanelController::getGMTOffset()
+{
+    QDateTime now = QDateTime::currentDateTime();
+    QTimeZone zone = QTimeZone::systemTimeZone();
+    int offsetSeconds = zone.offsetFromUtc(now);
+    int offsetHours = offsetSeconds / 3600;
+
+    return QString::number(qAbs(offsetHours));   // EX: "+9", "0", "-5"
+}
+
 bool FactPanelController::parameterExists(int componentId, const QString& name)
 {
     return _vehicle ? _vehicle->parameterManager()->parameterExists(componentId, name) : false;

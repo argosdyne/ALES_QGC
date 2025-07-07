@@ -613,7 +613,7 @@ void ParameterManager::refreshParametersPrefix(int componentId, const QString& n
 
 bool ParameterManager::parameterExists(int componentId, const QString& paramName)
 {
-    bool ret = false;
+    bool ret = false;    
 
     componentId = _actualComponentId(componentId);
     if (_mapCompId2FactMap.contains(componentId)) {

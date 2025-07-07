@@ -33,6 +33,7 @@ public:
 
     Q_INVOKABLE Fact*   getParameterFact    (int componentId, const QString& name, bool reportMissing = true);
     Q_INVOKABLE bool    parameterExists     (int componentId, const QString& name);
+    Q_INVOKABLE QString getGMTOffset();
 
     /// Queries the vehicle for parameters which were not available on initial download but should be available now.
     /// Signals missingParametersAvailable when done. Only works for MAV_COMP_ID_AUTOPILOT1 parameters.

@@ -46,7 +46,15 @@ SetupPage {
             property Fact _enableLogging:       controller.getParameterFact(-1, "SDLOG_MODE")
             property Fact _fenceAction:         controller.getParameterFact(-1, "GF_ACTION")
             property Fact _fenceRadius:         controller.getParameterFact(-1, "GF_MAX_HOR_DIST")
-            property Fact _fenceAlt:            controller.getParameterFact(-1, "GF_MAX_VER_DIST")
+            property Fact _fenceMaxAlt:         controller.getParameterFact(-1, "GF_MAX_VER_DIST")
+            //Add new geofence param
+            property Fact _fenceInside:         controller.getParameterFact(-1, "GF_ALT_INSIDE")
+            property Fact _fenceMinAlt:         controller.getParameterFact(-1, "GF_MIN_VER_DIST")
+            property Fact _fenceStartTime:      controller.getParameterFact(-1, "GF_ST_CLK_TIM")
+            property Fact _fenceDurationTime:   controller.getParameterFact(-1, "GF_SUSTAIN_HOR_T")
+            property Fact _fenceTimeZone:       controller.getParameterFact(-1, "GF_OFF_ZONE_TIM")
+
+
             property Fact _rtlLandDelay:        controller.getParameterFact(-1, "RTL_LAND_DELAY")
             property Fact _lowBattAction:       controller.getParameterFact(-1, "COM_LOW_BAT_ACT")
             property Fact _rcLossAction:        controller.getParameterFact(-1, "NAV_RCL_ACT")
@@ -406,14 +414,82 @@ SetupPage {
                             QGCCheckBox {
                                 id:                 fenceAltMaxCheckBox
                                 text:               qsTr("Max Altitude:")
-                                checked:            _fenceAlt ? _fenceAlt.value > 0 : false
-                                onClicked:          _fenceAlt.value = checked ? 100 : 0
+                                checked:            _fenceMaxAlt ? _fenceMaxAlt.value > 0 : false
+                                onClicked:          _fenceMaxAlt.value = checked ? 100 : 0
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _fenceAlt
+                                fact:               _fenceMaxAlt
                                 enabled:            fenceAltMaxCheckBox.checked
                                 Layout.fillWidth:   true
+                            }
+
+                            // New GeoFence Settings
+
+                            QGCCheckBox {
+                                id: fenceAltMinCheckBox
+                                text: qsTr("Min Altitude")
+                                checked: _fenceMinAlt ? _fenceMinAlt.value > 0 : false
+                                Layout.fillWidth: true
+                            }
+
+                            FactTextField {
+                                fact: _fenceMinAlt
+                                enabled: fenceAltMinCheckBox.checked
+                                Layout.fillWidth: true
+                            }
+
+                            QGCCheckBox {
+                                id: fenceInsideCheckbox
+                                text: qsTr("Fence Inside")
+                                checked: _fenceInside ? _fenceInside.value > 0 : false
+                                Layout.fillWidth: true
+                            }
+
+                            FactTextField {
+                                fact: _fenceInside
+                                enabled: fenceInsideCheckbox.checked
+                                Layout.fillWidth: true
+                            }
+
+                            QGCCheckBox {
+                                id: fenceStartTime
+                                text: qsTr("Start Time(h)")
+                                checked: _fenceStartTime ? _fenceStartTime.value > 0 : false
+                                Layout.fillWidth: true
+                            }
+
+                            FactTextField {
+                                fact: _fenceStartTime
+                                enabled: fenceStartTime.checked
+                                Layout.fillWidth: true
+                            }
+
+                            QGCCheckBox {
+                                id: fenceDurationTime
+                                text: qsTr("Duration Time(h)")
+                                checked: _fenceDurationTime ? _fenceDurationTime.value > 0 : false
+                                Layout.fillWidth: true
+                            }
+
+                            FactTextField {
+                                fact: _fenceDurationTime
+                                enabled: fenceDurationTime.checked
+                                Layout.fillWidth: true
+                            }
+
+                            QGCCheckBox {
+                                id: fenceTimeZone
+                                text: qsTr("Time Zone(GMT)")
+                                checked: _fenceTimeZone ? _fenceTimeZone.value > 0 : false
+                                onClicked: _fenceTimeZone.value = controller.getGMTOffset()
+                                Layout.fillWidth: true
+                            }
+
+                            FactTextField {
+                                fact: _fenceTimeZone
+                                enabled: fenceTimeZone.checked
+                                Layout.fillWidth: true
                             }
                         }
                     }

@@ -3759,6 +3759,46 @@
       <unit>m</unit>
       <increment>1</increment>
     </parameter>
+    <parameter name="GF_MIN_VER_DIST" default="0" type="FLOAT">
+      <short_desc>Min vertical distance in meters</short_desc>
+      <long_desc>Minimum vertical distance in meters the vehicle can be from home before triggering a geofence action. Disabled if 0.</long_desc>
+      <min>0</min>
+      <max>10000</max>
+      <unit>m</unit>
+      <increment>1</increment>
+    </parameter>
+    <parameter name="GF_ST_CLK_TIM" default="0" type="FLOAT">
+      <short_desc>Geofence start time.</short_desc>
+      <long_desc>Set geofence start time.</long_desc>
+      <min>0</min>
+      <max>24</max>
+      <unit>h</unit>
+      <increment>1</increment>
+    </parameter>
+    <parameter name="GF_SUSTAIN_HOR_T" default="0" type="FLOAT">
+      <short_desc>Geofence duration time.</short_desc>
+      <long_desc>Set geofence duration time.</long_desc>
+      <min>0</min>
+      <max>24</max>
+      <unit>h</unit>
+      <increment>1</increment>
+    </parameter>
+    <parameter name="GF_OFF_ZONE_TIM" default="0" type="FLOAT">
+      <short_desc>Geofence zone time.</short_desc>
+      <long_desc>Set geofence zone time.</long_desc>
+      <min>0</min>
+      <max>24</max>
+      <unit>h</unit>
+      <increment>1</increment>
+    </parameter>
+    <parameter name="GF_ALT_INSIDE" default="0" type="INT32">
+      <short_desc>Geofence Enable/Disable</short_desc>
+      <long_desc>Set geofence Enable/Disable.</long_desc>
+      <min>0</min>
+      <max>1</max>
+      <unit></unit>
+      <increment>1</increment>
+    </parameter>
     <parameter name="GF_PREDICT" default="0" type="INT32" boolean="true">
       <short_desc>[EXPERIMENTAL] Use Pre-emptive geofence triggering</short_desc>
       <long_desc>WARNING: This experimental feature may cause flyaways. Use at your own risk. Predict the motion of the vehicle and trigger the breach if it is determined that the current trajectory would result in a breach happening before the vehicle can make evasive maneuvers. The vehicle is then re-routed to a safe hold position (stop for multirotor, loiter for fixed wing).</long_desc>
