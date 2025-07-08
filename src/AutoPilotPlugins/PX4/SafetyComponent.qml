@@ -426,71 +426,71 @@ SetupPage {
 
                             // New GeoFence Settings
 
-                            QGCCheckBox {
-                                id: fenceAltMinCheckBox
-                                text: qsTr("Min Altitude")
-                                checked: _fenceMinAlt ? _fenceMinAlt.value > 0 : false
-                                Layout.fillWidth: true
-                            }
+                            // QGCCheckBox {
+                            //     id: fenceAltMinCheckBox
+                            //     text: qsTr("Min Altitude")
+                            //     checked: _fenceMinAlt ? _fenceMinAlt.value > 0 : false
+                            //     Layout.fillWidth: true
+                            // }
 
-                            FactTextField {
-                                fact: _fenceMinAlt
-                                enabled: fenceAltMinCheckBox.checked
-                                Layout.fillWidth: true
-                            }
+                            // FactTextField {
+                            //     fact: _fenceMinAlt
+                            //     enabled: fenceAltMinCheckBox.checked
+                            //     Layout.fillWidth: true
+                            // }
 
-                            QGCCheckBox {
-                                id: fenceInsideCheckbox
-                                text: qsTr("Fence Inside")
-                                checked: _fenceInside ? _fenceInside.value > 0 : false
-                                Layout.fillWidth: true
-                            }
+                            // QGCCheckBox {
+                            //     id: fenceInsideCheckbox
+                            //     text: qsTr("Fence Inside")
+                            //     checked: _fenceInside ? _fenceInside.value > 0 : false
+                            //     Layout.fillWidth: true
+                            // }
 
-                            FactTextField {
-                                fact: _fenceInside
-                                enabled: fenceInsideCheckbox.checked
-                                Layout.fillWidth: true
-                            }
+                            // FactTextField {
+                            //     fact: _fenceInside
+                            //     enabled: fenceInsideCheckbox.checked
+                            //     Layout.fillWidth: true
+                            // }
 
-                            QGCCheckBox {
-                                id: fenceStartTime
-                                text: qsTr("Start Time(h)")
-                                checked: _fenceStartTime ? _fenceStartTime.value > 0 : false
-                                Layout.fillWidth: true
-                            }
+                            // QGCCheckBox {
+                            //     id: fenceStartTime
+                            //     text: qsTr("Start Time(h)")
+                            //     checked: _fenceStartTime ? _fenceStartTime.value > 0 : false
+                            //     Layout.fillWidth: true
+                            // }
 
-                            FactTextField {
-                                fact: _fenceStartTime
-                                enabled: fenceStartTime.checked
-                                Layout.fillWidth: true
-                            }
+                            // FactTextField {
+                            //     fact: _fenceStartTime
+                            //     enabled: fenceStartTime.checked
+                            //     Layout.fillWidth: true
+                            // }
 
-                            QGCCheckBox {
-                                id: fenceDurationTime
-                                text: qsTr("Duration Time(h)")
-                                checked: _fenceDurationTime ? _fenceDurationTime.value > 0 : false
-                                Layout.fillWidth: true
-                            }
+                            // QGCCheckBox {
+                            //     id: fenceDurationTime
+                            //     text: qsTr("Duration Time(h)")
+                            //     checked: _fenceDurationTime ? _fenceDurationTime.value > 0 : false
+                            //     Layout.fillWidth: true
+                            // }
 
-                            FactTextField {
-                                fact: _fenceDurationTime
-                                enabled: fenceDurationTime.checked
-                                Layout.fillWidth: true
-                            }
+                            // FactTextField {
+                            //     fact: _fenceDurationTime
+                            //     enabled: fenceDurationTime.checked
+                            //     Layout.fillWidth: true
+                            // }
 
-                            QGCCheckBox {
-                                id: fenceTimeZone
-                                text: qsTr("Time Zone(GMT)")
-                                checked: _fenceTimeZone ? _fenceTimeZone.value > 0 : false
-                                onClicked: _fenceTimeZone.value = controller.getGMTOffset()
-                                Layout.fillWidth: true
-                            }
+                            // QGCCheckBox {
+                            //     id: fenceTimeZone
+                            //     text: qsTr("Time Zone(GMT)")
+                            //     checked: _fenceTimeZone ? _fenceTimeZone.value > 0 : false
+                            //     onClicked: _fenceTimeZone.value = controller.getGMTOffset()
+                            //     Layout.fillWidth: true
+                            // }
 
-                            FactTextField {
-                                fact: _fenceTimeZone
-                                enabled: fenceTimeZone.checked
-                                Layout.fillWidth: true
-                            }
+                            // FactTextField {
+                            //     fact: _fenceTimeZone
+                            //     enabled: fenceTimeZone.checked
+                            //     Layout.fillWidth: true
+                            // }
                         }
                     }
                 }
