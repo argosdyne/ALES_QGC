@@ -226,6 +226,162 @@ QGCFlickable {
                         text:       qsTr("None")
                         visible:    circleSection.checked && myGeoFenceController.circles.count === 0
                     }
+                    // --- 헤더 라벨 줄 ---
+                    // GridLayout {
+                    //     columns: 4
+                    //     width: parent.width
+                    //     visible:            circleSection.checked && myGeoFenceController.circles.count > 0
+                    //     QGCLabel {
+                    //         text: qsTr("Inclusion")
+                    //         Layout.column: 0
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //     }
+
+                    //     QGCLabel {
+                    //         text: qsTr("Edit")
+                    //         Layout.column: 1
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //     }
+
+                    //     QGCLabel {
+                    //         text: qsTr("Radius")
+                    //         Layout.column: 2
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //     }
+
+                    //     QGCLabel {
+                    //         text: qsTr("Delete")
+                    //         Layout.column: 3
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //     }
+                    // }
+
+                    // --- circles 리스트 및 newInclusion 줄 포함 ListView ---
+                    // ListView {
+                    //     id: circleListView
+                    //     width: parent.width
+                    //     model: myGeoFenceController.circles
+                    //     height: contentHeight   // 스크롤 없애고 전부 보이게
+                    //     visible:            circleSection.checked && myGeoFenceController.circles.count > 0
+
+                    //     delegate: ColumnLayout {
+                    //         width: circleListView.width
+
+                    //         // === 기존 항목 줄 ===
+                    //         GridLayout {
+                    //             columns: 4
+                    //             width: parent.width
+
+                    //             QGCCheckBox {
+                    //                 checked: object.inclusion
+                    //                 Layout.alignment: Qt.AlignHCenter
+                    //                 onClicked: object.inclusion = checked
+                    //             }
+
+                    //             QGCRadioButton {
+                    //                 property bool _interactive: object.interactive
+                    //                 checked: _interactive
+                    //                 Layout.alignment: Qt.AlignHCenter
+
+                    //                 on_InteractiveChanged: checked = _interactive
+
+                    //                 onClicked: {
+                    //                     myGeoFenceController.clearAllInteractive()
+                    //                     object.interactive = checked
+                    //                 }
+                    //             }
+
+                    //             FactTextField {
+                    //                 fact: object.radius
+                    //                 Layout.fillWidth: true
+                    //                 Layout.alignment: Qt.AlignHCenter
+                    //             }
+
+                    //             QGCButton {
+                    //                 text: qsTr("Del")
+                    //                 Layout.alignment: Qt.AlignHCenter
+                    //                 onClicked: myGeoFenceController.deleteCircle(index)
+                    //             }
+                    //         }
+
+                            // SectionHeader {
+                            //     id:             circleSettingSection
+                            //     Layout.fillWidth: true
+                            //     text:           qsTr("Settings")
+                            //     checked: false
+                            // }
+
+                            // === newInclusion 줄 ===
+                            // GridLayout {
+                            //     columns: 2
+                            //     width: parent.width
+                            //     visible: circleSettingSection.checked
+
+                            //     Text {
+                            //         text:               qsTr("Max Altitude:")
+                            //         Layout.fillWidth:   true
+                            //         color: qgcPal.text
+                            //     }
+
+                            //     FactTextField {
+                            //         fact:               object.radius
+                            //         Layout.fillWidth:   true
+                            //     }
+
+                            //     Text {
+                            //         text:               qsTr("Min Altitude:")
+                            //         Layout.fillWidth:   true
+                            //         color: qgcPal.text
+                            //     }
+
+                            //     FactTextField {
+                            //         fact: _fenceMinAlt
+                            //         Layout.fillWidth: true
+                            //     }
+
+                            //     Text {
+                            //         text:               qsTr("Start Time(h)")
+                            //         Layout.fillWidth:   true
+                            //         color: qgcPal.text
+                            //     }
+
+                            //     FactTextField {
+                            //         fact: _fenceStartTime
+                            //         Layout.fillWidth: true
+                            //     }
+
+                            //     Text {
+                            //         text:               qsTr("Duration Time(h)")
+                            //         Layout.fillWidth:   true
+                            //         color: qgcPal.text
+                            //     }
+
+                            //     FactTextField {
+                            //         fact: _fenceDurationTime
+                            //         Layout.fillWidth: true
+                            //     }
+
+                            //     Text {
+                            //         text:               qsTr("Time Zone(GMT)")
+                            //         Layout.fillWidth:   true
+                            //         color: qgcPal.text
+                            //     }
+
+                            //     FactTextField {
+                            //         fact: _fenceTimeZone
+                            //         Layout.fillWidth: true
+                            //     }
+                            // }
+
+                            // Rectangle {
+                            //     Layout.fillWidth:   true
+                            //     height:             1
+                            //     color:              qgcPal.text
+                            // }
+
+                    //     }
+                    // }
+
 
                     GridLayout {
                         anchors.left:       parent.left
@@ -306,6 +462,53 @@ QGCFlickable {
                             }
                         }
                     } // GridLayout
+
+                    // ────────────────────────────────
+                    // GridLayout {
+                    //     anchors.left: parent.left
+                    //     anchors.right: parent.right
+                    //     columns: 4
+
+                    //     QGCLabel {
+                    //         text: qsTr("New Inclusion")
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //     }
+
+                    //     QGCRadioButton {
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //         onClicked: {
+                    //             // 새 항목에서 선택된 경우
+                    //         }
+                    //     }
+
+                    //     FactTextField {
+                    //         placeholderText: "New radius"
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //         Layout.fillWidth: true
+                    //     }
+
+                    //     QGCButton {
+                    //         text: qsTr("Add")
+                    //         Layout.alignment: Qt.AlignHCenter
+                    //         onClicked: {
+                    //             myGeoFenceController.addNewCircle()
+                    //         }
+                    //     }
+                    // }
+
+
+                    //Make Repeater about geofence setting ui
+                    // Repeater{
+                    //     model: myGeoFenceController.circles
+
+                    //     GridLayout{
+                    //         QGCButton {
+                    //             text: "test"
+                    //         }
+                    //     }
+                    // }
+
+
 
                     SectionHeader {
                         id:             breachReturnSection

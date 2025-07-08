@@ -38,6 +38,12 @@ void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
 {
     QList<MissionItem*> fenceItems;
 
+
+
+    qInfo() << "Send GeoFence info";
+
+    qInfo() << _vehicle->firmwareType();
+
     _sendPolygons.clear();
     _sendCircles.clear();
 
@@ -52,39 +58,79 @@ void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
     for (int i=0; i<_sendPolygons.count(); i++) {
         const QGCFencePolygon& polygon = _sendPolygons[i];
 
-        for (int j=0; j<polygon.count(); j++) {
-            const QGeoCoordinate& vertex = polygon.path()[j].value<QGeoCoordinate>();
+        if(_vehicle->firmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
+            for (int j=0; j<polygon.count(); j++) {
+                const QGeoCoordinate& vertex = polygon.path()[j].value<QGeoCoordinate>();
 
-            MissionItem* item = new MissionItem(0,
-                                                polygon.inclusion() ? MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION : MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION,
-                                                MAV_FRAME_GLOBAL,
-                                                polygon.count(),    // vertex count
-                                                0, 0, 0,            // param 2-4 unused
-                                                vertex.latitude(),
-                                                vertex.longitude(),
-                                                0,                  // param 7 unused
-                                                false,              // autocontinue
-                                                false,              // isCurrentItem
-                                                this);              // parent
-            fenceItems.append(item);
+                MissionItem* item = new MissionItem(0,
+                                                    polygon.inclusion() ? MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION : MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION,
+                                                    MAV_FRAME_GLOBAL,
+                                                    polygon.count(),    // vertex count
+                                                    0, 0, 23,            // min altitude, start time, duartion
+                                                    vertex.latitude(),
+                                                    vertex.longitude(),
+                                                    150,                  // max altitude
+                                                    false,              // autocontinue
+                                                    false,              // isCurrentItem
+                                                    this);              // parent
+                fenceItems.append(item);
+            }
+        }
+        else {
+            for (int j=0; j<polygon.count(); j++) {
+                const QGeoCoordinate& vertex = polygon.path()[j].value<QGeoCoordinate>();
+
+                MissionItem* item = new MissionItem(0,
+                                                    polygon.inclusion() ? MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION : MAV_CMD_NAV_FENCE_POLYGON_VERTEX_EXCLUSION,
+                                                    MAV_FRAME_GLOBAL,
+                                                    polygon.count(),    // vertex count
+                                                    0, 0, 0,            // param 2-4 unused
+                                                    vertex.latitude(),
+                                                    vertex.longitude(),
+                                                    0,                  // param 7 unused
+                                                    false,              // autocontinue
+                                                    false,              // isCurrentItem
+                                                    this);              // parent
+                fenceItems.append(item);
+            }
         }
     }
 
-    for (int i=0; i<_sendCircles.count(); i++) {
-        QGCFenceCircle& circle = _sendCircles[i];
+    if(_vehicle->firmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
+        for (int i=0; i<_sendCircles.count(); i++) {
+            QGCFenceCircle& circle = _sendCircles[i];
 
-        MissionItem* item = new MissionItem(0,
-                                            circle.inclusion() ? MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION : MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION,
-                                            MAV_FRAME_GLOBAL,
-                                            circle.radius()->rawValue().toDouble(),
-                                            0, 0, 0,                    // param 2-4 unused
-                                            circle.center().latitude(),
-                                            circle.center().longitude(),
-                                            0,                          // param 7 unused
-                                            false,                      // autocontinue
-                                            false,                      // isCurrentItem
-                                            this);                      // parent
-        fenceItems.append(item);
+            MissionItem* item = new MissionItem(0,
+                                                circle.inclusion() ? MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION : MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION,
+                                                MAV_FRAME_GLOBAL,
+                                                circle.radius()->rawValue().toDouble(),
+                                                0, 0, 23,                    // min altitude, start time, duartion
+                                                circle.center().latitude(),
+                                                circle.center().longitude(),
+                                                150,                          // max altitude
+                                                false,                      // autocontinue
+                                                false,                      // isCurrentItem
+                                                this);                      // parent
+            fenceItems.append(item);
+        }
+    }
+    else {
+        for (int i=0; i<_sendCircles.count(); i++) {
+            QGCFenceCircle& circle = _sendCircles[i];
+
+            MissionItem* item = new MissionItem(0,
+                                                circle.inclusion() ? MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION : MAV_CMD_NAV_FENCE_CIRCLE_EXCLUSION,
+                                                MAV_FRAME_GLOBAL,
+                                                circle.radius()->rawValue().toDouble(),
+                                                0, 0, 0,                    // param 2-4 unused
+                                                circle.center().latitude(),
+                                                circle.center().longitude(),
+                                                0,                          // param 7 unused
+                                                false,                      // autocontinue
+                                                false,                      // isCurrentItem
+                                                this);                      // parent
+            fenceItems.append(item);
+        }
     }
 
     if (_breachReturnPoint.isValid()) {
@@ -131,6 +177,7 @@ void GeoFenceManager::_sendComplete(bool error)
 
 void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
 {
+    qInfo() << "_planManagerLoadComplete";
     bool loadFailed = false;
 
     Q_UNUSED(removeAllRequested);
