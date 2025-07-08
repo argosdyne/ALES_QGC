@@ -19,7 +19,6 @@
         <file alias="VTOLModeIndicator.qml">src/ui/toolbar/VTOLModeIndicator.qml</file>
         <file alias="APMSupportForwardingIndicator.qml">src/ui/toolbar/APMSupportForwardingIndicator.qml</file>
         <file alias="GimbalIndicator.qml">src/ui/toolbar/GimbalIndicator.qml</file>
-        <file alias="M2LinkIndicator.qml">src/M2Link/M2LinkIndicator.qml</file>
 		<file alias="MainToolBar.qml">src/ui/toolbar/MainToolBar.qml</file>
     </qresource>
     <qresource prefix="/checklists">
@@ -31,8 +30,6 @@
         <file alias="SubChecklist.qml">src/FlightDisplay/SubChecklist.qml</file>
     </qresource>
     <qresource prefix="/qml">
-		<file alias="M2Settings.qml">src/M2Link/M2Settings.qml</file>
-		<!--<file alias="QGCBusyIndicator.qml">src/QmlControls/QGCBusyIndicator.qml</file> -->
         <file alias="QGroundControl/Controls/HeightIndicator.qml">src/QmlControls/HeightIndicator.qml</file>
         <file alias="QGroundControl/Controls/QGCDynamicObjectManager.qml">src/QmlControls/QGCDynamicObjectManager.qml</file>
         <file alias="QGroundControl/Controls/QGCOptionsComboBox.qml">src/QmlControls/QGCOptionsComboBox.qml</file>
@@ -52,7 +49,8 @@
         <file alias="FlightDisplayViewDummy.qml">src/FlightDisplay/FlightDisplayViewDummy.qml</file>
         <file alias="FlightDisplayViewUVC.qml">src/FlightDisplay/FlightDisplayViewUVC.qml</file>
         <file alias="FWLandingPatternEditor.qml">src/PlanView/FWLandingPatternEditor.qml</file>
-        <file alias="GeneralSettings.qml">src/ui/preferences/GeneralSettings.qml</file>		
+        <file alias="GeneralSettings.qml">src/ui/preferences/GeneralSettings.qml</file>
+		<!--<file alias="QGCBusyIndicator.qml">src/QmlControls/QGCBusyIndicator.qml</file> -->
         <file alias="GeoTagPage.qml">src/AnalyzeView/GeoTagPage.qml</file>
         <file alias="HelpSettings.qml">src/ui/preferences/HelpSettings.qml</file>
         <file alias="JoystickConfig.qml">src/VehicleSetup/JoystickConfig.qml</file>

@@ -153,6 +153,7 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
         _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
+        _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds

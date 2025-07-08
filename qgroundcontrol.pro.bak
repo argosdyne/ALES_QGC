@@ -268,8 +268,7 @@ QT += \
     widgets \
     xml \
     texttospeech \
-    core-private \
-    serialport
+    core-private
 
 # Multimedia only used if QVC is enabled
 !contains (DEFINES, QGC_DISABLE_UVC) {
@@ -440,7 +439,6 @@ INCLUDEPATH += \
     src/ui/px4_configuration \
     src/ui/toolbar \
     src/ui/uas \
-	src/M2Link \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     INCLUDEPATH += \
@@ -786,7 +784,6 @@ HEADERS += \
     src/uas/UASMessageHandler.h \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
-	src/M2Link/M2Manager.h \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -1049,7 +1046,6 @@ SOURCES += \
     src/uas/UASMessageHandler.cc \
     src/AnalyzeView/GeoTagController.cc \
     src/AnalyzeView/ExifParser.cc \
-    src/M2Link/M2Manager.cpp \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
