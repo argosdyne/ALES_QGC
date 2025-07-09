@@ -9,6 +9,9 @@
 
 #include "QGCFenceCircle.h"
 #include "JsonHelper.h"
+#include "Vehicle.h"
+#include "ParameterManager.h"
+#include "QGCApplication.h"
 
 const char* QGCFenceCircle::_jsonInclusionKey = "inclusion";
 
@@ -90,5 +93,16 @@ void QGCFenceCircle::setInclusion(bool inclusion)
     if (inclusion != _inclusion) {
         _inclusion = inclusion;
         emit inclusionChanged(inclusion);
+        qInfo() << "setInclusion circle value = " << inclusion;
+
+        MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+        if(manager){
+            if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+                qInfo() << "This is PX4";
+                Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
+                inclusion->setRawValue(_inclusion);
+            }
+        }
+
     }
 }
