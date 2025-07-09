@@ -18,6 +18,8 @@
 #include "ADSBVehicleManager.h"
 #include "QGCPalette.h"
 #include "QmlUnitsConversion.h"
+#include <QUdpSocket>
+#include "M2Manager.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -114,7 +116,9 @@ public:
 
 #if defined(QGC_ENABLE_PAIRING)
     Q_PROPERTY(PairingManager*      pairingManager          READ pairingManager         CONSTANT)
-#endif
+#endif    
+    Q_PROPERTY(M2Manager*           m2Manager               READ m2Manager              NOTIFY m2ManagerChanged)
+
 
     Q_INVOKABLE void    saveGlobalSetting       (const QString& key, const QString& value);
     Q_INVOKABLE QString loadGlobalSetting       (const QString& key, const QString& defaultValue);
@@ -170,6 +174,9 @@ public:
 #else
     bool                    supportsPairing     ()  { return false; }
 #endif
+
+    M2Manager*              m2Manager           ()  { return _m2Manager; }
+
     static QGeoCoordinate   flightMapPosition   ()  { return _coord; }
     static double           flightMapZoom       ()  { return _zoom; }
 
@@ -240,6 +247,7 @@ signals:
     void flightMapPositionChanged       (QGeoCoordinate flightMapPosition);
     void flightMapZoomChanged           (double flightMapZoom);
     void skipSetupPageChanged           ();
+    void m2ManagerChanged               ();
 
 private:
     double                  _flightMapInitialZoom   = 17.0;
@@ -262,6 +270,9 @@ private:
 #if defined(QGC_ENABLE_PAIRING)
     PairingManager*         _pairingManager         = nullptr;
 #endif
+
+    QUdpSocket*             _m2boardcastSocket      = nullptr;
+    M2Manager*              _m2Manager              = nullptr;
 
     bool                    _skipSetupPage          = false;
     QStringList             _altitudeModeEnumString;
