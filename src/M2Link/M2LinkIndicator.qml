@@ -204,15 +204,15 @@ Item {
                         font.pointSize:         ScreenTools.mediumFontPointSize
                         anchors.verticalCenter: parent.verticalCenter
                     }
-                    QGCBusyIndicator {
-                        width: ScreenTools.defaultFontPixelHeight * 2
-                        height: ScreenTools.defaultFontPixelHeight * 2
-                        anchors.verticalCenter: parent.verticalCenter
-                        running: parent.visible
-                        firstColor: qgcPal.text
-                        secondColor: qgcPal.windowShade
-                        pointColor: qgcPal.windowShade
-                    }
+                    // QGCBusyIndicator {
+                    //     width: ScreenTools.defaultFontPixelHeight * 2
+                    //     height: ScreenTools.defaultFontPixelHeight * 2
+                    //     anchors.verticalCenter: parent.verticalCenter
+                    //     running: parent.visible
+                    //     firstColor: qgcPal.text
+                    //     secondColor: qgcPal.windowShade
+                    //     pointColor: qgcPal.windowShade
+                    // }
                 }
                 Row {
                     anchors.top: pairDelayButton.bottom
