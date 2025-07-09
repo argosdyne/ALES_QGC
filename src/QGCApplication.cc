@@ -180,7 +180,7 @@ static QObject* qgroundcontrolQmlGlobalSingletonFactory(QQmlEngine*, QJSEngine*)
     // We create this object as a QGCTool even though it isn't in the toolbox
     QGroundControlQmlGlobal* qmlGlobal = new QGroundControlQmlGlobal(qgcApp(), qgcApp()->toolbox());
     qmlGlobal->setToolbox(qgcApp()->toolbox());
-
+    qInfo() << "QGroundContolQmlGlobal init";
     return qmlGlobal;
 }
 

@@ -209,7 +209,7 @@ Rectangle {
             spacing:    _defaultTextHeight / 2
 
             Repeater {
-                model:                  _corePlugin ? _corePlugin.settingsPages : []
+                model:                  _corePlugin ? _corePlugin.settingsPages : []                            
                 visible:                _corePlugin && _corePlugin.options.combineSettingsAndSetup
                 SubMenuButton {
                     imageResource:      modelData.icon

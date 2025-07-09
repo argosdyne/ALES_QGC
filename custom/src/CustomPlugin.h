@@ -21,6 +21,8 @@
 #include <QTranslator>
 #include "codevsettings.h"
 
+#include "QGroundControlQmlGlobal.h"
+
 class CustomOptions;
 class CustomPlugin;
 class CustomSettings;
@@ -51,6 +53,7 @@ public:
 
 private:
     CustomFlyViewOptions* _flyViewOptions = nullptr;
+
 };
 
 class CustomPlugin : public QGCCorePlugin
@@ -108,6 +111,7 @@ private slots:
 
 private:
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
+    QGroundControlQmlGlobal* qGroundControlQmlGlobal;
 
 private:
     SiYiManager* _siyiManager = nullptr;
@@ -122,4 +126,5 @@ private:
     bool _coachMode{false};
     bool _slaveMode{false};
     bool _forceSendRC{false};
+
 };
