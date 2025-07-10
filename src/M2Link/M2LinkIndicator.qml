@@ -11,6 +11,8 @@ import QGroundControl.Palette             1.0
 import QGroundControl.FactSystem          1.0
 import QGroundControl.FactControls        1.0
 
+import Custom.Widgets                     1.0
+
 Item {
     id:  _root
     width:          signalRow.width
@@ -177,11 +179,11 @@ Item {
                     anchors.top: parent.top
                     anchors.topMargin: ScreenTools.defaultFontPixelHeight * 1.5
                 }
-                QGCDelayButton {
+                CustomDelayButton {
                     id: pairDelayButton
                     text: qsTr("Trigger Bind")
                     anchors.centerIn: parent
-                    iconSource: "qrc:/res/PairingButton.svg"
+                    iconSource: "qrc:/custom/img/PairingButton.svg"
                     height: ScreenTools.defaultFontPixelWidth * 12
                     width: height
                     isMapButton: false
@@ -204,15 +206,15 @@ Item {
                         font.pointSize:         ScreenTools.mediumFontPointSize
                         anchors.verticalCenter: parent.verticalCenter
                     }
-                    // QGCBusyIndicator {
-                    //     width: ScreenTools.defaultFontPixelHeight * 2
-                    //     height: ScreenTools.defaultFontPixelHeight * 2
-                    //     anchors.verticalCenter: parent.verticalCenter
-                    //     running: parent.visible
-                    //     firstColor: qgcPal.text
-                    //     secondColor: qgcPal.windowShade
-                    //     pointColor: qgcPal.windowShade
-                    // }
+                    CustomBusyIndicator {
+                        width: ScreenTools.defaultFontPixelHeight * 2
+                        height: ScreenTools.defaultFontPixelHeight * 2
+                        anchors.verticalCenter: parent.verticalCenter
+                        running: parent.visible
+                        firstColor: qgcPal.text
+                        secondColor: qgcPal.windowShade
+                        pointColor: qgcPal.windowShade
+                    }
                 }
                 Row {
                     anchors.top: pairDelayButton.bottom
