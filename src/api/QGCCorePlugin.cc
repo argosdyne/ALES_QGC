@@ -148,10 +148,10 @@ QVariantList &QGCCorePlugin::settingsPages()
                                             QUrl::fromUserInput(""));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pTaisync)));
 #endif
-        // _p->pM2Link = new QmlComponentInfo(tr("M2Link"),
-        //                                    QUrl::fromUserInput("qrc:/qml/M2Settings.qml"),
-        //                                    QUrl::fromUserInput("qrc:/InstrumentValueIcons/link.svg"));
-        // _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pM2Link)));
+        _p->pM2Link = new QmlComponentInfo(tr("M2Link"),
+                                           QUrl::fromUserInput("qrc:/qml/M2Settings.qml"),
+                                           QUrl::fromUserInput("qrc:/InstrumentValueIcons/link.svg"));
+        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pM2Link)));
 #if defined(QGC_GST_MICROHARD_ENABLED)
         _p->pMicrohard = new QmlComponentInfo(tr("Microhard"),
                                               QUrl::fromUserInput("qrc:/qml/MicrohardSettings.qml"),

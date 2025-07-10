@@ -233,7 +233,7 @@ Rectangle {
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
-        source:             QGroundControl.m2Manager ? "qrc:/toolbar/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
+        source:             "qrc:/toolbar/ARLinkIndicator.qml"
     }
 
 

@@ -10,7 +10,6 @@ import QGroundControl.FactSystem      1.0
 import QGroundControl.Palette         1.0
 import QGroundControl.ScreenTools     1.0
 import QGroundControl.SettingsManager 1.0
-import Custom.Widgets                 1.0
 
 Rectangle {
     id:                 _root
@@ -296,16 +295,16 @@ Rectangle {
                     anchors.right: parent.right
                     anchors.left: parent.left
                     height: _panelHeight * 2 + ScreenTools.defaultFontPixelHeight * 3
-                    CustomBusyIndicator {
-                        visible: m2Manager.scanning
-                        width: ScreenTools.defaultFontPixelHeight * 3
-                        height: ScreenTools.defaultFontPixelHeight * 3
-                        anchors.centerIn: parent
-                        running: visible
-                        firstColor: qgcPal.text
-                        secondColor: qgcPal.windowShade
-                        pointColor: qgcPal.windowShade
-                    }
+                    // QGCBusyIndicator {
+                    //     visible: m2Manager.scanning
+                    //     width: ScreenTools.defaultFontPixelHeight * 3
+                    //     height: ScreenTools.defaultFontPixelHeight * 3
+                    //     anchors.centerIn: parent
+                    //     running: visible
+                    //     firstColor: qgcPal.text
+                    //     secondColor: qgcPal.windowShade
+                    //     pointColor: qgcPal.windowShade
+                    // }
                 }
             }
         }

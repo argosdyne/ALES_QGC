@@ -114,5 +114,3 @@ ToolStripHoverButton                    1.0 ToolStripHoverButton.qml
 VehicleRotationCal                      1.0 VehicleRotationCal.qml
 VehicleSummaryRow                       1.0 VehicleSummaryRow.qml
 MAVLinkChart                            1.0 MAVLinkChart.qml
-QGCDelayButton                          1.0 QGCDelayButton.qml
-QGCBusyIndicator                        1.0 QGCBusyIndicator.qml

@@ -12,6 +12,7 @@
 #define QGCToolbox_h
 
 #include <QObject>
+
 class FactSystem;
 class FirmwarePluginManager;
 class AudioOutput;
@@ -32,7 +33,6 @@ class MAVLinkLogManager;
 class QGCCorePlugin;
 class SettingsManager;
 class ADSBVehicleManager;
-
 #if defined(QGC_ENABLE_PAIRING)
 class PairingManager;
 #endif
@@ -67,7 +67,6 @@ public:
     QGCCorePlugin*              corePlugin              () { return _corePlugin; }
     SettingsManager*            settingsManager         () { return _settingsManager; }
     ADSBVehicleManager*         adsbVehicleManager      () { return _adsbVehicleManager; }
-
 #if defined(QGC_ENABLE_PAIRING)
     PairingManager*             pairingManager          () { return _pairingManager; }
 #endif
@@ -117,7 +116,6 @@ private:
     MicrohardManager*           _microhardManager       = nullptr;
 #endif
     friend class QGCApplication;
-
 };
 
 /// This is the base class for all tools

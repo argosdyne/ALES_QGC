@@ -111,7 +111,6 @@ void QGroundControlQmlGlobal::setToolbox(QGCToolbox* toolbox)
 
                     QString ipStr = sender.toString();
                     if(_m2Manager == nullptr) {
-                        qInfo() << "new M2Manager";
                         _m2Manager = new M2Manager(ipStr, this);
                         emit m2ManagerChanged();
                     }

@@ -25,9 +25,6 @@
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
 
-#include "M2Manager.h"
-#include "QGroundControlQmlGlobal.h"
-
 QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 
 static const char *kSlaveMode = "SlaveMode";
@@ -155,16 +152,8 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
-        // _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
-        // _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
-
-        // _addSettingsEntry(tr("Enpulse"), qGroundControlQmlGlobal->m2Manager() ? "qrc:/qml/M2Settings.qml" : "qrc:/qml/ARSettings.qml" );
-
-
-
-
-
-
+        _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
+        _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds
@@ -423,22 +412,6 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
         qDebug() << "Connect with handleCustomButtonFunc";
         connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);        
     }
-
-    if (qGroundControlQmlGlobal == nullptr) {
-        qWarning() << "qGroundControlQmlGlobal is NULL!";
-    } else {
-        qWarning() << "qGroundControlQmlGlobal is NOT null!";
-    }
-
-    if(qGroundControlQmlGlobal){
-        qInfo() << "Not null";
-
-        M2Manager* m2 = qGroundControlQmlGlobal ? qGroundControlQmlGlobal->m2Manager() : nullptr;
-        if (m2) {
-
-        }
-    }
-
     return qmlEngine;
 }
 void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMessageType type)
