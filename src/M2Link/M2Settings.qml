@@ -48,7 +48,7 @@ Rectangle {
     property real _valueWidth:                  ScreenTools.defaultFontPixelWidth * 20
     property real _panelWidth:                  _root.width * _internalWidthRatio
     property real _panelHeight:                 ScreenTools.defaultFontPixelHeight * 8
-    property var m2Manager: QGroundControl.m2Manager ? QGroundControl.m2Manager : nullM2Manager
+    property var m2Manager: QGroundControl.corePlugin.m2Manager ? QGroundControl.corePlugin.m2Manager : nullM2Manager
 
     readonly property real _internalWidthRatio:          1
 

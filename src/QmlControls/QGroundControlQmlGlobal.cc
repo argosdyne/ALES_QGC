@@ -88,46 +88,7 @@ void QGroundControlQmlGlobal::setToolbox(QGCToolbox* toolbox)
 #if defined(QGC_GST_MICROHARD_ENABLED)
     _microhardManager       = toolbox->microhardManager();
 #endif
-
-    // Initialize M2 broadcast socket
-    _m2boardcastSocket = new QUdpSocket(this);
-    if(_m2boardcastSocket->bind(QHostAddress::AnyIPv4, 10010, QUdpSocket::ShareAddress)) {
-        connect(_m2boardcastSocket, &QUdpSocket::readyRead, this, [this]() {
-            if(_m2boardcastSocket->hasPendingDatagrams()) {
-                QByteArray datagram;
-                datagram.resize(_m2boardcastSocket->pendingDatagramSize());
-
-                QHostAddress sender;
-                quint16 senderPort;
-
-                _m2boardcastSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
-                QString message = QString::fromUtf8(datagram);
-
-                qDebug() << "Received multicast message from" << sender.toString() << ":" << message;
-
-                QRegExp rx("AP:\\d+\\.\\d+\\.\\d+");
-                if(rx.exactMatch(message)) {
-                    qDebug() << "Found matching version format, leaving multicast group";
-
-                    QString ipStr = sender.toString();
-                    if(_m2Manager == nullptr) {
-                        qInfo() << "new M2Manager";
-                        _m2Manager = new M2Manager(ipStr, this);
-                        emit m2ManagerChanged();
-                    }
-
-                    _m2boardcastSocket->disconnect();
-                    _m2boardcastSocket->close();
-                    _m2boardcastSocket->deleteLater();
-                    _m2boardcastSocket = nullptr;
-                }
-            }
-        });
-    } else {
-        qWarning() << "Failed to bind multicast socket:" << _m2boardcastSocket->errorString();
-        _m2boardcastSocket->deleteLater();
-        _m2boardcastSocket = nullptr;
-    }
+    
 
 }
 

@@ -18,7 +18,7 @@ Item {
     width:          signalRow.width
 
     QGCPalette { id: qgcPal }
-    property var m2Manager:     QGroundControl.m2Manager
+    property var m2Manager:     QGroundControl.corePlugin.m2Manager
     property bool _connected:   m2Manager.connected && m2Manager.mounted
     property var  _rssiA:       m2Manager.rssiA
     property var  _rssiB:       m2Manager.rssiB

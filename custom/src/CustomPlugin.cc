@@ -155,16 +155,15 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
-        // _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
-        // _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
 
-        // _addSettingsEntry(tr("Enpulse"), qGroundControlQmlGlobal->m2Manager() ? "qrc:/qml/M2Settings.qml" : "qrc:/qml/ARSettings.qml" );
-
-
-
-
-
-
+        if(_m2Manager != nullptr) {
+            qInfo() << "M2Manager Not null";
+            _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
+        }
+        else {
+            qInfo() << "M2Manager is null";
+            _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
+        }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds
@@ -424,19 +423,44 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
         connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);        
     }
 
-    if (qGroundControlQmlGlobal == nullptr) {
-        qWarning() << "qGroundControlQmlGlobal is NULL!";
+    // Initialize M2 broadcast socket
+    _m2boardcastSocket = new QUdpSocket(this);
+    if(_m2boardcastSocket->bind(QHostAddress::AnyIPv4, 10010, QUdpSocket::ShareAddress)) {
+        connect(_m2boardcastSocket, &QUdpSocket::readyRead, this, [this]() {
+            if(_m2boardcastSocket->hasPendingDatagrams()) {
+                QByteArray datagram;
+                datagram.resize(_m2boardcastSocket->pendingDatagramSize());
+
+                QHostAddress sender;
+                quint16 senderPort;
+
+                _m2boardcastSocket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
+                QString message = QString::fromUtf8(datagram);
+
+                qDebug() << "Received multicast message from" << sender.toString() << ":" << message;
+
+                QRegExp rx("AP:\\d+\\.\\d+\\.\\d+");
+                if(rx.exactMatch(message)) {
+                    qDebug() << "Found matching version format, leaving multicast group";
+
+                    QString ipStr = sender.toString();
+                    if(_m2Manager == nullptr) {
+                        qInfo() << "new M2Manager";
+                        _m2Manager = new M2Manager(ipStr, this);
+                        emit m2ManagerChanged();
+                    }
+
+                    _m2boardcastSocket->disconnect();
+                    _m2boardcastSocket->close();
+                    _m2boardcastSocket->deleteLater();
+                    _m2boardcastSocket = nullptr;
+                }
+            }
+        });
     } else {
-        qWarning() << "qGroundControlQmlGlobal is NOT null!";
-    }
-
-    if(qGroundControlQmlGlobal){
-        qInfo() << "Not null";
-
-        M2Manager* m2 = qGroundControlQmlGlobal ? qGroundControlQmlGlobal->m2Manager() : nullptr;
-        if (m2) {
-
-        }
+        qWarning() << "Failed to bind multicast socket:" << _m2boardcastSocket->errorString();
+        _m2boardcastSocket->deleteLater();
+        _m2boardcastSocket = nullptr;
     }
 
     return qmlEngine;

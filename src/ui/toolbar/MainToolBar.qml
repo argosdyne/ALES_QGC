@@ -175,7 +175,7 @@ Rectangle {
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
-        source:             QGroundControl.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
+        source:             QGroundControl.corePlugin.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
     }
 
     // Small parameter download progress bar
