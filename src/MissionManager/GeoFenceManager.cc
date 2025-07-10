@@ -109,6 +109,23 @@ void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
 
     // Plan manager takes control of MissionItems, so no need to delete
     writeMissionItems(fenceItems);
+
+
+    MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+    if(manager){
+        if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+            qInfo() << "This is PX4";
+            Fact* min = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_MIN_VER_DIST");
+            min->setRawValue(0);
+            Fact* start = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ST_CLK_TIM");
+            start->setRawValue(0);
+            Fact* duration = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_SUSTAIN_HOR_T");
+            duration->setRawValue(23);
+            Fact* utc = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_OFF_ZONE_TIM");
+            utc->setRawValue(9);
+        }
+    }
+
 }
 
 void GeoFenceManager::removeAll(void)

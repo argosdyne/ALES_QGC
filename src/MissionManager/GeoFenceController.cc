@@ -440,6 +440,15 @@ void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordin
 
     clearAllInteractive();
     polygon->setInteractive(true);
+
+    MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+    if(manager){
+        if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+            qInfo() << "This is PX4";
+            Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
+            inclusion->setRawValue(true);
+        }
+    }
 }
 
 void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordinate bottomRight)
@@ -461,6 +470,15 @@ void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordina
 
     clearAllInteractive();
     circle->setInteractive(true);
+
+    MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+    if(manager){
+        if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+            qInfo() << "This is PX4";
+            Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
+            inclusion->setRawValue(true);
+        }
+    }
 }
 
 void GeoFenceController::deletePolygon(int index)
