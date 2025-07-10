@@ -79,6 +79,7 @@ QGCToolbox::QGCToolbox(QGCApplication* app)
 #if defined(QGC_GST_MICROHARD_ENABLED)
     _microhardManager       = new MicrohardManager          (app, this);
 #endif
+
 }
 
 void QGCToolbox::setChildToolboxes(void)

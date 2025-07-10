@@ -18,6 +18,8 @@
 #include "ADSBVehicleManager.h"
 #include "QGCPalette.h"
 #include "QmlUnitsConversion.h"
+#include <QUdpSocket>
+#include "M2Manager.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -115,6 +117,8 @@ public:
 #if defined(QGC_ENABLE_PAIRING)
     Q_PROPERTY(PairingManager*      pairingManager          READ pairingManager         CONSTANT)
 #endif
+    
+
 
     Q_INVOKABLE void    saveGlobalSetting       (const QString& key, const QString& value);
     Q_INVOKABLE QString loadGlobalSetting       (const QString& key, const QString& defaultValue);
@@ -170,6 +174,9 @@ public:
 #else
     bool                    supportsPairing     ()  { return false; }
 #endif
+
+
+
     static QGeoCoordinate   flightMapPosition   ()  { return _coord; }
     static double           flightMapZoom       ()  { return _zoom; }
 
@@ -241,6 +248,7 @@ signals:
     void flightMapZoomChanged           (double flightMapZoom);
     void skipSetupPageChanged           ();
 
+
 private:
     double                  _flightMapInitialZoom   = 17.0;
     LinkManager*            _linkManager            = nullptr;
@@ -262,6 +270,8 @@ private:
 #if defined(QGC_ENABLE_PAIRING)
     PairingManager*         _pairingManager         = nullptr;
 #endif
+
+
 
     bool                    _skipSetupPage          = false;
     QStringList             _altitudeModeEnumString;

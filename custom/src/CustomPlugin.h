@@ -21,6 +21,10 @@
 #include <QTranslator>
 #include "codevsettings.h"
 
+#include "QGroundControlQmlGlobal.h"
+
+#include "M2Manager.h"
+
 class CustomOptions;
 class CustomPlugin;
 class CustomSettings;
@@ -51,6 +55,7 @@ public:
 
 private:
     CustomFlyViewOptions* _flyViewOptions = nullptr;
+
 };
 
 class CustomPlugin : public QGCCorePlugin
@@ -94,9 +99,13 @@ public:
     // Overrides from QGCTool
     void                    setToolbox                      (QGCToolbox* toolbox);
 
+    Q_PROPERTY(M2Manager*           m2Manager               READ m2Manager              NOTIFY m2ManagerChanged)
+    M2Manager*              m2Manager           ()  { return _m2Manager; }
+
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
+    void m2ManagerChanged               ();
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -108,6 +117,10 @@ private slots:
 
 private:
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
+    QGroundControlQmlGlobal* qGroundControlQmlGlobal;
+
+    QUdpSocket*             _m2boardcastSocket      = nullptr;
+    M2Manager*              _m2Manager              = nullptr;
 
 private:
     SiYiManager* _siyiManager = nullptr;
@@ -122,4 +135,5 @@ private:
     bool _coachMode{false};
     bool _slaveMode{false};
     bool _forceSendRC{false};
+
 };

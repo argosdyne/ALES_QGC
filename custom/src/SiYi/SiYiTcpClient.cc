@@ -78,7 +78,7 @@ void SiYiTcpClient::run()
     connect(tcpClient, &QTcpSocket::errorOccurred, tcpClient, [=](){
         heartbeatTimer->stop();
         exit();
-        qInfo() << info << tcpClient->errorString();
+        //qInfo() << info << tcpClient->errorString();
     });
 
     // Send regularly
