@@ -18,6 +18,7 @@ QMAKE_CXXFLAGS += /std:c++20
 QMAKE_CXXFLAGS += /wd5051
 QMAKE_CXXFLAGS += /Wv:18
 QMAKE_CXXFLAGS += -wd4309
+QMAKE_CXXFLAGS += /utf-8
 }
 
 # These are disabled until proven correct

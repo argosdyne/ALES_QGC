@@ -181,13 +181,13 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 
     for (int i = 0; i < newChannelValues.size(); ++i) {
         if (_prevChannelValues[i] != newChannelValues[i]) {
-            qCDebug(AVIATORInterfaceLog) << "채널" << (i + 1) << "값 변경됨: 이전 값 =" << _prevChannelValues[i] << ", 새로운 값 =" << newChannelValues[i];
+            qCDebug(AVIATORInterfaceLog) << "Channel" << (i + 1) << "Changed: Previous Value =" << _prevChannelValues[i] << ", New Value1 =" << newChannelValues[i];
         }
     }
-    // 채널 값을 최신 값으로 업데이트
+
     _prevChannelValues = newChannelValues;
 
-    // 기존 로직 수행
+
     for (uint16_t value : newChannelValues) {
         _rcChannelValues.append(QVariant::fromValue(value));
     }
@@ -204,25 +204,25 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f3 = channels.chan16_raw == 2000;
 
 
-    // F1 버튼 처리
+    // F1 
     if(f1 != _f1Pressed) {
         _f1Pressed = f1;
-        qCDebug(AVIATORInterfaceLog) << "F1 버튼 상태 변경: " << (_f1Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "F1 Button State Changed: " << (_f1Pressed ? "눌림" : "해제됨");
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_GIMBAL_RESET, _f1Pressed);
         qCDebug(AVIATORInterfaceLog) << "GIMBAL RESET 명령 전송: " << _f1Pressed;
     }
 
-    // F2 버튼 처리
+    // F2 
     if(f2 != _f2Pressed) {
         _f2Pressed = f2;
-        qCDebug(AVIATORInterfaceLog) << "F2 버튼 상태 변경: " << (_f2Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "F2 Button State Changed: " << (_f2Pressed ? "눌림" : "해제됨");
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_COACH_WAYPOINT, _f2Pressed); //ButtonType_F2
         qCDebug(AVIATORInterfaceLog) << "COACH WAYPOINT 명령 전송: " << _f2Pressed;
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_THERMAL_ZOOM, _f2Pressed);
         qCDebug(AVIATORInterfaceLog) << "THERMAL ZOOM 명령 전송: " << _f2Pressed;
     }
 
-    // F3 버튼 처리
+    // F3 
     static int f3Count = 0;
     if(f3) {
         f3Count++;
@@ -237,7 +237,7 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f3Pressed = (f3Count > 250); // 5s
     if(f3Pressed != _f3Pressed) {
         _f3Pressed = f3Pressed;
-        qCDebug(AVIATORInterfaceLog) << "F3 버튼 상태 변경: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, _f3Pressed);
         qCDebug(AVIATORInterfaceLog) << "START MISSION 명령 전송: " << _f3Pressed;
     }
@@ -261,32 +261,32 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 
     if(cn1 != _cn1Pressed){
         _cn1Pressed = cn1;
-        qCDebug(AVIATORInterfaceLog) << "cn1 버튼 상태 변경: " << (_cn1Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn1 Button State Changed: " << (_cn1Pressed ? "눌림" : "해제됨");
     }
 
     if (cn2 != _cn2Pressed) {
         _cn2Pressed = cn2;
-        qCDebug(AVIATORInterfaceLog) << "cn2 버튼 상태 변경: " << (_cn2Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn2 Button State Changed: " << (_cn2Pressed ? "눌림" : "해제됨");
     }
 
     if (cn3 != _cn3Pressed) {
         _cn3Pressed = cn3;
-        qCDebug(AVIATORInterfaceLog) << "cn3 버튼 상태 변경: " << (_cn3Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn3 Button State Changed: " << (_cn3Pressed ? "눌림" : "해제됨");
     }
 
     if (cn4 != _cn4Pressed) {
         _cn4Pressed = cn4;
-        qCDebug(AVIATORInterfaceLog) << "cn4 버튼 상태 변경: " << (_cn4Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn4 Button State Changed: " << (_cn4Pressed ? "눌림" : "해제됨");
     }
 
     if (cn5 != _cn5Pressed) {
         _cn5Pressed = cn5;
-        qCDebug(AVIATORInterfaceLog) << "cn5 버튼 상태 변경: " << (_cn5Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn5 Button State Changed: " << (_cn5Pressed ? "눌림" : "해제됨");
     }
 
     if (cn6 != _cn6Pressed) {
         _cn6Pressed = cn6;
-        qCDebug(AVIATORInterfaceLog) << "cn6 버튼 상태 변경: " << (_cn6Pressed ? "눌림" : "해제됨");
+        qCDebug(AVIATORInterfaceLog) << "cn6 Button State Changed: " << (_cn6Pressed ? "눌림" : "해제됨");
     }
 
     if (cn7 != _cn7Pressed) {

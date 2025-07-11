@@ -23,7 +23,8 @@ qrc_*.cpp
 *.Debug
 *.Release
 tmp
-debug
+debug/
+!src/CGAL/include/boost/preprocessor/debug
 release
 /qgroundcontrol
 qgroundcontrol.xcodeproj/**

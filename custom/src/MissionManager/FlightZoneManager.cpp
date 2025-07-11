@@ -564,8 +564,8 @@ void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, 
 
     QNetworkRequest request(fullUrl);
 
-    // Add headers    
-    request.setRawHeader("Authorization", "X-AA-ApiKey pJGT9n0ZQJxr3uqO4bz_4uAS2yx-hZzQkBbYopSv0");
+    // Add headers
+    request.setRawHeader("Authorization", "X-AA-ApiKey OMe8U1SkKWyT-zBz90_ECAGdVvvD7TvGxMsbDtN50");
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     // Send GET request
@@ -970,7 +970,11 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                     QGeoCoordinate coordinate(lat, lon);
 
 
-                    if (currentTime < validTo) {
+                    if(category == "airspace"){
+                        continue;
+                    }
+
+                    if (currentTime < validTo || (operationalFrom == "" && operationalTo == "")) {
                         if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
                         {        
                             qInfo(FlightZoneManagerLog) << "geoJsonNameList count = 0";
@@ -996,7 +1000,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
             }
 
             // Add to polygon list
-            if(currentTime < validTo){
+            if(currentTime < validTo || (operationalFrom == "" && operationalTo == "")){
                 if(!_polygons.contains(polygon)){
                     _polygons.append(polygon);
                 }
