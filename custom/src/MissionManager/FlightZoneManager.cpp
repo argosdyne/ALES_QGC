@@ -551,6 +551,8 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, double w)
 {
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
+    QString onlineLicenseKey =_settingsManager->flyViewSettings()->onlineLicenseKey()->rawValueString();
+    QString authorizationHeader = "X-AA-ApiKey " + onlineLicenseKey;
     qInfo(FlightZoneManagerLog) << "online Url : " << onlineUrl;
     QString url = "https://api.altitudeangel.com/v2/mapdata/geojson";
     QUrl fullUrl(onlineUrl);
@@ -565,7 +567,7 @@ void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, 
     QNetworkRequest request(fullUrl);
 
     // Add headers
-    request.setRawHeader("Authorization", "X-AA-ApiKey OMe8U1SkKWyT-zBz90_ECAGdVvvD7TvGxMsbDtN50");
+    request.setRawHeader("Authorization", authorizationHeader.toUtf8());
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     // Send GET request
@@ -656,7 +658,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
     }
     else {
         if(zoom >= 14)  { // 테스트용으로 8 원래는 13
-            qInfo(FlightZoneManagerLog) << "FlightMap zoom Over 12: " << qGroundControlQmlGlobal->flightMapZoom();
+            //qInfo(FlightZoneManagerLog) << "FlightMap zoom Over 12: " << qGroundControlQmlGlobal->flightMapZoom();
             // 메소드를 한번만 실행시켜야됨
             // 없으면 생성. 있으면 생성 안해야됨. 조건은 추가 필요.
             if(_polygons.count() == 0) { // 이미 생성되어 있음
@@ -683,7 +685,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
             }
         }
         else if(zoom < 11){
-            qInfo(FlightZoneManagerLog) << "FlightMap zoom less 10: " << qGroundControlQmlGlobal->flightMapZoom();
+            //qInfo(FlightZoneManagerLog) << "FlightMap zoom less 10: " << qGroundControlQmlGlobal->flightMapZoom();
             // 생성된거 전부 삭제
             removeAll();
         }
@@ -938,8 +940,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
         QJsonObject altitudeFloor = properties.value("altitudeFloor").toObject();
         double floorMeters = altitudeFloor.value("meters").toDouble();
-
-
+        QGCFencePolygon* polygon;
 
 
         QDateTime validFrom = QDateTime::fromString(operationalFrom, "yyyy-MM-dd");
@@ -947,7 +948,12 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
         // geometry의 타입 확인 (Polygon 또는 Point)
         QString geometryType = geometry.value("type").toString();
-        QGCFencePolygon* polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
+
+
+        if(category != "airspace"){
+            polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
+        }
+
         QList<NoFlyZone> noFlyZone;
         // Polygon 처리
         if (geometryType == "Polygon") {
@@ -970,9 +976,6 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                     QGeoCoordinate coordinate(lat, lon);
 
 
-                    if(category == "airspace"){
-                        continue;
-                    }
 
                     if (currentTime < validTo || (operationalFrom == "" && operationalTo == "")) {
                         if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
@@ -990,8 +993,10 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                         }
                         else {
                             //현재 날짜가 validTo를 넘으면 결국에는 유효기간이 지난거니까 그 부분은 리스트에 안넣도록 한다.
-                            polygon->appendVertex(coordinate);
 
+                            if(category != "airspace"){
+                                polygon->appendVertex(coordinate);
+                            }
                             noFlyZone.append(NoFlyZone(QGeoCoordinate(lat, lon), floorMeters, ceilingMeters));
                         }
                     }
@@ -1001,11 +1006,16 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
             // Add to polygon list
             if(currentTime < validTo || (operationalFrom == "" && operationalTo == "")){
-                if(!_polygons.contains(polygon)){
-                    _polygons.append(polygon);
+
+                if(category != "airspace") {
+                    if(!_polygons.contains(polygon)){
+                        qInfo() << "Add Polygon------------";
+                        _polygons.append(polygon);
+                    }
                 }
 
                 if(!allNoFlyZones.contains(noFlyZone)){
+                    qInfo() << "Add NoFlyZone to All No Fly Zones";
                     allNoFlyZones.append(noFlyZone);
                 }
                 // Add to polygon list
@@ -1014,16 +1024,18 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
 
 
-                    qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
+                    // qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
 
 
-                    qInfo(FlightZoneManagerLog) << "Polygon added with ID:" << polygonid;
-                    qInfo(FlightZoneManagerLog) << "Current polygon count:" << _polygons.count();
+                    // qInfo(FlightZoneManagerLog) << "Polygon added with ID:" << polygonid;
+                    // qInfo(FlightZoneManagerLog) << "Current polygon count:" << _polygons.count();
                 }
             }
             // Point 처리
             else if (geometryType == "Point") {
                 QJsonArray coordinates = geometry.value("coordinates").toArray();
+
+                qInfo() << "geometry info = " << geometry;
                 if (coordinates.isEmpty()) continue;
 
                 for (const QJsonValue& ring : coordinates) {
@@ -1061,15 +1073,16 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                 qInfo(FlightZoneManagerLog) << "altitudeCeiling : " << ceilingMeters;
                 qInfo(FlightZoneManagerLog) << "altitudeFloor : " << floorMeters;
 
-                polygon->setcolorInclusion(strokeColor);
-                polygon->setstrokeOpacity(strokeOpacity.toDouble());
-
+                if(category != "airspace") {
+                    polygon->setcolorInclusion(strokeColor);
+                    polygon->setstrokeOpacity(strokeOpacity.toDouble());
+                }
                 //중복 대비. list에도 이름을 넣는다. 만약 이름이 똑같으면 그거는 list에 안넣는거로 한다.
             }
 
         }
 
-        qInfo(FlightZoneManagerLog) << "Processing complete. Total polygons:" << _polygons.count();
+        //qInfo(FlightZoneManagerLog) << "Processing complete. Total polygons:" << _polygons.count();
     }
 }
 

@@ -34,4 +34,25 @@ DECLARE_SETTINGSFACT(FlyViewSettings, alarmDistance)
 DECLARE_SETTINGSFACT(FlyViewSettings, dataType)
 DECLARE_SETTINGSFACT(FlyViewSettings, filePath)
 DECLARE_SETTINGSFACT(FlyViewSettings, onlinePath)
+DECLARE_SETTINGSFACT(FlyViewSettings, onlineLicenseKey)
+
+
+QString FlyViewSettings::readTextFile(const QString& path) {
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return "";
+    QTextStream in(&file);
+    return in.readAll();
+}
+
+void FlyViewSettings::setFilePathRawValue(QString filepath){
+    filePath()->setRawValue(filepath);
+}
+
+void FlyViewSettings:: setOnlinePathRawValue(QString onlinepath){
+    onlinePath()->setRawValue(onlinepath);
+}
+
+void FlyViewSettings:: setOnlineLicenseKeyRawValue(QString lisencekey){
+    onlineLicenseKey()->setRawValue(lisencekey);
+}
 

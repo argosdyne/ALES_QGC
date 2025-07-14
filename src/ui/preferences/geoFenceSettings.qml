@@ -108,7 +108,7 @@ Rectangle {
 
                                 QGCLabel {
                                     id:         videoDecodeLabel
-                                    text:       qsTr("Select GeoAwareness data type")
+                                    text:       qsTr("Select GeoAwareness Data Type")
                                     visible:    geoDataType.visible
                                 }
                                 FactComboBox {
@@ -150,10 +150,12 @@ Rectangle {
                                             let plainPath = fileUrl.toString().startsWith("file:///") ? fileUrl.toString().substring(8) : fileUrl.toString()
                                                 console.log("Plain file path: " + plainPath)
                                                 filePathTextField.text = plainPath
+                                                _flyViewSettings.setFilePathRawValue(plainPath)
                                         }
                                         else {
                                             filePathTextField.text = fileUrl.toString()
-                                        }
+                                            _flyViewSettings.setFilePathRawValue(fileUrl.toString())
+                                        }                                                                                
                                     }
                                     // 파일 선택 취소 시 호출
                                     onRejected: {
@@ -170,6 +172,64 @@ Rectangle {
                                 Layout.fillWidth:   true
                                 visible:            geoDataType.currentIndex === 1
                                 fact:               _flyViewSettings.onlinePath
+
+                                Connections {
+                                    target: onlinePath.fact
+                                    onValueChanged: {
+                                        console.log("onlinePath 값이 변경됨:", onlinePath.fact.value)
+                                        _flyViewSettings.setOnlinePathRawValue(onlinePath.text)
+                                    }
+                                }
+                            }
+                            QGCLabel {
+                                text: qsTr("License key")
+                                visible: geoDataType.currentIndex === 1
+                            }
+
+                            FactTextField {
+                                id: licenceKey
+                                Layout.fillWidth: true
+                                visible: geoDataType.currentIndex === 1
+                                fact: _flyViewSettings.onlineLicenseKey
+                            }
+
+                            QGCButton {
+                                visible:    geoDataType.currentIndex === 1
+                                text:       qsTr("Read txt")
+                                onClicked:  androidFileDialog2.open()
+                                FileDialog {
+                                    id: androidFileDialog2
+                                    title: "Select a File"
+                                    folder: Qt.platform.os === "android" ? "/storage/emulated/0/" : fileUrl
+                                    nameFilters: ["All Files (*)", "Text Files (*.txt)"] // 원하는 파일 필터
+                                    selectExisting: true
+                                    selectMultiple: false
+                                    selectFolder: false
+
+                                    // 파일 선택 완료 시 호출
+                                    onAccepted: {
+                                        console.log("Selected file path: " + fileUrl) // 선택한 파일의 경로 출력
+                                        console.log("Current platform : " + Qt.platform.os)
+
+                                        if(Qt.platform.os === "windows"){
+                                            let plainPath = fileUrl.toString().startsWith("file:///") ? fileUrl.toString().substring(8) : fileUrl.toString()
+                                                console.log("Plain file path: " + plainPath)
+                                                //licenceKey.text = plainPath
+                                            licenceKey.text = _flyViewSettings.readTextFile(plainPath)
+                                            _flyViewSettings.setOnlineLicenseKeyRawValue(_flyViewSettings.readTextFile(plainPath))
+                                        }
+                                        else {
+                                            //licenceKey.text = fileUrl.toString()
+                                            licenceKey.text = _flyViewSettings.readTextFile(fileUrl.toString())
+                                            _flyViewSettings.setOnlineLicenseKeyRawValue(_flyViewSettings.readTextFile(fileUrl.toString()))
+
+                                        }
+                                    }
+                                    // 파일 선택 취소 시 호출
+                                    onRejected: {
+                                        console.log("File selection cancelled.")
+                                    }
+                                }
                             }
                         }
                     }

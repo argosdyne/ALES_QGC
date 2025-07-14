@@ -84,7 +84,7 @@ Item {
         _paramCircleFenceComponent = paramCircleFenceComponent.createObject(map)
         map.addMapItem(_paramCircleFenceComponent)
 
-        console.log("GeoFenceMapVisuals Component.onCompleted");
+       // console.log("GeoFenceMapVisuals Component.onCompleted");
 
     }
 
@@ -114,10 +114,10 @@ Item {
             interiorOpacity:    object.strokeOpacity //0.5//object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
             interactive:        _root.interactive && mapPolygon && mapPolygon.interactive
 
-            Component.onCompleted: {
-                console.log("QGCMapPolygonVisuals object inclusion = ", object.inclusion);
-                console.log("QGCMapPolygonVisuals = ", object.colorInclusion);
-            }
+            // Component.onCompleted: {
+            //     console.log("QGCMapPolygonVisuals object inclusion = ", object.inclusion);
+            //     console.log("QGCMapPolygonVisuals = ", object.colorInclusion);
+            // }
         }
     }
 
@@ -136,6 +136,8 @@ Item {
             interactive:         _root.interactive && mapCircle && mapCircle.interactive
         }
     }
+
+
 
     // Circular geofence specified from parameter
     Component {

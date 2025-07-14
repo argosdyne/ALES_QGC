@@ -36,4 +36,10 @@ public:
     DEFINE_SETTINGFACT(dataType)
     DEFINE_SETTINGFACT(filePath)
     DEFINE_SETTINGFACT(onlinePath)
+    DEFINE_SETTINGFACT(onlineLicenseKey)
+
+    Q_INVOKABLE QString readTextFile(const QString& path);
+    Q_INVOKABLE void setFilePathRawValue(QString filePath);
+    Q_INVOKABLE void setOnlinePathRawValue(QString onlinePath);
+    Q_INVOKABLE void setOnlineLicenseKeyRawValue(QString onlineLicenseKey);
 };

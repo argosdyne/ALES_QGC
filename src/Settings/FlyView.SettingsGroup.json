@@ -106,13 +106,19 @@
     "name": "filePath",
     "shortDesc": "GeoAwareness file Path",
     "type": "string",
-    "default": "Default"
+    "default": "map.geojson"
 },
 {
     "name": "onlinePath",
     "shortDesc": "GeoAwareness online file path",
     "type": "string",
-    "default": "Default"
+    "default": "https://api.altitudeangel.com/v2/mapdata/geojson"
+},
+{
+    "name": "onlineLicenseKey",
+    "shortDesc": "GeoAwareness online license key",
+    "type": "string",
+    "default": "OMe8U1SkKWyT-zBz90_ECAGdVvvD7TvGxMsbDtN50"
 }
 ]
 }
