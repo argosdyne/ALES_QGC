@@ -23,17 +23,15 @@ class FlightZoneManager : public QObject
 public:
     FlightZoneManager();
 
-    void testPolyhedronDistance();
-
     Q_PROPERTY(QmlObjectListModel*  polygons                READ polygons                                           CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  circles                 READ circles                                            CONSTANT)
 
 
-    Q_INVOKABLE void _init();
+    void start();
     Q_INVOKABLE void updatePolygonVisibility();
 
     //Check zoom value
-    Q_INVOKABLE void checkCurrentZoomValue();
+    void checkCurrentZoomValue();
 
     QString getFilePath();
     void processJsonFile(const QString& filePath);
@@ -85,6 +83,11 @@ private:
 
     QTimer _zoomTimer;
 
+    QTimer* _debounceTimer = nullptr;
+    double _lastZoom = 0;
+    QGeoCoordinate _lastMapCoord;
+    void _processZoomCheck();
+
     QTimer _distanceTimer;
 
     QTimer _updateTimer;
@@ -102,6 +105,8 @@ private:
 
     //MultiVehicleManager* multiVehicleManager;
     QGCPositionManager* qgcpositionManager;
+    bool _oneTime = false;
+    bool _isGroundHazard = false;
 };
 
 class FlightValidTime {

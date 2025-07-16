@@ -19,8 +19,6 @@ CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
     //Check latest map cache update date & time
     //showMapUpdateDate();
 
-    QString msg = "Please download the map of the flight\n area, currently only loading 10%.";
-    //showMessage(msg, SystemMessage::Error);
     qInfo() << "CusstomQmlInterface showmessage";
 
 
@@ -225,6 +223,8 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     , _opacity(1)
     , _customQmlInterface(parent)
     , _yAnimation(nullptr)
+    , _geoAwarenessOpacity(1)
+    , _geoAwarenessYAnimation(nullptr)
 {
     QPropertyAnimation *opacityAnimation = new QPropertyAnimation(this, "opacity", this);
     opacityAnimation->setDuration(200);
@@ -233,7 +233,17 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     opacityAnimation->start();
 
     _timer.setSingleShot(true);
-    connect(&_timer, &QTimer::timeout, this, &SystemMessage::startCloseItstyle);    
+    connect(&_timer, &QTimer::timeout, this, &SystemMessage::startCloseItstyle);
+
+    QPropertyAnimation *opacityAnimation2 = new QPropertyAnimation(this, "geoAwarenessOpacity", this);
+    opacityAnimation2->setDuration(200);
+    opacityAnimation2->setStartValue(0);
+    opacityAnimation2->setEndValue(1);
+    opacityAnimation2->start();
+
+    qInfo() << "SystemMessage Start!!!";
+    _geoAwarenessTimer.setSingleShot(true);
+    connect(&_geoAwarenessTimer, &QTimer::timeout, this, &SystemMessage::geoAwarnessStartCloseItstyle);
 }
 
 QPropertyAnimation* SystemMessage::createYAnimation(QVariant from, QVariant to)
@@ -323,7 +333,7 @@ void SystemMessage::setType(const SystemMessageType &type)
 
 void SystemMessage::setOpacity(const float &opacity)
 {
-    _opacity = opacity;
+    _opacity = opacity;    
     emit opacityChanged(_opacity);
 }
 
@@ -331,4 +341,156 @@ void SystemMessage::setY(const float &y)
 {
     _y = y;
     emit yChanged(_y);
+}
+
+
+// GeoAwareness --------------------------------------------------------------------------------------------------------------------
+static bool _geoAwarenessInsideMessageShown = false;
+static bool _geoAwarenessNearMessageShown = false;
+static bool _geoAwarenessNoDataMessageShown = false;
+
+void CustomQmlInterface::geoAwarenessMessage(const QString& message)
+{
+
+    qInfo() << "geoAwareness Messag e== " << message;
+    qInfo() << "_geoAwarenessMessageShown == " << _geoAwarenessInsideMessageShown;
+    qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
+    qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
+
+    enum MessageType {
+        None,
+        Inside,
+        Near,
+        NoData
+    };
+
+    MessageType type = None;
+
+    if (message.contains("Drone is inside")) {
+        type = Inside;
+    } else if (message.contains("The distance between the aircraft")) {
+        type = Near;
+    } else if (message.contains("Cannot access GeoZone data")) {
+        type = NoData;
+    }
+
+    // 이미 보여줬다면 return
+    switch (type) {
+    case Inside:
+        if (_geoAwarenessInsideMessageShown)
+            return;
+        _geoAwarenessInsideMessageShown = true;
+        break;
+    case Near:
+        if (_geoAwarenessNearMessageShown)
+            return;
+        _geoAwarenessNearMessageShown = true;
+        break;
+    case NoData:
+        if (_geoAwarenessNoDataMessageShown)
+            return;
+        _geoAwarenessNoDataMessageShown = true;
+        break;
+    default:
+        return; // 처리할 수 없는 메시지
+    }
+
+    SystemMessage* m = new SystemMessage(this);
+    m->setGeoAwarenessContext(message);
+    m->setGeoAwarenessType();
+
+    //Test
+    //_geoAwarenessNormalSystemMessages.append(m);
+
+    _geoAwarenessMessages.append(m);
+    qInfo() << "_geoAwarenessMessages.count == " << _geoAwarenessMessages.count();
+    _geoAwarenessRefreshSystemMessageUI(true);
+}
+
+void SystemMessage::setGeoAwarenessContext(const QString &context)
+{
+    _geoAwarenessContext = context;
+    _geoAwarenessWidth = _customQmlInterface->_defaultFontPixelWidth * 1 * (CHAR_NUMBER_EACH_ROW + 3) + _customQmlInterface->_defaultFontPixelHeight * 1 * 20;
+    _geoAwarenessHeight = _customQmlInterface->_defaultFontPixelWidth * 1 * 5 + _customQmlInterface->_defaultFontPixelHeight * 1 * (_geoAwarenessContext.length() / CHAR_NUMBER_EACH_ROW + 1);
+
+    qInfo() << "Width = " << _geoAwarenessWidth;
+    qInfo() << "Height = " << _geoAwarenessHeight;
+}
+
+void SystemMessage::setGeoAwarenessOpacity(const float &opacity)
+{
+    _geoAwarenessOpacity = opacity;
+    emit geoAwarenessOpacityChanged(_geoAwarenessOpacity);
+}
+
+void SystemMessage::setGeoAwarenessY(const float &geoy)
+{
+    _geoAwarenessY = geoy;    
+    emit geoAwarenessYChagned(_geoAwarenessY);
+}
+
+void CustomQmlInterface::_geoAwarenessRefreshSystemMessageUI(bool from)
+{
+    if(_geoAwarenessGroup.state() == QAbstractAnimation::Running) _geoAwarenessGroup.stop();
+    _geoAwarenessGroup.clear();
+    float y = _defaultFontPixelHeight * 0.5;
+    for(int i = _geoAwarenessMessages.count() - 1; i >= 0; i--) {
+        SystemMessage* m = _geoAwarenessMessages.value<SystemMessage*>(i);
+        QPropertyAnimation* animation = from ? m->geoAwarenessCreateYAnimation(y - m->geoAwarenessHeight(), y) : m->geoAwarenessCreateYAnimation(m->y(), y);
+        _geoAwarenessGroup.addAnimation(animation);
+        y += m->geoAwarenessHeight() + _defaultFontPixelHeight * 0.5;
+    }
+    _geoAwarenessGroup.start();
+}
+
+void SystemMessage::geoAwarnessStartCloseItstyle()
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "geoAwarenessOpacity", this);
+    animation->setDuration(2000);
+    animation->setStartValue(1);
+    animation->setEndValue(0);
+    connect(animation, &QPropertyAnimation::finished, this, &SystemMessage::geoAwarenessCloseItstyle);
+    animation->start();
+}
+
+void SystemMessage::geoAwarenessCloseItstyle()
+{
+    if(_customQmlInterface->_geoAwarenessGroup.indexOfAnimation(_geoAwarenessYAnimation) > -1) {
+        _customQmlInterface->_geoAwarenessGroup.removeAnimation(_geoAwarenessYAnimation);
+        _geoAwarenessYAnimation->deleteLater();
+        _geoAwarenessYAnimation = nullptr;
+    }
+    int index = _customQmlInterface->_geoAwarenessMessages.indexOf(this);
+    qInfo() << "INdex == " << index;
+    qInfo() << "this ==== " << this;
+    _customQmlInterface->_geoAwarenessNormalSystemMessages.removeOne(this);
+    _customQmlInterface->_geoAwarenessMessages.removeAt(index)->deleteLater();
+
+    if(index > 0) {
+        _customQmlInterface->_geoAwarenessRefreshSystemMessageUI(false);
+    }
+    if (_geoAwarenessContext.contains("Drone is inside")) {
+        _geoAwarenessInsideMessageShown = false;
+    } else if (_geoAwarenessContext.contains("The distance between the aircraft")) {
+        _geoAwarenessNearMessageShown = false;
+    } else if (_geoAwarenessContext.contains("Cannot access GeoZone data")) {
+        _geoAwarenessNoDataMessageShown = false;
+    }
+}
+
+QPropertyAnimation* SystemMessage::geoAwarenessCreateYAnimation(QVariant from, QVariant to)
+{
+    _geoAwarenessYAnimation = new QPropertyAnimation(this, "geoAwarenessY", this);
+    _geoAwarenessYAnimation->setDuration(200);
+    _geoAwarenessYAnimation->setStartValue(from);
+    _geoAwarenessYAnimation->setEndValue(to);
+
+    return _geoAwarenessYAnimation;
+}
+
+void SystemMessage::setGeoAwarenessType()
+{
+    //Timer only show 10s
+    if(_geoAwarenessTimer.isActive()) _geoAwarenessTimer.stop();
+    _geoAwarenessTimer.start(10000);
 }

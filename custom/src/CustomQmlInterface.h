@@ -52,13 +52,39 @@ public:
 
     QPropertyAnimation* createYAnimation(QVariant from, QVariant to);
 
+    //GeoAwareness --------------------------------------------------------------
+    Q_PROPERTY(QString geoAwarenessContext READ geoAwarenessContext CONSTANT)
+    QString geoAwarenessContext(void) const {return _geoAwarenessContext; }
+    void setGeoAwarenessContext(const QString& context);
+    Q_PROPERTY(float geoAwarenessWidth READ geoAwarenessWidth CONSTANT)
+    Q_PROPERTY(float geoAwarenessHeight READ geoAwarenessHeight CONSTANT)
+    Q_PROPERTY(float geoAwarenessOpacity READ geoAwarenessOpacity WRITE setGeoAwarenessOpacity NOTIFY geoAwarenessOpacityChanged)
+    Q_PROPERTY(float geoAwarenessY READ geoAwarenessY WRITE setGeoAwarenessY NOTIFY geoAwarenessYChagned)
+    float geoAwarenessWidth(void) const {return _geoAwarenessWidth; }
+    float geoAwarenessHeight(void) const {return _geoAwarenessHeight; }
+    float geoAwarenessOpacity(void) const {return _geoAwarenessOpacity; }
+    float geoAwarenessY(void) const {return _geoAwarenessY; }
+    void setGeoAwarenessOpacity(const float& opacity);
+    void setGeoAwarenessY(const float& geoy);
+    QPropertyAnimation* geoAwarenessCreateYAnimation(QVariant from, QVariant to);    
+    void setGeoAwarenessType();
+
+
 public slots:
     void closeItstyle();
     void startCloseItstyle();
 
+    //GeoAwareness ---
+    void geoAwarenessCloseItstyle();
+    void geoAwarnessStartCloseItstyle();
+
 signals:
     void opacityChanged(const float& opacity);
     void yChanged(const float& y);
+
+    //GeoAwareness ------
+    void geoAwarenessOpacityChanged(const float& opacity);
+    void geoAwarenessYChagned(const float& geoy);
 
 private:
     QTimer _timer;
@@ -70,6 +96,16 @@ private:
     float _y;
     CustomQmlInterface* _customQmlInterface;
     QPropertyAnimation *_yAnimation;
+
+    //GeoAwareness
+    QString _geoAwarenessContext;
+    float _geoAwarenessWidth;
+    float _geoAwarenessHeight;
+    float _geoAwarenessOpacity;
+    float _geoAwarenessY;
+    QPropertyAnimation *_geoAwarenessYAnimation;
+    QTimer _geoAwarenessTimer;
+
 };
 
 class CustomQmlInterface : public QGCTool
@@ -100,6 +136,10 @@ public:
     QmlObjectListModel* systemMessages(void) { return &_systemMessages; }
     LTEManager* lteManager(void) { return _lteManager; }
 
+    //GeoAwareness Messages
+    Q_PROPERTY(QmlObjectListModel* geoAwarenessMessages READ geoAwarenessMessages CONSTANT)
+    QmlObjectListModel* geoAwarenessMessages(void) {return &_geoAwarenessMessages; }
+
     Q_INVOKABLE void playActionSound();
 
     // Overrides from QGCTool
@@ -128,6 +168,9 @@ public slots:
     void handleCustomButtonFunction(int type, bool pressed);
     void showMapUpdateDate();
 
+    //GeoAwareness Message Window
+    void geoAwarenessMessage(const QString& message);
+
 private slots:
     void _slaveModeChanged(bool slaveMode);
 
@@ -136,6 +179,12 @@ private:
     QParallelAnimationGroup _group;
     QmlObjectListModel _systemMessages;
     QList<SystemMessage*> _normalSystemMessages;
+
+    //GeoAwareness Message
+    QmlObjectListModel _geoAwarenessMessages;
+    QList<SystemMessage*> _geoAwarenessNormalSystemMessages;
+    void _geoAwarenessRefreshSystemMessageUI(bool from);
+    QParallelAnimationGroup _geoAwarenessGroup;
 
     CustomPlugin* _plugin{nullptr};
     ARManager* _arManager{nullptr};
@@ -152,5 +201,5 @@ private:
     QGCApplication*         _app;
     static CustomQmlInterface* _instance;
     QString errorMessage = "";
-    QSet<QString> _shownMessages;
+    QSet<QString> _shownMessages;    
 };

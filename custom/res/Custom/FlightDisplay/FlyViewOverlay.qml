@@ -9,7 +9,7 @@
  *   @author Gus Grubba <gus@auterion.com>
  */
 
-import QtQuick          2.12
+import QtQuick          2.15
 import QtQuick.Controls 2.4
 import QtQuick.Layouts  1.11
 import QtGraphicalEffects 1.12
@@ -296,6 +296,151 @@ Item {
                     anchors.margins:    -ScreenTools.defaultFontPixelHeight
                     onClicked: {
                         object.closeItstyle()
+                    }
+                }
+            }
+        }
+    }
+
+
+    //-------------------------------------------------------------------------
+    //-- GeoAwareness Alert Messages
+    Repeater {
+        id: geoAwarenessMessageRepeater
+        model: CustomQmlInterface.geoAwarenessMessages
+        Rectangle {
+            id:                 geoAwarenessMessageArea
+            width:              object.geoAwarenessWidth
+            height:             object.geoAwarenessHeight
+            focus:              true
+            visible:            true
+            color:              "white"//qgcPal.windowShade
+            radius:             ScreenTools.defaultFontPixelWidth * 1.5
+            border.color:       qgcPal.window
+            border.width:       1
+            opacity:            object.geoAwarenessOpacity
+            x:                  Math.round((mainWindow.width - width) * 0.5)
+            y:                  object.geoAwarenessY
+
+            QGCLabel {
+                id: geoAwarenessdumyPrefix
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                text: qsTr("CRITICAL:")
+                visible: false
+            }
+
+            //Draw Left half circle
+            Canvas {
+                id: blueSemicircleCanvas
+                anchors.left: parent.left
+                width: ScreenTools.defaultFontPixelWidth * 1.5
+                height: parent.height // Canvas 높이 (반원의 지름이 될 크기)
+
+                property real cornerRadius: parent.radius // 둥근 모서리의 반지름 (조절 가능)
+                property color fillColor: "red" // 채우기 색상
+                property color strokeColor: "red" // 선 색상 (옵션)
+                property real strokeWidth: 2 // 선 두께 (옵션)
+
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.clearRect(0, 0, width, height); // Canvas 초기화
+
+                    // 도형의 각 점 좌표 계산
+                    // 캔버스 내부에 도형을 그릴 것이므로, 캔버스의 (0,0)을 기준으로 합니다.
+                    var x = 0;
+                    var y = 0;
+                    var w = width;
+                    var h = height;
+                    var r = cornerRadius; // 둥근 모서리 반지름
+
+                    ctx.beginPath();
+                    // 1. 왼쪽 하단 모서리 시작 (곡선 시작점)
+                    // 현재 Canvas의 (0,0)은 왼쪽 위입니다.
+                    // 왼쪽 아래 모서리 둥글게 시작: (x + r, h)
+                    ctx.moveTo(x + r, h);
+
+                    // 2. 아랫변 (오른쪽으로 직선 이동)
+                    ctx.lineTo(x + w, h);
+
+                    // 3. 오른쪽 하단 모서리 (직선, 둥글게 처리하지 않음)
+                    // 오른쪽은 직각이므로, 단순하게 아래변 끝에서 윗변 끝으로 직선으로 올립니다.
+                    // (x + w, h) -> (x + w, y)
+                    ctx.lineTo(x + w, y);
+
+                    // 4. 윗변 (왼쪽으로 직선 이동)
+                    ctx.lineTo(x + r, y);
+
+                    // 5. 왼쪽 상단 모서리 (곡선)
+                    // arcTo(x1, y1, x2, y2, radius)
+                    // (x+r, y)에서 (x,y)를 거쳐 (x, y+r)로 둥글게
+                    ctx.arcTo(x, y, x, y + r, r);
+
+                    // 6. 왼쪽 하단 모서리 (곡선, 경로 닫기)
+                    // (x, y+r)에서 (x,h)를 거쳐 (x+r, h)로 둥글게
+                    ctx.arcTo(x, h, x + r, h, r);
+
+
+                    ctx.closePath(); // 경로 닫기
+
+                    ctx.fillStyle = fillColor;
+                    ctx.fill();
+                }
+            }
+
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 2
+                source:             "qrc:/custom/img/res/Images/redWarning.svg"
+                width:              ScreenTools.defaultFontPixelHeight * 2.5
+                height:             width
+            }
+
+            TextEdit {
+                id:             geoAwarenessMessageAreaMessageText
+                anchors.left:   parent.left
+                anchors.right:  parent.right
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 2 + geoAwarenessdumyPrefix.width
+                anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 2
+                anchors.verticalCenter: geoAwarenessMessageArea.verticalCenter
+                readOnly:       true
+                textFormat:     TextEdit.RichText
+                font.pointSize: ScreenTools.defaultFontPointSize * 2
+                font.family:    ScreenTools.demiboldFontFamily
+                wrapMode:       TextEdit.WordWrap
+                color:          "black"
+                text:           object.geoAwarenessContext
+            }
+            //Seperator line
+            Rectangle {
+                color: "#9fa0a0"
+                width: 1
+                height: parent.height * 0.6
+                anchors.left: geoAwarenessMessageClose.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 10
+            }
+
+            //-- Dismiss Critical Message
+            QGCColoredImage {
+                id:                 geoAwarenessMessageClose
+                anchors.margins:    ScreenTools.defaultFontPixelWidth
+                //anchors.top:        parent.top
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right:      parent.right
+                width:              ScreenTools.defaultFontPixelHeight
+                height:             width
+                sourceSize.height:  width
+                source:             "qrc:/res/XDelete.svg"
+                fillMode:           Image.PreserveAspectFit
+                color:              "#9fa0a0" //qgcPal.buttonText
+                MouseArea {
+                    anchors.fill:       parent
+                    anchors.margins:    -ScreenTools.defaultFontPixelHeight
+                    onClicked: {
+                        object.geoAwarenessCloseItstyle()
                     }
                 }
             }

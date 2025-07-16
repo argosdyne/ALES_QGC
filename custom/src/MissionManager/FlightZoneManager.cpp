@@ -31,6 +31,8 @@
 #include <cmath>
 #include <QDir>
 
+#include "CustomQmlInterface.h"
+
 //new Add Function
 #include <CGAL/Polyhedron_incremental_builder_3.h>
 #include <CGAL/Side_of_triangle_mesh.h>
@@ -74,8 +76,6 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     connect(&_timer, &QTimer::timeout, this, &FlightZoneManager::updatePolygonVisibility);
     _timer.start(1000);
 
-    //testPolyhedronDistance();
-
     connect(manager, &QNetworkAccessManager::finished, this, &FlightZoneManager::onReplyFinished);
     //Start Read GeoJson data from internet
 
@@ -107,18 +107,21 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply)
 {
     if(reply->error() == QNetworkReply::NoError){
         QByteArray responseData = reply->readAll();
-
+        qInfo() << "ReplyFinished";
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
         if(!jsonDoc.isNull()){            
-            //qInfo() << "GeoJson Data" << jsonDoc.toJson(QJsonDocument::Indented);
+            //qInfo() << "GeoJson Data ======= " << jsonDoc.toJson(QJsonDocument::Indented);
             processJsonFile(jsonDoc);
         } else {           
             qInfo(FlightZoneManagerLog) << "Failed to parse GeoJson";
+            QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+            CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         }
-
     }
     else {        
         qInfo(FlightZoneManagerLog) << "Error fetching GeoJson" << reply->errorString();
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
     }
 
     reply->deleteLater();
@@ -133,53 +136,6 @@ Point_3 latLonAltToCartesian(double lat, double lon, double alt) {
     double y = (earthRadius + alt) * cos(radLat) * sin(radLon);
     double z = (earthRadius + alt) * sin(radLat);
     return Point_3(x, y, z);
-}
-
-void FlightZoneManager::testPolyhedronDistance() {
-
-    // Define vertices (arbitrary number)
-    std::vector<Point_3> vertices;
-    //vertices.push_back(latLonAltToCartesian(37.347564, 126.719884, 20.0));
-    vertices.push_back(latLonAltToCartesian(37.347914, 126.719012, 20.0));
-    //vertices.push_back(latLonAltToCartesian(37.347162, 126.719104, 20.0));
-    vertices.push_back(latLonAltToCartesian(37.347546, 126.718293, 20.0));
-    vertices.push_back(latLonAltToCartesian(37.348000, 126.718500, 20.0));
-    vertices.push_back(latLonAltToCartesian(37.347800, 126.719200, 20.0));
-    // Add more vertices as needed...
-
-    // Create the polyhedron (e.g., a triangular prism)
-    Polyhedron P;
-
-    // Connect base vertices (e.g., a quadrilateral base with triangles)
-    for (size_t i = 0; i < vertices.size() - 2; ++i) {
-        P.make_triangle(vertices[0], vertices[i + 1], vertices[i + 2]);  // base triangle faces
-    }
-
-    // Build AABB tree
-    AABB_tree tree(faces(P).first, faces(P).second, P);
-    tree.accelerate_distance_queries();
-    qDebug() << "AABB tree built successfully!";
-
-    // Query point
-    //Lat, lng, Alt
-    //Point_3에서 사용하는 값들은 위경고도값이 아닌 x,y,z느낌으로 바꿔줘야되는 듯함
-
-    // Drone's position (lat/lon/alt) for example
-    double droneLat = 37.346608;  // Drone's latitude
-    double droneLon = 126.720336; // Drone's longitude
-    double droneAlt = 20.0;  // Drone's altitude
-
-    // 등록한 드론의 위치를 가져와야함
-
-    // Convert drone's position to Cartesian coordinates
-    Point_3 dronePosition = latLonAltToCartesian(droneLat, droneLon, droneAlt);
-    std::cout << "Drone position in Cartesian coordinates: "
-              << droneLat << ", " << droneLon << ", " << droneAlt << std::endl;
-
-    // Query the distance between the drone's position and the polyhedron
-    double distance = std::sqrt(tree.squared_distance(dronePosition)); // distance in meters
-    std::cout << "Shortest distance from the drone to the polyhedron is: " << distance << " meters" << std::endl;
-
 }
 
 // Polyhedron 생성 함수
@@ -338,86 +294,6 @@ void createPolyhedron(const std::vector<Point_3>& vertices, Polyhedron& polyhedr
 
 void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 
-#if false
-    try {
-        //double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
-        MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
-        if(manager){
-            if(manager->activeVehicle() && allNoFlyZones.count() > 0){
-                for(int i = 0; i < allNoFlyZones.count(); i++){
-                    qInfo() << "Group : " << i + 1;
-                    std::vector<Point_3> vertices;
-                    std::vector<Point_3> baseVertices;
-                    std::vector<Point_3> topVertices;
-                    Polyhedron polyhedron;
-
-                    for(const NoFlyZone& zone: allNoFlyZones[i]){
-                        // qInfo() << "  Coordinate:" << zone.coordinate.latitude() << zone.coordinate.longitude()
-                        // << "Altitude Range:" << zone.altitudeFloor << "-" << zone.altitudeCeiling;
-                        double lat = zone.coordinate.latitude();
-                        double lon = zone.coordinate.longitude();
-                        double floor = zone.altitudeFloor;
-                        double ceiling = zone.altitudeCeiling;
-
-                        if(floor == 0 && ceiling == 0) {
-                            floor = 0;
-                            ceiling = 100000;
-                        }
-
-                        baseVertices.push_back(latLonAltToCartesian(lat,lon,floor));
-
-                        topVertices.push_back(latLonAltToCartesian(lat,lon,ceiling));
-                    }
-
-                    // ✅ 밑면을 먼저 추가
-                    vertices.insert(vertices.end(), baseVertices.begin(), baseVertices.end());
-
-                    // ✅ 윗면을 나중에 추가
-                    vertices.insert(vertices.end(), topVertices.begin(), topVertices.end());
-
-
-                    createPolyhedron(vertices, polyhedron);
-
-                    // Create polyhedron
-
-                    //createPolyhedron(baseVertices, topVertices, polyhedron);
-
-                    // Drone's position (lat/lon/alt) for example
-                    double droneLat = 0.0;  // Drone's latitude
-                    double droneLon = 0.0; // Drone's longitude
-                    double droneAlt = 0.0;  // Drone's altitude
-
-                    droneLat = manager->activeVehicle()->latitude();
-                    droneLon = manager->activeVehicle()->longitude();
-                    droneAlt = manager->activeVehicle()->altitudeAMSL()->rawValue().toDouble();
-
-
-                    if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
-                        qWarning() << "Received NaN for vehicle position. Using default values.";
-                        droneLat = 0.0; // Default values to handle the NaN case
-                        droneLon = 0.0;
-                        droneAlt = 0.0;
-                    }
-
-                    // 등록한 드론의 위치를 가져와야함
-
-                    // Convert drone's position to Cartesian coordinates
-                    Point_3 dronePosition = latLonAltToCartesian(droneLat, droneLon, droneAlt);
-
-                    checkPointInsidePolyhedron(polyhedron, dronePosition);
-
-                }
-            }
-        }
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return;
-    }
-
-#endif
-
-#if true
     try {
         double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
         MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
@@ -481,8 +357,6 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 
                             createPolyhedron(vertices, polyhedron);
 
-
-
                             // Drone's position (lat/lon/alt) for example
                             double droneLat = 0.0;  // Drone's latitude
                             double droneLon = 0.0; // Drone's longitude
@@ -514,21 +388,24 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 
                             if(ret == true) // Drone is Inside polyhedron
                             {
-                                QString msg = tr("Drone is Inside GeoAwareness! Group : %1").arg(i);
-                                qgcApp()->showGeoAwarenessAlertMessage(msg, i);
+                                //QString msg = tr("Drone is inside GeoAwareness! Group : %1").arg(i);
+                                QString msg  = "Drone is inside GeoZone!";
+                                //qgcApp()->showGeoAwarenessAlertMessage(msg, i);
+                                CustomQmlInterface::instance()->geoAwarenessMessage(msg);                                
                             }
                             else // Drone is out side polyhedron
                             {
                                 if(distance <= alarmDistance) // 지정한 거리값 안에 들어오면 알람을 띄워야됨
                                 {
                                     //qInfo() << "Inside Index = " << i;
-                                    QString msg = tr("The distance between the aircraft and GeoAwareness is close. Distance : %1M").arg(distance);
+                                    QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(distance);
                                     //qgcApp()->showAppMessage(msg);
-                                    qgcApp()->showGeoAwarenessAlertMessage(msg, i);
+                                    //qgcApp()->showGeoAwarenessAlertMessage(msg, i);
+                                    CustomQmlInterface::instance()->geoAwarenessMessage(msg);
                                 }
                                 else {
                                     //qInfo() << "FlightZoneManager Close AlertMessage Popup Index = " << i;
-                                    qgcApp()->closeGeoAwarenessAlertMessage(i);
+                                    //qgcApp()->closeGeoAwarenessAlertMessage(i);
                                 }
                             }
                         }
@@ -541,7 +418,6 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
         std::cerr << "Error: " << e.what() << std::endl;
         return;
     }
-#endif
 }
 
 
@@ -628,7 +504,7 @@ void FlightZoneManager::updateGeoAwareness(){
         if(_polygons.count() > 0) {
             removeAll();
             qInfo(FlightZoneManagerLog) << "updateGeoAwareness";
-            _init();
+            start();
         }
     }
 }
@@ -636,14 +512,14 @@ void FlightZoneManager::checkCurrentZoomValue() {
 
     double zoom = qGroundControlQmlGlobal->flightMapZoom();
 
+    qInfo() << "current Zoom value = " << zoom;
+
     //내가 있는 지도의 가운데 좌표
     QGeoCoordinate mapCoord = qGroundControlQmlGlobal->flightMapPosition();
     QString dataType = _settingsManager->flyViewSettings()->dataType()->rawValueString();
     //  가운데 좌표, zoom값
 
     //qInfo() << "lat : " << mapCoord.latitude() << "lon : " << mapCoord.longitude();
-
-    //dataType으로 비교를 해서 USB는 줌결과 상관없이 그냥 불러오게?
     //0 = USB, 1 = Online
 
     if(dataType == "0")
@@ -651,22 +527,35 @@ void FlightZoneManager::checkCurrentZoomValue() {
         if(_polygons.count() == 0) { // 이미 생성되어 있음
 
             //왜 여러번 실행되는지 확인필요
-            //qInfo()<< "init polygons";
+            qInfo()<< "init polygons";
             geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
-            _init();
+            start();
         }
     }
     else {
         if(zoom >= 14)  { // 테스트용으로 8 원래는 13
-            //qInfo(FlightZoneManagerLog) << "FlightMap zoom Over 12: " << qGroundControlQmlGlobal->flightMapZoom();
-            // 메소드를 한번만 실행시켜야됨
-            // 없으면 생성. 있으면 생성 안해야됨. 조건은 추가 필요.
+            //qInfo(FlightZoneManagerLog) << "FlightMap zoom Over 12: " << qGroundControlQmlGlobal->flightMapZoom();            
             if(_polygons.count() == 0) { // 이미 생성되어 있음
 
                 //왜 여러번 실행되는지 확인필요
-                //qInfo()<< "init polygons";
-                geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
-                _init();
+
+                if (_oneTime) {
+                    // 단, isGroundHazard가 false면 한번 더 실행 가능
+                    if (!_isGroundHazard) {
+                        qInfo() << "init polygons (isGroundHazard override)";
+                        geoCoordinate = mapCoord;
+                        start();
+
+                        // 한 번 실행했으므로 다시 true로 설정
+                        _oneTime = true;
+                    }
+                    return;
+                }
+
+                _oneTime = true;
+                qInfo()<< "init polygons";
+                geoCoordinate = mapCoord;
+                start();
             }
             // 여기서 화면 이동시 조건도 추가 필요함
             if(qGroundControlQmlGlobal->flightMapPosition() != geoCoordinate) // 위치가 바뀌면
@@ -679,19 +568,19 @@ void FlightZoneManager::checkCurrentZoomValue() {
                 //     // qInfo() << "geoCoord = " << geoCoordinate.latitude() << "," << geoCoordinate.longitude();
                 //     //드론의 로딩이 다 끝나면 불러와야할듯함
                 //     geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
-                //     _init();
-                // }
-                // 아니면 이렇게 하지말고 불러오는 범위를 좀만 늘리는식? 생각해보면 나라 전체나, 도 전체를 가져와봤자 비행은 다 못함. 내가 보고 있는 화면 근방으로 해서 보여주는식으로 하는게 좋을듯함. 범위만 좀 늘려서
+                //     init();
+                // }                
             }
         }
         else if(zoom < 11){
             //qInfo(FlightZoneManagerLog) << "FlightMap zoom less 10: " << qGroundControlQmlGlobal->flightMapZoom();
             // 생성된거 전부 삭제
             removeAll();
+
+            _oneTime = false;
+            _isGroundHazard = false;
         }
     }
-
-//드론 정보 가져오는 부분 테스트
 
 // 이거는 qgc를 킨 위치인듯함
 #if false
@@ -767,6 +656,8 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {        
         //qWarning() << "Failed to open file:" << filePath;
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }
 
@@ -776,6 +667,8 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     QJsonDocument doc = QJsonDocument::fromJson(data);
     if (!doc.isObject()) {        
         qWarning() << "Invalid JSON format";
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }
 
@@ -908,10 +801,10 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
     QJsonObject root = jsonDoc.object();
     QJsonArray features = root.value("features").toArray();
 
-    //qInfo() << "features count:" << features.count();
+    qInfo() << "features count:" << features.count();
     validTimeList.clear();
 
-    QDateTime currentTime = QDateTime::currentDateTime();
+    QDateTime currentTime = QDateTime::currentDateTime();        
 
     for (const QJsonValue& feature : features) {
         if (!feature.isObject()) continue;
@@ -921,7 +814,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
         QJsonObject properties = featureObj.value("properties").toObject();
 
         // 고유 ID 추출
-        qint64 polygonid = featureObj.value("id").toInt(); // 정수 타입 ID
+        //qint64 polygonid = featureObj.value("id").toInt(); // 정수 타입 ID
 
         // 속성 처리
         QString name = properties.value("name").toString();
@@ -954,6 +847,15 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
             polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
         }
 
+        if(category == "airspace" && allNoFlyZones.count() >= 3){
+            continue;
+        }        
+
+        if(category != "airspace" && geometryType == "Polygon") {
+            qInfo() << "is GroundHazard in";
+            _isGroundHazard = true;
+        }
+
         QList<NoFlyZone> noFlyZone;
         // Polygon 처리
         if (geometryType == "Polygon") {
@@ -975,7 +877,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
                     QGeoCoordinate coordinate(lat, lon);
 
-
+                    qInfo() << "total points count = " << points.count();
 
                     if (currentTime < validTo || (operationalFrom == "" && operationalTo == "")) {
                         if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
@@ -998,6 +900,8 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
                                 polygon->appendVertex(coordinate);
                             }
                             noFlyZone.append(NoFlyZone(QGeoCoordinate(lat, lon), floorMeters, ceilingMeters));
+                            qInfo() <<"Category = " << category <<", noFlyZOne count = " << noFlyZone.count();
+
                         }
                     }
 
@@ -1023,8 +927,8 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
 
 
-
-                    // qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
+                    qInfo() << "Total features in JSON:" << features.count();
+                     qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
 
 
                     // qInfo(FlightZoneManagerLog) << "Polygon added with ID:" << polygonid;
@@ -1060,18 +964,18 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
             //if(category != "airspace" && geometryType != "Point" ) {
             if(geometryType != "Point") {
-                qInfo(FlightZoneManagerLog) << "geometryType: " << geometryType;
-                qInfo(FlightZoneManagerLog) << "Feature ID:" << polygonid;
-                qInfo(FlightZoneManagerLog) << "Name:" << name;
-                qInfo(FlightZoneManagerLog) << "Category:" << category;
+                // qInfo(FlightZoneManagerLog) << "geometryType: " << geometryType;
+                // qInfo(FlightZoneManagerLog) << "Feature ID:" << polygonid;
+                // qInfo(FlightZoneManagerLog) << "Name:" << name;
+                // qInfo(FlightZoneManagerLog) << "Category:" << category;
 
-                qInfo(FlightZoneManagerLog) << "operationFrom" << operationalFrom;
-                qInfo(FlightZoneManagerLog) << "operationTo" << operationalTo;
-                qInfo(FlightZoneManagerLog) << "strokeColor" << strokeColor;
-                qInfo(FlightZoneManagerLog) << "strokeOpacity" << strokeOpacity;
+                // qInfo(FlightZoneManagerLog) << "operationFrom" << operationalFrom;
+                // qInfo(FlightZoneManagerLog) << "operationTo" << operationalTo;
+                // qInfo(FlightZoneManagerLog) << "strokeColor" << strokeColor;
+                // qInfo(FlightZoneManagerLog) << "strokeOpacity" << strokeOpacity;
 
-                qInfo(FlightZoneManagerLog) << "altitudeCeiling : " << ceilingMeters;
-                qInfo(FlightZoneManagerLog) << "altitudeFloor : " << floorMeters;
+                // qInfo(FlightZoneManagerLog) << "altitudeCeiling : " << ceilingMeters;
+                // qInfo(FlightZoneManagerLog) << "altitudeFloor : " << floorMeters;
 
                 if(category != "airspace") {
                     polygon->setcolorInclusion(strokeColor);
@@ -1086,7 +990,7 @@ void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
     }
 }
 
-void FlightZoneManager::_init(void){
+void FlightZoneManager::start(void){
     //qInfo() << "flightZone Manager";
 
     // 알람을 울릴 거리값을 가져오는 코드
@@ -1109,7 +1013,8 @@ void FlightZoneManager::_init(void){
     }
     else // Online
     {        
-        qInfo(FlightZoneManagerLog) << "Make with Online dataType = " << dataType;
+        //qInfo(FlightZoneManagerLog) << "Make with Online dataType = " << dataType;
+        qInfo() << "Data Type == " << dataType;
         getOnlineGeoJsonData();
     }
 }
@@ -1135,9 +1040,31 @@ void FlightZoneManager::calculateCornerCoordinates(double centerLat, double cent
     double bottomLeftLat = centerLat - (latitudeDelta / 2);
     double bottomLeftLon = centerLon - (longitudeDelta / 2);
 
+
+
+    // 중심 ~ 꼭짓점 거리 측정
+    QGeoCoordinate center(centerLat, centerLon);
+    QGeoCoordinate topRight(topRightLat, topRightLon);
+    double distanceToCorner = center.distanceTo(topRight);  // 미터 단위
+    const double maxRadiusMeters = 20000.0;
+
+    if (distanceToCorner > maxRadiusMeters) {
+        qWarning() << "요청 범위가 너무 큽니다. 자동 축소 중...";
+
+        // 축소 비율 계산
+        double scale = maxRadiusMeters / distanceToCorner;
+
+        // width/height 재계산 후 재귀 호출
+        double scaledWidth = width * scale;
+        double scaledHeight = height * scale;
+
+        // 재귀 호출로 축소된 범위로 재시도
+        calculateCornerCoordinates(centerLat, centerLon, zoomLevel, scaledWidth, scaledHeight);
+        return;
+    }
+
     //Draw Line
     fetchGeoJsonDataForRegion(topRightLat, topRightLon, bottomLeftLat, bottomLeftLon);
-
 }
 
 void FlightZoneManager::getOnlineGeoJsonData() {
