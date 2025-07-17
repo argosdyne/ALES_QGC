@@ -994,7 +994,10 @@ void APMFirmwarePlugin::startMission(Vehicle* vehicle)
 
     // For non aircraft vehicles, we would be in guided mode, so we need to send the mission start command
     if (!vehicle->fixedWing()) {
-        vehicle->sendMavCommand(vehicle->defaultComponentId(), MAV_CMD_MISSION_START, true /*show error */);
+        //Add Delay 3000ms = 3s
+        QTimer::singleShot(3000, qgcApp(), [=]() {
+            vehicle->sendMavCommand(vehicle->defaultComponentId(), MAV_CMD_MISSION_START, true /*show error */);
+        });
     }
 }
 
