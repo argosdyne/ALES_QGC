@@ -148,6 +148,12 @@ ApplicationWindow {
         planView.visible = true
     }
 
+    // show GeoZoneMakeView
+    function showGeoZoneMakeView(){
+        viewSwitch(toolbar.planViewToolbar)
+        geoZoneMakeView.visible = true
+    }
+
     function showTool(toolTitle, toolSource, toolIcon) {
         toolDrawer.backIcon     = flightView.visible ? "/qmlimages/PaperPlane.svg" : "/qmlimages/Plan.svg"
         toolDrawer.toolTitle    = toolTitle
@@ -454,6 +460,12 @@ ApplicationWindow {
         id:             planView
         anchors.fill:   parent
         visible:        false
+    }
+
+    GeoZoneMakeView {
+        id: geoZoneMakeView
+        anchors.fill: parent
+        visible: false
     }
 
     FlightZoneManager {

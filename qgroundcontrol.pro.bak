@@ -970,7 +970,7 @@ SOURCES += \
     src/Settings/FlightMapSettings.cc \
     src/Settings/FlyViewSettings.cc \
     src/Settings/OfflineMapsSettings.cc \
-    src/Settings/PlanViewSettings.cc \
+    src/Settings/PlanViewSettings.cc \    
     src/Settings/RTKSettings.cc \
     src/Settings/SettingsGroup.cc \
     src/Settings/SettingsManager.cc \

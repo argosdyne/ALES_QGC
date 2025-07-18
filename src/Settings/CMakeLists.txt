@@ -34,6 +34,8 @@ add_library(Settings
 	VideoSettings.h
 	RemoteIDSettings.h
 	RemoteIDSettings.cc
+	GeoZoneMakeViewSettings.cc
+	GeoZoneMakeViewSettings.h
 )
 
 target_link_libraries(Settings

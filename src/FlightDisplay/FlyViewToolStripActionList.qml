@@ -53,6 +53,11 @@ ToolStripActionList {
         GuidedActionRTL { },
         GuidedActionPause { },
         GuidedActionActionList { },
-        GuidedActionGripper { }
+        GuidedActionGripper { },
+        ToolStripAction {
+            text:           qsTr("GeoAwareness")
+            iconSource:     "/res/waypoint.svg"
+            onTriggered:    mainWindow.showGeoZoneMakeView()
+        }
     ]
 }

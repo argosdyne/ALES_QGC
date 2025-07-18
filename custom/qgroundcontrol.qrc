@@ -80,6 +80,7 @@
 		<file alias="M2LinkIndicator.qml">../src/M2Link/M2LinkIndicator.qml</file>
 		<file alias="QGCDelayButton.qml">../src/QmlControls/QGCDelayButton.qml</file>
 		<file alias="PlanView.qml">../src/PlanView/PlanView.qml</file>
+		<file alias="GeoZoneMakeView.qml">../src/PlanView/GeoZoneMakeView.qml</file>
 		<file alias="PreFlightCheckList.qml">../src/FlightDisplay/PreFlightCheckList.qml</file>
 		<file alias="PX4FlowSensor.qml">../src/VehicleSetup/PX4FlowSensor.qml</file>
 		<file alias="QGCInstrumentWidget.qml">../src/FlightMap/Widgets/QGCInstrumentWidget.qml</file>

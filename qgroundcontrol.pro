@@ -712,6 +712,7 @@ HEADERS += \
     src/Settings/FlyViewSettings.h \
     src/Settings/OfflineMapsSettings.h \
     src/Settings/PlanViewSettings.h \
+    src/Settings/GeoZoneMakeViewSettings.h \
     src/Settings/RTKSettings.h \
     src/Settings/SettingsGroup.h \
     src/Settings/SettingsManager.h \
@@ -975,6 +976,7 @@ SOURCES += \
     src/Settings/FlyViewSettings.cc \
     src/Settings/OfflineMapsSettings.cc \
     src/Settings/PlanViewSettings.cc \
+    src/Settings/GeoZoneMakeViewSettings.cc \
     src/Settings/RTKSettings.cc \
     src/Settings/SettingsGroup.cc \
     src/Settings/SettingsManager.cc \

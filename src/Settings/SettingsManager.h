@@ -30,6 +30,7 @@
 #include "GimbalControllerSettings.h"
 #include <QVariantList>
 #include "RemoteIDSettings.h"
+#include "GeoZoneMakeViewSettings.h"
 
 /// Provides access to all app settings
 class SettingsManager : public QGCTool
@@ -72,6 +73,7 @@ public:
     FirmwareUpgradeSettings*        firmwareUpgradeSettings     (void) { return _firmwareUpgradeSettings; }
     ADSBVehicleManagerSettings*     adsbVehicleManagerSettings  (void) { return _adsbVehicleManagerSettings; }
     GimbalControllerSettings*       gimbalControllerSettings    (void) { return _gimbalControllerSettings; }
+    GeoZoneMakeViewSettings*        geoZoneMakeViewSettings     (void) { return _geoZoneMakeViewSettings; }
 #if !defined(NO_ARDUPILOT_DIALECT)
     APMMavlinkStreamRateSettings*   apmMavlinkStreamRateSettings(void) { return _apmMavlinkStreamRateSettings; }
 #endif
@@ -90,6 +92,7 @@ private:
     FirmwareUpgradeSettings*        _firmwareUpgradeSettings;
     ADSBVehicleManagerSettings*     _adsbVehicleManagerSettings;
     GimbalControllerSettings*       _gimbalControllerSettings;
+    GeoZoneMakeViewSettings*        _geoZoneMakeViewSettings;
 #if !defined(NO_ARDUPILOT_DIALECT)
     APMMavlinkStreamRateSettings*   _apmMavlinkStreamRateSettings;
 #endif
