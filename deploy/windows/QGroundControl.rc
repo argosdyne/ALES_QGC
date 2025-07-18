@@ -42,7 +42,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "./WindowsQGC.ico"
+IDI_ICON1               ICON                    "./ArgosdyneLogo.ico"
 
 #endif    // Neutral (Default) (unknown sub-lang: 0x8) resources
 /////////////////////////////////////////////////////////////////////////////
