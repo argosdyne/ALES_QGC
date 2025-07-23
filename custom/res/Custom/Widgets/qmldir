@@ -11,3 +11,4 @@ CustomVehicleButton     1.0     CustomVehicleButton.qml
 CustomDelayButton       1.0  CustomDelayButton.qml
 CustomBusyIndicator     1.0  CustomBusyIndicator.qml
 QGCDelayButton			1.0  QGCDelayButton.qml
+FlyViewOverlay			1.0	 FlyViewOverlay.qml
