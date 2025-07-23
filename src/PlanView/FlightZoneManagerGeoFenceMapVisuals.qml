@@ -130,9 +130,9 @@ Item {
             mapControl:         map
             mapCircle:          object
             borderWidth:        object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-            borderColor:        _borderColor
-            interiorColor:      object.inclusion ? _interiorColorInclusion : _interiorColorExclusion
-            interiorOpacity:    object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
+            borderColor:        object.colorInclusion
+            interiorColor:      object.colorInclusion //object.inclusion ? _interiorColorInclusion : _interiorColorExclusion
+            interiorOpacity:    object.strokeOpacity //object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
             interactive:         _root.interactive && mapCircle && mapCircle.interactive
         }
     }

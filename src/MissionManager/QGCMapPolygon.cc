@@ -108,11 +108,11 @@ void QGCMapPolygon::adjustVertex(int vertexIndex, const QGeoCoordinate coordinat
 
 void QGCMapPolygon::setDirty(bool dirty)
 {
-    qInfo()<< "set Mappolygon dirty" << dirty;
+    //qInfo()<< "set Mappolygon dirty" << dirty;
     if (_dirty != dirty) {
         _dirty = dirty;
         if (!dirty) {
-            qInfo() << "Is Dirty" << dirty;
+            //qInfo() << "Is Dirty" << dirty;
             _polygonModel.setDirty(false);
         }
         emit dirtyChanged(dirty);
@@ -299,7 +299,7 @@ void QGCMapPolygon::appendVertices(const QVariantList& varCoords)
 void QGCMapPolygon::_polygonModelDirtyChanged(bool dirty)
 {
     if (dirty) {
-        qInfo() << "_polygonModelDirtyChanged : " << dirty;
+        //qInfo() << "_polygonModelDirtyChanged : " << dirty;
         setDirty(true);
     }
 }

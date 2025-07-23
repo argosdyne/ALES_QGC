@@ -241,7 +241,6 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     opacityAnimation2->setEndValue(1);
     opacityAnimation2->start();
 
-    qInfo() << "SystemMessage Start!!!";
     _geoAwarenessTimer.setSingleShot(true);
     connect(&_geoAwarenessTimer, &QTimer::timeout, this, &SystemMessage::geoAwarnessStartCloseItstyle);
 }
@@ -352,10 +351,10 @@ static bool _geoAwarenessNoDataMessageShown = false;
 void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 {
 
-    qInfo() << "geoAwareness Messag e== " << message;
-    qInfo() << "_geoAwarenessMessageShown == " << _geoAwarenessInsideMessageShown;
-    qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
-    qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
+    // qInfo() << "geoAwareness Messag e== " << message;
+    // qInfo() << "_geoAwarenessMessageShown == " << _geoAwarenessInsideMessageShown;
+    // qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
+    // qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
 
     enum MessageType {
         None,
@@ -399,11 +398,8 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
     m->setGeoAwarenessContext(message);
     m->setGeoAwarenessType();
 
-    //Test
-    //_geoAwarenessNormalSystemMessages.append(m);
 
-    _geoAwarenessMessages.append(m);
-    qInfo() << "_geoAwarenessMessages.count == " << _geoAwarenessMessages.count();
+    _geoAwarenessMessages.append(m);    
     _geoAwarenessRefreshSystemMessageUI(true);
 }
 
@@ -412,9 +408,6 @@ void SystemMessage::setGeoAwarenessContext(const QString &context)
     _geoAwarenessContext = context;
     _geoAwarenessWidth = _customQmlInterface->_defaultFontPixelWidth * 1 * (CHAR_NUMBER_EACH_ROW + 3) + _customQmlInterface->_defaultFontPixelHeight * 1 * 20;
     _geoAwarenessHeight = _customQmlInterface->_defaultFontPixelWidth * 1 * 5 + _customQmlInterface->_defaultFontPixelHeight * 1 * (_geoAwarenessContext.length() / CHAR_NUMBER_EACH_ROW + 1);
-
-    qInfo() << "Width = " << _geoAwarenessWidth;
-    qInfo() << "Height = " << _geoAwarenessHeight;
 }
 
 void SystemMessage::setGeoAwarenessOpacity(const float &opacity)
@@ -461,8 +454,6 @@ void SystemMessage::geoAwarenessCloseItstyle()
         _geoAwarenessYAnimation = nullptr;
     }
     int index = _customQmlInterface->_geoAwarenessMessages.indexOf(this);
-    qInfo() << "INdex == " << index;
-    qInfo() << "this ==== " << this;
     _customQmlInterface->_geoAwarenessNormalSystemMessages.removeOne(this);
     _customQmlInterface->_geoAwarenessMessages.removeAt(index)->deleteLater();
 

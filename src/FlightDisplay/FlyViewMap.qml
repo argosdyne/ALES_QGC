@@ -277,8 +277,9 @@ FlightMap {
     }
 
     // Add the vehicles to the map
-    MapItemView {
+    MapItemView { 
         model: QGroundControl.multiVehicleManager.vehicles
+        z: QGroundControl.zOrderVehicles
         delegate: VehicleMapItem {
             vehicle:        object
             coordinate:     object.coordinate

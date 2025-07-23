@@ -39,10 +39,13 @@
 #include <vector>
 
 #include <CGAL/Delaunay_triangulation_3.h>
+#include <QtConcurrent>
+
+#include <QReadWriteLock>
+#include <CGAL/Triangle_3.h>
 
 
 QGC_LOGGING_CATEGORY(FlightZoneManagerLog, "FlightZoneManagerLog")
-
 
 
 typedef CGAL::Simple_cartesian<double> Kernel;
@@ -56,6 +59,8 @@ typedef CGAL::Side_of_triangle_mesh<Polyhedron, Kernel> Point_inside;
 
 typedef CGAL::Delaunay_triangulation_3<Kernel> Delaunay;
 
+typedef Kernel::Triangle_3 Triangle_3;
+
 // 지구 둘레 (미터)
 double EarthCircumference = 40075017.0;
 QGeoCoordinate geoCoordinate;
@@ -63,14 +68,27 @@ QList<FlightValidTime> validTimeList;
 QList<GeoJsonNameList> geoJsonNameList;
 
 
+QList<Polyhedron> _noFlyZoneList;
+//QList<AABB_tree> _AABBZoneList;
+
+QReadWriteLock _zoneLock; // 클래스 멤버로 선언
+
+struct GeoZone {
+    Polyhedron polyhedron;
+    std::shared_ptr<AABB_tree> tree; // 캐시된 트리
+};
+
+QList<GeoZone> _geoZoneList;  // _noFlyZoneList 대체
+
+std::vector<Triangle_3> _zoneTriangles;
+std::vector<AABB_tree> _zoneAABBTree;
+
 //모든 그룹
 QList<QList<NoFlyZone>> allNoFlyZones;
 
 FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this))
 {
-    qInfo(FlightZoneManagerLog) << "FlightZoneManager Start";
-
-    // 이 기능은 USB일때만 사용하는게 좋을듯함 온라인은 어짜피 자동으로 날짜가 바뀌는거 아님? 불러올때마다
+    qInfo(FlightZoneManagerLog) << "FlightZoneManager Start";    
     // 0 = USB, 1 = Online
 
     connect(&_timer, &QTimer::timeout, this, &FlightZoneManager::updatePolygonVisibility);
@@ -83,15 +101,6 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     connect(&_zoomTimer, &QTimer::timeout, this, &FlightZoneManager::checkCurrentZoomValue);
     _zoomTimer.start(1000);
 
-    //Check Drone and geoAwareness distance
-    connect(&_distanceTimer, &QTimer::timeout, this, &FlightZoneManager::checkDistanceDroneAndGeoAwareness);
-    _distanceTimer.start(1000);
-
-    //Update GeoAwareness
-    connect(&_updateTimer, &QTimer::timeout, this, &FlightZoneManager::updateGeoAwareness);
-    constexpr int dayInterval = 24 * 60 * 60 * 1000;
-    _updateTimer.start(dayInterval);
-
     _toolbox = qgcApp()->toolbox();
     _settingsManager = _toolbox->settingsManager();
 
@@ -100,32 +109,76 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     qInfo(FlightZoneManagerLog) << "init flightmapPos = " << qGroundControlQmlGlobal->flightMapPosition().latitude() << "," << qGroundControlQmlGlobal->flightMapPosition().longitude();
     qInfo(FlightZoneManagerLog) << "init geoCoord = " << geoCoordinate.latitude() << "," << geoCoordinate.longitude();
 
+
+    connect(&_distanceTimer, &QTimer::timeout, this, [this]() {
+        MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+        if (!manager || !manager->activeVehicle()) return;
+
+        double droneLat = manager->activeVehicle()->latitude();
+        double droneLon = manager->activeVehicle()->longitude();
+        double droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
+
+        double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
+
+        QList<Polyhedron> noFlyZones;
+        {
+            QReadLocker locker(&_zoneLock);
+            noFlyZones = _noFlyZoneList;        // Polyhedron 리스트 복사
+        }
+
+        // 백그라운드에서 거리 계산
+        QtConcurrent::run([=]() {
+            try {
+                checkDroneAndGeoZoneSafe(noFlyZones, droneLat, droneLon, droneAlt, alarmDistance);
+            }catch (const std::exception& e) {
+                qWarning() << "Exception in checkDroneAndGeoZoneSafe QtConcurrent::run:" << e.what();
+            } catch (...) {
+                qWarning() << "Unknown exception in checkDroneAndGeoZoneSafe QtConcurrent::run";
+            }
+        });
+    });
+
+
+    MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+    connect(manager, &MultiVehicleManager::activeVehicleChanged, this, [this]() {
+        Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+        if (!vehicle)
+            return;
+
+        if (!_distanceTimer.isActive()) {
+            qInfo(FlightZoneManagerLog) << "Starting _distanceTimer after Vehicle connected.";
+            _distanceTimer.start(1000);
+        }
+    });
 }
 
-
-void FlightZoneManager::onReplyFinished(QNetworkReply *reply)
-{
-    if(reply->error() == QNetworkReply::NoError){
+void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
+    if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
-        qInfo() << "ReplyFinished";
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
-        if(!jsonDoc.isNull()){            
-            //qInfo() << "GeoJson Data ======= " << jsonDoc.toJson(QJsonDocument::Indented);
-            processJsonFile(jsonDoc);
-        } else {           
-            qInfo(FlightZoneManagerLog) << "Failed to parse GeoJson";
+
+        if (!jsonDoc.isNull()) {
+            QtConcurrent::run([=]() {
+                try {
+                }
+                catch(const std::exception& e) {
+                    qWarning() << "Exception in onReplyFinished QtConcurrent::run:" << e.what();
+                } catch (...) {
+                    qWarning() << "Unknown exception onReplyFinished in QtConcurrent::run";
+                }
+                processJsonFile(jsonDoc);
+            });
+        } else {
             QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
             CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         }
-    }
-    else {        
-        qInfo(FlightZoneManagerLog) << "Error fetching GeoJson" << reply->errorString();
+    } else {
         QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
     }
-
     reply->deleteLater();
 }
+
 
 // Helper 함수: 위경고도와 고도를 Cartesian 좌표로 변환
 Point_3 latLonAltToCartesian(double lat, double lon, double alt) {
@@ -136,31 +189,6 @@ Point_3 latLonAltToCartesian(double lat, double lon, double alt) {
     double y = (earthRadius + alt) * cos(radLat) * sin(radLon);
     double z = (earthRadius + alt) * sin(radLat);
     return Point_3(x, y, z);
-}
-
-// Polyhedron 생성 함수
-void createPolyhedron(const std::vector<Point_3>& vertices, const std::vector<std::vector<size_t>>& faces, Polyhedron& polyhedron) {
-    CGAL::Polyhedron_incremental_builder_3<Polyhedron::HalfedgeDS> builder(polyhedron.hds(), true);
-    builder.begin_surface(vertices.size(), faces.size());
-
-    // 정점 추가
-    for (const auto& vertex : vertices) {
-        builder.add_vertex(vertex);
-    }
-
-    // 면 추가
-    for (const auto& face : faces) {
-        builder.begin_facet();
-        for (size_t index : face) {
-            builder.add_vertex_to_facet(index);
-        }
-        builder.end_facet();
-    }
-
-    builder.end_surface();
-    if (!polyhedron.is_valid() || !polyhedron.is_closed()) {
-        throw std::runtime_error("Invalid or non-closed polyhedron.");
-    }
 }
 
 // Polyhedron 내부 확인 및 로그 출력
@@ -183,49 +211,6 @@ bool checkPointInsidePolyhedron(const Polyhedron& polyhedron, const Point_3& poi
         std::cerr << "Error: " << e.what() << std::endl;
         return ret;
     }
-}
-
-
-
-
-// Function to create a Polyhedron dynamically
-void createPolyhedron(const std::vector<Point_3>& bottomVertices,
-                      const std::vector<Point_3>& topVertices,
-                      Polyhedron& polyhedron) {
-    if (bottomVertices.size() != topVertices.size()) {        
-        qInfo(FlightZoneManagerLog) << "Error: Bottom and top vertices must have the same count!";
-        return;
-    }
-    std::vector<std::vector<size_t>> faces;
-    size_t N = bottomVertices.size();
-
-    // Create faces dynamically
-    for (size_t i = 0; i < N; ++i) {
-        size_t next = (i + 1) % N;
-        // Wrap around// Side faces (Quad -> Two triangles)
-        faces.push_back({i, next, N + next});
-        faces.push_back({i, N + next, N + i});
-    }
-    // Bottom and Top Faces (Triangulation needed)
-    std::vector<size_t> bottomIndices, topIndices;
-    for (size_t i = 0; i < N; ++i) {
-        bottomIndices.push_back(i);
-        topIndices.push_back(N + i);
-    }
-    // Create bottom and top faces (Simple triangulation for convex polygons)
-    for (size_t i = 1; i < N - 1; ++i) {
-        faces.push_back({0, i, i + 1});
-        // Bottom face
-        faces.push_back({N, N + i, N + i + 1});
-        // Top face
-    }
-    // Convert to polyhedron
-    std::vector<Point_3> allVertices = bottomVertices;
-    allVertices.insert(allVertices.end(), topVertices.begin(), topVertices.end());
-
-    qInfo(FlightZoneManagerLog) << "No Error in this time";
-
-    createPolyhedron(allVertices, faces, polyhedron);
 }
 
 void createPolyhedron(const std::vector<Point_3>& vertices, Polyhedron& polyhedron) {
@@ -268,7 +253,7 @@ void createPolyhedron(const std::vector<Point_3>& vertices, Polyhedron& polyhedr
     for (size_t i = 0; i < half_size; ++i) {
         size_t next = (i + 1) % half_size;
 
-        // 삼각형 1
+        // // 삼각형 1
         builder.begin_facet();
         builder.add_vertex_to_facet(v_indices[i]);
         builder.add_vertex_to_facet(v_indices[next]);
@@ -281,16 +266,352 @@ void createPolyhedron(const std::vector<Point_3>& vertices, Polyhedron& polyhedr
         builder.add_vertex_to_facet(v_indices[next + half_size]);
         builder.add_vertex_to_facet(v_indices[i + half_size]);
         builder.end_facet();
+
+
     }
 
     builder.end_surface();
 
     if (!polyhedron.is_valid() || !polyhedron.is_closed()) {
+        qInfo() << "Error: Invalid or non-closed polyhedron.";
         throw std::runtime_error("Error: Invalid or non-closed polyhedron.");
     }
 }
 
+void FlightZoneManager::generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons)
+{
+    try {
+        if (parsedPolygons.count() > 0) {
+            for (const auto& polyData : parsedPolygons) {
+                const QList<QGeoCoordinate>& coords = std::get<0>(polyData);
 
+                std::vector<Point_3> vertices;
+                std::vector<Point_3> baseVertices;
+                std::vector<Point_3> topVertices;
+                Polyhedron P; // 거리측정
+                Polyhedron polyhedron; // 내부 측정
+
+                double floor = std::get<1>(polyData);
+                double ceiling = std::get<2>(polyData);
+                if (floor == 0 && ceiling == 0) {
+                    floor = 0;
+                    ceiling = 100000;
+                }
+
+                for (const QGeoCoordinate& coord : coords) {
+
+                    if (!coord.isValid()) continue;
+
+                    double lat = coord.latitude();
+                    double lon = coord.longitude();
+
+                    if (!coord.isValid() || std::isnan(lat) || std::isnan(lon)) {
+                        qWarning() << "Invalid coordinate skipped:" << coord;
+                        continue;
+                    }
+
+                    baseVertices.push_back(latLonAltToCartesian(lat, lon, floor));
+                    topVertices.push_back(latLonAltToCartesian(lat, lon, ceiling));
+
+                }
+
+                if(baseVertices.size() > 0 && topVertices.size() > 0) {
+                    // 거리 측정
+                    // Create bottom face (base polygon)
+
+                    if (baseVertices.size() < 3 || topVertices.size() < 3) {
+                        qWarning() << "Not enough vertices to form polyhedron.";
+                        continue;
+                    }
+
+
+                    for (size_t i = 0; i < baseVertices.size() - 2; ++i) {
+                        P.make_triangle(baseVertices[0], baseVertices[i + 1], baseVertices[i + 2]);
+                    }
+
+                    // Create top face (top polygon)
+                    for (size_t i = 0; i < topVertices.size() - 2; ++i) {
+                        P.make_triangle(topVertices[0], topVertices[i + 1], topVertices[i + 2]);
+                    }
+
+                    // Create side faces (connect base and top vertices)
+                    for (size_t i = 0; i < baseVertices.size(); ++i) {
+                        size_t next = (i + 1) % baseVertices.size(); // Wrap around to the first vertex
+                        P.make_triangle(baseVertices[i], baseVertices[next], topVertices[i]); // Side triangle 1
+                        P.make_triangle(baseVertices[next], topVertices[next], topVertices[i]); // Side triangle 2
+                    }
+
+                    // AABB_tree tree(faces(P).first, faces(P).second, P);
+                    // tree.accelerate_distance_queries();
+
+                    // auto tree = QSharedPointer<AABB_tree>::create(faces(P).first, faces(P).second, P);
+                    // tree->accelerate_distance_queries();
+
+                    // ✅ 밑면을 먼저 추가
+                    vertices.insert(vertices.end(), baseVertices.begin(), baseVertices.end());
+
+                    // ✅ 윗면을 나중에 추가
+                    vertices.insert(vertices.end(), topVertices.begin(), topVertices.end());
+
+                    createPolyhedron(vertices, polyhedron);
+
+                    if (polyhedron.empty()) {
+                        qWarning() << "빈 폴리곤입니다.";
+                        return;
+                    }
+
+                    QWriteLocker locker(&_zoneLock);
+                    if (!containsPolyhedron(_noFlyZoneList, polyhedron)) {
+                        _noFlyZoneList.append(polyhedron);
+                    }
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        qWarning() << "generateNoFlyZones 내부 예외:" << e.what();
+    } catch (...) {
+        qWarning() << "generateNoFlyZones 내부 알 수 없는 예외";
+    }
+}
+
+bool FlightZoneManager::containsPolyhedron(const QList<Polyhedron>& list, const Polyhedron& poly) {
+    for (const auto& p : list) {
+        if (isSamePolyhedron(p, poly))
+            return true;
+    }
+    return false;
+}
+
+bool FlightZoneManager::isSamePolyhedron(const Polyhedron& a, const Polyhedron& b) {
+    if (a.size_of_vertices() != b.size_of_vertices()) return false;
+
+    // 아주 간단하게 각 vertex 좌표가 일치하는지 비교 (순서 무시)
+    std::set<Point_3> verticesA, verticesB;
+
+    for (auto v = a.vertices_begin(); v != a.vertices_end(); ++v)
+        verticesA.insert(v->point());
+
+    for (auto v = b.vertices_begin(); v != b.vertices_end(); ++v)
+        verticesB.insert(v->point());
+
+    return verticesA == verticesB;
+}
+
+std::vector<AABB_tree> _noFlyZoneTrees;
+typedef Polyhedron::Facet_const_iterator Face_iterator;
+void FlightZoneManager::buildAABBTreeForAllZones()
+{
+    //_zoneAABBTree.clear();
+
+    for (const Polyhedron& poly : _noFlyZoneList) {
+        if (poly.empty()) {
+            qWarning() << "Empty polyhedron found, skipping.";
+            continue;
+        }
+
+        // 여기서 Facet_const_iterator 타입 명확히 지정
+        // Polyhedron::Facet_const_iterator faces_begin = poly.facets_begin();
+        // Polyhedron::Facet_const_iterator faces_end = poly.facets_end();
+
+        auto faces_begin = poly.faces_begin();
+        auto faces_end = poly.faces_end();
+
+        if (faces_begin == faces_end) {
+            qWarning() << "Polyhedron has no faces, skipping.";
+            continue;
+        }
+
+        // AABB_tree 생성
+        //AABB_tree tree(faces_begin, faces_end, poly);
+        //Tree tree(faces_begin, faces_end, poly);
+
+        auto range = faces(poly);
+        AABB_tree tree(range.begin(), range.end(), poly);
+        //AABB_tree tree(faces(poly).begin(), faces(poly).end(), poly);
+        tree.accelerate_distance_queries();
+
+        int faceCount = std::distance(poly.faces_begin(), poly.faces_end());
+        qDebug() << "poly face count:" << faceCount;
+
+        if (tree.size() == 0) {
+            qWarning() << "AABB tree contains no primitives, skipping.";
+            continue;
+        }
+
+
+        _zoneAABBTree.push_back(std::move(tree));
+    }
+}
+
+
+
+Point_3 FlightZoneManager::approximatePolyhedronCenter(const Polyhedron& poly) {
+    CGAL::Bbox_3 bbox = CGAL::bbox_3(poly.points_begin(), poly.points_end());
+    double cx = (bbox.xmin() + bbox.xmax()) / 2.0;
+    double cy = (bbox.ymin() + bbox.ymax()) / 2.0;
+    double cz = (bbox.zmin() + bbox.zmax()) / 2.0;
+    return Point_3(cx, cy, cz);
+}
+
+
+
+void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList,
+                                                 double lat, double lon, double alt,
+                                                 double alarmDistance)
+{
+    QtConcurrent::run([=]() {
+        try {
+            MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+            if(manager){
+                if(manager->activeVehicle()){
+                    double droneLat = 0.0;  // Drone's latitude
+                    double droneLon = 0.0; // Drone's longitude
+                    double droneAlt = 0.0;  // Drone's altitude
+
+                    droneLat = manager->activeVehicle()->latitude();
+                    droneLon = manager->activeVehicle()->longitude();
+                    droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
+
+                    if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
+                        qWarning() << "Received NaN for vehicle position. Using default values.";
+                        droneLat = 0.0; // Default values to handle the NaN case
+                        droneLon = 0.0;
+                        droneAlt = 0.0;
+                    }
+
+                    // 등록한 드론의 위치를 가져와야함
+
+                    // Convert drone's position to Cartesian coordinates
+                    Point_3 dronePoint = latLonAltToCartesian(droneLat, droneLon, droneAlt);
+
+                    //Point_3 dronePoint = latLonAltToCartesian(lat, lon, alt);
+
+                    for (const Polyhedron& poly : zoneList) {
+
+                        bool inside = checkPointInsidePolyhedron(poly, dronePoint);
+                        if (inside) {
+                            QMetaObject::invokeMethod(CustomQmlInterface::instance(), [=]() {
+                                CustomQmlInterface::instance()->geoAwarenessMessage("Drone is inside GeoZone!");
+                            }, Qt::QueuedConnection);
+                            continue; // 이미 알림 줬으면 거리 체크는 스킵 가능
+                        }
+
+                        // 꼭짓점들간의 최소거리 확인
+                        double minSquaredDist = std::numeric_limits<double>::max();
+                        for (auto v = poly.vertices_begin(); v != poly.vertices_end(); ++v) {
+                            double d = CGAL::squared_distance(dronePoint, v->point());
+                            if (d < minSquaredDist) minSquaredDist = d;
+                        }
+                        double minDist = std::sqrt(minSquaredDist);
+
+                        if(minDist > alarmDistance + 200) {
+                            continue;
+                        }
+
+                        //qInfo() << "minDist == " << minDist;
+
+                        // 4. 진짜로 가까운 경우에만 AABB_tree 생성
+                        AABB_tree tree(faces(poly).first, faces(poly).second, poly);
+                        tree.accelerate_distance_queries();
+
+                        double exactDist = std::sqrt(tree.squared_distance(dronePoint));
+
+                        if (exactDist <= alarmDistance) {
+                            QString msg = QString("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(exactDist);
+                            QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
+                                CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                            }, Qt::QueuedConnection);
+                        }
+                    }
+                }
+            }
+        }catch (const std::exception& e) {
+            qWarning() << "Exception in checkDroneAndGeoZoneSafe Method QtConcurrent::run:" << e.what();
+        } catch (...) {
+            qWarning() << "Unknown exception in checkDroneAndGeoZoneSafe Method QtConcurrent::run";
+        }
+    });
+}
+
+void FlightZoneManager::checkDroneAndGeoZone() {
+    try {
+        double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
+        MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+        if(manager){
+            if(manager->activeVehicle()){
+                if(_noFlyZoneList.count() > 0) {
+                    _zoneLock.lockForRead();
+                    for (const Polyhedron& p : _noFlyZoneList) {
+
+                        //const Polyhedron& p = zone.polyhedron;
+
+                        // Drone's position (lat/lon/alt) for example
+                        double droneLat = 0.0;  // Drone's latitude
+                        double droneLon = 0.0; // Drone's longitude
+                        double droneAlt = 0.0;  // Drone's altitude
+
+                        droneLat = manager->activeVehicle()->latitude();
+                        droneLon = manager->activeVehicle()->longitude();
+
+                        droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
+
+                        if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
+                            qWarning() << "Received NaN for vehicle position. Using default values.";
+                            droneLat = 0.0; // Default values to handle the NaN case
+                            droneLon = 0.0;
+                            droneAlt = 0.0;
+                        }
+
+                        // 등록한 드론의 위치를 가져와야함
+
+                         AABB_tree tree(faces(p).first, faces(p).second, p);
+                         tree.accelerate_distance_queries();
+
+                        // Convert drone's position to Cartesian coordinates
+                        Point_3 dronePosition = latLonAltToCartesian(droneLat, droneLon, droneAlt);
+
+                        // Query the distance between the drone's position and the polyhedron
+                        double distance = std::sqrt(tree.squared_distance(dronePosition)); // distance in meters
+                        if (std::isnan(dronePosition.x()) || std::isnan(dronePosition.y()) || std::isnan(dronePosition.z())) {
+                            qWarning() << "Invalid dronePosition coordinates";
+                            continue;
+                        }
+
+                        bool inside = checkPointInsidePolyhedron(p, dronePosition);
+
+                        if(inside == true) // Drone is Inside polyhedron
+                        {
+                            QString msg  = "Drone is inside GeoZone!";
+                            //CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+
+                            QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
+                                CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                            }, Qt::QueuedConnection);
+                        }
+                        else // Drone is out side polyhedron
+                        {
+                            if(distance <= alarmDistance) // 지정한 거리값 안에 들어오면 알람을 띄워야됨
+                            {
+                                //qInfo() << "Inside Index = " << i;
+                                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(distance);
+                                //CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+
+                                QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
+                                    CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                                }, Qt::QueuedConnection);
+                            }
+                        }
+                    }
+                    _zoneLock.unlock();
+                }
+            }
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return;
+    }
+}
 
 void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 
@@ -420,10 +741,6 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
     }
 }
 
-
-
-
-
 void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, double w)
 {
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
@@ -473,8 +790,6 @@ QString FlightZoneManager::getFilePath() {
 #endif
 }
 
-
-
 void FlightZoneManager::deletePolygon(int index)
 {
     //qInfo() << "deletepolygon index" << index;
@@ -495,6 +810,9 @@ void FlightZoneManager::removeAll(void)
     geoJsonNameList.clear();
     validTimeList.clear();
     allNoFlyZones.clear();
+    QWriteLocker locker(&_zoneLock);
+    _noFlyZoneList.clear();
+
 }
 
 void FlightZoneManager::updateGeoAwareness(){
@@ -512,7 +830,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
 
     double zoom = qGroundControlQmlGlobal->flightMapZoom();
 
-    qInfo() << "current Zoom value = " << zoom;
+    //qInfo() << "current Zoom value = " << zoom;
 
     //내가 있는 지도의 가운데 좌표
     QGeoCoordinate mapCoord = qGroundControlQmlGlobal->flightMapPosition();
@@ -539,18 +857,18 @@ void FlightZoneManager::checkCurrentZoomValue() {
 
                 //왜 여러번 실행되는지 확인필요
 
-                if (_oneTime) {
-                    // 단, isGroundHazard가 false면 한번 더 실행 가능
-                    if (!_isGroundHazard) {
-                        qInfo() << "init polygons (isGroundHazard override)";
-                        geoCoordinate = mapCoord;
-                        start();
+                // if (_oneTime) {
+                //     // 단, isGroundHazard가 false면 한번 더 실행 가능
+                //     if (!_isGroundHazard) {
+                //         qInfo() << "init polygons (isGroundHazard override)";
+                //         geoCoordinate = mapCoord;
+                //         start();
 
-                        // 한 번 실행했으므로 다시 true로 설정
-                        _oneTime = true;
-                    }
-                    return;
-                }
+                //         // 한 번 실행했으므로 다시 true로 설정
+                //         _oneTime = true;
+                //     }
+                //     return;
+                // }
 
                 _oneTime = true;
                 qInfo()<< "init polygons";
@@ -558,19 +876,32 @@ void FlightZoneManager::checkCurrentZoomValue() {
                 start();
             }
             // 여기서 화면 이동시 조건도 추가 필요함
-            if(qGroundControlQmlGlobal->flightMapPosition() != geoCoordinate) // 위치가 바뀌면
+
+            double distanceMeters = qGroundControlQmlGlobal->flightMapPosition().distanceTo(geoCoordinate);
+            if(distanceMeters > 2000) // 2Km 이상 이동 시
             {
-                // if(_polygons.count() > 0){                // 위치 새로고침 후 생성
-                //     //removeAll();
-                //     QGeoCoordinate flightmapPos = qGroundControlQmlGlobal->flightMapPosition();
-                //     QGeoCoordinate geoCoord = geoCoordinate;
-                //     // qInfo() << "flightmapPos = " << flightmapPos.latitude() << "," << flightmapPos.longitude();
-                //     // qInfo() << "geoCoord = " << geoCoordinate.latitude() << "," << geoCoordinate.longitude();
-                //     //드론의 로딩이 다 끝나면 불러와야할듯함
-                //     geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
-                //     init();
-                // }                
+                if(_polygons.count() > 0){                // 위치 새로고침 후 생성
+                    //removeAll();
+                    QGeoCoordinate flightmapPos = qGroundControlQmlGlobal->flightMapPosition();
+                    QGeoCoordinate geoCoord = geoCoordinate;
+                    geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
+                    start();
+                }
             }
+
+            // if(qGroundControlQmlGlobal->flightMapPosition() != geoCoordinate) // 위치가 바뀌면
+            // {
+            //     if(_polygons.count() > 0){                // 위치 새로고침 후 생성
+            //         //removeAll();
+            //         QGeoCoordinate flightmapPos = qGroundControlQmlGlobal->flightMapPosition();
+            //         QGeoCoordinate geoCoord = geoCoordinate;
+            //         // qInfo() << "flightmapPos = " << flightmapPos.latitude() << "," << flightmapPos.longitude();
+            //         // qInfo() << "geoCoord = " << geoCoordinate.latitude() << "," << geoCoordinate.longitude();
+            //         //드론의 로딩이 다 끝나면 불러와야할듯함
+            //         geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
+            //         start();
+            //     }
+            // }
         }
         else if(zoom < 11){
             //qInfo(FlightZoneManagerLog) << "FlightMap zoom less 10: " << qGroundControlQmlGlobal->flightMapZoom();
@@ -796,199 +1127,425 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
 }
 
-void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
+// void FlightZoneManager::processJsonFile(QJsonDocument jsonDoc) {
 
-    QJsonObject root = jsonDoc.object();
-    QJsonArray features = root.value("features").toArray();
+//     QJsonObject root = jsonDoc.object();
+//     QJsonArray features = root.value("features").toArray();
 
-    qInfo() << "features count:" << features.count();
-    validTimeList.clear();
+//     qInfo() << "features count:" << features.count();
+//     validTimeList.clear();
 
-    QDateTime currentTime = QDateTime::currentDateTime();        
+//     QDateTime currentTime = QDateTime::currentDateTime();
 
-    for (const QJsonValue& feature : features) {
-        if (!feature.isObject()) continue;
+//     for (const QJsonValue& feature : features) {
+//         if (!feature.isObject()) continue;
 
-        QJsonObject featureObj = feature.toObject();
-        QJsonObject geometry = featureObj.value("geometry").toObject();
-        QJsonObject properties = featureObj.value("properties").toObject();
+//         QJsonObject featureObj = feature.toObject();
+//         QJsonObject geometry = featureObj.value("geometry").toObject();
+//         QJsonObject properties = featureObj.value("properties").toObject();
 
-        // 고유 ID 추출
-        //qint64 polygonid = featureObj.value("id").toInt(); // 정수 타입 ID
+//         // 고유 ID 추출
+//         //qint64 polygonid = featureObj.value("id").toInt(); // 정수 타입 ID
 
-        // 속성 처리
-        QString name = properties.value("name").toString();
-        QString category = properties.value("category").toString();
+//         // 속성 처리
+//         QString name = properties.value("name").toString();
+//         QString category = properties.value("category").toString();
+//         QString strokeColor = properties.value("strokeColor").toString();
+//         QString strokeOpacity = properties.value("strokeOpacity").toString();
+
+//         // 유효 시간 표시
+//         QJsonObject airac = properties.value("airac").toObject();
+//         QString operationalFrom = airac.value("from").toString();
+//         QString operationalTo = airac.value("to").toString();
+
+//         // altitudeCeiling 및 altitudeFloor 값 가져오기
+//         QJsonObject altitudeCeiling = properties.value("altitudeCeiling").toObject();
+//         double ceilingMeters = altitudeCeiling.value("meters").toDouble();
+
+//         QJsonObject altitudeFloor = properties.value("altitudeFloor").toObject();
+//         double floorMeters = altitudeFloor.value("meters").toDouble();
+//         QGCFencePolygon* polygon;
+
+
+//         QDateTime validFrom = QDateTime::fromString(operationalFrom, "yyyy-MM-dd");
+//         QDateTime validTo = QDateTime::fromString(operationalTo, "yyyy-MM-dd");
+
+//         // geometry의 타입 확인 (Polygon 또는 Point)
+//         QString geometryType = geometry.value("type").toString();
+
+
+//         if(category != "airspace"){
+//             polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
+//         }
+
+//         if(category == "airspace" && allNoFlyZones.count() >= 3){
+//             continue;
+//         }
+
+//         if(category != "airspace" && geometryType == "Polygon") {
+//             qInfo() << "is GroundHazard in";
+//             _isGroundHazard = true;
+//         }
+
+//         QList<NoFlyZone> noFlyZone;
+//         // Polygon 처리
+//         if (geometryType == "Polygon") {
+//             QJsonArray coordinates = geometry.value("coordinates").toArray();
+//             if (coordinates.isEmpty()) continue;
+
+//             for (const QJsonValue& ring : coordinates) {
+//                 if (!ring.isArray()) continue;
+
+//                 QJsonArray points = ring.toArray();
+//                 for (const QJsonValue& point : points) {
+//                     if (!point.isArray()) continue;
+
+//                     QJsonArray latLon = point.toArray();
+//                     if (latLon.size() < 2) continue;
+
+//                     double lon = latLon[0].toDouble();
+//                     double lat = latLon[1].toDouble();
+
+//                     QGeoCoordinate coordinate(lat, lon);
+
+//                     qInfo() << "total points count = " << points.count();
+
+//                     if (currentTime < validTo || (operationalFrom == "" && operationalTo == "")) {
+//                         if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
+//                         {
+//                             qInfo(FlightZoneManagerLog) << "geoJsonNameList count = 0";
+//                             geoJsonNameList.append(name);
+//                         }
+
+//                         if (!geoJsonNameList.contains(name)) //객체가 없으면
+//                         {
+//                             geoJsonNameList.append(GeoJsonNameList(name));
+
+//                             qInfo(FlightZoneManagerLog) << "geoJsonNameList Count : " << geoJsonNameList.count();
+
+//                         }
+//                         else {
+//                             //현재 날짜가 validTo를 넘으면 결국에는 유효기간이 지난거니까 그 부분은 리스트에 안넣도록 한다.
+
+//                             if(category != "airspace"){
+//                                 polygon->appendVertex(coordinate);
+//                             }
+//                             noFlyZone.append(NoFlyZone(QGeoCoordinate(lat, lon), floorMeters, ceilingMeters));
+//                             qInfo() <<"Category = " << category <<", noFlyZOne count = " << noFlyZone.count();
+
+//                         }
+//                     }
+
+//                 }
+//             }
+
+//             // Add to polygon list
+//             if(currentTime < validTo || (operationalFrom == "" && operationalTo == "")){
+
+//                 if(category != "airspace") {
+//                     if(!_polygons.contains(polygon)){
+//                         qInfo() << "Add Polygon------------";
+//                         _polygons.append(polygon);
+//                     }
+//                 }
+
+//                 if(!allNoFlyZones.contains(noFlyZone)){
+//                     qInfo() << "Add NoFlyZone to All No Fly Zones";
+//                     allNoFlyZones.append(noFlyZone);
+//                 }
+//                 // Add to polygon list
+//                 if(currentTime < validTo){
+
+
+
+//                     qInfo() << "Total features in JSON:" << features.count();
+//                      qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
+
+
+//                     // qInfo(FlightZoneManagerLog) << "Polygon added with ID:" << polygonid;
+//                     // qInfo(FlightZoneManagerLog) << "Current polygon count:" << _polygons.count();
+//                 }
+//             }
+//             // Point 처리
+//             else if (geometryType == "Point") {
+//                 QJsonArray coordinates = geometry.value("coordinates").toArray();
+
+//                 qInfo() << "geometry info = " << geometry;
+//                 if (coordinates.isEmpty()) continue;
+
+//                 for (const QJsonValue& ring : coordinates) {
+//                     if (!ring.isArray()) continue;
+
+//                     QJsonArray points = ring.toArray();
+//                     for (const QJsonValue& point : points) {
+//                         if (!point.isArray()) continue;
+
+//                         QJsonArray latLon = point.toArray();
+//                         if (latLon.size() < 2) continue;
+
+//                         double lon = latLon[0].toDouble();
+//                         double lat = latLon[1].toDouble();
+
+//                         QGeoCoordinate coordinate(lat, lon);
+//                         //qInfo()<<"geometryType Point = "<< lat << ", " << lon;
+//                         //polygon->appendVertex(coordinate);
+//                     }
+//                 }
+//             }
+
+//             //if(category != "airspace" && geometryType != "Point" ) {
+//             if(geometryType != "Point") {
+//                 // qInfo(FlightZoneManagerLog) << "geometryType: " << geometryType;
+//                 // qInfo(FlightZoneManagerLog) << "Feature ID:" << polygonid;
+//                 // qInfo(FlightZoneManagerLog) << "Name:" << name;
+//                 // qInfo(FlightZoneManagerLog) << "Category:" << category;
+
+//                 // qInfo(FlightZoneManagerLog) << "operationFrom" << operationalFrom;
+//                 // qInfo(FlightZoneManagerLog) << "operationTo" << operationalTo;
+//                 // qInfo(FlightZoneManagerLog) << "strokeColor" << strokeColor;
+//                 // qInfo(FlightZoneManagerLog) << "strokeOpacity" << strokeOpacity;
+
+//                 // qInfo(FlightZoneManagerLog) << "altitudeCeiling : " << ceilingMeters;
+//                 // qInfo(FlightZoneManagerLog) << "altitudeFloor : " << floorMeters;
+
+//                 if(category != "airspace") {
+//                     polygon->setcolorInclusion(strokeColor);
+//                     polygon->setstrokeOpacity(strokeOpacity.toDouble());
+//                 }
+//                 //중복 대비. list에도 이름을 넣는다. 만약 이름이 똑같으면 그거는 list에 안넣는거로 한다.
+//             }
+
+//         }
+
+//         //qInfo(FlightZoneManagerLog) << "Processing complete. Total polygons:" << _polygons.count();
+//     }
+// }
+
+
+void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
+{
+    QList<std::tuple<QList<QGeoCoordinate>, QString, QString, QString>> parsedPolygons; // 마지막 QString: id
+    QList<std::tuple<QGeoCoordinate, double, QString, QString, QString>> parsedCircles; // 마지막 QString: id
+
+    QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedNoFlyZone;
+
+    const QJsonArray features = jsonDoc["features"].toArray();
+    for (const QJsonValue& featureVal : features) {
+        const QJsonObject feature = featureVal.toObject();
+        const QJsonObject geometry = feature["geometry"].toObject();
+        const QString type = geometry["type"].toString();
+        const QString id = feature["id"].toString();
+
+        QJsonObject properties = feature.value("properties").toObject();
         QString strokeColor = properties.value("strokeColor").toString();
         QString strokeOpacity = properties.value("strokeOpacity").toString();
+        QString category = properties.value("category").toString();
 
-        // 유효 시간 표시
-        QJsonObject airac = properties.value("airac").toObject();
-        QString operationalFrom = airac.value("from").toString();
-        QString operationalTo = airac.value("to").toString();
-
-        // altitudeCeiling 및 altitudeFloor 값 가져오기
         QJsonObject altitudeCeiling = properties.value("altitudeCeiling").toObject();
         double ceilingMeters = altitudeCeiling.value("meters").toDouble();
-
         QJsonObject altitudeFloor = properties.value("altitudeFloor").toObject();
         double floorMeters = altitudeFloor.value("meters").toDouble();
-        QGCFencePolygon* polygon;
 
+        if (type == "Polygon") {
+            if(category == "airspace") continue;
+            if (ceilingMeters > 500) continue;
+            //if(parsedPolygons.count() > 30) continue;
 
-        QDateTime validFrom = QDateTime::fromString(operationalFrom, "yyyy-MM-dd");
-        QDateTime validTo = QDateTime::fromString(operationalTo, "yyyy-MM-dd");
-
-        // geometry의 타입 확인 (Polygon 또는 Point)
-        QString geometryType = geometry.value("type").toString();
-
-
-        if(category != "airspace"){
-            polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
-        }
-
-        if(category == "airspace" && allNoFlyZones.count() >= 3){
-            continue;
-        }        
-
-        if(category != "airspace" && geometryType == "Polygon") {
-            qInfo() << "is GroundHazard in";
-            _isGroundHazard = true;
-        }
-
-        QList<NoFlyZone> noFlyZone;
-        // Polygon 처리
-        if (geometryType == "Polygon") {
-            QJsonArray coordinates = geometry.value("coordinates").toArray();
-            if (coordinates.isEmpty()) continue;
-
-            for (const QJsonValue& ring : coordinates) {
-                if (!ring.isArray()) continue;
-
-                QJsonArray points = ring.toArray();
-                for (const QJsonValue& point : points) {
-                    if (!point.isArray()) continue;
-
-                    QJsonArray latLon = point.toArray();
-                    if (latLon.size() < 2) continue;
-
-                    double lon = latLon[0].toDouble();
-                    double lat = latLon[1].toDouble();
-
-                    QGeoCoordinate coordinate(lat, lon);
-
-                    qInfo() << "total points count = " << points.count();
-
-                    if (currentTime < validTo || (operationalFrom == "" && operationalTo == "")) {
-                        if (geoJsonNameList.count() == 0) // 아무것도 없으면 추가해야함. 추가할때는 중복체크해서
-                        {        
-                            qInfo(FlightZoneManagerLog) << "geoJsonNameList count = 0";
-                            geoJsonNameList.append(name);
-                        }
-
-                        if (!geoJsonNameList.contains(name)) //객체가 없으면
-                        {
-                            geoJsonNameList.append(GeoJsonNameList(name));
-
-                            qInfo(FlightZoneManagerLog) << "geoJsonNameList Count : " << geoJsonNameList.count();
-
-                        }
-                        else {
-                            //현재 날짜가 validTo를 넘으면 결국에는 유효기간이 지난거니까 그 부분은 리스트에 안넣도록 한다.
-
-                            if(category != "airspace"){
-                                polygon->appendVertex(coordinate);
-                            }
-                            noFlyZone.append(NoFlyZone(QGeoCoordinate(lat, lon), floorMeters, ceilingMeters));
-                            qInfo() <<"Category = " << category <<", noFlyZOne count = " << noFlyZone.count();
-
-                        }
-                    }
-
+            QJsonArray coordinates = geometry["coordinates"].toArray();
+            QList<QGeoCoordinate> polygon;
+            for (const QJsonValue& ringVal : coordinates) {
+                QJsonArray ring = ringVal.toArray();
+                for (const QJsonValue& coordVal : ring) {
+                    QJsonArray coordPair = coordVal.toArray();
+                    double lon = coordPair[0].toDouble();
+                    double lat = coordPair[1].toDouble();
+                    polygon.append(QGeoCoordinate(lat, lon));
                 }
             }
 
-            // Add to polygon list
-            if(currentTime < validTo || (operationalFrom == "" && operationalTo == "")){
+            // 중복 체크
+            bool isDuplicate = false;
+            for (const auto& existing : parsedPolygons) {
+                const QList<QGeoCoordinate>& existingCoords = std::get<0>(existing);
+                const QString& existingColor = std::get<1>(existing);
+                const QString& existingOpacity = std::get<2>(existing);
+                const QString& existingId = std::get<3>(existing);
 
-                if(category != "airspace") {
-                    if(!_polygons.contains(polygon)){
-                        qInfo() << "Add Polygon------------";
-                        _polygons.append(polygon);
+                if (id == existingId) {
+                    isDuplicate = true;
+                    break;
+                }
+
+                if (existingCoords.size() != polygon.size() || existingColor != strokeColor || existingOpacity != strokeOpacity)
+                    continue;
+
+                bool same = true;
+                for (int i = 0; i < polygon.size(); ++i) {
+                    if (polygon[i] != existingCoords[i]) {
+                        same = false;
+                        break;
                     }
                 }
 
-                if(!allNoFlyZones.contains(noFlyZone)){
-                    qInfo() << "Add NoFlyZone to All No Fly Zones";
-                    allNoFlyZones.append(noFlyZone);
-                }
-                // Add to polygon list
-                if(currentTime < validTo){
-
-
-
-                    qInfo() << "Total features in JSON:" << features.count();
-                     qInfo(FlightZoneManagerLog) << "allNoFlyZones Count = " <<allNoFlyZones.count();
-
-
-                    // qInfo(FlightZoneManagerLog) << "Polygon added with ID:" << polygonid;
-                    // qInfo(FlightZoneManagerLog) << "Current polygon count:" << _polygons.count();
-                }
-            }
-            // Point 처리
-            else if (geometryType == "Point") {
-                QJsonArray coordinates = geometry.value("coordinates").toArray();
-
-                qInfo() << "geometry info = " << geometry;
-                if (coordinates.isEmpty()) continue;
-
-                for (const QJsonValue& ring : coordinates) {
-                    if (!ring.isArray()) continue;
-
-                    QJsonArray points = ring.toArray();
-                    for (const QJsonValue& point : points) {
-                        if (!point.isArray()) continue;
-
-                        QJsonArray latLon = point.toArray();
-                        if (latLon.size() < 2) continue;
-
-                        double lon = latLon[0].toDouble();
-                        double lat = latLon[1].toDouble();
-
-                        QGeoCoordinate coordinate(lat, lon);
-                        //qInfo()<<"geometryType Point = "<< lat << ", " << lon;
-                        //polygon->appendVertex(coordinate);
-                    }
+                if (same) {
+                    isDuplicate = true;
+                    break;
                 }
             }
 
-            //if(category != "airspace" && geometryType != "Point" ) {
-            if(geometryType != "Point") {
-                // qInfo(FlightZoneManagerLog) << "geometryType: " << geometryType;
-                // qInfo(FlightZoneManagerLog) << "Feature ID:" << polygonid;
-                // qInfo(FlightZoneManagerLog) << "Name:" << name;
-                // qInfo(FlightZoneManagerLog) << "Category:" << category;
+            if (!isDuplicate) {
+                // qInfo() << "Polygons altitudeFloor === " << floorMeters;
+                // qInfo() << "Polygons altitudeCeiliing === " << ceilingMeters;
+                parsedPolygons.append(std::make_tuple(polygon, strokeColor, strokeOpacity, id));
 
-                // qInfo(FlightZoneManagerLog) << "operationFrom" << operationalFrom;
-                // qInfo(FlightZoneManagerLog) << "operationTo" << operationalTo;
-                // qInfo(FlightZoneManagerLog) << "strokeColor" << strokeColor;
-                // qInfo(FlightZoneManagerLog) << "strokeOpacity" << strokeOpacity;
+                // Add CreatePolyhedron
+                parsedNoFlyZone.append(std::make_tuple(polygon, floorMeters, ceilingMeters));
 
-                // qInfo(FlightZoneManagerLog) << "altitudeCeiling : " << ceilingMeters;
-                // qInfo(FlightZoneManagerLog) << "altitudeFloor : " << floorMeters;
-
-                if(category != "airspace") {
-                    polygon->setcolorInclusion(strokeColor);
-                    polygon->setstrokeOpacity(strokeOpacity.toDouble());
-                }
-                //중복 대비. list에도 이름을 넣는다. 만약 이름이 똑같으면 그거는 list에 안넣는거로 한다.
             }
-
         }
 
-        //qInfo(FlightZoneManagerLog) << "Processing complete. Total polygons:" << _polygons.count();
+#if false
+        else if (type == "Point") {
+            QJsonArray coordPair = geometry["coordinates"].toArray();
+            if (coordPair.size() < 2) continue;
+
+            double lon = coordPair[0].toDouble();
+            double lat = coordPair[1].toDouble();
+            QGeoCoordinate center(lat, lon);
+
+            double radiusMeters = 0.0;
+            if (properties.contains("radius")) {
+                radiusMeters = properties.value("radius").toString().toDouble();
+            } else if (geometry.contains("radius")) {
+                radiusMeters = geometry.value("radius").toString().toDouble();
+            }
+
+            // 중복 체크
+            bool isDuplicate = false;
+            for (const auto& existing : parsedCircles) {
+                const QGeoCoordinate& existingCenter = std::get<0>(existing);
+                double existingRadius = std::get<1>(existing);
+                const QString& existingColor = std::get<2>(existing);
+                const QString& existingOpacity = std::get<3>(existing);
+                const QString& existingId = std::get<4>(existing);
+
+                if (id == existingId) {
+                    isDuplicate = true;
+                    break;
+                }
+
+                if (existingCenter == center &&
+                    qFuzzyCompare(existingRadius + 1, radiusMeters + 1) &&
+                    existingColor == strokeColor &&
+                    existingOpacity == strokeOpacity)
+                {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (!isDuplicate) {
+                //qInfo() << "circle AltitudeCeiling === " << ceilingMeters;
+                parsedCircles.append(std::make_tuple(center, radiusMeters, strokeColor, strokeOpacity, id));
+            }
+        }
+#endif
     }
+
+    QtConcurrent::run([=]() {
+        try {
+            generateNoFlyZones(parsedNoFlyZone);
+        } catch (const std::exception& e) {
+            qWarning() << "generateNoFlyZones Exception:" << e.what();
+        } catch (...) {
+            qWarning() << "generateNoFlyZones Unknown Exception";
+        }
+    });
+
+
+    QMetaObject::invokeMethod(this, [=]() {
+        for (const auto& polyData : parsedPolygons) {
+            const QList<QGeoCoordinate>& coords = std::get<0>(polyData);
+            const QString& strokeColor = std::get<1>(polyData);
+            const QString& strokeOpacity = std::get<2>(polyData);
+            const QString& id = std::get<3>(polyData);
+
+            // _polygons 중복 확인 (id 기준)
+            bool alreadyDrawn = false;
+            for (int i = 0; i < _polygons.count(); ++i) {
+                QGCFencePolygon* existing = qobject_cast<QGCFencePolygon*>(_polygons.get(i));
+                if (!existing || existing->count() != coords.size())
+                    continue;
+
+                if (existing->objectName() == id) {
+                    alreadyDrawn = true;
+                    break;
+                }
+
+                bool same = true;
+                for (int j = 0; j < coords.size(); ++j) {
+                    if (existing->vertexCoordinate(j) != coords[j]) {
+                        same = false;
+                        break;
+                    }
+                }
+
+                if (same) {
+                    alreadyDrawn = true;
+                    break;
+                }
+            }
+
+            if (!alreadyDrawn) {
+                QGCFencePolygon* polygon = new QGCFencePolygon(false, this);
+                polygon->setObjectName(id);
+                for (const QGeoCoordinate& coord : coords)
+                    polygon->appendVertex(coord);
+                polygon->setcolorInclusion(strokeColor);
+                polygon->setstrokeOpacity(strokeOpacity.toDouble() / 2);
+                _polygons.append(polygon);
+                qInfo() << "_polygons count == " << _polygons.count();
+            }
+        }
+#if false
+        for (const auto& tuple : parsedCircles) {
+            const QGeoCoordinate& center = std::get<0>(tuple);
+            double radius = std::get<1>(tuple);
+            const QString& strokeColor = std::get<2>(tuple);
+            const QString& strokeOpacity = std::get<3>(tuple);
+            const QString& id = std::get<4>(tuple);
+
+            bool alreadyDrawn = false;
+            for (int i = 0; i < _circles.count(); ++i) {
+                QGCFenceCircle* existing = qobject_cast<QGCFenceCircle*>(_circles.get(i));
+                if (!existing)
+                    continue;
+
+                if (existing->objectName() == id) {
+                    alreadyDrawn = true;
+                    break;
+                }
+
+                if (qFuzzyCompare(static_cast<double>(existing->radius()->rawValue().toDouble()), static_cast<double>(radius)))
+                {
+                    alreadyDrawn = true;
+                    break;
+                }
+            }
+
+            if (!alreadyDrawn) {
+                QGCFenceCircle* circle = new QGCFenceCircle(center, radius, false, this);
+                circle->setObjectName(id);
+                circle->setCenter(center);
+                circle->setcolorInclusion(strokeColor);
+                circle->setstrokeOpacity(strokeOpacity.toDouble() / 2);
+                _circles.append(circle);
+            }
+        }
+#endif
+    }, Qt::QueuedConnection);
 }
+
 
 void FlightZoneManager::start(void){
     //qInfo() << "flightZone Manager";

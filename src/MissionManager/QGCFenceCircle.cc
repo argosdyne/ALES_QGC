@@ -39,6 +39,8 @@ QGCFenceCircle::QGCFenceCircle(const QGCFenceCircle& other, QObject* parent)
 void QGCFenceCircle::_init(void)
 {
     connect(this, &QGCFenceCircle::inclusionChanged, this, &QGCFenceCircle::_setDirty);
+    connect(this, &QGCFenceCircle::colorInclusionChanged, this, &QGCFenceCircle::_setDirty);
+    connect(this, &QGCFenceCircle::strokeOpcaityChanged, this, &QGCFenceCircle::_setDirty);
 }
 
 const QGCFenceCircle& QGCFenceCircle::operator=(const QGCFenceCircle& other)
@@ -104,5 +106,20 @@ void QGCFenceCircle::setInclusion(bool inclusion)
             }
         }
 
+    }
+}
+
+void QGCFenceCircle::setcolorInclusion(QColor colorinclusion) {
+    if(colorinclusion != _colorInclusion){
+        _colorInclusion = colorinclusion;
+        qInfo() << "Color Inclusion value = " << colorinclusion;
+        emit colorInclusionChanged();
+    }
+}
+void QGCFenceCircle::setstrokeOpacity(double opacity) {
+    if(opacity != _strokeOpacity){
+        _strokeOpacity = opacity;
+        qInfo() << "Stroke Opacity value = "<< opacity;
+        emit strokeOpcaityChanged();
     }
 }

@@ -14,7 +14,21 @@
 #include "PositionManager.h"
 #include "ADSBVehicle.h"
 
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/AABB_face_graph_triangle_primitive.h>
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/AABB_tree.h>
+#include <vector>
+#include <CGAL/AABB_traits_3.h>
+
 class GeoFenceManager;
+
+typedef CGAL::Simple_cartesian<double> Kernel;
+typedef CGAL::Polyhedron_3<Kernel> Polyhedron;
+typedef CGAL::AABB_face_graph_triangle_primitive<Polyhedron> Primitive;
+typedef CGAL::AABB_traits_3<Kernel, Primitive> AABB_traits;
+typedef CGAL::AABB_tree<AABB_traits> AABB_tree;
+typedef Kernel::Point_3 Point_3;
 
 class FlightZoneManager : public QObject
 {
@@ -44,7 +58,8 @@ public:
     // Test
 
 
-    void processJsonFile(QJsonDocument jsonDoc);
+    //void processJsonFile(QJsonDocument jsonDoc);
+    void processJsonFile(const QJsonDocument& jsonDoc);
     void fetchGeoJsonDataForRegion(double n, double e, double s, double w);
 
     void getOnlineGeoJsonData();
@@ -52,7 +67,25 @@ public:
 
     void checkDistanceDroneAndGeoAwareness();
 
+    void checkDroneAndGeoZone();
+
     void updateGeoAwareness();
+
+    void checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList,
+                                  double lat, double lon, double alt,
+                                  double alarmDistance);
+
+    void checkDroneAndGeoZoneSafe(double lat, double lon, double alt, double alarmDistance);
+
+    void buildAABBTreeForAllZones();
+
+    bool containsPolyhedron(const QList<Polyhedron>& list, const Polyhedron& poly);
+    bool isSamePolyhedron(const Polyhedron& a, const Polyhedron& b);
+
+
+    Point_3 approximatePolyhedronCenter(const Polyhedron& poly);
+
+    void generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons);
 signals:
 
 

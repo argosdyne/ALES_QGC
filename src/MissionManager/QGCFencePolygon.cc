@@ -88,14 +88,14 @@ void QGCFencePolygon::setInclusion(bool inclusion)
 {
     if (inclusion != _inclusion) {
         _inclusion = inclusion;
-        qInfo() << "inclusion Value = " << inclusion;
+        //qInfo() << "inclusion Value = " << inclusion;
         emit inclusionChanged(inclusion);
-        qInfo() << "setInclusion circle value = " << inclusion;
+        //qInfo() << "setInclusion circle value = " << inclusion;
 
         MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
         if(manager){
             if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
-                qInfo() << "This is PX4";
+                //qInfo() << "This is PX4";
                 Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
                 inclusion->setRawValue(_inclusion);
             }
@@ -106,14 +106,14 @@ void QGCFencePolygon::setInclusion(bool inclusion)
 void QGCFencePolygon::setcolorInclusion(QColor colorinclusion) {
     if(colorinclusion != _colorInclusion){
         _colorInclusion = colorinclusion;
-        qInfo() << "Color Inclusion value = " << colorinclusion;
+        //qInfo() << "Color Inclusion value = " << colorinclusion;
         emit colorInclusionChanged();
     }
 }
 void QGCFencePolygon::setstrokeOpacity(double opacity) {
     if(opacity != _strokeOpacity){
         _strokeOpacity = opacity;
-        qInfo() << "Stroke Opacity value = "<< opacity;
+        //qInfo() << "Stroke Opacity value = "<< opacity;
         emit strokeOpcaityChanged();
     }
 }
