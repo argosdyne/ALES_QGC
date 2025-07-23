@@ -96,7 +96,7 @@ exists(user_config.pri):infile(user_config.pri, CONFIG) {
 # Custom Build
 #
 # QGC will create a "CUSTOMCLASS" object (exposed by your custom build
-# and derived from QGCCorePlugin).
+# and derived from QGCCorePlugin). 
 # This is the start of allowing custom Plugins, which will eventually use a
 # more defined runtime plugin architecture and not require a QGC project
 # file you would have to keep in sync with the upstream repo.
