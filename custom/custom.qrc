@@ -68,10 +68,10 @@
         <file alias="Custom/Widgets/CustomVehicleAttitude.qml">res/Custom/Widgets/CustomVehicleAttitude.qml</file>
     </qresource>
     <qresource prefix="/qml">
-		<!--<file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">custom/res/Custom/FlightDisplay/FlyViewOverlay.qml</file> -->
-		<!--<file alias="QGroundControl/FlightDisplay/CustomCameraControl.qml">custom/CustomCameraControl.qml</file>-->
-		<!--<file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file> -->
-		<!--<file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file> -->
+		<file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">custom/res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
+		<file alias="QGroundControl/FlightDisplay/CustomCameraControl.qml">custom/CustomCameraControl.qml</file>
+		<file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
+		<file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
         <file alias="GlobalResults.qml">src/Rhythm/GlobalResults.qml</file>
     </qresource>
