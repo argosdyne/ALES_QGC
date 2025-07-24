@@ -69,9 +69,9 @@
     </qresource>
     <qresource prefix="/qml">
 		<file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
-		<file alias="QGroundControl/FlightDisplay/CustomCameraControl.qml">CustomCameraControl.qml</file>
-		<file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
-		<file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
+		<file alias="CustomCameraControl.qml">CustomCameraControl.qml</file>
+		<file alias="FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
+		<file alias="FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
         <file alias="GlobalResults.qml">src/Rhythm/GlobalResults.qml</file>
     </qresource>
