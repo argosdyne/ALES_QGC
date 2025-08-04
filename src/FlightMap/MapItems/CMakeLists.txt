@@ -3,6 +3,7 @@ add_custom_target(FligthMapItemsQml
 		CameraTriggerIndicator.qml
 		CustomMapItems.qml
 		MissionItemIndicatorDrag.qml
+		GeoZoneItemIndicatorDrag.qml
 		MissionItemIndicator.qml
 		MissionItemView.qml
 		MissionLineView.qml

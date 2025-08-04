@@ -22,6 +22,9 @@
 #include <QFile>
 #include <QDomDocument>
 
+#include <QList>
+#include <QGeoCoordinate>
+
 const char* QGCMapPolygon::jsonPolygonKey = "polygon";
 
 QGCMapPolygon::QGCMapPolygon(QObject* parent)
@@ -653,3 +656,67 @@ void QGCMapPolygon::selectVertex(int index)
 
     emit selectedVertexChanged(_selectedVertexIndex);
 }
+
+void QGCMapPolygon::adjustGeoZoneVertex(int vertexIndex, const QGeoCoordinate& newCoord)
+{
+    qInfo() << "vertex Index = " << vertexIndex;
+    if (vertexIndex < 0 || vertexIndex >= _polygonPath.count())
+        return;
+
+    if (_polygonPath.count() != 4) return;
+    if (_suppressPathChanged || _inAdjustGeoZoneVertex) return;
+
+    _inAdjustGeoZoneVertex = true;
+    emit inAdjustGeoZoneVertexChanged();
+
+    QList<QGeoCoordinate> coords;
+    for (int i = 0; i < 4; ++i) {
+        coords.append(_polygonPath[i].value<QGeoCoordinate>());
+    }
+
+    // 새로운 꼭짓점 좌표
+    QGeoCoordinate moved = newCoord;
+
+    // 이동한 꼭짓점의 대각선 (고정)
+    int oppositeIndex = (vertexIndex + 2) % 4;
+    QGeoCoordinate fixed = coords[oppositeIndex];
+
+    // 새로 구성할 좌표 리스트
+    QList<QGeoCoordinate> newCoords;
+    for (int i = 0; i < 4; ++i)
+        newCoords.append(QGeoCoordinate());
+
+    // 사각형의 꼭짓점 재계산
+    // 두 점(moved, fixed)을 기준으로 나머지 두 점 계산
+    // 이 두 점을 직사각형의 대각선으로 보고 나머지 꼭짓점 계산
+
+    newCoords[vertexIndex] = moved;
+    newCoords[oppositeIndex] = fixed;
+
+    // 나머지 두 꼭짓점 계산 (직사각형 유지)
+    int index1 = (vertexIndex + 1) % 4;
+    int index2 = (vertexIndex + 3) % 4;
+
+    newCoords[index1] = QGeoCoordinate(moved.latitude(), fixed.longitude());
+    newCoords[index2] = QGeoCoordinate(fixed.latitude(), moved.longitude());
+
+    for (int i = 0; i < 4; ++i) {
+        if (_polygonPath[i].value<QGeoCoordinate>() != newCoords[i]) {
+            _polygonPath[i] = QVariant::fromValue(newCoords[i]);
+        }
+
+        if (_polygonModel.value<QGCQGeoCoordinate*>(i)->coordinate() != newCoords[i]) {
+            _polygonModel.value<QGCQGeoCoordinate*>(i)->setCoordinate(newCoords[i]);
+        }
+    }
+
+    emit pathChanged();
+    setDirty(true);
+    _inAdjustGeoZoneVertex = false;
+    emit inAdjustGeoZoneVertexChanged();
+}
+
+
+
+
+

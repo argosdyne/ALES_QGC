@@ -132,6 +132,7 @@ ApplicationWindow {
         toolDrawer.toolSource   = ""
         flightView.visible      = false
         planView.visible        = false
+        _geoZoneMakeView.visible = false
         toolbar.currentToolbar  = currentToolbar
     }
 
@@ -146,6 +147,12 @@ ApplicationWindow {
     function showPlanView() {
         viewSwitch(toolbar.planViewToolbar)
         planView.visible = true
+    }
+
+    // show GeoZoneMakeView
+    function showGeoZoneMakeView(){
+        //viewSwitch(toolbar.planViewToolbar)
+        _geoZoneMakeView.visible = true
     }
 
     function showTool(toolTitle, toolSource, toolIcon) {
@@ -463,6 +470,12 @@ ApplicationWindow {
 
             }
         }
+
+    GeoZoneMakeView {
+        id: _geoZoneMakeView
+        anchors.fill: parent
+        visible: false
+    }
 
     Rhythm {
         id: _rhythm

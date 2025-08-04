@@ -91,6 +91,12 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     qInfo(FlightZoneManagerLog) << "FlightZoneManager Start";    
     // 0 = USB, 1 = Online
 
+    _toolbox = qgcApp()->toolbox();
+    _settingsManager = _toolbox->settingsManager();
+
+    //24시간 지나면 파일 자동삭제하는 부분
+    autoDeleteUSBFile();
+
     connect(&_timer, &QTimer::timeout, this, &FlightZoneManager::updatePolygonVisibility);
     _timer.start(1000);
 
@@ -100,9 +106,6 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     //Check Zoom Value
     connect(&_zoomTimer, &QTimer::timeout, this, &FlightZoneManager::checkCurrentZoomValue);
     _zoomTimer.start(1000);
-
-    _toolbox = qgcApp()->toolbox();
-    _settingsManager = _toolbox->settingsManager();
 
     geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
 
@@ -151,6 +154,114 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
         }
     });
 }
+
+void FlightZoneManager::autoDeleteUSBFile() {
+
+    QString folderPath = _settingsManager->appSettings()->geoZoneSavePath();
+    QDir dir(folderPath);
+    if (!dir.exists()) {
+        qWarning() << "폴더가 존재하지 않습니다:" << folderPath;
+        return;
+    }
+
+    // 폴더 내의 모든 파일 목록 가져오기
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
+    QDateTime currentTime = QDateTime::currentDateTime();
+
+    for (const QFileInfo& fileInfo : fileList) {
+        QDateTime lastModified = fileInfo.lastModified();
+        qint64 diffSecs = lastModified.secsTo(currentTime);
+
+        if (diffSecs >= 86400) { // 24시간 이상 경과
+            QString filePath = fileInfo.absoluteFilePath();
+            if (QFile::remove(filePath)) {
+                qDebug() << "삭제됨:" << filePath;
+            } else {
+                qWarning() << "삭제 실패:" << filePath;
+            }
+        } else {
+            qDebug() << "유지됨(24시간 미만):" << fileInfo.fileName();
+        }
+    }
+}
+
+
+// void FlightZoneManager::autoDeleteUSBFile() {
+//     QString savePath = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+
+//     qDebug() << "savePath:" << savePath;
+//     qDebug() << "파일 존재 여부:" << QFile::exists(savePath);
+//     QFile file(savePath);
+//     qDebug() << "Writable?:" << file.permissions().testFlag(QFileDevice::WriteUser);
+
+//     if (!file.open(QIODevice::ReadOnly)) {
+//         qWarning() << "파일을 열 수 없습니다:" << savePath;
+//         return;
+//     }
+
+//     QByteArray jsonData = file.readAll();
+//     file.close();
+
+//     QJsonParseError parseError;
+//     QJsonDocument doc = QJsonDocument::fromJson(jsonData, &parseError);
+//     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+//         qWarning() << "JSON 파싱 오류:" << parseError.errorString();
+//         return;
+//     }
+
+//     QJsonObject rootObj = doc.object();
+//     if (!rootObj.contains("created_at")) {
+//         qWarning() << "'created_at' 필드가 없습니다.";
+//         return;
+//     }
+
+//     QString createdAtStr = rootObj.value("created_at").toString();
+//     QDateTime createdAt = QDateTime::fromString(createdAtStr, "yyyy-MM-dd HH:mm:ss");
+
+//     if (!createdAt.isValid()) {
+//         qWarning() << "'created_at' 시간 형식이 잘못되었습니다:" << createdAtStr;
+//         return;
+//     }
+
+//     QDateTime now = QDateTime::currentDateTime();
+//     qint64 diffSecs = createdAt.secsTo(now);
+
+//     qInfo() << "diffSecs = " << diffSecs;
+
+//     //Test 지워지는지
+//     //file.remove(savePath);
+
+//     // QDir dir(savePath);
+//     // dir.remove(savePath);
+
+//     QFileInfo files(savePath);
+
+
+
+//     if(file.exists()) {
+//         qInfo() << "파일 안지워짐";
+//     }
+//     else {
+//         qInfo() << "파일 지워짐";
+//     }
+
+
+//     // if (diffSecs >= 86400) { // 24시간 = 86400초
+//     //     if (QFile::remove(savePath)) {
+//     //         qInfo() << "파일이 24시간 경과되어 삭제되었습니다:" << savePath;
+//     //     } else {
+//     //         qWarning() << "파일 삭제 실패:" << savePath;
+//     //     }
+//     // } else {
+//     //     qInfo() << "파일 유지됨 (24시간 미만):" << savePath;
+//     // }
+
+// }
+
+
+
+
+
 
 void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
     if (reply->error() == QNetworkReply::NoError) {
@@ -746,7 +857,7 @@ void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, 
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
     QString onlineLicenseKey =_settingsManager->flyViewSettings()->onlineLicenseKey()->rawValueString();
     QString authorizationHeader = "X-AA-ApiKey " + onlineLicenseKey;
-    qInfo(FlightZoneManagerLog) << "online Url : " << onlineUrl;
+    //qInfo(FlightZoneManagerLog) << "online Url : " << onlineUrl;
     QString url = "https://api.altitudeangel.com/v2/mapdata/geojson";
     QUrl fullUrl(onlineUrl);
 
@@ -845,7 +956,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
         if(_polygons.count() == 0) { // 이미 생성되어 있음
 
             //왜 여러번 실행되는지 확인필요
-            qInfo()<< "init polygons";
+            //qInfo()<< "init polygons";
             geoCoordinate = qGroundControlQmlGlobal->flightMapPosition();
             start();
         }
@@ -871,7 +982,7 @@ void FlightZoneManager::checkCurrentZoomValue() {
                 // }
 
                 _oneTime = true;
-                qInfo()<< "init polygons";
+                //qInfo()<< "init polygons";
                 geoCoordinate = mapCoord;
                 start();
             }
@@ -1038,7 +1149,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
 
 
-        QGCFencePolygon* polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill
+        QGCFencePolygon* polygon = new QGCFencePolygon(false /* inclusion */, this); // true = not fill , false = fill        
         QList<NoFlyZone> noFlyZone;
         for (const QJsonValue& ring : coordinates) {
             if (!ring.isArray()) continue;
@@ -1571,7 +1682,7 @@ void FlightZoneManager::start(void){
     else // Online
     {        
         //qInfo(FlightZoneManagerLog) << "Make with Online dataType = " << dataType;
-        qInfo() << "Data Type == " << dataType;
+        //qInfo() << "Data Type == " << dataType;
         getOnlineGeoJsonData();
     }
 }

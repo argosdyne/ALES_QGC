@@ -23,6 +23,7 @@ FlightModeMenu                          1.0 FlightModeMenu.qml
 GeoFenceEditor                          1.0 GeoFenceEditor.qml
 GeoFenceMapVisuals                      1.0 GeoFenceMapVisuals.qml
 FlightZoneManagerGeoFenceMapVisuals		1.0 FlightZoneManagerGeoFenceMapVisuals.qml
+GeoZoneMakeViewMapVisuals				1.0 GeoZoneMakeViewMapVisuals.qml
 HackFileDialog                          1.0 HackFileDialog.qml
 HeightIndicator                         1.0 HeightIndicator.qml
 HorizontalFactValueGrid                 1.0 HorizontalFactValueGrid.qml
@@ -71,6 +72,7 @@ QGCListView                             1.0 QGCListView.qml
 QGCMapCircleVisuals                     1.0 QGCMapCircleVisuals.qml
 QGCMapLabel                             1.0 QGCMapLabel.qml
 QGCMapPolygonVisuals                    1.0 QGCMapPolygonVisuals.qml
+GeoZoneMapPolygonVisuals				1.0 GeoZoneMapPolygonVisuals.qml
 QGCMapPolylineVisuals                   1.0 QGCMapPolylineVisuals.qml
 QGCMenu                                 1.0 QGCMenu.qml
 QGCMenuItem                             1.0 QGCMenuItem.qml

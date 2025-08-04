@@ -80,6 +80,7 @@
 		<file alias="M2LinkIndicator.qml">../src/M2Link/M2LinkIndicator.qml</file>
 		<file alias="QGCDelayButton.qml">../src/QmlControls/QGCDelayButton.qml</file>
 		<file alias="PlanView.qml">../src/PlanView/PlanView.qml</file>
+		<file alias="GeoZoneMakeView.qml">../src/PlanView/GeoZoneMakeView.qml</file>
 		<file alias="PreFlightCheckList.qml">../src/FlightDisplay/PreFlightCheckList.qml</file>
 		<file alias="PX4FlowSensor.qml">../src/VehicleSetup/PX4FlowSensor.qml</file>
 		<file alias="QGCInstrumentWidget.qml">../src/FlightMap/Widgets/QGCInstrumentWidget.qml</file>
@@ -107,6 +108,7 @@
 		<file alias="QGroundControl/Controls/GeoFenceEditor.qml">../src/PlanView/GeoFenceEditor.qml</file>
 		<file alias="QGroundControl/Controls/GeoFenceMapVisuals.qml">../src/PlanView/GeoFenceMapVisuals.qml</file>
 		<file alias="QGroundControl/Controls/FlightZoneManagerGeoFenceMapVisuals.qml">../src/PlanView/FlightZoneManagerGeoFenceMapVisuals.qml</file>
+		<file alias="QGroundControl/Controls/GeoZoneMakeViewMapVisuals.qml">../src/PlanView/GeoZoneMakeViewMapVisuals.qml</file>
 		<file alias="QGroundControl/Controls/HorizontalFactValueGrid.qml">../src/QmlControls/HorizontalFactValueGrid.qml</file>
 		<file alias="QGroundControl/Controls/IndicatorButton.qml">../src/QmlControls/IndicatorButton.qml</file>
 		<file alias="QGroundControl/Controls/InstrumentValueLabel.qml">../src/QmlControls/InstrumentValueLabel.qml</file>
@@ -153,6 +155,7 @@
 		<file alias="QGroundControl/Controls/QGCMapCircleVisuals.qml">../src/MissionManager/QGCMapCircleVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapLabel.qml">../src/QmlControls/QGCMapLabel.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolygonVisuals.qml">../src/MissionManager/QGCMapPolygonVisuals.qml</file>
+		<file alias="QGroundControl/Controls/GeoZoneMapPolygonVisuals.qml">../src/MissionManager/GeoZoneMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolylineVisuals.qml">../src/MissionManager/QGCMapPolylineVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMenu.qml">../src/QmlControls/QGCMenu.qml</file>
 		<file alias="QGroundControl/Controls/QGCMenuItem.qml">../src/QmlControls/QGCMenuItem.qml</file>
@@ -257,6 +260,7 @@
 		<file alias="QGroundControl/FlightMap/MapScale.qml">../src/FlightMap/MapScale.qml</file>
 		<file alias="QGroundControl/FlightMap/MissionItemIndicator.qml">../src/FlightMap/MapItems/MissionItemIndicator.qml</file>
 		<file alias="QGroundControl/FlightMap/MissionItemIndicatorDrag.qml">../src/FlightMap/MapItems/MissionItemIndicatorDrag.qml</file>
+		<file alias="QGroundControl/FlightMap/GeoZoneItemIndicatorDrag.qml">../src/FlightMap/MapItems/GeoZoneItemIndicatorDrag.qml</file>
 		<file alias="QGroundControl/FlightMap/MissionItemView.qml">../src/FlightMap/MapItems/MissionItemView.qml</file>
 		<file alias="QGroundControl/FlightMap/MissionLineView.qml">../src/FlightMap/MapItems/MissionLineView.qml</file>
 		<file alias="QGroundControl/FlightMap/PhotoVideoControl.qml">../src/FlightMap/Widgets/PhotoVideoControl.qml</file>

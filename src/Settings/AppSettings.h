@@ -81,6 +81,8 @@ public:
     Q_PROPERTY(QString crashSavePath            READ crashSavePath              NOTIFY savePathsChanged)
     Q_PROPERTY(QString customActionsSavePath    READ customActionsSavePath      NOTIFY savePathsChanged)
 
+    Q_PROPERTY(QString geoZoneSavePath          READ geoZoneSavePath            NOTIFY savePathsChanged)
+
     Q_PROPERTY(QString planFileExtension        MEMBER planFileExtension        CONSTANT)
     Q_PROPERTY(QString missionFileExtension     MEMBER missionFileExtension     CONSTANT)
     Q_PROPERTY(QString waypointsFileExtension   MEMBER waypointsFileExtension   CONSTANT)
@@ -91,6 +93,8 @@ public:
     Q_PROPERTY(QString logFileExtension         MEMBER logFileExtension         CONSTANT)
     Q_PROPERTY(QString tilesetFileExtension     MEMBER tilesetFileExtension     CONSTANT)
 
+    Q_PROPERTY(QString geoZoneExtension         MEMBER geoZoneExtension         CONSTANT)
+
     QString missionSavePath       ();
     QString parameterSavePath     ();
     QString telemetrySavePath     ();
@@ -99,6 +103,8 @@ public:
     QString photoSavePath         ();
     QString crashSavePath         ();
     QString customActionsSavePath ();
+
+    QString geoZoneSavePath       ();
 
     // Helper methods for working with firstRunPromptIds QVariant settings string list
     static QList<int> firstRunPromptsIdsVariantToList   (const QVariant& firstRunPromptIds);
@@ -117,6 +123,8 @@ public:
     static const char* shpFileExtension;
     static const char* logFileExtension;
     static const char* tilesetFileExtension;
+
+    static const char* geoZoneExtension;
     
     // Child directories of savePath for specific file types
     static const char* parameterDirectory;
@@ -127,6 +135,9 @@ public:
     static const char* photoDirectory;
     static const char* crashDirectory;
     static const char* customActionsDirectory;
+
+    //GeoZone
+    static const char* geoZoneDirectory;
 
     // Returns the current qLocaleLanguage setting bypassing the standard SettingsGroup path. This should only be used
     // by QGCApplication::setLanguage to query the language setting as early in the boot process as possible.

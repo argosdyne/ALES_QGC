@@ -54,6 +54,7 @@ void SettingsManager::setToolbox(QGCToolbox *toolbox)
     _firmwareUpgradeSettings =      new FirmwareUpgradeSettings     (this);
     _adsbVehicleManagerSettings =   new ADSBVehicleManagerSettings  (this);
     _gimbalControllerSettings =     new GimbalControllerSettings       (this);
+    _geoZoneMakeViewSettings =      new GeoZoneMakeViewSettings     (this);
 #if !defined(NO_ARDUPILOT_DIALECT)
     _apmMavlinkStreamRateSettings = new APMMavlinkStreamRateSettings(this);
 #endif

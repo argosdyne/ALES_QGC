@@ -32,6 +32,8 @@ const char* AppSettings::shpFileExtension =         "shp";
 const char* AppSettings::logFileExtension =         "ulg";
 const char* AppSettings::tilesetFileExtension =     "qgctiledb";
 
+const char* AppSettings::geoZoneExtension = "geojson";
+
 const char* AppSettings::parameterDirectory =       QT_TRANSLATE_NOOP("AppSettings", "Parameters");
 const char* AppSettings::telemetryDirectory =       QT_TRANSLATE_NOOP("AppSettings", "Telemetry");
 const char* AppSettings::missionDirectory =         QT_TRANSLATE_NOOP("AppSettings", "Missions");
@@ -40,6 +42,9 @@ const char* AppSettings::videoDirectory =           QT_TRANSLATE_NOOP("AppSettin
 const char* AppSettings::photoDirectory =           QT_TRANSLATE_NOOP("AppSettings", "Photo");
 const char* AppSettings::crashDirectory =           QT_TRANSLATE_NOOP("AppSettings", "CrashLogs");
 const char* AppSettings::customActionsDirectory =   QT_TRANSLATE_NOOP("AppSettings", "CustomActions");
+
+//GeoZone
+const char* AppSettings::geoZoneDirectory = QT_TRANSLATE_NOOP("AppSettings", "GeoZone");
 
 // Release languages are 90%+ complete
 QList<int> AppSettings::_rgReleaseLanguages = {
@@ -244,12 +249,23 @@ void AppSettings::_checkSavePathDirectories(void)
         savePathDir.mkdir(photoDirectory);
         savePathDir.mkdir(crashDirectory);
         savePathDir.mkdir(customActionsDirectory);
+
+        savePathDir.mkdir(geoZoneDirectory);
     }
 }
 
 void AppSettings::_indoorPaletteChanged(void)
 {
     QGCPalette::setGlobalTheme(indoorPalette()->rawValue().toBool() ? QGCPalette::Dark : QGCPalette::Light);
+}
+
+QString AppSettings::geoZoneSavePath(void){
+    QString path = savePath()->rawValue().toString();
+    if (!path.isEmpty() && QDir(path).exists()) {
+        QDir dir(path);
+        return dir.filePath(geoZoneDirectory);
+    }
+    return QString();
 }
 
 QString AppSettings::missionSavePath(void)

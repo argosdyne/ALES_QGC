@@ -86,6 +86,10 @@ public:
     Point_3 approximatePolyhedronCenter(const Polyhedron& poly);
 
     void generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons);
+
+    void autoDeleteUSBFile();
+
+
 signals:
 
 

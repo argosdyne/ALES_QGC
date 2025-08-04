@@ -56,6 +56,13 @@ public:
     ///     @param coordinate New coordinate for point
     Q_INVOKABLE void adjustVertex(int vertexIndex, const QGeoCoordinate coordinate);
 
+    Q_INVOKABLE void adjustGeoZoneVertex(int vertexIndex, const QGeoCoordinate& newCoord);
+
+    Q_PROPERTY(bool inAdjustGeoZoneVertex READ inAdjustGeoZoneVertex NOTIFY inAdjustGeoZoneVertexChanged)
+
+    bool inAdjustGeoZoneVertex() const { return _inAdjustGeoZoneVertex; }
+    Q_SIGNAL void inAdjustGeoZoneVertexChanged();
+
     /// Splits the segment comprised of vertextIndex -> vertexIndex + 1
     Q_INVOKABLE void splitPolygonSegment(int vertexIndex);
 
@@ -167,6 +174,10 @@ private:
     bool                _traceMode =            false;
     bool                _showAltColor =         false;
     int                 _selectedVertexIndex =  -1;
+
+    bool _suppressPathChanged = false;
+    bool _inVertexAdjust = false;
+    bool _inAdjustGeoZoneVertex = false;
 };
 
 #endif

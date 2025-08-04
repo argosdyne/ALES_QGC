@@ -42,6 +42,42 @@ Rectangle {
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
     property var    _videoSettings:             QGroundControl.settingsManager.videoSettings
 
+    property var    _appSettings:                       QGroundControl.settingsManager.appSettings
+    property var    _geoZoneViewSettings:           QGroundControl.settingsManager.geoZoneMakeViewSettings
+
+
+    function loadFromSelectedFile() {
+        fileDialog.title =          qsTr("Select Geozone File")
+        fileDialog.selectExisting = true
+        fileDialog.nameFilters =    _geoZoneViewSettings.loadNameFilters
+        fileDialog.openForLoad()
+    }
+
+    QGCFileDialog {
+        id:             fileDialog
+        folder:         _appSettings ? _appSettings.geoZoneSavePath : ""
+
+        // onAcceptedForSave: {
+        //     if (planFiles) {
+        //         _planMasterController.saveToFile(file)
+        //     } else {
+        //         _planMasterController.saveToKml(file)
+        //     }
+        //     close()
+        // }
+
+        onAcceptedForSave: {
+
+        }
+
+        onAcceptedForLoad: {
+            _geoZoneViewSettings.loadFromFile(file)
+            // _planMasterController.fitViewportToItems()
+            // _missionController.setCurrentPlanViewSeqNum(0, true)
+            close()
+        }
+    }
+
 
         QGCFlickable {
             clip:               true
@@ -131,37 +167,40 @@ Rectangle {
                             QGCButton {
                                 visible:    geoDataType.currentIndex === 0
                                 text:       qsTr("Browse")
-                                onClicked:  androidFileDialog.open()
-                                FileDialog {
-                                    id: androidFileDialog
-                                    title: "Select a File"
-                                    folder: Qt.platform.os === "android" ? "/storage/emulated/0/" : fileUrl
-                                    nameFilters: ["All Files (*)", "Text Files (*.txt)"] // 원하는 파일 필터
-                                    selectExisting: true
-                                    selectMultiple: false
-                                    selectFolder: false
-
-                                    // 파일 선택 완료 시 호출
-                                    onAccepted: {
-                                        console.log("Selected file path: " + fileUrl) // 선택한 파일의 경로 출력
-                                        console.log("Current platform : " + Qt.platform.os)
-
-                                        if(Qt.platform.os === "windows"){
-                                            let plainPath = fileUrl.toString().startsWith("file:///") ? fileUrl.toString().substring(8) : fileUrl.toString()
-                                                console.log("Plain file path: " + plainPath)
-                                                filePathTextField.text = plainPath
-                                                _flyViewSettings.setFilePathRawValue(plainPath)
-                                        }
-                                        else {
-                                            filePathTextField.text = fileUrl.toString()
-                                            _flyViewSettings.setFilePathRawValue(fileUrl.toString())
-                                        }                                                                                
-                                    }
-                                    // 파일 선택 취소 시 호출
-                                    onRejected: {
-                                        console.log("File selection cancelled.")
-                                    }
+                                onClicked:  {
+                                    loadFromSelectedFile()
+                                    //androidFileDialog.open()
                                 }
+                                // FileDialog {
+                                //     id: androidFileDialog
+                                //     title: "Select a File"
+                                //     folder: Qt.platform.os === "android" ? "/storage/emulated/0/" : fileUrl
+                                //     nameFilters: ["All Files (*)", "Text Files (*.txt)"] // 원하는 파일 필터
+                                //     selectExisting: true
+                                //     selectMultiple: false
+                                //     selectFolder: false
+
+                                //     // 파일 선택 완료 시 호출
+                                //     onAccepted: {
+                                //         console.log("Selected file path: " + fileUrl) // 선택한 파일의 경로 출력
+                                //         console.log("Current platform : " + Qt.platform.os)
+
+                                //         if(Qt.platform.os === "windows"){
+                                //             let plainPath = fileUrl.toString().startsWith("file:///") ? fileUrl.toString().substring(8) : fileUrl.toString()
+                                //                 console.log("Plain file path: " + plainPath)
+                                //                 filePathTextField.text = plainPath
+                                //                 _flyViewSettings.setFilePathRawValue(plainPath)
+                                //         }
+                                //         else {
+                                //             filePathTextField.text = fileUrl.toString()
+                                //             _flyViewSettings.setFilePathRawValue(fileUrl.toString())
+                                //         }
+                                //     }
+                                //     // 파일 선택 취소 시 호출
+                                //     onRejected: {
+                                //         console.log("File selection cancelled.")
+                                //     }
+                                // }
                             }
                             QGCLabel {
                                 text:       qsTr("Get Online GeoAwareness ")

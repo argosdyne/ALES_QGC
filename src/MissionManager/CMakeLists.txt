@@ -150,6 +150,7 @@ add_custom_Target(MisionManagerQml
 		QGCMapCircleVisuals.qml
 		QGCMapPolygonVisuals.qml
 		QGCMapPolylineVisuals.qml
+		GeoZoneMapPolygonVisuals.qml
 )
 
 target_link_libraries(MissionManager
