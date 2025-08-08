@@ -12,14 +12,16 @@ import QGroundControl.Palette               1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.SettingsManager       1.0
 
+import CustomQmlInterface                   1.0
+
 Column {
     id: root
     clip: true
 
     property real _margins: ScreenTools.defaultFontPixelHeight * 0.5
-    property var  _ntripSource: QGroundControl.corePlugin.codevRTCMManager.rtcmSource
+    property var  _ntripSource: CustomQmlInterface.codevRTCMManager.rtcmSource
 
-    QGCPalette { id: gcPal; colorGroupEnabled: enabled }
+    QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
     GridLayout {
         id:     outerItem
@@ -42,14 +44,35 @@ Column {
         FactTextField {
             fact:           _ntripSource.port
             Layout.minimumWidth: _valueWidth
+
+            onAccepted: {
+                _ntripSource.onReadyRead()
+            }
         }
         QGCLabel {
             text:           qsTr("Mountpoint:")
             Layout.minimumWidth: _labelWidth
         }
-        FactTextField {
-            fact:           _ntripSource.mountpoint
-            Layout.minimumWidth: _valueWidth
+        //FactTextField {
+        //    fact:           _ntripSource.mountpoint
+        //    Layout.minimumWidth: _valueWidth
+        //}
+
+        //QGCCombobox
+         QGCComboBox {
+            id: cbMountPoint
+            Layout.minimumWidth: _labelWidth
+            model : _ntripSource.contentList
+            //model: _ntripSource.mountPointList
+
+            //When Selected Item changed call this function
+            onActivated: {
+                    if (index !== -1) {
+                        var selectedItem = model[index]; // ���õ� ������ ��������
+                        // C++�� ���õ� ������ ������
+                        _ntripSource.mountpoint.value = selectedItem;
+                    }
+                }
         }
         QGCLabel {
             text:           qsTr("User:")
@@ -106,7 +129,7 @@ Column {
                 height: width
                 visible: !_ntripSource.isLogIning
                 source: _ntripSource.isLogIn ? "qrc:/custom/img/yes.svg" : "qrc:/custom/img/no.svg"
-                color: _ntripSource.isLogIn ? gcPal.colorGreen : gcPal.colorRed
+                color: _ntripSource.isLogIn ? qgcPal.colorGreen : qgcPal.colorRed
                 sourceSize.height: height
                 sourceSize.width:  width
             }

@@ -4,7 +4,7 @@
 #include "SerialPortRTCMSource.h"
 #include "Vehicle.h"
 #include "CustomPlugin.h"
-#include "VehicleLinkManager.h"
+#include "codevsettings.h"
 
 CodevRTCMManager::CodevRTCMManager(QGCApplication *app, QGCToolbox *toolbox)
     : QGCTool(app, toolbox)
@@ -52,12 +52,16 @@ void CodevRTCMManager::_sendMavlinkRTCM(mavlink_gps_rtcm_data_t message)
 {
     MAVLinkProtocol* mavlinkProtocol = _toolbox->mavlinkProtocol();
     if(_vehicle && mavlinkProtocol) {
-        mavlink_message_t msg;
-        mavlink_msg_gps_rtcm_data_encode(mavlinkProtocol->getSystemId(),
-                                         mavlinkProtocol->getComponentId(),
-                                         &msg,
-                                         &message);
-        _vehicle->sendMessageMultiple(msg); // TODO THANH: Check
+        WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();
+        if(!weakLink.expired()) {
+            mavlink_message_t msg;
+            SharedLinkInterfacePtr sharedLink = weakLink.lock();
+            mavlink_msg_gps_rtcm_data_encode(mavlinkProtocol->getSystemId(),
+                                             mavlinkProtocol->getComponentId(),
+                                             &msg,
+                                             &message);
+            _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+        }
     }
 }
 
@@ -78,6 +82,7 @@ void CodevRTCMManager::_setRTCMSource(QVariant value)
     default:
         break;
     }
-    connect(_rtcmSource, &RTCMBase::sendMavlinkRTCM, this, &CodevRTCMManager::_sendMavlinkRTCM);
+    if(_rtcmSource)
+        connect(_rtcmSource, &RTCMBase::sendMavlinkRTCM, this, &CodevRTCMManager::_sendMavlinkRTCM);
     emit rtcmSourceChanged();
 }
