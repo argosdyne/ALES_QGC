@@ -1,5 +1,14 @@
 #include "RTCMBase.h"
 
+using namespace std;
+
+/* Decimal Degrees to Degrees Minutes (ddmm.mmmmm) */
+double deg2dms(double n)
+{
+    double decimal = fabs(n);
+    return copysign((std::floor(decimal) * 100.0 + (decimal - std::floor(decimal)) * 60.0), n);
+}
+
 RTCMBase::RTCMBase(QString name, QObject* parent)
     : SettingsGroup(name, "RTCM", parent)
 {
@@ -56,23 +65,26 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
         gps_raw_int.lon = -gps_raw_int.lon;
         lon_uint = 'W';
     }
-    float gps_eph;
+    double gps_eph;
     if(gps_raw_int.eph == UINT16_MAX)
-        gps_eph = 99.9f;
-    else gps_eph = gps_raw_int.eph / 100.0f;
+        gps_eph = 99.9;
+    else gps_eph = gps_raw_int.eph / 100.0;
+    double lat, lon;
+    lat = deg2dms(gps_raw_int.lat * 1e-7);
+    lon = deg2dms(gps_raw_int.lon * 1e-7);
 
-    std::string time = QDateTime::fromMSecsSinceEpoch(gps_raw_int.time_usec / 1000).toString("hhmmss").toStdString();
+    std::string time = QDateTime::fromMSecsSinceEpoch(gps_raw_int.time_usec / 1000, Qt::UTC).toString("hhmmss.zzz").toStdString();
     snprintf(str, sizeof(str),
-             "$GPGGA,%s,%04.4lf,%c,%04.4lf,%c,%d,%02d,%.1f,%.1f,M,1,M,,*",
+             "$GPGGA,%s,%09.04f,%c,%010.04f,%c,%d,%02d,%.1f,%.1f,M,0.0,M,5,0*",
              time.c_str(),
-             gps_raw_int.lat / 100000.0f,
+             lat,
              lat_uint,
-             gps_raw_int.lon / 100000.0f,
+             lon,
              lon_uint,
              gps_raw_int.fix_type,
              gps_raw_int.satellites_visible,
              gps_eph,
-             gps_raw_int.alt / 1000.0f);
+             gps_raw_int.alt / 1000.0);
 
     uint8_t result = static_cast<uint8_t>(str[1]);
     for(int i = 2; str[i] != '*'; i++)
@@ -83,7 +95,7 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
     char str_reslut[260] = {'\0'};
 
     snprintf(str_reslut, sizeof(str_reslut),
-             "%s%02x",str,result);
+             "%s%02X",str,result);
 
     _gpggaFromVehicle = QString::fromStdString(str_reslut);
     emit pgggaMessageChanged(_gpggaFromVehicle);
@@ -111,44 +123,44 @@ void RTCMBase::streamTimeout()
 void RTCMBase::send_rtcm_package(const char* buffer, unsigned length)
 {
     if(length < 180) {
-         rtcm_data_t rtcm_data;
-         memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-         rtcm_data.flags.flags_bit.fragmented = 0;
-         rtcm_data.flags.flags_bit.id = 0;
-         rtcm_data.flags.flags_bit.sequence = sequence++;
-         rtcm_data.len = static_cast<uint8_t>(length);
-         memcpy(rtcm_data.data, buffer, length);
-         if(!_sendRTCMTimer.isActive()) {
-             send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-         } else _work_queue.push_back(rtcm_data);
-     } else {
-         unsigned i;
-         for(i = 0; (i + 1) * 180 < length; i++) {
-             rtcm_data_t rtcm_data;
-             memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-             rtcm_data.flags.flags_bit.fragmented = 1;
-             rtcm_data.flags.flags_bit.id = i;
-             rtcm_data.flags.flags_bit.sequence = sequence++;
-             rtcm_data.len = 180;
-             memcpy(rtcm_data.data, buffer + i * 180, 180);
-             if(!_sendRTCMTimer.isActive()) {
-                 send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-             } else _work_queue.push_back(rtcm_data);
-         }
-         unsigned len = length - i * 180;
-         if(len > 0) {
-             rtcm_data_t rtcm_data;
-             memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-             rtcm_data.flags.flags_bit.fragmented = 1;
-             rtcm_data.flags.flags_bit.id = i;
-             rtcm_data.flags.flags_bit.sequence = sequence++;
-             rtcm_data.len = static_cast<uint8_t>(len);
-             memcpy(rtcm_data.data, buffer + i * 180, len);
-             if(!_sendRTCMTimer.isActive()) {
-                 send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-             } else _work_queue.push_back(rtcm_data);
-         }
-     }
+        rtcm_data_t rtcm_data;
+        memset(&rtcm_data, 0, sizeof(rtcm_data_t));
+        rtcm_data.flags.flags_bit.fragmented = 0;
+        rtcm_data.flags.flags_bit.id = 0;
+        rtcm_data.flags.flags_bit.sequence = sequence++;
+        rtcm_data.len = static_cast<uint8_t>(length);
+        memcpy(rtcm_data.data, buffer, length);
+        if(!_sendRTCMTimer.isActive()) {
+            send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
+        } else _work_queue.push_back(rtcm_data);
+    } else {
+        unsigned i;
+        for(i = 0; (i + 1) * 180 < length; i++) {
+            rtcm_data_t rtcm_data;
+            memset(&rtcm_data, 0, sizeof(rtcm_data_t));
+            rtcm_data.flags.flags_bit.fragmented = 1;
+            rtcm_data.flags.flags_bit.id = i;
+            rtcm_data.flags.flags_bit.sequence = sequence++;
+            rtcm_data.len = 180;
+            memcpy(rtcm_data.data, buffer + i * 180, 180);
+            if(!_sendRTCMTimer.isActive()) {
+                send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
+            } else _work_queue.push_back(rtcm_data);
+        }
+        unsigned len = length - i * 180;
+        if(len > 0) {
+            rtcm_data_t rtcm_data;
+            memset(&rtcm_data, 0, sizeof(rtcm_data_t));
+            rtcm_data.flags.flags_bit.fragmented = 1;
+            rtcm_data.flags.flags_bit.id = i;
+            rtcm_data.flags.flags_bit.sequence = sequence++;
+            rtcm_data.len = static_cast<uint8_t>(len);
+            memcpy(rtcm_data.data, buffer + i * 180, len);
+            if(!_sendRTCMTimer.isActive()) {
+                send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
+            } else _work_queue.push_back(rtcm_data);
+        }
+    }
 }
 
 void RTCMBase::send_rtcm_data(std::shared_ptr<rtcm_data_t> work)

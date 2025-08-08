@@ -17,6 +17,8 @@ import QGroundControl.Palette               1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.SettingsManager       1.0
 
+import CustomQmlInterface                   1.0
+
 Rectangle {
     id:                 _root
     color:              qgcPal.window
@@ -26,10 +28,7 @@ Rectangle {
     property real _labelWidth:                  ScreenTools.defaultFontPixelWidth * 26
     property real _valueWidth:                  ScreenTools.defaultFontPixelWidth * 20
     property real _panelWidth:                  _root.width * _internalWidthRatio
-    property Fact _taisyncEnabledFact:          QGroundControl.settingsManager.appSettings.enableTaisync
-    property Fact _taisyncVideoEnabledFact:     QGroundControl.settingsManager.appSettings.enableTaisyncVideo
-    property bool _taisyncEnabled:              _taisyncEnabledFact.rawValue
-    property var  _rtcmSource:                  QGroundControl.corePlugin.codevRTCMManager.rtcmSource
+    property var  _rtcmSource:                  CustomQmlInterface.codevRTCMManager.rtcmSource
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -76,7 +75,7 @@ Rectangle {
                             Layout.minimumWidth: _labelWidth
                         }
                         FactComboBox {
-                            fact:           QGroundControl.corePlugin.codevSettings.rtcmSource
+                            fact:           QGroundControl.corePlugin.settings.rtcmSource
                             indexModel:     true
                             enabled:        true
                             Layout.minimumWidth: _valueWidth
@@ -105,7 +104,7 @@ Rectangle {
                 visible:                    _rtcmSource
                 QGCLabel {
                     id:                     statusLabel
-                    text:                   QGroundControl.corePlugin.codevSettings.rtcmSource.enumOrValueString + qsTr(" RTCM Source")
+                    text:                   QGroundControl.corePlugin.settings.rtcmSource.enumOrValueString + qsTr(" RTCM Source")
                     font.family:            ScreenTools.demiboldFontFamily
                 }
             }

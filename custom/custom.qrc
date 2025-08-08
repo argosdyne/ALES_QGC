@@ -115,6 +115,7 @@
         <file alias="RTCMSettings.qml">src/RTCM/RTCMSettings.qml</file>
     </qresource>
     <qresource prefix="/json">
+		<file alias="Custom.SettingsGroup.json">src/Custom.SettingsGroup.json</file>
         <file alias="Codev.SettingsGroup.json">src/Codev.SettingsGroup.json</file>
         <file alias="NTRIPRTCM.SettingsGroup.json">src/RTCM/NTRIPRTCM.SettingsGroup.json</file>
         <file alias="RTCMBase.SettingsGroup.json">src/RTCM/RTCMBase.SettingsGroup.json</file>

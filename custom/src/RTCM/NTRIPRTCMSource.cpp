@@ -1,9 +1,14 @@
 #include "NTRIPRTCMSource.h"
 QGC_LOGGING_CATEGORY(NTRIPRTCMSourceLog, "NTRIPRTCMSourceLog")
+#include <iostream>
+#include <fstream>
+#include <QtNetwork>
+#include <QStandardPaths>
 
 NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
     : RTCMBase ("NTRIPRTCM", parent)
     , _tcpSocket(new QTcpSocket(this))
+    , _gpggamessageFact(0, "gpggamessage", FactMetaData::valueTypeString)
 {
     connect(_tcpSocket, SIGNAL(connected()), this, SLOT(_onSocketConnected()));
     connect(_tcpSocket, SIGNAL(disconnected()), this, SLOT(_onSocketDisconnected()));
@@ -33,13 +38,176 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
             _sendGPGGATimer.stop();
             _sendGPGGATimer.start();
         }
-    });
+    });    
+    if(host()->rawValue().toString() != "" && port()->rawValue().toString() != ""){ //�̹� ���� ä���� �ִٸ�
+        onReadyRead();
+    }
 }
 
 NTRIPRTCMSource::~NTRIPRTCMSource()
 {
 
 }
+
+QStringList NTRIPRTCMSource::getContentList() const
+{
+    return contentList;
+}
+void NTRIPRTCMSource::addItem(const QString &item)
+{
+    contentList.append(item);
+    emit contentListChanged();
+}
+
+//Ntrip caster Source Code
+
+size_t writeData(void* ptr, size_t size, size_t nmemb, FILE* stream) {
+    return fwrite(ptr, size, nmemb, stream);
+}
+QString getExternalStoragePaths() {
+    // Get the directory for storing external files.
+    return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+}
+
+QTcpSocket* tcpSocket = new QTcpSocket;
+
+int NTRIPRTCMSource::onReadyRead()
+{
+#ifdef Q_OS_ANDROID
+    
+    QString filePath = getExternalStoragePaths() + "/rtk_data.xml";
+    qCDebug(NTRIPRTCMSourceLog) << "Android File Path : " << filePath;
+#else
+
+    QString filePath = "rtk_data.xml";
+#endif
+
+    QString userAgent = "MountPointScript";
+    QString server = host()->rawValueString();
+    int nport = port()->rawValue().toInt();
+
+    qDebug() << "herre1";
+
+    qDebug() << "herre2";
+    tcpSocket->connectToHost(server, nport);
+
+    if (!tcpSocket->waitForConnected(5000)) {
+        qDebug() << "Connection failed!";
+        return -1;
+    }
+
+    qDebug() << "herre3";
+    QString requestHeader = "GET / HTTP/1.0\r\n"
+                            "User-Agent: NTRIP Client/1.0\r\n"
+                            "Connection: close\r\n"
+                            "\r\n";
+
+    qDebug() << "**********************";
+    qDebug() << "*  request_header    *";
+    qDebug() << "**********************";
+    qDebug() << requestHeader;
+
+    tcpSocket->write(requestHeader.toUtf8());
+    if (!tcpSocket->waitForBytesWritten(5000)) {
+        qDebug() << "Writing to socket failed!";
+        return -1;
+    }
+
+    QByteArray response;
+    while (tcpSocket->waitForReadyRead(5000)) {
+        response.append(tcpSocket->readAll());
+    }
+
+    qDebug() << "**********************";
+    qDebug() << "*     response       *";
+    qDebug() << "**********************";
+    qDebug() << response;
+
+    contentList.clear();
+
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly)) {
+        QTextStream stream(response);
+        QTextStream out(&file);
+
+        while (!stream.atEnd()) {
+            QString line = stream.readLine();
+            if (line.startsWith("STR")) {
+                QStringList parts = line.split(';');
+                QString mountpoint = parts.value(1);
+                QString format = parts.value(3);
+                QString both = mountpoint + ":" + format;
+                addItem(both);
+
+                out << line << "\n"; 
+            }
+        }
+        file.close();
+        std::cout << "RTK data received and saved to: " << filePath.toStdString() << std::endl;
+        qCDebug(NTRIPRTCMSourceLog) << "RTK data received and saved to: " << filePath;
+    } else {
+        std::cerr << "Failed to open file for writing: " << filePath.toStdString() << std::endl;
+        qCDebug(NTRIPRTCMSourceLog) << "Failed to open file for writing: " << filePath;
+    }
+
+    tcpSocket->close();
+
+    return 0;
+}
+
+void NTRIPRTCMSource::get_caster_xml() {
+#ifdef Q_OS_ANDROID
+    
+    QString filePath = getExternalStoragePaths() + "/rtk_data.xml";
+    qCDebug(NTRIPRTCMSourceLog) << "Android File Path : " << filePath;
+#else
+    
+    QString filePath = "rtk_data.xml";
+#endif
+
+    QUrl url("http://igs-ip.net:2101/");
+    qCDebug(NTRIPRTCMSourceLog) << "get caster xml : " << url;
+    QNetworkAccessManager manager;
+    QNetworkRequest request(url);
+    request.setRawHeader("Authorization", "Basic " + QByteArray("MP16804:746zew").toBase64());
+    QNetworkReply* reply = manager.get(request);
+
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (reply->error() != QNetworkReply::NoError) {
+        std::cerr << "Failed to retrieve RTK data. Error: " << reply->errorString().toStdString() << std::endl;
+        qCDebug(NTRIPRTCMSourceLog) << "Failed to retrieve RTK data. Error";
+    }
+    else {
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly)) {
+            while (!reply->atEnd()) {
+                QByteArray line = reply->readLine();
+                QString strLine(line);
+
+                QStringList parts = strLine.split(';');
+                QString target = parts.value(1);
+                contentList.append(target);
+
+                file.write(line);
+            }
+
+            //file.write(reply->readAll());
+            file.close();
+            std::cout << "RTK data received and saved to: " << filePath.toStdString() << std::endl;
+            qCDebug(NTRIPRTCMSourceLog) << "RTK data received and saved to: ";
+        }
+        else {
+            std::cerr << "Failed to open file for writing: " << filePath.toStdString() << std::endl;
+            qCDebug(NTRIPRTCMSourceLog) << "Failed to open file for writing: ";
+        }
+    }
+
+    reply->deleteLater();
+}
+
 
 void NTRIPRTCMSource::_handle_send_gpgga_time_out()
 {
@@ -53,7 +221,7 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
             }
             QString res_str = QString::number(result, 16);
             test_message.append(res_str.count() == 2 ? res_str : '0' + res_str);
-            qCDebug(NTRIPRTCMSourceLog) << "Send GPGGA:" << test_message;
+            //qCDebug(NTRIPRTCMSourceLog) << "Send GPGGA:" << test_message;
             test_message.append("\r\n");
             _tcpSocket->write(test_message.toUtf8());
         } else {
@@ -70,9 +238,9 @@ void NTRIPRTCMSource::refreshMountPoint()
     QTcpSocket* _socket = new QTcpSocket();
     connect(_socket, &QTcpSocket::connected, this, [_socket](){
         static QString request = QString("GET / HTTP/1.1\r\n"
-                                 "User-Agent: NTRIPSource/v1.0\r\n"
-                                 "Connection: close\r\n"
-                                 "\r\n");
+                                         "User-Agent: NTRIPSource/v1.0\r\n"
+                                         "Connection: close\r\n"
+                                         "\r\n");
 
         qCDebug(NTRIPRTCMSourceLog) << "Request mount point source table.";
         _socket->write(request.toUtf8());
@@ -104,13 +272,12 @@ void NTRIPRTCMSource::refreshMountPoint()
         qCDebug(NTRIPRTCMSourceLog) << "Finish refreshing mount point.";
         _socket->deleteLater();
     });
-
     // connect(_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, [_socket](QAbstractSocket::SocketError error){
     //     qCDebug(NTRIPRTCMSourceLog) << "Refresh mount point error: " << error;
     //     _socket->deleteLater();
     // });
 
-    connect(_socket, &QTcpSocket::errorOccurred, this, [_socket](QAbstractSocket::SocketError error){
+    connect(_socket, &QAbstractSocket::errorOccurred, this, [_socket](QAbstractSocket::SocketError error){
         qCDebug(NTRIPRTCMSourceLog) << "Refresh mount point error: " << error;
         _socket->deleteLater();
     });
@@ -132,20 +299,50 @@ void NTRIPRTCMSource::logOut()
 {
     qCDebug(NTRIPRTCMSourceLog) << "Log Out";
     _tcpSocket->close();
+
+    if (_tcpSocket->state() != QAbstractSocket::UnconnectedState) {
+        qCDebug(NTRIPRTCMSourceLog) << "connectedState";
+        _tcpSocket->disconnectFromHost();
+        
+        QEventLoop loop;
+        QTimer timer;
+        timer.setSingleShot(true);
+        QElapsedTimer elapsedTimer;
+        elapsedTimer.start();
+
+        connect(_tcpSocket, &QTcpSocket::disconnected, &loop, &QEventLoop::quit);
+        connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+        timer.start(5000);  // 5000ms 
+
+        loop.exec();
+
+        if (_tcpSocket->state() != QAbstractSocket::UnconnectedState) {
+            qint64 elapsed = elapsedTimer.elapsed();
+            qDebug() << "Time elapsed:" << elapsed << "ms";
+            qCDebug(NTRIPRTCMSourceLog) << "Failed to disconnect within timeout, aborting";
+            _tcpSocket->abort(); 
+        } else {
+            qCDebug(NTRIPRTCMSourceLog) << "Disconnected successfully";
+        }
+    } else {
+        qCDebug(NTRIPRTCMSourceLog) << "UnconnectState";
+    }
 }
 
 void NTRIPRTCMSource::_onSocketConnected()
 {
     QString userinfo_raw = QString("%1:%2").arg(user()->rawValueString()).arg(passwd()->rawValueString());
     QString userinfo = QString(userinfo_raw.toLatin1().toBase64());
+    QStringList parts = mountpoint()->rawValue().toString().split(':');
+    QString mountPoint = parts[0];
     QString request = QString("GET /%1 HTTP/1.1\r\n"
-                   "User-Agent: NTRIPSource/v1.0\r\n"
-                   "Accept: */*\r\n"
-                   "Connection: close\r\n"
-                   "Authorization: Basic %2\r\n"
-                   "\r\n").arg(mountpoint()->rawValue().toString()).arg(userinfo);
+                              "User-Agent: NTRIPSource/v1.0\r\n"
+                              "Accept: */*\r\n"
+                              "Connection: close\r\n"
+                              "Authorization: Basic %2\r\n"
+                              "\r\n").arg(mountPoint).arg(userinfo);
 
-     _tcpSocket->write(request.toUtf8());
+    _tcpSocket->write(request.toUtf8());
     qCDebug(NTRIPRTCMSourceLog) << "Authorization...\n\r" << request;
 }
 
@@ -153,6 +350,9 @@ void NTRIPRTCMSource::_onSocketReplied()
 {
     QByteArray data = _tcpSocket->readAll();
     if(data.contains("ICY 200 OK")) {
+        if(!autoUpdateGPGGA()->rawValue().toBool()) {
+            getFromVehicle();
+        }
         setIsLogIning(false);
         setIsLogIn(true);
         if(_sendGPGGATimer.isActive()) {
@@ -160,12 +360,21 @@ void NTRIPRTCMSource::_onSocketReplied()
         }
         _sendGPGGATimer.start();
         _handle_send_gpgga_time_out();
+        qCDebug(NTRIPRTCMSourceLog) << "Socket ICY 200 OK";
     } else if(data.contains("Unauthorized")) {
         _sendGPGGATimer.stop();
         setIsLogIning(false);
         setIsLogIn(false);
+        qCDebug(NTRIPRTCMSourceLog) << "Socket Unauthorized ";
     }
-
+    else {
+        qCDebug(NTRIPRTCMSourceLog) << "Socket Not contains ";
+    }
+    QString hexString;
+    for (int i = 0; i < data.size(); ++i) {
+        hexString.append(QString("%1 ").arg(static_cast<uint8_t>(data.at(i)), 2, 16, QChar('0')));
+    }
+    qCDebug(NTRIPRTCMSourceLog) << hexString;
     if(static_cast<uint8_t>(data.at(0)) == 0xd3 && static_cast<uint8_t>(data.at(1)) == 0x00) {
         if(isLogIn()) {
             if(_work_queue.size() == 0) {
@@ -176,7 +385,28 @@ void NTRIPRTCMSource::_onSocketReplied()
         }
         qCDebug(NTRIPRTCMSourceLog) << QString("Socket Replied: RTCM Data(size: %1 bytes)").arg(data.size());
     } else {
-        qCDebug(NTRIPRTCMSourceLog) << QString("Socket Replied: \n\r%1").arg(QString(data));
+        qCDebug(NTRIPRTCMSourceLog) << "Socket Replied data value: ";
+
+        QString hexString;
+        for (int i = 0; i < data.size(); ++i) {
+            hexString.append(QString("%1 ").arg(static_cast<uint8_t>(data.at(i)), 2, 16, QChar('0')));
+        }
+
+        qCDebug(NTRIPRTCMSourceLog) << hexString;
+
+
+        //�׳� �������� �غ�
+        if (host()->rawValueString().contains("igs-ip.net")) {
+            if (isLogIn()) {
+                if (_work_queue.size() == 0) {
+                    send_rtcm_package(data.data(), static_cast<unsigned>(data.size()));
+                }
+                else {
+                    qCWarning(NTRIPRTCMSourceLog) << "Send RTCM: Busy. You can improve RTCM transmission rate.";
+                }
+            }
+        }
+        //qCDebug(NTRIPRTCMSourceLog) << QString("Socket Replied: \n\r%1").arg(QString(data));
     }
 }
 
@@ -200,7 +430,6 @@ DECLARE_SETTINGSFACT(NTRIPRTCMSource, host)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, port)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, user)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, passwd)
-DECLARE_SETTINGSFACT(NTRIPRTCMSource, gpggamessage)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, autoUpdateGPGGA)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, gpggamessageHz)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpoint)

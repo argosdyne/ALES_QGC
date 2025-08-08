@@ -8,6 +8,9 @@ Q_DECLARE_LOGGING_CATEGORY(NTRIPRTCMSourceLog)
 class NTRIPRTCMSource : public RTCMBase
 {
     Q_OBJECT
+
+    Q_PROPERTY(QStringList contentList READ getContentList NOTIFY contentListChanged)
+
 public:
     Q_PROPERTY(bool isLogIning READ isLogIning WRITE setIsLogIning NOTIFY isLogIningChanged)
     bool isLogIning() const { return _isLogIning; }
@@ -25,6 +28,9 @@ public:
         emit isLogInChanged(_isLogIn);
     }
 
+    Q_PROPERTY(Fact* gpggamessage READ gpggamessage CONSTANT)
+    Fact* gpggamessage() { return &_gpggamessageFact; }
+
     NTRIPRTCMSource(QObject* parent = nullptr);
     ~NTRIPRTCMSource();
 
@@ -35,11 +41,16 @@ public:
     Q_INVOKABLE void logOut();
     Q_INVOKABLE void getFromVehicle();
 
+    //Ntrip caster
+    Q_INVOKABLE void get_caster_xml();
+    QStringList getContentList() const;
+    void addItem(const QString &item);
+    Q_INVOKABLE int onReadyRead();
+
     DEFINE_SETTINGFACT(host)
     DEFINE_SETTINGFACT(port)
     DEFINE_SETTINGFACT(user)
     DEFINE_SETTINGFACT(passwd)
-    DEFINE_SETTINGFACT(gpggamessage)
     DEFINE_SETTINGFACT(autoUpdateGPGGA)
     DEFINE_SETTINGFACT(gpggamessageHz)
     DEFINE_SETTINGFACT(mountpoint)
@@ -47,6 +58,7 @@ public:
 signals:
     void isLogInChanged(bool isLogIn);
     void isLogIningChanged(bool isLogIning);
+    void contentListChanged();
 
 private slots:
     void _handle_send_gpgga_time_out();
@@ -58,8 +70,10 @@ private slots:
 private:
     QTimer _sendGPGGATimer;
     QTcpSocket* _tcpSocket{nullptr};
+    Fact _gpggamessageFact;
     bool _isLogIn{false};
     bool _isLogIning{false};
+    QStringList contentList;
 };
 
 #endif // NTRIPRTCMSOURCE_H

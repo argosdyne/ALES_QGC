@@ -931,7 +931,8 @@ public slots:
 signals:
     void coordinateChanged              (QGeoCoordinate coordinate);
     void joystickEnabledChanged         (bool enabled);
-    void mavlinkMessageReceived         (const mavlink_message_t& message);
+    //void mavlinkMessageReceived         (const mavlink_message_t& message);
+    void mavlinkMessageReceived         (const mavlink_message_t& message, LinkInterface* link);
     void homePositionChanged            (const QGeoCoordinate& homePosition);
     void armedPositionChanged();
     void armedChanged                   (bool armed);

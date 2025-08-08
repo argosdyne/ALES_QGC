@@ -92,6 +92,9 @@ public:
     QQmlApplicationEngine*  createQmlApplicationEngine      (QObject* parent) final;
 
 
+    Q_PROPERTY(CustomSettings* settings READ settings CONSTANT)
+    CustomSettings* settings(){ return _settings; }
+
     SiYiManager* siyiManager(){return _siyiManager;};
     CodevSettings* codevSettings() { return _codevSettings; }
     CodevRTCMManager* codevRTCMManager() { return _codevRTCMManager; }
@@ -125,6 +128,7 @@ private:
 private:
     SiYiManager* _siyiManager = nullptr;
     CodevSettings*      _codevSettings = nullptr;
+    CustomSettings* _settings{nullptr};
     CodevRTCMManager*   _codevRTCMManager = nullptr;
 
     CustomOptions*  _options = nullptr;
