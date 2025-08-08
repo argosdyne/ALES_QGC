@@ -1,65 +1,59 @@
 {
-"version":      1,
-"fileType":  "FactMetaData",
-"QGC.MetaData.Facts":
+    "version":      1,
+    "fileType":  "FactMetaData",
+    "QGC.MetaData.Facts":
 [
 {
     "name": "sendMaxRTCMHz",
     "type": "int32",
-    "defaultValue": 100,
-    "shortDescription": "RTCM Max Hz",
+    "default": 100,
+    "shortDesc": "RTCM Max Hz",
     "enumStrings": "4 Hz,5 Hz,10 Hz,20 Hz,50 Hz,Max",
     "enumValues": "250, 200, 100, 50, 20, 0"
 },
 {
     "name": "host",
     "type": "string",
-    "defaultValue": "203.107.45.154",
-    "shortDescription": "Host"
+    "default": "203.107.45.154",
+    "shortDesc": "Host"
 },
 {
     "name": "port",
     "type": "int32",
-    "defaultValue": 8002,
-    "shortDescription": "Port"
+    "default": 8002,
+    "shortDesc": "Port"
 },
 {
     "name": "user",
     "type": "string",
-    "defaultValue": "",
-    "shortDescription": "User",
-    "longDescription": "Qian Xun User"
+    "default": "",
+    "shortDesc": "User",
+    "longDesc": "Qian Xun User"
 },
 {
     "name": "passwd",
     "type": "string",
-    "defaultValue": "",
-    "shortDescription": "Password",
-    "longDescription": "Qian Xun Password"
+    "default": "",
+    "shortDesc": "Password",
+    "longDesc": "Qian Xun Password"
 },
 {
     "name": "mountpoint",
     "type": "string",
-    "defaultValue": "RTCM32_GGB",
-    "shortDescription": "Mountpoint"
-},
-{
-    "name": "gpggamessage",
-    "type": "string",
-    "defaultValue": "",
-    "shortDescription": "GPGGA"
+    "default": "RTCM32_GGB",
+    "shortDesc": "Mountpoint"
 },
 {
     "name": "autoUpdateGPGGA",
     "type": "bool",
-    "defaultValue": false,
-    "shortDescription": "AutoUpdate GPGGA"
+    "default": true,
+    "shortDesc": "AutoUpdate GPGGA"
 },
 {
     "name": "gpggamessageHz",
     "type": "int32",
-    "defaultValue":  1000,
-    "shortDescription": "GPGGA Hz",
+    "default":  1000,
+    "shortDesc": "GPGGA Hz",
     "enumStrings": "0.1 Hz,0.2 Hz,0.5 Hz,1 Hz,5 Hz",
     "enumValues": "10000,5000,2000,1000,200"
 }

@@ -6,8 +6,8 @@
 {
     "name": "sendMaxRTCMHz",
     "type": "int32",
-    "defaultValue": 100,
-    "shortDescription": "RTCM Max Hz",
+    "default": 100,
+    "shortDesc": "RTCM Max Hz",
     "enumStrings": "4 Hz,5 Hz,10 Hz,20 Hz,50 Hz,Max",
     "enumValues": "250, 200, 100, 50, 20, 0"
 }

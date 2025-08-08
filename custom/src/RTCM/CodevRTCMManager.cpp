@@ -5,6 +5,7 @@
 #include "Vehicle.h"
 #include "CustomPlugin.h"
 #include "codevsettings.h"
+#include "CustomSettings.h"
 
 CodevRTCMManager::CodevRTCMManager(QGCApplication *app, QGCToolbox *toolbox)
     : QGCTool(app, toolbox)
@@ -24,7 +25,8 @@ void CodevRTCMManager::setToolbox(QGCToolbox *toolbox)
     _setActiveVehicle(manager->activeVehicle());
     connect(manager, &MultiVehicleManager::activeVehicleChanged, this, &CodevRTCMManager::_setActiveVehicle);
 
-    Fact* rtcmSourceFact = dynamic_cast<CustomPlugin*>(_toolbox->corePlugin())->codevSettings()->rtcmSource();
+    //Fact* rtcmSourceFact = dynamic_cast<CustomPlugin*>(_toolbox->corePlugin())->codevSettings()->rtcmSource();
+    Fact* rtcmSourceFact = dynamic_cast<CustomPlugin*>(_toolbox->corePlugin())->settings()->rtcmSource();
     _setRTCMSource(rtcmSourceFact->rawValue());
     connect(rtcmSourceFact, &Fact::rawValueChanged, this, &CodevRTCMManager::_setRTCMSource);
 }

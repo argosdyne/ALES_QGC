@@ -24,6 +24,7 @@
 #include "QmlComponentInfo.h"
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
+#include "CustomSettings.h"
 
 #include "M2Manager.h"
 #include "QGroundControlQmlGlobal.h"
@@ -108,6 +109,8 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     if(_codevSettings == nullptr) {
         _codevSettings = new CodevSettings(this);
     }
+
+    _settings = new CustomSettings(this);
     _codevRTCMManager->setToolbox(toolbox);
 
     // Allows us to be notified when the user goes in/out out advanced mode

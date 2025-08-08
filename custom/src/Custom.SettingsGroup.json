@@ -1,0 +1,29 @@
+{
+    "version":      1,
+    "fileType":  "FactMetaData",
+    "QGC.MetaData.Facts":
+[
+{
+    "name":             "is3DMap",
+    "shortDesc":        "2D/3D Map Switch",
+    "type":             "bool",
+    "default":          true
+},
+{
+    "name":             "rtcmSource",
+    "shortDesc":        "RTCM Source",
+    "type":             "int32",
+    "enumStrings":      "Disable,NTRIP,SerialPort",
+    "enumValues":       "0,1,2",
+    "default":          0
+},
+{
+    "name":             "teamMode",
+    "shortDesc":        "Team Mode",
+    "type":             "int32",
+    "enumStrings":      "Disable",
+    "enumValues":       "0",
+    "default":          0
+}
+]
+}

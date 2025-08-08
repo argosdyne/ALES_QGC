@@ -75,7 +75,7 @@ Rectangle {
                             Layout.minimumWidth: _labelWidth
                         }
                         FactComboBox {
-                            fact:           QGroundControl.corePlugin.codevSettings.rtcmSource
+                            fact:           QGroundControl.corePlugin.settings.rtcmSource
                             indexModel:     true
                             enabled:        true
                             Layout.minimumWidth: _valueWidth
@@ -104,7 +104,7 @@ Rectangle {
                 visible:                    _rtcmSource
                 QGCLabel {
                     id:                     statusLabel
-                    text:                   QGroundControl.corePlugin.codevSettings.rtcmSource.enumOrValueString + qsTr(" RTCM Source")
+                    text:                   QGroundControl.corePlugin.settings.rtcmSource.enumOrValueString + qsTr(" RTCM Source")
                     font.family:            ScreenTools.demiboldFontFamily
                 }
             }
