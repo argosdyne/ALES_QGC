@@ -36,6 +36,7 @@ Item {
     property var    totalToolInsets:        _totalToolInsets
     property var    mapControl
 
+    property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _planMasterController:  globals.planMasterControllerFlyView
     property var    _missionController:     _planMasterController.missionController
@@ -276,7 +277,7 @@ Item {
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
         maxHeight:              parent.height - y - parentToolInsets.bottomEdgeLeftInset - _toolsMargin
-        visible:                !QGroundControl.videoManager.fullScreen
+        visible:                _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
 
         onDisplayPreFlightChecklist: preFlightChecklistPopup.createObject(mainWindow).open()
 
