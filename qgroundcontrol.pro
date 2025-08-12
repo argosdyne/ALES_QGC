@@ -106,20 +106,20 @@ exists(user_config.pri):infile(user_config.pri, CONFIG) {
 # is present. It's useful to run "regular" builds to make sure you didn't
 # break anything.
 
-# contains (CONFIG, QGC_DISABLE_CUSTOM_BUILD) {
-#     message("Disable custom build override")
-# } else {
+contains (CONFIG, QGC_DISABLE_CUSTOM_BUILD) {
+    message("Disable custom build override")
+} else {
+    exists($$PWD/custom/custom.pri) {
+        message("Found custom build")
+        CONFIG  += CustomBuild
+        DEFINES += QGC_CUSTOM_BUILD
+        # custom.pri must define:
+        # CUSTOMCLASS  = YourIQGCCorePluginDerivation
+        # CUSTOMHEADER = \"\\\"YourIQGCCorePluginDerivation.h\\\"\"
+        include($$PWD/custom/custom.pri)
+    }
 
-# }
 
-exists($$PWD/custom/custom.pri) {
-    message("Found custom build")
-    CONFIG  += CustomBuild
-    DEFINES += QGC_CUSTOM_BUILD
-    # custom.pri must define:
-    # CUSTOMCLASS  = YourIQGCCorePluginDerivation
-    # CUSTOMHEADER = \"\\\"YourIQGCCorePluginDerivation.h\\\"\"
-    include($$PWD/custom/custom.pri)
 }
 
 WindowsBuild {
