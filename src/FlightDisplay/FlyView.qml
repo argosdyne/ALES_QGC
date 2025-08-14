@@ -92,7 +92,7 @@ Item {
         z:                  _fullItemZorder + 2
         parentToolInsets:   widgetLayer.totalToolInsets
         mapControl:         _mapControl
-        visible:            !QGroundControl.videoManager.fullScreen
+        visible:            _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
     }
 
     // Development tool for visualizing the insets for a paticular layer, enable if needed
