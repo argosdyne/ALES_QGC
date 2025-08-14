@@ -91,7 +91,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
     if(count >= 14) {
         mavlink_message_t msg;
         if(_plugin->slaveMode()) {
-            qInfo() << "_plugin->slaveMode()";
+            //qInfo() << "_plugin->slaveMode()";
             mavlink_msg_rc_channels_override_pack(
                 static_cast<uint8_t>(mavlink->getSystemId()),
                 static_cast<uint8_t>(mavlink->getComponentId()),
@@ -118,7 +118,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                 channels[17]
             );
         } else {
-            qInfo()<< "else slave mode";
+           //qInfo()<< "else slave mode";
             mavlink_rc_channels_t rc_channels;
             memcpy(&rc_channels.chan1_raw, channels, 18 * 2);
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
@@ -136,7 +136,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
             //qInfo() << "!weakLink.expired";
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
             //qInfo() << "sendMessageOnLinkThreadSafe Success";
-            qInfo() << "CustomVehicle.cc Msg = " << msg.sysid;
+            //qInfo() << "CustomVehicle.cc Msg = " << msg.sysid;
         }
         else {
             qInfo() << "weakLink.expired";
