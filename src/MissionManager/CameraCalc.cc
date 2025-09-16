@@ -34,6 +34,10 @@ const char* CameraCalc::_jsonDistanceToSurfaceRelativeKeyDeprecated = "DistanceT
 const char* CameraCalc::yellowScanFOVFactName           = "YellowScanFOV";
 const char* CameraCalc::yellowScanOverlapName           = "YellowScanOverlap";
 
+//Green Valley
+const char* CameraCalc::greenValleyFOVFactName          = "GreenValleyFOV";
+const char* CameraCalc::greenValleyOverlapName          = "GreenValleyOverlap";
+
 CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& settingsGroup, QObject* parent)
     : CameraSpec                    (settingsGroup, parent)
     , _distanceMode                 (masterController->missionController()->globalAltitudeModeDefault())
@@ -50,6 +54,9 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     , _yellowScanFact               (settingsGroup, _metaDataMap[cameraNameName])
     , _yellowScanFOVFact            (settingsGroup, _metaDataMap[yellowScanFOVFactName])
     , _yellowScanOverlapFact        (settingsGroup, _metaDataMap[yellowScanOverlapName])
+    , _greenValleyFact              (settingsGroup, _metaDataMap[cameraNameName])
+    , _greenValleyFOVFact           (settingsGroup, _metaDataMap[greenValleyFOVFactName])
+    , _greenValleyOverlapFact       (settingsGroup, _metaDataMap[greenValleyOverlapName])
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
@@ -85,6 +92,23 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     connect(&_yellowScanOverlapEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
     connect(&_yellowScanFOVEnable, & Fact::valueChanged,               this, &CameraCalc::_setDirty);
 
+    // ------ Green Valley
+    connect(&_greenValleyFact,              &Fact::valueChanged,                this, &CameraCalc::isGVLidarChanged);
+    connect(&_greenValleyFact,              &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyFOVFact,           &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyOverlapFact,       &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+
+    connect(&_greenValleyAltitude,          &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleySpacing,           &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyOverlap,           &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyFOV,               &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+
+    connect(&_greenValleySpacingEnable,      &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyOverlapEnable,      &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+    connect(&_greenValleyFOVEnable,          &Fact::valueChanged,                this, &CameraCalc::_setDirty);
+
+
+
     connect(&_distanceToSurfaceFact,    &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
     connect(&_imageDensityFact,         &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
     connect(&_frontalOverlapFact,       &Fact::rawValueChanged, this, &CameraCalc::_recalcTriggerDistance);
@@ -116,6 +140,11 @@ CameraCalc::CameraCalc(PlanMasterController* masterController, const QString& se
     _yellowScanAltitude.setRawValue(true);
     _yellowScanOverlap.setRawValue(true);
     _yellowScanFOV.setRawValue(true);
+
+    //GreenValley Checkbox default value
+    _greenValleyAltitude.setRawValue(true);
+    _greenValleyOverlap.setRawValue(true);
+    _greenValleyFOV.setRawValue(true);
 }
 // Constants
 constexpr double DEG_TO_RAD = M_PI / 180.0;
@@ -175,13 +204,13 @@ double computeSpacing(double H, double O, double fovDeg) {
     return footprint * (1.0 - O);
 }
 
-void CameraCalc::calcSpacing() {
+void CameraCalc::yellowScanCalcSpacing() {
     if (_transectItem) {
         _transectItem->replaceSpacing();
     }
 }
 
-void CameraCalc::calculate(){
+void CameraCalc::yellowScanCalculate(){
     qInfo() << "calculate CameraCalc";
     //Calc value
     double alt = _distanceToSurfaceFact.rawValue().toDouble();
@@ -219,9 +248,63 @@ void CameraCalc::calculate(){
         }
     }
 
-    calcSpacing();
+    yellowScanCalcSpacing();
 
     return;
+}
+
+void CameraCalc::greenValleyCalculate(void){
+    qInfo() << "calculate greenValley";
+    // Calc value
+    double alt = _distanceToSurfaceFact.rawValue().toDouble();
+    double overlap = _greenValleyOverlapFact.rawValue().toDouble();
+    double spacing = _adjustedFootprintSideFact.rawValue().toDouble();
+    double fov = _greenValleyFOVFact.rawValue().toDouble();
+
+    //Enable Check
+    bool altEnable = _greenValleyAltitude.rawValue().toBool();
+    bool spacingEnable = _greenValleySpacing.rawValue().toBool();
+    bool overlapEnable = _greenValleyOverlap.rawValue().toBool();
+    bool fovEnable = _greenValleyFOV.rawValue().toBool();
+
+    int enabledCount = altEnable + spacingEnable + overlapEnable + fovEnable;
+    if(enabledCount == 3){
+        if (!altEnable) {
+            alt = computeAltitude(overlap, spacing, fov);
+            _distanceToSurfaceFact.setRawValue(alt);
+            qDebug() << "False: Altitude";
+        }
+        else if (!spacingEnable) {
+            spacing = computeSpacing(alt, overlap, fov);
+            _adjustedFootprintSideFact.setRawValue(spacing);
+            qDebug() << "False: Spacing";
+        }
+        else if (!overlapEnable) {
+            overlap = computeOverlap(alt, spacing, fov);
+            _greenValleyOverlapFact.setRawValue(overlap);
+            qDebug() << "False: Overlap";
+        }
+        else /* if (!fovEnable) */ {
+            fov = computeFOV(alt, overlap, spacing);
+
+            if (fov > 70.4) {
+                qWarning() << "FOV exceeded max limit, clamping to 70.4";
+                fov = 70.4;
+            }
+            _greenValleyFOVFact.setRawValue(fov);
+            qDebug() << "False: FOV";
+        }
+    }
+
+    greenValleyCalcSpacing();
+
+    return;
+}
+
+void CameraCalc::greenValleyCalcSpacing(void){
+    if (_transectItem) {
+        _transectItem->replaceSpacing();
+    }
 }
 
 void CameraCalc::_cameraNameChanged(void)
@@ -270,6 +353,17 @@ void CameraCalc::_cameraNameChanged(void)
             _yellowScanAltitudeEnable = _yellowScanAltitude.rawValue().toBool();
             emit isYSAltitudeEnableChanged();
             return;
+        }
+
+        //GreenValley
+
+        _greenValleyFact.setRawValue(cameraName);
+        emit isGVLidarChanged();
+
+        if(cameraName.contains("Green Valley")) {
+            _cameraNameFact.setRawValue(canonicalManualCameraName());
+            _greenValleyAltitudeEnable = _greenValleyAltitude.rawValue().toBool();
+            emit isGVAltitudeEnableChanged();
         }
 
         if (!knownCameraMetaData) {
@@ -356,6 +450,10 @@ void CameraCalc::save(QJsonObject& json) const
     json[yellowScanFOVFactName]         = _yellowScanFOVFact.rawValue().toDouble();
     json[yellowScanOverlapName]         = _yellowScanOverlapFact.rawValue().toDouble();
 
+    //GreenValley
+    json[greenValleyFOVFactName]        = _greenValleyFOVFact.rawValue().toDouble();
+    json[greenValleyOverlapName]        = _greenValleyOverlapFact.rawValue().toDouble();
+
     if (!isManualCamera()) {
         CameraSpec::save(json);
         json[valueSetIsDistanceName] = _valueSetIsDistanceFact.rawValue().toBool();
@@ -417,6 +515,8 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
         { distanceModeName,                 QJsonValue::Double, true },
         { yellowScanFOVFactName,            QJsonValue::Double, true },
         { yellowScanOverlapName,            QJsonValue::Double, true },
+        { greenValleyFOVFactName,           QJsonValue::Double, true },
+        { greenValleyOverlapName,           QJsonValue::Double, true },
     };
     if (!JsonHelper::validateKeys(json, keyInfoList1, errorString)) {
         return false;
@@ -438,6 +538,10 @@ bool CameraCalc::load(const QJsonObject& originalJson, bool deprecatedFollowTerr
     //Yellow Scan
     _yellowScanFOVFact.setRawValue              (json[yellowScanFOVFactName].toDouble());
     _yellowScanOverlapFact.setRawValue          (json[yellowScanOverlapName].toDouble());
+
+    //GreenValley
+    _greenValleyFOVFact.setRawValue             (json[greenValleyFOVFactName].toDouble());
+    _greenValleyOverlapFact.setRawValue         (json[greenValleyOverlapName].toDouble());
 
     if (!isManualCamera()) {
         QList<JsonHelper::KeyValidateInfo> keyInfoList2 = {
@@ -567,10 +671,11 @@ void CameraCalc::_setBrandModelFromCanonicalName(const QString& cameraName)
 
     if(cameraName == canonicalManualCameraName()){
         qInfo() << "This is Manual Camera = "<< cameraName;
-        calcSpacing();
+        yellowScanCalcSpacing();
+        greenValleyCalcSpacing();
     }
 
-    if (cameraName != canonicalManualCameraName() && cameraName != canonicalCustomCameraName() && cameraName.contains("Yellow Scan") == false) {
+    if (cameraName != canonicalManualCameraName() && cameraName != canonicalCustomCameraName() && cameraName.contains("Yellow Scan") == false && cameraName.contains("Green Valley") == false) {
         for (int cameraIndex=0; cameraIndex<_knownCameraList.count(); cameraIndex++) {
             CameraMetaData* cameraMetaData = _knownCameraList[cameraIndex].value<CameraMetaData*>();
             if (cameraMetaData->canonicalName == cameraName) {
@@ -617,7 +722,7 @@ QString CameraCalc::_validCanonicalCameraName(const QString& cameraName)
     qInfo() << "Cmaera Name Name = "<< canonicalCameraName;
     if (canonicalCameraName != canonicalCustomCameraName() && canonicalCameraName != canonicalManualCameraName()) {
 
-        if(cameraName.contains("Yellow Scan")){
+        if(cameraName.contains("Yellow Scan") || cameraName.contains("Green Valley")){
             canonicalCameraName = canonicalManualCameraName();               
         }
 

@@ -74,6 +74,7 @@
     "type":             "double",
     "decimalPlaces":    1,
     "min":              0,
+    "max":              360,
     "units":            "deg",
     "default":          90
 },
@@ -82,8 +83,27 @@
     "type":             "double",
     "decimalPlaces":    1,
     "min":              0,
+    "max":              99.9,
     "units":            "%",
     "default":          50
+},
+{
+    "name":             "GreenValleyFOV",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "min":              0,
+    "max":              70.4,
+    "units":            "deg",
+    "default":          0
+},
+{
+    "name":             "GreenValleyOverlap",
+    "type":             "double",
+    "decimalPlaces":    1,
+    "min":              0,
+    "max":              99.9,
+    "units":            "%",
+    "default":          0
 }
 ]
 }

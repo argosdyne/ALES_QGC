@@ -40,7 +40,7 @@ public:
     Q_PROPERTY(Fact*            adjustedFootprintSide       READ adjustedFootprintSide                                          CONSTANT)                                   ///< Side footprint adjusted down for overlap
     Q_PROPERTY(Fact*            adjustedFootprintFrontal    READ adjustedFootprintFrontal                                       CONSTANT)                                   ///< Frontal footprint adjusted down for overlap
 
-    //Yellow Scan Lidar
+    // ------------------------- Yellow Scan Lidar
     Q_PROPERTY(bool             isYSLidar                   READ isYSLidar                                                      NOTIFY isYSLidarChanged)
     Q_PROPERTY(Fact*            yellowScanFOVFact           READ yellowScanFOVFact                                              CONSTANT)
     Q_PROPERTY(Fact*            yellowScanOverlapFact       READ yellowScanOverlapFact                                          CONSTANT)
@@ -58,8 +58,30 @@ public:
     Q_PROPERTY(Fact* isYSFOVEnable READ yellowScanFOVEnableFact CONSTANT)
 
     //Calc Button
-    Q_INVOKABLE void calculate();
-    Q_INVOKABLE void calcSpacing();
+    Q_INVOKABLE void yellowScanCalculate();
+    Q_INVOKABLE void yellowScanCalcSpacing();
+
+    // ------------------- Green Valley
+    Q_PROPERTY(bool             isGVLidar                   READ isGVLidar                                                      NOTIFY isGVLidarChanged)
+    Q_PROPERTY(Fact*            greenValleyFOVFact          READ greenValleyFOVFact                                             CONSTANT)
+    Q_PROPERTY(Fact*            greenValleyOverlapFact      READ greenValleyOverlapFact                                         CONSTANT)
+
+    //Checkbox
+    Q_PROPERTY(Fact*            isGVAltitudeUse             READ greenValleyAltitudeCheckboxFact                                CONSTANT)
+    Q_PROPERTY(Fact*            isGVSpacingUse              READ greenValleySpacingCheckboxFact                                 CONSTANT)
+    Q_PROPERTY(Fact*            isGVOverlapUse              READ greenValleyOverlapCheckboxFact                                 CONSTANT)
+    Q_PROPERTY(Fact*            isGVFOVuse                  READ greenValleyFOVCheckboxFact                                     CONSTANT)
+
+    //Enable Check
+    Q_PROPERTY(bool             isGVAltitudeEnable          READ greenValleyAltitudeEnableFact                                  NOTIFY isGVAltitudeEnableChanged)
+    Q_PROPERTY(Fact*            isGVSpacingEnable           READ greenValleySpacingEnableFact                                   CONSTANT)
+    Q_PROPERTY(Fact*            isGVOverlapEnable           READ greenValleyOverlapEnableFact                                   CONSTANT)
+    Q_PROPERTY(Fact*            isGVFOVEnable               READ greenValleyFOVEnableFact                                       CONSTANT)
+
+    //Calc Button
+    Q_INVOKABLE void greenValleyCalculate();
+    Q_INVOKABLE void greenValleyCalcSpacing();
+
 
     // When we are creating a manual grid we still use CameraCalc to store the manual grid information. It's a bastardization of what
     // CameraCalc is meant for but it greatly simplifies code and persistance of manual grids.
@@ -86,6 +108,7 @@ public:
     Fact* adjustedFootprintSide     (void) { return &_adjustedFootprintSideFact; }
     Fact* adjustedFootprintFrontal  (void) { return &_adjustedFootprintFrontalFact; }
 
+    // -------------------- Yellow Scan
     Fact* yellowScanFOVFact         (void) { return &_yellowScanFOVFact; }
     Fact* yellowScanOverlapFact     (void) { return &_yellowScanOverlapFact; }
 
@@ -101,6 +124,22 @@ public:
     Fact* yellowScanOverlapEnableFact       (void) { return &_yellowScanOverlapEnable; }
     Fact* yellowScanFOVEnableFact           (void) { return &_yellowScanFOVEnable; }
 
+    // ------------------- Green Valley
+    Fact* greenValleyFOVFact        (void) { return &_greenValleyFOVFact; }
+    Fact* greenValleyOverlapFact    (void) { return &_greenValleyOverlapFact; }
+
+    //Checkbox
+    Fact* greenValleyAltitudeCheckboxFact   (void) { return &_greenValleyAltitude; }
+    Fact* greenValleySpacingCheckboxFact    (void) { return &_greenValleySpacing; }
+    Fact* greenValleyOverlapCheckboxFact    (void) { return &_greenValleyOverlap; }
+    Fact* greenValleyFOVCheckboxFact        (void) { return &_greenValleyFOV; }
+
+    //Enable Check
+    Fact* greenValleySpacingEnableFact      (void) { return &_greenValleySpacingEnable; }
+    Fact* greenValleyOverlapEnableFact      (void) { return &_greenValleyOverlapEnable; }
+    Fact* greenValleyFOVEnableFact          (void) { return &_greenValleyFOVEnable; }
+
+
     const Fact* valueSetIsDistance          (void) const { return &_valueSetIsDistanceFact; }
     const Fact* distanceToSurface           (void) const { return &_distanceToSurfaceFact; }
     const Fact* imageDensity                (void) const { return &_imageDensityFact; }
@@ -109,6 +148,7 @@ public:
     const Fact* adjustedFootprintSide       (void) const { return &_adjustedFootprintSideFact; }
     const Fact* adjustedFootprintFrontal    (void) const { return &_adjustedFootprintFrontalFact; }
 
+    // ------------------- Yellow Scan
     const Fact* yellowScanFOVFact           (void) const { return &_yellowScanFOVFact; }
     const Fact* yellowScanOverlapFact       (void) const { return &_yellowScanOverlapFact; }
 
@@ -124,6 +164,21 @@ public:
     const Fact* yellowScanOverlapEnableFact       (void) const { return &_yellowScanOverlapEnable; }
     const Fact* yellowScanFOVEnableFact           (void) const { return &_yellowScanFOVEnable; }
 
+    // -------------- Green Valley
+    const Fact* greenValleyFOVFact        (void) const { return &_greenValleyFOVFact; }
+    const Fact* greenValleyOverlapFact    (void) const { return &_greenValleyOverlapFact; }
+
+    //Checkbox
+    const Fact* greenValleyAltitudeCheckboxFact   (void) const { return &_greenValleyAltitude; }
+    const Fact* greenValleySpacingCheckboxFact    (void) const { return &_greenValleySpacing; }
+    const Fact* greenValleyOverlapCheckboxFact    (void) const { return &_greenValleyOverlap; }
+    const Fact* greenValleyFOVCheckboxFact        (void) const { return &_greenValleyFOV; }
+
+    //Enable Check
+    const Fact* greenValleySpacingEnableFact      (void) const { return &_greenValleySpacingEnable; }
+    const Fact* greenValleyOverlapEnableFact      (void) const { return &_greenValleyOverlapEnable; }
+    const Fact* greenValleyFOVEnableFact          (void) const { return &_greenValleyFOVEnable; }
+
     bool    isManualCamera              (void) const { return _cameraNameFact.rawValue().toString() == canonicalManualCameraName(); }
     bool    isCustomCamera              (void) const { return _cameraNameFact.rawValue().toString() == canonicalCustomCameraName(); }
     double  imageFootprintSide          (void) const { return _imageFootprintSide; }
@@ -136,6 +191,13 @@ public:
 
     Fact* yellowScanFact (void) {return &_yellowScanFact; }
     const Fact* yellowScanFact (void) const {return &_yellowScanFact; }
+
+    // Green Valley
+    bool isGVLidar (void) const {return _greenValleyFact.rawValue().toString().contains("Green Valley"); }
+    bool greenValleyAltitudeEnableFact (void) const {return _greenValleyAltitude.rawValue().toBool(); }
+
+    Fact* greenValleyFact (void) {return &_greenValleyFact; }
+    const Fact* greenValleyFact (void) const {return &_greenValleyFact; }
 
     void setDistanceMode                (QGroundControlQmlGlobal::AltMode altMode);
     void setCameraBrand                 (const QString& cameraBrand);
@@ -160,12 +222,14 @@ public:
     static const char* yellowScanFOVFactName;
     static const char* yellowScanOverlapName;
     double calculateYellowScanValue;
-
     QString                             _cameraBrand;
-
-
-
     void setTransectItem(TransectStyleComplexItem* item) { _transectItem = item; }
+
+
+    // GreenValley
+    static const char* greenValleyFOVFactName;
+    static const char* greenValleyOverlapName;
+    double calculateGreenValleyValue;
 
 
 
@@ -182,6 +246,9 @@ signals:
     //YellowScanLIDAR
     void isYSLidarChanged                   (void);
     void isYSAltitudeEnableChanged          (void);
+    //GreenValley
+    void isGVLidarChanged                   (void);
+    void isGVAltitudeEnableChanged          (void);
 
 private slots:
     void _recalcTriggerDistance             (void);
@@ -236,6 +303,24 @@ private:
     SettingsFact _yellowScanSpacingEnable;
     SettingsFact _yellowScanOverlapEnable;
     SettingsFact _yellowScanFOVEnable;
+
+    // ------------- GreenValley
+    SettingsFact _greenValleyFact;
+    SettingsFact _greenValleyFOVFact;
+    SettingsFact _greenValleyOverlapFact;
+
+    //Checkbox
+    SettingsFact _greenValleyAltitude;
+    SettingsFact _greenValleySpacing;
+    SettingsFact _greenValleyOverlap;
+    SettingsFact _greenValleyFOV;
+
+    //Enable Check
+    bool _greenValleyAltitudeEnable;
+    SettingsFact _greenValleySpacingEnable;
+    SettingsFact _greenValleyOverlapEnable;
+    SettingsFact _greenValleyFOVEnable;
+
 
     TransectStyleComplexItem* _transectItem{nullptr};
 

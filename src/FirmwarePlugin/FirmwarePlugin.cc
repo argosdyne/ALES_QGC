@@ -960,6 +960,23 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle*)
             "",   // SHOULD BE BLANK FOR NEWLY ADDED CAMERAS. Deprecated translation from older builds.
             this);              // parent
         _cameraList.append(QVariant::fromValue(metaData));
+
+        //New Camera for GeoSystem
+        metaData = new CameraMetaData(
+            "Green Valley Lidar",
+            tr("Green Valley"),
+            tr("LiAir-X3-H"),
+            4.826,                // sensorWidth
+            3.556,                // sensorHeight
+            1920,               // imageWidth
+            1080,               // imageHeight
+            4.3,                // focalLength
+            true,               // true: landscape orientation
+            false,              // true: camera is fixed orientation
+            1.8,                  // minimum trigger interval
+            "",   // SHOULD BE BLANK FOR NEWLY ADDED CAMERAS. Deprecated translation from older builds.
+            this);
+        _cameraList.append(QVariant::fromValue(metaData));
     }
 
     return _cameraList;

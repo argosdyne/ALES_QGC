@@ -155,8 +155,58 @@ Column {
                 else {
                     fovTextField.enabled = false
                 }
+
+                // Disable GreenValley UI
+                gvGrid.visible = false
+                gvAltitudeCheckbox.visible = false
+                gvSpacingCheckbox.visible = false
+                gvCalcBtn.visible = false
+            }
+            else if(cameraCalc.cameraBrand.includes("Green Valley")) {
+                //Show Green Valley UI
+                console.log("Green Valley Lidar detected")
+                gvGrid.visible = true
+                gvAltitudeCheckbox.visible = true
+                gvSpacingCheckbox.visible = true
+                gvCalcBtn.visible = true
+                triggerDistLabel.visible = false
+                ysDistanceLabel.visible = false
+                triggerDistTextField.visible = false
+                columns = 3
+                if(gvAltitudeCheckbox.checked === true){
+                    altitudeFactTextField.enabled = true
+                }
+                else {
+                    altitudeFactTextField.enabled = false
+                }
+                if(gvSpacingCheckbox.checked === true){
+                    spacingTextField.enabled = true
+                }
+                else {
+                    spacingTextField.enabled = false
+                }
+                if(gvOverlapCheckbox.checked === true){
+                    greenValleyOverlapTextField.enabled = true
+                }
+                else {
+                    greenValleyOverlapTextField.enabled = false
+                }
+                if(gvFOVCheckbox.checked === true) {
+                    greenValleyFOVTextField.enabled = true
+                }
+                else {
+                    greenValleyFOVTextField.enabled = false
+                }
+
+                // Disable YellowScan UI
+                ysGrid.visible = false
+                ysAltitudeCheckbox.visible = false
+                ysSpacingCheckbox.visible = false
+                ysCalcBtn.visible = false
             }
             else {
+
+                //Disable All(YS, GV)
                 ysGrid.visible = false
                 ysAltitudeCheckbox.visible = false
                 ysSpacingCheckbox.visible = false
@@ -168,7 +218,15 @@ Column {
                 triggerDistLabel.visible = true
                 triggerDistTextField.visible = true
 
-                cameraCalc.calcSpacing();
+                cameraCalc.yellowScanCalcSpacing();
+
+                //GV
+                gvGrid.visible = false
+                gvAltitudeCheckbox.visible = false
+                gvSpacingCheckbox.visible = false
+                gvCalcBtn.visible = false
+                cameraCalc.greenValleyCalcSpacing();
+
                 columns = 2
             }
 
@@ -179,11 +237,29 @@ Column {
 
         QGCLabel { text: distanceToSurfaceLabel }
 
+        // Yellow Scan
         FactCheckBox {
             Layout.fillWidth:  true
             id:             ysAltitudeCheckbox
             fact:           cameraCalc.isYSAltitudeUse
             visible:  true
+
+            onCheckedChanged: {
+                if(checked) {
+                    altitudeFactTextField.enabled = true
+                }
+                else {
+                    altitudeFactTextField.enabled = false
+                }
+            }
+        }
+
+        // Green Valley
+        FactCheckBox {
+            Layout.fillWidth:  true
+            id: gvAltitudeCheckbox
+            fact: cameraCalc.isGVAltitudeUse
+            visible: true
 
             onCheckedChanged: {
                 if(checked) {
@@ -212,11 +288,29 @@ Column {
 
         QGCLabel { text: sideDistanceLabel }
 
+        // Yellow Scan
         FactCheckBox {
             Layout.fillWidth:  true
             id:             ysSpacingCheckbox
             fact:           cameraCalc.isYSSpacingUse
             visible:  true
+
+            onCheckedChanged: {
+                if(checked){
+                    spacingTextField.enabled = true
+                }
+                else {
+                    spacingTextField.enabled = false
+                }
+            }
+        }
+
+        //Green Valley
+        FactCheckBox {
+            Layout.fillWidth: true
+            id: gvSpacingCheckbox
+            fact: cameraCalc.isGVSpacingUse
+            visible: true
 
             onCheckedChanged: {
                 if(checked){
@@ -308,8 +402,87 @@ Column {
         enabled: { if(checkedCount === 3){ return true } else { return false } }
 
         onClicked: {
-            cameraCalc.calculate();
+            cameraCalc.yellowScanCalculate();
         }
 
     }
+
+    // Only for GreenValley Lidar
+    GridLayout {
+        id: gvGrid
+        anchors.left: parent.left
+        anchors.right: parent.right
+        columnSpacing: _margin
+        rowSpacing: _margin
+        columns: 3
+        visible: cameraCalc.isGVLidar
+
+        QGCLabel { text: "Green Valley Overlap"}
+
+        FactCheckBox {
+            Layout.fillWidth: true
+            id: gvOverlapCheckbox
+            fact: cameraCalc.isGVOverlapUse
+            visible: true
+
+            onCheckedChanged: {
+                if(checked){
+                    greenValleyOverlapTextField.enabled = true
+                }
+                else {
+                    greenValleyOverlapTextField.enabled = false
+                }
+            }
+        }
+
+        FactTextField {
+            id: greenValleyOverlapTextField
+            Layout.fillWidth: true
+            fact: cameraCalc.greenValleyOverlapFact
+        }
+
+        QGCLabel { text: "Green Valley FOV" }
+
+        FactCheckBox {
+            id:gvFOVCheckbox
+            Layout.fillWidth: true
+            fact: cameraCalc.isGVFOVuse
+            visible: true
+
+            onCheckedChanged: {
+                if(checked) {
+                    greenValleyFOVTextField.enabled = true
+                }
+                else {
+                    greenValleyFOVTextField.enabled = false
+                }
+            }
+        }
+
+        FactTextField {
+            id: greenValleyFOVTextField
+            Layout.fillWidth: true
+            fact: cameraCalc.greenValleyFOVFact
+        }
+    }
+    QGCButton {
+        id: gvCalcBtn
+        anchors.left: parent.left
+        text: qsTr("Calculate")
+        width: ScreenTools.defaultFontPixelWidth * 15
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        property int checkedCount: (gvAltitudeCheckbox.checked ? 1 : 0)
+                                +  (gvSpacingCheckbox.checked ? 1 : 0)
+                                +  (gvOverlapCheckbox.checked ? 1 : 0)
+                                +  (gvFOVCheckbox.checked ? 1 : 0)
+
+        enabled: {if(checkedCount === 3) {return true} else { return false } }
+
+        onClicked: {
+            cameraCalc.greenValleyCalculate();
+        }
+    }
+
+
 } // Column

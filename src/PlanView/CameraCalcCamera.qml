@@ -56,7 +56,7 @@ ColumnLayout {
             onActivated:        cameraCalc.cameraModel = currentText
             visible: {
                 var visibleState = !cameraCalc.isManualCamera && !cameraCalc.isCustomCamera
-                if (cameraCalc.cameraBrand.includes("Yellow Scan")) {
+                if (cameraCalc.cameraBrand.includes("Yellow Scan") || cameraCalc.cameraBrand.includes("Green Valley")) {
                     console.log("Yellow Scan camera detected")
                     visibleState = true
                 }
