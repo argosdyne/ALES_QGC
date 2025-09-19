@@ -197,7 +197,7 @@ Item {
             mapName:                    "MissionEditor"
             allowGCSLocationCenter:     true
             allowVehicleLocationCenter: true
-            planView:                   true
+            planView:                   false
 
             zoomLevel:                  QGroundControl.flightMapZoom
             center:                     QGroundControl.flightMapPosition
@@ -221,29 +221,29 @@ Item {
                 QGroundControl.flightMapPosition = center
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    // Take focus to close any previous editing
-                    editorMap.focus = true
-                    var coordinate = editorMap.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
-                    coordinate.latitude = coordinate.latitude.toFixed(_decimalPlaces)
-                    coordinate.longitude = coordinate.longitude.toFixed(_decimalPlaces)
-                    coordinate.altitude = coordinate.altitude.toFixed(_decimalPlaces)
+            // MouseArea {
+            //     anchors.fill: parent
+            //     onClicked: {
+            //         // Take focus to close any previous editing
+            //         editorMap.focus = true
+            //         var coordinate = editorMap.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
+            //         coordinate.latitude = coordinate.latitude.toFixed(_decimalPlaces)
+            //         coordinate.longitude = coordinate.longitude.toFixed(_decimalPlaces)
+            //         coordinate.altitude = coordinate.altitude.toFixed(_decimalPlaces)
 
-                    switch (_editingLayer) {
-                    case _layerMission:
-                        if (_addROIOnClick) {
-                            insertROIAfterCurrent(coordinate)
-                            _addROIOnClick = false
-                        }
+            //         switch (_editingLayer) {
+            //         case _layerMission:
+            //             if (_addROIOnClick) {
+            //                 insertROIAfterCurrent(coordinate)
+            //                 _addROIOnClick = false
+            //             }
 
-                        break
-                    case _layerRallyPoints:
-                        break
-                    }
-                }            
-            }
+            //             break
+            //         case _layerRallyPoints:
+            //             break
+            //         }
+            //     }
+            // }
 
             // Add the mission item visuals to the map
             // Repeater {
