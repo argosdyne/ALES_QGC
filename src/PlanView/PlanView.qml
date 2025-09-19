@@ -595,7 +595,15 @@ Item {
                         enabled:            true
                         visible:            true
                         dropPanelComponent: centerMapDropPanel
+                    },
+                    ToolStripAction {
+                        text:               qsTr("Init Path")
+                        iconSource:         "/qmlimages/PatternGrid.png"
+                        enabled: true
+                        visible: true
+
                     }
+
                 ]
             }
 
