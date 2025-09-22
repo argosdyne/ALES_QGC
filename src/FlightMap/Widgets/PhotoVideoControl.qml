@@ -521,7 +521,19 @@ Rectangle {
             radius:             width * 0.5
             border.color:       qgcPal.buttonText
             border.width:       3
-            visible:            _mavlinkCamera && _mavlinkCamera.hasTracking // || _rhythmCameraEnabled && _rhythmCameraConnected
+            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking // || _rhythmCameraEnabled && _rhythmCameraConnected
+            visible: {
+                if(_rhythmCameraConnected && _rhythmCameraEnabled){
+                    return false
+                }
+                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
+
             QGCColoredImage {
                 height:             parent.height * 0.5
                 width:              height
@@ -548,7 +560,18 @@ Rectangle {
             Layout.alignment:   Qt.AlignHCenter
             text:               qsTr("Camera Tracking")
             font.pointSize:     ScreenTools.defaultFontPointSize
-            visible:            _mavlinkCamera && _mavlinkCamera.hasTracking
+            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking
+            visible: {
+                if(_rhythmCameraConnected && _rhythmCameraEnabled){
+                    return false
+                }
+                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
         }
 
         //-- Status Information
