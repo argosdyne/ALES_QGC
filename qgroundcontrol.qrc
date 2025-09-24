@@ -31,6 +31,7 @@
         <file alias="SubChecklist.qml">src/FlightDisplay/SubChecklist.qml</file>
     </qresource>
     <qresource prefix="/qml">
+		<file alias="CodevCameraVisual.qml">src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">src/M2Link/M2Settings.qml</file>
 		<!--<file alias="QGCBusyIndicator.qml">src/QmlControls/QGCBusyIndicator.qml</file> -->
         <file alias="QGroundControl/Controls/HeightIndicator.qml">src/QmlControls/HeightIndicator.qml</file>

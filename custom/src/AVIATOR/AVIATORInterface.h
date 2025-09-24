@@ -18,7 +18,16 @@ public:
         ButtonType_F2,
         ButtonType_F3
     } ButtonType;
+    typedef enum {
+        AVIATOR_FUNCTION_THERMAL_ZOOM,
+        AVIATOR_FUNCTION_IR_SWITCH,
+        AVIATOR_FUNCTION_GIMBAL_RESET,
+        AVIATOR_FUNCTION_CAMERA_CAPTURE,
+        AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD
+    } AVIATOR_FUNCTION;
+    Q_ENUM(AVIATOR_FUNCTION)
 
+    
     Q_PROPERTY(QVariantList rcChannelValues MEMBER _rcChannelValues NOTIFY rcChannelValuesChanged)
 
     Q_PROPERTY(Fact* batteryVoltage   READ batteryVoltage   CONSTANT)
@@ -85,6 +94,8 @@ private:
     bool _f1Pressed{false};
     bool _f2Pressed{false};
     bool _f3Pressed{false};
+    bool _capturePressed{false};
+    bool _recordPressed{false};
 
     bool _cn1Pressed{false};
     bool _cn2Pressed{false};

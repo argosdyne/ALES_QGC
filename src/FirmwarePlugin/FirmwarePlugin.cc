@@ -1069,9 +1069,9 @@ QGCCameraManager* FirmwarePlugin::createCameraManager(Vehicle* vehicle)
     return new QGCCameraManager(vehicle);
 }
 
-QGCCameraControl* FirmwarePlugin::createCameraControl(const mavlink_camera_information_t *info, Vehicle *vehicle, int compID, QObject* parent)
+QGCCameraControl* FirmwarePlugin::createCameraControl(const mavlink_camera_information_t *info, Vehicle *vehicle, int compID, LinkInterface* link, QObject* parent)
 {
-    return new QGCCameraControl(info, vehicle, compID, parent);
+    return new QGCCameraControl(info, vehicle, compID, link, parent);
 }
 
 uint32_t FirmwarePlugin::highLatencyCustomModeTo32Bits(uint16_t hlCustomMode)

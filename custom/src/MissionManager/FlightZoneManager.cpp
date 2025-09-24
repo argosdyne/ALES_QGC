@@ -584,7 +584,7 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                     droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
 
                     if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
-                        qWarning() << "Received NaN for vehicle position. Using default values.";
+                        //qWarning() << "Received NaN for vehicle position. Using default values.";
                         droneLat = 0.0; // Default values to handle the NaN case
                         droneLon = 0.0;
                         droneAlt = 0.0;
@@ -667,7 +667,7 @@ void FlightZoneManager::checkDroneAndGeoZone() {
                         droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
 
                         if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
-                            qWarning() << "Received NaN for vehicle position. Using default values.";
+                            //qWarning() << "Received NaN for vehicle position. Using default values.";
                             droneLat = 0.0; // Default values to handle the NaN case
                             droneLon = 0.0;
                             droneAlt = 0.0;
@@ -801,7 +801,7 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
                             droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
 
                             if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
-                                qWarning() << "Received NaN for vehicle position. Using default values.";
+                                //qWarning() << "Received NaN for vehicle position. Using default values.";
                                 droneLat = 0.0; // Default values to handle the NaN case
                                 droneLon = 0.0;
                                 droneAlt = 0.0;

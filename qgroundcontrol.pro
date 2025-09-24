@@ -790,7 +790,9 @@ HEADERS += \
     src/uas/UASMessageHandler.h \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
-	src/M2Link/M2Manager.h \
+    src/M2Link/M2Manager.h \
+    src/Camera/TargetObject.h \
+    src/Camera/CodevCameraControl.h \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -1055,6 +1057,8 @@ SOURCES += \
     src/AnalyzeView/GeoTagController.cc \
     src/AnalyzeView/ExifParser.cc \
     src/M2Link/M2Manager.cpp \
+    src/Camera/TargetObject.cpp \
+    src/Camera/CodevCameraControl.cc \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

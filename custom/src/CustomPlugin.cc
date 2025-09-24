@@ -117,9 +117,12 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
 
     _aviatorInterface = new AVIATORInterface();
+    qInfo() << "_aviatorInterface = new AVIATORInterface();";
 #if defined (Q_OS_ANDROID)
     connect(_aviatorInterface, &AVIATORInterface::rcChannelValuesChanged, this, &CustomPlugin::_handleRCChannelValues);
 #endif
+
+    qmlRegisterSingletonInstance<AVIATORInterface>("CustomQmlInterface", 1, 0, "AVIATORInterface", _aviatorInterface);
 }
 
 void CustomPlugin::_handleRCChannelValues(const quint16* channels, int count)
@@ -423,7 +426,7 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
 
     if(_aviatorInterface) {
         qDebug() << "Connect with handleCustomButtonFunc";
-        connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);        
+        //connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);
     }
 
     // Initialize M2 broadcast socket
