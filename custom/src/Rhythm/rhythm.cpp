@@ -675,7 +675,7 @@ void Rhythm::handleMavlinkMessage(const mavlink_message_t &msg) {
 
             // Process specific parameters
             if (paramId == "SMART_SELECT" || paramId == "TRACK_ALGORITHM") {
-                if (paramValue == "Yolov8" || paramValue == "Yolov7" ||
+                if (paramValue == "Yolov8" || paramValue == "Yolov7" || paramValue == "Yolov11" ||
                     paramValue == "Nano" || paramValue == "SiamRPN") {
                     // Handle valid algorithm
                     emit parameterReceived(paramId, paramValue);

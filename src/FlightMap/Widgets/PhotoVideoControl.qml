@@ -893,7 +893,7 @@ Rectangle {
                             id: detectionCombo
                             Layout.fillWidth: true
                             // currentIndex: GlobalResults.lastDetectionModel
-                            model: [qsTr("None"), qsTr("YOLOv8"), qsTr("YOLOv7")]
+                            model: [qsTr("None"), qsTr("YOLOv8"), qsTr("YOLOv7"), qsTr("YOLOv11")]
                             currentIndex: {
                                 var detectionModel = GlobalResults.lastDetectionModel;
 
@@ -903,6 +903,7 @@ Rectangle {
                                         case 0: return 0  // None
                                         case 1: return 1  // YOLOv8
                                         case 2: return 2  // YOLOv7
+                                        case 3: return 3
                                         default: return -1
                                     }
                                 }
@@ -925,6 +926,10 @@ Rectangle {
                                     case 2:  // Yolov7
                                         detectionValue = "Yolov7";
                                         // cameraRhythm.startTracking("Yolov7")
+                                        GlobalResults.setDetectionEnabled(true)
+                                        break
+                                    case 3: // Yolov11
+                                        detectionValue = "Yolov11";
                                         GlobalResults.setDetectionEnabled(true)
                                         break
                                     default:
