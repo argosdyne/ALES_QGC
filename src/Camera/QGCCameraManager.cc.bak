@@ -8,7 +8,6 @@
 #include "QGCApplication.h"
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
-#include "CodevCameraControl.h"
 
 QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
 
@@ -67,10 +66,10 @@ QGCCameraManager::_vehicleReady(bool ready)
 
 //-----------------------------------------------------------------------------
 void
-QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, LinkInterface* link)
+QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 {
     //-- Only pay attention to camera components, as identified by their compId
-    if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 || message.compid == MAV_COMP_ID_GIMBAL ||
+    if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 ||
         (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6))) {
         switch (message.msgid) {
             case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
@@ -83,7 +82,7 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
                 _handleHeartbeat(message);
                 break;
             case MAVLINK_MSG_ID_CAMERA_INFORMATION:
-                _handleCameraInfo(message, link);
+                _handleCameraInfo(message);
                 break;
             case MAVLINK_MSG_ID_CAMERA_SETTINGS:
                 _handleCameraSettings(message);
@@ -99,18 +98,6 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
                 break;
             case MAVLINK_MSG_ID_VIDEO_STREAM_STATUS:
                 _handleVideoStreamStatus(message);
-                break;
-            case MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS:
-                _handleTrackingGeoStatus(message);
-                break;
-            case MAVLINK_MSG_ID_COMMAND_ACK:
-                _handleCommandAck(message);
-                break;
-            case MAVLINK_MSG_ID_RC_CHANNELS:
-                _handleRCChannels(message);
-                break;
-            case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
-                _handleImageCaptured(message);
                 break;
             case MAVLINK_MSG_ID_BATTERY_STATUS:
                 _handleBatteryStatus(message);
@@ -220,7 +207,7 @@ QGCCameraManager::_findCamera(int id)
 
 //-----------------------------------------------------------------------------
 void
-QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterface* link)
+QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message)
 {
     qCDebug(CameraManagerLog) << "_handleCameraInfo";
     //-- Have we requested it?
@@ -231,13 +218,7 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
         qCDebug(CameraManagerLog) << "_handleCameraInfo:" << reinterpret_cast<const char*>(info.model_name) << reinterpret_cast<const char*>(info.vendor_name) << "Comp ID:" << message.compid;
-        QString vendor = QString(reinterpret_cast<const char*>(info.vendor_name));
-        QGCCameraControl* pCamera = nullptr;
-        if(vendor.toUpper().compare("CODEV") == 0) {
-            pCamera = new CodevCameraControl(&info, _vehicle, message.compid, link, this);
-        } else {
-            pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, message.compid, link, this);
-        }
+        QGCCameraControl* pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, message.compid, this);
         if(pCamera) {
             QQmlEngine::setObjectOwnership(pCamera, QQmlEngine::CppOwnership);
             _cameras.append(pCamera);
@@ -378,53 +359,6 @@ QGCCameraManager::_handleVideoStreamStatus(const mavlink_message_t& message)
         mavlink_video_stream_status_t streamStatus;
         mavlink_msg_video_stream_status_decode(&message, &streamStatus);
         pCamera->handleVideoStatus(&streamStatus);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraManager::_handleTrackingGeoStatus(const mavlink_message_t& message)
-{
-    QGCCameraControl* pCamera = _findCamera(message.compid);
-    if(pCamera) {
-        mavlink_camera_tracking_geo_status_t trackingGeoStatus;
-        mavlink_msg_camera_tracking_geo_status_decode(&message, &trackingGeoStatus);
-        pCamera->handleTrackingGeoStatus(trackingGeoStatus);
-    }
-}
-
-void
-QGCCameraManager::_handleCommandAck(const mavlink_message_t& message)
-{
-    for(int i = 0; i < _cameras.count(); i++) {
-        QGCCameraControl* pCamera = qobject_cast<QGCCameraControl*>(_cameras[i]);
-        if(pCamera) {
-            mavlink_command_ack_t ack;
-            mavlink_msg_command_ack_decode(&message, &ack);
-            pCamera->handleCommandAck(ack);
-        }
-    }
-}
-
-void
-QGCCameraManager::_handleRCChannels(const mavlink_message_t& message)
-{
-    QGCCameraControl* pCamera = _findCamera(message.compid);
-    if(pCamera) {
-        mavlink_rc_channels_t rcChannels;
-        mavlink_msg_rc_channels_decode(&message, &rcChannels);
-        pCamera->handleRCChannels(rcChannels);
-    }
-}
-
-void
-QGCCameraManager::_handleImageCaptured(const mavlink_message_t& message)
-{
-    QGCCameraControl* pCamera = _findCamera(message.compid);
-    if(pCamera) {
-        mavlink_camera_image_captured_t imageCaptured;
-        mavlink_msg_camera_image_captured_decode(&message, &imageCaptured);
-        pCamera->handleImageCaptured(imageCaptured);
     }
 }
 

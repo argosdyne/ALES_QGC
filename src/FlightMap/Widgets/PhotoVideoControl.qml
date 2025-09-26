@@ -68,7 +68,7 @@ Rectangle {
 
         onImageCaptured: function(imageIndex, imageFileName) {
             console.log("Image captured - Index:", imageIndex, "File:", imageFileName)
-            _isShootingInCurrentMode = false
+            //_isShootingInCurrentMode = false
         }
 
         onDetectionResultsReceived: function(jsonResults) {
@@ -591,8 +591,11 @@ Rectangle {
                 visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
             }
             QGCLabel {
+                property int photoIndex: _mavlinkCamera ? _mavlinkCamera.photoIndex : 0
+                property int triggerPoints: _activeVehicle ? _activeVehicle.cameraTriggerPoints.count : 0
+                property int photoCount: photoIndex > 0 ? photoIndex : triggerPoints
                 Layout.alignment:   Qt.AlignHCenter
-                text:               _activeVehicle ? ('00000' + _activeVehicle.cameraTriggerPoints.count).slice(-5) : "00000"
+                text:               ('00000' + photoCount).slice(-5)
                 font.pointSize:     ScreenTools.largeFontPointSize
                 visible:            _modeIndicatorPhotoMode
             }

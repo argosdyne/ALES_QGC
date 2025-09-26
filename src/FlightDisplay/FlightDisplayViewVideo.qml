@@ -279,5 +279,13 @@ Item {
             }
             property int zoom: 0
         }
+        //-- Camera Extra Controls QML
+        Loader {
+            anchors.fill: parent
+            source: _camera ? _camera.extraControlsQml : ""
+            Component.onCompleted: {
+                console.log("camera extraControlsQml load clear")
+            }
+        }
     }
 }

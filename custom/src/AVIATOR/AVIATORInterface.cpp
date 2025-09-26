@@ -29,7 +29,7 @@ AVIATORInterface::AVIATORInterface(QObject* parent)
     , _portName("/dev/ttysWK0")
     , _baudRate(115200)
 {
-    qmlRegisterUncreatableType<AVIATORInterface>("CustomQmlInterface", 1, 0, "AVIATORInterface", "Reference only");
+    //qmlRegisterUncreatableType<AVIATORInterface>("CustomQmlInterface", 1, 0, "AVIATORInterface", "Reference only");
 
     _addFact(&_batteryVoltageFact, _batteryVoltageFactName);
     _addFact(&_batteryRemainingFact, _batteryRemainingFactName);
@@ -202,34 +202,28 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f1 = channels.chan15_raw == 2000;
     bool f2 = channels.chan14_raw == 2000;
     bool f3 = channels.chan16_raw == 2000;
+    bool capture = channels.chan12_raw == 2000;
+    bool record = channels.chan13_raw == 2000;
 
 
     // F1 
     if(f1 != _f1Pressed) {
         _f1Pressed = f1;
-        qCDebug(AVIATORInterfaceLog) << "F1 Button State Changed: " << (_f1Pressed ? "눌림" : "해제됨");
-        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_GIMBAL_RESET, _f1Pressed);
-        qCDebug(AVIATORInterfaceLog) << "GIMBAL RESET 명령 전송: " << _f1Pressed;
+        emit buttonPressed(AVIATOR_FUNCTION_GIMBAL_RESET, _f1Pressed);
     }
 
     // F2 
     if(f2 != _f2Pressed) {
         _f2Pressed = f2;
-        qCDebug(AVIATORInterfaceLog) << "F2 Button State Changed: " << (_f2Pressed ? "눌림" : "해제됨");
-        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_COACH_WAYPOINT, _f2Pressed); //ButtonType_F2
-        qCDebug(AVIATORInterfaceLog) << "COACH WAYPOINT 명령 전송: " << _f2Pressed;
-        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_THERMAL_ZOOM, _f2Pressed);
-        qCDebug(AVIATORInterfaceLog) << "THERMAL ZOOM 명령 전송: " << _f2Pressed;
+        emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
     }
 
     // F3 
     static int f3Count = 0;
-    if(f3) {
-        f3Count++;
-    } else {
+    if(f3) f3Count++;
+    else {
         if(f3Count > 0 && f3Count < 50) { // 1s
-            emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_IR_SWITCH, true);
-            qCDebug(AVIATORInterfaceLog) << "IR SWITCH 명령 전송 (1초 이내): true";
+            emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
         }
         f3Count = 0;
     }
@@ -247,10 +241,10 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool cn2 = channels.chan2_raw ;//== 2000;
     bool cn3 = channels.chan3_raw ;//== 2000;
     bool cn4 = channels.chan4_raw ;//== 2000;
-    bool cn5 = channels.chan5_raw ;//== 2000;
-    bool cn6 = channels.chan6_raw ;//== 2000;
-    bool cn7 = channels.chan7_raw ;//== 2000;
-    bool cn8 = channels.chan8_raw ;//== 2000;
+    // bool cn5 = channels.chan5_raw ;//== 2000;
+    // bool cn6 = channels.chan6_raw ;//== 2000;
+    // bool cn7 = channels.chan7_raw ;//== 2000;
+    // bool cn8 = channels.chan8_raw ;//== 2000;
     bool cn9 = channels.chan9_raw ;//== 2000;
     bool cn10 = channels.chan10_raw ;//== 2000;
     bool cn11 = channels.chan11_raw ;//== 2000;
@@ -279,24 +273,16 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         qCDebug(AVIATORInterfaceLog) << "cn4 Button State Changed: " << (_cn4Pressed ? "눌림" : "해제됨");
     }
 
-    if (cn5 != _cn5Pressed) {
-        _cn5Pressed = cn5;
-        qCDebug(AVIATORInterfaceLog) << "cn5 Button State Changed: " << (_cn5Pressed ? "눌림" : "해제됨");
+    if(capture != _capturePressed) {
+        _capturePressed = capture;
+        qInfo() << "Capture Btn Click";
+        emit buttonPressed(AVIATOR_FUNCTION_CAMERA_CAPTURE, _capturePressed);
     }
 
-    if (cn6 != _cn6Pressed) {
-        _cn6Pressed = cn6;
-        qCDebug(AVIATORInterfaceLog) << "cn6 Button State Changed: " << (_cn6Pressed ? "눌림" : "해제됨");
-    }
-
-    if (cn7 != _cn7Pressed) {
-        _cn7Pressed = cn7;
-        qCDebug(AVIATORInterfaceLog) << "cn7 버튼 상태 변경: " << (_cn7Pressed ? "눌림" : "해제됨");
-    }
-
-    if (cn8 != _cn8Pressed) {
-        _cn8Pressed = cn8;
-        qCDebug(AVIATORInterfaceLog) << "cn8 버튼 상태 변경: " << (_cn8Pressed ? "눌림" : "해제됨");
+    if(record != _recordPressed) {
+        _recordPressed = record;
+        qInfo() <<" Record Btn Click";
+        emit buttonPressed(AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD, _recordPressed);
     }
 
     if (cn9 != _cn9Pressed) {
