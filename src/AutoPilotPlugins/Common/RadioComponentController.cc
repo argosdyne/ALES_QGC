@@ -151,7 +151,7 @@ const RadioComponentController::stateMachineEntry* RadioComponentController::_ge
 
     static const stateMachineEntry rgStateMachineAPM[] = {
         //Function
-        { rcCalFunctionMax,                 msgBeginAPM,        _imageHome,         &RadioComponentController::_inputCenterWaitBegin,   &RadioComponentController::_saveAllTrims,       nullptr },
+        { rcCalFunctionMax,                 msgBeginAPM,        _imageCenter,       &RadioComponentController::_inputCenterWaitBegin,   &RadioComponentController::_saveAllTrims,       nullptr },
         { rcCalFunctionThrottle,            msgThrottleUp,      _imageThrottleUp,   &RadioComponentController::_inputStickDetect,       nullptr,                                        nullptr },
         { rcCalFunctionThrottle,            msgThrottleDown,    _imageThrottleDown, &RadioComponentController::_inputStickMin,          nullptr,                                        nullptr },
         { rcCalFunctionYaw,                 msgYawRight,        _imageYawRight,     &RadioComponentController::_inputStickDetect,       nullptr,                                        nullptr },
@@ -160,9 +160,9 @@ const RadioComponentController::stateMachineEntry* RadioComponentController::_ge
         { rcCalFunctionRoll,                msgRollLeft,        _imageRollLeft,     &RadioComponentController::_inputStickMin,          nullptr,                                        nullptr },
         { rcCalFunctionPitch,               msgPitchUp,         _imagePitchUp,      &RadioComponentController::_inputStickDetect,       nullptr,                                        nullptr },
         { rcCalFunctionPitch,               msgPitchDown,       _imagePitchDown,    &RadioComponentController::_inputStickMin,          nullptr,                                        nullptr },
-        { rcCalFunctionPitch,               msgPitchCenter,     _imageHome,         &RadioComponentController::_inputCenterWait,        nullptr,                                        nullptr },
-        { rcCalFunctionMax,                 msgSwitchMinMax,    _imageSwitchMinMax, &RadioComponentController::_inputSwitchMinMax,      &RadioComponentController::_advanceState,       nullptr },
-        { rcCalFunctionMax,                 msgComplete,        _imageThrottleDown, nullptr,                                            &RadioComponentController::_writeCalibration,   nullptr },
+        { rcCalFunctionPitch,               msgPitchCenter,     _imageCenter,       &RadioComponentController::_inputCenterWait,        nullptr,                                        nullptr },
+        //{ rcCalFunctionMax,                 msgSwitchMinMax,    _imageSwitchMinMax, &RadioComponentController::_inputSwitchMinMax,      &RadioComponentController::_advanceState,       nullptr },
+        { rcCalFunctionMax,                 msgComplete,        _imageCenter, nullptr,                                            &RadioComponentController::_writeCalibration,   nullptr },
     };
 
     bool badStep = false;
@@ -702,6 +702,8 @@ void RadioComponentController::_validateCalibration(void)
 /// @brief Saves the rc calibration values to the board parameters.
 void RadioComponentController::_writeCalibration(void)
 {
+
+    qInfo() << "Writing RC calibration parameters";
     if (!_uas) return;
 
     if (!_px4Vehicle() && (_vehicle->vehicleType() == MAV_TYPE_HELICOPTER || _vehicle->multiRotor()) &&  _rgChannelInfo[_rgFunctionChannelMapping[rcCalFunctionThrottle]].reversed) {
@@ -715,6 +717,22 @@ void RadioComponentController::_writeCalibration(void)
         QString maxTpl("RC%1_MAX");
         QString trimTpl("RC%1_TRIM");
 
+        for (int chan = 0; chan < _chanCount; chan++) {
+            if (!_rgChannelInfo[chan].reversed) {
+                qInfo() << QString("CH%1 -> min:%2 max:%3 trim:%4 reversed:false")
+                .arg(chan)
+                    .arg(_rgChannelInfo[chan].rcMin)
+                    .arg(_rgChannelInfo[chan].rcMax)
+                    .arg(_rgChannelInfo[chan].rcTrim);
+            } else {
+                qInfo() << QString("CH%1 -> min:%2 max:%3 trim:%4 reversed:true")
+                .arg(chan)
+                    .arg(_rgChannelInfo[chan].rcMin)
+                    .arg(_rgChannelInfo[chan].rcMax)
+                    .arg(_rgChannelInfo[chan].rcTrim);
+            }
+        }
+
         // Note that the rc parameters are all float, so you must cast to float in order to get the right QVariant
         for (int chan = 0; chan<_chanMax; chan++) {
             struct ChannelInfo* info = &_rgChannelInfo[chan];
@@ -725,15 +743,15 @@ void RadioComponentController::_writeCalibration(void)
             }
 
             Fact* paramFact = getParameterFact(FactSystem::defaultComponentId, trimTpl.arg(oneBasedChannel));
-            if (paramFact) {
+            if (paramFact) {                
                 paramFact->setRawValue(static_cast<float>(info->rcTrim));
             }
             paramFact = getParameterFact(FactSystem::defaultComponentId, minTpl.arg(oneBasedChannel));
-            if (paramFact) {
+            if (paramFact) {        
                 paramFact->setRawValue(static_cast<float>(info->rcMin));
             }
             paramFact = getParameterFact(FactSystem::defaultComponentId, maxTpl.arg(oneBasedChannel));
-            if (paramFact) {
+            if (paramFact) {               
                 paramFact->setRawValue(static_cast<float>(info->rcMax));
             }
 
@@ -749,6 +767,18 @@ void RadioComponentController::_writeCalibration(void)
                 }
                 _setChannelReversedParamValue(chan, reversed);
             }
+
+            Fact* minFact = getParameterFact(FactSystem::defaultComponentId, minTpl.arg(oneBasedChannel));
+            Fact* maxFact = getParameterFact(FactSystem::defaultComponentId, maxTpl.arg(oneBasedChannel));
+            Fact* trimFact = getParameterFact(FactSystem::defaultComponentId, trimTpl.arg(oneBasedChannel));
+            if (minFact && maxFact && trimFact) {
+                qInfo() << QString("CH%1 -> MIN:%2 MAX:%3 TRIM:%4")
+                .arg(oneBasedChannel)
+                    .arg(minFact->rawValue().toFloat())
+                    .arg(maxFact->rawValue().toFloat())
+                    .arg(trimFact->rawValue().toFloat());
+            }
+
         }
 
         // Write function mapping parameters
