@@ -39,6 +39,7 @@
 		<file alias="AppSettings.qml">../src/ui/AppSettings.qml</file>
 		<file alias="BluetoothSettings.qml">../src/ui/preferences/BluetoothSettings.qml</file>
 		<file alias="CorridorScanEditor.qml">../src/PlanView/CorridorScanEditor.qml</file>
+		<file alias="YellowScanInitPathEditor.qml">../src/PlanView/YellowScanInitPathEditor.qml</file>
 		<file alias="DebugWindow.qml">../src/ui/preferences/DebugWindow.qml</file>
 		<file alias="ESP8266Component.qml">../src/AutoPilotPlugins/Common/ESP8266Component.qml</file>
 		<file alias="ESP8266ComponentSummary.qml">../src/AutoPilotPlugins/Common/ESP8266ComponentSummary.qml</file>
@@ -94,6 +95,7 @@
 		<file alias="QGroundControl/Controls/CameraSection.qml">../src/PlanView/CameraSection.qml</file>
 		<file alias="QGroundControl/Controls/ClickableColor.qml">../src/QmlControls/ClickableColor.qml</file>
 		<file alias="QGroundControl/Controls/CorridorScanMapVisual.qml">../src/PlanView/CorridorScanMapVisual.qml</file>
+		<file alias="QGroundControl/Controls/YellowScanInitPathMapVisual.qml">../src/PlanView/YellowScanInitPathMapVisual.qml</file>
 		<file alias="QGroundControl/Controls/DeadMouseArea.qml">../src/QmlControls/DeadMouseArea.qml</file>
 		<file alias="QGroundControl/Controls/DropButton.qml">../src/QmlControls/DropButton.qml</file>
 		<file alias="QGroundControl/Controls/DropPanel.qml">../src/QmlControls/DropPanel.qml</file>
@@ -157,6 +159,7 @@
 		<file alias="QGroundControl/Controls/QGCMapPolygonVisuals.qml">../src/MissionManager/QGCMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/GeoZoneMapPolygonVisuals.qml">../src/MissionManager/GeoZoneMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolylineVisuals.qml">../src/MissionManager/QGCMapPolylineVisuals.qml</file>
+		<file alias="QGroundControl/Controls/YellowScanInitPathPolylineVisuals.qml">../src/MissionManager/YellowScanInitPathPolylineVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMenu.qml">../src/QmlControls/QGCMenu.qml</file>
 		<file alias="QGroundControl/Controls/QGCMenuItem.qml">../src/QmlControls/QGCMenuItem.qml</file>
 		<file alias="QGroundControl/Controls/QGCMenuSeparator.qml">../src/QmlControls/QGCMenuSeparator.qml</file>
@@ -323,6 +326,7 @@
 		<file alias="CameraSection.FactMetaData.json">../src/MissionManager/CameraSection.FactMetaData.json</file>
 		<file alias="CameraSpec.FactMetaData.json">../src/MissionManager/CameraSpec.FactMetaData.json</file>
 		<file alias="CorridorScan.SettingsGroup.json">../src/MissionManager/CorridorScan.SettingsGroup.json</file>
+		<file alias="YellowScanInitPath.SettingsGroup.json">../src/MissionManager/YellowScanInitPath.SettingsGroup.json</file>
 		<file alias="EditPositionDialog.FactMetaData.json">../src/QmlControls/EditPositionDialog.FactMetaData.json</file>
 		<file alias="FirmwareUpgrade.SettingsGroup.json">../src/Settings/FirmwareUpgrade.SettingsGroup.json</file>
 		<file alias="FlightMap.SettingsGroup.json">../src/Settings/FlightMap.SettingsGroup.json</file>

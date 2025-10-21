@@ -74,6 +74,7 @@ QGCMapLabel                             1.0 QGCMapLabel.qml
 QGCMapPolygonVisuals                    1.0 QGCMapPolygonVisuals.qml
 GeoZoneMapPolygonVisuals				1.0 GeoZoneMapPolygonVisuals.qml
 QGCMapPolylineVisuals                   1.0 QGCMapPolylineVisuals.qml
+YellowScanInitPathPolylineVisuals		1.0 YellowScanInitPathPolylineVisuals.qml
 QGCMenu                                 1.0 QGCMenu.qml
 QGCMenuItem                             1.0 QGCMenuItem.qml
 QGCMenuSeparator                        1.0 QGCMenuSeparator.qml

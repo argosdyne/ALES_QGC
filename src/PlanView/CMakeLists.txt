@@ -36,5 +36,7 @@ add_custom_target(PlanViewQml
 		VTOLLandingPatternEditor.qml
 		VTOLLandingPatternMapVisual.qml
 		GeoZoneMakeView.qml
+		YellowScanInitPathMapVisual.qml
+		YellowScanInitPathEditor.qml
 )
 

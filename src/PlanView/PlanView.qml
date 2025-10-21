@@ -601,6 +601,9 @@ Item {
                         iconSource:         "/qmlimages/PatternGrid.png"
                         enabled: true
                         visible: true
+                        onTriggered: {
+                            insertComplexItemAfterCurrent("Init Path")
+                        }
 
                     }
 

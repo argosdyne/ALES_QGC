@@ -155,6 +155,8 @@ protected:
     void    _buildAndAppendMissionItems     (QList<MissionItem*>& items, QObject* missionItemParent);
     void    _appendLoadedMissionItems       (QList<MissionItem*>& items, QObject* missionItemParent);
     void    _recalcComplexDistance          (void);
+    void    _appendYSInitPathMaxSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathPreviousSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
 
     int                 _sequenceNumber = 0;
     QGeoCoordinate      _coordinate;
@@ -168,6 +170,9 @@ protected:
         CoordTypeSurveyEntry,           ///< Waypoint at entry edge of survey polygon
         CoordTypeSurveyExit,            ///< Waypoint at exit edge of survey polygon
         CoordTypeTurnaround,            ///< Turnaround extension waypoint
+        CoordTypeYellowScan,            ///< YellowScan initiation path
+        CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed(10m/s)
+        CoordTypeYellowScanPreviousSpeed
     };
 
     typedef struct {
@@ -248,4 +253,6 @@ private:
 
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;
+
+    double _previousVehicleSpeed;
 };

@@ -137,6 +137,8 @@ add_library(MissionManager
 	VTOLLandingComplexItem.h
 	FlightZoneManager.cpp
 	FlightZoneManager.h
+	YellowScanInitPathComplexItem.cc
+	YellowScanInitPathComplexItem.h
 
 	Section.h # shouldn't be listed here, but isn't named properly for AUTOMOC
 
@@ -151,6 +153,7 @@ add_custom_Target(MisionManagerQml
 		QGCMapPolygonVisuals.qml
 		QGCMapPolylineVisuals.qml
 		GeoZoneMapPolygonVisuals.qml
+		YellowScanInitPathPolylineVisuals.qml
 )
 
 target_link_libraries(MissionManager
