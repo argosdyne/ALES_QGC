@@ -626,6 +626,7 @@ HEADERS += \
     src/MissionManager/ComplexMissionItem.h \
     src/MissionManager/CorridorScanComplexItem.h \
     src/MissionManager/CorridorScanPlanCreator.h \
+    src/MissionManager/YellowScanInitPathComplexItem.h \
     src/MissionManager/BlankPlanCreator.h \
     src/MissionManager/FixedWingLandingComplexItem.h \
     src/MissionManager/GeoFenceController.h \
@@ -895,6 +896,7 @@ SOURCES += \
     src/MissionManager/ComplexMissionItem.cc \
     src/MissionManager/CorridorScanComplexItem.cc \
     src/MissionManager/CorridorScanPlanCreator.cc \
+    src/MissionManager/YellowScanInitPathComplexItem.cc \
     src/MissionManager/BlankPlanCreator.cc \
     src/MissionManager/FixedWingLandingComplexItem.cc \
     src/MissionManager/GeoFenceController.cc \

@@ -74,6 +74,7 @@ QGCMapLabel                             1.0 QGCMapLabel.qml
 QGCMapPolygonVisuals                    1.0 QGCMapPolygonVisuals.qml
 GeoZoneMapPolygonVisuals				1.0 GeoZoneMapPolygonVisuals.qml
 QGCMapPolylineVisuals                   1.0 QGCMapPolylineVisuals.qml
+YellowScanInitPathPolylineVisuals		1.0 YellowScanInitPathPolylineVisuals.qml
 QGCMenu                                 1.0 QGCMenu.qml
 QGCMenuItem                             1.0 QGCMenuItem.qml
 QGCMenuSeparator                        1.0 QGCMenuSeparator.qml
@@ -107,10 +108,12 @@ SubMenuButton                           1.0 SubMenuButton.qml
 SurveyMapVisuals                        1.0 SurveyMapVisuals.qml
 TerrainStatus                           1.0 TerrainStatus.qml
 TransectStyleComplexItemEditor          1.0 TransectStyleComplexItemEditor.qml
+YSTransectStyleComplexItemEditor        1.0 YSTransectStyleComplexItemEditor.qml
 TransectStyleComplexItemStats           1.0 TransectStyleComplexItemStats.qml
 TransectStyleComplexItemTabBar          1.0 TransectStyleComplexItemTabBar.qml
 TransectStyleComplexItemTerrainFollow   1.0 TransectStyleComplexItemTerrainFollow.qml
 TransectStyleMapVisuals                 1.0 TransectStyleMapVisuals.qml
+YSTransectStyleMapVisuals               1.0 YSTransectStyleMapVisuals.qml
 ToolStrip                               1.0 ToolStrip.qml
 ToolStripHoverButton                    1.0 ToolStripHoverButton.qml
 VehicleRotationCal                      1.0 VehicleRotationCal.qml

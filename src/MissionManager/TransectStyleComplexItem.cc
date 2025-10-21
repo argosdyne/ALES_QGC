@@ -21,6 +21,8 @@
 #include "MissionCommandTree.h"
 #include "MissionCommandUIInfo.h"
 
+#include "ParameterManager.h"
+
 #include <QPolygonF>
 
 QGC_LOGGING_CATEGORY(TransectStyleComplexItemLog, "TransectStyleComplexItemLog")
@@ -123,6 +125,18 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
     connect(&_surveyAreaPolygon,                        &QGCMapPolygon::isValidChanged, this, &TransectStyleComplexItem::readyForSaveStateChanged);
 
     setDirty(false);
+
+    // Save previous vehicle speed
+    MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
+    if(manager) {
+        if(manager->activeVehicle()->firmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
+            qInfo() << "This is APM";
+
+            _previousVehicleSpeed = manager->activeVehicle()->parameterManager()->getParameter(MAV_COMP_ID_AUTOPILOT1, "WPNAV_SPEED")->rawValue().toDouble();
+
+            qInfo() << "_previousVehicleSpeed = " << _previousVehicleSpeed;
+        }
+    }
 }
 
 void TransectStyleComplexItem::_setCameraShots(int cameraShots)
@@ -1171,6 +1185,12 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                     itemCount++; // Waypoint only
                 }
                 break;
+            case CoordTypeYellowScanMaxSpeed:
+                break;
+            case CoordTypeYellowScan:
+                break;
+            case CoordTypeYellowScanPreviousSpeed:
+                break;
             case CoordTypeSurveyExit:
                 bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
                 if (triggerCamera()) {
@@ -1186,7 +1206,7 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 } else {
                     itemCount++; // Waypoint only
                 }
-                break;
+                break;            
             }
         }
 
@@ -1261,6 +1281,40 @@ void TransectStyleComplexItem::_appendSinglePhotoCapture(QList<MissionItem*>& it
                                         qQNaN(), qQNaN(), qQNaN(), qQNaN(),  // param 4-7 reserved
                                         true,                                // autoContinue
                                         false,                               // isCurrentItem
+                                        missionItemParent);
+    items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathMaxSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
+{
+    // IMPORTANT NOTE: If anything changes here you must also change SpeedSection::scanForSettings
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_DO_CHANGE_SPEED,
+                                        MAV_FRAME_MISSION,
+                                        _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
+                                        10,
+                                        -1,                                                                 // No throttle change
+                                        0,                                                                  // Absolute speed change
+                                        0, 0, 0,                                                            // param 5-7 not used
+                                        true,                                                               // autoContinue
+                                        false,                                                              // isCurrentItem
+                                        missionItemParent);
+    items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
+{
+    // IMPORTANT NOTE: If anything changes here you must also change SpeedSection::scanForSettings
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_DO_CHANGE_SPEED,
+                                        MAV_FRAME_MISSION,
+                                        _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
+                                        _previousVehicleSpeed / 100,
+                                        -1,                                                                 // No throttle change
+                                        0,                                                                  // Absolute speed change
+                                        0, 0, 0,                                                            // param 5-7 not used
+                                        true,                                                               // autoContinue
+                                        false,                                                              // isCurrentItem
                                         missionItemParent);
     items.append(item);
 }
@@ -1384,6 +1438,15 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             } else {
                 _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
+            break;
+        case CoordTypeYellowScanMaxSpeed:
+            _appendYSInitPathMaxSpeed(items, missionItemParent, seqNum);
+            break;
+        case CoordTypeYellowScanPreviousSpeed:
+            _appendYSInitPathPreviousSpeed(items, missionItemParent, seqNum);
+            break;
+        case CoordTypeYellowScan:
+            _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             break;
         case CoordTypeSurveyExit:
             bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;

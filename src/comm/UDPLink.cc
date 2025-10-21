@@ -202,7 +202,7 @@ void UDPLink::readBytes()
         }
         QMutexLocker locker(&_sessionTargetsMutex);
         if (!contains_target(_sessionTargets, asender, senderPort)) {
-            qDebug() << "Adding target" << asender << senderPort;
+            //qDebug() << "Adding target" << asender << senderPort;
             UDPCLient* target = new UDPCLient(asender, senderPort);
             _sessionTargets.append(target);
         }

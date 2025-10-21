@@ -1233,8 +1233,8 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
         // 그렇다면 고유한 ID로 비교해서
         qInfo(FlightZoneManagerLog) << "polygon ID : " << polygonid;
 
-    }    
-    qInfo(FlightZoneManagerLog) << "validTimeList Count" << validTimeList.count();
+    }
+    //qInfo(FlightZoneManagerLog) << "validTimeList Count" << validTimeList.count();
 
 }
 
