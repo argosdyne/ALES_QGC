@@ -33,6 +33,7 @@ add_custom_target(PlanViewQml
 		TransectStyleComplexItemTabBar.qml
 		TransectStyleComplexItemTerrainFollow.qml
 		TransectStyleMapVisuals.qml
+		YSTransectStyleMapVisuals.qml
 		VTOLLandingPatternEditor.qml
 		VTOLLandingPatternMapVisual.qml
 		GeoZoneMakeView.qml

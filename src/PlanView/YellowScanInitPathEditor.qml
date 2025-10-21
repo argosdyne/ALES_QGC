@@ -13,7 +13,7 @@ import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.FlightMap     1.0
 
-TransectStyleComplexItemEditor {
+YSTransectStyleComplexItemEditor {
     transectAreaDefinitionComplete: _missionItem.corridorPolyline.isValid
     transectAreaDefinitionHelp:     qsTr("Use the Polyline Tools to create the polyline which defines the corridor.")
     transectValuesHeaderName:       qsTr("Init Path")
@@ -63,20 +63,6 @@ TransectStyleComplexItemEditor {
                 fact:               _missionItem.turnRadius
                 Layout.fillWidth:   true
                 //visible:            !forPresets
-            }
-
-            QGCCheckBox {
-                id:         flightSpeedCheckBox
-                text:       qsTr("Flight speed")
-                visible:   true// _showFlightSpeed
-                checked:    missionItem.speedSection.specifyFlightSpeed
-                onClicked:   missionItem.speedSection.specifyFlightSpeed = checked
-            }
-            FactTextField {
-                Layout.fillWidth:   true
-                fact:               missionItem.speedSection.flightSpeed
-                visible:            true//_showFlightSpeed
-                enabled:            flightSpeedCheckBox.checked
             }
         }
     }

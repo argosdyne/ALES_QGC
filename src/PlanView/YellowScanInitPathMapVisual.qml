@@ -16,7 +16,7 @@ import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 
 /// Corridor Scan Complex Mission Item visuals
-TransectStyleMapVisuals {
+YSTransectStyleMapVisuals {
     polygonInteractive: false
 
     property bool _currentItem: object.isCurrentItem

@@ -33,6 +33,7 @@
 		<file alias="QGroundControl/Controls/QGCDynamicObjectManager.qml">../src/QmlControls/QGCDynamicObjectManager.qml</file>
 		<file alias="QGroundControl/Controls/QGCOptionsComboBox.qml">../src/QmlControls/QGCOptionsComboBox.qml</file>
 		<file alias="QGroundControl/Controls/TransectStyleMapVisuals.qml">../src/PlanView/TransectStyleMapVisuals.qml</file>
+		<file alias="QGroundControl/Controls/YSTransectStyleMapVisuals.qml">../src/PlanView/YSTransectStyleMapVisuals.qml</file>
 		<file alias="QGroundControl/FlightMap/MapLineArrow.qml">../src/MissionManager/MapLineArrow.qml</file>
 		<file alias="QGroundControl/FlightMap/SplitIndicator.qml">../src/FlightMap/MapItems/SplitIndicator.qml</file>
 		<file alias="AnalyzeView.qml">../src/AnalyzeView/AnalyzeView.qml</file>
@@ -200,6 +201,7 @@
 		<file alias="QGroundControl/Controls/ToolStrip.qml">../src/QmlControls/ToolStrip.qml</file>
 		<file alias="QGroundControl/Controls/ToolStripHoverButton.qml">../src/QmlControls/ToolStripHoverButton.qml</file>
 		<file alias="QGroundControl/Controls/TransectStyleComplexItemEditor.qml">../src/PlanView/TransectStyleComplexItemEditor.qml</file>
+		<file alias="QGroundControl/Controls/YSTransectStyleComplexItemEditor.qml">../src/PlanView/YSTransectStyleComplexItemEditor.qml</file>
 		<file alias="QGroundControl/Controls/TransectStyleComplexItemStats.qml">../src/PlanView/TransectStyleComplexItemStats.qml</file>
 		<file alias="QGroundControl/Controls/TransectStyleComplexItemTabBar.qml">../src/PlanView/TransectStyleComplexItemTabBar.qml</file>
 		<file alias="QGroundControl/Controls/TransectStyleComplexItemTerrainFollow.qml">../src/PlanView/TransectStyleComplexItemTerrainFollow.qml</file>
