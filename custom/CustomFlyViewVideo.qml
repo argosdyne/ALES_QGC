@@ -51,7 +51,7 @@ Item {
             enabled: true
             // cursorShape: Qt.CrossCursor
 
-            onDoubleClicked: {
+            onClicked: {
                 var normX = mouse.x / width
                 var normY = mouse.y / height
                 var radius = 0.1

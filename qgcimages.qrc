@@ -64,7 +64,16 @@
         <file alias="camera.svg">resources/camera.svg</file>
         <file alias="camera_photo.svg">src/Camera/images/camera_photo.svg</file>
         <file alias="camera_video.svg">src/Camera/images/camera_video.svg</file>
-        <file alias="CameraComponentIcon.png">src/AutoPilotPlugins/Common/Images/CameraComponentIcon.png</file>
+		<file alias="cross_hair.svg">src/Camera/images/cross_hair.svg</file>
+		<file alias="focus.svg">src/Camera/images/focus.svg</file>
+		<file alias="rangefinder.svg">src/Camera/images/rangefinder.svg</file>
+		<file alias="smartSelect.svg">src/Camera/images/smartSelect.svg</file>
+		<file alias="spot_thermometry.svg">src/Camera/images/spot_thermometry.svg</file>
+		<file alias="sun.svg">src/Camera/images/sun.svg</file>
+		<file alias="thermometry.svg">src/Camera/images/thermometry.svg</file>
+		<file alias="area_thermometry.svg">src/Camera/images/area_thermometry.svg</file>
+		<file alias="">src/Camera/images/R3Palette</file>
+		<file alias="CameraComponentIcon.png">src/AutoPilotPlugins/Common/Images/CameraComponentIcon.png</file>
         <file alias="CameraIcon.svg">src/ui/toolbar/Images/CameraIcon.svg</file>
         <file alias="CameraTrigger.svg">src/AutoPilotPlugins/PX4/Images/CameraTrigger.svg</file>
         <file alias="check.svg">resources/check.svg</file>
@@ -208,4 +217,17 @@
         <file alias="ZoomMinus.svg">src/FlightMap/Images/ZoomMinus.svg</file>
         <file alias="ZoomPlus.svg">src/FlightMap/Images/ZoomPlus.svg</file>
     </qresource>
+	<qresource prefix="R3Palette">
+		<file alias="0">src/Camera/images/R3Palette/0.jpeg</file>
+		<file alias="2">src/Camera/images/R3Palette/2.jpeg</file>
+		<file alias="3">src/Camera/images/R3Palette/3.jpeg</file>
+		<file alias="4">src/Camera/images/R3Palette/4.jpeg</file>
+		<file alias="5">src/Camera/images/R3Palette/5.jpeg</file>
+		<file alias="6">src/Camera/images/R3Palette/6.jpeg</file>
+		<file alias="7">src/Camera/images/R3Palette/7.jpeg</file>
+		<file alias="8">src/Camera/images/R3Palette/8.jpeg</file>
+		<file alias="9">src/Camera/images/R3Palette/9.jpeg</file>
+		<file alias="10">src/Camera/images/R3Palette/10.jpeg</file>
+		<file alias="11">src/Camera/images/R3Palette/11.jpeg</file>
+	</qresource>
 </RCC>
