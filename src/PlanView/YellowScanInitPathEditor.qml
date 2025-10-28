@@ -35,6 +35,15 @@ YSTransectStyleComplexItemEditor {
             rowSpacing:     _margin
             columns:        2
 
+            QGCLabel { text: qsTr("Altitude") }
+
+            AltitudeFactTextField {
+                id:                         altitudeFactTextField
+                fact:                       missionItem.cameraCalc.distanceToSurface
+                altitudeMode:               missionItem.cameraCalc.distanceMode
+                Layout.fillWidth:           true
+            }
+
             QGCLabel { text: qsTr("Angle") }
             FactTextField {
                 fact:                   missionItem.angle
