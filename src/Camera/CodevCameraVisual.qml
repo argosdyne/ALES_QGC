@@ -33,10 +33,11 @@ Item {
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
-    //property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
+    property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
+        console.log("aiInThermal = ", aiInThermal)
     }
 
     Connections {
@@ -101,86 +102,110 @@ Item {
         }
     }
 
-    // TargetObjectRectangles {
-    //     x: aiParentItem.x
-    //     y: aiParentItem.y
-    //     width: aiParentItem.width
-    //     height: aiParentItem.height
-    //     visible: aiParentItem.visible
-    //     model: _camera ? _camera.targetObjects : 0
-    // }
+    TargetObjectRectangles {
+        x: aiParentItem.x
+        y: aiParentItem.y
+        width: aiParentItem.width
+        height: aiParentItem.height
+        visible: aiParentItem.visible
+        model: _camera ? _camera.targetObjects : 0
+    }
 
-    // Rectangle {
-    //     color:              "transparent"
-    //     border.color:       "red"
-    //     border.width:       3
-    //     visible:            _camera.trackingImageRect.width > 0.01 || isNaN(_camera.trackingImageRect.bottom)
-    //     x: aiParentItem.x + _camera.trackingImageRect.x * aiParentItem.width
-    //     y: aiParentItem.y + _camera.trackingImageRect.y * aiParentItem.height
-    //     width: _camera.trackingImageRect.width * aiParentItem.width
-    //     height: !isNaN(_camera.trackingImageRect.bottom) ? _camera.trackingImageRect.height * aiParentItem.height : width
-    //     radius: !isNaN(_camera.trackingImageRect.bottom) ? 0 : (width / 2)
-    // }
+    Rectangle {
+        color:              "transparent"
+        border.color:       "red"
+        border.width:       3
+        visible:            _camera.trackingImageRect.width > 0.01 || isNaN(_camera.trackingImageRect.bottom)
+        x: aiParentItem.x + _camera.trackingImageRect.x * aiParentItem.width
+        y: aiParentItem.y + _camera.trackingImageRect.y * aiParentItem.height
+        width: _camera.trackingImageRect.width * aiParentItem.width
+        height: !isNaN(_camera.trackingImageRect.bottom) ? _camera.trackingImageRect.height * aiParentItem.height : width
+        radius: !isNaN(_camera.trackingImageRect.bottom) ? 0 : (width / 2)
+    }
 
+    // MouseArea {
+    //     id: trackingClickArea
+    //     anchors.fill: parent
+    //     z: 1
+    //     hoverEnabled: true
+    //     acceptedButtons: Qt.AllButtons
+    //     enabled: true
+    //     // cursorShape: Qt.CrossCursor
 
-    // Item {
-    //     id: videoContentOverlayItem
-    //     x: videoContentLoader.x
-    //     y: videoContentLoader.y
-    //     width: videoContentLoader.width
-    //     height: videoContentLoader.height
+    //     onClicked: {
+    //         var normX = mouse.x / width
+    //         var normY = mouse.y / height
+    //         var radius = 0.1
 
-    //     QGCColoredImage {
-    //         anchors.centerIn: parent
-    //         width:              ScreenTools.defaultFontPixelWidth * 4
-    //         height:             width
-    //         sourceSize.height:  width
-    //         fillMode:           Image.PreserveAspectFit
-    //         color:              qgcPal.colorGreen
-    //         source:             "qrc:/qmlimages/cross_hair.svg"
-    //         visible:            _tofEN && _tofEN.value
+    //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
+
+    //         // Start tracking using the globally available camera
+    //         GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.1)
+    //         GlobalResults.setDetectionEnabled(false)
+    //         // Exit tracking mode
+    //         GlobalResults.trackingModeActive = false
     //     }
-
-    //     // AreaFrame {
-    //     //     width: parent.width / 15
-    //     //     height: parent.height / 15
-    //     //     x: _camera.spotMeteringArea.x * parent.width - width / 2
-    //     //     y: _camera.spotMeteringArea.y * parent.height - height / 2
-    //     //     color: qgcPal.colorOrange
-    //     //     icon: "qrc:/qmlimages/sun.svg"
-    //     //     visible: true//_camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0
-    //     // }
-
-    //     // TouchSelectArea {
-    //     //     anchors.fill: parent
-    //     //     enabled: parent.visible
-    //     //     enableRectangle: trackRadioButton.checked && !aiInThermal
-    //     //     enablePoint: spotAERadioButton.checked || (trackRadioButton.checked && !aiInThermal)
-    //     //     onTouchWithPointed: (x,y) => {
-    //     //         if(spotAERadioButton.checked) {
-    //     //             _camera.setSpotMetering(x, y)
-    //     //         } else if(_smartSelect && _smartSelect.value !== "None") {
-    //     //             var point = Qt.point(x, y)
-    //     //             _camera.startTracking(point, 1.0)
-    //     //             _camera.trackingEnabled = true
-    //     //         }
-    //     //     }
-    //     //     onTouchWithRectangled: (x1,y1,x2,y2) => {
-    //     //         var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
-    //     //         _camera.startTracking(rec)
-    //     //         _camera.trackingEnabled = true
-    //     //     }
-    //     //     onTouchDoubleClicked: {
-    //     //         QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
-    //     //     }
-    //     //     onTouchPressAndHold: (x,y) => {
-    //     //         if(!ScreenTools.isMobile) {
-    //     //             var point = Qt.point(x, y)
-    //     //             _camera.gimbalControlInImage(point)
-    //     //         }
-    //     //     }
-    //     // }
     // }
+
+
+    Item {
+        id: videoContentOverlayItem
+        x: videoContentLoader.x
+        y: videoContentLoader.y
+        width: videoContentLoader.width
+        height: videoContentLoader.height
+
+        QGCColoredImage {
+            anchors.centerIn: parent
+            width:              ScreenTools.defaultFontPixelWidth * 4
+            height:             width
+            sourceSize.height:  width
+            fillMode:           Image.PreserveAspectFit
+            color:              qgcPal.colorGreen
+            source:             "qrc:/qmlimages/cross_hair.svg"
+            visible:            _tofEN && _tofEN.value
+        }
+
+        AreaFrame {
+            width: parent.width / 15
+            height: parent.height / 15
+            x: _camera.spotMeteringArea.x * parent.width - width / 2
+            y: _camera.spotMeteringArea.y * parent.height - height / 2
+            color: qgcPal.colorOrange
+            icon: "qrc:/qmlimages/sun.svg"
+            visible: _camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0
+        }
+
+        TouchSelectArea {
+            anchors.fill: parent
+            enabled: parent.visible
+            enableRectangle: trackRadioButton.checked && !aiInThermal
+            enablePoint: spotAERadioButton.checked || (trackRadioButton.checked && !aiInThermal)
+            onTouchWithPointed: (x,y) => {
+                if(spotAERadioButton.checked) {
+                    _camera.setSpotMetering(x, y)
+                } else if(_smartSelect && _smartSelect.value !== "None") {
+                    var point = Qt.point(x, y)
+                    _camera.startTracking(point, 1.0)
+                    _camera.trackingEnabled = true
+                }
+            }
+            onTouchWithRectangled: (x1,y1,x2,y2) => {
+                var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                _camera.startTracking(rec)
+                _camera.trackingEnabled = true
+            }
+            onTouchDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+            }
+            onTouchPressAndHold: (x,y) => {
+                if(!ScreenTools.isMobile) {
+                    var point = Qt.point(x, y)
+                    _camera.gimbalControlInImage(point)
+                }
+            }
+        }
+    }
 
     DeadMouseArea {
         x: thermalItem.x
@@ -230,22 +255,22 @@ Item {
             width: ScreenTools.defaultFontPixelWidth
             radius: width / 2
             height: width
-            color: qgcPal.colorBlue//_camera.tempType !== 2 ? qgcPal.colorBlue : qgcPal.colorGreen
+            color: _camera.tempType !== 2 ? qgcPal.colorBlue : qgcPal.colorGreen
             border.width: 1
             border.color: "white"
             visible: _thermometry && _thermometry.value
 
-            // QGCLabel {
-            //     property bool useRight: _camera.minTempX < 0.67
-            //     text: _camera ? _camera.minTemp.toFixed(1) : ""
-            //     anchors.verticalCenter: parent.verticalCenter
-            //     anchors.left: useRight ? parent.right : undefined
-            //     anchors.right: useRight ? undefined : parent.left
-            //     anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
-            //     anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.5
-            //     visible: text.length !== 0
-            //     style: Text.Outline; styleColor: qgcPal.window
-            // }
+            QGCLabel {
+                property bool useRight: _camera.minTempX < 0.67
+                text: _camera ? _camera.minTemp.toFixed(1) : ""
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: useRight ? parent.right : undefined
+                anchors.right: useRight ? undefined : parent.left
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
+                anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.5
+                visible: text.length !== 0
+                style: Text.Outline; styleColor: qgcPal.window
+            }
         }
         Rectangle {
             id: maxTempRect
@@ -259,51 +284,53 @@ Item {
             border.color: "white"
             visible: _thermometry && _thermometry.value && _camera.tempType !== 2
 
-            // QGCLabel {
-            //     property bool useRight: _camera.maxTempX < 0.67
-            //     text: _camera ? _camera.maxTemp.toFixed(1) : ""
-            //     anchors.verticalCenter: parent.verticalCenter
-            //     anchors.left: useRight ? parent.right : undefined
-            //     anchors.right: useRight ? undefined : parent.left
-            //     anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
-            //     anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.5
-            //     visible: text.length !== 0
-            //     style: Text.Outline; styleColor: qgcPal.window
-            // }
+            QGCLabel {
+                property bool useRight: _camera.maxTempX < 0.67
+                text: _camera ? _camera.maxTemp.toFixed(1) : ""
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: useRight ? parent.right : undefined
+                anchors.right: useRight ? undefined : parent.left
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 0.5
+                anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.5
+                visible: text.length !== 0
+                style: Text.Outline; styleColor: qgcPal.window
+            }
         }
-        // Rectangle {
-        //     x: _camera.rectTempX1 * parent.width
-        //     y: _camera.rectTempY1 * parent.height
-        //     width: (_camera.rectTempX2 - _camera.rectTempX1) * parent.width
-        //     height: (_camera.rectTempY2 - _camera.rectTempY1) * parent.height
-        //     color: "transparent"
-        //     border.width: 1
-        //     border.color: "white"
-        //     visible: _thermometry && _thermometry.value && _camera.tempType === 4
-        // }
+        Rectangle {
+            x: _camera.rectTempX1 * parent.width
+            y: _camera.rectTempY1 * parent.height
+            width: (_camera.rectTempX2 - _camera.rectTempX1) * parent.width
+            height: (_camera.rectTempY2 - _camera.rectTempY1) * parent.height
+            color: "transparent"
+            border.width: 1
+            border.color: "white"
+            visible: _thermometry && _thermometry.value && _camera.tempType === 4
+        }
 
-        // TouchSelectArea {
-        //     anchors.fill: parent
-        //     enabled: parent.visible && (_thermometry && _thermometry.value || trackRadioButton.checked && aiInThermal)
-        //     onTouchWithPointed: (x,y) => {
-        //         if(_thermometry && _thermometry.value) {
-        //             _camera.setSpotTempPoint(x, y)
-        //         } else if(aiInThermal) {
-        //             var point = Qt.point(x, y)
-        //             _camera.startTracking(point, 1.0)
-        //             _camera.trackingEnabled = true
-        //         }
-        //     }
-        //     onTouchWithRectangled: (x1,y1,x2,y2) => {
-        //         if(_thermometry && _thermometry.value) {
-        //             _camera.setAreaTempRect(x1,y1,x2,y2)
-        //         } else if(aiInThermal) {
-        //            var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
-        //            _camera.startTracking(rec)
-        //            _camera.trackingEnabled = true
-        //         }
-        //     }
-        // }
+        TouchSelectArea {
+            anchors.fill: parent
+            enabled: parent.visible && (_thermometry && _thermometry.value || trackRadioButton.checked && aiInThermal)
+            onTouchWithPointed: (x,y) => {
+                if(_thermometry && _thermometry.value) {
+                    _camera.setSpotTempPoint(x, y)
+                                        console.log("setSpotTemp Point = ", x, y)
+                                        //cameraRhythm.setSpotTempPoint(x, y)
+                } else if(aiInThermal) {
+                    var point = Qt.point(x, y)
+                    _camera.startTracking(point, 1.0)
+                    _camera.trackingEnabled = true
+                }
+            }
+            onTouchWithRectangled: (x1,y1,x2,y2) => {
+                if(_thermometry && _thermometry.value) {
+                    _camera.setAreaTempRect(x1,y1,x2,y2)
+                } else if(aiInThermal) {
+                   var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                   _camera.startTracking(rec)
+                   _camera.trackingEnabled = true
+                }
+            }
+        }
     }
 
     Rectangle {
@@ -311,7 +338,7 @@ Item {
         width: irToolsPanel.width + ScreenTools.defaultFontPixelWidth
         height: irToolsPanel.height + ScreenTools.defaultFontPixelWidth * 2
         anchors.centerIn: irToolsPanel
-        color: qgcPal.windowShade//Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.75)
+        color: Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.75)
         radius: 4
         DeadMouseArea {
             anchors.fill: parent
@@ -320,7 +347,7 @@ Item {
         DropPanel {
             id:         dropPanel
             toolStrip:  parent
-            //dropDirection: dropPanel.dropUp
+            dropDirection: dropPanel.dropUp
         }
     }
 
@@ -332,166 +359,166 @@ Item {
         anchors.rightMargin: ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
 
-        // PseudocolorBar {
-        //     id: pseudocolorBar
-        //     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-        //     Layout.fillHeight: true
-        //     width: ScreenTools.defaultFontPixelHeight * 6
-        //     orientation: Gradient.Horizontal
-        //     visible: true//thermalItem.visible && _pseudocolor
-        //     Component.onCompleted: if(_pseudocolor) setPseudocolorBarIndex(_pseudocolor.enumIndex)
-        //     Connections {
-        //         target: _pseudocolor
-        //         function onValueChanged() {
-        //             pseudocolorBar.setPseudocolorBarIndex(_pseudocolor.enumIndex)
-        //         }
-        //     }
-        //     onVisibleChanged: {
-        //         if(visible) {
-        //             dropPanel.hide()
-        //         }
-        //     }
-        //     Component {
-        //         id: pseudocolorDropPanel
-        //         GridLayout {
-        //             columns: 4
-        //             Repeater {
-        //                 model: _pseudocolor ? _pseudocolor.enumValues : null
-        //                 Rectangle {
-        //                     width: pseudocolorImage.width + ScreenTools.defaultFontPixelWidth * 2
-        //                     height: pseudocolorImage.height + pseudocolorNameLabel.height + ScreenTools.defaultFontPixelWidth
-        //                     radius: 2
-        //                     color: _pseudocolor.enumIndex === index ? qgcPal.buttonHighlight : "transparent"
+        PseudocolorBar {
+            id: pseudocolorBar
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+            Layout.fillHeight: true
+            width: ScreenTools.defaultFontPixelHeight * 6
+            orientation: Gradient.Horizontal
+            visible: thermalItem.visible && _pseudocolor
+            Component.onCompleted: if(_pseudocolor) setPseudocolorBarIndex(_pseudocolor.enumIndex)
+            Connections {
+                target: _pseudocolor
+                function onValueChanged() {
+                    pseudocolorBar.setPseudocolorBarIndex(_pseudocolor.enumIndex)
+                }
+            }
+            onVisibleChanged: {
+                if(visible) {
+                    dropPanel.hide()
+                }
+            }
+            Component {
+                id: pseudocolorDropPanel
+                GridLayout {
+                    columns: 4
+                    Repeater {
+                        model: _pseudocolor ? _pseudocolor.enumValues : null
+                        Rectangle {
+                            width: pseudocolorImage.width + ScreenTools.defaultFontPixelWidth * 2
+                            height: pseudocolorImage.height + pseudocolorNameLabel.height + ScreenTools.defaultFontPixelWidth
+                            radius: 2
+                            color: _pseudocolor.enumIndex === index ? qgcPal.buttonHighlight : "transparent"
 
-        //                     Image {
-        //                         id: pseudocolorImage
-        //                         anchors.top:        parent.top
-        //                         anchors.left:       parent.left
-        //                         anchors.margins:    ScreenTools.defaultFontPixelWidth
-        //                         width:              ScreenTools.defaultFontPixelWidth * 12
-        //                         source:             "qrc:/R3Palette/" + modelData
-        //                         sourceSize.width:   width
-        //                         fillMode:           Image.PreserveAspectFit
-        //                         mipmap:             true
-        //                     }
+                            Image {
+                                id: pseudocolorImage
+                                anchors.top:        parent.top
+                                anchors.left:       parent.left
+                                anchors.margins:    ScreenTools.defaultFontPixelWidth
+                                width:              ScreenTools.defaultFontPixelWidth * 12
+                                source:             "qrc:/R3Palette/" + modelData
+                                sourceSize.width:   width
+                                fillMode:           Image.PreserveAspectFit
+                                mipmap:             true
+                            }
 
-        //                     QGCLabel {
-        //                         id:                     pseudocolorNameLabel
-        //                         anchors.top:            pseudocolorImage.bottom
-        //                         anchors.horizontalCenter: parent.horizontalCenter
-        //                         text:                   _pseudocolor.enumStrings[index]
-        //                         color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
-        //                     }
+                            QGCLabel {
+                                id:                     pseudocolorNameLabel
+                                anchors.top:            pseudocolorImage.bottom
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:                   _pseudocolor.enumStrings[index]
+                                color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
+                            }
 
-        //                     MouseArea {
-        //                         anchors.fill: parent
-        //                         onClicked: {
-        //                             _pseudocolor.enumIndex = index
-        //                             dropPanel.hide()
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     MouseArea {
-        //         anchors.fill: parent
-        //         onClicked: {
-        //             if(!pseudocolorBar.checked) {
-        //                 pseudocolorBar.checked = true
-        //                 var panelEdgeTopPoint = mapToItem(irToolsPanel, 0, 0)
-        //                 dropPanel.show(panelEdgeTopPoint, pseudocolorDropPanel, pseudocolorBar)
-        //             } else {
-        //                 dropPanel.hide()
-        //             }
-        //         }
-        //     }
-        // }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    _pseudocolor.enumIndex = index
+                                    dropPanel.hide()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if(!pseudocolorBar.checked) {
+                        pseudocolorBar.checked = true
+                        var panelEdgeTopPoint = mapToItem(irToolsPanel, 0, 0)
+                        dropPanel.show(panelEdgeTopPoint, pseudocolorDropPanel, pseudocolorBar)
+                    } else {
+                        dropPanel.hide()
+                    }
+                }
+            }
+        }
 
-        // ToolRadioButton {
-        //     Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-        //     checked: _thermometry ? _thermometry.value : false
-        //     visible: thermalItem.visible
-        //     source: {
-        //         if(!checked) {
-        //             return "qrc:/qmlimages/thermometry.svg"
-        //         }
-        //         if(_camera.tempType === 2) {
-        //             return "qrc:/qmlimages/spot_thermometry.svg"
-        //         } else if(_camera.tempType === 4) {
-        //             return "qrc:/qmlimages/area_thermometry.svg"
-        //         } else {
-        //             return "qrc:/qmlimages/thermometry.svg"
-        //         }
-        //     }
-        //     onClicked: {
-        //         _thermometry.value = !_thermometry.value
-        //     }
-        // }
+        ToolRadioButton {
+            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
+            checked: _thermometry ? _thermometry.value : false
+            visible: thermalItem.visible
+            source: {
+                if(!checked) {
+                    return "qrc:/qmlimages/thermometry.svg"
+                }
+                if(_camera.tempType === 2) {
+                    return "qrc:/qmlimages/spot_thermometry.svg"
+                } else if(_camera.tempType === 4) {
+                    return "qrc:/qmlimages/area_thermometry.svg"
+                } else {
+                    return "qrc:/qmlimages/thermometry.svg"
+                }
+            }
+            onClicked: {
+                _thermometry.value = !_thermometry.value
+            }
+        }
 
-        // ToolRadioButton {
-        //     Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-        //     checked: _tofEN ? _tofEN.value : false
-        //     visible: _tofEN
-        //     source: "qrc:/qmlimages/rangefinder.svg"
-        //     onClicked: {
-        //         _tofEN.value = !_tofEN.value
-        //     }
-        // }
+        ToolRadioButton {
+            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
+            checked: _tofEN ? _tofEN.value : false
+            visible: _tofEN
+            source: "qrc:/qmlimages/rangefinder.svg"
+            onClicked: {
+                _tofEN.value = !_tofEN.value
+            }
+        }
 
-        // ToolRadioButton {
-        //     id: spotAERadioButton
-        //     Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-        //     checked: false //_camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0 || spotMeteringEnable
-        //     visible: _spotAE
-        //     source: "qrc:/qmlimages/sun.svg"
-        //     onClicked: {
-        //         if(checked) {
-        //             spotMeteringEnable = false
-        //             _camera.setSpotMetering(0, 0)
-        //         } else {
-        //             spotMeteringEnable = true
-        //         }
-        //     }
-        // }
+        ToolRadioButton {
+            id: spotAERadioButton
+            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
+            checked: _camera.spotMeteringArea.x !== 0 || _camera.spotMeteringArea.y !== 0 || spotMeteringEnable
+            visible: _spotAE
+            source: "qrc:/qmlimages/sun.svg"
+            onClicked: {
+                if(checked) {
+                    spotMeteringEnable = false
+                    _camera.setSpotMetering(0, 0)
+                } else {
+                    spotMeteringEnable = true
+                }
+            }
+        }
 
-        // ToolRadioButton {
-        //     id: trackRadioButton
-        //     Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-        //     checked: _trackAlg ? _trackAlg.value !== "None" : false
-        //     visible: _trackAlg && !_camera.busyInDetectSetup && !_camera.busyInTrackSetup
-        //     color: checked && enabled ? (_camera.trackingEnabled ? qgcPal.buttonHighlight : qgcPal.colorOrange) : "transparent"
-        //     source: _smartSelect && _smartSelect.value !== "None" ? "qrc:/qmlimages/smartSelect.svg" : "qrc:/qmlimages/focus.svg"
-        //     onClicked: {
-        //         if(_camera.trackingEnabled) {
-        //             _camera.trackingEnabled = false
-        //             _camera.stopTracking()
-        //         } else {
-        //             if(!checked) {
-        //                 _camera.initTracker()
-        //             } else {
-        //                 _camera.deinitTracker()
-        //             }
-        //         }
-        //     }
-        //     onCheckedChanged: {
-        //         if(checked) {
-        //             trackRadioButton.enabled = Qt.binding(function() { return _camera.trackingImageStatus })
-        //         } else {
-        //             _camera.trackingEnabled = false
-        //         }
-        //     }
+        ToolRadioButton {
+            id: trackRadioButton
+            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
+            checked: _trackAlg ? _trackAlg.value !== "None" : false
+            visible: _trackAlg && !_camera.busyInDetectSetup && !_camera.busyInTrackSetup
+            color: checked && enabled ? (_camera.trackingEnabled ? qgcPal.buttonHighlight : qgcPal.colorOrange) : "transparent"
+            source: _smartSelect && _smartSelect.value !== "None" ? "qrc:/qmlimages/smartSelect.svg" : "qrc:/qmlimages/focus.svg"
+            onClicked: {
+                if(_camera.trackingEnabled) {
+                    _camera.trackingEnabled = false
+                    _camera.stopTracking()
+                } else {
+                    if(!checked) {
+                        _camera.initTracker()
+                    } else {
+                        _camera.deinitTracker()
+                    }
+                }
+            }
+            onCheckedChanged: {
+                if(checked) {
+                    trackRadioButton.enabled = Qt.binding(function() { return _camera.trackingImageStatus })
+                } else {
+                    _camera.trackingEnabled = false
+                }
+            }
 
-        //     Timer {
-        //         id: trakerTimer
-        //         interval: 30000
-        //         running: trackRadioButton.checked
-        //         repeat: false
-        //         onTriggered: {
-        //             trackRadioButton.enabled = true
-        //         }
-        //     }
-        // }
+            Timer {
+                id: trakerTimer
+                interval: 30000
+                running: trackRadioButton.checked
+                repeat: false
+                onTriggered: {
+                    trackRadioButton.enabled = true
+                }
+            }
+        }
 
         // QGCBusyIndicator {
         //     Layout.fillHeight: true
@@ -504,75 +531,75 @@ Item {
         // }
     }
 
-    // Rectangle {
-    //     anchors.top: parent.top
-    //     anchors.topMargin: -2
-    //     anchors.horizontalCenter: parent.horizontalCenter
-    //     width: rfToolRow.width + ScreenTools.defaultFontPixelWidth * 2
-    //     height: rfToolRow.height + ScreenTools.defaultFontPixelWidth
-    //     opacity: rfToolRow.visible ? 1 : 0
-    //     radius: 2
-    //     color: Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.75)
-    //     DeadMouseArea {
-    //         anchors.fill: parent
-    //     }
-    //     Row {
-    //         id: rfToolRow
-    //         anchors.centerIn: parent
-    //         anchors.verticalCenterOffset: 1
-    //         spacing: ScreenTools.defaultFontPixelWidth * 0.5
-    //         visible: (_tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _camera.trackingEnabled
-    //         QGCLabel {
-    //             text: qsTr("RF:")
-    //             visible: (_tofEN && _tofEN.value)
-    //         }
-    //         QGCLabel {
-    //             text: _camera.targetDistance.toFixed(1) + " m"
-    //             horizontalAlignment: Text.AlignRight
-    //             width: ScreenTools.defaultFontPixelWidth * 6
-    //             visible: (_tofEN && _tofEN.value)
-    //         }
-    //         QGCLabel {
-    //             text: visible ? _camera.targetCoordinate.latitude.toFixed(7) + "," + _camera.targetCoordinate.longitude.toFixed(7) + "," + _camera.targetCoordinate.altitude.toFixed(1) : ""
-    //             visible: _camera.targetCoordinate && _camera.targetCoordinate.isValid && (_tofEN && _tofEN.value)
-    //         }
-    //         QGCLabel {
-    //             text: qsTr("TrackScore:")
-    //             visible: _camera.trackingEnabled
-    //         }
-    //         QGCLabel {
-    //             text: _camera.trackScore.toFixed(2)
-    //             horizontalAlignment: Text.AlignRight
-    //             width: ScreenTools.defaultFontPixelWidth * 5
-    //             visible: _camera.trackingEnabled
-    //         }
-    //         QGCLabel {
-    //             text: qsTr("Temp:")
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //         QGCLabel {
-    //             text: _camera.boardTemp.toFixed(1) + "°C"
-    //             horizontalAlignment: Text.AlignRight
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //         QGCLabel {
-    //             text: qsTr("CPU:")
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //         QGCLabel {
-    //             text: _camera.cpuUsage.toFixed(1) + "%"
-    //             horizontalAlignment: Text.AlignRight
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //         QGCLabel {
-    //             text: qsTr("MEM:")
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //         QGCLabel {
-    //             text: _camera.memUsage.toFixed(1) + "%"
-    //             horizontalAlignment: Text.AlignRight
-    //             visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
-    //         }
-    //     }
-    // }
+    Rectangle {
+        anchors.top: parent.top
+        anchors.topMargin: -2
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: rfToolRow.width + ScreenTools.defaultFontPixelWidth * 2
+        height: rfToolRow.height + ScreenTools.defaultFontPixelWidth
+        opacity: rfToolRow.visible ? 1 : 0
+        radius: 2
+        color: Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.75)
+        DeadMouseArea {
+            anchors.fill: parent
+        }
+        Row {
+            id: rfToolRow
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: 1
+            spacing: ScreenTools.defaultFontPixelWidth * 0.5
+            visible: (_tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _camera.trackingEnabled
+            QGCLabel {
+                text: qsTr("RF:")
+                visible: (_tofEN && _tofEN.value)
+            }
+            QGCLabel {
+                text: _camera.targetDistance.toFixed(1) + " m"
+                horizontalAlignment: Text.AlignRight
+                width: ScreenTools.defaultFontPixelWidth * 6
+                visible: (_tofEN && _tofEN.value)
+            }
+            QGCLabel {
+                text: visible ? _camera.targetCoordinate.latitude.toFixed(7) + "," + _camera.targetCoordinate.longitude.toFixed(7) + "," + _camera.targetCoordinate.altitude.toFixed(1) : ""
+                visible: _camera.targetCoordinate && _camera.targetCoordinate.isValid && (_tofEN && _tofEN.value)
+            }
+            QGCLabel {
+                text: qsTr("TrackScore:")
+                visible: _camera.trackingEnabled
+            }
+            QGCLabel {
+                text: _camera.trackScore.toFixed(2)
+                horizontalAlignment: Text.AlignRight
+                width: ScreenTools.defaultFontPixelWidth * 5
+                visible: _camera.trackingEnabled
+            }
+            QGCLabel {
+                text: qsTr("Temp:")
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+            QGCLabel {
+                text: _camera.boardTemp.toFixed(1) + "°C"
+                horizontalAlignment: Text.AlignRight
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+            QGCLabel {
+                text: qsTr("CPU:")
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+            QGCLabel {
+                text: _camera.cpuUsage.toFixed(1) + "%"
+                horizontalAlignment: Text.AlignRight
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+            QGCLabel {
+                text: qsTr("MEM:")
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+            QGCLabel {
+                text: _camera.memUsage.toFixed(1) + "%"
+                horizontalAlignment: Text.AlignRight
+                visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
+            }
+        }
+    }
 }

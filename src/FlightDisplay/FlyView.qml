@@ -59,6 +59,14 @@ Item {
     property real   _fullItemZorder:    0
     property real   _pipItemZorder:     QGroundControl.zOrderWidgets
 
+    property double _ar:                QGroundControl.videoManager.aspectRatio
+    property bool   _showGrid:          QGroundControl.settingsManager.videoSettings.gridLines.rawValue > 0
+    property var    _dynamicCameras:    globals.activeVehicle ? globals.activeVehicle.cameraManager : null
+    property bool   _connected:         globals.activeVehicle ? !globals.activeVehicle.communicationLost : false
+    property int    _curCameraIndex:    _dynamicCameras ? _dynamicCameras.currentCamera : 0
+    property bool   _isCamera:          _dynamicCameras ? _dynamicCameras.cameras.count > 0 : false
+    property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
+
     function _calcCenterViewPort() {
         var newToolInset = Qt.rect(0, 0, width, height)
         toolstrip.adjustToolInset(newToolInset)
@@ -175,4 +183,11 @@ Item {
         show:                   !QGroundControl.videoManager.fullScreen &&
                                     (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
     }
+
+    // Loader {
+    //     anchors.fill: parent
+    //     z: _fullItemZorder + 2
+    //     visible: !_mainWindowIsMap
+    //     source: "qrc:/qml/CodevCameraVisual.qml"
+    // }
 }

@@ -131,6 +131,13 @@ add_custom_target(QmlControlsQml
 		ToolStrip.qml
 		VehicleRotationCal.qml
 		VehicleSummaryRow.qml
+		QGCDelayButton.qml
+		QGCBusyIndicator.qml
+		AreaFrame.qml		
+		PseudocolorBar.qml
+		ToolRadioButton.qml
+		TouchSelectArea.qml
+		TargetObjectRectangles.qml
 )
 
 target_link_libraries(QmlControls

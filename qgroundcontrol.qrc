@@ -34,6 +34,11 @@
 		<file alias="CodevCameraVisual.qml">src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">src/M2Link/M2Settings.qml</file>
 		<!--<file alias="QGCBusyIndicator.qml">src/QmlControls/QGCBusyIndicator.qml</file> -->
+		<file alias="QGroundControl/Controls/PseudocolorBar.qml">src/QmlControls/PseudocolorBar.qml</file>
+		<file alias="QGroundControl/Controls/TouchSelectArea.qml">src/QmlControls/TouchSelectArea.qml</file>
+		<file alias="QGroundControl/Controls/ToolRadioButton.qml">src/QmlControls/ToolRadioButton.qml</file>
+		<file alias="QGroundControl/Controls/AreaFrame.qml">src/QmlControls/AreaFrame.qml</file>
+		<file alias="QGroundControl/Controls/TargetObjectRectangles.qml">src/QmlControls/TargetObjectRectangles.qml</file>
         <file alias="QGroundControl/Controls/HeightIndicator.qml">src/QmlControls/HeightIndicator.qml</file>
         <file alias="QGroundControl/Controls/QGCDynamicObjectManager.qml">src/QmlControls/QGCDynamicObjectManager.qml</file>
         <file alias="QGroundControl/Controls/QGCOptionsComboBox.qml">src/QmlControls/QGCOptionsComboBox.qml</file>

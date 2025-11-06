@@ -41,6 +41,7 @@ Item {
     property real   _viewportMaxHeight: _viewportMaxBottom - _viewportMaxTop
     property var    _dropPanelCancel
     property var    _parentButton
+    property int    dropDirection:     dropRight
 
     function show(panelEdgeTopPoint, panelComponent, parentButton) {
         _parentButton = parentButton
@@ -64,27 +65,78 @@ Item {
         var panelComponentWidth  = panelLoader.item.width
         var panelComponentHeight = panelLoader.item.height
 
-        dropDownItem.width  = panelComponentWidth  + (_dropMargin * 2) + _arrowPointWidth
-        dropDownItem.height = panelComponentHeight + (_dropMargin * 2)
+        // dropDownItem.width  = panelComponentWidth  + (_dropMargin * 2) + _arrowPointWidth
+        // dropDownItem.height = panelComponentHeight + (_dropMargin * 2)
 
-        dropDownItem.x = _dropEdgeTopPoint.x + _dropMargin
-        dropDownItem.y = _dropEdgeTopPoint.y -(dropDownItem.height / 2) + radius
+        // Calculate width and height based on drop direction
+        if (dropDirection === dropLeft || dropDirection === dropRight) {
+            dropDownItem.width  = panelComponentWidth  + (_dropMargin * 2) + _arrowPointWidth
+            dropDownItem.height = panelComponentHeight + (_dropMargin * 2)
+        } else {
+            dropDownItem.width  = panelComponentWidth  + (_dropMargin * 2)
+            dropDownItem.height = panelComponentHeight + (_dropMargin * 2) + _arrowPointWidth
+        }
+
+        // dropDownItem.x = _dropEdgeTopPoint.x + _dropMargin
+        // dropDownItem.y = _dropEdgeTopPoint.y -(dropDownItem.height / 2) + radius
+
+        // Set position based on drop direction
+        switch (dropDirection) {
+        case dropLeft:
+            dropDownItem.x = _dropEdgeTopPoint.x - dropDownItem.width - _dropMargin
+            dropDownItem.y = _dropEdgeTopPoint.y - (dropDownItem.height / 2) + radius
+            break
+        case dropRight:
+            dropDownItem.x = _dropEdgeTopPoint.x + _dropMargin
+            dropDownItem.y = _dropEdgeTopPoint.y - (dropDownItem.height / 2) + radius
+            break
+        case dropUp:
+            dropDownItem.x = _dropEdgeTopPoint.x - (dropDownItem.width / 2) + radius
+            dropDownItem.y = _dropEdgeTopPoint.y - dropDownItem.height - _dropMargin
+            break
+        case dropDown:
+        default:
+            dropDownItem.x = _dropEdgeTopPoint.x - (dropDownItem.width / 2) + radius
+            dropDownItem.y = _dropEdgeTopPoint.y + _dropMargin
+            break
+        }
 
         // Validate that dropdown is within viewport
-        dropDownItem.y = Math.min(dropDownItem.y + dropDownItem.height, _viewportMaxBottom) - dropDownItem.height
-        dropDownItem.y = Math.max(dropDownItem.y, _viewportMaxTop)
+        // dropDownItem.y = Math.min(dropDownItem.y + dropDownItem.height, _viewportMaxBottom) - dropDownItem.height
+        // dropDownItem.y = Math.max(dropDownItem.y, _viewportMaxTop)
+
+        if (dropDirection !== dropUp && dropDirection !== dropDown) {
+            dropDownItem.y = Math.min(dropDownItem.y + dropDownItem.height, _viewportMaxBottom) - dropDownItem.height
+            dropDownItem.y = Math.max(dropDownItem.y, _viewportMaxTop)
+        }
 
         // Adjust height to not exceed viewport bounds
         dropDownItem.height = Math.min(dropDownItem.height, _viewportMaxHeight - dropDownItem.y)
 
         // Arrow points
-        arrowCanvas.arrowPoint.y = (_dropEdgeTopPoint.y + radius) - dropDownItem.y
-        arrowCanvas.arrowPoint.x = 0
-        arrowCanvas.arrowBase1.x = _arrowPointWidth
-        arrowCanvas.arrowBase1.y = arrowCanvas.arrowPoint.y - (_arrowBaseHeight / 2)
-        arrowCanvas.arrowBase2.x = arrowCanvas.arrowBase1.x
-        arrowCanvas.arrowBase2.y = arrowCanvas.arrowBase1.y + _arrowBaseHeight
-        arrowCanvas.requestPaint()
+        // arrowCanvas.arrowPoint.y = (_dropEdgeTopPoint.y + radius) - dropDownItem.y
+        // arrowCanvas.arrowPoint.x = 0
+        // arrowCanvas.arrowBase1.x = _arrowPointWidth
+        // arrowCanvas.arrowBase1.y = arrowCanvas.arrowPoint.y - (_arrowBaseHeight / 2)
+        // arrowCanvas.arrowBase2.x = arrowCanvas.arrowBase1.x
+        // arrowCanvas.arrowBase2.y = arrowCanvas.arrowBase1.y + _arrowBaseHeight
+        // arrowCanvas.requestPaint()
+
+        if (dropDirection === dropLeft || dropDirection === dropRight) {
+            arrowCanvas.arrowPoint.y = (_dropEdgeTopPoint.y + radius) - dropDownItem.y
+            arrowCanvas.arrowPoint.x = (dropDirection === dropLeft) ? dropDownItem.width : 0
+            arrowCanvas.arrowBase1.x = (dropDirection === dropLeft) ? dropDownItem.width - _arrowPointWidth : _arrowPointWidth
+            arrowCanvas.arrowBase1.y = arrowCanvas.arrowPoint.y - (_arrowBaseHeight / 2)
+            arrowCanvas.arrowBase2.x = arrowCanvas.arrowBase1.x
+            arrowCanvas.arrowBase2.y = arrowCanvas.arrowBase1.y + _arrowBaseHeight
+        } else {
+            arrowCanvas.arrowPoint.x = (_dropEdgeTopPoint.x + radius) - dropDownItem.x
+            arrowCanvas.arrowPoint.y = (dropDirection === dropUp) ? dropDownItem.height : 0
+            arrowCanvas.arrowBase1.y = (dropDirection === dropUp) ? dropDownItem.height - _arrowPointWidth : _arrowPointWidth
+            arrowCanvas.arrowBase1.x = arrowCanvas.arrowPoint.x - (_arrowBaseHeight / 2)
+            arrowCanvas.arrowBase2.x = arrowCanvas.arrowBase1.x + _arrowBaseHeight
+            arrowCanvas.arrowBase2.y = arrowCanvas.arrowBase1.y
+        }
     } // function - _calcPositions
 
     QGCPalette { id: qgcPal }
@@ -116,24 +168,71 @@ Item {
             property point arrowBase1: Qt.point(0, 0)
             property point arrowBase2: Qt.point(0, 0)
 
-            onPaint: {
-                var panelX = _arrowPointWidth
-                var panelY = 0
-                var panelWidth = parent.width - _arrowPointWidth
-                var panelHeight = parent.height
+            onPaint: {                
 
                 var context = getContext("2d")
                 context.reset()
                 context.beginPath()
 
-                context.moveTo(panelX, panelY)                              // top left
-                context.lineTo(panelX + panelWidth, panelY)                 // top right
-                context.lineTo(panelX + panelWidth, panelX + panelHeight)   // bottom right
-                context.lineTo(panelX, panelY + panelHeight)                // bottom left
-                context.lineTo(arrowBase2.x, arrowBase2.y)
-                context.lineTo(arrowPoint.x, arrowPoint.y)
-                context.lineTo(arrowBase1.x, arrowBase1.y)
-                context.lineTo(panelX, panelY)                              // top left
+                switch (dropDirection) {
+                case dropRight:
+                    var panelX = _arrowPointWidth
+                    var panelY = 0
+                    var panelWidth = parent.width - _arrowPointWidth
+                    var panelHeight = parent.height
+                    context.moveTo(panelX, panelY)                              // top left
+                    context.lineTo(panelX + panelWidth, panelY)                 // top right
+                    context.lineTo(panelX + panelWidth, panelY + panelHeight)   // bottom right
+                    context.lineTo(panelX, panelY + panelHeight)                // bottom left
+                    context.lineTo(arrowBase2.x, arrowBase2.y)
+                    context.lineTo(arrowPoint.x, arrowPoint.y)
+                    context.lineTo(arrowBase1.x, arrowBase1.y)
+                    context.lineTo(panelX, panelY)                              // top left
+                    break
+                case dropLeft:
+                    var panelX = 0
+                    var panelY = 0
+                    var panelWidth = parent.width - _arrowPointWidth
+                    var panelHeight = parent.height
+                    context.moveTo(panelX, panelY)                              // top left
+                    context.lineTo(panelX + panelWidth, panelY)                 // top right
+                    context.lineTo(arrowBase1.x, arrowBase1.y)
+                    context.lineTo(arrowPoint.x, arrowPoint.y)
+                    context.lineTo(arrowBase2.x, arrowBase2.y)
+                    context.lineTo(panelX + panelWidth, panelY + panelHeight)   // bottom right
+                    context.lineTo(panelX, panelY + panelHeight)                // bottom left
+                    context.lineTo(panelX, panelY)                              // top left
+                    break
+                case dropUp:
+                    var panelX = 0
+                    var panelY = 0
+                    var panelWidth = parent.width
+                    var panelHeight = parent.height - _arrowPointWidth
+                    context.moveTo(panelX, panelY)                              // top left
+                    context.lineTo(panelX + panelWidth, panelY)                 // top right
+                    context.lineTo(panelX + panelWidth, panelY + panelHeight)   // bottom right
+                    context.lineTo(arrowBase2.x, arrowBase2.y)
+                    context.lineTo(arrowPoint.x, arrowPoint.y)
+                    context.lineTo(arrowBase1.x, arrowBase1.y)
+                    context.lineTo(panelX, panelY + panelHeight)                // bottom left
+                    context.lineTo(panelX, panelY)                              // top left
+                    break
+                case dropDown:
+                    var panelX = 0
+                    var panelY = _arrowPointWidth
+                    var panelWidth = parent.width
+                    var panelHeight = parent.height - _arrowPointWidth
+                    context.moveTo(panelX, panelY)                              // top left
+                    context.lineTo(arrowBase1.x, arrowBase1.y)
+                    context.lineTo(arrowPoint.x, arrowPoint.y)
+                    context.lineTo(arrowBase2.x, arrowBase2.y)
+                    context.lineTo(panelX + panelWidth, panelY)                 // top right
+                    context.lineTo(panelX + panelWidth, panelY + panelHeight)   // bottom right
+                    context.lineTo(panelX, panelY + panelHeight)                // bottom left
+                    context.lineTo(panelX, panelY)                              // top left
+                default:
+                    break
+                }
 
                 context.closePath()
                 context.fillStyle = qgcPal.windowShade
@@ -143,8 +242,10 @@ Item {
 
         QGCFlickable {
             id:                 panelItemFlickable
-            anchors.margins:    _dropMargin
-            anchors.leftMargin: _dropMargin + _arrowPointWidth
+            anchors.leftMargin: (dropDirection === dropRight) ? _dropMargin + _arrowPointWidth : _dropMargin
+            anchors.rightMargin: (dropDirection === dropLeft) ? _dropMargin + _arrowPointWidth : _dropMargin
+            anchors.topMargin: (dropDirection === dropDown) ? _dropMargin + _arrowPointWidth : _dropMargin
+            anchors.bottomMargin: (dropDirection === dropUp) ? _dropMargin + _arrowPointWidth : _dropMargin
             anchors.fill:       parent
             flickableDirection: Flickable.VerticalFlick
             contentWidth:       panelLoader.width

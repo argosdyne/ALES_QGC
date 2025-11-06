@@ -35,79 +35,12 @@ Item {
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
     property bool   _hasZoom:           _camera && _camera.hasZoom
     property int    _fitMode:           QGroundControl.settingsManager.videoSettings.videoFit.rawValue
-    property bool detectionEnabled: GlobalResults.detectionEnabled
-    property var cameraRhythm   // <-- receive it here
-    
+
     function getWidth() {
         return videoBackground.getWidth()
     }
     function getHeight() {
         return videoBackground.getHeight()
-    }
-
-    // Tracking overlay
-    Item {
-        id: trackingOverlay
-        anchors.fill: parent
-        z: 2
-        visible: GlobalResults.trackingObjects.length > 0
-
-        Repeater {
-            id: trackingRepeater
-            model: GlobalResults.trackingObjects
-            delegate: Rectangle {
-                width: (modelData.rec_bottom_x - modelData.rec_top_x) * parent.width
-                height: (modelData.rec_bottom_y - modelData.rec_top_y) * parent.height
-                x: modelData.rec_top_x * parent.width
-                y: modelData.rec_top_y * parent.height
-
-                color: "transparent"
-                border.color: "blue"  // Tracking rectangle color
-                border.width: 2
-                z: 2 // Ensure it's on top
-            }
-        }
-    }
-
-        // Add this item to wrap your Repeater
-    Item {
-        id: detectionOverlay
-        anchors.fill: parent
-        z: 2
-        visible: root.detectionEnabled && QGroundControl.videoManager.decoding
-
-        Repeater {
-            id: bboxRepeater
-            // model: GlobalResults.detectionObjects
-
-            model: root.detectionEnabled ? GlobalResults.detectionObjects : []
-
-
-            delegate: Rectangle {
-                width: modelData.width * parent.width
-                height: modelData.height * parent.height
-                x: modelData.x * parent.width
-                y: modelData.y * parent.height
-                color: "transparent"
-                // border.color: "red"
-                border.color: GlobalResults.getColorForType(modelData.type) // Use type-specific color
-                border.width: 2
-                z: 2 // Ensure it's on top
-
-                Text {
-                    // text: `${modelData.type}, ${modelData.score.toFixed(1)}%`
-                    text: `${GlobalResults.getClassName(modelData.type)}, ${modelData.score.toFixed(1)}%`
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    // color: "white"
-                    color: GlobalResults.getColorForType(modelData.type) // Text color matches bounding box
-                    font.pixelSize: 15
-                    font.bold: true
-                    font.weight: Font.ExtraBold
-                    padding: 5
-                }
-            }
-        }
     }
 
     property double _thermalHeightFactor: 0.85 //-- TODO
@@ -210,6 +143,7 @@ Item {
             // we don't load a QGCVideoBackground object when video is disabled. This prevents any video rendering
             // code from running. Setting QGCVideoBackground.receiver = null does not work to prevent any
             // video OpenGL from being generated. Hence the Loader to completely remove it.
+            id: videoContentLoader
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
@@ -258,6 +192,7 @@ Item {
                 opacity:        _camera ? (_camera.thermalMode === QGCCameraControl.THERMAL_BLEND ? _camera.thermalOpacity / 100 : 1.0) : 0
             }
         }
+
         //-- Zoom
         PinchArea {
             id:             pinchZoom
@@ -279,13 +214,34 @@ Item {
             }
             property int zoom: 0
         }
+
+        QGCLabel {
+            text: qsTr("Double-click to exit full screen")
+            font.pointSize: ScreenTools.largeFontPointSize
+            visible: QGroundControl.videoManager.fullScreen
+            anchors.centerIn: parent
+
+            onVisibleChanged: {
+                if (visible) {
+                    labelAnimation.start()
+                }
+            }
+
+            PropertyAnimation on opacity {
+                id: labelAnimation
+                duration: 10000
+                from: 1.0
+                to: 0.0
+                easing.type: Easing.InExpo
+            }
+        }
+
         //-- Camera Extra Controls QML
         Loader {
             anchors.fill: parent
-            source: _camera ? _camera.extraControlsQml : ""
-            Component.onCompleted: {
-                console.log("camera extraControlsQml load clear")
-            }
+            //source: _camera ? _camera.extraControlsQml : ""
+            source: _camera.extraControlsQml
+
         }
     }
 }

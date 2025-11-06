@@ -121,3 +121,9 @@ VehicleSummaryRow                       1.0 VehicleSummaryRow.qml
 MAVLinkChart                            1.0 MAVLinkChart.qml
 QGCDelayButton                          1.0 QGCDelayButton.qml
 QGCBusyIndicator                        1.0 QGCBusyIndicator.qml
+
+AreaFrame								1.0 AreaFrame.qml		
+PseudocolorBar							1.0 PseudocolorBar.qml
+ToolRadioButton							1.0 ToolRadioButton.qml
+TouchSelectArea							1.0 TouchSelectArea.qml
+TargetObjectRectangles					1.0 TargetObjectRectangles.qml

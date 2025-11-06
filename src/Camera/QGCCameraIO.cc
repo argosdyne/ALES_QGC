@@ -363,6 +363,16 @@ QGCCameraParamIO::paramRequest(bool reset)
                 static_cast<uint8_t>(_control->compID()),
                 param_id,
                 -1);
+
+    //qCDebug(CameraIOLog)
+    //    << "[paramRequest]"
+    //    << "fact:" << _fact->name()
+    //    << "vehicle id:" << _vehicle->id()
+    //    << "control compID:" << _control->compID()
+    //    << "mavlink sysid:" << _pMavlink->getSystemId()
+    //    << "mavlink compid:" << _pMavlink->getComponentId()
+    //    << "channel:" << _control->_link->mavlinkChannel()
+    //    << "link:" << _control->_link;
     _vehicle->sendMessageOnLinkThreadSafe(_control->_link, msg);
     _paramRequestTimer.start();
 }

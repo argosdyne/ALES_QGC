@@ -218,7 +218,7 @@ public:
     Q_PROPERTY(QGeoCoordinate targetCoordinate READ targetCoordinate NOTIFY targetCoordinateChanged)
     Q_PROPERTY(float targetDistance READ targetDistance NOTIFY targetDistanceChanged)
     int photoIndex() { return _photoIndex; }
-    virtual QString extraControlsQml() const { return QString(""); }
+    virtual QString extraControlsQml() const { return QString("qrc:/qml/CodevCameraVisual.qml"); }
     QGeoCoordinate targetCoordinate() { return _targetCoordinate; }
     float targetDistance() { return _targetDistance; }
 

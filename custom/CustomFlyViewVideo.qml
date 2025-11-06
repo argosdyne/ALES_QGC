@@ -13,11 +13,13 @@ import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.Controllers   1.0
 import QGroundControl.ScreenTools   1.0
-import QGroundControl.Palette               1.0
 
 Item {
     id:         _root
     visible:    QGroundControl.videoManager.hasVideo
+
+    property int    _track_rec_x:       0
+    property int    _track_rec_y:       0
 
     property Item pipState: videoPipState
     QGCPipState {
@@ -42,30 +44,6 @@ Item {
         }
     }
 
-    MouseArea {
-            id: trackingClickArea
-            anchors.fill: parent
-            z: 1
-            hoverEnabled: true
-            acceptedButtons: Qt.AllButtons
-            enabled: true
-            // cursorShape: Qt.CrossCursor
-
-            onClicked: {
-                var normX = mouse.x / width
-                var normY = mouse.y / height
-                var radius = 0.1
-
-                console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
-
-                // Start tracking using the globally available camera
-                GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.1)
-                GlobalResults.setDetectionEnabled(false)
-                // Exit tracking mode
-                GlobalResults.trackingModeActive = false
-            }
-        }
-
     Timer {
         id:           videoStartDelay
         interval:     2000;
@@ -89,35 +67,6 @@ Item {
         source:         QGroundControl.videoManager.uvcEnabled ? "qrc:/qml/FlightDisplayViewUVC.qml" : "qrc:/qml/FlightDisplayViewDummy.qml"
     }
 
-    QGCLabel {
-        text: qsTr("Double-click to exit full screen")
-        font.pointSize: ScreenTools.largeFontPointSize
-        visible: QGroundControl.videoManager.fullScreen && flyViewVideoMouseArea.containsMouse
-        anchors.centerIn: parent
-
-        onVisibleChanged: {
-            if (visible) {
-                labelAnimation.start()
-            }
-        }
-
-        PropertyAnimation on opacity {
-            id: labelAnimation
-            duration: 10000
-            from: 1.0
-            to: 0.0
-            easing.type: Easing.InExpo
-        }
-    }
-
-    MouseArea {
-        id: flyViewVideoMouseArea
-        anchors.fill:       parent
-        enabled:            pipState.state === pipState.fullState
-        hoverEnabled: true
-        onDoubleClicked:    QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
-    }
-
     ProximityRadarVideoView{
         anchors.fill:   parent
         vehicle:        QGroundControl.multiVehicleManager.activeVehicle
@@ -126,9 +75,5 @@ Item {
     ObstacleDistanceOverlayVideo {
         id: obstacleDistance
         showText: pipState.state === pipState.fullState
-    }
-
-    FlyViewVideoSiYiController {
-        anchors.fill: parent
     }
 }
