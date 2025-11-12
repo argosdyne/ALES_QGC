@@ -240,7 +240,9 @@ Item {
         Loader {
             anchors.fill: parent
             //source: _camera ? _camera.extraControlsQml : ""
-            source: _camera.extraControlsQml
+            //source: _camera.extraControlsQml
+            visible: pipState.state === pipState.fullState && !QGroundControl.videoManager.fullScreen
+            source: _camera && _camera.paramComplete && _camera.extraControlsQml ? _camera.extraControlsQml : ""
 
         }
     }
