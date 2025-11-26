@@ -68,12 +68,11 @@
         <file alias="Custom/Widgets/CustomVehicleAttitude.qml">res/Custom/Widgets/CustomVehicleAttitude.qml</file>
     </qresource>
     <qresource prefix="/qml">
-		<file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
-		<file alias="CustomCameraControl.qml">CustomCameraControl.qml</file>
-		<file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
-		<file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
+        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
+        <file alias="CustomCameraControl.qml">CustomCameraControl.qml</file>
+        <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
+        <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
-        <file alias="GlobalResults.qml">src/Rhythm/GlobalResults.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>
@@ -115,7 +114,7 @@
         <file alias="RTCMSettings.qml">src/RTCM/RTCMSettings.qml</file>
     </qresource>
     <qresource prefix="/json">
-		<file alias="Custom.SettingsGroup.json">src/Custom.SettingsGroup.json</file>
+        <file alias="Custom.SettingsGroup.json">src/Custom.SettingsGroup.json</file>
         <file alias="Codev.SettingsGroup.json">src/Codev.SettingsGroup.json</file>
         <file alias="NTRIPRTCM.SettingsGroup.json">src/RTCM/NTRIPRTCM.SettingsGroup.json</file>
         <file alias="RTCMBase.SettingsGroup.json">src/RTCM/RTCMBase.SettingsGroup.json</file>

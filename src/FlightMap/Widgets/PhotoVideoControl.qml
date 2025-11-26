@@ -46,197 +46,22 @@ Rectangle {
     property bool   _videoStreamRecording:                      _videoStreamManager.recording
     property bool   _videoStreamCanShoot:                       _videoStreamIsStreaming
     property bool   _videoStreamIsShootingInCurrentMode:        _videoStreamInPhotoMode ? !_simplePhotoCaptureIsIdle : _videoStreamRecording
-    property bool   _videoStreamInPhotoMode:                    false
-    // Rhythm Camera initialization properties
-    property bool _rhythmCameraEnabled: true
-    property bool _rhythmCameraConnected: false
-    signal cameraRhythmAvailable(var rhythmInstance)
+    property bool   _videoStreamInPhotoMode:                    false    
 
     property real zoomLevel: 1.0  // Start at 1x
     property real maxZoom: 30.0
     property real minZoom: 1.0
-    property real zoomStep: 1.0
-    // Add Rhythm component
-    Rhythm {
-        id: cameraRhythm
+    property real zoomStep: 1.0    
 
-        property var detectedObjects: [] // Holds the latest detection results
-        onConnectionStatusChanged: {
-            console.log("Rhythm camera connection:", connected ? "Connected" : "Disconnected")
-            _rhythmCameraConnected = connected
-        }
 
-        onImageCaptured: function(imageIndex, imageFileName) {
-            console.log("Image captured - Index:", imageIndex, "File:", imageFileName)
-            //_isShootingInCurrentMode = false
-        }
-
-        onDetectionResultsReceived: function(jsonResults) {
-            const resultObj = JSON.parse(jsonResults)
-            detectedObjects = resultObj.Detected_Objects
-
-            // Assign to global property in main root
-            GlobalResults.detectionObjects = detectedObjects
-
-            // console.log(" Detection Results Received from Rhythm:")
-            // for (let i = 0; i < detectedObjects.length; i++) {
-            //     const obj = detectedObjects[i];
-            //     console.log(`Object ${i} -> X: ${obj.x}, Y: ${obj.y}, Width: ${obj.width}, Height: ${obj.height}, Score: ${obj.score}, Type: ${obj.type}`)
-            // }
-        }
-
-        onTrackingResultsReceived: function(jsonResults) {
-            const resultObj = JSON.parse(jsonResults)
-            const trackingObjects = resultObj.Tracking_Objects
-
-            // Assign to global property
-            GlobalResults.trackingObjects = trackingObjects
-
-            // console.log(" Tracking Results Received from Rhythm:")
-            // for (let i = 0; i < trackingObjects.length; i++) {
-            //     const obj = trackingObjects[i];
-            //     console.log(`Tracking Object ${i} -> ` +
-            //                 `Top-Left X: ${obj.rec_top_x}, Y: ${obj.rec_top_y}, ` +
-            //                 `Bottom-Right X: ${obj.rec_bottom_x}, Y: ${obj.rec_bottom_y}, ` +
-            //                 `Mode: ${obj.tracking_mode}, ` +
-            //                 `Status: ${obj.tracking_status}`)
-            // }
-        }
-
-    }
-    // Auto-initialization timer
-    Timer {
-        id: autoInitTimer
-        interval: 2000  // 2 seconds after component loads
-        repeat: false
-        running: true   // Start automatically
-
-        onTriggered: {
-            console.log("Auto-initializing Rhythm camera...")
-            cameraRhythm.setup("192.168.2.119", 14551)
-        }
-    }
-
-    // Auto-retry connection if failed
-    Timer {
-        id: connectionRetryTimer
-        interval: 5000  // Retry every 5 seconds
-        repeat: true
-        running: _rhythmCameraEnabled && !_rhythmCameraConnected
-
-        onTriggered: {
-            //console.log("Retrying Rhythm camera connection...")
-            cameraRhythm.setup("192.168.2.119", 14551)
-        }
-    }
-    // Add this Component.onCompleted handler right here
-    Component.onCompleted: {
-        // Make the camera available globally
-        GlobalResults.rhythmCamera = cameraRhythm
-        console.log("Registered Rhythm camera globally")
-    }
 
     Column{
-        // Button {
-        //     text: "Set"
-        //     checkable: true
-        //     // checked: GlobalResults.trackingModeActive
-        //     onClicked: {
-        //         // cameraRhythm.startDetection("Yolov8")  // Call startDetection method from Rhythm
-        //         // if (!cameraRhythm.isTracking) {
-        //         //     // Convert click to normalized coordinates (0-1)
-        //         //     // var x = mouse.x / width;
-        //         //     // var y = mouse.y / height;
-        //         //     var x =0.8
-        //         //     var y = 0.4
 
-        //         //     // Start tracking with a reasonable radius (e.g., 0.05 = 5% of screen width)
-        //         //     cameraRhythm.trackPoint(x, y, 0.05);
-        //         // }
-        //         // GlobalResults.trackingModeActive = !GlobalResults.trackingModeActive
-
-        //     }
-        // }
-        // Button {
-        //     text: "Get"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         cameraRhythm.stopTracking();
-        //     }
-        // }
         Button {
             text: "reset Gimbal"
-            onClicked:{
-                cameraRhythm.controlGimbal(0,0,0)
+            onClicked:{                
             }
-        }
-        // Button {
-        //     text: "+"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         // cameraRhythm.zoom(1, 1) // ZOOM_TYPE_STEP, zoom in
-        //         if (zoomLevel < maxZoom) {
-        //             zoomLevel += zoomStep
-        //             cameraRhythm.zoomRangeLevel(zoomLevel)
-        //         }
-        //     }
-        // }
-        // Button {
-        //     text: "-"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         // cameraRhythm.zoom(1, -1) // ZOOM_TYPE_STEP, zoom in
-
-        //         if (zoomLevel > minZoom) {
-        //             zoomLevel -= zoomStep
-        //             cameraRhythm.zoomRangeLevel(zoomLevel)
-        //         }
-        //     }
-        // }
-        // Button {
-        //     text: "Resolution"
-        //     onClicked: {
-        //         // cameraRhythm.setParameter("EO_VIDEO_QUALITY", "1", 6) // 6 = INT32 // set to 720
-        //         cameraRhythm.setParameter("EO_VIDEO_QUALITY", "2", 6) // set 1080
-        //         // cameraRhythm.setParameter("EO_VIDEO_QUALITY", "3", 6) // set 4k
-        //     }
-        // }
-        // Button {
-        //     text: "Set to 720p"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(20) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(20)
-        //         cameraRhythm.setVideoBitrate(1.0)
-
-        //     }
-        // }
-        // Button {
-        //     text: "Set to 1080p"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(30) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         // cameraRhythm.setCameraVideoQuality(30) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(30)
-        //         cameraRhythm.setVideoBitrate(3.0)
-        //     }
-        // }
-        // Button {
-        //     text: "Res + Bit"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(40) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(40)
-        //         cameraRhythm.setVideoBitrate(4.0)
-
-        //     }
-        // }
-        // Button {
-        //     text: "Request"
-        //     onClicked: {
-        //         cameraRhythm.requestParameter("EO_BITRATE")
-        //     }
-        // }
+        }        
     }
     // Add a connection status indicator (optional)
     Rectangle {
@@ -245,8 +70,7 @@ Rectangle {
         anchors.margins: ScreenTools.defaultFontPixelHeight / 2
         width: ScreenTools.defaultFontPixelHeight
         height: width
-        radius: width / 2
-        color: _rhythmCameraConnected ? "#4CAF50" : "#F44336"  // Green if connected, red if not
+        radius: width / 2        
     }
 
     // The following properties relate to a mavlink protocol camera
@@ -284,19 +108,12 @@ Rectangle {
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
-    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable || (_rhythmCameraEnabled && _rhythmCameraConnected)
+    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
     function setCameraMode(photoMode) {
         console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
-
-        if (_rhythmCameraEnabled && _rhythmCameraConnected) {
-            console.log("Using Rhythm Camera for Mode Change");
-            cameraRhythm.setCameraMode(photoMode ? 0 : 1); // 0 = Photo, 1 = Video
-            _mavlinkCameraInPhotoMode = photoMode;  // Synchronize the state
-            return;
-        }
 
         if (_mavlinkCamera){
             if (_mavlinkCameraInPhotoMode) {
@@ -309,28 +126,9 @@ Rectangle {
 
     }
     function toggleShooting() {
-        console.log("toggleShooting", _anyVideoStreamAvailable)
-        console.log("Before action, isRecording:", cameraRhythm.isRecording)
-        if (_rhythmCameraEnabled && _rhythmCameraConnected) {
+        console.log("toggleShooting", _anyVideoStreamAvailable)        
 
-            if (_modeIndicatorPhotoMode) {
-                cameraRhythm.takePicture()
-                simplePhotoCaptureTimer.start()
-                _isShootingInCurrentMode = true  // Set shooting mode to true for photo mode
-            } else {
-                if (cameraRhythm.isRecording()) {
-                    console.log("Stopping Rhythm Camera Video Recording")
-                    cameraRhythm.stopVideo()
-                    _isShootingInCurrentMode = false // Reset shooting mode
-                } else {
-                    console.log("Starting Rhythm Camera Video Recording")
-                    cameraRhythm.startVideo()
-                    _isShootingInCurrentMode = true  // Set shooting mode
-                }
-            }
-            return
-        }
-        // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
+        // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
         //    if (_mavlinkCamera && (_mavlinkCamera.capturesVideo || _mavlinkCamera.capturesPhotos) ) {
         // but it doesn't for some strange reason. Hence all the stuff below...
@@ -520,13 +318,9 @@ Rectangle {
             height:             width
             radius:             width * 0.5
             border.color:       qgcPal.buttonText
-            border.width:       3
-            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking // || _rhythmCameraEnabled && _rhythmCameraConnected
+            border.width:       3            
             visible: {
-                if(_rhythmCameraConnected && _rhythmCameraEnabled){
-                    return false
-                }
-                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
+                if(_mavlinkCamera && _mavlinkCamera.hasTracking){
                     return true
                 }
                 else {
@@ -549,9 +343,7 @@ Rectangle {
                         if(!_mavlinkCamera.trackingEnabled) {
                             !_mavlinkCamera.stopTracking()
                         }
-                        // else if (_rhythmCameraEnabled && _rhythmCameraConnected){
-                        //     GlobalResults.trackingModeActive = !GlobalResults.trackingModeActive
-                        // }
+
                     }
                 }
             }
@@ -559,13 +351,9 @@ Rectangle {
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
             text:               qsTr("Camera Tracking")
-            font.pointSize:     ScreenTools.defaultFontPointSize
-            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking
+            font.pointSize:     ScreenTools.defaultFontPointSize            
             visible: {
-                if(_rhythmCameraConnected && _rhythmCameraEnabled){
-                    return false
-                }
-                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
+                if(_mavlinkCamera && _mavlinkCamera.hasTracking){
                     return true
                 }
                 else {
@@ -691,29 +479,26 @@ Rectangle {
 
                     QGCLabel {
                         text:               qsTr("Reset Camera Defaults")
-                        visible:            _mavlinkCamera || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCamera
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
                     QGCLabel {
                         text:               qsTr("Storage")
-                        visible:            _mavlinkCameraStorageSupported || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCameraStorageSupported
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
                     QGCLabel {
-                        text:               qsTr("Detection & Tracking")
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
+                        text:               qsTr("Detection & Tracking")                        
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
                     QGCLabel {
-                        text:               qsTr("Bitrate")  // Change this to your desired text
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
+                        text:               qsTr("Bitrate")  // Change this to your desired text                        
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
                     QGCLabel {
-                        text:               qsTr("Resolution")  // Change this to your desired text
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
+                        text:               qsTr("Resolution")  // Change this to your desired text                        
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
@@ -853,7 +638,7 @@ Rectangle {
                     QGCButton {
                         Layout.fillWidth:   true
                         text:               qsTr("Reset")
-                        visible:            _mavlinkCamera || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCamera
                         onClicked:          resetPrompt.open()
                         MessageDialog {
                             id:                 resetPrompt
@@ -871,7 +656,7 @@ Rectangle {
                     QGCButton {
                         Layout.fillWidth:   true
                         text:               qsTr("Format")
-                        visible:            _mavlinkCameraStorageSupported || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCameraStorageSupported
                         onClicked:          formatPrompt.open()
                         MessageDialog {
                             id:                 formatPrompt
@@ -884,197 +669,8 @@ Rectangle {
                                 formatPrompt.close()
                             }
                         }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth:   true
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
-                        spacing:            ScreenTools.defaultFontPixelWidth
-
-                        // Detection Model ComboBox
-                        QGCComboBox {
-                            id: detectionCombo
-                            Layout.fillWidth: true
-                            // currentIndex: GlobalResults.lastDetectionModel
-                            model: [qsTr("None"), qsTr("YOLOv8"), qsTr("YOLOv7"), qsTr("YOLOv11")]
-                            currentIndex: {
-                                var detectionModel = GlobalResults.lastDetectionModel;
-
-                                // Check if tracking model is a number
-                                if (typeof detectionModel === 'number') {
-                                    switch(detectionModel) {
-                                        case 0: return 0  // None
-                                        case 1: return 1  // YOLOv8
-                                        case 2: return 2  // YOLOv7
-                                        case 3: return 3
-                                        default: return -1
-                                    }
-                                }
-                                return -1
-                            }
-                            onActivated: {
-                                // Handle different tracking modes
-                                var detectionValue;
-                                switch(index) {
-                                    case 0:  // None
-                                        detectionValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                    case 1:  // Yolov8
-                                        detectionValue = "Yolov8";
-                                        // cameraRhythm.startTracking("Yolov8")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 2:  // Yolov7
-                                        detectionValue = "Yolov7";
-                                        // cameraRhythm.startTracking("Yolov7")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 3: // Yolov11
-                                        detectionValue = "Yolov11";
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    default:
-                                        // Handle unexpected index
-                                        detectionValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                }
-                                // Store the last selected tracking model
-                                GlobalResults.lastDetectionModel = index
-                                cameraRhythm.startDetection(detectionValue)
-                            }
-                        }
-
-                        // Tracking Algorithm ComboBox
-                        QGCComboBox {
-                            id: trackingCombo
-                            Layout.fillWidth: true
-                            // currentIndex: GlobalResults.lastTrackingModel
-                            sizeToContents: true       // Size based on content
-                            model: [qsTr("None"), qsTr("Nano"), qsTr("SiamRPN")]
-                            // Restore last selected tracking model or default to None
-                            currentIndex: {
-                                var trackingModel = GlobalResults.lastTrackingModel;
-
-                                // Check if tracking model is a number
-                                if (typeof trackingModel === 'number') {
-                                    switch(trackingModel) {
-                                        case 0: return 0  // None
-                                        case 1: return 1  // Nano
-                                        case 2: return 2  // SiamRPN
-                                        default: return -1
-                                    }
-                                }
-                                return -1
-                            }
-                            onActivated: {
-                                // Handle different tracking modes
-                                var trackingValue;
-                                switch(index) {
-                                    case 0:  // None
-                                        trackingValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                    case 1:  // Nano
-                                        trackingValue = "Nano";
-                                        // cameraRhythm.startTracking("Nano")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 2:  // SiamRPN
-                                        trackingValue = "SiamRPN";
-                                        // cameraRhythm.startTracking("SiamRPN")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    default:
-                                        // Handle unexpected index
-                                        trackingValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                }
-
-                                // Store the last selected tracking model
-                                GlobalResults.lastTrackingModel = index
-                                cameraRhythm.startTracking(trackingValue)
-                            }
-                        }
-                    }
-                    QGCComboBox {
-                        id: bitrateCombo
-                        model: [qsTr("1 Mbps"), qsTr("2.5 Mbps"), qsTr("4 Mbps")]
-                        Layout.fillWidth: true
-
-                        // Map bitrate values to indices
-                        currentIndex: {
-                            var bitrate = GlobalResults.lastBitrate;
-
-                            // Check if bitrate is a number
-                            if (typeof bitrate === 'number') {
-                                // Use Math.round for precise comparison
-                                // var roundedBitrate = Math.round(bitrate * 10) / 10;
-                                switch(bitrate) {
-                                    case 0: return 0
-                                    case 1: return 1
-                                    case 2: return 2
-                                    default: return -1
-                                }
-                            }
-                            return -1
-                        }
-                        visible: _rhythmCameraEnabled && _rhythmCameraConnected
-                        onActivated: {
-                            // Map index to bitrate value
-                            var bitrateValue;
-                            switch(index) {
-                                case 0: bitrateValue = 1.0; break
-                                case 1: bitrateValue = 2.5; break
-                                case 2: bitrateValue = 4.0; break
-                                default: bitrateValue = 2.5; break
-                            }
-                            GlobalResults.lastBitrate = index
-                            cameraRhythm.setVideoBitrate(bitrateValue)
-                        }
-                    }
-
-                    QGCComboBox {
-                        id: resolutionCombo
-                        model: [qsTr("720"), qsTr("1080p"), qsTr("4K")]
-                        Layout.fillWidth: true
-
-                        // Map resolution values to indices
-                        currentIndex: {
-                            var resolution = GlobalResults.lastResolution;
-
-                            // Check if resolution is a number
-                            if (typeof resolution === 'number') {
-                                switch(resolution) {
-                                    case 0: return 0   // 720
-                                    case 1: return 1   // 1080
-                                    case 2: return 2   // 4K
-                                    default: return -1
-                                }
-                            }
-                            return -1
-                        }
-                        visible: _rhythmCameraEnabled && _rhythmCameraConnected
-                        onActivated: {
-                            // Map index to bitrate value
-                            var resolutionValue;
-                            switch(index) {
-                                case 0: resolutionValue = 20; break
-                                case 1: resolutionValue = 30; break
-                                case 2: resolutionValue = 40; break
-                                default: resolutionValue = 20; break
-                            }
-                            GlobalResults.lastResolution = index
-                            cameraRhythm.setVideoResolution(resolutionValue)
-                        }
-                    }
-                }
+                    }    
+                  }
             }
         }
     }
