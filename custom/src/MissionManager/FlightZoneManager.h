@@ -30,6 +30,22 @@ typedef CGAL::AABB_traits_3<Kernel, Primitive> AABB_traits;
 typedef CGAL::AABB_tree<AABB_traits> AABB_tree;
 typedef Kernel::Point_3 Point_3;
 
+class NoFlyZone {
+public:
+    QGeoCoordinate coordinate;
+    double altitudeFloor; //bottom of no fly zone
+    double altitudeCeiling; // top of no fly zone
+
+    NoFlyZone(const QGeoCoordinate& coord, double floor, double ceiling)
+        : coordinate(coord), altitudeFloor(floor), altitudeCeiling(ceiling) {}
+
+    bool operator==(const NoFlyZone& other) const {
+        return coordinate == other.coordinate &&
+               altitudeFloor == other.altitudeFloor &&
+               altitudeCeiling == other.altitudeCeiling;
+    }
+};
+
 class FlightZoneManager : public QObject
 {
     Q_OBJECT
@@ -89,7 +105,16 @@ public:
 
     void autoDeleteUSBFile();
 
+    void parseGeometryAndSave(
+        const QJsonObject& geometry,
+        QGCFencePolygon* polygon,
+        QList<NoFlyZone>& noFlyZone,
+        double altitudeFloor,
+        double altitudeCeiling,
+        const QString& validFrom,
+        const QString& validTo);
 
+    void analyzeMemoryUsage();
 signals:
 
 
@@ -168,21 +193,7 @@ public:
     }
 };
 
-class NoFlyZone {
-public:
-    QGeoCoordinate coordinate;
-    double altitudeFloor; //bottom of no fly zone
-    double altitudeCeiling; // top of no fly zone
 
-    NoFlyZone(const QGeoCoordinate& coord, double floor, double ceiling)
-        : coordinate(coord), altitudeFloor(floor), altitudeCeiling(ceiling) {}
-
-    bool operator==(const NoFlyZone& other) const {
-        return coordinate == other.coordinate &&
-               altitudeFloor == other.altitudeFloor &&
-               altitudeCeiling == other.altitudeCeiling;
-    }
-};
 
 
 #endif // FLIGHTZONEMANAGER_H
