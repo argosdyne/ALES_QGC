@@ -72,6 +72,7 @@ QGCListView                             1.0 QGCListView.qml
 QGCMapCircleVisuals                     1.0 QGCMapCircleVisuals.qml
 QGCMapLabel                             1.0 QGCMapLabel.qml
 QGCMapPolygonVisuals                    1.0 QGCMapPolygonVisuals.qml
+LightMapPolygonVisuals                  1.0 LightMapPolygonVisuals.qml
 GeoZoneMapPolygonVisuals				1.0 GeoZoneMapPolygonVisuals.qml
 QGCMapPolylineVisuals                   1.0 QGCMapPolylineVisuals.qml
 YellowScanInitPathPolylineVisuals		1.0 YellowScanInitPathPolylineVisuals.qml
