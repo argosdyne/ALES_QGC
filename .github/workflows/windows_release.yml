@@ -93,6 +93,9 @@ jobs:
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run: mkdir staging
 
+      - name: Install NSIS (for makensis.exe)
+        run: choco install nsis -y
+
       - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run:  |
