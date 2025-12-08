@@ -34,6 +34,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Debug deploy/windows
+        run: dir ${{ env.SOURCE_DIR }}\deploy\windows
+
+      - name: Debug empty staging
+        run: dir ${{ runner.temp }}\shadow_build_dir
+
       - name: Get all tags for correct version determination
         working-directory:  ${{ github.workspace }}
         run: |
