@@ -1587,8 +1587,23 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
             continue;
         }
 
-        const double altitudeFloor = properties.value("altitudeFloor").toDouble();
-        const double altitudeCeiling = properties.value("altitudeCeiling").toDouble();
+        const QJsonObject layer = geometry.value("layer").toObject();
+
+        double altitudeFloor = 0.0;
+        double altitudeCeiling = 99999.0;
+
+        if(layer.isEmpty()){
+            if (layer.contains("lower") && layer.value("lower").isDouble()) {
+                altitudeFloor = layer.value("lower").toDouble();
+            }
+
+            if (layer.contains("upper") && layer.value("upper").isDouble()) {
+                altitudeCeiling = layer.value("upper").toDouble();
+            }
+        }
+
+        // const double altitudeFloor = layer.value("lower").toDouble();
+        // const double altitudeCeiling = layer.value("upper").toDouble();        
 
         auto makePolygon = [&](const QList<QGeoCoordinate>& vertices) {
             if (vertices.size() < 3) {
