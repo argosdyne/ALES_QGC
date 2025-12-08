@@ -86,6 +86,10 @@ jobs:
         with:
           arch: x64
 
+      - name: Create installer staging directory
+        working-directory: ${{ runner.temp }}\shadow_build_dir
+        run: mkdir staging
+
       - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run:  |
