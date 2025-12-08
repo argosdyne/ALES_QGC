@@ -105,8 +105,9 @@ public:
     // Override from QGCTool
     virtual void        setToolbox          (QGCToolbox *toolbox);
 
-    Q_INVOKABLE void startVideo     ();
-    Q_INVOKABLE void stopVideo      ();
+
+    Q_INVOKABLE void startVideo     (int id = -1);
+    Q_INVOKABLE void stopVideo      (int id = -1);
 
     Q_INVOKABLE void startRecording (const QString& videoFile = QString());
     Q_INVOKABLE void stopRecording  ();
@@ -140,6 +141,8 @@ protected slots:
     void _setActiveVehicle          (Vehicle* vehicle);
     void _aspectRatioChanged        ();
     void _communicationLostChanged  (bool communicationLost);
+    void _fpvChanged                ();
+    void _streamEnabledChanged      ();
 
 protected:
     friend class FinishVideoInitialization;
@@ -152,22 +155,23 @@ protected:
     void _restartVideo              (unsigned id);
     void _startReceiver             (unsigned id);
     void _stopReceiver              (unsigned id);
+    void _restartFPV                ();
 
 protected:
     QString                 _videoFile;
     QString                 _imageFile;
     SubtitleWriter          _subtitleWriter;
     bool                    _isTaisync              = false;
-    VideoReceiver*          _videoReceiver[2]       = { nullptr, nullptr };
-    void*                   _videoSink[2]           = { nullptr, nullptr };
-    QString                 _videoUri[2];
+    VideoReceiver*          _videoReceiver[3]       = { nullptr, nullptr, nullptr };
+    void*                   _videoSink[3]           = { nullptr, nullptr, nullptr };
+    QString                 _videoUri[3];
     // FIXME: AV: _videoStarted seems to be access from 3 different threads, from time to time
     // 1) Video Receiver thread
     // 2) Video Manager/main app thread
     // 3) Qt rendering thread (during video sink creation process which should happen in this thread)
     // It works for now but...
-    bool                    _videoStarted[2]        = { false, false };
-    bool                    _lowLatencyStreaming[2] = { false, false };
+    bool                    _videoStarted[3]        = { false, false, false };
+    bool                    _lowLatencyStreaming[3] = { false, false, false };
     QAtomicInteger<bool>    _streaming              = false;
     QAtomicInteger<bool>    _decoding               = false;
     QAtomicInteger<bool>    _recording              = false;
@@ -177,5 +181,4 @@ protected:
     bool                    _fullScreen             = false;
     Vehicle*                _activeVehicle          = nullptr;
 };
-
 #endif

@@ -138,6 +138,10 @@ add_custom_target(QmlControlsQml
 		ToolRadioButton.qml
 		TouchSelectArea.qml
 		TargetObjectRectangles.qml
+		FlyViewFPVVideo.qml
+		FPVOverlay.qml
+		PipState.qml
+		PipView.qml		
 )
 
 target_link_libraries(QmlControls

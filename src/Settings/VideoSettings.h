@@ -36,6 +36,8 @@ public:
     DEFINE_SETTINGFACT(disableWhenDisarmed)
     DEFINE_SETTINGFACT(lowLatencyMode)
     DEFINE_SETTINGFACT(forceVideoDecoder)
+    DEFINE_SETTINGFACT(fpvUrl)
+    DEFINE_SETTINGFACT(disableFPVVideo)
 
     enum VideoDecoderOptions {
         ForceVideoDecoderDefault = 0,

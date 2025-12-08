@@ -488,20 +488,6 @@ Rectangle {
                         visible:            _mavlinkCameraStorageSupported
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
-                    QGCLabel {
-                        text:               qsTr("Detection & Tracking")                        
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-
-                    QGCLabel {
-                        text:               qsTr("Bitrate")  // Change this to your desired text                        
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-                    QGCLabel {
-                        text:               qsTr("Resolution")  // Change this to your desired text                        
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-
 
                     // Second column
                     QGCComboBox {

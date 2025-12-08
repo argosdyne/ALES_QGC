@@ -417,7 +417,7 @@ VideoReceiver* QGCCorePlugin::createVideoReceiver(QObject* parent)
 #endif
 }
 
-void* QGCCorePlugin::createVideoSink(QObject* parent, QQuickItem* widget)
+void* QGCCorePlugin::createVideoSink(QObject* parent, QObject* widget)
 {
 #if defined(QGC_GST_STREAMING)
     return GStreamer::createVideoSink(parent, widget);
