@@ -53,25 +53,39 @@ Rectangle {
     property real minZoom: 1.0
     property real zoomStep: 1.0    
 
-
+    property bool   _hasZoom:                                   _mavlinkCamera && _mavlinkCamera.hasZoom
 
     Column{
-
         Button {
             text: "reset Gimbal"
-            onClicked:{                
+            onClicked:{
+                _mavlinkCamera.centerGimbal()
             }
-        }        
+        }
+        QGCTextField {
+            text: _hasZoom ? _mavlinkCamera.zoomLevel.toFixed(0) : NaN
+        }
+
+        Button {
+            text: "+"
+            onClicked: {
+                _mavlinkCamera.stepZoom(1)
+            }
+        }
+        Button {
+            text: "-"
+            onClicked: {
+                _mavlinkCamera.stepZoom(-1)
+            }
+        }
+        Label {
+            text: _activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : 0
+        }
+        Label {
+            text: _activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : 0
+        }
     }
-    // Add a connection status indicator (optional)
-    Rectangle {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: ScreenTools.defaultFontPixelHeight / 2
-        width: ScreenTools.defaultFontPixelHeight
-        height: width
-        radius: width / 2        
-    }
+
 
     // The following properties relate to a mavlink protocol camera
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
@@ -182,7 +196,7 @@ Rectangle {
         anchors.right:      parent.right
         source:             "/res/gear-black.svg"
         mipmap:             true
-        height:             ScreenTools.defaultFontPixelHeight
+        height:             ScreenTools.defaultFontPixelHeight * 1.4
         width:              height
         sourceSize.height:  height
         color:              qgcPal.text
@@ -406,7 +420,8 @@ Rectangle {
         id: settingsDialogComponent
 
         QGCPopupDialog {
-            title:      qsTr("Settings")
+            id:         settingsDialog
+            title:      qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion
             buttons:    StandardButton.Close
 
             ColumnLayout {
@@ -417,7 +432,7 @@ Rectangle {
                     flow:   GridLayout.TopToBottom
                     rows:   dynamicRows + (_mavlinkCamera ? _mavlinkCamera.activeSettings.length : 0)
 
-                    property int dynamicRows: 13
+                    property int dynamicRows: 10
 
                     // First column
                     QGCLabel {
@@ -552,7 +567,10 @@ Rectangle {
                                 Layout.fillWidth:   true
                                 fact:               parent._fact
                                 visible:            parent._isEdit
-                            }
+                                readOnly:           fact.readOnly
+                                selectByMouse:      !fact.readOnly
+                                activeFocusOnPress: !fact.readOnly
+                            }                        
                             QGCSlider {
                                 Layout.fillWidth:           true
                                 maximumValue:               parent._fact.max

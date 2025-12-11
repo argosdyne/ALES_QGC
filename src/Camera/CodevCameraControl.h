@@ -90,6 +90,7 @@ public:
     bool hasTrackingPoint() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_POINT; }
     bool hasTrackingRectangle() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_RECTANGLE; }
     bool hasTrackingGeoStatus() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_GEO_STATUS; }
+    Q_INVOKABLE void centerGimbal();
 
     Q_INVOKABLE void setSpotTempPoint(float x, float y);
     Q_INVOKABLE void setAreaTempRect(float x1, float y1, float x2, float y2);

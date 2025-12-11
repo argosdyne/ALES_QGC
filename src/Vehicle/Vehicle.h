@@ -244,6 +244,10 @@ public:
     Q_PROPERTY(quint64              mavlinkReceivedCount        READ mavlinkReceivedCount                                           NOTIFY mavlinkStatusChanged)
     Q_PROPERTY(quint64              mavlinkLossCount            READ mavlinkLossCount                                               NOTIFY mavlinkStatusChanged)
     Q_PROPERTY(float                mavlinkLossPercent          READ mavlinkLossPercent                                             NOTIFY mavlinkStatusChanged)
+    Q_PROPERTY(qreal                gimbalRoll                  READ gimbalRoll                                                     NOTIFY gimbalRollChanged)
+    Q_PROPERTY(qreal                gimbalPitch                 READ gimbalPitch                                                    NOTIFY gimbalPitchChanged)
+    Q_PROPERTY(qreal                gimbalYaw                   READ gimbalYaw                                                      NOTIFY gimbalYawChanged)
+    Q_PROPERTY(bool                 gimbalData                  READ gimbalData                                                     NOTIFY gimbalDataChanged)
     Q_PROPERTY(GimbalController*    gimbalController            READ gimbalController                                               CONSTANT)
     Q_PROPERTY(bool                 hasGripper                  READ hasGripper                                                     CONSTANT)
     Q_PROPERTY(bool                 isROIEnabled                READ isROIEnabled                                                   NOTIFY isROIEnabledChanged)
@@ -909,6 +913,12 @@ public:
     quint64     mavlinkLossCount        () const{ return _mavlinkLossCount; }        /// Total number of lost messages
     float       mavlinkLossPercent      () const{ return _mavlinkLossPercent; }      /// Running loss rate
 
+
+    qreal       gimbalRoll              () const{ return static_cast<qreal>(_curGimbalRoll);}
+    qreal       gimbalPitch             () const{ return static_cast<qreal>(_curGimbalPitch); }
+    qreal       gimbalYaw               () const{ return static_cast<qreal>(_curGimbalYaw); }
+    bool        gimbalData              () const{ return _haveGimbalData; }
+
     bool        isROIEnabled            () const{ return _isROIEnabled; }
 
     GimbalController* gimbalController    () { return _gimbalController; }
@@ -1026,6 +1036,11 @@ signals:
     // MAVLink protocol version
     void requestProtocolVersion         (unsigned version);
     void mavlinkStatusChanged           ();
+
+    void gimbalRollChanged              ();
+    void gimbalPitchChanged             ();
+    void gimbalYawChanged               ();
+    void gimbalDataChanged              ();
 
     void isROIEnabledChanged            ();
     void roiCoordChanged                (const QGeoCoordinate& centerCoord);
@@ -1280,6 +1295,10 @@ private:
     uint64_t    _mavlinkReceivedCount   = 0;
     uint64_t    _mavlinkLossCount       = 0;
     float       _mavlinkLossPercent     = 0.0f;
+    float       _curGimbalRoll  = 0.0f;
+    float       _curGimbalPitch = 0.0f;
+    float       _curGimbalYaw  = 0.0f;
+    bool        _haveGimbalData = false;
 
     float       _loadProgress           = 0.0f;
 
