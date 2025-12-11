@@ -55,11 +55,14 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           host: windows
-          target: desktop
-          arch: win64_msvc2019_64
+          target: android
+          arch: android
           dir: ${{ runner.temp }}
           modules: qtcharts
-          setup-python: false
+          setup-python: true
+
+      - name: Add Qt (Android) to PATH
+        run: echo ${{ runner.temp }}\Qt\${{ env.QT_VERSION }}\android\bin>>%GITHUB_PATH%
 
       - name: Download JOM
         uses: suisei-cn/actions-download-file@v1.3.0
