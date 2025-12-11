@@ -188,7 +188,7 @@
 		<file alias="mood-sad-solid.svg">../resources/InstrumentValueIcons/mood-sad-solid.svg</file>
 		<file alias="store-front.svg">../resources/InstrumentValueIcons/store-front.svg</file>
 		<file alias="battery-half.svg">../resources/InstrumentValueIcons/battery-half.svg</file>
-		<file alias="tools copy.svg">../resources/InstrumentValueIcons/tools copy.svg</file>
+		<file alias="tools copy.svg">../resources/InstrumentValueIcons/tools-copy.svg</file>
 		<file alias="time.svg">../resources/InstrumentValueIcons/time.svg</file>
 		<file alias="block.svg">../resources/InstrumentValueIcons/block.svg</file>
 		<file alias="camera.svg">../resources/InstrumentValueIcons/camera.svg</file>
