@@ -24,7 +24,7 @@
 		<file alias="playlist.svg">../resources/InstrumentValueIcons/playlist.svg</file>
 		<file alias="wallet.svg">../resources/InstrumentValueIcons/wallet.svg</file>
 		<file alias="bluetooth.svg">../resources/InstrumentValueIcons/bluetooth.svg</file>
-		<file alias="radar copy 2.svg">../resources/InstrumentValueIcons/radar copy 2.svg</file>
+		<file alias="radar copy 2.svg">../resources/InstrumentValueIcons/radar-copy-2.svg</file>
 		<file alias="tuning.svg">../resources/InstrumentValueIcons/tuning.svg</file>
 		<file alias="book-reference.svg">../resources/InstrumentValueIcons/book-reference.svg</file>
 		<file alias="information-solid.svg">../resources/InstrumentValueIcons/information-solid.svg</file>
@@ -97,7 +97,7 @@
 		<file alias="folder.svg">../resources/InstrumentValueIcons/folder.svg</file>
 		<file alias="duplicate.svg">../resources/InstrumentValueIcons/duplicate.svg</file>
 		<file alias="envelope.svg">../resources/InstrumentValueIcons/envelope.svg</file>
-		<file alias="bookmark copy 3.svg">../resources/InstrumentValueIcons/bookmark copy 3.svg</file>
+		<file alias="bookmark copy 3.svg">../resources/InstrumentValueIcons/bookmark-copy-3.svg</file>
 		<file alias="lock-closed.svg">../resources/InstrumentValueIcons/lock-closed.svg</file>
 		<file alias="clipboard.svg">../resources/InstrumentValueIcons/clipboard.svg</file>
 		<file alias="border-bottom.svg">../resources/InstrumentValueIcons/border-bottom.svg</file>
@@ -237,7 +237,7 @@
 		<file alias="apparel.svg">../resources/InstrumentValueIcons/apparel.svg</file>
 		<file alias="arrow-thick-up.svg">../resources/InstrumentValueIcons/arrow-thick-up.svg</file>
 		<file alias="border-top.svg">../resources/InstrumentValueIcons/border-top.svg</file>
-		<file alias="bookmark copy 2.svg">../resources/InstrumentValueIcons/bookmark copy 2.svg</file>
+		<file alias="bookmark copy 2.svg">../resources/InstrumentValueIcons/bookmark-copy-2.svg</file>
 		<file alias="trophy.svg">../resources/InstrumentValueIcons/trophy.svg</file>
 		<file alias="view-list.svg">../resources/InstrumentValueIcons/view-list.svg</file>
 		<file alias="arrow-thin-right.svg">../resources/InstrumentValueIcons/arrow-thin-right.svg</file>
