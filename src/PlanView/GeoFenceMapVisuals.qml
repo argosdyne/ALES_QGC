@@ -215,6 +215,13 @@ Item {
         return segments
     }
 
+    function _edgeColor(polyObj) {
+        if (polyObj && polyObj.inclusion === false) {
+            return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, Math.max(0.15, fenceOpacity * 0.6))
+        }
+        return boundaryColor
+    }
+
     function _extrudeHeight(path) {
         if (!map || !path || path.length < 2 || typeof map.fromCoordinate !== "function") {
             return _extrudeHeightPx
@@ -260,6 +267,8 @@ Item {
             property real heightPx: { _mapKey; return _extrudeHeight(basePath) }
             property var topPath: { _mapKey; return _extrudePath(basePath, heightPx) }
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
+            property color edgeColor: _edgeColor(object)
+            property color faceColor: Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, Math.min(0.65, Math.max(0.25, fenceOpacity * 0.5)))
             visible: show3DView && topPath.length > 2 && basePath.length === topPath.length
 
             MapPolyline {
@@ -269,9 +278,23 @@ Item {
                 visible: extrudePoly.visible && mapRef
                 path: extrudePoly.topPathClosed
                 line.width: 3
-                line.color: _borderColor
+                line.color: edgeColor
                 opacity: _root.opacity * fenceOpacity
                 antialiasing: true
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            MapPolygon {
+                property var mapRef: map
+                z: QGroundControl.zOrderMapItems + 1
+                parent: mapRef
+                path: topPath
+                color: faceColor
+                border.width: 1
+                border.color: edgeColor
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                visible: extrudePoly.visible && mapRef && topPath.length > 2
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
 
@@ -287,13 +310,35 @@ Item {
                         parent: mapRef
                         path: modelData
                         line.width: 3
-                        line.color: _borderColor
+                        line.color: edgeColor
+                        opacity: _root.opacity * fenceOpacity
+                        antialiasing: true
+                        Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
+                    }
+                }
+
+                // Vertical faces (quads) for shading
+                Repeater {
+                    model: extrudePoly.visible ? extrudePoly.basePath.length : 0
+                    MapPolygon {
+                        property var mapRef: map
+                        z: QGroundControl.zOrderMapItems + 1
+                        parent: mapRef
+                        path: [
+                            extrudePoly.basePath[index],
+                            extrudePoly.basePath[(index + 1) % extrudePoly.basePath.length],
+                            extrudePoly.topPath[(index + 1) % extrudePoly.topPath.length],
+                            extrudePoly.topPath[index]
+                        ]
+                        color: faceColor
+                        border.width: 1
+                        border.color: edgeColor
                         opacity: _root.opacity * fenceOpacity
                         antialiasing: true
                         Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                     }
                 }
-            }
             }
         }
     }
@@ -324,16 +369,17 @@ Item {
             property real heightPx: { _mapKey; return _extrudeHeight(basePath) }
             property var topPath: { _mapKey; return _extrudePath(basePath, heightPx) }
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
+            property color edgeColor: _edgeColor(object)
             visible: show3DView && topPath.length > 6 && basePath.length === topPath.length
 
-                MapPolyline {
-                    property var mapRef: map
-                    z: QGroundControl.zOrderMapItems + 1
+            MapPolyline {
+                property var mapRef: map
+                z: QGroundControl.zOrderMapItems + 1
                 parent: mapRef
                 visible: extrudeCircle.visible && mapRef
                 path: extrudeCircle.topPathClosed
                 line.width: 3
-                line.color: _borderColor
+                line.color: edgeColor
                 opacity: _root.opacity * fenceOpacity
                 antialiasing: true
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
@@ -351,7 +397,7 @@ Item {
                         parent: mapRef
                         path: modelData
                         line.width: 3
-                        line.color: _borderColor
+                        line.color: edgeColor
                         opacity: _root.opacity * fenceOpacity
                         antialiasing: true
                         Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
