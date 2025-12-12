@@ -13,6 +13,7 @@
 //#include "MultiVehicleManager.h"
 #include "PositionManager.h"
 #include "ADSBVehicle.h"
+#include <QRectF>
 
 #include <CGAL/Polyhedron_3.h>
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
@@ -20,6 +21,7 @@
 #include <CGAL/AABB_tree.h>
 #include <vector>
 #include <CGAL/AABB_traits_3.h>
+#include <QVariantList>
 
 class GeoFenceManager;
 
@@ -30,6 +32,22 @@ typedef CGAL::AABB_traits_3<Kernel, Primitive> AABB_traits;
 typedef CGAL::AABB_tree<AABB_traits> AABB_tree;
 typedef Kernel::Point_3 Point_3;
 
+class NoFlyZone {
+public:
+    QGeoCoordinate coordinate;
+    double altitudeFloor; //bottom of no fly zone
+    double altitudeCeiling; // top of no fly zone
+
+    NoFlyZone(const QGeoCoordinate& coord, double floor, double ceiling)
+        : coordinate(coord), altitudeFloor(floor), altitudeCeiling(ceiling) {}
+
+    bool operator==(const NoFlyZone& other) const {
+        return coordinate == other.coordinate &&
+               altitudeFloor == other.altitudeFloor &&
+               altitudeCeiling == other.altitudeCeiling;
+    }
+};
+
 class FlightZoneManager : public QObject
 {
     Q_OBJECT
@@ -39,6 +57,8 @@ public:
 
     Q_PROPERTY(QmlObjectListModel*  polygons                READ polygons                                           CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  circles                 READ circles                                            CONSTANT)
+    Q_PROPERTY(bool reduceVerticesEnabled READ reduceVerticesEnabled WRITE setReduceVerticesEnabled NOTIFY reduceVerticesEnabledChanged)
+    Q_PROPERTY(bool useOverlapDuplicateCheck READ useOverlapDuplicateCheck WRITE setUseOverlapDuplicateCheck NOTIFY useOverlapDuplicateCheckChanged)
 
 
     void start();
@@ -89,8 +109,24 @@ public:
 
     void autoDeleteUSBFile();
 
+    void parseGeometryAndSave(
+        const QJsonObject& geometry,
+        QGCFencePolygon* polygon,
+        QList<NoFlyZone>& noFlyZone,
+        double altitudeFloor,
+        double altitudeCeiling,
+        const QString& validFrom,
+        const QString& validTo);
 
+    void analyzeMemoryUsage();
+    void logGeoMemoryUsage(const QString& label = QStringLiteral("GeoMem table"));
+    bool reduceVerticesEnabled() const { return _reduceVerticesEnabled; }
+    void setReduceVerticesEnabled(bool en) { if (_reduceVerticesEnabled == en) return; _reduceVerticesEnabled = en; emit reduceVerticesEnabledChanged(); }
+    bool useOverlapDuplicateCheck() const { return _useOverlapDuplicateCheck; }
+    void setUseOverlapDuplicateCheck(bool v) { if (_useOverlapDuplicateCheck == v) return; _useOverlapDuplicateCheck = v; emit useOverlapDuplicateCheckChanged(); }
 signals:
+    void reduceVerticesEnabledChanged();
+    void useOverlapDuplicateCheckChanged();
 
 
 
@@ -124,6 +160,8 @@ private:
     double _lastZoom = 0;
     QGeoCoordinate _lastMapCoord;
     void _processZoomCheck();
+    bool _reduceVerticesEnabled {false};
+    bool _useOverlapDuplicateCheck {false};
 
     QTimer _distanceTimer;
 
@@ -168,21 +206,7 @@ public:
     }
 };
 
-class NoFlyZone {
-public:
-    QGeoCoordinate coordinate;
-    double altitudeFloor; //bottom of no fly zone
-    double altitudeCeiling; // top of no fly zone
 
-    NoFlyZone(const QGeoCoordinate& coord, double floor, double ceiling)
-        : coordinate(coord), altitudeFloor(floor), altitudeCeiling(ceiling) {}
-
-    bool operator==(const NoFlyZone& other) const {
-        return coordinate == other.coordinate &&
-               altitudeFloor == other.altitudeFloor &&
-               altitudeCeiling == other.altitudeCeiling;
-    }
-};
 
 
 #endif // FLIGHTZONEMANAGER_H

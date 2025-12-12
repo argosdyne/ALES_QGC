@@ -164,6 +164,7 @@
 		<file alias="QGroundControl/Controls/QGCMapCircleVisuals.qml">../src/MissionManager/QGCMapCircleVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapLabel.qml">../src/QmlControls/QGCMapLabel.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolygonVisuals.qml">../src/MissionManager/QGCMapPolygonVisuals.qml</file>
+		<file alias="QGroundControl/Controls/LightMapPolygonVisuals.qml">../src/MissionManager/LightMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/GeoZoneMapPolygonVisuals.qml">../src/MissionManager/GeoZoneMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolylineVisuals.qml">../src/MissionManager/QGCMapPolylineVisuals.qml</file>
 		<file alias="QGroundControl/Controls/YellowScanInitPathPolylineVisuals.qml">../src/MissionManager/YellowScanInitPathPolylineVisuals.qml</file>
