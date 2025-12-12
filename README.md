@@ -93,3 +93,10 @@ Edit -> Preferences -> Kits -> Compilers
 ![image](https://github.com/user-attachments/assets/dbbad4d0-734f-410e-bb57-70ded306728f)
 
 
+## GeoFence 3D updates
+
+- Added optional 3D rendering for GeoFence polygons and circles in Plan View (toggle `3D View` in the GeoFence editor).
+- Vertical style now supports Solid or Dotted (affects extruded edges).
+- You can tune fence visuals with `Opacity` and `Boundary Color` controls shown when 3D View is enabled.
+- The visuals are driven by `GeoFenceMapVisuals.qml` with settings wired through `GeoFenceEditor.qml` and `PlanView.qml`.
+
