@@ -96,7 +96,12 @@ Edit -> Preferences -> Kits -> Compilers
 ## GeoFence 3D updates
 
 - Added optional 3D rendering for GeoFence polygons and circles in Plan View (toggle `3D View` in the GeoFence editor).
-- Vertical style now supports Solid or Dotted (affects extruded edges).
-- You can tune fence visuals with `Opacity` and `Boundary Color` controls shown when 3D View is enabled.
-- The visuals are driven by `GeoFenceMapVisuals.qml` with settings wired through `GeoFenceEditor.qml` and `PlanView.qml`.
+- Vertical style supports Solid or Dotted; dotted is built from segmented polylines for compatibility with `MapPolyline`.
+- Visual tuning when 3D View is enabled:
+  - `Opacity` slider to scale top/vertical line opacity and fill shading.
+  - `Boundary Color` dropdown (Yellow/Orange/Red/Blue/Green) applied to edges.
+- Implementation notes:
+  - `GeoFenceEditor.qml`: UI for 3D toggle, vertical style, opacity, boundary color; exposes properties.
+  - `PlanView.qml`: passes editor properties into `GeoFenceMapVisuals`.
+  - `GeoFenceMapVisuals.qml`: builds extruded outlines (top face + verticals) for polygons/circles, normalizes closed paths, and segments verticals when dotted. Uses passed color/opacity.
 
