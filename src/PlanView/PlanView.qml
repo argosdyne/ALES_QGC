@@ -41,6 +41,7 @@ Item {
     property var    _planMasterController:              planMasterController
     property var    _missionController:                 _planMasterController.missionController
     property var    _geoFenceController:                _planMasterController.geoFenceController
+    property var    _geoCageController:                 _planMasterController.geoCageController
     property var    _rallyPointController:              _planMasterController.rallyPointController
     property var    _visualItems:                       _missionController.visualItems
     property bool   _lightWidgetBorders:                editorMap.isSatelliteMap
@@ -52,11 +53,12 @@ Item {
     property var    _planViewSettings:                  QGroundControl.settingsManager.planViewSettings
     property bool   _promptForPlanUsageShowing:         false
 
-    readonly property var       _layers:                [_layerMission, _layerGeoFence, _layerRallyPoints]
+    readonly property var       _layers:                [_layerMission, _layerGeoFence, _layerGeoCage, _layerRallyPoints]
 
     readonly property int       _layerMission:              1
     readonly property int       _layerGeoFence:             2
-    readonly property int       _layerRallyPoints:          3
+    readonly property int       _layerGeoCage:              3
+    readonly property int       _layerRallyPoints:          4
     readonly property string    _armedVehicleUploadPrompt:  qsTr("Vehicle is currently armed. Do you want to upload the mission to the vehicle?")
 
     function mapCenter() {
@@ -71,6 +73,7 @@ Item {
     property bool _firstFenceLoadComplete:      false
     property bool _firstRallyLoadComplete:      false
     property bool _firstLoadComplete:           false
+    property bool _geoFenceShow3D:              false
 
     MapFitFunctions {
         id:                         mapFitFunctions  // The name for this id cannot be changed without breaking references outside of this code. Beware!
@@ -480,7 +483,23 @@ Item {
                 interactive:            _editingLayer == _layerGeoFence
                 homePosition:           _missionController.plannedHomePosition
                 planView:               true
-                opacity:                _editingLayer != _layerGeoFence ? editorMap._nonInteractiveOpacity : 1
+                visible:                _editingLayer == _layerGeoFence
+                opacity:                (_editingLayer == _layerGeoFence) || _editingLayer == _layerGeoCage ? 1 : editorMap._nonInteractiveOpacity
+                show3DView:             _geoFenceShow3D
+                breachStyle:            geoFenceEditor ? geoFenceEditor._breachStyle : Qt.SolidLine
+                fenceOpacity:           geoFenceEditor ? geoFenceEditor.fenceOpacity : 1.0
+                boundaryColor:          geoFenceEditor ? geoFenceEditor.boundaryColor : "orange"
+            }
+
+            GeoCageMapVisuals {
+                map:                    editorMap
+                myGeoCageController:    _geoCageController
+                interactive:            _editingLayer == _layerGeoCage
+                homePosition:           _missionController.plannedHomePosition
+                visible:                (_editingLayer == _layerGeoCage)
+                opacity:                (_editingLayer == _layerGeoCage) ? 1 : editorMap._nonInteractiveOpacity
+                useFenceGeometry:       true
+                id:                     geoCageVisuals
             }
 
             RallyPointMapVisuals {
@@ -514,7 +533,7 @@ Item {
 
             property bool _isRallyLayer:    _editingLayer == _layerRallyPoints
             property bool _isMissionLayer:  _editingLayer == _layerMission
-            property bool _showInitPathAction: _missionController && _missionController.currentPlanViewItem && _missionController.currentPlanViewItem.cameraCalc && _missionController.currentPlanViewItem.cameraCalc.isYSLidar
+            property bool _showInitPathAction: _missionController && _missionController.currentPlanViewItem && _missionController.currentPlanViewItem.cameraCalc && (_missionController.currentPlanViewItem.cameraCalc.isYSLidar === true)
 
             ToolStripActionList {
                 id: toolStripActionList
@@ -661,6 +680,10 @@ Item {
                         text:       qsTr("Fence")
                         enabled:    _geoFenceController.supported
                     }
+                    // QGCTabButton {
+                    //     text:       qsTr("Cage")
+                    //     enabled:    true
+                    // }
                     QGCTabButton {
                         text:       qsTr("Rally")
                         enabled:    _rallyPointController.supported
@@ -710,14 +733,29 @@ Item {
             }
             // GeoFence Editor
             GeoFenceEditor {
+                id:                 geoFenceEditor
                 anchors.top:            rightControls.bottom
                 anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 0.25
                 anchors.bottom:         parent.bottom
                 anchors.left:           parent.left
                 anchors.right:          parent.right
                 myGeoFenceController:   _geoFenceController
+                myGeoCageController:    _geoCageController
                 flightMap:              editorMap
+                show3DView:             _geoFenceShow3D
+                onShow3DViewChanged:    _geoFenceShow3D = show3DView
                 visible:                _editingLayer == _layerGeoFence
+            }
+
+            GeoCageEditor {
+                anchors.top:            rightControls.bottom
+                anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 0.25
+                anchors.bottom:         parent.bottom
+                anchors.left:           parent.left
+                anchors.right:          parent.right
+                myGeoCageController:    _geoCageController
+                flightMap:              editorMap
+                visible:                _editingLayer == _layerGeoCage
             }
 
             // Rally Point Editor

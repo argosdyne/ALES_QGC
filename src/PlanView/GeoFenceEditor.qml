@@ -15,7 +15,12 @@ QGCFlickable {
     clip:           true
 
     property var    myGeoFenceController
+    property var    myGeoCageController
     property var    flightMap
+    property bool   show3DView: false
+    property int    _breachStyle: Qt.SolidLine
+    property real   fenceOpacity: 0.9
+    property color  boundaryColor: "#ffb300"
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -125,6 +130,9 @@ QGCFlickable {
                             var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
                             var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
                             myGeoFenceController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
+                            if (myGeoCageController) {
+                                myGeoCageController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
+                            }
                         }
                     }
 
@@ -137,6 +145,61 @@ QGCFlickable {
                             var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
                             var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
                             myGeoFenceController.addInclusionCircle(topLeftCoord, bottomRightCoord)
+                        }
+                    }
+
+                    QGCCheckBox {
+                        text:       qsTr("3D View")
+                        checked:    show3DView
+                        onClicked:  show3DView = checked
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Vertical cage") }
+                    QGCRadioButton {
+                            checked: _breachStyle === Qt.SolidLine
+                            text: qsTr("Solid")
+                            onClicked: _breachStyle = Qt.SolidLine
+                        }
+                        QGCRadioButton {
+                            checked: _breachStyle === Qt.DotLine
+                            text: qsTr("Dotted")
+                            onClicked: _breachStyle = Qt.DotLine
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Opacity") }
+                        QGCSlider {
+                            id: opacitySlider
+                            width: _editFieldWidth
+                            minimumValue: 0.1
+                            maximumValue: 1.0
+                            stepSize: 0.05
+                            value: fenceOpacity
+                            onValueChanged: fenceOpacity = value
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Boundary Color") }
+                        QGCComboBox {
+                            model: [
+                                { name: qsTr("Yellow"), color: "#ffb300" },
+                                { name: qsTr("Orange"), color: "#ff7a00" },
+                                { name: qsTr("Red"), color: "#e53935" },
+                                { name: qsTr("Blue"), color: "#1976d2" },
+                                { name: qsTr("Green"), color: "#2e7d32" }
+                            ]
+                            textRole: "name"
+                            currentIndex: 0
+                            onCurrentIndexChanged: boundaryColor = model[currentIndex].color
                         }
                     }
 

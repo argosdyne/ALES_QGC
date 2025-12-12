@@ -76,12 +76,10 @@ G_BEGIN_DECLS
 #if defined(__android__) || defined(__ios__)
     GST_PLUGIN_STATIC_DECLARE(coreelements);
     GST_PLUGIN_STATIC_DECLARE(playback);
-    GST_PLUGIN_STATIC_DECLARE(libav);
     GST_PLUGIN_STATIC_DECLARE(rtp);
     GST_PLUGIN_STATIC_DECLARE(rtsp);
     GST_PLUGIN_STATIC_DECLARE(udp);
     GST_PLUGIN_STATIC_DECLARE(videoparsersbad);
-    GST_PLUGIN_STATIC_DECLARE(x264);
     GST_PLUGIN_STATIC_DECLARE(rtpmanager);
     GST_PLUGIN_STATIC_DECLARE(isomp4);
     GST_PLUGIN_STATIC_DECLARE(matroska);
@@ -207,12 +205,10 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
 #if defined(__android__) || defined(__ios__)
     GST_PLUGIN_STATIC_REGISTER(coreelements);
     GST_PLUGIN_STATIC_REGISTER(playback);
-    GST_PLUGIN_STATIC_REGISTER(libav);
     GST_PLUGIN_STATIC_REGISTER(rtp);
     GST_PLUGIN_STATIC_REGISTER(rtsp);
     GST_PLUGIN_STATIC_REGISTER(udp);
     GST_PLUGIN_STATIC_REGISTER(videoparsersbad);
-    GST_PLUGIN_STATIC_REGISTER(x264);
     GST_PLUGIN_STATIC_REGISTER(rtpmanager);
     GST_PLUGIN_STATIC_REGISTER(isomp4);
     GST_PLUGIN_STATIC_REGISTER(matroska);
