@@ -268,7 +268,10 @@ Item {
             property var topPath: { _mapKey; return _extrudePath(basePath, heightPx) }
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
             property color edgeColor: _edgeColor(object)
-            property color faceColor: Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, Math.min(0.65, Math.max(0.25, fenceOpacity * 0.5)))
+            property color faceColor: {
+                var alpha = object && object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
+                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
+            }
             visible: show3DView && topPath.length > 2 && basePath.length === topPath.length
 
             MapPolyline {
@@ -292,7 +295,7 @@ Item {
                 color: faceColor
                 border.width: 1
                 border.color: edgeColor
-                opacity: _root.opacity * fenceOpacity
+                opacity: _root.opacity
                 antialiasing: true
                 visible: extrudePoly.visible && mapRef && topPath.length > 2
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
@@ -334,7 +337,7 @@ Item {
                         color: faceColor
                         border.width: 1
                         border.color: edgeColor
-                        opacity: _root.opacity * fenceOpacity
+                        opacity: _root.opacity
                         antialiasing: true
                         Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                     }
