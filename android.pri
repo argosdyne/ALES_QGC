@@ -15,6 +15,7 @@ ANDROID_PACKAGE_SETTING_FILE_TMP     = $$OUT_PWD/android-AlesQGroundControl-depl
 
 contains(QMAKE_HOST.os, Windows){
     message("Win32: Prepairing android build folder")
+    COPY_DIR_WIN = xcopy /E /I /Y
     android_source_dir_target.target = $$system_path($$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml)
     DIR_EXISTS_CMD = if not exist %1 echo Initializing package source...
     manifest_path = $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml
@@ -23,7 +24,7 @@ contains(QMAKE_HOST.os, Windows){
     android_source_dir_target.commands = \
         $$sprintf($$DIR_EXISTS_CMD, $$system_path($$ANDROID_PACKAGE_SOURCE_DIR)) && \
         $$QMAKE_MKDIR $$system_path($$ANDROID_PACKAGE_SOURCE_DIR) && \
-        $$QMAKE_COPY_DIR $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/*) $$system_path($$ANDROID_PACKAGE_SOURCE_DIR)
+        $$COPY_DIR_WIN \"$$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR\\*)\" \"$$system_path($$ANDROID_PACKAGE_SOURCE_DIR)\\\"
 
     PRE_TARGETDEPS += $$android_source_dir_target.target
     QMAKE_EXTRA_TARGETS += android_source_dir_target
@@ -51,7 +52,7 @@ exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR) {
     contains(QMAKE_HOST.os, Windows){
         message("Win32: Merging$$ $$ANDROID_PACKAGE_QGC_SOURCE_DIR and $$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR to $$ANDROID_PACKAGE_SOURCE_DIR")
         android_source_dir_target.commands = $$android_source_dir_target.commands && \
-            $$QMAKE_COPY_DIR $$system_path($$PWD/custom/android/*) $$system_path($$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR) && \
+            $$COPY_DIR_WIN \"$$system_path($$PWD/custom/android\\*)\" \"$$system_path($$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR)\\\" && \
             $$QMAKE_STREAM_EDITOR -e \"s/package=\\\"org.mavlink.qgroundcontrol\\\"/package=\\\"$$QGC_ANDROID_PACKAGE\\\"/g\" \
                 $$system_path($$manifest_path) > $$system_path($$manifest_tmp_path) && \
             $$QMAKE_MOVE $$system_path($$manifest_tmp_path) $$system_path($$manifest_path) &&\

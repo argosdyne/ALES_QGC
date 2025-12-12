@@ -1,5 +1,5 @@
 # The 32 and 64 bit version of these actions should be kept in sync
-name: Android 32/64-bit Release
+name: Android 32/64-bit Release (Windows)
 
 on:
   push:
@@ -13,32 +13,32 @@ on:
       - 'docs/**'
   pull_request:
     branches:
-    - '*'
+      - '*'
     paths-ignore:
       - 'docs/**'
 
 defaults:
   run:
-    shell: bash
+    shell: cmd
 
 env:
-  SOURCE_DIR:   ${{ github.workspace }}
-  QT_VERSION:   5.15.2
-  BUILD_TYPE:   ${{ fromJSON('["DailyBuild", "StableBuild"]')[ github.ref_type == 'tag' || contains(github.ref, 'Stable_' ) ] }}
+  SOURCE_DIR: ${{ github.workspace }}
+  QT_VERSION: 5.15.2
+  BUILD_TYPE: ${{ fromJSON('["DailyBuild", "StableBuild"]')[ github.ref_type == 'tag' || contains(github.ref, 'Stable_' ) ] }}
 
 jobs:
   build:
-    runs-on:  ubuntu-20.04
+    runs-on: windows-latest
 
     strategy:
       matrix:
-       include:
-         - architecture: 32bits
-           eabi: armeabi-v7a
-           ARTIFACT: QGroundControl32.apk
-         - architecture: 64bits
-           eabi: arm64-v8a
-           ARTIFACT: QGroundControl64.apk
+        include:
+          - architecture: 32bits
+            eabi: armeabi-v7a
+            ARTIFACT: QGroundControl32.apk
+          - architecture: 64bits
+            eabi: arm64-v8a
+            ARTIFACT: QGroundControl64.apk
 
     steps:
       - name: Checkout repo
@@ -46,26 +46,34 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          android: 'false'
-        continue-on-error: true
-
       - name: Get all tags for correct version determination
-        working-directory:  ${{ github.workspace }}
-        run: |
-          git fetch --all --tags -f --depth 1
+        working-directory: ${{ github.workspace }}
+        run: git fetch --all --tags -f --depth 1
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version:      ${{ env.QT_VERSION }}
-          host:         linux
-          target:       android
-          dir:          ${{ runner.temp }}
-          modules:      qtcharts
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: android
+          arch: android
+          dir: ${{ runner.temp }}
+          modules: qtcharts
           setup-python: true
+
+      - name: Add Qt (Android) to PATH
+        run: echo ${{ runner.temp }}\Qt\${{ env.QT_VERSION }}\android\bin>>%GITHUB_PATH%
+
+      - name: Download JOM
+        uses: suisei-cn/actions-download-file@v1.3.0
+        with:
+          url: http://download.qt.io/official_releases/jom/jom.zip
+          target: ${{ runner.temp }}\
+
+      - name: Unzip JOM
+        working-directory: ${{ runner.temp }}
+        run: |
+          7z x jom.zip -ojom
 
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
@@ -74,98 +82,62 @@ jobs:
           ndk-version: r21e
           add-to-path: false
 
-      - name: Remove Android SDKs to force usage of android-33 only
-        run: |
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-33-ext5"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-33-ext4"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-34"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-34-ext8"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-34-ext10"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-34-ext11"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-34-ext12"
-            ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-35"
-
-      - name: Install ccache
-        run:  sudo apt-get install ccache
-
-      - name: Prepare ccache timestamp
-        id: ccache_cache_timestamp
-        run: echo "name=timestamp::$(date --utc +'%Y-%m-%d-%H\;%M\;%S')" >> $GITHUB_OUTPUT
-
-      - name: ccache cache files
-        uses: actions/cache@v3
-        with:
-          path:         ~/.ccache
-          key:          ${{ runner.os }}-ccache-${{steps.ccache_cache_timestamp.outputs.timestamp}}
-          restore-keys: ${{ runner.os }}-ccache-
-
-      - name: Setup ccache
-        run: |
-            mkdir -p ~/.ccache
-            echo "base_dir = ${GITHUB_WORKSPACE}" > ~/.ccache/ccache.conf
-            echo "compression = true" >> ~/.ccache/ccache.conf
-            echo "compression_level = 5" >> ~/.ccache/ccache.conf
-            ccache -s
-            ccache -z
-
       - name: Create build directory
-        run:  mkdir ${{ runner.temp }}/shadow_build_dir
+        run: mkdir ${{ runner.temp }}\shadow_build_dir
 
-      - name:               Install gstreamer
-        working-directory:  ${{ github.workspace }}
+      - name: Install gstreamer
+        working-directory: ${{ github.workspace }}
         run: |
-            wget --quiet https://gstreamer.freedesktop.org/data/pkg/android/1.18.6/gstreamer-1.0-android-universal-1.18.6.tar.xz
-            mkdir gstreamer-1.0-android-universal-1.18.6
-            tar xf gstreamer-1.0-android-universal-1.18.6.tar.xz -C gstreamer-1.0-android-universal-1.18.6
+          curl -L -o gstreamer-1.0-android-universal-1.18.6.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.18.6/gstreamer-1.0-android-universal-1.18.6.tar.xz
+          mkdir gstreamer-1.0-android-universal-1.18.6
+          tar -xf gstreamer-1.0-android-universal-1.18.6.tar.xz -C gstreamer-1.0-android-universal-1.18.6
 
       - name: Update android manifest
         if: github.ref_name != 'Stable'
+        shell: bash
         run: |
-            ${SOURCE_DIR}/tools/update_android_manifest_package.sh ${{ github.ref_name }}
+          ${SOURCE_DIR}/tools/update_android_manifest_package.sh ${{ github.ref_name }}
 
       - name: Build
-        working-directory: ${{ runner.temp }}/shadow_build_dir
+        working-directory: ${{ runner.temp }}\shadow_build_dir
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK_LATEST_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run:  |
-            qmake -r ${SOURCE_DIR}/qgroundcontrol.pro -spec android-clang CONFIG+=${BUILD_TYPE} CONFIG+=installer ANDROID_ABIS="${{ matrix.eabi }}"
-            make -j2
-
-      - name: ccache post-run
-        run:  ccache -s
+        run: |
+          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}"
+          ${{ runner.temp }}\jom\jom -j2
 
       - name: Save artifact
         uses: actions/upload-artifact@master
         with:
           name: ${{ matrix.ARTIFACT }}
-          path: ${{ runner.temp }}/shadow_build_dir/package/${{ matrix.ARTIFACT }}
+          path: ${{ runner.temp }}\shadow_build_dir\package\${{ matrix.ARTIFACT }}
 
       - name: Publish artifact to GitHub release
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ runner.temp }}/shadow_build_dir/package/${{ matrix.ARTIFACT }}
+          file: ${{ runner.temp }}\shadow_build_dir\package\${{ matrix.ARTIFACT }}
           asset_name: ${{ matrix.ARTIFACT }}
           tag: ${{ github.ref }}
           overwrite: true
 
-      - name: Upload build to S3 Bucket
-        if:                 github.event_name == 'push'
-        working-directory:  ${{ runner.temp }}/shadow_build_dir/package
-        run: |
-              aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-              aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws s3 cp ${{ matrix.ARTIFACT }} s3://qgroundcontrol/builds/${{ github.ref_name }}/${{ matrix.ARTIFACT }} --region us-west-2 --acl public-read
+      #- name: Upload build to S3 Bucket
+      #  if:                 github.event_name == 'push'
+      #  working-directory:  ${{ runner.temp }}\shadow_build_dir\package
+      #  run: |
+      #        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #        aws s3 cp ${{ matrix.ARTIFACT }} s3://qgroundcontrol/builds/${{ github.ref_name }}/${{ matrix.ARTIFACT }} --region us-west-2 --acl public-read
 
-      - name: Upload tagged stable build to S3 latest Bucket
-        if:                 github.event_name == 'push' && github.ref_type == 'tag'
-        working-directory:  ${{ runner.temp }}/shadow_build_dir/package
-        run: |
-              aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-              aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws s3 cp ${{ matrix.ARTIFACT }} s3://qgroundcontrol/latest/${{ matrix.ARTIFACT }} --region us-west-2 --acl public-read
+      #- name: Upload tagged stable build to S3 latest Bucket
+      #  if:                 github.event_name == 'push' && github.ref_type == 'tag'
+      #  working-directory:  ${{ runner.temp }}\shadow_build_dir\package
+      #  run: |
+      #        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #        aws s3 cp ${{ matrix.ARTIFACT }} s3://qgroundcontrol/latest/${{ matrix.ARTIFACT }} --region us-west-2 --acl public-read
