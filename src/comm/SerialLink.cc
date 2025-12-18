@@ -177,7 +177,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
 
     _port = new QSerialPort(_serialConfig->portName(), this);
 
-    QObject::connect(_port, &QSerialPort::errorOccurred, this, &SerialLink::linkError);
+    //QObject::connect(_port, &QSerialPort::errorOccurred, this, &SerialLink::linkError);
     QObject::connect(_port, &QIODevice::readyRead, this, &SerialLink::_readBytes);
 
 // #ifdef Q_OS_ANDROID
@@ -286,7 +286,7 @@ void SerialLink::_emitLinkError(const QString& errorMsg)
 {
     QString msg("Error on link %1. %2");
     qDebug() << errorMsg;
-    emit communicationError(tr("Link Error"), msg.arg(_config->name()).arg(errorMsg));
+    //emit communicationError(tr("Link Error"), msg.arg(_config->name()).arg(errorMsg));
 }
 
 //--------------------------------------------------------------------------

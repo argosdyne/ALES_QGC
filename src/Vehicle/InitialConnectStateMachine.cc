@@ -265,8 +265,8 @@ void InitialConnectStateMachine::_protocolVersionRequestMessageHandler(void* res
     if (failureCode != Vehicle::RequestMessageNoFailure) {
         // Either the PROTOCOL_VERSION message didn't make it through the pipe from Vehicle->QGC because the pipe is mavlink 1.
         // Or the PROTOCOL_VERSION message was lost on a noisy connection. Either way the best we can do is fall back to mavlink 1.
-        qCDebug(InitialConnectStateMachineLog) << QStringLiteral("Setting _maxProtoVersion to 100 due to timeout on receiving PROTOCOL_VERSION message.");
-        vehicle->_mavlinkProtocolRequestMaxProtoVersion = 100;
+        qCDebug(InitialConnectStateMachineLog) << QStringLiteral("Setting _maxProtoVersion to 200 due to timeout on receiving PROTOCOL_VERSION message.");
+        vehicle->_mavlinkProtocolRequestMaxProtoVersion = 200;
         vehicle->_mavlinkProtocolRequestComplete = true;
         vehicle->_setMaxProtoVersionFromBothSources();
     }

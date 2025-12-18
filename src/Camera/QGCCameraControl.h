@@ -92,6 +92,13 @@ public:
     QGCCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent = nullptr);
     virtual ~QGCCameraControl();
 
+    // Manually trigger a full parameter request
+    Q_INVOKABLE void refreshAllParameters();
+    // Alternate name for UI: request all parameters
+    Q_INVOKABLE void requestAllParameters();
+    // Request only specific parameters (for thermometry)
+    Q_INVOKABLE void requestSpecificParameters();
+
     //-- cam_mode
     enum CameraMode {
         CAM_MODE_UNDEFINED = -1,

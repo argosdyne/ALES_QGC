@@ -319,8 +319,8 @@ QGCCameraParamIO::_valueFromMessage(const char* value, uint8_t param_type)
 void
 QGCCameraParamIO::_paramRequestTimeout()
 {
-    if(++_requestRetries > 3) {
-        qCWarning(CameraIOLog) << "No response for param request:" << _fact->name();
+    if(++_requestRetries > 5) {
+        qWarning() << "CameraIOLog: No response for param request:" << _fact->name();
         if(!_done) {
             _done = true;
             _control->_paramDone();
@@ -364,15 +364,15 @@ QGCCameraParamIO::paramRequest(bool reset)
                 param_id,
                 -1);
 
-    //qCDebug(CameraIOLog)
-    //    << "[paramRequest]"
-    //    << "fact:" << _fact->name()
-    //    << "vehicle id:" << _vehicle->id()
-    //    << "control compID:" << _control->compID()
-    //    << "mavlink sysid:" << _pMavlink->getSystemId()
-    //    << "mavlink compid:" << _pMavlink->getComponentId()
-    //    << "channel:" << _control->_link->mavlinkChannel()
-    //    << "link:" << _control->_link;
+    qInfo()
+       << "[paramRequest]"
+       << "fact:" << _fact->name()
+       << "vehicle id:" << _vehicle->id()
+       << "control compID:" << _control->compID()
+       << "mavlink sysid:" << _pMavlink->getSystemId()
+       << "mavlink compid:" << _pMavlink->getComponentId()
+       << "channel:" << _control->_link->mavlinkChannel()
+       << "link:" << _control->_link;
     _vehicle->sendMessageOnLinkThreadSafe(_control->_link, msg);
     _paramRequestTimer.start();
 }

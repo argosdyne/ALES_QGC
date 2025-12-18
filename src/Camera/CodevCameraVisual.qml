@@ -430,7 +430,27 @@ Item {
                 }
             }
         }
-
+        ToolButton {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+            visible: thermalItem.visible
+            Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 2.2
+            Layout.preferredHeight: Layout.preferredWidth
+            contentItem: QGCColoredImage {
+                anchors.centerIn: parent
+                source: "/res/reset.svg"
+                mipmap: true
+                height: ScreenTools.defaultFontPixelHeight * 1.8
+                width: height
+                sourceSize.height: height
+                color: qgcPal.text
+                fillMode: Image.PreserveAspectFit
+            }
+            onClicked: {
+                if(_camera) {
+                    _camera.requestAllParameters()
+                }
+            }
+        }
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _thermometry ? _thermometry.value : false
@@ -451,6 +471,7 @@ Item {
                 _thermometry.value = !_thermometry.value
             }
         }
+       
 
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter

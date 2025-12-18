@@ -1181,6 +1181,34 @@ QGCCameraControl::_replaceLocaleStrings(const QDomNode node, QByteArray& bytes)
 }
 
 //-----------------------------------------------------------------------------
+// void
+// QGCCameraControl::_requestAllParameters()
+// {
+//     //-- Reset receive list
+//     for(const QString& paramName: _paramIO.keys()) {
+//         if(_paramIO[paramName]) {
+//             _paramIO[paramName]->setParamRequest();
+//         } else {
+//             qCritical() << "QGCParamIO is NULL" << paramName;
+//         }
+//     }
+//     MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+//     mavlink_message_t msg;
+//     qInfo() << "PARAM_EXT_REQUEST_LIST sysId" << mavlink->getSystemId()
+//             << "compId" << mavlink->getComponentId()
+//             << "chan" << _link->mavlinkChannel()
+//             << "targetSys" << _vehicle->id()
+//             << "targetComp" << compID();
+//     mavlink_msg_param_ext_request_list_pack_chan(
+//                 static_cast<uint8_t>(mavlink->getSystemId()),
+//                 static_cast<uint8_t>(mavlink->getComponentId()),
+//                 _link->mavlinkChannel(),
+//                 &msg,
+//                 static_cast<uint8_t>(_vehicle->id()),
+//                 static_cast<uint8_t>(compID()));
+//     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+//     qCDebug(CameraControlVerboseLog) << "Request all parameters";
+// }
 void
 QGCCameraControl::_requestAllParameters()
 {
@@ -1192,16 +1220,21 @@ QGCCameraControl::_requestAllParameters()
             qCritical() << "QGCParamIO is NULL" << paramName;
         }
     }
-    MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
-    mavlink_message_t msg;
-    mavlink_msg_param_ext_request_list_pack_chan(
-                static_cast<uint8_t>(mavlink->getSystemId()),
-                static_cast<uint8_t>(mavlink->getComponentId()),
-                _link->mavlinkChannel(),
-                &msg,
-                static_cast<uint8_t>(_vehicle->id()),
-                static_cast<uint8_t>(compID()));
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();
+    if (!weakLink.expired()) {
+        SharedLinkInterfacePtr sharedLink = weakLink.lock();
+
+        MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+        mavlink_message_t msg;
+        mavlink_msg_param_ext_request_list_pack_chan(
+                    static_cast<uint8_t>(mavlink->getSystemId()),
+                    static_cast<uint8_t>(mavlink->getComponentId()),
+                    sharedLink->mavlinkChannel(),
+                    &msg,
+                    static_cast<uint8_t>(_vehicle->id()),
+                    static_cast<uint8_t>(compID()));
+        _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    }
     qCDebug(CameraControlVerboseLog) << "Request all parameters";
 }
 
@@ -2473,4 +2506,92 @@ QGCCameraControl::_requestTrackingStatus()
                              true,
                              MAVLINK_MSG_ID_CAMERA_TRACKING_IMAGE_STATUS,
                              500000); // Interval (us)
+}
+void
+QGCCameraControl::refreshAllParameters()
+{
+    qInfo() << "CameraControl refreshAllParameters() compId" << compID();
+    _requestAllParameters();
+}
+
+void
+QGCCameraControl::requestAllParameters()
+{
+    qInfo() << "CameraControl requestAllParameters() compId" << compID();
+    _requestAllParameters();
+}
+
+void
+QGCCameraControl::requestSpecificParameters()
+{
+    static const char* kParams[] = {
+        "IR_TEMP_POINT",
+        "IR_THERMOMETRY",
+        "IR_TEMP_DATA",
+        "IR_TEMP_RECT",
+        "IR_TEMP_LINE",
+        "IR_ZOOM",
+        "IR_GAIN",
+        "IR_PALETTE",
+        "AI_OSD",
+        "AI_SOURCE",
+        "AI_RESOLUTION",
+        "DETECT_OBJECTS",
+        "DETECT_PLUGINS",
+        "TRACK_PLUGINS",
+        "TRACK_ALGORITHM",
+        "TRACK_GAIN",
+        "EO_SPOTAE",
+        "EO_DZOOM",
+        "EO_ZOOM_MODE",
+        "EO_HS",
+        "EO_EV",
+        "EO_WB",
+        "EO_RESOLUTION",
+        "EO_VIDEO_QUALITY",
+        "EO_COMMAND",
+        "EO_BITRATE",
+        "TOF_EN",
+        "NV_STATUS",
+        "NV_DEBUG",
+        "NV_POWER_MODE",
+        "GB_SPEED",
+        "TIME_ZONE",
+        "UUID",
+        "SMART_SELECT",
+        "CALIBRATE_FLAGS",
+        "FACTORY_CALI",
+        "FACTORY_DATA",
+        "JSON_TR_REQ",
+        "LANDING_MODE",
+        "LANDMODE_SWITCH",
+        "YAW_MODE",
+        "YAW_SMOOTH",
+    };
+    constexpr size_t kParamCount = sizeof(kParams) / sizeof(kParams[0]);
+    MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+    qInfo() << "RequestSpecificParameters count" << kParamCount << "compId" << compID();
+    int delayMs = 0;
+    for(const char* name : kParams) {
+        QTimer::singleShot(delayMs, this, [this, mavlink, name]() {
+            mavlink_message_t msg;
+            qInfo() << "PARAM_EXT_REQUEST_READ sysId" << mavlink->getSystemId()
+                    << "compId" << mavlink->getComponentId()
+                    << "chan" << _link->mavlinkChannel()
+                    << "targetSys" << _vehicle->id()
+                    << "targetComp" << compID()
+                    << "param" << name;
+            mavlink_msg_param_ext_request_read_pack_chan(
+                        static_cast<uint8_t>(mavlink->getSystemId()),
+                        static_cast<uint8_t>(mavlink->getComponentId()),
+                        _link->mavlinkChannel(),
+                        &msg,
+                        static_cast<uint8_t>(_vehicle->id()),
+                        static_cast<uint8_t>(compID()),
+                        name,
+                        0);
+            _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+        });
+        delayMs += 300; // spread requests to avoid flooding link
+    }
 }

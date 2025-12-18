@@ -73,6 +73,9 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
+        <!-- Add direct resource paths so qtquickcompiler/qmlcache can resolve file->resource mapping -->
+        <file>CustomFlyViewVideo.qml</file>
+        <file>res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>

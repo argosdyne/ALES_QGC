@@ -1450,7 +1450,8 @@ AndroidBuild {
 android: {
     greaterThan(QT_MAJOR_VERSION, 5): CONFIG += qtserialport
     !FORCE_QSERIALPORT {
-        LIBS += -$$PWD/libs/qtandroidserialport/src/qtandroidserialport.pri
+        # Use the Android serialport shim; include the pri instead of pushing it as a linker flag
+        include($$PWD/libs/qtandroidserialport/src/qtandroidserialport.pri)
     }
 } else {
     greaterThan(QT_MAJOR_VERSION, 5): CONFIG += qtserialport

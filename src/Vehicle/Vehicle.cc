@@ -1353,11 +1353,12 @@ void Vehicle::_setCapabilities(uint64_t capabilityBits)
 }
 
 void Vehicle::_setMaxProtoVersion(unsigned version) {
+    unsigned clampedVersion = qMax(version, 200u);
 
     // Set only once or if we need to reduce the max version
-    if (_maxProtoVersion == 0 || version < _maxProtoVersion) {
-        qCDebug(VehicleLog) << "_setMaxProtoVersion before:after" << _maxProtoVersion << version;
-        _maxProtoVersion = version;
+    if (_maxProtoVersion == 0 || clampedVersion < _maxProtoVersion) {
+        qCDebug(VehicleLog) << "_setMaxProtoVersion before:after" << _maxProtoVersion << clampedVersion;
+        _maxProtoVersion = clampedVersion;
         emit requestProtocolVersion(_maxProtoVersion);
     }
 }
