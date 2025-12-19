@@ -9,27 +9,8 @@
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
 #include "CodevCameraControl.h"
-#include "QGCMAVLink.h"
 
 QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
-
-namespace {
-const char* _componentName(int compid)
-{
-    switch (compid) {
-    case MAV_COMP_ID_AUTOPILOT1:    return "autopilot1";
-    case MAV_COMP_ID_CAMERA:        return "camera1";
-    case MAV_COMP_ID_CAMERA2:       return "camera2";
-    case MAV_COMP_ID_CAMERA3:       return "camera3";
-    case MAV_COMP_ID_CAMERA4:       return "camera4";
-    case MAV_COMP_ID_CAMERA5:       return "camera5";
-    case MAV_COMP_ID_CAMERA6:       return "camera6";
-    case MAV_COMP_ID_GIMBAL:        return "gimbal";
-    case MAV_COMP_ID_ONBOARD_COMPUTER: return "onboard-computer";
-    default:                        return "unknown";
-    }
-}
-} // namespace
 
 //-----------------------------------------------------------------------------
 QGCCameraManager::CameraStruct::CameraStruct(QObject* parent, uint8_t compID_)
@@ -88,16 +69,6 @@ QGCCameraManager::_vehicleReady(bool ready)
 void
 QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, LinkInterface* link)
 {
-    const mavlink_message_info_t* msgInfo = mavlink_get_message_info(&message);
-    const char* msgName = msgInfo ? msgInfo->name : "unknown";
-    QString sysLabel = QStringLiteral("sysid %1").arg(message.sysid);
-    if (message.sysid == _vehicle->id()) {
-        sysLabel += QStringLiteral(" [vehicle]");
-    } else if (message.sysid == 255) {
-        sysLabel += QStringLiteral(" [GCS]");
-    }
-    QString compLabel = QStringLiteral("compid %1 (%2)").arg(message.compid).arg(_componentName(message.compid));
-    qInfo(CameraManagerLog) << "CameraManager recv msg" << message.msgid << "(" << msgName << ")" << sysLabel << compLabel;
     //-- Only pay attention to camera components, as identified by their compId
     if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 || message.compid == MAV_COMP_ID_GIMBAL ||
         (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6))) {
@@ -382,8 +353,6 @@ QGCCameraManager::_handleParamValue(const mavlink_message_t& message)
     if(pCamera) {
         mavlink_param_ext_value_t value;
         mavlink_msg_param_ext_value_decode(&message, &value);
-        QString paramName = QString::fromLatin1(value.param_id, MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_ID_LEN).trimmed();
-        qCInfo(CameraManagerLog) << "[ParamExtValue] comp" << message.compid << "param" << paramName << "type" << value.param_type;
         pCamera->handleParamValue(value);
     }
 }
