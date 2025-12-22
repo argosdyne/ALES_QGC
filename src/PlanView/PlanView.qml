@@ -489,6 +489,8 @@ Item {
                 breachStyle:            geoFenceEditor ? geoFenceEditor._breachStyle : Qt.SolidLine
                 fenceOpacity:           geoFenceEditor ? geoFenceEditor.fenceOpacity : 1.0
                 boundaryColor:          geoFenceEditor ? geoFenceEditor.boundaryColor : "orange"
+                fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : true
+                fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : true
             }
 
             GeoCageMapVisuals {
