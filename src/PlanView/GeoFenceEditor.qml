@@ -21,8 +21,9 @@ QGCFlickable {
     property int    _breachStyle: Qt.SolidLine
     property real   fenceOpacity: 0.9
     property color  boundaryColor: "#ffb300"
-    property bool   fillTopFace: true
-    property bool   fillSideFaces: true
+    property bool   fillTopFace: false
+    property bool   fillSideFaces: false
+    property bool   hideOccludedEdges: true
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -199,6 +200,11 @@ QGCFlickable {
                             text: qsTr("Fill side faces")
                             checked: fillSideFaces
                             onClicked: fillSideFaces = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Hide occluded edges")
+                            checked: hideOccludedEdges
+                            onClicked: hideOccludedEdges = checked
                         }
                     }
 

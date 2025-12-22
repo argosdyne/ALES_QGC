@@ -36,8 +36,8 @@ Item {
     property var    _circles:                   myGeoFenceController.circles
     property color  boundaryColor:              "orange"
     property real   fenceOpacity:               1.0
-    property bool   fillTopFace:                true
-    property bool   fillSideFaces:              true
+    property bool   fillTopFace:                false
+    property bool   fillSideFaces:              false
     property color  _borderColor:               boundaryColor
     property int    _borderWidthInclusion:      2
     property int    _borderWidthExclusion:      0
@@ -49,6 +49,7 @@ Item {
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
     property int    _circleSegmentsExtrude:     40
     property bool   show3DView:                 false
+    property bool   hideOccludedEdges:          true
     property int    breachStyle:                Qt.SolidLine
 
     function addPolygon(inclusionPolygon) {
@@ -218,6 +219,63 @@ Item {
         return segments
     }
 
+    function _visibleEdgeMask(basePath, topPath) {
+        if (!map || !basePath || !topPath || basePath.length < 2 || basePath.length !== topPath.length || typeof map.fromCoordinate !== "function") {
+            return []
+        }
+
+        var basePts = []
+        for (var i = 0; i < basePath.length; i++) {
+            var pt = map.fromCoordinate(basePath[i], false)
+            if (!pt) {
+                return []
+            }
+            basePts.push(pt)
+        }
+
+        var basePt0 = basePts[0]
+        var topPt0 = map.fromCoordinate(topPath[0], false)
+        if (!topPt0) {
+            return []
+        }
+        var v = Qt.point(topPt0.x - basePt0.x, topPt0.y - basePt0.y)
+        if (v.x === 0 && v.y === 0) {
+            return []
+        }
+
+        var area = 0
+        for (i = 0; i < basePts.length; i++) {
+            var p0 = basePts[i]
+            var p1 = basePts[(i + 1) % basePts.length]
+            area += (p0.x * p1.y) - (p1.x * p0.y)
+        }
+        var isCCW = area > 0
+
+        var mask = []
+        for (i = 0; i < basePts.length; i++) {
+            p0 = basePts[i]
+            p1 = basePts[(i + 1) % basePts.length]
+            var e = Qt.point(p1.x - p0.x, p1.y - p0.y)
+            var normal = isCCW ? Qt.point(e.y, -e.x) : Qt.point(-e.y, e.x)
+            var dot = (normal.x * v.x) + (normal.y * v.y)
+            mask.push(dot < 0)
+        }
+
+        return mask
+    }
+
+    function _visibleVertexMask(edgeMask) {
+        if (!edgeMask || edgeMask.length === 0) {
+            return []
+        }
+        var mask = []
+        for (var i = 0; i < edgeMask.length; i++) {
+            var prev = (i - 1 + edgeMask.length) % edgeMask.length
+            mask.push(edgeMask[i] || edgeMask[prev])
+        }
+        return mask
+    }
+
     function _edgeColor(polyObj) {
         if (polyObj && polyObj.inclusion === false) {
             return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, Math.max(0.15, fenceOpacity * 0.6))
@@ -253,7 +311,7 @@ Item {
             mapPolygon:         object
             borderWidth:        object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
             borderColor:        _borderColor
-            interiorColor:      (show3DView && !fillTopFace) ? "transparent" : (object.inclusion ? _interiorColorInclusion : _interiorColorExclusion)
+            interiorColor:      (show3DView && fillTopFace) ? boundaryColor : (object.inclusion ? _interiorColorInclusion : _interiorColorExclusion)
             interiorOpacity:    (show3DView && !fillTopFace) ? 0 : (object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion)
             interactive:        _root.interactive && mapPolygon && mapPolygon.interactive
         }
@@ -272,30 +330,40 @@ Item {
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
             property color edgeColor: _edgeColor(object)
             property color faceColor: {
-                if (!fillSideFaces || !object || object.inclusion !== false) {
+                if (!fillSideFaces || !object) {
                     return "transparent"
                 }
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, _interiorOpacityExclusion * _sideFaceOpacityScale)
+                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
+                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha * _sideFaceOpacityScale)
             }
             property color topFaceColor: {
-                if (!fillTopFace || !object || object.inclusion !== false) {
+                if (!fillTopFace || !object) {
                     return "transparent"
                 }
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, _interiorOpacityExclusion)
+                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
+                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
+            property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
             visible: show3DView && topPath.length > 2 && basePath.length === topPath.length
 
-            MapPolyline {
-                property var mapRef: map
-                z: QGroundControl.zOrderMapItems + 1
-                parent: mapRef
-                visible: extrudePoly.visible && mapRef
-                path: extrudePoly.topPathClosed
-                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                line.color: edgeColor
-                opacity: _root.opacity * fenceOpacity
-                antialiasing: true
-                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            Repeater {
+                model: extrudePoly.visible ? extrudePoly.topPath.length : 0
+                MapPolyline {
+                    property var mapRef: map
+                    z: QGroundControl.zOrderMapItems + 1
+                    parent: mapRef
+                    visible: extrudePoly.visible && mapRef && (!hideOccludedEdges || extrudePoly.edgeVisible.length === 0 || extrudePoly.edgeVisible[index])
+                    path: [
+                        extrudePoly.topPath[index],
+                        extrudePoly.topPath[(index + 1) % extrudePoly.topPath.length]
+                    ]
+                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    line.color: edgeColor
+                    opacity: _root.opacity * fenceOpacity
+                    antialiasing: true
+                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                }
             }
 
             MapPolygon {
@@ -325,6 +393,7 @@ Item {
                         path: modelData
                         line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
                         line.color: edgeColor
+                        visible: !hideOccludedEdges || extrudePoly.vertexVisible.length === 0 || extrudePoly.vertexVisible[vertexIndex]
                         opacity: _root.opacity * fenceOpacity
                         antialiasing: true
                         Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
@@ -366,7 +435,7 @@ Item {
             mapCircle:          object
             borderWidth:        object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
             borderColor:        _borderColor
-            interiorColor:      (show3DView && !fillTopFace) ? "transparent" : (object.inclusion ? _interiorColorInclusion : _interiorColorExclusion)
+            interiorColor:      (show3DView && fillTopFace) ? boundaryColor : (object.inclusion ? _interiorColorInclusion : _interiorColorExclusion)
             interiorOpacity:    (show3DView && !fillTopFace) ? 0 : (object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion)
             interactive:         _root.interactive && mapCircle && mapCircle.interactive
         }
@@ -385,30 +454,40 @@ Item {
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
             property color edgeColor: _edgeColor(object)
             property color faceColor: {
-                if (!fillSideFaces || !object || object.inclusion !== false) {
+                if (!fillSideFaces || !object) {
                     return "transparent"
                 }
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, _interiorOpacityExclusion * _sideFaceOpacityScale)
+                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
+                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha * _sideFaceOpacityScale)
             }
             property color topFaceColor: {
-                if (!fillTopFace || !object || object.inclusion !== false) {
+                if (!fillTopFace || !object) {
                     return "transparent"
                 }
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, _interiorOpacityExclusion)
+                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
+                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
+            property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
             visible: show3DView && topPath.length > 6 && basePath.length === topPath.length
 
-            MapPolyline {
-                property var mapRef: map
-                z: QGroundControl.zOrderMapItems + 1
-                parent: mapRef
-                visible: extrudeCircle.visible && mapRef
-                path: extrudeCircle.topPathClosed
-                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                line.color: edgeColor
-                opacity: _root.opacity * fenceOpacity
-                antialiasing: true
-                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            Repeater {
+                model: extrudeCircle.visible ? extrudeCircle.topPath.length : 0
+                MapPolyline {
+                    property var mapRef: map
+                    z: QGroundControl.zOrderMapItems + 1
+                    parent: mapRef
+                    visible: extrudeCircle.visible && mapRef && (!hideOccludedEdges || extrudeCircle.edgeVisible.length === 0 || extrudeCircle.edgeVisible[index])
+                    path: [
+                        extrudeCircle.topPath[index],
+                        extrudeCircle.topPath[(index + 1) % extrudeCircle.topPath.length]
+                    ]
+                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    line.color: edgeColor
+                    opacity: _root.opacity * fenceOpacity
+                    antialiasing: true
+                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                }
             }
 
             MapPolygon {
@@ -438,6 +517,7 @@ Item {
                         path: modelData
                         line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
                         line.color: edgeColor
+                        visible: !hideOccludedEdges || extrudeCircle.vertexVisible.length === 0 || extrudeCircle.vertexVisible[vertexIndex]
                         opacity: _root.opacity * fenceOpacity
                         antialiasing: true
                         Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
@@ -475,7 +555,7 @@ Item {
         id: paramCircleFenceComponent
 
         MapCircle {
-            color:          (show3DView && !fillTopFace) ? "transparent" : _interiorColorInclusion
+            color:          (show3DView && fillTopFace) ? boundaryColor : _interiorColorInclusion
             opacity:        (show3DView && !fillTopFace) ? 0 : _interiorOpacityInclusion
             border.color:   _borderColor
             border.width:   _borderWidthInclusion
