@@ -65,6 +65,7 @@ QGCComboBox                             1.0 QGCComboBox.qml
 QGCControlDebug                         1.0 QGCControlDebug.qml
 QGCDynamicObjectManager                 1.0 QGCDynamicObjectManager.qml
 QGCFileDialog                           1.0 QGCFileDialog.qml
+GeoZoneFileDialog						1.0 GeoZoneFileDialog.qml
 QGCFlickable                            1.0 QGCFlickable.qml
 QGCGroupBox                             1.0 QGCGroupBox.qml
 QGCLabel                                1.0 QGCLabel.qml

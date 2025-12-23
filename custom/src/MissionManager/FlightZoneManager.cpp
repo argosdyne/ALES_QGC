@@ -410,32 +410,54 @@ FlightZoneManager::FlightZoneManager() : manager(new QNetworkAccessManager(this)
     setReduceVerticesEnabled(false);
 }
 
-void FlightZoneManager::autoDeleteUSBFile() {
+void FlightZoneManager::autoDeleteUSBFile()
+{
+    qInfo() << "AutoDelete USB File";
 
-    QString folderPath = _settingsManager->appSettings()->geoZoneSavePath();
-    QDir dir(folderPath);
-    if (!dir.exists()) {
-        qWarning() << "폴더가 존재하지 않습니다:" << folderPath;
+    QString rootPath = _settingsManager->appSettings()->geoZoneSavePath();
+    QDir rootDir(rootPath);
+
+    if (!rootDir.exists()) {
+        qWarning() << "폴더가 존재하지 않습니다:" << rootPath;
         return;
     }
 
-    // 폴더 내의 모든 파일 목록 가져오기
-    QFileInfoList fileList = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
+    // 검사 대상 폴더 목록 (화이트리스트)
+    const QSet<QString> targetDirs = {
+        "Custom"
+    };
+
     QDateTime currentTime = QDateTime::currentDateTime();
 
-    for (const QFileInfo& fileInfo : fileList) {
-        QDateTime lastModified = fileInfo.lastModified();
-        qint64 diffSecs = lastModified.secsTo(currentTime);
+    QFileInfoList subDirs = rootDir.entryInfoList(
+        QDir::Dirs | QDir::NoDotAndDotDot
+        );
 
-        if (diffSecs >= 86400) { // 24시간 이상 경과
-            QString filePath = fileInfo.absoluteFilePath();
-            if (QFile::remove(filePath)) {
-                qInfo() << "삭제됨:" << filePath;
-            } else {
-                qInfo() << "삭제 실패:" << filePath;
+    for (const QFileInfo& dirInfo : subDirs) {
+
+        const QString dirName = dirInfo.fileName();
+
+        // 대상 폴더가 아니면 스킵
+        if (!targetDirs.contains(dirName)) {
+            qInfo() << "스킵됨 (대상 아님):" << dirName;
+            continue;
+        }
+
+        QDir subDir(dirInfo.absoluteFilePath());
+        qInfo() << "검사 중 폴더:" << subDir.absolutePath();
+
+        QFileInfoList files = subDir.entryInfoList(QDir::Files | QDir::NoSymLinks);
+
+        for (const QFileInfo& fileInfo : files) {
+            qint64 diffSecs = fileInfo.lastModified().secsTo(currentTime);
+
+            if (diffSecs >= 86400) {
+                if (QFile::remove(fileInfo.absoluteFilePath())) {
+                    qInfo() << "삭제됨:" << fileInfo.fileName();
+                } else {
+                    qWarning() << "삭제 실패:" << fileInfo.fileName();
+                }
             }
-        } else {
-            qInfo() << "유지됨(24시간 미만):" << fileInfo.fileName();
         }
     }
 }

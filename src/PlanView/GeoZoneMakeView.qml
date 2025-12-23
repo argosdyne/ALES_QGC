@@ -171,7 +171,8 @@ Item {
 
     QGCFileDialog {
         id:             fileDialog
-        folder:         _appSettings ? _appSettings.geoZoneSavePath : ""
+        //folder:         _appSettings ? _appSettings.geoZoneSavePath : ""
+        folder: _appSettings ? (_appSettings.geoZoneSavePath + "/Custom") : ""
 
         onAcceptedForSave: {
 
