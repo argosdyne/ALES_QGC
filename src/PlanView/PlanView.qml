@@ -492,6 +492,9 @@ Item {
                 fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : false
                 fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : false
                 hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
+                extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
+                minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
+                maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
             }
 
             GeoCageMapVisuals {

@@ -46,9 +46,13 @@ Item {
     property real   _interiorOpacityExclusion:  0.2 * opacity * fenceOpacity
     property real   _interiorOpacityInclusion:  1 * opacity * fenceOpacity
     property real   _sideFaceOpacityScale:      0.6
+    property real   _sideFaceAltOpacityScale:   0.85
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
     property int    _circleSegmentsExtrude:     40
     property bool   show3DView:                 false
+    property real   extrudeScale:               1.0
+    property real   minExtrudeScale:            0.6
+    property real   maxExtrudeScale:            1.6
     property bool   hideOccludedEdges:          true
     property int    breachStyle:                Qt.SolidLine
 
@@ -242,23 +246,30 @@ Item {
         if (v.x === 0 && v.y === 0) {
             return []
         }
-
-        var area = 0
-        for (i = 0; i < basePts.length; i++) {
-            var p0 = basePts[i]
-            var p1 = basePts[(i + 1) % basePts.length]
-            area += (p0.x * p1.y) - (p1.x * p0.y)
+        var view = Qt.point(-v.x, -v.y)
+        var viewLen = Math.sqrt(view.x * view.x + view.y * view.y)
+        if (viewLen < 0.001) {
+            return []
         }
-        var isCCW = area > 0
+        view.x /= viewLen
+        view.y /= viewLen
+
+        var center = Qt.point(0, 0)
+        for (i = 0; i < basePts.length; i++) {
+            center.x += basePts[i].x
+            center.y += basePts[i].y
+        }
+        center.x /= basePts.length
+        center.y /= basePts.length
 
         var mask = []
         for (i = 0; i < basePts.length; i++) {
-            p0 = basePts[i]
-            p1 = basePts[(i + 1) % basePts.length]
-            var e = Qt.point(p1.x - p0.x, p1.y - p0.y)
-            var normal = isCCW ? Qt.point(e.y, -e.x) : Qt.point(-e.y, e.x)
-            var dot = (normal.x * v.x) + (normal.y * v.y)
-            mask.push(dot < 0)
+            var p0 = basePts[i]
+            var p1 = basePts[(i + 1) % basePts.length]
+            var mid = Qt.point((p0.x + p1.x) * 0.5, (p0.y + p1.y) * 0.5)
+            var d = Qt.point(mid.x - center.x, mid.y - center.y)
+            var dot = (d.x * view.x) + (d.y * view.y)
+            mask.push(dot > 0)
         }
 
         return mask
@@ -276,6 +287,54 @@ Item {
         return mask
     }
 
+    function _visibleVertexMaskByCenter(basePath, topPath) {
+        if (!map || !basePath || !topPath || basePath.length < 2 || basePath.length !== topPath.length || typeof map.fromCoordinate !== "function") {
+            return []
+        }
+
+        var basePts = []
+        for (var i = 0; i < basePath.length; i++) {
+            var pt = map.fromCoordinate(basePath[i], false)
+            if (!pt) {
+                return []
+            }
+            basePts.push(pt)
+        }
+
+        var basePt0 = basePts[0]
+        var topPt0 = map.fromCoordinate(topPath[0], false)
+        if (!topPt0) {
+            return []
+        }
+        var v = Qt.point(topPt0.x - basePt0.x, topPt0.y - basePt0.y)
+        if (v.x === 0 && v.y === 0) {
+            return []
+        }
+        var view = Qt.point(-v.x, -v.y)
+        var viewLen = Math.sqrt(view.x * view.x + view.y * view.y)
+        if (viewLen < 0.001) {
+            return []
+        }
+        view.x /= viewLen
+        view.y /= viewLen
+
+        var center = Qt.point(0, 0)
+        for (i = 0; i < basePts.length; i++) {
+            center.x += basePts[i].x
+            center.y += basePts[i].y
+        }
+        center.x /= basePts.length
+        center.y /= basePts.length
+
+        var mask = []
+        for (i = 0; i < basePts.length; i++) {
+            var d = Qt.point(basePts[i].x - center.x, basePts[i].y - center.y)
+            var dot = (d.x * view.x) + (d.y * view.y)
+            mask.push(dot > 0)
+        }
+        return mask
+    }
+
     function _edgeColor(polyObj) {
         if (polyObj && polyObj.inclusion === false) {
             return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, Math.max(0.15, fenceOpacity * 0.6))
@@ -287,6 +346,7 @@ Item {
         if (!map || !path || path.length < 2 || typeof map.fromCoordinate !== "function") {
             return _extrudeHeightPx
         }
+        var scale = Math.min(Math.max(extrudeScale, minExtrudeScale), maxExtrudeScale)
         var p1 = map.fromCoordinate(path[0], false)
         var p2 = map.fromCoordinate(path[1], false)
         if (!p1 || !p2) {
@@ -295,7 +355,9 @@ Item {
         var dx = p2.x - p1.x
         var dy = p2.y - p1.y
         var basePx = Math.sqrt(dx * dx + dy * dy)
-        return Math.min(Math.max(basePx, ScreenTools.defaultFontPixelHeight * 10), ScreenTools.defaultFontPixelHeight * 40)
+        var minPx = ScreenTools.defaultFontPixelHeight * 10 * minExtrudeScale
+        var maxPx = ScreenTools.defaultFontPixelHeight * 40 * maxExtrudeScale
+        return Math.min(Math.max(basePx * scale, minPx), maxPx)
     }
 
     // By default the parent for Instantiator.delegate item is the Instatiator itself. By there is a bug
@@ -324,7 +386,7 @@ Item {
         Item {
             id: extrudePoly
             property var basePath: _normalizedPath(_polygonPath(object))
-            property real _mapKey: map ? (map.zoomLevel + map.bearing + map.tilt) : 0
+            property real _mapKey: map ? (map.zoomLevel + map.bearing + map.tilt + extrudeScale + minExtrudeScale + maxExtrudeScale) : 0
             property real heightPx: { _mapKey; return _extrudeHeight(basePath) }
             property var topPath: { _mapKey; return _extrudePath(basePath, heightPx) }
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
@@ -344,7 +406,7 @@ Item {
                 return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
-            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
             visible: show3DView && topPath.length > 2 && basePath.length === topPath.length
 
             Repeater {
@@ -353,7 +415,7 @@ Item {
                     property var mapRef: map
                     z: QGroundControl.zOrderMapItems + 1
                     parent: mapRef
-                    visible: extrudePoly.visible && mapRef && (!hideOccludedEdges || extrudePoly.edgeVisible.length === 0 || extrudePoly.edgeVisible[index])
+                    visible: extrudePoly.visible && mapRef
                     path: [
                         extrudePoly.topPath[index],
                         extrudePoly.topPath[(index + 1) % extrudePoly.topPath.length]
@@ -415,8 +477,15 @@ Item {
                         extrudePoly.topPath[(index + 1) % extrudePoly.topPath.length],
                         extrudePoly.topPath[index]
                     ]
-                    color: faceColor
-                    border.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    color: {
+                        if (!faceColor || faceColor === "transparent") {
+                            return faceColor
+                        }
+                        var alpha = faceColor.a
+                        var scale = (index % 2 === 0) ? 1.0 : _sideFaceAltOpacityScale
+                        return Qt.rgba(faceColor.r, faceColor.g, faceColor.b, alpha * scale)
+                    }
+                    border.width: hideOccludedEdges ? 0 : (object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion)
                     border.color: edgeColor
                     opacity: _root.opacity
                     antialiasing: true
@@ -448,7 +517,7 @@ Item {
         Item {
             id: extrudeCircle
             property var basePath: _circlePath(object)
-            property real _mapKey: map ? (map.zoomLevel + map.bearing + map.tilt) : 0
+            property real _mapKey: map ? (map.zoomLevel + map.bearing + map.tilt + extrudeScale + minExtrudeScale + maxExtrudeScale) : 0
             property real heightPx: { _mapKey; return _extrudeHeight(basePath) }
             property var topPath: { _mapKey; return _extrudePath(basePath, heightPx) }
             property var topPathClosed: { _mapKey; return _closedPath(topPath) }
@@ -468,7 +537,7 @@ Item {
                 return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
-            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
             visible: show3DView && topPath.length > 6 && basePath.length === topPath.length
 
             Repeater {
@@ -477,7 +546,7 @@ Item {
                     property var mapRef: map
                     z: QGroundControl.zOrderMapItems + 1
                     parent: mapRef
-                    visible: extrudeCircle.visible && mapRef && (!hideOccludedEdges || extrudeCircle.edgeVisible.length === 0 || extrudeCircle.edgeVisible[index])
+                    visible: extrudeCircle.visible && mapRef
                     path: [
                         extrudeCircle.topPath[index],
                         extrudeCircle.topPath[(index + 1) % extrudeCircle.topPath.length]
@@ -538,8 +607,15 @@ Item {
                         extrudeCircle.topPath[(index + 1) % extrudeCircle.topPath.length],
                         extrudeCircle.topPath[index]
                     ]
-                    color: faceColor
-                    border.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    color: {
+                        if (!faceColor || faceColor === "transparent") {
+                            return faceColor
+                        }
+                        var alpha = faceColor.a
+                        var scale = (index % 2 === 0) ? 1.0 : _sideFaceAltOpacityScale
+                        return Qt.rgba(faceColor.r, faceColor.g, faceColor.b, alpha * scale)
+                    }
+                    border.width: hideOccludedEdges ? 0 : (object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion)
                     border.color: edgeColor
                     opacity: _root.opacity
                     antialiasing: true

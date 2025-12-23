@@ -24,6 +24,11 @@ QGCFlickable {
     property bool   fillTopFace: false
     property bool   fillSideFaces: false
     property bool   hideOccludedEdges: true
+    property real   extrudeScale: 1.0
+    property real   minExtrudeScale: 0.6
+    property real   maxExtrudeScale: 1.6
+    property real   _extrudeScaleMinLimit: 0.1
+    property real   _extrudeScaleMaxLimit: 10.0
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -185,6 +190,72 @@ QGCFlickable {
                             stepSize: 0.05
                             value: fenceOpacity
                             onValueChanged: fenceOpacity = value
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("3D height") }
+                        QGCLabel { text: minExtrudeScale.toFixed(2) }
+                        QGCSlider {
+                            width: _editFieldWidth
+                            minimumValue: _extrudeScaleMinLimit
+                            maximumValue: _extrudeScaleMaxLimit
+                            stepSize: 0.05
+                            value: extrudeScale
+                            onValueChanged: {
+                                extrudeScale = value
+                                if (extrudeScale < minExtrudeScale) {
+                                    minExtrudeScale = extrudeScale
+                                }
+                                if (extrudeScale > maxExtrudeScale) {
+                                    maxExtrudeScale = extrudeScale
+                                }
+                            }
+                        }
+                        QGCLabel { text: maxExtrudeScale.toFixed(2) }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Min/Max Altitude") }
+                        QGCTextField {
+                            width: _editFieldWidth / 2
+                            text: minExtrudeScale.toFixed(2)
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            validator: DoubleValidator { bottom: 0.1; top: 10.0 }
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v)) {
+                                    minExtrudeScale = v
+                                    if (maxExtrudeScale < minExtrudeScale) {
+                                        maxExtrudeScale = minExtrudeScale
+                                    }
+                                    if (extrudeScale < minExtrudeScale) {
+                                        extrudeScale = minExtrudeScale
+                                    }
+                                }
+                            }
+                        }
+                        QGCTextField {
+                            width: _editFieldWidth / 2
+                            text: maxExtrudeScale.toFixed(2)
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            validator: DoubleValidator { bottom: 0.1; top: 10.0 }
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v)) {
+                                    maxExtrudeScale = v
+                                    if (minExtrudeScale > maxExtrudeScale) {
+                                        minExtrudeScale = maxExtrudeScale
+                                    }
+                                    if (extrudeScale > maxExtrudeScale) {
+                                        extrudeScale = maxExtrudeScale
+                                    }
+                                }
+                            }
                         }
                     }
 
