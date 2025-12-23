@@ -137,6 +137,8 @@ DECLARE_SETTINGGROUP(App, "")
     connect(savePathFact, &Fact::rawValueChanged, this, &AppSettings::_checkSavePathDirectories);
 
     _checkSavePathDirectories();
+
+    createGeoZoneDirectories();
 }
 
 DECLARE_SETTINGSFACT(AppSettings, offlineEditingFirmwareClass)
@@ -187,6 +189,35 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
         connect(_indoorPaletteFact, &Fact::rawValueChanged, this, &AppSettings::_indoorPaletteChanged);
     }
     return _indoorPaletteFact;
+}
+
+void AppSettings::createGeoZoneDirectories()
+{
+    qInfo() << "createGeoZoneDirectories";
+    // QGC에서 사용하는 writable base path
+
+    QDir baseDir(savePath()->rawValue().toString());
+
+    // GeoZone 루트
+    if (!baseDir.exists(AppSettings::geoZoneDirectory)) {
+        baseDir.mkpath(AppSettings::geoZoneDirectory);
+    }
+
+    baseDir.cd(AppSettings::geoZoneDirectory);
+
+    // 하위 폴더 목록
+    const QStringList subDirs = {
+        "DFS",
+        "Custom"
+    };
+
+    for (const QString& dirName : subDirs) {
+        if (!baseDir.exists(dirName)) {
+            if (!baseDir.mkdir(dirName)) {
+                qWarning() << "Failed to create GeoZone subdir:" << dirName;
+            }
+        }
+    }
 }
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)

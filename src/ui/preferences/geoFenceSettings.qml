@@ -53,7 +53,7 @@ Rectangle {
         fileDialog.openForLoad()
     }
 
-    QGCFileDialog {
+    GeoZoneFileDialog {
         id:             fileDialog
         folder:         _appSettings ? _appSettings.geoZoneSavePath : ""
 

@@ -47,6 +47,7 @@
 #include "ESP8266ComponentController.h"
 #include "ScreenToolsController.h"
 #include "QGCFileDialogController.h"
+#include "GeoZoneFileDialogController.h"
 #include "RCChannelMonitorController.h"
 #include "SyslinkComponentController.h"
 #include "AutoPilotPlugin.h"
@@ -516,6 +517,7 @@ void QGCApplication::_initCommon()
     qmlRegisterType<ScreenToolsController>          (kQGCControllers,                       1, 0, "ScreenToolsController");
     qmlRegisterType<PlanMasterController>           (kQGCControllers,                       1, 0, "PlanMasterController");
     qmlRegisterType<QGCFileDialogController>        (kQGCControllers,                       1, 0, "QGCFileDialogController");
+    qmlRegisterType<GeoZoneFileDialogController>    (kQGCControllers,                       1, 0, "GeoZoneFileDialogController");
     qmlRegisterType<RCChannelMonitorController>     (kQGCControllers,                       1, 0, "RCChannelMonitorController");
     qmlRegisterType<JoystickConfigController>       (kQGCControllers,                       1, 0, "JoystickConfigController");
     qmlRegisterType<LogDownloadController>          (kQGCControllers,                       1, 0, "LogDownloadController");

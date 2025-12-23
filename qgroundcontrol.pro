@@ -700,6 +700,7 @@ HEADERS += \
     src/QmlControls/FactValueGrid.h \
     src/QmlControls/ParameterEditorController.h \
     src/QmlControls/QGCFileDialogController.h \
+    src/QmlControls/GeoZoneFileDialogController.h \
     src/QmlControls/QGCImageProvider.h \
     src/QmlControls/QGroundControlQmlGlobal.h \
     src/QmlControls/QmlObjectListModel.h \
@@ -968,6 +969,7 @@ SOURCES += \
     src/QmlControls/FactValueGrid.cc \
     src/QmlControls/ParameterEditorController.cc \
     src/QmlControls/QGCFileDialogController.cc \
+    src/QmlControls/GeoZoneFileDialogController.cc \
     src/QmlControls/QGCImageProvider.cc \
     src/QmlControls/QGroundControlQmlGlobal.cc \
     src/QmlControls/QmlObjectListModel.cc \
