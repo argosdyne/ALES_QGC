@@ -24,6 +24,7 @@ QGCFlickable {
     property bool   fillTopFace: false
     property bool   fillSideFaces: false
     property bool   hideOccludedEdges: true
+    property bool   showOccludedEdgesDashed: false
     property real   extrudeScale: 1.0
     property real   minExtrudeScale: 0.6
     property real   maxExtrudeScale: 1.6
@@ -252,6 +253,11 @@ QGCFlickable {
                             text: qsTr("Hide occluded edges")
                             checked: hideOccludedEdges
                             onClicked: hideOccludedEdges = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Show occluded edges (dashed)")
+                            checked: showOccludedEdgesDashed
+                            onClicked: showOccludedEdgesDashed = checked
                         }
                         QGCCheckBox {
                             text: qsTr("Show Min/Max Altitude")

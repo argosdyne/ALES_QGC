@@ -55,6 +55,7 @@ Item {
     property real   minExtrudeScale:            0.6
     property real   maxExtrudeScale:            1.6
     property bool   hideOccludedEdges:          true
+    property bool   showOccludedEdgesDashed:    false
     property int    breachStyle:                Qt.SolidLine
 
     function addPolygon(inclusionPolygon) {
@@ -209,7 +210,7 @@ Item {
         return norm
     }
 
-    function _segmentizeVertical(startCoord, endCoord) {
+    function _segmentizeVertical(startCoord, endCoord, dotted) {
         if (!map || !startCoord || !endCoord || !startCoord.isValid || !endCoord.isValid || typeof map.fromCoordinate !== "function" || typeof map.toCoordinate !== "function") {
             return [[startCoord, endCoord]]
         }
@@ -221,8 +222,37 @@ Item {
         }
 
         var segments = []
-        var count = breachStyle === Qt.DotLine ? 28 : 1
-        var drawRatio = breachStyle === Qt.DotLine ? 0.25 : 1.0
+        var useDotted = dotted || breachStyle === Qt.DotLine
+        var count = useDotted ? 28 : 1
+        var drawRatio = useDotted ? 0.25 : 1.0
+
+        for (var i = 0; i < count; i++) {
+            var t0 = i / count
+            var t1 = Math.min(1, t0 + (drawRatio / count))
+            var p0 = Qt.point(startPt.x + (endPt.x - startPt.x) * t0, startPt.y + (endPt.y - startPt.y) * t0)
+            var p1 = Qt.point(startPt.x + (endPt.x - startPt.x) * t1, startPt.y + (endPt.y - startPt.y) * t1)
+            var c0 = map.toCoordinate(p0, false)
+            var c1 = map.toCoordinate(p1, false)
+            segments.push([c0, c1])
+        }
+
+        return segments
+    }
+
+    function _segmentizeEdge(startCoord, endCoord, dotted) {
+        if (!map || !startCoord || !endCoord || !startCoord.isValid || !endCoord.isValid || typeof map.fromCoordinate !== "function" || typeof map.toCoordinate !== "function") {
+            return [[startCoord, endCoord]]
+        }
+
+        var startPt = map.fromCoordinate(startCoord, false)
+        var endPt = map.fromCoordinate(endCoord, false)
+        if (!startPt || !endPt) {
+            return [[startCoord, endCoord]]
+        }
+
+        var segments = []
+        var count = dotted ? 28 : 1
+        var drawRatio = dotted ? 0.25 : 1.0
 
         for (var i = 0; i < count; i++) {
             var t0 = i / count
@@ -466,25 +496,46 @@ Item {
 
             Repeater {
                 model: extrudePoly.visible ? extrudePoly.basePath.length : 0
-                MapPolyline {
-                    property var mapRef: map
-                    z: QGroundControl.zOrderMapItems + 1
-                    parent: mapRef
-                    visible: extrudePoly.visible && mapRef &&
-                             (!hideOccludedEdges ||
-                              (extrudePoly.edgeVisible.length === 0 && extrudePoly.vertexVisible.length === 0) ||
-                              (extrudePoly.edgeVisible[index] &&
-                               extrudePoly.vertexVisible[index] &&
-                               extrudePoly.vertexVisible[(index + 1) % extrudePoly.basePath.length]))
-                    path: [
-                        extrudePoly.basePath[index],
-                        extrudePoly.basePath[(index + 1) % extrudePoly.basePath.length]
-                    ]
-                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                    line.color: edgeColor
-                    opacity: _root.opacity * fenceOpacity
-                    antialiasing: true
-                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                Item {
+                    property int edgeIndex: index
+                    property bool _edgeVisible: (extrudePoly.edgeVisible.length === 0 && extrudePoly.vertexVisible.length === 0) ||
+                                                (extrudePoly.edgeVisible[edgeIndex] &&
+                                                 extrudePoly.vertexVisible[edgeIndex] &&
+                                                 extrudePoly.vertexVisible[(edgeIndex + 1) % extrudePoly.basePath.length])
+                    property bool _showOccludedDashed: hideOccludedEdges && showOccludedEdgesDashed
+                    property var _edgeStart: extrudePoly.basePath[edgeIndex]
+                    property var _edgeEnd: extrudePoly.basePath[(edgeIndex + 1) % extrudePoly.basePath.length]
+                    property var _dashedSegments: _showOccludedDashed && !_edgeVisible ? _segmentizeEdge(_edgeStart, _edgeEnd, true) : []
+
+                    MapPolyline {
+                        property var mapRef: map
+                        z: QGroundControl.zOrderMapItems + 1
+                        parent: mapRef
+                        visible: extrudePoly.visible && mapRef &&
+                                 (!hideOccludedEdges || _edgeVisible)
+                        path: [_edgeStart, _edgeEnd]
+                        line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                        line.color: edgeColor
+                        opacity: _root.opacity * fenceOpacity
+                        antialiasing: true
+                        Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                    }
+
+                    Repeater {
+                        model: _dashedSegments.length
+                        MapPolyline {
+                            property var mapRef: map
+                            z: QGroundControl.zOrderMapItems + 1
+                            parent: mapRef
+                            visible: extrudePoly.visible && mapRef && _showOccludedDashed && !_edgeVisible
+                            path: _dashedSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
+                    }
                 }
             }
 
@@ -506,19 +557,40 @@ Item {
                 model: extrudePoly.visible ? extrudePoly.basePath.length : 0
                 delegate: Item {
                     property int vertexIndex: index
+                    property bool _vertexVisible: extrudePoly.vertexVisible.length === 0 || extrudePoly.vertexVisible[vertexIndex]
+                    property bool _showOccludedDashed: hideOccludedEdges && showOccludedEdgesDashed
+                    property var _solidSegments: _segmentizeVertical(extrudePoly.basePath[vertexIndex], extrudePoly.topPath[vertexIndex], false)
+                    property var _dashedSegments: _showOccludedDashed && !_vertexVisible ? _segmentizeVertical(extrudePoly.basePath[vertexIndex], extrudePoly.topPath[vertexIndex], true) : []
+
                     Repeater {
-                        model: _segmentizeVertical(extrudePoly.basePath[vertexIndex], extrudePoly.topPath[vertexIndex])
+                        model: _solidSegments.length
                         MapPolyline {
                             property var mapRef: map
                             z: QGroundControl.zOrderMapItems + 1
-                        parent: mapRef
-                        path: modelData
-                        line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                        line.color: edgeColor
-                        visible: !hideOccludedEdges || extrudePoly.vertexVisible.length === 0 || extrudePoly.vertexVisible[vertexIndex]
-                        opacity: _root.opacity * fenceOpacity
-                        antialiasing: true
-                        Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                            parent: mapRef
+                            path: _solidSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            visible: !hideOccludedEdges || _vertexVisible
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
+                    }
+
+                    Repeater {
+                        model: _dashedSegments.length
+                        MapPolyline {
+                            property var mapRef: map
+                            z: QGroundControl.zOrderMapItems + 1
+                            parent: mapRef
+                            path: _dashedSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            visible: _showOccludedDashed && !_vertexVisible
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                         }
                     }
                 }
@@ -656,25 +728,46 @@ Item {
 
             Repeater {
                 model: extrudeCircle.visible ? extrudeCircle.basePath.length : 0
-                MapPolyline {
-                    property var mapRef: map
-                    z: QGroundControl.zOrderMapItems + 1
-                    parent: mapRef
-                    visible: extrudeCircle.visible && mapRef &&
-                             (!hideOccludedEdges ||
-                              (extrudeCircle.edgeVisible.length === 0 && extrudeCircle.vertexVisible.length === 0) ||
-                              (extrudeCircle.edgeVisible[index] &&
-                               extrudeCircle.vertexVisible[index] &&
-                               extrudeCircle.vertexVisible[(index + 1) % extrudeCircle.basePath.length]))
-                    path: [
-                        extrudeCircle.basePath[index],
-                        extrudeCircle.basePath[(index + 1) % extrudeCircle.basePath.length]
-                    ]
-                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                    line.color: edgeColor
-                    opacity: _root.opacity * fenceOpacity
-                    antialiasing: true
-                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                Item {
+                    property int edgeIndex: index
+                    property bool _edgeVisible: (extrudeCircle.edgeVisible.length === 0 && extrudeCircle.vertexVisible.length === 0) ||
+                                                (extrudeCircle.edgeVisible[edgeIndex] &&
+                                                 extrudeCircle.vertexVisible[edgeIndex] &&
+                                                 extrudeCircle.vertexVisible[(edgeIndex + 1) % extrudeCircle.basePath.length])
+                    property bool _showOccludedDashed: hideOccludedEdges && showOccludedEdgesDashed
+                    property var _edgeStart: extrudeCircle.basePath[edgeIndex]
+                    property var _edgeEnd: extrudeCircle.basePath[(edgeIndex + 1) % extrudeCircle.basePath.length]
+                    property var _dashedSegments: _showOccludedDashed && !_edgeVisible ? _segmentizeEdge(_edgeStart, _edgeEnd, true) : []
+
+                    MapPolyline {
+                        property var mapRef: map
+                        z: QGroundControl.zOrderMapItems + 1
+                        parent: mapRef
+                        visible: extrudeCircle.visible && mapRef &&
+                                 (!hideOccludedEdges || _edgeVisible)
+                        path: [_edgeStart, _edgeEnd]
+                        line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                        line.color: edgeColor
+                        opacity: _root.opacity * fenceOpacity
+                        antialiasing: true
+                        Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                    }
+
+                    Repeater {
+                        model: _dashedSegments.length
+                        MapPolyline {
+                            property var mapRef: map
+                            z: QGroundControl.zOrderMapItems + 1
+                            parent: mapRef
+                            visible: extrudeCircle.visible && mapRef && _showOccludedDashed && !_edgeVisible
+                            path: _dashedSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
+                    }
                 }
             }
 
@@ -696,19 +789,41 @@ Item {
                 model: extrudeCircle.visible ? extrudeCircle.basePath.length : 0
                 delegate: Item {
                     property int vertexIndex: index
+                    property bool _vertexVisible: extrudeCircle.vertexVisible.length === 0 || extrudeCircle.vertexVisible[vertexIndex]
+                    property bool _showOccludedDashed: hideOccludedEdges && showOccludedEdgesDashed
+                    property var _solidSegments: _segmentizeVertical(extrudeCircle.basePath[vertexIndex], extrudeCircle.topPath[vertexIndex], false)
+                    property var _dashedSegments: _showOccludedDashed && !_vertexVisible ? _segmentizeVertical(extrudeCircle.basePath[vertexIndex], extrudeCircle.topPath[vertexIndex], true) : []
+
                     Repeater {
-                        model: _segmentizeVertical(extrudeCircle.basePath[vertexIndex], extrudeCircle.topPath[vertexIndex])
+                        model: _solidSegments.length
                         MapPolyline {
                             property var mapRef: map
                             z: QGroundControl.zOrderMapItems + 1
-                        parent: mapRef
-                        path: modelData
-                        line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                        line.color: edgeColor
-                        visible: !hideOccludedEdges || extrudeCircle.vertexVisible.length === 0 || extrudeCircle.vertexVisible[vertexIndex]
-                        opacity: _root.opacity * fenceOpacity
-                        antialiasing: true
-                        Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                            parent: mapRef
+                            path: _solidSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            visible: !hideOccludedEdges || _vertexVisible
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
+                    }
+
+                    Repeater {
+                        model: _dashedSegments.length
+                        MapPolyline {
+                            property var mapRef: map
+                            z: QGroundControl.zOrderMapItems + 1
+                            parent: mapRef
+                            path: _dashedSegments[index]
+                            line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                            line.color: edgeColor
+                            visible: _showOccludedDashed && !_vertexVisible
+                            opacity: _root.opacity * fenceOpacity
+                            antialiasing: true
+                            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                        }
                     }
                 }
             }
@@ -772,7 +887,6 @@ Item {
                     color: edgeColor
                 }
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
-            }
             }
         }
     }
