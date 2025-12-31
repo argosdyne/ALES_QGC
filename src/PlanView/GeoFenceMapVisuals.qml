@@ -464,17 +464,28 @@ Item {
                 }
             }
 
-            MapPolyline {
-                property var mapRef: map
-                z: QGroundControl.zOrderMapItems + 1
-                parent: mapRef
-                visible: extrudePoly.visible && mapRef && extrudePoly.basePath.length > 2
-                path: extrudePoly.basePath.length > 2 ? _closedPath(extrudePoly.basePath) : []
-                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                line.color: edgeColor
-                opacity: _root.opacity * fenceOpacity
-                antialiasing: true
-                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            Repeater {
+                model: extrudePoly.visible ? extrudePoly.basePath.length : 0
+                MapPolyline {
+                    property var mapRef: map
+                    z: QGroundControl.zOrderMapItems + 1
+                    parent: mapRef
+                    visible: extrudePoly.visible && mapRef &&
+                             (!hideOccludedEdges ||
+                              (extrudePoly.edgeVisible.length === 0 && extrudePoly.vertexVisible.length === 0) ||
+                              (extrudePoly.edgeVisible[index] &&
+                               extrudePoly.vertexVisible[index] &&
+                               extrudePoly.vertexVisible[(index + 1) % extrudePoly.basePath.length]))
+                    path: [
+                        extrudePoly.basePath[index],
+                        extrudePoly.basePath[(index + 1) % extrudePoly.basePath.length]
+                    ]
+                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    line.color: edgeColor
+                    opacity: _root.opacity * fenceOpacity
+                    antialiasing: true
+                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                }
             }
 
             MapPolygon {
@@ -643,17 +654,28 @@ Item {
                 }
             }
 
-            MapPolyline {
-                property var mapRef: map
-                z: QGroundControl.zOrderMapItems + 1
-                parent: mapRef
-                visible: extrudeCircle.visible && mapRef && extrudeCircle.basePath.length > 6
-                path: extrudeCircle.basePath.length > 6 ? _closedPath(extrudeCircle.basePath) : []
-                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-                line.color: edgeColor
-                opacity: _root.opacity * fenceOpacity
-                antialiasing: true
-                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            Repeater {
+                model: extrudeCircle.visible ? extrudeCircle.basePath.length : 0
+                MapPolyline {
+                    property var mapRef: map
+                    z: QGroundControl.zOrderMapItems + 1
+                    parent: mapRef
+                    visible: extrudeCircle.visible && mapRef &&
+                             (!hideOccludedEdges ||
+                              (extrudeCircle.edgeVisible.length === 0 && extrudeCircle.vertexVisible.length === 0) ||
+                              (extrudeCircle.edgeVisible[index] &&
+                               extrudeCircle.vertexVisible[index] &&
+                               extrudeCircle.vertexVisible[(index + 1) % extrudeCircle.basePath.length]))
+                    path: [
+                        extrudeCircle.basePath[index],
+                        extrudeCircle.basePath[(index + 1) % extrudeCircle.basePath.length]
+                    ]
+                    line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                    line.color: edgeColor
+                    opacity: _root.opacity * fenceOpacity
+                    antialiasing: true
+                    Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+                }
             }
 
             MapPolygon {
