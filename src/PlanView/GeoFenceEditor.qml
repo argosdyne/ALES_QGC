@@ -197,65 +197,40 @@ QGCFlickable {
                     Row {
                         spacing: _margin / 2
                         visible: show3DView
-                        QGCLabel { text: qsTr("3D height") }
-                        QGCLabel { text: minExtrudeScale.toFixed(2) }
-                        QGCSlider {
-                            width: _editFieldWidth
+                        QGCLabel { text: qsTr("Min/Max Altitude") }
+                        SpinBox {
+                            width: _editFieldWidth / 2
                             minimumValue: _extrudeScaleMinLimit
                             maximumValue: _extrudeScaleMaxLimit
                             stepSize: 0.05
-                            value: extrudeScale
+                            decimals: 2
+                            value: minExtrudeScale
                             onValueChanged: {
-                                extrudeScale = value
+                                minExtrudeScale = value
+                                if (maxExtrudeScale < minExtrudeScale) {
+                                    maxExtrudeScale = minExtrudeScale
+                                }
                                 if (extrudeScale < minExtrudeScale) {
-                                    minExtrudeScale = extrudeScale
+                                    extrudeScale = minExtrudeScale
+                                }
+                            }
+                        }
+                        SpinBox {
+                            width: _editFieldWidth / 2
+                            minimumValue: _extrudeScaleMinLimit
+                            maximumValue: _extrudeScaleMaxLimit
+                            stepSize: 0.05
+                            decimals: 2
+                            value: maxExtrudeScale
+                            onValueChanged: {
+                                maxExtrudeScale = value
+                                if (minExtrudeScale > maxExtrudeScale) {
+                                    minExtrudeScale = maxExtrudeScale
                                 }
                                 if (extrudeScale > maxExtrudeScale) {
-                                    maxExtrudeScale = extrudeScale
+                                    extrudeScale = maxExtrudeScale
                                 }
-                            }
-                        }
-                        QGCLabel { text: maxExtrudeScale.toFixed(2) }
-                    }
-
-                    Row {
-                        spacing: _margin / 2
-                        visible: show3DView
-                        QGCLabel { text: qsTr("Min/Max Altitude") }
-                        QGCTextField {
-                            width: _editFieldWidth / 2
-                            text: minExtrudeScale.toFixed(2)
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            validator: DoubleValidator { bottom: 0.1; top: 10.0 }
-                            onEditingFinished: {
-                                var v = parseFloat(text)
-                                if (!isNaN(v)) {
-                                    minExtrudeScale = v
-                                    if (maxExtrudeScale < minExtrudeScale) {
-                                        maxExtrudeScale = minExtrudeScale
-                                    }
-                                    if (extrudeScale < minExtrudeScale) {
-                                        extrudeScale = minExtrudeScale
-                                    }
-                                }
-                            }
-                        }
-                        QGCTextField {
-                            width: _editFieldWidth / 2
-                            text: maxExtrudeScale.toFixed(2)
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            validator: DoubleValidator { bottom: 0.1; top: 10.0 }
-                            onEditingFinished: {
-                                var v = parseFloat(text)
-                                if (!isNaN(v)) {
-                                    maxExtrudeScale = v
-                                    if (minExtrudeScale > maxExtrudeScale) {
-                                        minExtrudeScale = maxExtrudeScale
-                                    }
-                                    if (extrudeScale > maxExtrudeScale) {
-                                        extrudeScale = maxExtrudeScale
-                                    }
-                                }
+                                extrudeScale = maxExtrudeScale
                             }
                         }
                     }

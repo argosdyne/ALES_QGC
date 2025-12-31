@@ -464,6 +464,19 @@ Item {
                 }
             }
 
+            MapPolyline {
+                property var mapRef: map
+                z: QGroundControl.zOrderMapItems + 1
+                parent: mapRef
+                visible: extrudePoly.visible && mapRef && extrudePoly.basePath.length > 2
+                path: extrudePoly.basePath.length > 2 ? _closedPath(extrudePoly.basePath) : []
+                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                line.color: edgeColor
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
             MapPolygon {
                 property var mapRef: map
                 z: QGroundControl.zOrderMapItems + 1
@@ -628,6 +641,19 @@ Item {
                     antialiasing: true
                     Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                 }
+            }
+
+            MapPolyline {
+                property var mapRef: map
+                z: QGroundControl.zOrderMapItems + 1
+                parent: mapRef
+                visible: extrudeCircle.visible && mapRef && extrudeCircle.basePath.length > 6
+                path: extrudeCircle.basePath.length > 6 ? _closedPath(extrudeCircle.basePath) : []
+                line.width: object && object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+                line.color: edgeColor
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
 
             MapPolygon {
