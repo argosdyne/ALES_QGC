@@ -50,6 +50,7 @@ Item {
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
     property int    _circleSegmentsExtrude:     40
     property bool   show3DView:                 false
+    property bool   showMinMaxAltitude:         false
     property real   extrudeScale:               1.0
     property real   minExtrudeScale:            0.6
     property real   maxExtrudeScale:            1.6
@@ -168,6 +169,19 @@ Item {
             tops.push(map.toCoordinate(Qt.point(pt.x, pt.y), false))
         }
         return tops
+    }
+
+    function _offsetCoordinate(coord, dx, dy) {
+        if (!map || !coord || !coord.isValid || typeof map.fromCoordinate !== "function" || typeof map.toCoordinate !== "function") {
+            return coord
+        }
+        var pt = map.fromCoordinate(coord, false)
+        if (!pt) {
+            return coord
+        }
+        pt.x += dx
+        pt.y += dy
+        return map.toCoordinate(Qt.point(pt.x, pt.y), false)
     }
 
     function _closedPath(pathArray) {
@@ -335,6 +349,25 @@ Item {
         return mask
     }
 
+    function _rightmostCoord(pathArray) {
+        if (!map || !pathArray || pathArray.length === 0 || typeof map.fromCoordinate !== "function") {
+            return pathArray && pathArray.length > 0 ? pathArray[0] : QtPositioning.coordinate()
+        }
+        var bestCoord = pathArray[0]
+        var bestPt = map.fromCoordinate(bestCoord, false)
+        if (!bestPt) {
+            return bestCoord
+        }
+        for (var i = 1; i < pathArray.length; i++) {
+            var pt = map.fromCoordinate(pathArray[i], false)
+            if (pt && pt.x > bestPt.x) {
+                bestPt = pt
+                bestCoord = pathArray[i]
+            }
+        }
+        return bestCoord
+    }
+
     function _edgeColor(polyObj) {
         if (polyObj && polyObj.inclusion === false) {
             return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, Math.max(0.15, fenceOpacity * 0.6))
@@ -407,6 +440,9 @@ Item {
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
             property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
+            property real _labelOffsetX: ScreenTools.defaultFontPixelWidth * 8
+            property var minLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(basePath), _labelOffsetX, 0) }
+            property var maxLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(topPath), _labelOffsetX, 0) }
             visible: show3DView && topPath.length > 2 && basePath.length === topPath.length
 
             Repeater {
@@ -492,6 +528,38 @@ Item {
                     Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                 }
             }
+
+            MapQuickItem {
+                visible:            _root.showMinMaxAltitude && extrudePoly.visible && extrudePoly.basePath.length > 0
+                coordinate:         minLabelCoord
+                z:                  QGroundControl.zOrderMapItems + 2
+                property var mapRef: map
+                parent:             mapRef
+                anchorPoint.x:      minLabelItem.width / 2
+                anchorPoint.y:      minLabelItem.height / 2
+                sourceItem: QGCLabel {
+                    id: minLabelItem
+                    text: qsTr("Min Altitude: %1").arg(minExtrudeScale.toFixed(2))
+                    color: edgeColor
+                }
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            MapQuickItem {
+                visible:            _root.showMinMaxAltitude && extrudePoly.visible && extrudePoly.topPath.length > 0
+                coordinate:         maxLabelCoord
+                z:                  QGroundControl.zOrderMapItems + 2
+                property var mapRef: map
+                parent:             mapRef
+                anchorPoint.x:      maxLabelItem.width / 2
+                anchorPoint.y:      maxLabelItem.height / 2
+                sourceItem: QGCLabel {
+                    id: maxLabelItem
+                    text: qsTr("Max Altitude: %1").arg(maxExtrudeScale.toFixed(2))
+                    color: edgeColor
+                }
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
         }
     }
 
@@ -538,6 +606,9 @@ Item {
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
             property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
+            property real _labelOffsetX: ScreenTools.defaultFontPixelWidth * 8
+            property var minLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(basePath), _labelOffsetX, 0) }
+            property var maxLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(topPath), _labelOffsetX, 0) }
             visible: show3DView && topPath.length > 6 && basePath.length === topPath.length
 
             Repeater {
@@ -621,6 +692,38 @@ Item {
                     antialiasing: true
                     Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
                 }
+            }
+
+            MapQuickItem {
+                visible:            _root.showMinMaxAltitude && extrudeCircle.visible && extrudeCircle.basePath.length > 0
+                coordinate:         minLabelCoord
+                z:                  QGroundControl.zOrderMapItems + 2
+                property var mapRef: map
+                parent:             mapRef
+                anchorPoint.x:      minCircleLabelItem.width / 2
+                anchorPoint.y:      minCircleLabelItem.height / 2
+                sourceItem: QGCLabel {
+                    id: minCircleLabelItem
+                    text: qsTr("Min Altitude: %1").arg(minExtrudeScale.toFixed(2))
+                    color: edgeColor
+                }
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            MapQuickItem {
+                visible:            _root.showMinMaxAltitude && extrudeCircle.visible && extrudeCircle.topPath.length > 0
+                coordinate:         maxLabelCoord
+                z:                  QGroundControl.zOrderMapItems + 2
+                property var mapRef: map
+                parent:             mapRef
+                anchorPoint.x:      maxCircleLabelItem.width / 2
+                anchorPoint.y:      maxCircleLabelItem.height / 2
+                sourceItem: QGCLabel {
+                    id: maxCircleLabelItem
+                    text: qsTr("Max Altitude: %1").arg(maxExtrudeScale.toFixed(2))
+                    color: edgeColor
+                }
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
             }
         }

@@ -29,6 +29,7 @@ QGCFlickable {
     property real   maxExtrudeScale: 1.6
     property real   _extrudeScaleMinLimit: 0.1
     property real   _extrudeScaleMaxLimit: 10.0
+    property bool   showMinMaxAltitude: false
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -276,6 +277,11 @@ QGCFlickable {
                             text: qsTr("Hide occluded edges")
                             checked: hideOccludedEdges
                             onClicked: hideOccludedEdges = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Show Min/Max Altitude")
+                            checked: showMinMaxAltitude
+                            onClicked: showMinMaxAltitude = checked
                         }
                     }
 

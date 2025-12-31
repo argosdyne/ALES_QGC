@@ -489,13 +489,14 @@ Item {
                 breachStyle:            geoFenceEditor ? geoFenceEditor._breachStyle : Qt.SolidLine
                 fenceOpacity:           geoFenceEditor ? geoFenceEditor.fenceOpacity : 1.0
                 boundaryColor:          geoFenceEditor ? geoFenceEditor.boundaryColor : "orange"
-                fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : false
-                fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : false
-                hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
-                extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
-                minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
-                maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
-            }
+                 fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : false
+                 fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : false
+                 showMinMaxAltitude:     geoFenceEditor ? geoFenceEditor.showMinMaxAltitude : false
+                 hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
+                 extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
+                 minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
+                 maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
+             }
 
             GeoCageMapVisuals {
                 map:                    editorMap
