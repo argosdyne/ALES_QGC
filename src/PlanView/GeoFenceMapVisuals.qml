@@ -49,6 +49,7 @@ Item {
     property real   _sideFaceAltOpacityScale:   0.85
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
     property int    _circleSegmentsExtrude:     40
+    property int    circleSegments:            40
     property bool   show3DView:                 false
     property bool   showMinMaxAltitude:         false
     property real   extrudeScale:               1.0
@@ -130,8 +131,9 @@ Item {
             return []
         }
         var pts = []
-        for (var i = 0; i < _circleSegmentsExtrude; i++) {
-            var az = (360 / _circleSegmentsExtrude) * i
+        var count = Math.max(12, circleSegments > 0 ? circleSegments : _circleSegmentsExtrude)
+        for (var i = 0; i < count; i++) {
+            var az = (360 / count) * i
             pts.push(circle.center.atDistanceAndAzimuth(radius, az))
         }
         return pts
@@ -460,15 +462,15 @@ Item {
                 if (!fillSideFaces || !object) {
                     return "transparent"
                 }
-                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha * _sideFaceOpacityScale)
+                var alpha = (object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion) * _sideFaceOpacityScale
+                return Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, alpha)
             }
             property color topFaceColor: {
                 if (!fillTopFace || !object) {
                     return "transparent"
                 }
                 var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
+                return Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
             property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
@@ -692,15 +694,15 @@ Item {
                 if (!fillSideFaces || !object) {
                     return "transparent"
                 }
-                var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha * _sideFaceOpacityScale)
+                var alpha = (object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion) * _sideFaceOpacityScale
+                return Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, alpha)
             }
             property color topFaceColor: {
                 if (!fillTopFace || !object) {
                     return "transparent"
                 }
                 var alpha = object.inclusion === false ? _interiorOpacityExclusion : _interiorOpacityInclusion
-                return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
+                return Qt.rgba(edgeColor.r, edgeColor.g, edgeColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
             property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }

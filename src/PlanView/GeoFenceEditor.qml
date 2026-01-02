@@ -31,6 +31,7 @@ QGCFlickable {
     property real   _extrudeScaleMinLimit: 0.1
     property real   _extrudeScaleMaxLimit: 10.0
     property bool   showMinMaxAltitude: false
+    property int    circleSegments: 40
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -281,6 +282,21 @@ QGCFlickable {
                             textRole: "name"
                             currentIndex: 0
                             onCurrentIndexChanged: boundaryColor = model[currentIndex].color
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Circle segments") }
+                        SpinBox {
+                            width: _editFieldWidth / 2
+                            minimumValue: 12
+                            maximumValue: 120
+                            stepSize: 4
+                            decimals: 0
+                            value: circleSegments
+                            onValueChanged: circleSegments = Math.round(value)
                         }
                     }
 

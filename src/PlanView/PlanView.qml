@@ -494,6 +494,7 @@ Item {
                  showMinMaxAltitude:     geoFenceEditor ? geoFenceEditor.showMinMaxAltitude : false
                  hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
                  showOccludedEdgesDashed: geoFenceEditor ? geoFenceEditor.showOccludedEdgesDashed : false
+                 circleSegments:         geoFenceEditor ? geoFenceEditor.circleSegments : 40
                  extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
                  minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
                  maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
