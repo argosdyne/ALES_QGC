@@ -298,22 +298,24 @@ Item {
         view.x /= viewLen
         view.y /= viewLen
 
-        var center = Qt.point(0, 0)
+        var area = 0
         for (i = 0; i < basePts.length; i++) {
-            center.x += basePts[i].x
-            center.y += basePts[i].y
+            var p = basePts[i]
+            var n = basePts[(i + 1) % basePts.length]
+            area += (p.x * n.y) - (n.x * p.y)
         }
-        center.x /= basePts.length
-        center.y /= basePts.length
+        var ccw = area > 0
+        var epsilon = -0.01
 
         var mask = []
         for (i = 0; i < basePts.length; i++) {
             var p0 = basePts[i]
             var p1 = basePts[(i + 1) % basePts.length]
-            var mid = Qt.point((p0.x + p1.x) * 0.5, (p0.y + p1.y) * 0.5)
-            var d = Qt.point(mid.x - center.x, mid.y - center.y)
-            var dot = (d.x * view.x) + (d.y * view.y)
-            mask.push(dot > 0)
+            var dx = p1.x - p0.x
+            var dy = p1.y - p0.y
+            var normal = ccw ? Qt.point(dy, -dx) : Qt.point(-dy, dx)
+            var visDot = (normal.x * view.x) + (normal.y * view.y)
+            mask.push(visDot > epsilon)
         }
 
         return mask
@@ -469,7 +471,7 @@ Item {
                 return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
-            property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
             property real _labelOffsetX: ScreenTools.defaultFontPixelWidth * 8
             property var minLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(basePath), _labelOffsetX, 0) }
             property var maxLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(topPath), _labelOffsetX, 0) }
@@ -701,7 +703,7 @@ Item {
                 return Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, alpha)
             }
             property var edgeVisible: { _mapKey; return _visibleEdgeMask(basePath, topPath) }
-            property var vertexVisible: { _mapKey; return _visibleVertexMaskByCenter(basePath, topPath) }
+            property var vertexVisible: { _mapKey; return _visibleVertexMask(edgeVisible) }
             property real _labelOffsetX: ScreenTools.defaultFontPixelWidth * 8
             property var minLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(basePath), _labelOffsetX, 0) }
             property var maxLabelCoord: { _mapKey; return _offsetCoordinate(_rightmostCoord(topPath), _labelOffsetX, 0) }
