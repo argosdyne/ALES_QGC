@@ -138,6 +138,7 @@ public:
 
     //GeoZone
     static const char* geoZoneDirectory;
+    void createGeoZoneDirectories();
 
     // Returns the current qLocaleLanguage setting bypassing the standard SettingsGroup path. This should only be used
     // by QGCApplication::setLanguage to query the language setting as early in the boot process as possible.
