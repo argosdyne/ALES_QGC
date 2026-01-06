@@ -514,6 +514,7 @@ Item {
 
             property bool _isRallyLayer:    _editingLayer == _layerRallyPoints
             property bool _isMissionLayer:  _editingLayer == _layerMission
+            property bool _showInitPathAction: _missionController && _missionController.currentPlanViewItem && _missionController.currentPlanViewItem.cameraCalc && _missionController.currentPlanViewItem.cameraCalc.isYSLidar
 
             ToolStripActionList {
                 id: toolStripActionList
@@ -600,7 +601,7 @@ Item {
                         text:               qsTr("Init Path")
                         iconSource:         "/qmlimages/PatternGrid.png"
                         enabled: true
-                        visible: true
+                        visible: toolStrip._showInitPathAction
                         onTriggered: {
                             insertComplexItemAfterCurrent("Init Path")
                         }
