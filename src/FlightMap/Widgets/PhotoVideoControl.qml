@@ -22,10 +22,8 @@ import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
-Rectangle {
-    height:     mainLayout.height + (_margins * 2)
-    color:      Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.5)
-    radius:     _margins
+Item {    
+    implicitHeight: content.implicitHeight    
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
@@ -46,209 +44,14 @@ Rectangle {
     property bool   _videoStreamRecording:                      _videoStreamManager.recording
     property bool   _videoStreamCanShoot:                       _videoStreamIsStreaming
     property bool   _videoStreamIsShootingInCurrentMode:        _videoStreamInPhotoMode ? !_simplePhotoCaptureIsIdle : _videoStreamRecording
-    property bool   _videoStreamInPhotoMode:                    false
-    // Rhythm Camera initialization properties
-    property bool _rhythmCameraEnabled: true
-    property bool _rhythmCameraConnected: false
-    signal cameraRhythmAvailable(var rhythmInstance)
+    property bool   _videoStreamInPhotoMode:                    false    
 
     property real zoomLevel: 1.0  // Start at 1x
     property real maxZoom: 30.0
     property real minZoom: 1.0
-    property real zoomStep: 1.0
-    // Add Rhythm component
-    Rhythm {
-        id: cameraRhythm
+    property real zoomStep: 1.0    
 
-        property var detectedObjects: [] // Holds the latest detection results
-        onConnectionStatusChanged: {
-            console.log("Rhythm camera connection:", connected ? "Connected" : "Disconnected")
-            _rhythmCameraConnected = connected
-        }
-
-        onImageCaptured: function(imageIndex, imageFileName) {
-            console.log("Image captured - Index:", imageIndex, "File:", imageFileName)
-            //_isShootingInCurrentMode = false
-        }
-
-        onDetectionResultsReceived: function(jsonResults) {
-            const resultObj = JSON.parse(jsonResults)
-            detectedObjects = resultObj.Detected_Objects
-
-            // Assign to global property in main root
-            GlobalResults.detectionObjects = detectedObjects
-
-            // console.log(" Detection Results Received from Rhythm:")
-            // for (let i = 0; i < detectedObjects.length; i++) {
-            //     const obj = detectedObjects[i];
-            //     console.log(`Object ${i} -> X: ${obj.x}, Y: ${obj.y}, Width: ${obj.width}, Height: ${obj.height}, Score: ${obj.score}, Type: ${obj.type}`)
-            // }
-        }
-
-        onTrackingResultsReceived: function(jsonResults) {
-            const resultObj = JSON.parse(jsonResults)
-            const trackingObjects = resultObj.Tracking_Objects
-
-            // Assign to global property
-            GlobalResults.trackingObjects = trackingObjects
-
-            // console.log(" Tracking Results Received from Rhythm:")
-            // for (let i = 0; i < trackingObjects.length; i++) {
-            //     const obj = trackingObjects[i];
-            //     console.log(`Tracking Object ${i} -> ` +
-            //                 `Top-Left X: ${obj.rec_top_x}, Y: ${obj.rec_top_y}, ` +
-            //                 `Bottom-Right X: ${obj.rec_bottom_x}, Y: ${obj.rec_bottom_y}, ` +
-            //                 `Mode: ${obj.tracking_mode}, ` +
-            //                 `Status: ${obj.tracking_status}`)
-            // }
-        }
-
-    }
-    // Auto-initialization timer
-    Timer {
-        id: autoInitTimer
-        interval: 2000  // 2 seconds after component loads
-        repeat: false
-        running: true   // Start automatically
-
-        onTriggered: {
-            console.log("Auto-initializing Rhythm camera...")
-            cameraRhythm.setup("192.168.2.119", 14551)
-        }
-    }
-
-    // Auto-retry connection if failed
-    Timer {
-        id: connectionRetryTimer
-        interval: 5000  // Retry every 5 seconds
-        repeat: true
-        running: _rhythmCameraEnabled && !_rhythmCameraConnected
-
-        onTriggered: {
-            //console.log("Retrying Rhythm camera connection...")
-            cameraRhythm.setup("192.168.2.119", 14551)
-        }
-    }
-    // Add this Component.onCompleted handler right here
-    Component.onCompleted: {
-        // Make the camera available globally
-        GlobalResults.rhythmCamera = cameraRhythm
-        console.log("Registered Rhythm camera globally")
-    }
-
-    Column{
-        // Button {
-        //     text: "Set"
-        //     checkable: true
-        //     // checked: GlobalResults.trackingModeActive
-        //     onClicked: {
-        //         // cameraRhythm.startDetection("Yolov8")  // Call startDetection method from Rhythm
-        //         // if (!cameraRhythm.isTracking) {
-        //         //     // Convert click to normalized coordinates (0-1)
-        //         //     // var x = mouse.x / width;
-        //         //     // var y = mouse.y / height;
-        //         //     var x =0.8
-        //         //     var y = 0.4
-
-        //         //     // Start tracking with a reasonable radius (e.g., 0.05 = 5% of screen width)
-        //         //     cameraRhythm.trackPoint(x, y, 0.05);
-        //         // }
-        //         // GlobalResults.trackingModeActive = !GlobalResults.trackingModeActive
-
-        //     }
-        // }
-        // Button {
-        //     text: "Get"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         cameraRhythm.stopTracking();
-        //     }
-        // }
-        Button {
-            text: "reset Gimbal"
-            onClicked:{
-                cameraRhythm.controlGimbal(0,0,0)
-            }
-        }
-        // Button {
-        //     text: "+"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         // cameraRhythm.zoom(1, 1) // ZOOM_TYPE_STEP, zoom in
-        //         if (zoomLevel < maxZoom) {
-        //             zoomLevel += zoomStep
-        //             cameraRhythm.zoomRangeLevel(zoomLevel)
-        //         }
-        //     }
-        // }
-        // Button {
-        //     text: "-"
-        //     onClicked: {
-        //         // cameraRhythm.getDetectionStatus()  // Call getDetectionStatus method from Rhythm
-
-        //         // cameraRhythm.zoom(1, -1) // ZOOM_TYPE_STEP, zoom in
-
-        //         if (zoomLevel > minZoom) {
-        //             zoomLevel -= zoomStep
-        //             cameraRhythm.zoomRangeLevel(zoomLevel)
-        //         }
-        //     }
-        // }
-        // Button {
-        //     text: "Resolution"
-        //     onClicked: {
-        //         // cameraRhythm.setParameter("EO_VIDEO_QUALITY", "1", 6) // 6 = INT32 // set to 720
-        //         cameraRhythm.setParameter("EO_VIDEO_QUALITY", "2", 6) // set 1080
-        //         // cameraRhythm.setParameter("EO_VIDEO_QUALITY", "3", 6) // set 4k
-        //     }
-        // }
-        // Button {
-        //     text: "Set to 720p"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(20) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(20)
-        //         cameraRhythm.setVideoBitrate(1.0)
-
-        //     }
-        // }
-        // Button {
-        //     text: "Set to 1080p"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(30) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         // cameraRhythm.setCameraVideoQuality(30) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(30)
-        //         cameraRhythm.setVideoBitrate(3.0)
-        //     }
-        // }
-        // Button {
-        //     text: "Res + Bit"
-        //     onClicked: {
-        //         // cameraRhythm.setResolution(40) // Set 720p = 20, 1080p = 30, 4K = 40
-        //         cameraRhythm.setVideoResolution(40)
-        //         cameraRhythm.setVideoBitrate(4.0)
-
-        //     }
-        // }
-        // Button {
-        //     text: "Request"
-        //     onClicked: {
-        //         cameraRhythm.requestParameter("EO_BITRATE")
-        //     }
-        // }
-    }
-    // Add a connection status indicator (optional)
-    Rectangle {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: ScreenTools.defaultFontPixelHeight / 2
-        width: ScreenTools.defaultFontPixelHeight
-        height: width
-        radius: width / 2
-        color: _rhythmCameraConnected ? "#4CAF50" : "#F44336"  // Green if connected, red if not
-    }
-
+    property bool   _hasZoom:                                   _mavlinkCamera && _mavlinkCamera.hasZoom
     // The following properties relate to a mavlink protocol camera
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
     property int    _mavlinkCameraManagerCurCameraIndex:        _mavlinkCameraManager ? _mavlinkCameraManager.currentCamera : -1
@@ -284,19 +87,13 @@ Rectangle {
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
-    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable || (_rhythmCameraEnabled && _rhythmCameraConnected)
+    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
+    //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
         console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
-
-        if (_rhythmCameraEnabled && _rhythmCameraConnected) {
-            console.log("Using Rhythm Camera for Mode Change");
-            cameraRhythm.setCameraMode(photoMode ? 0 : 1); // 0 = Photo, 1 = Video
-            _mavlinkCameraInPhotoMode = photoMode;  // Synchronize the state
-            return;
-        }
 
         if (_mavlinkCamera){
             if (_mavlinkCameraInPhotoMode) {
@@ -309,28 +106,9 @@ Rectangle {
 
     }
     function toggleShooting() {
-        console.log("toggleShooting", _anyVideoStreamAvailable)
-        console.log("Before action, isRecording:", cameraRhythm.isRecording)
-        if (_rhythmCameraEnabled && _rhythmCameraConnected) {
+        console.log("toggleShooting", _anyVideoStreamAvailable)        
 
-            if (_modeIndicatorPhotoMode) {
-                cameraRhythm.takePicture()
-                simplePhotoCaptureTimer.start()
-                _isShootingInCurrentMode = true  // Set shooting mode to true for photo mode
-            } else {
-                if (cameraRhythm.isRecording()) {
-                    console.log("Stopping Rhythm Camera Video Recording")
-                    cameraRhythm.stopVideo()
-                    _isShootingInCurrentMode = false // Reset shooting mode
-                } else {
-                    console.log("Starting Rhythm Camera Video Recording")
-                    cameraRhythm.startVideo()
-                    _isShootingInCurrentMode = true  // Set shooting mode
-                }
-            }
-            return
-        }
-        // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
+        // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
         //    if (_mavlinkCamera && (_mavlinkCamera.capturesVideo || _mavlinkCamera.capturesPhotos) ) {
         // but it doesn't for some strange reason. Hence all the stuff below...
@@ -378,238 +156,338 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
-    QGCColoredImage {
-        anchors.margins:    _margins
-        anchors.top:        parent.top
-        anchors.right:      parent.right
-        source:             "/res/gear-black.svg"
-        mipmap:             true
-        height:             ScreenTools.defaultFontPixelHeight
-        width:              height
-        sourceSize.height:  height
-        color:              qgcPal.text
-        fillMode:           Image.PreserveAspectFit
-        visible:            !_onlySimpleCameraAvailable
-
-        QGCMouseArea {
-            fillItem:   parent
-            onClicked:  settingsDialogComponent.createObject(mainWindow).open()
-        }
-    }
-
     ColumnLayout {
-        id:                         mainLayout
-        anchors.margins:            _margins
-        anchors.top:                parent.top
-        anchors.horizontalCenter:   parent.horizontalCenter
-        spacing:                    ScreenTools.defaultFontPixelHeight / 2
-
-        // Photo/Video Mode Selector
-        // IMPORTANT: This control supports both mavlink cameras and simple video streams. Do no reference anything here which is not
-        // using the unified properties/functions.
-        Rectangle {
-            Layout.alignment:   Qt.AlignHCenter
-            width:              ScreenTools.defaultFontPixelWidth * 10
-            height:             width / 2
-            color:              qgcPal.windowShadeLight
-            radius:             height * 0.5
-            visible:            _showModeIndicator
-
-            //-- Video Mode
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width:                  parent.height
-                height:                 parent.height
-                color:                  _modeIndicatorPhotoMode ? qgcPal.windowShadeLight : qgcPal.window
-                radius:                 height * 0.5
-                anchors.left:           parent.left
-                border.color:           qgcPal.text
-                border.width:           _modeIndicatorPhotoMode ? 0 : 1
-
-                QGCColoredImage {
-                    height:             parent.height * 0.5
-                    width:              height
-                    anchors.centerIn:   parent
-                    source:             "/qmlimages/camera_video.svg"
-                    fillMode:           Image.PreserveAspectFit
-                    sourceSize.height:  height
-                    color:              _modeIndicatorPhotoMode ? qgcPal.text : qgcPal.colorGreen
-                    MouseArea {
-                        anchors.fill:   parent
-                        enabled:        _switchToVideoModeAllowed
-                        onClicked:      setCameraMode(false)
-                    }
-                }
-            }
-            //-- Photo Mode
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width:                  parent.height
-                height:                 parent.height
-                color:                  _modeIndicatorPhotoMode ? qgcPal.window : qgcPal.windowShadeLight
-                radius:                 height * 0.5
-                anchors.right:          parent.right
-                border.color:           qgcPal.text
-                border.width:           _modeIndicatorPhotoMode ? 1 : 0
-                QGCColoredImage {
-                    height:             parent.height * 0.5
-                    width:              height
-                    anchors.centerIn:   parent
-                    source:             "/qmlimages/camera_photo.svg"
-                    fillMode:           Image.PreserveAspectFit
-                    sourceSize.height:  height
-                    color:              _modeIndicatorPhotoMode ? qgcPal.colorGreen : qgcPal.text
-                    MouseArea {
-                        anchors.fill:   parent
-                        enabled:        _switchToPhotoModeAllowed
-                        onClicked:      setCameraMode(true)
-                    }
-                }
-            }
-        }
-
+        id: content
+        anchors.fill: parent
+        spacing: ScreenTools.defaultFontPixelHeight * 0.5
+        // ───────────────────────────────
+        // 1. Reset & Setting Button
         RowLayout {
-            Layout.alignment:   Qt.AlignHCenter
-            spacing:            0
-            visible:            _showModeIndicator && !_mavlinkCamera && _simpleCameraAvailable && _videoStreamInPhotoMode
+            spacing: ScreenTools.defaultFontPixelWidth * 6
+            Layout.alignment: Qt.AlignHCenter
 
-            QGCRadioButton {
-                id:             videoGrabRadio
-                font.pointSize: ScreenTools.smallFontPointSize
-                text:           qsTr("Video Grab")
+            //Gimbal reset
+            Rectangle {
+                height: ScreenTools.defaultFontPixelHeight * 2
+                width: height
+                radius: width
+                color: "gray"
+
+                QGCColoredImage {
+                    anchors.centerIn: parent
+                    source: "/res/reset.svg"
+                    mipmap: true
+                    height: ScreenTools.defaultFontPixelHeight
+                    width: height
+                    sourceSize.height: height
+                    color: qgcPal.text
+                    fillMode: Image.PreserveAspectFit
+                    visible: !_onlySimpleCameraAvailable
+                }
+                QGCMouseArea {
+                    fillItem: parent
+                    onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
+                }
             }
-            QGCRadioButton {
-                font.pointSize: ScreenTools.smallFontPointSize
-                text:           qsTr("Camera Trigger")
-                checked:        true
+            //Camera Settings
+            Rectangle {
+                height: ScreenTools.defaultFontPixelHeight * 2
+                width: height
+                radius: width
+                color: "gray"
+
+                QGCColoredImage {
+                    anchors.centerIn: parent
+                    source: "/res/cameraSetting.svg"
+                    mipmap: true
+                    height: ScreenTools.defaultFontPixelHeight
+                    width: height
+                    sourceSize.height: height
+                    color: qgcPal.text
+                    fillMode: Image.PreserveAspectFit
+                    visible: !_onlySimpleCameraAvailable
+                }
+                QGCMouseArea {
+                    fillItem: parent
+                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
+                }
+            }
+        }
+        // ───────────────────────────────
+        // 2. Photo/Video Switch Button
+        Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            width: ScreenTools.defaultFontPixelWidth * 16
+            height: width / 2.5
+            color: qgcPal.windowShadeLight
+            radius: height * 0.5
+            visible: _showModeIndicator
+
+            //Video Mode
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.height * 0.8
+                height: parent.height * 0.8
+                color: _modeIndicatorPhotoMode ? qgcPal.windowShadeLight : qgcPal.window
+                radius: height * 0.5
+                anchors.left: parent.left
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+
+                QGCColoredImage {
+                    height: parent.height * 0.5
+                    width: height
+                    anchors.centerIn: parent
+                    source: "/qmlimages/camera_video.svg"
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize.height: height
+                    color: _modeIndicatorPhotoMode ? qgcPal.text : qgcPal.colorGreen
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: _switchToVideoModeAllowed
+                    onClicked: setCameraMode(false)
+                }
+            }
+
+            //Photo Mode
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.height * 0.8
+                height: parent.height * 0.8
+                color: _modeIndicatorPhotoMode ? qgcPal.window : qgcPal.windowShadeLight
+                radius: height * 0.5
+                anchors.right: parent.right
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+
+                QGCColoredImage {
+                    height: parent.height * 0.5
+                    width: height
+                    anchors.centerIn: parent
+                    source: "/qmlimages/camera_photo.svg"
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize.height: height
+                    color: _modeIndicatorPhotoMode ? qgcPal.colorGreen : qgcPal.text
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: _switchToPhotoModeAllowed
+                    onClicked: setCameraMode(true)
+                }
             }
         }
 
-        // Take Photo, Start/Stop Video button
-        // IMPORTANT: This control supports both mavlink cameras and simple video streams. Do no reference anything here which is not
-        // using the unified properties/functions.
+        // ───────────────────────────────
+        // 3. Photo & Recording Button
         Rectangle {
-            Layout.alignment:   Qt.AlignHCenter
-            color:              Qt.rgba(0,0,0,0)
-            width:              ScreenTools.defaultFontPixelWidth * 6
-            height:             width
-            radius:             width * 0.5
-            border.color:       qgcPal.buttonText
-            border.width:       3
+            Layout.alignment: Qt.AlignHCenter
+            color: Qt.rgba(0,0,0,0)
+            width: ScreenTools.defaultFontPixelWidth * 10
+            height: width
+            radius: width * 0.5
+            border.color: qgcPal.buttonText
+            border.width: 3
 
             Rectangle {
-                anchors.centerIn:   parent
-                width:              parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
-                height:             width
-                radius:             _isShootingInCurrentMode ? 0 : width * 0.5
-                color:              _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
+                anchors.centerIn: parent
+                width: parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
+                height: width
+                radius: _isShootingInCurrentMode ? 0 : width * 0.5
+                color: _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
             }
 
             MouseArea {
-                anchors.fill:   parent
-                enabled:        _canShootInCurrentMode
-                onClicked:      toggleShooting()
+                anchors.fill: parent
+                enabled: _canShootInCurrentMode
+                onClicked: toggleShooting()
             }
         }
 
-        // Tracking button
-        Rectangle {
-            Layout.alignment:   Qt.AlignHCenter
-            color:              _mavlinkCamera && _mavlinkCamera.trackingEnabled ? qgcPal.colorRed : qgcPal.windowShadeLight
-            width:              ScreenTools.defaultFontPixelWidth * 6
-            height:             width
-            radius:             width * 0.5
-            border.color:       qgcPal.buttonText
-            border.width:       3
-            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking // || _rhythmCameraEnabled && _rhythmCameraConnected
-            visible: {
-                if(_rhythmCameraConnected && _rhythmCameraEnabled){
-                    return false
-                }
-                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
-                    return true
-                }
-                else {
-                    return false
-                }
-            }
-
-            QGCColoredImage {
-                height:             parent.height * 0.5
-                width:              height
-                anchors.centerIn:   parent
-                source:             "/qmlimages/TrackingIcon.svg"
-                fillMode:           Image.PreserveAspectFit
-                sourceSize.height:  height
-                color:              qgcPal.text
-                MouseArea {
-                    anchors.fill:   parent
-                    onClicked: {
-                        _mavlinkCamera.trackingEnabled = !_mavlinkCamera.trackingEnabled;
-                        if(!_mavlinkCamera.trackingEnabled) {
-                            !_mavlinkCamera.stopTracking()
-                        }
-                        // else if (_rhythmCameraEnabled && _rhythmCameraConnected){
-                        //     GlobalResults.trackingModeActive = !GlobalResults.trackingModeActive
-                        // }
-                    }
-                }
-            }
-        }
+        // ───────────────────────────────
+        // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
-            text:               qsTr("Camera Tracking")
-            font.pointSize:     ScreenTools.defaultFontPointSize
-            //visible:            _mavlinkCamera && _mavlinkCamera.hasTracking
-            visible: {
-                if(_rhythmCameraConnected && _rhythmCameraEnabled){
-                    return false
+            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
+            font.pointSize:     ScreenTools.largeFontPointSize
+            font.bold:          true
+            visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
+        }
+
+        // ───────────────────────────────
+        // 5. Zoom in / Zoom Out Button
+        Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            width: ScreenTools.defaultFontPixelWidth * 18
+            height: width / 3
+            color: qgcPal.windowShadeLight
+            radius: height * 0.5
+            visible: _showModeIndicator
+
+            //Zoom in
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.height * 0.8
+                height: parent.height * 0.8
+                color: zoomIn.pressed ? "black" : "gray"
+                radius: height * 0.5
+                anchors.left: parent.left
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+
+                QGCColoredImage {
+                    height: parent.height * 0.5
+                    width: height
+                    anchors.centerIn: parent
+                    source: "/res/ZoomIn.svg"
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize.height: height
+                    color: "white"
                 }
-                else if(_mavlinkCamera && _mavlinkCamera.hasTracking){
-                    return true
+                MouseArea {
+                    id: zoomIn
+                    anchors.fill: parent
+                    enabled: _hasZoom
+                    onClicked: _mavlinkCamera.stepZoom(1)
                 }
-                else {
-                    return false
+            }
+
+            //Zoom Value
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.height * 0.8
+                height: parent.height * 0.8
+                color: "black"
+                radius: 5
+                anchors.centerIn: parent
+
+                Label {
+                    anchors.centerIn: parent
+                    text: "x" + (_hasZoom && _mavlinkCamera
+                                 ? _mavlinkCamera.zoomLevel.toFixed(0)
+                                 : 1)
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            //Zoom out
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.height * 0.8
+                height: parent.height * 0.8
+                color: zoomOut.pressed ? "black" : "gray"
+                radius: height * 0.5
+                anchors.right: parent.right
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+
+                QGCColoredImage {
+                    height: parent.height * 0.5
+                    width: height
+                    anchors.centerIn: parent
+                    source: "/res/ZoomOut.svg"
+                    fillMode: Image.PreserveAspectFit
+                    sourceSize.height: height
+                    color: "white"
+                }
+                MouseArea {
+                    id: zoomOut
+                    anchors.fill: parent
+                    enabled: _hasZoom
+                    onClicked: _mavlinkCamera.stepZoom(-1)
                 }
             }
         }
 
-        //-- Status Information
-        ColumnLayout {
-            Layout.alignment:   Qt.AlignHCenter
-            spacing:            0
+        // ───────────────────────────────
+        // 6. Separator Line
+        Rectangle {
+            color: "lightgray"
+            height: 1
+            Layout.fillWidth: true
+        }
+
+        // ───────────────────────────────
+        // 7. Gimbal Yaw, Pitch Text
+        GridLayout {
+            columns: 2
+            columnSpacing: ScreenTools.defaultFontPixelWidth
+            rowSpacing: ScreenTools.defaultFontPixelHeight / 2
+            Layout.fillWidth: true
 
             QGCLabel {
-                Layout.alignment:   Qt.AlignHCenter
-                text:               _cameraName
-                visible:            _cameraName !== ""
+                text: qsTr("Gimbal Pitch")
+                //wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.bold: true
             }
+
             QGCLabel {
-                Layout.alignment:   Qt.AlignHCenter
-                text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
-                font.pointSize:     ScreenTools.largeFontPointSize
-                visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
+                text: qsTr("Gimbal Yaw")
+                //wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.bold: true
             }
+
             QGCLabel {
-                property int photoIndex: _mavlinkCamera ? _mavlinkCamera.photoIndex : 0
-                property int triggerPoints: _activeVehicle ? _activeVehicle.cameraTriggerPoints.count : 0
-                property int photoCount: photoIndex > 0 ? photoIndex : triggerPoints
-                Layout.alignment:   Qt.AlignHCenter
-                text:               ('00000' + photoCount).slice(-5)
-                font.pointSize:     ScreenTools.largeFontPointSize
-                visible:            _modeIndicatorPhotoMode
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : "0") + "°"
+                text: {
+                    var pitch = (_activeVehicle && _activeVehicle.gimbalData)
+                            ? _activeVehicle.gimbalPitch
+                            : 0
+                    pitch = Math.abs(pitch) < 0.5 ? 0 : pitch
+                    return pitch.toFixed(0) + "°"
+                }
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.bold: true
             }
+
             QGCLabel {
-                Layout.alignment:   Qt.AlignHCenter
-                text:               _mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : ""
-                font.pointSize:     ScreenTools.defaultFontPointSize
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : "0") + "°"
+                text: {
+                    var yaw = (_activeVehicle && _activeVehicle.gimbalData)
+                            ? _activeVehicle.gimbalYaw
+                            : 0
+                    yaw = Math.abs(yaw) < 0.5 ? 0 : yaw
+                    return yaw.toFixed(0) + "°"
+                }
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.bold: true
+            }
+        }
+
+        // ───────────────────────────────
+        // 8. Separator Line
+        Rectangle {
+            color: "lightgray"
+            height: 1
+            Layout.fillWidth: true
+        }
+
+        // ───────────────────────────────
+        // 9. SD card Storage
+        RowLayout {
+            spacing: ScreenTools.defaultFontPixelWidth
+            Layout.alignment: Qt.AlignHCenter
+            Image {
+                source: "/res/SDCard.svg"
+                width: ScreenTools.defaultFontPixelWidth * 2
+                height: ScreenTools.defaultFontPixelWidth * 2
                 visible:            _mavlinkCameraStorageReady
             }
+
             QGCLabel {
-                Layout.alignment:   Qt.AlignHCenter
-                text:               _mavlinkCamera ? qsTr("Battery: ") + _mavlinkCamera.batteryRemainingStr : ""
-                font.pointSize:     ScreenTools.defaultFontPointSize
-                visible:            _mavlinkCameraBatteryReady
+                text:_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : ""
+                font.pointSize:     ScreenTools.defaultFontPointSize * 1.2
+                visible:            _mavlinkCameraStorageReady
+                Layout.alignment: Qt.AlignVCenter
             }
         }
     }
@@ -618,7 +496,8 @@ Rectangle {
         id: settingsDialogComponent
 
         QGCPopupDialog {
-            title:      qsTr("Settings")
+            id:         settingsDialog            
+            title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
 
             ColumnLayout {
@@ -629,7 +508,7 @@ Rectangle {
                     flow:   GridLayout.TopToBottom
                     rows:   dynamicRows + (_mavlinkCamera ? _mavlinkCamera.activeSettings.length : 0)
 
-                    property int dynamicRows: 13
+                    property int dynamicRows: 10
 
                     // First column
                     QGCLabel {
@@ -691,32 +570,15 @@ Rectangle {
 
                     QGCLabel {
                         text:               qsTr("Reset Camera Defaults")
-                        visible:            _mavlinkCamera || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCamera
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
                     QGCLabel {
                         text:               qsTr("Storage")
-                        visible:            _mavlinkCameraStorageSupported || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCameraStorageSupported
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
-                    QGCLabel {
-                        text:               qsTr("Detection & Tracking")
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-
-                    QGCLabel {
-                        text:               qsTr("Bitrate")  // Change this to your desired text
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-                    QGCLabel {
-                        text:               qsTr("Resolution")  // Change this to your desired text
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
-                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
-                    }
-
 
                     // Second column
                     QGCComboBox {
@@ -781,7 +643,10 @@ Rectangle {
                                 Layout.fillWidth:   true
                                 fact:               parent._fact
                                 visible:            parent._isEdit
-                            }
+                                readOnly:           fact.readOnly
+                                selectByMouse:      !fact.readOnly
+                                activeFocusOnPress: !fact.readOnly
+                            }                        
                             QGCSlider {
                                 Layout.fillWidth:           true
                                 maximumValue:               parent._fact.max
@@ -853,7 +718,7 @@ Rectangle {
                     QGCButton {
                         Layout.fillWidth:   true
                         text:               qsTr("Reset")
-                        visible:            _mavlinkCamera || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCamera
                         onClicked:          resetPrompt.open()
                         MessageDialog {
                             id:                 resetPrompt
@@ -871,7 +736,7 @@ Rectangle {
                     QGCButton {
                         Layout.fillWidth:   true
                         text:               qsTr("Format")
-                        visible:            _mavlinkCameraStorageSupported || _rhythmCameraEnabled && _rhythmCameraConnected
+                        visible:            _mavlinkCameraStorageSupported
                         onClicked:          formatPrompt.open()
                         MessageDialog {
                             id:                 formatPrompt
@@ -884,197 +749,8 @@ Rectangle {
                                 formatPrompt.close()
                             }
                         }
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth:   true
-                        visible:            _rhythmCameraEnabled && _rhythmCameraConnected
-                        spacing:            ScreenTools.defaultFontPixelWidth
-
-                        // Detection Model ComboBox
-                        QGCComboBox {
-                            id: detectionCombo
-                            Layout.fillWidth: true
-                            // currentIndex: GlobalResults.lastDetectionModel
-                            model: [qsTr("None"), qsTr("YOLOv8"), qsTr("YOLOv7"), qsTr("YOLOv11")]
-                            currentIndex: {
-                                var detectionModel = GlobalResults.lastDetectionModel;
-
-                                // Check if tracking model is a number
-                                if (typeof detectionModel === 'number') {
-                                    switch(detectionModel) {
-                                        case 0: return 0  // None
-                                        case 1: return 1  // YOLOv8
-                                        case 2: return 2  // YOLOv7
-                                        case 3: return 3
-                                        default: return -1
-                                    }
-                                }
-                                return -1
-                            }
-                            onActivated: {
-                                // Handle different tracking modes
-                                var detectionValue;
-                                switch(index) {
-                                    case 0:  // None
-                                        detectionValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                    case 1:  // Yolov8
-                                        detectionValue = "Yolov8";
-                                        // cameraRhythm.startTracking("Yolov8")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 2:  // Yolov7
-                                        detectionValue = "Yolov7";
-                                        // cameraRhythm.startTracking("Yolov7")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 3: // Yolov11
-                                        detectionValue = "Yolov11";
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    default:
-                                        // Handle unexpected index
-                                        detectionValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                }
-                                // Store the last selected tracking model
-                                GlobalResults.lastDetectionModel = index
-                                cameraRhythm.startDetection(detectionValue)
-                            }
-                        }
-
-                        // Tracking Algorithm ComboBox
-                        QGCComboBox {
-                            id: trackingCombo
-                            Layout.fillWidth: true
-                            // currentIndex: GlobalResults.lastTrackingModel
-                            sizeToContents: true       // Size based on content
-                            model: [qsTr("None"), qsTr("Nano"), qsTr("SiamRPN")]
-                            // Restore last selected tracking model or default to None
-                            currentIndex: {
-                                var trackingModel = GlobalResults.lastTrackingModel;
-
-                                // Check if tracking model is a number
-                                if (typeof trackingModel === 'number') {
-                                    switch(trackingModel) {
-                                        case 0: return 0  // None
-                                        case 1: return 1  // Nano
-                                        case 2: return 2  // SiamRPN
-                                        default: return -1
-                                    }
-                                }
-                                return -1
-                            }
-                            onActivated: {
-                                // Handle different tracking modes
-                                var trackingValue;
-                                switch(index) {
-                                    case 0:  // None
-                                        trackingValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                    case 1:  // Nano
-                                        trackingValue = "Nano";
-                                        // cameraRhythm.startTracking("Nano")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    case 2:  // SiamRPN
-                                        trackingValue = "SiamRPN";
-                                        // cameraRhythm.startTracking("SiamRPN")
-                                        GlobalResults.setDetectionEnabled(true)
-                                        break
-                                    default:
-                                        // Handle unexpected index
-                                        trackingValue = "None";
-                                        // cameraRhythm.startTracking("None")
-                                        GlobalResults.setDetectionEnabled(false)
-                                        break
-                                }
-
-                                // Store the last selected tracking model
-                                GlobalResults.lastTrackingModel = index
-                                cameraRhythm.startTracking(trackingValue)
-                            }
-                        }
-                    }
-                    QGCComboBox {
-                        id: bitrateCombo
-                        model: [qsTr("1 Mbps"), qsTr("2.5 Mbps"), qsTr("4 Mbps")]
-                        Layout.fillWidth: true
-
-                        // Map bitrate values to indices
-                        currentIndex: {
-                            var bitrate = GlobalResults.lastBitrate;
-
-                            // Check if bitrate is a number
-                            if (typeof bitrate === 'number') {
-                                // Use Math.round for precise comparison
-                                // var roundedBitrate = Math.round(bitrate * 10) / 10;
-                                switch(bitrate) {
-                                    case 0: return 0
-                                    case 1: return 1
-                                    case 2: return 2
-                                    default: return -1
-                                }
-                            }
-                            return -1
-                        }
-                        visible: _rhythmCameraEnabled && _rhythmCameraConnected
-                        onActivated: {
-                            // Map index to bitrate value
-                            var bitrateValue;
-                            switch(index) {
-                                case 0: bitrateValue = 1.0; break
-                                case 1: bitrateValue = 2.5; break
-                                case 2: bitrateValue = 4.0; break
-                                default: bitrateValue = 2.5; break
-                            }
-                            GlobalResults.lastBitrate = index
-                            cameraRhythm.setVideoBitrate(bitrateValue)
-                        }
-                    }
-
-                    QGCComboBox {
-                        id: resolutionCombo
-                        model: [qsTr("720"), qsTr("1080p"), qsTr("4K")]
-                        Layout.fillWidth: true
-
-                        // Map resolution values to indices
-                        currentIndex: {
-                            var resolution = GlobalResults.lastResolution;
-
-                            // Check if resolution is a number
-                            if (typeof resolution === 'number') {
-                                switch(resolution) {
-                                    case 0: return 0   // 720
-                                    case 1: return 1   // 1080
-                                    case 2: return 2   // 4K
-                                    default: return -1
-                                }
-                            }
-                            return -1
-                        }
-                        visible: _rhythmCameraEnabled && _rhythmCameraConnected
-                        onActivated: {
-                            // Map index to bitrate value
-                            var resolutionValue;
-                            switch(index) {
-                                case 0: resolutionValue = 20; break
-                                case 1: resolutionValue = 30; break
-                                case 2: resolutionValue = 40; break
-                                default: resolutionValue = 20; break
-                            }
-                            GlobalResults.lastResolution = index
-                            cameraRhythm.setVideoResolution(resolutionValue)
-                        }
-                    }
-                }
+                    }    
+                  }
             }
         }
     }

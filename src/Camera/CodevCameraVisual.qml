@@ -65,7 +65,7 @@ Item {
         function irSwitchTigger(start) {
             if(start && QGroundControl.videoManager.hasThermal) {
                 var v = _camera.thermalMode + 1
-                if(v > MavlinkCameraControl.THERMAL_PIP) {
+                if(v > QGCCameraControl.THERMAL_PIP) {
                     v = 0
                 }
                 _camera.thermalMode = v
@@ -139,11 +139,8 @@ Item {
 
     //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
 
-    //         // Start tracking using the globally available camera
-    //         GlobalResults.rhythmCamera.trackPoint(normX, normY, 0.1)
-    //         GlobalResults.setDetectionEnabled(false)
-    //         // Exit tracking mode
-    //         GlobalResults.trackingModeActive = false
+    //         // Start tracking using the globally available camera        
+    //         // Exit tracking mode    
     //     }
     // }
 
@@ -313,8 +310,7 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
-                                        console.log("setSpotTemp Point = ", x, y)
-                                        //cameraRhythm.setSpotTempPoint(x, y)
+                                        console.log("setSpotTemp Point = ", x, y)                                        
                 } else if(aiInThermal) {
                     var point = Qt.point(x, y)
                     _camera.startTracking(point, 1.0)

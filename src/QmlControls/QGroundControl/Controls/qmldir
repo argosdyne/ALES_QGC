@@ -129,3 +129,7 @@ PseudocolorBar							1.0 PseudocolorBar.qml
 ToolRadioButton							1.0 ToolRadioButton.qml
 TouchSelectArea							1.0 TouchSelectArea.qml
 TargetObjectRectangles					1.0 TargetObjectRectangles.qml
+FlyViewFPVVideo 						1.0 FlyViewFPVVideo.qml
+FPVOverlay 								1.0 FPVOverlay.qml
+PipState								1.0 PipState.qml
+PipView									1.0 PipView.qml

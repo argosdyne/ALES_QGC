@@ -22,9 +22,10 @@ Item {
     property int    _track_rec_y:       0
 
     property Item pipState: videoPipState
-    QGCPipState {
+    PipState {
         id:         videoPipState
         pipOverlay: _pipOverlay
+        fpvOverlay: _fpvOverlay
         isDark:     true
 
         onWindowAboutToOpen: {
@@ -38,7 +39,7 @@ Item {
         }
 
         onStateChanged: {
-            if (pipState.state !== pipState.fullState) {
+            if (pipState.state !== pipState.fullState && pipOverlay.item2 === parent) {
                 QGroundControl.videoManager.fullScreen = false
             }
         }

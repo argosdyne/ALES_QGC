@@ -13,7 +13,7 @@ class GStreamer {
 public:
     static void blacklist(VideoSettings::VideoDecoderOptions option);
     static void initialize(int argc, char* argv[], int debuglevel);
-    static void* createVideoSink(QObject* parent, QQuickItem* widget);
+    static void* createVideoSink(QObject* parent, QObject* widget);
     static void releaseVideoSink(void* sink);
     static VideoReceiver* createVideoReceiver(QObject* parent);
 };

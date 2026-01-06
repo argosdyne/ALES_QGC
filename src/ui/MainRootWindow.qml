@@ -477,12 +477,6 @@ ApplicationWindow {
         visible: false
     }
 
-    Rhythm {
-        id: _rhythm
-        Component.onCompleted: {
-        }
-    }
-
     Drawer {
         id:             toolDrawer
         width:          mainWindow.width

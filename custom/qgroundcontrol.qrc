@@ -58,6 +58,10 @@
 		<file alias="QGroundControl/Controls/ToolRadioButton.qml">../src/QmlControls/ToolRadioButton.qml</file>
 		<file alias="QGroundControl/Controls/AreaFrame.qml">../src/QmlControls/AreaFrame.qml</file>
 		<file alias="QGroundControl/Controls/TargetObjectRectangles.qml">../src/QmlControls/TargetObjectRectangles.qml</file>
+		<file alias="QGroundControl/Controls/FlyViewFPVVideo.qml">../src/QmlControls/FlyViewFPVVideo.qml</file>
+		<file alias="QGroundControl/Controls/PipState.qml">../src/QmlControls/PipState.qml</file>
+		<file alias="QGroundControl/Controls/PipView.qml">../src/QmlControls/PipView.qml</file>
+		<file alias="QGroundControl/Controls/FPVOverlay.qml">../src/QmlControls/FPVOverlay.qml</file>		
 		<file alias="geoFenceSettings.qml">../src/ui/preferences/geoFenceSettings.qml</file>
 		<file alias="GeoTagPage.qml">../src/AnalyzeView/GeoTagPage.qml</file>
 		<file alias="HelpSettings.qml">../src/ui/preferences/HelpSettings.qml</file>

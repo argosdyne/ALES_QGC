@@ -135,11 +135,26 @@ GStreamer::blacklist(VideoSettings::VideoDecoderOptions option)
     switch (option) {
         case VideoSettings::ForceVideoDecoderDefault:
             break;
-        case VideoSettings::ForceVideoDecoderSoftware:
-            for(auto name : {"avdec_h264", "avdec_h265"}) {
-                changeRank(name, GST_RANK_PRIMARY + 1);
+        case VideoSettings::ForceVideoDecoderSoftware: {
+            // Software decoders preferred
+            for (auto name : {"avdec_h264", "avdec_h265"}) {
+                changeRank(name, GST_RANK_PRIMARY + 10);
+            }
+
+            // Disable Rockchip and Android hardware decoders
+            const char* hwDecoders[] = {
+                "omxh264dec", "omxh265dec",
+                "omxrkvideodec", "rkx264dec", "rkx265dec",
+                "androidmedia",
+                "amcviddec-h264", "amcviddec-h265"
+            };
+
+            for (auto name : hwDecoders) {
+                changeRank(name, GST_RANK_NONE);
             }
             break;
+        }
+
         case VideoSettings::ForceVideoDecoderVAAPI:
             for(auto name : {"vaapimpeg2dec", "vaapimpeg4dec", "vaapih263dec", "vaapih264dec", "vaapih265dec", "vaapivc1dec"}) {
                 changeRank(name, GST_RANK_PRIMARY + 1);
@@ -243,7 +258,7 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
     }
 
     if (sink != nullptr) {
-        gst_object_unref(sink);
+        //gst_object_unref(sink);
         sink = nullptr;
     } else {
         qCCritical(GStreamerLog) << "unable to find qmlglsink - you need to build it yourself and add to GST_PLUGIN_PATH";
@@ -253,7 +268,7 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
 }
 
 void*
-GStreamer::createVideoSink(QObject* parent, QQuickItem* widget)
+GStreamer::createVideoSink(QObject* parent, QObject* widget)
 {
     Q_UNUSED(parent)
 

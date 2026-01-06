@@ -79,8 +79,7 @@ SOURCES += \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
-    $$PWD/src/RTCM/SerialPortRTCMSource.cpp \
-    $$PWD/src/Rhythm/rhythm.cpp \
+    $$PWD/src/RTCM/SerialPortRTCMSource.cpp \    
     $$PWD/src/SiYi/SiYiCamera.cc \
     $$PWD/src/SiYi/SiYiCrcApi.cc \
     $$PWD/src/SiYi/SiYiManager.cc \
@@ -99,8 +98,7 @@ HEADERS += \
     $$PWD/src/RTCM/CodevRTCMManager.h \
     $$PWD/src/RTCM/NTRIPRTCMSource.h \
     $$PWD/src/RTCM/RTCMBase.h \
-    $$PWD/src/RTCM/SerialPortRTCMSource.h \
-    $$PWD/src/Rhythm/rhythm.h \
+    $$PWD/src/RTCM/SerialPortRTCMSource.h \    
     $$PWD/src/SiYi/SiYiCamera.h \
     $$PWD/src/SiYi/SiYiCrcApi.h \
     $$PWD/src/SiYi/SiYiManager.h \
@@ -121,8 +119,7 @@ INCLUDEPATH += \
     $$PWD/src/RTCM/ \
     $$PWD/src/ARLink/ \
     $$PWD/src/AVIATOR/ \
-    $$PWD/src/MissionManager \
-    $$PWD/src/Rhythm \
+    $$PWD/src/MissionManager \    
 
 #-------------------------------------------------------------------------------------
 # Custom Firmware/AutoPilot Plugin
