@@ -361,8 +361,8 @@ Item {
                 Label {
                     anchors.centerIn: parent
                     text: "x" + (_hasZoom && _mavlinkCamera
-                                 ? _mavlinkCamera.zoomLevel.toFixed(1)
-                                 : 1.0)
+                                 ? _mavlinkCamera.zoomLevel.toFixed(0)
+                                 : 1)
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -432,7 +432,14 @@ Item {
             }
 
             QGCLabel {
-                text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : "0") + "°"
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : "0") + "°"
+                text: {
+                    var pitch = (_activeVehicle && _activeVehicle.gimbalData)
+                            ? _activeVehicle.gimbalPitch
+                            : 0
+                    pitch = Math.abs(pitch) < 0.5 ? 0 : pitch
+                    return pitch.toFixed(0) + "°"
+                }
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: ScreenTools.defaultFontPixelHeight
@@ -440,7 +447,14 @@ Item {
             }
 
             QGCLabel {
-                text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : "0") + "°"
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : "0") + "°"
+                text: {
+                    var yaw = (_activeVehicle && _activeVehicle.gimbalData)
+                            ? _activeVehicle.gimbalYaw
+                            : 0
+                    yaw = Math.abs(yaw) < 0.5 ? 0 : yaw
+                    return yaw.toFixed(0) + "°"
+                }
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
