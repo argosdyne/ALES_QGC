@@ -6,6 +6,15 @@
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
 
+#if defined(Q_OS_ANDROID)
+#include <QSocketNotifier>
+#include <errno.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#include <string.h>
+#endif
+
 QGC_LOGGING_CATEGORY(AVIATORInterfaceLog, "AVIATORInterfaceLog")
 
 const char* AVIATORInterface::_batteryVoltageFactName = "RC_BAT_VOLTAGE";
@@ -55,12 +64,29 @@ AVIATORInterface::~AVIATORInterface()
         _port->deleteLater();
         _port = nullptr;
     }
+#if defined(Q_OS_ANDROID)
+    if (_fdNotifier) {
+        _fdNotifier->deleteLater();
+        _fdNotifier = nullptr;
+    }
+    if (_fd >= 0) {
+        ::close(_fd);
+        _fd = -1;
+    }
+#endif
 }
 
 void AVIATORInterface::_writeBytes(const QByteArray data)
 {
     if(_port && _port->isOpen()) {
         _port->write(data);
+#if defined(Q_OS_ANDROID)
+    } else if (_fd >= 0) {
+        const qint64 written = ::write(_fd, data.constData(), static_cast<size_t>(data.size()));
+        if (written < 0) {
+            qWarning() << "Native serial write failed" << strerror(errno) << _portName;
+        }
+#endif
     } else {
         // Error occurred
         qWarning() << "Serial port not writeable" << _portName;
@@ -69,6 +95,26 @@ void AVIATORInterface::_writeBytes(const QByteArray data)
 
 void AVIATORInterface::_readBytes()
 {
+#if defined(Q_OS_ANDROID)
+    if (_fd >= 0) {
+        char raw[256];
+        ssize_t bytesRead = 0;
+        while ((bytesRead = ::read(_fd, raw, sizeof(raw))) > 0) {
+            QByteArray buffer(raw, static_cast<int>(bytesRead));
+            for (int position = 0; position < buffer.size(); position++) {
+                mavlink_message_t message;
+                mavlink_status_t status;
+                if (mavlink_parse_char(MAVLINK_AVIATOR_COMM_ID, static_cast<uint8_t>(buffer[position]), &message, &status)) {
+                    emit bytesReceived(message);
+                }
+            }
+        }
+        if (bytesRead < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
+            qWarning() << "Native serial read failed" << strerror(errno) << _portName;
+        }
+        return;
+    }
+#endif
     if (_port && _port->isOpen()) {
         qint64 byteCount = _port->bytesAvailable();
         if (byteCount) {
@@ -98,6 +144,56 @@ void AVIATORInterface::_init()
         delete _port;
         _port = nullptr;
     }
+#if defined(Q_OS_ANDROID)
+    if (_fdNotifier) {
+        _fdNotifier->deleteLater();
+        _fdNotifier = nullptr;
+    }
+    if (_fd >= 0) {
+        ::close(_fd);
+        _fd = -1;
+    }
+
+    auto tryOpenNative = [&](const QString& portName) -> bool {
+        const QByteArray pathBytes = portName.toLocal8Bit();
+        const int fd = ::open(pathBytes.constData(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+        if (fd < 0) {
+            qWarning() << "AVIATORInterface native open failed" << strerror(errno) << portName;
+            return false;
+        }
+
+        termios tty;
+        memset(&tty, 0, sizeof(tty));
+        if (tcgetattr(fd, &tty) != 0) {
+            qWarning() << "AVIATORInterface native tcgetattr failed" << strerror(errno) << portName;
+            ::close(fd);
+            return false;
+        }
+
+        cfmakeraw(&tty);
+        cfsetispeed(&tty, B115200);
+        cfsetospeed(&tty, B115200);
+        tty.c_cflag |= (CLOCAL | CREAD);
+        tty.c_cflag &= ~CSTOPB;
+        tty.c_cflag &= ~CRTSCTS;
+        tty.c_cflag &= ~PARENB;
+        tty.c_cflag &= ~CSIZE;
+        tty.c_cflag |= CS8;
+
+        if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+            qWarning() << "AVIATORInterface native tcsetattr failed" << strerror(errno) << portName;
+            ::close(fd);
+            return false;
+        }
+
+        _fd = fd;
+        _fdNotifier = new QSocketNotifier(_fd, QSocketNotifier::Read, this);
+        QObject::connect(_fdNotifier, &QSocketNotifier::activated, this, &AVIATORInterface::_readBytes);
+        _portName = portName;
+        qInfo() << "AVIATORInterface native port opened" << portName;
+        return true;
+    };
+#endif
 
     qCDebug(AVIATORInterfaceLog) << "init " << _portName;
     _port = new QSerialPort(_portName, this);
@@ -109,6 +205,11 @@ void AVIATORInterface::_init()
         _port->close();
         delete _port;
         _port = nullptr;
+#if defined(Q_OS_ANDROID)
+        if (tryOpenNative(_portName)) {
+            return;
+        }
+#endif
     } else {
         _port->setDataTerminalReady(true);
         _port->setBaudRate(_baudRate);

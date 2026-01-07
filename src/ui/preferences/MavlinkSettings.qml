@@ -140,6 +140,37 @@ Rectangle {
                             }
                         }
                     }
+                    Row {
+                        spacing:    ScreenTools.defaultFontPixelWidth
+                        QGCLabel {
+                            width:              _labelWidth
+                            anchors.baseline:   mavlinkVersionCombo.baseline
+                            text:               qsTr("MAVLink Version:")
+                        }
+                        QGCComboBox {
+                            id:         mavlinkVersionCombo
+                            width:      _valueWidth
+                            textRole:   "text"
+                            model: ListModel {
+                                id: mavlinkVersionItems
+                                ListElement { text: qsTr("MAVLink 1"); value: 100 }
+                                ListElement { text: qsTr("MAVLink 2"); value: 200 }
+                            }
+                            onActivated: {
+                                QGroundControl.mavlinkVersion = mavlinkVersionItems.get(index).value
+                            }
+                            Component.onCompleted: {
+                                var forcedValue = 200
+                                QGroundControl.mavlinkVersion = forcedValue
+                                for (var i = 0; i < mavlinkVersionItems.count; i++) {
+                                    if (mavlinkVersionItems.get(i).value === forcedValue) {
+                                        mavlinkVersionCombo.currentIndex = i
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     QGCCheckBox {
                         text:       qsTr("Emit heartbeat")

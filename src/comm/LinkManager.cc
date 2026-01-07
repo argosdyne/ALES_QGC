@@ -91,6 +91,8 @@ void LinkManager::setToolbox(QGCToolbox *toolbox)
     QGCTool::setToolbox(toolbox);
 
     _autoConnectSettings = toolbox->settingsManager()->autoConnectSettings();
+    qCInfo(LinkManagerLog) << "AutoConnect disableConnectSerial"
+                           << _autoConnectSettings->disableConnectSerial()->rawValue().toBool();
     _mavlinkProtocol = _toolbox->mavlinkProtocol();
 
     connect(&_portListTimer, &QTimer::timeout, this, &LinkManager::_updateAutoConnectLinks);

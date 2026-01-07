@@ -1,0 +1,67 @@
+AB-3x0 quick notes (ROS 2)
+
+1) Kien truc
+- Day la ROS 2 workspace (ament_cmake, rclcpp).
+- Kien truc node-based, giong microservice (pub/sub + service), khong phai REST/HTTP.
+- Chay tren companion computer, giao tiep voi flight controller (ArduPilot) qua MAVLink.
+
+2) Build output (khong phai 1 file .bin)
+- Colcon build tao nhieu node .exe + libs.
+- Thu muc chinh: build/, install/, log/.
+- .dll chi co neu CMake add_library(SHARED) hoac phu thuoc tu ROS/third-party.
+- Khong tao 1 firmware .bin de nap vao FCU.
+
+3) Build lenh
+- Thong thuong: colcon build
+- Can source ROS 2 env truoc (vi du: call C:\dev\ros2_*\\local_setup.bat)
+
+4) Packages (co package.xml)
+- root: package.xml (ab300r)
+- interfaces
+- m_fc
+- m_birdcom
+- m_param
+- m_scutum
+- m_sysmon
+- g_gimbalcam/* (m_gimbalcambase, m_gcser_a10t, m_gcser_zt30, m_gcsermav_viewpro, m_gcudp_a40t, m_gcudp_zt30, m_rhythm)
+- g_sensor/* (m_lw20, m_sf45)
+- examples/* (serial_node, service_client, timer_node, xml_reader_node)
+
+5) Executables (theo CMakeLists)
+- m_fc: fc.exe, srv_c.exe, tpc_s.exe (install/lib/m_fc)
+- m_birdcom: birdcom.exe (install/lib/m_birdcom)
+- m_param: param.exe (install/bin)
+- m_scutum: scutum.exe (install/lib/m_scutum)
+- m_sysmon: sysmon.exe (install/bin)
+- g_gimbalcam: a10t.exe, zt30.exe (gcser), vp.exe, a40t.exe, zt30.exe (gcudp), gcm.exe, rhythm.exe (install/bin)
+- g_sensor: lw20.exe, sf45.exe (install/bin)
+- examples: sn.exe, srv.exe, timer.exe (install/bin), xmlread.exe (install/lib/xml_reader_node)
+
+6) Core topics/services (chinh)
+- FcNode (m_fc):
+  - pub: fc_message, gc_control, gc_fc_message
+  - sub: mavlink_control
+  - srv: fc_command
+  - client: gc_response
+- BirdcomNode (m_birdcom):
+  - sub: fc_message, gcdev_response
+  - client: fc_command
+- GimbalCamBase (m_gimbalcambase):
+  - sub: gc_control, gcdev_response
+  - pub: gimbal_control, camera_control, gc_response
+- Gimbal device nodes (gcser/gcudp/rhythm):
+  - sub: gimbal_control, camera_control
+  - pub: gcdev_response
+  - (rhythm sub: gc_fc_message)
+- Lidar (lw20/sf45):
+  - pub: mavlink_control
+- Param service (m_param):
+  - srv: param (GetParameterValue)
+
+7) Luu y
+- ab300r.launch.py hien tai chi launch param (m_param).
+- Neu muon he thong day du can launch them: m_fc, m_birdcom, gimbal, sensor, v.v.
+
+8) Cross-compile (tong quat)
+- Can biet target (ARM64/OS, ROS 2 distro, sysroot).
+- Cach chung: toolchain + sysroot + -DCMAKE_TOOLCHAIN_FILE + colcon build.

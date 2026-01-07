@@ -84,6 +84,7 @@ int WindowsCrtReportHook(int reportType, char* message, int* returnValue)
 
 #if defined(__android__)
 #include <jni.h>
+#include <QAndroidJniObject>
 #include "JoystickAndroid.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
@@ -137,10 +138,28 @@ gst_android_init(JNIEnv* env, jobject context)
 //-----------------------------------------------------------------------------
 static const char kJniClassName[] {"org/mavlink/qgroundcontrol/QGCActivity"};
 
+static void jniQgcLogDebug(JNIEnv* env, jclass, jstring message)
+{
+    Q_UNUSED(env);
+    QAndroidJniObject jmsg(message);
+    const QString msg = jmsg.isValid() ? jmsg.toString() : QStringLiteral("<null>");
+    qInfo() << "QGCActivity" << msg;
+}
+
+static void jniQgcLogWarning(JNIEnv* env, jclass, jstring message)
+{
+    Q_UNUSED(env);
+    QAndroidJniObject jmsg(message);
+    const QString msg = jmsg.isValid() ? jmsg.toString() : QStringLiteral("<null>");
+    qWarning() << "QGCActivity" << msg;
+}
+
 void setNativeMethods(void)
 {
     JNINativeMethod javaMethods[] {
-        {"nativeInit", "()V", reinterpret_cast<void *>(gst_android_init)}
+        {"nativeInit", "()V", reinterpret_cast<void *>(gst_android_init)},
+        {"qgcLogDebug", "(Ljava/lang/String;)V", reinterpret_cast<void *>(jniQgcLogDebug)},
+        {"qgcLogWarning", "(Ljava/lang/String;)V", reinterpret_cast<void *>(jniQgcLogWarning)},
     };
 
     QAndroidJniEnvironment jniEnv;

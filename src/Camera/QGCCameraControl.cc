@@ -1184,6 +1184,9 @@ QGCCameraControl::_replaceLocaleStrings(const QDomNode node, QByteArray& bytes)
 void
 QGCCameraControl::_requestAllParameters()
 {
+    static constexpr uint8_t MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_MAV1     = 205; // QGC-specific MAVLink1 compat ID for PARAM_EXT_REQUEST_LIST
+    static constexpr uint8_t MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_MAV1_CRC = MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_CRC;
+
     //-- Reset receive list
     for(const QString& paramName: _paramIO.keys()) {
         if(_paramIO[paramName]) {
@@ -1194,13 +1197,40 @@ QGCCameraControl::_requestAllParameters()
     }
     MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     mavlink_message_t msg;
-    mavlink_msg_param_ext_request_list_pack_chan(
-                static_cast<uint8_t>(mavlink->getSystemId()),
-                static_cast<uint8_t>(mavlink->getComponentId()),
-                _link->mavlinkChannel(),
-                &msg,
-                static_cast<uint8_t>(_vehicle->id()),
-                static_cast<uint8_t>(compID()));
+    if (mavlink->getCurrentVersion() < 200) {
+        mavlink_param_ext_request_list_t p;
+        memset(&p, 0, sizeof(p));
+        p.target_system     = static_cast<uint8_t>(_vehicle->id());
+        p.target_component  = static_cast<uint8_t>(compID());
+
+        memset(&msg, 0, sizeof(mavlink_message_t));
+        msg.msgid = MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_MAV1;
+        memcpy(_MAV_PAYLOAD_NON_CONST(&msg), &p, MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_LEN);
+        mavlink_finalize_message_chan(
+            &msg,
+            static_cast<uint8_t>(mavlink->getSystemId()),
+            static_cast<uint8_t>(mavlink->getComponentId()),
+            _link->mavlinkChannel(),
+            MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_MIN_LEN,
+            MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_LEN,
+            MAVLINK_MSG_ID_PARAM_EXT_REQUEST_LIST_MAV1_CRC);
+    } else {
+        mavlink_msg_param_ext_request_list_pack_chan(
+                    static_cast<uint8_t>(mavlink->getSystemId()),
+                    static_cast<uint8_t>(mavlink->getComponentId()),
+                    _link->mavlinkChannel(),
+                    &msg,
+                    static_cast<uint8_t>(_vehicle->id()),
+                    static_cast<uint8_t>(compID()));
+    }
+    uint8_t buffer[MAVLINK_MAX_PACKET_LEN] = {};
+    const int len = mavlink_msg_to_send_buffer(buffer, &msg);
+    qCDebug(CameraControlLog) << "TX PARAM_EXT_REQUEST_LIST"
+                              << "msgid" << msg.msgid
+                              << "len" << len
+                              << "target sys" << _vehicle->id()
+                              << "comp" << compID()
+                              << "raw:" << QByteArray(reinterpret_cast<const char*>(buffer), len).toHex(' ').toUpper();
     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
     qCDebug(CameraControlVerboseLog) << "Request all parameters";
 }
@@ -1219,6 +1249,9 @@ void
 QGCCameraControl::handleParamAck(const mavlink_param_ext_ack_t& ack)
 {
     QString paramName = _getParamName(ack.param_id);
+    qCDebug(CameraControlLog) << "PARAM_EXT_ACK" << paramName
+                              << "type" << ack.param_type
+                              << "result" << ack.param_result;
     if(!_paramIO.contains(paramName)) {
         qCWarning(CameraControlLog) << "Received PARAM_EXT_ACK for unknown param:" << paramName;
         return;
@@ -1235,6 +1268,9 @@ void
 QGCCameraControl::handleParamValue(const mavlink_param_ext_value_t& value)
 {
     QString paramName = _getParamName(value.param_id);
+    qCDebug(CameraControlLog) << "PARAM_EXT_VALUE" << paramName
+                              << "idx" << value.param_index << "/" << value.param_count
+                              << "type" << value.param_type;
     if(!_paramIO.contains(paramName)) {
         qCWarning(CameraControlLog) << "Received PARAM_EXT_VALUE for unknown param:" << paramName;
         return;
@@ -1646,13 +1682,18 @@ QGCCameraControl::handleVideoStatus(const mavlink_video_stream_status_t* vs)
 void
 QGCCameraControl::handleTrackingGeoStatus(const mavlink_camera_tracking_geo_status_t& tracking_geo_status)
 {
-    qCDebug(CameraControlVerboseLog) << "handleCameraTrackingGeoStatus" << tracking_geo_status.tracking_status << tracking_geo_status.lat << tracking_geo_status.lon;
+    qInfo() << "handleCameraTrackingGeoStatus"
+            << "status" << tracking_geo_status.tracking_status
+            << "lat" << tracking_geo_status.lat
+            << "lon" << tracking_geo_status.lon
+            << "alt" << tracking_geo_status.alt
+            << "dist" << tracking_geo_status.dist;
     if(tracking_geo_status.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE) {
         _targetCoordinate.setAltitude(static_cast<double>(tracking_geo_status.alt));
         _targetCoordinate.setLatitude(static_cast<double>(tracking_geo_status.lat / 1e7));
         _targetCoordinate.setLongitude(static_cast<double>(tracking_geo_status.lon / 1e7));
         emit targetCoordinateChanged(_targetCoordinate);
-    } else if(!_targetCoordinate.isValid()) {
+    } else if(_targetCoordinate.isValid()) {
         _targetCoordinate = QGeoCoordinate();
         emit targetCoordinateChanged(_targetCoordinate);
     }
@@ -1666,8 +1707,21 @@ QGCCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking_image_
 {
     if (tis) {
         _trackingImageStatus = *tis;
+        qInfo() << "handleTrackingImageStatus"
+                << "status" << _trackingImageStatus.tracking_status
+                << "mode" << _trackingImageStatus.tracking_mode
+                << "point" << _trackingImageStatus.point_x << _trackingImageStatus.point_y
+                << "radius" << _trackingImageStatus.radius
+                << "rect" << _trackingImageStatus.rec_top_x << _trackingImageStatus.rec_top_y
+                << _trackingImageStatus.rec_bottom_x << _trackingImageStatus.rec_bottom_y;
 
-        if (_trackingImageStatus.tracking_status == 0 || !trackingEnabled()) {
+        if (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ERROR && trackingEnabled()) {
+            setTrackingEnabled(false);
+            stopTracking();
+        }
+
+        const bool active = _trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE;
+        if (!active || !trackingEnabled()) {
             _trackingImageRect = {};
             qCDebug(CameraControlLog) << "Tracking off";
         } else {

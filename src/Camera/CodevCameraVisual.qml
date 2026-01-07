@@ -30,14 +30,63 @@ Item {
     property Fact _smartSelect: _camera ? _camera.getFact("SMART_SELECT") : null
     property Fact _factoryCali: _camera ? _camera.getFact("FACTORY_CALI") : null
     property Fact _aiSource: _camera ? _camera.getFact("AI_SOURCE") : null
+    property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property var _gimbalController: _activeVehicle ? _activeVehicle.gimbalController : null
+    property int _aviatorPitchChannelIndex: 8   // chan9 by default
+    property int _aviatorYawChannelIndex: 9     // chan10 by default
+    property real _aviatorDeadband: 0.05
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
+    function _logCameraState(tag) {
+        var camMgr = _activeVehicle ? _activeVehicle.cameraManager : null
+        var camCount = camMgr ? camMgr.cameras.count : -1
+        var camIndex = camMgr ? camMgr.currentCamera : -1
+        var camName = _camera ? _camera.modelName : "null"
+        CustomQmlInterface.logInfo("CodevCameraVisual " + tag
+                                   + " camera=" + camName
+                                   + " camCount=" + camCount
+                                   + " camIndex=" + camIndex
+                                   + " activeVehicle=" + (_activeVehicle ? _activeVehicle.id : "null"))
+    }
+
+    function _aviatorAxisValue(index) {
+        if (!AVIATORInterface || !AVIATORInterface.rcChannelValues) {
+            return 0.0
+        }
+        var values = AVIATORInterface.rcChannelValues
+        if (index < 0 || index >= values.length) {
+            return 0.0
+        }
+        var raw = values[index]
+        var normalized = (raw - 1500.0) / 500.0
+        if (normalized > 1.0) normalized = 1.0
+        if (normalized < -1.0) normalized = -1.0
+        if (Math.abs(normalized) < _aviatorDeadband) {
+            return 0.0
+        }
+        return normalized
+    }
+
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
         console.log("aiInThermal = ", aiInThermal)
+        _logCameraState("onCompleted")
+        cameraStateTimer.restart()
+    }
+
+    on_ActiveVehicleChanged: {
+        _logCameraState("activeVehicleChanged")
+        cameraStateTimer.restart()
+    }
+
+    Timer {
+        id: cameraStateTimer
+        interval: 2000
+        repeat: false
+        onTriggered: _logCameraState("delayed")
     }
 
     Connections {
@@ -99,6 +148,28 @@ Item {
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD) {
                 buttonToggleVideo(pressed)
             }
+        }
+
+        function onRcChannelValuesChanged(channels, count) {
+            if (!_gimbalController || !_activeVehicle || !_activeVehicle.gimbalData) {
+                CustomQmlInterface.logInfo("AVIATOR rc ignored: no gimbal control/vehicle")
+                return
+            }
+            if (_camera && _camera.trackingEnabled) {
+                CustomQmlInterface.logInfo("AVIATOR rc ignored: tracking enabled")
+                return
+            }
+            var pitchAxis = _aviatorAxisValue(_aviatorPitchChannelIndex)
+            var yawAxis = _aviatorAxisValue(_aviatorYawChannelIndex)
+            if (pitchAxis === 0.0 && yawAxis === 0.0) {
+                CustomQmlInterface.logInfo("AVIATOR rc ignored: deadband pitch=" + pitchAxis + " yaw=" + yawAxis)
+                return
+            }
+            CustomQmlInterface.logInfo("AVIATOR rc gimbal pitchAxis=" + pitchAxis
+                                       + " yawAxis=" + yawAxis
+                                       + " rawPitch=" + AVIATORInterface.rcChannelValues[_aviatorPitchChannelIndex]
+                                       + " rawYaw=" + AVIATORInterface.rcChannelValues[_aviatorYawChannelIndex])
+            _gimbalController.gimbalOnScreenControl(yawAxis, pitchAxis, false, true, true)
         }
     }
 

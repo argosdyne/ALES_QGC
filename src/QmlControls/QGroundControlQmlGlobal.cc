@@ -202,6 +202,14 @@ void QGroundControlQmlGlobal::setMavlinkSystemID(int id)
     emit mavlinkSystemIDChanged(id);
 }
 
+void QGroundControlQmlGlobal::setMavlinkVersion(int version)
+{
+    MAVLinkProtocol* mavlinkProtocol = qgcApp()->toolbox()->mavlinkProtocol();
+    mavlinkProtocol->setVersion(static_cast<unsigned>(version));
+    mavlinkProtocol->storeSettings();
+    emit mavlinkVersionChanged(version);
+}
+
 bool QGroundControlQmlGlobal::singleFirmwareSupport(void)
 {
     return _firmwarePluginManager->supportedFirmwareClasses().count() == 1;

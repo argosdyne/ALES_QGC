@@ -130,6 +130,9 @@ QGCCameraParamIO::sendParameter(bool updateUI)
 void
 QGCCameraParamIO::_sendParameter()
 {
+    static constexpr uint8_t MAVLINK_MSG_ID_PARAM_EXT_SET_MAV1     = 204; // QGC-specific MAVLink1 compat ID for PARAM_EXT_SET
+    static constexpr uint8_t MAVLINK_MSG_ID_PARAM_EXT_SET_MAV1_CRC = MAVLINK_MSG_ID_PARAM_EXT_SET_CRC;
+
     mavlink_param_ext_set_t p;
     memset(&p, 0, sizeof(mavlink_param_ext_set_t));
     param_ext_union_t   union_value;
@@ -184,12 +187,28 @@ QGCCameraParamIO::_sendParameter()
     p.target_system     = static_cast<uint8_t>(_vehicle->id());
     p.target_component  = static_cast<uint8_t>(_control->compID());
     strncpy(p.param_id, _fact->name().toStdString().c_str(), MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_ID_LEN);
-    mavlink_msg_param_ext_set_encode_chan(
-                static_cast<uint8_t>(_pMavlink->getSystemId()),
-                static_cast<uint8_t>(_pMavlink->getComponentId()),
-                _control->_link->mavlinkChannel(),
-                &msg,
-                &p);
+
+    if (_pMavlink->getCurrentVersion() < 200) {
+        memset(&msg, 0, sizeof(mavlink_message_t));
+        msg.msgid = MAVLINK_MSG_ID_PARAM_EXT_SET_MAV1;
+        memcpy(_MAV_PAYLOAD_NON_CONST(&msg), &p, MAVLINK_MSG_ID_PARAM_EXT_SET_LEN);
+        mavlink_finalize_message_chan(
+            &msg,
+            static_cast<uint8_t>(_pMavlink->getSystemId()),
+            static_cast<uint8_t>(_pMavlink->getComponentId()),
+            _control->_link->mavlinkChannel(),
+            MAVLINK_MSG_ID_PARAM_EXT_SET_MIN_LEN,
+            MAVLINK_MSG_ID_PARAM_EXT_SET_LEN,
+            MAVLINK_MSG_ID_PARAM_EXT_SET_MAV1_CRC);
+    } else {
+        mavlink_msg_param_ext_set_encode_chan(
+            static_cast<uint8_t>(_pMavlink->getSystemId()),
+            static_cast<uint8_t>(_pMavlink->getComponentId()),
+            _control->_link->mavlinkChannel(),
+            &msg,
+            &p);
+    }
+
     _vehicle->sendMessageOnLinkThreadSafe(_control->_link, msg);
     _paramWriteTimer.start();
 }

@@ -141,6 +141,7 @@ public:
     QmlObjectListModel* geoAwarenessMessages(void) {return &_geoAwarenessMessages; }
 
     Q_INVOKABLE void playActionSound();
+    Q_INVOKABLE void logInfo(const QString& message);
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;

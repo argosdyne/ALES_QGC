@@ -2,8 +2,11 @@
 #include "CustomPlugin.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
+#include "QGCLoggingCategory.h"
 
 #define CHAR_NUMBER_EACH_ROW 30
+
+QGC_LOGGING_CATEGORY(CustomQmlInterfaceLog, "CustomQmlInterfaceLog")
 
 CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
     : QGCTool(app, toolbox)
@@ -93,6 +96,11 @@ void CustomQmlInterface::playActionSound()
     if(_actionSound.isPlaying()) return;
     _actionSound.setLoopCount(1);
     _actionSound.play();
+}
+
+void CustomQmlInterface::logInfo(const QString& message)
+{
+    qCInfo(CustomQmlInterfaceLog) << message;
 }
 
 void CustomQmlInterface::_slaveModeChanged(bool slaveMode)

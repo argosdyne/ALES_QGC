@@ -60,6 +60,14 @@
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
+namespace {
+QString _mavlinkHexString(const uint8_t* bytes, int length)
+{
+    QByteArray data(reinterpret_cast<const char*>(bytes), length);
+    return data.toHex(' ').toUpper();
+}
+}
+
 #define UPDATE_TIMER 50
 #define DEFAULT_LAT  38.965767f
 #define DEFAULT_LON -120.083923f
@@ -1946,6 +1954,41 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     int len = mavlink_msg_to_send_buffer(buffer, &message);
+
+    mavlink_status_t* channelStatus = mavlink_get_channel_status(link->mavlinkChannel());
+    const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QString("<unknown>");
+    if (message.compid == 190 || message.compid == 154 || message.compid == 100) {
+        qCInfo(MAVLinkProtocolLog) << "TX MAVLink"
+                                   << "link:" << linkName
+                                   << "chan:" << link->mavlinkChannel()
+                                   << "ver:" << ((channelStatus->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1) ? "v1" : "v2")
+                                   << "sysid:" << message.sysid
+                                   << "compid:" << message.compid
+                                   << "msgid:" << message.msgid
+                                   << "len:" << message.len
+                                   << "seq:" << message.seq
+                                   << "raw:" << _mavlinkHexString(buffer, len);
+    }
+    if (message.msgid == MAVLINK_MSG_ID_COMMAND_LONG) {
+        mavlink_command_long_t cmd;
+        mavlink_msg_command_long_decode(&message, &cmd);
+        if (cmd.command == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW ||
+            cmd.command == MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE) {
+            qCInfo(MAVLinkProtocolLog) << "TX COMMAND_LONG"
+                                       << "link:" << linkName
+                                       << "chan:" << link->mavlinkChannel()
+                                       << "target_sys:" << cmd.target_system
+                                       << "target_comp:" << cmd.target_component
+                                       << "cmd:" << cmd.command
+                                       << "p1:" << cmd.param1
+                                       << "p2:" << cmd.param2
+                                       << "p3:" << cmd.param3
+                                       << "p4:" << cmd.param4
+                                       << "p5:" << cmd.param5
+                                       << "p6:" << cmd.param6
+                                       << "p7:" << cmd.param7;
+        }
+    }
 
     link->writeBytesThreadSafe((const char*)buffer, len);
     _messagesSent++;

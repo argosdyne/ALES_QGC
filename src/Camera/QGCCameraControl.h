@@ -328,7 +328,7 @@ public:
 
     virtual TrackingStatus trackingStatus   () { return _trackingStatus; }
 
-    virtual bool trackingImageStatus() { return _trackingImageStatus.tracking_status == 1; }
+    virtual bool trackingImageStatus() { return _trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE; }
     virtual QRectF trackingImageRect() { return _trackingImageRect; }
 
     /// Notify controller a parameter has changed

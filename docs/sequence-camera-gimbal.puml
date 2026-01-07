@@ -1,0 +1,58 @@
+@startuml
+title QGC (compid 190) <-> Camera (100) <-> Gimbal (154) sequence
+
+actor "GCS (QGC)\ncompid 190" as GCS
+participant "Camera\ncompid 100" as CAM
+participant "Gimbal\ncompid 154" as GIM
+
+note over GCS
+QGCCameraManager receives MAVLink from vehicle sysid
+and accepts compid 100..105 (camera) and 154 (gimbal).
+It dispatches messages to the active QGCCameraControl.
+end note
+
+== Discovery ==
+CAM -> GCS: HEARTBEAT
+GIM -> GCS: HEARTBEAT
+GCS -> CAM: MAV_CMD_REQUEST_MESSAGE\n(msgid=CAMERA_INFORMATION)
+alt retry/fallback
+  GCS -> CAM: MAV_CMD_REQUEST_CAMERA_INFORMATION
+end
+CAM -> GCS: CAMERA_INFORMATION
+
+== Status/Telemetry ==
+CAM -> GCS: CAMERA_SETTINGS / STORAGE_INFORMATION
+CAM -> GCS: CAMERA_CAPTURE_STATUS
+CAM -> GCS: VIDEO_STREAM_INFORMATION / VIDEO_STREAM_STATUS
+CAM -> GCS: CAMERA_TRACKING_IMAGE_STATUS
+CAM -> GCS: CAMERA_TRACKING_GEO_STATUS
+CAM -> GCS: CAMERA_IMAGE_CAPTURED / BATTERY_STATUS
+GIM -> GCS: (optional) gimbal status / tracking status
+
+== User Control ==
+GCS -> CAM: Take photo / start-stop video / zoom
+GCS -> GIM: Gimbal control (pitch/yaw/roll)
+CAM -> GCS: COMMAND_ACK
+GIM -> GCS: COMMAND_ACK
+
+== Touch Tracking: Point ==
+GCS -> CAM: MAV_CMD_CAMERA_TRACK_POINT\n(x, y, radius)
+CAM -> GCS: CAMERA_TRACKING_IMAGE_STATUS
+CAM -> GCS: CAMERA_TRACKING_GEO_STATUS
+CAM -> GCS: COMMAND_ACK
+
+== Touch Tracking: Rectangle ==
+GCS -> CAM: MAV_CMD_CAMERA_TRACK_RECTANGLE\n(x1, y1, x2, y2)
+CAM -> GCS: CAMERA_TRACKING_IMAGE_STATUS
+CAM -> GCS: CAMERA_TRACKING_GEO_STATUS
+CAM -> GCS: COMMAND_ACK
+
+== Gimbal Control: Center ==
+GCS -> GIM: MAV_CMD_DO_MOUNT_CONTROL\n(pitch=0, roll=0, yaw=0, mode=1)
+GIM -> GCS: COMMAND_ACK
+
+== Gimbal Control: Point In Image ==
+GCS -> GIM: MAV_CMD_DO_MOUNT_CONTROL\n(pitch=point.y, yaw=point.x, zoom/dzoom)
+GIM -> GCS: COMMAND_ACK
+
+@enduml

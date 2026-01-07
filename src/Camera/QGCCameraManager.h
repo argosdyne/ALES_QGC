@@ -81,6 +81,7 @@ protected:
     virtual void    _handleCameraSettings   (const mavlink_message_t& message);
     virtual void    _handleParamAck         (const mavlink_message_t& message);
     virtual void    _handleParamValue       (const mavlink_message_t& message);
+    virtual void    _handleParamExtMav1     (const mavlink_message_t& message);
     virtual void    _handleCaptureStatus    (const mavlink_message_t& message);
     virtual void    _handleVideoStreamInfo  (const mavlink_message_t& message);
     virtual void    _handleVideoStreamStatus(const mavlink_message_t& message);

@@ -20,8 +20,10 @@
 #include "UDPLink.h"
 #include "QGC.h"
 #include "QGCApplication.h"
+#include "MAVLinkProtocol.h"
 #include "SettingsManager.h"
 #include "AutoConnectSettings.h"
+#include <mavlink.h>
 
 static const char* kZeroconfRegistration = "_qgroundcontrol._udp";
 
@@ -162,9 +164,40 @@ void UDPLink::_writeBytes(const QByteArray data)
 
 void UDPLink::_writeDataGram(const QByteArray data, const UDPCLient* target)
 {
-    //qDebug() << "UDP Out" << target->address << target->port;
+    qCInfo(MAVLinkProtocolLog) << "UDP writeDatagram"
+                               << "addr:" << target->address.toString()
+                               << "port:" << target->port
+                               << "len:" << data.size();
     if(_socket->writeDatagram(data, target->address, target->port) < 0) {
         qWarning() << "Error writing to" << target->address << target->port;
+    }
+
+    mavlink_message_t rxmsg{};
+    mavlink_message_t msg{};
+    mavlink_status_t status{};
+    for (int i = 0; i < data.size(); ++i) {
+        const uint8_t result = mavlink_frame_char_buffer(&rxmsg, &status, static_cast<uint8_t>(data.at(i)), &msg, &status);
+        if (result == MAVLINK_FRAMING_OK) {
+            if (msg.msgid == MAVLINK_MSG_ID_COMMAND_LONG) {
+                mavlink_command_long_t cmd;
+                mavlink_msg_command_long_decode(&msg, &cmd);
+                if (cmd.command == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW ||
+                    cmd.command == MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE) {
+                    qCInfo(MAVLinkProtocolLog) << "TX UDP target"
+                                               << "addr:" << target->address.toString()
+                                               << "port:" << target->port
+                                               << "cmd:" << cmd.command
+                                               << "p1:" << cmd.param1
+                                               << "p2:" << cmd.param2
+                                               << "p3:" << cmd.param3
+                                               << "p4:" << cmd.param4
+                                               << "p5:" << cmd.param5
+                                               << "p6:" << cmd.param6
+                                               << "p7:" << cmd.param7;
+                }
+            }
+            break;
+        }
     }
 }
 

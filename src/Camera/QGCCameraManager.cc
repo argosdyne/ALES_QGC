@@ -12,6 +12,8 @@
 
 QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
 
+static constexpr uint8_t MAVLINK_MSG_ID_PARAM_EXT_MAV1 = 204;
+
 //-----------------------------------------------------------------------------
 QGCCameraManager::CameraStruct::CameraStruct(QObject* parent, uint8_t compID_)
     : QObject(parent)
@@ -94,6 +96,9 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
             case MAVLINK_MSG_ID_PARAM_EXT_VALUE:
                 _handleParamValue(message);
                 break;
+            case MAVLINK_MSG_ID_PARAM_EXT_MAV1:
+                _handleParamExtMav1(message);
+                break;
             case MAVLINK_MSG_ID_VIDEO_STREAM_INFORMATION:
                 _handleVideoStreamInfo(message);
                 break;
@@ -148,7 +153,9 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message)
                     if(pInfo->tryCount > 10) {
                         if(!pInfo->gaveUp) {
                             pInfo->gaveUp = true;
-                            qCDebug(CameraManagerLog) << "Giving up requesting camera info from" << _vehicle->id() << message.compid;
+                            qCInfo(CameraManagerLog) << "Giving up requesting camera info from"
+                                                     << "sysid" << _vehicle->id()
+                                                     << "compid" << message.compid;
                         }
                     } else {
                         pInfo->tryCount++;
@@ -225,6 +232,14 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
     qCDebug(CameraManagerLog) << "_handleCameraInfo";
     //-- Have we requested it?
     QString sCompID = QString::number(message.compid);
+    if(!_cameraInfoRequest.contains(sCompID)) {
+        qCInfo(CameraManagerLog) << "_handleCameraInfo ignored, no request for compid" << message.compid;
+        return;
+    }
+    if(_cameraInfoRequest[sCompID]->infoReceived) {
+        qCInfo(CameraManagerLog) << "_handleCameraInfo ignored, already received for compid" << message.compid;
+        return;
+    }
     if(_cameraInfoRequest.contains(sCompID) && !_cameraInfoRequest[sCompID]->infoReceived) {
         //-- Flag it as done
         _cameraInfoRequest[sCompID]->infoReceived = true;
@@ -237,8 +252,16 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
             pCamera = new CodevCameraControl(&info, _vehicle, message.compid, link, this);
         } else {
             pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, message.compid, link, this);
+            if (!pCamera) {
+                qCInfo(CameraManagerLog) << "createCameraControl returned null"
+                                         << "vendor" << vendor
+                                         << "model" << reinterpret_cast<const char*>(info.model_name)
+                                         << "compid" << message.compid;
+            }
         }
         if(pCamera) {
+            const QString linkName = link && link->linkConfiguration() ? link->linkConfiguration()->name() : QString("<unknown>");
+            qCDebug(CameraManagerLog) << "Camera added on link:" << linkName << "compid:" << message.compid;
             QQmlEngine::setObjectOwnership(pCamera, QQmlEngine::CppOwnership);
             _cameras.append(pCamera);
             _cameraLabels << pCamera->modelName();
@@ -353,8 +376,33 @@ QGCCameraManager::_handleParamValue(const mavlink_message_t& message)
     if(pCamera) {
         mavlink_param_ext_value_t value;
         mavlink_msg_param_ext_value_decode(&message, &value);
+        QString paramName = QString::fromLatin1(reinterpret_cast<const char*>(value.param_id), MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN).trimmed();
+        qCDebug(CameraManagerLog) << "PARAM_EXT_VALUE compid" << message.compid
+                                  << "param" << paramName
+                                  << "idx" << value.param_index << "/" << value.param_count
+                                  << "type" << value.param_type;
         pCamera->handleParamValue(value);
     }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraManager::_handleParamExtMav1(const mavlink_message_t& message)
+{
+    if (message.len == MAVLINK_MSG_ID_PARAM_EXT_VALUE_LEN) {
+        _handleParamValue(message);
+        return;
+    }
+    if (message.len == MAVLINK_MSG_ID_PARAM_EXT_ACK_LEN) {
+        _handleParamAck(message);
+        return;
+    }
+    if (message.len == MAVLINK_MSG_ID_PARAM_EXT_SET_LEN) {
+        qCDebug(CameraManagerLog) << "PARAM_EXT_MAV1 SET received";
+        return;
+    }
+
+    qCDebug(CameraManagerLog) << "PARAM_EXT_MAV1 unknown len" << message.len;
 }
 
 //-----------------------------------------------------------------------------

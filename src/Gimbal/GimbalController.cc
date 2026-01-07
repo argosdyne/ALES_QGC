@@ -519,6 +519,12 @@ void GimbalController::sendPitchBodyYaw(float pitch, float yaw, bool showError) 
         | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
         | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
 
+    qInfo() << "Gimbal TX MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW"
+            << "managerCompid" << _activeGimbal->managerCompid()->rawValue().toUInt()
+            << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt()
+            << "pitch" << pitch
+            << "yaw" << yaw
+            << "flags" << flags;
     _vehicle->sendMavCommand(
                 _activeGimbal->managerCompid()->rawValue().toUInt(),
                 MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
@@ -552,6 +558,12 @@ void GimbalController::sendPitchAbsoluteYaw(float pitch, float yaw, bool showErr
         | GIMBAL_MANAGER_FLAGS_YAW_LOCK
         | GIMBAL_MANAGER_FLAGS_YAW_IN_EARTH_FRAME;
 
+    qInfo() << "Gimbal TX MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW"
+            << "managerCompid" << _activeGimbal->managerCompid()->rawValue().toUInt()
+            << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt()
+            << "pitch" << pitch
+            << "yaw" << yaw
+            << "flags" << flags;
     _vehicle->sendMavCommand(
                 _activeGimbal->managerCompid()->rawValue().toUInt(),
                 MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
@@ -600,6 +612,12 @@ void GimbalController::sendPitchYawFlags(uint32_t flags)
 {
     const bool yaw_in_vehicle_frame = _yawInVehicleFrame(flags);
 
+    qInfo() << "Gimbal TX MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW"
+            << "managerCompid" << _activeGimbal->managerCompid()->rawValue().toUInt()
+            << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt()
+            << "pitch" << _activeGimbal->absolutePitch()->rawValue().toFloat()
+            << "yaw" << (yaw_in_vehicle_frame ? _activeGimbal->bodyYaw()->rawValue().toFloat() : _activeGimbal->absoluteYaw()->rawValue().toFloat())
+            << "flags" << flags;
     _vehicle->sendMavCommand(
                 _activeGimbal->managerCompid()->rawValue().toUInt(),
                 MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
@@ -619,6 +637,11 @@ void GimbalController::acquireGimbalControl()
         qCDebug(GimbalLog) << "acquireGimbalControl: active gimbal is nullptr, returning";
         return;
     }
+    qInfo() << "Gimbal TX MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE acquire"
+            << "managerCompid" << _activeGimbal->managerCompid()->rawValue().toUInt()
+            << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt()
+            << "primarySysId" << _mavlink->getSystemId()
+            << "primaryCompId" << _mavlink->getComponentId();
     _vehicle->sendMavCommand(
         _activeGimbal->managerCompid()->rawValue().toUInt(),
         MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE,
@@ -638,6 +661,9 @@ void GimbalController::releaseGimbalControl()
         qCDebug(GimbalLog) << "releaseGimbalControl: active gimbal is nullptr, returning";
         return;
     }
+    qInfo() << "Gimbal TX MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE release"
+            << "managerCompid" << _activeGimbal->managerCompid()->rawValue().toUInt()
+            << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt();
     _vehicle->sendMavCommand(
         _activeGimbal->managerCompid()->rawValue().toUInt(),
         MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE,

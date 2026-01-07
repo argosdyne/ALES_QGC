@@ -9,6 +9,7 @@
 Q_DECLARE_LOGGING_CATEGORY(AVIATORInterfaceLog)
 #define MAVLINK_AVIATOR_COMM_ID (MAVLINK_COMM_NUM_BUFFERS - 2)
 class CustomPlugin;
+class QSocketNotifier;
 class AVIATORInterface : public FactGroup
 {
     Q_OBJECT
@@ -87,6 +88,11 @@ private:
     QSerialPort* _port{nullptr};
     QString _portName;
     int _baudRate;
+
+#if defined(Q_OS_ANDROID)
+    int _fd{-1};
+    QSocketNotifier* _fdNotifier{nullptr};
+#endif
 
     QVariantList _rcChannelValues;
     quint16 _rawChannels[18];

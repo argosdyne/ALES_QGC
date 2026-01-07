@@ -36,6 +36,14 @@ Q_DECLARE_METATYPE(mavlink_message_t)
 
 QGC_LOGGING_CATEGORY(MAVLinkProtocolLog, "MAVLinkProtocolLog")
 
+namespace {
+QString _mavlinkHexString(const uint8_t* bytes, int length)
+{
+    QByteArray data(reinterpret_cast<const char*>(bytes), length);
+    return data.toHex(' ').toUpper();
+}
+}
+
 const char* MAVLinkProtocol::_tempLogFileTemplate   = "FlightDataXXXXXX";   ///< Template for temporary log file
 const char* MAVLinkProtocol::_logFileExtension      = "mavlink";            ///< Extension for log files
 
@@ -50,7 +58,7 @@ MAVLinkProtocol::MAVLinkProtocol(QGCApplication* app, QGCToolbox* toolbox)
     , _status({})
     , versionMismatchIgnore(false)
     , systemId(255)
-    , _current_version(200)
+    , _current_version(100)
     , _radio_version_mismatch_count(0)
     , _logSuspendError(false)
     , _logSuspendReplay(false)
@@ -101,6 +109,7 @@ void MAVLinkProtocol::setToolbox(QGCToolbox *toolbox)
    qRegisterMetaType<mavlink_message_t>("mavlink_message_t");
 
    loadSettings();
+   setVersion(_current_version);
 
    // All the *Counter variables are not initialized here, as they should be initialized
    // on a per-link basis before those links are used. @see resetMetadataForLink().
@@ -121,6 +130,10 @@ void MAVLinkProtocol::loadSettings()
     QSettings settings;
     settings.beginGroup("QGC_MAVLINK_PROTOCOL");
     enableVersionCheck(settings.value("VERSION_CHECK_ENABLED", m_enable_version_check).toBool());
+    {
+        const int rawVersion = settings.value("MAVLINK_VERSION", static_cast<int>(_current_version)).toInt();
+        _current_version = (rawVersion >= 200) ? 200 : 100;
+    }
 
     // Only set system id if it was valid
     int temp = settings.value("GCS_SYSTEM_ID", systemId).toInt();
@@ -136,6 +149,7 @@ void MAVLinkProtocol::storeSettings()
     QSettings settings;
     settings.beginGroup("QGC_MAVLINK_PROTOCOL");
     settings.setValue("VERSION_CHECK_ENABLED", m_enable_version_check);
+    settings.setValue("MAVLINK_VERSION", static_cast<int>(_current_version));
     settings.setValue("GCS_SYSTEM_ID", systemId);
     // Parameter interface settings
 }
@@ -208,15 +222,33 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
     for (int position = 0; position < b.size(); position++) {
         if (mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status)) {
             // Got a valid message
+            mavlink_status_t* channelStatus = mavlink_get_channel_status(mavlinkChannel);
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(mavlinkChannel);
-                if (!(mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) && (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1)) {
-                    qCDebug(MAVLinkProtocolLog) << "Switching outbound to mavlink 2.0 due to incoming mavlink 2.0 packet:" << mavlinkStatus << mavlinkChannel << mavlinkStatus->flags;
-                    mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                if (_current_version >= 200 &&
+                    !(channelStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) &&
+                    (channelStatus->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1)) {
+                    qCDebug(MAVLinkProtocolLog) << "Switching outbound to mavlink 2.0 due to incoming mavlink 2.0 packet:" << channelStatus << mavlinkChannel << channelStatus->flags;
+                    channelStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
                     // Set all links to v2
                     setVersion(200);
                 }
+            }
+
+            uint8_t rxBuffer[MAVLINK_MAX_PACKET_LEN];
+            int rxLen = mavlink_msg_to_send_buffer(rxBuffer, &_message);
+            const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QString("<unknown>");
+            if (_message.compid == 190 || _message.compid == 154 || _message.compid == 100 || _message.msgid == 275 || _message.msgid == 65) {
+                qCInfo(MAVLinkProtocolLog) << "RX MAVLink"
+                                           << "link:" << linkName
+                                           << "chan:" << mavlinkChannel
+                                           << "ver:" << ((channelStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) ? "v1" : "v2")
+                                           << "sysid:" << _message.sysid
+                                           << "compid:" << _message.compid
+                                           << "msgid:" << _message.msgid
+                                           << "len:" << _message.len
+                                           << "seq:" << _message.seq
+                                           << "raw:" << _mavlinkHexString(rxBuffer, rxLen);
             }
 
             //-----------------------------------------------------------------
