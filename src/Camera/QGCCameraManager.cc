@@ -72,8 +72,8 @@ void
 QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, LinkInterface* link)
 {
     //-- Only pay attention to camera components, as identified by their compId
-    if (message.sysid == _vehicle->id() &&
-        (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6)) {
+    if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 || message.compid == MAV_COMP_ID_GIMBAL ||
+        (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6))) {
         switch (message.msgid) {
             case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
                 _handleCaptureStatus(message);
