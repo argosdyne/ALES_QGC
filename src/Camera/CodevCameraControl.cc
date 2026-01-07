@@ -7,7 +7,6 @@
 #include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <cmath>
 #include "TargetObject.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
@@ -34,12 +33,6 @@ static const char *kFACTORY_CALI = "FACTORY_CALI";
 // static const char *kFACTORY_DATA = "FACTORY_DATA";
 static const char *kJSON_TR_REQ = "JSON_TR_REQ";
 static const char *kCALIBRATE_FLAGS = "CALIBRATE_FLAGS";
-
-static float _angleDeltaDegrees(float fromDeg, float toDeg)
-{
-    const float delta = std::fmod(toDeg - fromDeg + 540.0f, 360.0f) - 180.0f;
-    return std::fabs(delta);
-}
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -86,11 +79,6 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
         _targetObjects.clearAndDeleteContents();
     });
 
-    _gimbalSampleTimer.start();
-    if (_vehicle) {
-        connect(_vehicle, &Vehicle::gimbalPitchChanged, this, &CodevCameraControl::_checkGimbalRunaway);
-        connect(_vehicle, &Vehicle::gimbalYawChanged, this, &CodevCameraControl::_checkGimbalRunaway);
-    }
 }
 
 void CodevCameraControl::centerGimbal()
@@ -226,60 +214,6 @@ void CodevCameraControl::gimbalControlInImage(QPointF point)
         static_cast<float>(_zoomLevel), // Latitude (not used)
         dzoom,                          // Longitude (not used)
         -1);                            // Custom offset Roll,Pitch,Yaw
-}
-
-void CodevCameraControl::_checkGimbalRunaway()
-{
-    if (!_vehicle || !_vehicle->gimbalData()) {
-        return;
-    }
-
-    if (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE || !trackingEnabled()) {
-        _gimbalRunawayStartMS = -1;
-        _haveGimbalSample = false;
-        return;
-    }
-
-    const float pitch = _vehicle->gimbalPitch();
-    const float yaw = _vehicle->gimbalYaw();
-    const qint64 nowMs = _gimbalSampleTimer.elapsed();
-
-    if (!_haveGimbalSample) {
-        _lastGimbalPitch = pitch;
-        _lastGimbalYaw = yaw;
-        _lastGimbalSampleMS = nowMs;
-        _haveGimbalSample = true;
-        return;
-    }
-
-    const qint64 dtMs = nowMs - _lastGimbalSampleMS;
-    if (dtMs <= 0) {
-        return;
-    }
-
-    const float pitchDelta = std::fabs(pitch - _lastGimbalPitch);
-    const float yawDelta = _angleDeltaDegrees(_lastGimbalYaw, yaw);
-    const float rateDegPerSec = std::max(pitchDelta, yawDelta) / (static_cast<float>(dtMs) / 1000.0f);
-
-    if (rateDegPerSec >= kGimbalRunawayRateDegPerSec) {
-        if (_gimbalRunawayStartMS < 0) {
-            _gimbalRunawayStartMS = nowMs;
-        } else if (nowMs - _gimbalRunawayStartMS >= kGimbalRunawayDurationMs) {
-            qWarning() << "Gimbal runaway detected, stopping tracking"
-                       << "rateDegPerSec" << rateDegPerSec
-                       << "pitch" << pitch
-                       << "yaw" << yaw;
-            setTrackingEnabled(false);
-            stopTracking();
-            _gimbalRunawayStartMS = -1;
-        }
-    } else {
-        _gimbalRunawayStartMS = -1;
-    }
-
-    _lastGimbalPitch = pitch;
-    _lastGimbalYaw = yaw;
-    _lastGimbalSampleMS = nowMs;
 }
 
 void CodevCameraControl::setVideoMode()
@@ -476,27 +410,15 @@ void CodevCameraControl::startTracking(QPointF point, double radius)
 {
     qCDebug(CodevCameraLog) << "startTracking Point" << point.x() << point.y() << radius << hasTrackingPoint();
     if(hasTrackingPoint() && _vehicle) {
-        float offset_x = 0.0f;
-        float offset_y = 0.0f;
-        if(_dZoomFact) {
-            float dzoom = _dZoomFact->rawValue().toFloat();
-            if(dzoom > 1.0f) {
-                offset_x = (1.0f - 1.0f / dzoom) / 2.0f;
-                offset_y = (1.0f - 1.0f / dzoom) / 2.0f;
-            }
-            if(offset_x != 0.0f && offset_y != 0.0f) {
-                point.setX(point.x() * (1.0f - offset_x * 2.0f) + offset_x);
-                point.setY(point.y() * (1.0f - offset_y * 2.0f) + offset_y);
-            }
-        }
-        qInfo() << "Tracking point normalized" << point.x() << point.y()
-                << "radius" << radius
-                << "offset" << offset_x << offset_y;
         sendMavCommand(
             MAV_CMD_CAMERA_TRACK_POINT,             // Command id
             static_cast<float>(point.x()),          // Point X
             static_cast<float>(point.y()),          // Point Y
             static_cast<float>(radius));            // Radius
+        sendMavCommand(
+            MAV_CMD_SET_MESSAGE_INTERVAL,           // Command id
+            MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS,
+            500000);
     }
 }
 
@@ -504,35 +426,16 @@ void CodevCameraControl::startTracking(QRectF rec)
 {
     qCDebug(CodevCameraLog) << "startTracking Rectangle" << rec.x() << rec.y() << (rec.x() + rec.width()) << (rec.y() + rec.height()) << hasTrackingRectangle();
     if(hasTrackingRectangle() && _vehicle) {
-        float offset_x = 0.0f;
-        float offset_y = 0.0f;
-        if(_dZoomFact) {
-            float dzoom = _dZoomFact->rawValue().toFloat();
-            if(dzoom > 1.0f) {
-                offset_x = (1.0f - 1.0f / dzoom) / 2.0f;
-                offset_y = (1.0f - 1.0f / dzoom) / 2.0f;
-            }
-            if(offset_x != 0.0f && offset_y != 0.0f) {
-                double x2 = rec.x() + rec.width();
-                double y2 = rec.y() + rec.height();
-                x2 = x2 * (1.0f - offset_x * 2.0f) + offset_x;
-                y2 = y2 * (1.0f - offset_y * 2.0f) + offset_y;
-                rec.setX(rec.x() * (1.0f - offset_x * 2.0f) + offset_x);
-                rec.setY(rec.y() * (1.0f - offset_y * 2.0f) + offset_y);
-                rec.setWidth(x2 - rec.x());
-                rec.setHeight(y2 - rec.y());
-            }
-        }
-        qInfo() << "Tracking rect normalized"
-                << rec.x() << rec.y() << (rec.x() + rec.width()) << (rec.y() + rec.height())
-                << "offset" << offset_x << offset_y;
         sendMavCommand(
             MAV_CMD_CAMERA_TRACK_RECTANGLE,               // Command id
             static_cast<float>(rec.x()),                  // Point1 X
             static_cast<float>(rec.y()),                  // Point1 Y
             static_cast<float>(rec.x() + rec.width()),    // Point2 X
-            static_cast<float>(rec.y() + rec.height()),   // Point2 Y
-            1);
+            static_cast<float>(rec.y() + rec.height()));  // Point2 Y
+        sendMavCommand(
+            MAV_CMD_SET_MESSAGE_INTERVAL,           // Command id
+            MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS,
+            500000);
     }
 }
 
@@ -541,6 +444,10 @@ void CodevCameraControl::stopTracking()
     qCDebug(CodevCameraLog) << "stopTracking";
     if((hasTrackingPoint() || hasTrackingRectangle()) && _vehicle) {
         sendMavCommand(MAV_CMD_CAMERA_STOP_TRACKING);
+        sendMavCommand(
+            MAV_CMD_SET_MESSAGE_INTERVAL,           // Command id
+            MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS,
+            -1);
     }
 }
 
@@ -909,13 +816,8 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
 {
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
-    qInfo() << "Tracking image status:"
-            << "status" << tracking_image_status.tracking_status
-            << "mode" << tracking_image_status.tracking_mode
-            << "point" << tracking_image_status.point_x << tracking_image_status.point_y
-            << "rect" << tracking_image_status.rec_top_x << tracking_image_status.rec_top_y
-            << tracking_image_status.rec_bottom_x << tracking_image_status.rec_bottom_y;
 
+    bool forwardTrackingStatus = true;
     bool changed = false;
     if(tracking_image_status.tracking_status == 255) {
         if(!_busy_in_detect_setup) {
@@ -962,15 +864,9 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                 || bottom < 0.0f || bottom > 1.0f;
             const bool invalidRect = right <= left || bottom <= top;
             if (outOfRange || invalidRect) {
-                qWarning() << "Tracking rect invalid, stopping tracking"
-                           << "rect" << left << top << right << bottom;
-                setTrackingEnabled(false);
-                stopTracking();
-                tracking_image_status.tracking_status = 0;
-                tracking_image_status.rec_top_x = 0.0f;
-                tracking_image_status.rec_top_y = 0.0f;
-                tracking_image_status.rec_bottom_x = 0.0f;
-                tracking_image_status.rec_bottom_y = 0.0f;
+                qCDebug(CodevCameraLog) << "Ignoring invalid tracking rect"
+                                        << "rect" << left << top << right << bottom;
+                forwardTrackingStatus = false;
             }
         }
         if(_busy_in_detect_setup) {
@@ -992,7 +888,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
         }
     }
     if(changed) emit busyInSetupChanged();
-    if(tracking_image_status.tracking_status < 3) {
+    if(forwardTrackingStatus && tracking_image_status.tracking_status < 3) {
         QGCCameraControl::handleTrackingImageStatus(&tracking_image_status);
     }
 }

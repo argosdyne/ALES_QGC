@@ -1,7 +1,6 @@
 #pragma once
 
 #include "QGCCameraControl.h"
-#include <QElapsedTimer>
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
@@ -172,7 +171,6 @@ protected slots:
     void _requestJSONTransfor(QVariant data);
     void _downloadJSONFinished();
     void _paramSlefChanged();
-    void _checkGimbalRunaway();
     // sendMavCommander
     void _sendMavCommandAgain();
     void _mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle) override;
@@ -208,13 +206,4 @@ protected:
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};
 
-    static constexpr float kGimbalRunawayRateDegPerSec = 5.0f;
-    static constexpr int kGimbalRunawayDurationMs = 1500;
-
-    bool _haveGimbalSample{false};
-    float _lastGimbalPitch{0.0f};
-    float _lastGimbalYaw{0.0f};
-    qint64 _lastGimbalSampleMS{0};
-    qint64 _gimbalRunawayStartMS{-1};
-    QElapsedTimer _gimbalSampleTimer;
 };
