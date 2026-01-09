@@ -354,6 +354,19 @@ FlightMap {
         myGeoFenceController:   _geoFenceController
         interactive:            false
         planView:               false
+        show3DView:             globals.geoFenceShow3D
+        breachStyle:            globals.geoFenceBreachStyle
+        fenceOpacity:           globals.geoFenceFenceOpacity
+        boundaryColor:          globals.geoFenceBoundaryColor
+        fillTopFace:            globals.geoFenceFillTopFace
+        fillSideFaces:          globals.geoFenceFillSideFaces
+        showMinMaxAltitude:     globals.geoFenceShowMinMaxAltitude
+        hideOccludedEdges:      globals.geoFenceHideOccludedEdges
+        showOccludedEdgesDashed: globals.geoFenceShowOccludedEdgesDashed
+        circleSegments:         globals.geoFenceCircleSegments
+        extrudeScale:           globals.geoFenceExtrudeScale
+        minExtrudeScale:        globals.geoFenceMinExtrudeScale
+        maxExtrudeScale:        globals.geoFenceMaxExtrudeScale
         homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
     }
 

@@ -33,6 +33,36 @@ QGCFlickable {
     property bool   showMinMaxAltitude: false
     property int    circleSegments: 40
 
+    Component.onCompleted: {
+        show3DView = globals.geoFenceShow3D
+        _breachStyle = globals.geoFenceBreachStyle
+        fenceOpacity = globals.geoFenceFenceOpacity
+        boundaryColor = globals.geoFenceBoundaryColor
+        fillTopFace = globals.geoFenceFillTopFace
+        fillSideFaces = globals.geoFenceFillSideFaces
+        hideOccludedEdges = globals.geoFenceHideOccludedEdges
+        showOccludedEdgesDashed = globals.geoFenceShowOccludedEdgesDashed
+        extrudeScale = globals.geoFenceExtrudeScale
+        minExtrudeScale = globals.geoFenceMinExtrudeScale
+        maxExtrudeScale = globals.geoFenceMaxExtrudeScale
+        showMinMaxAltitude = globals.geoFenceShowMinMaxAltitude
+        circleSegments = globals.geoFenceCircleSegments
+    }
+
+    onShow3DViewChanged: globals.geoFenceShow3D = show3DView
+    on_BreachStyleChanged: globals.geoFenceBreachStyle = _breachStyle
+    onFenceOpacityChanged: globals.geoFenceFenceOpacity = fenceOpacity
+    onBoundaryColorChanged: globals.geoFenceBoundaryColor = boundaryColor
+    onFillTopFaceChanged: globals.geoFenceFillTopFace = fillTopFace
+    onFillSideFacesChanged: globals.geoFenceFillSideFaces = fillSideFaces
+    onHideOccludedEdgesChanged: globals.geoFenceHideOccludedEdges = hideOccludedEdges
+    onShowOccludedEdgesDashedChanged: globals.geoFenceShowOccludedEdgesDashed = showOccludedEdgesDashed
+    onExtrudeScaleChanged: globals.geoFenceExtrudeScale = extrudeScale
+    onMinExtrudeScaleChanged: globals.geoFenceMinExtrudeScale = minExtrudeScale
+    onMaxExtrudeScaleChanged: globals.geoFenceMaxExtrudeScale = maxExtrudeScale
+    onShowMinMaxAltitudeChanged: globals.geoFenceShowMinMaxAltitude = showMinMaxAltitude
+    onCircleSegmentsChanged: globals.geoFenceCircleSegments = circleSegments
+
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
     readonly property real  _radius:            ScreenTools.defaultFontPixelWidth / 2
@@ -144,6 +174,8 @@ QGCFlickable {
                             if (myGeoCageController) {
                                 myGeoCageController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
                             }
+                            polygonSection.checked = true
+                            circleSection.checked = false
                         }
                     }
 
@@ -156,6 +188,12 @@ QGCFlickable {
                             var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
                             var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
                             myGeoFenceController.addInclusionCircle(topLeftCoord, bottomRightCoord)
+                            if (myGeoFenceController.circles.count > 0) {
+                                myGeoFenceController.clearAllInteractive()
+                                myGeoFenceController.circles.get(myGeoFenceController.circles.count - 1).interactive = true
+                            }
+                            circleSection.checked = true
+                            polygonSection.checked = false
                         }
                     }
 
@@ -548,7 +586,7 @@ QGCFlickable {
                         anchors.right:      parent.right
                         columns:            4
                         flow:               GridLayout.TopToBottom
-                        visible:            polygonSection.checked && myGeoFenceController.circles.count > 0
+                        visible:            circleSection.checked && myGeoFenceController.circles.count > 0
 
                         QGCLabel {
                             text:               qsTr("Inclusion")

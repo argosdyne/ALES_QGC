@@ -90,6 +90,21 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+
+        // GeoFence 3D visuals (session only)
+        property bool               geoFenceShow3D:                 false
+        property int                geoFenceBreachStyle:            Qt.SolidLine
+        property real               geoFenceFenceOpacity:           0.9
+        property color              geoFenceBoundaryColor:          "#ffb300"
+        property bool               geoFenceFillTopFace:            true
+        property bool               geoFenceFillSideFaces:          false
+        property bool               geoFenceHideOccludedEdges:      true
+        property bool               geoFenceShowOccludedEdgesDashed:false
+        property real               geoFenceExtrudeScale:           1.0
+        property real               geoFenceMinExtrudeScale:        0.6
+        property real               geoFenceMaxExtrudeScale:        1.6
+        property bool               geoFenceShowMinMaxAltitude:     false
+        property int                geoFenceCircleSegments:         40
     }
 
     /// Default color palette used throughout the UI

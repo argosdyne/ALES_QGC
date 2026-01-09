@@ -75,6 +75,12 @@ Item {
     property bool _firstLoadComplete:           false
     property bool _geoFenceShow3D:              false
 
+    Component.onCompleted: {
+        _geoFenceShow3D = globals.geoFenceShow3D
+    }
+
+    on_GeoFenceShow3DChanged: globals.geoFenceShow3D = _geoFenceShow3D
+
     MapFitFunctions {
         id:                         mapFitFunctions  // The name for this id cannot be changed without breaking references outside of this code. Beware!
         map:                        editorMap
