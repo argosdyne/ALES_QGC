@@ -102,11 +102,11 @@ jobs:
                 findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
                 findstr /N /I /C:"CustomPlugin.obj:" Makefile
                 setlocal EnableExtensions EnableDelayedExpansion
-                for /r "${{ env.SOURCE_DIR }}\custom\src" %%F in (*.cc *.cpp) do (
-                  set "OBJ=%%~nF.obj"
-                  echo ==== !OBJ! (%%~fF) ====
-                  ${{ runner.temp }}\jom\jom -n !OBJ!
-                  ${{ runner.temp }}\jom\jom -j1 !OBJ!
+                for /f "usebackq tokens=1 delims=:" %%F in (`findstr /R /I /C:"\\.obj:.*custom\\\\src" Makefile`) do (
+                  set "OBJ=%%F"
+                  echo ==== !OBJ! ====
+                  ${{ runner.temp }}\jom\jom -n !OBJ! || exit /b 1
+                  ${{ runner.temp }}\jom\jom -j1 !OBJ! || exit /b 1
                 )
                 endlocal
               ) else (
