@@ -87,6 +87,13 @@ jobs:
         with:
           arch: x64
 
+      - name: Verify CustomPlugin.cc exists
+        run: |
+              if not exist "${{ env.SOURCE_DIR }}\custom\src\CustomPlugin.cc" (
+                echo ERROR: Missing file custom\src\CustomPlugin.cc
+                exit /b 1
+              )
+
       - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run:  |
