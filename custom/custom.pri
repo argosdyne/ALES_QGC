@@ -1,5 +1,8 @@
 message("Adding Custom Plugin")
 
+# Ensure .cc files are compiled as C++ across toolchains
+QMAKE_EXT_CPP += .cc
+
 #-- Version control
 #   Major and minor versions are defined here (manually)
 
@@ -120,7 +123,7 @@ INCLUDEPATH += \
     $$PWD/src/ARLink/ \
     $$PWD/src/AVIATOR/ \
     $$PWD/src/MissionManager \
-    $$PWD/src/Rhythm \
+    $$PWD/src/Rhythm
 
 #-------------------------------------------------------------------------------------
 # Custom Firmware/AutoPilot Plugin
