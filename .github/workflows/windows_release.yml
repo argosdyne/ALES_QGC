@@ -101,7 +101,7 @@ jobs:
               if exist Makefile (
                 findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
                 findstr /N /I /C:"CustomPlugin.obj:" Makefile
-                for %%F in (CustomPlugin.obj CodevRTCMManager.obj NTRIPRTCMSource.obj SerialPortRTCMSource.obj RTCMBase.obj) do (
+                for %%F in (CustomPlugin.obj CodevRTCMManager.obj NTRIPRTCMSource.obj SerialPortRTCMSource.obj RTCMBase.obj SiYiCamera.obj SiYiManager.obj SiYiTcpClient.obj SiYiTransmitter.obj) do (
                   echo ==== %%F ====
                   ${{ runner.temp }}\jom\jom -n %%F
                   ${{ runner.temp }}\jom\jom -j1 %%F
