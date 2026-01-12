@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'Argos_Stable4.4'
+      - 'Argos_Stable4.4_CICD'
     tags:
       - 'v*'
     paths-ignore:
