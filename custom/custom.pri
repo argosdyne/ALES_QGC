@@ -122,6 +122,18 @@ INCLUDEPATH += \
     $$PWD/src/MissionManager \
     $$PWD/src/Rhythm
 
+# Ensure make can locate custom sources in subfolders
+VPATH += \
+    $$PWD/src \
+    $$PWD/src/RTCM \
+    $$PWD/src/SiYi \
+    $$PWD/src/ARLink \
+    $$PWD/src/AVIATOR \
+    $$PWD/src/MissionManager \
+    $$PWD/src/FirmwarePlugin \
+    $$PWD/src/AutoPilotPlugin
+DEPENDPATH += $$VPATH
+
 #-------------------------------------------------------------------------------------
 # Custom Firmware/AutoPilot Plugin
 
