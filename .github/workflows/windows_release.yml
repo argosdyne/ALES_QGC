@@ -98,6 +98,12 @@ jobs:
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run:  |
               qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro CONFIG+=installer CONFIG+=${{ env. BUILD_TYPE }}
+              if exist Makefile (
+                findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
+              ) else (
+                echo ERROR: Makefile not found after qmake
+                exit /b 1
+              )
               ${{ runner.temp }}\jom\jom -j2
 
       - name: Save installer artifact
