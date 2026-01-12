@@ -78,7 +78,7 @@ QML_IMPORT_PATH += \
 
 # Our own, custom sources
 SOURCES += \
-    $$PWD/src/CustomPlugin.cc \
+    $$PWD/src/CustomPlugin.cpp \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
