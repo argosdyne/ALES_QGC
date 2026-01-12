@@ -101,11 +101,14 @@ jobs:
               if exist Makefile (
                 findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
                 findstr /N /I /C:"CustomPlugin.obj:" Makefile
-                for %%F in (CustomPlugin.obj CodevRTCMManager.obj NTRIPRTCMSource.obj SerialPortRTCMSource.obj RTCMBase.obj SiYiCamera.obj SiYiManager.obj SiYiTcpClient.obj SiYiTransmitter.obj) do (
-                  echo ==== %%F ====
-                  ${{ runner.temp }}\jom\jom -n %%F
-                  ${{ runner.temp }}\jom\jom -j1 %%F
+                setlocal EnableExtensions EnableDelayedExpansion
+                for /r "${{ env.SOURCE_DIR }}\custom\src" %%F in (*.cc *.cpp) do (
+                  set "OBJ=%%~nF.obj"
+                  echo ==== !OBJ! (%%~fF) ====
+                  ${{ runner.temp }}\jom\jom -n !OBJ!
+                  ${{ runner.temp }}\jom\jom -j1 !OBJ!
                 )
+                endlocal
               ) else (
                 echo ERROR: Makefile not found after qmake
                 exit /b 1
