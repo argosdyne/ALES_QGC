@@ -102,6 +102,7 @@ jobs:
                 findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
                 findstr /N /I /C:"CustomPlugin.obj:" Makefile
                 ${{ runner.temp }}\jom\jom -n CustomPlugin.obj
+                ${{ runner.temp }}\jom\jom -j1 CustomPlugin.obj
               ) else (
                 echo ERROR: Makefile not found after qmake
                 exit /b 1
