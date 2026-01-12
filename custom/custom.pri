@@ -1,8 +1,5 @@
 message("Adding Custom Plugin")
 
-# Ensure .cc files are compiled as C++ across toolchains
-QMAKE_EXT_CPP += .cc
-
 #-- Version control
 #   Major and minor versions are defined here (manually)
 
