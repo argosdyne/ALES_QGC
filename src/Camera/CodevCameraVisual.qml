@@ -139,8 +139,8 @@ Item {
 
     //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
 
-    //         // Start tracking using the globally available camera        
-    //         // Exit tracking mode    
+    //         // Start tracking using the globally available camera
+    //         // Exit tracking mode
     //     }
     // }
 
@@ -310,7 +310,7 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
-                                        console.log("setSpotTemp Point = ", x, y)                                        
+                                        console.log("setSpotTemp Point = ", x, y)
                 } else if(aiInThermal) {
                     var point = Qt.point(x, y)
                     _camera.startTracking(point, 1.0)
@@ -339,12 +339,6 @@ Item {
         DeadMouseArea {
             anchors.fill: parent
         }
-
-        DropPanel {
-            id:         dropPanel
-            toolStrip:  parent
-            dropDirection: dropPanel.dropUp
-        }
     }
 
     RowLayout {
@@ -371,50 +365,7 @@ Item {
             }
             onVisibleChanged: {
                 if(visible) {
-                    dropPanel.hide()
-                }
-            }
-            Component {
-                id: pseudocolorDropPanel
-                GridLayout {
-                    columns: 4
-                    Repeater {
-                        model: _pseudocolor ? _pseudocolor.enumValues : null
-                        Rectangle {
-                            width: pseudocolorImage.width + ScreenTools.defaultFontPixelWidth * 2
-                            height: pseudocolorImage.height + pseudocolorNameLabel.height + ScreenTools.defaultFontPixelWidth
-                            radius: 2
-                            color: _pseudocolor.enumIndex === index ? qgcPal.buttonHighlight : "transparent"
-
-                            Image {
-                                id: pseudocolorImage
-                                anchors.top:        parent.top
-                                anchors.left:       parent.left
-                                anchors.margins:    ScreenTools.defaultFontPixelWidth
-                                width:              ScreenTools.defaultFontPixelWidth * 12
-                                source:             "qrc:/R3Palette/" + modelData
-                                sourceSize.width:   width
-                                fillMode:           Image.PreserveAspectFit
-                                mipmap:             true
-                            }
-
-                            QGCLabel {
-                                id:                     pseudocolorNameLabel
-                                anchors.top:            pseudocolorImage.bottom
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text:                   _pseudocolor.enumStrings[index]
-                                color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    _pseudocolor.enumIndex = index
-                                    dropPanel.hide()
-                                }
-                            }
-                        }
-                    }
+                    pseudocolorPopup.close()
                 }
             }
             MouseArea {
@@ -422,10 +373,9 @@ Item {
                 onClicked: {
                     if(!pseudocolorBar.checked) {
                         pseudocolorBar.checked = true
-                        var panelEdgeTopPoint = mapToItem(irToolsPanel, 0, 0)
-                        dropPanel.show(panelEdgeTopPoint, pseudocolorDropPanel, pseudocolorBar)
+                        pseudocolorPopup.open()
                     } else {
-                        dropPanel.hide()
+                        pseudocolorPopup.close()
                     }
                 }
             }
@@ -597,5 +547,86 @@ Item {
                 visible: _nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value
             }
         }
+    }
+
+    Popup {
+        id: pseudocolorPopup
+        modal: false
+        focus: true
+        padding: ScreenTools.defaultFontPixelWidth
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: Qt.rgba(qgcPal.window.r, qgcPal.window.g, qgcPal.window.b, 0.9)
+            radius: ScreenTools.defaultFontPixelWidth * 0.5
+            border.color: qgcPal.windowShade
+            border.width: 1
+        }
+
+        GridLayout {
+            columns: 4
+            rowSpacing: ScreenTools.defaultFontPixelWidth * 0.5
+            columnSpacing: ScreenTools.defaultFontPixelWidth * 0.5
+
+            Repeater {
+                model: _pseudocolor ? _pseudocolor.enumValues : null
+
+                Rectangle {
+                    width: pseudocolorImage.width + ScreenTools.defaultFontPixelWidth * 2
+                    height: pseudocolorImage.height + pseudocolorNameLabel.height + ScreenTools.defaultFontPixelWidth
+                    radius: 2
+                    color: _pseudocolor.enumIndex === index ? qgcPal.buttonHighlight : "transparent"
+
+                    Image {
+                        id: pseudocolorImage
+                        anchors.top:        parent.top
+                        anchors.left:       parent.left
+                        anchors.margins:    ScreenTools.defaultFontPixelWidth
+                        width:              ScreenTools.defaultFontPixelWidth * 12
+                        source:             "qrc:/R3Palette/" + modelData
+                        sourceSize.width:   width
+                        fillMode:           Image.PreserveAspectFit
+                        mipmap:             true
+                    }
+
+                    QGCLabel {
+                        id:                     pseudocolorNameLabel
+                        anchors.top:            pseudocolorImage.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text:                   _pseudocolor.enumStrings[index]
+                        color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            _pseudocolor.enumIndex = index
+                            pseudocolorPopup.close()
+                        }
+                    }
+                }
+            }
+        }
+
+        function _positionPopup() {
+            if (!mainWindow || !mainWindow.contentItem) {
+                return
+            }
+            var margin = ScreenTools.defaultFontPixelWidth
+            var origin = mainWindow.contentItem.mapFromItem(pseudocolorBar, 0, 0)
+            var xPos = origin.x + (pseudocolorBar.width / 2) - (pseudocolorPopup.width / 2)
+            xPos = Math.max(margin, Math.min(xPos, mainWindow.width - pseudocolorPopup.width - margin))
+            var yAbove = origin.y - pseudocolorPopup.height - margin
+            var yBelow = origin.y + pseudocolorBar.height + margin
+            var yPos = yAbove >= margin ? yAbove : yBelow
+            yPos = Math.max(margin, Math.min(yPos, mainWindow.height - pseudocolorPopup.height - margin))
+            pseudocolorPopup.x = Math.round(xPos)
+            pseudocolorPopup.y = Math.round(yPos)
+        }
+
+        onOpened: Qt.callLater(_positionPopup)
+        onClosed: pseudocolorBar.checked = false
+        onWidthChanged: if (visible) Qt.callLater(_positionPopup)
+        onHeightChanged: if (visible) Qt.callLater(_positionPopup)
     }
 }
