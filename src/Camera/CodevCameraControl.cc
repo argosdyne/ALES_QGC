@@ -871,12 +871,12 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
 {
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
-    qInfo() << "Tracking image status:"
-            << "status" << tracking_image_status.tracking_status
-            << "mode" << tracking_image_status.tracking_mode
-            << "point" << tracking_image_status.point_x << tracking_image_status.point_y
-            << "rect" << tracking_image_status.rec_top_x << tracking_image_status.rec_top_y
-            << tracking_image_status.rec_bottom_x << tracking_image_status.rec_bottom_y;
+    // qInfo() << "Tracking image status:"
+    //         << "status" << tracking_image_status.tracking_status
+    //         << "mode" << tracking_image_status.tracking_mode
+    //         << "point" << tracking_image_status.point_x << tracking_image_status.point_y
+    //         << "rect" << tracking_image_status.rec_top_x << tracking_image_status.rec_top_y
+    //         << tracking_image_status.rec_bottom_x << tracking_image_status.rec_bottom_y;
 
     const bool wasTrackingActive = (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE);
     bool changed = false;
