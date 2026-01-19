@@ -235,7 +235,7 @@ void CodevCameraControl::_checkGimbalRunaway()
         return;
     }
 
-    if (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE || !trackingEnabled()) {
+    if (_trackingImageStatus.tracking_status != CAMERA_TRACKING_STATUS_FLAGS_ACTIVE || !trackingEnabled()) {
         _gimbalRunawayStartMS = -1;
         _haveGimbalSample = false;
         _gimbalOscillationStartMS = -1;
@@ -519,7 +519,7 @@ void CodevCameraControl::startTracking(QPointF point, double radius)
             if (smartSelect) {
                 const QString current = smartSelect->rawValueString().trimmed();
                 if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
-                    smartSelect->setRawValue(QStringLiteral("YOLO8"));
+                    smartSelect->setRawValue(QStringLiteral("Yolov8"));
                 }
             }
 
@@ -563,7 +563,7 @@ void CodevCameraControl::startTracking(QRectF rec)
             if (smartSelect) {
                 const QString current = smartSelect->rawValueString().trimmed();
                 if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
-                    smartSelect->setRawValue(QStringLiteral("YOLO8"));
+                    smartSelect->setRawValue(QStringLiteral("Yolov8"));
                 }
             }
 
@@ -1015,6 +1015,26 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                     tracking_image_status.rec_bottom_x = (tracking_image_status.rec_bottom_x - offset_x) / (1.0f - offset_x * 2.0f);
                     tracking_image_status.rec_bottom_y = (tracking_image_status.rec_bottom_y - offset_y) / (1.0f - offset_y * 2.0f);
                 }
+            }
+            const float left = tracking_image_status.rec_top_x;
+            const float top = tracking_image_status.rec_top_y;
+            const float right = tracking_image_status.rec_bottom_x;
+            const float bottom = tracking_image_status.rec_bottom_y;
+            const bool outOfRange = left < 0.0f || left > 1.0f
+                || top < 0.0f || top > 1.0f
+                || right < 0.0f || right > 1.0f
+                || bottom < 0.0f || bottom > 1.0f;
+            const bool invalidRect = right <= left || bottom <= top;
+            if (outOfRange || invalidRect) {
+                qWarning() << "Tracking rect invalid, stopping tracking"
+                           << "rect" << left << top << right << bottom;
+                //setTrackingEnabled(false);
+                //stopTracking();
+                tracking_image_status.tracking_status = 0;
+                tracking_image_status.rec_top_x = 0.0f;
+                tracking_image_status.rec_top_y = 0.0f;
+                tracking_image_status.rec_bottom_x = 0.0f;
+                tracking_image_status.rec_bottom_y = 0.0f;
             }
         }
         if(_busy_in_detect_setup) {
