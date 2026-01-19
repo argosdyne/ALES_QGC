@@ -38,24 +38,6 @@ static const char *kFACTORY_CALI = "FACTORY_CALI";
 static const char *kJSON_TR_REQ = "JSON_TR_REQ";
 static const char *kCALIBRATE_FLAGS = "CALIBRATE_FLAGS";
 
-static constexpr float kGimbalRunawayRateDegPerSec = 90.0f;
-static constexpr qint64 kGimbalRunawayDurationMs = 1000;
-static constexpr float kGimbalOscillationMinDeg = 1.0f;
-static constexpr float kGimbalOscillationMaxDeg = 3.0f;
-static constexpr qint64 kGimbalOscillationDurationMs = 45000;
-static constexpr int kGimbalOscillationMinFlips = 6;
-
-static float _angleDeltaDegrees(float fromDeg, float toDeg)
-{
-    const float delta = std::fmod(toDeg - fromDeg + 540.0f, 360.0f) - 180.0f;
-    return std::fabs(delta);
-}
-
-static float _angleDeltaSignedDegrees(float fromDeg, float toDeg)
-{
-    return std::fmod(toDeg - fromDeg + 540.0f, 360.0f) - 180.0f;
-}
-
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
 
@@ -101,11 +83,6 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
         _targetObjects.clearAndDeleteContents();
     });
 
-    _gimbalSampleTimer.start();
-    if (_vehicle) {
-        connect(_vehicle, &Vehicle::gimbalPitchChanged, this, &CodevCameraControl::_checkGimbalRunaway);
-        connect(_vehicle, &Vehicle::gimbalYawChanged, this, &CodevCameraControl::_checkGimbalRunaway);
-    }
 }
 
 void CodevCameraControl::centerGimbal()
@@ -227,97 +204,6 @@ void CodevCameraControl::gimbalControlInImage(QPointF point)
         static_cast<float>(_zoomLevel), // Latitude (not used)
         dzoom,                          // Longitude (not used)
         -1);                            // Custom offset Roll,Pitch,Yaw
-}
-
-void CodevCameraControl::_checkGimbalRunaway()
-{
-    if (!_vehicle || !_vehicle->gimbalData()) {
-        return;
-    }
-
-    if (_trackingImageStatus.tracking_status != CAMERA_TRACKING_STATUS_FLAGS_ACTIVE || !trackingEnabled()) {
-        _gimbalRunawayStartMS = -1;
-        _haveGimbalSample = false;
-        _gimbalOscillationStartMS = -1;
-        _gimbalOscillationFlipCount = 0;
-        _lastGimbalOscSign = 0;
-        return;
-    }
-
-    const float pitch = _vehicle->gimbalPitch();
-    const float yaw = _vehicle->gimbalYaw();
-    const qint64 nowMs = _gimbalSampleTimer.elapsed();
-
-    if (!_haveGimbalSample) {
-        _lastGimbalPitch = pitch;
-        _lastGimbalYaw = yaw;
-        _lastGimbalSampleMS = nowMs;
-        _haveGimbalSample = true;
-        return;
-    }
-
-    const qint64 dtMs = nowMs - _lastGimbalSampleMS;
-    if (dtMs <= 0) {
-        return;
-    }
-
-    const float pitchDelta = std::fabs(pitch - _lastGimbalPitch);
-    const float yawDelta = _angleDeltaDegrees(_lastGimbalYaw, yaw);
-    const float rateDegPerSec = std::max(pitchDelta, yawDelta) / (static_cast<float>(dtMs) / 1000.0f);
-
-    if (rateDegPerSec >= kGimbalRunawayRateDegPerSec) {
-        if (_gimbalRunawayStartMS < 0) {
-            _gimbalRunawayStartMS = nowMs;
-        } else if (nowMs - _gimbalRunawayStartMS >= kGimbalRunawayDurationMs) {
-            qWarning() << "Gimbal runaway detected, stopping tracking"
-                       << "rateDegPerSec" << rateDegPerSec
-                       << "pitch" << pitch
-                       << "yaw" << yaw;
-            setTrackingEnabled(false);
-            stopTracking();
-            _gimbalRunawayStartMS = -1;
-            _gimbalOscillationStartMS = -1;
-            _gimbalOscillationFlipCount = 0;
-            _lastGimbalOscSign = 0;
-        }
-    } else {
-        _gimbalRunawayStartMS = -1;
-    }
-
-    const float pitchDeltaSigned = pitch - _lastGimbalPitch;
-    const float yawDeltaSigned = _angleDeltaSignedDegrees(_lastGimbalYaw, yaw);
-    const float chosenDelta = (std::fabs(pitchDeltaSigned) >= std::fabs(yawDeltaSigned)) ? pitchDeltaSigned : yawDeltaSigned;
-    const float absDelta = std::fabs(chosenDelta);
-    if (absDelta >= kGimbalOscillationMinDeg && absDelta <= kGimbalOscillationMaxDeg) {
-        const int sign = (chosenDelta > 0.0f) - (chosenDelta < 0.0f);
-        if (sign != 0) {
-            if (_lastGimbalOscSign != 0 && sign != _lastGimbalOscSign) {
-                _gimbalOscillationFlipCount++;
-            }
-            if (_gimbalOscillationStartMS < 0) {
-                _gimbalOscillationStartMS = nowMs;
-            } else if (nowMs - _gimbalOscillationStartMS >= kGimbalOscillationDurationMs &&
-                       _gimbalOscillationFlipCount >= kGimbalOscillationMinFlips) {
-                qWarning() << "Gimbal oscillation detected, stopping tracking"
-                           << "absDelta" << absDelta
-                           << "durationMs" << (nowMs - _gimbalOscillationStartMS);
-                setTrackingEnabled(false);
-                stopTracking();
-                _gimbalOscillationStartMS = -1;
-                _gimbalOscillationFlipCount = 0;
-                _lastGimbalOscSign = 0;
-            }
-            _lastGimbalOscSign = sign;
-        }
-    } else {
-        _gimbalOscillationStartMS = -1;
-        _gimbalOscillationFlipCount = 0;
-        _lastGimbalOscSign = 0;
-    }
-
-    _lastGimbalPitch = pitch;
-    _lastGimbalYaw = yaw;
-    _lastGimbalSampleMS = nowMs;
 }
 
 void CodevCameraControl::setVideoMode()
@@ -1028,8 +914,8 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             if (outOfRange || invalidRect) {
                 qWarning() << "Tracking rect invalid, stopping tracking"
                            << "rect" << left << top << right << bottom;
-                //setTrackingEnabled(false);
-                //stopTracking();
+                setTrackingEnabled(false);
+                stopTracking();
                 tracking_image_status.tracking_status = 0;
                 tracking_image_status.rec_top_x = 0.0f;
                 tracking_image_status.rec_top_y = 0.0f;

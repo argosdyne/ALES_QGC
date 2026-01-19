@@ -1,7 +1,6 @@
 #pragma once
 
 #include "QGCCameraControl.h"
-#include <QElapsedTimer>
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
@@ -165,7 +164,6 @@ signals:
 
 protected slots:
     void _parametersReady();
-    void _checkGimbalRunaway();
     void _dZoomInMaxChange();
     void _handleThermometryData(QVariant data);
     void _handleNVStatus(QVariant data);
@@ -208,13 +206,4 @@ protected:
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};
 
-    QElapsedTimer _gimbalSampleTimer;
-    qint64 _gimbalRunawayStartMS{-1};
-    bool _haveGimbalSample{false};
-    float _lastGimbalPitch{0.0f};
-    float _lastGimbalYaw{0.0f};
-    qint64 _lastGimbalSampleMS{0};
-    qint64 _gimbalOscillationStartMS{-1};
-    int _gimbalOscillationFlipCount{0};
-    int _lastGimbalOscSign{0};
 };
