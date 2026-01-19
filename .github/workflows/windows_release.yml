@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - 'Argos_Stable4.4'
-      - 'GithubActionTest'
+      - 'GithubActionTest' 
     tags:
       - 'v*'
     paths-ignore:
       - 'docs/**'
   pull_request:
     branches:
-      - '*'
+    - '*'
     paths-ignore:
       - 'docs/**'
 
@@ -20,62 +20,58 @@ defaults:
     shell: cmd
 
 env:
-  SOURCE_DIR: ${{ github.workspace }}
-  QT_VERSION: 5.15.2
-  ARTIFACT: AlesQGroundControl-installer.exe
-  # tag이거나 브랜치명에 Stable이 포함되면 StableBuild
-  BUILD_TYPE: ${{ (github.ref_type == 'tag' || contains(github.ref_name, 'Stable')) && 'StableBuild' || 'DailyBuild' }}
+  SOURCE_DIR:   ${{ github.workspace }}
+  QT_VERSION:   5.15.2
+  ARTIFACT:     AlesQGroundControl-installer.exe
+  BUILD_TYPE:   ${{ fromJSON('["DailyBuild", "StableBuild"]')[ github.ref_type == 'tag' || contains(github.ref, 'Stable_' ) ] }}
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on:  windows-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0   # 태그/버전 계산 안정화
+
+      - name: Get all tags for correct version determination
+        working-directory:  ${{ github.workspace }}
+        run: |
+          git fetch --all --tags -f --depth 1
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: ${{ env.QT_VERSION }}
-          host: windows
-          target: desktop
-          arch: win64_msvc2019_64
-          dir: ${{ runner.temp }}
-          modules: qtcharts
+          version:      ${{ env.QT_VERSION }}
+          host:         windows
+          target:       desktop
+          arch:         win64_msvc2019_64
+          dir:          ${{ runner.temp }}
+          modules:      qtcharts
           setup-python: false
-
-      - name: Ensure Qt tools in PATH
-        shell: pwsh
-        run: |
-          # install-qt-action이 보통 QTDIR/QT_ROOT_DIR를 잡지만, 환경에 따라 다르므로 방어적으로 PATH에 추가
-          if ($env:Qt5_DIR) {
-            Add-Content $env:GITHUB_PATH "$env:Qt5_DIR\bin"
-          } elseif ($env:QTDIR) {
-            Add-Content $env:GITHUB_PATH "$env:QTDIR\bin"
-          } else {
-            Write-Host "Qt path env not found. qmake must be resolvable from PATH."
-          }
-          qmake -v
 
       - name: Download JOM
         run: |
-          curl -L -o "%RUNNER_TEMP%\jom.zip" https://download.qt.io/official_releases/jom/jom_1_1_4.zip
-          7z x "%RUNNER_TEMP%\jom.zip" -o"%RUNNER_TEMP%\jom" -y
-          "%RUNNER_TEMP%\jom\jom.exe" /? >nul
+          curl -L -o ${{ runner.temp }}\jom.zip https://download.qt.io/official_releases/jom/jom_1_1_4.zip
+          7z x ${{ runner.temp }}\jom.zip -o${{ runner.temp }}\jom -y
 
-      - name: Download GStreamer
-        run: |
-          curl -L -o "%RUNNER_TEMP%\gstreamer.msi" https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/gstreamer-1.0-msvc-x86_64-1.18.1.msi
-          curl -L -o "%RUNNER_TEMP%\gstreamer-dev.msi" https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/gstreamer-1.0-devel-msvc-x86_64-1.18.1.msi
+      - name: Download Gstreamer
+        uses: suisei-cn/actions-download-file@v1.3.0
+        with:
+          url:    https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/gstreamer-1.0-msvc-x86_64-1.18.1.msi
+          target: ${{ runner.temp }}\
 
-      - name: Install GStreamer
-        run: |
-          cmd /c start /wait msiexec /package "%RUNNER_TEMP%\gstreamer.msi" /passive ADDLOCAL=ALL
-          cmd /c start /wait msiexec /package "%RUNNER_TEMP%\gstreamer-dev.msi" /passive ADDLOCAL=ALL
+      - name: Download Gstreamer dev
+        uses: suisei-cn/actions-download-file@v1.3.0
+        with:
+          url:    https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/gstreamer-1.0-devel-msvc-x86_64-1.18.1.msi
+          target: ${{ runner.temp }}\
+
+      - name: Install Gstreamer
+        run:  |
+            cmd /c start /wait msiexec /package ${{ runner.temp }}\gstreamer-1.0-msvc-x86_64-1.18.1.msi /passive ADDLOCAL=ALL
+            cmd /c start /wait msiexec /package ${{ runner.temp }}\gstreamer-1.0-devel-msvc-x86_64-1.18.1.msi /passive ADDLOCAL=ALL
 
       - name: Install NSIS
         shell: pwsh
@@ -83,42 +79,35 @@ jobs:
           choco install nsis -y
           if (!(Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe")) { throw "makensis.exe not found after install" }
 
+
       - name: Create build directory
-        run: mkdir "%RUNNER_TEMP%\shadow_build_dir"
+        run:  mkdir ${{ runner.temp }}\shadow_build_dir
 
       - name: Set up Visual Studio shell
         uses: egor-tensin/vs-shell@v2
         with:
           arch: x64
 
-      - name: Build (qmake + jom)
+      - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
-        run: |
-          echo BUILD_TYPE=${{ env.BUILD_TYPE }}
-          qmake -r "%SOURCE_DIR%\qgroundcontrol.pro" CONFIG+=installer CONFIG+=${{ env.BUILD_TYPE }}
-          "%RUNNER_TEMP%\jom\jom.exe" -j2
-
-      - name: Verify output exists
-        working-directory: ${{ runner.temp }}\shadow_build_dir
-        run: |
-          dir staging
-          dir staging\${{ env.ARTIFACT }}
-          dir staging\qgroundcontrol.pdb
+        run:  |
+              qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro CONFIG+=installer CONFIG+=${{ env. BUILD_TYPE }}
+              ${{ runner.temp }}\jom\jom -j2
 
       - name: Save installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@master
         with:
           name: ${{ env.ARTIFACT }}
           path: ${{ runner.temp }}\shadow_build_dir\staging\${{ env.ARTIFACT }}
 
       - name: Save PDB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@master
         with:
           name: qgroundcontrol.pdb
           path: ${{ runner.temp }}\shadow_build_dir\staging\qgroundcontrol.pdb
 
       - name: Publish installer artifact to GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +117,7 @@ jobs:
           overwrite: true
 
       - name: Publish PDB artifact to GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -136,3 +125,11 @@ jobs:
           asset_name: qgroundcontrol.pdb
           tag: ${{ github.ref }}
           overwrite: true
+
+      # - name: Upload build to S3 Bucket
+      #   if:                 github.event_name == 'push'
+      #   working-directory:  ${{ runner.temp }}\shadow_build_dir\staging
+      #   run: |
+      #         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #         aws s3 cp ${{ env.ARTIFACT }} s3://qgroundcontrol/builds/${{ github.ref_name }}/${{ env.ARTIFACT }} --region us-west-2 --acl public-read
