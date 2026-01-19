@@ -81,7 +81,17 @@ doUninstall:
 doInstall:
   SetRegView 64
   SetOutPath $INSTDIR
-  File /r /x ${EXENAME}.pdb /x ${EXENAME}.lib /x ${EXENAME}.exp ${DESTDIR}\*.*
+  File /r \
+  /x ${EXENAME}.pdb \
+  /x ${EXENAME}.lib \
+  /x ${EXENAME}.exp \
+  /x MSVCP140.dll \
+  /x VCRUNTIME140.dll \
+  /x VCRUNTIME140_1.dll \
+  /x CONCRT140.dll \
+  /x vcomp140.dll \
+  ${DESTDIR}\*.*
+
 
   ; Driver location is http://firmware.ardupilot.org/Tools/MissionPlanner/driver.msi
   ; Whenever this driver is updated in the repo QGCCURRENTDRIVERVERSION must be bumped by 1
