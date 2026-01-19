@@ -669,29 +669,35 @@ Item {
                                 readOnly:           fact.readOnly
                                 selectByMouse:      !fact.readOnly
                                 activeFocusOnPress: !fact.readOnly
-                            }                        
-                            QGCSlider {
-                                Layout.fillWidth:           true
-                                maximumValue:               parent._fact.max
-                                minimumValue:               parent._fact.min
-                                stepSize:                   parent._fact.increment
-                                displayValue:               true
-                                visible:                    parent._isSlider
-                                updateValueWhileDragging:   false
-                                property bool initialized:  false
-
-                                onValueChanged: {
-                                    if (!initialized) {
-                                        return
-                                    }
-                                    parent._fact.value = value
-                                }
-
-                                Component.onCompleted: {
-                                    value = parent._fact.value
-                                    initialized = true
-                                }
                             }
+                            FactSpinBox {
+                                Layout.fillWidth:   true
+                                fact:               parent._fact
+                                visible:            parent._isSlider
+                            }
+
+                            // QGCSlider {
+                            //     Layout.fillWidth:           true
+                            //     maximumValue:               parent._fact.max
+                            //     minimumValue:               parent._fact.min
+                            //     stepSize:                   parent._fact.increment
+                            //     displayValue:               true
+                            //     visible:                    parent._isSlider
+                            //     updateValueWhileDragging:   false
+                            //     property bool initialized:  false
+
+                            //     onValueChanged: {
+                            //         if (!initialized) {
+                            //             return
+                            //         }
+                            //         parent._fact.value = value
+                            //     }
+
+                            //     Component.onCompleted: {
+                            //         value = parent._fact.value
+                            //         initialized = true
+                            //     }
+                            // }
                             QGCSwitch {
                                 checked:        parent._fact ? parent._fact.value : false
                                 visible:        parent._isBool

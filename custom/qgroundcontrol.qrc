@@ -165,6 +165,7 @@
 		<file alias="QGroundControl/Controls/QGCFlickableVerticalIndicator.qml">../src/QmlControls/QGCFlickableVerticalIndicator.qml</file>
 		<file alias="QGroundControl/Controls/QGCGroupBox.qml">../src/QmlControls/QGCGroupBox.qml</file>
 		<file alias="QGroundControl/Controls/QGCLabel.qml">../src/QmlControls/QGCLabel.qml</file>
+		<file alias="QGroundControl/Controls/QGCSpinBox.qml">../src/QmlControls/QGCSpinBox.qml</file>
 		<file alias="QGroundControl/Controls/QGCListView.qml">../src/QmlControls/QGCListView.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapCircleVisuals.qml">../src/MissionManager/QGCMapCircleVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapLabel.qml">../src/QmlControls/QGCMapLabel.qml</file>
@@ -226,6 +227,7 @@
 		<file alias="QGroundControl/FactControls/FactComboBox.qml">../src/FactSystem/FactControls/FactComboBox.qml</file>
 		<file alias="QGroundControl/FactControls/FactLabel.qml">../src/FactSystem/FactControls/FactLabel.qml</file>
 		<file alias="QGroundControl/FactControls/FactTextField.qml">../src/FactSystem/FactControls/FactTextField.qml</file>
+		<file alias="QGroundControl/FactControls/FactSpinBox.qml">../src/FactSystem/FactControls/FactSpinBox.qml</file>
 		<file alias="QGroundControl/FactControls/FactTextFieldGrid.qml">../src/FactSystem/FactControls/FactTextFieldGrid.qml</file>
 		<file alias="QGroundControl/FactControls/FactTextFieldRow.qml">../src/FactSystem/FactControls/FactTextFieldRow.qml</file>
 		<file alias="QGroundControl/FactControls/FactTextFieldSlider.qml">../src/FactSystem/FactControls/FactTextFieldSlider.qml</file>
