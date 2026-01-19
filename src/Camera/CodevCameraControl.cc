@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QDateTime>
 #include <algorithm>
 #include <cmath>
 #include <algorithm>
@@ -37,6 +38,11 @@ static const char *kFACTORY_CALI = "FACTORY_CALI";
 // static const char *kFACTORY_DATA = "FACTORY_DATA";
 static const char *kJSON_TR_REQ = "JSON_TR_REQ";
 static const char *kCALIBRATE_FLAGS = "CALIBRATE_FLAGS";
+
+static constexpr qint64 kTrackingInvalidStopDelayMs = 10000;
+static constexpr float kTrackingSmallBoxArea = 0.05f;
+static constexpr float kTrackingCenterMargin = 0.35f;
+static constexpr float kTrackingCenterMax = 0.65f;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -865,6 +871,12 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
 {
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
+    qInfo() << "Tracking image status:"
+            << "status" << tracking_image_status.tracking_status
+            << "mode" << tracking_image_status.tracking_mode
+            << "point" << tracking_image_status.point_x << tracking_image_status.point_y
+            << "rect" << tracking_image_status.rec_top_x << tracking_image_status.rec_top_y
+            << tracking_image_status.rec_bottom_x << tracking_image_status.rec_bottom_y;
 
     const bool wasTrackingActive = (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE);
     bool changed = false;
@@ -912,17 +924,34 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                 || right < 0.0f || right > 1.0f
                 || bottom < 0.0f || bottom > 1.0f;
             const bool invalidRect = right <= left || bottom <= top;
-            if (outOfRange || invalidRect) {
-                qWarning() << "Tracking rect invalid, stopping tracking"
-                           << "rect" << left << top << right << bottom;
-                setTrackingEnabled(false);
-                stopTracking();
-                centerGimbal();
-                tracking_image_status.tracking_status = 0;
-                tracking_image_status.rec_top_x = 0.0f;
-                tracking_image_status.rec_top_y = 0.0f;
-                tracking_image_status.rec_bottom_x = 0.0f;
-                tracking_image_status.rec_bottom_y = 0.0f;
+            const float width = right - left;
+            const float height = bottom - top;
+            const float area = width * height;
+            const float centerX = (left + right) * 0.5f;
+            const float centerY = (top + bottom) * 0.5f;
+            const bool boxTooSmall = area < kTrackingSmallBoxArea;
+            const bool outsideCenter30 = centerX < kTrackingCenterMargin || centerX > kTrackingCenterMax
+                || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
+            const bool shouldDelayStop = outOfRange || invalidRect || (boxTooSmall && outsideCenter30);
+            if (shouldDelayStop) {
+                const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+                if (_trackingInvalidStartMs < 0) {
+                    _trackingInvalidStartMs = nowMs;
+                } else if (nowMs - _trackingInvalidStartMs >= kTrackingInvalidStopDelayMs) {
+                    qWarning() << "Tracking rect invalid/undesired for too long, stopping tracking"
+                               << "rect" << left << top << right << bottom;
+                    setTrackingEnabled(false);
+                    stopTracking();
+                    centerGimbal();
+                    tracking_image_status.tracking_status = 0;
+                    tracking_image_status.rec_top_x = 0.0f;
+                    tracking_image_status.rec_top_y = 0.0f;
+                    tracking_image_status.rec_bottom_x = 0.0f;
+                    tracking_image_status.rec_bottom_y = 0.0f;
+                    _trackingInvalidStartMs = -1;
+                }
+            } else {
+                _trackingInvalidStartMs = -1;
             }
         }
         if(_busy_in_detect_setup) {
