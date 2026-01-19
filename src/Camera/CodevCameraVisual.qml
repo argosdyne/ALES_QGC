@@ -37,7 +37,7 @@ Item {
 
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
-            _smartSelect.value = "YOLO8"
+            _smartSelect.value = "Yolov8"
         }
         if (_trackAlg && _trackAlg.value === "None") {
             _trackAlg.value = "Nano"
@@ -190,7 +190,7 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(spotAERadioButton.checked) {
                     _camera.setSpotMetering(x, y)
-                } else if(_smartSelect && _smartSelect.value !== "None") {
+                } else if(_trackAlg && _trackAlg.value !== "None" && _smartSelect && _smartSelect.value !== "None") {
                     var point = Qt.point(x, y)
                     _ensureTrackingDefaults()
                     _camera.startTracking(point, 1.0)
