@@ -866,6 +866,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
 
+    const bool wasTrackingActive = (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE);
     bool changed = false;
     if(tracking_image_status.tracking_status == 255) {
         if(!_busy_in_detect_setup) {
@@ -916,6 +917,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                            << "rect" << left << top << right << bottom;
                 setTrackingEnabled(false);
                 stopTracking();
+                centerGimbal();
                 tracking_image_status.tracking_status = 0;
                 tracking_image_status.rec_top_x = 0.0f;
                 tracking_image_status.rec_top_y = 0.0f;
@@ -932,6 +934,9 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             changed = true;
         }
     } else if(tracking_image_status.tracking_status == 0) {
+        if(wasTrackingActive) {
+            centerGimbal();
+        }
         if(_busy_in_detect_setup) {
             _busy_in_detect_setup = false;
             changed = true;
