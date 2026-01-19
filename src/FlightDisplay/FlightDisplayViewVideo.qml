@@ -236,6 +236,16 @@ Item {
             }
         }
 
+        MouseArea {
+            id: flyVideoMouseArea
+            anchors.fill: parent
+            enabled: pipState.state === pipState.fullState
+
+            onDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+            }
+        }
+
         //-- Camera Extra Controls QML
         Loader {
             anchors.fill: parent
