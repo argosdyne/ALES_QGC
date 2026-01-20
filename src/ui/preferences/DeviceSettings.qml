@@ -7,7 +7,6 @@
  *
  ****************************************************************************/
 
-
 import QtQuick          2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts  1.11
@@ -18,68 +17,175 @@ import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
 
 Rectangle {
-    color:          qgcPal.window
-    anchors.fill:   parent
+    id:                 root
+    color:              qgcPal.window
+    anchors.fill:       parent
+    anchors.margins:    ScreenTools.defaultFontPixelWidth
 
-    readonly property real _margins: ScreenTools.defaultFontPixelHeight
+    QGCPalette { id: qgcPal }
 
-    QGCPalette { id: qgcPal; colorGroupEnabled: true }
+    property bool lidarPowered:   false
+    property bool acquisitionOn:  false
+    property bool statusOk:       true
 
-    QGCFlickable {
+    ColumnLayout {
         anchors.fill:   parent
-        contentWidth:   column.width  + (_margins * 2)
-        contentHeight:  column.height + (_margins * 2)
-        clip:           true
+        spacing:        ScreenTools.defaultFontPixelHeight * 0.8
 
-        ColumnLayout {
-            id:                 column
-            anchors.margins:    _margins
-            anchors.left:       parent.left
-            anchors.top:        parent.top
-            spacing:            ScreenTools.defaultFontPixelHeight
+        RowLayout {
+            Layout.fillWidth:   true
+            spacing:            ScreenTools.defaultFontPixelWidth * 2
 
-            QGCCheckBox {
-                id:             sendStatusText
-                text:           qsTr("Send status text + voice")
+            Rectangle {
+                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 40
+                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 16
+                radius:                 ScreenTools.defaultFontPixelHeight * 0.5
+                color:                  qgcPal.windowShade
+                border.color:           qgcPal.text
+
+                Column {
+                    anchors.centerIn: parent
+                    spacing: ScreenTools.defaultFontPixelHeight * 0.6
+
+                    QGCLabel {
+                        text: qsTr("YellowScan 3D LiDAR")
+                        font.pointSize: ScreenTools.defaultFontPointSize + 2
+                    }
+
+                    Row {
+                        spacing: ScreenTools.defaultFontPixelWidth * 2
+
+                        Column {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.6
+                            QGCButton {
+                                text: lidarPowered ? qsTr("PWR ON") : qsTr("PWR OFF")
+                                onClicked: lidarPowered = !lidarPowered
+                            }
+                            QGCButton {
+                                text: acquisitionOn ? qsTr("Acquisition ON") : qsTr("Acquisition OFF")
+                                onClicked: acquisitionOn = !acquisitionOn
+                            }
+                        }
+
+                        Column {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.6
+                            Rectangle {
+                                width:  ScreenTools.defaultFontPixelHeight * 2
+                                height: width
+                                radius: width * 0.5
+                                color:  statusOk ? qgcPal.colorGreen : qgcPal.colorRed
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "!"
+                                    color: "white"
+                                    font.bold: true
+                                }
+                            }
+                            QGCButton {
+                                text: qsTr("Get Status")
+                                onClicked: statusOk = !statusOk
+                            }
+                        }
+                    }
+                }
             }
-            QGCButton {
-                text:               qsTr("PX4 Vehicle")
+
+            Rectangle {
                 Layout.fillWidth:   true
-                onClicked:          QGroundControl.startPX4MockLink(sendStatusText.checked)
+                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 16
+                radius:             ScreenTools.defaultFontPixelHeight * 0.4
+                color:              qgcPal.windowShade
+                border.color:       qgcPal.text
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: ScreenTools.defaultFontPixelWidth
+                    spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+                    Row {
+                        spacing: ScreenTools.defaultFontPixelWidth
+                        QGCLabel { text: qsTr("Details") }
+                    }
+
+                    Repeater {
+                        model: [
+                            { label: "Acquisition Running", ok: true },
+                            { label: "Time Not Set", ok: true },
+                            { label: "Scanner Not Ready", ok: true },
+                            { label: "INS Not Locked", ok: true },
+                            { label: "Scanner Error", ok: false },
+                            { label: "INS Error", ok: true },
+                            { label: "No USB", ok: true },
+                            { label: "USB Full", ok: true },
+                            { label: "Camera Error", ok: true }
+                        ]
+                        delegate: Row {
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            Rectangle {
+                                width:  ScreenTools.defaultFontPixelHeight * 0.6
+                                height: width
+                                radius: width * 0.5
+                                color:  modelData.ok ? qgcPal.colorGreen : qgcPal.colorRed
+                            }
+                            QGCLabel { text: modelData.label }
+                        }
+                    }
+                }
             }
-            QGCButton {
-                text:               qsTr("APM ArduCopter Vehicle")
-                visible:            QGroundControl.hasAPMSupport
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.startAPMArduCopterMockLink(sendStatusText.checked)
-            }
-            QGCButton {
-                text:               qsTr("APM ArduPlane Vehicle")
-                visible:            QGroundControl.hasAPMSupport
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.startAPMArduPlaneMockLink(sendStatusText.checked)
-            }
-            QGCButton {
-                text:               qsTr("APM ArduSub Vehicle")
-                visible:            QGroundControl.hasAPMSupport
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.startAPMArduSubMockLink(sendStatusText.checked)
-            }
-            QGCButton {
-                text:               qsTr("APM ArduRover Vehicle")
-                visible:            QGroundControl.hasAPMSupport
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.startAPMArduRoverMockLink(sendStatusText.checked)
-            }
-            QGCButton {
-                text:               qsTr("Generic Vehicle")
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.startGenericMockLink(sendStatusText.checked)
-            }
-            QGCButton {
-                text:               qsTr("Stop One MockLink")
-                Layout.fillWidth:   true
-                onClicked:          QGroundControl.stopOneMockLink()
+        }
+
+        Rectangle {
+            Layout.fillWidth:   true
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 10
+            radius:             ScreenTools.defaultFontPixelHeight * 0.4
+            color:              qgcPal.windowShade
+            border.color:       qgcPal.text
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+                spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+                QGCLabel { text: qsTr("Parameters") }
+
+                RowLayout {
+                    spacing: ScreenTools.defaultFontPixelWidth * 6
+
+                    ColumnLayout {
+                        spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel { text: qsTr("Scanner High Sensitivity") }
+                            QGCComboBox { model: [qsTr("On"), qsTr("Off")] }
+                        }
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel { text: qsTr("Scanner Pattern") }
+                            QGCComboBox { model: [qsTr("None"), qsTr("Repetition")] }
+                        }
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel { text: qsTr("Emb. Camera") }
+                            QGCComboBox { model: [qsTr("Disable"), qsTr("Enable")] }
+                        }
+                    }
+
+                    ColumnLayout {
+                        spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel { text: qsTr("Emb. Cam. Init. Height") }
+                            QGCTextField { placeholderText: qsTr("Integer") }
+                        }
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel { text: qsTr("Emb. Cam. Trigger Mode") }
+                            QGCComboBox { model: [qsTr("Time"), qsTr("Distance")] }
+                        }
+                    }
+                }
             }
         }
     }
