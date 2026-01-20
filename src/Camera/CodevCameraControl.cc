@@ -40,7 +40,7 @@ static const char *kJSON_TR_REQ = "JSON_TR_REQ";
 static const char *kCALIBRATE_FLAGS = "CALIBRATE_FLAGS";
 
 static constexpr qint64 kTrackingInvalidStopDelayMs = 10000;
-static constexpr float kTrackingSmallBoxArea = 0.05f;
+static constexpr float kTrackingSmallBoxArea = 0.002f;
 static constexpr float kTrackingCenterMargin = 0.35f;
 static constexpr float kTrackingCenterMax = 0.65f;
 
