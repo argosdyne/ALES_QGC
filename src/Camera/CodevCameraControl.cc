@@ -7,6 +7,11 @@
 #include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QDateTime>
+#include <algorithm>
+#include <cmath>
+#include <algorithm>
+#include <cmath>
 #include "TargetObject.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
@@ -33,6 +38,11 @@ static const char *kFACTORY_CALI = "FACTORY_CALI";
 // static const char *kFACTORY_DATA = "FACTORY_DATA";
 static const char *kJSON_TR_REQ = "JSON_TR_REQ";
 static const char *kCALIBRATE_FLAGS = "CALIBRATE_FLAGS";
+
+static constexpr qint64 kTrackingInvalidStopDelayMs = 10000;
+static constexpr float kTrackingSmallBoxArea = 0.05f;
+static constexpr float kTrackingCenterMargin = 0.35f;
+static constexpr float kTrackingCenterMax = 0.65f;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -78,6 +88,7 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     connect(&_resetDetectObjectsPacket, &QTimer::timeout, [this]() {
         _targetObjects.clearAndDeleteContents();
     });
+
 }
 
 void CodevCameraControl::centerGimbal()
@@ -395,6 +406,25 @@ void CodevCameraControl::startTracking(QPointF point, double radius)
 {
     qCDebug(CodevCameraLog) << "startTracking Point" << point.x() << point.y() << radius << hasTrackingPoint();
     if(hasTrackingPoint() && _vehicle) {
+        auto enforceTrackingDefaults = [this]() {
+            Fact* smartSelect = getFact(kSMART_SELECT);
+            if (smartSelect) {
+                const QString current = smartSelect->rawValueString().trimmed();
+                if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
+                    smartSelect->setRawValue(QStringLiteral("Yolov8"));
+                }
+            }
+
+            Fact* trackAlgorithm = getFact(kTRACK_ALGORITHM);
+            if (trackAlgorithm) {
+                const QString current = trackAlgorithm->rawValueString().trimmed();
+                if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
+                    trackAlgorithm->setRawValue(QStringLiteral("Nano"));
+                }
+            }
+        };
+        enforceTrackingDefaults();
+
         float offset_x = 0.0f;
         float offset_y = 0.0f;
         if(_dZoomFact) {
@@ -420,6 +450,25 @@ void CodevCameraControl::startTracking(QRectF rec)
 {
     qCDebug(CodevCameraLog) << "startTracking Rectangle" << rec.x() << rec.y() << (rec.x() + rec.width()) << (rec.y() + rec.height()) << hasTrackingRectangle();
     if(hasTrackingRectangle() && _vehicle) {
+        auto enforceTrackingDefaults = [this]() {
+            Fact* smartSelect = getFact(kSMART_SELECT);
+            if (smartSelect) {
+                const QString current = smartSelect->rawValueString().trimmed();
+                if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
+                    smartSelect->setRawValue(QStringLiteral("Yolov8"));
+                }
+            }
+
+            Fact* trackAlgorithm = getFact(kTRACK_ALGORITHM);
+            if (trackAlgorithm) {
+                const QString current = trackAlgorithm->rawValueString().trimmed();
+                if (current.compare(QStringLiteral("None"), Qt::CaseInsensitive) == 0) {
+                    trackAlgorithm->setRawValue(QStringLiteral("Nano"));
+                }
+            }
+        };
+        enforceTrackingDefaults();
+
         float offset_x = 0.0f;
         float offset_y = 0.0f;
         if(_dZoomFact) {
@@ -882,7 +931,14 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
 {
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
+    // qInfo() << "Tracking image status:"
+    //         << "status" << tracking_image_status.tracking_status
+    //         << "mode" << tracking_image_status.tracking_mode
+    //         << "point" << tracking_image_status.point_x << tracking_image_status.point_y
+    //         << "rect" << tracking_image_status.rec_top_x << tracking_image_status.rec_top_y
+    //         << tracking_image_status.rec_bottom_x << tracking_image_status.rec_bottom_y;
 
+    const bool wasTrackingActive = (_trackingImageStatus.tracking_status == CAMERA_TRACKING_STATUS_FLAGS_ACTIVE);
     bool changed = false;
     if(tracking_image_status.tracking_status == 255) {
         if(!_busy_in_detect_setup) {
@@ -919,6 +975,44 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                     tracking_image_status.rec_bottom_y = (tracking_image_status.rec_bottom_y - offset_y) / (1.0f - offset_y * 2.0f);
                 }
             }
+            const float left = tracking_image_status.rec_top_x;
+            const float top = tracking_image_status.rec_top_y;
+            const float right = tracking_image_status.rec_bottom_x;
+            const float bottom = tracking_image_status.rec_bottom_y;
+            const bool outOfRange = left < 0.0f || left > 1.0f
+                || top < 0.0f || top > 1.0f
+                || right < 0.0f || right > 1.0f
+                || bottom < 0.0f || bottom > 1.0f;
+            const bool invalidRect = right <= left || bottom <= top;
+            const float width = right - left;
+            const float height = bottom - top;
+            const float area = width * height;
+            const float centerX = (left + right) * 0.5f;
+            const float centerY = (top + bottom) * 0.5f;
+            const bool boxTooSmall = area < kTrackingSmallBoxArea;
+            const bool outsideCenter30 = centerX < kTrackingCenterMargin || centerX > kTrackingCenterMax
+                || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
+            const bool shouldDelayStop = outOfRange || invalidRect || (boxTooSmall && outsideCenter30);
+            if (shouldDelayStop) {
+                const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+                if (_trackingInvalidStartMs < 0) {
+                    _trackingInvalidStartMs = nowMs;
+                } else if (nowMs - _trackingInvalidStartMs >= kTrackingInvalidStopDelayMs) {
+                    qWarning() << "Tracking rect invalid/undesired for too long, stopping tracking"
+                               << "rect" << left << top << right << bottom;
+                    setTrackingEnabled(false);
+                    stopTracking();
+                    centerGimbal();
+                    tracking_image_status.tracking_status = 0;
+                    tracking_image_status.rec_top_x = 0.0f;
+                    tracking_image_status.rec_top_y = 0.0f;
+                    tracking_image_status.rec_bottom_x = 0.0f;
+                    tracking_image_status.rec_bottom_y = 0.0f;
+                    _trackingInvalidStartMs = -1;
+                }
+            } else {
+                _trackingInvalidStartMs = -1;
+            }
         }
         if(_busy_in_detect_setup) {
             _busy_in_detect_setup = false;
@@ -929,6 +1023,9 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             changed = true;
         }
     } else if(tracking_image_status.tracking_status == 0) {
+        if(wasTrackingActive) {
+            centerGimbal();
+        }
         if(_busy_in_detect_setup) {
             _busy_in_detect_setup = false;
             changed = true;

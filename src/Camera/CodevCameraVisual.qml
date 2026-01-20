@@ -35,6 +35,15 @@ Item {
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
+    function _ensureTrackingDefaults() {
+        if (_smartSelect && _smartSelect.value === "None") {
+            _smartSelect.value = "Yolov8"
+        }
+        if (_trackAlg && _trackAlg.value === "None") {
+            _trackAlg.value = "Nano"
+        }
+    }
+
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
         console.log("aiInThermal = ", aiInThermal)
@@ -181,14 +190,16 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(spotAERadioButton.checked) {
                     _camera.setSpotMetering(x, y)
-                } else if(_smartSelect && _smartSelect.value !== "None") {
+                } else if(_trackAlg && _trackAlg.value !== "None" && _smartSelect && _smartSelect.value !== "None") {
                     var point = Qt.point(x, y)
+                    _ensureTrackingDefaults()
                     _camera.startTracking(point, 1.0)
                     _camera.trackingEnabled = true
                 }
             }
             onTouchWithRectangled: (x1,y1,x2,y2) => {
                 var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                _ensureTrackingDefaults()
                 _camera.startTracking(rec)
                 _camera.trackingEnabled = true
             }
@@ -313,6 +324,7 @@ Item {
                                         console.log("setSpotTemp Point = ", x, y)
                 } else if(aiInThermal) {
                     var point = Qt.point(x, y)
+                    _ensureTrackingDefaults()
                     _camera.startTracking(point, 1.0)
                     _camera.trackingEnabled = true
                 }
@@ -322,6 +334,7 @@ Item {
                     _camera.setAreaTempRect(x1,y1,x2,y2)
                 } else if(aiInThermal) {
                    var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                   _ensureTrackingDefaults()
                    _camera.startTracking(rec)
                    _camera.trackingEnabled = true
                 }
