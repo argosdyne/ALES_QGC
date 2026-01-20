@@ -205,4 +205,6 @@ protected:
 
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};
+    qint64 _trackingInvalidStartMs{-1};
+
 };

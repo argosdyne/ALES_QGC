@@ -12,6 +12,8 @@
 #include <QtQml>
 #include <QQmlEngine>
 #include <QDateTime>
+#include <QSettings>
+#include <cstring>
 #include "QGCSettings.h"
 #include "MAVLinkLogManager.h"
 

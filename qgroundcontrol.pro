@@ -21,6 +21,9 @@ QMAKE_CXXFLAGS += -wd4309
 QMAKE_CXXFLAGS += /utf-8
 }
 
+# Ensure .cc files are compiled as C++ across toolchains
+QMAKE_EXT_CPP += .cc
+
 # These are disabled until proven correct
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED

@@ -613,6 +613,7 @@ Item {
                         maximumValue:               100
                         minimumValue:               0
                         value:                      _mavlinkCamera ? _mavlinkCamera.thermalOpacity : 0
+                        displayValue:               true
                         updateValueWhileDragging:   true
                         visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
                         onValueChanged:             _mavlinkCamera.thermalOpacity = value
@@ -652,6 +653,7 @@ Item {
                                 maximumValue:               parent._fact.max
                                 minimumValue:               parent._fact.min
                                 stepSize:                   parent._fact.increment
+                                displayValue:               true
                                 visible:                    parent._isSlider
                                 updateValueWhileDragging:   false
                                 property bool initialized:  false
