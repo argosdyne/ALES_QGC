@@ -779,6 +779,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_PING:
         _handlePing(link, message);
         break;
+    case MAVLINK_MSG_ID_MOUNT_ORIENTATION:
+        _handleGimbalOrientation(message);
+        break;
     case MAVLINK_MSG_ID_OBSTACLE_DISTANCE:
         _handleObstacleDistance(message);
         break;
@@ -4334,6 +4337,32 @@ void Vehicle::_altitudeAboveTerrainReceived(bool success, QList<double> heights)
     // Clean up
     _altitudeAboveTerrTerrainAtCoordinateQuery = nullptr;
 }
+
+void Vehicle::_handleGimbalOrientation(const mavlink_message_t& message)
+{    
+    mavlink_mount_orientation_t o;
+    mavlink_msg_mount_orientation_decode(&message, &o);
+    if(fabsf(_curGimbalRoll - o.roll) > 0.5f) {
+        _curGimbalRoll = o.roll;
+        qInfo() << "Cur Roll = " << _curGimbalRoll;
+        emit gimbalRollChanged();
+    }
+    if(fabsf(_curGimbalPitch - o.pitch) > 0.5f) {
+        _curGimbalPitch = o.pitch;
+        qInfo() << "Cur Pitch = " << _curGimbalPitch;
+        emit gimbalPitchChanged();
+    }
+    if(fabsf(_curGimbalYaw - o.yaw) > 0.5f) {
+        _curGimbalYaw = o.yaw;
+        qInfo() << "Cur Yaw = " << _curGimbalYaw;
+        emit gimbalYawChanged();
+    }
+    if(!_haveGimbalData) {
+        _haveGimbalData = true;
+        emit gimbalDataChanged();
+    }
+}
+
 
 void Vehicle::_handleObstacleDistance(const mavlink_message_t& message)
 {

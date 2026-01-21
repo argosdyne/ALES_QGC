@@ -80,6 +80,14 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     });
 }
 
+void CodevCameraControl::centerGimbal()
+{
+    sendMavCommandWithTarget(
+        MAV_CMD_DO_MOUNT_CONTROL,           // Command id
+        MAV_COMP_ID_GIMBAL,                 // Target id
+        0,0,0,0,0,0,1);
+}
+
 void CodevCameraControl::setSpotTempPoint(float x, float y)
 {
     // thermometry point
@@ -464,24 +472,40 @@ void CodevCameraControl::setZoomLevel(qreal level)
 void CodevCameraControl::stepZoom(int direction)
 {
     qCDebug(CodevCameraLog) << "DZoom()" << direction;
-    Fact* fact = getFact(kEO_DZOOM);
-    if(fact) {
-        if(direction > 0) {
-            double value = fact->cookedValue().toDouble() + fact->cookedIncrement();
-            if(value - fact->cookedMax().toDouble() > 0.01) {
-                value = fact->cookedMax().toDouble();
-            }
-            fact->setRawValue(static_cast<float>(value));
-        } else if(direction < 0) {
-            double value = fact->cookedValue().toDouble() - fact->cookedIncrement();
-            if(value - fact->cookedMin().toDouble() < 0.01) {
-                value = fact->cookedMin().toDouble();
-            }
-            fact->setRawValue(static_cast<float>(value));
-        } else {
-            fact->setRawValue(1.0f);
-        }
-    }
+    // Fact* fact = getFact(kEO_DZOOM);
+    // if(fact) {
+    //     qInfo() << "stepZoom direction = " << direction;
+    //     if(direction > 0) {
+    //         double value = fact->cookedValue().toDouble() + fact->cookedIncrement();
+    //         if(value - fact->cookedMax().toDouble() > 0.01) {
+    //             value = fact->cookedMax().toDouble();
+    //         }
+    //         fact->setRawValue(static_cast<float>(value));
+    //     } else if(direction < 0) {
+    //         double value = fact->cookedValue().toDouble() - fact->cookedIncrement();
+    //         if(value - fact->cookedMin().toDouble() < 0.01) {
+    //             value = fact->cookedMin().toDouble();
+    //         }
+    //         fact->setRawValue(static_cast<float>(value));
+    //     } else {
+    //         fact->setRawValue(1.0f);
+    //     }
+    // }
+    //qInfo() << "Direction = " << direction;
+    // if(hasZoom()) {
+    //     sendMavCommand(
+    //         MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+    //         ZOOM_TYPE_STEP,                   // Zoom type
+    //         direction);                             // Direction (-1 wide, 1 tele)
+    // }
+    
+    float newLevel = _zoomLevel + direction;
+    qInfo() << "newLevel = " << newLevel;
+    sendMavCommand(
+        MAV_CMD_SET_CAMERA_ZOOM,
+        ZOOM_TYPE_RANGE,
+        newLevel
+        );
 }
 
 QStringList CodevCameraControl::activeSettings()

@@ -15,6 +15,8 @@ add_library(QmlControls
 	ParameterEditorController.h
 	QGCFileDialogController.cc
 	QGCFileDialogController.h
+	GeoZoneFileDialogController.cc
+	GeoZoneFileDialogController.h
 	QGCGeoBoundingCube.cc
 	QGCGeoBoundingCube.h
 	QGCImageProvider.cc
@@ -91,6 +93,7 @@ add_custom_target(QmlControlsQml
 		QGCControlDebug.qml
 		QGCDynamicObjectManager.qml
 		QGCFileDialog.qml
+		GeoZoneFileDialog.qml
 		QGCFlickableHorizontalIndicator.qml
 		QGCFlickable.qml
 		QGCFlickableVerticalIndicator.qml
@@ -138,6 +141,10 @@ add_custom_target(QmlControlsQml
 		ToolRadioButton.qml
 		TouchSelectArea.qml
 		TargetObjectRectangles.qml
+		FlyViewFPVVideo.qml
+		FPVOverlay.qml
+		PipState.qml
+		PipView.qml		
 )
 
 target_link_libraries(QmlControls

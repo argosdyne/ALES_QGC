@@ -170,19 +170,79 @@ Item {
         id: videoControl
     }
 
-    QGCPipOverlay {
+    FlyViewFPVVideo {
+        id: fpvVideoControl
+        visible: !QGroundControl.settingsManager.videoSettings.disableFPVVideo.value &&
+                 !QGroundControl.videoManager.fullScreen  &&
+                 (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._isExpanded : true)
+    }
+
+    FPVOverlay {
+        id: _fpvOverlay
+        x: parent.width - _toolsMargin - width
+        y: parent.height - _toolsMargin - height
+        z: _pipItemZorder + 1
+        pipOverlay: _pipOverlay
+        item1: fpvVideoControl
+        item2: QGroundControl.videoManager.hasVideo ? videoControl : null
+        show: true //mapControl.isFlyView
+    }
+
+    PipView {
         id:                     _pipOverlay
         anchors.left:           parent.left
         anchors.bottom:         parent.bottom
         anchors.margins:        _toolsMargin
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
-        item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
-        fullZOrder:             _fullItemZorder
-        pipZOrder:              _pipItemZorder
+        //item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+        z:                      _pipItemZorder
         show:                   !QGroundControl.videoManager.fullScreen &&
-                                    (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+                                    (videoControl.pipState.state === videoControl.pipState.pipState ||
+                                     mapControl.pipState.state === mapControl.pipState.pipState ||
+                                     fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState)
+        Component.onCompleted: {
+            item2 = (QGroundControl.videoManager.hasVideo ? videoControl :
+                                                            (!QGroundControl.settingsManager.videoSettings.disableFPVVideo.value ? fpvVideoControl : null))
+        }
+        Connections {
+            target: QGroundControl.videoManager
+            function onHasVideoChanged() {
+                if(QGroundControl.videoManager.hasVideo) {
+                    if(_pipOverlay.item2 === fpvVideoControl) {
+                        fpvVideoControl.pipState.state = fpvVideoControl.pipState.fpvState
+                    }
+                    _pipOverlay.item2 = videoControl
+                } else {
+                    if(_pipOverlay.item2 === videoControl) {
+                        _pipOverlay.item2 = (!QGroundControl.settingsManager.videoSettings.disableFPVVideo.value ? fpvVideoControl : null)
+                    }
+                }
+            }
+        }
+        Connections {
+            target: QGroundControl.settingsManager.videoSettings.disableFPVVideo
+            function onValueChanged(value) {
+                if(value && _pipOverlay.item2 === fpvVideoControl) {
+                    _pipOverlay.item2 = (QGroundControl.videoManager.hasVideo ? videoControl : null)
+                }
+            }
+        }
     }
+
+    // QGCPipOverlay {
+    //     id:                     _pipOverlay
+    //     anchors.left:           parent.left
+    //     anchors.bottom:         parent.bottom
+    //     anchors.margins:        _toolsMargin
+    //     item1IsFullSettingsKey: "MainFlyWindowIsMap"
+    //     item1:                  mapControl
+    //     item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+    //     fullZOrder:             _fullItemZorder
+    //     pipZOrder:              _pipItemZorder
+    //     show:                   !QGroundControl.videoManager.fullScreen &&
+    //                                 (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+    // }
 
     // Loader {
     //     anchors.fill: parent

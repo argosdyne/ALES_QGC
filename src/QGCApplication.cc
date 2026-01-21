@@ -47,6 +47,7 @@
 #include "ESP8266ComponentController.h"
 #include "ScreenToolsController.h"
 #include "QGCFileDialogController.h"
+#include "GeoZoneFileDialogController.h"
 #include "RCChannelMonitorController.h"
 #include "SyslinkComponentController.h"
 #include "AutoPilotPlugin.h"
@@ -108,8 +109,6 @@
 #include "CustomActionManager.h"
 #include "GimbalController.h"
 #include "FlightZoneManager.h"
-#include "Rhythm/rhythm.h"
-// #include "rhythm.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -488,8 +487,6 @@ void QGCApplication::_initCommon()
     qmlRegisterUncreatableType<InstrumentValueData> (kQGroundControl,                       1, 0, "InstrumentValueData",        kRefOnly);
     qmlRegisterType<LogReplayLinkController>        (kQGroundControl,                       1, 0, "LogReplayLinkController");
     qmlRegisterType<FlightZoneManager>              (kQGCControllers,                       1, 0, "FlightZoneManager");
-    qmlRegisterType<Rhythm>                         (kQGCControllers,                       1, 0, "Rhythm");
-    qmlRegisterSingletonType(QUrl("qrc:/qml/GlobalResults.qml"), "QGroundControl",          1, 0, "GlobalResults");
 #if !defined(QGC_DISABLE_MAVLINK_INSPECTOR)
     qmlRegisterUncreatableType<MAVLinkChartController> (kQGroundControl,                    1, 0, "MAVLinkChart",               kRefOnly);
 #endif
@@ -518,6 +515,7 @@ void QGCApplication::_initCommon()
     qmlRegisterType<ScreenToolsController>          (kQGCControllers,                       1, 0, "ScreenToolsController");
     qmlRegisterType<PlanMasterController>           (kQGCControllers,                       1, 0, "PlanMasterController");
     qmlRegisterType<QGCFileDialogController>        (kQGCControllers,                       1, 0, "QGCFileDialogController");
+    qmlRegisterType<GeoZoneFileDialogController>    (kQGCControllers,                       1, 0, "GeoZoneFileDialogController");
     qmlRegisterType<RCChannelMonitorController>     (kQGCControllers,                       1, 0, "RCChannelMonitorController");
     qmlRegisterType<JoystickConfigController>       (kQGCControllers,                       1, 0, "JoystickConfigController");
     qmlRegisterType<LogDownloadController>          (kQGCControllers,                       1, 0, "LogDownloadController");

@@ -21,6 +21,11 @@
 		<file alias="DropArrow.svg">resources/DropArrow.svg</file>
         <file alias="gear-black.svg">resources/gear-black.svg</file>
         <file alias="gear-white.svg">resources/gear-white.svg</file>
+		<file alias="reset.svg">resources/reset.svg</file>
+		<file alias="ZoomIn.svg">resources/ZoomIn.svg</file>
+		<file alias="ZoomOut.svg">resources/ZoomOut.svg</file>
+		<file alias="SDCard.svg">resources/SDCard.svg</file>
+		<file alias="cameraSetting.svg">resources/cameraSetting.svg</file>
         <file alias="helicoptericon.svg">resources/helicoptericon.svg</file>
         <file alias="BingNoTileBytes.dat">resources/BingNoTileBytes.dat</file>
         <file alias="JoystickBezel.png">resources/JoystickBezel.png</file>

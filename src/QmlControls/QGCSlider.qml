@@ -65,8 +65,8 @@ Slider {
             color:          qgcPal.button
             border.color:   qgcPal.buttonText
             border.width:   1
-            implicitWidth:  _radius * 2
-            implicitHeight: _radius * 2
+            implicitWidth:  _radius //* 2
+            implicitHeight: _radius //* 2
             radius:         _radius
 
             property real _radius: Math.round(_root.implicitHeight / 2)

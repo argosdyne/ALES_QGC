@@ -634,7 +634,7 @@ HEADERS += \
     src/MissionManager/YellowScanInitPathComplexItem.h \
     src/MissionManager/BlankPlanCreator.h \
     src/MissionManager/FixedWingLandingComplexItem.h \
-    src/MissionManager/GeoCageController.h \
+    #src/MissionManager/GeoCageController.h \
     src/MissionManager/GeoFenceController.h \
     src/MissionManager/GeoFenceManager.h \
     src/MissionManager/KMLPlanDomDocument.h \
@@ -700,6 +700,7 @@ HEADERS += \
     src/QmlControls/FactValueGrid.h \
     src/QmlControls/ParameterEditorController.h \
     src/QmlControls/QGCFileDialogController.h \
+    src/QmlControls/GeoZoneFileDialogController.h \
     src/QmlControls/QGCImageProvider.h \
     src/QmlControls/QGroundControlQmlGlobal.h \
     src/QmlControls/QmlObjectListModel.h \
@@ -906,7 +907,7 @@ SOURCES += \
     src/MissionManager/BlankPlanCreator.cc \
     src/MissionManager/FixedWingLandingComplexItem.cc \
     src/MissionManager/GeoFenceController.cc \
-    src/MissionManager/GeoCageController.cc \
+    #src/MissionManager/GeoCageController.cc \
     src/MissionManager/GeoFenceManager.cc \
     src/MissionManager/KMLPlanDomDocument.cc \
     src/MissionManager/LandingComplexItem.cc \
@@ -968,6 +969,7 @@ SOURCES += \
     src/QmlControls/FactValueGrid.cc \
     src/QmlControls/ParameterEditorController.cc \
     src/QmlControls/QGCFileDialogController.cc \
+    src/QmlControls/GeoZoneFileDialogController.cc \
     src/QmlControls/QGCImageProvider.cc \
     src/QmlControls/QGroundControlQmlGlobal.cc \
     src/QmlControls/QmlObjectListModel.cc \

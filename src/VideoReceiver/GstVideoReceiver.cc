@@ -63,7 +63,7 @@ GstVideoReceiver::GstVideoReceiver(QObject* parent)
 
 GstVideoReceiver::~GstVideoReceiver(void)
 {
-    stop();
+    //stop();
     _slotHandler.shutdown();
 }
 
@@ -385,10 +385,10 @@ GstVideoReceiver::startDecoding(void* sink)
 
     if (_needDispatch()) {
         GstElement* videoSink = GST_ELEMENT(sink);
-        gst_object_ref(videoSink);
+        //gst_object_ref(videoSink);
         _slotHandler.dispatch([this, videoSink]() mutable {
             startDecoding(videoSink);
-            gst_object_unref(videoSink);
+          //  gst_object_unref(videoSink);
         });
         return;
     }
@@ -637,6 +637,12 @@ const char* GstVideoReceiver::_kFileMux[FILE_FORMAT_MAX - FILE_FORMAT_MIN] = {
 void
 GstVideoReceiver::_watchdog(void)
 {
+
+    // timeout이 0이면 watchdog 끔
+    if (_timeout == 0) {
+        return;
+    }
+
     _slotHandler.dispatch([this](){
         if(_pipeline == nullptr) {
             return;

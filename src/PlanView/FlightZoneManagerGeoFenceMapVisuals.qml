@@ -102,22 +102,14 @@ Item {
         model: _polygons
         asynchronous : true
 
-
-        //Set All of polygons properties
-        delegate : QGCMapPolygonVisuals {
-            parent:             _root
-            mapControl:         map
-            mapPolygon:         object
-            borderWidth:        object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
-            borderColor:        object.colorInclusion
-            interiorColor:      object.colorInclusion
-            interiorOpacity:    object.strokeOpacity //0.5//object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
-            interactive:        _root.interactive && mapPolygon && mapPolygon.interactive
-
-            // Component.onCompleted: {
-            //     console.log("QGCMapPolygonVisuals object inclusion = ", object.inclusion);
-            //     console.log("QGCMapPolygonVisuals = ", object.colorInclusion);
-            // }
+        delegate: LightMapPolygonVisuals {
+            parent:         _root
+            mapControl:     map
+            mapPolygon:     object
+            borderWidth:    object.inclusion ? _borderWidthInclusion : _borderWidthExclusion
+            borderColor:    object.colorInclusion
+            interiorColor:  object.colorInclusion
+            interiorOpacity: object.strokeOpacity
         }
     }
 

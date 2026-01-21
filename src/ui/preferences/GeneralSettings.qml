@@ -417,6 +417,18 @@ Rectangle {
                                     fact:       _videoSettings.enableStorageLimit
                                     visible:    _showSaveVideoSettings && fact.visible
                                 }
+                                // Add FPV Settings
+                                Item { width: 1; height: 1}
+                                FactCheckBox {
+                                    text: qsTr("Disable FPV Video")
+                                    fact: _videoSettings.disableFPVVideo
+                                }
+                                Item { width: 1; height: 1}
+                                FactTextField {
+                                    Layout.preferredWidth: _comboFieldWidth
+                                    fact: _videoSettings.fpvUrl
+                                    visible: _videoSettings.disableFPVVideo.value
+                                }
                             }
                         }
                     }

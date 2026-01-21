@@ -32,10 +32,11 @@ FlightMap {
     center:                     QGroundControl.flightMapPosition
 
     property Item pipState: _pipState
-    QGCPipState {
+    PipState {
         id:         _pipState
         pipOverlay: _pipOverlay
-        isDark:     _isFullWindowItemDark
+        isDark:     pipMode ? true : isSatelliteMap
+        canWindow:  false
     }
 
     property var    rightPanelWidth

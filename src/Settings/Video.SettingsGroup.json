@@ -138,6 +138,20 @@
     "enumValues":       "0,1,2,3,4,5",
     "default":           0,
     "qgcRebootRequired": true
+},
+{
+    "name":             "fpvUrl",
+    "shortDesc":        "Video FPV Url",
+    "longDesc":         "FPV url address and port to bind to for video stream. ",
+    "type":             "string",
+    "default":          "rtsp://fpv:123456@192.168.2.121:554/stream1"
+},
+{
+    "name":             "disableFPVVideo",
+    "shortDesc":        "Disable FPV Video",
+    "longDesc":         "Disable FPV Video.",
+    "type":             "bool",
+    "default":          true
 }
 ]
 }

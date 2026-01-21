@@ -721,8 +721,10 @@ QStringList GeoZoneMakeViewSettings::loadNameFilters(void) const
 {
     QStringList filters;
 
-    filters << tr("Supported types (*.%1)").arg(AppSettings::geoZoneExtension) <<
-        tr("All Files (*)");
+    filters << tr("Supported types (*.%1)").arg(AppSettings::geoZoneExtension)
+            << tr("JSON Files (*.json)")
+            << tr("All Files (*)");
+
     return filters;
 }
 

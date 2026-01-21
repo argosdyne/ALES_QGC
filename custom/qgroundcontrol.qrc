@@ -58,6 +58,10 @@
 		<file alias="QGroundControl/Controls/ToolRadioButton.qml">../src/QmlControls/ToolRadioButton.qml</file>
 		<file alias="QGroundControl/Controls/AreaFrame.qml">../src/QmlControls/AreaFrame.qml</file>
 		<file alias="QGroundControl/Controls/TargetObjectRectangles.qml">../src/QmlControls/TargetObjectRectangles.qml</file>
+		<file alias="QGroundControl/Controls/FlyViewFPVVideo.qml">../src/QmlControls/FlyViewFPVVideo.qml</file>
+		<file alias="QGroundControl/Controls/PipState.qml">../src/QmlControls/PipState.qml</file>
+		<file alias="QGroundControl/Controls/PipView.qml">../src/QmlControls/PipView.qml</file>
+		<file alias="QGroundControl/Controls/FPVOverlay.qml">../src/QmlControls/FPVOverlay.qml</file>		
 		<file alias="geoFenceSettings.qml">../src/ui/preferences/geoFenceSettings.qml</file>
 		<file alias="GeoTagPage.qml">../src/AnalyzeView/GeoTagPage.qml</file>
 		<file alias="HelpSettings.qml">../src/ui/preferences/HelpSettings.qml</file>
@@ -157,6 +161,7 @@
 		<file alias="QGroundControl/Controls/QGCControlDebug.qml">../src/QmlControls/QGCControlDebug.qml</file>
 		<file alias="QGroundControl/Controls/QGCComboBox.qml">../src/QmlControls/QGCComboBox.qml</file>
 		<file alias="QGroundControl/Controls/QGCFileDialog.qml">../src/QmlControls/QGCFileDialog.qml</file>
+		<file alias="QGroundControl/Controls/GeoZoneFileDialog.qml">../src/QmlControls/GeoZoneFileDialog.qml</file>
 		<file alias="QGroundControl/Controls/QGCFlickable.qml">../src/QmlControls/QGCFlickable.qml</file>
 		<file alias="QGroundControl/Controls/QGCFlickableHorizontalIndicator.qml">../src/QmlControls/QGCFlickableHorizontalIndicator.qml</file>
 		<file alias="QGroundControl/Controls/QGCFlickableVerticalIndicator.qml">../src/QmlControls/QGCFlickableVerticalIndicator.qml</file>
@@ -166,6 +171,7 @@
 		<file alias="QGroundControl/Controls/QGCMapCircleVisuals.qml">../src/MissionManager/QGCMapCircleVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapLabel.qml">../src/QmlControls/QGCMapLabel.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolygonVisuals.qml">../src/MissionManager/QGCMapPolygonVisuals.qml</file>
+		<file alias="QGroundControl/Controls/LightMapPolygonVisuals.qml">../src/MissionManager/LightMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/GeoZoneMapPolygonVisuals.qml">../src/MissionManager/GeoZoneMapPolygonVisuals.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapPolylineVisuals.qml">../src/MissionManager/QGCMapPolylineVisuals.qml</file>
 		<file alias="QGroundControl/Controls/YellowScanInitPathPolylineVisuals.qml">../src/MissionManager/YellowScanInitPathPolylineVisuals.qml</file>
