@@ -24,9 +24,7 @@ Rectangle {
 
     QGCPalette { id: qgcPal }
 
-    property bool lidarPowered:   false
-    property bool acquisitionOn:  false
-    property bool statusOk:       true
+    property var _ys:             QGroundControl.corePlugin.ysManager
 
     ColumnLayout {
         anchors.fill:   parent
@@ -58,12 +56,20 @@ Rectangle {
                         Column {
                             spacing: ScreenTools.defaultFontPixelHeight * 0.6
                             QGCButton {
-                                text: lidarPowered ? qsTr("PWR ON") : qsTr("PWR OFF")
-                                onClicked: lidarPowered = !lidarPowered
+                                text: qsTr("PWR OFF")
+                                onClicked: if (_ys) { _ys.powerOff() }
                             }
                             QGCButton {
-                                text: acquisitionOn ? qsTr("Acquisition ON") : qsTr("Acquisition OFF")
-                                onClicked: acquisitionOn = !acquisitionOn
+                                text: _ys && _ys.acquisitionRunning ? qsTr("Acquisition OFF") : qsTr("Acquisition ON")
+                                onClicked: {
+                                    if (_ys) {
+                                        if (_ys.acquisitionRunning) {
+                                            _ys.stopAcquisition()
+                                        } else {
+                                            _ys.startAcquisition()
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -73,7 +79,8 @@ Rectangle {
                                 width:  ScreenTools.defaultFontPixelHeight * 2
                                 height: width
                                 radius: width * 0.5
-                                color:  statusOk ? qgcPal.colorGreen : qgcPal.colorRed
+                                color:  _ys && _ys.statusValid ? (_ys.anyError ? qgcPal.colorRed : qgcPal.colorGreen) : qgcPal.button
+                                opacity: _ys && _ys.statusValid ? 1.0 : 0.4
                                 Text {
                                     anchors.centerIn: parent
                                     text: "!"
@@ -83,7 +90,8 @@ Rectangle {
                             }
                             QGCButton {
                                 text: qsTr("Get Status")
-                                onClicked: statusOk = !statusOk
+                                enabled: _ys ? true : false
+                                onClicked: if (_ys) { _ys.requestStatus() }
                             }
                         }
                     }
@@ -109,15 +117,15 @@ Rectangle {
 
                     Repeater {
                         model: [
-                            { label: "Acquisition Running", ok: true },
-                            { label: "Time Not Set", ok: true },
-                            { label: "Scanner Not Ready", ok: true },
-                            { label: "INS Not Locked", ok: true },
-                            { label: "Scanner Error", ok: false },
-                            { label: "INS Error", ok: true },
-                            { label: "No USB", ok: true },
-                            { label: "USB Full", ok: true },
-                            { label: "Camera Error", ok: true }
+                            { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning },
+                            { label: "Time Not Set", ok: _ys ? !_ys.timeNotSet : true },
+                            { label: "Scanner Not Ready", ok: _ys ? !_ys.scannerNotReady : true },
+                            { label: "INS Not Locked", ok: _ys ? !_ys.insNotLocked : true },
+                            { label: "Scanner Error", ok: _ys ? _ys.scnErr === 0 : true },
+                            { label: "INS Error", ok: _ys ? _ys.insErr === 0 : true },
+                            { label: "No USB", ok: _ys ? !_ys.noUsb : true },
+                            { label: "USB Full", ok: _ys ? !_ys.usbFull : true },
+                            { label: "Camera Error", ok: _ys ? _ys.camErr === 0 : true }
                         ]
                         delegate: Row {
                             spacing: ScreenTools.defaultFontPixelWidth
@@ -157,17 +165,29 @@ Rectangle {
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth * 2
                             QGCLabel { text: qsTr("Scanner High Sensitivity") }
-                            QGCComboBox { model: [qsTr("On"), qsTr("Off")] }
+                            QGCComboBox {
+                                model: [qsTr("On"), qsTr("Off")]
+                                currentIndex: _ys ? (_ys.scannerHighSensitivity ? 0 : 1) : 0
+                                onActivated: if (_ys) { _ys.setParameter(0, currentIndex === 0 ? 1 : 0) }
+                            }
                         }
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth * 2
                             QGCLabel { text: qsTr("Scanner Pattern") }
-                            QGCComboBox { model: [qsTr("None"), qsTr("Repetition")] }
+                            QGCComboBox {
+                                model: [qsTr("None"), qsTr("Repetition")]
+                                currentIndex: _ys ? _ys.scannerPattern : 0
+                                onActivated: if (_ys) { _ys.setParameter(1, currentIndex) }
+                            }
                         }
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth * 2
                             QGCLabel { text: qsTr("Emb. Camera") }
-                            QGCComboBox { model: [qsTr("Disable"), qsTr("Enable")] }
+                            QGCComboBox {
+                                model: [qsTr("Disable"), qsTr("Enable")]
+                                currentIndex: _ys ? _ys.embeddedCamera : 0
+                                onActivated: if (_ys) { _ys.setParameter(2, currentIndex) }
+                            }
                         }
                     }
 
@@ -177,16 +197,71 @@ Rectangle {
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth * 2
                             QGCLabel { text: qsTr("Emb. Cam. Init. Height") }
-                            QGCTextField { placeholderText: qsTr("Integer") }
+                            QGCTextField {
+                                placeholderText: qsTr("Integer")
+                                text: _ys ? _ys.embCamInitHeight.toString() : ""
+                                onEditingFinished: {
+                                    if (_ys) {
+                                        var v = parseInt(text)
+                                        if (!isNaN(v)) {
+                                            _ys.setParameter(3, v)
+                                        }
+                                    }
+                                }
+                            }
                         }
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth * 2
                             QGCLabel { text: qsTr("Emb. Cam. Trigger Mode") }
-                            QGCComboBox { model: [qsTr("Time"), qsTr("Distance")] }
+                            QGCComboBox {
+                                model: [qsTr("Time"), qsTr("Distance")]
+                                currentIndex: _ys ? _ys.embCamTriggerMode : 0
+                                onActivated: if (_ys) { _ys.setParameter(4, currentIndex) }
+                            }
                         }
                     }
                 }
             }
         }
+        Rectangle {
+            Layout.fillWidth:   true
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 6
+            radius:             ScreenTools.defaultFontPixelHeight * 0.4
+            color:              qgcPal.windowShade
+            border.color:       qgcPal.text
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+                spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+                QGCLabel { text: qsTr("Message Monitor") }
+
+                RowLayout {
+                    spacing: ScreenTools.defaultFontPixelWidth
+                    QGCLabel { text: qsTr("Sent:") }
+                    TextArea {
+                        readOnly: true
+                        wrapMode: TextArea.WrapAnywhere
+                        text: _ys ? _ys.lastSentMessage : ""
+                        height: ScreenTools.defaultFontPixelHeight * 1.8
+                        Layout.fillWidth: true
+                    }
+                }
+
+                RowLayout {
+                    spacing: ScreenTools.defaultFontPixelWidth
+                    QGCLabel { text: qsTr("Received:") }
+                    TextArea {
+                        readOnly: true
+                        wrapMode: TextArea.WrapAnywhere
+                        text: _ys ? _ys.lastReceivedMessage : ""
+                        height: ScreenTools.defaultFontPixelHeight * 1.8
+                        Layout.fillWidth: true
+                    }
+                }
+            }
+        }
+
     }
 }
