@@ -471,6 +471,7 @@ void Vehicle::_commonInit()
     _autotune = _firmwarePlugin->createAutotune(this);
 
 
+
     // GeoFenceManager needs to access ParameterManager so make sure to create after
     _geoFenceManager = new GeoFenceManager(this);
     connect(_geoFenceManager, &GeoFenceManager::error,          this, &Vehicle::_geoFenceManagerError);
@@ -4582,22 +4583,23 @@ void Vehicle::_checkGeoFenceMargin(void)
     }
 
     if (!nearFence) {
+        _setGeoFenceMarginWarning(false);
         return;
     }
 
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
     if (_geoFenceMarginWarning) {
         return;
     }
 
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
     if (now - _lastGeoFenceMarginWarningMSecs < 3000) {
         return;
     }
     _lastGeoFenceMarginWarningMSecs = now;
 
+    _setGeoFenceMarginWarning(true);
     const QString warningText = tr("Approaching geofence margin");
     emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, warningText.toHtmlEscaped(), "");
-    _setGeoFenceMarginWarning(true);
 }
 
 void Vehicle::updateFlightDistance(double distance)
