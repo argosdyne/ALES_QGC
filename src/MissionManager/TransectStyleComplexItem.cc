@@ -1189,6 +1189,8 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 break;
             case CoordTypeYellowScan:
                 break;
+            case CoordTypeYellowScanChangeYaw:
+                break;
             case CoordTypeYellowScanPreviousSpeed:
                 break;
             case CoordTypeSurveyExit:
@@ -1237,6 +1239,12 @@ void TransectStyleComplexItem::_handleHoverAndCaptureEnabled(QVariant enabled)
     if (enabled.toBool() && _cameraTriggerInTurnAroundFact.rawValue().toBool()) {
         _cameraTriggerInTurnAroundFact.setRawValue(false);
     }
+}
+
+void TransectStyleComplexItem::setFixedYawDeg(double bearing){
+    _yellowScanInitPathAngle = bearing;
+
+    qInfo() << "_yellowScanInitPathAngle = " << _yellowScanInitPathAngle;
 }
 
 void TransectStyleComplexItem::appendMissionItems(QList<MissionItem*>& items, QObject* missionItemParent)
@@ -1315,6 +1323,22 @@ void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*
                                         0, 0, 0,                                                            // param 5-7 not used
                                         true,                                                               // autoContinue
                                         false,                                                              // isCurrentItem
+                                        missionItemParent);
+    items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathYaw(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum){
+    //Add drone yaw change mavlink command
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_CONDITION_YAW,
+                                        MAV_FRAME_MISSION,
+                                        _yellowScanInitPathAngle,       // angle
+                                        5,                              // angle speed
+                                        0,
+                                        0,
+                                        0, 0, 0,
+                                        true,
+                                        false,
                                         missionItemParent);
     items.append(item);
 }
@@ -1445,8 +1469,11 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         case CoordTypeYellowScanPreviousSpeed:
             _appendYSInitPathPreviousSpeed(items, missionItemParent, seqNum);
             break;
-        case CoordTypeYellowScan:
+        case CoordTypeYellowScan:            
             _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
+            break;
+        case CoordTypeYellowScanChangeYaw:
+            _appendYSInitPathYaw(items, missionItemParent, seqNum);
             break;
         case CoordTypeSurveyExit:
             bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;

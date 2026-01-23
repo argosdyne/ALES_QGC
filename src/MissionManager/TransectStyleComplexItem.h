@@ -121,6 +121,8 @@ public:
 
     void replaceSpacing (void);
 
+    void setFixedYawDeg(double bearing);
+
 signals:
     void cameraShotsChanged             (void);
     void timeBetweenShotsChanged        (void);
@@ -157,6 +159,7 @@ protected:
     void    _recalcComplexDistance          (void);
     void    _appendYSInitPathMaxSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
     void    _appendYSInitPathPreviousSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathYaw            (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
 
     int                 _sequenceNumber = 0;
     QGeoCoordinate      _coordinate;
@@ -172,7 +175,8 @@ protected:
         CoordTypeTurnaround,            ///< Turnaround extension waypoint
         CoordTypeYellowScan,            ///< YellowScan initiation path
         CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed(10m/s)
-        CoordTypeYellowScanPreviousSpeed
+        CoordTypeYellowScanPreviousSpeed,
+        CoordTypeYellowScanChangeYaw
     };
 
     typedef struct {
@@ -254,5 +258,6 @@ private:
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;
 
-    double _previousVehicleSpeed;
+    double _previousVehicleSpeed;    
+    double _yellowScanInitPathAngle;
 };
