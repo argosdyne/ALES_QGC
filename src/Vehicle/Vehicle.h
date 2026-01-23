@@ -1111,6 +1111,7 @@ private:
     void _handleGimbalOrientation       (const mavlink_message_t& message);
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
+    void _checkGeoFenceMargin           (void);
     void _handleEvent(uint8_t comp_id, std::unique_ptr<events::parser::ParsedEvent> event);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1191,6 +1192,8 @@ private:
     bool            _gps2RawMessageAvailable                = false;
     bool            _globalPositionIntMessageAvailable      = false;
     bool            _altitudeMessageAvailable               = false;
+    bool            _geoFenceBreached                       = false;
+    qint64          _lastGeoFenceMarginWarningMSecs         = 0;
     double          _defaultCruiseSpeed = qQNaN();
     double          _defaultHoverSpeed = qQNaN();
     int             _telemetryRRSSI = 0;

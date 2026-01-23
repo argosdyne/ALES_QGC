@@ -11,6 +11,8 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QQuaternion>
+#include <QtMath>
+#include <limits>
 
 #include <Eigen/Eigen>
 
@@ -70,6 +72,63 @@ const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode no
 
 const char* Vehicle::_settingsGroup =               "Vehicle%1";        // %1 replaced with mavlink system id
 const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
+
+namespace {
+
+double _distancePointToSegmentMeters(const QPointF& point, const QPointF& segmentStart, const QPointF& segmentEnd)
+{
+    const double dx = segmentEnd.x() - segmentStart.x();
+    const double dy = segmentEnd.y() - segmentStart.y();
+    const double segmentLengthSquared = dx * dx + dy * dy;
+    if (qFuzzyIsNull(segmentLengthSquared)) {
+        const double ddx = point.x() - segmentStart.x();
+        const double ddy = point.y() - segmentStart.y();
+        return qSqrt(ddx * ddx + ddy * ddy);
+    }
+
+    const double t = ((point.x() - segmentStart.x()) * dx + (point.y() - segmentStart.y()) * dy) / segmentLengthSquared;
+    const double clamped = qBound(0.0, t, 1.0);
+    const double projX = segmentStart.x() + clamped * dx;
+    const double projY = segmentStart.y() + clamped * dy;
+    const double ddx = point.x() - projX;
+    const double ddy = point.y() - projY;
+    return qSqrt(ddx * ddx + ddy * ddy);
+}
+
+QPointF _nedPointFromCoordinate(const QGeoCoordinate& coordinate, const QGeoCoordinate& origin)
+{
+    if (coordinate == origin) {
+        return QPointF(0.0, 0.0);
+    }
+
+    double north = 0.0;
+    double east = 0.0;
+    double down = 0.0;
+    convertGeoToNed(coordinate, origin, &north, &east, &down);
+    return QPointF(east, north);
+}
+
+double _distanceToPolygonBoundaryMeters(const QGCFencePolygon& polygon, const QGeoCoordinate& coordinate)
+{
+    if (polygon.count() < 2) {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    const QGeoCoordinate origin = polygon.vertexCoordinate(0);
+    const QPointF point = _nedPointFromCoordinate(coordinate, origin);
+
+    double minDistance = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < polygon.count(); i++) {
+        const int nextIndex = (i + 1) % polygon.count();
+        const QPointF start = _nedPointFromCoordinate(polygon.vertexCoordinate(i), origin);
+        const QPointF end = _nedPointFromCoordinate(polygon.vertexCoordinate(nextIndex), origin);
+        minDistance = qMin(minDistance, _distancePointToSegmentMeters(point, start, end));
+    }
+
+    return minDistance;
+}
+
+} // namespace
 
 const char* Vehicle::_rollFactName =                "roll";
 const char* Vehicle::_pitchFactName =               "pitch";
@@ -372,6 +431,7 @@ void Vehicle::_commonInit()
     connect(this, &Vehicle::homePositionChanged,    this, &Vehicle::_updateDistanceHeadingToHome);
     connect(this, &Vehicle::hobbsMeterChanged,      this, &Vehicle::_updateHobbsMeter);
     connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_updateAltAboveTerrain);
+    connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_checkGeoFenceMargin);
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
 
@@ -4381,7 +4441,8 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
 
     static qint64 lastUpdate = 0;
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if (fenceStatus.breach_status == 1) {
+    _geoFenceBreached = fenceStatus.breach_status == 1;
+    if (_geoFenceBreached) {
         if (now - lastUpdate > 3000) {
             lastUpdate = now;
             QString breachTypeStr;
@@ -4406,6 +4467,121 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     } else {
         lastUpdate = now;
     }
+}
+
+void Vehicle::_checkGeoFenceMargin(void)
+{
+    if (!_geoFenceManager || !_geoFenceManager->supported()) {
+        return;
+    }
+
+    if (_geoFenceBreached || !_coordinate.isValid()) {
+        return;
+    }
+
+    if (!_parameterManager || !_parameterManager->parametersReady()) {
+        return;
+    }
+
+    if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_MARGIN")) {
+        return;
+    }
+
+    const double marginMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_MARGIN")->rawValue().toDouble();
+    if (marginMeters <= 0.0) {
+        return;
+    }
+
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+        if (_parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            return;
+        }
+    }
+
+    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
+        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
+        : 0;
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
+        return;
+    }
+
+    const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+
+    bool nearFence = false;
+
+    if (allowPolygonChecks) {
+        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
+        for (const QGCFencePolygon& polygon : polygons) {
+            if (!polygon.isValid()) {
+                continue;
+            }
+
+            const bool contains = polygon.containsCoordinate(_coordinate);
+            const bool shouldWarn = polygon.inclusion() ? contains : !contains;
+            if (!shouldWarn) {
+                continue;
+            }
+
+            const double distanceToBoundary = _distanceToPolygonBoundaryMeters(polygon, _coordinate);
+            if (distanceToBoundary <= marginMeters) {
+                nearFence = true;
+                break;
+            }
+        }
+    }
+
+    if (!nearFence && allowCircleChecks) {
+        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
+        for (const QGCFenceCircle& circle : circles) {
+            const QGeoCoordinate center = circle.center();
+            if (!center.isValid()) {
+                continue;
+            }
+            const double radiusMeters = circle.radius()->rawValue().toDouble();
+            if (radiusMeters <= 0.0) {
+                continue;
+            }
+            const double distanceToCenter = _coordinate.distanceTo(center);
+            const bool contains = distanceToCenter <= radiusMeters;
+            const bool shouldWarn = circle.inclusion() ? contains : !contains;
+            if (!shouldWarn) {
+                continue;
+            }
+            const double distanceToBoundary = qAbs(radiusMeters - distanceToCenter);
+            if (distanceToBoundary <= marginMeters) {
+                nearFence = true;
+                break;
+            }
+        }
+    }
+
+    if (!nearFence && allowCircleChecks) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
+                const double distanceToHome = _coordinate.distanceTo(_homePosition);
+                const double distanceToBoundary = qAbs(fenceRadiusMeters - distanceToHome);
+                if (distanceToBoundary <= marginMeters && distanceToHome <= fenceRadiusMeters) {
+                    nearFence = true;
+                }
+            }
+        }
+    }
+
+    if (!nearFence) {
+        return;
+    }
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (now - _lastGeoFenceMarginWarningMSecs < 3000) {
+        return;
+    }
+    _lastGeoFenceMarginWarningMSecs = now;
+
+    const QString warningText = tr("Approaching geofence margin");
+    qgcApp()->showAppMessage(warningText);
+    qgcApp()->toolbox()->audioOutput()->say(warningText);
 }
 
 void Vehicle::updateFlightDistance(double distance)
