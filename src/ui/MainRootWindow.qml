@@ -935,4 +935,20 @@ ApplicationWindow {
             }
         }
     }
+
+    Rectangle {
+        id:         geoFenceBlinkOverlay
+        anchors.fill: parent
+        color:      "red"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceMarginWarning
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceBlinkOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.45; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.45; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
+        }
+    }
 }

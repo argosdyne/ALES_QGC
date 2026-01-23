@@ -177,6 +177,7 @@ public:
     Q_PROPERTY(bool                 messageTypeNormal           READ messageTypeNormal                                              NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeWarning          READ messageTypeWarning                                             NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeError            READ messageTypeError                                               NOTIFY messageTypeChanged)
+    Q_PROPERTY(bool                 geoFenceMarginWarning       READ geoFenceMarginWarning                                          NOTIFY geoFenceMarginWarningChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
@@ -600,6 +601,7 @@ public:
     bool            messageTypeNormal           () { return _currentMessageType == MessageNormal; }
     bool            messageTypeWarning          () { return _currentMessageType == MessageWarning; }
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
+    bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
     int             newMessageCount             () const{ return _currentMessageCount; }
     int             messageCount                () const{ return _messageCount; }
     QString         formattedMessages           ();
@@ -971,6 +973,7 @@ signals:
     void messagesSentChanged            ();
     void messagesLostChanged            ();
     void messageTypeChanged             ();
+    void geoFenceMarginWarningChanged  ();
     void newMessageCountChanged         ();
     void messageCountChanged            ();
     void formattedMessagesChanged       ();
@@ -1112,6 +1115,7 @@ private:
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
     void _checkGeoFenceMargin           (void);
+    void _setGeoFenceMarginWarning      (bool warningActive);
     void _handleEvent(uint8_t comp_id, std::unique_ptr<events::parser::ParsedEvent> event);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1194,6 +1198,7 @@ private:
     bool            _altitudeMessageAvailable               = false;
     bool            _geoFenceBreached                       = false;
     qint64          _lastGeoFenceMarginWarningMSecs         = 0;
+    bool            _geoFenceMarginWarning                  = false;
     double          _defaultCruiseSpeed = qQNaN();
     double          _defaultHoverSpeed = qQNaN();
     int             _telemetryRRSSI = 0;

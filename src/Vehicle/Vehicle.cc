@@ -470,6 +470,7 @@ void Vehicle::_commonInit()
 
     _autotune = _firmwarePlugin->createAutotune(this);
 
+
     // GeoFenceManager needs to access ParameterManager so make sure to create after
     _geoFenceManager = new GeoFenceManager(this);
     connect(_geoFenceManager, &GeoFenceManager::error,          this, &Vehicle::_geoFenceManagerError);
@@ -2182,6 +2183,7 @@ void Vehicle::resetAllMessages()
     if(type != _currentMessageType) {
         emit messageTypeChanged();
     }
+    _setGeoFenceMarginWarning(false);
 }
 
 // Reset warning counts only
@@ -2207,6 +2209,7 @@ void Vehicle::resetErrorLevelMessages()
     if (prevMessagetype != _currentMessageType) {
         emit messageTypeChanged();
     }
+    _setGeoFenceMarginWarning(false);
 }
 
 // this function called in three cases:
@@ -4469,6 +4472,15 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     }
 }
 
+void Vehicle::_setGeoFenceMarginWarning(bool warningActive)
+{
+    if (_geoFenceMarginWarning == warningActive) {
+        return;
+    }
+    _geoFenceMarginWarning = warningActive;
+    emit geoFenceMarginWarningChanged();
+}
+
 void Vehicle::_checkGeoFenceMargin(void)
 {
     if (!_geoFenceManager || !_geoFenceManager->supported()) {
@@ -4574,14 +4586,18 @@ void Vehicle::_checkGeoFenceMargin(void)
     }
 
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (_geoFenceMarginWarning) {
+        return;
+    }
+
     if (now - _lastGeoFenceMarginWarningMSecs < 3000) {
         return;
     }
     _lastGeoFenceMarginWarningMSecs = now;
 
     const QString warningText = tr("Approaching geofence margin");
-    qgcApp()->showAppMessage(warningText);
-    qgcApp()->toolbox()->audioOutput()->say(warningText);
+    emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, warningText.toHtmlEscaped(), "");
+    _setGeoFenceMarginWarning(true);
 }
 
 void Vehicle::updateFlightDistance(double distance)
