@@ -161,6 +161,14 @@ Item {
         property bool _verticalCenter: !QGroundControl.settingsManager.flyViewSettings.alternateInstrumentPanel.rawValue
     }
 
+    //-- Audio Control
+    AudioControl {
+        anchors.margins: _toolsMargin
+        anchors.right: parent.right
+        width: _rightPanelWidth * 1.3
+        anchors.top: parent.top
+    }
+
     TelemetryValuesBar {
         id:                 telemetryPanel
         x:                  recalcXPosition()
