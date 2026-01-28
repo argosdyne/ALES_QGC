@@ -32,6 +32,7 @@ Rectangle {
     property bool _showParameters:false
     property real _paramLabelWidth: ScreenTools.defaultFontPixelWidth * 18
     property real _paramFieldWidth: ScreenTools.defaultFontPixelWidth * 12
+    property real _paramFieldWideWidth: ScreenTools.defaultFontPixelWidth * 14
 
     function requestAllParameters() {
         if (!_ys) {
@@ -57,6 +58,10 @@ Rectangle {
             _ys.setParameter(3, initHeightValue)
         }
         _ys.setParameter(4, embCamTriggerModeCombo.currentIndex)
+        var triggerValue = parseInt(embCamTriggerValueField.text)
+        if (!isNaN(triggerValue)) {
+            _ys.setParameter(5, triggerValue)
+        }
     }
 
     ColumnLayout {
@@ -154,7 +159,7 @@ Rectangle {
             Rectangle {
                 visible:            _showDetails || _showParameters
                 Layout.fillWidth:   true
-                Layout.preferredHeight: _showDetails || _showParameters ? ScreenTools.defaultFontPixelHeight * 12 : 0
+                Layout.preferredHeight: _showDetails || _showParameters ? ScreenTools.defaultFontPixelHeight * 14 : 0
                 radius:             ScreenTools.defaultFontPixelHeight * 0.4
                 color:              qgcPal.windowShade
                 border.color:       qgcPal.text
@@ -301,18 +306,41 @@ Rectangle {
                                 Layout.preferredWidth: _paramFieldWidth
                             }
                         }
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelWidth * 2
+                            QGCLabel {
+                                text: qsTr("Emb. Cam. Trigger Value")
+                                width: _paramLabelWidth
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            QGCTextField {
+                                id: embCamTriggerValueField
+                                placeholderText: qsTr("Integer")
+                                text: _ys ? _ys.embCamTriggerValue.toString() : ""
+                                onEditingFinished: {
+                                    if (_ys) {
+                                        var v = parseInt(text)
+                                        if (!isNaN(v)) {
+                                            _ys.setParameter(5, v)
+                                        }
+                                    }
+                                }
+                                Layout.preferredWidth: _paramFieldWideWidth
+                            }
+                        }
                     }
                 }
             }
         }
         Rectangle {
             Layout.fillWidth:   true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 4.2
+            Layout.preferredHeight: monitorCol.implicitHeight + (ScreenTools.defaultFontPixelWidth * 2)
             radius:             ScreenTools.defaultFontPixelHeight * 0.4
             color:              qgcPal.windowShade
             border.color:       qgcPal.text
 
             Column {
+                id: monitorCol
                 anchors.fill: parent
                 anchors.margins: ScreenTools.defaultFontPixelWidth
                 spacing: ScreenTools.defaultFontPixelHeight * 0.4
