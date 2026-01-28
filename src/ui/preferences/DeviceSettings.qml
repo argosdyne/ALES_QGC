@@ -23,7 +23,7 @@ Rectangle {
     anchors.leftMargin:   ScreenTools.defaultFontPixelWidth
     anchors.rightMargin:  ScreenTools.defaultFontPixelWidth
     anchors.bottomMargin: ScreenTools.defaultFontPixelWidth
-    anchors.topMargin:    0
+    anchors.topMargin:    ScreenTools.defaultFontPixelHeight * 0.2
 
     QGCPalette { id: qgcPal }
 
@@ -32,7 +32,6 @@ Rectangle {
     property bool _showParameters:false
     property real _paramLabelWidth: ScreenTools.defaultFontPixelWidth * 18
     property real _paramFieldWidth: ScreenTools.defaultFontPixelWidth * 12
-    property real _paramFieldWideWidth: ScreenTools.defaultFontPixelWidth * 14
 
     function requestAllParameters() {
         if (!_ys) {
@@ -58,17 +57,10 @@ Rectangle {
             _ys.setParameter(3, initHeightValue)
         }
         _ys.setParameter(4, embCamTriggerModeCombo.currentIndex)
-        var triggerValue = parseInt(embCamTriggerValueField.text)
-        if (!isNaN(triggerValue)) {
-            _ys.setParameter(5, triggerValue)
-        }
     }
 
     ColumnLayout {
-        anchors.top:    parent.top
-        anchors.left:   parent.left
-        anchors.right:  parent.right
-        anchors.margins: ScreenTools.defaultFontPixelWidth
+        anchors.fill:   parent
         spacing:        ScreenTools.defaultFontPixelHeight * 0.35
 
         RowLayout {
@@ -159,12 +151,13 @@ Rectangle {
             Rectangle {
                 visible:            _showDetails || _showParameters
                 Layout.fillWidth:   true
-                Layout.preferredHeight: _showDetails || _showParameters ? ScreenTools.defaultFontPixelHeight * 14 : 0
+                Layout.preferredHeight: (_showDetails || _showParameters) ? (detailsParamsCol.implicitHeight + (ScreenTools.defaultFontPixelWidth * 2)) : 0
                 radius:             ScreenTools.defaultFontPixelHeight * 0.4
                 color:              qgcPal.windowShade
                 border.color:       qgcPal.text
 
                 Column {
+                    id: detailsParamsCol
                     anchors.fill: parent
                     anchors.margins: ScreenTools.defaultFontPixelWidth
                     spacing: ScreenTools.defaultFontPixelHeight * 0.4
@@ -224,123 +217,153 @@ Rectangle {
                             }
                         }
 
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Scanner High Sensitivity")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCComboBox {
-                                id: scannerHighSensitivityCombo
-                                model: [qsTr("On"), qsTr("Off")]
-                                currentIndex: _ys ? (_ys.scannerHighSensitivity ? 0 : 1) : 0
-                                onActivated: if (_ys) { _ys.setParameter(0, currentIndex === 0 ? 1 : 0) }
-                                Layout.preferredWidth: _paramFieldWidth
-                            }
-                        }
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Scanner Pattern")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCComboBox {
-                                id: scannerPatternCombo
-                                model: [qsTr("None"), qsTr("Repetition")]
-                                currentIndex: _ys ? _ys.scannerPattern : 0
-                                onActivated: if (_ys) { _ys.setParameter(1, currentIndex) }
-                                Layout.preferredWidth: _paramFieldWidth
-                            }
-                        }
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Emb. Camera")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCComboBox {
-                                id: embeddedCameraCombo
-                                model: [qsTr("Disable"), qsTr("Enable")]
-                                currentIndex: _ys ? _ys.embeddedCamera : 0
-                                onActivated: if (_ys) { _ys.setParameter(2, currentIndex) }
-                                Layout.preferredWidth: _paramFieldWidth
-                            }
-                        }
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Emb. Cam. Init. Height")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCTextField {
-                                id: embCamInitHeightField
-                                placeholderText: qsTr("Integer")
-                                text: _ys ? _ys.embCamInitHeight.toString() : ""
-                                onEditingFinished: {
-                                    if (_ys) {
-                                        var v = parseInt(text)
-                                        if (!isNaN(v)) {
-                                            _ys.setParameter(3, v)
-                                        }
-                                    }
-                                }
-                                Layout.preferredWidth: _paramFieldWidth
-                            }
-                        }
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Emb. Cam. Trigger Mode")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCComboBox {
-                                id: embCamTriggerModeCombo
-                                model: [qsTr("Time"), qsTr("Distance")]
-                                currentIndex: _ys ? _ys.embCamTriggerMode : 0
-                                onActivated: if (_ys) { _ys.setParameter(4, currentIndex) }
-                                Layout.preferredWidth: _paramFieldWidth
-                            }
-                        }
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-                            QGCLabel {
-                                text: qsTr("Emb. Cam. Trigger Value")
-                                width: _paramLabelWidth
-                                horizontalAlignment: Text.AlignRight
-                            }
-                            QGCTextField {
-                                id: embCamTriggerValueField
-                                placeholderText: qsTr("Integer")
-                                text: _ys ? _ys.embCamTriggerValue.toString() : ""
-                                onEditingFinished: {
-                                    if (_ys) {
-                                        var v = parseInt(text)
-                                        if (!isNaN(v)) {
-                                            _ys.setParameter(5, v)
-                                        }
-                                    }
-                                }
-                                Layout.preferredWidth: _paramFieldWideWidth
-                            }
-                        }
+                        GridLayout {
+    id: paramsGrid
+    columns: 3
+    Layout.fillWidth: true
+    columnSpacing: ScreenTools.defaultFontPixelWidth * 2
+    rowSpacing: ScreenTools.defaultFontPixelHeight * 0.4
+
+    // Column sizing: [Label] [Control] [Optional value]
+    // - Labels are right-aligned and elide if space is tight
+    // - Controls expand/shrink within bounds to avoid overflow
+
+    // Scanner High Sensitivity (Param 0)
+    QGCLabel {
+        text: qsTr("Scanner High Sensitivity")
+        Layout.preferredWidth: _paramLabelWidth
+        Layout.maximumWidth: _paramLabelWidth
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+    QGCComboBox {
+        id: scannerHighSensitivityCombo
+        model: [qsTr("On"), qsTr("Off")]
+        currentIndex: _ys ? (_ys.scannerHighSensitivity ? 0 : 1) : 0
+        onActivated: if (_ys) { _ys.setParameter(0, currentIndex === 0 ? 1 : 0) }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
+        Layout.maximumWidth: _paramFieldWideWidth
+        Layout.columnSpan: 2
+    }
+
+    // Scanner Pattern (Param 1)
+    QGCLabel {
+        text: qsTr("Scanner Pattern")
+        Layout.preferredWidth: _paramLabelWidth
+        Layout.maximumWidth: _paramLabelWidth
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+    QGCComboBox {
+        id: scannerPatternCombo
+        model: [qsTr("None"), qsTr("Repetition")]
+        currentIndex: _ys ? _ys.scannerPattern : 0
+        onActivated: if (_ys) { _ys.setParameter(1, currentIndex) }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
+        Layout.maximumWidth: _paramFieldWideWidth
+        Layout.columnSpan: 2
+    }
+
+    // Embedded Camera (Param 2)
+    QGCLabel {
+        text: qsTr("Emb. Camera")
+        Layout.preferredWidth: _paramLabelWidth
+        Layout.maximumWidth: _paramLabelWidth
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+    QGCComboBox {
+        id: embeddedCameraCombo
+        model: [qsTr("Disable"), qsTr("Enable")]
+        currentIndex: _ys ? _ys.embeddedCamera : 0
+        onActivated: if (_ys) { _ys.setParameter(2, currentIndex) }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
+        Layout.maximumWidth: _paramFieldWideWidth
+        Layout.columnSpan: 2
+    }
+
+    // Embedded Camera Init Height (Param 3)
+    QGCLabel {
+        text: qsTr("Emb. Cam. Init. Height")
+        Layout.preferredWidth: _paramLabelWidth
+        Layout.maximumWidth: _paramLabelWidth
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+    QGCTextField {
+        id: embCamInitHeightField
+        placeholderText: qsTr("Integer")
+        text: _ys ? _ys.embCamInitHeight.toString() : ""
+        onEditingFinished: {
+            if (_ys) {
+                var v = parseInt(text)
+                if (!isNaN(v)) {
+                    _ys.setParameter(3, v)
+                }
+            }
+        }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
+        Layout.maximumWidth: _paramFieldWideWidth
+        Layout.columnSpan: 2
+    }
+
+    // Embedded Camera Trigger Mode (Param 4) + Trigger Value (Param 5)
+    QGCLabel {
+        text: qsTr("Emb. Cam. Trigger Mode")
+        Layout.preferredWidth: _paramLabelWidth
+        Layout.maximumWidth: _paramLabelWidth
+        horizontalAlignment: Text.AlignRight
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+    QGCComboBox {
+        id: embCamTriggerModeCombo
+        model: [qsTr("Time"), qsTr("Distance")]
+        currentIndex: _ys ? _ys.embCamTriggerMode : 0
+        onActivated: if (_ys) { _ys.setParameter(4, currentIndex) }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
+        Layout.maximumWidth: _paramFieldWideWidth
+    }
+    QGCTextField {
+        id: embCamTriggerValueField
+        placeholderText: qsTr("Integer")
+        text: _ys ? _ys.embCamTriggerValue.toString() : ""
+        onEditingFinished: {
+            if (_ys) {
+                var v = parseInt(text)
+                if (!isNaN(v)) {
+                    _ys.setParameter(5, v)
+                }
+            }
+        }
+        Layout.fillWidth: true
+        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 8
+        Layout.maximumWidth: _paramFieldWideWidth
+    }
+}
+
                     }
                 }
             }
         }
         Rectangle {
             Layout.fillWidth:   true
-            Layout.preferredHeight: monitorCol.implicitHeight + (ScreenTools.defaultFontPixelWidth * 2)
+            Layout.preferredHeight: messageMonitorCol.implicitHeight + (ScreenTools.defaultFontPixelWidth * 2)
             radius:             ScreenTools.defaultFontPixelHeight * 0.4
             color:              qgcPal.windowShade
             border.color:       qgcPal.text
 
             Column {
-                id: monitorCol
+                id: messageMonitorCol
                 anchors.fill: parent
                 anchors.margins: ScreenTools.defaultFontPixelWidth
                 spacing: ScreenTools.defaultFontPixelHeight * 0.4
