@@ -89,6 +89,11 @@ private slots:
     void _checkStatusTimeout(void);
 
 private:
+    static constexpr int kYellowScanSysId = 1;
+    static constexpr int kYellowScanCompId = MAV_COMP_ID_USER1;
+    QString _mavResultToString(uint8_t result) const;
+    QString _formatMavlinkHex(const mavlink_message_t& message) const;
+    void _sendNamedValueInt(const char* name, int32_t value);
     void _updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
                        quint8 insErr, quint8 scnErr, quint8 intErr, quint8 camErr);
     void _sendCommand(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f);

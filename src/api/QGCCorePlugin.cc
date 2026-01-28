@@ -145,7 +145,7 @@ QVariantList &QGCCorePlugin::settingsPages()
                                                 QUrl::fromUserInput("qrc:/qml/OfflineMap.qml"),
                                                 QUrl::fromUserInput("qrc:/res/waves.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pOfflineMaps)));
-        _p->pDeviceSettings = new QmlComponentInfo(tr("Device Setting"),
+        _p->pDeviceSettings = new QmlComponentInfo(tr("YS Configure"),
                                                    QUrl::fromUserInput("qrc:/qml/DeviceSettings.qml"),
                                                    QUrl::fromUserInput("qrc:/res/cameraSetting.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pDeviceSettings)));

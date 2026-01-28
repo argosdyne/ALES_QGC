@@ -3,9 +3,15 @@
 #include "QGCApplication.h"
 #include "MAVLinkProtocol.h"
 #include "QGCMAVLink.h"
+#include "VehicleLinkManager.h"
 
 #include <QQmlEngine>
 #include <cstring>
+
+#ifndef MAV_CMD_DO_GET_PARAMETER
+// YellowScan custom get-parameter command.
+#define MAV_CMD_DO_GET_PARAMETER static_cast<MAV_CMD>(31013) // MAV_CMD_USER_4
+#endif
 
 YSManager::YSManager(QGCApplication* app, QGCToolbox* toolbox)
     : QGCTool(app, toolbox)
@@ -60,6 +66,16 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
             _updateStatus(b0, b1, b2, b3, _scnErr, _intErr, _camErr);
         } else if (name == QStringLiteral("YS_STA_01")) {
             _updateStatus(_insInfo, _scnInfo, _genInfo, _insErr, b0, b1, b2);
+        } else if (name == QStringLiteral("SCN_SEN")) {
+            _setParameterValue(ParamScannerHighSensitivity, static_cast<int>(value));
+        } else if (name == QStringLiteral("SCN_PAT")) {
+            _setParameterValue(ParamScannerPattern, static_cast<int>(value));
+        } else if (name == QStringLiteral("ECAM_EN")) {
+            _setParameterValue(ParamEmbeddedCameraEnable, static_cast<int>(value));
+        } else if (name == QStringLiteral("ECAM_HEI")) {
+            _setParameterValue(ParamEmbCamInitHeight, static_cast<int>(value));
+        } else if (name == QStringLiteral("ECAM_TRIG")) {
+            _setParameterValue(ParamEmbCamTriggerMode, static_cast<int>(value));
         }
         _lastReceivedMessage = QStringLiteral("NAMED_VALUE_INT %1 value=0x%2").arg(name).arg(value, 8, 16, QChar('0')).toUpper();
         emit messageChanged();
@@ -69,13 +85,10 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
     if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
         mavlink_command_ack_t ack{};
         mavlink_msg_command_ack_decode(&message, &ack);
-        if (ack.command == MAV_CMD_DO_GET_PARAMETER) {
-            if (_pendingParamIndex >= 0) {
-                _setParameterValue(_pendingParamIndex, static_cast<int>(ack.result));
-                _pendingParamIndex = -1;
-            }
-        }
-        _lastReceivedMessage = QStringLiteral("COMMAND_ACK cmd=%1 result=%2").arg(ack.command).arg(ack.result);
+        _lastReceivedMessage = QStringLiteral("COMMAND_ACK cmd=%1 result=%2 (%3)")
+                                   .arg(ack.command)
+                                   .arg(ack.result)
+                                   .arg(_mavResultToString(ack.result));
         emit messageChanged();
         return;
     }
@@ -147,12 +160,96 @@ void YSManager::_checkStatusTimeout(void)
 
 void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
 {
-    if (!_vehicle) {
-        return;
-    }
-    _vehicle->sendMavCommand(_vehicle->defaultComponentId(), command, false /* showError */, param1, param2);
-    _lastSentMessage = QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3").arg(command).arg(param1).arg(param2);
+    _lastReceivedMessage.clear();
+    mavlink_message_t msg{};
+    mavlink_msg_command_long_pack(
+        kYellowScanSysId,
+        kYellowScanCompId,
+        &msg,
+        kYellowScanSysId,
+        kYellowScanCompId,
+        static_cast<uint16_t>(command),
+        0,
+        param1,
+        param2,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f);
+
+    const QString hex = _formatMavlinkHex(msg);
+    _lastSentMessage = QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3 | hex=%4")
+                           .arg(command)
+                           .arg(param1)
+                           .arg(param2)
+                           .arg(hex);
     emit messageChanged();
+
+    if (_vehicle) {
+        _vehicle->sendMavCommand(kYellowScanCompId, command, false /* showError */, param1, param2);
+    }
+}
+
+void YSManager::_sendNamedValueInt(const char* name, int32_t value)
+{
+    _lastReceivedMessage.clear();
+    mavlink_message_t msg{};
+    mavlink_msg_named_value_int_pack(
+        kYellowScanSysId,
+        kYellowScanCompId,
+        &msg,
+        0,
+        name,
+        value);
+
+    const QString hex = _formatMavlinkHex(msg);
+    _lastSentMessage = QStringLiteral("NAMED_VALUE_INT %1 value=%2 | hex=%3")
+                           .arg(QString::fromLatin1(name))
+                           .arg(value)
+                           .arg(hex);
+    emit messageChanged();
+
+    if (_vehicle) {
+        SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+        if (sharedLink) {
+            _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+        }
+    }
+}
+
+QString YSManager::_formatMavlinkHex(const mavlink_message_t& message) const
+{
+    uint8_t buffer[MAVLINK_MAX_PACKET_LEN]{};
+    const uint16_t len = mavlink_msg_to_send_buffer(buffer, &message);
+    QStringList bytes;
+    bytes.reserve(len);
+    for (uint16_t i = 0; i < len; ++i) {
+        bytes.append(QStringLiteral("%1").arg(buffer[i], 2, 16, QChar('0')).toUpper());
+    }
+    return bytes.join(' ');
+}
+
+QString YSManager::_mavResultToString(uint8_t result) const
+{
+    switch (result) {
+    case MAV_RESULT_ACCEPTED:
+        return QStringLiteral("ACCEPTED");
+    case MAV_RESULT_TEMPORARILY_REJECTED:
+        return QStringLiteral("TEMPORARILY_REJECTED");
+    case MAV_RESULT_DENIED:
+        return QStringLiteral("DENIED");
+    case MAV_RESULT_UNSUPPORTED:
+        return QStringLiteral("UNSUPPORTED");
+    case MAV_RESULT_FAILED:
+        return QStringLiteral("FAILED");
+    case MAV_RESULT_IN_PROGRESS:
+        return QStringLiteral("IN_PROGRESS");
+    case MAV_RESULT_CANCELLED:
+        return QStringLiteral("CANCELLED");
+    default:
+        return QStringLiteral("UNKNOWN");
+    }
 }
 
 void YSManager::startAcquisition(void)
@@ -186,6 +283,7 @@ void YSManager::requestParameter(int paramIndex)
 void YSManager::requestStatus(void)
 {
     _pendingParamIndex = -1;
-    _sendCommand(MAV_CMD_DO_GET_PARAMETER, 0.0f);
+    _sendNamedValueInt("YS_STA_00", 0);
+    _sendNamedValueInt("YS_STA_01", 0);
     _checkStatusTimeout();
 }
