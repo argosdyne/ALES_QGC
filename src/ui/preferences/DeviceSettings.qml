@@ -30,8 +30,16 @@ Rectangle {
     property var _ys:             QGroundControl.corePlugin.ysManager
     property bool _showDetails:   false
     property bool _showParameters:false
+
+    onVisibleChanged: {
+        if (visible) {
+            _showDetails = false
+            _showParameters = false
+        }
+    }
     property real _paramLabelWidth: ScreenTools.defaultFontPixelWidth * 18
     property real _paramFieldWidth: ScreenTools.defaultFontPixelWidth * 12
+    property real _paramFieldWideWidth: ScreenTools.defaultFontPixelWidth * 14
 
     function requestAllParameters() {
         if (!_ys) {
@@ -57,6 +65,10 @@ Rectangle {
             _ys.setParameter(3, initHeightValue)
         }
         _ys.setParameter(4, embCamTriggerModeCombo.currentIndex)
+        var triggerValue = parseInt(embCamTriggerValueField.text)
+        if (!isNaN(triggerValue)) {
+            _ys.setParameter(5, triggerValue)
+        }
     }
 
     ColumnLayout {
@@ -241,7 +253,6 @@ Rectangle {
         id: scannerHighSensitivityCombo
         model: [qsTr("On"), qsTr("Off")]
         currentIndex: _ys ? (_ys.scannerHighSensitivity ? 0 : 1) : 0
-        onActivated: if (_ys) { _ys.setParameter(0, currentIndex === 0 ? 1 : 0) }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
@@ -261,7 +272,6 @@ Rectangle {
         id: scannerPatternCombo
         model: [qsTr("None"), qsTr("Repetition")]
         currentIndex: _ys ? _ys.scannerPattern : 0
-        onActivated: if (_ys) { _ys.setParameter(1, currentIndex) }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
@@ -281,7 +291,6 @@ Rectangle {
         id: embeddedCameraCombo
         model: [qsTr("Disable"), qsTr("Enable")]
         currentIndex: _ys ? _ys.embeddedCamera : 0
-        onActivated: if (_ys) { _ys.setParameter(2, currentIndex) }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
@@ -301,14 +310,6 @@ Rectangle {
         id: embCamInitHeightField
         placeholderText: qsTr("Integer")
         text: _ys ? _ys.embCamInitHeight.toString() : ""
-        onEditingFinished: {
-            if (_ys) {
-                var v = parseInt(text)
-                if (!isNaN(v)) {
-                    _ys.setParameter(3, v)
-                }
-            }
-        }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
@@ -328,7 +329,6 @@ Rectangle {
         id: embCamTriggerModeCombo
         model: [qsTr("Time"), qsTr("Distance")]
         currentIndex: _ys ? _ys.embCamTriggerMode : 0
-        onActivated: if (_ys) { _ys.setParameter(4, currentIndex) }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
@@ -337,14 +337,6 @@ Rectangle {
         id: embCamTriggerValueField
         placeholderText: qsTr("Integer")
         text: _ys ? _ys.embCamTriggerValue.toString() : ""
-        onEditingFinished: {
-            if (_ys) {
-                var v = parseInt(text)
-                if (!isNaN(v)) {
-                    _ys.setParameter(5, v)
-                }
-            }
-        }
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 8
         Layout.maximumWidth: _paramFieldWideWidth
@@ -370,16 +362,26 @@ Rectangle {
 
                 QGCLabel { text: qsTr("Message Monitor") }
 
-                RowLayout {
-                    width: parent.width
-                    spacing: ScreenTools.defaultFontPixelWidth
-                    QGCLabel { text: qsTr("Sent:") }
+                GridLayout {
+                    id: messageGrid
+                    columns: 2
+                    Layout.fillWidth: true
+                    columnSpacing: ScreenTools.defaultFontPixelWidth
+                    rowSpacing: ScreenTools.defaultFontPixelHeight * 0.4
+                    property real _labelWidth: ScreenTools.defaultFontPixelWidth * 9
+
+                    QGCLabel {
+                        text: qsTr("Sent:")
+                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                        Layout.preferredWidth: messageGrid._labelWidth
+                    }
                     TextArea {
                         readOnly: true
                         wrapMode: TextArea.WrapAnywhere
                         text: _ys ? _ys.lastSentMessage : ""
                         Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 3.2
                         Layout.fillWidth: true
+                        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 80
                         color: qgcPal.text
                         background: Rectangle {
                             color: qgcPal.window
@@ -387,18 +389,19 @@ Rectangle {
                             radius: ScreenTools.defaultFontPixelHeight * 0.2
                         }
                     }
-                }
 
-                RowLayout {
-                    width: parent.width
-                    spacing: ScreenTools.defaultFontPixelWidth
-                    QGCLabel { text: qsTr("Received:") }
+                    QGCLabel {
+                        text: qsTr("Received:")
+                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                        Layout.preferredWidth: messageGrid._labelWidth
+                    }
                     TextArea {
                         readOnly: true
                         wrapMode: TextArea.WrapAnywhere
                         text: _ys ? _ys.lastReceivedMessage : ""
                         Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 3.2
                         Layout.fillWidth: true
+                        Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 80
                         color: qgcPal.text
                         background: Rectangle {
                             color: qgcPal.window

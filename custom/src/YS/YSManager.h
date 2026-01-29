@@ -94,6 +94,8 @@ private:
     QString _mavResultToString(uint8_t result) const;
     QString _formatMavlinkHex(const mavlink_message_t& message) const;
     void _sendNamedValueInt(const char* name, int32_t value);
+    bool _shouldDebounceCommand(MAV_CMD command, float param1, float param2);
+    void _updateSentMessage(const QString& message);
     void _updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
                        quint8 insErr, quint8 scnErr, quint8 intErr, quint8 camErr);
     void _sendCommand(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f);
@@ -104,6 +106,12 @@ private:
     QTimer _statusPollTimer;
     qint64 _lastStatusMs{-1};
     bool _statusValid{false};
+    QElapsedTimer _commandTimer;
+    MAV_CMD _lastCommand{static_cast<MAV_CMD>(0)};
+    float _lastCommandParam1{0.0f};
+    float _lastCommandParam2{0.0f};
+    qint64 _lastCommandMs{-1000};
+    qint64 _lastSentMs{-1000};
 
     quint8 _insInfo{0};
     quint8 _scnInfo{0};

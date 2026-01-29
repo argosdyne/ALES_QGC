@@ -19,6 +19,7 @@ YSManager::YSManager(QGCApplication* app, QGCToolbox* toolbox)
     _statusPollTimer.setInterval(500);
     _statusPollTimer.setSingleShot(false);
     connect(&_statusPollTimer, &QTimer::timeout, this, &YSManager::_checkStatusTimeout);
+    _commandTimer.start();
 }
 
 void YSManager::setToolbox(QGCToolbox* toolbox)
@@ -82,14 +83,39 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
         return;
     }
 
+    if (message.msgid == MAVLINK_MSG_ID_COMMAND_LONG) {
+        mavlink_command_long_t cmd{};
+        mavlink_msg_command_long_decode(&message, &cmd);
+        const bool isYellowScanCmd =
+            (cmd.command == MAV_CMD_USER_1) ||
+            (cmd.command == MAV_CMD_USER_2) ||
+            (cmd.command == MAV_CMD_DO_SET_PARAMETER) ||
+            (cmd.command == MAV_CMD_DO_GET_PARAMETER);
+        if (isYellowScanCmd) {
+            _lastReceivedMessage = QStringLiteral("COMMAND_LONG cmd=%1 p1=%2 p2=%3")
+                                       .arg(cmd.command)
+                                       .arg(cmd.param1)
+                                       .arg(cmd.param2);
+            emit messageChanged();
+        }
+        return;
+    }
+
     if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
         mavlink_command_ack_t ack{};
         mavlink_msg_command_ack_decode(&message, &ack);
-        _lastReceivedMessage = QStringLiteral("COMMAND_ACK cmd=%1 result=%2 (%3)")
-                                   .arg(ack.command)
-                                   .arg(ack.result)
-                                   .arg(_mavResultToString(ack.result));
-        emit messageChanged();
+        const bool isYellowScanAck =
+            (ack.command == MAV_CMD_USER_1) ||
+            (ack.command == MAV_CMD_USER_2) ||
+            (ack.command == MAV_CMD_DO_SET_PARAMETER) ||
+            (ack.command == MAV_CMD_DO_GET_PARAMETER);
+        if (isYellowScanAck) {
+            _lastReceivedMessage = QStringLiteral("COMMAND_ACK cmd=%1 result=%2 (%3)")
+                                       .arg(ack.command)
+                                       .arg(ack.result)
+                                       .arg(_mavResultToString(ack.result));
+            emit messageChanged();
+        }
         return;
     }
 }
@@ -160,6 +186,9 @@ void YSManager::_checkStatusTimeout(void)
 
 void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
 {
+    if (_shouldDebounceCommand(command, param1, param2)) {
+        return;
+    }
     _lastReceivedMessage.clear();
     mavlink_message_t msg{};
     mavlink_msg_command_long_pack(
@@ -179,15 +208,17 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
         0.0f);
 
     const QString hex = _formatMavlinkHex(msg);
-    _lastSentMessage = QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3 | hex=%4")
+    _updateSentMessage(QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3 | hex=%4")
                            .arg(command)
                            .arg(param1)
                            .arg(param2)
-                           .arg(hex);
-    emit messageChanged();
+                           .arg(hex));
 
     if (_vehicle) {
-        _vehicle->sendMavCommand(kYellowScanCompId, command, false /* showError */, param1, param2);
+        SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+        if (sharedLink) {
+            _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+        }
     }
 }
 
@@ -204,11 +235,10 @@ void YSManager::_sendNamedValueInt(const char* name, int32_t value)
         value);
 
     const QString hex = _formatMavlinkHex(msg);
-    _lastSentMessage = QStringLiteral("NAMED_VALUE_INT %1 value=%2 | hex=%3")
+    _updateSentMessage(QStringLiteral("NAMED_VALUE_INT %1 value=%2 | hex=%3")
                            .arg(QString::fromLatin1(name))
                            .arg(value)
-                           .arg(hex);
-    emit messageChanged();
+                           .arg(hex));
 
     if (_vehicle) {
         SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
@@ -216,6 +246,38 @@ void YSManager::_sendNamedValueInt(const char* name, int32_t value)
             _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
         }
     }
+}
+
+bool YSManager::_shouldDebounceCommand(MAV_CMD command, float param1, float param2)
+{
+    const qint64 nowMs = _commandTimer.elapsed();
+    const bool sameCommand = (command == _lastCommand) &&
+                             qFuzzyCompare(param1, _lastCommandParam1) &&
+                             qFuzzyCompare(param2, _lastCommandParam2);
+    const bool tooSoon = (nowMs - _lastCommandMs) < 150;
+    if (sameCommand && tooSoon) {
+        return true;
+    }
+
+    _lastCommand = command;
+    _lastCommandParam1 = param1;
+    _lastCommandParam2 = param2;
+    _lastCommandMs = nowMs;
+    return false;
+}
+
+void YSManager::_updateSentMessage(const QString& message)
+{
+    const qint64 nowMs = _commandTimer.elapsed();
+    const bool append = (nowMs - _lastSentMs) < 300;
+    if (append && !_lastSentMessage.isEmpty()) {
+        _lastSentMessage.append("\n");
+        _lastSentMessage.append(message);
+    } else {
+        _lastSentMessage = message;
+    }
+    _lastSentMs = nowMs;
+    emit messageChanged();
 }
 
 QString YSManager::_formatMavlinkHex(const mavlink_message_t& message) const
