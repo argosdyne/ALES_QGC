@@ -45,6 +45,7 @@ const char* GeoFenceController::_apmParamCircularFenceType =    "FENCE_TYPE";
 const char* GeoFenceController::_px4ParamVerticalFence =    "GF_MAX_VER_DIST";
 const char* GeoFenceController::_apmParamFenceAltMax =      "FENCE_ALT_MAX";
 const char* GeoFenceController::_apmParamFenceAltMin =      "FENCE_ALT_MIN";
+const char* GeoFenceController::_apmParamFenceMargin =      "FENCE_MARGIN";
 
 GeoFenceController::GeoFenceController(PlanMasterController* masterController, QObject* parent)
     : PlanElementController         (masterController, parent)
@@ -620,6 +621,19 @@ Fact* GeoFenceController::cageMinAltitude(void)
     return nullptr;
 }
 
+Fact* GeoFenceController::fenceMargin(void)
+{
+    if (!_managerVehicle) {
+        return nullptr;
+    }
+
+    if (_managerVehicle->apmFirmware()) {
+        return _apmParamFenceMarginFact;
+    }
+
+    return nullptr;
+}
+
 void GeoFenceController::_parametersReady(void)
 {
     /* When parameters are ready we setup notifications of param changes
@@ -654,6 +668,10 @@ void GeoFenceController::_parametersReady(void)
     if (_apmParamFenceAltMinFact) {
         _apmParamFenceAltMinFact->disconnect(this);
         _apmParamFenceAltMinFact = nullptr;
+    }
+    if (_apmParamFenceMarginFact) {
+        _apmParamFenceMarginFact->disconnect(this);
+        _apmParamFenceMarginFact = nullptr;
     }
 
     _cageSupported = false;
@@ -713,6 +731,10 @@ void GeoFenceController::_parametersReady(void)
             connect(_apmParamFenceAltMinFact, &Fact::rawValueChanged, this, &GeoFenceController::cageParamsChanged);
             hasAnyCageParam = true;
         }
+        if (_paramManager->parameterExists(FactSystem::defaultComponentId, _apmParamFenceMargin)) {
+            _apmParamFenceMarginFact = _paramManager->getParameter(FactSystem::defaultComponentId, _apmParamFenceMargin);
+            connect(_apmParamFenceMarginFact, &Fact::rawValueChanged, this, &GeoFenceController::fenceMarginChanged);
+        }
     }
 
     _cageSupported = (offlineVehicle || supported()) && (offlineVehicle || hasAnyCageParam);
@@ -720,6 +742,7 @@ void GeoFenceController::_parametersReady(void)
     emit cageSupportChanged(_cageSupported);
     emit cageParamsChanged();
     emit paramCircularFenceChanged();
+    emit fenceMarginChanged();
 }
 
 bool GeoFenceController::isEmpty(void) const

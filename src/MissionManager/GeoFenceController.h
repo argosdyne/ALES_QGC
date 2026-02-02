@@ -41,6 +41,7 @@ public:
     Q_PROPERTY(Fact*                cageRadius              READ cageRadius                                        NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                cageMaxAltitude         READ cageMaxAltitude                                   NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                cageMinAltitude         READ cageMinAltitude                                   NOTIFY cageParamsChanged)
+    Q_PROPERTY(Fact*                fenceMargin             READ fenceMargin                                       NOTIFY fenceMarginChanged)
 
     /// Add a new inclusion polygon to the fence
     ///     @param topLeft: Top left coordinate or map viewport
@@ -91,6 +92,7 @@ public:
     Fact* cageRadius            (void);
     Fact* cageMaxAltitude       (void);
     Fact* cageMinAltitude       (void);
+    Fact* fenceMargin           (void);
 
 signals:
     void breachReturnPointChanged       (QGeoCoordinate breachReturnPoint);
@@ -99,6 +101,7 @@ signals:
     void paramCircularFenceChanged      (void);
     void cageSupportChanged             (bool cageSupported);
     void cageParamsChanged              (void);
+    void fenceMarginChanged             (void);
 
 private slots:
     void _polygonDirtyChanged       (bool dirty);
@@ -133,6 +136,7 @@ private:
     Fact*               _px4ParamVerticalFenceFact =        nullptr;
     Fact*               _apmParamFenceAltMaxFact =          nullptr;
     Fact*               _apmParamFenceAltMinFact =          nullptr;
+    Fact*               _apmParamFenceMarginFact =          nullptr;
 
     static QMap<QString, FactMetaData*> _metaDataMap;
 
@@ -143,6 +147,7 @@ private:
     static const char* _px4ParamVerticalFence;
     static const char* _apmParamFenceAltMax;
     static const char* _apmParamFenceAltMin;
+    static const char* _apmParamFenceMargin;
 
     static const int _jsonCurrentVersion = 2;
 

@@ -45,6 +45,8 @@ Item {
     property color  _interiorColorInclusion:    "transparent"
     property real   _interiorOpacityExclusion:  0.2 * opacity * fenceOpacity
     property real   _interiorOpacityInclusion:  1 * opacity * fenceOpacity
+    property real   fenceMarginMeters:          (myGeoFenceController && myGeoFenceController.fenceMargin && myGeoFenceController.fenceMargin.rawValue !== undefined) ? myGeoFenceController.fenceMargin.rawValue : 0
+    property color  marginColor:                Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, 0.6)
     property real   _sideFaceOpacityScale:      0.6
     property real   _sideFaceAltOpacityScale:   0.85
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
@@ -446,6 +448,48 @@ Item {
         }
     }
 
+    Repeater {
+        model: fenceMarginMeters > 0 ? _polygons : 0
+
+        Item {
+            property var mapRef: map
+            property var _polygon: object
+            property var _marginPath: []
+
+            function _updateMarginPath() {
+                if (!_polygon || fenceMarginMeters <= 0) {
+                    _marginPath = []
+                    return
+                }
+                _marginPath = _closedPath(_polygon.offsetPath(_polygon.inclusion ? -fenceMarginMeters : fenceMarginMeters))
+            }
+
+            MapPolyline {
+                parent: mapRef
+                z: QGroundControl.zOrderMapItems + 1
+                path: _marginPath
+                line.width: 1
+                line.color: marginColor
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                visible: mapRef && path.length > 2
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            Connections {
+                target: _polygon
+                function onPathChanged() { _updateMarginPath() }
+            }
+
+            Connections {
+                target: _root
+                function onFenceMarginMetersChanged() { _updateMarginPath() }
+            }
+
+            Component.onCompleted: _updateMarginPath()
+        }
+    }
+
     // 3D-style extrusion of polygon fences using vertical line segments
     Repeater {
         model: show3DView ? _polygons : 0
@@ -678,6 +722,24 @@ Item {
         }
     }
 
+    Repeater {
+        model: fenceMarginMeters > 0 ? _circles : 0
+
+        MapCircle {
+            property var mapRef: map
+            parent: mapRef
+            z: QGroundControl.zOrderMapItems + 1
+            center: object.center
+            radius: object.inclusion ? Math.max(0, object.radius.rawValue - fenceMarginMeters) : object.radius.rawValue + fenceMarginMeters
+            color: "transparent"
+            border.color: marginColor
+            border.width: 1
+            opacity: _root.opacity * fenceOpacity
+            visible: mapRef && center.isValid && radius > 0
+            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+        }
+    }
+
     // 3D-style extrusion of circular fences using vertical line segments
     Repeater {
         model: show3DView ? _circles : 0
@@ -899,18 +961,34 @@ Item {
     Component {
         id: paramCircleFenceComponent
 
-        MapCircle {
-            color:          (show3DView && fillTopFace) ? boundaryColor : _interiorColorInclusion
-            opacity:        (show3DView && !fillTopFace) ? 0 : _interiorOpacityInclusion
-            border.color:   _borderColor
-            border.width:   _borderWidthInclusion
-            center:         homePosition
-            radius:         _radius
-            visible:        homePosition.isValid && _radius > 0
-
+        Item {
+            property var mapRef: map
             property real _radius: myGeoFenceController.paramCircularFence
+            property real _margin: _root.fenceMarginMeters
 
-            on_RadiusChanged: console.log("_radius", _radius, homePosition.isValid, homePosition)
+            MapCircle {
+                parent:         mapRef
+                color:          (show3DView && fillTopFace) ? boundaryColor : _interiorColorInclusion
+                opacity:        (show3DView && !fillTopFace) ? 0 : _interiorOpacityInclusion
+                border.color:   _borderColor
+                border.width:   _borderWidthInclusion
+                center:         homePosition
+                radius:         _radius
+                visible:        homePosition.isValid && _radius > 0
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            MapCircle {
+                parent:         mapRef
+                color:          "transparent"
+                border.color:   marginColor
+                border.width:   1
+                center:         homePosition
+                radius:         Math.max(0, _radius - _margin)
+                opacity:        _root.opacity * fenceOpacity
+                visible:        homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
         }
     }
 
