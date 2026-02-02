@@ -9,6 +9,7 @@
 
 import QtQuick          2.11
 import QtQuick.Controls 2.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts  1.11
 
 import QGroundControl               1.0
@@ -57,19 +58,47 @@ Rectangle {
         if (!_ys) {
             return
         }
-        _ys.setParameter(0, scannerHighSensitivityCombo.currentIndex === 0 ? 1 : 0)
-        _ys.setParameter(1, scannerPatternCombo.currentIndex)
-        _ys.setParameter(2, embeddedCameraCombo.currentIndex)
-        var initHeightValue = parseInt(embCamInitHeightField.text)
+        var highSensitivityValue = scannerHighSensitivityCombo.currentIndex === 0 ? 1 : 0
+        var scannerPatternValue = scannerPatternCombo.currentIndex
+        var embeddedCameraValue = embeddedCameraCombo.currentIndex
+        var initHeightValue = parseFloat(embCamInitHeightField.text)
+        var triggerModeValue = embCamTriggerModeCombo.currentIndex
+        var triggerValue = parseFloat(embCamTriggerValueField.text)
+
+        _ys.setParameter(0, highSensitivityValue)
+        _ys.setParameter(1, scannerPatternValue)
+        _ys.setParameter(2, embeddedCameraValue)
         if (!isNaN(initHeightValue)) {
             _ys.setParameter(3, initHeightValue)
         }
-        _ys.setParameter(4, embCamTriggerModeCombo.currentIndex)
-        var triggerValue = parseInt(embCamTriggerValueField.text)
+        _ys.setParameter(4, triggerModeValue)
         if (!isNaN(triggerValue)) {
             _ys.setParameter(5, triggerValue)
         }
     }
+
+    function syncParametersFromManager() {
+        if (!_ys) {
+            return
+        }
+        scannerHighSensitivityCombo.currentIndex = _ys.scannerHighSensitivity ? 0 : 1
+        scannerPatternCombo.currentIndex = _ys.scannerPattern
+        embeddedCameraCombo.currentIndex = _ys.embeddedCamera
+        embCamTriggerModeCombo.currentIndex = _ys.embCamTriggerMode
+        if (!embCamInitHeightField.activeFocus) {
+            embCamInitHeightField.text = _ys.embCamInitHeight.toString()
+        }
+        if (!embCamTriggerValueField.activeFocus) {
+            embCamTriggerValueField.text = _ys.embCamTriggerValue.toString()
+        }
+    }
+
+    Connections {
+        target: _ys
+        function onParameterChanged() { syncParametersFromManager() }
+    }
+
+    Component.onCompleted: syncParametersFromManager()
 
     ColumnLayout {
         anchors.fill:   parent
@@ -185,15 +214,15 @@ Rectangle {
 
                         Repeater {
                             model: [
-                                { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning },
-                                { label: "Time Not Set", ok: _ys ? !_ys.timeNotSet : true },
-                                { label: "Scanner Not Ready", ok: _ys ? !_ys.scannerNotReady : true },
-                                { label: "INS Not Locked", ok: _ys ? !_ys.insNotLocked : true },
-                                { label: "Scanner Error", ok: _ys ? _ys.scnErr === 0 : true },
-                                { label: "INS Error", ok: _ys ? _ys.insErr === 0 : true },
-                                { label: "No USB", ok: _ys ? !_ys.noUsb : true },
-                                { label: "USB Full", ok: _ys ? !_ys.usbFull : true },
-                                { label: "Camera Error", ok: _ys ? _ys.camErr === 0 : true }
+                                { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning, valid: _ys && _ys.statusValid },
+                                { label: "Time Not Set", ok: _ys && !_ys.timeNotSet, valid: _ys && _ys.statusValid },
+                                { label: "Scanner Not Ready", ok: _ys && !_ys.scannerNotReady, valid: _ys && _ys.statusValid },
+                                { label: "INS Not Locked", ok: _ys && !_ys.insNotLocked, valid: _ys && _ys.statusValid },
+                                { label: "Scanner Error", ok: _ys && _ys.scnErr === 0, valid: _ys && _ys.statusValid },
+                                { label: "INS Error", ok: _ys && _ys.insErr === 0, valid: _ys && _ys.statusValid },
+                                { label: "No USB", ok: _ys && !_ys.noUsb, valid: _ys && _ys.statusValid },
+                                { label: "USB Full", ok: _ys && !_ys.usbFull, valid: _ys && _ys.statusValid },
+                                { label: "Camera Error", ok: _ys && _ys.camErr === 0, valid: _ys && _ys.statusValid }
                             ]
                             delegate: Row {
                                 spacing: ScreenTools.defaultFontPixelWidth
@@ -201,7 +230,7 @@ Rectangle {
                                     width:  ScreenTools.defaultFontPixelHeight * 0.6
                                     height: width
                                     radius: width * 0.5
-                                    color:  modelData.ok ? qgcPal.colorGreen : qgcPal.colorRed
+                                    color:  modelData.valid ? (modelData.ok ? qgcPal.colorGreen : qgcPal.colorRed) : qgcPal.colorRed
                                 }
                                 QGCLabel { text: modelData.label }
                             }
@@ -252,11 +281,17 @@ Rectangle {
     QGCComboBox {
         id: scannerHighSensitivityCombo
         model: [qsTr("On"), qsTr("Off")]
-        currentIndex: _ys ? (_ys.scannerHighSensitivity ? 0 : 1) : 0
+        currentIndex: 0
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
         Layout.columnSpan: 2
+        background: Rectangle {
+            implicitWidth:  ScreenTools.implicitComboBoxWidth
+            implicitHeight: ScreenTools.implicitComboBoxHeight
+            color:          qgcPal.window
+            border.color:   (_ys && _ys.scannerHighSensitivitySetFailed) ? qgcPal.colorRed : qgcPal.text
+        }
     }
 
     // Scanner Pattern (Param 1)
@@ -271,11 +306,17 @@ Rectangle {
     QGCComboBox {
         id: scannerPatternCombo
         model: [qsTr("None"), qsTr("Repetition")]
-        currentIndex: _ys ? _ys.scannerPattern : 0
+        currentIndex: 0
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
         Layout.columnSpan: 2
+        background: Rectangle {
+            implicitWidth:  ScreenTools.implicitComboBoxWidth
+            implicitHeight: ScreenTools.implicitComboBoxHeight
+            color:          qgcPal.window
+            border.color:   (_ys && _ys.scannerPatternSetFailed) ? qgcPal.colorRed : qgcPal.text
+        }
     }
 
     // Embedded Camera (Param 2)
@@ -290,11 +331,17 @@ Rectangle {
     QGCComboBox {
         id: embeddedCameraCombo
         model: [qsTr("Disable"), qsTr("Enable")]
-        currentIndex: _ys ? _ys.embeddedCamera : 0
+        currentIndex: 0
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
         Layout.columnSpan: 2
+        background: Rectangle {
+            implicitWidth:  ScreenTools.implicitComboBoxWidth
+            implicitHeight: ScreenTools.implicitComboBoxHeight
+            color:          qgcPal.window
+            border.color:   (_ys && _ys.embeddedCameraSetFailed) ? qgcPal.colorRed : qgcPal.text
+        }
     }
 
     // Embedded Camera Init Height (Param 3)
@@ -308,12 +355,20 @@ Rectangle {
     }
     QGCTextField {
         id: embCamInitHeightField
-        placeholderText: qsTr("Integer")
-        text: _ys ? _ys.embCamInitHeight.toString() : ""
+        placeholderText: qsTr("Float")
+        text: ""
+        numericValuesOnly: true
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
         Layout.columnSpan: 2
+        style: TextFieldStyle {
+            background: Rectangle {
+                border.width: enabled ? 1 : 0
+                border.color: (_ys && _ys.embCamInitHeightSetFailed) ? qgcPal.colorRed : (control.activeFocus ? "#47b" : "#999")
+                color: qgcPal.textField
+            }
+        }
     }
 
     // Embedded Camera Trigger Mode (Param 4) + Trigger Value (Param 5)
@@ -328,18 +383,32 @@ Rectangle {
     QGCComboBox {
         id: embCamTriggerModeCombo
         model: [qsTr("Time"), qsTr("Distance")]
-        currentIndex: _ys ? _ys.embCamTriggerMode : 0
+        currentIndex: 0
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
         Layout.maximumWidth: _paramFieldWideWidth
+        background: Rectangle {
+            implicitWidth:  ScreenTools.implicitComboBoxWidth
+            implicitHeight: ScreenTools.implicitComboBoxHeight
+            color:          qgcPal.window
+            border.color:   (_ys && _ys.embCamTriggerModeSetFailed) ? qgcPal.colorRed : qgcPal.text
+        }
     }
     QGCTextField {
         id: embCamTriggerValueField
-        placeholderText: qsTr("Integer")
-        text: _ys ? _ys.embCamTriggerValue.toString() : ""
+        placeholderText: qsTr("Float")
+        text: ""
+        numericValuesOnly: true
         Layout.fillWidth: true
         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 8
         Layout.maximumWidth: _paramFieldWideWidth
+        style: TextFieldStyle {
+            background: Rectangle {
+                border.width: enabled ? 1 : 0
+                border.color: (_ys && _ys.embCamTriggerValueSetFailed) ? qgcPal.colorRed : (control.activeFocus ? "#47b" : "#999")
+                color: qgcPal.textField
+            }
+        }
     }
 }
 

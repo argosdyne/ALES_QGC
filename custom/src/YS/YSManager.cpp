@@ -20,6 +20,8 @@ YSManager::YSManager(QGCApplication* app, QGCToolbox* toolbox)
     _statusPollTimer.setSingleShot(false);
     connect(&_statusPollTimer, &QTimer::timeout, this, &YSManager::_checkStatusTimeout);
     _commandTimer.start();
+    _statusRequestTimer.start();
+    _paramRequestTimer.start();
 }
 
 void YSManager::setToolbox(QGCToolbox* toolbox)
@@ -63,23 +65,53 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
         const quint8 b2 = static_cast<quint8>((value >> 16) & 0xFF);
         const quint8 b3 = static_cast<quint8>((value >> 24) & 0xFF);
 
+        int paramIndex = -1;
         if (name == QStringLiteral("YS_STA_00")) {
             _updateStatus(b0, b1, b2, b3, _scnErr, _intErr, _camErr);
         } else if (name == QStringLiteral("YS_STA_01")) {
             _updateStatus(_insInfo, _scnInfo, _genInfo, _insErr, b0, b1, b2);
-        } else if (name == QStringLiteral("SCN_SEN")) {
-            _setParameterValue(ParamScannerHighSensitivity, static_cast<int>(value));
-        } else if (name == QStringLiteral("SCN_PAT")) {
-            _setParameterValue(ParamScannerPattern, static_cast<int>(value));
-        } else if (name == QStringLiteral("ECAM_EN")) {
-            _setParameterValue(ParamEmbeddedCameraEnable, static_cast<int>(value));
-        } else if (name == QStringLiteral("ECAM_HEI")) {
-            _setParameterValue(ParamEmbCamInitHeight, static_cast<int>(value));
-        } else if (name == QStringLiteral("ECAM_TRIG")) {
-            _setParameterValue(ParamEmbCamTriggerMode, static_cast<int>(value));
+        } else if (name == QStringLiteral("SCN_SEN") || name == QStringLiteral("PAR1")) {
+            paramIndex = ParamScannerHighSensitivity;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else if (name == QStringLiteral("SCN_PAT") || name == QStringLiteral("PAR2")) {
+            paramIndex = ParamScannerPattern;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else if (name == QStringLiteral("ECAM_EN") || name == QStringLiteral("PAR3")) {
+            paramIndex = ParamEmbeddedCameraEnable;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else if (name == QStringLiteral("ECAM_HEI") || name == QStringLiteral("PAR4")) {
+            paramIndex = ParamEmbCamInitHeight;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else if (name == QStringLiteral("ECAM_TRIG") || name == QStringLiteral("PAR5")) {
+            paramIndex = ParamEmbCamTriggerMode;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else if (name == QStringLiteral("ECAM_TRIV") || name == QStringLiteral("PAR6")) {
+            paramIndex = ParamEmbCamTriggerValue;
+            _setParameterValue(paramIndex, static_cast<float>(value));
+        } else {
+            return;
         }
         _lastReceivedMessage = QStringLiteral("NAMED_VALUE_INT %1 value=0x%2").arg(name).arg(value, 8, 16, QChar('0')).toUpper();
         emit messageChanged();
+
+        if (_pendingStatus && (name == QStringLiteral("YS_STA_00") || name == QStringLiteral("YS_STA_01"))) {
+            if (!_pendingStatusQueue.isEmpty() && _pendingStatusQueue.first() == name) {
+                _pendingStatusQueue.removeFirst();
+            } else {
+                _pendingStatusQueue.removeAll(name);
+            }
+            _pendingStatus = false;
+            _startNextStatus();
+        }
+
+        if (_pendingOp == PendingGet && paramIndex >= 0 && paramIndex == _pendingParamIndex) {
+            _pendingOp = PendingNone;
+            _pendingParamIndex = -1;
+            _startNextGet();
+            if (_pendingOp == PendingNone) {
+                _startNextSet();
+            }
+        }
         return;
     }
 
@@ -115,6 +147,36 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
                                        .arg(ack.result)
                                        .arg(_mavResultToString(ack.result));
             emit messageChanged();
+
+            if (ack.command == MAV_CMD_USER_1 && ack.result == MAV_RESULT_ACCEPTED) {
+                const bool startRequested = _lastCommand == MAV_CMD_USER_1 && _lastCommandParam1 > 0.5f;
+                if (startRequested) {
+                    _genInfo |= kGenInfoAcqRunning;
+                } else {
+                    _genInfo &= static_cast<quint8>(~kGenInfoAcqRunning);
+                }
+                _lastStatusMs = _statusTimer.elapsed();
+                if (!_statusValid) {
+                    _statusValid = true;
+                    emit statusValidChanged();
+                }
+                emit statusChanged();
+            }
+
+            if (_pendingOp == PendingGet && ack.command == MAV_CMD_DO_GET_PARAMETER) {
+                _pendingOp = PendingNone;
+                _pendingParamIndex = -1;
+                _startNextGet();
+                if (_pendingOp == PendingNone) {
+                    _startNextSet();
+                }
+            }
+            if (_pendingOp == PendingSet && ack.command == MAV_CMD_DO_SET_PARAMETER) {
+                _setParamSetFailed(_pendingParamIndex, ack.result != MAV_RESULT_ACCEPTED);
+                _pendingOp = PendingNone;
+                _pendingParamIndex = -1;
+                _startNextSet();
+            }
         }
         return;
     }
@@ -131,6 +193,7 @@ void YSManager::_updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
     _intErr = intErr;
     _camErr = camErr;
     _lastStatusMs = _statusTimer.elapsed();
+    _awaitingFreshStatus = false;
     if (!_statusValid) {
         _statusValid = true;
         emit statusValidChanged();
@@ -138,23 +201,23 @@ void YSManager::_updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
     emit statusChanged();
 }
 
-void YSManager::_setParameterValue(int paramIndex, int value)
+void YSManager::_setParameterValue(int paramIndex, float value)
 {
     switch (paramIndex) {
     case ParamScannerHighSensitivity:
-        _scannerHighSensitivity = value;
+        _scannerHighSensitivity = static_cast<int>(value);
         break;
     case ParamScannerPattern:
-        _scannerPattern = value;
+        _scannerPattern = static_cast<int>(value);
         break;
     case ParamEmbeddedCameraEnable:
-        _embeddedCamera = value;
+        _embeddedCamera = static_cast<int>(value);
         break;
     case ParamEmbCamInitHeight:
         _embCamInitHeight = value;
         break;
     case ParamEmbCamTriggerMode:
-        _embCamTriggerMode = value;
+        _embCamTriggerMode = static_cast<int>(value);
         break;
     case ParamEmbCamTriggerValue:
         _embCamTriggerValue = value;
@@ -168,18 +231,42 @@ void YSManager::_setParameterValue(int paramIndex, int value)
 
 void YSManager::_checkStatusTimeout(void)
 {
-    if (_lastStatusMs < 0) {
-        if (_statusValid) {
-            _statusValid = false;
-            emit statusValidChanged();
+    if (_pendingOp == PendingGet) {
+        const qint64 nowMs = _paramRequestTimer.elapsed();
+        if ((nowMs - _lastParamRequestMs) >= kParamResponseTimeoutMs) {
+            _pendingOp = PendingNone;
+            _pendingParamIndex = -1;
+            _startNextGet();
+            if (_pendingOp == PendingNone) {
+                _startNextSet();
+            }
         }
+    } else if (_pendingOp == PendingSet) {
+        const qint64 nowMs = _paramRequestTimer.elapsed();
+        if ((nowMs - _lastSetRequestMs) >= kSetResponseTimeoutMs) {
+            _pendingOp = PendingNone;
+            _pendingParamIndex = -1;
+            _startNextSet();
+        }
+    }
+
+    if (_pendingStatus && !_pendingStatusQueue.isEmpty()) {
+        const qint64 nowMs = _statusRequestTimer.elapsed();
+        if ((nowMs - _lastStatusRequestMs) >= kStatusResponseTimeoutMs) {
+            _pendingStatus = false;
+            _pendingStatusQueue.removeFirst();
+            _startNextStatus();
+        }
+    }
+
+    if (_lastStatusMs < 0 && _statusValid) {
+        _statusValid = false;
+        emit statusValidChanged();
         return;
     }
 
-    const qint64 nowMs = _statusTimer.elapsed();
-    const bool validNow = (nowMs - _lastStatusMs) <= kStatusTimeoutMs;
-    if (validNow != _statusValid) {
-        _statusValid = validNow;
+    if (_awaitingFreshStatus && _statusValid) {
+        _statusValid = false;
         emit statusValidChanged();
     }
 }
@@ -330,22 +417,106 @@ void YSManager::powerOff(void)
 }
 
 
-void YSManager::setParameter(int paramIndex, int value)
+void YSManager::setParameter(int paramIndex, float value)
 {
+    // If a get/status sequence is in progress, stop it so set can run immediately.
+    if (_pendingOp == PendingGet) {
+        _pendingOp = PendingNone;
+        _pendingParamIndex = -1;
+    }
+    _pendingGetQueue.clear();
+    _pendingStatusQueue.clear();
+    _pendingStatus = false;
     _setParameterValue(paramIndex, value);
-    _sendCommand(MAV_CMD_DO_SET_PARAMETER, static_cast<float>(paramIndex), static_cast<float>(value));
+    _enqueueSetParameter(paramIndex, value);
 }
 
 void YSManager::requestParameter(int paramIndex)
 {
-    _pendingParamIndex = paramIndex;
-    _sendCommand(MAV_CMD_DO_GET_PARAMETER, static_cast<float>(paramIndex));
+    _enqueueGetParameter(paramIndex);
 }
 
 void YSManager::requestStatus(void)
 {
+    if (_statusValid) {
+        _statusValid = false;
+        emit statusValidChanged();
+    }
+    _awaitingFreshStatus = true;
     _pendingParamIndex = -1;
-    _sendNamedValueInt("YS_STA_00", 0);
-    _sendNamedValueInt("YS_STA_01", 0);
+    _enqueueStatusRequest("YS_STA_00");
+    _enqueueStatusRequest("YS_STA_01");
     _checkStatusTimeout();
+}
+
+void YSManager::_enqueueGetParameter(int paramIndex)
+{
+    _pendingGetQueue.append(paramIndex);
+    if (_pendingOp == PendingNone) {
+        _startNextGet();
+    }
+}
+
+void YSManager::_enqueueStatusRequest(const char* name)
+{
+    _pendingStatusQueue.append(QString::fromLatin1(name));
+    if (!_pendingStatus) {
+        _startNextStatus();
+    }
+}
+
+void YSManager::_startNextStatus(void)
+{
+    if (_pendingStatusQueue.isEmpty()) {
+        return;
+    }
+    _pendingStatus = true;
+    const QString name = _pendingStatusQueue.first();
+    _lastStatusRequestMs = _statusRequestTimer.elapsed();
+    _sendNamedValueInt(name.toLatin1().constData(), 0);
+}
+
+void YSManager::_enqueueSetParameter(int paramIndex, float value)
+{
+    _pendingSetQueue.append(qMakePair(paramIndex, value));
+    if (_pendingOp == PendingNone) {
+        _startNextSet();
+    }
+}
+
+void YSManager::_startNextGet(void)
+{
+    if (_pendingGetQueue.isEmpty()) {
+        return;
+    }
+    _pendingOp = PendingGet;
+    _pendingParamIndex = _pendingGetQueue.takeFirst();
+    _lastParamRequestMs = _paramRequestTimer.elapsed();
+    _sendCommand(MAV_CMD_DO_GET_PARAMETER, static_cast<float>(_pendingParamIndex));
+}
+
+void YSManager::_startNextSet(void)
+{
+    if (_pendingSetQueue.isEmpty()) {
+        return;
+    }
+    _pendingOp = PendingSet;
+    const auto item = _pendingSetQueue.takeFirst();
+    _pendingParamIndex = item.first;
+    _pendingSetValue = item.second;
+    _setParamSetFailed(_pendingParamIndex, false);
+    _lastSetRequestMs = _paramRequestTimer.elapsed();
+    _sendCommand(MAV_CMD_DO_SET_PARAMETER, static_cast<float>(_pendingParamIndex), static_cast<float>(_pendingSetValue));
+}
+
+void YSManager::_setParamSetFailed(int paramIndex, bool failed)
+{
+    if (paramIndex < 0 || paramIndex > ParamEmbCamTriggerValue) {
+        return;
+    }
+    if (_paramSetFailed[paramIndex] == failed) {
+        return;
+    }
+    _paramSetFailed[paramIndex] = failed;
+    emit paramSetFailedChanged();
 }
