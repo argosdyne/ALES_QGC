@@ -466,6 +466,7 @@ public:
     /// Sends PARAM_MAP_RC message to vehicle
     Q_INVOKABLE void sendParamMapRC(const QString& paramName, double scale, double centerValue, int tuningID, double minValue, double maxValue);
     Q_INVOKABLE void deployParachute(void);
+    Q_INVOKABLE bool isCoordinateOutsideFence(const QGeoCoordinate& coordinate);
 
     /// Clears all PARAM_MAP_RC settings from vehicle
     Q_INVOKABLE void clearAllParamMapRC(void);
@@ -1139,6 +1140,7 @@ private:
     void _handleGimbalOrientation       (const mavlink_message_t& message);
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
+    void _checkGeoFenceBreachLocal      (void);
     void _checkGeoFenceMargin           (void);
     void _setGeoFenceMarginWarning      (bool warningActive);
     void _setGeoFenceBreached           (bool breached);

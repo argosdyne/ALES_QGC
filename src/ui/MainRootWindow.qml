@@ -940,18 +940,18 @@ ApplicationWindow {
     }
 
     Rectangle {
-        id:         geoFenceBlinkOverlay
+        id:         geoFenceWarningOverlay
         anchors.fill: parent
-        color:      "red"
+        color:      "#ffcc00"
         opacity:    0
         visible:    globals.activeVehicle && globals.activeVehicle.geoFenceMarginWarning && !globals.activeVehicle.geoFenceBreached
         z:          QGroundControl.zOrderTopMost
 
         SequentialAnimation on opacity {
-            running:    geoFenceBlinkOverlay.visible
+            running:    geoFenceWarningOverlay.visible
             loops:      Animation.Infinite
-            NumberAnimation { from: 0.0; to: 0.45; duration: 180; easing.type: Easing.InOutQuad }
-            NumberAnimation { from: 0.45; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.0; to: 0.35; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.35; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
         }
     }
 

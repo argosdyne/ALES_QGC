@@ -435,6 +435,7 @@ void Vehicle::_commonInit()
     connect(this, &Vehicle::homePositionChanged,    this, &Vehicle::_updateDistanceHeadingToHome);
     connect(this, &Vehicle::hobbsMeterChanged,      this, &Vehicle::_updateHobbsMeter);
     connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_updateAltAboveTerrain);
+    connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_checkGeoFenceBreachLocal);
     connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_checkGeoFenceMargin);
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
@@ -4628,16 +4629,20 @@ void Vehicle::_updateLinkQuality(void)
     bool warning = false;
     bool critical = false;
 
-    if (_mavlinkLossPercent >= 25.0f) {
-        critical = true;
-    } else if (_mavlinkLossPercent >= 10.0f) {
-        warning = true;
+    const bool lossStatsValid = (_mavlinkReceivedCount >= 50 || _mavlinkSentCount >= 50);
+    if (lossStatsValid) {
+        if (_mavlinkLossPercent >= 25.0f) {
+            critical = true;
+        } else if (_mavlinkLossPercent >= 10.0f) {
+            warning = true;
+        }
     }
 
     int rssiLocal = _telemetryLRSSI;
     int rssiRemote = _telemetryRRSSI;
+    const bool rssiValid = (rssiLocal != 0 || rssiRemote != 0) && (rssiLocal > -120 || rssiRemote > -120);
     int rssiWorst = 0;
-    if (rssiLocal != 0 || rssiRemote != 0) {
+    if (rssiValid) {
         if (rssiLocal == 0) {
             rssiWorst = rssiRemote;
         } else if (rssiRemote == 0) {
@@ -4848,6 +4853,100 @@ void Vehicle::_checkGeoFenceMargin(void)
     emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, warningText.toHtmlEscaped(), "");
 }
 
+void Vehicle::_checkGeoFenceBreachLocal(void)
+{
+    if (!_geoFenceManager || !_geoFenceManager->supported()) {
+        return;
+    }
+
+    if (!_coordinate.isValid()) {
+        return;
+    }
+
+    if (!_parameterManager || !_parameterManager->parametersReady()) {
+        return;
+    }
+
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+        if (_parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            return;
+        }
+    }
+
+    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
+        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
+        : 0;
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
+        return;
+    }
+
+    const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+
+    bool breached = false;
+
+    if (allowPolygonChecks) {
+        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
+        for (const QGCFencePolygon& polygon : polygons) {
+            if (!polygon.isValid()) {
+                continue;
+            }
+            const bool contains = polygon.containsCoordinate(_coordinate);
+            const bool isBreach = polygon.inclusion() ? !contains : contains;
+            if (isBreach) {
+                breached = true;
+                break;
+            }
+        }
+    }
+
+    if (!breached && allowCircleChecks) {
+        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
+        for (const QGCFenceCircle& circle : circles) {
+            const QGeoCoordinate center = circle.center();
+            if (!center.isValid()) {
+                continue;
+            }
+            const double radiusMeters = circle.radius()->rawValue().toDouble();
+            if (radiusMeters <= 0.0) {
+                continue;
+            }
+            const double distanceToCenter = _coordinate.distanceTo(center);
+            const bool contains = distanceToCenter <= radiusMeters;
+            const bool isBreach = circle.inclusion() ? !contains : contains;
+            if (isBreach) {
+                breached = true;
+                break;
+            }
+        }
+    }
+
+    if (!breached && allowCircleChecks) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
+                const double distanceToHome = _coordinate.distanceTo(_homePosition);
+                if (distanceToHome > fenceRadiusMeters) {
+                    breached = true;
+                }
+            }
+        }
+    }
+
+    if (breached != _geoFenceBreached) {
+        _setGeoFenceBreached(breached);
+        if (breached) {
+            const QString msg = tr("GeoFence breach detected (local)");
+            emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, msg.toHtmlEscaped(), "");
+            _logGeoFenceEvent(QStringLiteral("BREACH_LOCAL_ENTER"));
+        } else {
+            const QString msg = tr("GeoFence breach cleared (local)");
+            emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_INFO, msg.toHtmlEscaped(), "");
+            _logGeoFenceEvent(QStringLiteral("BREACH_LOCAL_EXIT"));
+        }
+    }
+}
+
 void Vehicle::updateFlightDistance(double distance)
 {
     _flightDistanceFact.setRawValue(_flightDistanceFact.rawValue().toDouble() + distance);
@@ -4890,6 +4989,85 @@ void Vehicle::sendParamMapRC(const QString& paramName, double scale, double cent
 void Vehicle::deployParachute(void)
 {
     sendMavCommand(_defaultComponentId, MAV_CMD_DO_PARACHUTE, true, 2, 0, 0, 0, 0, 0, 0);
+}
+
+bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
+{
+    if (!_geoFenceManager || !_geoFenceManager->supported()) {
+        return false;
+    }
+
+    if (!_parameterManager || !_parameterManager->parametersReady()) {
+        return false;
+    }
+
+    if (!coordinate.isValid()) {
+        return false;
+    }
+
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+        if (_parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            return false;
+        }
+    }
+
+    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
+        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
+        : 0;
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
+        return false;
+    }
+
+    const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+
+    if (allowPolygonChecks) {
+        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
+        for (const QGCFencePolygon& polygon : polygons) {
+            if (!polygon.isValid()) {
+                continue;
+            }
+            const bool contains = polygon.containsCoordinate(coordinate);
+            const bool isOutside = polygon.inclusion() ? !contains : contains;
+            if (isOutside) {
+                return true;
+            }
+        }
+    }
+
+    if (allowCircleChecks) {
+        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
+        for (const QGCFenceCircle& circle : circles) {
+            const QGeoCoordinate center = circle.center();
+            if (!center.isValid()) {
+                continue;
+            }
+            const double radiusMeters = circle.radius()->rawValue().toDouble();
+            if (radiusMeters <= 0.0) {
+                continue;
+            }
+            const double distanceToCenter = coordinate.distanceTo(center);
+            const bool contains = distanceToCenter <= radiusMeters;
+            const bool isOutside = circle.inclusion() ? !contains : contains;
+            if (isOutside) {
+                return true;
+            }
+        }
+    }
+
+    if (allowCircleChecks) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
+                const double distanceToHome = coordinate.distanceTo(_homePosition);
+                if (distanceToHome > fenceRadiusMeters) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void Vehicle::clearAllParamMapRC(void)
