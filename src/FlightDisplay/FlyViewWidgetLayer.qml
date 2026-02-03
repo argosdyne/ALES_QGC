@@ -106,6 +106,42 @@ Item {
         visible:            !multiVehiclePanelSelector.showSingleVehiclePanel
     }
 
+    Item {
+        id: c2LinkWarningBanner
+        anchors.top:            parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin:      _toolsMargin
+        z:                      QGroundControl.zOrderTopMost
+        visible:                _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
+
+        property bool _blinkOn: true
+
+        Timer {
+            interval:   350
+            repeat:     true
+            running:    c2LinkWarningBanner.visible
+            onTriggered: c2LinkWarningBanner._blinkOn = !c2LinkWarningBanner._blinkOn
+        }
+
+        Rectangle {
+            radius:         ScreenTools.defaultFontPixelHeight * 0.4
+            color:          _activeVehicle && _activeVehicle.linkQualityCritical ? "#ff2b2b" : "#ffb300"
+            opacity:        c2LinkWarningBanner._blinkOn ? 0.9 : 0.2
+            border.color:   "black"
+            border.width:   1
+            anchors.fill:   bannerLabel
+            anchors.margins: -ScreenTools.defaultFontPixelWidth * 0.6
+        }
+
+        QGCLabel {
+            id:                 bannerLabel
+            text:               _activeVehicle && _activeVehicle.linkQualityCritical ? qsTr("C2 LINK CRITICAL") : qsTr("C2 LINK WARNING")
+            font.pointSize:     ScreenTools.largeFontPointSize
+            color:              "white"
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
+
 
     // GuidedActionConfirm {
     //     anchors.margins:            _toolsMargin

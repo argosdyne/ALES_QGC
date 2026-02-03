@@ -118,6 +118,38 @@ QGCFlickable {
                     spacing:            _margin
                     visible:            myGeoFenceController.supported
 
+                    Row {
+                        spacing: _margin
+                        QGCCheckBox {
+                            text:       qsTr("Operational")
+                            checked:    globals.geoFenceShowOperational
+                            onClicked:  globals.geoFenceShowOperational = checked
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Buffer")
+                            checked:    globals.geoFenceShowBuffer
+                            onClicked:  globals.geoFenceShowBuffer = checked
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Contingency")
+                            checked:    globals.geoFenceShowContingency
+                            onClicked:  globals.geoFenceShowContingency = checked
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            var loaded = myGeoFenceController.fenceLoaded ? qsTr("Loaded") : qsTr("Not Loaded")
+                            var active = myGeoFenceController.fenceActive ? qsTr("Active") : qsTr("Inactive")
+                            var missing = myGeoFenceController.fenceParamsMissing ? qsTr("Missing Params") : qsTr("Params OK")
+                            return qsTr("Fence Status: %1 | %2 | %3").arg(loaded).arg(active).arg(missing)
+                        }
+                        color: myGeoFenceController.fenceParamsMissing ? "orange" : qgcPal.text
+                    }
+
                     Repeater {
                         model: myGeoFenceController.params
 
@@ -194,6 +226,15 @@ QGCFlickable {
                             }
                             circleSection.checked = true
                             polygonSection.checked = false
+                        }
+                    }
+
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("GeoFence Self-Test")
+                        onClicked: {
+                            var report = myGeoFenceController.geoFenceSelfTestReport()
+                            mainWindow.showMessageDialog(qsTr("GeoFence Self-Test"), report)
                         }
                     }
 

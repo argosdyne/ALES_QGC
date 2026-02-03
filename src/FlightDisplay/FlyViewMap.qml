@@ -47,6 +47,7 @@ FlightMap {
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property var    _planMasterController:      planMasterController
     property var    _geoFenceController:        planMasterController.geoFenceController
+    property var    _geoCageController:         planMasterController.geoCageController
     property var    _rallyPointController:      planMasterController.rallyPointController
     property var    _activeVehicleCoordinate:   _activeVehicle ? _activeVehicle.coordinate : QtPositioning.coordinate()
     property real   _toolButtonTopMargin:       parent.height - mainWindow.height + (ScreenTools.defaultFontPixelHeight / 2)
@@ -368,6 +369,17 @@ FlightMap {
         extrudeScale:           globals.geoFenceExtrudeScale
         minExtrudeScale:        globals.geoFenceMinExtrudeScale
         maxExtrudeScale:        globals.geoFenceMaxExtrudeScale
+        showOperationalLayer:   globals.geoFenceShowOperational
+        showBufferLayer:        globals.geoFenceShowBuffer
+        homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
+    }
+
+    GeoCageMapVisuals {
+        map:                    _root
+        myGeoCageController:    _geoCageController
+        interactive:            false
+        visible:                globals.geoFenceShowContingency
+        useFenceGeometry:       true
         homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
     }
 

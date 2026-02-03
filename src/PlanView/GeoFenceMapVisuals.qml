@@ -38,6 +38,8 @@ Item {
     property real   fenceOpacity:               1.0
     property bool   fillTopFace:                false
     property bool   fillSideFaces:              false
+    property bool   showOperationalLayer:       true
+    property bool   showBufferLayer:            true
     property color  _borderColor:               boundaryColor
     property int    _borderWidthInclusion:      2
     property int    _borderWidthExclusion:      0
@@ -445,11 +447,12 @@ Item {
             interiorColor:      (show3DView && fillTopFace) ? boundaryColor : (object.inclusion ? _interiorColorInclusion : _interiorColorExclusion)
             interiorOpacity:    (show3DView && !fillTopFace) ? 0 : (object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion)
             interactive:        _root.interactive && mapPolygon && mapPolygon.interactive
+            visible:            _root.showOperationalLayer
         }
     }
 
     Repeater {
-        model: fenceMarginMeters > 0 ? _polygons : 0
+        model: (showBufferLayer && fenceMarginMeters > 0) ? _polygons : 0
 
         Item {
             property var mapRef: map
@@ -492,7 +495,7 @@ Item {
 
     // 3D-style extrusion of polygon fences using vertical line segments
     Repeater {
-        model: show3DView ? _polygons : 0
+        model: (show3DView && showOperationalLayer) ? _polygons : 0
 
         Item {
             id: extrudePoly
@@ -708,7 +711,7 @@ Item {
     }
 
     Instantiator {
-        model: _circles
+        model: showOperationalLayer ? _circles : 0
 
         delegate : QGCMapCircleVisuals {
             parent:             _root
@@ -723,7 +726,7 @@ Item {
     }
 
     Repeater {
-        model: fenceMarginMeters > 0 ? _circles : 0
+        model: (showBufferLayer && fenceMarginMeters > 0) ? _circles : 0
 
         MapCircle {
             property var mapRef: map
@@ -742,7 +745,7 @@ Item {
 
     // 3D-style extrusion of circular fences using vertical line segments
     Repeater {
-        model: show3DView ? _circles : 0
+        model: (show3DView && showOperationalLayer) ? _circles : 0
 
         Item {
             id: extrudeCircle
@@ -974,7 +977,7 @@ Item {
                 border.width:   _borderWidthInclusion
                 center:         homePosition
                 radius:         _radius
-                visible:        homePosition.isValid && _radius > 0
+                visible:        showOperationalLayer && homePosition.isValid && _radius > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
 
@@ -986,7 +989,7 @@ Item {
                 center:         homePosition
                 radius:         Math.max(0, _radius - _margin)
                 opacity:        _root.opacity * fenceOpacity
-                visible:        homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
+                visible:        showBufferLayer && homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
         }
@@ -1015,6 +1018,7 @@ Item {
             z:              QGroundControl.zOrderMapItems
             coordinate:     myGeoFenceController.breachReturnPoint
             opacity:        _root.opacity
+            visible:        _root.showOperationalLayer
 
             sourceItem: MissionItemIndexLabel {
                 label:      qsTr("B", "Breach Return Point item indicator")

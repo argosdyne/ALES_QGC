@@ -42,6 +42,9 @@ public:
     Q_PROPERTY(Fact*                cageMaxAltitude         READ cageMaxAltitude                                   NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                cageMinAltitude         READ cageMinAltitude                                   NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                fenceMargin             READ fenceMargin                                       NOTIFY fenceMarginChanged)
+    Q_PROPERTY(bool                 fenceLoaded             READ fenceLoaded                                       NOTIFY fenceLoadedChanged)
+    Q_PROPERTY(bool                 fenceActive             READ fenceActive                                       NOTIFY fenceActiveChanged)
+    Q_PROPERTY(bool                 fenceParamsMissing      READ fenceParamsMissing                                NOTIFY fenceParamsMissingChanged)
 
     /// Add a new inclusion polygon to the fence
     ///     @param topLeft: Top left coordinate or map viewport
@@ -63,6 +66,7 @@ public:
 
     /// Clears the interactive bit from all fence items
     Q_INVOKABLE void clearAllInteractive(void);
+    Q_INVOKABLE QString geoFenceSelfTestReport(void) const;
 
     double  paramCircularFence  (void);
     Fact*   breachReturnAltitude(void) { return &_breachReturnAltitudeFact; }
@@ -93,6 +97,9 @@ public:
     Fact* cageMaxAltitude       (void);
     Fact* cageMinAltitude       (void);
     Fact* fenceMargin           (void);
+    bool fenceLoaded            (void) const { return _fenceLoaded; }
+    bool fenceActive            (void) const { return _fenceActive; }
+    bool fenceParamsMissing     (void) const { return _fenceParamsMissing; }
 
 signals:
     void breachReturnPointChanged       (QGeoCoordinate breachReturnPoint);
@@ -102,6 +109,9 @@ signals:
     void cageSupportChanged             (bool cageSupported);
     void cageParamsChanged              (void);
     void fenceMarginChanged             (void);
+    void fenceLoadedChanged             (bool loaded);
+    void fenceActiveChanged             (bool active);
+    void fenceParamsMissingChanged      (bool missing);
 
 private slots:
     void _polygonDirtyChanged       (bool dirty);
@@ -114,6 +124,8 @@ private slots:
     void _managerRemoveAllComplete  (bool error);
     void _parametersReady           (void);
     void _managerVehicleChanged      (Vehicle* managerVehicle);
+    void _updateFenceActiveState     (void);
+    void _updateFenceParamsMissing   (void);
 
 private:
     void _init(void);
@@ -128,6 +140,9 @@ private:
     double              _breachReturnDefaultAltitude =  qQNaN();
     bool                _itemsRequested =               false;
     bool                _cageSupported =                false;
+    bool                _fenceLoaded =                  false;
+    bool                _fenceActive =                  false;
+    bool                _fenceParamsMissing =           false;
 
     Fact*               _px4ParamCircularFenceFact =        nullptr;
     Fact*               _apmParamCircularFenceRadiusFact =  nullptr;

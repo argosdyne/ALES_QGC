@@ -105,6 +105,9 @@ ApplicationWindow {
         property real               geoFenceMaxExtrudeScale:        1.6
         property bool               geoFenceShowMinMaxAltitude:     false
         property int                geoFenceCircleSegments:         40
+        property bool               geoFenceShowOperational:        true
+        property bool               geoFenceShowBuffer:             true
+        property bool               geoFenceShowContingency:        true
     }
 
     /// Default color palette used throughout the UI
@@ -941,7 +944,7 @@ ApplicationWindow {
         anchors.fill: parent
         color:      "red"
         opacity:    0
-        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceMarginWarning
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceMarginWarning && !globals.activeVehicle.geoFenceBreached
         z:          QGroundControl.zOrderTopMost
 
         SequentialAnimation on opacity {
@@ -949,6 +952,22 @@ ApplicationWindow {
             loops:      Animation.Infinite
             NumberAnimation { from: 0.0; to: 0.45; duration: 180; easing.type: Easing.InOutQuad }
             NumberAnimation { from: 0.45; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceBreachOverlay
+        anchors.fill: parent
+        color:      "#ff2b2b"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceBreached
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceBreachOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.7; duration: 140; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.7; to: 0.0; duration: 140; easing.type: Easing.InOutQuad }
         }
     }
 }
