@@ -95,29 +95,29 @@ Item {
                 }
             }
 
-            // Loop
-            Rectangle {
-                radius: _margins
-                color: loopMouseArea.pressed
-                       ? qgcPal.buttonHighlight
-                       : qgcPal.button
+            // // Loop
+            // Rectangle {
+            //     radius: _margins
+            //     color: loopMouseArea.pressed
+            //            ? qgcPal.buttonHighlight
+            //            : qgcPal.button
 
-                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
-                Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
+            //     Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
+            //     Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
 
-                Text {
-                    anchors.centerIn: parent
-                    text: qsTr("Loop")
-                    color: qgcPal.buttonText
-                    font.pointSize: ScreenTools.defaultFontPointSize
-                }
+            //     Text {
+            //         anchors.centerIn: parent
+            //         text: qsTr("Loop")
+            //         color: qgcPal.buttonText
+            //         font.pointSize: ScreenTools.defaultFontPointSize
+            //     }
 
-                MouseArea {
-                    id: loopMouseArea
-                    anchors.fill: parent
-                    onClicked: _audioControl._loopAudio(audioIndexCombo.currentText)
-                }
-            }
+            //     MouseArea {
+            //         id: loopMouseArea
+            //         anchors.fill: parent
+            //         onClicked: _audioControl._loopAudio(audioIndexCombo.currentText)
+            //     }
+            // }
 
             // Stop
             Rectangle {

@@ -29,10 +29,10 @@ void AudioControl::_playAudio(int index)
         return;
     }
 
-    sendCommand(0, index);
+    sendCommand(1, index);
 
 }
-
+//Not Used
 void AudioControl::_loopAudio(int index)
 {
     qInfo() << "Call Loop Audio : index = " << index;
@@ -68,22 +68,41 @@ void AudioControl::sendCommand(int playMode, int audioIndex)
             << "index:" << audioIndex
             << "mode:" << playMode;
     /// PlayMode
-    /// 0 = Once
-    /// 1 = Loop
+    /// 1 = Play
     /// -1 = Stop
 
-    _vehicle->sendMavCommand(
-        _vehicle->defaultComponentId(),     // MAV_COMP_ID_AUTOPILOT1
-        MAV_CMD_PLAY_AUDIO,                 // 6000
-        true,                               // showError
-        audioIndex,                         // param1: Audio Index
-        playMode,                           // param2: Play Mode
-        0,                                  // param3
-        0,                                  // param4
-        0,                                  // param5
-        0,                                  // param6
-        0                                   // param7
+
+    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_command_long_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
+
+    cmd.target_system    = _vehicle->id();
+    cmd.target_component = MAV_COMP_ID_AUTOPILOT1;
+    cmd.command          = MAV_CMD_PLAY_AUDIO;
+    cmd.confirmation     = 0;
+
+    cmd.param1 = audioIndex;
+    cmd.param2 = static_cast<int>(playMode); // 1 / -1
+
+    mavlink_msg_command_long_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &cmd
         );
+
+    _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qInfo() << "TX MAV_CMD_PLAY_AUDIO"
+            << "index:" << audioIndex
+            << "mode:" << static_cast<int>(playMode);
+
+
 }
 
 

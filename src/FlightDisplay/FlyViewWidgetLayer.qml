@@ -165,7 +165,7 @@ Item {
     AudioControl {
         anchors.margins: _toolsMargin
         anchors.right: parent.right
-        width: _rightPanelWidth * 1.3
+        width: _rightPanelWidth
         anchors.top: parent.top
     }
 
