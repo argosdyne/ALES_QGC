@@ -10,6 +10,9 @@
 #include "AudioControl.h"
 #include "QGCApplication.h"
 
+#include "MAVLinkProtocol.h"
+#include "QGCMAVLink.h"
+
 AudioControl::AudioControl(Vehicle *vehicle)
     : _vehicle(vehicle)
 {
