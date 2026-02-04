@@ -86,7 +86,7 @@ void AudioControl::sendCommand(int playMode, int audioIndex)
 
     cmd.target_system    = _vehicle->id();
     cmd.target_component = MAV_COMP_ID_AUTOPILOT1;
-    cmd.command          = MAV_CMD_PLAY_AUDIO;
+    cmd.command          = 6000; // MAV_CMD_PLAY_AUDIO
     cmd.confirmation     = 0;
 
     cmd.param1 = audioIndex;
