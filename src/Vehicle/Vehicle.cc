@@ -4481,7 +4481,23 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     qCDebug(VehicleLog) << "_handleFenceStatus breach_status" << fenceStatus.breach_status;
 
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    const bool breachedNow = fenceStatus.breach_status == 1;
+    bool breachedNow = fenceStatus.breach_status == 1;
+
+    // If only circular fence is enabled but radius is zero, suppress breach warnings.
+    if (breachedNow && _parameterManager && _parameterManager->parametersReady()) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") &&
+            _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const uint32_t fenceTypeMask =
+                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
+            const double fenceRadiusMeters =
+                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+
+            const bool circleOnly = fenceTypeMask == 2;
+            if (circleOnly && fenceRadiusMeters <= 0.0) {
+                breachedNow = false;
+            }
+        }
+    }
 
     QString breachTypeStr;
     if (breachedNow) {
@@ -4571,6 +4587,12 @@ void Vehicle::_updateGeoFenceActiveState(void)
                 active = false;
             }
         }
+    }
+
+    if (!active) {
+        // If fence is disabled, clear any latched warnings/breach state.
+        _setGeoFenceBreached(false);
+        _setGeoFenceMarginWarning(false);
     }
 
     if (_geoFenceActive == active) {
