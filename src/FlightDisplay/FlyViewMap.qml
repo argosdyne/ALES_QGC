@@ -371,6 +371,7 @@ FlightMap {
         maxExtrudeScale:        globals.geoFenceMaxExtrudeScale
         showOperationalLayer:   globals.geoFenceShowOperational
         showBufferLayer:        globals.geoFenceShowBuffer
+        showContingencyLayer:   globals.geoFenceShowContingency
         homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
     }
 

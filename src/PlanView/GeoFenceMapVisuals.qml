@@ -40,6 +40,7 @@ Item {
     property bool   fillSideFaces:              false
     property bool   showOperationalLayer:       true
     property bool   showBufferLayer:            true
+    property bool   showContingencyLayer:       true
     property color  _borderColor:               boundaryColor
     property int    _borderWidthInclusion:      2
     property int    _borderWidthExclusion:      0
@@ -48,7 +49,9 @@ Item {
     property real   _interiorOpacityExclusion:  0.2 * opacity * fenceOpacity
     property real   _interiorOpacityInclusion:  1 * opacity * fenceOpacity
     property real   fenceMarginMeters:          (myGeoFenceController && myGeoFenceController.fenceMargin && myGeoFenceController.fenceMargin.rawValue !== undefined) ? myGeoFenceController.fenceMargin.rawValue : 0
+    property real   contingencyWidthMeters:     (myGeoFenceController && myGeoFenceController.cvWidthMeters !== undefined) ? myGeoFenceController.cvWidthMeters : 0
     property color  marginColor:                Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, 0.6)
+    property color  contingencyColor:           Qt.rgba(1.0, 0.0, 0.0, 0.55)
     property real   _sideFaceOpacityScale:      0.6
     property real   _sideFaceAltOpacityScale:   0.85
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
@@ -493,6 +496,48 @@ Item {
         }
     }
 
+    Repeater {
+        model: (showContingencyLayer && contingencyWidthMeters > 0) ? _polygons : 0
+
+        Item {
+            property var mapRef: map
+            property var _polygon: object
+            property var _cvPath: []
+
+            function _updateCvPath() {
+                if (!_polygon || !_polygon.inclusion || contingencyWidthMeters <= 0) {
+                    _cvPath = []
+                    return
+                }
+                _cvPath = _closedPath(_polygon.offsetPath(contingencyWidthMeters))
+            }
+
+            MapPolyline {
+                parent: mapRef
+                z: QGroundControl.zOrderMapItems + 1
+                path: _cvPath
+                line.width: 2
+                line.color: contingencyColor
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                visible: mapRef && path.length > 2
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            Connections {
+                target: _polygon
+                function onPathChanged() { _updateCvPath() }
+            }
+
+            Connections {
+                target: _root
+                function onContingencyWidthMetersChanged() { _updateCvPath() }
+            }
+
+            Component.onCompleted: _updateCvPath()
+        }
+    }
+
     // 3D-style extrusion of polygon fences using vertical line segments
     Repeater {
         model: (show3DView && showOperationalLayer) ? _polygons : 0
@@ -743,6 +788,24 @@ Item {
         }
     }
 
+    Repeater {
+        model: (showContingencyLayer && contingencyWidthMeters > 0) ? _circles : 0
+
+        MapCircle {
+            property var mapRef: map
+            parent: mapRef
+            z: QGroundControl.zOrderMapItems + 1
+            center: object.center
+            radius: object.inclusion ? object.radius.rawValue + contingencyWidthMeters : 0
+            color: "transparent"
+            border.color: contingencyColor
+            border.width: 2
+            opacity: _root.opacity * fenceOpacity
+            visible: mapRef && object.inclusion && center.isValid && radius > 0
+            Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+        }
+    }
+
     // 3D-style extrusion of circular fences using vertical line segments
     Repeater {
         model: (show3DView && showOperationalLayer) ? _circles : 0
@@ -968,6 +1031,7 @@ Item {
             property var mapRef: map
             property real _radius: myGeoFenceController.paramCircularFence
             property real _margin: _root.fenceMarginMeters
+            property real _cvWidth: _root.contingencyWidthMeters
 
             MapCircle {
                 parent:         mapRef
@@ -990,6 +1054,18 @@ Item {
                 radius:         Math.max(0, _radius - _margin)
                 opacity:        _root.opacity * fenceOpacity
                 visible:        showBufferLayer && homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
+            MapCircle {
+                parent:         mapRef
+                color:          "transparent"
+                border.color:   contingencyColor
+                border.width:   2
+                center:         homePosition
+                radius:         _radius + _cvWidth
+                opacity:        _root.opacity * fenceOpacity
+                visible:        showContingencyLayer && homePosition.isValid && _radius > 0 && _cvWidth > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
         }

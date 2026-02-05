@@ -506,6 +506,7 @@ Item {
                  maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
                  showOperationalLayer:   globals.geoFenceShowOperational || _editingLayer == _layerGeoFence
                  showBufferLayer:        globals.geoFenceShowBuffer
+                 showContingencyLayer:   globals.geoFenceShowContingency
              }
 
             GeoCageMapVisuals {

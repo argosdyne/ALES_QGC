@@ -42,6 +42,14 @@ public:
     Q_PROPERTY(Fact*                cageMaxAltitude         READ cageMaxAltitude                                   NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                cageMinAltitude         READ cageMinAltitude                                   NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                fenceMargin             READ fenceMargin                                       NOTIFY fenceMarginChanged)
+    Q_PROPERTY(double               cvMaxSpeed              READ cvMaxSpeed              WRITE setCvMaxSpeed              NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvLatency               READ cvLatency               WRITE setCvLatency               NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvManeuverTime          READ cvManeuverTime          WRITE setCvManeuverTime          NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvWindSpeed             READ cvWindSpeed             WRITE setCvWindSpeed             NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvPositionError         READ cvPositionError         WRITE setCvPositionError         NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvReactionDistance      READ cvReactionDistance                                      NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvCorrectionDistance    READ cvCorrectionDistance                                    NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvWidthMeters           READ cvWidthMeters                                           NOTIFY cvParamsChanged)
     Q_PROPERTY(bool                 fenceLoaded             READ fenceLoaded                                       NOTIFY fenceLoadedChanged)
     Q_PROPERTY(bool                 fenceActive             READ fenceActive                                       NOTIFY fenceActiveChanged)
     Q_PROPERTY(bool                 fenceParamsMissing      READ fenceParamsMissing                                NOTIFY fenceParamsMissingChanged)
@@ -97,6 +105,20 @@ public:
     Fact* cageMaxAltitude       (void);
     Fact* cageMinAltitude       (void);
     Fact* fenceMargin           (void);
+    double cvMaxSpeed           (void) const { return _cvMaxSpeed; }
+    double cvLatency            (void) const { return _cvLatency; }
+    double cvManeuverTime       (void) const { return _cvManeuverTime; }
+    double cvWindSpeed          (void) const { return _cvWindSpeed; }
+    double cvPositionError      (void) const { return _cvPositionError; }
+    double cvReactionDistance   (void) const { return _cvMaxSpeed * _cvLatency; }
+    double cvCorrectionDistance (void) const { return (_cvMaxSpeed * _cvManeuverTime) + (_cvWindSpeed * _cvManeuverTime); }
+    double cvWidthMeters        (void) const { return cvReactionDistance() + cvCorrectionDistance() + _cvPositionError; }
+
+    void setCvMaxSpeed          (double value);
+    void setCvLatency           (double value);
+    void setCvManeuverTime      (double value);
+    void setCvWindSpeed         (double value);
+    void setCvPositionError     (double value);
     bool fenceLoaded            (void) const { return _fenceLoaded; }
     bool fenceActive            (void) const { return _fenceActive; }
     bool fenceParamsMissing     (void) const { return _fenceParamsMissing; }
@@ -109,6 +131,7 @@ signals:
     void cageSupportChanged             (bool cageSupported);
     void cageParamsChanged              (void);
     void fenceMarginChanged             (void);
+    void cvParamsChanged                (void);
     void fenceLoadedChanged             (bool loaded);
     void fenceActiveChanged             (bool active);
     void fenceParamsMissingChanged      (bool missing);
@@ -172,6 +195,15 @@ private:
     static const char* _jsonCirclesKey;
 
     static const char* _breachReturnAltitudeFactName;
+
+    void _loadCvSettings(void);
+    void _saveCvSettings(void);
+
+    double _cvMaxSpeed = 15.0;
+    double _cvLatency = 1.0;
+    double _cvManeuverTime = 3.0;
+    double _cvWindSpeed = 0.0;
+    double _cvPositionError = 10.0;
 };
 
 #endif

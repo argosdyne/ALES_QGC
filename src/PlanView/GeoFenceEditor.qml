@@ -150,6 +150,100 @@ QGCFlickable {
                         color: myGeoFenceController.fenceParamsMissing ? "orange" : qgcPal.text
                     }
 
+                    SectionHeader {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        text:           qsTr("Contingency Volume")
+                    }
+
+                    GridLayout {
+                        columns:        2
+                        rowSpacing:     _margin / 2
+                        columnSpacing:  _margin
+
+                        QGCLabel { text: qsTr("Vmax (m/s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvMaxSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Latency (s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvLatency = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Maneuver (s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvManeuverTime = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Wind (m/s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvWindSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Position Error (m)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvPositionError = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            if (!myGeoFenceController) {
+                                return ""
+                            }
+                            return qsTr("CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)")
+                                .arg(myGeoFenceController.cvWidthMeters.toFixed(1))
+                                .arg(myGeoFenceController.cvReactionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvCorrectionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvPositionError.toFixed(1))
+                        }
+                        color: qgcPal.text
+                    }
+
                     Repeater {
                         model: myGeoFenceController.params
 

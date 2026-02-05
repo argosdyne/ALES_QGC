@@ -26,6 +26,7 @@
 
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QSettings>
 
 QGC_LOGGING_CATEGORY(GeoFenceControllerLog, "GeoFenceControllerLog")
 
@@ -54,6 +55,8 @@ GeoFenceController::GeoFenceController(PlanMasterController* masterController, Q
     , _breachReturnAltitudeFact     (0, _breachReturnAltitudeFactName, FactMetaData::valueTypeDouble)
     , _breachReturnDefaultAltitude  (qgcApp()->toolbox()->settingsManager()->appSettings()->defaultMissionItemAltitude()->rawValue().toDouble())
 {
+    _loadCvSettings();
+
     if (_metaDataMap.isEmpty()) {
         _metaDataMap = FactMetaData::createMapFromJsonFile(QStringLiteral(":/json/BreachReturn.FactMetaData.json"), nullptr /* metaDataParent */);
     }
@@ -68,6 +71,80 @@ GeoFenceController::GeoFenceController(PlanMasterController* masterController, Q
     connect(&_breachReturnAltitudeFact, &Fact::rawValueChanged,                         this, &GeoFenceController::_setDirty);
     connect(&_polygons,                 &QmlObjectListModel::dirtyChanged,              this, &GeoFenceController::_setDirty);
     connect(&_circles,                  &QmlObjectListModel::dirtyChanged,              this, &GeoFenceController::_setDirty);
+}
+
+void GeoFenceController::_loadCvSettings(void)
+{
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("ContingencyVolume"));
+    _cvMaxSpeed = settings.value(QStringLiteral("maxSpeed"), _cvMaxSpeed).toDouble();
+    _cvLatency = settings.value(QStringLiteral("latency"), _cvLatency).toDouble();
+    _cvManeuverTime = settings.value(QStringLiteral("maneuverTime"), _cvManeuverTime).toDouble();
+    _cvWindSpeed = settings.value(QStringLiteral("windSpeed"), _cvWindSpeed).toDouble();
+    _cvPositionError = settings.value(QStringLiteral("positionError"), _cvPositionError).toDouble();
+    settings.endGroup();
+}
+
+void GeoFenceController::_saveCvSettings(void)
+{
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("ContingencyVolume"));
+    settings.setValue(QStringLiteral("maxSpeed"), _cvMaxSpeed);
+    settings.setValue(QStringLiteral("latency"), _cvLatency);
+    settings.setValue(QStringLiteral("maneuverTime"), _cvManeuverTime);
+    settings.setValue(QStringLiteral("windSpeed"), _cvWindSpeed);
+    settings.setValue(QStringLiteral("positionError"), _cvPositionError);
+    settings.endGroup();
+}
+
+void GeoFenceController::setCvMaxSpeed(double value)
+{
+    if (qFuzzyCompare(_cvMaxSpeed, value)) {
+        return;
+    }
+    _cvMaxSpeed = qMax(0.0, value);
+    _saveCvSettings();
+    emit cvParamsChanged();
+}
+
+void GeoFenceController::setCvLatency(double value)
+{
+    if (qFuzzyCompare(_cvLatency, value)) {
+        return;
+    }
+    _cvLatency = qMax(0.0, value);
+    _saveCvSettings();
+    emit cvParamsChanged();
+}
+
+void GeoFenceController::setCvManeuverTime(double value)
+{
+    if (qFuzzyCompare(_cvManeuverTime, value)) {
+        return;
+    }
+    _cvManeuverTime = qMax(0.0, value);
+    _saveCvSettings();
+    emit cvParamsChanged();
+}
+
+void GeoFenceController::setCvWindSpeed(double value)
+{
+    if (qFuzzyCompare(_cvWindSpeed, value)) {
+        return;
+    }
+    _cvWindSpeed = qMax(0.0, value);
+    _saveCvSettings();
+    emit cvParamsChanged();
+}
+
+void GeoFenceController::setCvPositionError(double value)
+{
+    if (qFuzzyCompare(_cvPositionError, value)) {
+        return;
+    }
+    _cvPositionError = qMax(0.0, value);
+    _saveCvSettings();
+    emit cvParamsChanged();
 }
 
 GeoFenceController::~GeoFenceController()
