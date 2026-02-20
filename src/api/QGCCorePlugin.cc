@@ -24,6 +24,7 @@
 #include "QGCCameraManager.h"
 #include "HorizontalFactValueGrid.h"
 #include "InstrumentValueData.h"
+#include "Login/SecurityManager.h"
 
 #include <QtQml>
 #include <QQmlEngine>
@@ -380,12 +381,16 @@ QQmlApplicationEngine* QGCCorePlugin::createQmlApplicationEngine(QObject* parent
     qmlEngine->addImportPath("qrc:/qml");
     qmlEngine->rootContext()->setContextProperty("joystickManager", qgcApp()->toolbox()->joystickManager());
     qmlEngine->rootContext()->setContextProperty("debugMessageModel", AppMessages::getModel());
+    SecurityManager* securityManager = new SecurityManager(qmlEngine);
+    qmlEngine->rootContext()->setContextProperty("securityManager", securityManager);
     return qmlEngine;
 }
 
 void QGCCorePlugin::createRootWindow(QQmlApplicationEngine* qmlEngine)
 {
-    qmlEngine->load(QUrl(QStringLiteral("qrc:/qml/MainRootWindow.qml")));
+    // Load login manager first; it will create the main window after authentication
+    qmlEngine->load(QUrl(QStringLiteral("qrc:/login/LoginManager.qml")));
+    // qmlEngine->load(QUrl(QStringLiteral("qrc:/qml/MainRootWindow.qml")));
 }
 
 bool QGCCorePlugin::mavlinkMessage(Vehicle* vehicle, LinkInterface* link, mavlink_message_t message)

@@ -463,6 +463,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 #
 
 HEADERS += \
+    src/Login/SecurityManager.h \
     src/QmlControls/CustomAction.h \
     src/QmlControls/CustomActionManager.h \
     src/QmlControls/QmlUnitsConversion.h \
@@ -479,6 +480,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 }
 
 SOURCES += \
+    src/Login/SecurityManager.cpp \
     src/QmlControls/CustomActionManager.cc \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
     src/api/QGCCorePlugin.cc \
@@ -1129,14 +1131,18 @@ INCLUDEPATH += \
     src/AutoPilotPlugins/Common \
     src/FirmwarePlugin \
     src/VehicleSetup \
-    src/CGAL/include
+    src/CGAL/include \
+    src/OpenSSL/include \
 
 LIBS += -L$$PWD/src/CGAL/lib/mpfr.lib \
     -L$$PWD/src/CGAL/lib/gmp.lib \
     -L$$PWD/src/CGAL/lib/zlib.lib \
     -L$$PWD/src/CGAL/lib/GLU32.lib \
     -L$$PWD/src/CGAL/lib/glew32.lib \
-    -L$$PWD/src/CGAL/lib/OpenGL32.lib
+    -L$$PWD/src/CGAL/lib/OpenGL32.lib \
+    -L$$PWD/src/OpenSSL/lib/VC/x64/MD \
+            -llibssl \
+            -llibcrypto
 
 HEADERS+= \
     src/AutoPilotPlugins/AutoPilotPlugin.h \
@@ -1459,6 +1465,12 @@ AndroidBuild {
     } else {
         include(android.pri)
     }
+    
+    # Android Security Storage (Keystore HMAC support)
+    QT += androidextras
+    HEADERS += src/Login/AndroidSecurityStorage.h
+    SOURCES += src/Login/AndroidSecurityStorage.cpp
+    message("Android security storage (Keystore HMAC) enabled")
 }
 
 android: {

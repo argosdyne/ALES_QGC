@@ -66,6 +66,8 @@ Item {
     property int    _curCameraIndex:    _dynamicCameras ? _dynamicCameras.currentCamera : 0
     property bool   _isCamera:          _dynamicCameras ? _dynamicCameras.cameras.count > 0 : false
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
+    property bool   _viewOnlyMode:        false
+    
 
     function _calcCenterViewPort() {
         var newToolInset = Qt.rect(0, 0, width, height)
@@ -90,7 +92,7 @@ Item {
         z:                      _fullItemZorder + 1
         parentToolInsets:       _toolInsets
         mapControl:             _mapControl
-        visible:                !QGroundControl.videoManager.fullScreen
+        visible:                !QGroundControl.videoManager.fullScreen && !_viewOnlyMode
     }
 
 

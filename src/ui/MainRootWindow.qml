@@ -29,6 +29,10 @@ ApplicationWindow {
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     visible:        true
 
+
+    // Property to manage View-Only Mode
+    property bool               viewOnlyMode:        false
+
     Component.onCompleted: {
         //-- Full screen on mobile or tiny screens
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
@@ -454,6 +458,7 @@ ApplicationWindow {
 
     FlyView {
         id:             flightView
+        _viewOnlyMode: viewOnlyMode
         anchors.fill:   parent
     }
 

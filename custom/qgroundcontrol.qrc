@@ -392,6 +392,12 @@
 		<file alias="Vehicle/GeneratorFact.json">../src/Vehicle/GeneratorFact.json</file>
 		<file alias="Vehicle/EFIFact.json">../src/Vehicle/EFIFact.json</file>
 	</qresource>
+    <qresource prefix="/login">
+        <file alias="RegisterScreen.qml">../src/Login/RegisterScreen.qml</file>
+        <file alias="LogInPage.qml">../src/Login/LogInPage.qml</file>
+        <file alias="PinBox.qml">../src/Login/PinBox.qml</file>
+        <file alias="LoginManager.qml">../src/Login/LoginManager.qml</file>
+    </qresource>
 	<qresource prefix="/MockLink">
 		<file alias="APMArduSubMockLink.params">../src/comm/APMArduSubMockLink.params</file>
 		<file alias="PX4MockLink.params">../src/comm/PX4MockLink.params</file>
