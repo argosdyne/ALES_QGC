@@ -189,6 +189,57 @@ Rectangle {
                 }
             }
             //-----------------------------------------------------------------
+            //-- MAVLink2 Signing
+            Item {
+                width:              __mavlinkRoot.width * 0.8
+                height:             signingLabel.height
+                anchors.margins:    ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible:            true
+                QGCLabel {
+                    id:             signingLabel
+                    text:           qsTr("MAVLink2 Signing")
+                    font.family:    ScreenTools.demiboldFontFamily
+                }
+            }
+            Rectangle {
+                height:         signingColumn.height + (ScreenTools.defaultFontPixelHeight * 2)
+                width:          __mavlinkRoot.width * 0.8
+                color:          qgcPal.windowShade
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible:        true
+                Column {
+                    id:         signingColumn
+                    spacing:    _columnSpacing
+                    anchors.centerIn: parent
+
+                    QGCLabel {
+                        text: qsTr("Signing keys should only be sent to the vehicle over secure links.")
+                    }
+
+                    Row {
+                        spacing:    ScreenTools.defaultFontPixelWidth
+                        QGCLabel {
+                            width:              ScreenTools.defaultFontPixelWidth * 4
+                            anchors.baseline:   signingKeyField.baseline
+                            text:               qsTr("Key")
+                        }
+                        QGCTextField {
+                            id:                     signingKeyField
+                            width:                  _valueWidth
+                            inputMethodHints:       Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        QGCButton {
+                            text:       qsTr("Send to Vehicle")
+                            enabled:    _activeVehicle && signingKeyField.text.length > 0
+                            onClicked:  _activeVehicle.sendSetupSigning(signingKeyField.text)
+                        }
+                    }
+                }
+            }
+            //-----------------------------------------------------------------
             //-- Stream Rates
             Item {
                 id:                         apmStreamRatesLabel

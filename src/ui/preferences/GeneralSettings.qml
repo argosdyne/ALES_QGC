@@ -430,22 +430,6 @@ Rectangle {
                                     visible: _videoSettings.disableFPVVideo.value
                                 }
                             }
-                            GridLayout {
-                                columns: 1
-
-                                QGCLabel {
-                                    text:               qsTr("Audio Settings")
-                                    Layout.columnSpan:  1
-                                    Layout.alignment:   Qt.AlignHCenter
-                                }
-
-                                Item { width: 1; height:1 }
-                                FactCheckBox {
-                                    id: enableAudioCheck
-                                    text: qsTr("Enable Audio")
-                                    fact: QGroundControl.settingsManager.flyViewSettings.enableAudioController                                    
-                                }
-                            }
                         }
                     }
 

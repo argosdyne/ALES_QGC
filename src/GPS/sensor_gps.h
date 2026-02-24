@@ -80,6 +80,19 @@ struct sensor_gps_s {
 	uint8_t rtcm_msg_used;
 	uint8_t _padding0[2]; // required for logger
 
+	void set_position(double latitude_deg_in, double longitude_deg_in, double altitude_msl_m_in, double altitude_ellipsoid_m_in) {
+		latitude_deg = latitude_deg_in;
+		longitude_deg = longitude_deg_in;
+		altitude_msl_m = altitude_msl_m_in;
+		altitude_ellipsoid_m = altitude_ellipsoid_m_in;
+	}
+
+	void set_position(int32_t latitude_e7, int32_t longitude_e7, int32_t altitude_msl_mm, int32_t altitude_ellipsoid_mm) {
+		latitude_deg = static_cast<double>(latitude_e7) * 1e-7;
+		longitude_deg = static_cast<double>(longitude_e7) * 1e-7;
+		altitude_msl_m = static_cast<double>(altitude_msl_mm) * 1e-3;
+		altitude_ellipsoid_m = static_cast<double>(altitude_ellipsoid_mm) * 1e-3;
+	}
 
 	static constexpr uint8_t JAMMING_STATE_UNKNOWN = 0;
 	static constexpr uint8_t JAMMING_STATE_OK = 1;
