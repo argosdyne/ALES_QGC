@@ -65,6 +65,7 @@ Item {
     property bool   _recordingVideo:        (_cameraVideoMode && _camera && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) || (_fallbackVideoAvailable && _videoManager.recording)
     property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
     property bool   _hasZoom:               _camera && _camera.hasZoom
+    property bool   _forceLocalVideoRecording: _camera && (((_camera.modelName || "").toUpperCase().indexOf("LR1") !== -1) || ((_camera.vendor || "").toUpperCase().indexOf("SONY") !== -1))
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
     property bool   _isShortScreen:         mainWindow.height / ScreenTools.realPixelDensity < 120
     property real   _gimbalPitch:           activeVehicle ? -activeVehicle.gimbalPitch : 0
@@ -465,7 +466,13 @@ Item {
                                          "cameraCapturesVideo=", _camera ? _camera.capturesVideo : false,
                                          "cameraMode=", _camera ? _camera.cameraMode : -99)
                             if(_cameraVideoMode) {
-                                if(_camera && _camera.capturesVideo) {
+                                if(_forceLocalVideoRecording && _videoManager && _videoManager.streaming) {
+                                    if (_videoManager.recording) {
+                                        _videoManager.stopRecording()
+                                    } else {
+                                        _videoManager.startRecording()
+                                    }
+                                } else if(_camera && _camera.capturesVideo) {
                                     if(_camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
                                         _camera.stopVideo()
                                         //-- Local video as well

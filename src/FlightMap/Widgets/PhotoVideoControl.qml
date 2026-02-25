@@ -85,6 +85,7 @@ Item {
     property bool   _mavlinkCameraAllowsPhotoWhileRecording:    false
     property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
+    property bool   _forceLocalVideoRecording:                  _mavlinkCamera && (((_mavlinkCamera.modelName || "").toUpperCase().indexOf("LR1") !== -1) || ((_mavlinkCamera.vendor || "").toUpperCase().indexOf("SONY") !== -1))
 
     // The following settings and functions unify between a mavlink camera and a simple video stream for simple access
 
@@ -130,6 +131,7 @@ Item {
         console.warn("PhotoVideoControl.toggleShooting",
                      "mavCam=", !!_mavlinkCamera,
                      "mavHasModes=", _mavlinkCameraHasModes,
+                     "forceLocalVideoRecording=", _forceLocalVideoRecording,
                      "mavInVideo=", _mavlinkCameraInVideoMode,
                      "videoStreamInPhotoMode=", _videoStreamInPhotoMode,
                      "videoRecording=", _videoStreamManager.recording,
@@ -152,7 +154,14 @@ Item {
             var useVideoMode = _mavlinkCameraHasModes ? _mavlinkCameraInVideoMode : !_videoStreamInPhotoMode
             if (useVideoMode) {
                 console.warn("PhotoVideoControl branch: useVideoMode")
-                if (_mavlinkCamera.capturesVideo) {
+                if (_forceLocalVideoRecording && _anyVideoStreamAvailable) {
+                    console.warn("PhotoVideoControl action: force local video recording (ILX-LR1)")
+                    if (_videoStreamManager.recording) {
+                        _videoStreamManager.stopRecording()
+                    } else {
+                        _videoStreamManager.startRecording()
+                    }
+                } else if (_mavlinkCamera.capturesVideo) {
                     console.warn("PhotoVideoControl action: _mavlinkCamera.toggleVideo")
                     _mavlinkCamera.toggleVideo()
                     // Keep a guaranteed local recording stream even when camera video status doesn't report RUNNING.
