@@ -44,6 +44,7 @@ Item {
     property real   _labelFieldWidth:       ScreenTools.defaultFontPixelWidth  * 28
     property real   _editFieldWidth:        ScreenTools.defaultFontPixelWidth  * 30
     property real   _editFieldHeight:       ScreenTools.defaultFontPixelHeight * 2
+    property var    _videoManager:          QGroundControl.videoManager
     property var    _videoReceiver:         QGroundControl.videoManager.videoReceiver
     property bool   _recordingLocalVideo:   _videoReceiver && _videoReceiver.recording
 
@@ -54,12 +55,14 @@ Item {
     property bool   _communicationLost:     activeVehicle ? activeVehicle.connectionLost : false
     property bool   _noSdCard:              _camera && _camera.storageTotal === 0
     property bool   _fullSD:                _camera && _camera.storageTotal !== 0 && _camera.storageFree > 0 && _camera.storageFree < 250 // We get kiB from the camera
-    property bool   _cameraVideoMode:       !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === QGCCameraControl.CAM_MODE_VIDEO)
-    property bool   _cameraPhotoMode:       !_communicationLost && (_noSdCard ? false : _camera && (_camera.cameraMode  === QGCCameraControl.CAM_MODE_PHOTO || _camera.cameraMode === QGCCameraControl.CAM_MODE_SURVEY))
+    property bool   _fallbackVideoAvailable:_videoManager && _videoManager.hasVideo && _camera && !_camera.hasModes
+    property bool   _fallbackVideoMode:     false
+    property bool   _cameraVideoMode:       !_communicationLost && ((_noSdCard ? false : _camera && _camera.cameraMode   === QGCCameraControl.CAM_MODE_VIDEO) || (_fallbackVideoAvailable && _fallbackVideoMode))
+    property bool   _cameraPhotoMode:       !_communicationLost && ((_noSdCard ? false : _camera && (_camera.cameraMode  === QGCCameraControl.CAM_MODE_PHOTO || _camera.cameraMode === QGCCameraControl.CAM_MODE_SURVEY)) || (_fallbackVideoAvailable && !_fallbackVideoMode))
     property bool   _cameraPhotoIdle:       !_communicationLost && (_noSdCard ? false : _camera && _camera.photoStatus  === QGCCameraControl.PHOTO_CAPTURE_IDLE)
     property bool   _cameraElapsedMode:     !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === QGCCameraControl.CAM_MODE_PHOTO && _camera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE)
     property bool   _cameraModeUndefined:   !_cameraPhotoMode && !_cameraVideoMode
-    property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
+    property bool   _recordingVideo:        (_cameraVideoMode && _camera && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) || (_fallbackVideoAvailable && _videoManager.recording)
     property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
     property bool   _hasZoom:               _camera && _camera.hasZoom
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
@@ -69,10 +72,51 @@ Item {
     property bool   _hasGimbal:             activeVehicle && activeVehicle.gimbalData
     property Fact   _viewproPip:            _camera ? _camera.getFact("PIP MODE") : null
     property Fact   _viewproColorPalette:   _camera ? _camera.getFact("IR MODE") : null
+    property double _localRecordStartMs:    0
+    property int    _localRecordElapsedMs:  0
+    property string _localRecordTimeStr:    _formatElapsed(_localRecordElapsedMs)
 
     function capitalize(str) {
         var strs = str
         return strs.toUpperCase()
+    }
+
+    function _formatElapsed(ms) {
+        var total = Math.floor(ms / 1000)
+        var h = Math.floor(total / 3600)
+        var m = Math.floor((total % 3600) / 60)
+        var s = total % 60
+        function pad(v) { return v < 10 ? ("0" + v) : ("" + v) }
+        return pad(h) + ":" + pad(m) + ":" + pad(s)
+    }
+
+    Timer {
+        id:                 _localRecordTimer
+        interval:           500
+        repeat:             true
+        running:            _fallbackVideoAvailable && _videoManager && _videoManager.recording
+        onTriggered:        _localRecordElapsedMs = Math.max(0, Date.now() - _localRecordStartMs)
+    }
+
+    Connections {
+        target: _videoManager
+        function onRecordingChanged() {
+            console.warn("CustomCameraControl.onRecordingChanged",
+                         "recording=", _videoManager ? _videoManager.recording : false,
+                         "streaming=", _videoManager ? _videoManager.streaming : false,
+                         "fallbackAvailable=", _fallbackVideoAvailable,
+                         "fallbackMode=", _fallbackVideoMode)
+            if (!_fallbackVideoAvailable) {
+                return
+            }
+            if (_videoManager.recording) {
+                _fallbackVideoMode = true
+                _localRecordStartMs = Date.now()
+                _localRecordElapsedMs = 0
+            } else {
+                _localRecordElapsedMs = 0
+            }
+        }
     }
 
 //    Connections {
@@ -331,7 +375,11 @@ Item {
                         anchors.fill:       parent
                         enabled:            !_cameraModeUndefined && _camera && _camera.videoStatus !== QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING && _cameraPhotoIdle
                         onClicked: {
-                            _camera.toggleMode()
+                            if (_camera && _camera.hasModes) {
+                                _camera.toggleMode()
+                            } else if (_fallbackVideoAvailable) {
+                                _fallbackVideoMode = !_fallbackVideoMode
+                            }
                         }
                     }
                 }
@@ -391,7 +439,7 @@ Item {
                         height:     width
                         color:      _cameraModeUndefined ? qgcPal.colorGrey : qgcPal.colorRed
                         visible: {
-                           if(_cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
+                           if(_cameraVideoMode && ((_camera && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) || (_fallbackVideoAvailable && _videoManager.recording))) {
                                return true
                            }
                            if(_cameraPhotoMode) {
@@ -407,20 +455,39 @@ Item {
                         anchors.fill:   parent
                         enabled:        !_noSdCard
                         onClicked: {
+                            console.warn("CustomCameraControl shutter click",
+                                         "cameraVideoMode=", _cameraVideoMode,
+                                         "cameraPhotoMode=", _cameraPhotoMode,
+                                         "fallbackAvailable=", _fallbackVideoAvailable,
+                                         "fallbackMode=", _fallbackVideoMode,
+                                         "streaming=", _videoManager ? _videoManager.streaming : false,
+                                         "recording=", _videoManager ? _videoManager.recording : false,
+                                         "cameraCapturesVideo=", _camera ? _camera.capturesVideo : false,
+                                         "cameraMode=", _camera ? _camera.cameraMode : -99)
                             if(_cameraVideoMode) {
-                                if(_camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
-                                    _camera.stopVideo()
-                                    //-- Local video as well
-                                    if (_recordingVideo) {
-                                        _videoReceiver.stopRecording()
+                                if(_camera && _camera.capturesVideo) {
+                                    if(_camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
+                                        _camera.stopVideo()
+                                        //-- Local video as well
+                                        if (_recordingVideo) {
+                                            _videoReceiver.stopRecording()
+                                        }
+                                    } else {
+                                        if(!_fullSD) {
+                                            _camera.startVideo()
+                                        }
+                                        //-- Local video as well
+                                        if(_videoReceiver) {
+                                            _videoReceiver.startRecording()
+                                        }
                                     }
                                 } else {
-                                    if(!_fullSD) {
-                                        _camera.startVideo()
-                                    }
-                                    //-- Local video as well
-                                    if(_videoReceiver) {
-                                        _videoReceiver.startRecording()
+                                    if (_videoManager && _videoManager.streaming) {
+                                        if (_videoManager.recording) {
+                                            _videoManager.stopRecording()
+                                        } else {
+                                            _videoManager.startRecording()
+                                        }
                                     }
                                 }
                             } else {
@@ -499,7 +566,7 @@ Item {
                 //-----------------------------------------------------------------
                 //-- Recording Time / Images Captured
                 QGCLabel {
-                    text:               (_cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _camera.recordTimeStr : "00:00:00"
+                    text:               (_cameraVideoMode && _camera && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _camera.recordTimeStr : ((_cameraVideoMode && _fallbackVideoAvailable && _videoManager.recording) ? _localRecordTimeStr : "00:00:00")
                     visible:            _cameraVideoMode
                     font.pointSize:     ScreenTools.smallFontPointSize
                     anchors.horizontalCenter: parent.horizontalCenter

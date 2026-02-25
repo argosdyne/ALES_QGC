@@ -17,6 +17,7 @@
 #include "QGCCameraManager.h"
 #include "RadioComponentController.h"
 #include "Autotune.h"
+#include "AudioControl.h"
 
 #include <QRegularExpression>
 #include <QDebug>
@@ -700,6 +701,22 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle*)
         _cameraList.append(QVariant::fromValue(metaData));
 
         metaData = new CameraMetaData(
+                    "Sony ILX-LR1 35mm",
+                    tr("Sony"),
+                    tr("ILX-LR1 35mm"),
+                    35.7,               // sensorWidth
+                    23.8,               // sensorHeight
+                    9504,               // imageWidth
+                    6336,               // imageHeight
+                    35,                 // focalLength
+                    true,               // true: landscape orientation
+                    false,              // true: camera is fixed orientation
+                    1.0,                // minimum trigger interval
+                    "",
+                    this);              // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
                     "Sony DSC-QX30U @ 4.3mm f/3.5",
                     tr("Sony"),
                     tr("DSC-QX30U @ 4.3mm f/3.5"),
@@ -1072,6 +1089,11 @@ QGCCameraManager* FirmwarePlugin::createCameraManager(Vehicle* vehicle)
 QGCCameraControl* FirmwarePlugin::createCameraControl(const mavlink_camera_information_t *info, Vehicle *vehicle, int compID, LinkInterface* link, QObject* parent)
 {
     return new QGCCameraControl(info, vehicle, compID, link, parent);
+}
+
+AudioControl* FirmwarePlugin::createAudioControl(Vehicle* vehicle)
+{
+    return new AudioControl(vehicle);
 }
 
 uint32_t FirmwarePlugin::highLatencyCustomModeTo32Bits(uint16_t hlCustomMode)

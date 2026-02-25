@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'Argos_Stable4.4'
-      - 'Argos_Stable4.4_CICD'
     tags:
       - 'v*'
     paths-ignore:
@@ -52,15 +51,9 @@ jobs:
           setup-python: false
 
       - name: Download JOM
-        uses: suisei-cn/actions-download-file@v1.3.0
-        with:
-          url:    http://download.qt.io/official_releases/jom/jom.zip
-          target: ${{ runner.temp }}\
-
-      - name: Unzip JOM
-        working-directory: ${{ runner.temp }}
-        run:  |
-              7z x jom.zip -ojom
+        run: |
+          curl -L -o ${{ runner.temp }}\jom.zip https://download.qt.io/official_releases/jom/jom_1_1_4.zip
+          7z x ${{ runner.temp }}\jom.zip -o${{ runner.temp }}\jom -y
 
       - name: Download Gstreamer
         uses: suisei-cn/actions-download-file@v1.3.0
@@ -79,6 +72,38 @@ jobs:
             cmd /c start /wait msiexec /package ${{ runner.temp }}\gstreamer-1.0-msvc-x86_64-1.18.1.msi /passive ADDLOCAL=ALL
             cmd /c start /wait msiexec /package ${{ runner.temp }}\gstreamer-1.0-devel-msvc-x86_64-1.18.1.msi /passive ADDLOCAL=ALL
 
+      - name: Install NSIS and VC++ Runtime
+        shell: pwsh
+        run: |
+            Write-Host "Installing NSIS..."
+            choco install nsis -y
+
+            $nsisPath = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+            if (!(Test-Path $nsisPath)) {
+                throw "makensis.exe not found after NSIS install"
+            }
+            Write-Host "NSIS OK: $nsisPath"
+
+            Write-Host "Downloading VC++ 2015-2022 Redistributable (x64)..."
+            $vcRedist = "$env:TEMP\vc_redist.x64.exe"
+            Invoke-WebRequest `
+              -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" `
+              -OutFile $vcRedist
+
+            if (!(Test-Path $vcRedist)) {
+                throw "vc_redist.x64.exe download failed"
+            }
+
+            Write-Host "Installing VC++ Redistributable..."
+            Start-Process `
+              -FilePath $vcRedist `
+              -ArgumentList "/install /quiet /norestart" `
+              -Wait
+
+            Write-Host "VC++ Redistributable install completed"
+
+
+
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}\shadow_build_dir
 
@@ -87,38 +112,10 @@ jobs:
         with:
           arch: x64
 
-      - name: Verify CustomPlugin.cc exists
-        run: |
-              if not exist "${{ env.SOURCE_DIR }}\custom\src\CustomPlugin.cc" (
-                echo ERROR: Missing file custom\src\CustomPlugin.cc
-                exit /b 1
-              )
-
       - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
         run:  |
               qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro CONFIG+=installer CONFIG+=${{ env. BUILD_TYPE }}
-              if exist Makefile (
-                findstr /I /C:"CustomPlugin.cc" /C:"CustomPlugin.obj" Makefile
-                findstr /N /I /C:"CustomPlugin.obj:" Makefile
-                setlocal EnableExtensions EnableDelayedExpansion
-                set "FOUND_CUSTOM_OBJ="
-                for /f "usebackq tokens=1 delims=:" %%F in (`findstr /I /C:"custom\\src" /C:"custom/src" Makefile ^| findstr /R /I /C:"\\.obj:"`) do (
-                  set "FOUND_CUSTOM_OBJ=1"
-                  set "OBJ=%%F"
-                  echo ==== !OBJ! ====
-                  ${{ runner.temp }}\jom\jom -n !OBJ! || exit /b 1
-                  ${{ runner.temp }}\jom\jom -j1 !OBJ! || exit /b 1
-                )
-                if not defined FOUND_CUSTOM_OBJ (
-                  echo ERROR: No custom obj rules found in Makefile
-                  exit /b 1
-                )
-                endlocal
-              ) else (
-                echo ERROR: Makefile not found after qmake
-                exit /b 1
-              )
               ${{ runner.temp }}\jom\jom -j2
 
       - name: Save installer artifact

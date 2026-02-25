@@ -10,9 +10,6 @@
 #include "LinkInterface.h"
 #include "LinkManager.h"
 #include "QGCApplication.h"
-#include "MAVLinkSigning.h"
-#include "SettingsManager.h"
-#include "AppSettings.h"
 
 QGC_LOGGING_CATEGORY(LinkInterfaceLog, "LinkInterfaceLog")
 
@@ -68,12 +65,6 @@ bool LinkInterface::_allocateMavlinkChannel()
         return false;
     }
     qCDebug(LinkInterfaceLog) << "_allocateMavlinkChannel" << _mavlinkChannel;
-
-    if (!initMavlinkSigning()) {
-        qCWarning(LinkInterfaceLog) << "Failed to initialize MAVLink signing on channel" << _mavlinkChannel;
-        return false;
-    }
-
     return true;
 }
 
@@ -108,41 +99,6 @@ void LinkInterface::removeVehicleReference(void)
         }
     } else {
         qCWarning(LinkInterfaceLog) << "removeVehicleReference called with no vehicle references";
-    }
-}
-
-bool LinkInterface::initMavlinkSigning(void)
-{
-    QByteArray signingKeyBytes;
-    if (qgcApp() && qgcApp()->toolbox() && qgcApp()->toolbox()->settingsManager() &&
-            qgcApp()->toolbox()->settingsManager()->appSettings()) {
-        signingKeyBytes = qgcApp()->toolbox()->settingsManager()->appSettings()->mavlink2SigningKey()->rawValue().toByteArray();
-    }
-
-    const mavlink_accept_unsigned_t callback = isSecureConnection()
-        ? MAVLinkSigning::secureConnectionAccceptUnsignedCallback
-        : MAVLinkSigning::insecureConnectionAccceptUnsignedCallback;
-
-    if (MAVLinkSigning::initSigning(static_cast<mavlink_channel_t>(_mavlinkChannel), signingKeyBytes, callback)) {
-        if (signingKeyBytes.isEmpty()) {
-            qCDebug(LinkInterfaceLog) << "Signing disabled on channel" << _mavlinkChannel;
-        } else {
-            qCDebug(LinkInterfaceLog) << "Signing enabled on channel" << _mavlinkChannel;
-        }
-        return true;
-    }
-
-    qCWarning(LinkInterfaceLog) << "Failed to enable signing on channel" << _mavlinkChannel;
-    return false;
-}
-
-void LinkInterface::setSigningSignatureFailure(bool failure)
-{
-    if (_signingSignatureFailure != failure) {
-        _signingSignatureFailure = failure;
-        if (_signingSignatureFailure) {
-            emit communicationError(tr("Signing Failure"), tr("Signing signature mismatch"));
-        }
     }
 }
 

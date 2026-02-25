@@ -857,14 +857,6 @@ void ParameterManager::_sendParamSetToVehicle(int componentId, const QString& pa
 
         strncpy(p.param_id, paramName.toStdString().c_str(), sizeof(p.param_id));
 
-        if (paramName == QStringLiteral("TOF_EN")) {
-            qInfo() << "MAVLINK PARAM_SET"
-                    << "name" << paramName
-                    << "value" << value
-                    << "type" << p.param_type
-                    << "target" << p.target_system << p.target_component;
-        }
-
         mavlink_message_t msg;
         mavlink_msg_param_set_encode_chan(_mavlink->getSystemId(),
                                           _mavlink->getComponentId(),

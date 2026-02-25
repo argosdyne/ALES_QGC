@@ -113,6 +113,7 @@ public:
     Q_INVOKABLE void stopRecording  ();
 
     Q_INVOKABLE void grabImage(const QString& imageFile = QString());
+    Q_INVOKABLE void notifyImageFileSaved(const QString& imageFile = QString());
 
 signals:
     void hasVideoChanged            ();
@@ -159,6 +160,7 @@ protected:
 
 protected:
     QString                 _videoFile;
+    QString                 _videoFile2;
     QString                 _imageFile;
     SubtitleWriter          _subtitleWriter;
     bool                    _isTaisync              = false;

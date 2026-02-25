@@ -29,6 +29,12 @@
 #include "Vehicle.h"
 #include "QGCCameraManager.h"
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroidExtras/QtAndroid>
+#include <QtAndroidExtras/QAndroidJniEnvironment>
+#include <QtAndroidExtras/QAndroidJniObject>
+#endif
+
 #if defined(QGC_GST_STREAMING)
 #include "GStreamer.h"
 #include "VideoSettings.h"
@@ -166,6 +172,9 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         _recording = active;
         if (!active) {
             _subtitleWriter.stopCapturingTelemetry();
+            // Ensure Android media index is refreshed so File/Gallery can see new recordings immediately.
+            notifyImageFileSaved(_videoFile);
+            notifyImageFileSaved(_videoFile2);
         }
         emit recordingChanged();
     });
@@ -346,6 +355,7 @@ VideoManager::startRecording(const QString& videoFile)
     }
 #if defined(QGC_GST_STREAMING)
     if (!_videoReceiver[0]) {
+        qCWarning(VideoManagerLog) << "startRecording failed: primary video receiver is null";
         qgcApp()->showAppMessage(tr("Video receiver is not ready."));
         return;
     }
@@ -353,6 +363,7 @@ VideoManager::startRecording(const QString& videoFile)
     const VideoReceiver::FILE_FORMAT fileFormat = static_cast<VideoReceiver::FILE_FORMAT>(_videoSettings->recordingFormat()->rawValue().toInt());
 
     if(fileFormat < VideoReceiver::FILE_FORMAT_MIN || fileFormat >= VideoReceiver::FILE_FORMAT_MAX) {
+        qCWarning(VideoManagerLog) << "startRecording failed: invalid file format index" << fileFormat;
         qgcApp()->showAppMessage(tr("Invalid video format defined."));
         return;
     }
@@ -364,6 +375,7 @@ VideoManager::startRecording(const QString& videoFile)
     QString savePath = qgcApp()->toolbox()->settingsManager()->appSettings()->videoSavePath();
 
     if (savePath.isEmpty()) {
+        qCWarning(VideoManagerLog) << "startRecording failed: video save path is empty";
         qgcApp()->showAppMessage(tr("Unabled to record video. Video save path must be specified in Settings."));
         return;
     }
@@ -372,16 +384,33 @@ VideoManager::startRecording(const QString& videoFile)
             + (videoFile.isEmpty() ? QDateTime::currentDateTime().toString("yyyy-MM-dd_hh.mm.ss") : videoFile)
             + ".";
     QString videoFile2 = _videoFile + "2." + ext;
+    _videoFile2 = videoFile2;
     _videoFile += ext;
 
-    if (_videoReceiver[0] && _videoStarted[0]) {
+    qCWarning(VideoManagerLog) << "startRecording request:"
+                               << "streaming=" << _streaming
+                               << "decoding=" << _decoding
+                               << "videoStarted0=" << _videoStarted[0]
+                               << "videoStarted1=" << _videoStarted[1]
+                               << "path=" << _videoFile;
+
+    if (_videoReceiver[0]) {
         _videoReceiver[0]->startRecording(_videoFile, fileFormat);
+    } else {
+        qCWarning(VideoManagerLog) << "startRecording skipped for receiver0:"
+                                   << "receiver0=" << (_videoReceiver[0] != nullptr)
+                                   << "videoStarted0=" << _videoStarted[0];
     }
-    if (_videoReceiver[1] && _videoStarted[1]) {
+    if (_videoReceiver[1]) {
         _videoReceiver[1]->startRecording(videoFile2, fileFormat);
+    } else {
+        qCWarning(VideoManagerLog) << "startRecording skipped for receiver1:"
+                                   << "receiver1=" << (_videoReceiver[1] != nullptr)
+                                   << "videoStarted1=" << _videoStarted[1];
     }
 
 #else
+    qCWarning(VideoManagerLog) << "startRecording failed: QGC_GST_STREAMING is disabled in this build";
     Q_UNUSED(videoFile)
 #endif
 }
@@ -425,6 +454,53 @@ VideoManager::grabImage(const QString& imageFile)
     _videoReceiver[0]->takeScreenshot(_imageFile);
 #else
     Q_UNUSED(imageFile)
+#endif
+}
+
+void
+VideoManager::notifyImageFileSaved(const QString& imageFile)
+{
+    const QString fileToScan = imageFile.isEmpty() ? _imageFile : imageFile;
+    if (fileToScan.isEmpty()) {
+        return;
+    }
+
+#if defined(Q_OS_ANDROID)
+    QAndroidJniObject context = QtAndroid::androidContext();
+    if (!context.isValid()) {
+        qCWarning(VideoManagerLog) << "notifyImageFileSaved: invalid Android context";
+        return;
+    }
+
+    QAndroidJniEnvironment env;
+    jclass stringClass = env->FindClass("java/lang/String");
+    if (!stringClass) {
+        qCWarning(VideoManagerLog) << "notifyImageFileSaved: unable to find java/lang/String";
+        return;
+    }
+
+    jobjectArray pathsArray = env->NewObjectArray(1, stringClass, nullptr);
+    if (!pathsArray) {
+        qCWarning(VideoManagerLog) << "notifyImageFileSaved: unable to allocate paths array";
+        return;
+    }
+
+    QAndroidJniObject pathJni = QAndroidJniObject::fromString(fileToScan);
+    env->SetObjectArrayElement(pathsArray, 0, pathJni.object<jstring>());
+
+    QAndroidJniObject::callStaticMethod<void>(
+        "android/media/MediaScannerConnection",
+        "scanFile",
+        "(Landroid/content/Context;[Ljava/lang/String;[Ljava/lang/String;Landroid/media/MediaScannerConnection$OnScanCompletedListener;)V",
+        context.object<jobject>(),
+        pathsArray,
+        nullptr,
+        nullptr);
+
+    env->DeleteLocalRef(pathsArray);
+    env->DeleteLocalRef(stringClass);
+#else
+    Q_UNUSED(fileToScan)
 #endif
 }
 

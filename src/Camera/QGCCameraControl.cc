@@ -439,6 +439,20 @@ QGCCameraControl::startVideo()
         qCDebug(CameraControlLog) << "startVideo()";
         //-- Check if camera can capture videos or if it can capture it while in Photo Mode
         if(!capturesVideo() || (cameraMode() == CAM_MODE_PHOTO && !videoInPhotoMode())) {
+            // Fallback for payloads which only support still capture but provide a live stream.
+            // In this case we record the incoming stream locally.
+            qCWarning(CameraControlLog) << "startVideo fallback:"
+                                        << "capturesVideo=" << capturesVideo()
+                                        << "cameraMode=" << cameraMode()
+                                        << "videoInPhotoMode=" << videoInPhotoMode()
+                                        << "streaming=" << (qgcApp()->toolbox()->videoManager() ? qgcApp()->toolbox()->videoManager()->streaming() : false)
+                                        << "recording=" << (qgcApp()->toolbox()->videoManager() ? qgcApp()->toolbox()->videoManager()->recording() : false);
+            if (qgcApp()->toolbox()->videoManager() &&
+                qgcApp()->toolbox()->videoManager()->streaming() &&
+                !qgcApp()->toolbox()->videoManager()->recording()) {
+                qgcApp()->toolbox()->videoManager()->startRecording();
+                return true;
+            }
             return false;
         }
         if(videoStatus() != VIDEO_CAPTURE_STATUS_RUNNING) {
@@ -466,6 +480,12 @@ QGCCameraControl::stopVideo()
                 MAV_CMD_VIDEO_STOP_CAPTURE,                 // Command id
                 false,                                      // Don't Show Error (handle locally)
                 0);                                         // Reserved (Set to 0)
+            return true;
+        }
+        // Fallback for local-only recording case.
+        if (qgcApp()->toolbox()->videoManager() &&
+            qgcApp()->toolbox()->videoManager()->recording()) {
+            qgcApp()->toolbox()->videoManager()->stopRecording();
             return true;
         }
     }

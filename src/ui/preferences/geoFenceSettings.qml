@@ -116,7 +116,7 @@ Rectangle {
                             GridLayout {
                                 columns: 2
                                 QGCLabel {
-                                    text:       qsTr("Set Alarm Distance (meters, 0 = off) ")
+                                    text:       qsTr("Set Alarm Distance (meters) ")
                                     visible:    alarmDistance.visible
                                 }
                                 FactTextField {
@@ -126,13 +126,11 @@ Rectangle {
                                     fact:                    _flyViewSettings.alarmDistance
                                 }
 
-                                // Alarm value must be >= 40 when enabled. 0 disables alerts.
+                                //Alarm value must over than 40
                                 Connections {
                                     target: alarmDistance
                                     function onEditingFinished() {
-                                        if (alarmDistance.fact.value < 0) {
-                                            alarmDistance.fact.value = 0;
-                                        } else if (alarmDistance.fact.value > 0 && alarmDistance.fact.value < 40) {
+                                        if (alarmDistance.fact.value < 40) {
                                             alarmDistance.fact.value = 40;
                                         }
                                     }

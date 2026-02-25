@@ -30,7 +30,6 @@ class CustomPlugin;
 class CustomSettings;
 class SiYiManager;
 class CodevRTCMManager;
-class YSManager;
 
 Q_DECLARE_LOGGING_CATEGORY(CustomLog)
 
@@ -66,7 +65,6 @@ public:
     Q_PROPERTY(CodevSettings* codevSettings READ codevSettings CONSTANT)
     Q_PROPERTY(CodevRTCMManager* codevRTCMManager READ codevRTCMManager CONSTANT)
     Q_PROPERTY(SiYiManager* siyiManager READ siyiManager CONSTANT)
-    Q_PROPERTY(YSManager* ysManager READ ysManager CONSTANT)
 
 
     bool coachMode() { return _coachMode; }
@@ -100,7 +98,6 @@ public:
     SiYiManager* siyiManager(){return _siyiManager;};
     CodevSettings* codevSettings() { return _codevSettings; }
     CodevRTCMManager* codevRTCMManager() { return _codevRTCMManager; }
-    YSManager* ysManager() { return _ysManager; }
 
     // Overrides from QGCTool
     void                    setToolbox                      (QGCToolbox* toolbox);
@@ -133,7 +130,6 @@ private:
     CodevSettings*      _codevSettings = nullptr;
     CustomSettings* _settings{nullptr};
     CodevRTCMManager*   _codevRTCMManager = nullptr;
-    YSManager* _ysManager = nullptr;
 
     CustomOptions*  _options = nullptr;
     QVariantList    _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation

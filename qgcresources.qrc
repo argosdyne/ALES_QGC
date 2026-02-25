@@ -26,7 +26,6 @@
 		<file alias="ZoomOut.svg">resources/ZoomOut.svg</file>
 		<file alias="SDCard.svg">resources/SDCard.svg</file>
 		<file alias="cameraSetting.svg">resources/cameraSetting.svg</file>
-		<file alias="setting-ys.svg">resources/setting-ys.svg</file>
         <file alias="helicoptericon.svg">resources/helicoptericon.svg</file>
         <file alias="BingNoTileBytes.dat">resources/BingNoTileBytes.dat</file>
         <file alias="JoystickBezel.png">resources/JoystickBezel.png</file>

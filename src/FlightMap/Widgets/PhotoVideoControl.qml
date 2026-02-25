@@ -13,6 +13,7 @@ import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.4
 import QtQuick.Dialogs          1.2
 import QtGraphicalEffects       1.0
+import QtQuick.Window           2.11
 
 import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
@@ -22,6 +23,11 @@ import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
+import QGroundControl.FlightDisplay     1.0
+import QGroundControl.FlightMap         1.0
+
+
+
 Item {    
     implicitHeight: content.implicitHeight    
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -45,6 +51,9 @@ Item {
     property bool   _videoStreamCanShoot:                       _videoStreamIsStreaming
     property bool   _videoStreamIsShootingInCurrentMode:        _videoStreamInPhotoMode ? !_simplePhotoCaptureIsIdle : _videoStreamRecording
     property bool   _videoStreamInPhotoMode:                    false    
+    property double _localRecordStartMs:                        0
+    property int    _localRecordElapsedMs:                      0
+    property string _localRecordTimeStr:                        _formatElapsed(_localRecordElapsedMs)
 
     property real zoomLevel: 1.0  // Start at 1x
     property real maxZoom: 30.0
@@ -81,8 +90,8 @@ Item {
 
     property bool   _anyVideoStreamAvailable:                   _videoStreamManager.hasVideo
     property string _cameraName:                                _mavlinkCamera ? _mavlinkCameraName : ""
-    property bool   _showModeIndicator:                         _mavlinkCamera ? _mavlinkCameraHasModes : _videoStreamManager.hasVideo
-    property bool   _modeIndicatorPhotoMode:                    _mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable
+    property bool   _showModeIndicator:                         _mavlinkCamera ? (_mavlinkCameraHasModes || _videoStreamManager.hasVideo) : _videoStreamManager.hasVideo
+    property bool   _modeIndicatorPhotoMode:                    _mavlinkCamera ? (_mavlinkCameraHasModes ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode) : _videoStreamInPhotoMode || _onlySimpleCameraAvailable
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
@@ -90,23 +99,42 @@ Item {
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
+    property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+
     //----------------------------------------------------------------------------------------------- Functions
+    function _formatElapsed(ms) {
+        var total = Math.floor(ms / 1000)
+        var h = Math.floor(total / 3600)
+        var m = Math.floor((total % 3600) / 60)
+        var s = total % 60
+        function pad(v) { return v < 10 ? ("0" + v) : ("" + v) }
+        return pad(h) + ":" + pad(m) + ":" + pad(s)
+    }
+
     function setCameraMode(photoMode) {
         console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
 
-        if (_mavlinkCamera){
-            if (_mavlinkCameraInPhotoMode) {
-                _mavlinkCamera.setVideoMode()
-            } else {
+        if (_mavlinkCamera && _mavlinkCameraHasModes) {
+            if (photoMode) {
                 _mavlinkCamera.setPhotoMode()
+            } else {
+                _mavlinkCamera.setVideoMode()
             }
+        } else if (!_mavlinkCamera && !_anyVideoStreamAvailable) {
+            console.warn("No camera available to switch mode!")
         }
-        console.warn("No camera available to switch mode!")
-
     }
     function toggleShooting() {
         console.log("toggleShooting", _anyVideoStreamAvailable)        
+        console.warn("PhotoVideoControl.toggleShooting",
+                     "mavCam=", !!_mavlinkCamera,
+                     "mavHasModes=", _mavlinkCameraHasModes,
+                     "mavInVideo=", _mavlinkCameraInVideoMode,
+                     "videoStreamInPhotoMode=", _videoStreamInPhotoMode,
+                     "videoRecording=", _videoStreamManager.recording,
+                     "streaming=", _videoStreamManager.streaming,
+                     "simpleCamAvailable=", _simpleCameraAvailable)
 
         // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
@@ -120,9 +148,32 @@ Item {
         }
 
         if (mavlinkCameraCaptureVideoOrPhotos) {
-            if(_mavlinkCameraInVideoMode) {
-                _mavlinkCamera.toggleVideo()
+            console.warn("PhotoVideoControl branch: mavlinkCameraCaptureVideoOrPhotos")
+            var useVideoMode = _mavlinkCameraHasModes ? _mavlinkCameraInVideoMode : !_videoStreamInPhotoMode
+            if (useVideoMode) {
+                console.warn("PhotoVideoControl branch: useVideoMode")
+                if (_mavlinkCamera.capturesVideo) {
+                    console.warn("PhotoVideoControl action: _mavlinkCamera.toggleVideo")
+                    _mavlinkCamera.toggleVideo()
+                    // Keep a guaranteed local recording stream even when camera video status doesn't report RUNNING.
+                    if (_videoStreamManager.streaming) {
+                        console.warn("PhotoVideoControl action: local recording toggle fallback")
+                        if (_videoStreamManager.recording) {
+                            _videoStreamManager.stopRecording()
+                        } else {
+                            _videoStreamManager.startRecording()
+                        }
+                    }
+                } else if (_anyVideoStreamAvailable) {
+                    console.warn("PhotoVideoControl action: videoStreamManager recording toggle")
+                    if (_videoStreamManager.recording) {
+                        _videoStreamManager.stopRecording()
+                    } else {
+                        _videoStreamManager.startRecording()
+                    }
+                }
             } else {
+                console.warn("PhotoVideoControl branch: photoMode capture")
                 if(_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle && _mavlinkCameraElapsedMode) {
                     _mavlinkCamera.stopTakePhoto()
                 } else {
@@ -130,15 +181,18 @@ Item {
                 }
             }
         } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode && !videoGrabRadio.checked)) {
+            console.warn("PhotoVideoControl branch: simpleCamera trigger")
             _simplePhotoCaptureIsIdle = false
             _activeVehicle.triggerSimpleCamera()
             simplePhotoCaptureTimer.start()
         } else if (_anyVideoStreamAvailable) {
+            console.warn("PhotoVideoControl branch: videoStream fallback")
             if (_videoStreamInPhotoMode) {
                 _simplePhotoCaptureIsIdle = false
                 _videoStreamManager.grabImage()
                 simplePhotoCaptureTimer.start()
             } else {
+                console.warn("PhotoVideoControl action: videoStream recording toggle")
                 if (_videoStreamManager.recording) {
                     _videoStreamManager.stopRecording()
                 } else {
@@ -148,10 +202,46 @@ Item {
         }
     }
 
+    function getZoomValue() {
+        // 기본값
+        if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
+            return "1";
+        }
+
+        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
+        var digital = (_dZoom ? _dZoom.value : 1.0);
+
+        var effective = optical * digital;
+        
+        return effective.toFixed(0);
+
+    }
+
     Timer {
         id:             simplePhotoCaptureTimer
         interval:       500
         onTriggered:    _simplePhotoCaptureIsIdle = true
+    }
+
+    Timer {
+        id:                 _localRecordTimer
+        interval:           500
+        repeat:             true
+        running:            _videoStreamManager.recording
+        onTriggered:        _localRecordElapsedMs = Math.max(0, Date.now() - _localRecordStartMs)
+    }
+
+    Connections {
+        target: _videoStreamManager
+        function onRecordingChanged() {
+            console.warn("PhotoVideoControl.onRecordingChanged", "recording=", _videoStreamManager.recording, "streaming=", _videoStreamManager.streaming)
+            if (_videoStreamManager.recording) {
+                _localRecordStartMs = Date.now()
+                _localRecordElapsedMs = 0
+            } else {
+                _localRecordElapsedMs = 0
+            }
+        }
     }
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
@@ -189,49 +279,27 @@ Item {
                     onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
                 }
             }
-            //Camera Settings + YS
-            ColumnLayout {
-                spacing: ScreenTools.defaultFontPixelHeight * 0.5
+            //Camera Settings
+            Rectangle {
+                height: ScreenTools.defaultFontPixelHeight * 2
+                width: height
+                radius: width
+                color: "gray"
 
-                Rectangle {
-                    height: ScreenTools.defaultFontPixelHeight * 2
+                QGCColoredImage {
+                    anchors.centerIn: parent
+                    source: "/res/cameraSetting.svg"
+                    mipmap: true
+                    height: ScreenTools.defaultFontPixelHeight
                     width: height
-                    radius: width
-                    color: "gray"
-
-                    QGCColoredImage {
-                        anchors.centerIn: parent
-                        source: "/res/cameraSetting.svg"
-                        mipmap: true
-                        height: ScreenTools.defaultFontPixelHeight
-                        width: height
-                        sourceSize.height: height
-                        color: qgcPal.text
-                        fillMode: Image.PreserveAspectFit
-                        visible: !_onlySimpleCameraAvailable
-                    }
-                    QGCMouseArea {
-                        fillItem: parent
-                        onClicked: settingsDialogComponent.createObject(mainWindow).open()
-                    }
+                    sourceSize.height: height
+                    color: qgcPal.text
+                    fillMode: Image.PreserveAspectFit
+                    visible: !_onlySimpleCameraAvailable
                 }
-
-                Rectangle {
-                    height: ScreenTools.defaultFontPixelHeight * 2
-                    width: height
-                    radius: width
-                    color: "gray"
-
-                    QGCLabel {
-                        anchors.centerIn: parent
-                        text: "YS"
-                        font.bold: true
-                        color: qgcPal.text
-                    }
-                    QGCMouseArea {
-                        fillItem: parent
-                        onClicked: ysDialogComponent.createObject(mainWindow).open()
-                    }
+                QGCMouseArea {
+                    fillItem: parent
+                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
                 }
             }
         }
@@ -328,10 +396,10 @@ Item {
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
-            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
+            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : (_videoStreamManager.recording ? _localRecordTimeStr : "00:00:00")
             font.pointSize:     ScreenTools.largeFontPointSize
             font.bold:          true
-            visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
+            visible:            _mavlinkCameraInVideoMode && (_mavlinkCamera.capturesVideo || _videoStreamManager.streaming)
         }
 
         // ───────────────────────────────
@@ -382,9 +450,8 @@ Item {
 
                 Label {
                     anchors.centerIn: parent
-                    text: "x" + (_hasZoom && _mavlinkCamera
-                                 ? _mavlinkCamera.zoomLevel.toFixed(0)
-                                 : 1)
+                    text: "x" + getZoomValue()
+
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -669,29 +736,35 @@ Item {
                                 readOnly:           fact.readOnly
                                 selectByMouse:      !fact.readOnly
                                 activeFocusOnPress: !fact.readOnly
-                            }                        
-                            QGCSlider {
-                                Layout.fillWidth:           true
-                                maximumValue:               parent._fact.max
-                                minimumValue:               parent._fact.min
-                                stepSize:                   parent._fact.increment
-                                displayValue:               true
-                                visible:                    parent._isSlider
-                                updateValueWhileDragging:   false
-                                property bool initialized:  false
-
-                                onValueChanged: {
-                                    if (!initialized) {
-                                        return
-                                    }
-                                    parent._fact.value = value
-                                }
-
-                                Component.onCompleted: {
-                                    value = parent._fact.value
-                                    initialized = true
-                                }
                             }
+                            FactSpinBox {
+                                Layout.fillWidth:   true
+                                fact:               parent._fact
+                                visible:            parent._isSlider
+                            }
+
+                            // QGCSlider {
+                            //     Layout.fillWidth:           true
+                            //     maximumValue:               parent._fact.max
+                            //     minimumValue:               parent._fact.min
+                            //     stepSize:                   parent._fact.increment
+                            //     displayValue:               true
+                            //     visible:                    parent._isSlider
+                            //     updateValueWhileDragging:   false
+                            //     property bool initialized:  false
+
+                            //     onValueChanged: {
+                            //         if (!initialized) {
+                            //             return
+                            //         }
+                            //         parent._fact.value = value
+                            //     }
+
+                            //     Component.onCompleted: {
+                            //         value = parent._fact.value
+                            //         initialized = true
+                            //     }
+                            // }
                             QGCSwitch {
                                 checked:        parent._fact ? parent._fact.value : false
                                 visible:        parent._isBool
@@ -775,22 +848,6 @@ Item {
                         }
                     }    
                   }
-            }
-        }
-    }
-
-    Component {
-        id: ysDialogComponent
-
-        QGCPopupDialog {
-            id:         ysDialog
-            title:      qsTr("YS")
-            buttons:    StandardButton.Close
-
-            Rectangle {
-                width:  ScreenTools.defaultFontPixelWidth * 40
-                height: ScreenTools.defaultFontPixelHeight * 20
-                color:  "white"
             }
         }
     }

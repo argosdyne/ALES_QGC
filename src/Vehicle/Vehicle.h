@@ -79,6 +79,7 @@ class InitialConnectStateMachine;
 class Autotune;
 class RemoteIDManager;
 class GimbalController;
+class AudioControl;
 
 namespace events {
 namespace parser {
@@ -258,8 +259,8 @@ public:
     Q_PROPERTY(bool                 allSensorsHealthy           READ allSensorsHealthy                                              NOTIFY allSensorsHealthyChanged)    //< true: all sensors in SYS_STATUS reported as healthy
     Q_PROPERTY(bool                 requiresGpsFix              READ requiresGpsFix                                                 NOTIFY requiresGpsFixChanged)
     Q_PROPERTY(double               loadProgress                READ loadProgress                                                   NOTIFY loadProgressChanged)
-    Q_PROPERTY(bool                 initialConnectComplete      READ isInitialConnectComplete                                       NOTIFY initialConnectComplete)
-
+    Q_PROPERTY(bool                 initialConnectComplete      READ isInitialConnectComplete                                       NOTIFY initialConnectComplete)    
+    Q_PROPERTY(AudioControl* audioControl READ audioControl CONSTANT)
     // The following properties relate to Orbit status
     Q_PROPERTY(bool             orbitActive     READ orbitActive        NOTIFY orbitActiveChanged)
     Q_PROPERTY(QGCMapCircle*    orbitMapCircle  READ orbitMapCircle     CONSTANT)
@@ -459,12 +460,11 @@ public:
 
     /// Clears all PARAM_MAP_RC settings from vehicle
     Q_INVOKABLE void clearAllParamMapRC(void);
-    Q_INVOKABLE void sendSetupSigning(void);
 
     /// Removes the vehicle from the system
     Q_INVOKABLE void closeVehicle(void) { _vehicleLinkManager->closeVehicle(); }
 
-    /// Trigger camera using MAV_CMD_DO_DIGICAM_CONTROL command
+    /// Trigger camera using MAV_CMD_IMAGE_START_CAPTURE and fallback to MAV_CMD_DO_DIGICAM_CONTROL
     Q_INVOKABLE void triggerSimpleCamera(void);
 
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -888,6 +888,8 @@ public:
     QGCCameraManager*           cameraManager       () { return _cameraManager; }
     QString                     hobbsMeter          ();
 
+    AudioControl*               audioControl        () {return _audioControl; }
+
     /// The vehicle is responsible for making the initial request for the Plan.
     /// @return: true: initial request is complete, false: initial request is still in progress;
     bool initialPlanRequestComplete() const { return _initialPlanRequestComplete; }
@@ -1006,6 +1008,8 @@ signals:
     void gitHashChanged                 (QString hash);
     void vehicleUIDChanged              ();
     void loadProgressChanged            (float value);
+
+    void audioControlChanged            ();
 
     /// New RC channel values coming from RC_CHANNELS message
     ///     @param channelCount Number of available channels, cMaxRcChannels max
@@ -1145,6 +1149,7 @@ private:
     bool setFlightModeCustom            (const QString& flightMode, uint8_t* base_mode, uint32_t* custom_mode);
 
     static void _rebootCommandResultHandler(void* resultHandlerData, int compId, const mavlink_command_ack_t& ack, MavCmdResultFailureCode_t failureCode);
+    static void _triggerSimpleCameraCommandResultHandler(void* resultHandlerData, int compId, const mavlink_command_ack_t& ack, MavCmdResultFailureCode_t failureCode);
 
     int     _id;                    ///< Mavlink system id
     int     _defaultComponentId;
@@ -1215,6 +1220,8 @@ private:
     SysStatusSensorInfo _sysStatusSensorInfo;
 
     QGCCameraManager* _cameraManager = nullptr;
+
+    AudioControl* _audioControl = nullptr;
 
     QString             _prearmError;
     QTimer              _prearmErrorTimer;

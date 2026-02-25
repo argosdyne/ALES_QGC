@@ -132,7 +132,6 @@ public:
     SharedLinkInterfacePtr sharedLinkInterfacePointerForLink(LinkInterface* link, bool ignoreNull=false);
 
     bool containsLink(LinkInterface* link);
-    void resetMavlinkSigning(void);
 
     SharedLinkConfigurationPtr addConfiguration(LinkConfiguration* config);
 

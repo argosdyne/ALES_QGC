@@ -84,6 +84,8 @@ Item {
                         videoContent.grabToImage(function(result) {
                             if (!result.saveToFile(QGroundControl.videoManager.imageFile)) {
                                 console.error('Error capturing video frame');
+                            } else {
+                                QGroundControl.videoManager.notifyImageFileSaved(QGroundControl.videoManager.imageFile)
                             }
                         });
                     }

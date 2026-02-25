@@ -148,8 +148,8 @@ Item {
 
     //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
 
-    //         // Start tracking using the globally available camera        
-    //         // Exit tracking mode    
+    //         // Start tracking using the globally available camera
+    //         // Exit tracking mode
     //     }
     // }
 
@@ -321,7 +321,7 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
-                                        console.log("setSpotTemp Point = ", x, y)                                        
+                                        console.log("setSpotTemp Point = ", x, y)
                 } else if(aiInThermal) {
                     var point = Qt.point(x, y)
                     _ensureTrackingDefaults()

@@ -69,6 +69,7 @@ GeoZoneFileDialog						1.0 GeoZoneFileDialog.qml
 QGCFlickable                            1.0 QGCFlickable.qml
 QGCGroupBox                             1.0 QGCGroupBox.qml
 QGCLabel                                1.0 QGCLabel.qml
+QGCSpinBox								1.0 QGCSpinBox.qml	
 QGCListView                             1.0 QGCListView.qml
 QGCMapCircleVisuals                     1.0 QGCMapCircleVisuals.qml
 QGCMapLabel                             1.0 QGCMapLabel.qml

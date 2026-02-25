@@ -116,7 +116,6 @@ public:
     // LinkInterface overrides
     bool isConnected(void) const override;
     void disconnect (void) override;
-    bool isSecureConnection(void) const override { return _serialConfig && _serialConfig->usbDirect(); }
 
     /// Don't even think of calling this method!
     QSerialPort* _hackAccessToPort(void) { return _port; }

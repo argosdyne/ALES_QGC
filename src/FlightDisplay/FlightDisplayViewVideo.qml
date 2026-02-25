@@ -104,6 +104,8 @@ Item {
                         videoContent.grabToImage(function(result) {
                             if (!result.saveToFile(QGroundControl.videoManager.imageFile)) {
                                 console.error('Error capturing video frame');
+                            } else {
+                                QGroundControl.videoManager.notifyImageFileSaved(QGroundControl.videoManager.imageFile)
                             }
                         });
                     }
@@ -233,6 +235,16 @@ Item {
                 from: 1.0
                 to: 0.0
                 easing.type: Easing.InExpo
+            }
+        }
+
+        MouseArea {
+            id: flyVideoMouseArea
+            anchors.fill: parent
+            enabled: pipState.state === pipState.fullState
+
+            onDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
             }
         }
 

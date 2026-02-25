@@ -311,6 +311,12 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     if(f1 != _f1Pressed) {
         _f1Pressed = f1;
         emit buttonPressed(AVIATOR_FUNCTION_GIMBAL_RESET, _f1Pressed);
+
+        //Reset Digital Zoom
+        Fact* dZoomFact =  getFact("EO_DZOOM");
+        if(dZoomFact) {
+            dZoomFact->setRawValue(1.0);
+        }
     }
 
     // F2 

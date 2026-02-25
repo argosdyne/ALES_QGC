@@ -89,7 +89,6 @@ SOURCES += \
     $$PWD/src/CustomSettings.cc \
     $$PWD/src/ARLink/ARConnection.cpp \
     $$PWD/src/ARLink/ARManager.cpp \
-    $$PWD/src/YS/YSManager.cpp \
     $$PWD/src/CustomQmlInterface.cc \
     $$PWD/src/AVIATOR/AVIATORInterface.cpp \
     $$PWD/src/MissionManager/FlightZoneManager.cpp
@@ -110,7 +109,6 @@ HEADERS += \
     $$PWD/src/lockedqueue.h \
     $$PWD/src/ARLink/ARConnection.h \
     $$PWD/src/ARLink/ARManager.h \
-    $$PWD/src/YS/YSManager.h \
     $$PWD/src/CustomQmlInterface.h \
     $$PWD/src/AVIATOR/AVIATORInterface.h \
     $$PWD/src/MissionManager/FlightZoneManager.h
@@ -120,7 +118,6 @@ INCLUDEPATH += \
     $$PWD/src/SiYi/ \
     $$PWD/src/RTCM/ \
     $$PWD/src/ARLink/ \
-    $$PWD/src/YS/ \
     $$PWD/src/AVIATOR/ \
     $$PWD/src/MissionManager \
     $$PWD/src/Rhythm
@@ -131,7 +128,6 @@ VPATH += \
     $$PWD/src/RTCM \
     $$PWD/src/SiYi \
     $$PWD/src/ARLink \
-    $$PWD/src/YS \
     $$PWD/src/AVIATOR \
     $$PWD/src/MissionManager \
     $$PWD/src/FirmwarePlugin \

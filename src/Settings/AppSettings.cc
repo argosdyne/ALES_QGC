@@ -11,7 +11,6 @@
 #include "QGCPalette.h"
 #include "QGCApplication.h"
 #include "ParameterManager.h"
-#include "LinkManager.h"
 
 #ifdef __android__
 #include "AndroidInterface.h"
@@ -182,14 +181,6 @@ DECLARE_SETTINGSFACT(AppSettings, firstRunPromptIdsShown)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlink)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkHostName)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkAPMSupportHostName)
-DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, mavlink2SigningKey)
-{
-    if (!_mavlink2SigningKeyFact) {
-        _mavlink2SigningKeyFact = _createSettingsFact(mavlink2SigningKeyName);
-        connect(_mavlink2SigningKeyFact, &Fact::rawValueChanged, this, &AppSettings::_mavlink2SigningKeyChanged);
-    }
-    return _mavlink2SigningKeyFact;
-}
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {
@@ -272,13 +263,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
 void AppSettings::_qLocaleLanguageChanged()
 {
     qgcApp()->setLanguage();
-}
-
-void AppSettings::_mavlink2SigningKeyChanged()
-{
-    if (qgcApp() && qgcApp()->toolbox() && qgcApp()->toolbox()->linkManager()) {
-        qgcApp()->toolbox()->linkManager()->resetMavlinkSigning();
-    }
 }
 
 void AppSettings::_checkSavePathDirectories(void)

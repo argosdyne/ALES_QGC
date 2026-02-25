@@ -78,7 +78,6 @@ public:
     // LinkInterface overrides
     bool isConnected(void) const override;
     void disconnect (void) override;
-    bool isSecureConnection(void) const override { return false; }
 
 private slots:
     void _socketError   (QAbstractSocket::SocketError socketError);

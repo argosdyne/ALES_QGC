@@ -22,8 +22,6 @@ add_library(comm
 	LinkManager.h
 	LogReplayLink.cc
 	LogReplayLink.h
-	MAVLinkSigning.cc
-	MAVLinkSigning.h
 	MavlinkMessagesTimer.cc
 	MavlinkMessagesTimer.h
 	MAVLinkProtocol.cc

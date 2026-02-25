@@ -57,7 +57,8 @@
 #endif
 #include "Autotune.h"
 #include "RemoteIDManager.h"
-#include "MAVLinkSigning.h"
+
+#include "AudioControl.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
@@ -269,6 +270,10 @@ Vehicle::Vehicle(LinkInterface*             link,
 
     // Start timer to limit altitude above terrain queries
     _altitudeAboveTerrQueryTimer.restart();
+
+    //Create Audio Control
+    _audioControl = _firmwarePlugin->createAudioControl(this);
+    emit audioControlChanged();
 }
 
 // Disconnected Vehicle for offline editing
@@ -1943,68 +1948,9 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
 
-    if (message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_COUNT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM_INT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ACK ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_CLEAR_ALL ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_SET_CURRENT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST) {
-        qInfo() << "TX mavlink"
-                << "msgid" << message.msgid
-                << "sysid" << message.sysid
-                << "compid" << message.compid
-                << "chan" << link->mavlinkChannel();
-    }
-
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     int len = mavlink_msg_to_send_buffer(buffer, &message);
-
-    if (message.msgid == MAVLINK_MSG_ID_PARAM_SET) {
-        mavlink_param_set_t paramSet;
-        mavlink_msg_param_set_decode(&message, &paramSet);
-        char paramId[MAVLINK_MSG_PARAM_SET_FIELD_PARAM_ID_LEN + 1] = {};
-        strncpy(paramId, paramSet.param_id, MAVLINK_MSG_PARAM_SET_FIELD_PARAM_ID_LEN);
-        if (QString::fromLatin1(paramId) == QStringLiteral("TOF_EN")) {
-            const char* ver = (buffer[0] == 0xFD) ? "v2" : "v1";
-            const QString rawHex = QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(buffer), len).toHex(' ').toUpper());
-            const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
-            qInfo().noquote() << QStringLiteral("MAVLinkProtocolLog: TX MAVLink link: \"%1\" chan: %2 ver: %3 sysid: %4 compid: %5 msgid: %6 len: %7 seq: %8 raw: \"%9\"")
-                                     .arg(linkName)
-                                     .arg(link->mavlinkChannel())
-                                     .arg(QLatin1String(ver))
-                                     .arg(message.sysid)
-                                     .arg(message.compid)
-                                     .arg(message.msgid)
-                                     .arg(len)
-                                     .arg(message.seq)
-                                     .arg(rawHex);
-        }
-    }
-
-    if (message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_COUNT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM_INT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_ACK ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_CLEAR_ALL ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_SET_CURRENT ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST ||
-        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST) {
-        QByteArray raw(reinterpret_cast<const char*>(buffer), len);
-        qInfo() << "TX mavlink raw"
-                << "msgid" << message.msgid
-                << "magic" << QString::number(message.magic, 16)
-                << "len" << len
-                << "data" << raw.toHex(' ');
-    }
 
     link->writeBytesThreadSafe((const char*)buffer, len);
     _messagesSent++;
@@ -4444,47 +4390,6 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     if (fenceStatus.breach_status == 1) {
         if (now - lastUpdate > 3000) {
             lastUpdate = now;
-            // Suppress fence audio if fence is disabled or the relevant fence type is off.
-            bool fenceEnabled = true;
-            bool altitudeEnabled = true;
-            bool boundaryEnabled = true;
-            if (parameterManager()) {
-                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_ENABLE"))) {
-                    fenceEnabled = parameterManager()
-                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_ENABLE"))
-                            ->rawValue()
-                            .toInt() != 0;
-                }
-                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_TYPE"))) {
-                    const int fenceType = parameterManager()
-                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_TYPE"))
-                            ->rawValue()
-                            .toInt();
-                    altitudeEnabled = fenceType & 1;
-                    boundaryEnabled = fenceType & (2 | 4);
-                }
-                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_RADIUS"))) {
-                    const double fenceRadius = parameterManager()
-                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_RADIUS"))
-                            ->rawValue()
-                            .toDouble();
-                    if (fenceRadius <= 0) {
-                        boundaryEnabled = false;
-                    }
-                }
-            }
-
-            if (!fenceEnabled) {
-                return;
-            }
-            if ((fenceStatus.breach_type == FENCE_BREACH_MINALT || fenceStatus.breach_type == FENCE_BREACH_MAXALT) &&
-                !altitudeEnabled) {
-                return;
-            }
-            if (fenceStatus.breach_type == FENCE_BREACH_BOUNDARY && !boundaryEnabled) {
-                return;
-            }
-
             QString breachTypeStr;
             switch (fenceStatus.breach_type) {
                 case FENCE_BREACH_NONE:
@@ -4574,34 +4479,6 @@ void Vehicle::clearAllParamMapRC(void)
     }
 }
 
-void Vehicle::sendSetupSigning(void)
-{
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "sendSetupSigning: primary link gone!";
-        return;
-    }
-
-    const mavlink_channel_t channel = static_cast<mavlink_channel_t>(sharedLink->mavlinkChannel());
-
-    mavlink_setup_signing_t setupSigning;
-    mavlink_system_t targetSystem;
-    targetSystem.sysid = static_cast<uint8_t>(_id);
-    targetSystem.compid = static_cast<uint8_t>(_defaultComponentId);
-    MAVLinkSigning::createSetupSigning(channel, targetSystem, setupSigning);
-
-    mavlink_message_t message;
-    mavlink_msg_setup_signing_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
-                                          static_cast<uint8_t>(_mavlink->getComponentId()),
-                                          channel,
-                                          &message,
-                                          &setupSigning);
-
-    for (uint8_t i = 0; i < 2; i++) {
-        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-    }
-}
-
 void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons)
 {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
@@ -4640,11 +4517,34 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
 
 void Vehicle::triggerSimpleCamera()
 {
-    sendMavCommand(_defaultComponentId,
-                   MAV_CMD_DO_DIGICAM_CONTROL,
-                   true,                        // show errors
-                   0.0, 0.0, 0.0, 0.0,          // param 1-4 unused
-                   1.0);                        // trigger camera
+    // Prefer Camera Protocol v2 single-shot capture and fallback to legacy digicam trigger.
+    Vehicle::MavCmdAckHandlerInfo_t handlerInfo = {};
+    handlerInfo.resultHandler = _triggerSimpleCameraCommandResultHandler;
+    handlerInfo.resultHandlerData = this;
+    sendMavCommandWithHandler(&handlerInfo,
+                              _defaultComponentId,
+                              MAV_CMD_IMAGE_START_CAPTURE,
+                              0.0f,   // Reserved (set to 0)
+                              0.0f,   // Single image capture
+                              1.0f);  // Number of images to capture
+}
+
+void Vehicle::_triggerSimpleCameraCommandResultHandler(void* resultHandlerData, int /*compId*/, const mavlink_command_ack_t& ack, MavCmdResultFailureCode_t failureCode)
+{
+    Vehicle* vehicle = static_cast<Vehicle*>(resultHandlerData);
+    const bool accepted = failureCode == MavCmdResultCommandResultOnly && ack.result == MAV_RESULT_ACCEPTED;
+    const bool duplicateCommand = failureCode == MavCmdResultFailureDuplicateCommand;
+
+    if (accepted || duplicateCommand) {
+        return;
+    }
+
+    qCDebug(VehicleLog) << "MAV_CMD_IMAGE_START_CAPTURE failed for simple camera trigger, falling back to MAV_CMD_DO_DIGICAM_CONTROL";
+    vehicle->sendMavCommand(vehicle->defaultComponentId(),
+                            MAV_CMD_DO_DIGICAM_CONTROL,
+                            true,                        // show errors on fallback
+                            0.0f, 0.0f, 0.0f, 0.0f,      // param 1-4 unused
+                            1.0f);                       // trigger camera
 }
 
 void Vehicle::setGripperAction(GRIPPER_ACTIONS gripperAction)

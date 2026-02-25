@@ -857,14 +857,6 @@ bool LinkManager::containsLink(LinkInterface* link)
     return false;
 }
 
-void LinkManager::resetMavlinkSigning(void)
-{
-    QList<SharedLinkInterfacePtr> links = _rgLinks;
-    for (const SharedLinkInterfacePtr &sharedLink: links) {
-        sharedLink->initMavlinkSigning();
-    }
-}
-
 SharedLinkConfigurationPtr LinkManager::addConfiguration(LinkConfiguration* config)
 {
     _qmlConfigurations.append(config);

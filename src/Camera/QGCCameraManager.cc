@@ -9,6 +9,7 @@
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
 #include "CodevCameraControl.h"
+#include "VideoManager.h"
 
 QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
 
@@ -513,6 +514,8 @@ QGCCameraManager::_triggerCamera()
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->takePhoto();
+    } else if (_vehicle) {
+        _vehicle->triggerSimpleCamera();
     }
 }
 
@@ -523,6 +526,8 @@ QGCCameraManager::_startVideoRecording()
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->startVideo();
+    } else if (qgcApp()->toolbox()->videoManager() && qgcApp()->toolbox()->videoManager()->streaming()) {
+        qgcApp()->toolbox()->videoManager()->startRecording();
     }
 }
 
@@ -533,6 +538,8 @@ QGCCameraManager::_stopVideoRecording()
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->stopVideo();
+    } else if (qgcApp()->toolbox()->videoManager() && qgcApp()->toolbox()->videoManager()->recording()) {
+        qgcApp()->toolbox()->videoManager()->stopRecording();
     }
 }
 
@@ -543,6 +550,12 @@ QGCCameraManager::_toggleVideoRecording()
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->toggleVideo();
+    } else if (qgcApp()->toolbox()->videoManager()) {
+        if (qgcApp()->toolbox()->videoManager()->recording()) {
+            qgcApp()->toolbox()->videoManager()->stopRecording();
+        } else if (qgcApp()->toolbox()->videoManager()->streaming()) {
+            qgcApp()->toolbox()->videoManager()->startRecording();
+        }
     }
 }
 
