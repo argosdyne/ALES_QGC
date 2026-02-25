@@ -60,6 +60,7 @@ public:
 
     virtual bool isConnected    (void) const = 0;
     virtual bool isLogReplay    (void) { return false; }
+    virtual bool isSecureConnection(void) const { return false; }
 
     uint8_t mavlinkChannel              (void) const;
     bool    mavlinkChannelIsSet         (void) const;
@@ -69,6 +70,8 @@ public:
     void    writeBytesThreadSafe        (const char *bytes, int length);
     void    addVehicleReference         (void);
     void    removeVehicleReference      (void);
+    bool    initMavlinkSigning          (void);
+    void    setSigningSignatureFailure  (bool failure);
 
 signals:
     void bytesReceived      (LinkInterface* link, QByteArray data);
@@ -108,6 +111,7 @@ private:
     bool    _decodedFirstMavlinkPacket  = false;
     bool    _isPX4Flow                  = false;
     int     _vehicleReferenceCount      = 0;
+    bool    _signingSignatureFailure    = false;
 
     QMap<int /* vehicle id */, MavlinkMessagesTimer*> _mavlinkMessagesTimers;
 };

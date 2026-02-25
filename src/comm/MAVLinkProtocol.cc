@@ -206,7 +206,13 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
     uint8_t mavlinkChannel = link->mavlinkChannel();
 
     for (int position = 0; position < b.size(); position++) {
-        if (mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status)) {
+        const uint8_t framing = mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status);
+        if (framing == MAVLINK_FRAMING_BAD_SIGNATURE) {
+            link->setSigningSignatureFailure(true);
+            continue;
+        }
+        if (framing == MAVLINK_FRAMING_OK) {
+            link->setSigningSignatureFailure(false);
             // Got a valid message
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);
@@ -265,7 +271,7 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             if (forwardingEnabled) {
                 SharedLinkInterfacePtr forwardingLink = _linkMgr->mavlinkForwardingLink();
 
-                if (forwardingLink) {
+                if (forwardingLink && (_message.msgid != MAVLINK_MSG_ID_SETUP_SIGNING)) {
                     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
                     int len = mavlink_msg_to_send_buffer(buf, &_message);
                     forwardingLink->writeBytesThreadSafe((const char*)buf, len);
@@ -277,7 +283,7 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             if (forwardingSupportEnabled) {
                 SharedLinkInterfacePtr forwardingSupportLink = _linkMgr->mavlinkForwardingSupportLink();
 
-                if (forwardingSupportLink) {
+                if (forwardingSupportLink && (_message.msgid != MAVLINK_MSG_ID_SETUP_SIGNING)) {
                     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
                     int len = mavlink_msg_to_send_buffer(buf, &_message);
                     forwardingSupportLink->writeBytesThreadSafe((const char*)buf, len);

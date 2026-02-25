@@ -9,7 +9,6 @@
 
 #include <QTime>
 #include <QDateTime>
-#include <QCryptographicHash>
 #include <QLocale>
 #include <QQuaternion>
 
@@ -58,6 +57,7 @@
 #endif
 #include "Autotune.h"
 #include "RemoteIDManager.h"
+#include "MAVLinkSigning.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
@@ -4574,7 +4574,7 @@ void Vehicle::clearAllParamMapRC(void)
     }
 }
 
-void Vehicle::sendSetupSigning(const QString& key)
+void Vehicle::sendSetupSigning(void)
 {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
@@ -4582,30 +4582,24 @@ void Vehicle::sendSetupSigning(const QString& key)
         return;
     }
 
-    mavlink_setup_signing_t setupSigning = {};
-    setupSigning.target_system = static_cast<uint8_t>(_id);
-    setupSigning.target_component = static_cast<uint8_t>(_defaultComponentId);
+    const mavlink_channel_t channel = static_cast<mavlink_channel_t>(sharedLink->mavlinkChannel());
 
-    if (!key.isEmpty()) {
-        const QByteArray hash = QCryptographicHash::hash(key.toUtf8(), QCryptographicHash::Sha256);
-        memcpy(setupSigning.secret_key, hash.constData(), sizeof(setupSigning.secret_key));
-    } else {
-        memset(setupSigning.secret_key, 0, sizeof(setupSigning.secret_key));
-    }
-
-    // MAVLink signing timestamps are measured from 2015-01-01.
-    static const QDateTime offsetTime(QDate(2015, 1, 1), QTime(0, 0), Qt::UTC);
-    const uint64_t currentTimestamp = static_cast<uint64_t>(offsetTime.msecsTo(QDateTime::currentDateTimeUtc()));
-    setupSigning.initial_timestamp = currentTimestamp * 100;
+    mavlink_setup_signing_t setupSigning;
+    mavlink_system_t targetSystem;
+    targetSystem.sysid = static_cast<uint8_t>(_id);
+    targetSystem.compid = static_cast<uint8_t>(_defaultComponentId);
+    MAVLinkSigning::createSetupSigning(channel, targetSystem, setupSigning);
 
     mavlink_message_t message;
     mavlink_msg_setup_signing_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
                                           static_cast<uint8_t>(_mavlink->getComponentId()),
-                                          sharedLink->mavlinkChannel(),
+                                          channel,
                                           &message,
                                           &setupSigning);
 
-    sendMessageMultiple(message);
+    for (uint8_t i = 0; i < 2; i++) {
+        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+    }
 }
 
 void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons)

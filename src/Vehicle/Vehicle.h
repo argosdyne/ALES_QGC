@@ -459,7 +459,7 @@ public:
 
     /// Clears all PARAM_MAP_RC settings from vehicle
     Q_INVOKABLE void clearAllParamMapRC(void);
-    Q_INVOKABLE void sendSetupSigning(const QString& key);
+    Q_INVOKABLE void sendSetupSigning(void);
 
     /// Removes the vehicle from the system
     Q_INVOKABLE void closeVehicle(void) { _vehicleLinkManager->closeVehicle(); }

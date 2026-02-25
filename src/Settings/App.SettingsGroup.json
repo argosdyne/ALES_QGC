@@ -340,6 +340,12 @@
     "longDesc":  "Ardupilot Support server to forward mavlink to. i.e: support.ardupilot.org:xxxx",
     "type":      "string",
     "default":   "support.ardupilot.org:xxxx"
+},
+{
+    "name":         "mavlink2SigningKey",
+    "shortDesc":    "MAVLink 2.0 signing key",
+    "type":         "string",
+    "default":      ""
 }
 ]
 }

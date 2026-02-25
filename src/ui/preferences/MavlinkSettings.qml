@@ -39,6 +39,8 @@ Rectangle {
     property bool _isAPM:               _activeVehicle ? _activeVehicle.apmFirmware : false
     property Fact _disableDataPersistenceFact: QGroundControl.settingsManager.appSettings.disableAllPersistence
     property bool _disableDataPersistence:     _disableDataPersistenceFact ? _disableDataPersistenceFact.rawValue : false
+    property string _signingStatusText:        ""
+    property Fact _mavlink2SigningKey:         QGroundControl.settingsManager.appSettings.mavlink2SigningKey
 
     QGCPalette { id: qgcPal }
 
@@ -225,19 +227,33 @@ Rectangle {
                             anchors.baseline:   signingKeyField.baseline
                             text:               qsTr("Key")
                         }
-                        QGCTextField {
+                        FactTextField {
                             id:                     signingKeyField
                             width:                  _valueWidth
+                            fact:                   _mavlink2SigningKey
                             inputMethodHints:       Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         QGCButton {
                             text:       qsTr("Send to Vehicle")
-                            enabled:    _activeVehicle && signingKeyField.text.length > 0
-                            onClicked:  _activeVehicle.sendSetupSigning(signingKeyField.text)
+                            enabled:    signingKeyField.text.length > 0
+                            onClicked: {
+                                if (!_activeVehicle) {
+                                    _signingStatusText = qsTr("No active vehicle connected.")
+                                    return
+                                }
+                                _activeVehicle.sendSetupSigning()
+                                _signingStatusText = qsTr("Signing key sent to vehicle.")
+                            }
                         }
                     }
+
+                    QGCLabel {
+                        visible:    _signingStatusText.length > 0
+                        text:       _signingStatusText
+                    }
                 }
+            }
             }
             //-----------------------------------------------------------------
             //-- Stream Rates
