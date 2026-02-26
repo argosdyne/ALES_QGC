@@ -4483,6 +4483,25 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     qint64 now = QDateTime::currentMSecsSinceEpoch();
     bool breachedNow = fenceStatus.breach_status == 1;
 
+    // Suppress breach warnings when geofence is effectively inactive.
+    if (breachedNow && _parameterManager && _parameterManager->parametersReady()) {
+        bool fenceActive = true;
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE") &&
+            _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            fenceActive = false;
+        }
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
+            const uint32_t fenceTypeMask =
+                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
+            if (fenceTypeMask == 0) {
+                fenceActive = false;
+            }
+        }
+        if (!fenceActive) {
+            breachedNow = false;
+        }
+    }
+
     // If only circular fence is enabled but radius is zero, suppress breach warnings.
     if (breachedNow && _parameterManager && _parameterManager->parametersReady()) {
         if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") &&
@@ -4496,6 +4515,20 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
             if (circleOnly && fenceRadiusMeters <= 0.0) {
                 breachedNow = false;
             }
+        }
+    }
+
+    if (breachedNow && _geoFenceManager && _parameterManager && _parameterManager->parametersReady()) {
+        bool hasPolygon = !_geoFenceManager->polygons().isEmpty();
+        bool hasCircle = !_geoFenceManager->circles().isEmpty();
+        bool hasParamCircle = false;
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters =
+                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            hasParamCircle = fenceRadiusMeters > 0.0;
+        }
+        if (!hasPolygon && !hasCircle && !hasParamCircle) {
+            breachedNow = false;
         }
     }
 
@@ -4794,6 +4827,20 @@ void Vehicle::_checkGeoFenceMargin(void)
     const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
     const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
 
+    if (_geoFenceManager) {
+        const bool hasPolygon = allowPolygonChecks && !_geoFenceManager->polygons().isEmpty();
+        const bool hasCircle = allowCircleChecks && !_geoFenceManager->circles().isEmpty();
+        bool hasParamCircle = false;
+        if (allowCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            hasParamCircle = fenceRadiusMeters > 0.0 && _homePosition.isValid();
+        }
+        if (!hasPolygon && !hasCircle && !hasParamCircle) {
+            _setGeoFenceMarginWarning(false);
+            return;
+        }
+    }
+
     bool nearFence = false;
 
     if (allowPolygonChecks) {
@@ -4904,6 +4951,20 @@ void Vehicle::_checkGeoFenceBreachLocal(void)
 
     const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
     const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+
+    if (_geoFenceManager) {
+        const bool hasPolygon = allowPolygonChecks && !_geoFenceManager->polygons().isEmpty();
+        const bool hasCircle = allowCircleChecks && !_geoFenceManager->circles().isEmpty();
+        bool hasParamCircle = false;
+        if (allowCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            hasParamCircle = fenceRadiusMeters > 0.0 && _homePosition.isValid();
+        }
+        if (!hasPolygon && !hasCircle && !hasParamCircle) {
+            _setGeoFenceBreached(false);
+            return;
+        }
+    }
 
     bool breached = false;
 

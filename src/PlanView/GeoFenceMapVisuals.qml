@@ -34,7 +34,7 @@ Item {
     property var    _paramCircleFenceComponent
     property var    _polygons:                  myGeoFenceController.polygons
     property var    _circles:                   myGeoFenceController.circles
-    property color  boundaryColor:              "orange"
+    property color  boundaryColor:              "yellow"
     property real   fenceOpacity:               1.0
     property bool   fillTopFace:                false
     property bool   fillSideFaces:              false
@@ -42,16 +42,20 @@ Item {
     property bool   showBufferLayer:            true
     property bool   showContingencyLayer:       true
     property color  _borderColor:               boundaryColor
-    property int    _borderWidthInclusion:      2
+    property int    _borderWidthInclusion:      3
     property int    _borderWidthExclusion:      0
     property color  _interiorColorExclusion:    "orange"
-    property color  _interiorColorInclusion:    "transparent"
+    property color  _interiorColorInclusion:    Qt.rgba(1.0, 0.6, 0.0, 0.35)
     property real   _interiorOpacityExclusion:  0.2 * opacity * fenceOpacity
     property real   _interiorOpacityInclusion:  1 * opacity * fenceOpacity
     property real   fenceMarginMeters:          (myGeoFenceController && myGeoFenceController.fenceMargin && myGeoFenceController.fenceMargin.rawValue !== undefined) ? myGeoFenceController.fenceMargin.rawValue : 0
     property real   contingencyWidthMeters:     (myGeoFenceController && myGeoFenceController.cvWidthMeters !== undefined) ? myGeoFenceController.cvWidthMeters : 0
-    property color  marginColor:                Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, 0.6)
-    property color  contingencyColor:           Qt.rgba(1.0, 0.0, 0.0, 0.55)
+    property color  marginColor:                Qt.rgba(1.0, 0.55, 0.0, 0.9)
+    property color  contingencyColor:           Qt.rgba(1.0, 0.0, 0.0, 0.85)
+    property color  bufferFillColor:            Qt.rgba(1.0, 0.45, 0.0, 0.25)
+    property color  contingencyFillColor:       Qt.rgba(1.0, 0.0, 0.0, 0.22)
+    property int    bufferLineWidth:            2
+    property int    contingencyLineWidth:       4
     property real   _sideFaceOpacityScale:      0.6
     property real   _sideFaceAltOpacityScale:   0.85
     property real   _extrudeHeightPx:           ScreenTools.defaultFontPixelHeight * 20
@@ -470,11 +474,24 @@ Item {
                 _marginPath = _closedPath(_polygon.offsetPath(_polygon.inclusion ? -fenceMarginMeters : fenceMarginMeters))
             }
 
+            MapPolygon {
+                parent: mapRef
+                z: QGroundControl.zOrderMapItems + 0.5
+                path: _marginPath
+                color: bufferFillColor
+                border.width: 0
+                border.color: "transparent"
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                visible: mapRef && path.length > 2
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
             MapPolyline {
                 parent: mapRef
                 z: QGroundControl.zOrderMapItems + 1
                 path: _marginPath
-                line.width: 1
+                line.width: bufferLineWidth
                 line.color: marginColor
                 opacity: _root.opacity * fenceOpacity
                 antialiasing: true
@@ -512,11 +529,24 @@ Item {
                 _cvPath = _closedPath(_polygon.offsetPath(contingencyWidthMeters))
             }
 
+            MapPolygon {
+                parent: mapRef
+                z: QGroundControl.zOrderMapItems + 0.5
+                path: _cvPath
+                color: contingencyFillColor
+                border.width: 0
+                border.color: "transparent"
+                opacity: _root.opacity * fenceOpacity
+                antialiasing: true
+                visible: mapRef && path.length > 2
+                Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
+            }
+
             MapPolyline {
                 parent: mapRef
                 z: QGroundControl.zOrderMapItems + 1
                 path: _cvPath
-                line.width: 2
+                line.width: contingencyLineWidth
                 line.color: contingencyColor
                 opacity: _root.opacity * fenceOpacity
                 antialiasing: true
@@ -779,9 +809,9 @@ Item {
             z: QGroundControl.zOrderMapItems + 1
             center: object.center
             radius: object.inclusion ? Math.max(0, object.radius.rawValue - fenceMarginMeters) : object.radius.rawValue + fenceMarginMeters
-            color: "transparent"
+            color: bufferFillColor
             border.color: marginColor
-            border.width: 1
+            border.width: bufferLineWidth
             opacity: _root.opacity * fenceOpacity
             visible: mapRef && center.isValid && radius > 0
             Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
@@ -797,9 +827,9 @@ Item {
             z: QGroundControl.zOrderMapItems + 1
             center: object.center
             radius: object.inclusion ? object.radius.rawValue + contingencyWidthMeters : 0
-            color: "transparent"
+            color: contingencyFillColor
             border.color: contingencyColor
-            border.width: 2
+            border.width: contingencyLineWidth
             opacity: _root.opacity * fenceOpacity
             visible: mapRef && object.inclusion && center.isValid && radius > 0
             Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
