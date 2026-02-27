@@ -144,6 +144,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
     }
 
     if (link) {
+        const QString linkName = config ? config->name() : QStringLiteral("Unknown");
         if (false == link->_allocateMavlinkChannel() ) {
             qCWarning(LinkManagerLog) << "Link failed to setup mavlink channels";
             return false;
@@ -155,22 +156,110 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
         connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
         connect(link.get(), &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
         connect(link.get(), &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
+        connect(link.get(), &LinkInterface::connected,           this,                &LinkManager::_linkConnected);
         connect(link.get(), &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
 
         _mavlinkProtocol->resetMetadataForLink(link.get());
         _mavlinkProtocol->setVersion(_mavlinkProtocol->getCurrentVersion());
 
+        qCInfo(LinkManagerLog) << "Attempting link connect"
+                               << "name" << linkName
+                               << "channel" << link->mavlinkChannel()
+                               << "type" << config->type();
         if (!link->_connect()) {
+            qWarning() << "Link connect failed"
+                                      << "name" << linkName
+                                      << "channel" << link->mavlinkChannel()
+                                      << "isConnected" << link->isConnected();
             link->_freeMavlinkChannel();
             _rgLinks.removeAt(_rgLinks.indexOf(link));
             config->setLink(nullptr);
             return false;
         }
 
+        qInfo() << "Link connect success"
+                               << "name" << linkName
+                               << "channel" << link->mavlinkChannel()
+                               << "isConnected" << link->isConnected();
+
+        if (link->isConnected()) {
+            // Some links report connected synchronously.
+            _sendInitialMavlinkHeartbeat(link);
+        } else {
+            qCInfo(LinkManagerLog) << "Link connect pending (async)"
+                                   << "name" << linkName
+                                   << "channel" << link->mavlinkChannel()
+                                   << "- waiting for connected() to send startup heartbeat";
+        }
+
         return true;
     }
 
     return false;
+}
+
+void LinkManager::_linkConnected(void)
+{
+    LinkInterface* link = qobject_cast<LinkInterface*>(sender());
+    if (!link || !containsLink(link)) {
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = sharedLinkInterfacePointerForLink(link, true);
+    if (!sharedLink) {
+        return;
+    }
+
+    qInfo() << "Link connected signal received"
+                           << "name" << (link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown"))
+                           << "channel" << link->mavlinkChannel()
+                           << "isConnected" << link->isConnected();
+    _sendInitialMavlinkHeartbeat(sharedLink);
+}
+
+void LinkManager::_sendInitialMavlinkHeartbeat(const SharedLinkInterfacePtr& link)
+{
+    if (!link || !_mavlinkProtocol) {
+        return;
+    }
+
+    mavlink_message_t message;
+    mavlink_msg_heartbeat_pack_chan(_mavlinkProtocol->getSystemId(),
+                                    _mavlinkProtocol->getComponentId(),
+                                    link->mavlinkChannel(),
+                                    &message,
+                                    MAV_TYPE_GCS,            // MAV_TYPE
+                                    MAV_AUTOPILOT_INVALID,   // MAV_AUTOPILOT
+                                    MAV_MODE_MANUAL_ARMED,   // MAV_MODE
+                                    0,                       // custom mode
+                                    MAV_STATE_ACTIVE);       // MAV_STATE
+
+    uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+    const int len = mavlink_msg_to_send_buffer(buffer, &message);
+    link->writeBytesThreadSafe(reinterpret_cast<const char*>(buffer), len);
+
+    mavlink_status_t* status = mavlink_get_channel_status(link->mavlinkChannel());
+    const bool signingOut = status && status->signing && (status->signing->flags & MAVLINK_SIGNING_FLAG_SIGN_OUTGOING);
+    const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+    const bool isSigned = ((message.magic == 0xFD) && ((message.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0));
+    if (isSigned && (len >= MAVLINK_SIGNATURE_BLOCK_LEN)) {
+        const int signatureOffset = len - MAVLINK_SIGNATURE_BLOCK_LEN;
+        const QByteArray signatureBytes(reinterpret_cast<const char*>(buffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
+        const QByteArray rawPacket(reinterpret_cast<const char*>(buffer), len);
+        qCInfo(LinkManagerLog).noquote() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 len: %5 signature: \"%6\" raw: \"%7\"")
+                                            .arg(linkName)
+                                            .arg(link->mavlinkChannel())
+                                            .arg(message.msgid)
+                                            .arg(message.seq)
+                                            .arg(len)
+                                            .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                                            .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+    }
+    qCInfo(LinkManagerLog) << "Sent startup GCS heartbeat on link"
+                           << linkName
+                           << "channel" << link->mavlinkChannel()
+                           << "isConnected" << link->isConnected()
+                           << "signedOutgoing" << signingOut;
 }
 
 SharedLinkInterfacePtr LinkManager::mavlinkForwardingLink()
@@ -217,6 +306,7 @@ void LinkManager::_linkDisconnected(void)
     disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
     disconnect(link, &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
     disconnect(link, &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
+    disconnect(link, &LinkInterface::connected,           this,                &LinkManager::_linkConnected);
     disconnect(link, &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
 
     link->_freeMavlinkChannel();
@@ -860,8 +950,19 @@ bool LinkManager::containsLink(LinkInterface* link)
 void LinkManager::resetMavlinkSigning(void)
 {
     QList<SharedLinkInterfacePtr> links = _rgLinks;
+    qCInfo(LinkManagerLog) << "Resetting MAVLink signing on" << links.count() << "link(s)";
     for (const SharedLinkInterfacePtr &sharedLink: links) {
-        sharedLink->initMavlinkSigning();
+        if (!sharedLink) {
+            continue;
+        }
+        qCInfo(LinkManagerLog) << "Reinitializing signing on link"
+                               << sharedLink->linkConfiguration()->name()
+                               << "channel" << sharedLink->mavlinkChannel();
+        if (!sharedLink->initMavlinkSigning()) {
+            qCWarning(LinkManagerLog) << "Failed to reinitialize signing on link"
+                                      << sharedLink->linkConfiguration()->name()
+                                      << "channel" << sharedLink->mavlinkChannel();
+        }
     }
 }
 

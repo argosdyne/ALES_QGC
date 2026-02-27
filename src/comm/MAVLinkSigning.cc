@@ -1,7 +1,6 @@
 #include "MAVLinkSigning.h"
 
 #include <QCryptographicHash>
-#include <QDateTime>
 #include <QDebug>
 #include <QRandomGenerator>
 #include <QSet>
@@ -31,8 +30,13 @@ void _setSigningKey(mavlink_signing_t *signing, const QByteArray &key, bool rand
         QRandomGenerator::global()->fillRange(secretKey, static_cast<int>(keySize));
         (void) memcpy(signing->secret_key, secretKey, sizeof(signing->secret_key));
     } else if (!key.isEmpty()) {
-        const QByteArray hash = QCryptographicHash::hash(key, QCryptographicHash::Sha256);
-        (void) memcpy(signing->secret_key, hash.constData(), sizeof(signing->secret_key));
+        const QByteArray decodedKey = QByteArray::fromBase64(key);
+        if (decodedKey.size() == static_cast<int>(sizeof(signing->secret_key))) {
+            (void) memcpy(signing->secret_key, decodedKey.constData(), sizeof(signing->secret_key));
+        } else {
+            const QByteArray hash = QCryptographicHash::hash(key, QCryptographicHash::Sha256);
+            (void) memcpy(signing->secret_key, hash.constData(), sizeof(signing->secret_key));
+        }
     } else {
         (void) memset(signing->secret_key, 0, sizeof(signing->secret_key));
     }
@@ -40,9 +44,10 @@ void _setSigningKey(mavlink_signing_t *signing, const QByteArray &key, bool rand
 
 void _setSigningTimestamp(mavlink_signing_t *signing)
 {
-    static const QDateTime offsetTime(QDate(2015, 1, 1), QTime(0, 0), Qt::UTC);
-    const uint64_t currentTimestamp = static_cast<uint64_t>(offsetTime.msecsTo(QDateTime::currentDateTimeUtc()));
-    signing->timestamp = currentTimestamp * 100;
+    // AB120 compatibility:
+    // Start from a minimal timestamp so incoming signed streams aren't rejected as
+    // "old" when peer uptime/boot order differs from QGC.
+    signing->timestamp = 1;
 }
 
 } // namespace
@@ -85,6 +90,8 @@ bool initSigning(mavlink_channel_t channel, const QByteArray &key, mavlink_accep
         static mavlink_signing_streams_t s_signing_streams;
 
         mavlink_signing_t* signing = &s_signing[channel];
+        (void) memset(signing, 0, sizeof(*signing));
+        (void) memset(&s_signing_streams, 0, sizeof(s_signing_streams));
         signing->link_id = static_cast<uint8_t>(channel);
         signing->flags |= MAVLINK_SIGNING_FLAG_SIGN_OUTGOING;
         signing->accept_unsigned_callback = callback;

@@ -11,13 +11,15 @@
 #include "LinkManager.h"
 #include "QGCApplication.h"
 #include "MAVLinkSigning.h"
-#include "SettingsManager.h"
-#include "AppSettings.h"
 
 QGC_LOGGING_CATEGORY(LinkInterfaceLog, "LinkInterfaceLog")
 
 // The LinkManager is only forward declared in the header, so the static_assert is here instead.
 static_assert(LinkManager::invalidMavlinkChannel() == std::numeric_limits<uint8_t>::max(), "update LinkInterface::_mavlinkChannel");
+
+namespace {
+static const char* kHardcodedMavlink2SigningKey = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=";
+}
 
 LinkInterface::LinkInterface(SharedLinkConfigurationPtr& config, bool isPX4Flow)
     : QThread   (0)
@@ -113,11 +115,12 @@ void LinkInterface::removeVehicleReference(void)
 
 bool LinkInterface::initMavlinkSigning(void)
 {
-    QByteArray signingKeyBytes;
-    if (qgcApp() && qgcApp()->toolbox() && qgcApp()->toolbox()->settingsManager() &&
-            qgcApp()->toolbox()->settingsManager()->appSettings()) {
-        signingKeyBytes = qgcApp()->toolbox()->settingsManager()->appSettings()->mavlink2SigningKey()->rawValue().toByteArray();
-    }
+    const QByteArray signingKeyBytes(kHardcodedMavlink2SigningKey);
+    qDebug() << "Initializing MAVLink signing for link"
+                             << (_config ? _config->name() : QStringLiteral("unknown"))
+                             << "channel" << _mavlinkChannel
+                             << "secure" << isSecureConnection()
+                             << "keyLength" << signingKeyBytes.size();
 
     const mavlink_accept_unsigned_t callback = isSecureConnection()
         ? MAVLinkSigning::secureConnectionAccceptUnsignedCallback
@@ -125,14 +128,14 @@ bool LinkInterface::initMavlinkSigning(void)
 
     if (MAVLinkSigning::initSigning(static_cast<mavlink_channel_t>(_mavlinkChannel), signingKeyBytes, callback)) {
         if (signingKeyBytes.isEmpty()) {
-            qCDebug(LinkInterfaceLog) << "Signing disabled on channel" << _mavlinkChannel;
+            qDebug() << "Signing disabled on channel" << _mavlinkChannel;
         } else {
-            qCDebug(LinkInterfaceLog) << "Signing enabled on channel" << _mavlinkChannel;
+            qDebug() << "Signing enabled on channel" << _mavlinkChannel;
         }
         return true;
     }
 
-    qCWarning(LinkInterfaceLog) << "Failed to enable signing on channel" << _mavlinkChannel;
+    qDebug() << "Failed to enable signing on channel" << _mavlinkChannel;
     return false;
 }
 
@@ -141,7 +144,15 @@ void LinkInterface::setSigningSignatureFailure(bool failure)
     if (_signingSignatureFailure != failure) {
         _signingSignatureFailure = failure;
         if (_signingSignatureFailure) {
+            qCWarning(LinkInterfaceLog) << "Signing signature mismatch on link"
+                                        << (_config ? _config->name() : QStringLiteral("unknown"))
+                                        << "channel" << _mavlinkChannel
+                                        << "- incoming packets will be rejected until keys/timestamps match.";
             emit communicationError(tr("Signing Failure"), tr("Signing signature mismatch"));
+        } else {
+            qCInfo(LinkInterfaceLog) << "Signing signature recovered on link"
+                                     << (_config ? _config->name() : QStringLiteral("unknown"))
+                                     << "channel" << _mavlinkChannel;
         }
     }
 }
