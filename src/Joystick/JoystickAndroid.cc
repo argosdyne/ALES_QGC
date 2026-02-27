@@ -3,6 +3,7 @@
 #include "QGCApplication.h"
 
 #include <QQmlEngine>
+#include <QSet>
 
 int JoystickAndroid::_androidBtnListCount;
 int *JoystickAndroid::_androidBtnList;
@@ -52,18 +53,38 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     // set axis mapping (number->code)
     axisValue = new int[_axisCount];
     axisCode = new int[_axisCount];
-    QAndroidJniObject rangeListNative = inputDevice.callObjectMethod("getMotionRanges", "()Ljava/util/List;");
+    axisMin = new float[_axisCount];
+    axisMax = new float[_axisCount];
+
     for (i = 0; i < _axisCount; i++) {
-        QAndroidJniObject range = rangeListNative.callObjectMethod("get", "(I)Ljava/lang/Object;",i);
-        axisCode[i] = range.callMethod<jint>("getAxis");
-        // Don't allow two axis with the same code
-        for (int j = 0; j < i; j++) {
-            if (axisCode[i] == axisCode[j]) {
-                axisCode[i] = -1;
-                break;
-            }
-        }
+        axisCode[i] = -1;
         axisValue[i] = 0;
+        axisMin[i] = -1.0f;
+        axisMax[i] = 1.0f;
+    }
+
+    const int SOURCE_JOYSTICK = QAndroidJniObject::getStaticField<jint>("android/view/InputDevice", "SOURCE_JOYSTICK");
+    QAndroidJniObject rangeListNative = inputDevice.callObjectMethod("getMotionRanges", "()Ljava/util/List;");
+    const int rangeCount = rangeListNative.callMethod<jint>("size");
+    QSet<int> seenAxes;
+    int axisIndex = 0;
+    for (i = 0; i < rangeCount && axisIndex < _axisCount; i++) {
+        QAndroidJniObject range = rangeListNative.callObjectMethod("get", "(I)Ljava/lang/Object;",i);
+        const int source = range.callMethod<jint>("getSource");
+        if ((source & SOURCE_JOYSTICK) != SOURCE_JOYSTICK) {
+            continue;
+        }
+
+        const int axis = range.callMethod<jint>("getAxis");
+        if (seenAxes.contains(axis)) {
+            continue;
+        }
+
+        seenAxes.insert(axis);
+        axisCode[axisIndex] = axis;
+        axisMin[axisIndex] = range.callMethod<jfloat>("getMin");
+        axisMax[axisIndex] = range.callMethod<jfloat>("getMax");
+        axisIndex++;
     }
 
     qCDebug(JoystickLog) << "axis:" <<_axisCount << "buttons:" <<_buttonCount;
@@ -72,10 +93,12 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
 }
 
 JoystickAndroid::~JoystickAndroid() {
-    delete btnCode;
-    delete axisCode;
-    delete btnValue;
-    delete axisValue;
+    delete[] btnCode;
+    delete[] axisCode;
+    delete[] btnValue;
+    delete[] axisValue;
+    delete[] axisMin;
+    delete[] axisMax;
 
     QtAndroidPrivate::unregisterGenericMotionEventListener(this);
     QtAndroidPrivate::unregisterKeyEventListener(this);
@@ -116,7 +139,19 @@ QMap<QString, Joystick*> JoystickAndroid::discover(MultiVehicleManager* _multiVe
 
         // get number of axis
         QAndroidJniObject rangeListNative = inputDevice.callObjectMethod("getMotionRanges", "()Ljava/util/List;");
-        int axisCount = rangeListNative.callMethod<jint>("size");
+        const int rangeCount = rangeListNative.callMethod<jint>("size");
+        QSet<int> axisCodes;
+        for (int j = 0; j < rangeCount; j++) {
+            QAndroidJniObject range = rangeListNative.callObjectMethod("get", "(I)Ljava/lang/Object;", j);
+            const int source = range.callMethod<jint>("getSource");
+            if ((source & SOURCE_JOYSTICK) != SOURCE_JOYSTICK) {
+                continue;
+            }
+
+            const int axisCode = range.callMethod<jint>("getAxis");
+            axisCodes.insert(axisCode);
+        }
+        int axisCount = axisCodes.size();
 
         // get number of buttons
         jintArray a = env->NewIntArray(_androidBtnListCount);
@@ -174,8 +209,27 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
     if (_deviceId!=deviceId) return false;
  
     for (int i = 0; i <_axisCount; i++) {
-        const float v = ev.callMethod<jfloat>("getAxisValue", "(I)F",axisCode[i]);
-        axisValue[i] = static_cast<int>((v*32767.f));
+        if (axisCode[i] < 0) {
+            continue;
+        }
+
+        const float rawValue = ev.callMethod<jfloat>("getAxisValue", "(I)F", axisCode[i]);
+        const float minValue = axisMin[i];
+        const float maxValue = axisMax[i];
+
+        float normalized = rawValue;
+        if (maxValue > minValue) {
+            const float center = (maxValue + minValue) * 0.5f;
+            const float halfRange = (maxValue - minValue) * 0.5f;
+            if (halfRange > 0.0001f) {
+                normalized = (rawValue - center) / halfRange;
+            } else {
+                normalized = 0.0f;
+            }
+        }
+
+        normalized = qBound(-1.0f, normalized, 1.0f);
+        axisValue[i] = static_cast<int>(normalized * 32767.0f);
     }
     return true;
 }

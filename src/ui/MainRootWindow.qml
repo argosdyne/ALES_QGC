@@ -64,12 +64,15 @@ ApplicationWindow {
                 nextPromptIdIndex++
             } else {
                 currentDialog = null
+                maybeShowStartupJoystickScreen()
                 showPreFlightChecklistIfNeeded()
             }
         }
     }
 
     property var                _rgPreventViewSwitch:       [ false ]
+    property bool               _startupJoystickScreenShown: false
+    property bool               _showStartupJoystickScreen:  false
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
@@ -173,6 +176,17 @@ ApplicationWindow {
 
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
+    }
+
+    function maybeShowStartupJoystickScreen() {
+        if (_startupJoystickScreenShown) {
+            return
+        }
+
+        if (joystickManager.activeJoystick) {
+            _showStartupJoystickScreen = true
+            _startupJoystickScreenShown = true
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -833,6 +847,35 @@ ApplicationWindow {
                }
            }
        }
+
+    //-------------------------------------------------------------------------
+    //-- Startup Joystick Monitor
+
+    Connections {
+        target: joystickManager
+
+        function onActiveJoystickChanged() {
+            if (firstRunPromptManager.currentDialog === null) {
+                maybeShowStartupJoystickScreen()
+            }
+        }
+    }
+
+    Loader {
+        id: startupJoystickScreenLoader
+        anchors.fill: parent
+        z: 2000
+        active: _showStartupJoystickScreen
+        source: "StartupJoystickScreen.qml"
+
+        onLoaded: {
+            if (item) {
+                item.closeRequested.connect(function() {
+                    _showStartupJoystickScreen = false
+                })
+            }
+        }
+    }
 
     //-------------------------------------------------------------------------
     //-- Indicator Popups
