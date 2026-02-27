@@ -345,7 +345,7 @@
     "name":         "mavlink2SigningKey",
     "shortDesc":    "MAVLink 2.0 signing key",
     "type":         "string",
-    "default":      ""
+    "default":      "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY="
 }
 ]
 }

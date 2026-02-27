@@ -41,6 +41,7 @@ Rectangle {
     property bool _disableDataPersistence:     _disableDataPersistenceFact ? _disableDataPersistenceFact.rawValue : false
     property string _signingStatusText:        ""
     property Fact _mavlink2SigningKey:         QGroundControl.settingsManager.appSettings.mavlink2SigningKey
+    property string _pendingSigningKey:        _mavlink2SigningKey ? _mavlink2SigningKey.rawValue : ""
 
     QGCPalette { id: qgcPal }
 
@@ -60,6 +61,15 @@ Rectangle {
                 }
             }
             _selectedCount = selected
+        }
+    }
+
+    Connections {
+        target: _mavlink2SigningKey
+        onRawValueChanged: {
+            if (!signingKeyField.activeFocus) {
+                _pendingSigningKey = _mavlink2SigningKey.rawValue
+            }
         }
     }
 
@@ -227,12 +237,18 @@ Rectangle {
                             anchors.baseline:   signingKeyField.baseline
                             text:               qsTr("Key")
                         }
-                        FactTextField {
+                        QGCTextField {
                             id:                     signingKeyField
                             width:                  _valueWidth
-                            fact:                   _mavlink2SigningKey
+                            text:                   _pendingSigningKey
                             inputMethodHints:       Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
                             anchors.verticalCenter: parent.verticalCenter
+                            onTextChanged:          _pendingSigningKey = text
+                            onEditingFinished: {
+                                if (_mavlink2SigningKey.rawValue !== _pendingSigningKey) {
+                                    _mavlink2SigningKey.rawValue = _pendingSigningKey
+                                }
+                            }
                         }
                         QGCButton {
                             text:       qsTr("Send to Vehicle")
@@ -241,6 +257,9 @@ Rectangle {
                                 if (!_activeVehicle) {
                                     _signingStatusText = qsTr("No active vehicle connected.")
                                     return
+                                }
+                                if (_mavlink2SigningKey.rawValue !== _pendingSigningKey) {
+                                    _mavlink2SigningKey.rawValue = _pendingSigningKey
                                 }
                                 _activeVehicle.sendSetupSigning()
                                 _signingStatusText = qsTr("Signing key sent to vehicle.")

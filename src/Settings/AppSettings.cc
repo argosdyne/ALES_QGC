@@ -277,6 +277,8 @@ void AppSettings::_qLocaleLanguageChanged()
 void AppSettings::_mavlink2SigningKeyChanged()
 {
     if (qgcApp() && qgcApp()->toolbox() && qgcApp()->toolbox()->linkManager()) {
+        const QByteArray signingKeyBytes = mavlink2SigningKey()->rawValue().toByteArray();
+        qInfo().nospace() << "MAVLink2 signing key changed (length=" << signingKeyBytes.size() << "). Resetting signing on all links.";
         qgcApp()->toolbox()->linkManager()->resetMavlinkSigning();
     }
 }

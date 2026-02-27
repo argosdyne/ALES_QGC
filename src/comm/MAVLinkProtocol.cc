@@ -213,6 +213,44 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
         }
         if (framing == MAVLINK_FRAMING_OK) {
             link->setSigningSignatureFailure(false);
+            const bool isMavlink2 = (_message.magic == 0xFD);
+            const bool isSigned = isMavlink2 && ((_message.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
+            if (isSigned) {
+                uint8_t rawBuffer[MAVLINK_MAX_PACKET_LEN];
+                const int rawLen = mavlink_msg_to_send_buffer(rawBuffer, &_message);
+                if (rawLen >= MAVLINK_SIGNATURE_BLOCK_LEN) {
+                    const int signatureOffset = rawLen - MAVLINK_SIGNATURE_BLOCK_LEN;
+                    const QByteArray signatureBytes(reinterpret_cast<const char*>(rawBuffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
+                    const QByteArray rawPacket(reinterpret_cast<const char*>(rawBuffer), rawLen);
+                    const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+                    qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("RX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 from: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
+                                                            .arg(linkName)
+                                                            .arg(mavlinkChannel)
+                                                            .arg(_message.msgid)
+                                                            .arg(_message.seq)
+                                                            .arg(_message.sysid)
+                                                            .arg(_message.compid)
+                                                            .arg(rawLen)
+                                                            .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                                                            .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+                } else {
+                    qCWarning(MAVLinkProtocolLog) << "RX signed MAVLink packet too short"
+                                                  << "msgid" << _message.msgid
+                                                  << "len" << rawLen;
+                }
+            }
+            if (_message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
+                mavlink_setup_signing_t setupSigning{};
+                mavlink_msg_setup_signing_decode(&_message, &setupSigning);
+                const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+                qCInfo(MAVLinkProtocolLog) << "RX SETUP_SIGNING on link" << linkName
+                                           << "channel" << mavlinkChannel
+                                           << "fromSys" << _message.sysid
+                                           << "fromComp" << _message.compid
+                                           << "targetSys" << setupSigning.target_system
+                                           << "targetComp" << setupSigning.target_component
+                                           << "initialTimestamp" << setupSigning.initial_timestamp;
+            }
             // Got a valid message
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);

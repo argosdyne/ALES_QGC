@@ -1935,8 +1935,11 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
 
 bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t message)
 {
+
+    qDebug() << "sendMessageOnLinkThreadSafe111" << link;
+
     if (!link->isConnected()) {
-        qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe" << link << "not connected!";
+        qDebug() << "sendMessageOnLinkThreadSafe" << link << "not connected!";
         return false;
     }
 
@@ -1965,6 +1968,29 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     int len = mavlink_msg_to_send_buffer(buffer, &message);
 
+    const bool isMavlink2 = (message.magic == 0xFD);
+    const bool isSigned = isMavlink2 && ((message.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
+    if (isSigned) {
+        const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+        if (len >= MAVLINK_SIGNATURE_BLOCK_LEN) {
+            const int signatureOffset = len - MAVLINK_SIGNATURE_BLOCK_LEN;
+            const QByteArray signatureBytes(reinterpret_cast<const char*>(buffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
+            const QByteArray rawPacket(reinterpret_cast<const char*>(buffer), len);
+            qDebug() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 len: %5 signature: \"%6\" raw: \"%7\"")
+                                     .arg(linkName)
+                                     .arg(link->mavlinkChannel())
+                                     .arg(message.msgid)
+                                     .arg(message.seq)
+                                     .arg(len)
+                                     .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                                     .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+        } else {
+            qDebug() << "TX signed MAVLink packet too short"
+                       << "msgid" << message.msgid
+                       << "len" << len;
+        }
+    }
+
     if (message.msgid == MAVLINK_MSG_ID_PARAM_SET) {
         mavlink_param_set_t paramSet;
         mavlink_msg_param_set_decode(&message, &paramSet);
@@ -1974,7 +2000,7 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
             const char* ver = (buffer[0] == 0xFD) ? "v2" : "v1";
             const QString rawHex = QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(buffer), len).toHex(' ').toUpper());
             const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
-            qInfo().noquote() << QStringLiteral("MAVLinkProtocolLog: TX MAVLink link: \"%1\" chan: %2 ver: %3 sysid: %4 compid: %5 msgid: %6 len: %7 seq: %8 raw: \"%9\"")
+            qDebug() << QStringLiteral("MAVLinkProtocolLog: TX MAVLink link: \"%1\" chan: %2 ver: %3 sysid: %4 compid: %5 msgid: %6 len: %7 seq: %8 raw: \"%9\"")
                                      .arg(linkName)
                                      .arg(link->mavlinkChannel())
                                      .arg(QLatin1String(ver))
@@ -4583,12 +4609,18 @@ void Vehicle::sendSetupSigning(void)
     }
 
     const mavlink_channel_t channel = static_cast<mavlink_channel_t>(sharedLink->mavlinkChannel());
+    const QString linkName = sharedLink->linkConfiguration() ? sharedLink->linkConfiguration()->name() : QStringLiteral("Unknown");
 
     mavlink_setup_signing_t setupSigning;
     mavlink_system_t targetSystem;
     targetSystem.sysid = static_cast<uint8_t>(_id);
     targetSystem.compid = static_cast<uint8_t>(_defaultComponentId);
     MAVLinkSigning::createSetupSigning(channel, targetSystem, setupSigning);
+    qCInfo(VehicleLog) << "sendSetupSigning: prepared message for link" << linkName
+                       << "channel" << channel
+                       << "targetSys" << targetSystem.sysid
+                       << "targetComp" << targetSystem.compid
+                       << "initialTimestamp" << setupSigning.initial_timestamp;
 
     mavlink_message_t message;
     mavlink_msg_setup_signing_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
@@ -4598,7 +4630,11 @@ void Vehicle::sendSetupSigning(void)
                                           &setupSigning);
 
     for (uint8_t i = 0; i < 2; i++) {
-        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+        const bool sent = sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+        qCInfo(VehicleLog) << "sendSetupSigning: tx attempt" << (i + 1) << "/2"
+                           << "link" << linkName
+                           << "channel" << channel
+                           << "result" << (sent ? "queued" : "failed");
     }
 }
 

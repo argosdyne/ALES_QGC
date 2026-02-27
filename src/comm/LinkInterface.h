@@ -72,6 +72,7 @@ public:
     void    removeVehicleReference      (void);
     bool    initMavlinkSigning          (void);
     void    setSigningSignatureFailure  (bool failure);
+    bool    signingSignatureFailure     (void) const { return _signingSignatureFailure; }
 
 signals:
     void bytesReceived      (LinkInterface* link, QByteArray data);

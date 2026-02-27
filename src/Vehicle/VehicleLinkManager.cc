@@ -108,6 +108,10 @@ void VehicleLinkManager::_commLostCheck(void)
         if (!linkInfo.commLost && !linkInfo.link->linkConfiguration()->isHighLatency() && linkInfo.heartbeatElapsedTimer.elapsed() > _heartbeatMaxElpasedMSecs) {
             linkInfo.commLost = true;
             linkStatusChange = true;
+            qCWarning(VehicleLinkManagerLog) << "Communication lost on link"
+                                             << linkInfo.link->linkConfiguration()->name()
+                                             << "elapsedMs" << linkInfo.heartbeatElapsedTimer.elapsed()
+                                             << "signingSignatureFailure" << linkInfo.link->signingSignatureFailure();
 
             // Notify the user of individual link communication loss
             bool isPrimaryLink = linkInfo.link.get() == _primaryLink.lock().get();
@@ -138,6 +142,16 @@ void VehicleLinkManager::_commLostCheck(void)
             }
         }
         if (totalCommunicationLoss) {
+            bool signingFailure = false;
+            for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+                if (linkInfo.link->signingSignatureFailure()) {
+                    signingFailure = true;
+                    break;
+                }
+            }
+            qCWarning(VehicleLinkManagerLog) << "Total communication loss detected. autoDisconnect"
+                                             << _autoDisconnect
+                                             << "signingFailureSeen" << signingFailure;
             if (_autoDisconnect) {
                 // There is only one link to the vehicle and we want to auto disconnect from it
                 closeVehicle();
