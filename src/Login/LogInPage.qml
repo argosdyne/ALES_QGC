@@ -5,16 +5,20 @@ import QtQuick.Layouts 1.1
 Page {
     id: loginPage
 
-    signal unlockClicked(string pin)
+    signal unlockClicked()
     signal viewOnlyClicked()
     signal forgotPINClicked()
 
-    property int pinLength: 8
+    property int pinLength: 6
     property bool locked: false
-    property string pendingPin: ""
+    property int _contentBlockHeight: 687
+
+    property string pinText: ""
 
     background: Rectangle {
-        color: "#ffffff"
+        color: "#222222"
+        opacity: 0
+        radius: 16
     }
 
     // Timer to update lockout remaining time in realtime
@@ -42,11 +46,17 @@ Page {
     // Single-shot timer to allow UI to update before emitting unlock signal
     Timer {
         id: unlockTriggerTimer
+        property string action: ""
         interval: 50
         running: false
         repeat: false
         onTriggered: {
-            loginPage.unlockClicked(pendingPin)
+            if (action === "unlock") {
+                loginPage.unlockClicked()
+            } else if (action === "viewOnly") {
+                loginPage.viewOnlyClicked()
+            }
+            action = ""
         }
     }
 
@@ -66,45 +76,35 @@ Page {
         }
     }
 
-    function getPINValue() {
-        var value = ""
-        for (var i = 0; i < pinLength; i++) {
-            var pinBox = enterRepeater.itemAt(i)
-            if (pinBox && pinBox.text !== undefined) {
-                value += pinBox.text
-            }
-        }
-        return value
-    }
+    function getPINValue() { return pinText }
+
+    Item {
+        id: headerSection
+        width: parent.width
+        height: 194
+        y: Math.max(20, Math.round((parent.height - loginPage._contentBlockHeight) / 2))
 
     Column {
         anchors.centerIn: parent
-        spacing: 25
-        width: parent.width * 0.9
-        anchors.verticalCenterOffset: -40
+        spacing: 16
+        width: parent.width
 
-        // ===== ICON & TITLE =====
-        Rectangle {
-            width: 80
-            height: 80
-            radius: 40
+        Image {
+            source: "qrc:/custom/img/lock_icon.svg"
+            width: 92
+            height: 92
             anchors.horizontalCenter: parent.horizontalCenter
-            gradient: Gradient {
-                GradientStop { position: 0; color: "#4f7cff" }
-                GradientStop { position: 1; color: "#7a5cff" }
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: "🔒"
-                font.pixelSize: 40
-            }
         }
 
+        // ===== TITLE =====
+        Item {
+            width: parent.width
+            height: 86
         Text {
             text: "System Authentication"
-            color: "#000000"
-            font.pixelSize: 35
+            color: "#ffffff"
+            font.family: "Roboto"
+            font.pixelSize: 40
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -112,203 +112,273 @@ Page {
 
         Text {
             text: "Enter your PIN to access admin functions"
-            color: "#666666"
-            font.pixelSize: 18
-            font.bold: true
+            color: "#AEAEAE"
+            font.family: "Roboto"
+            font.pixelSize: 24
             horizontalAlignment: Text.AlignHCenter
+            y: 57
             anchors.horizontalCenter: parent.horizontalCenter
         }
+    }
+    }
+    }
 
         // ===== PIN INPUT SECTION =====
-        Column {
-            id: pinRepeater
-            spacing: 10
+        Item {
+            id: pinSection
+            width: 508
+            height: 119
+            y: headerSection.y + headerSection.height + 44
             anchors.horizontalCenter: parent.horizontalCenter
+        Column {
+            spacing: 10
+            width: parent.width
+            // anchors.horizontalCenter: parent.horizontalCenter
 
             Text {
                 text: "Admin PIN"
-                color: "#222222"
+                color: "#AEAEAE"
+                font.family: "Roboto"
+                font.pixelSize: 24
                 anchors.left: parent.left
-                font.pixelSize: 18
-                font.bold: true
             }
 
-            Row {
-                spacing: 12
-                anchors.horizontalCenter: parent.horizontalCenter
+            // Single PIN input box, white bordered, dark fill
+            // All placeholder dots always visible; filled dots grow from center as user types
+            Rectangle {
+                id: pinBox
+                width: 508
+                height: 80
+                radius: 4
+                color: "#222222"
+                border.color: pinBoxMouseArea.containsMouse ? "#00826F" : "#ffffff"
+                border.width: 2
 
-                Repeater {
-                    id: enterRepeater
-                    model: 8
+                // Dot settings
+                readonly property int dotD:      18
+                readonly property int dotGap:    21
+                readonly property int totalW:    pinLength * dotD + (pinLength - 1) * dotGap
 
-                    PinBox {
-                        index: model.index
-                        enabled: !locked
-                        opacity: enabled ? 1.0 : 0.5
+                // How many chars entered; fill starts from the left
+                readonly property int entered:   pinText.length
+                readonly property int startIdx:  0
 
-                        onNextRequested: {
-                            if (index < pinLength - 1)
-                                enterRepeater.itemAt(index + 1).forceActiveFocus()
+                MouseArea {
+                    id: pinBoxMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        hiddenInput.forceActiveFocus()
+                        if (!Qt.inputMethod.visible) Qt.inputMethod.show()
+                    }
+                }
+
+                // Dots row — always pinLength dots, placeholder = hollow, filled = solid white
+                Row {
+                    anchors.centerIn: parent
+                    spacing: pinBox.dotGap
+
+                    Repeater {
+                        model: pinLength
+                        Rectangle {
+                            width:  pinBox.dotD
+                            height: pinBox.dotD
+                            radius: pinBox.dotD / 2
+                            // filled if this slot falls within the entered range (centered)
+                            readonly property bool isFilled: pinBox.entered > 0
+                                                             && index >= pinBox.startIdx
+                                                             && index < pinBox.startIdx + pinBox.entered
+                            color:        isFilled ? "#ffffff" : "transparent"
+                            border.width: isFilled ? 0         : 2
+                            border.color: "#ffffff"
                         }
+                    }
+                }
 
-                        onPrevRequested: {
-                            if (index > 0)
-                                enterRepeater.itemAt(index - 1).forceActiveFocus()
+                // Hidden TextInput — captures keyboard/IME input
+                TextInput {
+                    id: hiddenInput
+                    width: 1; height: 1; opacity: 0
+                    focus: false
+                    maximumLength: pinLength
+                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+
+                    onTextChanged: pinText = text
+
+                    Keys.onPressed: {
+                        if (locked) { event.accepted = true; return }
+                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
+                            if (pinText.length < pinLength) {
+                                pinText = pinText + event.text
+                                hiddenInput.text = pinText
+                            }
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Backspace) {
+                            if (pinText.length > 0) {
+                                pinText = pinText.slice(0, pinText.length - 1)
+                                hiddenInput.text = pinText
+                            }
+                            event.accepted = true
                         }
                     }
                 }
             }
         }
-
-
-        // ===== REMEMBER ME & FORGOT PIN =====
-        RowLayout {
-            width: pinRepeater.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            // Layout.alignment: Qt.AlignVCenter
-
-            CheckBox {
-                id: rememberCheckbox
-                text: " Remember me"
-                font.pixelSize: 18
-                Layout.alignment: Qt.AlignVCenter
-                contentItem: Text {
-                    text: parent.text
-                    color: "#666666"
-                    font.bold: true
-                    font.pixelSize: 18
-                    leftPadding: parent.indicator.width + 2
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                text: "Forgot PIN?"
-                color: "#4f7cff"
-                font.pixelSize: 18
-                font.bold: true
-                font.underline: true
-                Layout.alignment: Qt.AlignVCenter
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: securityManager.clearStored()
-                }
-            }
         }
 
+        // ===== REMEMBER ME ROW =====
+        Item {
+            id: rememberRow
+            width: parent.width
+            height: 36
+            anchors.left: pinSection.left
+            y: pinSection.y + pinSection.height + 28
+        Row {
+            spacing: 13
+            anchors.left: parent.left
+
+            Rectangle {
+                id: rememberBox
+                width: 36; height: 36
+                radius: 4
+                color:        "transparent"
+                border.color: rememberBox.checked ? "#FFFFFF" : "#888888"
+                border.width: 2
+                property bool checked: false
+
+                Image {
+                source: "qrc:/custom/img/checked.svg"
+                x: 5
+                y: 2
+                visible: rememberBox.checked
+            }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: rememberBox.checked = !rememberBox.checked
+                }
+            }
+
+            Text {
+                text: "Remember me"
+                color: "#AEAEAE"
+                font.family: "Roboto"
+                font.pixelSize: 24
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+        }
+
+        // ===== ERROR / STATUS TEXT =====
         Text {
+            y: rememberRow.y + rememberRow.height + 7
             id: unlockError
             text: ""
             color: "#ff5c5c"
             visible: false
             font.bold: true
+            font.pixelSize: 24
             anchors.horizontalCenter: parent.horizontalCenter
-            font.pixelSize: 18
+            horizontalAlignment: Text.AlignHCenter
         }
 
         // ===== UNLOCK BUTTON =====
-        Button {
-            text: "Unlock System"
-            width: pinRepeater.width
-            height: 50
+        Rectangle {
+            y: rememberRow.y + rememberRow.height + 44
+            width: 508
+            height: 71
+            radius: 4
+            color: unlockBtnArea.pressed ? "#0b8a7a" : "#00826F"
             anchors.horizontalCenter: parent.horizontalCenter
-            enabled: !locked
+            opacity: locked ? 0.5 : 1.0
 
-            onClicked: {
-                // check lockout first
-                if (securityManager.isLocked()) {
-                    // set local locked flag and start timer to show realtime countdown
-                    locked = true
-                    lockoutTimer.start()
-                    return
+            Text {
+                anchors.centerIn: parent
+                text: "Unlock System"
+                color: "#ffffff"
+                font.pixelSize: 28
+                font.family: "Roboto"
+                font.styleName: "Medium"
+            }
+
+            MouseArea {
+                id: unlockBtnArea
+                anchors.fill: parent
+                enabled: !locked
+                onClicked: {
+                    if (securityManager.isLocked()) {
+                        locked = true
+                        lockoutTimer.start()
+                        return
+                    }
+                    var pin = getPINValue()
+                    var ok = false
+                    try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
+                    if (ok) {
+                        unlockError.text  = "PIN verified. Loading..."
+                        unlockError.color = "#0fa18f"
+                        unlockError.visible = true
+                        unlockTriggerTimer.action = "unlock"
+                        unlockTriggerTimer.start()
+                    } else {
+                        unlockError.text    = "Invalid PIN"
+                        unlockError.color   = "#ff5c5c"
+                        unlockError.visible = true
+                    }
                 }
+            }
+        }
 
-                var pin = getPINValue()
-                var ok = false
-                try {
-                    ok = securityManager.verifyPin(pin)
-                } catch(e) { ok = false }
+        // ===== VIEW-ONLY BUTTON =====
+        Rectangle {
+            y: rememberRow.y + rememberRow.height + 142
+            width: 508
+            height: 71
+            radius: 4
+            color: viewOnlyBtnArea.pressed ? "#4a5260" : "#3d4450"
+            anchors.horizontalCenter: parent.horizontalCenter
 
-                if (ok) {
-                    unlockError.text = "PIN verified. Loading..."
-                    unlockError.color = "green"
+            Text {
+                anchors.centerIn: parent
+                text: "Continue in View-only Mode"
+                color: "#ffffff"
+                font.pixelSize: 28
+                font.family: "Roboto"
+                font.styleName: "Medium"
+            }
+
+            MouseArea {
+                id: viewOnlyBtnArea
+                anchors.fill: parent
+                onClicked: {
+                    unlockError.text    = "Loading View-only Mode..."
+                    unlockError.color   = "#00826F"
                     unlockError.visible = true
-                    // delay emitting signal so the UI has time to render the Loading message
-                    pendingPin = pin
+                    unlockTriggerTimer.action = "viewOnly"
                     unlockTriggerTimer.start()
-                } else {
-                    // Show immediate invalid PIN message
-                    unlockError.text = "Invalid PIN"
-                    unlockError.visible = true
                 }
             }
-
-            background: Rectangle {
-                radius: 8
-                color: "#4f7cff" //parent.enabled ? "#4f7cff" : "#cccccc"
-            }
-
-            contentItem: Text {
-                text: parent.text
-                color: "white"
-                font.pixelSize: 18
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                anchors.centerIn: parent
-            }
         }
 
-        // ===== VIEW ONLY MODE BUTTON =====
-        Button {
-            text: "Continue in View-only Mode"
-            width: pinRepeater.width
-            height: 50
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            onClicked: {
-                loginPage.viewOnlyClicked()
-            }
-
-            background: Rectangle {
-                radius: 8
-                color: "#f0f0f0"
-            }
-
-            contentItem: Text {
-                text: parent.text
-                color: "#333333"
-                font.bold: true
-                font.pixelSize: 18
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                anchors.centerIn: parent
-            }
-        }
-
-        // ===== SECURITY MESSAGE =====
+        // ===== FORGOT PIN LINK =====
         Text {
-            text: "⚠ Your session will auto-lock after inactivity or when the app is \n backgrounded"
-            color: "#d9534f"
-            font.pixelSize: 16
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            wrapMode: Text.Wrap
+            y: rememberRow.y + rememberRow.height + 236
+            text: "Forgot PIN?"
+            color: "#00826F"
+            font.family: "Roboto"
+            font.pixelSize: 24
+            font.bold: true
+            anchors.left: rememberRow.left
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: loginPage.forgotPINClicked()
+            }
         }
-    }
+
 
     Component.onCompleted: {
-        var first = enterRepeater.itemAt(0)
-        if (first) {
-            // PinBox is the repeater item (Rectangle) which forwards focus to its TextInput
-            first.forceActiveFocus()
-        }
-
-        // Check if locked when page loads
+        // Don't auto-show keyboard, wait for user to click input field
         if (securityManager.isLocked()) {
             lockoutTimer.start()
         }

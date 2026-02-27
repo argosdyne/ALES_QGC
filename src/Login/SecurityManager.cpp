@@ -8,6 +8,90 @@
 #include <openssl/evp.h>
 #include <openssl/crypto.h>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#include <QDebug>
+
+static bool androidIsKeystoreAvailable()
+{
+    QAndroidJniEnvironment env;
+    jboolean available = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/mavlink/qgroundcontrol/SecurityHelper",
+        "isKeystoreAvailable",
+        "()Z");
+
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        return false;
+    }
+
+    return available == JNI_TRUE;
+}
+
+static QByteArray androidHmacPassword(const QByteArray &password)
+{
+    if (password.isEmpty()) return QByteArray();
+
+    QAndroidJniEnvironment env;
+
+    // Convert password to Java byte[]
+    jbyteArray passwordBytes = env->NewByteArray(password.size());
+    if (!passwordBytes) return QByteArray();
+    env->SetByteArrayRegion(passwordBytes, 0, password.size(), (jbyte*)password.constData());
+
+    // Call Java SecurityHelper.hmacPassword() - returns QAndroidJniObject (which wraps jbyteArray)
+    QAndroidJniObject resultObj = QAndroidJniObject::callStaticObjectMethod(
+        "org/mavlink/qgroundcontrol/SecurityHelper",
+        "hmacPassword",
+        "([B)[B",
+        passwordBytes);
+
+    QByteArray result;
+    if (resultObj.isValid()) {
+        jbyteArray jArray = resultObj.object<jbyteArray>();
+        if (jArray) {
+            jint size = env->GetArrayLength(jArray);
+            jbyte* elements = env->GetByteArrayElements(jArray, nullptr);
+            if (elements) {
+                result = QByteArray(reinterpret_cast<const char*>(elements), size);
+                env->ReleaseByteArrayElements(jArray, elements, JNI_ABORT);
+            }
+        }
+    }
+
+    env->DeleteLocalRef(passwordBytes);
+
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        return QByteArray();
+    }
+
+    return result;
+}
+
+static bool androidDeleteKeystore()
+{
+    QAndroidJniEnvironment env;
+
+    jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/mavlink/qgroundcontrol/SecurityHelper",
+        "deleteKeystore",
+        "()Z");
+
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        return false;
+    }
+
+    return ok;
+}
+
+#endif
+
 SecurityManager::SecurityManager(QObject *parent)
     : QObject(parent), m_keystoreInitialized(false)
 {
@@ -71,16 +155,31 @@ bool SecurityManager::constantTimeCompare(const QByteArray &a, const QByteArray 
 bool SecurityManager::setPin(const QString &pin)
 {
     if (pin.isEmpty()) return false;
-    
+
+    if (!validatePINStrength(pin).isEmpty()) {
+        return false;
+    }
+
     QByteArray password = pin.toUtf8();
-    
+
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
     QByteArray peppered = password;
 #ifdef Q_OS_ANDROID
-    peppered = AndroidSecurityStorage::hmacPassword(password);
+    if (!m_keystoreInitialized && !initializeKeystore()) {
+        qWarning() << "[SecurityManager] Keystore initialization failed during setPin";
+        OPENSSL_cleanse(password.data(), password.size());
+        return false;
+    }
+
+    peppered = androidHmacPassword(password);
+    if (peppered.isEmpty()) {
+        qWarning() << "[SecurityManager] Keystore HMAC failed during setPin";
+        OPENSSL_cleanse(password.data(), password.size());
+        return false;
+    }
 #endif
-    
+
     QByteArray salt = randomBytes(SALT_LEN);
     if (salt.isEmpty()) {
         qWarning() << "[SecurityManager] Failed to generate random salt";
@@ -150,17 +249,30 @@ bool SecurityManager::verifyPin(const QString &pin)
     s.endGroup();
 
     QByteArray password = pin.toUtf8();
-    
+
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
     QByteArray peppered = password;
-    
+
 #ifdef Q_OS_ANDROID
     if (useKeystore) {
-        peppered = AndroidSecurityStorage::hmacPassword(password);
+        if (!m_keystoreInitialized && !initializeKeystore()) {
+            qWarning() << "[SecurityManager] Keystore initialization failed during verifyPin";
+            OPENSSL_cleanse(password.data(), password.size());
+            recordFailedAttempt();
+            return false;
+        }
+
+        peppered = androidHmacPassword(password);
+        if (peppered.isEmpty()) {
+            qWarning() << "[SecurityManager] Keystore HMAC failed during verifyPin";
+            OPENSSL_cleanse(password.data(), password.size());
+            recordFailedAttempt();
+            return false;
+        }
     }
 #endif
-    
+
     QByteArray candidate = deriveKey(peppered, salt, it, dkStored.size());
 
     if (candidate.isEmpty()) {
@@ -275,6 +387,9 @@ void SecurityManager::clearStored()
     s.remove("");
     s.endGroup();
     s.sync();
+
+    // Also clear Keystore on Android
+    clearKeystore();
 }
 
 bool SecurityManager::hasOnlyDigits(const QString &pin) const
@@ -329,40 +444,98 @@ bool SecurityManager::hasSequentialDigits(const QString &pin) const
     return isDescending;
 }
 
+bool SecurityManager::hasRepeatedNumericBlocks(const QString &pin) const
+{
+    int pinLength = pin.length();
+    // Repeated digit pairs pattern (e.g., 112233, 445566)
+    if (pinLength >= 6 && (pinLength % 2) == 0) {
+        bool isRepeatedPairPattern = true;
+        for (int i = 0; i < pinLength; i += 2) {
+            if (pin.at(i) != pin.at(i + 1)) {
+                isRepeatedPairPattern = false;
+                break;
+            }
+        }
+        if (isRepeatedPairPattern) {
+            return true;
+        }
+    }
+    // Repeated numeric blocks (e.g., 121212, 123123)
+    for (int blockLength = 2; blockLength <= (pinLength / 2); ++blockLength) {
+        if ((pinLength % blockLength) != 0) {
+            continue;
+        }
+
+        const QString block = pin.left(blockLength);
+        bool isRepeatedBlock = true;
+
+        for (int start = blockLength; start < pinLength; start += blockLength) {
+            if (pin.mid(start, blockLength) != block) {
+                isRepeatedBlock = false;
+                break;
+            }
+        }
+
+        if (isRepeatedBlock) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 QString SecurityManager::validatePINStrength(const QString &pin) const
 {
     // Check if PIN contains only digits
     if (!hasOnlyDigits(pin)) {
-        return "PIN must contain only digits (0-9)";
+        return "PIN must contain only digits";
     }
 
     if (hasRepeatingDigits(pin)) {
-        return "PIN cannot be all same digits (e.g., 11111111)";
+        return "PIN cannot be all same digits";
     }
     if (hasSequentialDigits(pin)) {
-        return "PIN cannot be sequential (e.g., 12345678 or 87654321)";
+        return "PIN cannot be sequential";
+    }
+    if (hasRepeatedNumericBlocks(pin)) {
+        return "PIN cannot contain repeated numeric patterns";
     }
     return ""; // empty string = valid
 }
+
 //-------------------------------------------------------------------------
 //-- Keystore Management (Android - Hardware-Backed HMAC Key)
 
 bool SecurityManager::initializeKeystore()
 {
 #ifdef Q_OS_ANDROID
-    if (!AndroidSecurityStorage::isKeystoreAvailable()) {
+    if (!androidIsKeystoreAvailable()) {
         qWarning() << "[SecurityManager] Android Keystore not available";
         return false;
     }
-    
-    m_keystoreInitialized = AndroidSecurityStorage::initializeKeystore();
-    
+
+    // Prefer using the Java helper if present (it handles KeyGenParameterSpec construction).
+    QAndroidJniEnvironment env;
+    jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>(
+        "org/mavlink/qgroundcontrol/SecurityHelper",
+        "initializeKeystore",
+        "()Z");
+
+    if (env->ExceptionCheck()) {
+        qWarning() << "[SecurityManager] Exception calling SecurityHelper.initializeKeystore()";
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        m_keystoreInitialized = false;
+    } else {
+        m_keystoreInitialized = ok;
+    }
+
     if (m_keystoreInitialized) {
         qDebug() << "[SecurityManager] Android Keystore initialized (key stays in Keystore)";
     } else {
         qWarning() << "[SecurityManager] Failed to initialize Keystore key";
     }
-    
+
     return m_keystoreInitialized;
 #else
     m_keystoreInitialized = true;  // Non-Android: no Keystore, always success
@@ -373,7 +546,7 @@ bool SecurityManager::initializeKeystore()
 void SecurityManager::clearKeystore()
 {
 #ifdef Q_OS_ANDROID
-    if (!AndroidSecurityStorage::deleteKeystore()) {
+    if (!androidDeleteKeystore()) {
         qWarning() << "[SecurityManager] Failed to delete Keystore key";
     } else {
         qDebug() << "[SecurityManager] Keystore key deleted";

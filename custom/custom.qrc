@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/custom/img">
+        <file alias="lock_icon.svg">res/Images/lock_icon.svg</file>
         <file alias="altitude.svg">res/Images/altitude.svg</file>
         <file alias="attitude_crosshair.svg">res/Images/attitude_crosshair.svg</file>
         <file alias="attitude_dial.svg">res/Images/attitude_dial.svg</file>
@@ -41,6 +42,7 @@
         <file alias="toolBar_GPSUnuse.svg">res/Images/toolBar_GPSUnuse.svg</file>
         <file alias="track.svg">res/Images/track.svg</file>
         <file alias="void.png">res/Images/void.png</file>
+        <file alias="checked.svg">res/Images/checked.svg</file>
         <file alias="yes.svg">res/Images/yes.svg</file>
         <file alias="CustomAppIconOutdoor.png">res/Images/argoBrandLogoBlack.png</file>
         <file alias="png/aircraftBindTip.png">res/Images/aircraftBindTip.png</file>

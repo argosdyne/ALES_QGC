@@ -39,6 +39,9 @@ Rectangle {
         if (globals.commingFromRIDIndicator) {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
+        } else if (mainWindow.viewOnlyMode) {
+            // In view-only mode, default to Comm Links (LinkSettings.qml)
+            __rightPanel.source = "qrc:/qml/LinkSettings.qml"
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
         }
@@ -69,7 +72,19 @@ Rectangle {
                     text:               modelData.title
                     autoExclusive:      true
                     Layout.fillWidth:   true
-                    visible:            modelData.url != "qrc:/qml/RemoteIDSettings.qml" ? true : QGroundControl.settingsManager.remoteIDSettings.enable.rawValue
+                    visible: {
+                        // Hide Remote ID settings if not enabled
+                        if (String(modelData.url) === "qrc:/qml/RemoteIDSettings.qml") {
+                            return QGroundControl.settingsManager.remoteIDSettings.enable.rawValue
+                        }
+
+                        // In view-only mode, only show Comm Links settings
+                        if (mainWindow.viewOnlyMode) {
+                            return String(modelData.url) === "qrc:/qml/LinkSettings.qml"
+                        }
+
+                        return true
+                    }
 
                     onClicked: {
                         if (mainWindow.preventViewSwitch()) {

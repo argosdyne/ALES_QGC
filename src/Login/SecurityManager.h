@@ -8,9 +8,7 @@
 #include <QString>
 #include <QDateTime>
 
-#ifdef Q_OS_ANDROID
-#include "AndroidSecurityStorage.h"
-#endif
+// Android-specific functionality is implemented inside SecurityManager.cpp
 
 class SecurityManager : public QObject
 {
@@ -40,6 +38,7 @@ public:
     // PIN strength validation
     Q_INVOKABLE bool hasRepeatingDigits(const QString &pin) const;
     Q_INVOKABLE bool hasSequentialDigits(const QString &pin) const;
+    Q_INVOKABLE bool hasRepeatedNumericBlocks(const QString &pin) const;
     Q_INVOKABLE bool hasOnlyDigits(const QString &pin) const;
     Q_INVOKABLE QString validatePINStrength(const QString &pin) const;
 

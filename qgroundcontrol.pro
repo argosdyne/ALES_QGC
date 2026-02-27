@@ -464,6 +464,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 
 HEADERS += \
     src/Login/SecurityManager.h \
+    src/Login/SessionManager.h \
     src/QmlControls/CustomAction.h \
     src/QmlControls/CustomActionManager.h \
     src/QmlControls/QmlUnitsConversion.h \
@@ -481,6 +482,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 
 SOURCES += \
     src/Login/SecurityManager.cpp \
+    src/Login/SessionManager.cpp \
     src/QmlControls/CustomActionManager.cc \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
     src/api/QGCCorePlugin.cc \
@@ -1139,10 +1141,14 @@ LIBS += -L$$PWD/src/CGAL/lib/mpfr.lib \
     -L$$PWD/src/CGAL/lib/zlib.lib \
     -L$$PWD/src/CGAL/lib/GLU32.lib \
     -L$$PWD/src/CGAL/lib/glew32.lib \
-    -L$$PWD/src/CGAL/lib/OpenGL32.lib \
-    -L$$PWD/src/OpenSSL/lib/VC/x64/MD \
+    -L$$PWD/src/CGAL/lib/OpenGL32.lib
+
+# OpenSSL linking: only add MSVC-specific libraries on Windows builds.
+WindowsBuild {
+    LIBS += -L$$PWD/src/OpenSSL/lib/VC/x64/MD \
             -llibssl \
             -llibcrypto
+}
 
 HEADERS+= \
     src/AutoPilotPlugins/AutoPilotPlugin.h \
@@ -1468,8 +1474,8 @@ AndroidBuild {
     
     # Android Security Storage (Keystore HMAC support)
     QT += androidextras
-    HEADERS += src/Login/AndroidSecurityStorage.h
-    SOURCES += src/Login/AndroidSecurityStorage.cpp
+    HEADERS +=
+    SOURCES +=
     message("Android security storage (Keystore HMAC) enabled")
 }
 

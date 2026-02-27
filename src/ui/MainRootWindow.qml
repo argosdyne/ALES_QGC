@@ -27,23 +27,21 @@ ApplicationWindow {
     id:             mainWindow
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
-    visible:        true
-
-
-    // Property to manage View-Only Mode
-    property bool               viewOnlyMode:        false
+    property alias  viewOnlyMode: globals.viewOnlyMode
+    property var _loginPageComponent:    null
+    property var _registerPageComponent: null
 
     Component.onCompleted: {
-        //-- Full screen on mobile or tiny screens
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
             mainWindow.showFullScreen()
         } else {
             width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
-
-        // Start the sequence of first run prompt(s)
-        firstRunPromptManager.nextPrompt()
+        _loginPageComponent    = Qt.createComponent("qrc:/login/LogInPage.qml")
+        _registerPageComponent = Qt.createComponent("qrc:/login/RegisterScreen.qml")
+        loadInitialLoginUI()
+        loginOverlay.open()
     }
 
     QtObject {
@@ -94,6 +92,9 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+
+        // Property to manage View-Only Mode
+        property bool               viewOnlyMode:        false
     }
 
     /// Default color palette used throughout the UI
@@ -216,6 +217,14 @@ ApplicationWindow {
 
     property bool _forceClose: false
 
+    // Show login overlay 
+    function showLoginOverlay() {
+        loadInitialLoginUI()
+        if (!loginOverlay.visible) {
+            loginOverlay.open()
+        }
+    }
+
     function finishCloseProcess() {
         _forceClose = true
         // For some reason on the Qml side Qt doesn't automatically disconnect a signal when an object is destroyed.
@@ -224,6 +233,46 @@ ApplicationWindow {
         QGroundControl.linkManager.shutdown()
         QGroundControl.videoManager.stopVideo();
         mainWindow.close()
+    }
+
+    // -------------------------------------------------------------------------
+    // Login functions
+
+    function loadInitialLoginUI() {
+        loginStack.clear()
+        if (securityManager.hasStoredPin()) {
+            var loginComp = loginStack.push(_loginPageComponent)
+            setupLoginPageConnections(loginComp)
+        } else {
+            var regComp = loginStack.push(_registerPageComponent)
+            regComp.pinRegistered.connect(function() {
+                var loginComp2 = loginStack.replace(_loginPageComponent)
+                setupLoginPageConnections(loginComp2)
+            })
+        }
+    }
+
+    function setupLoginPageConnections(loginComponent) {
+        loginComponent.unlockClicked.connect(function() {
+            sessionManager.startSession()
+            globals.viewOnlyMode = false
+            loginOverlay.close()
+        })
+        loginComponent.viewOnlyClicked.connect(function() {
+            sessionManager.startSession()
+            globals.viewOnlyMode = true
+            loginOverlay.close()
+        })
+        if (loginComponent.forgotPINClicked !== undefined) {
+            loginComponent.forgotPINClicked.connect(function() {
+                securityManager.clearStored()
+                var regComp = loginStack.replace(_registerPageComponent)
+                regComp.pinRegistered.connect(function() {
+                    var lc = loginStack.replace(_loginPageComponent)
+                    setupLoginPageConnections(lc)
+                })
+            })
+        }
     }
 
     // On attempting an application close we check for:
@@ -458,7 +507,7 @@ ApplicationWindow {
 
     FlyView {
         id:             flightView
-        _viewOnlyMode: viewOnlyMode
+        _viewOnlyMode:  globals.viewOnlyMode
         anchors.fill:   parent
     }
 
@@ -923,6 +972,61 @@ ApplicationWindow {
                 visible = false
                 source = ""
             }
+        }
+    }
+
+    // =========================================================================
+    // Login overlay – Popup so it renders on Qt Quick Overlay layer,
+    // which is ABOVE Drawer/Dialog/Popup items (plain Item z-order is not enough)
+    // =========================================================================
+    Popup {
+        id:          loginOverlay
+        parent:      Overlay.overlay
+        x:           0
+        width:       Overlay.overlay ? Overlay.overlay.width  : mainWindow.width
+        height:      Overlay.overlay ? Overlay.overlay.height : mainWindow.height
+        visible:     true
+        modal:       true
+        closePolicy: Popup.NoAutoClose
+        padding:     0
+
+        // Shift popup up when keyboard appears on Android
+        y:           {
+            if (Qt.inputMethod.visible) {
+                var keyboardRect = Qt.inputMethod.keyboardRectangle
+                var screenHeight = Overlay.overlay ? Overlay.overlay.height : mainWindow.height
+                var popupHeight = Overlay.overlay ? Overlay.overlay.height : mainWindow.height
+                var popupBottom = 0 + popupHeight
+                
+                // If popup bottom overlaps keyboard, shift up by half the overlap + margin
+                if (popupBottom > (screenHeight - keyboardRect.height)) {
+                    var overlap = popupBottom - (screenHeight - keyboardRect.height) + 20 // 20px margin
+                    return -(overlap / 2)  // Only shift by half the overlap
+                }
+            }
+            return 0
+        }
+
+
+        background: Rectangle {
+            color:  "#222222"
+            opacity: 0.95
+        }
+
+        contentItem: Item {
+            anchors.fill: parent
+
+            StackView {
+                id: loginStack
+                anchors.fill: parent   
+            }
+        }
+    }
+
+    Connections {
+        target: sessionManager
+        onSessionLocked: {
+            showLoginOverlay()
         }
     }
 }

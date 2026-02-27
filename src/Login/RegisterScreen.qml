@@ -1,258 +1,319 @@
-import QtQuick 2.7
+﻿import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
 
 Page {
     id: registerPage
 
     signal pinRegistered()
 
-    property int pinLength: 8
-    property string errorMessage: ""
-    property bool showError: false
-    property string messageColor: "#ff5c5c"  // Default red for errors
+    property int    pinLength:      6
+    property string enterPinText:   ""
+    property string confirmPinText: ""
+    property string errorMessage:   ""
+    property bool   showError:      false
+    property string messageColor:   "#ff5c5c"
+    property int _contentBlockHeight: 687
 
-       background: Rectangle {
-           color: "#000000"
-       }
+    background: Rectangle { 
+        color: "#222222"
+        opacity: 0
+        radius: 16
+    }
 
-       function pinValue(rowRepeater) {
-           var value = ""
-           for (var i = 0; i < pinLength; i++)
-               value += rowRepeater.itemAt(i).text
-           return value
-       }
+    // ─── helpers ──────────────────────────────────────────────────────────────
+    function validatePIN() {
+        var p1 = enterPinText
+        var p2 = confirmPinText
 
-       function validatePIN() {
-           var p1 = pinValue(enterRepeater)
-           var p2 = pinValue(confirmRepeater)
+        if (p1.length < 6 || p2.length < 6) {
+            errorMessage = "Enter 6 digits for your PIN"
+            messageColor = "#ff5c5c"
+            showError = true
+            return false
+        }
 
-           // Kiểm tra độ dài PIN
-           if (p1.length < 6 || p2.length < 6) {
-               errorMessage = "Please enter 6 - 8 digits pin"
-               messageColor = "#ff5c5c"
-               showError = true
-               return false
-           }
+        var strengthError = securityManager.validatePINStrength(p1)
+        if (strengthError) {
+            errorMessage = strengthError
+            messageColor = "#ff5c5c"
+            showError = true
+            return false
+        }
 
-           // Kiểm tra độ mạnh PIN bằng C++
-           var strengthError = securityManager.validatePINStrength(p1)
-           if (strengthError) {
-               errorMessage = strengthError
-               messageColor = "#ff5c5c"
-               showError = true
-               return false
-           }
+        if (p1 !== p2) {
+            errorMessage = "PINs do not match"
+            messageColor = "#ff5c5c"
+            showError = true
+            return false
+        }
 
-           // Kiểm tra PIN match
-           if (p1 !== p2) {
-               errorMessage = "PINs do not match"
-               messageColor = "#ff5c5c"
-               showError = true
-               return false
-           }
+        showError = false
+        return true
+    }
 
-           showError = false
-           return true
-       }
+    // ─── header (icon + title + subtitle) ────────────────────────────────────
+    Item {
+        id: headerSection
+        width:  parent.width
+        height: 192
+        y: Math.max(20, Math.round((parent.height - registerPage._contentBlockHeight) / 2))
 
-       Column {
-           anchors.centerIn: parent
-           spacing: 30
-           width: parent.width * 0.85
+        Column {
+            anchors.centerIn: parent
+            spacing: 16
+            width: parent.width
 
-           Rectangle {
-               width: 70
-               height: 70
-               radius: 35
-               anchors.horizontalCenter: parent.horizontalCenter
-               gradient: Gradient {
-                   GradientStop { position: 0; color: "#4f7cff" }
-                   GradientStop { position: 1; color: "#7a5cff" }
-               }
+            Image {
+                source: "qrc:/custom/img/lock_icon.svg"
+                width:  92
+                height: 92
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-               Text {
-                   anchors.centerIn: parent
-                   text: "🛡"
-                   font.pixelSize: 28
-               }
-           }
+        // ===== TITLE =====
+        Item {
+            width: parent.width
+            height: 84
+            Text {
+                text: "Set Your Admin PIN"
+                color: "#ffffff"
+                font.family:    "Roboto"
+                font.pixelSize: 40
+                font.bold:      true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-           Text {
-               text: "Set Your Admin PIN"
-               color: "white"
-               font.pixelSize: 35
-               font.bold: true
-               horizontalAlignment: Text.AlignHCenter
-               anchors.horizontalCenter: parent.horizontalCenter
-           }
+            Text {
+                text: "Create a secure 6 digits PIN to protect your profile"
+                color: "#AEAEAE"
+                font.family:    "Roboto"
+                y: 57
+                font.pixelSize: 22
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+        }
+    }
 
-           Text {
-               text: "Create a secure 6–8 digit PIN to protect your profile"
-               color: "#a0aec0"
-               font.pixelSize: 18
-               horizontalAlignment: Text.AlignHCenter
-               anchors.horizontalCenter: parent.horizontalCenter
-           }
+    // ─── Enter PIN ────────────────────────────────────────────────────────────
+    Item {
+        id: enterSection
+        width:  508
+        height: 119
+        y:      headerSection.y + headerSection.height + 28
+        anchors.horizontalCenter: parent.horizontalCenter
 
-           // ===== ENTER PIN =====
-           Column {
-               id: pinEnter
-               spacing: 10
-               anchors.horizontalCenter: parent.horizontalCenter
+        Column {
+            spacing: 10
+            width: parent.width
 
-               Text {
-                   text: "Enter PIN"
-                   color: "#8ea0b8"
-                   anchors.horizontalCenter: parent.horizontalCenter
-               }
+            Text {
+                text: "Enter PIN"
+                color: "#AEAEAE"
+                font.family:    "Roboto"
+                font.pixelSize: 24
+                anchors.left: parent.left
+            }
 
-               Row {
-                   spacing: 12
-                   anchors.horizontalCenter: parent.horizontalCenter
+            Rectangle {
+                id: enterBox
+                width:  508
+                height: 80
+                radius: 4
+                color:  "#222222"
+                border.width: 2
+                border.color: enterHover.containsMouse ? "#00826F" : "#ffffff"
 
-                   Repeater {
-                       id: enterRepeater
-                       model: pinLength
+                property string pinValue: ""
 
-                       PinBox {
-                           index: model.index
+                MouseArea {
+                    id: enterHover
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: { enterInput.forceActiveFocus(); if (!Qt.inputMethod.visible) Qt.inputMethod.show() }
+                }
 
-                           onNextRequested: {
-                               if (index < pinLength - 1)
-                                   enterRepeater.itemAt(index + 1).forceActiveFocus()
-                               else
-                                   confirmRepeater.itemAt(0).forceActiveFocus()
-                           }
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    Repeater {
+                        model: pinLength
+                        Rectangle {
+                            width: 18; height: 18; radius: 9
+                            readonly property bool filled: index < enterBox.pinValue.length
+                            color:        filled ? "#ffffff" : "transparent"
+                            border.width: filled ? 0 : 2
+                            border.color: "#ffffff"
+                        }
+                    }
+                }
 
-                           onPrevRequested: {
-                               if (index > 0)
-                                   enterRepeater.itemAt(index - 1).forceActiveFocus()
-                           }
+                TextInput {
+                    id: enterInput
+                    width: 1; height: 1; opacity: 0
+                    focus: false
+                    maximumLength: 8
+                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    onTextChanged: {
+                        enterBox.pinValue = text
+                        enterPinText      = text
+                        var err = text.length >= 6 ? securityManager.validatePINStrength(text) : ""
+                        if (err) { errorMessage = err; messageColor = "#ff5c5c"; showError = true }
+                        else     { showError = false }
+                    }
+                    Keys.onPressed: {
+                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
+                            if (enterBox.pinValue.length < 6) {
+                                enterBox.pinValue = enterBox.pinValue + event.text
+                                enterInput.text   = enterBox.pinValue
+                            }
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Backspace) {
+                            if (enterBox.pinValue.length > 0) {
+                                enterBox.pinValue = enterBox.pinValue.slice(0, enterBox.pinValue.length - 1)
+                                enterInput.text   = enterBox.pinValue
+                            }
+                            event.accepted = true
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-                           onTextChanged: {
-                               // Real-time PIN strength check via C++
-                               var currentPin = pinValue(enterRepeater)
-                               var strengthError = currentPin.length >= 6 ? securityManager.validatePINStrength(currentPin) : ""
-                               if (strengthError) {
-                                   errorMessage = strengthError
-                                   messageColor = "#ff5c5c"
-                                   showError = true
-                               } else if (currentPin.length >= 6) {
-                                   errorMessage = "✓ PIN strength: Good"
-                                   messageColor = "#48bb78"
-                                   showError = true
-                               } else {
-                                   showError = false
-                               }
-                           }
-                       }
-                   }
-               }
-           }
+    // ─── Confirm PIN ──────────────────────────────────────────────────────────
+    Item {
+        id: confirmSection
+        width:  508
+        height: 119
+        y:      enterSection.y + enterSection.height + 22
+        anchors.horizontalCenter: parent.horizontalCenter
 
-           // ===== CONFIRM PIN =====
-           Column {
-               id: pinConfirm
-               spacing: 10
-               anchors.horizontalCenter: parent.horizontalCenter
+        Column {
+            spacing: 10
+            width: parent.width
 
-               Text {
-                   text: "Confirm PIN"
-                   color: "#8ea0b8"
-                   anchors.horizontalCenter: parent.horizontalCenter
-               }
+            Text {
+                text: "Confirm PIN"
+                color: "#AEAEAE"
+                font.family:    "Roboto"
+                font.pixelSize: 24
+                anchors.left:   parent.left
+            }
 
-               Row {
-                   spacing: 12
-                   anchors.horizontalCenter: parent.horizontalCenter
+            Rectangle {
+                id: confirmBox
+                width:  508
+                height: 80
+                radius: 4
+                color:  "#222222"
+                border.width: 2
+                border.color: confirmHover.containsMouse ? "#00826F" : "#ffffff"
 
-                   Repeater {
-                       id: confirmRepeater
-                       model: pinLength
+                property string pinValue: ""
 
-                       PinBox {
-                           index: model.index
+                MouseArea {
+                    id: confirmHover
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: { confirmInput.forceActiveFocus(); if (!Qt.inputMethod.visible) Qt.inputMethod.show() }
+                }
 
-                           onNextRequested: {
-                               if (index < pinLength - 1)
-                                   confirmRepeater.itemAt(index + 1).forceActiveFocus()
-                           }
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 20
+                    Repeater {
+                        model: pinLength
+                        Rectangle {
+                            width: 18; height: 18; radius: 9
+                            readonly property bool filled: index < confirmBox.pinValue.length
+                            color:        filled ? "#ffffff" : "transparent"
+                            border.width: filled ? 0 : 2
+                            border.color: "#ffffff"
+                        }
+                    }
+                }
 
-                           onPrevRequested: {
-                               if (index > 0)
-                                   confirmRepeater.itemAt(index - 1).forceActiveFocus()
-                               else
-                                   enterRepeater.itemAt(pinLength - 1).forceActiveFocus()
-                           }
-                       }
-                   }
-               }
-           }
+                TextInput {
+                    id: confirmInput
+                    width: 1; height: 1; opacity: 0
+                    focus: false
+                    maximumLength: 6
+                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    onTextChanged: {
+                        confirmBox.pinValue = text
+                        confirmPinText      = text
+                    }
+                    Keys.onPressed: {
+                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
+                            if (confirmBox.pinValue.length < 6) {
+                                confirmBox.pinValue = confirmBox.pinValue + event.text
+                                confirmInput.text   = confirmBox.pinValue
+                            }
+                            event.accepted = true
+                        } else if (event.key === Qt.Key_Backspace) {
+                            if (confirmBox.pinValue.length > 0) {
+                                confirmBox.pinValue = confirmBox.pinValue.slice(0, confirmBox.pinValue.length - 1)
+                                confirmInput.text   = confirmBox.pinValue
+                            }
+                            event.accepted = true
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-           Text {
-               text: errorMessage
-               visible: showError
-               color: messageColor
-               font.bold: true
-               anchors.horizontalCenter: parent.horizontalCenter
-               font.pixelSize: 18
-           }
+    // ─── hint / error text ────────────────────────────────────────────────────
+    Text {
+        id: hintText
+        y:     confirmSection.y + confirmSection.height + 26
+        width: 508
+        anchors.horizontalCenter: parent.horizontalCenter
+        text:  showError ? errorMessage : "Enter 6 digits for your PIN"
+        color: showError ? messageColor : "#AEAEAE"
+        font.family:    "Roboto"
+        font.pixelSize: 22
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+    }
 
-           Button {
-               text: "Continue"
-               // enabled: isValid()
-               width: pinConfirm.width
-               anchors.horizontalCenter: parent.horizontalCenter
-               height: 70
+    // ─── Continue button ──────────────────────────────────────────────────────
+    Rectangle {
+        y:      hintText.y + 55
+        width:  508
+        height: 71
+        radius: 4
+        color:  continueBtnArea.pressed ? "#006657" : "#00826F"
+        anchors.horizontalCenter: parent.horizontalCenter
 
-               onClicked: {
-                   if (validatePIN()) {
-                       // set the PIN securely via SecurityManager exposed to QML
-                       var p = pinValue(enterRepeater)
-                       var ok = false
-                       try {
-                           ok = securityManager.setPin(p)
-                       } catch(e) {
-                           ok = false
-                       }
-                       if (ok) {
-                           registerPage.pinRegistered()
-                       } else {
-                           errorMessage = "Failed to store PIN"
-                           showError = true
-                       }
-                   }
-               }
+        Text {
+            anchors.centerIn: parent
+            text:           "Continue"
+            color:          "#ffffff"
+            font.family:    "Roboto"
+            font.pixelSize: 28
+            font.bold:      true
+        }
 
-               background: Rectangle {
-                   radius: 8
-                   gradient: Gradient {
-                       GradientStop { position: 0; color: enabled ? "#4f7cff" : "#2d3748" }
-                       GradientStop { position: 1; color: enabled ? "#7a5cff" : "#2d3748" }
-                   }
-               }
-
-               contentItem: Text {
-                   text: parent.text
-                   color: "white"
-                   font.pixelSize: 30
-                   horizontalAlignment: Text.AlignHCenter
-                   verticalAlignment: Text.AlignVCenter
-                   anchors.fill: parent
-                   font.bold: true
-               }
-           }
-
-           Text {
-               text: "Your PIN is encrypted and stored securely"
-               color: "#64748b"
-               anchors.horizontalCenter: parent.horizontalCenter
-               font.pixelSize: 18
-           }
-       }
-
-       Component.onCompleted: {
-           enterRepeater.itemAt(0).forceActiveFocus()
-       }
+        MouseArea {
+            id: continueBtnArea
+            anchors.fill: parent
+            onClicked: {
+                if (validatePIN()) {
+                    var ok = false
+                    try { ok = securityManager.setPin(enterPinText) } catch(e) { ok = false }
+                    if (ok) {
+                        registerPage.pinRegistered()
+                    } else {
+                        errorMessage = "Failed to store PIN. Check PIN requirements."
+                        messageColor = "#ff5c5c"
+                        showError    = true
+                    }
+                }
+            }
+        }
+    }
 }

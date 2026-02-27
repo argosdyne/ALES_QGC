@@ -25,6 +25,7 @@
 #include "HorizontalFactValueGrid.h"
 #include "InstrumentValueData.h"
 #include "Login/SecurityManager.h"
+#include "Login/SessionManager.h"
 
 #include <QtQml>
 #include <QQmlEngine>
@@ -383,6 +384,9 @@ QQmlApplicationEngine* QGCCorePlugin::createQmlApplicationEngine(QObject* parent
     qmlEngine->rootContext()->setContextProperty("debugMessageModel", AppMessages::getModel());
     SecurityManager* securityManager = new SecurityManager(qmlEngine);
     qmlEngine->rootContext()->setContextProperty("securityManager", securityManager);
+    SessionManager* sessionManager = new SessionManager(qmlEngine);
+    qmlEngine->rootContext()->setContextProperty("sessionManager", sessionManager);
+    
     return qmlEngine;
 }
 
