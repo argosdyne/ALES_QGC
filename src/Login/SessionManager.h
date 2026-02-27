@@ -33,7 +33,7 @@ private:
     void _restartInactivityTimer();
 
     QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout
-    static constexpr int SESSION_TIMEOUT_MS = 0.3 * 60 * 1000;   // 15 minutes = 900000 ms
+    static constexpr int SESSION_TIMEOUT_MS = 1 * 60 * 1000;   // 15 minutes = 900000 ms
     bool m_isAppInBackground = false;
     bool m_sessionActive = false;
     static SessionManager* s_instance;

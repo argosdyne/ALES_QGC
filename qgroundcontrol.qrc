@@ -37,6 +37,7 @@
 		<file alias="QGroundControl/Controls/PseudocolorBar.qml">src/QmlControls/PseudocolorBar.qml</file>
 		<file alias="QGroundControl/Controls/TouchSelectArea.qml">src/QmlControls/TouchSelectArea.qml</file>
 		<file alias="QGroundControl/Controls/ToolRadioButton.qml">src/QmlControls/ToolRadioButton.qml</file>
+            <file alias="QGroundControl/Controls/SecureLog.qml">src/QmlControls/SecureLog.qml</file>
 		<file alias="QGroundControl/Controls/AreaFrame.qml">src/QmlControls/AreaFrame.qml</file>
 		<file alias="QGroundControl/Controls/TargetObjectRectangles.qml">src/QmlControls/TargetObjectRectangles.qml</file>
 		<file alias="QGroundControl/Controls/FlyViewFPVVideo.qml">src/QmlControls/FlyViewFPVVideo.qml</file>
@@ -101,6 +102,7 @@
         <file alias="QGCInstrumentWidgetAlternate.qml">src/FlightMap/Widgets/QGCInstrumentWidgetAlternate.qml</file>
         <file alias="QGroundControl/Controls/AnalyzePage.qml">src/AnalyzeView/AnalyzePage.qml</file>
         <file alias="QGroundControl/Controls/AppMessages.qml">src/QmlControls/AppMessages.qml</file>
+        <file alias="QGroundControl/Controls/SecureLog.qml">src/QmlControls/SecureLog.qml</file>
         <file alias="QGroundControl/Controls/AltModeDialog.qml">src/QmlControls/AltModeDialog.qml</file>
         <file alias="QGroundControl/Controls/AxisMonitor.qml">src/QmlControls/AxisMonitor.qml</file>
         <file alias="QGroundControl/Controls/CameraCalcCamera.qml">src/PlanView/CameraCalcCamera.qml</file>

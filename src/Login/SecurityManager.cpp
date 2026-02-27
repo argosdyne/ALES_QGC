@@ -1,5 +1,6 @@
 // SecurityManager.cpp
 #include "SecurityManager.h"
+#include "SecurityLogModel.h"
 
 #include <QSettings>
 #include <QDebug>
@@ -283,8 +284,13 @@ bool SecurityManager::verifyPin(const QString &pin)
     }
 
     bool ok = constantTimeCompare(candidate, dkStored);
-    if (!ok) recordFailedAttempt();
-    else resetFailedAttempts();
+    if (!ok) {
+        recordFailedAttempt();
+        SecurityLog::logEvent(QStringLiteral("Invalid PIN attempt (count=%1)").arg(failedAttempts()));
+    } else {
+        resetFailedAttempts();
+        SecurityLog::logEvent(QStringLiteral("Login success"));
+    }
 
     // Wipe sensitive data from memory
     OPENSSL_cleanse(password.data(), password.size());
@@ -316,6 +322,7 @@ void SecurityManager::recordFailedAttempt()
         qDebug() << "[SecurityManager] Failed attempt" << attempts
                  << "- exponential lockout for" << (lockoutDuration / 1000) << "s";
 
+        SecurityLog::logEvent(QStringLiteral("Lockout until %1 after %2 failed attempts").arg(QDateTime::fromMSecsSinceEpoch(until).toString(Qt::ISODate)).arg(attempts));
         // Notify QML/UI immediately that a lockout period started
         emit lockoutStarted(until);
     }
@@ -332,6 +339,7 @@ void SecurityManager::resetFailedAttempts()
     s.endGroup();
     s.sync();
 
+    SecurityLog::logEvent(QStringLiteral("Login lock cleared (reset)"));
     // Notify UI that lockout has been cleared
     emit lockoutCleared();
 }

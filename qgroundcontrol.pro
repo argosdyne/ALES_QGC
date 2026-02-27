@@ -464,6 +464,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 
 HEADERS += \
     src/Login/SecurityManager.h \
+    src/Login/SecurityLogModel.h \
     src/Login/SessionManager.h \
     src/QmlControls/CustomAction.h \
     src/QmlControls/CustomActionManager.h \
@@ -482,6 +483,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 
 SOURCES += \
     src/Login/SecurityManager.cpp \
+    src/Login/SecurityLogModel.cpp \
     src/Login/SessionManager.cpp \
     src/QmlControls/CustomActionManager.cc \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
