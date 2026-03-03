@@ -1,4 +1,13 @@
-﻿import QtQuick 2.7
+﻿/****************************************************************************
+ *
+ * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ *
+ * QGroundControl is licensed according to the terms in the file
+ * COPYING.md in the root of the source code directory.
+ *
+ ****************************************************************************/
+
+import QtQuick 2.7
 import QtQuick.Controls 2.0
 
 Page {
@@ -13,6 +22,7 @@ Page {
     property bool   showError:      false
     property string messageColor:   "#ff5c5c"
     property int _contentBlockHeight: 687
+    property string activePin:        ""   // "enter" | "confirm" | ""
 
     background: Rectangle { 
         color: "#222222"
@@ -124,15 +134,19 @@ Page {
                 radius: 4
                 color:  "#222222"
                 border.width: 2
-                border.color: enterHover.containsMouse ? "#00826F" : "#ffffff"
+                border.color: registerPage.activePin === "enter" ? "#00826F" : "#ffffff"
 
                 property string pinValue: ""
 
                 MouseArea {
                     id: enterHover
                     anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: { enterInput.forceActiveFocus(); if (!Qt.inputMethod.visible) Qt.inputMethod.show() }
+                    hoverEnabled: false
+                    onClicked: {
+                        registerPage.activePin = "enter"
+                        enterInput.forceActiveFocus()
+                        if (!Qt.inputMethod.visible) Qt.inputMethod.show()
+                    }
                 }
 
                 Row {
@@ -210,15 +224,19 @@ Page {
                 radius: 4
                 color:  "#222222"
                 border.width: 2
-                border.color: confirmHover.containsMouse ? "#00826F" : "#ffffff"
+                border.color: registerPage.activePin === "confirm" ? "#00826F" : "#ffffff"
 
                 property string pinValue: ""
 
                 MouseArea {
                     id: confirmHover
                     anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: { confirmInput.forceActiveFocus(); if (!Qt.inputMethod.visible) Qt.inputMethod.show() }
+                    hoverEnabled: false
+                    onClicked: {
+                        registerPage.activePin = "confirm"
+                        confirmInput.forceActiveFocus()
+                        if (!Qt.inputMethod.visible) Qt.inputMethod.show()
+                    }
                 }
 
                 Row {

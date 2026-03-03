@@ -1,3 +1,11 @@
+/****************************************************************************
+ *
+ * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ *
+ * QGroundControl is licensed according to the terms in the file
+ * COPYING.md in the root of the source code directory.
+ *
+ ****************************************************************************/
 #pragma once
 
 #include <QObject>
@@ -33,7 +41,7 @@ private:
     void _restartInactivityTimer();
 
     QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout
-    static constexpr int SESSION_TIMEOUT_MS = 1 * 60 * 1000;   // 15 minutes = 900000 ms
+    static constexpr int SESSION_TIMEOUT_MS = 15 * 60 * 1000;   // 15 minutes = 900000 ms
     bool m_isAppInBackground = false;
     bool m_sessionActive = false;
     static SessionManager* s_instance;

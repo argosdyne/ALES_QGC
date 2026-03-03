@@ -389,6 +389,7 @@ QQmlApplicationEngine* QGCCorePlugin::createQmlApplicationEngine(QObject* parent
     qmlEngine->addImportPath("qrc:/qml");
     qmlEngine->rootContext()->setContextProperty("joystickManager", qgcApp()->toolbox()->joystickManager());
     qmlEngine->rootContext()->setContextProperty("debugMessageModel", AppMessages::getModel());
+    SecurityLog::installModel();
     qmlEngine->rootContext()->setContextProperty("securityLogModel", SecurityLog::getModel());
     SecurityManager* securityManager = new SecurityManager(qmlEngine);
     qmlEngine->rootContext()->setContextProperty("securityManager", securityManager);

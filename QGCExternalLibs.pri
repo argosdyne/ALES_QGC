@@ -213,6 +213,26 @@ MacBuild {
 # Include Android OpenSSL libs
 AndroidBuild {
     include($$SOURCE_DIR/libs/OpenSSL/android_openssl/openssl.pri)
+    # Add OpenSSL libs to linking
+    versionAtLeast(QT_VERSION, "5.14.0") {
+        equals(ANDROID_TARGET_ARCH, armeabi-v7a) {
+            LIBS += \
+                $$SSL_PATH/latest/arm/libcrypto_1_1.so \
+                $$SSL_PATH/latest/arm/libssl_1_1.so
+        } else:equals(ANDROID_TARGET_ARCH, arm64-v8a) {
+            LIBS += \
+                $$SSL_PATH/latest/arm64/libcrypto_1_1.so \
+                $$SSL_PATH/latest/arm64/libssl_1_1.so
+        } else:equals(ANDROID_TARGET_ARCH, x86) {
+            LIBS += \
+                $$SSL_PATH/latest/x86/libcrypto_1_1.so \
+                $$SSL_PATH/latest/x86/libssl_1_1.so
+        } else:equals(ANDROID_TARGET_ARCH, x86_64) {
+            LIBS += \
+                $$SSL_PATH/latest/x86_64/libcrypto_1_1.so \
+                $$SSL_PATH/latest/x86_64/libssl_1_1.so
+        }
+    }
     #message("ANDROID_EXTRA_LIBS")
     #message($$ANDROID_TARGET_ARCH)
     #message($$ANDROID_EXTRA_LIBS)

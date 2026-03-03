@@ -7,8 +7,6 @@
  *
  ****************************************************************************/
 
-
-
 // Allows QGlobalStatic to work on this translation unit
 #define _SECLOG_CTOR_ACCESS_ public
 

@@ -1,3 +1,12 @@
+/****************************************************************************
+ *
+ * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ *
+ * QGroundControl is licensed according to the terms in the file
+ * COPYING.md in the root of the source code directory.
+ *
+ ****************************************************************************/
+
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
@@ -14,6 +23,7 @@ Page {
     property int _contentBlockHeight: 687
 
     property string pinText: ""
+    property bool   pinBoxFocused: false
 
     background: Rectangle {
         color: "#222222"
@@ -151,7 +161,7 @@ Page {
                 height: 80
                 radius: 4
                 color: "#222222"
-                border.color: pinBoxMouseArea.containsMouse ? "#00826F" : "#ffffff"
+                border.color: loginPage.pinBoxFocused ? "#00826F" : "#ffffff"
                 border.width: 2
 
                 // Dot settings
@@ -166,8 +176,9 @@ Page {
                 MouseArea {
                     id: pinBoxMouseArea
                     anchors.fill: parent
-                    hoverEnabled: true
+                    hoverEnabled: false
                     onClicked: {
+                        loginPage.pinBoxFocused = true
                         hiddenInput.forceActiveFocus()
                         if (!Qt.inputMethod.visible) Qt.inputMethod.show()
                     }

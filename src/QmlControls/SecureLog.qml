@@ -24,11 +24,6 @@ Item {
 
     QGCPalette { id: qgcPal }
 
-    Component.onCompleted: {
-        console.log("[SecureLog] QML loaded. securityLogModel:", securityLogModel,
-                    " rowCount:", securityLogModel ? securityLogModel.rowCount() : "N/A")
-    }
-
     Item {
         anchors.fill: parent
 
@@ -41,13 +36,9 @@ Item {
             Connections {
                 target: securityLogModel
                 onDataChanged: {
-                    console.log("[SecureLog] onDataChanged fired, rowCount:", securityLogModel.rowCount())
                     if (loaded && followTail.checked) {
                         listView.positionViewAtEnd()
                     }
-                }
-                onRowsInserted: {
-                    console.log("[SecureLog] onRowsInserted fired, first:", first, "last:", last)
                 }
             }
 

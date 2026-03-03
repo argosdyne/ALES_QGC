@@ -1,4 +1,12 @@
-// SecurityManager.cpp
+/****************************************************************************
+ *
+ * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ *
+ * QGroundControl is licensed according to the terms in the file
+ * COPYING.md in the root of the source code directory.
+ *
+ ****************************************************************************/
+
 #include "SecurityManager.h"
 #include "SecurityLogModel.h"
 
@@ -160,9 +168,9 @@ bool SecurityManager::setPin(const QString &pin)
     if (!validatePINStrength(pin).isEmpty()) {
         return false;
     }
-
+    
     QByteArray password = pin.toUtf8();
-
+    
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
     QByteArray peppered = password;
@@ -180,7 +188,7 @@ bool SecurityManager::setPin(const QString &pin)
         return false;
     }
 #endif
-
+    
     QByteArray salt = randomBytes(SALT_LEN);
     if (salt.isEmpty()) {
         qWarning() << "[SecurityManager] Failed to generate random salt";
@@ -217,9 +225,6 @@ bool SecurityManager::setPin(const QString &pin)
     OPENSSL_cleanse(password.data(), password.size());
     if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
     OPENSSL_cleanse(dk.data(), dk.size());
-
-    qDebug() << "[SecurityManager] PIN registered successfully (Keystore HMAC applied on Android)";
-    // Ensure UI is notified that any previous lockout is cleared when a new PIN is set
     emit lockoutCleared();
     return true;
 }
@@ -250,11 +255,11 @@ bool SecurityManager::verifyPin(const QString &pin)
     s.endGroup();
 
     QByteArray password = pin.toUtf8();
-
+    
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
     QByteArray peppered = password;
-
+    
 #ifdef Q_OS_ANDROID
     if (useKeystore) {
         if (!m_keystoreInitialized && !initializeKeystore()) {
@@ -273,7 +278,7 @@ bool SecurityManager::verifyPin(const QString &pin)
         }
     }
 #endif
-
+    
     QByteArray candidate = deriveKey(peppered, salt, it, dkStored.size());
 
     if (candidate.isEmpty()) {
@@ -319,10 +324,10 @@ void SecurityManager::recordFailedAttempt()
         qint64 until = QDateTime::currentMSecsSinceEpoch() + lockoutDuration;
         s.setValue("lockoutUntil", until);
 
-        qDebug() << "[SecurityManager] Failed attempt" << attempts
-                 << "- exponential lockout for" << (lockoutDuration / 1000) << "s";
+        SecurityLog::logEvent(QStringLiteral("Lockout until %1 after %2 failed attempts")
+                               .arg(QDateTime::fromMSecsSinceEpoch(until).toString(Qt::ISODate))
+                               .arg(attempts));
 
-        SecurityLog::logEvent(QStringLiteral("Lockout until %1 after %2 failed attempts").arg(QDateTime::fromMSecsSinceEpoch(until).toString(Qt::ISODate)).arg(attempts));
         // Notify QML/UI immediately that a lockout period started
         emit lockoutStarted(until);
     }
@@ -334,12 +339,17 @@ void SecurityManager::resetFailedAttempts()
 {
     QSettings s;
     s.beginGroup("SecurityManager");
+    const int previousAttempts = s.value("failedAttempts", 0).toInt();
+    const qint64 previousLockout = s.value("lockoutUntil", 0).toLongLong();
     s.setValue("failedAttempts", 0);
     s.setValue("lockoutUntil", 0);
     s.endGroup();
     s.sync();
 
-    SecurityLog::logEvent(QStringLiteral("Login lock cleared (reset)"));
+    if (previousAttempts > 0 || previousLockout > 0) {
+        SecurityLog::logEvent(QStringLiteral("Failed attempts reset; lockout cleared"));
+    }
+
     // Notify UI that lockout has been cleared
     emit lockoutCleared();
 }
@@ -395,7 +405,7 @@ void SecurityManager::clearStored()
     s.remove("");
     s.endGroup();
     s.sync();
-
+    
     // Also clear Keystore on Android
     clearKeystore();
 }

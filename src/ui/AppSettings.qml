@@ -28,11 +28,48 @@ Rectangle {
     readonly property real _verticalMargin:     _defaultTextHeight / 2
     readonly property real _buttonHeight:       ScreenTools.isTinyScreen ? ScreenTools.defaultFontPixelHeight * 3 : ScreenTools.defaultFontPixelHeight * 2
 
-    property bool _first: true
+    property bool   _first:                  true
+    property bool   _commingFromRIDSettings: false
+    property string _pendingRestrictedUrl:   ""
 
-    property bool _commingFromRIDSettings:  false
+    function _syncAllButtonsFromSource() {
+        for (var i = 0; i < settingsRepeater.count; i++) {
+            var btn = settingsRepeater.itemAt(i)
+            if (btn && btn._syncCheckedFromSource) {
+                btn._syncCheckedFromSource()
+            }
+        }
+    }
+
+    // URLs that require re-authentication when in view-only mode
+    readonly property var _restrictedUrls: [
+        "qrc:/qml/GeneralSettings.qml",
+        "qrc:/qml/ARSettings.qml"
+    ]
 
     QGCPalette { id: qgcPal }
+
+    Connections {
+        target: mainWindow
+        onViewOnlyModeChanged: {
+            if (mainWindow.viewOnlyMode) {
+                // Just entered view-only mode — if the current panel is restricted, hide it
+                var currentSrc = String(__rightPanel.source)
+                var isRestricted = false
+                for (var i = 0; i < _restrictedUrls.length; i++) {
+                    var fname = _restrictedUrls[i].split("/").pop()
+                    if (currentSrc.indexOf(fname) !== -1) { isRestricted = true; break }
+                }
+                if (isRestricted) {
+                    __rightPanel.source = "qrc:/qml/LinkSettings.qml"
+                }
+            } else if (_pendingRestrictedUrl !== "") {
+                // Just unlocked — navigate to the page user originally wanted
+                __rightPanel.source = _pendingRestrictedUrl
+                _pendingRestrictedUrl = ""
+            }
+        }
+    }
 
     Component.onCompleted: {
         //-- Default Settings
@@ -40,7 +77,6 @@ Rectangle {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
         } else if (mainWindow.viewOnlyMode) {
-            // In view-only mode, default to Comm Links (LinkSettings.qml)
             __rightPanel.source = "qrc:/qml/LinkSettings.qml"
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
@@ -66,28 +102,36 @@ Rectangle {
             property real _maxButtonWidth: 0
 
             Repeater {
+                id: settingsRepeater
                 model:  QGroundControl.corePlugin.settingsPages
                 QGCButton {
                     height:             _buttonHeight
                     text:               modelData.title
                     autoExclusive:      true
                     Layout.fillWidth:   true
-                    visible: {
-                        // Hide Remote ID settings if not enabled
-                        if (String(modelData.url) === "qrc:/qml/RemoteIDSettings.qml") {
-                            return QGroundControl.settingsManager.remoteIDSettings.enable.rawValue
-                        }
+                    visible:            modelData.url != "qrc:/qml/RemoteIDSettings.qml" ? true : QGroundControl.settingsManager.remoteIDSettings.enable.rawValue
 
-                        // In view-only mode, only show Comm Links settings
-                        if (mainWindow.viewOnlyMode) {
-                            return String(modelData.url) === "qrc:/qml/LinkSettings.qml"
-                        }
-
-                        return true
+                    function _syncCheckedFromSource() {
+                        var loadedSrc = String(__rightPanel.source)
+                        var btnFile = String(modelData.url).split("/").pop()
+                        checked = loadedSrc.indexOf(btnFile) !== -1
                     }
 
                     onClicked: {
                         if (mainWindow.preventViewSwitch()) {
+                            return
+                        }
+                        // Restricted pages require full login when in view-only mode
+                        var isRestricted = false
+                        for (var i = 0; i < _restrictedUrls.length; i++) {
+                            if (String(modelData.url) === _restrictedUrls[i]) { isRestricted = true; break }
+                        }
+                        if (mainWindow.viewOnlyMode && isRestricted) {
+                            _pendingRestrictedUrl = modelData.url
+                            sessionManager.onAppBackground()
+                            Qt.callLater(function() {
+                                settingsView._syncAllButtonsFromSource()
+                            })
                             return
                         }
                         if (__rightPanel.source !== modelData.url) {
@@ -96,13 +140,37 @@ Rectangle {
                         checked = true
                     }
 
+                    Connections {
+                        target: mainWindow
+                        onViewOnlyModeChanged: {
+                            if (mainWindow.viewOnlyMode) {
+                                // Entered view-only → highlight Comm Links
+                                if (String(modelData.url) === "qrc:/qml/LinkSettings.qml") {
+                                    checked = true
+                                } 
+                            } else {
+                                Qt.callLater(function() {
+                                    _syncCheckedFromSource()
+                                })
+                            }
+                        }
+                    }
+
                     Component.onCompleted: {
                         if (globals.commingFromRIDIndicator) {
                             _commingFromRIDSettings = true
                         }
                         if(_first) {
-                            _first = false
-                            checked = true
+                            if (mainWindow.viewOnlyMode) {
+                                // In view-only mode, check Comm Links as the default
+                                if (String(modelData.url) === "qrc:/qml/LinkSettings.qml") {
+                                    _first = false
+                                    checked = true
+                                }
+                            } else {
+                                _first = false
+                                checked = true
+                            }
                         }
                         if (_commingFromRIDSettings) {
                             checked = false

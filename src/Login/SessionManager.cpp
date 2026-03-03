@@ -1,4 +1,13 @@
+/****************************************************************************
+ *
+ * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ *
+ * QGroundControl is licensed according to the terms in the file
+ * COPYING.md in the root of the source code directory.
+ *
+ ****************************************************************************/
 #include "SessionManager.h"
+#include "SecurityLogModel.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -29,6 +38,10 @@ SessionManager::SessionManager(QObject *parent)
 }
 
 SessionManager::~SessionManager() {
+    if (qApp) {
+        qApp->removeEventFilter(this);
+    }
+    m_sessionTimer.stop();
     if (s_instance == this) {
         s_instance = nullptr;
     }
@@ -40,7 +53,6 @@ SessionManager* SessionManager::instance()
 }
 
 void SessionManager::startSession() {
-    qDebug() << "[SessionManager] Session started - inactivity timeout timer started";
     m_isAppInBackground = false;
     m_sessionActive = true;
     _restartInactivityTimer();
@@ -51,14 +63,13 @@ void SessionManager::recordUserInteraction() {
 }
 
 void SessionManager::_onSessionTimeout() {
-    qDebug() << "[SessionManager] Inactivity timeout reached - locking session";
+    SecurityLog::logEvent(QStringLiteral("Session timeout - session locked"));
     m_sessionActive = false;
     m_sessionTimer.stop();
     emit sessionLocked();
 }
 
 void SessionManager::onAppBackground() {
-    qDebug() << "[SessionManager] App backgrounded - locking session immediately";
     m_isAppInBackground = true;
     m_sessionActive = false;
     m_sessionTimer.stop();
@@ -66,7 +77,6 @@ void SessionManager::onAppBackground() {
 }
 
 void SessionManager::onAppForeground() {
-    qDebug() << "[SessionManager] App foregrounded - session remains locked";
     m_isAppInBackground = false;
 }
 

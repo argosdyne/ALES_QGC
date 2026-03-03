@@ -38,7 +38,7 @@ ApplicationWindow {
             width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
-        _loginPageComponent    = Qt.createComponent("qrc:/login/LogInPage.qml")
+        _loginPageComponent    = Qt.createComponent("qrc:/login/LoginScreen.qml")
         _registerPageComponent = Qt.createComponent("qrc:/login/RegisterScreen.qml")
         loadInitialLoginUI()
         loginOverlay.open()
@@ -259,7 +259,6 @@ ApplicationWindow {
             loginOverlay.close()
         })
         loginComponent.viewOnlyClicked.connect(function() {
-            sessionManager.startSession()
             globals.viewOnlyMode = true
             loginOverlay.close()
         })
@@ -507,7 +506,6 @@ ApplicationWindow {
 
     FlyView {
         id:             flightView
-        _viewOnlyMode:  globals.viewOnlyMode
         anchors.fill:   parent
     }
 
