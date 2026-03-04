@@ -4,6 +4,7 @@ add_custom_target(UiPreferencesQml
 		DebugWindow.qml
 		GeneralSettings.qml
 		HelpSettings.qml
+		JoystickSettings.qml
 		LinkSettings.qml
 		LogReplaySettings.qml
 		MavlinkSettings.qml

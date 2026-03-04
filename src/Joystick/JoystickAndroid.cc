@@ -4,6 +4,7 @@
 
 #include <QQmlEngine>
 #include <QSet>
+#include <QVector>
 
 int JoystickAndroid::_androidBtnListCount;
 int *JoystickAndroid::_androidBtnList;
@@ -64,11 +65,26 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     }
 
     const int SOURCE_JOYSTICK = QAndroidJniObject::getStaticField<jint>("android/view/InputDevice", "SOURCE_JOYSTICK");
+    const int AXIS_X = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_X");
+    const int AXIS_Y = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_Y");
+    const int AXIS_RX = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_RX");
+    const int AXIS_RY = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_RY");
+    const int AXIS_Z = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_Z");
+    const int AXIS_RZ = QAndroidJniObject::getStaticField<jint>("android/view/MotionEvent", "AXIS_RZ");
+
+    struct AxisRange {
+        int axis = -1;
+        float min = -1.0f;
+        float max = 1.0f;
+    };
+
     QAndroidJniObject rangeListNative = inputDevice.callObjectMethod("getMotionRanges", "()Ljava/util/List;");
     const int rangeCount = rangeListNative.callMethod<jint>("size");
+    QVector<AxisRange> availableRanges;
+    availableRanges.reserve(rangeCount);
+
     QSet<int> seenAxes;
-    int axisIndex = 0;
-    for (i = 0; i < rangeCount && axisIndex < _axisCount; i++) {
+    for (i = 0; i < rangeCount; i++) {
         QAndroidJniObject range = rangeListNative.callObjectMethod("get", "(I)Ljava/lang/Object;",i);
         const int source = range.callMethod<jint>("getSource");
         if ((source & SOURCE_JOYSTICK) != SOURCE_JOYSTICK) {
@@ -81,9 +97,56 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         }
 
         seenAxes.insert(axis);
-        axisCode[axisIndex] = axis;
-        axisMin[axisIndex] = range.callMethod<jfloat>("getMin");
-        axisMax[axisIndex] = range.callMethod<jfloat>("getMax");
+        AxisRange axisRange;
+        axisRange.axis = axis;
+        axisRange.min = range.callMethod<jfloat>("getMin");
+        axisRange.max = range.callMethod<jfloat>("getMax");
+        availableRanges.append(axisRange);
+    }
+
+    int axisIndex = 0;
+    QSet<int> assignedAxes;
+
+    auto appendAxisByCode = [&](int wantedAxis) -> bool {
+        for (const AxisRange& axisRange: availableRanges) {
+            if (axisRange.axis != wantedAxis) {
+                continue;
+            }
+            if (axisIndex >= _axisCount) {
+                return false;
+            }
+            axisCode[axisIndex] = axisRange.axis;
+            axisMin[axisIndex] = axisRange.min;
+            axisMax[axisIndex] = axisRange.max;
+            assignedAxes.insert(axisRange.axis);
+            axisIndex++;
+            return true;
+        }
+        return false;
+    };
+
+    // Left stick preferred mapping (always try AXIS_X/AXIS_Y first)
+    appendAxisByCode(AXIS_X);
+    appendAxisByCode(AXIS_Y);
+
+    // Right stick preferred mapping with fallback to Z/RZ if RX/RY are not available
+    if (!appendAxisByCode(AXIS_RX)) {
+        appendAxisByCode(AXIS_Z);
+    }
+    if (!appendAxisByCode(AXIS_RY)) {
+        appendAxisByCode(AXIS_RZ);
+    }
+
+    for (const AxisRange& axisRange: availableRanges) {
+        if (assignedAxes.contains(axisRange.axis)) {
+            continue;
+        }
+        if (axisIndex >= _axisCount) {
+            break;
+        }
+        axisCode[axisIndex] = axisRange.axis;
+        axisMin[axisIndex] = axisRange.min;
+        axisMax[axisIndex] = axisRange.max;
         axisIndex++;
     }
 

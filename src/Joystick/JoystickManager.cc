@@ -148,6 +148,9 @@ void JoystickManager::setActiveJoystick(Joystick* joystick)
 
         settings.beginGroup(_settingsGroup);
         settings.setValue(_settingsKeyActiveJoystick, _activeJoystick->name());
+
+        // Always start joystick polling for monitoring, even without an active vehicle.
+        _activeJoystick->startPolling(_multiVehicleManager ? _multiVehicleManager->activeVehicle() : nullptr);
     }
 
     emit activeJoystickChanged(_activeJoystick);

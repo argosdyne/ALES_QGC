@@ -59,6 +59,8 @@ public:
 #endif
         if(pMAVLink)
             delete pMAVLink;
+        if(pJoystick)
+            delete pJoystick;
         if(pConsole)
             delete pConsole;
 #if defined(QT_DEBUG)
@@ -86,6 +88,7 @@ public:
     QmlComponentInfo* pMicrohard                = nullptr;
 #endif
     QmlComponentInfo* pMAVLink                  = nullptr;
+    QmlComponentInfo* pJoystick                 = nullptr;
     QmlComponentInfo* pConsole                  = nullptr;
     QmlComponentInfo* pHelp                     = nullptr;
 #if defined(QT_DEBUG)
@@ -173,15 +176,24 @@ QVariantList &QGCCorePlugin::settingsPages()
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pHelp)));
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds
-        _p->pMockLink = new QmlComponentInfo(tr("Mock Link"),
+        _p->pMockLink = new QmlComponentInfo(tr("JoyStick"),
                                              QUrl::fromUserInput("qrc:/qml/MockLink.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pMockLink)));
+        _p->pJoystick = new QmlComponentInfo(tr("Joystick"),
+                                             QUrl::fromUserInput("qrc:/qml/JoystickSettings.qml"),
+                                             QUrl::fromUserInput("qrc:/qmlimages/Joystick.png"));
+        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pJoystick)));
         _p->pDebug = new QmlComponentInfo(tr("Debug"),
                                           QUrl::fromUserInput("qrc:/qml/DebugWindow.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pDebug)));
         _p->pQmlTest = new QmlComponentInfo(tr("Palette Test"),
                                             QUrl::fromUserInput("qrc:/qml/QmlTest.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pQmlTest)));
+#else
+        _p->pJoystick = new QmlComponentInfo(tr("Joystick"),
+                                             QUrl::fromUserInput("qrc:/qml/JoystickSettings.qml"),
+                                             QUrl::fromUserInput("qrc:/qmlimages/Joystick.png"));
+        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pJoystick)));
 #endif
     }
     return _p->settingsList;

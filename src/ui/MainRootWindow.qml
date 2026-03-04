@@ -179,14 +179,7 @@ ApplicationWindow {
     }
 
     function maybeShowStartupJoystickScreen() {
-        if (_startupJoystickScreenShown) {
-            return
-        }
-
-        if (joystickManager.activeJoystick) {
-            _showStartupJoystickScreen = true
-            _startupJoystickScreenShown = true
-        }
+        return
     }
 
     //-------------------------------------------------------------------------
@@ -866,13 +859,19 @@ ApplicationWindow {
         anchors.fill: parent
         z: 2000
         active: _showStartupJoystickScreen
-        source: "StartupJoystickScreen.qml"
+        source: "qrc:/qml/StartupJoystickScreen.qml"
 
         onLoaded: {
             if (item) {
                 item.closeRequested.connect(function() {
                     _showStartupJoystickScreen = false
                 })
+            }
+        }
+
+        onStatusChanged: {
+            if (status === Loader.Error) {
+                console.warn("Failed to load StartupJoystickScreen:", startupJoystickScreenLoader.source)
             }
         }
     }

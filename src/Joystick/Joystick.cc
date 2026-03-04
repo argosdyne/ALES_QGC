@@ -618,6 +618,13 @@ void Joystick::_handleButtons()
 
 void Joystick::_handleAxis()
 {
+    auto axisToUnit = [&](int axisIndex) -> float {
+        if (axisIndex < 0 || axisIndex >= _axisCount) {
+            return 0.0f;
+        }
+        return qBound(-1.0f, static_cast<float>(_rgAxisValues[axisIndex]) / 32767.0f, 1.0f);
+    };
+
     //-- Get frequency
     int axisDelay = static_cast<int>(1000.0f / _axisFrequencyHz);
     //-- Check elapsed time since last run
@@ -630,41 +637,57 @@ void Joystick::_handleAxis()
             _rgAxisValues[axisIndex] = newAxisValue;
             emit rawAxisValueChanged(axisIndex, newAxisValue);
         }
-        if (_activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
-            int     axis = _rgFunctionAxis[rollFunction];
-            float   roll = _adjustRange(_rgAxisValues[axis],    _rgCalibration[axis], _deadband);
+        const bool monitorEnabled = (!_calibrationMode && ((!_activeVehicle) || (_activeVehicle && _activeVehicle->joystickEnabled())));
+        const bool useCalibratedMapping = (_activeVehicle && _activeVehicle->joystickEnabled() && _calibrated);
+        if (monitorEnabled) {
+            float   roll = 0.0f;
+            float   pitch = 0.0f;
+            float   yaw = 0.0f;
+            float   throttle = 0.0f;
+            int     axis = -1;
 
-                    axis = _rgFunctionAxis[pitchFunction];
-            float   pitch = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis], _deadband);
+            if (useCalibratedMapping) {
+                axis = _rgFunctionAxis[rollFunction];
+                roll = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
 
-                    axis = _rgFunctionAxis[yawFunction];
-            float   yaw = _adjustRange(_rgAxisValues[axis],     _rgCalibration[axis],_deadband);
+                axis = _rgFunctionAxis[pitchFunction];
+                pitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
 
-                    axis = _rgFunctionAxis[throttleFunction];
-            float   throttle = _adjustRange(_rgAxisValues[axis],_rgCalibration[axis], _throttleMode==ThrottleModeDownZero?false:_deadband);
+                axis = _rgFunctionAxis[yawFunction];
+                yaw = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
+
+                axis = _rgFunctionAxis[throttleFunction];
+                throttle = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _throttleMode == ThrottleModeDownZero ? false : _deadband);
+            } else {
+                // Monitor mode: use direct stick values so UI always reflects movement even before calibration.
+                roll = axisToUnit(2);
+                pitch = axisToUnit(3);
+                yaw = axisToUnit(0);
+                throttle = axisToUnit(1);
+            }
 
             // These are only used for printing JoystickValuesLog
             float   gimbalPitch = 0.0f;
             float   gimbalYaw   = 0.0f;
 
-            if(_axisCount > 4) {
+            if(_axisCount > 4 && useCalibratedMapping) {
                 axis = _rgFunctionAxis[gimbalPitchFunction];
                 gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
             }
 
-            if(_axisCount > 5) {
+            if(_axisCount > 5 && useCalibratedMapping) {
                 axis = _rgFunctionAxis[gimbalYawFunction];
                 gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
             }
 
-            if (_accumulator) {
+            if (_accumulator && useCalibratedMapping) {
                 static float throttle_accu = 0.f;
                 throttle_accu += throttle * (40 / 1000.f); //for throttle to change from min to max it will take 1000ms (40ms is a loop time)
                 throttle_accu = std::max(static_cast<float>(-1.f), std::min(throttle_accu, static_cast<float>(1.f)));
                 throttle = throttle_accu;
             }
 
-            if (_circleCorrection) {
+            if (_circleCorrection && useCalibratedMapping) {
                 float roll_limited      = std::max(static_cast<float>(-M_PI_4), std::min(roll,      static_cast<float>(M_PI_4)));
                 float pitch_limited     = std::max(static_cast<float>(-M_PI_4), std::min(pitch,     static_cast<float>(M_PI_4)));
                 float yaw_limited       = std::max(static_cast<float>(-M_PI_4), std::min(yaw,       static_cast<float>(M_PI_4)));
@@ -677,7 +700,7 @@ void Joystick::_handleAxis()
                 throttle =  std::max(-1.0f, std::min(tanf(asinf(throttle_limited)), 1.0f));
             }
 
-            if ( _exponential < -0.01f) {
+            if ( _exponential < -0.01f && useCalibratedMapping) {
                 // Exponential (0% to -50% range like most RC radios)
                 // _exponential is set by a slider in joystickConfigAdvanced.qml
                 // Calculate new RPY with exponential applied
@@ -687,7 +710,7 @@ void Joystick::_handleAxis()
             }
 
             // Adjust throttle to 0:1 range
-            if (_throttleMode == ThrottleModeCenterZero && _activeVehicle->supportsThrottleModeCenterZero()) {
+            if (_activeVehicle && useCalibratedMapping && _throttleMode == ThrottleModeCenterZero && _activeVehicle->supportsThrottleModeCenterZero()) {
                 if (!_activeVehicle->supportsNegativeThrust() || !_negativeThrust) {
                     throttle = std::max(0.0f, throttle);
                 }
@@ -707,8 +730,10 @@ void Joystick::_handleAxis()
             }
             emit axisValues(roll, pitch, yaw, throttle);
 
-            uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
-            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            if (_activeVehicle && _activeVehicle->joystickEnabled() && _calibrated) {
+                uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
+                _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            }
         }
     }
 }
@@ -757,6 +782,9 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             connect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
         }
+    } else {
+        // Monitoring mode: keep thread running without routing data to a vehicle.
+        _activeVehicle = nullptr;
     }
     if (!isRunning()) {
         _exitThread = false;

@@ -67,6 +67,7 @@
         <file alias="GeneralSettings.qml">src/ui/preferences/GeneralSettings.qml</file>		
         <file alias="GeoTagPage.qml">src/AnalyzeView/GeoTagPage.qml</file>
         <file alias="HelpSettings.qml">src/ui/preferences/HelpSettings.qml</file>
+        <file alias="JoystickSettings.qml">src/ui/preferences/JoystickSettings.qml</file>
         <file alias="JoystickConfig.qml">src/VehicleSetup/JoystickConfig.qml</file>
         <file alias="JoystickConfigAdvanced.qml">src/VehicleSetup/JoystickConfigAdvanced.qml</file>
         <file alias="JoystickConfigButtons.qml">src/VehicleSetup/JoystickConfigButtons.qml</file>

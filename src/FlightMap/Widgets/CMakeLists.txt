@@ -5,6 +5,7 @@ add_custom_target(FligthMapWidgetsQml
 		CompassRing.qml
 		MapFitFunctions.qml
 		PhotoVideoControl.qml
+		JoystickScreen.qml
 		QGCArtificialHorizon.qml
 		QGCAttitudeHUD.qml
 		QGCAttitudeWidget.qml
