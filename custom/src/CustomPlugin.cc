@@ -175,7 +175,7 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds
-        _addSettingsEntry(tr("Mock Link"),   "qrc:/qml/MockLink.qml");
+        _addSettingsEntry(tr("JoyStick"),   "qrc:/qml/MockLink.qml");
 #endif
     }
     return _customSettingsList;

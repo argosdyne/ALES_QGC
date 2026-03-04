@@ -5,6 +5,7 @@
 #include <QQmlEngine>
 #include <QSet>
 #include <QVector>
+#include <cmath>
 
 int JoystickAndroid::_androidBtnListCount;
 int *JoystickAndroid::_androidBtnList;
@@ -56,12 +57,14 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     axisCode = new int[_axisCount];
     axisMin = new float[_axisCount];
     axisMax = new float[_axisCount];
+    axisFlat = new float[_axisCount];
 
     for (i = 0; i < _axisCount; i++) {
         axisCode[i] = -1;
         axisValue[i] = 0;
         axisMin[i] = -1.0f;
         axisMax[i] = 1.0f;
+        axisFlat[i] = 0.0f;
     }
 
     const int SOURCE_JOYSTICK = QAndroidJniObject::getStaticField<jint>("android/view/InputDevice", "SOURCE_JOYSTICK");
@@ -76,6 +79,7 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         int axis = -1;
         float min = -1.0f;
         float max = 1.0f;
+        float flat = 0.0f;
     };
 
     QAndroidJniObject rangeListNative = inputDevice.callObjectMethod("getMotionRanges", "()Ljava/util/List;");
@@ -101,6 +105,7 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         axisRange.axis = axis;
         axisRange.min = range.callMethod<jfloat>("getMin");
         axisRange.max = range.callMethod<jfloat>("getMax");
+        axisRange.flat = range.callMethod<jfloat>("getFlat");
         availableRanges.append(axisRange);
     }
 
@@ -118,6 +123,7 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
             axisCode[axisIndex] = axisRange.axis;
             axisMin[axisIndex] = axisRange.min;
             axisMax[axisIndex] = axisRange.max;
+            axisFlat[axisIndex] = axisRange.flat;
             assignedAxes.insert(axisRange.axis);
             axisIndex++;
             return true;
@@ -147,6 +153,7 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         axisCode[axisIndex] = axisRange.axis;
         axisMin[axisIndex] = axisRange.min;
         axisMax[axisIndex] = axisRange.max;
+        axisFlat[axisIndex] = axisRange.flat;
         axisIndex++;
     }
 
@@ -162,6 +169,7 @@ JoystickAndroid::~JoystickAndroid() {
     delete[] axisValue;
     delete[] axisMin;
     delete[] axisMax;
+    delete[] axisFlat;
 
     QtAndroidPrivate::unregisterGenericMotionEventListener(this);
     QtAndroidPrivate::unregisterKeyEventListener(this);
@@ -279,6 +287,7 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
         const float rawValue = ev.callMethod<jfloat>("getAxisValue", "(I)F", axisCode[i]);
         const float minValue = axisMin[i];
         const float maxValue = axisMax[i];
+        const float flatValue = axisFlat[i];
 
         float normalized = rawValue;
         if (maxValue > minValue) {
@@ -286,6 +295,10 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
             const float halfRange = (maxValue - minValue) * 0.5f;
             if (halfRange > 0.0001f) {
                 normalized = (rawValue - center) / halfRange;
+                const float normalizedDeadzone = flatValue / halfRange;
+                if (std::fabs(normalized) <= normalizedDeadzone) {
+                    normalized = 0.0f;
+                }
             } else {
                 normalized = 0.0f;
             }

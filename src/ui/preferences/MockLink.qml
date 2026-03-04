@@ -22,7 +22,7 @@ Rectangle {
     color:          qgcPal.window
     anchors.fill:   parent
 
-    readonly property real _margins: ScreenTools.defaultFontPixelHeight
+    readonly property real _margins: ScreenTools.defaultFontPixelHeight * 0.6
 
     property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
     property var joystick: joystickManager.activeJoystick
@@ -36,6 +36,10 @@ Rectangle {
     property real yawRawValue: 0
     property real throttleRawValue: 0
     property real centerOffset: 0.0
+    property real leftXAutoOffset: 0.0
+    property real leftYAutoOffset: 0.0
+    property real rightXAutoOffset: 0.0
+    property real rightYAutoOffset: 0.0
     property real leftXUnit: 0
     property real leftYUnit: 0
     property real rightXUnit: 0
@@ -67,6 +71,24 @@ Rectangle {
         return Number(v).toFixed(2)
     }
 
+    function _applyAutoCenter(unitValue, offsetPropName) {
+        const rawUnit = Number(unitValue)
+        let offset = Number(root[offsetPropName])
+        let centered = rawUnit + offset
+
+        // Learn center bias only when axis is already near center.
+        if (Math.abs(centered) < 0.35) {
+            offset = (offset * 0.98) + ((-rawUnit) * 0.02)
+            root[offsetPropName] = offset
+            centered = rawUnit + offset
+        }
+
+        if (Math.abs(centered) < 0.02) {
+            centered = 0
+        }
+        return Math.max(-1, Math.min(1, centered))
+    }
+
     function _resetLiveValues() {
         rollValue = 0
         pitchValue = 0
@@ -76,6 +98,10 @@ Rectangle {
         pitchRawValue = 0
         yawRawValue = 0
         throttleRawValue = 0
+        leftXAutoOffset = 0
+        leftYAutoOffset = 0
+        rightXAutoOffset = 0
+        rightYAutoOffset = 0
         leftXUnit = 0
         leftYUnit = 0
         rightXUnit = 0
@@ -107,19 +133,19 @@ Rectangle {
             root.lastAxisIndex = index
             root.lastAxisValue = value
             if (index === 0) {
-                root.leftXUnit = root._toUnitFromQgcAxis(value)
+                root.leftXUnit = root._applyAutoCenter(root._toUnitFromQgcAxis(value), "leftXAutoOffset")
                 root.leftX = root.leftXUnit + root.centerOffset
                 root.yawRawValue = root.leftX
             } else if (index === 1) {
-                root.leftYUnit = root._toUnitFromQgcAxis(value)
+                root.leftYUnit = root._applyAutoCenter(root._toUnitFromQgcAxis(value), "leftYAutoOffset")
                 root.leftY = root.leftYUnit + root.centerOffset
                 root.throttleRawValue = root.leftY
             } else if (index === 2) {
-                root.rightXUnit = root._toUnitFromQgcAxis(value)
+                root.rightXUnit = root._applyAutoCenter(root._toUnitFromQgcAxis(value), "rightXAutoOffset")
                 root.rightX = root.rightXUnit + root.centerOffset
                 root.rollRawValue = root.rightX
             } else if (index === 3) {
-                root.rightYUnit = root._toUnitFromQgcAxis(value)
+                root.rightYUnit = root._applyAutoCenter(root._toUnitFromQgcAxis(value), "rightYAutoOffset")
                 root.rightY = root.rightYUnit + root.centerOffset
                 root.pitchRawValue = root.rightY
             }
@@ -143,195 +169,180 @@ Rectangle {
     onActiveVehicleChanged: _tryAutoEnableJoystickInput()
     onJoystickChanged: _tryAutoEnableJoystickInput()
 
-    QGCFlickable {
-        anchors.fill:   parent
-        contentWidth:   column.width  + (_margins * 2)
-        contentHeight:  column.height + (_margins * 2)
-        clip:           true
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: _margins
+        spacing: _margins
 
-        ColumnLayout {
-            id:                 column
-            anchors.margins:    _margins
-            anchors.left:       parent.left
-            anchors.top:        parent.top
-            spacing:            ScreenTools.defaultFontPixelHeight
+        QGCLabel {
+            text: qsTr("Joystick Monitor")
+            font.family: ScreenTools.demiboldFontFamily
+        }
 
-            QGCLabel {
-                text:           qsTr("Joystick Monitor")
-                font.family:    ScreenTools.demiboldFontFamily
-            }
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: qgcPal.windowShade
+            radius: ScreenTools.defaultFontPixelHeight * 0.4
+            border.color: qgcPal.text
+            border.width: 1
 
-            Rectangle {
-                Layout.fillWidth:   true
-                Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 50
-                color:              qgcPal.windowShade
-                radius:             ScreenTools.defaultFontPixelHeight * 0.5
-                border.color:       qgcPal.text
-                border.width:       1
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: _margins
+                spacing: ScreenTools.defaultFontPixelWidth
 
-                ColumnLayout {
-                    anchors.fill:       parent
-                    anchors.margins:    _margins
-                    spacing:            ScreenTools.defaultFontPixelHeight * 0.5
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                    GridLayout {
-                        columns: 2
-                        columnSpacing: ScreenTools.defaultFontPixelWidth
-                        rowSpacing: ScreenTools.defaultFontPixelHeight * 0.3
-                        Layout.fillWidth: true
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: _margins
 
-                        QGCLabel { text: qsTr("Connected:") }
-                        QGCLabel { text: hasAnyJoystick ? qsTr("Yes") : qsTr("No") }
+                        QGCLabel { text: qsTr("Sticks") }
 
-                        QGCLabel { text: qsTr("Enabled:") }
-                        QGCLabel { text: joystick ? qsTr("Yes") : qsTr("No") }
-
-                        QGCLabel { text: qsTr("Device:") }
-                        QGCLabel {
-                            text: joystick ? joystick.name : qsTr("N/A")
-                            wrapMode: Text.WrapAnywhere
+                        Rectangle {
                             Layout.fillWidth: true
-                        }
-                    }
+                            Layout.fillHeight: true
+                            Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 10
+                            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 12
+                            color: Qt.rgba(0, 0, 0, 0)
+                            border.color: qgcPal.text
+                            border.width: 1
+                            radius: ScreenTools.defaultFontPixelHeight * 0.4
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        color: Qt.rgba(0, 0, 0, 0)
-                        border.color: qgcPal.text
-                        border.width: 1
-                        radius: ScreenTools.defaultFontPixelHeight * 0.5
-                        Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 8
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: _margins
+                                spacing: ScreenTools.defaultFontPixelWidth
+
+                                Item {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        id: leftStickCircle
+                                        anchors.centerIn: parent
+                                        width: Math.min(parent.width, parent.height) * 0.85
+                                        height: width
+                                        radius: width / 2
+                                        color: Qt.rgba(0, 0, 0, 0)
+                                        border.color: qgcPal.text
+                                        border.width: 1
+                                        Rectangle {
+                                            width: ScreenTools.defaultFontPixelHeight * 0.40
+                                            height: width
+                                            radius: width / 2
+                                            color: "#00d26a"
+                                            x: (leftStickCircle.width - width) / 2 + (root.leftXUnit * (leftStickCircle.width - width) / 2)
+                                            y: (leftStickCircle.height - height) / 2 + (-root.leftYUnit * (leftStickCircle.height - height) / 2)
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        id: rightStickCircle
+                                        anchors.centerIn: parent
+                                        width: Math.min(parent.width, parent.height) * 0.85
+                                        height: width
+                                        radius: width / 2
+                                        color: Qt.rgba(0, 0, 0, 0)
+                                        border.color: qgcPal.text
+                                        border.width: 1
+                                        Rectangle {
+                                            width: ScreenTools.defaultFontPixelHeight * 0.40
+                                            height: width
+                                            radius: width / 2
+                                            color: "#00d26a"
+                                            x: (rightStickCircle.width - width) / 2 + (root.rightXUnit * (rightStickCircle.width - width) / 2)
+                                            y: (rightStickCircle.height - height) / 2 + (-root.rightYUnit * (rightStickCircle.height - height) / 2)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    ColumnLayout {
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        spacing: ScreenTools.defaultFontPixelHeight * 0.2
 
                         RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: ScreenTools.defaultFontPixelHeight * 0.5
-                            spacing: ScreenTools.defaultFontPixelWidth * 2
-
-                            Item {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-
-                                Rectangle {
-                                    id: leftStickCircle
-                                    anchors.centerIn: parent
-                                    width: Math.min(parent.width, parent.height) * 0.85
-                                    height: width
-                                    radius: width / 2
-                                    color: Qt.rgba(0, 0, 0, 0)
-                                    border.color: qgcPal.text
-                                    border.width: 1
-
-                                    Rectangle {
-                                        width: ScreenTools.defaultFontPixelHeight * 0.45
-                                        height: width
-                                        radius: width / 2
-                                        color: "#00d26a"
-                                        x: (leftStickCircle.width - width) / 2 + (root.leftXUnit * (leftStickCircle.width - width) / 2)
-                                        y: (leftStickCircle.height - height) / 2 + (-root.leftYUnit * (leftStickCircle.height - height) / 2)
-                                    }
-                                }
-                            }
-
-                            Item {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-
-                                Rectangle {
-                                    id: rightStickCircle
-                                    anchors.centerIn: parent
-                                    width: Math.min(parent.width, parent.height) * 0.85
-                                    height: width
-                                    radius: width / 2
-                                    color: Qt.rgba(0, 0, 0, 0)
-                                    border.color: qgcPal.text
-                                    border.width: 1
-
-                                    Rectangle {
-                                        width: ScreenTools.defaultFontPixelHeight * 0.45
-                                        height: width
-                                        radius: width / 2
-                                        color: "#00d26a"
-                                        x: (rightStickCircle.width - width) / 2 + (root.rightXUnit * (rightStickCircle.width - width) / 2)
-                                        y: (rightStickCircle.height - height) / 2 + (-root.rightYUnit * (rightStickCircle.height - height) / 2)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: qgcPal.text
-                        opacity: 0.25
-                    }
-
-                    GridLayout {
-                        columns: 2
-                        columnSpacing: ScreenTools.defaultFontPixelWidth
-                        rowSpacing: ScreenTools.defaultFontPixelHeight * 0.3
-                        Layout.fillWidth: true
-
-                        QGCLabel { text: qsTr("Left Stick:") }
-                        QGCLabel { text: "X=" + root._formatStick(root.leftX) + ", Y=" + root._formatStick(root.leftY) }
-
-                        QGCLabel { text: qsTr("Right Stick:") }
-                        QGCLabel { text: "X=" + root._formatStick(root.rightX) + ", Y=" + root._formatStick(root.rightY) }
-
-                        QGCLabel { text: qsTr("Roll (Mapped):") }
-                        QGCLabel { text: root._formatAxis(root.rollValue) }
-
-                        QGCLabel { text: qsTr("Pitch (Mapped):") }
-                        QGCLabel { text: root._formatAxis(root.pitchValue) }
-
-                        QGCLabel { text: qsTr("Yaw (Mapped):") }
-                        QGCLabel { text: root._formatAxis(root.yawValue) }
-
-                        QGCLabel { text: qsTr("Throttle (Mapped):") }
-                        QGCLabel { text: root._formatAxis(root.throttleValue) }
-
-                        QGCLabel { text: qsTr("Roll (Raw):") }
-                        QGCLabel { text: root._formatAxis(root.rollRawValue) }
-
-                        QGCLabel { text: qsTr("Pitch (Raw):") }
-                        QGCLabel { text: root._formatAxis(root.pitchRawValue) }
-
-                        QGCLabel { text: qsTr("Yaw (Raw):") }
-                        QGCLabel { text: root._formatAxis(root.yawRawValue) }
-
-                        QGCLabel { text: qsTr("Throttle (Raw):") }
-                        QGCLabel { text: root._formatAxis(root.throttleRawValue) }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: qgcPal.text
-                        opacity: 0.25
-                    }
-
-                    GridLayout {
-                        columns: 2
-                        columnSpacing: ScreenTools.defaultFontPixelWidth
-                        rowSpacing: ScreenTools.defaultFontPixelHeight * 0.3
-                        Layout.fillWidth: true
-
-                        QGCLabel { text: qsTr("Last raw axis:") }
-                        QGCLabel {
-                            text: root.lastAxisIndex >= 0
-                                ? ("#" + root.lastAxisIndex + " = " + root.lastAxisValue)
-                                : qsTr("N/A")
-                            wrapMode: Text.WrapAnywhere
                             Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Connected:") }
+                            QGCLabel { text: hasAnyJoystick ? qsTr("Yes") : qsTr("No") }
                         }
 
-                        QGCLabel { text: qsTr("Last button:") }
-                        QGCLabel {
-                            text: root.lastButtonIndex >= 0
-                                ? ("#" + root.lastButtonIndex + " = " + (root.lastButtonState ? qsTr("Pressed") : qsTr("Released")))
-                                : qsTr("N/A")
-                            wrapMode: Text.WrapAnywhere
+                        RowLayout {
                             Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Enabled:") }
+                            QGCLabel { text: joystick ? qsTr("Yes") : qsTr("No") }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Device:") }
+                            QGCLabel {
+                                text: joystick ? joystick.name : qsTr("N/A")
+                                wrapMode: Text.WrapAnywhere
+                                Layout.fillWidth: true
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Roll:") }
+                            QGCLabel { text: root._formatAxis(root.rollValue) }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Throttle:") }
+                            QGCLabel { text: root._formatAxis(root.throttleValue) }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Left X/Y:") }
+                            QGCLabel { text: "X=" + root._formatStick(root.leftX) + ", Y=" + root._formatStick(root.leftY) }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Right X/Y:") }
+                            QGCLabel { text: "X=" + root._formatStick(root.rightX) + ", Y=" + root._formatStick(root.rightY) }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Pitch:") }
+                            QGCLabel { text: root._formatAxis(root.pitchValue) }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: qsTr("Yaw:") }
+                            QGCLabel { text: root._formatAxis(root.yawValue) }
                         }
                     }
                 }

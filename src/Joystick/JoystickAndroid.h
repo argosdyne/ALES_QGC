@@ -43,6 +43,7 @@ private:
     int *axisValue;
     float *axisMin;
     float *axisMax;
+    float *axisFlat;
 
     static int * _androidBtnList; //list of all possible android buttons
     static int _androidBtnListCount;
