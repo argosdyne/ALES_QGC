@@ -60,7 +60,6 @@ Item {
     property real minZoom: 1.0
     property real zoomStep: 1.0    
 
-    property bool   _hasZoom:                                   _mavlinkCamera && _mavlinkCamera.hasZoom
     // The following properties relate to a mavlink protocol camera
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
     property int    _mavlinkCameraManagerCurCameraIndex:        _mavlinkCameraManager ? _mavlinkCameraManager.currentCamera : -1
@@ -101,6 +100,7 @@ Item {
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+    property bool _hasZoom: _mavlinkCamera && (_mavlinkCamera.hasZoom || !!_dZoom)
 
     //----------------------------------------------------------------------------------------------- Functions
     function _formatElapsed(ms) {
@@ -224,6 +224,26 @@ Item {
         
         return effective.toFixed(0);
 
+    }
+
+    function _applyZoom(direction) {
+        if (!_mavlinkCamera || direction === 0) {
+            return
+        }
+
+        if (_mavlinkCamera.hasZoom) {
+            _mavlinkCamera.stepZoom(direction)
+            return
+        }
+
+        if (_dZoom) {
+            var minV = isNaN(_dZoom.min) ? 1.0 : _dZoom.min
+            var maxV = isNaN(_dZoom.max) ? 30.0 : _dZoom.max
+            var incV = isNaN(_dZoom.increment) ? 0.2 : _dZoom.increment
+            var curV = isNaN(_dZoom.value) ? 1.0 : _dZoom.value
+            var nxtV = direction > 0 ? Math.min(maxV, curV + incV) : Math.max(minV, curV - incV)
+            _dZoom.value = nxtV
+        }
     }
 
     Timer {
@@ -444,7 +464,7 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    onClicked: _applyZoom(1)
                 }
             }
 
@@ -490,7 +510,7 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    onClicked: _applyZoom(-1)
                 }
             }
         }

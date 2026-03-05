@@ -44,6 +44,24 @@ Item {
         }
     }
 
+    function _stepZoomCompat(direction) {
+        if (!_camera || direction === 0) {
+            return
+        }
+        if (_camera.hasZoom) {
+            _camera.stepZoom(direction)
+            return
+        }
+        if (_dZoom) {
+            var minV = isNaN(_dZoom.min) ? 1.0 : _dZoom.min
+            var maxV = isNaN(_dZoom.max) ? 30.0 : _dZoom.max
+            var incV = isNaN(_dZoom.increment) ? 0.2 : _dZoom.increment
+            var curV = isNaN(_dZoom.value) ? 1.0 : _dZoom.value
+            var nxtV = direction > 0 ? Math.min(maxV, curV + incV) : Math.max(minV, curV - incV)
+            _dZoom.value = nxtV
+        }
+    }
+
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
         console.log("aiInThermal = ", aiInThermal)
@@ -95,6 +113,28 @@ Item {
                 _camera.buttonToggleVideo()
             }
         }
+        function buttonZoom(zoomIn, start) {
+            if(!_camera || (!_camera.hasZoom && !_dZoom)) {
+                return
+            }
+            if(start) {
+                if (zoomIn) {
+                    zoomOutHoldTimer.stop()
+                    _stepZoomCompat(1)
+                    zoomInHoldTimer.restart()
+                } else {
+                    zoomInHoldTimer.stop()
+                    _stepZoomCompat(-1)
+                    zoomOutHoldTimer.restart()
+                }
+            } else {
+                if (zoomIn) {
+                    zoomInHoldTimer.stop()
+                } else {
+                    zoomOutHoldTimer.stop()
+                }
+            }
+        }
         function onButtonPressed(type, pressed) {
             console.log("use onButtonPressed Function", type)
             if(type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM) {
@@ -107,6 +147,38 @@ Item {
                 buttonTakePhoto(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD) {
                 buttonToggleVideo(pressed)
+            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_ZOOM_IN) {
+                buttonZoom(true, pressed)
+            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_ZOOM_OUT) {
+                buttonZoom(false, pressed)
+            }
+        }
+    }
+
+    Timer {
+        id:             zoomInHoldTimer
+        interval:       140
+        repeat:         true
+        running:        false
+        onTriggered: {
+            if (_camera && (_camera.hasZoom || _dZoom)) {
+                _stepZoomCompat(1)
+            } else {
+                stop()
+            }
+        }
+    }
+
+    Timer {
+        id:             zoomOutHoldTimer
+        interval:       140
+        repeat:         true
+        running:        false
+        onTriggered: {
+            if (_camera && (_camera.hasZoom || _dZoom)) {
+                _stepZoomCompat(-1)
+            } else {
+                stop()
             }
         }
     }

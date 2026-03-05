@@ -300,11 +300,15 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     emit rcChannelValuesChanged(_rawChannels, channels.chancount);
 
 #if defined (Q_OS_ANDROID)
-    bool f1 = channels.chan15_raw == 2000;
-    bool f2 = channels.chan14_raw == 2000;
-    bool f3 = channels.chan16_raw == 2000;
-    bool capture = channels.chan12_raw == 2000;
-    bool record = channels.chan13_raw == 2000;
+    auto _isPressed = [](uint16_t raw) -> bool {
+        return raw >= 1800;
+    };
+
+    bool f1 = _isPressed(channels.chan15_raw);
+    bool f2 = _isPressed(channels.chan14_raw);
+    bool f3 = _isPressed(channels.chan16_raw);
+    bool capture = _isPressed(channels.chan12_raw);
+    bool record = _isPressed(channels.chan13_raw);
 
 
     // F1 
@@ -344,21 +348,21 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     }
 
     //해당 조건에 있을 경우 true를 반환함. 따라서 cn에 맞는 값들을 넣어줘야함
-    bool cn1 = channels.chan1_raw ;//== 2000;
-    bool cn2 = channels.chan2_raw ;//== 2000;
-    bool cn3 = channels.chan3_raw ;//== 2000;
-    bool cn4 = channels.chan4_raw ;//== 2000;
+    bool cn1 = _isPressed(channels.chan1_raw);
+    bool cn2 = _isPressed(channels.chan2_raw);
+    bool cn3 = _isPressed(channels.chan3_raw);
+    bool cn4 = _isPressed(channels.chan4_raw);
     // bool cn5 = channels.chan5_raw ;//== 2000;
     // bool cn6 = channels.chan6_raw ;//== 2000;
     // bool cn7 = channels.chan7_raw ;//== 2000;
     // bool cn8 = channels.chan8_raw ;//== 2000;
-    bool cn9 = channels.chan9_raw ;//== 2000;
-    bool cn10 = channels.chan10_raw ;//== 2000;
-    bool cn11 = channels.chan11_raw ;//== 2000;
-    bool cn12 = channels.chan12_raw ;//== 2000;
-    bool cn13 = channels.chan13_raw ;//== 2000;
-    bool cn17 = channels.chan17_raw ;//== 2000;
-    bool cn18 = channels.chan18_raw ;//== 2000;
+    bool cn9 = _isPressed(channels.chan9_raw);
+    bool cn10 = _isPressed(channels.chan10_raw);
+    bool cn11 = _isPressed(channels.chan11_raw);
+    bool cn12 = _isPressed(channels.chan12_raw);
+    bool cn13 = _isPressed(channels.chan13_raw);
+    bool cn17 = _isPressed(channels.chan17_raw);
+    bool cn18 = _isPressed(channels.chan18_raw);
 
     if(cn1 != _cn1Pressed){
         _cn1Pressed = cn1;
@@ -395,11 +399,13 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     if (cn9 != _cn9Pressed) {
         _cn9Pressed = cn9;
         qCDebug(AVIATORInterfaceLog) << "cn9 버튼 상태 변경: " << (_cn9Pressed ? "눌림" : "해제됨");
+        emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_IN, _cn9Pressed);
     }
 
     if (cn10 != _cn10Pressed) {
         _cn10Pressed = cn10;
         qCDebug(AVIATORInterfaceLog) << "cn10 버튼 상태 변경: " << (_cn10Pressed ? "눌림" : "해제됨");
+        emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_OUT, _cn10Pressed);
     }
 
     if (cn11 != _cn11Pressed) {

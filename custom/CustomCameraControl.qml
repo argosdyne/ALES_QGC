@@ -231,10 +231,23 @@ Item {
                 _camera.stepZoom(-1)
             }
             onContinuousZoomStart: {
-                _camera.startZoom(zoomIn ? 1 : -1)
+                _camera.stepZoom(zoomIn ? 1 : -1)
+                zoomHoldTimer.direction = zoomIn ? 1 : -1
+                zoomHoldTimer.restart()
             }
             onContinuousZoomStop: {
-                _camera.stopZoom()
+                zoomHoldTimer.stop()
+            }
+        }
+        Timer {
+            id:             zoomHoldTimer
+            property int    direction: 0
+            interval:       140
+            repeat:         true
+            onTriggered: {
+                if (direction !== 0) {
+                    _camera.stepZoom(direction)
+                }
             }
         }
         //---------------------------------------------------------------------
@@ -541,33 +554,6 @@ Item {
                         onClicked: {
                             cameraSettings.open()
                         }
-                    }
-                }
-                //-----------------------------------------------------------------
-                //-- microSD Card
-                Column {
-                    spacing:                        _spacers
-                    visible:                        !_isShortScreen
-                    anchors.horizontalCenter:       parent.horizontalCenter
-                    QGCColoredImage {
-                        width:                      ScreenTools.defaultFontPixelHeight * 1.25
-                        height:                     width
-                        sourceSize.width:           width
-                        source:                     "qrc:/custom/img/microSD.svg"
-                        color:                      qgcPal.text
-                        fillMode:                   Image.PreserveAspectFit
-                        opacity:                    _settingsEnabled ? 1 : 0.5
-                        anchors.horizontalCenter:   parent.horizontalCenter
-                    }
-                    QGCLabel {
-                        text: {
-                            if(_noSdCard)   return qsTr("NONE")
-                            if(_fullSD)     return qsTr("FULL")
-                            return _camera ? _camera.storageFreeStr : ""
-                        }
-                        color:          (_noSdCard || _fullSD) ? qgcPal.colorOrange : qgcPal.text
-                        font.pointSize: ScreenTools.smallFontPointSize
-                        anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
                 //-----------------------------------------------------------------

@@ -232,9 +232,13 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
         qCDebug(CameraManagerLog) << "_handleCameraInfo:" << reinterpret_cast<const char*>(info.model_name) << reinterpret_cast<const char*>(info.vendor_name) << "Comp ID:" << message.compid;
-        QString vendor = QString(reinterpret_cast<const char*>(info.vendor_name));
+        const QString vendor = QString::fromLatin1(reinterpret_cast<const char*>(info.vendor_name)).trimmed();
+        const QString model = QString::fromLatin1(reinterpret_cast<const char*>(info.model_name)).trimmed();
+        const QString vendorUpper = vendor.toUpper();
+        const QString modelUpper = model.toUpper();
+        const bool isCodevCamera = vendorUpper.contains(QStringLiteral("CODEV")) || modelUpper.contains(QStringLiteral("CODEV"));
         QGCCameraControl* pCamera = nullptr;
-        if(vendor.toUpper().compare("CODEV") == 0) {
+        if(isCodevCamera) {
             pCamera = new CodevCameraControl(&info, _vehicle, message.compid, link, this);
         } else {
             pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, message.compid, link, this);
