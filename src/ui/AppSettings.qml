@@ -28,17 +28,40 @@ Rectangle {
     readonly property real _verticalMargin:     _defaultTextHeight / 2
     readonly property real _buttonHeight:       ScreenTools.isTinyScreen ? ScreenTools.defaultFontPixelHeight * 3 : ScreenTools.defaultFontPixelHeight * 2
 
-    property bool _first: true
-
-    property bool _commingFromRIDSettings:  false
+    property bool _privacyExpanded:         false
+    readonly property string _privacyMainUrl: "qrc:/custom/ExternalSensingPrivacySettings.qml"
+    readonly property var _privacyChildPages: [
+        { title: qsTr("External Sensing"), url: "qrc:/custom/ExternalSensingPrivacySettings.qml" },
+        { title: qsTr("Security Events"),  url: "qrc:/custom/SecurityValidationEventsSettings.qml" },
+        { title: qsTr("Network Services"), url: "qrc:/custom/NetworkServicesPortsSettings.qml" },
+        { title: qsTr("Connections"),      url: "qrc:/custom/ConnectionsOverrideSettings.qml" },
+        { title: qsTr("Secure Setup"),     url: "qrc:/custom/SecureConnectionsWizardSettings.qml" }
+    ]
 
     QGCPalette { id: qgcPal }
+
+    function _isPrivacyChild(url) {
+        for (var i = 0; i < _privacyChildPages.length; i++) {
+            if (_privacyChildPages[i].url === url) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function _isPrivacySelection() {
+        return _isPrivacyChild(String(__rightPanel.source))
+    }
 
     Component.onCompleted: {
         //-- Default Settings
         if (globals.commingFromRIDIndicator) {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
+        } else if (globals.settingsStartPageUrl !== "") {
+            __rightPanel.source = globals.settingsStartPageUrl
+            _privacyExpanded = _isPrivacyChild(globals.settingsStartPageUrl)
+            globals.settingsStartPageUrl = ""
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
         }
@@ -64,36 +87,57 @@ Rectangle {
 
             Repeater {
                 model:  QGroundControl.corePlugin.settingsPages
-                QGCButton {
-                    height:             _buttonHeight
-                    text:               modelData.title
-                    autoExclusive:      true
-                    Layout.fillWidth:   true
-                    visible:            modelData.url != "qrc:/qml/RemoteIDSettings.qml" ? true : QGroundControl.settingsManager.remoteIDSettings.enable.rawValue
+                ColumnLayout {
+                    readonly property string _pageUrl: modelData.url.toString()
+                    readonly property bool _isPrivacyMain: _pageUrl === _privacyMainUrl
+                    readonly property bool _isPrivacyChild: settingsView._isPrivacyChild(_pageUrl)
+                    readonly property bool _isRemoteId: _pageUrl === "qrc:/qml/RemoteIDSettings.qml"
+                    Layout.fillWidth: true
+                    spacing: _verticalMargin / 2
+                    visible: (_isPrivacyMain || !_isPrivacyChild) && (!_isRemoteId || QGroundControl.settingsManager.remoteIDSettings.enable.rawValue)
 
-                    onClicked: {
-                        if (mainWindow.preventViewSwitch()) {
-                            return
+                    QGCButton {
+                        height:             _buttonHeight
+                        text:               parent._isPrivacyMain ? qsTr("Privacy") : modelData.title
+                        autoExclusive:      !parent._isPrivacyMain
+                        Layout.fillWidth:   true
+                        checked:            parent._isPrivacyMain ? settingsView._isPrivacySelection() : (String(__rightPanel.source) === parent._pageUrl)
+
+                        onClicked: {
+                            if (mainWindow.preventViewSwitch()) {
+                                return
+                            }
+
+                            if (parent._isPrivacyMain) {
+                                _privacyExpanded = !_privacyExpanded
+                                if (_privacyExpanded && !settingsView._isPrivacySelection()) {
+                                    __rightPanel.source = _privacyMainUrl
+                                }
+                            } else if (String(__rightPanel.source) !== parent._pageUrl) {
+                                __rightPanel.source = parent._pageUrl
+                            }
                         }
-                        if (__rightPanel.source !== modelData.url) {
-                            __rightPanel.source = modelData.url
-                        }
-                        checked = true
                     }
 
-                    Component.onCompleted: {
-                        if (globals.commingFromRIDIndicator) {
-                            _commingFromRIDSettings = true
-                        }
-                        if(_first) {
-                            _first = false
-                            checked = true
-                        }
-                        if (_commingFromRIDSettings) {
-                            checked = false
-                            _commingFromRIDSettings = false
-                            if (modelData.url == "qrc:/qml/RemoteIDSettings.qml") {
-                                checked = true
+                    Repeater {
+                        model: parent._isPrivacyMain && _privacyExpanded ? _privacyChildPages : []
+
+                        QGCButton {
+                            height:             _buttonHeight
+                            text:               modelData.title
+                            autoExclusive:      true
+                            Layout.fillWidth:   true
+                            Layout.leftMargin:  _horizontalMargin * 1.5
+                            Layout.rightMargin: _horizontalMargin * 1.5
+                            checked:            String(__rightPanel.source) === modelData.url
+
+                            onClicked: {
+                                if (mainWindow.preventViewSwitch()) {
+                                    return
+                                }
+                                if (String(__rightPanel.source) !== modelData.url) {
+                                    __rightPanel.source = modelData.url
+                                }
                             }
                         }
                     }

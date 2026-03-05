@@ -8,6 +8,18 @@ DECLARE_SETTINGGROUP(Custom, "Custom")
 
 DECLARE_SETTINGSFACT(CustomSettings, is3DMap)
 DECLARE_SETTINGSFACT(CustomSettings, rtcmSource)
+DECLARE_SETTINGSFACT(CustomSettings, privacyVideoRecordingEnabled)
+DECLARE_SETTINGSFACT(CustomSettings, networkUdpListenerEnabled)
+DECLARE_SETTINGSFACT(CustomSettings, networkTcpServerEnabled)
+DECLARE_SETTINGSFACT(CustomSettings, networkVideoStreamingEnabled)
+DECLARE_SETTINGSFACT(CustomSettings, networkUdpBindAddress)
+DECLARE_SETTINGSFACT(CustomSettings, networkUdpPort)
+DECLARE_SETTINGSFACT(CustomSettings, networkTcpBindAddress)
+DECLARE_SETTINGSFACT(CustomSettings, networkTcpPort)
+DECLARE_SETTINGSFACT(CustomSettings, networkVideoUrl)
+DECLARE_SETTINGSFACT(CustomSettings, securityStrictMavlinkValidation)
+DECLARE_SETTINGSFACT(CustomSettings, securityAllowlistVehicleIds)
+DECLARE_SETTINGSFACT(CustomSettings, securityWizardCompleted)
 
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)
 {

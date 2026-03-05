@@ -64,6 +64,30 @@ ApplicationWindow {
                 nextPromptIdIndex++
             } else {
                 currentDialog = null
+                secureSetupStartupTimer.start()
+            }
+        }
+    }
+
+    Timer {
+        id:             secureSetupStartupTimer
+        interval:       250
+        repeat:         true
+        running:        false
+        property int _attempts: 0
+        onTriggered: {
+            _attempts++
+            if (_showSecureSetupOnStartupIfNeeded()) {
+                _attempts = 0
+                stop()
+                return
+            }
+
+            var customSettings = QGroundControl.corePlugin.settings
+            var settingsReady = customSettings && customSettings.securityWizardCompleted
+            if (settingsReady || _attempts >= 20) {
+                _attempts = 0
+                stop()
                 showPreFlightChecklistIfNeeded()
             }
         }
@@ -90,6 +114,7 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+        property string             settingsStartPageUrl:           ""
     }
 
     /// Default color palette used throughout the UI
@@ -173,6 +198,16 @@ ApplicationWindow {
 
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
+    }
+
+    function _showSecureSetupOnStartupIfNeeded() {
+        var customSettings = QGroundControl.corePlugin.settings
+        if (customSettings && customSettings.securityWizardCompleted && !customSettings.securityWizardCompleted.rawValue) {
+            globals.settingsStartPageUrl = "qrc:/custom/SecureConnectionsWizardSettings.qml"
+            showSettingsTool()
+            return true
+        }
+        return false
     }
 
     //-------------------------------------------------------------------------

@@ -161,6 +161,11 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("Comm Links"),  "qrc:/qml/LinkSettings.qml",        "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Offline Maps"),"qrc:/qml/OfflineMap.qml",          "qrc:/res/waves.svg");
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
+        _addSettingsEntry(tr("Privacy"),     "qrc:/custom/ExternalSensingPrivacySettings.qml");
+        _addSettingsEntry(tr("Security Events"), "qrc:/custom/SecurityValidationEventsSettings.qml");
+        _addSettingsEntry(tr("Network Services"), "qrc:/custom/NetworkServicesPortsSettings.qml");
+        _addSettingsEntry(tr("Connections"), "qrc:/custom/ConnectionsOverrideSettings.qml");
+        _addSettingsEntry(tr("Secure Setup"), "qrc:/custom/SecureConnectionsWizardSettings.qml");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
 
@@ -480,3 +485,4 @@ void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMess
         _qmlInterface->showMessage(message, type);
     }
 }
+

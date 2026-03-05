@@ -24,6 +24,78 @@
     "enumStrings":      "Disable",
     "enumValues":       "0",
     "default":          0
+},
+{
+    "name":             "privacyVideoRecordingEnabled",
+    "shortDesc":        "Enable manual video recording",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "networkUdpListenerEnabled",
+    "shortDesc":        "Enable MAVLink UDP listener",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "networkTcpServerEnabled",
+    "shortDesc":        "Enable MAVLink TCP server",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "networkVideoStreamingEnabled",
+    "shortDesc":        "Enable video streaming service",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "networkUdpBindAddress",
+    "shortDesc":        "UDP bind address",
+    "type":             "string",
+    "default":          "127.0.0.1"
+},
+{
+    "name":             "networkUdpPort",
+    "shortDesc":        "UDP listener port",
+    "type":             "uint32",
+    "default":          14550
+},
+{
+    "name":             "networkTcpBindAddress",
+    "shortDesc":        "TCP bind address",
+    "type":             "string",
+    "default":          "127.0.0.1"
+},
+{
+    "name":             "networkTcpPort",
+    "shortDesc":        "TCP server port",
+    "type":             "uint32",
+    "default":          5760
+},
+{
+    "name":             "networkVideoUrl",
+    "shortDesc":        "Video streaming URL",
+    "type":             "string",
+    "default":          "udp://@:5600"
+},
+{
+    "name":             "securityStrictMavlinkValidation",
+    "shortDesc":        "Strict MAVLink validation",
+    "type":             "bool",
+    "default":          true
+},
+{
+    "name":             "securityAllowlistVehicleIds",
+    "shortDesc":        "Allowlist Vehicle IDs",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "securityWizardCompleted",
+    "shortDesc":        "Secure setup wizard completion state",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }
