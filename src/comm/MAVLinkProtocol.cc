@@ -162,7 +162,53 @@ void MAVLinkProtocol::logSentBytes(LinkInterface* link, QByteArray b){
 
     uint8_t bytes_time[sizeof(quint64)];
 
-    Q_UNUSED(link);
+    mavlink_message_t txMessage{};
+    mavlink_message_t txParseBuffer{};
+    mavlink_status_t txParseStatus{};
+    mavlink_status_t txFrameStatus{};
+    for (int i = 0; i < b.size(); i++) {
+        const uint8_t framing = mavlink_frame_char_buffer(&txParseBuffer,
+                                                          &txParseStatus,
+                                                          static_cast<uint8_t>(b[i]),
+                                                          &txMessage,
+                                                          &txFrameStatus);
+        if (framing == MAVLINK_FRAMING_OK) {
+            const QString linkName = link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+            const uint8_t channel = link ? link->mavlinkChannel() : 0xFF;
+            const bool isMavlink2 = (txMessage.magic == 0xFD);
+            const bool isSigned = isMavlink2 && ((txMessage.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
+
+            uint8_t rawBuffer[MAVLINK_MAX_PACKET_LEN];
+            const int rawLen = mavlink_msg_to_send_buffer(rawBuffer, &txMessage);
+            const QByteArray rawPacket(reinterpret_cast<const char*>(rawBuffer), rawLen);
+
+            if (isSigned && (rawLen >= MAVLINK_SIGNATURE_BLOCK_LEN)) {
+                const int signatureOffset = rawLen - MAVLINK_SIGNATURE_BLOCK_LEN;
+                const QByteArray signatureBytes(reinterpret_cast<const char*>(rawBuffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
+                qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
+                                                        .arg(linkName)
+                                                        .arg(channel)
+                                                        .arg(txMessage.msgid)
+                                                        .arg(txMessage.seq)
+                                                        .arg(txMessage.sysid)
+                                                        .arg(txMessage.compid)
+                                                        .arg(rawLen)
+                                                        .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                                                        .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+            } else {
+                qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 raw: \"%8\"")
+                                                        .arg(linkName)
+                                                        .arg(channel)
+                                                        .arg(txMessage.msgid)
+                                                        .arg(txMessage.seq)
+                                                        .arg(txMessage.sysid)
+                                                        .arg(txMessage.compid)
+                                                        .arg(rawLen)
+                                                        .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+            }
+        }
+    }
+
     if (!_logSuspendError && !_logSuspendReplay && _tempLogFile.isOpen()) {
 
         quint64 time = static_cast<quint64>(QDateTime::currentMSecsSinceEpoch() * 1000);
@@ -204,10 +250,45 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
     }
 
     uint8_t mavlinkChannel = link->mavlinkChannel();
+    const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+    static uint32_t badSignatureCounters[MAVLINK_COMM_NUM_BUFFERS] = {};
+    static uint32_t unsignedWhileSigningCounters[MAVLINK_COMM_NUM_BUFFERS] = {};
+    static uint32_t rxChunkCounters[MAVLINK_COMM_NUM_BUFFERS] = {};
+    if (mavlinkChannel < MAVLINK_COMM_NUM_BUFFERS) {
+        rxChunkCounters[mavlinkChannel]++;
+        const uint32_t counter = rxChunkCounters[mavlinkChannel];
+        if (counter <= 20 || (counter % 100) == 0) {
+            const QByteArray preview = b.left(24);
+            qCWarning(MAVLinkProtocolLog).noquote() << QStringLiteral("RX bytes link: \"%1\" chan: %2 chunk: %3 size: %4 preview: \"%5\"")
+                                                    .arg(linkName)
+                                                    .arg(mavlinkChannel)
+                                                    .arg(counter)
+                                                    .arg(b.size())
+                                                    .arg(QString::fromLatin1(preview.toHex(' ').toUpper()));
+        }
+    } else {
+        qCWarning(MAVLinkProtocolLog) << "RX bytes on out-of-range channel" << mavlinkChannel
+                                      << "link" << linkName
+                                      << "size" << b.size();
+    }
 
     for (int position = 0; position < b.size(); position++) {
         const uint8_t framing = mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status);
         if (framing == MAVLINK_FRAMING_BAD_SIGNATURE) {
+            if (mavlinkChannel < MAVLINK_COMM_NUM_BUFFERS) {
+                badSignatureCounters[mavlinkChannel]++;
+                const uint32_t counter = badSignatureCounters[mavlinkChannel];
+                if (counter <= 20 || (counter % 100) == 0) {
+                    qCWarning(MAVLinkProtocolLog) << "RX BAD_SIGNATURE on link" << linkName
+                                                  << "channel" << mavlinkChannel
+                                                  << "rxByteIndex" << position
+                                                  << "counter" << counter;
+                }
+            } else {
+                qCWarning(MAVLinkProtocolLog) << "RX BAD_SIGNATURE on link" << linkName
+                                              << "channel" << mavlinkChannel
+                                              << "(out-of-range channel index)";
+            }
             link->setSigningSignatureFailure(true);
             continue;
         }
@@ -215,6 +296,30 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             link->setSigningSignatureFailure(false);
             const bool isMavlink2 = (_message.magic == 0xFD);
             const bool isSigned = isMavlink2 && ((_message.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
+            mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(mavlinkChannel);
+            const bool signingOutEnabled = mavlinkStatus && mavlinkStatus->signing &&
+                                           ((mavlinkStatus->signing->flags & MAVLINK_SIGNING_FLAG_SIGN_OUTGOING) != 0);
+            if (signingOutEnabled && !isSigned) {
+                if (mavlinkChannel < MAVLINK_COMM_NUM_BUFFERS) {
+                    unsignedWhileSigningCounters[mavlinkChannel]++;
+                    const uint32_t counter = unsignedWhileSigningCounters[mavlinkChannel];
+                    if (counter <= 20 || (counter % 100) == 0) {
+                        qCWarning(MAVLinkProtocolLog) << "RX unsigned MAVLink while signing is enabled on link"
+                                                      << linkName
+                                                      << "channel" << mavlinkChannel
+                                                      << "msgid" << _message.msgid
+                                                      << "seq" << _message.seq
+                                                      << "from" << _message.sysid << "/" << _message.compid
+                                                      << "counter" << counter;
+                    }
+                } else {
+                    qCWarning(MAVLinkProtocolLog) << "RX unsigned MAVLink while signing is enabled on out-of-range channel"
+                                                  << mavlinkChannel
+                                                  << "link" << linkName
+                                                  << "msgid" << _message.msgid
+                                                  << "from" << _message.sysid << "/" << _message.compid;
+                }
+            }
             if (isSigned) {
                 uint8_t rawBuffer[MAVLINK_MAX_PACKET_LEN];
                 const int rawLen = mavlink_msg_to_send_buffer(rawBuffer, &_message);
@@ -222,7 +327,6 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                     const int signatureOffset = rawLen - MAVLINK_SIGNATURE_BLOCK_LEN;
                     const QByteArray signatureBytes(reinterpret_cast<const char*>(rawBuffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
                     const QByteArray rawPacket(reinterpret_cast<const char*>(rawBuffer), rawLen);
-                    const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
                     qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("RX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 from: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
                                                             .arg(linkName)
                                                             .arg(mavlinkChannel)
@@ -242,7 +346,6 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             if (_message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
                 mavlink_setup_signing_t setupSigning{};
                 mavlink_msg_setup_signing_decode(&_message, &setupSigning);
-                const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
                 qCInfo(MAVLinkProtocolLog) << "RX SETUP_SIGNING on link" << linkName
                                            << "channel" << mavlinkChannel
                                            << "fromSys" << _message.sysid
@@ -254,8 +357,9 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             // Got a valid message
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(mavlinkChannel);
-                if (!(mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) && (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1)) {
+                if (mavlinkStatus &&
+                    !(mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) &&
+                    (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1)) {
                     qCDebug(MAVLinkProtocolLog) << "Switching outbound to mavlink 2.0 due to incoming mavlink 2.0 packet:" << mavlinkStatus << mavlinkChannel << mavlinkStatus->flags;
                     mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
                     // Set all links to v2

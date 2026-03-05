@@ -216,23 +216,23 @@ Item {
                     }
                 }
 
-                Rectangle {
-                    height: ScreenTools.defaultFontPixelHeight * 2
-                    width: height
-                    radius: width
-                    color: "gray"
+                // Rectangle {
+                //     height: ScreenTools.defaultFontPixelHeight * 2
+                //     width: height
+                //     radius: width
+                //     color: "gray"
 
-                    QGCLabel {
-                        anchors.centerIn: parent
-                        text: "YS"
-                        font.bold: true
-                        color: qgcPal.text
-                    }
-                    QGCMouseArea {
-                        fillItem: parent
-                        onClicked: ysDialogComponent.createObject(mainWindow).open()
-                    }
-                }
+                //     QGCLabel {
+                //         anchors.centerIn: parent
+                //         text: "YS"
+                //         font.bold: true
+                //         color: qgcPal.text
+                //     }
+                //     QGCMouseArea {
+                //         fillItem: parent
+                //         onClicked: ysDialogComponent.createObject(mainWindow).open()
+                //     }
+                // }
             }
         }
         // ───────────────────────────────

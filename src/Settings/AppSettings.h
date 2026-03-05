@@ -159,4 +159,5 @@ private slots:
 private:
     static QList<int> _rgReleaseLanguages;
     static QList<int> _rgPartialLanguages;
+    bool _updatingMavlink2SigningKey = false;
 };

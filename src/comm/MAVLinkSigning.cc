@@ -65,8 +65,25 @@ bool insecureConnectionAccceptUnsignedCallback(const mavlink_status_t *status, u
 {
     Q_UNUSED(status);
 
-    static const QSet<uint32_t> unsignedMessages({ MAVLINK_MSG_ID_RADIO_STATUS });
-    return unsignedMessages.contains(message_id);
+    // Temporary debug allowance:
+    // Allow selected unsigned messages to validate whether signing filters block
+    // parameter/camera telemetry from the vehicle.
+    static const QSet<uint32_t> unsignedMessages({
+        MAVLINK_MSG_ID_RADIO_STATUS,
+        MAVLINK_MSG_ID_PARAM_VALUE,
+        322, // CODEV custom camera message observed in logs
+    });
+
+    if (unsignedMessages.contains(message_id)) {
+        return true;
+    }
+
+    // MAVLink Camera Protocol v2 messages are in this range.
+    if ((message_id >= 259U) && (message_id <= 276U)) {
+        return true;
+    }
+
+    return false;
 }
 
 bool initSigning(mavlink_channel_t channel, const QByteArray &key, mavlink_accept_unsigned_t callback)

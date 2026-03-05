@@ -1422,10 +1422,12 @@ INCLUDEPATH += \
     src/VideoManager
 
 HEADERS += \
+    src/VideoManager/GLVideoItemStub.h \
     src/VideoManager/SubtitleWriter.h \
     src/VideoManager/VideoManager.h
 
 SOURCES += \
+    src/VideoManager/GLVideoItemStub.cc \
     src/VideoManager/SubtitleWriter.cc \
     src/VideoManager/VideoManager.cc
 
@@ -1443,11 +1445,7 @@ contains (CONFIG, DISABLE_VIDEOSTREAMING) {
         src/VideoReceiver
 
     HEADERS += \
-        src/VideoManager/GLVideoItemStub.h \
         src/VideoReceiver/VideoReceiver.h
-
-    SOURCES += \
-        src/VideoManager/GLVideoItemStub.cc
 }
 
 #-------------------------------------------------------------------------------------

@@ -72,6 +72,37 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
     //-- Only pay attention to camera components, as identified by their compId
     if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 || message.compid == MAV_COMP_ID_GIMBAL ||
         (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6))) {
+        // Keep camera alive if any message is received from a known camera component.
+        // Some integrations don't stream HEARTBEAT reliably while still sending other camera telemetry.
+        if (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6) {
+            const QString sCompID = QString::number(message.compid);
+            if (_cameraInfoRequest.contains(sCompID) && _cameraInfoRequest[sCompID] && _cameraInfoRequest[sCompID]->infoReceived) {
+                _cameraInfoRequest[sCompID]->lastHeartbeat.start();
+            }
+        }
+
+        // Some camera stacks send camera telemetry/settings before HEARTBEAT/CAMERA_INFORMATION.
+        // If we see camera traffic from an unknown camera component, proactively request CAMERA_INFORMATION.
+        if ((message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6) &&
+            message.msgid != MAVLINK_MSG_ID_HEARTBEAT &&
+            message.msgid != MAVLINK_MSG_ID_CAMERA_INFORMATION &&
+            !_findCamera(message.compid)) {
+            const QString sCompID = QString::number(message.compid);
+            if (!_cameraInfoRequest.contains(sCompID)) {
+                qCWarning(CameraManagerLog) << "Camera message from unknown camera component. Creating info request."
+                                            << "compid" << message.compid << "msgid" << message.msgid;
+                CameraStruct* pInfo = new CameraStruct(this, message.compid);
+                pInfo->lastHeartbeat.start();
+                _cameraInfoRequest[sCompID] = pInfo;
+            }
+            CameraStruct* pInfo = _cameraInfoRequest.value(sCompID, nullptr);
+            if (pInfo && !pInfo->infoReceived && pInfo->lastHeartbeat.elapsed() > 500) {
+                pInfo->tryCount++;
+                pInfo->lastHeartbeat.start();
+                _requestCameraInfo(message.compid, pInfo->tryCount);
+            }
+        }
+
         switch (message.msgid) {
             case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
                 _handleCaptureStatus(message);

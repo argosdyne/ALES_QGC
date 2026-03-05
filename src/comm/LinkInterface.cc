@@ -11,15 +11,12 @@
 #include "LinkManager.h"
 #include "QGCApplication.h"
 #include "MAVLinkSigning.h"
+#include "SettingsManager.h"
 
 QGC_LOGGING_CATEGORY(LinkInterfaceLog, "LinkInterfaceLog")
 
 // The LinkManager is only forward declared in the header, so the static_assert is here instead.
 static_assert(LinkManager::invalidMavlinkChannel() == std::numeric_limits<uint8_t>::max(), "update LinkInterface::_mavlinkChannel");
-
-namespace {
-static const char* kHardcodedMavlink2SigningKey = "x3Xnt1ft5jDNCqERO9ECZhqziCnKUqZCKreChi8mhkY=";
-}
 
 LinkInterface::LinkInterface(SharedLinkConfigurationPtr& config, bool isPX4Flow)
     : QThread   (0)
@@ -115,7 +112,13 @@ void LinkInterface::removeVehicleReference(void)
 
 bool LinkInterface::initMavlinkSigning(void)
 {
-    const QByteArray signingKeyBytes(kHardcodedMavlink2SigningKey);
+    QByteArray signingKeyBytes;
+    if (qgcApp() && qgcApp()->toolbox() && qgcApp()->toolbox()->settingsManager() && qgcApp()->toolbox()->settingsManager()->appSettings()) {
+        signingKeyBytes = qgcApp()->toolbox()->settingsManager()->appSettings()->mavlink2SigningKey()->rawValue().toByteArray();
+    } else {
+        qCWarning(LinkInterfaceLog) << "Settings manager unavailable while initializing MAVLink signing on channel" << _mavlinkChannel;
+    }
+
     qDebug() << "Initializing MAVLink signing for link"
                              << (_config ? _config->name() : QStringLiteral("unknown"))
                              << "channel" << _mavlinkChannel

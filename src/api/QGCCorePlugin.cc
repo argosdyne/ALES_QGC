@@ -47,8 +47,6 @@ public:
             delete pCommLinks;
         if(pOfflineMaps)
             delete pOfflineMaps;
-        if(pDeviceSettings)
-            delete pDeviceSettings;
 #if defined(QGC_GST_TAISYNC_ENABLED)
         if(pTaisync)
             delete pTaisync;
@@ -80,7 +78,6 @@ public:
     QmlComponentInfo* pGeneral                  = nullptr;
     QmlComponentInfo* pCommLinks                = nullptr;
     QmlComponentInfo* pOfflineMaps              = nullptr;
-    QmlComponentInfo* pDeviceSettings           = nullptr;
 #if defined(QGC_GST_TAISYNC_ENABLED)
     QmlComponentInfo* pTaisync                  = nullptr;
 #endif
@@ -145,10 +142,6 @@ QVariantList &QGCCorePlugin::settingsPages()
                                                 QUrl::fromUserInput("qrc:/qml/OfflineMap.qml"),
                                                 QUrl::fromUserInput("qrc:/res/waves.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pOfflineMaps)));
-        _p->pDeviceSettings = new QmlComponentInfo(tr("YS Configure"),
-                                                   QUrl::fromUserInput("qrc:/qml/YSSettings.qml"),
-                                                   QUrl::fromUserInput("qrc:/res/cameraSetting.svg"));
-        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pDeviceSettings)));
 #if defined(QGC_GST_TAISYNC_ENABLED)
         _p->pTaisync = new QmlComponentInfo(tr("Taisync"),
                                             QUrl::fromUserInput("qrc:/qml/TaisyncSettings.qml"),

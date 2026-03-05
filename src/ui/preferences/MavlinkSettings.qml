@@ -41,9 +41,20 @@ Rectangle {
     property bool _disableDataPersistence:     _disableDataPersistenceFact ? _disableDataPersistenceFact.rawValue : false
     property string _signingStatusText:        ""
     property Fact _mavlink2SigningKey:         QGroundControl.settingsManager.appSettings.mavlink2SigningKey
-    property string _pendingSigningKey:        _mavlink2SigningKey ? _mavlink2SigningKey.rawValue : ""
+    property string _pendingSigningKey:        _mavlink2SigningKey ? _mavlink2SigningKey.rawValue.toString() : ""
+    property bool _mavlink2SigningEnabled:     _mavlink2SigningKey ? (_mavlink2SigningKey.rawValue !== "") : false
+    property bool _showSigningKey:             false
 
     QGCPalette { id: qgcPal }
+
+    Connections {
+        target: _mavlink2SigningKey
+        function onRawValueChanged(value) {
+            if (!signingKeyField.activeFocus) {
+                _pendingSigningKey = value ? value.toString() : ""
+            }
+        }
+    }
 
     Connections {
         target: QGroundControl.mavlinkLogManager
@@ -61,15 +72,6 @@ Rectangle {
                 }
             }
             _selectedCount = selected
-        }
-    }
-
-    Connections {
-        target: _mavlink2SigningKey
-        onRawValueChanged: {
-            if (!signingKeyField.activeFocus) {
-                _pendingSigningKey = _mavlink2SigningKey.rawValue
-            }
         }
     }
 
@@ -226,9 +228,7 @@ Rectangle {
                     spacing:    _columnSpacing
                     anchors.centerIn: parent
 
-                    QGCLabel {
-                        text: qsTr("Signing keys should only be sent to the vehicle over secure links.")
-                    }
+                    QGCLabel { text: _mavlink2SigningEnabled ? qsTr("Signing status: Enabled") : qsTr("Signing status: Disabled") }
 
                     Row {
                         spacing:    ScreenTools.defaultFontPixelWidth
@@ -242,27 +242,45 @@ Rectangle {
                             width:                  _valueWidth
                             text:                   _pendingSigningKey
                             inputMethodHints:       Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                            placeholderText:        qsTr("Enter signing passphrase")
+                            echoMode:               _showSigningKey ? TextInput.Normal : TextInput.Password
                             anchors.verticalCenter: parent.verticalCenter
                             onTextChanged:          _pendingSigningKey = text
                             onEditingFinished: {
-                                if (_mavlink2SigningKey.rawValue !== _pendingSigningKey) {
-                                    _mavlink2SigningKey.rawValue = _pendingSigningKey
+                                var passphrase = _pendingSigningKey.trim()
+                                if (passphrase !== "") {
+                                    _mavlink2SigningKey.rawValue = passphrase
+                                    _pendingSigningKey = passphrase
                                 }
                             }
                         }
                         QGCButton {
-                            text:       qsTr("Send to Vehicle")
-                            enabled:    signingKeyField.text.length > 0
+                            text:                   ""
+                            iconSource:             _showSigningKey ? "/InstrumentValueIcons/view-show.svg" : "/InstrumentValueIcons/view-hide.svg"
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked:              _showSigningKey = !_showSigningKey
+                        }
+                        QGCButton {
+                            text:       qsTr("Disable")
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled:    _mavlink2SigningEnabled
                             onClicked: {
-                                if (!_activeVehicle) {
-                                    _signingStatusText = qsTr("No active vehicle connected.")
-                                    return
+                                _pendingSigningKey = ""
+                                _mavlink2SigningKey.rawValue = ""
+                                _signingStatusText = qsTr("Signing disabled locally.")
+                            }
+                        }
+                        QGCButton {
+                            text:       qsTr("Save")
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled:    _pendingSigningKey.trim().length > 0
+                            onClicked: {
+                                var passphrase = _pendingSigningKey.trim()
+                                if (passphrase !== "") {
+                                    _mavlink2SigningKey.rawValue = passphrase
+                                    _pendingSigningKey = passphrase
                                 }
-                                if (_mavlink2SigningKey.rawValue !== _pendingSigningKey) {
-                                    _mavlink2SigningKey.rawValue = _pendingSigningKey
-                                }
-                                _activeVehicle.sendSetupSigning()
-                                _signingStatusText = qsTr("Signing key sent to vehicle.")
+                                _signingStatusText = qsTr("Signing key saved.")
                             }
                         }
                     }
