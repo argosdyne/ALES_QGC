@@ -27,6 +27,9 @@ public:
     Q_INVOKABLE bool setPin(const QString &pin);
     Q_INVOKABLE bool verifyPin(const QString &pin);
     Q_INVOKABLE bool hasStoredPin() const;
+    Q_INVOKABLE QString generateAndStoreRecoveryKey();
+    Q_INVOKABLE bool verifyRecoveryKey(const QString &recoveryKey);
+    Q_INVOKABLE bool hasStoredRecoveryKey() const;
 
     // Failed attempts and lockout
     Q_INVOKABLE void recordFailedAttempt();
@@ -34,6 +37,11 @@ public:
     Q_INVOKABLE int failedAttempts() const;
     Q_INVOKABLE qint64 lockoutUntil() const; // unix msecs
     Q_INVOKABLE bool isLocked() const;
+    Q_INVOKABLE void recordFailedAttemptForScope(const QString &scope);
+    Q_INVOKABLE void resetFailedAttemptsForScope(const QString &scope);
+    Q_INVOKABLE int failedAttemptsForScope(const QString &scope) const;
+    Q_INVOKABLE qint64 lockoutUntilForScope(const QString &scope) const; // unix msecs
+    Q_INVOKABLE bool isLockedForScope(const QString &scope) const;
 
     // KDF parameters accessors
     Q_INVOKABLE void setIterations(int it);
@@ -54,6 +62,9 @@ signals:
     void lockoutStarted(qint64 until);
     // Emitted when lockout is cleared/reset
     void lockoutCleared();
+    // Scope-aware signals for independent lockout flows (login/forgot_pin/system_restore)
+    void lockoutStartedForScope(const QString &scope, qint64 until);
+    void lockoutClearedForScope(const QString &scope);
 
 private:
     // internal helpers

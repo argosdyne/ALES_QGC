@@ -17,6 +17,7 @@ Page {
     signal unlockClicked()
     signal viewOnlyClicked()
     signal forgotPINClicked()
+    signal systemRestoreRequested()
 
     property int pinLength: 6
     property bool locked: false
@@ -24,6 +25,8 @@ Page {
 
     property string pinText: ""
     property bool   pinBoxFocused: false
+    property int    _logoTapCount: 0
+    readonly property string _lockoutScope: "login"
 
     background: Rectangle {
         color: "#222222"
@@ -40,9 +43,9 @@ Page {
 
         onTriggered: {
             // Poll the C++ backend (notified updates aren't available), update local locked state
-            locked = securityManager.isLocked()
+            locked = securityManager.isLockedForScope(loginPage._lockoutScope)
             if (locked) {
-                var until = securityManager.lockoutUntil()
+                var until = securityManager.lockoutUntilForScope(loginPage._lockoutScope)
                 var remaining = Math.max(0, Math.ceil((until - Date.now()) / 1000))
                 unlockError.text = "Locked. Try in " + remaining + "s"
                 unlockError.visible = true
@@ -74,15 +77,19 @@ Page {
     Connections {
         target: securityManager
 
-        function onLockoutStarted(until) {
-            locked = true
-            lockoutTimer.start()
+        function onLockoutStartedForScope(scope, until) {
+            if (scope === loginPage._lockoutScope) {
+                locked = true
+                lockoutTimer.start()
+            }
         }
 
-        function onLockoutCleared() {
-            locked = false
-            unlockError.visible = false
-            lockoutTimer.stop()
+        function onLockoutClearedForScope(scope) {
+            if (scope === loginPage._lockoutScope) {
+                locked = false
+                unlockError.visible = false
+                lockoutTimer.stop()
+            }
         }
     }
 
@@ -100,10 +107,22 @@ Page {
         width: parent.width
 
         Image {
+            id: loginLogo
             source: "qrc:/custom/img/lock_icon.svg"
             width: 92
             height: 92
             anchors.horizontalCenter: parent.horizontalCenter
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    loginPage._logoTapCount += 1
+                    if (loginPage._logoTapCount >= 5) {
+                        loginPage._logoTapCount = 0
+                        loginPage.systemRestoreRequested()
+                    }
+                }
+            }
         }
 
         // ===== TITLE =====
@@ -316,7 +335,7 @@ Page {
                 anchors.fill: parent
                 enabled: !locked
                 onClicked: {
-                    if (securityManager.isLocked()) {
+                    if (securityManager.isLockedForScope(loginPage._lockoutScope)) {
                         locked = true
                         lockoutTimer.start()
                         return
@@ -390,7 +409,7 @@ Page {
 
     Component.onCompleted: {
         // Don't auto-show keyboard, wait for user to click input field
-        if (securityManager.isLocked()) {
+        if (securityManager.isLockedForScope(loginPage._lockoutScope)) {
             lockoutTimer.start()
         }
     }

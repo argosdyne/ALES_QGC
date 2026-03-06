@@ -30,6 +30,9 @@ ApplicationWindow {
     property alias  viewOnlyMode: globals.viewOnlyMode
     property var _loginPageComponent:    null
     property var _registerPageComponent: null
+    property var _recoveryKeyPageComponent: null
+    property var _forgotPinPageComponent: null
+    property var _systemRestorePageComponent: null
 
     Component.onCompleted: {
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
@@ -40,6 +43,9 @@ ApplicationWindow {
         }
         _loginPageComponent    = Qt.createComponent("qrc:/login/LoginScreen.qml")
         _registerPageComponent = Qt.createComponent("qrc:/login/RegisterScreen.qml")
+        _recoveryKeyPageComponent = Qt.createComponent("qrc:/login/RecoveryKeyScreen.qml")
+        _forgotPinPageComponent = Qt.createComponent("qrc:/login/ForgotPinScreen.qml")
+        _systemRestorePageComponent = Qt.createComponent("qrc:/login/SystemRestoreScreen.qml")
         loadInitialLoginUI()
         loginOverlay.open()
     }
@@ -245,11 +251,48 @@ ApplicationWindow {
             setupLoginPageConnections(loginComp)
         } else {
             var regComp = loginStack.push(_registerPageComponent)
-            regComp.pinRegistered.connect(function() {
-                var loginComp2 = loginStack.replace(_loginPageComponent)
-                setupLoginPageConnections(loginComp2)
-            })
+            setupRegisterPageConnections(regComp)
         }
+    }
+
+    function setupRegisterPageConnections(registerComponent) {
+        registerComponent.pinRegistered.connect(function() {
+            showRecoveryKeyUI()
+        })
+    }
+
+    function showRecoveryKeyUI() {
+        var recoveryComp = loginStack.replace(_recoveryKeyPageComponent)
+        recoveryComp.continueToLoginClicked.connect(function() {
+            var loginComp = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginComp)
+        })
+    }
+
+    function showForgotPinUI() {
+        var forgotComp = loginStack.replace(_forgotPinPageComponent)
+        forgotComp.backClicked.connect(function() {
+            var loginCompBack = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginCompBack)
+        })
+        forgotComp.recoveryVerified.connect(function() {
+            securityManager.clearStored()
+            var regComp = loginStack.replace(_registerPageComponent)
+            setupRegisterPageConnections(regComp)
+        })
+    }
+
+    function showSystemRestoreUI() {
+        var restoreComp = loginStack.replace(_systemRestorePageComponent)
+        restoreComp.cancelClicked.connect(function() {
+            var loginCompBack = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginCompBack)
+        })
+        restoreComp.confirmRestoreClicked.connect(function() {
+            securityManager.clearStored()
+            var regComp = loginStack.replace(_registerPageComponent)
+            setupRegisterPageConnections(regComp)
+        })
     }
 
     function setupLoginPageConnections(loginComponent) {
@@ -264,12 +307,12 @@ ApplicationWindow {
         })
         if (loginComponent.forgotPINClicked !== undefined) {
             loginComponent.forgotPINClicked.connect(function() {
-                securityManager.clearStored()
-                var regComp = loginStack.replace(_registerPageComponent)
-                regComp.pinRegistered.connect(function() {
-                    var lc = loginStack.replace(_loginPageComponent)
-                    setupLoginPageConnections(lc)
-                })
+                showForgotPinUI()
+            })
+        }
+        if (loginComponent.systemRestoreRequested !== undefined) {
+            loginComponent.systemRestoreRequested.connect(function() {
+                showSystemRestoreUI()
             })
         }
     }

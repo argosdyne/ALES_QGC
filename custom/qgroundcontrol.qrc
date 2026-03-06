@@ -396,6 +396,9 @@
     <qresource prefix="/login">
         <file alias="RegisterScreen.qml">../src/Login/RegisterScreen.qml</file>
         <file alias="LoginScreen.qml">../src/Login/LoginScreen.qml</file>
+		<file alias="RecoveryKeyScreen.qml">../src/Login/RecoveryKeyScreen.qml</file>
+		<file alias="ForgotPinScreen.qml">../src/Login/ForgotPinScreen.qml</file>
+		<file alias="SystemRestoreScreen.qml">../src/Login/SystemRestoreScreen.qml</file>
     </qresource>
 	<qresource prefix="/MockLink">
 		<file alias="APMArduSubMockLink.params">../src/comm/APMArduSubMockLink.params</file>

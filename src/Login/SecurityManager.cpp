@@ -213,8 +213,10 @@ bool SecurityManager::setPin(const QString &pin)
     s.setValue("iterations", it);
     s.setValue("salt", salt.toBase64());
     s.setValue("derived", dk.toBase64());
-    s.setValue("failedAttempts", 0);
-    s.setValue("lockoutUntil", 0);
+    s.setValue("failedAttempts_login", 0);
+    s.setValue("lockoutUntil_login", 0);
+    s.remove("failedAttempts");
+    s.remove("lockoutUntil");
 #ifdef Q_OS_ANDROID
     s.setValue("useKeystore", true);  // Flag that Keystore HMAC was used
 #endif
@@ -225,8 +227,170 @@ bool SecurityManager::setPin(const QString &pin)
     OPENSSL_cleanse(password.data(), password.size());
     if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
     OPENSSL_cleanse(dk.data(), dk.size());
+    emit lockoutClearedForScope(QStringLiteral("login"));
     emit lockoutCleared();
     return true;
+}
+
+QString SecurityManager::generateAndStoreRecoveryKey()
+{
+    static const int RECOVERY_KEY_LENGTH = 24;
+    static const char kAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    QByteArray random = randomBytes(RECOVERY_KEY_LENGTH);
+    if (random.size() != RECOVERY_KEY_LENGTH) {
+        qWarning() << "[SecurityManager] Failed to generate random bytes for recovery key";
+        return QString();
+    }
+
+    QByteArray rawKey;
+    rawKey.resize(RECOVERY_KEY_LENGTH);
+    for (int i = 0; i < RECOVERY_KEY_LENGTH; ++i) {
+        const unsigned char v = static_cast<unsigned char>(random.at(i));
+        rawKey[i] = kAlphabet[v % 26];
+    }
+
+    QByteArray password = rawKey;
+
+    QByteArray peppered = password;
+#ifdef Q_OS_ANDROID
+    if (!m_keystoreInitialized && !initializeKeystore()) {
+        qWarning() << "[SecurityManager] Keystore initialization failed during recovery key generation";
+        OPENSSL_cleanse(password.data(), password.size());
+        OPENSSL_cleanse(rawKey.data(), rawKey.size());
+        return QString();
+    }
+
+    peppered = androidHmacPassword(password);
+    if (peppered.isEmpty()) {
+        qWarning() << "[SecurityManager] Keystore HMAC failed during recovery key generation";
+        OPENSSL_cleanse(password.data(), password.size());
+        OPENSSL_cleanse(rawKey.data(), rawKey.size());
+        return QString();
+    }
+#endif
+
+    QByteArray salt = randomBytes(SALT_LEN);
+    if (salt.isEmpty()) {
+        qWarning() << "[SecurityManager] Failed to generate recovery key salt";
+        OPENSSL_cleanse(password.data(), password.size());
+        OPENSSL_cleanse(rawKey.data(), rawKey.size());
+        if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
+        return QString();
+    }
+
+    const int it = DEFAULT_ITERATIONS;
+    QByteArray dk = deriveKey(peppered, salt, it, DK_LEN);
+    if (dk.isEmpty()) {
+        qWarning() << "[SecurityManager] Failed to derive recovery key";
+        OPENSSL_cleanse(password.data(), password.size());
+        OPENSSL_cleanse(rawKey.data(), rawKey.size());
+        if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
+        return QString();
+    }
+
+    QSettings s;
+    s.beginGroup("SecurityManager");
+    s.setValue("recoveryKdf", "PBKDF2-HMAC-SHA256");
+    s.setValue("recoveryIterations", it);
+    s.setValue("recoverySalt", salt.toBase64());
+    s.setValue("recoveryDerived", dk.toBase64());
+#ifdef Q_OS_ANDROID
+    s.setValue("recoveryUseKeystore", true);
+#endif
+    s.endGroup();
+    s.sync();
+
+    QString formatted;
+    formatted.reserve(RECOVERY_KEY_LENGTH + 15);
+    for (int i = 0; i < RECOVERY_KEY_LENGTH; ++i) {
+        formatted.append(QChar::fromLatin1(rawKey.at(i)));
+        if (((i + 1) % 4) == 0 && i != (RECOVERY_KEY_LENGTH - 1)) {
+            formatted.append(QStringLiteral(" - "));
+        }
+    }
+
+    OPENSSL_cleanse(password.data(), password.size());
+    OPENSSL_cleanse(rawKey.data(), rawKey.size());
+    if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
+    OPENSSL_cleanse(dk.data(), dk.size());
+
+    return formatted;
+}
+
+bool SecurityManager::verifyRecoveryKey(const QString &recoveryKey)
+{
+    QSettings s;
+    s.beginGroup("SecurityManager");
+    if (!s.contains("recoveryDerived") || !s.contains("recoverySalt") || !s.contains("recoveryIterations")) {
+        s.endGroup();
+        return false;
+    }
+
+    const QByteArray dkStored = QByteArray::fromBase64(s.value("recoveryDerived").toByteArray());
+    const QByteArray salt = QByteArray::fromBase64(s.value("recoverySalt").toByteArray());
+    const int it = s.value("recoveryIterations", DEFAULT_ITERATIONS).toInt();
+#ifdef Q_OS_ANDROID
+    const bool useKeystore = s.value("recoveryUseKeystore", false).toBool();
+#endif
+    s.endGroup();
+
+    QString normalized;
+    normalized.reserve(24);
+    const QString upper = recoveryKey.toUpper();
+    for (int i = 0; i < upper.length(); ++i) {
+        const QChar ch = upper.at(i);
+        if (ch >= QLatin1Char('A') && ch <= QLatin1Char('Z')) {
+            normalized.append(ch);
+        }
+    }
+
+    if (normalized.length() != 24) {
+        return false;
+    }
+
+    QByteArray password = normalized.toUtf8();
+    QByteArray peppered = password;
+
+#ifdef Q_OS_ANDROID
+    if (useKeystore) {
+        if (!m_keystoreInitialized && !initializeKeystore()) {
+            qWarning() << "[SecurityManager] Keystore initialization failed during verifyRecoveryKey";
+            OPENSSL_cleanse(password.data(), password.size());
+            return false;
+        }
+
+        peppered = androidHmacPassword(password);
+        if (peppered.isEmpty()) {
+            qWarning() << "[SecurityManager] Keystore HMAC failed during verifyRecoveryKey";
+            OPENSSL_cleanse(password.data(), password.size());
+            return false;
+        }
+    }
+#endif
+
+    QByteArray candidate = deriveKey(peppered, salt, it, dkStored.size());
+    if (candidate.isEmpty()) {
+        OPENSSL_cleanse(password.data(), password.size());
+        if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
+        return false;
+    }
+
+    const bool ok = constantTimeCompare(candidate, dkStored);
+    OPENSSL_cleanse(password.data(), password.size());
+    if (peppered != password) OPENSSL_cleanse(peppered.data(), peppered.size());
+    OPENSSL_cleanse(candidate.data(), candidate.size());
+
+    return ok;
+}
+
+bool SecurityManager::hasStoredRecoveryKey() const
+{
+    QSettings s;
+    s.beginGroup("SecurityManager");
+    const bool ok = s.contains("recoveryDerived");
+    s.endGroup();
+    return ok;
 }
 
 bool SecurityManager::hasStoredPin() const
@@ -305,13 +469,40 @@ bool SecurityManager::verifyPin(const QString &pin)
     return ok;
 }
 
+namespace {
+QString normalizedLockoutScope(const QString &scope)
+{
+    const QString trimmed = scope.trimmed().toLower();
+    return trimmed.isEmpty() ? QStringLiteral("login") : trimmed;
+}
+
+QString failedAttemptsKey(const QString &scope)
+{
+    return QStringLiteral("failedAttempts_%1").arg(scope);
+}
+
+QString lockoutUntilKey(const QString &scope)
+{
+    return QStringLiteral("lockoutUntil_%1").arg(scope);
+}
+}
+
 void SecurityManager::recordFailedAttempt()
 {
+    recordFailedAttemptForScope(QStringLiteral("login"));
+}
+
+void SecurityManager::recordFailedAttemptForScope(const QString &scope)
+{
+    const QString normalizedScope = normalizedLockoutScope(scope);
+
     QSettings s;
     s.beginGroup("SecurityManager");
-    int attempts = s.value("failedAttempts", 0).toInt();
+    const QString attemptsKey = failedAttemptsKey(normalizedScope);
+    const QString untilKey = lockoutUntilKey(normalizedScope);
+    int attempts = s.value(attemptsKey, 0).toInt();
     attempts += 1;
-    s.setValue("failedAttempts", attempts);
+    s.setValue(attemptsKey, attempts);
 
     // Exponential lockout: start lockout after 5 attempts, then increase exponentially
     if (attempts >= 5) {
@@ -322,14 +513,18 @@ void SecurityManager::recordFailedAttempt()
         long long lockoutDuration = BASE_LOCKOUT_MS * multiplier;
 
         qint64 until = QDateTime::currentMSecsSinceEpoch() + lockoutDuration;
-        s.setValue("lockoutUntil", until);
+        s.setValue(untilKey, until);
 
-        SecurityLog::logEvent(QStringLiteral("Lockout until %1 after %2 failed attempts")
+        SecurityLog::logEvent(QStringLiteral("Lockout [%1] until %2 after %3 failed attempts")
+                               .arg(normalizedScope)
                                .arg(QDateTime::fromMSecsSinceEpoch(until).toString(Qt::ISODate))
                                .arg(attempts));
 
         // Notify QML/UI immediately that a lockout period started
-        emit lockoutStarted(until);
+        emit lockoutStartedForScope(normalizedScope, until);
+        if (normalizedScope == QStringLiteral("login")) {
+            emit lockoutStarted(until);
+        }
     }
     s.endGroup();
     s.sync();
@@ -337,44 +532,75 @@ void SecurityManager::recordFailedAttempt()
 
 void SecurityManager::resetFailedAttempts()
 {
+    resetFailedAttemptsForScope(QStringLiteral("login"));
+}
+
+void SecurityManager::resetFailedAttemptsForScope(const QString &scope)
+{
+    const QString normalizedScope = normalizedLockoutScope(scope);
+
     QSettings s;
     s.beginGroup("SecurityManager");
-    const int previousAttempts = s.value("failedAttempts", 0).toInt();
-    const qint64 previousLockout = s.value("lockoutUntil", 0).toLongLong();
-    s.setValue("failedAttempts", 0);
-    s.setValue("lockoutUntil", 0);
+    const QString attemptsKey = failedAttemptsKey(normalizedScope);
+    const QString untilKey = lockoutUntilKey(normalizedScope);
+    const int previousAttempts = s.value(attemptsKey, 0).toInt();
+    const qint64 previousLockout = s.value(untilKey, 0).toLongLong();
+    s.setValue(attemptsKey, 0);
+    s.setValue(untilKey, 0);
     s.endGroup();
     s.sync();
 
     if (previousAttempts > 0 || previousLockout > 0) {
-        SecurityLog::logEvent(QStringLiteral("Failed attempts reset; lockout cleared"));
+        SecurityLog::logEvent(QStringLiteral("Failed attempts reset [%1]; lockout cleared").arg(normalizedScope));
     }
 
     // Notify UI that lockout has been cleared
-    emit lockoutCleared();
+    emit lockoutClearedForScope(normalizedScope);
+    if (normalizedScope == QStringLiteral("login")) {
+        emit lockoutCleared();
+    }
 }
 
 int SecurityManager::failedAttempts() const
 {
+    return failedAttemptsForScope(QStringLiteral("login"));
+}
+
+int SecurityManager::failedAttemptsForScope(const QString &scope) const
+{
+    const QString normalizedScope = normalizedLockoutScope(scope);
+
     QSettings s;
     s.beginGroup("SecurityManager");
-    int attempts = s.value("failedAttempts", 0).toInt();
+    const int attempts = s.value(failedAttemptsKey(normalizedScope), 0).toInt();
     s.endGroup();
     return attempts;
 }
 
 qint64 SecurityManager::lockoutUntil() const
 {
+    return lockoutUntilForScope(QStringLiteral("login"));
+}
+
+qint64 SecurityManager::lockoutUntilForScope(const QString &scope) const
+{
+    const QString normalizedScope = normalizedLockoutScope(scope);
+
     QSettings s;
     s.beginGroup("SecurityManager");
-    qint64 until = s.value("lockoutUntil", 0).toLongLong();
+    const qint64 until = s.value(lockoutUntilKey(normalizedScope), 0).toLongLong();
     s.endGroup();
     return until;
 }
 
 bool SecurityManager::isLocked() const
 {
-    qint64 until = lockoutUntil();
+    return isLockedForScope(QStringLiteral("login"));
+}
+
+bool SecurityManager::isLockedForScope(const QString &scope) const
+{
+    const qint64 until = lockoutUntilForScope(scope);
     if (until <= 0) return false;
     return QDateTime::currentMSecsSinceEpoch() < until;
 }
@@ -400,6 +626,8 @@ int SecurityManager::iterations() const
 
 void SecurityManager::clearStored()
 {
+    SecurityLog::logEvent(QStringLiteral("Security restore executed: cleared all stored security credentials"));
+
     QSettings s;
     s.beginGroup("SecurityManager");
     s.remove("");
