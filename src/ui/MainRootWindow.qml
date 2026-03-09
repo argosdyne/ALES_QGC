@@ -48,6 +48,8 @@ ApplicationWindow {
         property var currentDialog:     null
         property var rgPromptIds:       QGroundControl.corePlugin.firstRunPromptsToShow()
         property int nextPromptIdIndex: 0
+        property bool securePromptShown: false
+        property int securePromptRetryCount: 0
 
         function clearNextPromptSignal() {
             if (currentDialog) {
@@ -57,37 +59,78 @@ ApplicationWindow {
 
         function nextPrompt() {
             if (nextPromptIdIndex < rgPromptIds.length) {
-                var component = Qt.createComponent(QGroundControl.corePlugin.firstRunPromptResource(rgPromptIds[nextPromptIdIndex]));
+                var promptId = rgPromptIds[nextPromptIdIndex]
+                var component = Qt.createComponent(QGroundControl.corePlugin.firstRunPromptResource(promptId));
+                if (component.status !== Component.Ready) {
+                    console.warn("Failed to load first run prompt:", promptId, component.errorString())
+                    nextPromptIdIndex++
+                    nextPrompt()
+                    return
+                }
                 currentDialog = component.createObject(mainWindow)
+                if (!currentDialog) {
+                    console.warn("Failed to create first run prompt:", promptId)
+                    nextPromptIdIndex++
+                    nextPrompt()
+                    return
+                }
+                if (promptId === QGroundControl.corePlugin.secureConnectionFirstRunPromptId) {
+                    securePromptShown = true
+                }
                 currentDialog.closed.connect(nextPrompt)
                 currentDialog.open()
                 nextPromptIdIndex++
             } else {
                 currentDialog = null
-                secureSetupStartupTimer.start()
+                if (!_showSecureConnectionPromptFallback()) {
+                    showPreFlightChecklistIfNeeded()
+                }
             }
         }
     }
 
-    Timer {
-        id:             secureSetupStartupTimer
-        interval:       250
-        repeat:         true
-        running:        false
-        property int _attempts: 0
-        onTriggered: {
-            _attempts++
-            if (_showSecureSetupOnStartupIfNeeded()) {
-                _attempts = 0
-                stop()
-                return
-            }
+    function _showSecureConnectionPromptFallback() {
+        if (firstRunPromptManager.securePromptShown) {
+            console.log("Secure prompt already shown in first-run chain")
+            return false
+        }
 
-            var customSettings = QGroundControl.corePlugin.settings
-            var settingsReady = customSettings && customSettings.securityWizardCompleted
-            if (settingsReady || _attempts >= 20) {
-                _attempts = 0
-                stop()
+        var component = Qt.createComponent("qrc:/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml")
+        if (component.status !== Component.Ready) {
+            console.warn("Failed to load SecureConnectionFirstRunPrompt.qml:", component.errorString())
+            if (firstRunPromptManager.securePromptRetryCount < 15) {
+                firstRunPromptManager.securePromptRetryCount++
+                securePromptRetryTimer.start()
+                return true
+            }
+            return false
+        }
+
+        var dialog = component.createObject(mainWindow)
+        if (!dialog) {
+            console.warn("Failed to create SecureConnectionFirstRunPrompt.qml dialog object")
+            if (firstRunPromptManager.securePromptRetryCount < 15) {
+                firstRunPromptManager.securePromptRetryCount++
+                securePromptRetryTimer.start()
+                return true
+            }
+            return false
+        }
+
+        firstRunPromptManager.securePromptRetryCount = 0
+        dialog.closed.connect(function() {
+            showPreFlightChecklistIfNeeded()
+        })
+        dialog.open()
+        return true
+    }
+
+    Timer {
+        id: securePromptRetryTimer
+        interval: 250
+        repeat: false
+        onTriggered: {
+            if (!_showSecureConnectionPromptFallback()) {
                 showPreFlightChecklistIfNeeded()
             }
         }
@@ -114,7 +157,6 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
-        property string             settingsStartPageUrl:           ""
     }
 
     /// Default color palette used throughout the UI
@@ -198,16 +240,6 @@ ApplicationWindow {
 
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
-    }
-
-    function _showSecureSetupOnStartupIfNeeded() {
-        var customSettings = QGroundControl.corePlugin.settings
-        if (customSettings && customSettings.securityWizardCompleted && !customSettings.securityWizardCompleted.rawValue) {
-            globals.settingsStartPageUrl = "qrc:/custom/SecureConnectionsWizardSettings.qml"
-            showSettingsTool()
-            return true
-        }
-        return false
     }
 
     //-------------------------------------------------------------------------

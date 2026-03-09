@@ -65,6 +65,7 @@ public:
     Q_PROPERTY(CodevSettings* codevSettings READ codevSettings CONSTANT)
     Q_PROPERTY(CodevRTCMManager* codevRTCMManager READ codevRTCMManager CONSTANT)
     Q_PROPERTY(SiYiManager* siyiManager READ siyiManager CONSTANT)
+    Q_PROPERTY(int secureConnectionFirstRunPromptId MEMBER secureConnectionFirstRunPromptId CONSTANT)
 
 
     bool coachMode() { return _coachMode; }
@@ -90,6 +91,8 @@ public:
     bool                    adjustSettingMetaData           (const QString& settingsGroup, FactMetaData& metaData) final;
     void                    paletteOverride                 (QString colorName, QGCPalette::PaletteColorInfo_t& colorInfo) final;
     QQmlApplicationEngine*  createQmlApplicationEngine      (QObject* parent) final;
+    QList<int>              firstRunPromptCustomIds         (void) final;
+    QString                 firstRunPromptResource          (int id) final;
 
 
     Q_PROPERTY(CustomSettings* settings READ settings CONSTANT)
@@ -101,6 +104,8 @@ public:
 
     // Overrides from QGCTool
     void                    setToolbox                      (QGCToolbox* toolbox);
+
+    static const int secureConnectionFirstRunPromptId = firstRunPromptIdsFirstCustomId;
 
     Q_PROPERTY(M2Manager*           m2Manager               READ m2Manager              NOTIFY m2ManagerChanged)
     M2Manager*              m2Manager           ()  { return _m2Manager; }

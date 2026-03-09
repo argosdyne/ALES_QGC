@@ -165,7 +165,6 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("Security Events"), "qrc:/custom/SecurityValidationEventsSettings.qml");
         _addSettingsEntry(tr("Network Services"), "qrc:/custom/NetworkServicesPortsSettings.qml");
         _addSettingsEntry(tr("Connections"), "qrc:/custom/ConnectionsOverrideSettings.qml");
-        _addSettingsEntry(tr("Secure Setup"), "qrc:/custom/SecureConnectionsWizardSettings.qml");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
 
@@ -209,6 +208,26 @@ bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
         return false;
     }
     return true;
+}
+
+QList<int> CustomPlugin::firstRunPromptCustomIds(void)
+{
+    QSettings settings;
+    const bool wizardDone = settings.value(QStringLiteral("CustomSettings/securityWizardCompleted"), false).toBool();
+    if (!wizardDone) {
+        return QList<int>({ secureConnectionFirstRunPromptId });
+    }
+
+    return QList<int>();
+}
+
+QString CustomPlugin::firstRunPromptResource(int id)
+{
+    if (id == secureConnectionFirstRunPromptId) {
+        return "/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml";
+    }
+
+    return QGCCorePlugin::firstRunPromptResource(id);
 }
 
 // This allows you to override/hide QGC Application settings

@@ -34,8 +34,7 @@ Rectangle {
         { title: qsTr("External Sensing"), url: "qrc:/custom/ExternalSensingPrivacySettings.qml" },
         { title: qsTr("Security Events"),  url: "qrc:/custom/SecurityValidationEventsSettings.qml" },
         { title: qsTr("Network Services"), url: "qrc:/custom/NetworkServicesPortsSettings.qml" },
-        { title: qsTr("Connections"),      url: "qrc:/custom/ConnectionsOverrideSettings.qml" },
-        { title: qsTr("Secure Setup"),     url: "qrc:/custom/SecureConnectionsWizardSettings.qml" }
+        { title: qsTr("Connections"),      url: "qrc:/custom/ConnectionsOverrideSettings.qml" }
     ]
 
     QGCPalette { id: qgcPal }
@@ -58,10 +57,6 @@ Rectangle {
         if (globals.commingFromRIDIndicator) {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
-        } else if (globals.settingsStartPageUrl !== "") {
-            __rightPanel.source = globals.settingsStartPageUrl
-            _privacyExpanded = _isPrivacyChild(globals.settingsStartPageUrl)
-            globals.settingsStartPageUrl = ""
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
         }

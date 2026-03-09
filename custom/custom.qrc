@@ -116,7 +116,9 @@
         <file alias="SecurityValidationEventsSettings.qml">src/SecurityValidationEventsSettings.qml</file>
         <file alias="NetworkServicesPortsSettings.qml">src/NetworkServicesPortsSettings.qml</file>
         <file alias="ConnectionsOverrideSettings.qml">src/ConnectionsOverrideSettings.qml</file>
-        <file alias="SecureConnectionsWizardSettings.qml">src/SecureConnectionsWizardSettings.qml</file>
+    </qresource>
+    <qresource prefix="/FirstRunPromptDialogs">
+        <file alias="SecureConnectionFirstRunPrompt.qml">../src/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml</file>
     </qresource>
     <qresource prefix="/json">
         <file alias="Custom.SettingsGroup.json">src/Custom.SettingsGroup.json</file>

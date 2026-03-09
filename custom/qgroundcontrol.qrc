@@ -330,6 +330,7 @@
 	<qresource prefix="/FirstRunPromptDialogs">
 		<file alias="UnitsFirstRunPrompt.qml">../src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
 		<file alias="OfflineVehicleFirstRunPrompt.qml">../src/FirstRunPromptDialogs/OfflineVehicleFirstRunPrompt.qml</file>
+		<file alias="SecureConnectionFirstRunPrompt.qml">../src/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml</file>
 	</qresource>
 	<qresource prefix="/json">
 		<file alias="ADSBVehicleManager.SettingsGroup.json">../src/Settings/ADSBVehicleManager.SettingsGroup.json</file>
