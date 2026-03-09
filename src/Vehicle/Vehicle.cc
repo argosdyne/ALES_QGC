@@ -1946,6 +1946,18 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
 
+    // Ensure RC_CHANNELS is finalized on the actual outgoing link channel so
+    // MAVLink2 signing state for that channel is applied consistently.
+    if (message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t channels{};
+        mavlink_msg_rc_channels_decode(&message, &channels);
+        mavlink_msg_rc_channels_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
+                                            static_cast<uint8_t>(_mavlink->getComponentId()),
+                                            link->mavlinkChannel(),
+                                            &message,
+                                            &channels);
+    }
+
     if (message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST ||
         message.msgid == MAVLINK_MSG_ID_MISSION_COUNT ||
         message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST ||
