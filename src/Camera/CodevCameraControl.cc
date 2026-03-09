@@ -17,6 +17,7 @@
 #include "QGCCorePlugin.h"
 #include "VideoManager.h"
 #include "SettingsManager.h"
+#include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
 static const char *kIR_TEMP_RECT = "IR_TEMP_RECT";
@@ -60,6 +61,12 @@ static QStringList detected_labels_database = {
     "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
     "hair drier", "toothbrush"
 };
+
+static QString _translateCameraSettingText(const QString& sourceText)
+{
+    const QByteArray sourceUtf8 = sourceText.toUtf8();
+    return QCoreApplication::translate("CodevCameraControl", sourceUtf8.constData());
+}
 
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
     : QGCCameraControl(info, vehicle, compID, link, parent)
@@ -763,6 +770,32 @@ void CodevCameraControl::_parametersReady()
     if(fact) {
         factChanged(fact);
         connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged);
+    }
+
+    for (const QString& factName : activeSettings()) {
+        _localizeFactMetaData(getFact(factName));
+    }
+}
+
+void CodevCameraControl::_localizeFactMetaData(Fact* fact)
+{
+    if (!fact) {
+        return;
+    }
+
+    FactMetaData* meta = fact->metaData();
+    if (!meta) {
+        return;
+    }
+
+    const QString shortDescription = meta->shortDescription();
+    if (!shortDescription.isEmpty()) {
+        meta->setShortDescription(_translateCameraSettingText(shortDescription));
+    }
+
+    const QString longDescription = meta->longDescription();
+    if (!longDescription.isEmpty()) {
+        meta->setLongDescription(_translateCameraSettingText(longDescription));
     }
 }
 

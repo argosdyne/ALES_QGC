@@ -433,7 +433,12 @@ VisualMissionItem* MissionController::insertComplexMissionItem(QString itemName,
     qInfo() << "InsertComplectMissionItem = " <<itemName ;
     ComplexMissionItem* newItem = nullptr;
 
-    if (itemName == SurveyComplexItem::name) {
+    const bool isSurveyName        = (itemName == SurveyComplexItem::name) || (itemName == SurveyComplexItem::tr("Survey"));
+    const bool isStructureName     = (itemName == StructureScanComplexItem::name) || (itemName == StructureScanComplexItem::tr("Structure Scan"));
+    const bool isCorridorName      = (itemName == CorridorScanComplexItem::name) || (itemName == CorridorScanComplexItem::tr("Corridor Scan"));
+    const bool isInitPathName      = (itemName == YellowScanInitPathComplexItem::name) || (itemName == YellowScanInitPathComplexItem::tr("Init Path"));
+
+    if (isSurveyName) {
         newItem = new SurveyComplexItem(_masterController, _flyView, QString() /* kmlFile */);
         newItem->setCoordinate(mapCenterCoordinate);
 
@@ -449,11 +454,11 @@ VisualMissionItem* MissionController::insertComplexMissionItem(QString itemName,
         newItem = new FixedWingLandingComplexItem(_masterController, _flyView);
     } else if (itemName == VTOLLandingComplexItem::name) {
         newItem = new VTOLLandingComplexItem(_masterController, _flyView);
-    } else if (itemName == StructureScanComplexItem::name) {
+    } else if (isStructureName) {
         newItem = new StructureScanComplexItem(_masterController, _flyView, QString() /* kmlFile */);
-    } else if (itemName == CorridorScanComplexItem::name) {
+    } else if (isCorridorName) {
         newItem = new CorridorScanComplexItem(_masterController, _flyView, QString() /* kmlFile */);
-    } else if (itemName == YellowScanInitPathComplexItem::name) {
+    } else if (isInitPathName) {
         newItem = new YellowScanInitPathComplexItem(_masterController, _flyView, QString() /* kmlFile */);
     } else {
         qWarning() << "Internal error: Unknown complex item:" << itemName;
@@ -469,11 +474,15 @@ VisualMissionItem* MissionController::insertComplexMissionItemFromKMLOrSHP(QStri
 {
     ComplexMissionItem* newItem = nullptr;
 
-    if (itemName == SurveyComplexItem::name) {
+    const bool isSurveyName    = (itemName == SurveyComplexItem::name) || (itemName == SurveyComplexItem::tr("Survey"));
+    const bool isStructureName = (itemName == StructureScanComplexItem::name) || (itemName == StructureScanComplexItem::tr("Structure Scan"));
+    const bool isCorridorName  = (itemName == CorridorScanComplexItem::name) || (itemName == CorridorScanComplexItem::tr("Corridor Scan"));
+
+    if (isSurveyName) {
         newItem = new SurveyComplexItem(_masterController, _flyView, file);
-    } else if (itemName == StructureScanComplexItem::name) {
+    } else if (isStructureName) {
         newItem = new StructureScanComplexItem(_masterController, _flyView, file);
-    } else if (itemName == CorridorScanComplexItem::name) {
+    } else if (isCorridorName) {
         newItem = new CorridorScanComplexItem(_masterController, _flyView, file);
     } else {
         qWarning() << "Internal error: Unknown complex item:" << itemName;
@@ -2261,10 +2270,10 @@ QStringList MissionController::complexMissionItemNames(void) const
 {
     QStringList complexItems;
 
-    complexItems.append(SurveyComplexItem::name);
-    complexItems.append(CorridorScanComplexItem::name);
+    complexItems.append(SurveyComplexItem::tr("Survey"));
+    complexItems.append(CorridorScanComplexItem::tr("Corridor Scan"));
     if (_controllerVehicle->multiRotor() || _controllerVehicle->vtol()) {
-        complexItems.append(StructureScanComplexItem::name);
+        complexItems.append(StructureScanComplexItem::tr("Structure Scan"));
     }
 
     // Note: The landing pattern items are not added here since they have there own button which adds them

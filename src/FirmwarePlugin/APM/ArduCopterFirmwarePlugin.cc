@@ -15,6 +15,7 @@
 #include "QGCApplication.h"
 #include "MissionManager.h"
 #include "ParameterManager.h"
+#include <QCoreApplication>
 
 bool ArduCopterFirmwarePlugin::_remapParamNameIntialized = false;
 FirmwarePlugin::remapParamNameMajorVersionMap_t ArduCopterFirmwarePlugin::_remapParamName;
@@ -23,33 +24,33 @@ APMCopterMode::APMCopterMode(uint32_t mode, bool settable) :
     APMCustomMode(mode, settable)
 {
     setEnumToStringMapping({
-        { STABILIZE,    "Stabilize"},
-        { ACRO,         "Acro"},
-        { ALT_HOLD,     "Altitude Hold"},
-        { AUTO,         "Auto"},
-        { GUIDED,       "Guided"},
-        { LOITER,       "Loiter"},
-        { RTL,          "RTL"},
-        { CIRCLE,       "Circle"},
-        { LAND,         "Land"},
-        { DRIFT,        "Drift"},
-        { SPORT,        "Sport"},
-        { FLIP,         "Flip"},
-        { AUTOTUNE,     "Autotune"},
-        { POS_HOLD,     "Position Hold"},
-        { BRAKE,        "Brake"},
-        { THROW,        "Throw"},
-        { AVOID_ADSB,   "Avoid ADSB"},
-        { GUIDED_NOGPS, "Guided No GPS"},
-        { SMART_RTL,    "Smart RTL"},
-        { FLOWHOLD,     "Flow Hold" },
-        { FOLLOW,       "Follow" },
-        { ZIGZAG,       "ZigZag" },
-        { SYSTEMID,     "SystemID" },
-        { AUTOROTATE,   "AutoRotate" },
-        { AUTO_RTL,     "AutoRTL" },
-        { TURTLE,       "Turtle" },
-        { SLOW,         "Slow"},
+        { STABILIZE,    QCoreApplication::translate("APMCopterMode", "Stabilize")},
+        { ACRO,         QCoreApplication::translate("APMCopterMode", "Acro")},
+        { ALT_HOLD,     QCoreApplication::translate("APMCopterMode", "Altitude Hold")},
+        { AUTO,         QCoreApplication::translate("APMCopterMode", "Auto")},
+        { GUIDED,       QCoreApplication::translate("APMCopterMode", "Guided")},
+        { LOITER,       QCoreApplication::translate("APMCopterMode", "Loiter")},
+        { RTL,          QCoreApplication::translate("APMCopterMode", "RTL")},
+        { CIRCLE,       QCoreApplication::translate("APMCopterMode", "Circle")},
+        { LAND,         QCoreApplication::translate("APMCopterMode", "Land")},
+        { DRIFT,        QCoreApplication::translate("APMCopterMode", "Drift")},
+        { SPORT,        QCoreApplication::translate("APMCopterMode", "Sport")},
+        { FLIP,         QCoreApplication::translate("APMCopterMode", "Flip")},
+        { AUTOTUNE,     QCoreApplication::translate("APMCopterMode", "Autotune")},
+        { POS_HOLD,     QCoreApplication::translate("APMCopterMode", "Position Hold")},
+        { BRAKE,        QCoreApplication::translate("APMCopterMode", "Brake")},
+        { THROW,        QCoreApplication::translate("APMCopterMode", "Throw")},
+        { AVOID_ADSB,   QCoreApplication::translate("APMCopterMode", "Avoid ADSB")},
+        { GUIDED_NOGPS, QCoreApplication::translate("APMCopterMode", "Guided No GPS")},
+        { SMART_RTL,    QCoreApplication::translate("APMCopterMode", "Smart RTL")},
+        { FLOWHOLD,     QCoreApplication::translate("APMCopterMode", "Flow Hold") },
+        { FOLLOW,       QCoreApplication::translate("APMCopterMode", "Follow") },
+        { ZIGZAG,       QCoreApplication::translate("APMCopterMode", "ZigZag") },
+        { SYSTEMID,     QCoreApplication::translate("APMCopterMode", "SystemID") },
+        { AUTOROTATE,   QCoreApplication::translate("APMCopterMode", "AutoRotate") },
+        { AUTO_RTL,     QCoreApplication::translate("APMCopterMode", "AutoRTL")},
+        { TURTLE,       QCoreApplication::translate("APMCopterMode", "Turtle")},
+        { SLOW,         QCoreApplication::translate("APMCopterMode", "Slow")},
     });
 }
 
