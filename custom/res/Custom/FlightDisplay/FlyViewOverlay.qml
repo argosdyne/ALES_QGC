@@ -311,7 +311,7 @@ Item {
         Rectangle {
             id:                 geoAwarenessMessageArea
             width:              object.geoAwarenessWidth
-            height:             object.geoAwarenessHeight
+            height:             Math.max(object.geoAwarenessHeight, geoAwarenessMessageAreaMessageText.contentHeight)
             focus:              true
             visible:            true
             color:              "white"//qgcPal.windowShade

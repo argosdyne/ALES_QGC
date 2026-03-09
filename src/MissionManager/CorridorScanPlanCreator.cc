@@ -13,7 +13,7 @@
 #include "CorridorScanComplexItem.h"
 
 CorridorScanPlanCreator::CorridorScanPlanCreator(PlanMasterController* planMasterController, QObject* parent)
-    : PlanCreator(planMasterController, CorridorScanComplexItem::name, QStringLiteral("/qmlimages/PlanCreator/CorridorScanPlanCreator.png"), parent)
+    : PlanCreator(planMasterController, CorridorScanComplexItem::tr("Corridor Scan"), QStringLiteral("/qmlimages/PlanCreator/CorridorScanPlanCreator.png"), parent)
 {
 
 }

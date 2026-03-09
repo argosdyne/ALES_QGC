@@ -12967,7 +12967,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="364"/>
       <source>Photo Mode</source>
-      <translation>사진 모드:</translation>
+      <translation>촬영 모드</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="370"/>
@@ -12977,7 +12977,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="376"/>
       <source>Video Grid Lines</source>
-      <translation>Video Grid Lines</translation>
+      <translation>비디오 격자선</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="382"/>
@@ -12992,7 +12992,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="394"/>
       <source>Storage</source>
-      <translation>저장공간</translation>
+      <translation>저장소</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="421"/>
@@ -13027,7 +13027,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="533"/>
       <source>Reset</source>
-      <translation>재시작</translation>
+      <translation>초기화</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="538"/>
@@ -13042,12 +13042,12 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="551"/>
       <source>Format</source>
-      <translation>형식</translation>
+      <translation>포맷</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="556"/>
       <source>Format Camera Storage</source>
-      <translation>카메라 메모리 형식</translation>
+      <translation>카메라 저장소 포맷</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="557"/>
@@ -22039,6 +22039,122 @@ Confirm change?</source>
       <translation>카메라 EV</translation>
     </message>
     <message>
+      <source>Camera AE</source>
+      <translation>카메라 AE</translation>
+    </message>
+    <message>
+      <source>Camera ISO</source>
+      <translation>카메라 ISO</translation>
+    </message>
+    <message>
+      <source>Camera Shutter</source>
+      <translation>카메라 셔터</translation>
+    </message>
+    <message>
+      <source>Camera Aperture</source>
+      <translation>카메라 조리개</translation>
+    </message>
+    <message>
+      <source>Camera Focus Mode</source>
+      <translation>카메라 초점 모드</translation>
+    </message>
+    <message>
+      <source>AF Area</source>
+      <translation>AF 영역</translation>
+    </message>
+    <message>
+      <source>Image Type</source>
+      <translation>이미지 형식</translation>
+    </message>
+    <message>
+      <source>Creative Look</source>
+      <translation>크리에이티브 룩</translation>
+    </message>
+    <message>
+      <source>Creative Contrast</source>
+      <translation>크리에이티브 대비</translation>
+    </message>
+    <message>
+      <source>Creative Highlights</source>
+      <translation>크리에이티브 하이라이트</translation>
+    </message>
+    <message>
+      <source>Creative Shadows</source>
+      <translation>크리에이티브 섀도</translation>
+    </message>
+    <message>
+      <source>Creative Fade</source>
+      <translation>크리에이티브 페이드</translation>
+    </message>
+    <message>
+      <source>Creative Saturation</source>
+      <translation>크리에이티브 채도</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness</source>
+      <translation>크리에이티브 선명도</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness Range</source>
+      <translation>크리에이티브 선명도 범위</translation>
+    </message>
+    <message>
+      <source>Creative Clarity</source>
+      <translation>크리에이티브 명료도</translation>
+    </message>
+    <message>
+      <source>Auto</source>
+      <translation>자동</translation>
+    </message>
+    <message>
+      <source>Continuous AF</source>
+      <translation>연속 AF</translation>
+    </message>
+    <message>
+      <source>Wide</source>
+      <translation>와이드</translation>
+    </message>
+    <message>
+      <source>Movie File Format</source>
+      <translation>동영상 파일 형식</translation>
+    </message>
+    <message>
+      <source>Movie Recording Frame Rate</source>
+      <translation>동영상 녹화 프레임 레이트</translation>
+    </message>
+    <message>
+      <source>Movie Recording Setting</source>
+      <translation>동영상 녹화 설정</translation>
+    </message>
+    <message>
+      <source>Movie Auto</source>
+      <translation>동영상 자동</translation>
+    </message>
+    <message>
+      <source>Movie M</source>
+      <translation>동영상 M</translation>
+    </message>
+    <message>
+      <source>Movie P</source>
+      <translation>동영상 P</translation>
+    </message>
+    <message>
+      <source>Movie A</source>
+      <translation>동영상 A</translation>
+    </message>
+    <message>
+      <source>Movie S</source>
+      <translation>동영상 S</translation>
+    </message>
+    <message>
+      <source>Single</source>
+      <translation>단일</translation>
+    </message>
+    <message>
+      <source>Time Lapse</source>
+      <translation>타임랩스</translation>
+    </message>
+    <message>
       <source>Camera WhiteBalance</source>
       <translation>카메라 화이트 밸런스</translation>
     </message>
@@ -22149,6 +22265,21 @@ Confirm change?</source>
     <message>
       <source>IR</source>
       <translation>IR</translation>
+    </message>
+  </context>
+  <context>
+    <name>UASWarning</name>
+    <message>
+      <source>PreArm: Radio failsafe on</source>
+      <translation>시동 전 점검: 무선 페일세이프가 활성화되어 있습니다</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix</source>
+      <translation>시동 전 점검: 3D GPS 고정 대기 중</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF altitude is bad</source>
+      <translation>시동 전 점검: EKF 고도 추정 상태가 비정상입니다</translation>
     </message>
   </context>
 </TS>
