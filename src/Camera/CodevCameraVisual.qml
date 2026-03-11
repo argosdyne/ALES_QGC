@@ -77,20 +77,6 @@ Item {
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
         console.log("aiInThermal = ", aiInThermal)
-        console.log("camera vendor/model =",
-                    _camera ? (_camera.vendor || "<null>") : "<no camera>",
-                    "/",
-                    _camera ? (_camera.modelName || "<null>") : "<no camera>")
-    }
-
-    Connections {
-        target: _camera
-        function onInfoChanged() {
-            console.log("camera info changed, vendor/model =",
-                        _camera ? (_camera.vendor || "<null>") : "<no camera>",
-                        "/",
-                        _camera ? (_camera.modelName || "<null>") : "<no camera>")
-        }
     }
 
     Connections {

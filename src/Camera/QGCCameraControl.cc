@@ -167,10 +167,6 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
     connect(this, &QGCCameraControl::dataReady, this, &QGCCameraControl::_dataReady);
     _vendor = QString(reinterpret_cast<const char*>(info->vendor_name));
     _modelName = QString(reinterpret_cast<const char*>(info->model_name));
-    qWarning().noquote() << QStringLiteral("QGCCameraControl camera info: compId=%1 vendor=\"%2\" model=\"%3\"")
-                            .arg(_compID)
-                            .arg(_vendor)
-                            .arg(_modelName);
     int ver = static_cast<int>(_info.cam_definition_version);
     _cacheFile = QString::asprintf("%s/%s_%s_%03d.xml",
         qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
