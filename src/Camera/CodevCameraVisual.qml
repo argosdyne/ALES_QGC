@@ -34,6 +34,18 @@ Item {
     property bool spotFocusEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
+    property string _cameraModelUpper: _camera ? ((_camera.modelName || "").toUpperCase()) : ""
+    property string _cameraVendorUpper: _camera ? ((_camera.vendor || "").toUpperCase()) : ""
+    property bool _isSonyIR1: _camera && (
+                                   _cameraVendorUpper.indexOf("SONY") !== -1 ||
+                                   _cameraModelUpper.indexOf("SONY") !== -1 ||
+                                   _cameraModelUpper.indexOf("IR1") !== -1 ||
+                                   _cameraModelUpper.indexOf("IR-1") !== -1 ||
+                                   _cameraModelUpper.indexOf("IR_1") !== -1 ||
+                                   _cameraModelUpper.indexOf("IR 1") !== -1 ||
+                                   _cameraModelUpper.indexOf("LR1") !== -1
+                               )
+    property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
 
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
@@ -65,6 +77,20 @@ Item {
     Component.onCompleted: {
         console.log("CodevCameraVisual load")
         console.log("aiInThermal = ", aiInThermal)
+        console.log("camera vendor/model =",
+                    _camera ? (_camera.vendor || "<null>") : "<no camera>",
+                    "/",
+                    _camera ? (_camera.modelName || "<null>") : "<no camera>")
+    }
+
+    Connections {
+        target: _camera
+        function onInfoChanged() {
+            console.log("camera info changed, vendor/model =",
+                        _camera ? (_camera.vendor || "<null>") : "<no camera>",
+                        "/",
+                        _camera ? (_camera.modelName || "<null>") : "<no camera>")
+        }
     }
 
     Connections {
@@ -490,7 +516,7 @@ Item {
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _tofEN ? _tofEN.value : false
-            visible: _tofEN
+            visible: _hasLaserRangefinder
             source: "qrc:/qmlimages/rangefinder.svg"
             onClicked: {
                 _tofEN.value = !_tofEN.value
@@ -579,20 +605,20 @@ Item {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: 1
             spacing: ScreenTools.defaultFontPixelWidth * 0.5
-            visible: (_tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _camera.trackingEnabled
+            visible: (_hasLaserRangefinder && _tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _camera.trackingEnabled
             QGCLabel {
                 text: qsTr("RF:")
-                visible: (_tofEN && _tofEN.value)
+                visible: (_hasLaserRangefinder && _tofEN && _tofEN.value)
             }
             QGCLabel {
                 text: _camera.targetDistance.toFixed(1) + " m"
                 horizontalAlignment: Text.AlignRight
                 width: ScreenTools.defaultFontPixelWidth * 6
-                visible: (_tofEN && _tofEN.value)
+                visible: (_hasLaserRangefinder && _tofEN && _tofEN.value)
             }
             QGCLabel {
                 text: visible ? _camera.targetCoordinate.latitude.toFixed(7) + "," + _camera.targetCoordinate.longitude.toFixed(7) + "," + _camera.targetCoordinate.altitude.toFixed(1) : ""
-                visible: _camera.targetCoordinate && _camera.targetCoordinate.isValid && (_tofEN && _tofEN.value)
+                visible: _camera.targetCoordinate && _camera.targetCoordinate.isValid && (_hasLaserRangefinder && _tofEN && _tofEN.value)
             }
             QGCLabel {
                 text: qsTr("TrackScore:")

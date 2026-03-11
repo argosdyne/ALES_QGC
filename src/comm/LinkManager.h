@@ -145,9 +145,11 @@ signals:
     void mavlinkSupportForwardingEnabledChanged();
 
 private slots:
+    void _linkConnected     (void);
     void _linkDisconnected  (void);
 
 private:
+    void                _sendInitialMavlinkHeartbeat(const SharedLinkInterfacePtr& link);
     QmlObjectListModel* _qmlLinkConfigurations      (void) { return &_qmlConfigurations; }
     bool                _connectionsSuspendedMsg    (void);
     void                _updateAutoConnectLinks     (void);

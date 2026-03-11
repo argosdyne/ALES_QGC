@@ -370,7 +370,19 @@ QGCCameraManager::_handleVideoStreamInfo(const mavlink_message_t& message)
     if(pCamera) {
         mavlink_video_stream_information_t streamInfo;
         mavlink_msg_video_stream_information_decode(&message, &streamInfo);
+        qCWarning(CameraManagerLog).noquote()
+            << QStringLiteral("VIDEO_STREAM_INFORMATION rx: compid=%1 stream_id=%2 count=%3 type=%4 flags=0x%5 uri=\"%6\"")
+                  .arg(message.compid)
+                  .arg(streamInfo.stream_id)
+                  .arg(streamInfo.count)
+                  .arg(streamInfo.type)
+                  .arg(QString::number(streamInfo.flags, 16))
+                  .arg(QString(streamInfo.uri));
         pCamera->handleVideoInfo(&streamInfo);
+    } else {
+        qCWarning(CameraManagerLog)
+            << "VIDEO_STREAM_INFORMATION rx but no matched camera for compid"
+            << message.compid;
     }
 }
 

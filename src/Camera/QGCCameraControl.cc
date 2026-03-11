@@ -167,6 +167,10 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
     connect(this, &QGCCameraControl::dataReady, this, &QGCCameraControl::_dataReady);
     _vendor = QString(reinterpret_cast<const char*>(info->vendor_name));
     _modelName = QString(reinterpret_cast<const char*>(info->model_name));
+    qWarning().noquote() << QStringLiteral("QGCCameraControl camera info: compId=%1 vendor=\"%2\" model=\"%3\"")
+                            .arg(_compID)
+                            .arg(_vendor)
+                            .arg(_modelName);
     int ver = static_cast<int>(_info.cam_definition_version);
     _cacheFile = QString::asprintf("%s/%s_%s_%03d.xml",
         qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
@@ -578,18 +582,16 @@ QGCCameraControl::setThermalOpacity(double val)
 void
 QGCCameraControl::setZoomLevel(qreal level)
 {
-    qCDebug(CameraControlLog) << "setZoomLevel()" << level;
-    if(hasZoom()) {
-        //-- Limit
-        level = std::min(std::max(level, 0.0), 100.0);
-        if(_vehicle) {
-            _vehicle->sendMavCommand(
-                _compID,                                // Target component
-                MAV_CMD_SET_CAMERA_ZOOM,                // Command id
-                false,                                  // ShowError
-                ZOOM_TYPE_RANGE,                        // Zoom type
-                static_cast<float>(level));             // Level
-        }
+    qCDebug(CameraControlLog) << "setZoomLevel()" << level << "hasZoom=" << hasZoom();
+    //-- Limit
+    level = std::min(std::max(level, 0.0), 100.0);
+    if(_vehicle) {
+        _vehicle->sendMavCommand(
+            _compID,                                // Target component
+            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+            false,                                  // ShowError
+            ZOOM_TYPE_RANGE,                        // Zoom type
+            static_cast<float>(level));             // Level
     }
 }
 
@@ -648,8 +650,8 @@ QGCCameraControl::formatCard(int id)
 void
 QGCCameraControl::stepZoom(int direction)
 {
-    qCDebug(CameraControlLog) << "stepZoom()" << direction;
-    if(_vehicle && hasZoom()) {
+    qCDebug(CameraControlLog) << "stepZoom()" << direction << "hasZoom=" << hasZoom();
+    if(_vehicle) {
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id
@@ -663,8 +665,8 @@ QGCCameraControl::stepZoom(int direction)
 void
 QGCCameraControl::startZoom(int direction)
 {
-    qCDebug(CameraControlLog) << "startZoom()" << direction;
-    if(_vehicle && hasZoom()) {
+    qCDebug(CameraControlLog) << "startZoom()" << direction << "hasZoom=" << hasZoom();
+    if(_vehicle) {
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id
@@ -678,8 +680,8 @@ QGCCameraControl::startZoom(int direction)
 void
 QGCCameraControl::stopZoom()
 {
-    qCDebug(CameraControlLog) << "stopZoom()";
-    if(_vehicle && hasZoom()) {
+    qCDebug(CameraControlLog) << "stopZoom()" << "hasZoom=" << hasZoom();
+    if(_vehicle) {
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id

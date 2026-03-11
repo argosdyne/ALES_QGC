@@ -561,7 +561,7 @@ void CodevCameraControl::setZoomLevel(qreal level)
 
 void CodevCameraControl::stepZoom(int direction)
 {
-    if (!_vehicle || !hasZoom() || direction == 0) {
+    if (!_vehicle || direction == 0) {
         return;
     }
 
@@ -620,6 +620,18 @@ void CodevCameraControl::stepZoom(int direction)
 QStringList CodevCameraControl::activeSettings()
 {
     QStringList settings = _activeSettings;
+    const QString modelUpper = modelName().toUpper();
+    const QString vendorUpper = vendor().toUpper();
+    const bool isSonyIR1 = vendorUpper.contains(QStringLiteral("SONY")) &&
+                           (modelUpper.contains(QStringLiteral("IR1")) ||
+                            modelUpper.contains(QStringLiteral("IR-1")) ||
+                            modelUpper.contains(QStringLiteral("IR_1")) ||
+                            modelUpper.contains(QStringLiteral("IR 1")) ||
+                            modelUpper.contains(QStringLiteral("LR1")));
+    if (isSonyIR1) {
+        settings.removeOne(QStringLiteral("TOF_EN"));
+    }
+
     if(!_hasTrack) {
         settings.removeOne(kTRACK_ALGORITHM);
     }

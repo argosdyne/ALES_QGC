@@ -155,6 +155,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
         connect(link.get(), &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
         connect(link.get(), &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
         connect(link.get(), &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
+        connect(link.get(), &LinkInterface::connected,           this,                &LinkManager::_linkConnected);
         connect(link.get(), &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
 
         _mavlinkProtocol->resetMetadataForLink(link.get());
@@ -165,6 +166,10 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
             _rgLinks.removeAt(_rgLinks.indexOf(link));
             config->setLink(nullptr);
             return false;
+        }
+
+        if (link->isConnected()) {
+            _sendInitialMavlinkHeartbeat(link);
         }
 
         return true;
@@ -217,6 +222,7 @@ void LinkManager::_linkDisconnected(void)
     disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
     disconnect(link, &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
     disconnect(link, &LinkInterface::bytesSent,           _mavlinkProtocol,    &MAVLinkProtocol::logSentBytes);
+    disconnect(link, &LinkInterface::connected,           this,                &LinkManager::_linkConnected);
     disconnect(link, &LinkInterface::disconnected,        this,                &LinkManager::_linkDisconnected);
 
     link->_freeMavlinkChannel();
@@ -227,6 +233,44 @@ void LinkManager::_linkDisconnected(void)
             return;
         }
     }
+}
+
+void LinkManager::_linkConnected(void)
+{
+    LinkInterface* link = qobject_cast<LinkInterface*>(sender());
+
+    if (!link || !containsLink(link)) {
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = sharedLinkInterfacePointerForLink(link, true);
+    if (!sharedLink) {
+        return;
+    }
+
+    _sendInitialMavlinkHeartbeat(sharedLink);
+}
+
+void LinkManager::_sendInitialMavlinkHeartbeat(const SharedLinkInterfacePtr& link)
+{
+    if (!link || !_mavlinkProtocol) {
+        return;
+    }
+
+    mavlink_message_t message;
+    mavlink_msg_heartbeat_pack_chan(_mavlinkProtocol->getSystemId(),
+                                    _mavlinkProtocol->getComponentId(),
+                                    link->mavlinkChannel(),
+                                    &message,
+                                    MAV_TYPE_GCS,            // MAV_TYPE
+                                    MAV_AUTOPILOT_INVALID,   // MAV_AUTOPILOT
+                                    MAV_MODE_MANUAL_ARMED,   // MAV_MODE
+                                    0,                       // custom_mode
+                                    MAV_STATE_ACTIVE);       // MAV_STATE
+
+    uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
+    const int len = mavlink_msg_to_send_buffer(buffer, &message);
+    link->writeBytesThreadSafe(reinterpret_cast<const char*>(buffer), len);
 }
 
 SharedLinkInterfacePtr LinkManager::sharedLinkInterfacePointerForLink(LinkInterface* link, bool ignoreNull)

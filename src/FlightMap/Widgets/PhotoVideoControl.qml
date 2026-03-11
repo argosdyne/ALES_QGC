@@ -85,6 +85,32 @@ Item {
     property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
     property bool   _forceLocalVideoRecording:                  _mavlinkCamera && (((_mavlinkCamera.modelName || "").toUpperCase().indexOf("LR1") !== -1) || ((_mavlinkCamera.vendor || "").toUpperCase().indexOf("SONY") !== -1))
+    property string _cameraModelUpper:                          _mavlinkCamera ? ((_mavlinkCamera.modelName || "").toUpperCase()) : ""
+    property string _cameraVendorUpper:                         _mavlinkCamera ? ((_mavlinkCamera.vendor || "").toUpperCase()) : ""
+    property bool   _isSonyIRFamily:                            _mavlinkCamera && (_cameraVendorUpper.indexOf("SONY") !== -1 || _cameraModelUpper.indexOf("SONY") !== -1 || _cameraModelUpper.indexOf("IR1") !== -1 || _cameraModelUpper.indexOf("IR-1") !== -1 || _cameraModelUpper.indexOf("IR_1") !== -1 || _cameraModelUpper.indexOf("IR 1") !== -1 || _cameraModelUpper.indexOf("LR1") !== -1)
+    property var    _filteredActiveSettings: {
+        if (!_mavlinkCamera) {
+            return []
+        }
+        var settings = _mavlinkCamera.activeSettings || []
+        if (!_isSonyIRFamily) {
+            return settings
+        }
+        var filtered = []
+        for (var i = 0; i < settings.length; i++) {
+            var paramName = settings[i]
+            if (paramName === "TOF_EN") {
+                continue
+            }
+            var fact = _mavlinkCamera.getFact(paramName)
+            var shortDesc = fact && fact.shortDescription ? ("" + fact.shortDescription).toUpperCase() : ""
+            if (shortDesc.indexOf("RANGE FINDER") !== -1 || shortDesc.indexOf("RANGEFINDER") !== -1) {
+                continue
+            }
+            filtered.push(paramName)
+        }
+        return filtered
+    }
 
     // The following settings and functions unify between a mavlink camera and a simple video stream for simple access
 
@@ -100,7 +126,10 @@ Item {
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
-    property bool _hasZoom: _mavlinkCamera && (_mavlinkCamera.hasZoom || !!_dZoom)
+    property Fact _clearImageZoomFact: _mavlinkCamera ? _mavlinkCamera.getFact("EO_ZOOM_MODE") : null
+    property bool _hasZoom: _mavlinkCamera && (_mavlinkCamera.hasZoom || !!_dZoom || !!_clearImageZoomFact)
+    property int  _zoomHoldDirection: 0
+    property real _zoomCompatRangeLevel: 50.0
 
     //----------------------------------------------------------------------------------------------- Functions
     function _formatElapsed(ms) {
@@ -212,12 +241,12 @@ Item {
     }
 
     function getZoomValue() {
-        // 기본값
+        // 湲곕낯媛?
         if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
             return "1";
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
+        var optical = _mavlinkCamera.zoomLevel;   // qreal ??JS Number
         var digital = (_dZoom ? _dZoom.value : 1.0);
 
         var effective = optical * digital;
@@ -231,9 +260,25 @@ Item {
             return
         }
 
+        // Force-enable clear image zoom mode when supported by camera facts.
+        if (_clearImageZoomFact) {
+            if (_clearImageZoomFact.typeIsBool) {
+                if (!_clearImageZoomFact.value) {
+                    _clearImageZoomFact.value = 1
+                }
+            } else if (_clearImageZoomFact.enumStrings.length > 0 && _clearImageZoomFact.enumIndex <= 0) {
+                _clearImageZoomFact.enumIndex = 1
+            }
+        }
+
+        console.warn("PhotoVideoControl._applyZoom",
+                     "direction=", direction,
+                     "hasZoom=", _mavlinkCamera.hasZoom,
+                     "dZoomFact=", !!_dZoom)
+
         if (_mavlinkCamera.hasZoom) {
+            console.warn("PhotoVideoControl._applyZoom call stepZoom", direction)
             _mavlinkCamera.stepZoom(direction)
-            return
         }
 
         if (_dZoom) {
@@ -243,6 +288,32 @@ Item {
             var curV = isNaN(_dZoom.value) ? 1.0 : _dZoom.value
             var nxtV = direction > 0 ? Math.min(maxV, curV + incV) : Math.max(minV, curV - incV)
             _dZoom.value = nxtV
+        }
+
+        // Compatibility path for cameras that ignore hasZoom/dZoom metadata.
+        console.warn("PhotoVideoControl._applyZoom call stepZoom/startZoom compat", direction)
+        _mavlinkCamera.stepZoom(direction)
+        _mavlinkCamera.startZoom(direction)
+
+        // Some cameras only react to RANGE zoom commands.
+        _zoomCompatRangeLevel = Math.max(0.0, Math.min(100.0, _zoomCompatRangeLevel + (direction > 0 ? 2.0 : -2.0)))
+        console.warn("PhotoVideoControl._applyZoom call zoomLevel property compat", _zoomCompatRangeLevel)
+        _mavlinkCamera.zoomLevel = _zoomCompatRangeLevel
+
+        zoomKickStopTimer.restart()
+    }
+
+    function _startZoomHold(direction) {
+        _zoomHoldDirection = direction
+        _applyZoom(direction)
+        zoomHoldTimer.restart()
+    }
+
+    function _stopZoomHold() {
+        _zoomHoldDirection = 0
+        zoomHoldTimer.stop()
+        if (_mavlinkCamera) {
+            _mavlinkCamera.stopZoom()
         }
     }
 
@@ -258,6 +329,30 @@ Item {
         repeat:             true
         running:            _videoStreamManager.recording
         onTriggered:        _localRecordElapsedMs = Math.max(0, Date.now() - _localRecordStartMs)
+    }
+
+    Timer {
+        id:             zoomKickStopTimer
+        interval:       140
+        repeat:         false
+        onTriggered: {
+            if (_mavlinkCamera) {
+                _mavlinkCamera.stopZoom()
+            }
+        }
+    }
+
+    Timer {
+        id:             zoomHoldTimer
+        interval:       170
+        repeat:         true
+        onTriggered: {
+            if (_zoomHoldDirection !== 0) {
+                _applyZoom(_zoomHoldDirection)
+            } else {
+                stop()
+            }
+        }
     }
 
     Connections {
@@ -279,7 +374,7 @@ Item {
         id: content
         anchors.fill: parent
         spacing: ScreenTools.defaultFontPixelHeight * 0.5
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 1. Reset & Setting Button
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth * 6
@@ -332,7 +427,7 @@ Item {
                 }
             }
         }
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 2. Photo/Video Switch Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -395,7 +490,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 3. Photo & Recording Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -421,7 +516,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
@@ -431,7 +526,7 @@ Item {
             visible:            _mavlinkCameraInVideoMode && (_mavlinkCamera.capturesVideo || _videoStreamManager.streaming)
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 5. Zoom in / Zoom Out Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -439,7 +534,7 @@ Item {
             height: width / 3
             color: qgcPal.windowShadeLight
             radius: height * 0.5
-            visible: _showModeIndicator
+            visible: _showModeIndicator && _hasZoom
 
             //Zoom in
             Rectangle {
@@ -464,7 +559,9 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _applyZoom(1)
+                    onPressed: _startZoomHold(1)
+                    onReleased: _stopZoomHold()
+                    onCanceled: _stopZoomHold()
                 }
             }
 
@@ -510,12 +607,14 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _applyZoom(-1)
+                    onPressed: _startZoomHold(-1)
+                    onReleased: _stopZoomHold()
+                    onCanceled: _stopZoomHold()
                 }
             }
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 6. Separator Line
         Rectangle {
             color: "lightgray"
@@ -523,7 +622,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
             columns: 2
@@ -550,13 +649,13 @@ Item {
             }
 
             QGCLabel {
-                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : "0") + "°"
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalPitch.toFixed(0) : "0") + "째"
                 text: {
                     var pitch = (_activeVehicle && _activeVehicle.gimbalData)
                             ? _activeVehicle.gimbalPitch
                             : 0
                     pitch = Math.abs(pitch) < 0.5 ? 0 : pitch
-                    return pitch.toFixed(0) + "°"
+                    return pitch.toFixed(0) + "째"
                 }
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
@@ -565,13 +664,13 @@ Item {
             }
 
             QGCLabel {
-                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : "0") + "°"
+                //text: (_activeVehicle && _activeVehicle.gimbalData ? _activeVehicle.gimbalYaw.toFixed(0) : "0") + "째"
                 text: {
                     var yaw = (_activeVehicle && _activeVehicle.gimbalData)
                             ? _activeVehicle.gimbalYaw
                             : 0
                     yaw = Math.abs(yaw) < 0.5 ? 0 : yaw
-                    return yaw.toFixed(0) + "°"
+                    return yaw.toFixed(0) + "째"
                 }
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
@@ -581,7 +680,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 8. Separator Line
         Rectangle {
             color: "lightgray"
@@ -589,7 +688,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ───────────────────────────────
+        // ???????????????????????????????
         // 9. SD card Storage
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth
@@ -624,9 +723,10 @@ Item {
                 GridLayout {
                     id:     gridLayout
                     flow:   GridLayout.TopToBottom
-                    rows:   dynamicRows + (_mavlinkCamera ? _mavlinkCamera.activeSettings.length : 0)
+                    rows:   dynamicRows + (_mavlinkCamera ? _filteredActiveSettings.length : 0)
 
-                    property int dynamicRows: 10
+                    // Keep this in sync with the number of static label/control rows below.
+                    property int dynamicRows: 11
 
                     // First column
                     QGCLabel {
@@ -653,9 +753,15 @@ Item {
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
+                    QGCLabel {
+                        text:               qsTr("Clear Image Zoom")
+                        visible:            !!_clearImageZoomFact
+                        onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                    }
+
                     // Mavlink Camera Protocol active settings
                     Repeater {
-                        model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
+                        model: _mavlinkCamera ? _filteredActiveSettings : []
 
                         QGCLabel {
                             text: _mavlinkCamera.getFact(modelData).shortDescription
@@ -737,9 +843,34 @@ Item {
                         onValueChanged:             _mavlinkCamera.thermalOpacity = value
                     }
 
+                    RowLayout {
+                        Layout.fillWidth:   true
+                        visible:            !!_clearImageZoomFact
+
+                        FactComboBox {
+                            Layout.fillWidth:   true
+                            sizeToContents:     true
+                            fact:               _clearImageZoomFact
+                            indexModel:         false
+                            visible:            _clearImageZoomFact && !_clearImageZoomFact.typeIsBool && _clearImageZoomFact.enumStrings.length > 0
+                        }
+
+                        QGCSwitch {
+                            visible:            _clearImageZoomFact && _clearImageZoomFact.typeIsBool
+                            checked:            _clearImageZoomFact ? _clearImageZoomFact.value : false
+                            onClicked:          _clearImageZoomFact.value = checked ? 1 : 0
+                        }
+
+                        FactSpinBox {
+                            Layout.fillWidth:   true
+                            fact:               _clearImageZoomFact
+                            visible:            _clearImageZoomFact && !_clearImageZoomFact.typeIsBool && _clearImageZoomFact.enumStrings.length < 1
+                        }
+                    }
+
                     // Mavlink Camera Protocol active settings
                     Repeater {
-                        model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
+                        model: _mavlinkCamera ? _filteredActiveSettings : []
 
                         RowLayout {
                             Layout.fillWidth:   true
@@ -881,3 +1012,5 @@ Item {
         }
     }
 }
+
+
