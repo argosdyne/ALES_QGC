@@ -34,6 +34,21 @@
     "default":     false
 },
 {
+    "name":             "AggressiveFlyThrough",
+    "shortDesc": "Reduce stops at line ends by keeping camera triggering continuous across transects",
+    "type":             "bool",
+    "default":     false
+},
+{
+    "name":             "PassThroughRadius",
+    "shortDesc": "Waypoint pass-through/acceptance radius used with aggressive fly-through.",
+    "type":             "double",
+    "decimalPlaces":    2,
+    "min":              0,
+    "units":            "m",
+    "default":     2
+},
+{
     "name":             "Refly90Degrees",
     "shortDesc": "Refly the pattern at a 90 degree angle",
     "type":             "bool",
