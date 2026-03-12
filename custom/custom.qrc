@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/custom/img">
-        <file alias="lock_icon.svg">res/Images/lock_icon.svg</file>
+        <file alias="cancel.svg">res/Images/cancel.svg</file>
+        <file alias="caution.svg">res/Images/caution.svg</file>
         <file alias="altitude.svg">res/Images/altitude.svg</file>
         <file alias="attitude_crosshair.svg">res/Images/attitude_crosshair.svg</file>
         <file alias="attitude_dial.svg">res/Images/attitude_dial.svg</file>
@@ -50,6 +51,7 @@
         <file alias="png/info.png">res/Images/info.png</file>
         <file alias="png/success.png">res/Images/success.png</file>
         <file alias="png/warning.png">res/Images/warning.png</file>
+        <file alias="png/session_lock.png">res/Images/session_lock.png</file>
         <file>res/Images/redWarning.svg</file>
     </qresource>
     <qresource prefix="/qmlimages">

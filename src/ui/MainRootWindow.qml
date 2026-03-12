@@ -12,6 +12,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Dialogs  1.3
 import QtQuick.Layouts  1.11
 import QtQuick.Window   2.11
+import Qt.labs.settings 1.0
 
 import QGroundControl               1.0
 import QGroundControl.Palette       1.0
@@ -223,13 +224,6 @@ ApplicationWindow {
 
     property bool _forceClose: false
 
-    // Show login overlay 
-    function showLoginOverlay() {
-        loadInitialLoginUI()
-        if (!loginOverlay.visible) {
-            loginOverlay.open()
-        }
-    }
 
     function finishCloseProcess() {
         _forceClose = true
@@ -244,11 +238,32 @@ ApplicationWindow {
     // -------------------------------------------------------------------------
     // Login functions
 
+        Settings {
+        id: loginFlowSettings
+        category: "LoginFlow"
+        property bool recoveryKeyPending: false
+    }
+
+    // Show login overlay 
+    function showLoginOverlay() {
+        if (loginFlowSettings.recoveryKeyPending) {
+            loginOverlay.open()
+        }
+        else if (!loginOverlay.visible) {
+            loadInitialLoginUI()
+            loginOverlay.open()
+        }
+    }
+
     function loadInitialLoginUI() {
         loginStack.clear()
         if (securityManager.hasStoredPin()) {
-            var loginComp = loginStack.push(_loginPageComponent)
-            setupLoginPageConnections(loginComp)
+            if (loginFlowSettings.recoveryKeyPending) {
+                showRecoveryKeyUI()
+            } else {
+                var loginComp = loginStack.push(_loginPageComponent)
+                setupLoginPageConnections(loginComp)
+            }
         } else {
             var regComp = loginStack.push(_registerPageComponent)
             setupRegisterPageConnections(regComp)
@@ -257,6 +272,7 @@ ApplicationWindow {
 
     function setupRegisterPageConnections(registerComponent) {
         registerComponent.pinRegistered.connect(function() {
+            loginFlowSettings.recoveryKeyPending = true
             showRecoveryKeyUI()
         })
     }
@@ -264,6 +280,7 @@ ApplicationWindow {
     function showRecoveryKeyUI() {
         var recoveryComp = loginStack.replace(_recoveryKeyPageComponent)
         recoveryComp.continueToLoginClicked.connect(function() {
+            loginFlowSettings.recoveryKeyPending = false
             var loginComp = loginStack.replace(_loginPageComponent)
             setupLoginPageConnections(loginComp)
         })
@@ -455,6 +472,19 @@ ApplicationWindow {
                                 toolSelectDialog.close()
                                 mainWindow.showSettingsTool()
                             }
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 lockScreenButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("Lock Screen")
+                        imageResource:      "/custom/img/png/session_lock.png"
+                        imageColor:         "transparent"
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showLoginOverlay()
                         }
                     }
 
@@ -1016,38 +1046,16 @@ ApplicationWindow {
         }
     }
 
-    // =========================================================================
-    // Login overlay – Popup so it renders on Qt Quick Overlay layer,
-    // which is ABOVE Drawer/Dialog/Popup items (plain Item z-order is not enough)
-    // =========================================================================
+    // Login overlay
     Popup {
         id:          loginOverlay
         parent:      Overlay.overlay
-        x:           0
-        width:       Overlay.overlay ? Overlay.overlay.width  : mainWindow.width
-        height:      Overlay.overlay ? Overlay.overlay.height : mainWindow.height
+        width:       mainWindow.width
+        height:      mainWindow.height
         visible:     true
         modal:       true
         closePolicy: Popup.NoAutoClose
         padding:     0
-
-        // Shift popup up when keyboard appears on Android
-        y:           {
-            if (Qt.inputMethod.visible) {
-                var keyboardRect = Qt.inputMethod.keyboardRectangle
-                var screenHeight = Overlay.overlay ? Overlay.overlay.height : mainWindow.height
-                var popupHeight = Overlay.overlay ? Overlay.overlay.height : mainWindow.height
-                var popupBottom = 0 + popupHeight
-                
-                // If popup bottom overlaps keyboard, shift up by half the overlap + margin
-                if (popupBottom > (screenHeight - keyboardRect.height)) {
-                    var overlap = popupBottom - (screenHeight - keyboardRect.height) + 20 // 20px margin
-                    return -(overlap / 2)  // Only shift by half the overlap
-                }
-            }
-            return 0
-        }
-
 
         background: Rectangle {
             color:  "#222222"

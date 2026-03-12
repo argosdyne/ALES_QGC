@@ -10,6 +10,8 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 
+import QGroundControl.ScreenTools 1.0
+
 Page {
     id: registerPage
 
@@ -21,10 +23,11 @@ Page {
     property string errorMessage:   ""
     property bool   showError:      false
     property string messageColor:   "#ff5c5c"
-    property int _contentBlockHeight: 687
+    property real _uiScale: ScreenTools.isMobile ? 1.20 : 0.65
+    property int _contentBlockHeight: _s(687)
     property string activePin:        ""   // "enter" | "confirm" | ""
 
-    background: Rectangle { 
+    background: Rectangle {
         color: "#222222"
         opacity: 0
         radius: 16
@@ -60,35 +63,36 @@ Page {
         showError = false
         return true
     }
+    function _s(px) { return Math.round(px * _uiScale) }
 
     // ─── header (icon + title + subtitle) ────────────────────────────────────
     Item {
         id: headerSection
         width:  parent.width
-        height: 192
-        y: Math.max(20, Math.round((parent.height - registerPage._contentBlockHeight) / 2))
+        height: _s(192)
+        y: Math.max(_s(20), Math.round((parent.height - registerPage._contentBlockHeight) / 2))
 
         Column {
             anchors.centerIn: parent
-            spacing: 16
+            spacing: _s(16)
             width: parent.width
 
             Image {
-                source: "qrc:/custom/img/lock_icon.svg"
-                width:  92
-                height: 92
+                source: "/res/QGCLogoFull"
+                width:  _s(92)
+                height: _s(92)
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
         // ===== TITLE =====
         Item {
             width: parent.width
-            height: 84
+            height: _s(84)
             Text {
                 text: "Set Your Admin PIN"
                 color: "#ffffff"
                 font.family:    "Roboto"
-                font.pixelSize: 40
+                font.pixelSize: _s(40)
                 font.bold:      true
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -98,8 +102,8 @@ Page {
                 text: "Create a secure 6 digits PIN to protect your profile"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
-                y: 57
-                font.pixelSize: 22
+                y: _s(57)
+                font.pixelSize: _s(22)
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
             }
@@ -110,27 +114,27 @@ Page {
     // ─── Enter PIN ────────────────────────────────────────────────────────────
     Item {
         id: enterSection
-        width:  508
-        height: 119
-        y:      headerSection.y + headerSection.height + 28
+        width:  Math.min(_s(508), parent.width - _s(24))
+        height: _s(119)
+        y:      headerSection.y + headerSection.height + _s(28)
         anchors.horizontalCenter: parent.horizontalCenter
 
         Column {
-            spacing: 10
+            spacing: _s(10)
             width: parent.width
 
             Text {
                 text: "Enter PIN"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
-                font.pixelSize: 24
+                font.pixelSize: _s(24)
                 anchors.left: parent.left
             }
 
             Rectangle {
                 id: enterBox
-                width:  508
-                height: 80
+                width:  parent.width
+                height: _s(80)
                 radius: 4
                 color:  "#222222"
                 border.width: 2
@@ -151,11 +155,11 @@ Page {
 
                 Row {
                     anchors.centerIn: parent
-                    spacing: 20
+                    spacing: _s(20)
                     Repeater {
                         model: pinLength
                         Rectangle {
-                            width: 18; height: 18; radius: 9
+                            width: _s(18); height: _s(18); radius: _s(9)
                             readonly property bool filled: index < enterBox.pinValue.length
                             color:        filled ? "#ffffff" : "transparent"
                             border.width: filled ? 0 : 2
@@ -182,6 +186,11 @@ Page {
                             if (enterBox.pinValue.length < 6) {
                                 enterBox.pinValue = enterBox.pinValue + event.text
                                 enterInput.text   = enterBox.pinValue
+                                // Auto-jump to Confirm PIN when 6th digit is entered
+                                if (enterBox.pinValue.length === 6) {
+                                    registerPage.activePin = "confirm"
+                                    confirmInput.forceActiveFocus()
+                                }
                             }
                             event.accepted = true
                         } else if (event.key === Qt.Key_Backspace) {
@@ -200,27 +209,27 @@ Page {
     // ─── Confirm PIN ──────────────────────────────────────────────────────────
     Item {
         id: confirmSection
-        width:  508
-        height: 119
-        y:      enterSection.y + enterSection.height + 22
+        width:  Math.min(_s(508), parent.width - _s(24))
+        height: _s(119)
+        y:      enterSection.y + enterSection.height + _s(22)
         anchors.horizontalCenter: parent.horizontalCenter
 
         Column {
-            spacing: 10
+            spacing: _s(10)
             width: parent.width
 
             Text {
                 text: "Confirm PIN"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
-                font.pixelSize: 24
+                font.pixelSize: _s(24)
                 anchors.left:   parent.left
             }
 
             Rectangle {
                 id: confirmBox
-                width:  508
-                height: 80
+                width:  parent.width
+                height: _s(80)
                 radius: 4
                 color:  "#222222"
                 border.width: 2
@@ -241,11 +250,11 @@ Page {
 
                 Row {
                     anchors.centerIn: parent
-                    spacing: 20
+                    spacing: _s(20)
                     Repeater {
                         model: pinLength
                         Rectangle {
-                            width: 18; height: 18; radius: 9
+                            width: _s(18); height: _s(18); radius: _s(9)
                             readonly property bool filled: index < confirmBox.pinValue.length
                             color:        filled ? "#ffffff" : "transparent"
                             border.width: filled ? 0 : 2
@@ -257,6 +266,7 @@ Page {
                 TextInput {
                     id: confirmInput
                     width: 1; height: 1; opacity: 0
+                    anchors.bottom: parent.bottom
                     focus: false
                     maximumLength: 6
                     inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
@@ -287,22 +297,22 @@ Page {
     // ─── hint / error text ────────────────────────────────────────────────────
     Text {
         id: hintText
-        y:     confirmSection.y + confirmSection.height + 26
-        width: 508
+        y:     confirmSection.y + confirmSection.height + _s(26)
+        width: Math.min(_s(508), parent.width - _s(24))
         anchors.horizontalCenter: parent.horizontalCenter
         text:  showError ? errorMessage : "Enter 6 digits for your PIN"
         color: showError ? messageColor : "#AEAEAE"
         font.family:    "Roboto"
-        font.pixelSize: 22
+        font.pixelSize: _s(22)
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
     }
 
     // ─── Continue button ──────────────────────────────────────────────────────
     Rectangle {
-        y:      hintText.y + 55
-        width:  508
-        height: 71
+        y:      hintText.y + _s(55)
+        width:  Math.min(_s(508), parent.width - _s(24))
+        height: _s(71)
         radius: 4
         color:  continueBtnArea.pressed ? "#006657" : "#00826F"
         anchors.horizontalCenter: parent.horizontalCenter
@@ -312,7 +322,7 @@ Page {
             text:           "Continue"
             color:          "#ffffff"
             font.family:    "Roboto"
-            font.pixelSize: 28
+            font.pixelSize: _s(28)
             font.bold:      true
         }
 

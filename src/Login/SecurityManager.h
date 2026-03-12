@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE QString generateAndStoreRecoveryKey();
     Q_INVOKABLE bool verifyRecoveryKey(const QString &recoveryKey);
     Q_INVOKABLE bool hasStoredRecoveryKey() const;
+    Q_INVOKABLE bool verifyRestorePhrase(const QString &input) const;
 
     // Failed attempts and lockout
     Q_INVOKABLE void recordFailedAttempt();

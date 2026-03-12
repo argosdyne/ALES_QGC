@@ -393,6 +393,33 @@ bool SecurityManager::hasStoredRecoveryKey() const
     return ok;
 }
 
+bool SecurityManager::verifyRestorePhrase(const QString &input) const
+{
+    // Pre-computed: PBKDF2-HMAC-SHA256 Restore phrase)
+    static const uint8_t RESTORE_SALT[16] = {
+        0xAF, 0x1F, 0xCC, 0xE9, 0x01, 0xE0, 0x3D, 0x7F,
+        0x46, 0x85, 0x42, 0x7C, 0x73, 0x69, 0x69, 0xFD
+    };
+    static const uint8_t RESTORE_HASH[32] = {
+        0xCA, 0x31, 0x1B, 0x6A, 0xC3, 0xAF, 0xEB, 0x2F,
+        0xEB, 0x6A, 0x8C, 0x7A, 0xBC, 0xB6, 0x4C, 0x19,
+        0x55, 0xBD, 0x91, 0x7C, 0x2C, 0x41, 0x7E, 0x3B,
+        0x10, 0x42, 0x8D, 0xA2, 0xCA, 0x99, 0xE6, 0x00
+    };
+
+    const QByteArray salt(reinterpret_cast<const char*>(RESTORE_SALT), sizeof(RESTORE_SALT));
+    const QByteArray expected(reinterpret_cast<const char*>(RESTORE_HASH), sizeof(RESTORE_HASH));
+
+    QByteArray password = input.trimmed().toUpper().toUtf8();
+    QByteArray candidate = deriveKey(password, salt, 10000, static_cast<int>(expected.size()));
+    OPENSSL_cleanse(password.data(), password.size());
+    if (candidate.isEmpty()) return false;
+
+    const bool ok = constantTimeCompare(candidate, expected);
+    OPENSSL_cleanse(candidate.data(), candidate.size());
+    return ok;
+}
+
 bool SecurityManager::hasStoredPin() const
 {
     QSettings s;

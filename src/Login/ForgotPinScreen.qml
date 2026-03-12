@@ -10,6 +10,8 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 
+import QGroundControl.ScreenTools 1.0
+
 Page {
     id: forgotPinPage
 
@@ -19,7 +21,9 @@ Page {
     property int keyLength: 24
     property string keyText: ""
     property bool locked: false
+    property bool keyBoxFocused: false
     readonly property string _lockoutScope: "forgot_pin"
+    property real _uiScale: ScreenTools.isMobile ? 1.1 : 0.6
 
     background: Rectangle {
         color: "#222222"
@@ -81,11 +85,29 @@ Page {
 
     function _displayKey() {
         var n = _normalizedKey(keyText)
-        var chunks = []
-        for (var i = 0; i < n.length; i += 4) {
-            chunks.push(n.slice(i, i + 4))
+        var template = "____ - ____ - ____ - ____ - ____ - ____"
+        var chars = template.split("")
+        var cursor = 0
+
+        for (var i = 0; i < chars.length; i++) {
+            if (chars[i] === "_" && cursor < n.length) {
+                chars[i] = n.charAt(cursor)
+                cursor++
+            }
         }
-        return chunks.join(" - ")
+
+        return chars.join("")
+    }
+
+    // Formatted text with " - " separators matching the display layout exactly
+    function _formattedKey(normalized) {
+        if (normalized.length === 0) return ""
+        var result = ""
+        for (var i = 0; i < normalized.length; i++) {
+            if (i > 0 && i % 4 === 0) result += " - "
+            result += normalized.charAt(i)
+        }
+        return result
     }
 
     function verifyRecovery() {
@@ -102,7 +124,7 @@ Page {
                 locked = true
                 lockoutTimer.start()
             } else {
-                errorText.text = "In correct PIN"
+                errorText.text = "Incorrect recovery key"
                 errorText.visible = true
                 errorText.color = "#ff5c5c"
             }
@@ -126,92 +148,184 @@ Page {
                 locked = true
                 lockoutTimer.start()
             } else {
-                errorText.text = "In correct PIN"
+                errorText.text = "Incorrect recovery key"
                 errorText.visible = true
                 errorText.color = "#ff5c5c"
             }
         }
     }
+    function _s(px) { return Math.round(px * _uiScale) }
 
     Item {
         id: content
-        width: 740
-        height: 500
+        width: Math.min(_s(1019), parent.width - _s(24))
+        height: _s(622)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: Math.max(20, Math.round((parent.height - 620) / 2))
+        y: Math.max(_s(12), Math.round((parent.height - height) / 2))
 
         Rectangle {
             anchors.fill: parent
-            radius: 14
-            color: "#1C2435"
+            radius: _s(20)
+            color: "#2D2D2D"
             border.width: 1
-            border.color: "#33425A"
-            opacity: 0.96
+            border.color: "#707070"
         }
 
-        Text {
-            x: 24
-            y: 22
-            text: qsTr("< Back")
-            color: "#8FB5D5"
-            font.family: "Roboto"
-            font.pixelSize: 24
-            font.bold: false
+        Rectangle {
+            id: titleBar
+            x: 0
+            y: 0
+            width: parent.width
+            height: _s(84)
+            radius: _s(20)
+            color: "#202528"
+            border.width: 1
+            border.color: "#707070"
 
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: forgotPinPage.backClicked()
+            Image {
+                x: _s(29)
+                y: _s(18)
+                width: _s(48)
+                height: _s(48)
+                source: "/res/QGCLogoFull"
+                fillMode: Image.PreserveAspectFit
+            }
+
+            Text {
+                x: _s(94)
+                anchors.verticalCenter: parent.verticalCenter
+                text: qsTr("Forgot PIN")
+                color: "#FFFFFF"
+                font.family: "Roboto"
+                font.pixelSize: _s(40)
+                font.bold: true
+            }
+
+            Image {
+                x: _s(952)
+                anchors.verticalCenter: parent.verticalCenter
+                width: _s(32)
+                height: _s(32)
+                source: "/custom/img/cancel.svg"
+                fillMode: Image.PreserveAspectFit
+
+                MouseArea {
+                    anchors.centerIn: parent
+                    width: _s(70)
+                    height: _s(70)
+                    onClicked: forgotPinPage.backClicked()
+                }
+            }
+
+            // Keep only top/sides rounded border in the title bar.
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width - 2
+                x: 1
+                height: _s(20)
+                color: parent.color
+            }
+
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width - 2
+                x: 1
+                height: 1
+                color: parent.border.color
             }
         }
 
         Text {
-            x: 24
-            y: 86
-            text: qsTr("Forgot PIN")
-            color: "#EAF1FF"
+            id: introText
+            x: 0
+            y: _s(135)
+            width: parent.width
+            height: _s(96)
+            text: qsTr("Enter the 24-character Recovery Key \nprovided during initial setup.")
+            color: "#AEAEAE"
             font.family: "Roboto"
-            font.pixelSize: 42
-            font.bold: true
-        }
-
-        Text {
-            x: 24
-            y: 150
-            width: 690
-            text: qsTr("Enter the 24-character Recovery Key provided during initial setup.")
-            color: "#AEBED7"
-            font.family: "Roboto"
-            font.pixelSize: 23
+            font.pixelSize: _s(32)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap
         }
 
         Rectangle {
             id: inputBox
-            x: 24
-            y: 210
-            width: 692
-            height: 64
-            radius: 8
-            color: "#1A2231"
-            border.width: 1
-            border.color: hiddenInput.activeFocus ? "#2A9DFF" : "#3E4C63"
+            x: _s(69)
+            y: _s(252)
+            width: Math.min(_s(858), parent.width - _s(138))
+            height: _s(80)
+            radius: 4
+            color: "#2D2D2D"
+            border.width: 2
+            border.color: forgotPinPage.keyBoxFocused ? "#00C2AD" : "#ffffff"
+
+            // Placeholder: only visible when nothing typed yet
+            Text {
+                anchors.fill: parent
+                anchors.leftMargin: _s(16)
+                anchors.rightMargin: _s(16)
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                text: "____ - ____ - ____ - ____ - ____ - ____"
+                color: "#9AA2AD"
+                font.family: "Roboto"
+                font.pixelSize: _s(34)
+                visible: keyText.length === 0
+                enabled: false
+            }
 
             TextInput {
                 id: hiddenInput
-                width: 1
-                height: 1
-                opacity: 0
-                focus: true
-                maximumLength: 24
-                onTextChanged: keyText = text
+                anchors.fill: parent
+                anchors.leftMargin: _s(16)
+                anchors.rightMargin: _s(16)
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                // Transparent when empty so placeholder shows; opaque when typing
+                opacity: keyText.length > 0 ? 1.0 : 0.0
+                color: locked ? "#AEAEAE" : "#FFFFFF"
+                font.family: "Roboto"
+                font.pixelSize: _s(34)
+                maximumLength: 128
+                selectByMouse: true
+                enabled: !forgotPinPage.locked
+                inputMethodHints: Qt.ImhUppercaseOnly | Qt.ImhNoPredictiveText
+                onTextChanged: {
+                    var normalized = _normalizedKey(text)
+                    if (normalized.length > keyLength) {
+                        normalized = normalized.slice(0, keyLength)
+                    }
+                    var formatted = _formattedKey(normalized)
+                    if (text !== formatted) {
+                        text = formatted
+                        cursorPosition = formatted.length
+                        return
+                    }
+                    keyText = normalized
+                }
+                onActiveFocusChanged: {
+                    forgotPinPage.keyBoxFocused = activeFocus
+                    if (activeFocus) Qt.inputMethod.show()
+                }
                 Keys.onPressed: {
+                    if (locked) { event.accepted = true; return }
+                    if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_V) {
+                        hiddenInput.paste()
+                        event.accepted = true
+                        return
+                    }
+
                     if (event.text.length === 1) {
                         var upper = event.text.toUpperCase()
                         if (upper >= "A" && upper <= "Z") {
-                            if (_normalizedKey(keyText).length < 24) {
-                                keyText = _normalizedKey(keyText) + upper
-                                hiddenInput.text = _normalizedKey(keyText)
+                            var nCur = _normalizedKey(keyText)
+                            if (nCur.length < keyLength) {
+                                nCur = nCur + upper
+                                keyText = nCur
+                                hiddenInput.text = _formattedKey(nCur)
+                                hiddenInput.cursorPosition = hiddenInput.text.length
                             }
                             event.accepted = true
                             return
@@ -219,50 +333,36 @@ Page {
                     }
 
                     if (event.key === Qt.Key_Backspace) {
-                        var n = _normalizedKey(keyText)
-                        if (n.length > 0) {
-                            n = n.slice(0, n.length - 1)
-                            keyText = n
-                            hiddenInput.text = n
+                        var nBack = _normalizedKey(keyText)
+                        if (nBack.length > 0) {
+                            nBack = nBack.slice(0, nBack.length - 1)
+                            keyText = nBack
+                            hiddenInput.text = _formattedKey(nBack)
+                            hiddenInput.cursorPosition = hiddenInput.text.length
                         }
                         event.accepted = true
                     }
                 }
             }
-
-            Text {
-                anchors.fill: parent
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignLeft
-                text: _displayKey().length > 0 ? _displayKey() : "____ - ____ - ____ - ____ - ____ - ____"
-                color: _displayKey().length > 0 ? "#EAF1FF" : "#8A96AA"
-                font.family: "Roboto"
-                font.pixelSize: 28
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: hiddenInput.forceActiveFocus()
-                }
-            }
         }
 
         Rectangle {
-            x: 24
-            y: 308
-            width: 692
-            height: 56
-            radius: 6
-            color: verifyMouse.pressed ? "#226EBD" : "#2B82D8"
+            id: verifyButton
+            x: (content.width - width) / 2
+            y: _s(365)
+            width: Math.min(_s(508), parent.width - _s(24))
+            height: _s(71)
+            radius: 4
+            color: verifyMouse.pressed ? "#0B8A7A" : "#00826F"
             opacity: locked ? 0.5 : 1.0
 
             Text {
                 anchors.centerIn: parent
-                text: qsTr("VERIFY KEY")
-                color: "#EAF1FF"
+                text: qsTr("Verify Key")
+                color: locked ? "#AEAEAE" : "#FFFFFF"
                 font.family: "Roboto"
-                font.pixelSize: 26
-                font.bold: true
+                font.pixelSize: _s(28)
+                font.styleName: "Medium"
             }
 
             MouseArea {
@@ -275,36 +375,44 @@ Page {
 
         Text {
             id: errorText
-            x: 24
-            y: 378
-            width: 692
+            x: 0
+            y: _s(446)
+            width: parent.width
             visible: false
             text: ""
             color: "#ff5c5c"
             font.family: "Roboto"
-            font.pixelSize: 22
+            font.pixelSize: _s(24)
             horizontalAlignment: Text.AlignHCenter
         }
 
         Rectangle {
-            x: 24
-            y: 420
-            width: 692
-            height: 60
-            radius: 6
-            color: "#1E2A3B"
-            border.width: 1
-            border.color: "#2F3E56"
+            x: _s(69)
+            y: _s(480)
+            width: Math.min(_s(858), parent.width - _s(138))
+            height: _s(93)
+            radius: 4
+            color: "#485058"
 
             Text {
-                anchors.centerIn: parent
-                width: 660
+                x: _s(147)
+                y: _s(13)
+                width: parent.width - _s(132)
                 wrapMode: Text.WordWrap
-                text: qsTr("If you lost the Recovery Key, contact system admin for a Factory Security Reset.")
-                color: "#C2CDE0"
+                text: qsTr("If you lost the Recovery Key, contact system admin \nfor a Factory Security Reset.")
+                color: "#AEAEAE"
                 font.family: "Roboto"
-                font.pixelSize: 20
-                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: _s(28)
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Image {
+                x: _s(75)
+                y: _s(22)
+                width: _s(52)
+                height: _s(43)
+                source: "/custom/img/caution.svg"
+                fillMode: Image.PreserveAspectFit
             }
         }
     }
@@ -314,6 +422,5 @@ Page {
             locked = true
             lockoutTimer.start()
         }
-        hiddenInput.forceActiveFocus()
     }
 }

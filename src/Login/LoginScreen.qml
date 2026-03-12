@@ -11,6 +11,8 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
 
+import QGroundControl.ScreenTools 1.0
+
 Page {
     id: loginPage
 
@@ -21,7 +23,8 @@ Page {
 
     property int pinLength: 6
     property bool locked: false
-    property int _contentBlockHeight: 687
+    property real _uiScale: ScreenTools.isMobile ? 1.20 : 0.65
+    property int _contentBlockHeight: _s(687)
 
     property string pinText: ""
     property bool   pinBoxFocused: false
@@ -94,73 +97,74 @@ Page {
     }
 
     function getPINValue() { return pinText }
+    function _s(px) { return Math.round(px * _uiScale) }
 
     Item {
         id: headerSection
         width: parent.width
-        height: 194
-        y: Math.max(20, Math.round((parent.height - loginPage._contentBlockHeight) / 2))
+        height: _s(194)
+        y: Math.max(_s(20), Math.round((parent.height - loginPage._contentBlockHeight) / 2))
 
-    Column {
-        anchors.centerIn: parent
-        spacing: 16
-        width: parent.width
+        Column {
+            anchors.centerIn: parent
+            spacing: _s(16)
+            width: parent.width
 
-        Image {
-            id: loginLogo
-            source: "qrc:/custom/img/lock_icon.svg"
-            width: 92
-            height: 92
-            anchors.horizontalCenter: parent.horizontalCenter
+            Image {
+                id: loginLogo
+                source: "/res/QGCLogoFull"
+                width: _s(92)
+                height: _s(92)
+                anchors.horizontalCenter: parent.horizontalCenter
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    loginPage._logoTapCount += 1
-                    if (loginPage._logoTapCount >= 5) {
-                        loginPage._logoTapCount = 0
-                        loginPage.systemRestoreRequested()
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        loginPage._logoTapCount += 1
+                        if (loginPage._logoTapCount >= 5) {
+                            loginPage._logoTapCount = 0
+                            loginPage.systemRestoreRequested()
+                        }
                     }
                 }
             }
-        }
 
-        // ===== TITLE =====
-        Item {
-            width: parent.width
-            height: 86
-        Text {
-            text: "System Authentication"
-            color: "#ffffff"
-            font.family: "Roboto"
-            font.pixelSize: 40
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+            // ===== TITLE =====
+            Item {
+                width: parent.width
+                height: _s(86)
+                Text {
+                    text: "System Authentication"
+                    color: "#ffffff"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(40)
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-        Text {
-            text: "Enter your PIN to access admin functions"
-            color: "#AEAEAE"
-            font.family: "Roboto"
-            font.pixelSize: 24
-            horizontalAlignment: Text.AlignHCenter
-            y: 57
-            anchors.horizontalCenter: parent.horizontalCenter
+                Text {
+                    text: "Enter your PIN to access admin functions"
+                    color: "#AEAEAE"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(24)
+                    horizontalAlignment: Text.AlignHCenter
+                    y: _s(57)
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
         }
     }
-    }
-    }
 
-        // ===== PIN INPUT SECTION =====
-        Item {
-            id: pinSection
-            width: 508
-            height: 119
-            y: headerSection.y + headerSection.height + 44
-            anchors.horizontalCenter: parent.horizontalCenter
+    // ===== PIN INPUT SECTION =====
+    Item {
+        id: pinSection
+        width: Math.min(_s(508), parent.width - _s(24))
+        height: _s(119)
+        y: headerSection.y + headerSection.height + _s(44)
+        anchors.horizontalCenter: parent.horizontalCenter
         Column {
-            spacing: 10
+            spacing: _s(10)
             width: parent.width
             // anchors.horizontalCenter: parent.horizontalCenter
 
@@ -168,7 +172,7 @@ Page {
                 text: "Admin PIN"
                 color: "#AEAEAE"
                 font.family: "Roboto"
-                font.pixelSize: 24
+                font.pixelSize: _s(24)
                 anchors.left: parent.left
             }
 
@@ -176,16 +180,16 @@ Page {
             // All placeholder dots always visible; filled dots grow from center as user types
             Rectangle {
                 id: pinBox
-                width: 508
-                height: 80
+                width: parent.width
+                height: _s(80)
                 radius: 4
                 color: "#222222"
                 border.color: loginPage.pinBoxFocused ? "#00826F" : "#ffffff"
                 border.width: 2
 
                 // Dot settings
-                readonly property int dotD:      18
-                readonly property int dotGap:    21
+                readonly property int dotD:      _s(18)
+                readonly property int dotGap:    _s(21)
                 readonly property int totalW:    pinLength * dotD + (pinLength - 1) * dotGap
 
                 // How many chars entered; fill starts from the left
@@ -197,6 +201,7 @@ Page {
                     anchors.fill: parent
                     hoverEnabled: false
                     onClicked: {
+                        if (loginPage.locked) return
                         loginPage.pinBoxFocused = true
                         hiddenInput.forceActiveFocus()
                         if (!Qt.inputMethod.visible) Qt.inputMethod.show()
@@ -218,9 +223,9 @@ Page {
                             readonly property bool isFilled: pinBox.entered > 0
                                                              && index >= pinBox.startIdx
                                                              && index < pinBox.startIdx + pinBox.entered
-                            color:        isFilled ? "#ffffff" : "transparent"
+                            color:        isFilled ? (loginPage.locked ? "#AEAEAE" : "#FFFFFF") : "transparent"
                             border.width: isFilled ? 0         : 2
-                            border.color: "#ffffff"
+                            border.color: loginPage.locked ? "#AEAEAE" : "#FFFFFF"
                         }
                     }
                 }
@@ -232,7 +237,7 @@ Page {
                     focus: false
                     maximumLength: pinLength
                     inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
-
+            
                     onTextChanged: pinText = text
 
                     Keys.onPressed: {
@@ -254,22 +259,22 @@ Page {
                 }
             }
         }
-        }
+    }
 
-        // ===== REMEMBER ME ROW =====
-        Item {
-            id: rememberRow
-            width: parent.width
-            height: 36
-            anchors.left: pinSection.left
-            y: pinSection.y + pinSection.height + 28
+    // ===== REMEMBER ME ROW =====
+    Item {
+        id: rememberRow
+        width: parent.width
+        height: _s(36)
+        anchors.left: pinSection.left
+        y: pinSection.y + pinSection.height + _s(28)
         Row {
-            spacing: 13
+            spacing: _s(13)
             anchors.left: parent.left
 
             Rectangle {
                 id: rememberBox
-                width: 36; height: 36
+                width: _s(36); height: _s(36)
                 radius: 4
                 color:        "transparent"
                 border.color: rememberBox.checked ? "#FFFFFF" : "#888888"
@@ -277,11 +282,14 @@ Page {
                 property bool checked: false
 
                 Image {
-                source: "qrc:/custom/img/checked.svg"
-                x: 5
-                y: 2
-                visible: rememberBox.checked
-            }
+                    source: "qrc:/custom/img/checked.svg"
+                    x: _s(5)
+                    y: _s(2)
+                    width: _s(28)
+                    height: _s(28)
+                    fillMode: Image.PreserveAspectFit
+                    visible: rememberBox.checked
+                }
                 MouseArea {
                     anchors.fill: parent
                     onClicked: rememberBox.checked = !rememberBox.checked
@@ -292,119 +300,119 @@ Page {
                 text: "Remember me"
                 color: "#AEAEAE"
                 font.family: "Roboto"
-                font.pixelSize: 24
+                font.pixelSize: _s(24)
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
-        }
+    }
 
-        // ===== ERROR / STATUS TEXT =====
+    // ===== ERROR / STATUS TEXT =====
+    Text {
+        y: rememberRow.y + rememberRow.height + _s(7)
+        id: unlockError
+        text: ""
+        color: "#ff5c5c"
+        visible: false
+        font.bold: true
+        font.pixelSize: _s(24)
+        anchors.horizontalCenter: parent.horizontalCenter
+        horizontalAlignment: Text.AlignHCenter
+    }
+
+    // ===== UNLOCK BUTTON =====
+    Rectangle {
+        y: rememberRow.y + rememberRow.height + _s(44)
+        width: Math.min(_s(508), parent.width - _s(24))
+        height: _s(71)
+        radius: 4
+        color: unlockBtnArea.pressed ? "#0b8a7a" : "#00826F"
+        anchors.horizontalCenter: parent.horizontalCenter
+        opacity: locked ? 0.5 : 1.0
+
         Text {
-            y: rememberRow.y + rememberRow.height + 7
-            id: unlockError
-            text: ""
-            color: "#ff5c5c"
-            visible: false
-            font.bold: true
-            font.pixelSize: 24
-            anchors.horizontalCenter: parent.horizontalCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        // ===== UNLOCK BUTTON =====
-        Rectangle {
-            y: rememberRow.y + rememberRow.height + 44
-            width: 508
-            height: 71
-            radius: 4
-            color: unlockBtnArea.pressed ? "#0b8a7a" : "#00826F"
-            anchors.horizontalCenter: parent.horizontalCenter
-            opacity: locked ? 0.5 : 1.0
-
-            Text {
-                anchors.centerIn: parent
-                text: "Unlock System"
-                color: "#ffffff"
-                font.pixelSize: 28
-                font.family: "Roboto"
-                font.styleName: "Medium"
-            }
-
-            MouseArea {
-                id: unlockBtnArea
-                anchors.fill: parent
-                enabled: !locked
-                onClicked: {
-                    if (securityManager.isLockedForScope(loginPage._lockoutScope)) {
-                        locked = true
-                        lockoutTimer.start()
-                        return
-                    }
-                    var pin = getPINValue()
-                    var ok = false
-                    try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
-                    if (ok) {
-                        unlockError.text  = "PIN verified. Loading..."
-                        unlockError.color = "#0fa18f"
-                        unlockError.visible = true
-                        unlockTriggerTimer.action = "unlock"
-                        unlockTriggerTimer.start()
-                    } else {
-                        unlockError.text    = "Invalid PIN"
-                        unlockError.color   = "#ff5c5c"
-                        unlockError.visible = true
-                    }
-                }
-            }
-        }
-
-        // ===== VIEW-ONLY BUTTON =====
-        Rectangle {
-            y: rememberRow.y + rememberRow.height + 142
-            width: 508
-            height: 71
-            radius: 4
-            color: viewOnlyBtnArea.pressed ? "#4a5260" : "#3d4450"
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Text {
-                anchors.centerIn: parent
-                text: "Continue in View-only Mode"
-                color: "#ffffff"
-                font.pixelSize: 28
-                font.family: "Roboto"
-                font.styleName: "Medium"
-            }
-
-            MouseArea {
-                id: viewOnlyBtnArea
-                anchors.fill: parent
-                onClicked: {
-                    unlockError.text    = "Loading View-only Mode..."
-                    unlockError.color   = "#00826F"
-                    unlockError.visible = true
-                    unlockTriggerTimer.action = "viewOnly"
-                    unlockTriggerTimer.start()
-                }
-            }
-        }
-
-        // ===== FORGOT PIN LINK =====
-        Text {
-            y: rememberRow.y + rememberRow.height + 236
-            text: "Forgot PIN?"
-            color: "#00826F"
+            anchors.centerIn: parent
+            text: "Unlock System"
+            color: "#ffffff"
+            font.pixelSize: _s(28)
             font.family: "Roboto"
-            font.pixelSize: 24
-            font.bold: true
-            anchors.left: rememberRow.left
+            font.styleName: "Medium"
+        }
 
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: loginPage.forgotPINClicked()
+        MouseArea {
+            id: unlockBtnArea
+            anchors.fill: parent
+            enabled: !locked
+            onClicked: {
+                if (securityManager.isLockedForScope(loginPage._lockoutScope)) {
+                    locked = true
+                    lockoutTimer.start()
+                    return
+                }
+                var pin = getPINValue()
+                var ok = false
+                try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
+                if (ok) {
+                    unlockError.text  = "PIN verified. Loading..."
+                    unlockError.color = "#0fa18f"
+                    unlockError.visible = true
+                    unlockTriggerTimer.action = "unlock"
+                    unlockTriggerTimer.start()
+                } else {
+                    unlockError.text    = "Invalid PIN"
+                    unlockError.color   = "#ff5c5c"
+                    unlockError.visible = true
+                }
             }
         }
+    }
+
+    // ===== VIEW-ONLY BUTTON =====
+    Rectangle {
+        y: rememberRow.y + rememberRow.height + _s(142)
+        width: Math.min(_s(508), parent.width - _s(24))
+        height: _s(71)
+        radius: 4
+        color: viewOnlyBtnArea.pressed ? "#4a5260" : "#3d4450"
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        Text {
+            anchors.centerIn: parent
+            text: "Continue in View-only Mode"
+            color: "#ffffff"
+            font.pixelSize: _s(28)
+            font.family: "Roboto"
+            font.styleName: "Medium"
+        }
+
+        MouseArea {
+            id: viewOnlyBtnArea
+            anchors.fill: parent
+            onClicked: {
+                unlockError.text    = "Loading View-only Mode..."
+                unlockError.color   = "#00826F"
+                unlockError.visible = true
+                unlockTriggerTimer.action = "viewOnly"
+                unlockTriggerTimer.start()
+            }
+        }
+    }
+
+    // ===== FORGOT PIN LINK =====
+    Text {
+        y: rememberRow.y + rememberRow.height + _s(236)
+        text: "Forgot PIN?"
+        color: "#00826F"
+        font.family: "Roboto"
+        font.pixelSize: _s(24)
+        font.bold: true
+        anchors.left: rememberRow.left
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: loginPage.forgotPINClicked()
+        }
+    }
 
 
     Component.onCompleted: {

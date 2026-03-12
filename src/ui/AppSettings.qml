@@ -44,7 +44,9 @@ Rectangle {
     // URLs that require re-authentication when in view-only mode
     readonly property var _restrictedUrls: [
         "qrc:/qml/GeneralSettings.qml",
-        "qrc:/qml/ARSettings.qml"
+        "qrc:/qml/ARSettings.qml",
+        "qrc:/qml/MavlinkSettings.qml",
+        "qrc:/qml/LinkSettings.qml"
     ]
 
     QGCPalette { id: qgcPal }
@@ -61,7 +63,7 @@ Rectangle {
                     if (currentSrc.indexOf(fname) !== -1) { isRestricted = true; break }
                 }
                 if (isRestricted) {
-                    __rightPanel.source = "qrc:/qml/LinkSettings.qml"
+                    __rightPanel.source = "qrc:/qml/OfflineMap.qml"
                 }
             } else if (_pendingRestrictedUrl !== "") {
                 // Just unlocked — navigate to the page user originally wanted
@@ -77,7 +79,7 @@ Rectangle {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
         } else if (mainWindow.viewOnlyMode) {
-            __rightPanel.source = "qrc:/qml/LinkSettings.qml"
+            __rightPanel.source = "qrc:/qml/OfflineMap.qml"
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
         }
@@ -144,8 +146,8 @@ Rectangle {
                         target: mainWindow
                         onViewOnlyModeChanged: {
                             if (mainWindow.viewOnlyMode) {
-                                // Entered view-only → highlight Comm Links
-                                if (String(modelData.url) === "qrc:/qml/LinkSettings.qml") {
+                                // Entered view-only → highlight OfflineMap
+                                if (String(modelData.url) === "qrc:/qml/OfflineMap.qml") {
                                     checked = true
                                 } 
                             } else {
@@ -162,8 +164,8 @@ Rectangle {
                         }
                         if(_first) {
                             if (mainWindow.viewOnlyMode) {
-                                // In view-only mode, check Comm Links as the default
-                                if (String(modelData.url) === "qrc:/qml/LinkSettings.qml") {
+                                // In view-only mode, check OfflineMapas the default
+                                if (String(modelData.url) === "qrc:/qml/OfflineMap.qml") {
                                     _first = false
                                     checked = true
                                 }

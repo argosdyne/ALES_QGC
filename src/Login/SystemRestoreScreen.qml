@@ -10,15 +10,18 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 
+import QGroundControl.ScreenTools 1.0
+
 Page {
     id: restorePage
 
     signal cancelClicked()
     signal confirmRestoreClicked()
 
-    property string _requiredPhrase: "RESTORE SYSTEM"
     property bool locked: false
+    property bool phraseBoxFocused: false
     readonly property string _lockoutScope: "system_restore"
+    property real _uiScale: ScreenTools.isMobile ? 1.1 : 0.6
 
     background: Rectangle {
         color: "#0E1725"
@@ -66,7 +69,7 @@ Page {
     }
 
     function _isPhraseValid() {
-        return phraseInput.text.trim().toUpperCase() === _requiredPhrase
+        return securityManager.verifyRestorePhrase(phraseInput.text)
     }
 
     function _confirmRestore() {
@@ -91,141 +94,207 @@ Page {
             }
         }
     }
+    function _s(px) { return Math.round(px * _uiScale) }
 
     Item {
         id: content
-        width: 760
-        height: 560
+        width: Math.min(_s(1019), parent.width - _s(24))
+        height: _s(745)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: Math.max(20, Math.round((parent.height - 620) / 2))
+        y: Math.max(_s(12), Math.round((parent.height - height) / 2))
 
         Rectangle {
             anchors.fill: parent
-            radius: 10
-            color: "#101A2A"
+            radius: _s(20)
+            color: "#2D2D2D"
             border.width: 1
-            border.color: "#22334D"
-            opacity: 0.98
-        }
-
-        Text {
-            x: 20
-            y: 20
-            text: qsTr("[!] SYSTEM RESTORE")
-            color: "#DDE7F7"
-            font.family: "Roboto"
-            font.pixelSize: 36
-            font.bold: true
+            border.color: "#707070"
         }
 
         Rectangle {
-            x: 20
-            y: 72
-            width: 720
-            height: 1
-            color: "#2A3C58"
-        }
+            id: titleBar
+            x: 0
+            y: 0
+            width: parent.width
+            height: _s(84)
+            radius: _s(20)
+            color: "#202528"
+            border.width: 1
+            border.color: "#707070"
 
-        Text {
-            x: 20
-            y: 94
-            width: 720
-            wrapMode: Text.WordWrap
-            text: qsTr("You are performing an Admin-level security restore.\nThis action will perform the following:\n- Delete all currently configured PINs.\n- Delete all security keys in the Keystore.\n- Require a full initial setup again.")
-            color: "#DBE6F9"
-            font.family: "Roboto"
-            font.pixelSize: 28
-            lineHeight: 1.2
-        }
+            Image {
+                x: _s(33)
+                y: _s(20)
+                width: _s(52)
+                height: _s(43)
+                source: "/custom/img/caution.svg"
+                fillMode: Image.PreserveAspectFit
+            }
 
-        Text {
-            x: 20
-            y: 292
-            width: 720
-            text: qsTr("Please type the exact phrase from System Admin")
-            color: "#D5E3FA"
-            font.family: "Roboto"
-            font.pixelSize: 25
-        }
-
-        Rectangle {
-            id: phraseBox
-            x: 20
-            y: 370
-            width: 720
-            height: 56
-            radius: 5
-            color: "#0A1322"
-            border.width: 2
-            border.color: phraseInput.activeFocus ? "#34D0FF" : "#2F4E73"
-
-            TextField {
-                id: phraseInput
-                anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 14
-                color: "#E8F3FF"
-                placeholderText: qsTr("Type phrase here")
-                placeholderTextColor: "#6F8EB4"
+            Text {
+                x: _s(94)
+                anchors.verticalCenter: parent.verticalCenter
+                text: qsTr("SYSTEM Restore")
+                color: "#FFFFFF"
                 font.family: "Roboto"
-                font.pixelSize: 24
-                background: Item {}
-                onTextChanged: feedbackText.visible = false
+                font.pixelSize: _s(40)
+                font.bold: true
+            }
+
+            Image {
+                x: _s(952)
+                anchors.verticalCenter: parent.verticalCenter
+                width: _s(32)
+                height: _s(32)
+                source: "/custom/img/cancel.svg"
+                fillMode: Image.PreserveAspectFit
+
+                MouseArea {
+                    anchors.centerIn: parent
+                    width: _s(70)
+                    height: _s(70)
+                    onClicked: cancelClicked()
+                }
+            }
+
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width - 2
+                x: 1
+                height: _s(20)
+                color: parent.color
+            }
+
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width - 2
+                x: 1
+                height: 1
+                color: parent.border.color
+            }
+        }
+
+        Rectangle {
+            x: _s(80)
+            y: _s(139)
+            width: Math.min(_s(858), parent.width - _s(160))
+            height: _s(243)
+            radius: 4
+            color: "#485058"
+
+            Text {
+                y: _s(20)
+                width: parent.width
+                text: qsTr("You are performing an Admin-level security restore.\nThis action will perform the following:")
+                color: "#AEAEAE"
+                font.family: "Roboto"
+                font.pixelSize: _s(28)
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: 1.2
+            }
+
+            Text {
+                y: _s(109)
+                width: parent.width
+                text: qsTr("1. Delete all currently configured PINs.\n2. Delete all security key in the Keystore.\n3. Require a full initial setup.")
+                color: "#FFFFFF"
+                font.family: "Roboto"
+                font.pixelSize: _s(28)
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                lineHeight: 1.2
             }
         }
 
         Text {
-            id: feedbackText
-            x: 20
-            y: 435
-            width: 720
-            visible: false
-            color: "#FF6E6E"
+            y: _s(428)
+            width: parent.width
+            text: qsTr("Please type the exact phrase from system admin:")
+            color: "#FFFFFF"
             font.family: "Roboto"
-            font.pixelSize: 21
+            font.pixelSize: _s(32)
             horizontalAlignment: Text.AlignHCenter
         }
 
         Rectangle {
-            x: 180
-            y: 480
-            width: 170
-            height: 48
-            radius: 6
-            color: cancelMouse.pressed ? "#565F71" : "#6E788C"
-
-            Text {
-                anchors.centerIn: parent
-                text: qsTr("[ CANCEL ]")
-                color: "#F2F5FF"
-                font.family: "Roboto"
-                font.pixelSize: 23
-                font.bold: true
-            }
+            id: phraseBox
+            x: _s(80)
+            y: _s(487)
+            width: Math.min(_s(858), parent.width - _s(160))
+            height: _s(80)
+            radius: 4
+            color: "#2D2D2D"
+            border.width: 2
+            border.color: restorePage.phraseBoxFocused ? "#00C2AD" : "#FFFFFF"
 
             MouseArea {
-                id: cancelMouse
                 anchors.fill: parent
-                onClicked: cancelClicked()
+                hoverEnabled: false
+                onClicked: {
+                    if (restorePage.locked) return
+                    restorePage.phraseBoxFocused = true
+                    phraseInput.forceActiveFocus()
+                    if (!Qt.inputMethod.visible) Qt.inputMethod.show()
+                }
+            }
+
+            TextInput {
+                id: phraseInput
+                anchors.fill: parent
+                anchors.leftMargin: _s(20)
+                anchors.rightMargin: _s(20)
+                verticalAlignment: Text.AlignVCenter
+                color: locked ? "#AEAEAE" : "#FFFFFF"
+                font.family: "Roboto"
+                font.pixelSize: _s(34)
+                inputMethodHints: Qt.ImhUppercaseOnly | Qt.ImhNoPredictiveText
+                onActiveFocusChanged: restorePage.phraseBoxFocused = activeFocus
+                onTextChanged: feedbackText.visible = false
+                Keys.onPressed: {
+                    if (locked) { event.accepted = true; return }
+                }
+            }
+
+            Text {
+                anchors.fill: parent
+                anchors.leftMargin: _s(20)
+                anchors.rightMargin: _s(20)
+                verticalAlignment: Text.AlignVCenter
+                text: phraseInput.text.length > 0 ? phraseInput.text : qsTr("Re-type the exact phrase here...")
+                color: phraseInput.text.length > 0 ? "transparent" : "#AEAEAE"
+                font.family: "Roboto"
+                font.pixelSize: _s(34)
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (restorePage.locked) return
+                        restorePage.phraseBoxFocused = true
+                        phraseInput.forceActiveFocus()
+                        if (!Qt.inputMethod.visible) Qt.inputMethod.show()
+                    }
+                }
             }
         }
 
         Rectangle {
-            x: 390
-            y: 480
-            width: 250
-            height: 48
-            radius: 6
-            color: confirmMouse.pressed ? "#2BC2DF" : "#35D9F5"
+            id: confirmButton
+            x: (content.width - width) / 2
+            y: _s(617)
+            width: Math.min(_s(508), parent.width - _s(24))
+            height: _s(71)
+            radius: 4
+            color: confirmMouse.pressed ? "#0B8A7A" : "#00826F"
             opacity: locked ? 0.5 : 1.0
 
             Text {
                 anchors.centerIn: parent
-                text: qsTr("[ CONFIRM DEFAULTS ]")
-                color: "#08364A"
+                text: qsTr("Confirm")
+                color: "#FFFFFF"
                 font.family: "Roboto"
-                font.pixelSize: 23
-                font.bold: true
+                font.pixelSize: _s(28)
+                font.styleName: "Medium"
             }
 
             MouseArea {
@@ -234,6 +303,18 @@ Page {
                 enabled: !locked
                 onClicked: _confirmRestore()
             }
+        }
+
+        Text {
+            id: feedbackText
+            x: 0
+            y: _s(575)
+            width: parent.width
+            visible: false
+            color: "#ff5c5c"
+            font.family: "Roboto"
+            font.pixelSize: _s(24)
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 
