@@ -18,14 +18,18 @@ FirstRunPrompt {
     title:      qsTr("Secure Setup")
     promptId:   QGroundControl.corePlugin.secureConnectionFirstRunPromptId
     buttons:    StandardButton.NoButton
+    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 23
+    readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 28
+    readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 7
+    readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
 
     ColumnLayout {
-        width:      ScreenTools.defaultFontPixelWidth * 66
+        width:      ScreenTools.defaultFontPixelWidth * 56
         spacing:    ScreenTools.defaultFontPixelHeight * 0.6
 
         QGCFlickable {
             Layout.fillWidth:       true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 24
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 22
             clip:                   true
             contentHeight:          formColumn.height
             contentWidth:           formColumn.width
@@ -52,7 +56,7 @@ FirstRunPrompt {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    color: qgcPal.windowShade
+                    color: "#2f3946"
                     radius: 3
                     height: udpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
 
@@ -65,15 +69,18 @@ FirstRunPrompt {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: ScreenTools.defaultFontPixelWidth * 0.6
-                            QGCCheckBox { text: qsTr("MAVLink UDP Listener"); checked: true }
-                            Item { Layout.fillWidth: true }
+                            QGCCheckBox {
+                                text: qsTr("MAVLink UDP Listener")
+                                checked: true
+                                Layout.preferredWidth: _labelColumnWidth
+                            }
                             QGCLabel { text: qsTr("Port:") }
-                            QGCTextField { text: "14550"; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 7.5 }
+                            QGCTextField { text: "14550"; Layout.preferredWidth: _portFieldWidth }
                             QGCLabel { text: qsTr("Bind:") }
                             QGCComboBox {
                                 model: [ "127.0.0.1", "0.0.0.0" ]
                                 currentIndex: 0
-                                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 10
+                                Layout.preferredWidth: _bindFieldWidth
                             }
                         }
                     }
@@ -81,7 +88,7 @@ FirstRunPrompt {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    color: qgcPal.windowShade
+                    color: "#344151"
                     radius: 3
                     height: tcpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
 
@@ -94,15 +101,18 @@ FirstRunPrompt {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: ScreenTools.defaultFontPixelWidth * 0.6
-                            QGCCheckBox { text: qsTr("MAVLink TCP Server"); checked: true }
-                            Item { Layout.fillWidth: true }
+                            QGCCheckBox {
+                                text: qsTr("MAVLink TCP Server")
+                                checked: true
+                                Layout.preferredWidth: _labelColumnWidth
+                            }
                             QGCLabel { text: qsTr("Port:") }
-                            QGCTextField { text: "5760"; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 7.5 }
+                            QGCTextField { text: "5760"; Layout.preferredWidth: _portFieldWidth }
                             QGCLabel { text: qsTr("Bind:") }
                             QGCComboBox {
                                 model: [ "127.0.0.1", "0.0.0.0" ]
                                 currentIndex: 0
-                                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 10
+                                Layout.preferredWidth: _bindFieldWidth
                             }
                         }
                     }
@@ -110,7 +120,7 @@ FirstRunPrompt {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    color: qgcPal.windowShade
+                    color: "#2b3542"
                     radius: 3
                     height: videoColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
 
@@ -123,12 +133,15 @@ FirstRunPrompt {
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: ScreenTools.defaultFontPixelWidth * 0.6
-                            QGCCheckBox { text: qsTr("Video Streaming (GStreamer)"); checked: true }
-                            Item { Layout.fillWidth: true }
+                            QGCCheckBox {
+                                text: qsTr("Video Streaming (GStreamer)")
+                                checked: true
+                                Layout.preferredWidth: _videoLabelColumnWidth
+                            }
                             QGCLabel { text: qsTr("URI:") }
                             QGCTextField {
                                 text: "udp://@:5600"
-                                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 20
+                                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 18
                             }
                         }
                     }
@@ -136,7 +149,7 @@ FirstRunPrompt {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    color: qgcPal.windowShade
+                    color: "#313c4a"
                     radius: 3
                     height: securityColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
 
@@ -165,11 +178,15 @@ FirstRunPrompt {
 
         RowLayout {
             Layout.fillWidth: true
-            QGCButton { text: qsTr("Continue offline") }
+            QGCButton {
+                text: qsTr("Continue offline")
+                onClicked: close()
+            }
             Item { Layout.fillWidth: true }
             QGCButton {
                 text: qsTr("Start (Enable Selected Services)")
                 primary: true
+                onClicked: close()
             }
         }
     }
