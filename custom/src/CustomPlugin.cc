@@ -213,7 +213,7 @@ bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
 QList<int> CustomPlugin::firstRunPromptCustomIds(void)
 {
     QSettings settings;
-    const bool wizardDone = settings.value(QStringLiteral("CustomSettings/securityWizardCompleted"), false).toBool();
+    const bool wizardDone = settings.value(QStringLiteral("Custom/securityWizardCompleted"), false).toBool();
     if (!wizardDone) {
         return QList<int>({ secureConnectionFirstRunPromptId });
     }

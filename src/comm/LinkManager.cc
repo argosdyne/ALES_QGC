@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QSignalSpy>
+#include <QSettings>
 
 #include <memory>
 
@@ -45,6 +46,12 @@
 
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
+
+static bool _customNetworkServiceEnabled(const char* key, bool defaultValue = false)
+{
+    QSettings settings;
+    return settings.value(QStringLiteral("Custom/%1").arg(QLatin1String(key)), defaultValue).toBool();
+}
 
 const char* LinkManager::_defaultUDPLinkName =                  "UDP Link (AutoConnect)";
 const char* LinkManager::_mavlinkForwardingLinkName =           "MAVLink Forwarding Link";
@@ -110,6 +117,18 @@ void LinkManager::createConnectedLink(LinkConfiguration* config)
 
 bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool isPX4Flow)
 {
+    if (config->type() == LinkConfiguration::TypeUdp && !_customNetworkServiceEnabled("networkUdpListenerEnabled")) {
+        qCInfo(LinkManagerLog) << "UDP link creation blocked by secure setup:" << config->name();
+        qgcApp()->showAppMessage(tr("UDP connections are disabled by Secure Setup."));
+        return false;
+    }
+
+    if (config->type() == LinkConfiguration::TypeTcp && !_customNetworkServiceEnabled("networkTcpServerEnabled")) {
+        qCInfo(LinkManagerLog) << "TCP link creation blocked by secure setup:" << config->name();
+        qgcApp()->showAppMessage(tr("TCP connections are disabled by Secure Setup."));
+        return false;
+    }
+
     SharedLinkInterfacePtr link = nullptr;
 
     switch(config->type()) {
@@ -204,6 +223,49 @@ void LinkManager::disconnectAll(void)
     for (const SharedLinkInterfacePtr& sharedLink: links) {
         sharedLink->disconnect();
     }
+}
+
+void LinkManager::disconnectNetworkLinks(void)
+{
+    QList<SharedLinkInterfacePtr> links = _rgLinks;
+
+    for (const SharedLinkInterfacePtr& sharedLink: links) {
+        const SharedLinkConfigurationPtr config = sharedLink->linkConfiguration();
+        if (!config) {
+            continue;
+        }
+
+        if (config->type() == LinkConfiguration::TypeUdp || config->type() == LinkConfiguration::TypeTcp) {
+            sharedLink->disconnect();
+        }
+    }
+}
+
+void LinkManager::disconnectLinksByType(int linkType)
+{
+    QList<SharedLinkInterfacePtr> links = _rgLinks;
+
+    for (const SharedLinkInterfacePtr& sharedLink: links) {
+        const SharedLinkConfigurationPtr config = sharedLink->linkConfiguration();
+        if (!config) {
+            continue;
+        }
+
+        if (config->type() == static_cast<LinkConfiguration::LinkType>(linkType)) {
+            sharedLink->disconnect();
+        }
+    }
+}
+
+void LinkManager::refreshNetworkLinks(void)
+{
+    if (_connectionsSuspended || qgcApp()->runningUnitTests()) {
+        return;
+    }
+
+    _addUDPAutoConnectLink();
+    _addMAVLinkForwardingLink();
+    _addZeroConfAutoConnectLink();
 }
 
 void LinkManager::_linkDisconnected(void)
@@ -385,6 +447,10 @@ bool LinkManager::_portAlreadyConnected(const QString& portName)
 
 void LinkManager::_addUDPAutoConnectLink(void)
 {
+    if (!_customNetworkServiceEnabled("networkUdpListenerEnabled")) {
+        return;
+    }
+
     if (_autoConnectSettings->autoConnectUDP()->rawValue().toBool()) {
         bool foundUDP = false;
 
@@ -409,6 +475,10 @@ void LinkManager::_addUDPAutoConnectLink(void)
 
 void LinkManager::_addMAVLinkForwardingLink(void)
 {
+    if (!_customNetworkServiceEnabled("networkUdpListenerEnabled")) {
+        return;
+    }
+
     if (_toolbox->settingsManager()->appSettings()->forwardMavlink()->rawValue().toBool()) {
         bool foundMAVLinkForwardingLink = false;
 
@@ -430,6 +500,11 @@ void LinkManager::_addMAVLinkForwardingLink(void)
 
 void LinkManager::_addZeroConfAutoConnectLink(void)
 {
+    if (!_customNetworkServiceEnabled("networkUdpListenerEnabled") &&
+            !_customNetworkServiceEnabled("networkTcpServerEnabled")) {
+        return;
+    }
+
     if (!_autoConnectSettings->autoConnectZeroConf()->rawValue().toBool()) {
         return;
     }
@@ -465,6 +540,12 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
         }
 
         if(service.type().startsWith("_mavlink._udp")) {
+            const bool udpEnabled = _customNetworkServiceEnabled("networkUdpListenerEnabled");
+            if (!udpEnabled) {
+                qCDebug(LinkManagerVerboseLog) << "Skipping ZeroConf UDP link due to secure setup";
+                return;
+            }
+
             static QString udpName("ZeroConf UDP");
             if (checkIfConnectionLinkExist(LinkConfiguration::TypeUdp, udpName)) {
                 qCDebug(LinkManagerVerboseLog) << "Connection already exist";
@@ -481,6 +562,12 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
         }
 
         if(service.type().startsWith("_mavlink._tcp")) {
+            const bool tcpEnabled = _customNetworkServiceEnabled("networkTcpServerEnabled");
+            if (!tcpEnabled) {
+                qCDebug(LinkManagerVerboseLog) << "Skipping ZeroConf TCP link due to secure setup";
+                return;
+            }
+
             static QString tcpName("ZeroConf TCP");
             if (checkIfConnectionLinkExist(LinkConfiguration::TypeTcp, tcpName)) {
                 qCDebug(LinkManagerVerboseLog) << "Connection already exist";

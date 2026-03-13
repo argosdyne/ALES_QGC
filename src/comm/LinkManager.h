@@ -111,6 +111,9 @@ public:
     SharedLinkInterfacePtr mavlinkForwardingSupportLink();
 
     void disconnectAll(void);
+    Q_INVOKABLE void disconnectNetworkLinks(void);
+    Q_INVOKABLE void disconnectLinksByType(int linkType);
+    Q_INVOKABLE void refreshNetworkLinks(void);
 
 #ifdef QT_DEBUG
     // Only used by unit test tp restart after a shutdown

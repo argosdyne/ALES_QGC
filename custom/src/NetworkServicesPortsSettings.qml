@@ -129,7 +129,7 @@ Rectangle {
                             anchors.margins:        _margins
                             spacing:                ScreenTools.defaultFontPixelHeight * 0.25
 
-                            QGCLabel { text: qsTr("MAVLink TCP Server"); font.family: ScreenTools.demiboldFontFamily }
+                            QGCLabel { text: qsTr("MAVLink TCP Connection"); font.family: ScreenTools.demiboldFontFamily }
                             QGCLabel { text: qsTr("Protocol: TCP | Default Port: %1 | Bind: %2").arg(_tcpPort.rawValue).arg(_tcpBind.rawValue) }
                             QGCLabel { text: qsTr("Disable capability: Yes (Instant)") }
                         }
