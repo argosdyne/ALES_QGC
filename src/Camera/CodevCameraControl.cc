@@ -1351,6 +1351,10 @@ bool CodevCameraControl::_isTakingPhotoTimelapse()
 
 void CodevCameraControl::buttonTakePhoto()
 {
+    if (photoMode() != PHOTO_CAPTURE_SINGLE) {
+        QGCCameraControl::setPhotoMode(PHOTO_CAPTURE_SINGLE);
+    }
+
     //-- Do we have storage (in kb) and is camera idle?
     if(photoMode() == PHOTO_CAPTURE_TIMELAPSE && photoStatus() != PHOTO_CAPTURE_IDLE) {
         stopTakePhoto();
@@ -1400,7 +1404,12 @@ void CodevCameraControl::buttonToggleVideo()
         if (videoManager && videoManager->streaming()) {
             if (videoManager->recording()) {
                 videoManager->stopRecording();
+                if (_restorePhotoModeAfterLocalRecording && cameraMode() != CAM_MODE_PHOTO) {
+                    setPhotoMode();
+                }
+                _restorePhotoModeAfterLocalRecording = false;
             } else {
+                _restorePhotoModeAfterLocalRecording = (cameraMode() == CAM_MODE_PHOTO);
                 if (cameraMode() != CAM_MODE_VIDEO) {
                     setVideoMode();
                 }

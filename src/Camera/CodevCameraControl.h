@@ -210,6 +210,7 @@ protected:
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치
     float _opticalStep  = 1.0f;          // 한 번 누를 때 RANGE 증가량(튜닝)
+    bool _restorePhotoModeAfterLocalRecording{false};
     float _digitalStep  = 0.2f;
     float _maxOpticalX  = 30.0f;         // 광학 최대 배율(당신 케이스)
     
