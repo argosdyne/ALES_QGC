@@ -47,6 +47,14 @@ static constexpr float kTrackingCenterMax = 0.65f;
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
 
+static bool _shouldUseLocalVideoRecordingFallback(const QString& vendor, const QString& model)
+{
+    const QString vendorUpper = vendor.toUpper();
+    const QString modelUpper = model.toUpper();
+
+    return modelUpper.contains(QStringLiteral("LR1")) || vendorUpper.contains(QStringLiteral("SONY"));
+}
+
 static QStringList detected_labels_database = {
     "person", "car", "bus", "truck", "bike", "train", "boat", "aeroplane",
     "bicycle", "motorcycle", "airplane", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -1387,6 +1395,21 @@ void CodevCameraControl::buttonTakePhoto()
 
 void CodevCameraControl::buttonToggleVideo()
 {
+    if (_shouldUseLocalVideoRecordingFallback(vendor(), modelName())) {
+        auto* videoManager = qgcApp()->toolbox()->videoManager();
+        if (videoManager && videoManager->streaming()) {
+            if (videoManager->recording()) {
+                videoManager->stopRecording();
+            } else {
+                if (cameraMode() != CAM_MODE_VIDEO) {
+                    setVideoMode();
+                }
+                videoManager->startRecording();
+            }
+            return;
+        }
+    }
+
     if(videoStatus() == VIDEO_CAPTURE_STATUS_RUNNING) {
         toggleVideo();
         return;
