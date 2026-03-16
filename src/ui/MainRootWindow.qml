@@ -12,6 +12,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Dialogs  1.3
 import QtQuick.Layouts  1.11
 import QtQuick.Window   2.11
+import Qt.labs.settings 1.0
 
 import QGroundControl               1.0
 import QGroundControl.Palette       1.0
@@ -27,19 +28,27 @@ ApplicationWindow {
     id:             mainWindow
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
-    visible:        true
+    property alias  viewOnlyMode: globals.viewOnlyMode
+    property var _loginPageComponent:    null
+    property var _registerPageComponent: null
+    property var _recoveryKeyPageComponent: null
+    property var _forgotPinPageComponent: null
+    property var _systemRestorePageComponent: null
 
     Component.onCompleted: {
-        //-- Full screen on mobile or tiny screens
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
             mainWindow.showFullScreen()
         } else {
             width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
-
-        // Start the sequence of first run prompt(s)
-        firstRunPromptManager.nextPrompt()
+        _loginPageComponent    = Qt.createComponent("qrc:/login/LoginScreen.qml")
+        _registerPageComponent = Qt.createComponent("qrc:/login/RegisterScreen.qml")
+        _recoveryKeyPageComponent = Qt.createComponent("qrc:/login/RecoveryKeyScreen.qml")
+        _forgotPinPageComponent = Qt.createComponent("qrc:/login/ForgotPinScreen.qml")
+        _systemRestorePageComponent = Qt.createComponent("qrc:/login/SystemRestoreScreen.qml")
+        loadInitialLoginUI()
+        loginOverlay.open()
     }
 
     QtObject {
@@ -157,6 +166,9 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+
+        // Property to manage View-Only Mode
+        property bool               viewOnlyMode:        false
     }
 
     /// Default color palette used throughout the UI
@@ -279,6 +291,7 @@ ApplicationWindow {
 
     property bool _forceClose: false
 
+
     function finishCloseProcess() {
         _forceClose = true
         // For some reason on the Qml side Qt doesn't automatically disconnect a signal when an object is destroyed.
@@ -287,6 +300,105 @@ ApplicationWindow {
         QGroundControl.linkManager.shutdown()
         QGroundControl.videoManager.stopVideo();
         mainWindow.close()
+    }
+
+    // -------------------------------------------------------------------------
+    // Login functions
+
+        Settings {
+        id: loginFlowSettings
+        category: "LoginFlow"
+        property bool recoveryKeyPending: false
+    }
+
+    // Show login overlay 
+    function showLoginOverlay() {
+        if (loginFlowSettings.recoveryKeyPending) {
+            loginOverlay.open()
+        }
+        else if (!loginOverlay.visible) {
+            loadInitialLoginUI()
+            loginOverlay.open()
+        }
+    }
+
+    function loadInitialLoginUI() {
+        loginStack.clear()
+        if (securityManager.hasStoredPin()) {
+            if (loginFlowSettings.recoveryKeyPending) {
+                showRecoveryKeyUI()
+            } else {
+                var loginComp = loginStack.push(_loginPageComponent)
+                setupLoginPageConnections(loginComp)
+            }
+        } else {
+            var regComp = loginStack.push(_registerPageComponent)
+            setupRegisterPageConnections(regComp)
+        }
+    }
+
+    function setupRegisterPageConnections(registerComponent) {
+        registerComponent.pinRegistered.connect(function() {
+            loginFlowSettings.recoveryKeyPending = true
+            showRecoveryKeyUI()
+        })
+    }
+
+    function showRecoveryKeyUI() {
+        var recoveryComp = loginStack.replace(_recoveryKeyPageComponent)
+        recoveryComp.continueToLoginClicked.connect(function() {
+            loginFlowSettings.recoveryKeyPending = false
+            var loginComp = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginComp)
+        })
+    }
+
+    function showForgotPinUI() {
+        var forgotComp = loginStack.replace(_forgotPinPageComponent)
+        forgotComp.backClicked.connect(function() {
+            var loginCompBack = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginCompBack)
+        })
+        forgotComp.recoveryVerified.connect(function() {
+            securityManager.clearStored()
+            var regComp = loginStack.replace(_registerPageComponent)
+            setupRegisterPageConnections(regComp)
+        })
+    }
+
+    function showSystemRestoreUI() {
+        var restoreComp = loginStack.replace(_systemRestorePageComponent)
+        restoreComp.cancelClicked.connect(function() {
+            var loginCompBack = loginStack.replace(_loginPageComponent)
+            setupLoginPageConnections(loginCompBack)
+        })
+        restoreComp.confirmRestoreClicked.connect(function() {
+            securityManager.clearStored()
+            var regComp = loginStack.replace(_registerPageComponent)
+            setupRegisterPageConnections(regComp)
+        })
+    }
+
+    function setupLoginPageConnections(loginComponent) {
+        loginComponent.unlockClicked.connect(function() {
+            sessionManager.startSession()
+            globals.viewOnlyMode = false
+            loginOverlay.close()
+        })
+        loginComponent.viewOnlyClicked.connect(function() {
+            globals.viewOnlyMode = true
+            loginOverlay.close()
+        })
+        if (loginComponent.forgotPINClicked !== undefined) {
+            loginComponent.forgotPINClicked.connect(function() {
+                showForgotPinUI()
+            })
+        }
+        if (loginComponent.systemRestoreRequested !== undefined) {
+            loginComponent.systemRestoreRequested.connect(function() {
+                showSystemRestoreUI()
+            })
+        }
     }
 
     // On attempting an application close we check for:
@@ -427,6 +539,19 @@ ApplicationWindow {
                                 toolSelectDialog.close()
                                 mainWindow.showSettingsTool()
                             }
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 lockScreenButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("Lock Screen")
+                        imageResource:      "/custom/img/png/session_lock.png"
+                        imageColor:         "transparent"
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showLoginOverlay()
                         }
                     }
 
@@ -985,6 +1110,39 @@ ApplicationWindow {
                 visible = false
                 source = ""
             }
+        }
+    }
+
+    // Login overlay
+    Popup {
+        id:          loginOverlay
+        parent:      Overlay.overlay
+        width:       mainWindow.width
+        height:      mainWindow.height
+        visible:     true
+        modal:       true
+        closePolicy: Popup.NoAutoClose
+        padding:     0
+
+        background: Rectangle {
+            color:  "#222222"
+            opacity: 0.95
+        }
+
+        contentItem: Item {
+            anchors.fill: parent
+
+            StackView {
+                id: loginStack
+                anchors.fill: parent   
+            }
+        }
+    }
+
+    Connections {
+        target: sessionManager
+        onSessionLocked: {
+            showLoginOverlay()
         }
     }
 }

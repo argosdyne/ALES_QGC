@@ -263,6 +263,17 @@ public class QGCActivity extends QtActivity
         // Plug in of USB ACCESSORY triggers only onResume event.
         // Then we scan if there is actually anything new
         probeAccessories();
+        
+        // Session Management: App comes to foreground
+        nativeOnActivityResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        // Session Management: App goes to background - lock immediately
+        nativeOnActivityPause();
     }
 
     @Override
@@ -762,5 +773,9 @@ public class QGCActivity extends QtActivity
             }
         }).start();
     }
+
+    // Session Management JNI callbacks
+    private native void nativeOnActivityPause();
+    private native void nativeOnActivityResume();
 }
 

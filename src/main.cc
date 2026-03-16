@@ -426,9 +426,9 @@ int main(int argc, char *argv[])
     }
 
     app->_shutdown();
-    delete app;
     //-- Shutdown Cache System
     destroyMapEngine();
+    delete app;
 
     qDebug() << "After app delete";
 

@@ -28,7 +28,11 @@ Rectangle {
     readonly property real _verticalMargin:     _defaultTextHeight / 2
     readonly property real _buttonHeight:       ScreenTools.isTinyScreen ? ScreenTools.defaultFontPixelHeight * 3 : ScreenTools.defaultFontPixelHeight * 2
 
-    property bool _privacyExpanded:         false
+    property bool   _first:                  true
+    property bool   _commingFromRIDSettings: false
+    property bool   _privacyExpanded:        false
+    property string _pendingRestrictedUrl:   ""
+
     readonly property string _privacyMainUrl: "qrc:/custom/ExternalSensingPrivacySettings.qml"
     readonly property var _privacyChildPages: [
         { title: qsTr("External Sensing"), url: "qrc:/custom/ExternalSensingPrivacySettings.qml" },
@@ -37,7 +41,23 @@ Rectangle {
         { title: qsTr("Connections"),      url: "qrc:/custom/ConnectionsOverrideSettings.qml" }
     ]
 
+    readonly property var _restrictedUrls: [
+        "qrc:/qml/GeneralSettings.qml",
+        "qrc:/qml/ARSettings.qml",
+        "qrc:/qml/MavlinkSettings.qml",
+        "qrc:/qml/LinkSettings.qml"
+    ]
+
     QGCPalette { id: qgcPal }
+
+    function _syncAllButtonsFromSource() {
+        for (var i = 0; i < settingsRepeater.count; i++) {
+            var item = settingsRepeater.itemAt(i)
+            if (item && item._syncCheckedFromSource) {
+                item._syncCheckedFromSource()
+            }
+        }
+    }
 
     function _isPrivacyChild(url) {
         for (var i = 0; i < _privacyChildPages.length; i++) {
@@ -52,11 +72,40 @@ Rectangle {
         return _isPrivacyChild(String(__rightPanel.source))
     }
 
+    Connections {
+        target: mainWindow
+        onViewOnlyModeChanged: {
+            if (mainWindow.viewOnlyMode) {
+                var currentSrc = String(__rightPanel.source)
+                var isRestricted = false
+                for (var i = 0; i < _restrictedUrls.length; i++) {
+                    var fname = _restrictedUrls[i].split("/").pop()
+                    if (currentSrc.indexOf(fname) !== -1) {
+                        isRestricted = true
+                        break
+                    }
+                }
+                if (isRestricted) {
+                    __rightPanel.source = "qrc:/qml/OfflineMap.qml"
+                }
+            } else if (_pendingRestrictedUrl !== "") {
+                __rightPanel.source = _pendingRestrictedUrl
+                _pendingRestrictedUrl = ""
+            }
+
+            Qt.callLater(function() {
+                settingsView._syncAllButtonsFromSource()
+            })
+        }
+    }
+
     Component.onCompleted: {
         //-- Default Settings
         if (globals.commingFromRIDIndicator) {
             __rightPanel.source = "qrc:/qml/RemoteIDSettings.qml"
             globals.commingFromRIDIndicator = false
+        } else if (mainWindow.viewOnlyMode) {
+            __rightPanel.source = "qrc:/qml/OfflineMap.qml"
         } else {
             __rightPanel.source = QGroundControl.corePlugin.settingsPages[QGroundControl.corePlugin.defaultSettings].url
         }
@@ -81,17 +130,31 @@ Rectangle {
             property real _maxButtonWidth: 0
 
             Repeater {
+                id: settingsRepeater
                 model:  QGroundControl.corePlugin.settingsPages
+
                 ColumnLayout {
                     readonly property string _pageUrl: modelData.url.toString()
                     readonly property bool _isPrivacyMain: _pageUrl === _privacyMainUrl
                     readonly property bool _isPrivacyChild: settingsView._isPrivacyChild(_pageUrl)
                     readonly property bool _isRemoteId: _pageUrl === "qrc:/qml/RemoteIDSettings.qml"
+
                     Layout.fillWidth: true
                     spacing: _verticalMargin / 2
                     visible: (_isPrivacyMain || !_isPrivacyChild) && (!_isRemoteId || QGroundControl.settingsManager.remoteIDSettings.enable.rawValue)
 
+                    function _syncCheckedFromSource() {
+                        if (_isPrivacyMain) {
+                            privacyMainButton.checked = settingsView._isPrivacySelection()
+                        } else {
+                            var loadedSrc = String(__rightPanel.source)
+                            var btnFile = _pageUrl.split("/").pop()
+                            mainButton.checked = loadedSrc.indexOf(btnFile) !== -1
+                        }
+                    }
+
                     QGCButton {
+                        id:                 _isPrivacyMain ? privacyMainButton : mainButton
                         height:             _buttonHeight
                         text:               parent._isPrivacyMain ? qsTr("Privacy") : modelData.title
                         autoExclusive:      !parent._isPrivacyMain
@@ -108,9 +171,29 @@ Rectangle {
                                 if (_privacyExpanded && !settingsView._isPrivacySelection()) {
                                     __rightPanel.source = _privacyMainUrl
                                 }
-                            } else if (String(__rightPanel.source) !== parent._pageUrl) {
+                                return
+                            }
+
+                            var isRestricted = false
+                            for (var i = 0; i < _restrictedUrls.length; i++) {
+                                if (String(modelData.url) === _restrictedUrls[i]) {
+                                    isRestricted = true
+                                    break
+                                }
+                            }
+                            if (mainWindow.viewOnlyMode && isRestricted) {
+                                _pendingRestrictedUrl = modelData.url
+                                sessionManager.onAppBackground()
+                                Qt.callLater(function() {
+                                    settingsView._syncAllButtonsFromSource()
+                                })
+                                return
+                            }
+
+                            if (String(__rightPanel.source) !== parent._pageUrl) {
                                 __rightPanel.source = parent._pageUrl
                             }
+                            checked = true
                         }
                     }
 
@@ -134,6 +217,48 @@ Rectangle {
                                     __rightPanel.source = modelData.url
                                 }
                             }
+                        }
+                    }
+
+                    Connections {
+                        target: mainWindow
+                        onViewOnlyModeChanged: {
+                            Qt.callLater(function() {
+                                parent._syncCheckedFromSource()
+                            })
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if (globals.commingFromRIDIndicator) {
+                            _commingFromRIDSettings = true
+                        }
+                        if (_first && !parent._isPrivacyChild) {
+                            if (mainWindow.viewOnlyMode) {
+                                if (String(modelData.url) === "qrc:/qml/OfflineMap.qml") {
+                                    _first = false
+                                    if (parent._isPrivacyMain) {
+                                        privacyMainButton.checked = false
+                                    } else {
+                                        mainButton.checked = true
+                                    }
+                                }
+                            } else {
+                                _first = false
+                                if (parent._isPrivacyMain) {
+                                    privacyMainButton.checked = settingsView._isPrivacySelection()
+                                } else {
+                                    mainButton.checked = true
+                                }
+                            }
+                        }
+                        if (_commingFromRIDSettings && !parent._isPrivacyMain) {
+                            if (modelData.url == "qrc:/qml/RemoteIDSettings.qml") {
+                                mainButton.checked = true
+                            } else {
+                                mainButton.checked = false
+                            }
+                            _commingFromRIDSettings = false
                         }
                     }
                 }
@@ -166,4 +291,3 @@ Rectangle {
         anchors.bottom:         parent.bottom
     }
 }
-

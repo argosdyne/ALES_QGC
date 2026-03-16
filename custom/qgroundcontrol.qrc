@@ -99,6 +99,7 @@
 		<file alias="QGCInstrumentWidgetAlternate.qml">../src/FlightMap/Widgets/QGCInstrumentWidgetAlternate.qml</file>
 		<file alias="QGroundControl/Controls/AnalyzePage.qml">../src/AnalyzeView/AnalyzePage.qml</file>
 		<file alias="QGroundControl/Controls/AppMessages.qml">../src/QmlControls/AppMessages.qml</file>
+		<file alias="QGroundControl/Controls/SecureLog.qml">../src/QmlControls/SecureLog.qml</file>
 		<file alias="QGroundControl/Controls/AltModeDialog.qml">../src/QmlControls/AltModeDialog.qml</file>
 		<file alias="QGroundControl/Controls/AxisMonitor.qml">../src/QmlControls/AxisMonitor.qml</file>
 		<file alias="QGroundControl/Controls/CameraCalcCamera.qml">../src/PlanView/CameraCalcCamera.qml</file>
@@ -393,6 +394,13 @@
 		<file alias="Vehicle/GeneratorFact.json">../src/Vehicle/GeneratorFact.json</file>
 		<file alias="Vehicle/EFIFact.json">../src/Vehicle/EFIFact.json</file>
 	</qresource>
+    <qresource prefix="/login">
+        <file alias="RegisterScreen.qml">../src/Login/RegisterScreen.qml</file>
+        <file alias="LoginScreen.qml">../src/Login/LoginScreen.qml</file>
+		<file alias="RecoveryKeyScreen.qml">../src/Login/RecoveryKeyScreen.qml</file>
+		<file alias="ForgotPinScreen.qml">../src/Login/ForgotPinScreen.qml</file>
+		<file alias="SystemRestoreScreen.qml">../src/Login/SystemRestoreScreen.qml</file>
+    </qresource>
 	<qresource prefix="/MockLink">
 		<file alias="APMArduSubMockLink.params">../src/comm/APMArduSubMockLink.params</file>
 		<file alias="PX4MockLink.params">../src/comm/PX4MockLink.params</file>

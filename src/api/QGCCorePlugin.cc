@@ -24,6 +24,9 @@
 #include "QGCCameraManager.h"
 #include "HorizontalFactValueGrid.h"
 #include "InstrumentValueData.h"
+#include "Login/SecurityManager.h"
+#include "Login/SecurityLogModel.h"
+#include "Login/SessionManager.h"
 
 #include <QtQml>
 #include <QQmlEngine>
@@ -61,6 +64,8 @@ public:
             delete pMAVLink;
         if(pConsole)
             delete pConsole;
+        if(pSecurityLog)
+            delete pSecurityLog;
 #if defined(QT_DEBUG)
         if(pMockLink)
             delete pMockLink;
@@ -87,6 +92,7 @@ public:
 #endif
     QmlComponentInfo* pMAVLink                  = nullptr;
     QmlComponentInfo* pConsole                  = nullptr;
+    QmlComponentInfo* pSecurityLog              = nullptr;
     QmlComponentInfo* pHelp                     = nullptr;
 #if defined(QT_DEBUG)
     QmlComponentInfo* pMockLink                 = nullptr;
@@ -168,6 +174,9 @@ QVariantList &QGCCorePlugin::settingsPages()
         _p->pConsole = new QmlComponentInfo(tr("Console"),
                                             QUrl::fromUserInput("qrc:/qml/QGroundControl/Controls/AppMessages.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pConsole)));
+        _p->pSecurityLog = new QmlComponentInfo(tr("Secure Log"),
+                            QUrl::fromUserInput("qrc:/qml/QGroundControl/Controls/SecureLog.qml"));
+        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pSecurityLog)));
         _p->pHelp = new QmlComponentInfo(tr("Help"),
                                          QUrl::fromUserInput("qrc:/qml/HelpSettings.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pHelp)));
@@ -380,6 +389,13 @@ QQmlApplicationEngine* QGCCorePlugin::createQmlApplicationEngine(QObject* parent
     qmlEngine->addImportPath("qrc:/qml");
     qmlEngine->rootContext()->setContextProperty("joystickManager", qgcApp()->toolbox()->joystickManager());
     qmlEngine->rootContext()->setContextProperty("debugMessageModel", AppMessages::getModel());
+    SecurityLog::installModel();
+    qmlEngine->rootContext()->setContextProperty("securityLogModel", SecurityLog::getModel());
+    SecurityManager* securityManager = new SecurityManager(qmlEngine);
+    qmlEngine->rootContext()->setContextProperty("securityManager", securityManager);
+    SessionManager* sessionManager = new SessionManager(qmlEngine);
+    qmlEngine->rootContext()->setContextProperty("sessionManager", sessionManager);
+    
     return qmlEngine;
 }
 
