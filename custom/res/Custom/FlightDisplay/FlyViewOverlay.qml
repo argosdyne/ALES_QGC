@@ -255,11 +255,11 @@ Item {
                 anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                 color: object.color
                 text: {
-                    if(object.icon === "qrc:/custom/img/png/info.png") return qsTr("INFO:")
-                    else if(object.icon === "qrc:/custom/img/png/error.png") return qsTr("CRITICAL:");
-                    else if(object.icon === "qrc:/custom/img/png/warning.png") return qsTr("WARNING:");
-                    else if(object.icon === "qrc:/custom/img/png/success.png") return qsTr("SUCCESS:");
-                    else return qsTr("NONE:");
+                    if(object.icon === "qrc:/custom/img/png/info.png") return qsTranslate("FlyViewOverlay", "INFO:");
+                    else if(object.icon === "qrc:/custom/img/png/error.png") return qsTranslate("FlyViewOverlay", "CRITICAL:");
+                    else if(object.icon === "qrc:/custom/img/png/warning.png") return qsTranslate("FlyViewOverlay", "WARNING:");
+                    else if(object.icon === "qrc:/custom/img/png/success.png") return qsTranslate("FlyViewOverlay", "SUCCESS:");
+                    else return qsTranslate("FlyViewOverlay", "NONE:");
                 }
             }
 
