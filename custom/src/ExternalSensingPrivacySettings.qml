@@ -242,7 +242,7 @@ Rectangle {
                                 checked: _videoRecording.rawValue
                                 onClicked: {
                                     _videoRecording.rawValue = checked
-                                    console.info("SECURITY: Privacy video recording " + (checked ? "enabled" : "disabled"))
+                                    CustomQmlInterface.logSecurityEvent("Privacy video recording " + (checked ? "enabled" : "disabled"))
                                 }
                             }
                         }
@@ -254,7 +254,7 @@ Rectangle {
                                 checked: _telemetrySave.rawValue
                                 onClicked: {
                                     _telemetrySave.rawValue = checked
-                                    console.info("SECURITY: Telemetry log saving " + (checked ? "enabled" : "disabled"))
+                                    CustomQmlInterface.logSecurityEvent("Telemetry log saving " + (checked ? "enabled" : "disabled"))
                                 }
                             }
                         }

@@ -52,7 +52,6 @@ Rectangle {
     function _exportAuditReport() {
         var filePath = CustomQmlInterface.exportTextReport("ALES_QGC_NetworkServicesAudit.txt", _buildAuditReport())
         if (filePath.length) {
-            console.info("SECURITY: Network services audit exported to " + filePath)
             exportDialog.text = qsTr("Audit report exported to:\n%1").arg(filePath)
         } else {
             exportDialog.text = qsTr("Failed to export audit report.")

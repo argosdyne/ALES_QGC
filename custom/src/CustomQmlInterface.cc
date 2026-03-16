@@ -2,6 +2,7 @@
 #include "CustomPlugin.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
+#include "Login/SecurityLogModel.h"
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
@@ -106,20 +107,20 @@ QString CustomQmlInterface::exportTextReport(const QString& fileName, const QStr
     }
 
     if (exportDir.isEmpty()) {
-        qWarning() << "SECURITY: Failed to resolve export directory";
+        logSecurityEvent(QStringLiteral("Failed to resolve export directory for security export"));
         return QString();
     }
 
     QDir dir(exportDir);
     if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
-        qWarning() << "SECURITY: Failed to create export directory:" << exportDir;
+        logSecurityEvent(QStringLiteral("Failed to create export directory: %1").arg(exportDir));
         return QString();
     }
 
     const QString fullPath = dir.filePath(fileName);
     QFile file(fullPath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        qWarning() << "SECURITY: Failed to open export file:" << fullPath << file.errorString();
+        logSecurityEvent(QStringLiteral("Failed to open export file %1: %2").arg(fullPath, file.errorString()));
         return QString();
     }
 
@@ -127,8 +128,19 @@ QString CustomQmlInterface::exportTextReport(const QString& fileName, const QStr
     out << contents;
     file.close();
 
-    qInfo() << "SECURITY: Exported report to" << fullPath;
+    logSecurityEvent(QStringLiteral("Exported report to %1").arg(fullPath));
     return fullPath;
+}
+
+void CustomQmlInterface::logSecurityEvent(const QString& message)
+{
+    const QString trimmed = message.trimmed();
+    if (trimmed.isEmpty()) {
+        return;
+    }
+
+    SecurityLog::logEvent(trimmed);
+    qInfo().noquote() << "SECURITY:" << trimmed;
 }
 
 void CustomQmlInterface::_slaveModeChanged(bool slaveMode)

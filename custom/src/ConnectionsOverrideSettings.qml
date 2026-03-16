@@ -38,7 +38,7 @@ Rectangle {
 
     function _applyVideoState(enabled) {
         _videoEnabled.rawValue = enabled
-        console.info("SECURITY: Video streaming " + (enabled ? "enabled" : "disabled") + " from Connections settings")
+        CustomQmlInterface.logSecurityEvent("Video streaming " + (enabled ? "enabled" : "disabled") + " from Connections settings")
         if (enabled) {
             var videoUri = _videoUrl.rawValue.toString().trim()
             if (videoUri.indexOf("rtsp://") === 0) {
@@ -68,7 +68,7 @@ Rectangle {
 
     function _setUdpEnabled(enabled) {
         _udpEnabled.rawValue = enabled
-        console.info("SECURITY: UDP listener " + (enabled ? "enabled" : "disabled") + " from Connections settings")
+        CustomQmlInterface.logSecurityEvent("UDP listener " + (enabled ? "enabled" : "disabled") + " from Connections settings")
         if (enabled) {
             QGroundControl.linkManager.refreshNetworkLinks()
         } else {
@@ -78,7 +78,7 @@ Rectangle {
 
     function _setTcpEnabled(enabled) {
         _tcpEnabled.rawValue = enabled
-        console.info("SECURITY: TCP connection " + (enabled ? "enabled" : "disabled") + " from Connections settings")
+        CustomQmlInterface.logSecurityEvent("TCP connection " + (enabled ? "enabled" : "disabled") + " from Connections settings")
         if (enabled) {
             QGroundControl.linkManager.refreshNetworkLinks()
         } else {

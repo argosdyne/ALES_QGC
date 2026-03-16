@@ -143,6 +143,7 @@ public:
 
     Q_INVOKABLE void playActionSound();
     Q_INVOKABLE QString exportTextReport(const QString& fileName, const QString& contents);
+    Q_INVOKABLE void logSecurityEvent(const QString& message);
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;
