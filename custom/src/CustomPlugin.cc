@@ -158,6 +158,7 @@ CustomPlugin::settingsPages()
 {
     if(_customSettingsList.isEmpty()) {
         _addSettingsEntry(tr("General"),     "qrc:/qml/GeneralSettings.qml",     "qrc:/res/gear-white.svg");
+        _addSettingsEntry(tr("Video"),       "qrc:/qml/VideoSettingsPage.qml",   "qrc:/custom/img/camera_photo.svg");
         _addSettingsEntry(tr("Comm Links"),  "qrc:/qml/LinkSettings.qml",        "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Offline Maps"),"qrc:/qml/OfflineMap.qml",          "qrc:/res/waves.svg");
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
