@@ -21,29 +21,6 @@ Rectangle {
         return line.indexOf("[E]") >= 0 || line.indexOf("[!]") >= 0 ? "#f7b24a" : "#ffffff"
     }
 
-    function _clearVisibleEvents() {
-        CustomQmlInterface.logSecurityEvent("Security events cleared")
-        securityLogModel.clearLog()
-    }
-
-    function _exportVisibleEvents() {
-        var lines = securityLogModel.stringList
-
-        if (!lines.length) {
-            exportDialog.text = qsTr("No security events to export.")
-            exportDialog.open()
-            return
-        }
-
-        var filePath = CustomQmlInterface.exportTextReport("ALES_QGC_SecurityEvents.txt", lines.join("\n") + "\n")
-        if (filePath.length) {
-            exportDialog.text = qsTr("Security events exported to:\n%1").arg(filePath)
-        } else {
-            exportDialog.text = qsTr("Failed to export security events.")
-        }
-        exportDialog.open()
-    }
-
     QGCFlickable {
         anchors.fill:   parent
         clip:           true
@@ -99,11 +76,16 @@ Rectangle {
                         }
 
                         ListView {
+                            id:                     listView
                             anchors.fill:           parent
                             anchors.margins:        ScreenTools.defaultFontPixelWidth
                             model:                  securityLogModel
                             clip:                   true
                             visible:                securityLogModel.rowCount() > 0
+
+                            Component.onCompleted: {
+                                positionViewAtEnd()
+                            }
 
                             delegate: Rectangle {
                                 width:          ListView.view.width
@@ -125,13 +107,14 @@ Rectangle {
                         Item { Layout.fillWidth: true }
 
                         QGCButton {
-                            text: qsTr("Clear")
-                            onClicked: _root._clearVisibleEvents()
+                            id: saveButton
+                            text: qsTr("Save Secure Log")
+                            onClicked: saveDialog.openForSave()
                         }
 
                         QGCButton {
-                            text: qsTr("Export Logs")
-                            onClicked: _root._exportVisibleEvents()
+                            text: qsTr("Clear Log")
+                            onClicked: securityLogModel.clearLog()
                         }
                     }
                 }
@@ -139,9 +122,28 @@ Rectangle {
         }
     }
 
-    QGCSimpleMessageDialog {
-        id: exportDialog
-        title: qsTr("Security Events Export")
-        text: ""
+    QGCFileDialog {
+        id: saveDialog
+        folder: QGroundControl.settingsManager.appSettings.logSavePath
+        nameFilters: [qsTr("Log files (*.txt)"), qsTr("All Files (*)")]
+        selectExisting: false
+        title: qsTr("Select security events save file")
+        onAcceptedForSave: {
+            securityLogModel.writeMessages(file)
+            visible = false
+        }
+    }
+
+    Connections {
+        target: securityLogModel
+        onDataChanged: {
+            listView.positionViewAtEnd()
+        }
+    }
+
+    Connections {
+        target: securityLogModel
+        onWriteStarted: saveButton.enabled = false
+        onWriteFinished: saveButton.enabled = true
     }
 }

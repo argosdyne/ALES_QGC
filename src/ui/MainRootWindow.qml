@@ -55,15 +55,29 @@ ApplicationWindow {
         id: firstRunPromptManager
 
         property var currentDialog:     null
-        property var rgPromptIds:       QGroundControl.corePlugin.firstRunPromptsToShow()
+        property var rgPromptIds:       []
         property int nextPromptIdIndex: 0
         property bool securePromptShown: false
         property int securePromptRetryCount: 0
+        property bool promptFlowStarted: false
 
         function clearNextPromptSignal() {
             if (currentDialog) {
                 currentDialog.closed.disconnect(nextPrompt)
             }
+        }
+
+        function startPromptFlow() {
+            if (promptFlowStarted) {
+                return
+            }
+
+            promptFlowStarted = true
+            rgPromptIds = QGroundControl.corePlugin.firstRunPromptsToShow()
+            nextPromptIdIndex = 0
+            securePromptShown = false
+            securePromptRetryCount = 0
+            nextPrompt()
         }
 
         function nextPrompt() {
@@ -384,6 +398,9 @@ ApplicationWindow {
             sessionManager.startSession()
             globals.viewOnlyMode = false
             loginOverlay.close()
+            Qt.callLater(function() {
+                firstRunPromptManager.startPromptFlow()
+            })
         })
         loginComponent.viewOnlyClicked.connect(function() {
             globals.viewOnlyMode = true

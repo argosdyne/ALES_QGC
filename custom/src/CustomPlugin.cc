@@ -166,7 +166,6 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("Network Services"), "qrc:/custom/NetworkServicesPortsSettings.qml");
         _addSettingsEntry(tr("Connections"), "qrc:/custom/ConnectionsOverrideSettings.qml");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
-        _addSettingsEntry(tr("Secure Log"),  "qrc:/qml/QGroundControl/Controls/SecureLog.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
 
         if(_m2Manager != nullptr) {

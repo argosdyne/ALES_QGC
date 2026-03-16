@@ -77,7 +77,7 @@
     "name":             "networkVideoUrl",
     "shortDesc":        "Video streaming URL",
     "type":             "string",
-    "default":          "udp://@:5600"
+    "default":          "rtsp://192.168.2.119:8554/eo"
 },
 {
     "name":             "securityStrictMavlinkValidation",
