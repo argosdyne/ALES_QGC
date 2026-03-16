@@ -68,6 +68,16 @@ static QString _translateCameraSettingText(const QString& sourceText)
     return QCoreApplication::translate("CodevCameraControl", sourceUtf8.constData());
 }
 
+static QStringList _translateCameraSettingList(const QStringList& sourceList)
+{
+    QStringList translated;
+    translated.reserve(sourceList.size());
+    for (const QString& s : sourceList) {
+        translated << _translateCameraSettingText(s);
+    }
+    return translated;
+}
+
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
     : QGCCameraControl(info, vehicle, compID, link, parent)
     , _pMavlink(qgcApp()->toolbox()->mavlinkProtocol())
@@ -775,6 +785,15 @@ void CodevCameraControl::_parametersReady()
     for (const QString& factName : activeSettings()) {
         _localizeFactMetaData(getFact(factName));
     }
+    // Translate option range lists and original option names so dynamic enum updates stay localized.
+    for (auto it = _originalOptNames.begin(); it != _originalOptNames.end(); ++it) {
+        it.value() = _translateCameraSettingList(it.value());
+    }
+    for (QGCCameraOptionRange* range : _optionRanges) {
+        if (range) {
+            range->optNames = _translateCameraSettingList(range->optNames);
+        }
+    }
 }
 
 void CodevCameraControl::_localizeFactMetaData(Fact* fact)
@@ -796,6 +815,11 @@ void CodevCameraControl::_localizeFactMetaData(Fact* fact)
     const QString longDescription = meta->longDescription();
     if (!longDescription.isEmpty()) {
         meta->setLongDescription(_translateCameraSettingText(longDescription));
+    }
+
+    const QStringList enumStrings = meta->enumStrings();
+    if (!enumStrings.isEmpty()) {
+        meta->setEnumInfo(_translateCameraSettingList(enumStrings), meta->enumValues());
     }
 }
 

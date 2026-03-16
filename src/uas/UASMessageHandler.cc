@@ -18,6 +18,13 @@
 #include "UASMessageHandler.h"
 #include "MultiVehicleManager.h"
 #include "Vehicle.h"
+#include <QCoreApplication>
+
+static QString _translateStatusText(const QString& sourceText)
+{
+    const QByteArray sourceUtf8 = sourceText.toUtf8();
+    return QCoreApplication::translate("UASWarning", sourceUtf8.constData());
+}
 
 UASMessage::UASMessage(int componentid, int severity, QString text)
 {
@@ -108,6 +115,13 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
     // Hack to prevent calibration messages from cluttering things up
     if (_activeVehicle->px4Firmware() && text.startsWith(QStringLiteral("[cal] "))) {
         return;
+    }
+
+    {
+        const QString translatedText = _translateStatusText(text);
+        if (translatedText != text) {
+            text = translatedText;
+        }
     }
 
     text = text.replace("\n", "<br/>");

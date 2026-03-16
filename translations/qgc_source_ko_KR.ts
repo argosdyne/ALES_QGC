@@ -450,7 +450,7 @@
     <message>
       <location filename="../src/FirmwarePlugin/APM/APMFirmwarePlugin.cc" line="838"/>
       <source>Vehicle does not support guided takeoff</source>
-      <translation>기체가 유도 이륙을 지원하지 않습니다.</translation>
+      <translation>기체가 가이드 이륙을 지원하지 않습니다.</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/APM/APMFirmwarePlugin.cc" line="844"/>
@@ -1662,7 +1662,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="375"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="375"/>
       <source>Always RTL</source>
-      <translation>항상 RTL(복귀)</translation>
+      <translation>항상 복귀</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="376"/>
@@ -1704,7 +1704,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="490"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="490"/>
       <source>RTL or Land</source>
-      <translation>RTL(복귀) 또는 착륙</translation>
+      <translation>복귀 또는 착륙</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="500"/>
@@ -1847,7 +1847,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="254"/>
       <source>Always RTL</source>
-      <translation>항상 RTL(복귀)</translation>
+      <translation>항상 복귀</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="255"/>
@@ -1887,7 +1887,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="355"/>
       <source>RTL or Land</source>
-      <translation>RTL(복귀) 또는 착륙</translation>
+      <translation>복귀 또는 착륙</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="366"/>
@@ -2245,7 +2245,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
       <source>RTL or Land</source>
-      <translation>복귀(RTL) 또는 착륙</translation>
+      <translation>복귀 또는 착륙</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
@@ -2259,7 +2259,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="137"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="145"/>
       <source>RTL min alt:</source>
-      <translation>복귀(RTL) 최소 고도:</translation>
+      <translation>복귀 최소 고도:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="138"/>
@@ -2346,7 +2346,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="87"/>
       <source>RTL or Land</source>
-      <translation>RTL(복귀) 또는 착륙</translation>
+      <translation>복귀 또는 착륙</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="87"/>
@@ -2356,7 +2356,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="92"/>
       <source>RTL min alt:</source>
-      <translation>RTL(돌아오기) 최소 고도:</translation>
+      <translation>복귀 최소 고도:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="93"/>
@@ -2391,7 +2391,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="42"/>
       <source>RTL min alt:</source>
-      <translation>RTL(돌아오기) 최소 고도:</translation>
+      <translation>복귀 최소 고도:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="43"/>
@@ -2411,7 +2411,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="57"/>
       <source>Always RTL</source>
-      <translation>항상 RTL(복귀)</translation>
+      <translation>항상 복귀</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="60"/>
@@ -8280,7 +8280,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="62"/>
       <source>Takeoff from ground and hold position.</source>
-      <translation>이륙 후 위치 유지</translation>
+      <translation>이륙 후 위치 고정</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="63"/>
@@ -8360,7 +8360,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="392"/>
       <source>Smart RTL</source>
-      <translation>스마트 RTL</translation>
+      <translation>스마트 복귀</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="536"/>
@@ -8382,6 +8382,26 @@ Click Ok to start the auto-tuning process.
         <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52"/>
         <source>Change Airspeed</source>
         <translation>대기 속도 변경</translation>
+    </message>
+<message>
+        <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="204"/>
+        <source>Height</source>
+        <translation>고도</translation>
+    </message>
+<message>
+        <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="207"/>
+        <source>Set Airspeed</source>
+        <translation>대기 속도 설정</translation>
+    </message>
+<message>
+        <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="212"/>
+        <source>Set Speed</source>
+        <translation>속도 설정</translation>
+    </message>
+<message>
+        <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="217"/>
+        <source>New Alt(rel)</source>
+        <translation>새 (상대)고도</translation>
     </message>
 <message>
         <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59"/>
@@ -10713,7 +10733,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="208"/>
       <source>The following speed values are used to calculate total mission time. They do not affect the flight speed for the mission.</source>
-      <translation>The following speed values are used to calculate total mission time. They do not affect the flight speed for the mission.</translation>
+      <translation>다음 속도 값은 전체 미션 시간을 계산하는 데 사용됩니다. 이 값은 미션의 비행 속도에는 영향을 미치지 않습니다.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="213"/>
@@ -11045,7 +11065,7 @@ Click Ok to start the auto-tuning process.
 <message>
         <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="169"/>
         <source>RTL</source>
-        <translation>귀환</translation>
+        <translation>복귀</translation>
     </message>
 <message>
         <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="175"/>
@@ -13012,7 +13032,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="421"/>
       <source>Picture In Picture</source>
-      <translation>PIP(Picture In Picture) 기능</translation>
+      <translation>PIP(화면 속 화면)</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="495"/>
@@ -15987,13 +16007,13 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="48"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="48"/>
       <source>RTL Climb To</source>
-      <translation>RTL 상승</translation>
+      <translation>복귀 상승</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="53"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="53"/>
       <source>RTL, Then</source>
-      <translation>RTL, 실행후</translation>
+      <translation>복귀, 실행후</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="55"/>
@@ -16824,7 +16844,7 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
     <message>
       <location filename="../src/PlanView/StructureScanEditor.qml" line="69"/>
       <source>Use the Polygon Tools to create the polygon which outlines the structure.</source>
-      <translation>Use the Polygon Tools to create the polygon which outlines the structure.</translation>
+      <translation>폴리곤 도구를 사용하여 구조물의 경계를 정의하는 폴리곤을 생성하십시오..</translation>
     </message>
     <message>
       <location filename="../src/PlanView/StructureScanEditor.qml" line="100"/>
@@ -17043,7 +17063,7 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="18"/>
       <source>Use the Polygon Tools to create the polygon which outlines your survey area.</source>
-      <translation>Use the Polygon Tools to create the polygon which outlines your survey area.</translation>
+      <translation>폴리곤 도구를 사용하여 측량 영역을 정의하는 폴리곤을 생성하십시오.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="19"/>
@@ -17531,7 +17551,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemEditor.qml" line="104"/>
       <source>Spacing</source>
-      <translation>Spacing</translation>
+      <translation>간격</translation>
     </message>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemEditor.qml" line="123"/>
@@ -18326,17 +18346,17 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="981"/>
       <source>PreArm: Radio failsafe on</source>
-      <translation>프리암: 라디오 페일세이프 활성</translation>
+      <translation>PreArm: 라디오 페일세이프 활성</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="983"/>
       <source>PreArm: Waiting for 3D fix</source>
-      <translation>프리암: 3D 위치 고정 대기 중</translation>
+      <translation>PreArm: 3D 위치 고정 대기 중</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="985"/>
       <source>PreArm: EKF attitude is bad</source>
-      <translation>프리암: EKF 자세 추정 불량</translation>
+      <translation>PreArm: EKF 자세 추정 불량</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2168"/>
@@ -20577,7 +20597,7 @@ Confirm change?</source>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="30"/>
         <source>Guided</source>
-        <translation>유도</translation>
+        <translation>가이드</translation>
     </message>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="31"/>
@@ -20622,7 +20642,7 @@ Confirm change?</source>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="39"/>
         <source>Position Hold</source>
-        <translation>위치 유지</translation>
+        <translation>위치 고정</translation>
     </message>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="40"/>
@@ -20642,12 +20662,12 @@ Confirm change?</source>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="43"/>
         <source>Guided No GPS</source>
-        <translation>GPS 없는 유도</translation>
+        <translation>GPS 없는 가이드</translation>
     </message>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="44"/>
         <source>Smart RTL</source>
-        <translation>스마트 RTL</translation>
+        <translation>스마트 복귀</translation>
     </message>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="45"/>
@@ -20677,7 +20697,7 @@ Confirm change?</source>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="50"/>
         <source>AutoRTL</source>
-        <translation>자동 RTL</translation>
+        <translation>자동 복귀</translation>
     </message>
     <message>
         <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="51"/>
@@ -21305,7 +21325,27 @@ Confirm change?</source>
     </message>
     <message>
       <source>RTL</source>
-      <translation>RTL</translation>
+      <translation>복귀</translation>
+    </message>
+    <message>
+      <source>Enabled always RTL</source>
+      <translation>항상 RTL 활성화</translation>
+    </message>
+    <message>
+      <source>Avoid_ADSB</source>
+      <translation>ADSB_회피</translation>
+    </message>
+    <message>
+      <source>Guided_NoGPS</source>
+      <translation>GPS 없는 가이드</translation>
+    </message>
+    <message>
+      <source>Smart_RTL</source>
+      <translation>스마트 복귀</translation>
+    </message>
+    <message>
+      <source>Heli_Autorotate</source>
+      <translation>헬기 오토로테이션</translation>
     </message>
     <message>
       <source>Save Trim</source>
@@ -21342,6 +21382,154 @@ Confirm change?</source>
     <message>
       <source>Auto</source>
       <translation>자동</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB(자동 화이트밸런스)</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>실내</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>실외</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>실외 자동</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>실외 자동</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>원푸시 AWB</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>원푸시 WB</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>원푸시 WB</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>수동</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB(자동 화이트밸런스)</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>실내</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>실외</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>원푸시 AWB</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>원푸시 WB</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>원푸시 AWB</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>수동</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>실외 자동</translation>
+    </message>
+    <message>
+      <source>ADSB-Avoidance</source>
+      <translation>ADSB-회피</translation>
+    </message>
+    <message>
+      <source>ArmDisarm</source>
+      <translation>시동/시동끄기</translation>
+    </message>
+    <message>
+      <source>Winch Enable</source>
+      <translation>윈치 활성화</translation>
+    </message>
+    <message>
+      <source>WinchControl</source>
+      <translation>윈치 제어</translation>
+    </message>
+    <message>
+      <source>Relay5</source>
+      <translation>릴레이 5</translation>
+    </message>
+    <message>
+      <source>Relay6</source>
+      <translation>릴레이 6</translation>
     </message>
     <message>
       <source>AutoTune</source>
@@ -21421,7 +21609,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>AUTO RTL</source>
-      <translation>자동 RTL</translation>
+      <translation>자동 복귀</translation>
     </message>
     <message>
       <source>Brake</source>
@@ -21517,7 +21705,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Guided</source>
-      <translation>유도</translation>
+      <translation>가이드</translation>
     </message>
     <message>
       <source>Hold</source>
@@ -21633,7 +21821,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PosHold</source>
-      <translation>위치 유지</translation>
+      <translation>위치 고정</translation>
     </message>
     <message>
       <source>PrecLoiter</source>
@@ -21749,7 +21937,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>SmartRTL</source>
-      <translation>스마트 RTL</translation>
+      <translation>스마트 복귀</translation>
     </message>
     <message>
       <source>Soaring Enable</source>
@@ -21849,7 +22037,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Auto RTL</source>
-      <translation>자동 RTL</translation>
+      <translation>자동 복귀</translation>
     </message>
     <message>
       <source>Disabled</source>
@@ -21892,16 +22080,32 @@ Confirm change?</source>
       <translation>없음</translation>
     </message>
     <message>
+      <source>NONE</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <source>none</source>
+      <translation>없음</translation>
+    </message>
+    <message>
       <source>RTL or Hold</source>
-      <translation>RTL 또는 대기</translation>
+      <translation>복귀 또는 대기</translation>
     </message>
     <message>
       <source>RTL or Land</source>
-      <translation>RTL 또는 착륙</translation>
+      <translation>복귀 또는 착륙</translation>
     </message>
     <message>
       <source>RTL or Continue with Mission in Auto Mode (Removed in 4.0+-see FS_OPTIONS)</source>
-      <translation>RTL 또는 자동 모드에서 미션 계속(4.0+에서 제거됨, FS_OPTIONS 참조)</translation>
+      <translation>복귀 또는 자동 모드에서 미션 계속(4.0+에서 제거됨, FS_OPTIONS 참조)</translation>
+    </message>
+    <message>
+      <source>RTL or Continue with Mission in Auto Mode (Deprecated in 4.0+-see FS_OPTIONS)</source>
+      <translation>복귀 또는 자동 모드에서 미션 계속(4.0+에서 사용 중지, FS_OPTIONS 참조)</translation>
+    </message>
+    <message>
+      <source>Land (4.0+ Only)</source>
+      <translation>착륙(4.0+ 전용)</translation>
     </message>
     <message>
       <source>Enabled Continue with Mission in Auto</source>
@@ -21913,23 +22117,23 @@ Confirm change?</source>
     </message>
     <message>
       <source>SmartRTL or RTL</source>
-      <translation>SmartRTL 또는 RTL</translation>
+      <translation>스마트 복귀 또는 복귀</translation>
     </message>
     <message>
       <source>SmartRTL or Land</source>
-      <translation>SmartRTL 또는 착륙</translation>
+      <translation>스마트 복귀 또는 착륙</translation>
     </message>
     <message>
       <source>SmartRTL or Hold</source>
-      <translation>SmartRTL 또는 대기</translation>
+      <translation>스마트 복귀 또는 대기</translation>
     </message>
     <message>
       <source>SmartRTL or RTL or Hold</source>
-      <translation>SmartRTL 또는 RTL 또는 대기</translation>
+      <translation>스마트 복귀 또는 복귀 또는 대기</translation>
     </message>
     <message>
       <source>SmartRTL or RTL or Land</source>
-      <translation>SmartRTL 또는 RTL 또는 착륙</translation>
+      <translation>스마트 복귀 또는 복귀 또는 착륙</translation>
     </message>
     <message>
       <source>Terminate</source>
@@ -21937,19 +22141,19 @@ Confirm change?</source>
     </message>
     <message>
       <source>Auto DO_LAND_START or RTL</source>
-      <translation>자동 DO_LAND_START 또는 RTL</translation>
+      <translation>자동 DO_LAND_START 또는 복귀</translation>
     </message>
     <message>
       <source>Enabled Auto DO_LAND_START or RTL</source>
-      <translation>자동 DO_LAND_START 또는 RTL 활성화</translation>
+      <translation>자동 DO_LAND_START 또는 복귀 활성화</translation>
     </message>
     <message>
       <source>Enabled always SmartRTL or RTL</source>
-      <translation>항상 SmartRTL 또는 RTL 활성화</translation>
+      <translation>항상 스마트 복귀 또는 복귀 활성화</translation>
     </message>
     <message>
       <source>Enabled always SmartRTL or Land</source>
-      <translation>항상 SmartRTL 또는 착륙 활성화</translation>
+      <translation>항상 스마트 복귀 또는 착륙 활성화</translation>
     </message>
     <message>
       <source>All</source>
@@ -22107,6 +22311,74 @@ Confirm change?</source>
       <translation>자동</translation>
     </message>
     <message>
+      <source>AWB</source>
+      <translation>AWB(자동 화이트밸런스)</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>실내</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>실외</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>실외 자동</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>실외 자동</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>원푸시 AWB</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>원푸시 WB</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>원푸시 WB</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>원푸시 AWB</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>수동</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>나트륨램프</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>나트륨램프 자동</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>나트륨램프 실외 자동</translation>
+    </message>
+    <message>
       <source>Continuous AF</source>
       <translation>연속 AF</translation>
     </message>
@@ -22163,6 +22435,22 @@ Confirm change?</source>
       <translation>RTSP 비트레이트</translation>
     </message>
     <message>
+      <source>RTSP Resolution</source>
+      <translation>RTSP 해상도</translation>
+    </message>
+    <message>
+      <source>Video Quality</source>
+      <translation>영상 품질</translation>
+    </message>
+    <message>
+      <source>High Sensitivity</source>
+      <translation>고감도</translation>
+    </message>
+    <message>
+      <source>Zoom Speed</source>
+      <translation>줌 속도</translation>
+    </message>
+    <message>
       <source>Zoom Feature</source>
       <translation>줌 기능</translation>
     </message>
@@ -22177,6 +22465,90 @@ Confirm change?</source>
     <message>
       <source>IR Zoom</source>
       <translation>IR 줌</translation>
+    </message>
+    <message>
+      <source>High/Low (TRUE/FALSE) Gain</source>
+      <translation>고/저(참/거짓) 게인</translation>
+    </message>
+    <message>
+      <source>Hight/Low(TRUE/FALSE) Gain</source>
+      <translation>고/저(참/거짓) 게인</translation>
+    </message>
+    <message>
+      <source>High/Low(TRUE/FALSE) Gain</source>
+      <translation>고/저(참/거짓) 게인</translation>
+    </message>
+    <message>
+      <source>On/Off thermometry</source>
+      <translation>온도 측정 켜기/끄기</translation>
+    </message>
+    <message>
+      <source>On/Off Thermometry</source>
+      <translation>온도 측정 켜기/끄기</translation>
+    </message>
+    <message>
+      <source>Default</source>
+      <translation>기본</translation>
+    </message>
+    <message>
+      <source>Medium</source>
+      <translation>중간</translation>
+    </message>
+    <message>
+      <source>High</source>
+      <translation>높음</translation>
+    </message>
+    <message>
+      <source>Normal</source>
+      <translation>표준</translation>
+    </message>
+    <message>
+      <source>Super Resolution</source>
+      <translation>초해상도</translation>
+    </message>
+    <message>
+      <source>Ironbow</source>
+      <translation>아이언보우</translation>
+    </message>
+    <message>
+      <source>White Hot</source>
+      <translation>화이트 핫</translation>
+    </message>
+    <message>
+      <source>Black Hot</source>
+      <translation>블랙 핫</translation>
+    </message>
+    <message>
+      <source>Red Hot</source>
+      <translation>레드 핫</translation>
+    </message>
+    <message>
+      <source>Glory Hot</source>
+      <translation>글로리 핫</translation>
+    </message>
+    <message>
+      <source>Sepia</source>
+      <translation>세피아</translation>
+    </message>
+    <message>
+      <source>Rainbow</source>
+      <translation>레인보우</translation>
+    </message>
+    <message>
+      <source>Night</source>
+      <translation>야간</translation>
+    </message>
+    <message>
+      <source>Aurora</source>
+      <translation>오로라</translation>
+    </message>
+    <message>
+      <source>Jungle</source>
+      <translation>정글</translation>
+    </message>
+    <message>
+      <source>Medical</source>
+      <translation>의료</translation>
     </message>
     <message>
       <source>Gimbal Speed</source>
@@ -22197,6 +22569,18 @@ Confirm change?</source>
     <message>
       <source>Head</source>
       <translation>헤드</translation>
+    </message>
+    <message>
+      <source>Global</source>
+      <translation>글로벌</translation>
+    </message>
+    <message>
+      <source>Custom 1</source>
+      <translation>사용자 설정 1</translation>
+    </message>
+    <message>
+      <source>Custom 2</source>
+      <translation>사용자 설정 2</translation>
     </message>
     <message>
       <source>Gimbal Tracker Gain</source>
@@ -22251,12 +22635,48 @@ Confirm change?</source>
       <translation>Yolov8</translation>
     </message>
     <message>
+      <source>SiamRPN</source>
+      <translation>SiamRPN</translation>
+    </message>
+    <message>
       <source>Nano</source>
       <translation>Nano</translation>
     </message>
     <message>
       <source>15W 4CORE</source>
       <translation>15W 4코어</translation>
+    </message>
+    <message>
+      <source>15W 2CORE</source>
+      <translation>15W 2코어</translation>
+    </message>
+    <message>
+      <source>15W 6CORE</source>
+      <translation>15W 6코어</translation>
+    </message>
+    <message>
+      <source>10W 2CORE</source>
+      <translation>10W 2코어</translation>
+    </message>
+    <message>
+      <source>10W 4CORE</source>
+      <translation>10W 4코어</translation>
+    </message>
+    <message>
+      <source>10W DESKTOP</source>
+      <translation>10W 데스크톱</translation>
+    </message>
+    <message>
+      <source>20W 2CORE</source>
+      <translation>20W 2코어</translation>
+    </message>
+    <message>
+      <source>20W 4CORE</source>
+      <translation>20W 4코어</translation>
+    </message>
+    <message>
+      <source>20W 6CORE</source>
+      <translation>20W 6코어</translation>
     </message>
     <message>
       <source>EO</source>
@@ -22270,16 +22690,3490 @@ Confirm change?</source>
   <context>
     <name>UASWarning</name>
     <message>
+      <source>%e </source>
+      <translation>%e </translation>
+    </message>
+    <message>
+      <source>%f %f %f %f</source>
+      <translation>%f %f %f %f</translation>
+    </message>
+    <message>
+      <source>%s</source>
+      <translation>%s</translation>
+    </message>
+    <message>
+      <source>%s below failsafe</source>
+      <translation>%s: 페일세이프 이하</translation>
+    </message>
+    <message>
+      <source>%s radio max too low</source>
+      <translation>%s 무선 최대값이 너무 낮음</translation>
+    </message>
+    <message>
+      <source>%s radio min too high</source>
+      <translation>%s 무선 최소값이 너무 높음</translation>
+    </message>
+    <message>
+      <source>%s radio trim above max</source>
+      <translation>%s 무선 트림이 최대값을 초과</translation>
+    </message>
+    <message>
+      <source>%s radio trim below min</source>
+      <translation>%s 무선 트림이 최소값 미만</translation>
+    </message>
+    <message>
+      <source>%s too high</source>
+      <translation>%s 너무 높음</translation>
+    </message>
+    <message>
+      <source>%s: %s</source>
+      <translation>%s: %s</translation>
+    </message>
+    <message>
+      <source>%s: %s %s: %s</source>
+      <translation>%s: %s %s: %s</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer off</source>
+      <translation>%u: 버저 끔</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on</source>
+      <translation>%u: 버저 켬</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on again</source>
+      <translation>%u: 버저 다시 켬</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using GPS</source>
+      <translation>EKF3 IMU%u GPS 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using range beacons</source>
+      <translation>EKF3 IMU%u 거리 비콘 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u origin set</source>
+      <translation>EKF3 IMU%u 원점 설정</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u started relative aiding</source>
+      <translation>EKF3 IMU%u 상대 보조 시작</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u stopped aiding</source>
+      <translation>EKF3 IMU%u 보조 중지</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u switching to compass %u</source>
+      <translation>EKF3 IMU%u 나침반 %u로 전환</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u tilt alignment complete</source>
+      <translation>EKF3 IMU%u 기울기 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned</source>
+      <translation>EKF3 IMU%u 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF3 IMU%u 요가 GPS 속도에 정렬됨</translation>
+    </message>
+    <message>
+      <source>ERROR: Won&apos;t setup signing when armed</source>
+      <translation>오류: 시동 상태에서는 서명 설정 불가</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Auto calibration</source>
+      <translation>ESC 보정: 자동 보정</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Passing pilot throttle to ESCs</source>
+      <translation>ESC 보정: 조종기 스로틀을 ESC로 전달</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Push safety switch</source>
+      <translation>ESC 보정: 안전 스위치를 누르십시오</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Restart board</source>
+      <translation>ESC 보정: 보드를 재시작하십시오</translation>
+    </message>
+    <message>
+      <source>ESC: </source>
+      <translation>ESC: </translation>
+    </message>
+    <message>
+      <source>Enable fence failed (cannot autoenable</source>
+      <translation>펜스 활성화 실패(자동 활성화 불가</translation>
+    </message>
+    <message>
+      <source>Engine: start control disabled</source>
+      <translation>엔진: 시작 제어 비활성화</translation>
+    </message>
+    <message>
+      <source>Entered VTOL mode</source>
+      <translation>VTOL 모드 진입</translation>
+    </message>
+    <message>
+      <source>Error replacing item (%u)</source>
+      <translation>항목 교체 오류(%u)</translation>
+    </message>
+    <message>
+      <source>Error setting rally point</source>
+      <translation>랠리 포인트 설정 오류</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %d</source>
+      <translation>오류: 잘못된 모드 번호: %d</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %u</source>
+      <translation>오류: 잘못된 모드 번호: %u</translation>
+    </message>
+    <message>
+      <source>Exited VTOL mode</source>
+      <translation>VTOL 모드 종료</translation>
+    </message>
+    <message>
+      <source>Extended by: %f (%f)</source>
+      <translation>확장됨: %f (%f)</translation>
+    </message>
+    <message>
+      <source>Extended: %3.8f %3.8f</source>
+      <translation>확장: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for HarmonicNotchFilter</source>
+      <translation>HarmonicNotchFilter에 %u 바이트 할당 실패</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for IMU batch sampling</source>
+      <translation>IMU 배치 샘플링에 %u 바이트 할당 실패</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff within time limit</source>
+      <translation>시간 제한 내 이륙 완료 실패</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff, excessive wind</source>
+      <translation>이륙 완료 실패, 과도한 풍속</translation>
+    </message>
+    <message>
+      <source>Failed to get rally point</source>
+      <translation>랠리 포인트 가져오기 실패</translation>
+    </message>
+    <message>
+      <source>Failed to get return point</source>
+      <translation>귀환 포인트 가져오기 실패</translation>
+    </message>
+    <message>
+      <source>Failed to initialise RC function (%u)</source>
+      <translation>RC 기능 초기화 실패(%u)</translation>
+    </message>
+    <message>
+      <source>Failed! Please check Thruster %d and frame setup!</source>
+      <translation>실패! 스러스터 %d 및 프레임 설정 확인!</translation>
+    </message>
+    <message>
+      <source>Failsafe trigger 0x%x</source>
+      <translation>페일세이프 트리거 0x%x</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event off: reason=%u</source>
+      <translation>페일세이프. Long 이벤트 종료: 이유=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event on: type=%u/reason=%u</source>
+      <translation>페일세이프. Long 이벤트 시작: 타입=%u/이유=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event off: reason=%u</source>
+      <translation>페일세이프. Short 이벤트 종료: 이유=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event on: type=%u/reason=%u</source>
+      <translation>페일세이프. Short 이벤트 시작: 타입=%u/이유=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe: Estimated %.0f seconds to home</source>
+      <translation>페일세이프: 귀환 예상 %.0f초</translation>
+    </message>
+    <message>
+      <source>Failsafe: RTL took </source>
+      <translation>페일세이프: RTL 소요 </translation>
+    </message>
+    <message>
+      <source>Failsafe: Terrain data missing</source>
+      <translation>페일세이프: 지형 데이터 없음</translation>
+    </message>
+    <message>
+      <source>Flare %.1fm sink=%.2f speed=%.1f dist=%.1f</source>
+      <translation>플레어 %.1fm sink=%.2f speed=%.1f dist=%.1f</translation>
+    </message>
+    <message>
+      <source>Flare crash detected: speed=%.1f</source>
+      <translation>플레어 충돌 감지: speed=%.1f</translation>
+    </message>
+    <message>
+      <source>Flight mode = %u</source>
+      <translation>비행 모드 = %u</translation>
+    </message>
+    <message>
+      <source>Forcing safety off for watchdog\n</source>
+      <translation>워치독을 위해 안전 해제 강제\n</translation>
+    </message>
+    <message>
+      <source>Found %d complete logs at 0x%04X-0x%04X</source>
+      <translation>0x%04X-0x%04X에서 완료된 로그 %d개 발견</translation>
+    </message>
+    <message>
+      <source>Found corrupt log %d at 0x%04X, erasing</source>
+      <translation>0x%04X에서 손상된 로그 %d 발견, 삭제 중</translation>
+    </message>
+    <message>
+      <source>Frame: %s</source>
+      <translation>프레임: %s</translation>
+    </message>
+    <message>
+      <source>FuelFlow: Failed to attach to pin %u</source>
+      <translation>FuelFlow: 핀 %u 연결 실패</translation>
+    </message>
+    <message>
+      <source>FuelLevelPWM: Failed to attach to pin %u</source>
+      <translation>FuelLevelPWM: 핀 %u 연결 실패</translation>
+    </message>
+    <message>
+      <source>GPS and AHRS differ by %4.1fm</source>
+      <translation>GPS와 AHRS 차이 %4.1fm</translation>
+    </message>
+    <message>
+      <source>GPS positions differ by %4.1fm</source>
+      <translation>GPS 위치 차이 %4.1fm</translation>
+    </message>
+    <message>
+      <source>Geofence error, %s</source>
+      <translation>지오펜스 오류, %s</translation>
+    </message>
+    <message>
+      <source>GoPro recording, can&apos;t change modes</source>
+      <translation>GoPro 녹화 중, 모드 변경 불가</translation>
+    </message>
+    <message>
+      <source>Got a point! %d total</source>
+      <translation>포인트 획득! 총 %d</translation>
+    </message>
+    <message>
+      <source>Heater: P=%.1f I=%.1f Out=%.1f Temp=%.1f</source>
+      <translation>히터: P=%.1f I=%.1f Out=%.1f Temp=%.1f</translation>
+    </message>
+    <message>
+      <source>Holding course %d at %.1fm/s (%.1f)</source>
+      <translation>코스 %d 유지 %.1fm/s (%.1f)</translation>
+    </message>
+    <message>
+      <source>INS: alloc %u bytes for ISB (free=%u)</source>
+      <translation>INS: ISB용 %u바이트 할당(여유=%u)</translation>
+    </message>
+    <message>
+      <source>Ignoring invalid START_LATITUDE or START_LONGITUDE parameter</source>
+      <translation>잘못된 START_LATITUDE 또는 START_LONGITUDE 파라미터 무시</translation>
+    </message>
+    <message>
+      <source>Internal errors (0x%x)</source>
+      <translation>내부 오류(0x%x)</translation>
+    </message>
+    <message>
+      <source>Internal pressure critical!</source>
+      <translation>내부 압력 치명적!</translation>
+    </message>
+    <message>
+      <source>Internal temperature critical!</source>
+      <translation>내부 온도 치명적!</translation>
+    </message>
+    <message>
+      <source>Invalid channel option (%u)</source>
+      <translation>잘못된 채널 옵션(%u)</translation>
+    </message>
+    <message>
+      <source>Invalid coord frame in SET_POSTION_TARGET_GLOBAL_INT</source>
+      <translation>SET_POSTION_TARGET_GLOBAL_INT의 좌표 프레임 오류</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad count (%u vs %u)</source>
+      <translation>잘못된 펜스 포인트, 개수 오류(%u vs %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad lat or lng</source>
+      <translation>잘못된 펜스 포인트, 위도/경도 오류</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total (%u &gt;= %u)</source>
+      <translation>잘못된 펜스 포인트, 인덱스 초과(%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total(%u &gt;= %u)</source>
+      <translation>잘못된 펜스 포인트, 인덱스 초과(%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, lat or lng too large</source>
+      <translation>잘못된 펜스 포인트, 위도/경도 범위 초과</translation>
+    </message>
+    <message>
+      <source>Invalid vertex count (%u)</source>
+      <translation>잘못된 정점 개수(%u)</translation>
+    </message>
+    <message>
+      <source>LEDs: chan=</source>
+      <translation>LEDs: 채널=</translation>
+    </message>
+    <message>
+      <source>LEDs: channel not set</source>
+      <translation>LEDs: 채널 미설정</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MAX too small (%u)</source>
+      <translation>LIM_PITCH_MAX 너무 작음(%u)</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MIN too large (%u)</source>
+      <translation>LIM_PITCH_MIN 너무 큼(%u)</translation>
+    </message>
+    <message>
+      <source>LIM_ROLL_CD too small (%u)</source>
+      <translation>LIM_ROLL_CD 너무 작음(%u)</translation>
+    </message>
+    <message>
+      <source>Landing aborted, climbing to %dm</source>
+      <translation>착륙 중단, %dm로 상승</translation>
+    </message>
+    <message>
+      <source>Landing approach start at %.1fm</source>
+      <translation>착륙 접근 시작 고도 %.1fm</translation>
+    </message>
+    <message>
+      <source>Landing glide slope %.1f degrees</source>
+      <translation>착륙 활공 경사 %.1f도</translation>
+    </message>
+    <message>
+      <source>Landing sequence start</source>
+      <translation>착륙 시퀀스 시작</translation>
+    </message>
+    <message>
+      <source>Landing slope too steep, aborting (%.0fm %.1fdeg)</source>
+      <translation>착륙 경사 과도, 중단(%.0fm %.1f도)</translation>
+    </message>
+    <message>
+      <source>Log recovery complete, erased %d blocks</source>
+      <translation>로그 복구 완료, %d 블록 삭제</translation>
+    </message>
+    <message>
+      <source>Loiter en: %3.8f %3.8f</source>
+      <translation>로이터 en: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter ex: %3.8f %3.8f</source>
+      <translation>로이터 ex: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter to alt was stuck at %d</source>
+      <translation>Loiter to alt가 %d에서 멈춤</translation>
+    </message>
+    <message>
+      <source>Lua: %s</source>
+      <translation>Lua: %s</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a delay (0x%d)</source>
+      <translation>Lua: %s 지연 반환 없음(0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a function (0x%d)</source>
+      <translation>Lua: %s 함수 반환 없음(0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s exceeded time limit (%d)</source>
+      <translation>Lua: %s 시간 제한 초과(%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s returned bad result count (%d)</source>
+      <translation>Lua: %s 잘못된 결과 개수 반환(%d)</translation>
+    </message>
+    <message>
+      <source>Lua: Could not find a scripts directory</source>
+      <translation>Lua: 스크립트 디렉터리를 찾을 수 없음</translation>
+    </message>
+    <message>
+      <source>Lua: Couldn&apos;t allocate a lua state</source>
+      <translation>Lua: lua state 할당 실패</translation>
+    </message>
+    <message>
+      <source>Lua: Error: %s</source>
+      <translation>Lua: 오류: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Insufficent memory loading %s</source>
+      <translation>Lua: %s 로드 메모리 부족</translation>
+    </message>
+    <message>
+      <source>Lua: No scripts to run</source>
+      <translation>Lua: 실행할 스크립트 없음</translation>
+    </message>
+    <message>
+      <source>Lua: Panic: %s</source>
+      <translation>Lua: 패닉: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Running %s</source>
+      <translation>Lua: 실행 중 %s</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; Ground start</source>
+      <translation>&lt;startup_ground&gt; 지상 시작</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; With delay</source>
+      <translation>&lt;startup_ground&gt; 지연 시작</translation>
+    </message>
+    <message>
+      <source>ADSB: Found transceiver on channel %d</source>
+      <translation>ADSB: 채널 %d에서 송수신기 발견</translation>
+    </message>
+    <message>
+      <source>ADSB: Transceiver heartbeat timed out</source>
+      <translation>ADSB: 송수신기 하트비트 타임아웃</translation>
+    </message>
+    <message>
+      <source>ADSB: Using ICAO_id %d and Callsign %s</source>
+      <translation>ADSB: ICAO_id %d, 호출부호 %s 사용</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can't terminate the vehicle</source>
+      <translation>AFS 비활성화됨, 기체 종료 불가</translation>
+    </message>
+    <message>
+      <source>AP_Logger: stuck thread (%s)</source>
+      <translation>AP_Logger: 스레드 정지(%s)</translation>
+    </message>
+    <message>
+      <source>Aborting termination due to %s</source>
+      <translation>%s로 인해 종료 중단</translation>
+    </message>
+    <message>
+      <source>Airspeed %d not healthy</source>
+      <translation>대기속도 %d 상태 불량</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d failure. Disabling</source>
+      <translation>대기속도 센서 %d 오류. 비활성화</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d now OK. Re-enabled</source>
+      <translation>대기속도 센서 %d 정상. 재활성화</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d warning</source>
+      <translation>대기속도 센서 %d 경고</translation>
+    </message>
+    <message>
+      <source>Alt assist %.1fm</source>
+      <translation>고도 보조 %.1fm</translation>
+    </message>
+    <message>
+      <source>Angle assist r=%d p=%d</source>
+      <translation>각도 보조 r=%d p=%d</translation>
+    </message>
+    <message>
+      <source>Arc: %3.8f %3.8f</source>
+      <translation>호(Arc): %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Arm motors before testing motors.</source>
+      <translation>모터 테스트 전에 모터 시동(ARM) 필요</translation>
+    </message>
+    <message>
+      <source>Armed AUTO, xaccel = %.1f m/s/s, waiting %.1f sec</source>
+      <translation>AUTO 시동됨, xaccel=%.1f m/s/s, %.1f초 대기</translation>
+    </message>
+    <message>
+      <source>AutoTune: (%c) %s</source>
+      <translation>AutoTune: (%c) %s</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for %s%s%s</source>
+      <translation>AutoTune: %s%s%s 게인 저장</translation>
+    </message>
+    <message>
+      <source>AutoTune: WFL (%s) (%f &gt; %f)</source>
+      <translation>AutoTune: WFL (%s) (%f &gt; %f)</translation>
+    </message>
+    <message>
+      <source>AutoTune: lean=%f target=%f</source>
+      <translation>AutoTune: lean=%f target=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f accel=%f</source>
+      <translation>AutoTune: p=%f accel=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f d=%f</source>
+      <translation>AutoTune: p=%f d=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: rotation=%f target=%f</source>
+      <translation>AutoTune: rotation=%f target=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: success %u/%u</source>
+      <translation>AutoTune: 성공 %u/%u</translation>
+    </message>
+    <message>
+      <source>Avoid: Performing action: %d</source>
+      <translation>Avoid: 동작 수행: %d</translation>
+    </message>
+    <message>
+      <source>Avoid: Resuming with action: %d</source>
+      <translation>Avoid: 동작 재개: %d</translation>
+    </message>
+    <message>
+      <source>BAD NAV ALT %0.2f</source>
+      <translation>잘못된 NAV 고도 %0.2f</translation>
+    </message>
+    <message>
+      <source>BAD NAV AltFrame %d</source>
+      <translation>잘못된 NAV AltFrame %d</translation>
+    </message>
+    <message>
+      <source>Bad parameter: %s</source>
+      <translation>잘못된 파라미터: %s</translation>
+    </message>
+    <message>
+      <source>Bad rally point count</source>
+      <translation>잘못된 랠리 포인트 개수</translation>
+    </message>
+    <message>
+      <source>Bad thrust read, trying to push the other way...</source>
+      <translation>추력 판독 오류, 반대 방향으로 시도 중...</translation>
+    </message>
+    <message>
+      <source>Bailing Out of Autorotation</source>
+      <translation>오토로테이션 탈출</translation>
+    </message>
+    <message>
+      <source>Battery %d is %s %.2fV used %.0f mAh</source>
+      <translation>배터리 %d: %s %.2fV 사용 %.0f mAh</translation>
+    </message>
+    <message>
+      <source>Battery needs replacing (%d cycles)</source>
+      <translation>배터리 교체 필요(%d 사이클)</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move plane</source>
+      <translation>INS 보정 시작. 기체(비행기)를 움직이지 마십시오</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move vehicle</source>
+      <translation>INS 보정 시작. 기체를 움직이지 마십시오</translation>
+    </message>
+    <message>
+      <source>Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>보드 전압(%1.1fv) 범위 이탈 %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>Can't check rally without position</source>
+      <translation>위치 정보 없이 랠리 확인 불가</translation>
+    </message>
+    <message>
+      <source>Change alt to %.1f</source>
+      <translation>고도를 %.1f로 변경</translation>
+    </message>
+    <message>
+      <source>Check BRD_TYPE: %s</source>
+      <translation>BRD_TYPE 확인: %s</translation>
+    </message>
+    <message>
+      <source>Command received: </source>
+      <translation>명령 수신: </translation>
+    </message>
+    <message>
+      <source>Could not create scripting stack (%d)</source>
+      <translation>스크립팅 스택 생성 실패(%d)</translation>
+    </message>
+    <message>
+      <source>Cruise Learned: Thr:%d Speed:%3.1f</source>
+      <translation>크루즈 학습됨: 스로틀:%d 속도:%3.1f</translation>
+    </message>
+    <message>
+      <source>Current</source>
+      <translation>현재</translation>
+    </message>
+    <message>
+      <source>DB init failed . Sizes queue:%u, db:%u</source>
+      <translation>DB 초기화 실패. 큐 크기:%u, DB:%u</translation>
+    </message>
+    <message>
+      <source>Deepstall: Entry: %0.1f (m) Travel: %0.1f (m)</source>
+      <translation>딥스톨: 진입 %0.1f(m) 이동 %0.1f(m)</translation>
+    </message>
+    <message>
+      <source>Deepstall: Invalid data from AHRS. Holding level</source>
+      <translation>딥스톨: AHRS 데이터 오류. 수평 유지</translation>
+    </message>
+    <message>
+      <source>Deepstall: Unable to find the elevator channels</source>
+      <translation>딥스톨: 엘리베이터 채널을 찾을 수 없음</translation>
+    </message>
+    <message>
+      <source>Delaying %u sec</source>
+      <translation>%u초 지연</translation>
+    </message>
+    <message>
+      <source>Depth sensor error!</source>
+      <translation>수심 센서 오류!</translation>
+    </message>
+    <message>
+      <source>Depth sensor error.</source>
+      <translation>수심 센서 오류.</translation>
+    </message>
+    <message>
+      <source>Depth sensor is not connected.</source>
+      <translation>수심 센서가 연결되지 않음.</translation>
+    </message>
+    <message>
+      <source>Dijkstra: %s</source>
+      <translation>다익스트라: %s</translation>
+    </message>
+    <message>
+      <source>Distance from LAND point=%.2fm</source>
+      <translation>LAND 지점까지 거리=%.2fm</translation>
+    </message>
+    <message>
+      <source>Distance: %.1f %.1f</source>
+      <translation>거리: %.1f %.1f</translation>
+    </message>
+    <message>
+      <source>EK2: Changed EK2_GPS_TYPE to 1</source>
+      <translation>EK2: EK2_GPS_TYPE을 1로 변경</translation>
+    </message>
+    <message>
+      <source>EK3: Changed EK3_GPS_TYPE to 1</source>
+      <translation>EK3: EK3_GPS_TYPE을 1로 변경</translation>
+    </message>
+    <message>
+      <source>EKF primary changed:%d</source>
+      <translation>EKF 기본 변경:%d</translation>
+    </message>
+    <message>
+      <source>EKF yaw reset %.2f</source>
+      <translation>EKF 요 리셋 %.2f</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ext nav yaw alignment complete</source>
+      <translation>EKF2 IMU%u 외부 내비 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u forced reset</source>
+      <translation>EKF2 IMU%u 강제 리셋</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF2 IMU%u 지상 자기 이상, 요 재정렬</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u has stopped aiding</source>
+      <translation>EKF2 IMU%u 보조 중지</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF2 IMU%u 비행 중 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF2 IMU%u 초기 비콘 위치 D 오프셋=%3.1f(m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u 초기 위치 NE=%3.1f,%3.1f(m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NED = %3.1f,%3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u 초기 위치 NED=%3.1f,%3.1f,%3.1f(m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial yaw alignment complete</source>
+      <translation>EKF2 IMU%u 초기 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using GPS</source>
+      <translation>EKF2 IMU%u GPS 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using external nav data</source>
+      <translation>EKF2 IMU%u 외부 내비 데이터 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using optical flow</source>
+      <translation>EKF2 IMU%u 옵티컬 플로우 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using range beacons</source>
+      <translation>EKF2 IMU%u 거리 비콘 사용 중</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u origin set</source>
+      <translation>EKF2 IMU%u 원점 설정</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u switching to compass %u</source>
+      <translation>EKF2 IMU%u 나침반 %u로 전환</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u tilt alignment complete</source>
+      <translation>EKF2 IMU%u 기울기 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF2 IMU%u 요가 GPS 속도에 정렬됨</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u buffers IMU=%u OBS=%u OF=%u, dt=%.4f</source>
+      <translation>EKF3 IMU%u 버퍼 IMU=%u OBS=%u OF=%u, dt=%.4f</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing odometry</source>
+      <translation>EKF3 IMU%u 오도메트리 융합 중</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing optical flow</source>
+      <translation>EKF3 IMU%u 옵티컬 플로우 융합 중</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF3 IMU%u 지상 자기 이상, 요 재정렬</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF3 IMU%u 비행 중 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF3 IMU%u 초기 비콘 위치 D 오프셋=%3.1f(m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF3 IMU%u 초기 위치 NE=%3.1f,%3.1f(m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial yaw alignment complete</source>
+      <translation>EKF3 IMU%u 초기 요 정렬 완료</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initialised</source>
+      <translation>EKF3 IMU%u 초기화됨</translation>
+    </message>
+    <!-- ── 기존 항목 유지 ── -->
+    <message>
       <source>PreArm: Radio failsafe on</source>
-      <translation>시동 전 점검: 무선 페일세이프가 활성화되어 있습니다</translation>
+      <translation>PreArm: 무선 페일세이프가 활성화되어 있습니다</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix</source>
-      <translation>시동 전 점검: 3D GPS 고정 대기 중</translation>
+      <translation>PreArm: 3D GPS 고정 대기 중</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix </source>
+      <translation>PreArm: 3D GPS 고정 대기 중</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix.</source>
+      <translation>PreArm: 3D GPS 고정 대기 중</translation>
+    </message>
+    <message>
+      <source>PreArm: Throttle below Failsafe</source>
+      <translation>PreArm: 스로틀이 페일세이프 이하입니다</translation>
+    </message>
+    <message>
+      <source>PreArm: 3D Accel calibration needed</source>
+      <translation>PreArm: 3D 가속도 보정이 필요합니다</translation>
     </message>
     <message>
       <source>PreArm: EKF altitude is bad</source>
-      <translation>시동 전 점검: EKF 고도 추정 상태가 비정상입니다</translation>
+      <translation>PreArm: EKF 고도 추정 상태가 비정상입니다</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF attitude is bad</source>
+      <translation>PreArm: EKF 자세 추정 상태가 비정상입니다</translation>
+    </message>
+    <message>
+      <source>PreArm: fence requires position</source>
+      <translation>PreArm: 지오펜스에 위치 정보가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Disarming</source>
+      <translation>무선 페일세이프: 시동 해제</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe Cleared</source>
+      <translation>무선 페일세이프 해제</translation>
+    </message>
+    <message>
+      <source>10 second cooldown required after motor test</source>
+      <translation>모터 테스트 후 10초 대기 필요</translation>
+    </message>
+    <message>
+      <source>3D Accel calibration needed</source>
+      <translation>3축 가속도 보정 필요</translation>
+    </message>
+    <message>
+      <source>ACRO_BAL_ROLL/PITCH</source>
+      <translation>ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>AC_Fence: invalid polygon vertex count</source>
+      <translation>AC_펜스: 다각형 꼭짓점 수 오류</translation>
+    </message>
+    <message>
+      <source>AC_Fence: latlon read failed</source>
+      <translation>AC_펜스: 위경도 읽기 실패</translation>
+    </message>
+    <message>
+      <source>AC_Fence: non-positive circle radius</source>
+      <translation>AC_펜스: 반경이 0 이하입니다</translation>
+    </message>
+    <message>
+      <source>AC_Fence: polygon read failed</source>
+      <translation>AC_펜스: 다각형 읽기 실패</translation>
+    </message>
+    <message>
+      <source>ADSB threat detected</source>
+      <translation>ADSB 위협 감지</translation>
+    </message>
+    <message>
+      <source>AHRS not healthy</source>
+      <translation>AHRS 상태 불량</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO</source>
+      <translation>AFS 상태: AFS_AUTO</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GCS now OK</source>
+      <translation>AFS 상태: AFS_AUTO, GCS 정상</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GPS now OK</source>
+      <translation>AFS 상태: AFS_AUTO, GPS 정상</translation>
+    </message>
+    <message>
+      <source>AFS State: DATA_LINK_LOSS</source>
+      <translation>AFS 상태: 데이터 링크 손실</translation>
+    </message>
+    <message>
+      <source>AFS State: GPS_LOSS</source>
+      <translation>AFS 상태: GPS 손실</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can&apos;t terminate the vehicle</source>
+      <translation>AFS 미활성화, 기체 종료 불가</translation>
+    </message>
+    <message>
+      <source>AUTO triggered off</source>
+      <translation>AUTO 모드 해제</translation>
+    </message>
+    <message>
+      <source>AUTOTUNE: pilot overrides active</source>
+      <translation>자동 조정: 조종사 오버라이드 활성화</translation>
+    </message>
+    <message>
+      <source>Accels calibrated requires reboot</source>
+      <translation>가속도 보정 완료, 재시작 필요</translation>
+    </message>
+    <message>
+      <source>Accels inconsistent</source>
+      <translation>가속도계 불일치</translation>
+    </message>
+    <message>
+      <source>Accels not healthy</source>
+      <translation>가속도계 상태 불량</translation>
+    </message>
+    <message>
+      <source>Action: Minimum Collective Applied</source>
+      <translation>조치: 최소 컬렉티브 적용</translation>
+    </message>
+    <message>
+      <source>Aircraft in auto without a running mission</source>
+      <translation>실행 중인 임무 없이 자동 비행 중</translation>
+    </message>
+    <message>
+      <source>All parameters reset, reboot board</source>
+      <translation>모든 파라미터 초기화, 보드 재시작 필요</translation>
+    </message>
+    <message>
+      <source>Already flying - no takeoff</source>
+      <translation>이미 비행 중 - 이륙 불가</translation>
+    </message>
+    <message>
+      <source>Altitude disparity</source>
+      <translation>고도 불일치</translation>
+    </message>
+    <message>
+      <source>Arm: Motor Emergency Stopped</source>
+      <translation>시동: 모터 비상 정지</translation>
+    </message>
+    <message>
+      <source>Arming motors</source>
+      <translation>모터 시동</translation>
+    </message>
+    <message>
+      <source>Attempting auto failsafe recovery</source>
+      <translation>자동 페일세이프 복구 시도 중</translation>
+    </message>
+    <message>
+      <source>Auto disarmed</source>
+      <translation>자동 시동 해제</translation>
+    </message>
+    <message>
+      <source>Auto: Missing Takeoff Cmd</source>
+      <translation>자동: 이륙 명령 누락</translation>
+    </message>
+    <message>
+      <source>AutoTune: Failed</source>
+      <translation>자동 조정: 실패</translation>
+    </message>
+    <message>
+      <source>AutoTune: Paused: Pilot Override Active</source>
+      <translation>자동 조정: 일시 정지 - 조종사 오버라이드 활성</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for </source>
+      <translation>자동 조정: 게인 저장 완료 - </translation>
+    </message>
+    <message>
+      <source>AutoTune: Started</source>
+      <translation>자동 조정: 시작</translation>
+    </message>
+    <message>
+      <source>AutoTune: Stopped</source>
+      <translation>자동 조정: 중지</translation>
+    </message>
+    <message>
+      <source>AutoTune: Success</source>
+      <translation>자동 조정: 성공</translation>
+    </message>
+    <message>
+      <source>AutoTune: TWITCHING</source>
+      <translation>자동 조정: 트위칭 중</translation>
+    </message>
+    <message>
+      <source>AutoTune: Twitch</source>
+      <translation>자동 조정: 트위치</translation>
+    </message>
+    <message>
+      <source>AutoTune: UPDATING_GAINS</source>
+      <translation>자동 조정: 게인 업데이트 중</translation>
+    </message>
+    <message>
+      <source>AutoTune: unknown step</source>
+      <translation>자동 조정: 알 수 없는 단계</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Change Fail: Interlock Engaged</source>
+      <translation>자동 회전 모드 변경 실패: 인터록 작동 중</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Not Enabled</source>
+      <translation>자동 회전 모드 비활성화</translation>
+    </message>
+    <message>
+      <source>Autorotation initiated</source>
+      <translation>자동 회전 시작</translation>
+    </message>
+    <message>
+      <source>BANG!  Parachute deployed</source>
+      <translation>낙하산 전개!</translation>
+    </message>
+    <message>
+      <source>Bad GPS Position</source>
+      <translation>GPS 위치 불량</translation>
+    </message>
+    <message>
+      <source>Bad fence point</source>
+      <translation>잘못된 지오펜스 지점</translation>
+    </message>
+    <message>
+      <source>Bad lat or lon</source>
+      <translation>위도 또는 경도 오류</translation>
+    </message>
+    <message>
+      <source>Bad launch AUTO</source>
+      <translation>AUTO 발사 명령 오류</translation>
+    </message>
+    <message>
+      <source>Bad rally point ID</source>
+      <translation>잘못된 랠리 포인트 ID</translation>
+    </message>
+    <message>
+      <source>Barometer calibration complete</source>
+      <translation>기압계 보정 완료</translation>
+    </message>
+    <message>
+      <source>Barometer not healthy</source>
+      <translation>기압계 상태 불량</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe</source>
+      <translation>배터리 페일세이프</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Continuing Landing</source>
+      <translation>배터리 페일세이프 - 착륙 계속</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Disarming</source>
+      <translation>배터리 페일세이프 - 시동 해제</translation>
+    </message>
+    <message>
+      <source>Battery failsafe</source>
+      <translation>배터리 페일세이프</translation>
+    </message>
+    <message>
+      <source>Calibration successful</source>
+      <translation>보정 완료</translation>
+    </message>
+    <message>
+      <source>Can&apos;t check rally without position</source>
+      <translation>위치 없이 랠리 포인트 확인 불가</translation>
+    </message>
+    <message>
+      <source>Check ANGLE_MAX</source>
+      <translation>ANGLE_MAX 확인</translation>
+    </message>
+    <message>
+      <source>Check FS_THR_VALUE</source>
+      <translation>FS_THR_VALUE 확인</translation>
+    </message>
+    <message>
+      <source>Check MOT_PWM_MAX/MIN</source>
+      <translation>MOT_PWM_MAX/MIN 확인</translation>
+    </message>
+    <message>
+      <source>Check Object Avoidance</source>
+      <translation>장애물 회피 설정 확인</translation>
+    </message>
+    <message>
+      <source>Check PILOT_SPEED_UP</source>
+      <translation>PILOT_SPEED_UP 확인</translation>
+    </message>
+    <message>
+      <source>Check compass</source>
+      <translation>나침반 확인</translation>
+    </message>
+    <message>
+      <source>Check fence</source>
+      <translation>지오펜스 확인</translation>
+    </message>
+    <message>
+      <source>Check mag field</source>
+      <translation>자기장 확인</translation>
+    </message>
+    <message>
+      <source>Chip erase complete</source>
+      <translation>칩 초기화 완료</translation>
+    </message>
+    <message>
+      <source>Chip erase started</source>
+      <translation>칩 초기화 시작</translation>
+    </message>
+    <message>
+      <source>Clearing Mission</source>
+      <translation>임무 초기화</translation>
+    </message>
+    <message>
+      <source>Compass cal requires GPS lock</source>
+      <translation>나침반 보정에 GPS 고정 필요</translation>
+    </message>
+    <message>
+      <source>Compass cal requires reboot after priority change</source>
+      <translation>우선순위 변경 후 재시작하여 나침반 보정 필요</translation>
+    </message>
+    <message>
+      <source>Compass calibrated requires reboot</source>
+      <translation>나침반 보정 완료, 재시작 필요</translation>
+    </message>
+    <message>
+      <source>Compass calibration running</source>
+      <translation>나침반 보정 중</translation>
+    </message>
+    <message>
+      <source>Compass disabled</source>
+      <translation>나침반 비활성화</translation>
+    </message>
+    <message>
+      <source>Compass not healthy</source>
+      <translation>나침반 상태 불량</translation>
+    </message>
+    <message>
+      <source>Compass offsets too high</source>
+      <translation>나침반 오프셋 초과</translation>
+    </message>
+    <message>
+      <source>CompassLearn: Initialised</source>
+      <translation>나침반 학습: 초기화됨</translation>
+    </message>
+    <message>
+      <source>CompassLearn: finished</source>
+      <translation>나침반 학습: 완료</translation>
+    </message>
+    <message>
+      <source>CompassLearn: have earth field</source>
+      <translation>나침반 학습: 지구 자기장 획득</translation>
+    </message>
+    <message>
+      <source>Compasses inconsistent</source>
+      <translation>나침반 불일치</translation>
+    </message>
+    <message>
+      <source>Crash detected</source>
+      <translation>충돌 감지</translation>
+    </message>
+    <message>
+      <source>Crash detected. No action taken</source>
+      <translation>충돌 감지. 조치 없음</translation>
+    </message>
+    <message>
+      <source>Crash: Disarming</source>
+      <translation>충돌: 시동 해제</translation>
+    </message>
+    <message>
+      <source>Crash: Going to HOLD</source>
+      <translation>충돌: HOLD 모드 전환</translation>
+    </message>
+    <message>
+      <source>Cruise Learning NOT started</source>
+      <translation>순항 학습 시작 안됨</translation>
+    </message>
+    <message>
+      <source>Cruise Learning failed</source>
+      <translation>순항 학습 실패</translation>
+    </message>
+    <message>
+      <source>Cruise Learning started</source>
+      <translation>순항 학습 시작</translation>
+    </message>
+    <message>
+      <source>Disable fence failed (autodisable)</source>
+      <translation>지오펜스 비활성화 실패 (자동 비활성화)</translation>
+    </message>
+    <message>
+      <source>Disable fence floor failed (autodisable)</source>
+      <translation>지오펜스 하한 비활성화 실패 (자동 비활성화)</translation>
+    </message>
+    <message>
+      <source>Disarm before calibration.</source>
+      <translation>보정 전 시동 해제 필요</translation>
+    </message>
+    <message>
+      <source>Disarm hardware safety switch before testing motors.</source>
+      <translation>모터 테스트 전 하드웨어 안전 스위치 해제 필요</translation>
+    </message>
+    <message>
+      <source>Disarm to allow compass calibration</source>
+      <translation>나침반 보정을 위해 시동 해제 필요</translation>
+    </message>
+    <message>
+      <source>Disarming motors</source>
+      <translation>모터 시동 해제</translation>
+    </message>
+    <message>
+      <source>Duplicate Aux Switch Options</source>
+      <translation>보조 스위치 옵션 중복</translation>
+    </message>
+    <message>
+      <source>EKF attitude is bad</source>
+      <translation>EKF 자세 추정 불량</translation>
+    </message>
+    <message>
+      <source>EKF bad</source>
+      <translation>EKF 불량</translation>
+    </message>
+    <message>
+      <source>EKF compass variance</source>
+      <translation>EKF 나침반 분산 초과</translation>
+    </message>
+    <message>
+      <source>EKF failsafe</source>
+      <translation>EKF 페일세이프</translation>
+    </message>
+    <message>
+      <source>EKF failsafe cleared</source>
+      <translation>EKF 페일세이프 해제</translation>
+    </message>
+    <message>
+      <source>EKF failsafe!</source>
+      <translation>EKF 페일세이프!</translation>
+    </message>
+    <message>
+      <source>EKF variance</source>
+      <translation>EKF 분산 초과</translation>
+    </message>
+    <message>
+      <source>EKF-home variance</source>
+      <translation>EKF 원점 분산 초과</translation>
+    </message>
+    <message>
+      <source>EKF2 refusing set origin</source>
+      <translation>EKF2 원점 설정 거부</translation>
+    </message>
+    <message>
+      <source>EKF3 refusing set origin</source>
+      <translation>EKF3 원점 설정 거부</translation>
+    </message>
+    <message>
+      <source>EKF3 waiting for GPS config data</source>
+      <translation>EKF3 GPS 설정 데이터 대기 중</translation>
+    </message>
+    <message>
+      <source>ERROR: Failed to save signing key</source>
+      <translation>오류: 서명 키 저장 실패</translation>
+    </message>
+    <message>
+      <source>ERROR: Won&apos;t setup signing when armed</source>
+      <translation>오류: 시동 중 서명 설정 불가</translation>
+    </message>
+    <message>
+      <source>Entry Phase</source>
+      <translation>진입 단계</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag mode</source>
+      <translation>FBWA 테일 드래그 모드</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag off</source>
+      <translation>FBWA 테일 드래그 해제</translation>
+    </message>
+    <message>
+      <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>FS_LONG_TIMEOUT이 FS_SHORT_TIMEOUT보다 짧습니다</translation>
+    </message>
+    <message>
+      <source>Failsafe ended</source>
+      <translation>페일세이프 종료</translation>
+    </message>
+    <message>
+      <source>Failsafe terrain triggered</source>
+      <translation>페일세이프: 지형 경고 발동</translation>
+    </message>
+    <message>
+      <source>Fence Disabled</source>
+      <translation>지오펜스 비활성화</translation>
+    </message>
+    <message>
+      <source>Fence Enabled</source>
+      <translation>지오펜스 활성화</translation>
+    </message>
+    <message>
+      <source>Fence Indexed OK</source>
+      <translation>지오펜스 인덱싱 완료</translation>
+    </message>
+    <message>
+      <source>Fence corrupt</source>
+      <translation>지오펜스 데이터 손상</translation>
+    </message>
+    <message>
+      <source>Fence disabled (autodisable)</source>
+      <translation>지오펜스 비활성화 (자동)</translation>
+    </message>
+    <message>
+      <source>Fence enabled (autoenabled)</source>
+      <translation>지오펜스 활성화 (자동)</translation>
+    </message>
+    <message>
+      <source>Fence exceeds storage size</source>
+      <translation>지오펜스가 저장 용량 초과</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled</source>
+      <translation>지오펜스 하한 비활성화</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled (auto disable)</source>
+      <translation>지오펜스 하한 자동 비활성화</translation>
+    </message>
+    <message>
+      <source>Fence not configured</source>
+      <translation>지오펜스 미설정</translation>
+    </message>
+    <message>
+      <source>Fence read failed</source>
+      <translation>지오펜스 읽기 실패</translation>
+    </message>
+    <message>
+      <source>Fence upload timeout</source>
+      <translation>지오펜스 업로드 시간 초과</translation>
+    </message>
+    <message>
+      <source>Fence validation failed</source>
+      <translation>지오펜스 검증 실패</translation>
+    </message>
+    <message>
+      <source>Fence: auto-enabled for arming</source>
+      <translation>지오펜스: 시동을 위해 자동 활성화</translation>
+    </message>
+    <message>
+      <source>Fence: cannot enable for arming</source>
+      <translation>지오펜스: 시동을 위한 활성화 불가</translation>
+    </message>
+    <message>
+      <source>Fencing must be disabled</source>
+      <translation>지오펜스 비활성화 필요</translation>
+    </message>
+    <message>
+      <source>Finished active loiter</source>
+      <translation>선회 비행 완료</translation>
+    </message>
+    <message>
+      <source>Flight mode change failed</source>
+      <translation>비행 모드 변경 실패</translation>
+    </message>
+    <message>
+      <source>Flight plan received</source>
+      <translation>비행 계획 수신</translation>
+    </message>
+    <message>
+      <source>Flight plan update rejected</source>
+      <translation>비행 계획 업데이트 거부</translation>
+    </message>
+    <message>
+      <source>Forcing logging for watchdog reset</source>
+      <translation>워치독 재설정을 위한 로깅 강제</translation>
+    </message>
+    <message>
+      <source>GCS + Battery Failsafe - Continuing Landing</source>
+      <translation>GCS + 배터리 페일세이프 - 착륙 계속</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe</source>
+      <translation>GCS 페일세이프</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Auto Mode</source>
+      <translation>GCS 페일세이프 - 자동 모드 계속</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Landing</source>
+      <translation>GCS 페일세이프 - 착륙 계속</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Pilot Control</source>
+      <translation>GCS 페일세이프 - 조종사 제어 계속</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Disarming</source>
+      <translation>GCS 페일세이프 - 시동 해제</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe Cleared</source>
+      <translation>GCS 페일세이프 해제</translation>
+    </message>
+    <message>
+      <source>GCS failsafe on</source>
+      <translation>GCS 페일세이프 활성화</translation>
+    </message>
+    <message>
+      <source>GPS Glitch</source>
+      <translation>GPS 오류</translation>
+    </message>
+    <message>
+      <source>GPS Glitch cleared</source>
+      <translation>GPS 오류 해제</translation>
+    </message>
+    <message>
+      <source>GPS blending unhealthy</source>
+      <translation>GPS 블렌딩 불량</translation>
+    </message>
+    <message>
+      <source>GPS glitching</source>
+      <translation>GPS 오류 발생 중</translation>
+    </message>
+    <message>
+      <source>GPS is not healthy</source>
+      <translation>GPS 상태 불량</translation>
+    </message>
+    <message>
+      <source>Geofence OK</source>
+      <translation>지오펜스 정상</translation>
+    </message>
+    <message>
+      <source>Geofence loaded</source>
+      <translation>지오펜스 로드 완료</translation>
+    </message>
+    <message>
+      <source>Geofence triggered</source>
+      <translation>지오펜스 발동</translation>
+    </message>
+    <message>
+      <source>GoPro Not Available</source>
+      <translation>GoPro 사용 불가</translation>
+    </message>
+    <message>
+      <source>GoPro Photo Trigger</source>
+      <translation>GoPro 사진 촬영</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Start</source>
+      <translation>GoPro 녹화 시작</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Stop</source>
+      <translation>GoPro 녹화 중지</translation>
+    </message>
+    <message>
+      <source>GoPro Unsupported Capture Mode</source>
+      <translation>GoPro 지원하지 않는 캡처 모드</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode photo</source>
+      <translation>GoPro 사진 모드로 전환</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode video</source>
+      <translation>GoPro 동영상 모드로 전환</translation>
+    </message>
+    <message>
+      <source>GoPro recording, can&apos;t change modes</source>
+      <translation>GoPro 녹화 중, 모드 변경 불가</translation>
+    </message>
+    <message>
+      <source>Gripper Grabbed</source>
+      <translation>그리퍼 파지</translation>
+    </message>
+    <message>
+      <source>Gripper Released</source>
+      <translation>그리퍼 해제</translation>
+    </message>
+    <message>
+      <source>Gripper code disabled</source>
+      <translation>그리퍼 코드 비활성화</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbed</source>
+      <translation>그리퍼 화물 파지</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbing</source>
+      <translation>그리퍼 화물 파지 중</translation>
+    </message>
+    <message>
+      <source>Gripper load released</source>
+      <translation>그리퍼 화물 해제</translation>
+    </message>
+    <message>
+      <source>Gripper load releasing</source>
+      <translation>그리퍼 화물 해제 중</translation>
+    </message>
+    <message>
+      <source>Gripper not valid</source>
+      <translation>그리퍼 유효하지 않음</translation>
+    </message>
+    <message>
+      <source>Ground start</source>
+      <translation>지상 시동</translation>
+    </message>
+    <message>
+      <source>Ground start complete</source>
+      <translation>지상 시동 완료</translation>
+    </message>
+    <message>
+      <source>Ground start with delay</source>
+      <translation>지연 지상 시동</translation>
+    </message>
+    <message>
+      <source>Gyros inconsistent</source>
+      <translation>자이로 불일치</translation>
+    </message>
+    <message>
+      <source>Gyros not calibrated</source>
+      <translation>자이로 미보정</translation>
+    </message>
+    <message>
+      <source>Gyros not healthy</source>
+      <translation>자이로 상태 불량</translation>
+    </message>
+    <message>
+      <source>Hard landing detected</source>
+      <translation>경착륙 감지</translation>
+    </message>
+    <message>
+      <source>Hard landing detected. No action taken</source>
+      <translation>경착륙 감지. 조치 없음</translation>
+    </message>
+    <message>
+      <source>Hardware safety switch</source>
+      <translation>하드웨어 안전 스위치</translation>
+    </message>
+    <message>
+      <source>Heli motors checks failed</source>
+      <translation>헬리콥터 모터 점검 실패</translation>
+    </message>
+    <message>
+      <source>High GPS HDOP</source>
+      <translation>GPS HDOP 초과</translation>
+    </message>
+    <message>
+      <source>IOMCU is unhealthy</source>
+      <translation>IOMCU 상태 불량</translation>
+    </message>
+    <message>
+      <source>Incorrect item count</source>
+      <translation>항목 수 불일치</translation>
+    </message>
+    <message>
+      <source>Initialising APM</source>
+      <translation>APM 초기화 중</translation>
+    </message>
+    <message>
+      <source>Interlock/E-Stop Conflict</source>
+      <translation>인터록/비상 정지 충돌</translation>
+    </message>
+    <message>
+      <source>Invalid FENCE_TOTAL</source>
+      <translation>잘못된 FENCE_TOTAL 값</translation>
+    </message>
+    <message>
+      <source>Invalid Heli FRAME_CLASS</source>
+      <translation>잘못된 헬리콥터 FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>Invalid MultiCopter FRAME_CLASS</source>
+      <translation>잘못된 멀티콥터 FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>역 스로틀에 대한 잘못된 THR_FS_VALUE</translation>
+    </message>
+    <message>
+      <source>Invalid VTOL mode</source>
+      <translation>잘못된 VTOL 모드</translation>
+    </message>
+    <message>
+      <source>Inverted flight option not supported</source>
+      <translation>도립 비행 옵션 미지원</translation>
+    </message>
+    <message>
+      <source>Land complete</source>
+      <translation>착륙 완료</translation>
+    </message>
+    <message>
+      <source>Land descend started</source>
+      <translation>착륙 하강 시작</translation>
+    </message>
+    <message>
+      <source>Land final started</source>
+      <translation>최종 착륙 단계 시작</translation>
+    </message>
+    <message>
+      <source>Landing abort sequence start</source>
+      <translation>착륙 중단 시퀀스 시작</translation>
+    </message>
+    <message>
+      <source>Landing aborted via throttle</source>
+      <translation>스로틀에 의한 착륙 중단</translation>
+    </message>
+    <message>
+      <source>Landing configuration error, invalid LAND_TYPE</source>
+      <translation>착륙 설정 오류, 잘못된 LAND_TYPE</translation>
+    </message>
+    <message>
+      <source>Landing gear was not deployed</source>
+      <translation>랜딩 기어 미전개</translation>
+    </message>
+    <message>
+      <source>LandingGear: DEPLOY</source>
+      <translation>랜딩 기어: 전개</translation>
+    </message>
+    <message>
+      <source>LandingGear: RETRACT</source>
+      <translation>랜딩 기어: 수납</translation>
+    </message>
+    <message>
+      <source>Leak Detected</source>
+      <translation>누수 감지</translation>
+    </message>
+    <message>
+      <source>Leaning</source>
+      <translation>기울어짐</translation>
+    </message>
+    <message>
+      <source>Locate Copter alarm</source>
+      <translation>드론 위치 확인 알람</translation>
+    </message>
+    <message>
+      <source>Log download in progress</source>
+      <translation>로그 다운로드 중</translation>
+    </message>
+    <message>
+      <source>Logging failed</source>
+      <translation>로깅 실패</translation>
+    </message>
+    <message>
+      <source>Logging not started</source>
+      <translation>로깅 미시작</translation>
+    </message>
+    <message>
+      <source>Loiter orbits complete</source>
+      <translation>선회 완료</translation>
+    </message>
+    <message>
+      <source>Loiter time complete</source>
+      <translation>선회 시간 완료</translation>
+    </message>
+    <message>
+      <source>Loiter to alt complete</source>
+      <translation>목표 고도 선회 완료</translation>
+    </message>
+    <message>
+      <source>Lost manual control</source>
+      <translation>수동 조종 신호 상실</translation>
+    </message>
+    <message>
+      <source>Mission Complete</source>
+      <translation>임무 완료</translation>
+    </message>
+    <message>
+      <source>Mission complete, changing mode to RTL</source>
+      <translation>임무 완료, RTL 모드로 전환</translation>
+    </message>
+    <message>
+      <source>Mission upload timeout</source>
+      <translation>임무 업로드 시간 초과</translation>
+    </message>
+    <message>
+      <source>Mode change failed: throttle too high</source>
+      <translation>모드 변경 실패: 스로틀 과도</translation>
+    </message>
+    <message>
+      <source>Mode not armable</source>
+      <translation>해당 모드에서 시동 불가</translation>
+    </message>
+    <message>
+      <source>Motor Interlock Enabled</source>
+      <translation>모터 인터록 활성화</translation>
+    </message>
+    <message>
+      <source>Motor Interlock not configured</source>
+      <translation>모터 인터록 미설정</translation>
+    </message>
+    <message>
+      <source>Motor Test: Board initialising</source>
+      <translation>모터 테스트: 보드 초기화 중</translation>
+    </message>
+    <message>
+      <source>Motor Test: RC not calibrated</source>
+      <translation>모터 테스트: RC 미보정</translation>
+    </message>
+    <message>
+      <source>Motor Test: Safety switch</source>
+      <translation>모터 테스트: 안전 스위치</translation>
+    </message>
+    <message>
+      <source>Motor Test: vehicle not landed</source>
+      <translation>모터 테스트: 기체 착지 안됨</translation>
+    </message>
+    <message>
+      <source>Motor direction detection is complete.</source>
+      <translation>모터 방향 감지 완료</translation>
+    </message>
+    <message>
+      <source>Motor test timed out!</source>
+      <translation>모터 테스트 시간 초과!</translation>
+    </message>
+    <message>
+      <source>Motors Emergency Stopped</source>
+      <translation>모터 비상 정지</translation>
+    </message>
+    <message>
+      <source>Multiple return points</source>
+      <translation>복수의 복귀 지점</translation>
+    </message>
+    <message>
+      <source>Must assign a disarm or arm_toggle button</source>
+      <translation>시동 해제 또는 시동 토글 버튼 할당 필요</translation>
+    </message>
+    <message>
+      <source>Must be armed for takeoff</source>
+      <translation>이륙을 위해 시동 필요</translation>
+    </message>
+    <message>
+      <source>Must be disarmed for motor test</source>
+      <translation>모터 테스트를 위해 시동 해제 필요</translation>
+    </message>
+    <message>
+      <source>NAV_PLACE: landed</source>
+      <translation>NAV_PLACE: 착지</translation>
+    </message>
+    <message>
+      <source>NavEKF2: allocation failed</source>
+      <translation>NavEKF2: 메모리 할당 실패</translation>
+    </message>
+    <message>
+      <source>NavEKF2: not enough memory</source>
+      <translation>NavEKF2: 메모리 부족</translation>
+    </message>
+    <message>
+      <source>NavEKF3: allocation failed</source>
+      <translation>NavEKF3: 메모리 할당 실패</translation>
+    </message>
+    <message>
+      <source>NavEKF3: not enough memory</source>
+      <translation>NavEKF3: 메모리 부족</translation>
+    </message>
+    <message>
+      <source>Need mavlink2 for item transfer</source>
+      <translation>항목 전송을 위해 MAVLink2 필요</translation>
+    </message>
+    <message>
+      <source>New HOME received</source>
+      <translation>새 홈 위치 수신</translation>
+    </message>
+    <message>
+      <source>No Mission. Can&apos;t set AUTO.</source>
+      <translation>임무 없음. AUTO 모드 설정 불가</translation>
+    </message>
+    <message>
+      <source>No SD card</source>
+      <translation>SD 카드 없음</translation>
+    </message>
+    <message>
+      <source>No airspeed</source>
+      <translation>대기속도 신호 없음</translation>
+    </message>
+    <message>
+      <source>No mission library present</source>
+      <translation>임무 라이브러리 없음</translation>
+    </message>
+    <message>
+      <source>No mission loaded</source>
+      <translation>임무 미로드</translation>
+    </message>
+    <message>
+      <source>No rally library present</source>
+      <translation>랠리 라이브러리 없음</translation>
+    </message>
+    <message>
+      <source>No such mode</source>
+      <translation>해당 모드 없음</translation>
+    </message>
+    <message>
+      <source>No sufficently close rally point located</source>
+      <translation>충분히 가까운 랠리 포인트 없음</translation>
+    </message>
+    <message>
+      <source>Non-positive circle radius</source>
+      <translation>반경이 0 이하입니다</translation>
+    </message>
+    <message>
+      <source>Not enough memory for quadplane</source>
+      <translation>쿼드플레인을 위한 메모리 부족</translation>
+    </message>
+    <message>
+      <source>Not landed</source>
+      <translation>미착지</translation>
+    </message>
+    <message>
+      <source>Out of memory for upload</source>
+      <translation>업로드를 위한 메모리 부족</translation>
+    </message>
+    <message>
+      <source>Parachute already released</source>
+      <translation>낙하산 이미 전개됨</translation>
+    </message>
+    <message>
+      <source>Parachute not enabled</source>
+      <translation>낙하산 비활성화</translation>
+    </message>
+    <message>
+      <source>Parachute: Landed</source>
+      <translation>낙하산: 착지</translation>
+    </message>
+    <message>
+      <source>Parachute: Released</source>
+      <translation>낙하산: 전개</translation>
+    </message>
+    <message>
+      <source>Parachute: Released again</source>
+      <translation>낙하산: 재전개</translation>
+    </message>
+    <message>
+      <source>Parachute: Too low</source>
+      <translation>낙하산: 고도 너무 낮음</translation>
+    </message>
+    <message>
+      <source>Param storage failed</source>
+      <translation>파라미터 저장 실패</translation>
+    </message>
+    <message>
+      <source>Passthru disabled</source>
+      <translation>패스스루 비활성화</translation>
+    </message>
+    <message>
+      <source>Passthru enabled</source>
+      <translation>패스스루 활성화</translation>
+    </message>
+    <message>
+      <source>Passthru timed out</source>
+      <translation>패스스루 시간 초과</translation>
+    </message>
+    <message>
+      <source>PolyFence: Multiple return points found</source>
+      <translation>폴리펜스: 복수의 복귀 지점 발견</translation>
+    </message>
+    <message>
+      <source>PolyFence: latlon read failed</source>
+      <translation>폴리펜스: 위경도 읽기 실패</translation>
+    </message>
+    <message>
+      <source>PolyFence: storage write failed</source>
+      <translation>폴리펜스: 저장 쓰기 실패</translation>
+    </message>
+    <!-- ── PreArm 사전 무장 점검 메시지 ── -->
+    <message>
+      <source>PreArm: Fence floor enabled</source>
+      <translation>PreArm: 지오펜스 하한 활성화</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence load failed</source>
+      <translation>PreArm: 지오펜스 로드 실패</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence not enabled</source>
+      <translation>PreArm: 지오펜스 미활성화</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN out of range</source>
+      <translation>PreArm: H_GYR_GAIN 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN_ACRO out of range</source>
+      <translation>PreArm: H_GYR_GAIN_ACRO 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_H3_PHANG out of range</source>
+      <translation>PreArm: H_H3_PHANG 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_CRITICAL out of range</source>
+      <translation>PreArm: H_RSC_CRITICAL 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_IDLE out of range</source>
+      <translation>PreArm: H_RSC_IDLE 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_MODE invalid</source>
+      <translation>PreArm: H_RSC_MODE 설정 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_SETPOINT out of range</source>
+      <translation>PreArm: H_RSC_SETPOINT 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RUNUP_TIME too small</source>
+      <translation>PreArm: H_RUNUP_TIME 너무 작음</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW1_H3_PHANG out of range</source>
+      <translation>PreArm: H_SW1_H3_PHANG 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW2_H3_PHANG out of range</source>
+      <translation>PreArm: H_SW2_H3_PHANG 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: H_TAIL_SPEED out of range</source>
+      <translation>PreArm: H_TAIL_SPEED 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: check skid steering config</source>
+      <translation>PreArm: 스키드 조향 설정 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: check steering and throttle config</source>
+      <translation>PreArm: 조향 및 스로틀 설정 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: maxalt breached</source>
+      <translation>PreArm: 최대 고도 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: no position available</source>
+      <translation>PreArm: 위치 정보 없음</translation>
+    </message>
+    <message>
+      <source>PreArm: outside fence</source>
+      <translation>PreArm: 지오펜스 외부</translation>
+    </message>
+    <message>
+      <source>PreArm: regular AND skid steering configured</source>
+      <translation>PreArm: 일반 AND 스키드 조향 중복 설정</translation>
+    </message>
+    <!-- ── Q/R 범주 ── -->
+    <message>
+      <source>QAUTOTUNE disabled</source>
+      <translation>QAUTOTUNE 비활성화</translation>
+    </message>
+    <message>
+      <source>QuadPlane initialised</source>
+      <translation>쿼드플레인 초기화</translation>
+    </message>
+    <message>
+      <source>QuadPlane mode refused</source>
+      <translation>쿼드플레인 모드 거부</translation>
+    </message>
+    <message>
+      <source>QuadPlane setup failed</source>
+      <translation>쿼드플레인 설정 실패</translation>
+    </message>
+    <message>
+      <source>Quadplane enabled but not running</source>
+      <translation>쿼드플레인 활성화되었으나 미실행</translation>
+    </message>
+    <message>
+      <source>RC not calibrated</source>
+      <translation>RC 미보정</translation>
+    </message>
+    <message>
+      <source>RTL_ALT above rangefinder max range</source>
+      <translation>RTL_ALT가 거리 측정기 최대 범위 초과</translation>
+    </message>
+    <message>
+      <source>Radio + Battery Failsafe - Continuing Landing</source>
+      <translation>무선 + 배터리 페일세이프 - 착륙 계속</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe</source>
+      <translation>무선 페일세이프</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Auto Mode</source>
+      <translation>무선 페일세이프 - 자동 모드 계속</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Guided Mode</source>
+      <translation>무선 페일세이프 - 유도 모드 계속</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Landing</source>
+      <translation>무선 페일세이프 - 착륙 계속</translation>
+    </message>
+    <message>
+      <source>Radio failsafe on</source>
+      <translation>무선 페일세이프 활성화</translation>
+    </message>
+    <message>
+      <source>Rally upload timeout</source>
+      <translation>랠리 업로드 시간 초과</translation>
+    </message>
+    <message>
+      <source>Reached RTL location</source>
+      <translation>RTL 복귀 지점 도달</translation>
+    </message>
+    <message>
+      <source>Reached altitude</source>
+      <translation>목표 고도 도달</translation>
+    </message>
+    <message>
+      <source>Reached destination</source>
+      <translation>목적지 도달</translation>
+    </message>
+    <message>
+      <source>Reached maximum descent</source>
+      <translation>최대 하강 도달</translation>
+    </message>
+    <message>
+      <source>Ready to drive</source>
+      <translation>주행 준비 완료</translation>
+    </message>
+    <message>
+      <source>Ready to track</source>
+      <translation>추적 준비 완료</translation>
+    </message>
+    <message>
+      <source>Reboot rejected, ESC cal on reboot</source>
+      <translation>재시작 거부됨, 재시작 시 ESC 보정 예정</translation>
+    </message>
+    <message>
+      <source>Releasing the gripper</source>
+      <translation>그리퍼 해제 중</translation>
+    </message>
+    <message>
+      <source>Restarting RTL - Terrain data missing</source>
+      <translation>RTL 재시작 - 지형 데이터 없음</translation>
+    </message>
+    <!-- ── S 범주 ── -->
+    <message>
+      <source>SS Glide Phase</source>
+      <translation>SS 활공 단계</translation>
+    </message>
+    <message>
+      <source>Safety Switch</source>
+      <translation>안전 스위치</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking</source>
+      <translation>세일보트: 태킹</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking timed out</source>
+      <translation>세일보트: 태킹 시간 초과</translation>
+    </message>
+    <message>
+      <source>Sailboat: failed to enable motor</source>
+      <translation>세일보트: 모터 활성화 실패</translation>
+    </message>
+    <message>
+      <source>Scripting failed to start</source>
+      <translation>스크립팅 시작 실패</translation>
+    </message>
+    <message>
+      <source>Scripting has stopped</source>
+      <translation>스크립팅 중지됨</translation>
+    </message>
+    <message>
+      <source>Scripting out of memory</source>
+      <translation>스크립팅 메모리 부족</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode off</source>
+      <translation>SIMPLE 모드 해제</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode on</source>
+      <translation>SIMPLE 모드 활성화</translation>
+    </message>
+    <message>
+      <source>SUPERSIMPLE mode on</source>
+      <translation>SUPERSIMPLE 모드 활성화</translation>
+    </message>
+    <message>
+      <source>SmartRTL Low on space!</source>
+      <translation>SmartRTL 저장 공간 부족!</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Trying RTL Mode</source>
+      <translation>SmartRTL 사용 불가, RTL 모드 시도</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Using Land Mode</source>
+      <translation>SmartRTL 사용 불가, LAND 모드 사용</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: init failed</source>
+      <translation>SmartRTL 비활성화: 초기화 실패</translation>
+    </message>
+    <message>
+      <source>Stand By Disabled</source>
+      <translation>대기 모드 비활성화</translation>
+    </message>
+    <message>
+      <source>Stand By Enabled</source>
+      <translation>대기 모드 활성화</translation>
+    </message>
+    <message>
+      <source>Starting calibration</source>
+      <translation>보정 시작</translation>
+    </message>
+    <message>
+      <source>Starting engine</source>
+      <translation>엔진 시동</translation>
+    </message>
+    <message>
+      <source>Stopped engine</source>
+      <translation>엔진 정지</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no downward rangefinder</source>
+      <translation>표면 추적: 하향 거리 측정기 없음</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no upward rangefinder</source>
+      <translation>표면 추적: 상향 거리 측정기 없음</translation>
+    </message>
+    <message>
+      <source>SystemID Finished</source>
+      <translation>시스템 식별 완료</translation>
+    </message>
+    <message>
+      <source>SystemID Parameter Error</source>
+      <translation>시스템 식별 파라미터 오류</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: Landed</source>
+      <translation>시스템 식별 중지: 착지</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: axis = 0</source>
+      <translation>시스템 식별 중지: 축 = 0</translation>
+    </message>
+    <!-- ── T 범주 ── -->
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>TCAN ESC는 MOT_PWM_MAX=2000 필요</translation>
+    </message>
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>TCAN ESC는 MOT_PWM_MIN=1000 필요</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery failure: No Rangefinder!</source>
+      <translation>지형 페일세이프 복구 실패: 거리 측정기 없음!</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery successful!</source>
+      <translation>지형 페일세이프 복구 성공!</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery timeout!</source>
+      <translation>지형 페일세이프 복구 시간 초과!</translation>
+    </message>
+    <message>
+      <source>Terrain out of memory</source>
+      <translation>지형 데이터 메모리 부족</translation>
+    </message>
+    <message>
+      <source>Terrain: Allocation failed</source>
+      <translation>지형: 메모리 할당 실패</translation>
+    </message>
+    <message>
+      <source>Throttle armed</source>
+      <translation>스로틀 시동</translation>
+    </message>
+    <message>
+      <source>Throttle disarmed</source>
+      <translation>스로틀 시동 해제</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe off</source>
+      <translation>스로틀 페일세이프 해제</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe on</source>
+      <translation>스로틀 페일세이프 활성화</translation>
+    </message>
+    <message>
+      <source>Throttle not zero</source>
+      <translation>스로틀이 0이 아님</translation>
+    </message>
+    <message>
+      <source>Timeout AUTO</source>
+      <translation>AUTO 모드 시간 초과</translation>
+    </message>
+    <message>
+      <source>Tmode: ACRO is disabled</source>
+      <translation>테스트 모드: ACRO 비활성화</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD arm failed</source>
+      <translation>테스트 모드: ALT_HOLD 시동 실패</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD update arm</source>
+      <translation>테스트 모드: ALT_HOLD 시동 업데이트</translation>
+    </message>
+    <message>
+      <source>Tmode: Force disarm</source>
+      <translation>테스트 모드: 강제 시동 해제</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS armed motors</source>
+      <translation>테스트 모드: GPS 시동</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS arming failed</source>
+      <translation>테스트 모드: GPS 시동 실패</translation>
+    </message>
+    <message>
+      <source>Tmode: LANDING</source>
+      <translation>테스트 모드: 착륙</translation>
+    </message>
+    <message>
+      <source>Tmode: LOITER update</source>
+      <translation>테스트 모드: LOITER 업데이트</translation>
+    </message>
+    <message>
+      <source>Tmode: RTL cancel</source>
+      <translation>테스트 모드: RTL 취소</translation>
+    </message>
+    <message>
+      <source>Tmode: THROW is disabled</source>
+      <translation>테스트 모드: THROW 비활성화</translation>
+    </message>
+    <message>
+      <source>Tmode: WiFi reset</source>
+      <translation>테스트 모드: WiFi 재설정</translation>
+    </message>
+    <message>
+      <source>Tmode: enable compass learning</source>
+      <translation>테스트 모드: 나침반 학습 활성화</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test failed</source>
+      <translation>테스트 모드: 부하 테스트 실패</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off</source>
+      <translation>테스트 모드: 부하 테스트 해제</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off (battery)</source>
+      <translation>테스트 모드: 부하 테스트 해제 (배터리)</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test on</source>
+      <translation>테스트 모드: 부하 테스트 활성화</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS armed motors</source>
+      <translation>테스트 모드: 비GPS 시동</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS arming failed</source>
+      <translation>테스트 모드: 비GPS 시동 실패</translation>
+    </message>
+    <message>
+      <source>Tmode: sticks not centered</source>
+      <translation>테스트 모드: 조종 스틱 중립 안됨</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle arm</source>
+      <translation>테스트 모드: 스로틀 시동</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle disarm</source>
+      <translation>테스트 모드: 스로틀 시동 해제</translation>
+    </message>
+    <message>
+      <source>Transition FW done</source>
+      <translation>고정익 모드 전환 완료</translation>
+    </message>
+    <message>
+      <source>Transition VTOL done</source>
+      <translation>VTOL 모드 전환 완료</translation>
+    </message>
+    <message>
+      <source>Transition airspeed wait</source>
+      <translation>전환 대기속도 대기 중</translation>
+    </message>
+    <message>
+      <source>Transition done</source>
+      <translation>전환 완료</translation>
+    </message>
+    <message>
+      <source>Transition failed, exceeded time limit</source>
+      <translation>전환 실패, 시간 초과</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO with pin</source>
+      <translation>핀에 의한 AUTO 모드 전환</translation>
+    </message>
+    <message>
+      <source>Tuning: Saved</source>
+      <translation>튜닝: 저장됨</translation>
+    </message>
+    <message>
+      <source>Tuning: reverted</source>
+      <translation>튜닝: 복원됨</translation>
+    </message>
+    <!-- ── U–Z 범주 ── -->
+    <message>
+      <source>UC Node Alloc Failed!</source>
+      <translation>UC 노드 할당 실패!</translation>
+    </message>
+    <message>
+      <source>Unable to allocate scripting memory</source>
+      <translation>스크립팅 메모리 할당 불가</translation>
+    </message>
+    <message>
+      <source>Unable to disable fence floor</source>
+      <translation>지오펜스 하한 비활성화 불가</translation>
+    </message>
+    <message>
+      <source>Unable to restart landing sequence</source>
+      <translation>착륙 시퀀스 재시작 불가</translation>
+    </message>
+    <message>
+      <source>Unable to start landing sequence</source>
+      <translation>착륙 시퀀스 시작 불가</translation>
+    </message>
+    <message>
+      <source>Unable to terminate, termination is not configured</source>
+      <translation>종료 불가, 종료 기능 미설정</translation>
+    </message>
+    <message>
+      <source>Unknown GUIDED mode</source>
+      <translation>알 수 없는 GUIDED 모드</translation>
+    </message>
+    <message>
+      <source>User Takeoff only in GUIDED mode</source>
+      <translation>사용자 이륙은 GUIDED 모드에서만 가능</translation>
+    </message>
+    <message>
+      <source>VTOL not available</source>
+      <translation>VTOL 사용 불가</translation>
+    </message>
+    <message>
+      <source>VTOL transition only in AUTO</source>
+      <translation>VTOL 전환은 AUTO 모드에서만 가능</translation>
+    </message>
+    <message>
+      <source>Vehicle contains advanced fences</source>
+      <translation>기체에 고급 지오펜스 포함</translation>
+    </message>
+    <message>
+      <source>Vibration compensation OFF</source>
+      <translation>진동 보상 해제</translation>
+    </message>
+    <message>
+      <source>Vibration compensation ON</source>
+      <translation>진동 보상 활성화</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 1</source>
+      <translation>영상 전환: 소스 1</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 2</source>
+      <translation>영상 전환: 소스 2</translation>
+    </message>
+    <message>
+      <source>WP_SPEED too low</source>
+      <translation>WP_SPEED 너무 낮음</translation>
+    </message>
+    <message>
+      <source>Waiting for Terrain data</source>
+      <translation>지형 데이터 대기 중</translation>
+    </message>
+    <message>
+      <source>Waiting for first HIL_STATE message</source>
+      <translation>첫 번째 HIL_STATE 메시지 대기 중</translation>
+    </message>
+    <message>
+      <source>Warning: Poor RPM Sensor Health</source>
+      <translation>경고: RPM 센서 상태 불량</translation>
+    </message>
+    <message>
+      <source>ZigZag: manual control</source>
+      <translation>지그재그: 수동 제어</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to A</source>
+      <translation>지그재그: A 지점으로 이동</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to B</source>
+      <translation>지그재그: B 지점으로 이동</translation>
+    </message>
+    <message>
+      <source>ZigZag: point A stored</source>
+      <translation>지그재그: A 지점 저장됨</translation>
+    </message>
+    <message>
+      <source>ZigZag: point B stored</source>
+      <translation>지그재그: B 지점 저장됨</translation>
+    </message>
+    <message>
+      <source>bad do_loiter_to_alt</source>
+      <translation>do_loiter_to_alt 명령 오류</translation>
+    </message>
+    <message>
+      <source>calling AP_HAL::panic(...)</source>
+      <translation>AP_HAL::panic(...) 호출</translation>
+    </message>
+    <message>
+      <source>check firmware or FRAME_CLASS</source>
+      <translation>펌웨어 또는 FRAME_CLASS 확인</translation>
+    </message>
+    <message>
+      <source>check proximity sensor</source>
+      <translation>근접 센서 확인</translation>
+    </message>
+    <message>
+      <source>finished motor test</source>
+      <translation>모터 테스트 완료</translation>
+    </message>
+    <message>
+      <source>starting motor test</source>
+      <translation>모터 테스트 시작</translation>
+    </message>
+    <message>
+      <source>terrain data unhealthy</source>
+      <translation>지형 데이터 불량</translation>
+    </message>
+    <message>
+      <source>throw detected - uprighting</source>
+      <translation>투척 감지 - 자세 교정 중</translation>
+    </message>
+    <message>
+      <source>uprighted - controlling height</source>
+      <translation>자세 교정 완료 - 고도 제어</translation>
+    </message>
+    <message>
+      <source>waiting for terrain data</source>
+      <translation>지형 데이터 대기 중</translation>
+    </message>
+    <message>
+      <source>waiting for throw</source>
+      <translation>투척 대기 중</translation>
+    </message>
+    <message>
+      <source>watchdog: Bypassing arming checks</source>
+      <translation>워치독: 시동 점검 우회</translation>
+    </message>
+    <message>
+      <source>wiping parameter storage header</source>
+      <translation>파라미터 저장소 헤더 초기화</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid MultiCopter FRAME_CLASS</source>
+      <translation>PreArm: 멀티콥터 FRAME_CLASS 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad parameter: %s</source>
+      <translation>PreArm: 잘못된 파라미터: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: Check PILOT_SPEED_UP</source>
+      <translation>PreArm: PILOT_SPEED_UP 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Compasses inconsistent</source>
+      <translation>PreArm: 나침반 불일치</translation>
+    </message>
+    <message>
+      <source>PreArm: ACRO_BAL_ROLL/PITCH</source>
+      <translation>PreArm: ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>PreArm: Mode not armable</source>
+      <translation>PreArm: 시동 불가 모드</translation>
+    </message>
+    <message>
+      <source>PreArm: %s too high</source>
+      <translation>PreArm: %s 너무 높음</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d minimum is greater than trim</source>
+      <translation>PreArm: SERVO%d 최소값이 트림보다 큼</translation>
+    </message>
+    <message>
+      <source>PreArm: No rally library present</source>
+      <translation>PreArm: 랠리 라이브러리 없음</translation>
+    </message>
+    <message>
+      <source>PreArm: AHRS not healthy</source>
+      <translation>PreArm: AHRS 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d minimum is greater than trim</source>
+      <translation>PreArm: RC%d 최소값이 트림보다 큼</translation>
+    </message>
+    <message>
+      <source>PreArm: Inverted flight option not supported</source>
+      <translation>PreArm: 역비행 옵션 미지원</translation>
+    </message>
+    <message>
+      <source>PreArm: Check fence</source>
+      <translation>PreArm: 펜스 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibrated requires reboot</source>
+      <translation>PreArm: 나침반 보정 완료, 재부팅 필요</translation>
+    </message>
+    <message>
+      <source>PreArm: Terrain out of memory</source>
+      <translation>PreArm: 지형 메모리 부족</translation>
+    </message>
+    <message>
+      <source>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS is not healthy</source>
+      <translation>PreArm: GPS 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MAX too small (%u)</source>
+      <translation>PreArm: LIM_PITCH_MAX 너무 작음(%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibration running</source>
+      <translation>PreArm: 나침반 보정 진행 중</translation>
+    </message>
+    <message>
+      <source>PreArm: Fences invalid</source>
+      <translation>PreArm: 펜스 값 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: Hardware safety switch</source>
+      <translation>PreArm: 하드웨어 안전 스위치</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim below min</source>
+      <translation>PreArm: %s 무선 트림이 최소값 미만</translation>
+    </message>
+    <message>
+      <source>PreArm: Interlock/E-Stop Conflict</source>
+      <translation>PreArm: 인터록/비상정지 충돌</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging not started</source>
+      <translation>PreArm: 로그 시작 안 됨</translation>
+    </message>
+    <message>
+      <source>PreArm: Safety Switch</source>
+      <translation>PreArm: 안전 스위치</translation>
+    </message>
+    <message>
+      <source>PreArm: Check FS_THR_VALUE</source>
+      <translation>PreArm: FS_THR_VALUE 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Duplicate Aux Switch Options</source>
+      <translation>PreArm: 보조 스위치 옵션 중복</translation>
+    </message>
+    <message>
+      <source>PreArm: check firmware or FRAME_CLASS</source>
+      <translation>PreArm: 펌웨어 또는 FRAME_CLASS 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: terrain data unhealthy</source>
+      <translation>PreArm: 지형 데이터 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging failed</source>
+      <translation>PreArm: 로그 실패</translation>
+    </message>
+    <message>
+      <source>PreArm: Battery failsafe</source>
+      <translation>PreArm: 배터리 페일세이프</translation>
+    </message>
+    <message>
+      <source>PreArm: %s below failsafe</source>
+      <translation>PreArm: %s 페일세이프 이하</translation>
+    </message>
+    <message>
+      <source>PreArm: vehicle outside fence</source>
+      <translation>PreArm: 기체가 펜스 밖</translation>
+    </message>
+    <message>
+      <source>PreArm: quadplane needs SCHED_LOOP_RATE &gt;= 100</source>
+      <translation>PreArm: 쿼드플레인 SCHED_LOOP_RATE &gt;= 100 필요</translation>
+    </message>
+    <message>
+      <source>PreArm: check proximity sensor</source>
+      <translation>PreArm: 근접 센서 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio max too low</source>
+      <translation>PreArm: %s 무선 최대값이 너무 낮음</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF-home variance</source>
+      <translation>PreArm: EKF-홈 분산</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS positions differ by %4.1fm</source>
+      <translation>PreArm: GPS 위치 차이 %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock Enabled</source>
+      <translation>PreArm: 모터 인터록 활성화됨</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not healthy</source>
+      <translation>PreArm: 자이로 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: No SD card</source>
+      <translation>PreArm: SD 카드 없음</translation>
+    </message>
+    <message>
+      <source>PreArm: Param storage failed</source>
+      <translation>PreArm: 파라미터 저장 실패</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS %d failing configuration checks</source>
+      <translation>PreArm: GPS %d 설정 점검 실패</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros inconsistent</source>
+      <translation>PreArm: 자이로 불일치</translation>
+    </message>
+    <message>
+      <source>PreArm: Check Object Avoidance</source>
+      <translation>PreArm: 장애물 회피 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MIN too large (%u)</source>
+      <translation>PreArm: LIM_PITCH_MIN 너무 큼(%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Check MOT_PWM_MAX/MIN</source>
+      <translation>PreArm: MOT_PWM_MAX/MIN 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo Test is still running</source>
+      <translation>PreArm: 서보 테스트 진행 중</translation>
+    </message>
+    <message>
+      <source>PreArm: RTL_ALT above rangefinder max range</source>
+      <translation>PreArm: RTL_ALT가 거리센서 최대 범위 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels calibrated requires reboot</source>
+      <translation>PreArm: 가속도계 보정 완료, 재부팅 필요</translation>
+    </message>
+    <message>
+      <source>PreArm: Leaning</source>
+      <translation>PreArm: 기울어짐</translation>
+    </message>
+    <message>
+      <source>PreArm: Heli motors checks failed</source>
+      <translation>PreArm: 헬기 모터 점검 실패</translation>
+    </message>
+    <message>
+      <source>PreArm: Must assign a disarm or arm_toggle button</source>
+      <translation>PreArm: 해제 또는 arm_toggle 버튼을 할당해야 함</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_RADIUS value</source>
+      <translation>PreArm: FENCE_RADIUS 값 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: No sufficently close rally point located</source>
+      <translation>PreArm: 충분히 가까운 랠리 포인트 없음</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad GPS Position</source>
+      <translation>PreArm: GPS 위치 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission library present</source>
+      <translation>PreArm: 미션 라이브러리 없음</translation>
+    </message>
+    <message>
+      <source>PreArm: Barometer not healthy</source>
+      <translation>PreArm: 기압계 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF failsafe</source>
+      <translation>PreArm: EKF 페일세이프</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS glitching</source>
+      <translation>PreArm: GPS 글리치 발생</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio min too high</source>
+      <translation>PreArm: %s 무선 최소값이 너무 높음</translation>
+    </message>
+    <message>
+      <source>PreArm: WP_SPEED too low</source>
+      <translation>PreArm: WP_SPEED 너무 낮음</translation>
+    </message>
+    <message>
+      <source>PreArm: GCS failsafe on</source>
+      <translation>PreArm: GCS 페일세이프 활성</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock not configured</source>
+      <translation>PreArm: 모터 인터록 미설정</translation>
+    </message>
+    <message>
+      <source>PreArm: Check mag field</source>
+      <translation>PreArm: 자기장 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>PreArm: 역방향 스로틀용 THR_FS_VALUE 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>PreArm: TCAN ESC는 MOT_PWM_MAX=2000 필요</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels inconsistent</source>
+      <translation>PreArm: 가속도계 불일치</translation>
+    </message>
+    <message>
+      <source>PreArm: Scripting out of memory</source>
+      <translation>PreArm: 스크립팅 메모리 부족</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d maximum is less than trim</source>
+      <translation>PreArm: SERVO%d 최대값이 트림보다 작음</translation>
+    </message>
+    <message>
+      <source>PreArm: Check ANGLE_MAX</source>
+      <translation>PreArm: ANGLE_MAX 확인</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels not healthy</source>
+      <translation>PreArm: 가속도계 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: Quadplane enabled but not running</source>
+      <translation>PreArm: 쿼드플레인 활성화됐으나 동작 중 아님</translation>
+    </message>
+    <message>
+      <source>PreArm: High GPS HDOP</source>
+      <translation>PreArm: GPS HDOP 높음</translation>
+    </message>
+    <message>
+      <source>PreArm: Missing mission item: %s</source>
+      <translation>PreArm: 미션 항목 누락: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission loaded</source>
+      <translation>PreArm: 미션 미로드</translation>
+    </message>
+    <message>
+      <source>PreArm: ADSB threat detected</source>
+      <translation>PreArm: ADSB 위협 감지</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not calibrated</source>
+      <translation>PreArm: 자이로 미보정</translation>
+    </message>
+    <message>
+      <source>PreArm: Airspeed %d not healthy</source>
+      <translation>PreArm: 대기속도계 %d 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: Proximity %d deg, %4.2fm</source>
+      <translation>PreArm: 근접 %d도, %4.2fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>PreArm: 서보 전압이 너무 낮음(%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_ALT_MAX value</source>
+      <translation>PreArm: FENCE_ALT_MAX 값 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid Heli FRAME_CLASS</source>
+      <translation>PreArm: 헬기 FRAME_CLASS 오류</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim above max</source>
+      <translation>PreArm: %s 무선 트림이 최대값 초과</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass offsets too high</source>
+      <translation>PreArm: 나침반 오프셋 너무 큼</translation>
+    </message>
+    <message>
+      <source>PreArm: Internal errors (0x%x)</source>
+      <translation>PreArm: 내부 오류(0x%x)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass not healthy</source>
+      <translation>PreArm: 나침반 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: Motors Emergency Stopped</source>
+      <translation>PreArm: 모터 비상 정지</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>PreArm: TCAN ESC는 MOT_PWM_MIN=1000 필요</translation>
+    </message>
+    <message>
+      <source>PreArm: Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>PreArm: 보드 전압(%1.1fv) 범위 초과 %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS and AHRS differ by %4.1fm</source>
+      <translation>PreArm: GPS와 AHRS 위치 차이 %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Can't check rally without position</source>
+      <translation>PreArm: 위치 없이 랠리 확인 불가</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_ROLL_CD too small (%u)</source>
+      <translation>PreArm: LIM_ROLL_CD 너무 작음(%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Altitude disparity</source>
+      <translation>PreArm: 고도 불일치</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d maximum is less than trim</source>
+      <translation>PreArm: RC%d 최대값이 트림보다 작음</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF compass variance</source>
+      <translation>PreArm: EKF 나침반 분산</translation>
+    </message>
+    <message>
+      <source>PreArm: IOMCU is unhealthy</source>
+      <translation>PreArm: IOMCU 비정상</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for Terrain data</source>
+      <translation>PreArm: 지형 데이터 대기 중</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS blending unhealthy</source>
+      <translation>PreArm: GPS 블렌딩 비정상</translation>
+    </message>
+    <message>
+      <source>#CompassMot calibration not supported</source>
+      <translation>#CompassMot 캘리브레이션 미지원</translation>
+    </message>
+    <message>
+      <source>#Gain is %2.0f%%</source>
+      <translation>#Gain은 %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Gain: %2.0f%%</source>
+      <translation>#Gain: %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Input Hold Disabled</source>
+      <translation>#Input Hold 비활성화</translation>
+    </message>
+    <message>
+      <source>#Input Hold Set</source>
+      <translation>#Input Hold 설정됨</translation>
+    </message>
+    <message>
+      <source>Lua: Syntax error in %s</source>
+      <translation>Lua: %s 구문 오류</translation>
+    </message>
+    <message>
+      <source>Lua: Time: %u Mem: %d + %d</source>
+      <translation>Lua: 시간: %u 메모리: %d + %d</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to allocate a heap</source>
+      <translation>Lua: 힙 할당 불가</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to load the file: %s</source>
+      <translation>Lua: 파일 로드 불가: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Unknown error (%d) loading %s</source>
+      <translation>Lua: %s 로드 중 알 수 없는 오류(%d)</translation>
+    </message>
+    <message>
+      <source>MYGCS: %u, heartbeat lost</source>
+      <translation>MYGCS: %u, 하트비트 손실</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu removed</source>
+      <translation>Mag: DEVID %lu 나침반 #%d 제거됨</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu replaced</source>
+      <translation>Mag: DEVID %lu 나침반 #%d 교체됨</translation>
+    </message>
+    <message>
+      <source>Mag: WMM table error</source>
+      <translation>Mag: WMM 테이블 오류</translation>
+    </message>
+    <message>
+      <source>Mag: no position available</source>
+      <translation>Mag: 위치 정보 없음</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: bad uncorrected field</source>
+      <translation>Mag[%u]: 보정 전 자기장 이상</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: unhealthy\n</source>
+      <translation>Mag[%u]: 비정상\n</translation>
+    </message>
+    <message>
+      <source>Magic not set</source>
+      <translation>Magic 미설정</translation>
+    </message>
+    <message>
+      <source>Missing mission item: %s</source>
+      <translation>미션 항목 누락: %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u %s</source>
+      <translation>미션: %u %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u Jump %i/%i</source>
+      <translation>미션: %u 점프 %i/%i</translation>
+    </message>
+    <message>
+      <source>Mode change failed: %s requires position</source>
+      <translation>모드 변경 실패: %s에 위치 정보 필요</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid motor (%d)</source>
+      <translation>모터 테스트: 잘못된 모터(%d)</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid throttle type: %d</source>
+      <translation>모터 테스트: 잘못된 스로틀 타입: %d</translation>
+    </message>
+    <message>
+      <source>Motor Test: percentage (%d) too high</source>
+      <translation>모터 테스트: 비율(%d) 너무 높음</translation>
+    </message>
+    <message>
+      <source>Motor Test: pwm (%d) too high</source>
+      <translation>모터 테스트: PWM(%d) 너무 높음</translation>
+    </message>
+    <message>
+      <source>Motors: unable to setup motor %u</source>
+      <translation>모터: 모터 %u 설정 불가</translation>
+    </message>
+    <message>
+      <source>MotorsTri: unable to setup yaw channel</source>
+      <translation>MotorsTri: 요 채널 설정 불가</translation>
+    </message>
+    <message>
+      <source>N-E-D follow offset loaded</source>
+      <translation>N-E-D 추적 오프셋 로드됨</translation>
+    </message>
+    <message>
+      <source>NavEKF2: lane switch %u</source>
+      <translation>NavEKF2: 레인 전환 %u</translation>
+    </message>
+    <message>
+      <source>NavEKF3: lane switch %u</source>
+      <translation>NavEKF3: 레인 전환 %u</translation>
+    </message>
+    <message>
+      <source>New target %d %d</source>
+      <translation>새 목표 %d %d</translation>
+    </message>
+    <message>
+      <source>No ap_message for mavlink id (%u)</source>
+      <translation>mavlink id (%u)에 대한 ap_message 없음</translation>
+    </message>
+    <message>
+      <source>No axis selected, SID_AXIS = 0</source>
+      <translation>축 선택 없음, SID_AXIS = 0</translation>
+    </message>
+    <message>
+      <source>No last page of log %d at top=%X or bot=%X</source>
+      <translation>로그 %d의 마지막 페이지 없음 (top=%X 또는 bot=%X)</translation>
+    </message>
+    <message>
+      <source>Out of allowable altitude range, beginning cruise. Alt = %f</source>
+      <translation>허용 고도 범위 초과, 순항 시작. 고도 = %f</translation>
+    </message>
+    <message>
+      <source>Param write denied (%s)</source>
+      <translation>파라미터 쓰기 거부(%s)</translation>
+    </message>
+    <message>
+      <source>Passed waypoint #%i dist %um</source>
+      <translation>웨이포인트 #%i 통과, 거리 %um</translation>
+    </message>
+    <message>
+      <source>Potential Thrust Loss (%d)</source>
+      <translation>추진력 손실 가능성(%d)</translation>
+    </message>
+    <message>
+      <source>PreArm: %s</source>
+      <translation>PreArm: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: servo function %u unassigned</source>
+      <translation>PreArm: 서보 기능 %u 미할당</translation>
+    </message>
+    <message>
+      <source>PreArm:[^</source>
+      <translation>PreArm:[^</translation>
+    </message>
+    <message>
+      <source>Proximity %d deg, %4.2fm</source>
+      <translation>근접 %d도, %4.2fm</translation>
+    </message>
+    <message>
+      <source>RC%d maximum is less than trim</source>
+      <translation>RC%d 최대값이 트림보다 작음</translation>
+    </message>
+    <message>
+      <source>RC%d minimum is greater than trim</source>
+      <translation>RC%d 최소값이 트림보다 큼</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to attach to pin %u</source>
+      <translation>RPM: 핀 %u 연결 실패</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to detach from pin %u</source>
+      <translation>RPM: 핀 %u 분리 실패</translation>
+    </message>
+    <message>
+      <source>RSC control mode change failed</source>
+      <translation>RSC 제어 모드 변경 실패</translation>
+    </message>
+    <message>
+      <source>Rangefinder disengaged at %.2fm</source>
+      <translation>거리 센서 해제(%.2fm)</translation>
+    </message>
+    <message>
+      <source>Rangefinder engaged at %.2fm</source>
+      <translation>거리 센서 작동(%.2fm)</translation>
+    </message>
+    <message>
+      <source>Reached command #%i</source>
+      <translation>명령 #%i 도달</translation>
+    </message>
+    <message>
+      <source>Reached descent rate %.1f m/s</source>
+      <translation>하강률 %.1f m/s 도달</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%i dist %um</source>
+      <translation>웨이포인트 #%i 도달, 거리 %um</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u</source>
+      <translation>웨이포인트 #%u 도달</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u. Loiter for %u seconds</source>
+      <translation>웨이포인트 #%u 도달. %u초 선회</translation>
+    </message>
+    <message>
+      <source>Received incorrect type (want=%u got=%u)</source>
+      <translation>잘못된 타입 수신(want=%u got=%u)</translation>
+    </message>
+    <message>
+      <source>Received incorrect vertex type (want=%u got=%u)</source>
+      <translation>잘못된 버텍스 타입 수신(want=%u got=%u)</translation>
+    </message>
+    <message>
+      <source>Relative follow offset loaded</source>
+      <translation>상대 추적 오프셋 로드됨</translation>
+    </message>
+    <message>
+      <source>Reset alt target to %.1f</source>
+      <translation>고도 목표를 %.1f로 재설정</translation>
+    </message>
+    <message>
+      <source>Resetting previous waypoint</source>
+      <translation>이전 웨이포인트 재설정</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence at waypoint %d</source>
+      <translation>웨이포인트 %d에서 착륙 시퀀스 재시작</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence. Climbing to %dm</source>
+      <translation>착륙 시퀀스 재시작. %dm까지 상승</translation>
+    </message>
+    <message>
+      <source>Restarted landing via DO_LAND_START: %d</source>
+      <translation>DO_LAND_START로 착륙 재시작: %d</translation>
+    </message>
+    <message>
+      <source>Restored watchdog attitude %.0f %.0f %.0f</source>
+      <translation>워치독 자세 복원 %.0f %.0f %.0f</translation>
+    </message>
+    <message>
+      <source>Restored watchdog home</source>
+      <translation>워치독 홈 복원</translation>
+    </message>
+    <message>
+      <source>RevThrottle: %s</source>
+      <translation>역방향 스로틀: %s</translation>
+    </message>
+    <message>
+      <source>SERVO%d maximum is less than trim</source>
+      <translation>SERVO%d 최대값이 트림보다 작음</translation>
+    </message>
+    <message>
+      <source>SERVO%d minimum is greater than trim</source>
+      <translation>SERVO%d 최소값이 트림보다 큼</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not create sandbox: %s</source>
+      <translation>스크립팅: 샌드박스 생성 실패: %s</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not find sandbox</source>
+      <translation>스크립팅: 샌드박스 없음</translation>
+    </message>
+    <message>
+      <source>Scripting: Loading sandbox: %s</source>
+      <translation>스크립팅: 샌드박스 로드 중: %s</translation>
+    </message>
+    <message>
+      <source>Selected an approach path of %.1f</source>
+      <translation>접근 경로 %.1f 선택</translation>
+    </message>
+    <message>
+      <source>Sending unknown message (%u)</source>
+      <translation>알 수 없는 메시지 전송(%u)</translation>
+    </message>
+    <message>
+      <source>Servo Test is still running</source>
+      <translation>서보 테스트 진행 중</translation>
+    </message>
+    <message>
+      <source>Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>서보 전압이 너무 낮음(%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>ServoRelayEvent: Channel %d is already in use</source>
+      <translation>ServoRelayEvent: 채널 %d 이미 사용 중</translation>
+    </message>
+    <message>
+      <source>Set FOLL_ENABLE = 1</source>
+      <translation>FOLL_ENABLE = 1 설정</translation>
+    </message>
+    <message>
+      <source>Set HOME to %.6f %.6f at %.2fm</source>
+      <translation>HOME을 %.6f %.6f, 고도 %.2fm로 설정</translation>
+    </message>
+    <message>
+      <source>Set airspeed %u m/s</source>
+      <translation>대기속도 %u m/s 설정</translation>
+    </message>
+    <message>
+      <source>Set fence enabled state to %u</source>
+      <translation>펜스 활성화 상태를 %u로 설정</translation>
+    </message>
+    <message>
+      <source>Set groundspeed %u</source>
+      <translation>지상 속도 %u 설정</translation>
+    </message>
+    <message>
+      <source>Set inverted %u</source>
+      <translation>반전 %u 설정</translation>
+    </message>
+    <message>
+      <source>Set throttle %u</source>
+      <translation>스로틀 %u 설정</translation>
+    </message>
+    <message>
+      <source>Skipping INS calibration</source>
+      <translation>INS 보정 건너뜀</translation>
+    </message>
+    <message>
+      <source>Skipping invalid cmd #%i</source>
+      <translation>잘못된 명령 #%i 건너뜀</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: %s</source>
+      <translation>SmartRTL 비활성화: %s</translation>
+    </message>
+    <message>
+      <source>SmartRTL: failed to set destination</source>
+      <translation>SmartRTL: 목적지 설정 실패</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal detected, entering loiter</source>
+      <translation>활공: 서멀 감지, 선회 진입</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, entering RTL</source>
+      <translation>활공: 서멀 종료, RTL 진입</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring AUTO</source>
+      <translation>활공: 서멀 종료, AUTO 복원</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring CRUISE</source>
+      <translation>활공: 서멀 종료, CRUISE 복원</translation>
+    </message>
+    <message>
+      <source>Soaring: forcing RTL</source>
+      <translation>활공: RTL 강제</translation>
+    </message>
+    <message>
+      <source>Starting ESC calibration</source>
+      <translation>ESC 보정 시작</translation>
+    </message>
+    <message>
+      <source>Starting VTOL land approach path</source>
+      <translation>VTOL 착륙 접근 경로 시작</translation>
+    </message>
+    <message>
+      <source>Starting height reached %.1f</source>
+      <translation>시작 고도 %.1f 도달</translation>
+    </message>
+    <message>
+      <source>Steering trim saved!</source>
+      <translation>조향 트림 저장됨!</translation>
+    </message>
+    <message>
+      <source>SystemID Starting: axis=%d</source>
+      <translation>SystemID 시작: axis=%d</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: lean=%f max=%f</source>
+      <translation>SystemID 정지: lean=%f max=%f</translation>
+    </message>
+    <message>
+      <source>Takeoff complete at %.2fm</source>
+      <translation>이륙 완료(%.2fm)</translation>
+    </message>
+    <message>
+      <source>Takeoff height set to %.1fm</source>
+      <translation>이륙 고도 %.1fm 설정</translation>
+    </message>
+    <message>
+      <source>Takeoff level-off starting at %dm</source>
+      <translation>이륙 수평 전환 시작(%dm)</translation>
+    </message>
+    <message>
+      <source>Takeoff skipped - circling</source>
+      <translation>이륙 건너뜀 - 선회 중</translation>
+    </message>
+    <message>
+      <source>Takeoff timeout at %.1f m/s</source>
+      <translation>이륙 타임아웃(%.1f m/s)</translation>
+    </message>
+    <message>
+      <source>Takeoff to %.0fm at %.1fm to %.1f deg</source>
+      <translation>이륙: %.0fm까지, %.1fm에서 %.1f도</translation>
+    </message>
+    <message>
+      <source>Target Heading: %3.1f</source>
+      <translation>목표 방위: %3.1f</translation>
+    </message>
+    <message>
+      <source>Terminating due to %s</source>
+      <translation>%s로 인해 종료</translation>
+    </message>
+    <message>
+      <source>Terminating due to RC failure</source>
+      <translation>RC 실패로 종료</translation>
+    </message>
+    <message>
+      <source>Terminating due to dual loss</source>
+      <translation>이중 손실로 종료</translation>
+    </message>
+    <message>
+      <source>Terminating due to fence breach</source>
+      <translation>펜스 위반으로 종료</translation>
+    </message>
+    <message>
+      <source>Terminating due to range %.1fkm</source>
+      <translation>거리 %.1fkm로 인해 종료</translation>
+    </message>
+    <message>
+      <source>Thermal weak, recommend quitting: W %f R %f th %f alt %f Mc %f</source>
+      <translation>서멀 약함, 종료 권장: W %f R %f th %f alt %f Mc %f</translation>
+    </message>
+    <message>
+      <source>Thruster %d is ok!</source>
+      <translation>추진기 %d 정상!</translation>
+    </message>
+    <message>
+      <source>Thruster %d is reversed! Saving it!</source>
+      <translation>추진기 %d 역방향! 저장함!</translation>
+    </message>
+    <message>
+      <source>Tmode: %u FAILED</source>
+      <translation>Tmode: %u 실패</translation>
+    </message>
+    <message>
+      <source>Tmode: action %u</source>
+      <translation>Tmode: 동작 %u</translation>
+    </message>
+    <message>
+      <source>Tmode: mode %s</source>
+      <translation>Tmode: 모드 %s</translation>
+    </message>
+    <message>
+      <source>Tmode: thr mid %d</source>
+      <translation>Tmode: 스로틀 중간 %d</translation>
+    </message>
+    <message>
+      <source>Tmode: trim %u %u %u %u</source>
+      <translation>Tmode: 트림 %u %u %u %u</translation>
+    </message>
+    <message>
+      <source>Transition airspeed reached %.1f</source>
+      <translation>전환 대기속도 %.1f 도달</translation>
+    </message>
+    <message>
+      <source>Transition started airspeed %.1f</source>
+      <translation>전환 시작 대기속도 %.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO xaccel=%.1f</source>
+      <translation>AUTO 트리거 xaccel=%.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO. GPS speed = %.1f</source>
+      <translation>AUTO 트리거. GPS 속도 = %.1f</translation>
+    </message>
+    <message>
+      <source>Trim saved</source>
+      <translation>트림 저장됨</translation>
+    </message>
+    <message>
+      <source>Tuning: error %.2f</source>
+      <translation>튜닝: 오류 %.2f</translation>
+    </message>
+    <message>
+      <source>Tuning: mid-point %s</source>
+      <translation>튜닝: 중간점 %s</translation>
+    </message>
+    <message>
+      <source>Tuning: recentered %s</source>
+      <translation>튜닝: 재중심 %s</translation>
+    </message>
+    <message>
+      <source>Tuning: started %s</source>
+      <translation>튜닝: 시작 %s</translation>
+    </message>
+    <message>
+      <source>Unable to set fence. Enabled state to %u</source>
+      <translation>펜스 설정 실패. 활성화 상태 %u</translation>
+    </message>
+    <message>
+      <source>Unable to start find a landing abort sequence</source>
+      <translation>착륙 중단 시퀀스 시작 실패</translation>
+    </message>
+    <message>
+      <source>Unexpected vertex count want=%u got=%u\n</source>
+      <translation>예상치 못한 버텍스 수 want=%u got=%u\n</translation>
+    </message>
+    <message>
+      <source>Unknown mavlink coordinate frame %u</source>
+      <translation>알 수 없는 mavlink 좌표 프레임 %u</translation>
+    </message>
+    <message>
+      <source>Unsupported FTP: %d</source>
+      <translation>지원되지 않는 FTP: %d</translation>
+    </message>
+    <message>
+      <source>Updating barometer calibration</source>
+      <translation>기압계 보정 업데이트</translation>
+    </message>
+    <message>
+      <source>VTOL position2 started v=%.1f d=%.1f</source>
+      <translation>VTOL position2 시작 v=%.1f d=%.1f</translation>
+    </message>
+    <message>
+      <source>Vehicle %d battery %d is powering off</source>
+      <translation>기체 %d 배터리 %d 전원 종료 중</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to attach to pin %u</source>
+      <translation>WEnc: 핀 %u 연결 실패</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to detach from pin %u</source>
+      <translation>WEnc: 핀 %u 분리 실패</translation>
+    </message>
+    <message>
+      <source>Watchdog: resume WP %u</source>
+      <translation>워치독: WP %u 재개</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel offset not set!</source>
+      <translation>WheelEncoder: 휠 오프셋 미설정!</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel radius not set!</source>
+      <translation>WheelEncoder: 휠 반경 미설정!</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration complete (volt min:%.1f max:%1.f)</source>
+      <translation>WindVane: 보정 완료(전압 최소:%.1f 최대:%1.f)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration failed (volt diff %.1f below %.1f)</source>
+      <translation>WindVane: 보정 실패(전압 차이 %.1f 이하 %.1f)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration started, rotate wind vane</source>
+      <translation>WindVane: 보정 시작, 윈드 베인 회전</translation>
+    </message>
+    <message>
+      <source>WindVane: No cal required</source>
+      <translation>WindVane: 보정 불필요</translation>
+    </message>
+    <message>
+      <source>WindVane: disarm for cal</source>
+      <translation>WindVane: 보정을 위해 시동 해제</translation>
+    </message>
+    <message>
+      <source>WindVane: driver not found</source>
+      <translation>WindVane: 드라이버 없음</translation>
+    </message>
+    <message>
+      <source>WindVane: rev P. zero wind voltage offset set to %.1f</source>
+      <translation>WindVane: 역 P. 무풍 전압 오프셋 %.1f 설정</translation>
+    </message>
+    <message>
+      <source>bad test type %0.2f</source>
+      <translation>잘못된 테스트 타입 %0.2f</translation>
+    </message>
+    <message>
+      <source>bad throttle type %0.2f</source>
+      <translation>잘못된 스로틀 타입 %0.2f</translation>
+    </message>
+    <message>
+      <source>deferencing a bad thing</source>
+      <translation>잘못된 참조 역참조</translation>
+    </message>
+    <message>
+      <source>entering lockup</source>
+      <translation>락업 진입</translation>
+    </message>
+    <message>
+      <source>failed to get battery cycles</source>
+      <translation>배터리 사이클 가져오기 실패</translation>
+    </message>
+    <message>
+      <source>height achieved - controlling position</source>
+      <translation>고도 도달 - 위치 제어 중</translation>
+    </message>
+    <message>
+      <source>hello, world</source>
+      <translation>hello, world</translation>
+    </message>
+    <message>
+      <source>hover throttle delta: %f</source>
+      <translation>호버 스로틀 델타: %f</translation>
+    </message>
+    <message>
+      <source>motor test initialization failed!</source>
+      <translation>모터 테스트 초기화 실패!</translation>
+    </message>
+    <message>
+      <source>quadplane needs SCHED_LOOP_RATE >= 100</source>
+      <translation>쿼드플레인은 SCHED_LOOP_RATE >= 100 필요</translation>
+    </message>
+    <message>
+      <source>speed: %.1f m/s</source>
+      <translation>속도: %.1f m/s</translation>
+    </message>
+    <message>
+      <source>target not received last 3secs, stopping</source>
+      <translation>최근 3초간 목표 미수신, 정지</translation>
+    </message>
+    <message>
+      <source>x: %f e: %f r: %f d: %f</source>
+      <translation>x: %f e: %f r: %f d: %f</translation>
     </message>
   </context>
 </TS>
