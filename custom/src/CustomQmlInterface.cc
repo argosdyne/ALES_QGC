@@ -2,6 +2,9 @@
 #include "CustomPlugin.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
 
 #define CHAR_NUMBER_EACH_ROW 30
 
@@ -93,6 +96,39 @@ void CustomQmlInterface::playActionSound()
     if(_actionSound.isPlaying()) return;
     _actionSound.setLoopCount(1);
     _actionSound.play();
+}
+
+QString CustomQmlInterface::exportTextReport(const QString& fileName, const QString& contents)
+{
+    QString exportDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    if (exportDir.isEmpty()) {
+        exportDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    }
+
+    if (exportDir.isEmpty()) {
+        qWarning() << "SECURITY: Failed to resolve export directory";
+        return QString();
+    }
+
+    QDir dir(exportDir);
+    if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
+        qWarning() << "SECURITY: Failed to create export directory:" << exportDir;
+        return QString();
+    }
+
+    const QString fullPath = dir.filePath(fileName);
+    QFile file(fullPath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        qWarning() << "SECURITY: Failed to open export file:" << fullPath << file.errorString();
+        return QString();
+    }
+
+    QTextStream out(&file);
+    out << contents;
+    file.close();
+
+    qInfo() << "SECURITY: Exported report to" << fullPath;
+    return fullPath;
 }
 
 void CustomQmlInterface::_slaveModeChanged(bool slaveMode)

@@ -25,10 +25,40 @@ Rectangle {
     property Fact _tcpPort:         _customSettings.networkTcpPort
     property Fact _udpBind:         _customSettings.networkUdpBindAddress
     property Fact _tcpBind:         _customSettings.networkTcpBindAddress
+    property Fact _videoUrl:        _customSettings.networkVideoUrl
+    property Fact _strictValidation:_customSettings.securityStrictMavlinkValidation
+    property Fact _allowlistIds:    _customSettings.securityAllowlistVehicleIds
 
     property int _openPortCount: (_udpEnabled.rawValue ? 1 : 0) + (_tcpEnabled.rawValue ? 1 : 0) + (_videoEnabled.rawValue ? 1 : 0)
 
     QGCPalette { id: qgcPal }
+
+    function _buildAuditReport() {
+        return "ALES QGC Network Services Audit Report\n"
+                + "Generated: " + new Date().toISOString() + "\n\n"
+                + "UDP Listener Enabled: " + _udpEnabled.rawValue + "\n"
+                + "UDP Port: " + _udpPort.rawValue + "\n"
+                + "UDP Bind: " + _udpBind.rawValue + "\n\n"
+                + "TCP Connection Enabled: " + _tcpEnabled.rawValue + "\n"
+                + "TCP Port: " + _tcpPort.rawValue + "\n"
+                + "TCP Bind/Host Setting: " + _tcpBind.rawValue + "\n\n"
+                + "Video Streaming Enabled: " + _videoEnabled.rawValue + "\n"
+                + "Video URI: " + _videoUrl.rawValue + "\n\n"
+                + "Strict MAVLink Validation: " + _strictValidation.rawValue + "\n"
+                + "Allowlist Vehicle IDs: " + _allowlistIds.rawValue + "\n"
+                + "Open Network Service Count: " + _openPortCount + "\n"
+        }
+
+    function _exportAuditReport() {
+        var filePath = CustomQmlInterface.exportTextReport("ALES_QGC_NetworkServicesAudit.txt", _buildAuditReport())
+        if (filePath.length) {
+            console.info("SECURITY: Network services audit exported to " + filePath)
+            exportDialog.text = qsTr("Audit report exported to:\n%1").arg(filePath)
+        } else {
+            exportDialog.text = qsTr("Failed to export audit report.")
+        }
+        exportDialog.open()
+    }
 
     QGCFlickable {
         anchors.fill:   parent
@@ -138,7 +168,7 @@ Rectangle {
                     QGCButton {
                         width: parent.width
                         text: qsTr("Export as Audit Report (.txt)")
-                        onClicked: exportDialog.open()
+                        onClicked: _root._exportAuditReport()
                     }
                 }
             }
@@ -148,6 +178,6 @@ Rectangle {
     QGCSimpleMessageDialog {
         id: exportDialog
         title: qsTr("Audit Export")
-        text: qsTr("Audit export endpoint is available for backend integration.")
+        text: ""
     }
 }

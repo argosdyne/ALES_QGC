@@ -3,6 +3,7 @@
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
 #include <QSoundEffect>
+#include <QStandardPaths>
 #include "QGCToolbox.h"
 #include "ARManager.h"
 #include "QmlObjectListModel.h"
@@ -141,6 +142,7 @@ public:
     QmlObjectListModel* geoAwarenessMessages(void) {return &_geoAwarenessMessages; }
 
     Q_INVOKABLE void playActionSound();
+    Q_INVOKABLE QString exportTextReport(const QString& fileName, const QString& contents);
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;

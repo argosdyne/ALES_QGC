@@ -240,7 +240,10 @@ Rectangle {
                             QGCLabel { text: qsTr("Enable video recording"); Layout.fillWidth: true }
                             QGCSwitch {
                                 checked: _videoRecording.rawValue
-                                onClicked: _videoRecording.rawValue = checked
+                                onClicked: {
+                                    _videoRecording.rawValue = checked
+                                    console.info("SECURITY: Privacy video recording " + (checked ? "enabled" : "disabled"))
+                                }
                             }
                         }
 
@@ -249,7 +252,10 @@ Rectangle {
                             QGCLabel { text: qsTr("Save telemetry logs"); Layout.fillWidth: true }
                             QGCSwitch {
                                 checked: _telemetrySave.rawValue
-                                onClicked: _telemetrySave.rawValue = checked
+                                onClicked: {
+                                    _telemetrySave.rawValue = checked
+                                    console.info("SECURITY: Telemetry log saving " + (checked ? "enabled" : "disabled"))
+                                }
                             }
                         }
 

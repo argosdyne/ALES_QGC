@@ -134,6 +134,7 @@ Rectangle {
                 model:  QGroundControl.corePlugin.settingsPages
 
                 ColumnLayout {
+                    id: settingsEntry
                     readonly property string _pageUrl: modelData.url.toString()
                     readonly property bool _isPrivacyMain: _pageUrl === _privacyMainUrl
                     readonly property bool _isPrivacyChild: settingsView._isPrivacyChild(_pageUrl)
@@ -146,7 +147,7 @@ Rectangle {
                     function _syncCheckedFromSource() {
                         if (_isPrivacyMain) {
                             privacyMainButton.checked = settingsView._isPrivacySelection()
-                        } else {
+                        } else if (!_isPrivacyChild) {
                             var loadedSrc = String(__rightPanel.source)
                             var btnFile = _pageUrl.split("/").pop()
                             mainButton.checked = loadedSrc.indexOf(btnFile) !== -1
@@ -154,23 +155,37 @@ Rectangle {
                     }
 
                     QGCButton {
-                        id:                 _isPrivacyMain ? privacyMainButton : mainButton
+                        id:                 privacyMainButton
                         height:             _buttonHeight
-                        text:               parent._isPrivacyMain ? qsTr("Privacy") : modelData.title
-                        autoExclusive:      !parent._isPrivacyMain
+                        text:               qsTr("Privacy")
+                        autoExclusive:      false
                         Layout.fillWidth:   true
-                        checked:            parent._isPrivacyMain ? settingsView._isPrivacySelection() : (String(__rightPanel.source) === parent._pageUrl)
+                        visible:            settingsEntry._isPrivacyMain
+                        checked:            settingsView._isPrivacySelection()
 
                         onClicked: {
                             if (mainWindow.preventViewSwitch()) {
                                 return
                             }
 
-                            if (parent._isPrivacyMain) {
-                                _privacyExpanded = !_privacyExpanded
-                                if (_privacyExpanded && !settingsView._isPrivacySelection()) {
-                                    __rightPanel.source = _privacyMainUrl
-                                }
+                            _privacyExpanded = !_privacyExpanded
+                            if (_privacyExpanded && !settingsView._isPrivacySelection()) {
+                                __rightPanel.source = _privacyMainUrl
+                            }
+                        }
+                    }
+
+                    QGCButton {
+                        id:                 mainButton
+                        height:             _buttonHeight
+                        text:               modelData.title
+                        autoExclusive:      true
+                        Layout.fillWidth:   true
+                        visible:            !settingsEntry._isPrivacyMain
+                        checked:            String(__rightPanel.source) === settingsEntry._pageUrl
+
+                        onClicked: {
+                            if (mainWindow.preventViewSwitch()) {
                                 return
                             }
 
@@ -190,15 +205,15 @@ Rectangle {
                                 return
                             }
 
-                            if (String(__rightPanel.source) !== parent._pageUrl) {
-                                __rightPanel.source = parent._pageUrl
+                            if (String(__rightPanel.source) !== settingsEntry._pageUrl) {
+                                __rightPanel.source = settingsEntry._pageUrl
                             }
                             checked = true
                         }
                     }
 
                     Repeater {
-                        model: parent._isPrivacyMain && _privacyExpanded ? _privacyChildPages : []
+                        model: settingsEntry._isPrivacyMain && _privacyExpanded ? _privacyChildPages : []
 
                         QGCButton {
                             height:             _buttonHeight
@@ -224,7 +239,7 @@ Rectangle {
                         target: mainWindow
                         onViewOnlyModeChanged: {
                             Qt.callLater(function() {
-                                parent._syncCheckedFromSource()
+                                settingsEntry._syncCheckedFromSource()
                             })
                         }
                     }
@@ -233,11 +248,11 @@ Rectangle {
                         if (globals.commingFromRIDIndicator) {
                             _commingFromRIDSettings = true
                         }
-                        if (_first && !parent._isPrivacyChild) {
+                        if (_first && !settingsEntry._isPrivacyChild) {
                             if (mainWindow.viewOnlyMode) {
                                 if (String(modelData.url) === "qrc:/qml/OfflineMap.qml") {
                                     _first = false
-                                    if (parent._isPrivacyMain) {
+                                    if (settingsEntry._isPrivacyMain) {
                                         privacyMainButton.checked = false
                                     } else {
                                         mainButton.checked = true
@@ -245,14 +260,14 @@ Rectangle {
                                 }
                             } else {
                                 _first = false
-                                if (parent._isPrivacyMain) {
+                                if (settingsEntry._isPrivacyMain) {
                                     privacyMainButton.checked = settingsView._isPrivacySelection()
                                 } else {
                                     mainButton.checked = true
                                 }
                             }
                         }
-                        if (_commingFromRIDSettings && !parent._isPrivacyMain) {
+                        if (_commingFromRIDSettings && !settingsEntry._isPrivacyMain) {
                             if (modelData.url == "qrc:/qml/RemoteIDSettings.qml") {
                                 mainButton.checked = true
                             } else {

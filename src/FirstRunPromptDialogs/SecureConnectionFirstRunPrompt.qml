@@ -112,6 +112,12 @@ FirstRunPrompt {
         _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _wizardCompleted.rawValue = true
 
+        console.info("SECURITY: Secure setup applied. UDP=" + _udpEnabled.rawValue
+                     + " TCP=" + _tcpEnabled.rawValue
+                     + " Video=" + _videoEnabled.rawValue
+                     + " StrictValidation=" + _strictValidation.rawValue
+                     + " Allowlist=" + _allowlistIds.rawValue)
+
         if (_videoEnabled.rawValue) {
             _applyVideoSource(_videoUrl.rawValue.toString())
         } else {
@@ -119,6 +125,7 @@ FirstRunPrompt {
         }
 
         if (!_udpEnabled.rawValue && !_tcpEnabled.rawValue && !_videoEnabled.rawValue) {
+            console.info("SECURITY: Continue offline applied. Network services disabled.")
             QGroundControl.linkManager.disconnectNetworkLinks()
         }
 
