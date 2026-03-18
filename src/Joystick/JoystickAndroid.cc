@@ -6,12 +6,18 @@
 #include <QSet>
 #include <QVector>
 #include <cmath>
+#include <limits>
 
 int JoystickAndroid::_androidBtnListCount;
 int *JoystickAndroid::_androidBtnList;
 int JoystickAndroid::ACTION_DOWN;
 int JoystickAndroid::ACTION_UP;
 QMutex JoystickAndroid::m_mutex;
+
+namespace {
+    constexpr int kUnloggedAxisValue = std::numeric_limits<int>::min();
+    constexpr float kMinimumNormalizedDeadzone = 0.15f;
+}
 
 static void clear_jni_exception()
 {
@@ -27,6 +33,13 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     , deviceId(id)
 {
     int i;
+
+    // Match SDL game controller behavior: modern Android gamepads commonly expose
+    // a stable 4-axis layout and should be usable immediately without forcing a
+    // manual calibration step before MANUAL_CONTROL is sent.
+    if (_axisCount >= 4) {
+        _setDefaultCalibration();
+    }
     
     QAndroidJniEnvironment env;
     QAndroidJniObject inputDevice = QAndroidJniObject::callStaticObjectMethod("android/view/InputDevice", "getDevice", "(I)Landroid/view/InputDevice;", id);
@@ -157,6 +170,17 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         axisIndex++;
     }
 
+    for (i = 0; i < _axisCount; i++) {
+        qWarning().noquote() << QStringLiteral("Joystick Android axis map: deviceId=%1 name=%2 index=%3 axisCode=%4 min=%5 max=%6 flat=%7")
+                                .arg(deviceId)
+                                .arg(_name)
+                                .arg(i)
+                                .arg(axisCode[i])
+                                .arg(axisMin[i], 0, 'f', 3)
+                                .arg(axisMax[i], 0, 'f', 3)
+                                .arg(axisFlat[i], 0, 'f', 3);
+    }
+
     qCDebug(JoystickLog) << "axis:" <<_axisCount << "buttons:" <<_buttonCount;
     QtAndroidPrivate::registerGenericMotionEventListener(this);
     QtAndroidPrivate::registerKeyEventListener(this);
@@ -274,6 +298,11 @@ bool JoystickAndroid::handleKeyEvent(jobject event) {
 }
 
 bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
+    static QVector<int> s_lastLoggedAxisValues;
+    if (s_lastLoggedAxisValues.size() != _axisCount) {
+        s_lastLoggedAxisValues = QVector<int>(_axisCount, kUnloggedAxisValue);
+    }
+
     QJNIObjectPrivate ev(event);
     QMutexLocker lock(&m_mutex);
     const int _deviceId = ev.callMethod<jint>("getDeviceId", "()I");
@@ -295,7 +324,7 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
             const float halfRange = (maxValue - minValue) * 0.5f;
             if (halfRange > 0.0001f) {
                 normalized = (rawValue - center) / halfRange;
-                const float normalizedDeadzone = flatValue / halfRange;
+                const float normalizedDeadzone = qMax(flatValue / halfRange, kMinimumNormalizedDeadzone);
                 if (std::fabs(normalized) <= normalizedDeadzone) {
                     normalized = 0.0f;
                 }
@@ -306,6 +335,21 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
 
         normalized = qBound(-1.0f, normalized, 1.0f);
         axisValue[i] = static_cast<int>(normalized * 32767.0f);
+
+        if (std::abs(axisValue[i] - s_lastLoggedAxisValues[i]) > 2500) {
+            qWarning().noquote() << QStringLiteral("Joystick Android axis: deviceId=%1 name=%2 index=%3 axisCode=%4 raw=%5 normalized=%6 stored=%7 min=%8 max=%9 flat=%10")
+                                    .arg(deviceId)
+                                    .arg(_name)
+                                    .arg(i)
+                                    .arg(axisCode[i])
+                                    .arg(rawValue, 0, 'f', 3)
+                                    .arg(normalized, 0, 'f', 3)
+                                    .arg(axisValue[i])
+                                    .arg(minValue, 0, 'f', 3)
+                                    .arg(maxValue, 0, 'f', 3)
+                                    .arg(flatValue, 0, 'f', 3);
+            s_lastLoggedAxisValues[i] = axisValue[i];
+        }
     }
     return true;
 }

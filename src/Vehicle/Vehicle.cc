@@ -9,6 +9,7 @@
 
 #include <QTime>
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QLocale>
 #include <QQuaternion>
 
@@ -2163,12 +2164,22 @@ void Vehicle::_loadJoystickSettings()
 {
     QSettings settings;
     settings.beginGroup(QString(_settingsGroup).arg(_id));
+    const bool hasStoredSetting = settings.contains(_joystickEnabledSettingsKey);
+    bool storedEnabled = settings.value(_joystickEnabledSettingsKey, false).toBool();
 
     if (_toolbox->joystickManager()->activeJoystick()) {
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << settings.value(_joystickEnabledSettingsKey, false).toBool();
-        setJoystickEnabled(settings.value(_joystickEnabledSettingsKey, false).toBool());
+        if (!hasStoredSetting && _toolbox->joystickManager()->activeJoystick()->property("calibrated").toBool()) {
+            storedEnabled = true;
+        }
+        qWarning().noquote() << QStringLiteral("Joystick settings load: vehicle=%1 activeJoystick=%2 hasStoredSetting=%3 storedEnabled=%4")
+                                .arg(this->id())
+                                .arg(_toolbox->joystickManager()->activeJoystick()->name())
+                                .arg(hasStoredSetting)
+                                .arg(storedEnabled);
+        setJoystickEnabled(storedEnabled);
     } else {
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified that there is no active joystick";
+        qWarning().noquote() << QStringLiteral("Joystick settings load: vehicle=%1 activeJoystick=<none> forcingEnabled=false")
+                                .arg(this->id());
         setJoystickEnabled(false);
     }
 }
@@ -2195,6 +2206,12 @@ bool Vehicle::joystickEnabled() const
 
 void Vehicle::setJoystickEnabled(bool enabled)
 {
+    const bool previousEnabled = _joystickEnabled;
+    const bool isActiveVehicle = _toolbox && _toolbox->multiVehicleManager() && _toolbox->multiVehicleManager()->activeVehicle() == this;
+    const QString activeJoystickName = (_joystickManager && _joystickManager->activeJoystick())
+        ? _joystickManager->activeJoystick()->name()
+        : QStringLiteral("<none>");
+
     if (enabled){
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " Joystick Enabled";
     }
@@ -2205,9 +2222,16 @@ void Vehicle::setJoystickEnabled(bool enabled)
     // _joystickEnabled is the runtime state - it determines whether a vehicle is using joystick data when it is active
     _joystickEnabled = enabled;
 
+    qWarning().noquote() << QStringLiteral("Joystick enabled change: vehicle=%1 previous=%2 new=%3 activeVehicle=%4 activeJoystick=%5")
+                            .arg(this->id())
+                            .arg(previousEnabled)
+                            .arg(_joystickEnabled)
+                            .arg(isActiveVehicle)
+                            .arg(activeJoystickName);
+
     // if we are the active vehicle, call start polling on the active joystick
     // This routes the joystick signals to this vehicle
-    if (enabled && _toolbox->multiVehicleManager()->activeVehicle() == this){
+    if (enabled && isActiveVehicle){
         _captureJoystick();
     }
 
@@ -2231,8 +2255,15 @@ void Vehicle::_captureJoystick()
     Joystick* joystick = _joystickManager->activeJoystick();
 
     if(joystick){
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Capture Joystick" << joystick->name();
+        qWarning().noquote() << QStringLiteral("Joystick capture: vehicle=%1 joystick=%2 enabled=%3")
+                                .arg(this->id())
+                                .arg(joystick->name())
+                                .arg(_joystickEnabled);
         joystick->startPolling(this);
+    } else {
+        qWarning().noquote() << QStringLiteral("Joystick capture: vehicle=%1 joystick=<none> enabled=%2")
+                                .arg(this->id())
+                                .arg(_joystickEnabled);
     }
 }
 
@@ -4481,13 +4512,21 @@ void Vehicle::clearAllParamMapRC(void)
 
 void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons)
 {
+    static QElapsedTimer s_sendLogTimer;
+    if (!s_sendLogTimer.isValid()) {
+        s_sendLogTimer.start();
+    }
+
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
-        qCDebug(VehicleLog)<< "sendJoystickDataThreadSafe: primary link gone!";
+        qWarning().noquote() << QStringLiteral("Joystick tx blocked: vehicle=%1 reason=noPrimaryLink").arg(_id);
         return;
     }
 
     if (sharedLink->linkConfiguration()->isHighLatency()) {
+        qWarning().noquote() << QStringLiteral("Joystick tx blocked: vehicle=%1 reason=highLatencyLink link=%2")
+                                .arg(_id)
+                                .arg(sharedLink->linkConfiguration()->name());
         return;
     }
 
@@ -4512,6 +4551,17 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
                 static_cast<int16_t>(newYawCommand),
                 buttons,
                 0, 0, 0, 0);
+    if (s_sendLogTimer.elapsed() > 2000) {
+        qWarning().noquote() << QStringLiteral("Joystick tx MANUAL_CONTROL: vehicle=%1 x=%2 y=%3 z=%4 r=%5 buttons=0x%6 link=%7")
+                                .arg(_id)
+                                .arg(static_cast<int16_t>(newPitchCommand))
+                                .arg(static_cast<int16_t>(newRollCommand))
+                                .arg(static_cast<int16_t>(newThrustCommand))
+                                .arg(static_cast<int16_t>(newYawCommand))
+                                .arg(buttons, 4, 16, QLatin1Char('0'))
+                                .arg(sharedLink->linkConfiguration()->name());
+        s_sendLogTimer.restart();
+    }
     sendMessageOnLinkThreadSafe(sharedLink.get(), message);
 }
 

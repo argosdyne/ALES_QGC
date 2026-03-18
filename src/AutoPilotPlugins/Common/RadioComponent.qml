@@ -412,19 +412,32 @@ SetupPage {
                 width:          ScreenTools.defaultFontPixelWidth * 40
                 spacing:        ScreenTools.defaultFontPixelHeight / 2
 
-                Row {
-                    spacing: ScreenTools.defaultFontPixelWidth
+                GridLayout {
+                    columns:        2
+                    columnSpacing:  ScreenTools.defaultFontPixelWidth
+                    rowSpacing:     ScreenTools.defaultFontPixelHeight
 
-                    QGCRadioButton {
-                        text:       qsTr("Mode 1")
-                        checked:    controller.transmitterMode == 1
-                        onClicked:  controller.transmitterMode = 1
+                    QGCLabel {
+                        text:               qsTr("RC Mode:")
+                        Layout.alignment:   Qt.AlignVCenter
                     }
 
-                    QGCRadioButton {
-                        text:       qsTr("Mode 2")
-                        checked:    controller.transmitterMode == 2
-                        onClicked:  controller.transmitterMode = 2
+                    Row {
+                        spacing:    ScreenTools.defaultFontPixelWidth
+
+                        QGCRadioButton {
+                            text:       "1"
+                            checked:    controller.transmitterMode == 1
+                            onClicked:  controller.transmitterMode = 1
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        QGCRadioButton {
+                            text:       "2"
+                            checked:    controller.transmitterMode == 2
+                            onClicked:  controller.transmitterMode = 2
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                 }
 

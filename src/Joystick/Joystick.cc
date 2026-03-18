@@ -618,6 +618,16 @@ void Joystick::_handleButtons()
 
 void Joystick::_handleAxis()
 {
+    static QElapsedTimer s_blockedLogTimer;
+    static QElapsedTimer s_sentLogTimer;
+
+    if (!s_blockedLogTimer.isValid()) {
+        s_blockedLogTimer.start();
+    }
+    if (!s_sentLogTimer.isValid()) {
+        s_sentLogTimer.start();
+    }
+
     auto axisToUnit = [&](int axisIndex) -> float {
         if (axisIndex < 0 || axisIndex >= _axisCount) {
             return 0.0f;
@@ -639,6 +649,25 @@ void Joystick::_handleAxis()
         }
         const bool monitorEnabled = (!_calibrationMode && ((!_activeVehicle) || (_activeVehicle && _activeVehicle->joystickEnabled())));
         const bool useCalibratedMapping = (_activeVehicle && _activeVehicle->joystickEnabled() && _calibrated);
+
+        if (_activeVehicle && s_blockedLogTimer.elapsed() > 2000) {
+            if (!_activeVehicle->joystickEnabled()) {
+                qWarning().noquote() << QStringLiteral("Joystick blocked: vehicle=%1 joystick=%2 reason=joystickDisabled calibrated=%3 axisCount=%4")
+                                        .arg(_activeVehicle->id())
+                                        .arg(_name)
+                                        .arg(_calibrated)
+                                        .arg(_axisCount);
+                s_blockedLogTimer.restart();
+            } else if (!_calibrated) {
+                qWarning().noquote() << QStringLiteral("Joystick blocked: vehicle=%1 joystick=%2 reason=notCalibrated axisCount=%3 txMode=%4")
+                                        .arg(_activeVehicle->id())
+                                        .arg(_name)
+                                        .arg(_axisCount)
+                                        .arg(_transmitterMode);
+                s_blockedLogTimer.restart();
+            }
+        }
+
         if (monitorEnabled) {
             float   roll = 0.0f;
             float   pitch = 0.0f;
@@ -732,6 +761,17 @@ void Joystick::_handleAxis()
 
             if (_activeVehicle && _activeVehicle->joystickEnabled() && _calibrated) {
                 uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
+                if (s_sentLogTimer.elapsed() > 2000) {
+                    qWarning().noquote() << QStringLiteral("Joystick send: vehicle=%1 joystick=%2 roll=%3 pitch=%4 yaw=%5 throttle=%6 buttons=0x%7")
+                                            .arg(_activeVehicle->id())
+                                            .arg(_name)
+                                            .arg(roll, 0, 'f', 3)
+                                            .arg(pitch, 0, 'f', 3)
+                                            .arg(yaw, 0, 'f', 3)
+                                            .arg(throttle, 0, 'f', 3)
+                                            .arg(shortButtons, 4, 16, QLatin1Char('0'));
+                    s_sentLogTimer.restart();
+                }
                 _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
             }
         }
@@ -758,6 +798,12 @@ void Joystick::startPolling(Vehicle* vehicle)
         }
         // Always set up the new vehicle
         _activeVehicle = vehicle;
+        qWarning().noquote() << QStringLiteral("Joystick startPolling: vehicle=%1 joystick=%2 enabled=%3 calibrated=%4 axisCount=%5")
+                                .arg(vehicle->id())
+                                .arg(_name)
+                                .arg(vehicle->joystickEnabled())
+                                .arg(_calibrated)
+                                .arg(_axisCount);
         // If joystick is not calibrated, disable it
         if ( axisCount() != 0 && !_calibrated ) {
             vehicle->setJoystickEnabled(false);
