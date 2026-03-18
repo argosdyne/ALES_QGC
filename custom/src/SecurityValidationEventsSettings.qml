@@ -32,17 +32,19 @@ Rectangle {
             width: _root.width
             spacing: ScreenTools.defaultFontPixelHeight
 
-            Rectangle {
+                Rectangle {
                 width:                      _panelWidth
                 anchors.horizontalCenter:   parent.horizontalCenter
                 color:                      qgcPal.windowShade
                 border.color:               qgcPal.windowShadeDark
                 radius:                     4
-                height:                     contentColumn.height + _margins * 2
+                height:                     contentColumn.implicitHeight + _margins * 2
 
                 Column {
                     id:                     contentColumn
-                    anchors.fill:           parent
+                    width:                  parent.width - (_margins * 2)
+                    anchors.left:           parent.left
+                    anchors.top:            parent.top
                     anchors.margins:        _margins
                     spacing:                ScreenTools.defaultFontPixelHeight * 0.7
 

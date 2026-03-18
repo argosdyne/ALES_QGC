@@ -118,18 +118,40 @@ QString CustomQmlInterface::exportTextReport(const QString& fileName, const QStr
     }
 
     const QString fullPath = dir.filePath(fileName);
-    QFile file(fullPath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        logSecurityEvent(QStringLiteral("Failed to open export file %1: %2").arg(fullPath, file.errorString()));
+    if (!exportTextReportToPath(fullPath, contents)) {
         return QString();
+    }
+
+    return fullPath;
+}
+
+bool CustomQmlInterface::exportTextReportToPath(const QString& filePath, const QString& contents)
+{
+    const QString trimmedPath = filePath.trimmed();
+    if (trimmedPath.isEmpty()) {
+        logSecurityEvent(QStringLiteral("Failed to export report: destination path is empty"));
+        return false;
+    }
+
+    QFileInfo fileInfo(trimmedPath);
+    QDir dir = fileInfo.dir();
+    if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
+        logSecurityEvent(QStringLiteral("Failed to create export directory: %1").arg(dir.absolutePath()));
+        return false;
+    }
+
+    QFile file(trimmedPath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        logSecurityEvent(QStringLiteral("Failed to open export file %1: %2").arg(trimmedPath, file.errorString()));
+        return false;
     }
 
     QTextStream out(&file);
     out << contents;
     file.close();
 
-    logSecurityEvent(QStringLiteral("Exported report to %1").arg(fullPath));
-    return fullPath;
+    logSecurityEvent(QStringLiteral("Exported report to %1").arg(trimmedPath));
+    return true;
 }
 
 void CustomQmlInterface::logSecurityEvent(const QString& message)

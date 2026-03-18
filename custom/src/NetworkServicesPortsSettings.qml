@@ -49,16 +49,6 @@ Rectangle {
                 + "Open Network Service Count: " + _openPortCount + "\n"
         }
 
-    function _exportAuditReport() {
-        var filePath = CustomQmlInterface.exportTextReport("ALES_QGC_NetworkServicesAudit.txt", _buildAuditReport())
-        if (filePath.length) {
-            exportDialog.text = qsTr("Audit report exported to:\n%1").arg(filePath)
-        } else {
-            exportDialog.text = qsTr("Failed to export audit report.")
-        }
-        exportDialog.open()
-    }
-
     QGCFlickable {
         anchors.fill:   parent
         clip:           true
@@ -167,16 +157,22 @@ Rectangle {
                     QGCButton {
                         width: parent.width
                         text: qsTr("Export as Audit Report (.txt)")
-                        onClicked: _root._exportAuditReport()
+                        onClicked: saveDialog.openForSave()
                     }
                 }
             }
         }
     }
 
-    QGCSimpleMessageDialog {
-        id: exportDialog
-        title: qsTr("Audit Export")
-        text: ""
+    QGCFileDialog {
+        id: saveDialog
+        folder: QGroundControl.settingsManager.appSettings.logSavePath
+        nameFilters: [qsTr("Log files (*.txt)"), qsTr("All Files (*)")]
+        selectExisting: false
+        title: qsTr("Select audit report save file")
+        onAcceptedForSave: {
+            CustomQmlInterface.exportTextReportToPath(file, _root._buildAuditReport())
+            visible = false
+        }
     }
 }
