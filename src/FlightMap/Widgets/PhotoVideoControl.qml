@@ -183,6 +183,7 @@ Item {
         id: content
         anchors.fill: parent
         spacing: ScreenTools.defaultFontPixelHeight * 0.5
+        visible: !_onlySimpleCameraAvailable
         // ───────────────────────────────
         // 1. Reset & Setting Button
         RowLayout {
