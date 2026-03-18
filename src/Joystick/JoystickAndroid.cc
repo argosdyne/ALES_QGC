@@ -71,6 +71,8 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     axisMin = new float[_axisCount];
     axisMax = new float[_axisCount];
     axisFlat = new float[_axisCount];
+    axisCenter = new float[_axisCount];
+    axisCenterValid = new bool[_axisCount];
 
     for (i = 0; i < _axisCount; i++) {
         axisCode[i] = -1;
@@ -78,6 +80,8 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
         axisMin[i] = -1.0f;
         axisMax[i] = 1.0f;
         axisFlat[i] = 0.0f;
+        axisCenter[i] = 0.0f;
+        axisCenterValid[i] = false;
     }
 
     const int SOURCE_JOYSTICK = QAndroidJniObject::getStaticField<jint>("android/view/InputDevice", "SOURCE_JOYSTICK");
@@ -194,6 +198,8 @@ JoystickAndroid::~JoystickAndroid() {
     delete[] axisMin;
     delete[] axisMax;
     delete[] axisFlat;
+    delete[] axisCenter;
+    delete[] axisCenterValid;
 
     QtAndroidPrivate::unregisterGenericMotionEventListener(this);
     QtAndroidPrivate::unregisterKeyEventListener(this);
@@ -307,6 +313,10 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
     QMutexLocker lock(&m_mutex);
     const int _deviceId = ev.callMethod<jint>("getDeviceId", "()I");
     if (_deviceId!=deviceId) return false;
+
+    const int throttleAxis = (_rgFunctionAxis[throttleFunction] >= 0 && _rgFunctionAxis[throttleFunction] < _axisCount)
+        ? _rgFunctionAxis[throttleFunction]
+        : -1;
  
     for (int i = 0; i <_axisCount; i++) {
         if (axisCode[i] < 0) {
@@ -320,7 +330,18 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
 
         float normalized = rawValue;
         if (maxValue > minValue) {
-            const float center = (maxValue + minValue) * 0.5f;
+            if (i != throttleAxis && !axisCenterValid[i] && std::fabs(rawValue) <= 0.25f) {
+                axisCenter[i] = rawValue;
+                axisCenterValid[i] = true;
+                qWarning().noquote() << QStringLiteral("Joystick Android center capture: deviceId=%1 name=%2 index=%3 axisCode=%4 center=%5")
+                                        .arg(deviceId)
+                                        .arg(_name)
+                                        .arg(i)
+                                        .arg(axisCode[i])
+                                        .arg(axisCenter[i], 0, 'f', 3);
+            }
+
+            const float center = axisCenterValid[i] ? axisCenter[i] : (maxValue + minValue) * 0.5f;
             const float halfRange = (maxValue - minValue) * 0.5f;
             if (halfRange > 0.0001f) {
                 normalized = (rawValue - center) / halfRange;
@@ -337,7 +358,7 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
         axisValue[i] = static_cast<int>(normalized * 32767.0f);
 
         if (std::abs(axisValue[i] - s_lastLoggedAxisValues[i]) > 2500) {
-            qWarning().noquote() << QStringLiteral("Joystick Android axis: deviceId=%1 name=%2 index=%3 axisCode=%4 raw=%5 normalized=%6 stored=%7 min=%8 max=%9 flat=%10")
+            qWarning().noquote() << QStringLiteral("Joystick Android axis: deviceId=%1 name=%2 index=%3 axisCode=%4 raw=%5 normalized=%6 stored=%7 min=%8 max=%9 flat=%10 center=%11")
                                     .arg(deviceId)
                                     .arg(_name)
                                     .arg(i)
@@ -347,7 +368,8 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
                                     .arg(axisValue[i])
                                     .arg(minValue, 0, 'f', 3)
                                     .arg(maxValue, 0, 'f', 3)
-                                    .arg(flatValue, 0, 'f', 3);
+                                    .arg(flatValue, 0, 'f', 3)
+                                    .arg(axisCenterValid[i] ? axisCenter[i] : (maxValue + minValue) * 0.5f, 0, 'f', 3);
             s_lastLoggedAxisValues[i] = axisValue[i];
         }
     }
