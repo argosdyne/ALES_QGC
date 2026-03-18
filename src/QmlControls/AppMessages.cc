@@ -83,6 +83,11 @@ void AppLogModel::writeMessages(const QString dest_file)
     });
 }
 
+void AppLogModel::clearMessages()
+{
+    setStringList(QStringList());
+}
+
 void AppLogModel::log(const QString message)
 {
     emit debug_model->emitLog(message);

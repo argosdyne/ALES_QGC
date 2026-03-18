@@ -174,18 +174,18 @@ bool SecurityManager::setPin(const QString &pin)
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
     QByteArray peppered = password;
-    bool useKeystore = false;
 #ifdef Q_OS_ANDROID
     if (!m_keystoreInitialized && !initializeKeystore()) {
-        qWarning() << "[SecurityManager] Keystore initialization failed during setPin, falling back to local derivation";
-    } else {
-        peppered = androidHmacPassword(password);
-        if (peppered.isEmpty()) {
-            qWarning() << "[SecurityManager] Keystore HMAC failed during setPin, falling back to local derivation";
-            peppered = password;
-        } else {
-            useKeystore = true;
-        }
+        qWarning() << "[SecurityManager] Keystore initialization failed during setPin";
+        OPENSSL_cleanse(password.data(), password.size());
+        return false;
+    }
+
+    peppered = androidHmacPassword(password);
+    if (peppered.isEmpty()) {
+        qWarning() << "[SecurityManager] Keystore HMAC failed during setPin";
+        OPENSSL_cleanse(password.data(), password.size());
+        return false;
     }
 #endif
     
@@ -218,7 +218,7 @@ bool SecurityManager::setPin(const QString &pin)
     s.remove("failedAttempts");
     s.remove("lockoutUntil");
 #ifdef Q_OS_ANDROID
-    s.setValue("useKeystore", useKeystore);
+    s.setValue("useKeystore", true);  // Flag that Keystore HMAC was used
 #endif
     s.endGroup();
     s.sync();
