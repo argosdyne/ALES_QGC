@@ -39,8 +39,22 @@ Rectangle {
     property bool _isAPM:               _activeVehicle ? _activeVehicle.apmFirmware : false
     property Fact _disableDataPersistenceFact: QGroundControl.settingsManager.appSettings.disableAllPersistence
     property bool _disableDataPersistence:     _disableDataPersistenceFact ? _disableDataPersistenceFact.rawValue : false
+    property string _signingStatusText:        ""
+    property Fact _mavlink2SigningKey:         QGroundControl.settingsManager.appSettings.mavlink2SigningKey
+    property string _pendingSigningKey:        _mavlink2SigningKey ? _mavlink2SigningKey.rawValue.toString() : ""
+    property bool _mavlink2SigningEnabled:     _mavlink2SigningKey ? (_mavlink2SigningKey.rawValue !== "") : false
+    property bool _showSigningKey:             false
 
     QGCPalette { id: qgcPal }
+
+    Connections {
+        target: _mavlink2SigningKey
+        function onRawValueChanged(value) {
+            if (!signingKeyField.activeFocus) {
+                _pendingSigningKey = value ? value.toString() : ""
+            }
+        }
+    }
 
     Connections {
         target: QGroundControl.mavlinkLogManager
@@ -185,6 +199,95 @@ Rectangle {
                    QGCLabel {
                         text:       qsTr("<i> Changing the host name requires restart of application. </i>")
                         visible:    QGroundControl.settingsManager.appSettings.forwardMavlinkHostName.visible
+                    }
+                }
+            }
+            //-----------------------------------------------------------------
+            //-- MAVLink2 Signing
+            Item {
+                width:              __mavlinkRoot.width * 0.8
+                height:             signingLabel.height
+                anchors.margins:    ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible:            true
+                QGCLabel {
+                    id:             signingLabel
+                    text:           qsTr("MAVLink2 Signing")
+                    font.family:    ScreenTools.demiboldFontFamily
+                }
+            }
+            Rectangle {
+                height:         signingColumn.height + (ScreenTools.defaultFontPixelHeight * 2)
+                width:          __mavlinkRoot.width * 0.8
+                color:          qgcPal.windowShade
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible:        true
+                Column {
+                    id:         signingColumn
+                    spacing:    _columnSpacing
+                    anchors.centerIn: parent
+
+                    QGCLabel { text: _mavlink2SigningEnabled ? qsTr("Signing status: Enabled") : qsTr("Signing status: Disabled") }
+
+                    Row {
+                        spacing:    ScreenTools.defaultFontPixelWidth
+                        QGCLabel {
+                            width:              ScreenTools.defaultFontPixelWidth * 4
+                            anchors.baseline:   signingKeyField.baseline
+                            text:               qsTr("Key")
+                        }
+                        QGCTextField {
+                            id:                     signingKeyField
+                            width:                  _valueWidth
+                            text:                   _pendingSigningKey
+                            inputMethodHints:       Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                            placeholderText:        qsTr("Enter signing passphrase")
+                            echoMode:               _showSigningKey ? TextInput.Normal : TextInput.Password
+                            anchors.verticalCenter: parent.verticalCenter
+                            onTextChanged:          _pendingSigningKey = text
+                            onEditingFinished: {
+                                var passphrase = _pendingSigningKey.trim()
+                                if (passphrase !== "") {
+                                    _mavlink2SigningKey.rawValue = passphrase
+                                    _pendingSigningKey = passphrase
+                                }
+                            }
+                        }
+                        QGCButton {
+                            text:                   ""
+                            iconSource:             _showSigningKey ? "/InstrumentValueIcons/view-show.svg" : "/InstrumentValueIcons/view-hide.svg"
+                            anchors.verticalCenter: parent.verticalCenter
+                            onClicked:              _showSigningKey = !_showSigningKey
+                        }
+                        QGCButton {
+                            text:       qsTr("Disable")
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled:    _mavlink2SigningEnabled
+                            onClicked: {
+                                _pendingSigningKey = ""
+                                _mavlink2SigningKey.rawValue = ""
+                                _signingStatusText = qsTr("Signing disabled locally.")
+                            }
+                        }
+                        QGCButton {
+                            text:       qsTr("Save")
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled:    _pendingSigningKey.trim().length > 0
+                            onClicked: {
+                                var passphrase = _pendingSigningKey.trim()
+                                if (passphrase !== "") {
+                                    _mavlink2SigningKey.rawValue = passphrase
+                                    _pendingSigningKey = passphrase
+                                }
+                                _signingStatusText = qsTr("Signing key saved.")
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        visible:    _signingStatusText.length > 0
+                        text:       _signingStatusText
                     }
                 }
             }

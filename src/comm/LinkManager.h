@@ -135,6 +135,7 @@ public:
     SharedLinkInterfacePtr sharedLinkInterfacePointerForLink(LinkInterface* link, bool ignoreNull=false);
 
     bool containsLink(LinkInterface* link);
+    void resetMavlinkSigning(void);
 
     SharedLinkConfigurationPtr addConfiguration(LinkConfiguration* config);
 
@@ -148,9 +149,11 @@ signals:
     void mavlinkSupportForwardingEnabledChanged();
 
 private slots:
+    void _linkConnected     (void);
     void _linkDisconnected  (void);
 
 private:
+    void                _sendInitialMavlinkHeartbeat(const SharedLinkInterfacePtr& link);
     QmlObjectListModel* _qmlLinkConfigurations      (void) { return &_qmlConfigurations; }
     bool                _connectionsSuspendedMsg    (void);
     void                _updateAutoConnectLinks     (void);

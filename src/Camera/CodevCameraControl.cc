@@ -518,103 +518,43 @@ void CodevCameraControl::setZoomLevel(qreal level)
     }
 }
 
-// void CodevCameraControl::stepZoom(int direction)
-// {
-//     qCDebug(CodevCameraLog) << "DZoom()" << direction;
-//     // Fact* fact = getFact(kEO_DZOOM);
-//     // if(fact) {
-//     //     qInfo() << "stepZoom direction = " << direction;
-//     //     if(direction > 0) {
-//     //         double value = fact->cookedValue().toDouble() + fact->cookedIncrement();
-//     //         if(value - fact->cookedMax().toDouble() > 0.01) {
-//     //             value = fact->cookedMax().toDouble();
-//     //         }
-//     //         fact->setRawValue(static_cast<float>(value));
-//     //     } else if(direction < 0) {
-//     //         double value = fact->cookedValue().toDouble() - fact->cookedIncrement();
-//     //         if(value - fact->cookedMin().toDouble() < 0.01) {
-//     //             value = fact->cookedMin().toDouble();
-//     //         }
-//     //         fact->setRawValue(static_cast<float>(value));
-//     //     } else {
-//     //         fact->setRawValue(1.0f);
-//     //     }
-//     // }
-//     qInfo() << "Direction = " << direction;
-//     // if(hasZoom()) {
-//     //     sendMavCommand(
-//     //         MAV_CMD_SET_CAMERA_ZOOM,                // Command id
-//     //         ZOOM_TYPE_STEP,                   // Zoom type
-//     //         direction);                             // Direction (-1 wide, 1 tele)
-//     // }
-
-//     float newLevel = _zoomLevel + direction;
-//     qInfo() << "newLevel = " << newLevel;
-//     sendMavCommand(
-//         MAV_CMD_SET_CAMERA_ZOOM,
-//         ZOOM_TYPE_RANGE,
-//         newLevel
-//         );
-
-
-// }
-
 void CodevCameraControl::stepZoom(int direction)
 {
-    if (!_vehicle || !hasZoom() || direction == 0) {
-        return;
-    }
-
-    // 현재 디지털 줌 값
-    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
-    const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
-    const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
-    double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-
-    const bool atOpticalMax = ( _zoomLevel >= 29.5 ); 
-    float newLevel = _zoomLevel;
-    if (direction > 0) {
-        // 줌인
-        if (!atOpticalMax) {
-            // 1) 광학 줌 구간: RANGE 증가
-
-            if (_zoomLevel <= 1.1 && _opticalRange > 2.0f) {
-                _opticalRange = 1.0f;
-            }
-
-            qInfo() << "Zoom in optical Range = " << _opticalRange;
-            _opticalRange = std::min(100.0f, newLevel + direction);
-
-            sendMavCommand(
-                MAV_CMD_SET_CAMERA_ZOOM,
-                ZOOM_TYPE_RANGE,
-                _opticalRange);
-        } else {
-            // 2) 광학 최대 이후: 디지털 줌 증가
-            if (_dZoomFact) {
-                double next = std::min(dMax, dNow + dInc);
-                _dZoomFact->setRawValue(static_cast<float>(next));
-            } else {
-                qCWarning(CodevCameraLog) << "No kEO_DZOOM fact; cannot digital zoom";
-            }
-        }
-    } else {
-        // 줌아웃
-        if (_dZoomFact && dNow > (dMin + 1e-6)) {
-            // 1) 디지털이 남아 있으면 디지털부터 감소
-            double next = std::max(dMin, dNow - dInc);
-            _dZoomFact->setRawValue(static_cast<float>(next));
-        } else {
-            // 2) 디지털이 1.0이면 광학 RANGE 감소
-            qInfo() << "Zoom out optical Range = " << _opticalRange;
-            _opticalRange = std::max(0.0f, newLevel + direction); //Direction = -1
-
-            sendMavCommand(
-                MAV_CMD_SET_CAMERA_ZOOM,
-                ZOOM_TYPE_RANGE,
-                _opticalRange);
-        }
-    }
+    qCDebug(CodevCameraLog) << "DZoom()" << direction;
+    // Fact* fact = getFact(kEO_DZOOM);
+    // if(fact) {
+    //     qInfo() << "stepZoom direction = " << direction;
+    //     if(direction > 0) {
+    //         double value = fact->cookedValue().toDouble() + fact->cookedIncrement();
+    //         if(value - fact->cookedMax().toDouble() > 0.01) {
+    //             value = fact->cookedMax().toDouble();
+    //         }
+    //         fact->setRawValue(static_cast<float>(value));
+    //     } else if(direction < 0) {
+    //         double value = fact->cookedValue().toDouble() - fact->cookedIncrement();
+    //         if(value - fact->cookedMin().toDouble() < 0.01) {
+    //             value = fact->cookedMin().toDouble();
+    //         }
+    //         fact->setRawValue(static_cast<float>(value));
+    //     } else {
+    //         fact->setRawValue(1.0f);
+    //     }
+    // }
+    //qInfo() << "Direction = " << direction;
+    // if(hasZoom()) {
+    //     sendMavCommand(
+    //         MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+    //         ZOOM_TYPE_STEP,                   // Zoom type
+    //         direction);                             // Direction (-1 wide, 1 tele)
+    // }
+    
+    float newLevel = _zoomLevel + direction;
+    qInfo() << "newLevel = " << newLevel;
+    sendMavCommand(
+        MAV_CMD_SET_CAMERA_ZOOM,
+        ZOOM_TYPE_RANGE,
+        newLevel
+        );
 }
 
 QStringList CodevCameraControl::activeSettings()

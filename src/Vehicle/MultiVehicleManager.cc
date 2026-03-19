@@ -24,6 +24,7 @@
 #endif
 
 #include <QQmlEngine>
+#include <QByteArray>
 
 QGC_LOGGING_CATEGORY(MultiVehicleManagerLog, "MultiVehicleManagerLog")
 
@@ -399,6 +400,12 @@ void MultiVehicleManager::_sendGCSHeartbeat(void)
             uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
             int len = mavlink_msg_to_send_buffer(buffer, &message);
             link->writeBytesThreadSafe((const char*)buffer, len);
+            qCInfo(MultiVehicleManagerLog).noquote() << QStringLiteral("TX periodic GCS heartbeat link: \"%1\" chan: %2 seq: %3 len: %4 raw: \"%5\"")
+                                                        .arg(linkConfiguration->name())
+                                                        .arg(link->mavlinkChannel())
+                                                        .arg(message.seq)
+                                                        .arg(len)
+                                                        .arg(QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(buffer), len).toHex(' ').toUpper()));
         }
     }
 }

@@ -8,7 +8,6 @@ endif()
 
 add_library(Audio
 	AudioOutput.cc
-	AudioControl.cc
 	${EXTRA_SRC}
 )
 

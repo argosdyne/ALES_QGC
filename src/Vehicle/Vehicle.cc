@@ -57,8 +57,7 @@
 #endif
 #include "Autotune.h"
 #include "RemoteIDManager.h"
-
-#include "AudioControl.h"
+#include "MAVLinkSigning.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
@@ -270,10 +269,6 @@ Vehicle::Vehicle(LinkInterface*             link,
 
     // Start timer to limit altitude above terrain queries
     _altitudeAboveTerrQueryTimer.restart();
-
-    //Create Audio Control
-    _audioControl = _firmwarePlugin->createAudioControl(this);
-    emit audioControlChanged();
 }
 
 // Disconnected Vehicle for offline editing
@@ -1940,17 +1935,114 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
 
 bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t message)
 {
+
+    qDebug() << "sendMessageOnLinkThreadSafe111" << link;
+
     if (!link->isConnected()) {
-        qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe" << link << "not connected!";
+        qDebug() << "sendMessageOnLinkThreadSafe" << link << "not connected!";
         return false;
     }
 
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
 
+    // Ensure RC_CHANNELS is finalized on the actual outgoing link channel so
+    // MAVLink2 signing state for that channel is applied consistently.
+    if (message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t channels{};
+        mavlink_msg_rc_channels_decode(&message, &channels);
+        mavlink_msg_rc_channels_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
+                                            static_cast<uint8_t>(_mavlink->getComponentId()),
+                                            link->mavlinkChannel(),
+                                            &message,
+                                            &channels);
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_COUNT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM_INT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ACK ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_CLEAR_ALL ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_SET_CURRENT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST) {
+        qInfo() << "TX mavlink"
+                << "msgid" << message.msgid
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "chan" << link->mavlinkChannel();
+    }
+
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     int len = mavlink_msg_to_send_buffer(buffer, &message);
+
+    const bool isMavlink2 = (message.magic == 0xFD);
+    const bool isSigned = isMavlink2 && ((message.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
+    if (isSigned) {
+        const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+        if (len >= MAVLINK_SIGNATURE_BLOCK_LEN) {
+            const int signatureOffset = len - MAVLINK_SIGNATURE_BLOCK_LEN;
+            const QByteArray signatureBytes(reinterpret_cast<const char*>(buffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
+            const QByteArray rawPacket(reinterpret_cast<const char*>(buffer), len);
+            qDebug() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 len: %5 signature: \"%6\" raw: \"%7\"")
+                                     .arg(linkName)
+                                     .arg(link->mavlinkChannel())
+                                     .arg(message.msgid)
+                                     .arg(message.seq)
+                                     .arg(len)
+                                     .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                                     .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+        } else {
+            qDebug() << "TX signed MAVLink packet too short"
+                       << "msgid" << message.msgid
+                       << "len" << len;
+        }
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_PARAM_SET) {
+        mavlink_param_set_t paramSet;
+        mavlink_msg_param_set_decode(&message, &paramSet);
+        char paramId[MAVLINK_MSG_PARAM_SET_FIELD_PARAM_ID_LEN + 1] = {};
+        strncpy(paramId, paramSet.param_id, MAVLINK_MSG_PARAM_SET_FIELD_PARAM_ID_LEN);
+        if (QString::fromLatin1(paramId) == QStringLiteral("TOF_EN")) {
+            const char* ver = (buffer[0] == 0xFD) ? "v2" : "v1";
+            const QString rawHex = QString::fromLatin1(QByteArray(reinterpret_cast<const char*>(buffer), len).toHex(' ').toUpper());
+            const QString linkName = link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
+            qDebug() << QStringLiteral("MAVLinkProtocolLog: TX MAVLink link: \"%1\" chan: %2 ver: %3 sysid: %4 compid: %5 msgid: %6 len: %7 seq: %8 raw: \"%9\"")
+                                     .arg(linkName)
+                                     .arg(link->mavlinkChannel())
+                                     .arg(QLatin1String(ver))
+                                     .arg(message.sysid)
+                                     .arg(message.compid)
+                                     .arg(message.msgid)
+                                     .arg(len)
+                                     .arg(message.seq)
+                                     .arg(rawHex);
+        }
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_COUNT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ITEM_INT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_ACK ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_INT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_CLEAR_ALL ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_SET_CURRENT ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST ||
+        message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST) {
+        QByteArray raw(reinterpret_cast<const char*>(buffer), len);
+        qInfo() << "TX mavlink raw"
+                << "msgid" << message.msgid
+                << "magic" << QString::number(message.magic, 16)
+                << "len" << len
+                << "data" << raw.toHex(' ');
+    }
 
     link->writeBytesThreadSafe((const char*)buffer, len);
     _messagesSent++;
@@ -4390,6 +4482,47 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
     if (fenceStatus.breach_status == 1) {
         if (now - lastUpdate > 3000) {
             lastUpdate = now;
+            // Suppress fence audio if fence is disabled or the relevant fence type is off.
+            bool fenceEnabled = true;
+            bool altitudeEnabled = true;
+            bool boundaryEnabled = true;
+            if (parameterManager()) {
+                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_ENABLE"))) {
+                    fenceEnabled = parameterManager()
+                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_ENABLE"))
+                            ->rawValue()
+                            .toInt() != 0;
+                }
+                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_TYPE"))) {
+                    const int fenceType = parameterManager()
+                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_TYPE"))
+                            ->rawValue()
+                            .toInt();
+                    altitudeEnabled = fenceType & 1;
+                    boundaryEnabled = fenceType & (2 | 4);
+                }
+                if (parameterManager()->parameterExists(FactSystem::defaultComponentId, QStringLiteral("FENCE_RADIUS"))) {
+                    const double fenceRadius = parameterManager()
+                            ->getParameter(FactSystem::defaultComponentId, QStringLiteral("FENCE_RADIUS"))
+                            ->rawValue()
+                            .toDouble();
+                    if (fenceRadius <= 0) {
+                        boundaryEnabled = false;
+                    }
+                }
+            }
+
+            if (!fenceEnabled) {
+                return;
+            }
+            if ((fenceStatus.breach_type == FENCE_BREACH_MINALT || fenceStatus.breach_type == FENCE_BREACH_MAXALT) &&
+                !altitudeEnabled) {
+                return;
+            }
+            if (fenceStatus.breach_type == FENCE_BREACH_BOUNDARY && !boundaryEnabled) {
+                return;
+            }
+
             QString breachTypeStr;
             switch (fenceStatus.breach_type) {
                 case FENCE_BREACH_NONE:
@@ -4476,6 +4609,44 @@ void Vehicle::clearAllParamMapRC(void)
                                            i,                                                   // tuning id
                                            0, 0, 0, 0);                                         // unused
         sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+    }
+}
+
+void Vehicle::sendSetupSigning(void)
+{
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "sendSetupSigning: primary link gone!";
+        return;
+    }
+
+    const mavlink_channel_t channel = static_cast<mavlink_channel_t>(sharedLink->mavlinkChannel());
+    const QString linkName = sharedLink->linkConfiguration() ? sharedLink->linkConfiguration()->name() : QStringLiteral("Unknown");
+
+    mavlink_setup_signing_t setupSigning;
+    mavlink_system_t targetSystem;
+    targetSystem.sysid = static_cast<uint8_t>(_id);
+    targetSystem.compid = static_cast<uint8_t>(_defaultComponentId);
+    MAVLinkSigning::createSetupSigning(channel, targetSystem, setupSigning);
+    qCInfo(VehicleLog) << "sendSetupSigning: prepared message for link" << linkName
+                       << "channel" << channel
+                       << "targetSys" << targetSystem.sysid
+                       << "targetComp" << targetSystem.compid
+                       << "initialTimestamp" << setupSigning.initial_timestamp;
+
+    mavlink_message_t message;
+    mavlink_msg_setup_signing_encode_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
+                                          static_cast<uint8_t>(_mavlink->getComponentId()),
+                                          channel,
+                                          &message,
+                                          &setupSigning);
+
+    for (uint8_t i = 0; i < 2; i++) {
+        const bool sent = sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+        qCInfo(VehicleLog) << "sendSetupSigning: tx attempt" << (i + 1) << "/2"
+                           << "link" << linkName
+                           << "channel" << channel
+                           << "result" << (sent ? "queued" : "failed");
     }
 }
 

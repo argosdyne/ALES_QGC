@@ -29,7 +29,6 @@ class Vehicle;
 class QGCCameraControl;
 class QGCCameraManager;
 class Autotune;
-class AudioControl;
 
 /// This is the base class for Firmware specific plugins
 ///
@@ -318,9 +317,6 @@ public:
 
     /// Returns a pointer to a dictionary of firmware-specific FactGroups
     virtual QMap<QString, FactGroup*>* factGroups(void);
-
-    /// Creates vehicle Audio manager.
-    virtual AudioControl* createAudioControl(Vehicle *vehicle);
 
     /// Returns the data needed to do battery consumption calculations
     ///     @param[out] mAhBattery Battery milliamp-hours rating (0 for no battery data available)

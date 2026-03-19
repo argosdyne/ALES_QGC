@@ -810,6 +810,9 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                                                  double lat, double lon, double alt,
                                                  double alarmDistance)
 {
+    if (alarmDistance <= 0) {
+        return;
+    }
     QtConcurrent::run([=]() {
         try {
             MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
@@ -887,6 +890,9 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
 void FlightZoneManager::checkDroneAndGeoZone() {
     try {
         double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
+        if (alarmDistance <= 0) {
+            return;
+        }
         MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
         if(manager){
             if(manager->activeVehicle()){
@@ -968,6 +974,9 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 
     try {
         double alarmDistance = _settingsManager->flyViewSettings()->alarmDistance()->rawValue().toDouble();
+        if (alarmDistance <= 0) {
+            return;
+        }
 
         QList<Polyhedron> zoneList;
         std::vector<std::shared_ptr<AABB_tree>> zoneTrees;
