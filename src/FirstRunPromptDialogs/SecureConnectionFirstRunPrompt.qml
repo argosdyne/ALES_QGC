@@ -26,6 +26,7 @@ FirstRunPrompt {
     readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 7
     readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
+    readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
 
     property bool _udpChecked: true
@@ -43,6 +44,8 @@ FirstRunPrompt {
     property Fact _strictValidation: _customSettings.securityStrictMavlinkValidation
     property Fact _allowlistIds:     _customSettings.securityAllowlistVehicleIds
     property Fact _wizardCompleted:  _customSettings.securityWizardCompleted
+    property Fact _mavlink2SigningKey: _appSettings.mavlink2SigningKey
+    property bool _showSigningKey:   false
 
     function _comboIndexForBind(address) {
         return address === "0.0.0.0" ? 1 : 0
@@ -117,6 +120,13 @@ FirstRunPrompt {
         _strictValidation.rawValue = strictValidationCheckbox.checked
         _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _wizardCompleted.rawValue = true
+
+        if (strictValidationCheckbox.checked) {
+            var signingKeyValue = signingKeyField.text.trim()
+            if (signingKeyValue.length > 0) {
+                _mavlink2SigningKey.rawValue = signingKeyValue
+            }
+        }
 
         CustomQmlInterface.logSecurityEvent("Secure setup applied. UDP=" + _udpEnabled.rawValue
                                             + " TCP=" + _tcpEnabled.rawValue
@@ -297,8 +307,51 @@ FirstRunPrompt {
                         }
                         QGCCheckBox {
                             id: strictValidationCheckbox
-                            text: qsTr("Strict MAVLink validation")
+                            text: qsTr("Strict MAVLink validation (GEC-6)")
                             checked: _strictValidation.rawValue
+                        }
+                        QGCLabel {
+                            visible: strictValidationCheckbox.checked
+                            text: qsTr("Reject malformed or invalid MAVLink packets")
+                            color: qgcPal.colorGrey
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        Rectangle {
+                            visible: strictValidationCheckbox.checked
+                            Layout.fillWidth: true
+                            color: qgcPal.windowShadeDark
+                            radius: 3
+                            height: signingColumn.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.8
+
+                            ColumnLayout {
+                                id: signingColumn
+                                anchors.fill: parent
+                                anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
+                                spacing: ScreenTools.defaultFontPixelHeight * 0.2
+
+                                QGCLabel {
+                                    text: qsTr("Signing key (hex or passphrase)")
+                                    Layout.fillWidth: true
+                                }
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: ScreenTools.defaultFontPixelWidth * 0.5
+
+                                    QGCTextField {
+                                        id: signingKeyField
+                                        Layout.fillWidth: true
+                                        text: _mavlink2SigningKey.rawValue ? _mavlink2SigningKey.rawValue.toString() : ""
+                                        echoMode: _showSigningKey ? TextInput.Normal : TextInput.Password
+                                        placeholderText: qsTr("Enter key or leave blank to keep current key")
+                                    }
+                                    QGCButton {
+                                        text: ""
+                                        iconSource: _showSigningKey ? "/InstrumentValueIcons/view-show.svg" : "/InstrumentValueIcons/view-hide.svg"
+                                        onClicked: _showSigningKey = !_showSigningKey
+                                    }
+                                }
+                            }
                         }
                         QGCCheckBox {
                             id: allowlistIdsCheckbox
