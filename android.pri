@@ -46,6 +46,8 @@ exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR/AndroidManifest.xml) {
 } else {
     android_source_dir_target.depends = $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/AndroidManifest.xml)
 }
+android_source_dir_target.depends += \
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/SecurityHelper.java)
 
 # Custom builds can override android package file
 exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR) {

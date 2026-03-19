@@ -19,6 +19,9 @@ Rectangle {
     property var  _customSettings:  QGroundControl.corePlugin.settings
     property Fact _telemetrySave:   QGroundControl.settingsManager.appSettings.telemetrySave
     property Fact _videoRecording:  _customSettings.privacyVideoRecordingEnabled
+    property var  _activeVehicle:   QGroundControl.multiVehicleManager.activeVehicle
+    property bool _cameraActive:    QGroundControl.videoManager.hasVideo
+    property bool _gpsActive:       _activeVehicle ? _activeVehicle.gps.count.rawValue > 0 : false
 
     QGCPalette { id: qgcPal }
 
@@ -33,7 +36,7 @@ Rectangle {
         if (used) {
             return qgcPal.colorGreen
         }
-        return optional ? qgcPal.colorOrange : qgcPal.colorGrey
+        return optional ? qgcPal.colorOrange : qgcPal.windowShadeLight
     }
 
     QGCFlickable {
@@ -45,224 +48,618 @@ Rectangle {
         Column {
             id:                 contentColumn
             width:              _root.width
-            spacing:            ScreenTools.defaultFontPixelHeight
+            spacing:            ScreenTools.defaultFontPixelHeight * 0.5
 
             Item {
                 width:  _panelWidth
-                height: headerColumn.height
+                height: headerColumn.height + ScreenTools.defaultFontPixelHeight * 0.2
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 Column {
                     id: headerColumn
-                    spacing: ScreenTools.defaultFontPixelHeight * 0.2
+                    spacing: ScreenTools.defaultFontPixelHeight * 0.1
 
                     QGCLabel {
                         text: qsTr("External Sensing & Privacy")
                         font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.largeFontPointSize
+                        font.pointSize: ScreenTools.mediumFontPointSize
                     }
 
                     QGCLabel {
                         text: qsTr("Operational transparency and data usage explanation")
                         color: qgcPal.colorGrey
+                        font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
                     }
                 }
             }
 
-            Rectangle {
-                width:                      _panelWidth
-                anchors.horizontalCenter:   parent.horizontalCenter
-                color:                      qgcPal.windowShade
-                border.color:               qgcPal.windowShadeDark
-                radius:                     4
-                height:                     capabilityColumn.height + _margins * 2
+            Item {
+                width: _panelWidth
+                height: capabilitiesTitle.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.35 + capabilityFrame.height
+                anchors.horizontalCenter: parent.horizontalCenter
 
-                Column {
-                    id:                     capabilityColumn
-                    spacing:                ScreenTools.defaultFontPixelHeight * 0.5
-                    anchors.left:           parent.left
-                    anchors.right:          parent.right
-                    anchors.top:            parent.top
-                    anchors.margins:        _margins
-
-                    QGCLabel {
-                        text: qsTr("EXTERNAL SENSING CAPABILITIES")
-                        color: qgcPal.colorBlue
-                        font.family: ScreenTools.demiboldFontFamily
-                    }
-
-                    GridLayout {
-                        columns:        3
-                        rowSpacing:     ScreenTools.defaultFontPixelHeight * 0.35
-                        columnSpacing:  ScreenTools.defaultFontPixelWidth * 2
-
-                        QGCLabel { text: qsTr("Capability"); font.family: ScreenTools.demiboldFontFamily }
-                        QGCLabel { text: qsTr("Status"); font.family: ScreenTools.demiboldFontFamily }
-                        QGCLabel { text: qsTr("Description"); font.family: ScreenTools.demiboldFontFamily }
-
-                        QGCLabel { text: qsTr("Camera") }
-                        Rectangle {
-                            color: _root._statusColor(true, false)
-                            radius: height / 2
-                            width: cameraStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
-                            height: cameraStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-                            QGCLabel {
-                                id: cameraStatus
-                                anchors.centerIn: parent
-                                text: _root._statusLabel(true, false)
-                                color: "#ffffff"
-                                font.family: ScreenTools.demiboldFontFamily
-                            }
-                        }
-                        QGCLabel { text: qsTr("Live video from vehicle payload") }
-
-                        QGCLabel { text: qsTr("Video Recording") }
-                        Rectangle {
-                            color: _root._statusColor(_videoRecording.rawValue, true)
-                            radius: height / 2
-                            width: recordingStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
-                            height: recordingStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-                            QGCLabel {
-                                id: recordingStatus
-                                anchors.centerIn: parent
-                                text: _root._statusLabel(_videoRecording.rawValue, true)
-                                color: "#ffffff"
-                                font.family: ScreenTools.demiboldFontFamily
-                            }
-                        }
-                        QGCLabel { text: qsTr("Enabled only by user action") }
-
-                        QGCLabel { text: qsTr("GPS / Location") }
-                        Rectangle {
-                            color: _root._statusColor(true, false)
-                            radius: height / 2
-                            width: gpsStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
-                            height: gpsStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-                            QGCLabel {
-                                id: gpsStatus
-                                anchors.centerIn: parent
-                                text: _root._statusLabel(true, false)
-                                color: "#ffffff"
-                                font.family: ScreenTools.demiboldFontFamily
-                            }
-                        }
-                        QGCLabel { text: qsTr("Navigation and mission planning") }
-
-                        QGCLabel { text: qsTr("Telemetry Log") }
-                        Rectangle {
-                            color: _root._statusColor(_telemetrySave.rawValue, false)
-                            radius: height / 2
-                            width: telemetryStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
-                            height: telemetryStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-                            QGCLabel {
-                                id: telemetryStatus
-                                anchors.centerIn: parent
-                                text: _root._statusLabel(_telemetrySave.rawValue, false)
-                                color: "#ffffff"
-                                font.family: ScreenTools.demiboldFontFamily
-                            }
-                        }
-                        QGCLabel { text: qsTr("Diagnostics and flight analysis") }
-
-                        QGCLabel { text: qsTr("Microphone") }
-                        Rectangle {
-                            color: _root._statusColor(false, false)
-                            radius: height / 2
-                            width: micStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
-                            height: micStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
-                            QGCLabel {
-                                id: micStatus
-                                anchors.centerIn: parent
-                                text: _root._statusLabel(false, false)
-                                color: "#ffffff"
-                                font.family: ScreenTools.demiboldFontFamily
-                            }
-                        }
-                        QGCLabel { text: qsTr("QGC does not record audio") }
-                    }
+                QGCLabel {
+                    id: capabilitiesTitle
+                    text: qsTr("External Sensing Capabilities")
                 }
+
+                    Rectangle {
+                        id: capabilityFrame
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: capabilitiesTitle.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.4
+                        height: capabilityTable.height + ScreenTools.defaultFontPixelWidth * 2
+                        color:  qgcPal.windowShade
+
+                    Column {
+                        id: capabilityTable
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.topMargin: ScreenTools.defaultFontPixelWidth * 0.5
+
+                        property real capColWidth: width * 0.30
+                        property real statusColWidth: width * 0.20
+                        property real descColWidth: width - capColWidth - statusColWidth
+                        property real rowHeight: ScreenTools.defaultFontPixelHeight * 1.55
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 3.5 * ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("CAPABILITY")
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("STATUS")
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("DESCRIPTION")
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle { width: capabilityTable.width - 6 * ScreenTools.defaultFontPixelWidth; height: 1; color: "#484848"; anchors.horizontalCenter: parent.horizontalCenter }
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 2.4 * ScreenTools.defaultFontPixelWidth
+                                        spacing: ScreenTools.defaultFontPixelWidth * 1.5
+                                        Image {
+                                            id: cameraIcon
+                                            width: ScreenTools.defaultFontPixelWidth * 3.5
+                                            height: width
+                                            source: "/custom/img/png/camera.png"
+                                        }
+                                        QGCLabel {
+                                            text: qsTr("Camera")
+                                            anchors.verticalCenter: cameraIcon.verticalCenter
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        color: _root._statusColor(_cameraActive, false)
+                                        radius: 4
+                                        width: cameraStatus.implicitWidth + ScreenTools.defaultFontPixelWidth 
+                                        height: cameraStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
+                                        QGCLabel {
+                                            id: cameraStatus
+                                            anchors.centerIn: parent
+                                            text: _root._statusLabel(_cameraActive, false)
+                                            color: "#ffffff"
+                                            font.family: ScreenTools.demiboldFontFamily
+                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("Live video from vehicle payload")
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 2.5 * ScreenTools.defaultFontPixelWidth
+                                        spacing: ScreenTools.defaultFontPixelWidth * 1.5
+                                        Image {
+                                            width: ScreenTools.defaultFontPixelWidth * 3.5
+                                            height: width*0.8
+                                            source: "/custom/img/png/video.png"
+                                        }
+                                        QGCLabel { text: qsTr("Video Recording") }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        color: _root._statusColor(_videoRecording.rawValue, true)
+                                        radius: 4
+                                        width: recordingStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
+                                        height: recordingStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
+                                        QGCLabel {
+                                            id: recordingStatus
+                                            anchors.centerIn: parent
+                                            text: _root._statusLabel(_videoRecording.rawValue, true)
+                                            color: "#ffffff"
+                                            font.family: ScreenTools.demiboldFontFamily
+                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("Enabled only by user action")
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 3 * ScreenTools.defaultFontPixelWidth
+                                        spacing: ScreenTools.defaultFontPixelWidth * 2
+                                        Image {
+                                            width: ScreenTools.defaultFontPixelWidth * 2.3
+                                            height: width
+                                            source: "/custom/img/png/Location.png"
+                                            fillMode: Image.PreserveAspectFit
+                                            mipmap: true
+                                        }
+                                        QGCLabel { text: qsTr("GPS / Location") }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        color: _root._statusColor(_gpsActive, false)
+                                        radius: 4
+                                        width: gpsStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
+                                        height: gpsStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
+                                        QGCLabel {
+                                            id: gpsStatus
+                                            anchors.centerIn: parent
+                                            text: _root._statusLabel(_gpsActive, false)
+                                            color: "#ffffff"
+                                            font.family: ScreenTools.demiboldFontFamily
+                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("Navigation and mission planning")
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 3 * ScreenTools.defaultFontPixelWidth
+                                        spacing: ScreenTools.defaultFontPixelWidth * 2.2
+                                        Image {
+                                            width: ScreenTools.defaultFontPixelWidth * 2
+                                            height: width
+                                            source: "/custom/img/png/TelemetryLog.png"
+                                            fillMode: Image.PreserveAspectFit
+                                            mipmap: true
+                                        }
+                                        QGCLabel { text: qsTr("Telemetry Log") }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        color: _root._statusColor(_telemetrySave.rawValue, false)
+                                        radius: 4
+                                        width: telemetryStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
+                                        height: telemetryStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
+                                        QGCLabel {
+                                            id: telemetryStatus
+                                            anchors.centerIn: parent
+                                            text: _root._statusLabel(_telemetrySave.rawValue, false)
+                                            color: "#ffffff"
+                                            font.family: ScreenTools.demiboldFontFamily
+                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("Diagnostics and flight analysis")
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: capabilityTable.width
+                            height: capabilityTable.rowHeight
+                            color: qgcPal.windowShade
+
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 0
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.capColWidth
+                                    Layout.fillHeight: true
+                                    Row {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 3 * ScreenTools.defaultFontPixelWidth
+                                        spacing: ScreenTools.defaultFontPixelWidth * 2
+                                        Image {
+                                            width: ScreenTools.defaultFontPixelWidth * 2.4
+                                            height: width
+                                            source: "/custom/img/png/Microphone.png"
+                                            fillMode: Image.PreserveAspectFit
+                                            mipmap: true
+                                        }
+                                        QGCLabel { text: qsTr("Microphone") }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.statusColWidth
+                                    Layout.fillHeight: true
+                                    Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        color: _root._statusColor(false, false)
+                                        radius: 4
+                                        width: micStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
+                                        height: micStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
+                                        QGCLabel {
+                                            id: micStatus
+                                            anchors.centerIn: parent
+                                            text: _root._statusLabel(false, false)
+                                            color: "#ffffff"
+                                            font.family: ScreenTools.demiboldFontFamily
+                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.preferredWidth: capabilityTable.descColWidth
+                                    Layout.fillHeight: true
+                                    QGCLabel {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                                        text: qsTr("QGC does not record audio")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    }
+                // }
             }
 
             RowLayout {
                 width:                      _panelWidth
                 anchors.horizontalCenter:   parent.horizontalCenter
-                spacing:                    _margins
+                spacing:                    _margins * 6
 
-                Rectangle {
-                    Layout.fillWidth:   true
-                    color:              qgcPal.windowShade
-                    border.color:       qgcPal.windowShadeDark
-                    radius:             4
-                    height:             summaryColumn.height + _margins * 2
+                Item {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    height: summaryTitle.implicitHeight + ScreenTools.defaultFontPixelHeight + summaryFrame.height
 
-                    Column {
-                        id:                     summaryColumn
-                        spacing:                ScreenTools.defaultFontPixelHeight * 0.35
-                        anchors.left:           parent.left
-                        anchors.right:          parent.right
-                        anchors.top:            parent.top
-                        anchors.margins:        _margins
+                    QGCLabel {
+                        id: summaryTitle
+                        text: qsTr("Data Handling Summary")
+                    }
 
-                        QGCLabel {
-                            text: qsTr("DATA HANDLING SUMMARY")
-                            color: qgcPal.colorBlue
-                            font.family: ScreenTools.demiboldFontFamily
+                    Rectangle {
+                        id: summaryFrame
+                        anchors.top: summaryTitle.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.4
+                        width: parent.width + _margins * 3
+                        color: qgcPal.windowShade
+                        height: summaryColumn.height * 1.4
+
+                        Column {
+                            id: summaryColumn
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.7
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            Row {
+                                width: parent.width
+                                spacing: ScreenTools.defaultFontPixelWidth * 1.5
+                                anchors.left: parent.left
+                                anchors.leftMargin: 2.5 * ScreenTools.defaultFontPixelWidth
+
+                                Image {
+                                    width: ScreenTools.defaultFontPixelWidth * 3.5
+                                    height: width * 0.8
+                                    source: "/custom/img/png/video.png"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                Column {
+                                    width: parent.width - ScreenTools.defaultFontPixelWidth * 2.6
+                                    spacing: ScreenTools.defaultFontPixelHeight * 0.1
+
+                                    QGCLabel {
+                                        text: qsTr("Video Data")
+                                    }
+
+                                    QGCLabel {
+                                        width: parent.width
+                                        text: qsTr("Recorded only when user enables. Stored locally.")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        color: qgcPal.colorGrey
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: ScreenTools.defaultFontPixelWidth * 2.2
+                                anchors.left: parent.left
+                                anchors.leftMargin: 3 * ScreenTools.defaultFontPixelWidth
+
+                                Image {
+                                    width: ScreenTools.defaultFontPixelWidth * 2.3
+                                    height: width
+                                    source: "/custom/img/png/TelemetryGPS.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    mipmap: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                Column {
+                                    width: parent.width - ScreenTools.defaultFontPixelWidth * 2.6
+                                    spacing: ScreenTools.defaultFontPixelHeight * 0.1
+
+                                    QGCLabel {
+                                        text: qsTr("Telemetry & GPS")
+                                    }
+
+                                    QGCLabel {
+                                        width: parent.width
+                                        text: qsTr("Stored as flight logs on local system for analysis.")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        color: qgcPal.colorGrey
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: ScreenTools.defaultFontPixelWidth * 2.2
+                                anchors.left: parent.left
+                                anchors.leftMargin: 3 * ScreenTools.defaultFontPixelWidth
+                                Image {
+                                    width: ScreenTools.defaultFontPixelWidth * 2.3
+                                    height: width
+                                    source: "/custom/img/png/Audio.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    mipmap: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                Column {
+                                    width: parent.width - ScreenTools.defaultFontPixelWidth * 2.6
+                                    spacing: ScreenTools.defaultFontPixelHeight * 0.1
+
+                                    QGCLabel {
+                                        text: qsTr("Audio")
+                                    }
+
+                                    QGCLabel {
+                                        width: parent.width
+                                        text: qsTr("No audio data is collected or recorded.")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        color: qgcPal.colorGrey
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
+                            }
                         }
-                        QGCLabel { text: qsTr("Video Data: recorded only when user enables.") }
-                        QGCLabel { text: qsTr("Telemetry & GPS: stored as flight logs on local system.") }
-                        QGCLabel { text: qsTr("Audio: no audio data is collected or recorded.") }
                     }
                 }
 
-                Rectangle {
-                    Layout.fillWidth:   true
-                    color:              qgcPal.windowShade
-                    border.color:       qgcPal.windowShadeDark
-                    radius:             4
-                    height:             controlColumn.height + _margins * 2
+                Item {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    height: controlTitle.implicitHeight + ScreenTools.defaultFontPixelHeight + controlFrame.height
 
-                    Column {
-                        id:                     controlColumn
-                        spacing:                ScreenTools.defaultFontPixelHeight * 0.35
-                        anchors.left:           parent.left
-                        anchors.right:          parent.right
-                        anchors.top:            parent.top
-                        anchors.margins:        _margins
+                    QGCLabel {
+                        id: controlTitle
+                        text: qsTr("User Control")
+                    }
 
-                        QGCLabel {
-                            text: qsTr("USER CONTROL")
-                            color: qgcPal.colorBlue
-                            font.family: ScreenTools.demiboldFontFamily
-                        }
+                    Rectangle {
+                        id: controlFrame
+                        anchors.top: controlTitle.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.4
+                        width: summaryFrame.width - _margins * 3
+                        color: qgcPal.windowShade
+                        height: summaryFrame.height
 
-                        RowLayout {
-                            width: parent.width
-                            QGCLabel { text: qsTr("Enable video recording"); Layout.fillWidth: true }
-                            QGCSwitch {
-                                checked: _videoRecording.rawValue
-                                onClicked: {
-                                    _videoRecording.rawValue = checked
-                                    CustomQmlInterface.logSecurityEvent("Privacy video recording " + (checked ? "enabled" : "disabled"))
+                        Column {
+                            id: controlColumn
+                            spacing: ScreenTools.defaultFontPixelHeight 
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.topMargin: ScreenTools.defaultFontPixelHeight * 2
+                            anchors.margins: _margins
+
+                            RowLayout {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 5 * _margins
+
+                                QGCLabel {
+                                    text: qsTr("Enable video recording")
+                                    Layout.fillWidth: true
+                                }
+
+                                QGCSwitch {
+                                    checked: _videoRecording.rawValue
+                                    onClicked: {
+                                        _videoRecording.rawValue = checked
+                                        CustomQmlInterface.logSecurityEvent("Privacy video recording " + (checked ? "enabled" : "disabled"))
+                                    }
                                 }
                             }
-                        }
 
-                        RowLayout {
-                            width: parent.width
-                            QGCLabel { text: qsTr("Save telemetry logs"); Layout.fillWidth: true }
-                            QGCSwitch {
-                                checked: _telemetrySave.rawValue
-                                onClicked: {
-                                    _telemetrySave.rawValue = checked
-                                    CustomQmlInterface.logSecurityEvent("Telemetry log saving " + (checked ? "enabled" : "disabled"))
+                            RowLayout {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 5 * _margins
+
+                                QGCLabel {
+                                    text: qsTr("Save telemetry logs")
+                                    Layout.fillWidth: true
+                                }
+
+                                QGCSwitch {
+                                    checked: _telemetrySave.rawValue
+                                    onClicked: {
+                                        _telemetrySave.rawValue = checked
+                                        CustomQmlInterface.logSecurityEvent("Telemetry log saving " + (checked ? "enabled" : "disabled"))
+                                    }
                                 }
                             }
-                        }
-
-                        QGCLabel {
-                            text: qsTr("*Changes apply immediately and affect only local data.")
-                            color: qgcPal.colorGrey
-                            wrapMode: Text.WordWrap
                         }
                     }
                 }
