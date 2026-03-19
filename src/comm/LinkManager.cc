@@ -53,6 +53,12 @@ static bool _customNetworkServiceEnabled(const char* key, bool defaultValue = fa
     return settings.value(QStringLiteral("Custom/%1").arg(QLatin1String(key)), defaultValue).toBool();
 }
 
+static bool _securityWizardCompleted(void)
+{
+    QSettings settings;
+    return settings.value(QStringLiteral("Custom/securityWizardCompleted"), false).toBool();
+}
+
 const char* LinkManager::_defaultUDPLinkName =                  "UDP Link (AutoConnect)";
 const char* LinkManager::_mavlinkForwardingLinkName =           "MAVLink Forwarding Link";
 const char* LinkManager::_mavlinkForwardingSupportLinkName =    "MAVLink Support Forwarding Link";
@@ -682,6 +688,10 @@ void LinkManager::_updateAutoConnectLinks(void)
         return;
     }
 
+    if (!_securityWizardCompleted()) {
+        return;
+    }
+
     _addUDPAutoConnectLink();
     _addMAVLinkForwardingLink();
     _addZeroConfAutoConnectLink();
@@ -1062,6 +1072,10 @@ SharedLinkConfigurationPtr LinkManager::addConfiguration(LinkConfiguration* conf
 
 void LinkManager::startAutoConnectedLinks(void)
 {
+    if (!_securityWizardCompleted()) {
+        return;
+    }
+
     SharedLinkConfigurationPtr conf;
     for(int i = 0; i < _rgLinkConfigs.count(); i++) {
         conf = _rgLinkConfigs[i];
