@@ -12,7 +12,6 @@
 #pragma once
 
 #include "QGCApplication.h"
-#include "LinkInterface.h"
 #include <QLoggingCategory>
 
 class QDomNode;
@@ -39,7 +38,7 @@ public:
     Q_PROPERTY(qreal        hfov                READ hfov               NOTIFY infoChanged)
     Q_PROPERTY(bool         isThermal           READ isThermal          NOTIFY infoChanged)
 
-    QString uri             () { return QString(_streamInfo.uri);  }
+    QString uri             ();
     QString name            () { return QString(_streamInfo.name); }
     qreal   aspectRatio     () const;
     qreal   hfov            () const{ return _streamInfo.hfov; }
@@ -49,11 +48,20 @@ public:
 
     bool    update          (const mavlink_video_stream_status_t* vs);
 
+    void get_stream_info(mavlink_video_stream_information_t& info) {
+        memcpy(&info, &_streamInfo, sizeof(mavlink_video_stream_information_t));
+    }
+
+    void enable_localhost(const bool& enable) {
+        _enable_localhost = enable;
+    }
+
 signals:
     void    infoChanged     ();
 
 private:
     mavlink_video_stream_information_t _streamInfo;
+    bool _enable_localhost{false};
 };
 
 //-----------------------------------------------------------------------------
@@ -89,7 +97,7 @@ class QGCCameraControl : public FactGroup
     Q_OBJECT
     friend class QGCCameraParamIO;
 public:
-    QGCCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent = nullptr);
+    QGCCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, QObject* parent = nullptr, LinkInterface* link = nullptr);
     virtual ~QGCCameraControl();
 
     //-- cam_mode
@@ -212,15 +220,6 @@ public:
     Q_PROPERTY(TrackingStatus trackingStatus    READ trackingStatus                                 CONSTANT)
     Q_PROPERTY(bool         trackingImageStatus READ trackingImageStatus                            NOTIFY trackingImageStatusChanged)
     Q_PROPERTY(QRectF       trackingImageRect   READ trackingImageRect                              NOTIFY trackingImageStatusChanged)
-    
-    Q_PROPERTY(int photoIndex READ photoIndex NOTIFY photoIndexChanged)
-    Q_PROPERTY(QString extraControlsQml READ extraControlsQml CONSTANT)
-    Q_PROPERTY(QGeoCoordinate targetCoordinate READ targetCoordinate NOTIFY targetCoordinateChanged)
-    Q_PROPERTY(float targetDistance READ targetDistance NOTIFY targetDistanceChanged)
-    int photoIndex() { return _photoIndex; }
-    virtual QString extraControlsQml() const { return QString("qrc:/qml/CodevCameraVisual.qml"); }
-    QGeoCoordinate targetCoordinate() { return _targetCoordinate; }
-    float targetDistance() { return _targetDistance; }
 
     Q_INVOKABLE virtual void setVideoMode   ();
     Q_INVOKABLE virtual void setPhotoMode   ();
@@ -318,10 +317,6 @@ public:
     virtual void        handleTrackingImageStatus(const mavlink_camera_tracking_image_status_t *tis);
     virtual void        handleVideoInfo     (const mavlink_video_stream_information_t *vi);
     virtual void        handleVideoStatus   (const mavlink_video_stream_status_t *vs);
-    virtual void        handleTrackingGeoStatus(const mavlink_camera_tracking_geo_status_t& tracking_geo_status);
-    virtual void        handleRCChannels    (const mavlink_rc_channels_t&) {}
-    virtual void        handleCommandAck    (const mavlink_command_ack_t&) {}
-    virtual void        handleImageCaptured (const mavlink_camera_image_captured_t&) {}
 
     virtual bool        trackingEnabled     () { return _trackingStatus & TRACKING_ENABLED; }
     virtual void        setTrackingEnabled  (bool set);
@@ -374,9 +369,6 @@ signals:
     void    thermalModeChanged              ();
     void    thermalOpacityChanged           ();
     void    storageStatusChanged            ();
-    void    targetCoordinateChanged         (QGeoCoordinate coordinate);
-    void    targetDistanceChanged           (float distance);
-    void    photoIndexChanged               ();
 
 protected:
     virtual void    _setVideoStatus         (VideoStatus status);
@@ -399,7 +391,7 @@ protected slots:
     virtual void    _mavCommandResult       (int vehicleId, int component, int command, int result, bool noReponseFromVehicle);
     virtual void    _dataReady              (QByteArray data);
     virtual void    _paramDone              ();
-    virtual void    _streamInfoTimeout      ();
+    virtual void    _streamTimeout          ();
     virtual void    _streamStatusTimeout    ();
     virtual void    _recTimerHandler        ();
     virtual void    _checkForVideoStreams   ();
@@ -457,7 +449,6 @@ protected:
     QMap<QString, QStringList>          _originalOptNames;
     QMap<QString, QVariantList>         _originalOptValues;
     QMap<QString, QGCCameraParamIO*>    _paramIO;
-    int                                 _cameraSettingsRetries = 0;
     int                                 _storageInfoRetries = 0;
     int                                 _captureInfoRetries = 0;
     bool                                _resetting          = false;
@@ -468,8 +459,7 @@ protected:
     QMap<QString, QStringList>          _requestUpdates;
     QStringList                         _updatesToRequest;
     //-- Video Streams
-    int                                 _videoStreamInfoRetries   = 0;
-    int                                 _videoStreamStatusRetries = 0;
+    int                                 _requestCount       = 0;
     int                                 _currentStream      = 0;
     int                                 _expectedCount      = 1;
     QTimer                              _streamInfoTimer;
@@ -484,7 +474,4 @@ protected:
     double                              _trackingRadius     = 0.0;
     mavlink_camera_tracking_image_status_t         _trackingImageStatus;
     QRectF                                         _trackingImageRect;
-    QGeoCoordinate                                 _targetCoordinate;
-    float                                          _targetDistance;
-    int                                            _photoIndex = 0;
 };

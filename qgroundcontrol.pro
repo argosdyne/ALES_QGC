@@ -614,7 +614,9 @@ HEADERS += \
     src/Audio/AudioOutput.h \
     src/Audio/AudioControl.h \
     src/Vehicle/Autotune.h \
-    src/Camera/QGCCameraControl.h \
+    src/Camera/MavlinkCameraControl.h \  
+    src/Camera/SimulatedCameraControl.h \
+    src/Camera/VehicleCameraControl.h \    
     src/Camera/QGCCameraIO.h \
     src/Camera/QGCCameraManager.h \
     src/CmdLineOptParser.h \
@@ -805,6 +807,7 @@ HEADERS += \
     src/M2Link/M2Manager.h \
     src/Camera/TargetObject.h \
     src/Camera/CodevCameraControl.h \
+    src/Camera/CustomCameraControl.h \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -888,7 +891,9 @@ SOURCES += \
     src/Audio/AudioOutput.cc \
     src/Audio/AudioControl.cc \
     src/Vehicle/Autotune.cpp \
-    src/Camera/QGCCameraControl.cc \
+    src/Camera/MavlinkCameraControl.cc \    
+    src/Camera/SimulatedCameraControl.cc \
+    src/Camera/VehicleCameraControl.cc \
     src/Camera/QGCCameraIO.cc \
     src/Camera/QGCCameraManager.cc \
     src/CmdLineOptParser.cc \
@@ -1075,6 +1080,7 @@ SOURCES += \
     src/M2Link/M2Manager.cpp \
     src/Camera/TargetObject.cpp \
     src/Camera/CodevCameraControl.cc \
+    src/Camera/CustomCameraControl.cc \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

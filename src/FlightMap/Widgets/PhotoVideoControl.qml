@@ -69,16 +69,16 @@ Item {
     property bool   _multipleMavlinkCameraStreams:              _mavlinkCamera ? _mavlinkCamera.streamLabels.length > 1 : false
     property int    _mavlinCameraCurStreamIndex:                _mavlinkCamera ? _mavlinkCamera.currentStream : -1
     property bool   _mavlinkCameraHasThermalVideoStream:        _mavlinkCamera ? _mavlinkCamera.thermalStreamInstance : false
-    property bool   _mavlinkCameraModeUndefined:                _mavlinkCamera ? _mavlinkCamera.cameraMode === QGCCameraControl.CAM_MODE_UNDEFINED : true
-    property bool   _mavlinkCameraInVideoMode:                  _mavlinkCamera ? _mavlinkCamera.cameraMode === QGCCameraControl.CAM_MODE_VIDEO : false
-    property bool   _mavlinkCameraInPhotoMode:                  _mavlinkCamera ? _mavlinkCamera.cameraMode === QGCCameraControl.CAM_MODE_PHOTO : false
-    property bool   _mavlinkCameraElapsedMode:                  _mavlinkCamera && _mavlinkCamera.cameraMode === QGCCameraControl.CAM_MODE_PHOTO && _mavlinkCamera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE
+    property bool   _mavlinkCameraModeUndefined:                _mavlinkCamera ? _mavlinkCamera.cameraMode === MavlinkCameraControl.CAM_MODE_UNDEFINED : true
+    property bool   _mavlinkCameraInVideoMode:                  _mavlinkCamera ? _mavlinkCamera.cameraMode === MavlinkCameraControl.CAM_MODE_VIDEO : false
+    property bool   _mavlinkCameraInPhotoMode:                  _mavlinkCamera ? _mavlinkCamera.cameraMode === MavlinkCameraControl.CAM_MODE_PHOTO : false
+    property bool   _mavlinkCameraElapsedMode:                  _mavlinkCamera && _mavlinkCamera.cameraMode === MavlinkCameraControl.CAM_MODE_PHOTO && _mavlinkCamera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE
     property bool   _mavlinkCameraHasModes:                     _mavlinkCamera && _mavlinkCamera.hasModes
-    property bool   _mavlinkCameraVideoIsRecording:             _mavlinkCamera && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
-    property bool   _mavlinkCameraPhotoCaptureIsIdle:           _mavlinkCamera && (_mavlinkCamera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE || _mavlinkCamera.photoStatus >= QGCCameraControl.PHOTO_CAPTURE_LAST)
-    property bool   _mavlinkCameraStorageReady:                 _mavlinkCamera && _mavlinkCamera.storageStatus === QGCCameraControl.STORAGE_READY
+    property bool   _mavlinkCameraVideoIsRecording:             _mavlinkCamera && _mavlinkCamera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
+    property bool   _mavlinkCameraPhotoCaptureIsIdle:           _mavlinkCamera && (_mavlinkCamera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_IDLE || _mavlinkCamera.photoStatus >= MavlinkCameraControl.PHOTO_CAPTURE_LAST)
+    property bool   _mavlinkCameraStorageReady:                 _mavlinkCamera && _mavlinkCamera.storageStatus === MavlinkCameraControl.STORAGE_READY
     property bool   _mavlinkCameraBatteryReady:                 _mavlinkCamera && _mavlinkCamera.batteryRemaining >= 0
-    property bool   _mavlinkCameraStorageSupported:             _mavlinkCamera && _mavlinkCamera.storageStatus !== QGCCameraControl.STORAGE_NOT_SUPPORTED
+    property bool   _mavlinkCameraStorageSupported:             _mavlinkCamera && _mavlinkCamera.storageStatus !== MavlinkCameraControl.STORAGE_NOT_SUPPORTED
     property bool   _mavlinkCameraAllowsPhotoWhileRecording:    false
     property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
@@ -330,7 +330,7 @@ Item {
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
-            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
+            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
             font.pointSize:     ScreenTools.largeFontPointSize
             font.bold:          true
             visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
@@ -554,7 +554,7 @@ Item {
 
                     QGCLabel {
                         text:               qsTr("Blend Opacity")
-                        visible:            _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
+                        visible:            _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === MavlinkCameraControl.THERMAL_BLEND
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
@@ -575,7 +575,7 @@ Item {
 
                     QGCLabel {
                         text:               qsTr("Photo Interval (seconds)")
-                        visible:            _mavlinkCameraInPhotoMode && _mavlinkCamera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE
+                        visible:            _mavlinkCameraInPhotoMode && _mavlinkCamera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE
                         onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
                     }
 
@@ -638,7 +638,7 @@ Item {
                         value:                      _mavlinkCamera ? _mavlinkCamera.thermalOpacity : 0
                         displayValue:               true
                         updateValueWhileDragging:   true
-                        visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
+                        visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === MavlinkCameraControl.THERMAL_BLEND
                         onValueChanged:             _mavlinkCamera.thermalOpacity = value
                     }
 
@@ -724,7 +724,7 @@ Item {
                         value:                      _mavlinkCamera ? _mavlinkCamera.photoLapse : 5
                         displayValue:               true
                         updateValueWhileDragging:   true
-                        visible:                    _mavlinkCameraInPhotoMode && _mavlinkCamera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE
+                        visible:                    _mavlinkCameraInPhotoMode && _mavlinkCamera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE
                         onValueChanged: {
                             if (_mavlinkCamera) {
                                 _mavlinkCamera.photoLapse = value

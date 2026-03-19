@@ -36,7 +36,7 @@ class VideoReceiver;
 class VideoSink;
 class PlanMasterController;
 class QGCCameraManager;
-class QGCCameraControl;
+class MavlinkCameraControl;
 class QQuickItem;
 class InstrumentValueAreaController;
 
@@ -213,7 +213,7 @@ protected:
     bool                _showAdvancedUI;
     Vehicle*            _activeVehicle  = nullptr;
     QGCCameraManager*   _cameraManager  = nullptr;
-    QGCCameraControl*   _currentCamera  = nullptr;
+    MavlinkCameraControl*   _currentCamera  = nullptr;
     QVariantList        _toolBarIndicatorList;
 
 private:

@@ -100,6 +100,8 @@ public:
     UDPLink(SharedLinkConfigurationPtr& config);
     virtual ~UDPLink();
 
+    QStringList sessionTargetsIP(void);
+
     // LinkInterface overrides
     bool isConnected(void) const override;
     void disconnect (void) override;

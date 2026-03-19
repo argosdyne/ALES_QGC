@@ -1,12 +1,12 @@
 #pragma once
 
-#include "QGCCameraControl.h"
+#include "CustomCameraControl.h"
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
 
 //-----------------------------------------------------------------------------
-class CodevCameraControl : public QGCCameraControl
+class CodevCameraControl : public CustomCameraControl
 {
     Q_OBJECT
     typedef struct {
@@ -43,13 +43,20 @@ class CodevCameraControl : public QGCCameraControl
         DetectObject objects[10];
     } DetectObjectsPacket;
     typedef struct {
+        uint16_t size;
+        struct {
+            uint16_t type;
+            uint16_t count;
+        } objects[30];
+    } DetectStatsPacket;
+    typedef struct {
         int32_t type;
         int32_t image_count;
         uint8_t ids[60];
         uint8_t oks[60];
     } CalibrateFeedback;
 public:
-    CodevCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent = nullptr);
+    CodevCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, QObject* parent = nullptr, LinkInterface* link = nullptr);
     Q_PROPERTY(bool busyInDetectSetup READ busyInDetectSetup NOTIFY busyInSetupChanged)
     Q_PROPERTY(bool busyInTrackSetup READ busyInTrackSetup NOTIFY busyInSetupChanged)
     Q_PROPERTY(float trackScore READ trackScore NOTIFY trackingImageStatusChanged)
@@ -68,6 +75,7 @@ public:
     Q_PROPERTY(float rectTempX2 READ rectTempX2 NOTIFY thermometryDataChanged)
     Q_PROPERTY(float rectTempY2 READ rectTempY2 NOTIFY thermometryDataChanged)
     Q_PROPERTY(QmlObjectListModel* targetObjects READ targetObjects CONSTANT)
+    Q_PROPERTY(QStringList detectStats READ detectStats NOTIFY detectStatsChanged)
 
     bool busyInDetectSetup() { return _busy_in_detect_setup; }
     bool busyInTrackSetup() { return _busy_in_track_setup; }
@@ -87,10 +95,7 @@ public:
     float rectTempX2() { return _tempPacket.x2; }
     float rectTempY2() { return _tempPacket.y2; }
     QmlObjectListModel* targetObjects() { return &_targetObjects; }
-    bool hasTrackingPoint() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_POINT; }
-    bool hasTrackingRectangle() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_RECTANGLE; }
-    bool hasTrackingGeoStatus() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_GEO_STATUS; }
-    Q_INVOKABLE void centerGimbal();
+    QStringList detectStats() { return _detectStats; }
 
     Q_INVOKABLE void setSpotTempPoint(float x, float y);
     Q_INVOKABLE void setAreaTempRect(float x1, float y1, float x2, float y2);
@@ -108,51 +113,29 @@ public:
     Q_INVOKABLE void setSpotFocus(float x, float y);
     Q_INVOKABLE void initTracker();
     Q_INVOKABLE void deinitTracker();
-    Q_INVOKABLE void gimbalControlInImage(QPointF point);
-    Q_INVOKABLE void buttonTakePhoto();
-    Q_INVOKABLE void buttonToggleVideo();
 
-    // Override from QGCCameraControl
-    void setVideoMode() final;
-    void setPhotoMode() final;
-    bool takePhoto() final;
-    bool stopTakePhoto() final;
-    bool startVideo() final;
-    bool stopVideo() final;
-    void resetSettings() final;
-    void formatCard(int id = 1) final;
-    void startZoom(int direction) final;
-    void stopZoom() final;
+    Q_INVOKABLE void shutterHalfPress(bool down = false);
+
+    // Override from CustomCameraControl
     void startTracking(QPointF point, double radius) final;
     void startTracking(QRectF rec) final;
     void stopTracking() final;
-    QString extraControlsQml() const final { return QString("qrc:/qml/CodevCameraVisual.qml"); }
+    QString visualQML() const final { return QString("qrc:/custom/qml/CodevCameraVisual.qml"); }
+    void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
     void setZoomLevel(qreal level) final;
+    void gimbalControlInImage(QPointF point) final;
+    int photoIndex() final;
+
+    // Override from MavlinkCameraControl
     QStringList activeSettings() final;
+    void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;
     void stepZoom(int direction) final;
     bool trackingImageStatus() final {
         return _trackingImageStatus.tracking_status != 2;
     }
     void handleTrackingImageStatus(const mavlink_camera_tracking_image_status_t *tis) final;
-    void handleRCChannels(const mavlink_rc_channels_t& rc) final;
-    void handleCommandAck(const mavlink_command_ack_t& ack) final;
-    void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
-    void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;
-
-    // sendMavCommander
-    typedef struct {
-        int         component;
-        MAV_CMD     command;
-        MAV_FRAME   frame;
-        double      rgParam[7];
-    } MavCommandQueueEntry_t;
-    QList<MavCommandQueueEntry_t>   _mavCommandQueue;
-    QTimer                          _mavCommandAckTimer;
-    int                             _mavCommandRetryCount;
-    static const int                _mavCommandMaxRetryCount = 3;
-    static const int                _mavCommandAckTimeoutMSecs = 1000;
-    void sendMavCommand(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f, float param3 = 0.0f, float param4 = 0.0f, float param5 = 0.0f, float param6 = 0.0f, float param7 = 0.0f);
-    void sendMavCommandWithTarget(MAV_CMD command, int target_component, float param1 = 0.0f, float param2 = 0.0f, float param3 = 0.0f, float param4 = 0.0f, float param5 = 0.0f, float param6 = 0.0f, float param7 = 0.0f);
+    QGCVideoStreamInfo* currentStreamInstance() final;
+    QGCVideoStreamInfo* thermalStreamInstance() final;
 
 signals:
     void nvStatusChanged();
@@ -161,6 +144,7 @@ signals:
     void spotFocusAreaChanged();
     void dZoomInMaxChanged();
     void busyInSetupChanged();
+    void detectStatsChanged();
 
 protected slots:
     void _parametersReady();
@@ -168,26 +152,14 @@ protected slots:
     void _handleThermometryData(QVariant data);
     void _handleNVStatus(QVariant data);
     void _handleDetectObjects(QVariant data);
+    void _handleDetectStats(QVariant data);
+    void _factoryCalibrateChanged(QVariant data);
+    void _handlefactoryCalibrateData(QVariant data);
     void _requestJSONTransfor(QVariant data);
     void _downloadJSONFinished();
     void _paramSlefChanged();
-    // sendMavCommander
-    void _sendMavCommandAgain();
-    void _mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle) override;
-
-    void _requestCameraSettings() final;
-    void _requestCaptureStatus() final;
-    void _requestStorageInfo() final;
 
 protected:
-    void _requestStreamInfo(uint8_t streamID) final;
-    void _requestStreamStatus(uint8_t streamID) final;
-    void _requestThermometryData();
-
-    bool _isTakingPhotoTimelapse();
-    void _sendNextQueuedMavCommand();
-    MAVLinkProtocol* _pMavlink;
-
     bool _hasTrack{false};
     bool _hasDetect{false};
     bool _dZoomInMax{false};
@@ -198,6 +170,7 @@ protected:
     QTimer _resetDetectObjectsPacket;
     QmlObjectListModel _targetObjects;
     QStringList _targetObjectLabels;
+    QStringList _detectStats;
 
     Fact* _dZoomFact{nullptr};
     Fact* _zoomModeFact{nullptr};
@@ -205,13 +178,8 @@ protected:
 
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};
-    qint64 _trackingInvalidStartMs{-1};
 
-private:
-    float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치
-    float _opticalStep  = 1.0f;          // 한 번 누를 때 RANGE 증가량(튜닝)
-    float _digitalStep  = 0.2f;
-    float _maxOpticalX  = 30.0f;         // 광학 최대 배율(당신 케이스)
-    
-
+    bool _is_factory_calibate{false};
+    QGCVideoStreamInfo* _factory_stream_info{nullptr};
+    int _factory_calibate_image_index{0};
 };

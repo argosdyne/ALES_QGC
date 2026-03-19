@@ -26,7 +26,7 @@
 #include <QVariantList>
 
 class Vehicle;
-class QGCCameraControl;
+class MavlinkCameraControl;
 class QGCCameraManager;
 class Autotune;
 class AudioControl;
@@ -314,7 +314,7 @@ public:
     virtual QGCCameraManager* createCameraManager(Vehicle *vehicle);
 
     /// Camera control.
-    virtual QGCCameraControl* createCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent = nullptr);
+    virtual MavlinkCameraControl* createCameraControl(const mavlink_camera_information_t* info, Vehicle* vehicle, int compID, QObject* parent = nullptr, LinkInterface* link = nullptr);
 
     /// Returns a pointer to a dictionary of firmware-specific FactGroups
     virtual QMap<QString, FactGroup*>* factGroups(void);

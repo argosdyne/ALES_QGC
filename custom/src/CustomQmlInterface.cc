@@ -182,7 +182,13 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         emit irSwitchTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_GIMBAL_RESET) {
         emit gimbalResetTigger(pressed);
-    } else if(type == CUSTOM_FUNCTION_AIRCRAFT_RTL) {
+    }
+    else if(type == CUSTOM_FUNCTION_CAMERA_CAPTURE) {
+        if(_plugin->coachMode()) emit coachWaypointTigger(pressed);
+        emit cameraCapture(pressed);
+    } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
+        emit cameraToggleRecord(pressed);
+    }else if(type == CUSTOM_FUNCTION_AIRCRAFT_RTL) {
         if(pressed) {
             Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
             if(vehicle) {

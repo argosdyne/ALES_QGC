@@ -111,6 +111,16 @@ void UDPLink::run()
     }
 }
 
+QStringList UDPLink::sessionTargetsIP(void)
+{
+    QStringList targets;
+    QMutexLocker locker(&_sessionTargetsMutex);
+    foreach (UDPCLient* target, _sessionTargets) {
+        targets.append(target->address.toString());
+    }
+    return targets;
+}
+
 bool UDPLink::_isIpLocal(const QHostAddress& add)
 {
     // In simulation and testing setups the vehicle and the GCS can be

@@ -18,6 +18,9 @@
 #include "RadioComponentController.h"
 #include "Autotune.h"
 #include "AudioControl.h"
+#include "VehicleCameraControl.h"
+#include "CustomCameraControl.h"
+#include "CodevCameraControl.h"
 
 #include <QRegularExpression>
 #include <QDebug>
@@ -1070,9 +1073,18 @@ QGCCameraManager* FirmwarePlugin::createCameraManager(Vehicle* vehicle)
     return new QGCCameraManager(vehicle);
 }
 
-QGCCameraControl* FirmwarePlugin::createCameraControl(const mavlink_camera_information_t *info, Vehicle *vehicle, int compID, LinkInterface* link, QObject* parent)
+MavlinkCameraControl* FirmwarePlugin::createCameraControl(const mavlink_camera_information_t *info, Vehicle *vehicle, int compID, QObject* parent, LinkInterface* link)
 {
-    return new QGCCameraControl(info, vehicle, compID, link, parent);
+    //return new VehicleCameraControl(info, vehicle, compID, parent, link);
+    //return new CustomCameraControl(info, vehicle, compID, parent, link);
+
+    qInfo() << "FirmwarePlugon::createCameraControl : " << info->vendor_name;
+    QString vendor = QString(reinterpret_cast<const char*>(info->vendor_name));
+    if(vendor.toUpper().compare("CODEV") == 0) {
+        return new CodevCameraControl(info, vehicle, compID, parent, link);
+    } else {
+        return new CustomCameraControl(info, vehicle, compID, parent, link);
+    }
 }
 
 AudioControl* FirmwarePlugin::createAudioControl(Vehicle* vehicle)

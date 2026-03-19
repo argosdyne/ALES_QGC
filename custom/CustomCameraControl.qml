@@ -54,13 +54,13 @@ Item {
     property bool   _communicationLost:     activeVehicle ? activeVehicle.connectionLost : false
     property bool   _noSdCard:              _camera && _camera.storageTotal === 0
     property bool   _fullSD:                _camera && _camera.storageTotal !== 0 && _camera.storageFree > 0 && _camera.storageFree < 250 // We get kiB from the camera
-    property bool   _cameraVideoMode:       !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === QGCCameraControl.CAM_MODE_VIDEO)
-    property bool   _cameraPhotoMode:       !_communicationLost && (_noSdCard ? false : _camera && (_camera.cameraMode  === QGCCameraControl.CAM_MODE_PHOTO || _camera.cameraMode === QGCCameraControl.CAM_MODE_SURVEY))
-    property bool   _cameraPhotoIdle:       !_communicationLost && (_noSdCard ? false : _camera && _camera.photoStatus  === QGCCameraControl.PHOTO_CAPTURE_IDLE)
-    property bool   _cameraElapsedMode:     !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === QGCCameraControl.CAM_MODE_PHOTO && _camera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE)
+    property bool   _cameraVideoMode:       !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === MavlinkCameraControl.CAM_MODE_VIDEO)
+    property bool   _cameraPhotoMode:       !_communicationLost && (_noSdCard ? false : _camera && (_camera.cameraMode  === MavlinkCameraControl.CAM_MODE_PHOTO || _camera.cameraMode === MavlinkCameraControl.CAM_MODE_SURVEY))
+    property bool   _cameraPhotoIdle:       !_communicationLost && (_noSdCard ? false : _camera && _camera.photoStatus  === MavlinkCameraControl.PHOTO_CAPTURE_IDLE)
+    property bool   _cameraElapsedMode:     !_communicationLost && (_noSdCard ? false : _camera && _camera.cameraMode   === MavlinkCameraControl.CAM_MODE_PHOTO && _camera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE)
     property bool   _cameraModeUndefined:   !_cameraPhotoMode && !_cameraVideoMode
-    property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
-    property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
+    property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
+    property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== MavlinkCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
     property bool   _hasZoom:               _camera && _camera.hasZoom
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
     property bool   _isShortScreen:         mainWindow.height / ScreenTools.realPixelDensity < 120
@@ -201,11 +201,11 @@ Item {
             visible:        QGroundControl.videoManager.hasThermal || _irPaletteFact || _camera.vendor === "NextVision"
             Component.onCompleted: {
                 if(_irPaletteFact && QGroundControl.videoManager.hasThermal) {
-                    if(_camera.thermalMode === QGCCameraControl.THERMAL_OFF)
+                    if(_camera.thermalMode === MavlinkCameraControl.THERMAL_OFF)
                         standardMode.checked = true
-                    if(_camera.thermalMode === QGCCameraControl.THERMAL_PIP)
+                    if(_camera.thermalMode === MavlinkCameraControl.THERMAL_PIP)
                         thermalPip.checked = true
-                    if(_camera.thermalMode === QGCCameraControl.THERMAL_FULL)
+                    if(_camera.thermalMode === MavlinkCameraControl.THERMAL_FULL)
                         thermalFull.checked = true
                 }
                 else
@@ -227,7 +227,7 @@ Item {
                     height:             buttonSize
                     iconSource:        "/custom/img/thermal-standard.svg"
                     onClicked:  {
-                        _camera.thermalMode = QGCCameraControl.THERMAL_OFF
+                        _camera.thermalMode = MavlinkCameraControl.THERMAL_OFF
                     }
                 }
                 //-- PIP
@@ -238,7 +238,7 @@ Item {
                     visible:            _camera.vendor !== "NextVision"
                     iconSource:        "/custom/img/thermal-pip.svg"
                     onClicked:  {
-                        _camera.thermalMode = QGCCameraControl.THERMAL_PIP
+                        _camera.thermalMode = MavlinkCameraControl.THERMAL_PIP
                     }
                 }
                 // Thermal
@@ -248,7 +248,7 @@ Item {
                     height:             buttonSize
                     iconSource:         "/custom/img/thermal-brightness.svg"
                     onClicked:  {
-                        _camera.thermalMode = QGCCameraControl.THERMAL_FULL
+                        _camera.thermalMode = MavlinkCameraControl.THERMAL_FULL
                     }
                 }
                 // Thermal palette options
@@ -329,7 +329,7 @@ Item {
                     }
                     MouseArea {
                         anchors.fill:       parent
-                        enabled:            !_cameraModeUndefined && _camera && _camera.videoStatus !== QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING && _cameraPhotoIdle
+                        enabled:            !_cameraModeUndefined && _camera && _camera.videoStatus !== MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING && _cameraPhotoIdle
                         onClicked: {
                             _camera.toggleMode()
                         }
@@ -391,11 +391,11 @@ Item {
                         height:     width
                         color:      _cameraModeUndefined ? qgcPal.colorGrey : qgcPal.colorRed
                         visible: {
-                           if(_cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
+                           if(_cameraVideoMode && _camera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
                                return true
                            }
                            if(_cameraPhotoMode) {
-                               if(_camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE || _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS) {
+                               if(_camera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE || _camera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS) {
                                    return true
                                }
                            }
@@ -408,7 +408,7 @@ Item {
                         enabled:        !_noSdCard
                         onClicked: {
                             if(_cameraVideoMode) {
-                                if(_camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
+                                if(_camera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) {
                                     _camera.stopVideo()
                                     //-- Local video as well
                                     if (_recordingVideo) {
@@ -424,7 +424,7 @@ Item {
                                     }
                                 }
                             } else {
-                                if(_camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE || _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS) {
+                                if(_camera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE || _camera.photoStatus === MavlinkCameraControl.PHOTO_CAPTURE_INTERVAL_IN_PROGRESS) {
                                     _camera.stopTakePhoto()
                                 } else {
                                     if(!_fullSD) {
@@ -499,7 +499,7 @@ Item {
                 //-----------------------------------------------------------------
                 //-- Recording Time / Images Captured
                 QGCLabel {
-                    text:               (_cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _camera.recordTimeStr : "00:00:00"
+                    text:               (_cameraVideoMode && _camera.videoStatus === MavlinkCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _camera.recordTimeStr : "00:00:00"
                     visible:            _cameraVideoMode
                     font.pointSize:     ScreenTools.smallFontPointSize
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -724,7 +724,7 @@ Item {
                     Row {
                         spacing:            ScreenTools.defaultFontPixelWidth
                         anchors.horizontalCenter: parent.horizontalCenter
-                        visible:            QGroundControl.videoManager.hasThermal && _camera.thermalMode === QGCCameraControl.THERMAL_BLEND
+                        visible:            QGroundControl.videoManager.hasThermal && _camera.thermalMode === MavlinkCameraControl.THERMAL_BLEND
                         QGCLabel {
                             text:           qsTr("Blend Opacity")
                             width:          _labelFieldWidth
@@ -746,7 +746,7 @@ Item {
                         color:      qgcPal.button
                         height:     1
                         width:      cameraSettingsCol.width
-                        visible:            QGroundControl.videoManager.hasThermal && _camera.thermalMode === QGCCameraControl.THERMAL_BLEND
+                        visible:            QGroundControl.videoManager.hasThermal && _camera.thermalMode === MavlinkCameraControl.THERMAL_BLEND
                     }
                     //-------------------------------------------
                     //-- Settings from Camera Definition File
@@ -862,7 +862,7 @@ Item {
                     Row {
                         spacing:        ScreenTools.defaultFontPixelWidth
                         anchors.horizontalCenter: parent.horizontalCenter
-                        visible:        _cameraPhotoMode && _camera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE && !_noSdCard
+                        visible:        _cameraPhotoMode && _camera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE && !_noSdCard
                         QGCLabel {
                             text:       qsTr("Photo Interval (seconds)")
                             width:      _labelFieldWidth
@@ -888,7 +888,7 @@ Item {
                         color:      qgcPal.button
                         height:     1
                         width:      cameraSettingsCol.width
-                        visible:    _cameraPhotoMode && _camera.photoMode === QGCCameraControl.PHOTO_CAPTURE_TIMELAPSE && !_noSdCard
+                        visible:    _cameraPhotoMode && _camera.photoMode === MavlinkCameraControl.PHOTO_CAPTURE_TIMELAPSE && !_noSdCard
                     }
                     //-------------------------------------------
                     //-- Gimbal Control
@@ -991,7 +991,7 @@ Item {
                                 onYes: {
                                     _camera.resetSettings()
                                     QGroundControl.settingsManager.videoSettings.gridLines.rawValue = false
-                                    _camera.photoMode = QGCCameraControl.PHOTO_CAPTURE_SINGLE
+                                    _camera.photoMode = MavlinkCameraControl.PHOTO_CAPTURE_SINGLE
                                     _camera.photoLapse = 5.0
                                     _camera.photoLapseCount = 0
                                     resetPrompt.close()
@@ -1102,8 +1102,8 @@ Item {
                             onClicked: {
                                 _irPaletteFact.value = index
                                 if(thermalBackgroundRect.visible) {
-                                    if(_camera.thermalMode !== QGCCameraControl.THERMAL_PIP && _camera.thermalMode !== QGCCameraControl.THERMAL_FULL) {
-                                        _camera.thermalMode = QGCCameraControl.THERMAL_FULL
+                                    if(_camera.thermalMode !== MavlinkCameraControl.THERMAL_PIP && _camera.thermalMode !== MavlinkCameraControl.THERMAL_FULL) {
+                                        _camera.thermalMode = MavlinkCameraControl.THERMAL_FULL
                                         thermalFull.checked = true
                                     }
                                 }

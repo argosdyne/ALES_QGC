@@ -74,7 +74,7 @@ Item {
         function irSwitchTigger(start) {
             if(start && QGroundControl.videoManager.hasThermal) {
                 var v = _camera.thermalMode + 1
-                if(v > QGCCameraControl.THERMAL_PIP) {
+                if(v > MavlinkCameraControl.THERMAL_PIP) {
                     v = 0
                 }
                 _camera.thermalMode = v

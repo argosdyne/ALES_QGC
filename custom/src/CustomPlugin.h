@@ -81,6 +81,8 @@ public:
     CustomPlugin(QGCApplication* app, QGCToolbox *toolbox);
     ~CustomPlugin();
 
+    CustomQmlInterface* qmlInterface() { return _qmlInterface; }
+
     // Overrides from QGCCorePlugin
     QVariantList&           settingsPages                   (void) final;
     QGCOptions*             options                         (void) final;
