@@ -358,6 +358,9 @@ Page {
                     unlockTriggerTimer.action = "unlock"
                     unlockTriggerTimer.start()
                 } else {
+                    // Clear entered PIN on failure so user can re-enter without manual delete
+                    pinText = ""
+                    hiddenInput.text = ""
                     unlockError.text    = "Invalid PIN"
                     unlockError.color   = "#ff5c5c"
                     unlockError.visible = true

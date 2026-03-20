@@ -9,6 +9,7 @@
 
 import QtQuick          2.12
 import QtQuick.Layouts  1.12
+import QtQuick.Dialogs  1.3
 
 import QGroundControl           1.0
 import QGroundControl.Controls  1.0
@@ -26,6 +27,10 @@ FirstRunPrompt {
     readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
+
+    property bool _udpChecked: true
+    property bool _tcpChecked: true
+    property bool _videoChecked: true
 
     property Fact _udpEnabled:       _customSettings.networkUdpListenerEnabled
     property Fact _tcpEnabled:       _customSettings.networkTcpServerEnabled
@@ -99,9 +104,10 @@ FirstRunPrompt {
             }
         }
 
-        _udpEnabled.rawValue = enableSelectedServices && udpCheckbox.checked
-        _tcpEnabled.rawValue = enableSelectedServices && tcpCheckbox.checked
-        _videoEnabled.rawValue = enableSelectedServices && videoCheckbox.checked
+        _udpEnabled.rawValue = enableSelectedServices && _udpChecked
+        _tcpEnabled.rawValue = enableSelectedServices && _tcpChecked
+        _videoEnabled.rawValue = enableSelectedServices && _videoChecked
+        _videoSettings.streamEnabled.rawValue = enableSelectedServices && _videoChecked
 
         _udpPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpPort.rawValue
         _tcpPort.rawValue = tcpPortValue > 0 ? tcpPortValue : _tcpPort.rawValue
@@ -120,8 +126,6 @@ FirstRunPrompt {
 
         if (_videoEnabled.rawValue) {
             _applyVideoSource(_videoUrl.rawValue.toString())
-        } else {
-            _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
         }
 
         if (!_udpEnabled.rawValue && !_tcpEnabled.rawValue && !_videoEnabled.rawValue) {
@@ -181,7 +185,8 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: udpCheckbox
                                 text: qsTr("MAVLink UDP Listener")
-                                checked: _udpEnabled.rawValue
+                                checked: _udpChecked
+                                onClicked: _udpChecked = checked
                                 Layout.preferredWidth: _labelColumnWidth
                             }
                             QGCLabel { text: qsTr("Port:") }
@@ -220,7 +225,8 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: tcpCheckbox
                                 text: qsTr("MAVLink TCP Connection")
-                                checked: _tcpEnabled.rawValue
+                                checked: _tcpChecked
+                                onClicked: _tcpChecked = checked
                                 Layout.preferredWidth: _labelColumnWidth
                             }
                             QGCLabel { text: qsTr("Port:") }
@@ -259,7 +265,8 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: videoCheckbox
                                 text: qsTr("Video Streaming (GStreamer)")
-                                checked: _videoEnabled.rawValue
+                                checked: _videoChecked
+                                onClicked: _videoChecked = checked
                                 Layout.preferredWidth: _videoLabelColumnWidth
                             }
                             QGCLabel { text: qsTr("URI:") }
@@ -299,12 +306,6 @@ FirstRunPrompt {
                             checked: _allowlistIds.rawValue
                         }
                     }
-                }
-
-                QGCLabel {
-                    text:               qsTr("Learn more: Network services & ports")
-                    color:              qgcPal.colorBlue
-                    Layout.fillWidth:   true
                 }
             }
         }

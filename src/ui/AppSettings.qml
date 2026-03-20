@@ -50,15 +50,6 @@ Rectangle {
 
     QGCPalette { id: qgcPal }
 
-    function _syncAllButtonsFromSource() {
-        for (var i = 0; i < settingsRepeater.count; i++) {
-            var item = settingsRepeater.itemAt(i)
-            if (item && item._syncCheckedFromSource) {
-                item._syncCheckedFromSource()
-            }
-        }
-    }
-
     function _isPrivacyChild(url) {
         for (var i = 0; i < _privacyChildPages.length; i++) {
             if (_privacyChildPages[i].url === url) {
@@ -93,9 +84,6 @@ Rectangle {
                 _pendingRestrictedUrl = ""
             }
 
-            Qt.callLater(function() {
-                settingsView._syncAllButtonsFromSource()
-            })
         }
     }
 
@@ -144,13 +132,15 @@ Rectangle {
                     spacing: _verticalMargin / 2
                     visible: (_isPrivacyMain || !_isPrivacyChild) && (!_isRemoteId || QGroundControl.settingsManager.remoteIDSettings.enable.rawValue)
 
-                    function _syncCheckedFromSource() {
+                    function _restoreCheckedBindings() {
                         if (_isPrivacyMain) {
-                            privacyMainButton.checked = settingsView._isPrivacySelection()
+                            privacyMainButton.checked = Qt.binding(function() {
+                                return settingsView._isPrivacySelection()
+                            })
                         } else if (!_isPrivacyChild) {
-                            var loadedSrc = String(__rightPanel.source)
-                            var btnFile = _pageUrl.split("/").pop()
-                            mainButton.checked = loadedSrc.indexOf(btnFile) !== -1
+                            mainButton.checked = Qt.binding(function() {
+                                return String(__rightPanel.source) === settingsEntry._pageUrl
+                            })
                         }
                     }
 
@@ -199,16 +189,12 @@ Rectangle {
                             if (mainWindow.viewOnlyMode && isRestricted) {
                                 _pendingRestrictedUrl = modelData.url
                                 sessionManager.onAppBackground()
-                                Qt.callLater(function() {
-                                    settingsView._syncAllButtonsFromSource()
-                                })
                                 return
                             }
 
                             if (String(__rightPanel.source) !== settingsEntry._pageUrl) {
                                 __rightPanel.source = settingsEntry._pageUrl
                             }
-                            checked = true
                         }
                     }
 
@@ -235,14 +221,6 @@ Rectangle {
                         }
                     }
 
-                    Connections {
-                        target: mainWindow
-                        onViewOnlyModeChanged: {
-                            Qt.callLater(function() {
-                                settingsEntry._syncCheckedFromSource()
-                            })
-                        }
-                    }
 
                     Component.onCompleted: {
                         if (globals.commingFromRIDIndicator) {
@@ -275,6 +253,11 @@ Rectangle {
                             }
                             _commingFromRIDSettings = false
                         }
+
+                        // Keep legacy imperative checked assignments above, then restore declarative bindings.
+                        Qt.callLater(function() {
+                            settingsEntry._restoreCheckedBindings()
+                        })
                     }
                 }
             }

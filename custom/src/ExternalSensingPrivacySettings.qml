@@ -20,8 +20,9 @@ Rectangle {
     property Fact _telemetrySave:   QGroundControl.settingsManager.appSettings.telemetrySave
     property Fact _videoRecording:  _customSettings.privacyVideoRecordingEnabled
     property var  _activeVehicle:   QGroundControl.multiVehicleManager.activeVehicle
-    property bool _cameraActive:    QGroundControl.videoManager.hasVideo
+    property bool _cameraActive:    QGroundControl.videoManager.hasVideo && QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue
     property bool _gpsActive:       _activeVehicle ? _activeVehicle.gps.count.rawValue > 0 : false
+    property real _statusIconSize:  ScreenTools.defaultFontPixelWidth * 1.5
 
     QGCPalette { id: qgcPal }
 
@@ -29,14 +30,18 @@ Rectangle {
         if (used) {
             return qsTr("Used")
         }
-        return optional ? qsTr("Optional") : qsTr("Not used")
+        return qsTr("Not used")
     }
 
     function _statusColor(used, optional) {
         if (used) {
             return qgcPal.colorGreen
         }
-        return optional ? qgcPal.colorOrange : qgcPal.windowShadeLight
+        return qgcPal.windowShadeLight
+    }
+
+    function _statusIcon(used) {
+        return used ? "/custom/img/check_used.svg" : "/custom/img/png/check_used.png"
     }
 
     QGCFlickable {
@@ -189,15 +194,26 @@ Rectangle {
                                         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                                         color: _root._statusColor(_cameraActive, false)
                                         radius: 4
-                                        width: cameraStatus.implicitWidth + ScreenTools.defaultFontPixelWidth 
-                                        height: cameraStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
-                                        QGCLabel {
-                                            id: cameraStatus
+                                        width: cameraStatusContent.implicitWidth + ScreenTools.defaultFontPixelWidth
+                                        height: cameraStatusContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                        Row {
+                                            id: cameraStatusContent
                                             anchors.centerIn: parent
-                                            text: _root._statusLabel(_cameraActive, false)
-                                            color: "#ffffff"
-                                            font.family: ScreenTools.demiboldFontFamily
-                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            spacing: ScreenTools.defaultFontPixelWidth * 0.45
+                                            Image {
+                                                y: 2
+                                                width: _root._statusIconSize
+                                                height: width
+                                                source: _root._statusIcon(_cameraActive)
+                                            }
+                                            QGCLabel {
+                                                id: cameraStatus
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: _root._statusLabel(_cameraActive, false)
+                                                color: "#ffffff"
+                                                font.family: ScreenTools.demiboldFontFamily
+                                                font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            }
                                         }
                                     }
                                 }
@@ -250,15 +266,26 @@ Rectangle {
                                         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                                         color: _root._statusColor(_videoRecording.rawValue, true)
                                         radius: 4
-                                        width: recordingStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
-                                        height: recordingStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
-                                        QGCLabel {
-                                            id: recordingStatus
+                                        width: recordingStatusContent.implicitWidth + ScreenTools.defaultFontPixelWidth
+                                        height: recordingStatusContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                        Row {
+                                            id: recordingStatusContent
                                             anchors.centerIn: parent
-                                            text: _root._statusLabel(_videoRecording.rawValue, true)
-                                            color: "#ffffff"
-                                            font.family: ScreenTools.demiboldFontFamily
-                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            spacing: ScreenTools.defaultFontPixelWidth * 0.45
+                                            Image {
+                                                y: 2
+                                                width: _root._statusIconSize
+                                                height: width
+                                                source: _root._statusIcon(_videoRecording.rawValue)
+                                            }
+                                            QGCLabel {
+                                                id: recordingStatus
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: _root._statusLabel(_videoRecording.rawValue, true)
+                                                color: "#ffffff"
+                                                font.family: ScreenTools.demiboldFontFamily
+                                                font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            }
                                         }
                                     }
                                 }
@@ -313,15 +340,26 @@ Rectangle {
                                         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                                         color: _root._statusColor(_gpsActive, false)
                                         radius: 4
-                                        width: gpsStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
-                                        height: gpsStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
-                                        QGCLabel {
-                                            id: gpsStatus
+                                        width: gpsStatusContent.implicitWidth + ScreenTools.defaultFontPixelWidth
+                                        height: gpsStatusContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                        Row {
+                                            id: gpsStatusContent
                                             anchors.centerIn: parent
-                                            text: _root._statusLabel(_gpsActive, false)
-                                            color: "#ffffff"
-                                            font.family: ScreenTools.demiboldFontFamily
-                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            spacing: ScreenTools.defaultFontPixelWidth * 0.45
+                                            Image {
+                                                y: 2
+                                                width: _root._statusIconSize
+                                                height: width
+                                                source: _root._statusIcon(_gpsActive)
+                                            }
+                                            QGCLabel {
+                                                id: gpsStatus
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: _root._statusLabel(_gpsActive, false)
+                                                color: "#ffffff"
+                                                font.family: ScreenTools.demiboldFontFamily
+                                                font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            }
                                         }
                                     }
                                 }
@@ -376,15 +414,26 @@ Rectangle {
                                         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                                         color: _root._statusColor(_telemetrySave.rawValue, false)
                                         radius: 4
-                                        width: telemetryStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
-                                        height: telemetryStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
-                                        QGCLabel {
-                                            id: telemetryStatus
+                                        width: telemetryStatusContent.implicitWidth + ScreenTools.defaultFontPixelWidth
+                                        height: telemetryStatusContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                        Row {
+                                            id: telemetryStatusContent
                                             anchors.centerIn: parent
-                                            text: _root._statusLabel(_telemetrySave.rawValue, false)
-                                            color: "#ffffff"
-                                            font.family: ScreenTools.demiboldFontFamily
-                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            spacing: ScreenTools.defaultFontPixelWidth * 0.45
+                                            Image {
+                                                y: 2
+                                                width: _root._statusIconSize
+                                                height: width
+                                                source: _root._statusIcon(_telemetrySave.rawValue)
+                                            }
+                                            QGCLabel {
+                                                id: telemetryStatus
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: _root._statusLabel(_telemetrySave.rawValue, false)
+                                                color: "#ffffff"
+                                                font.family: ScreenTools.demiboldFontFamily
+                                                font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            }
                                         }
                                     }
                                 }
@@ -439,15 +488,26 @@ Rectangle {
                                         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
                                         color: _root._statusColor(false, false)
                                         radius: 4
-                                        width: micStatus.implicitWidth + ScreenTools.defaultFontPixelWidth * 1
-                                        height: micStatus.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.1
-                                        QGCLabel {
-                                            id: micStatus
+                                        width: micStatusContent.implicitWidth + ScreenTools.defaultFontPixelWidth
+                                        height: micStatusContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                                        Row {
+                                            id: micStatusContent
                                             anchors.centerIn: parent
-                                            text: _root._statusLabel(false, false)
-                                            color: "#ffffff"
-                                            font.family: ScreenTools.demiboldFontFamily
-                                            font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            spacing: ScreenTools.defaultFontPixelWidth * 0.45
+                                            Image {
+                                                y: 2
+                                                width: _root._statusIconSize
+                                                height: width
+                                                source: _root._statusIcon(false)
+                                            }
+                                            QGCLabel {
+                                                id: micStatus
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: _root._statusLabel(false, false)
+                                                color: "#ffffff"
+                                                font.family: ScreenTools.demiboldFontFamily
+                                                font.pointSize: ScreenTools.mediumFontPointSize * ScreenTools.smallFontPointRatio
+                                            }
                                         }
                                     }
                                 }
@@ -637,6 +697,22 @@ Rectangle {
                                 QGCSwitch {
                                     checked: _videoRecording.rawValue
                                     onClicked: {
+                                            if (!checked) {
+                                                // 1. Stop GStreamer / software stream recording
+                                                QGroundControl.videoManager.stopRecording()
+                                                // 2. Stop MAVLink camera recording (stopVideo is safe: only stops if running)
+                                                var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+                                                if (vehicle) {
+                                                    var camMgr = vehicle.cameraManager
+                                                    if (camMgr && camMgr.cameras.count > 0) {
+                                                        var idx = camMgr.currentCamera
+                                                        var cam = (idx >= 0) ? camMgr.cameras.get(idx) : null
+                                                        if (cam) {
+                                                            cam.stopVideo()
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         _videoRecording.rawValue = checked
                                         CustomQmlInterface.logSecurityEvent("Privacy video recording " + (checked ? "enabled" : "disabled"))
                                     }

@@ -33,6 +33,9 @@ Item {
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+    property var    _customSettings:                            QGroundControl.corePlugin.settings
+    property Fact   _privacyVideoRecordingEnabled:              _customSettings.privacyVideoRecordingEnabled
+    property bool   _privacyVideoEnabled:                       _privacyVideoRecordingEnabled ? _privacyVideoRecordingEnabled.rawValue : true
 
     // The following properties relate to a simple camera
     property var    _flyViewSettings:                           QGroundControl.settingsManager.flyViewSettings
@@ -263,11 +266,11 @@ Item {
                     source: "/qmlimages/camera_video.svg"
                     fillMode: Image.PreserveAspectFit
                     sourceSize.height: height
-                    color: _modeIndicatorPhotoMode ? qgcPal.text : qgcPal.colorGreen
+                    color: !_privacyVideoEnabled ? qgcPal.colorGrey : (_modeIndicatorPhotoMode ? qgcPal.text : qgcPal.colorGreen)
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToVideoModeAllowed
+                    enabled: _switchToVideoModeAllowed && _privacyVideoEnabled
                     onClicked: setCameraMode(false)
                 }
             }
@@ -289,11 +292,11 @@ Item {
                     source: "/qmlimages/camera_photo.svg"
                     fillMode: Image.PreserveAspectFit
                     sourceSize.height: height
-                    color: _modeIndicatorPhotoMode ? qgcPal.colorGreen : qgcPal.text
+                    color: !_privacyVideoEnabled ? qgcPal.colorGrey : (_modeIndicatorPhotoMode ? qgcPal.colorGreen : qgcPal.text)
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToPhotoModeAllowed
+                    enabled: _switchToPhotoModeAllowed && _privacyVideoEnabled
                     onClicked: setCameraMode(true)
                 }
             }
@@ -307,7 +310,7 @@ Item {
             width: ScreenTools.defaultFontPixelWidth * 10
             height: width
             radius: width * 0.5
-            border.color: qgcPal.buttonText
+            border.color: _privacyVideoEnabled ? qgcPal.buttonText : qgcPal.colorGrey
             border.width: 3
 
             Rectangle {
@@ -315,12 +318,12 @@ Item {
                 width: parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
                 height: width
                 radius: _isShootingInCurrentMode ? 0 : width * 0.5
-                color: _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
+                color: (_canShootInCurrentMode && _privacyVideoEnabled) ? qgcPal.colorRed : qgcPal.colorGrey
             }
 
             MouseArea {
                 anchors.fill: parent
-                enabled: _canShootInCurrentMode
+                enabled: _canShootInCurrentMode && _privacyVideoEnabled
                 onClicked: toggleShooting()
             }
         }
