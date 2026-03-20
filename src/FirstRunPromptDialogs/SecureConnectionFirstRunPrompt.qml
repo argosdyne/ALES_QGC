@@ -20,6 +20,7 @@ FirstRunPrompt {
     id:         root
     title:      qsTr("Secure Setup")
     promptId:   QGroundControl.corePlugin.secureConnectionFirstRunPromptId
+    markAsShownOnClose: false
     buttons:    StandardButton.NoButton
     readonly property real _dialogWidth:      ScreenTools.defaultFontPixelWidth * 66
     readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
@@ -43,6 +44,7 @@ FirstRunPrompt {
     property Fact _wizardCompleted:  _customSettings.securityWizardCompleted
     property Fact _rememberChoice:   _customSettings.securityRememberChoice
     property Fact _mavlink2SigningKey: _appSettings.mavlink2SigningKey
+    property string _pendingSigningKey: _mavlink2SigningKey && _mavlink2SigningKey.rawValue ? _mavlink2SigningKey.rawValue.toString() : ""
     property bool _showSigningKey:   false
 
     Settings {
@@ -50,6 +52,16 @@ FirstRunPrompt {
         category: "Custom"
         property bool securityRememberChoice: false
         property bool securityWizardCompleted: false
+    }
+
+    Connections {
+        target: _mavlink2SigningKey
+        function onRawValueChanged(value) {
+            if (!signingKeyField.activeFocus) {
+                _pendingSigningKey = value ? value.toString() : ""
+                _refreshSigningKeyField()
+            }
+        }
     }
 
     function _comboIndexForBind(address) {
@@ -63,6 +75,12 @@ FirstRunPrompt {
     function _parsePort(text) {
         var value = parseInt(text, 10)
         return isNaN(value) ? -1 : value
+    }
+
+    function _refreshSigningKeyField() {
+        if (signingKeyField.text !== _pendingSigningKey) {
+            signingKeyField.text = _pendingSigningKey
+        }
     }
 
     function _applyVideoSource(uri) {
@@ -126,10 +144,10 @@ FirstRunPrompt {
         _rememberChoice.rawValue = rememberChoiceCheckbox.checked
         _wizardCompleted.rawValue = true
         secureSetupSettings.securityRememberChoice = rememberChoiceCheckbox.checked
-        secureSetupSettings.securityWizardCompleted = true
+        secureSetupSettings.securityWizardCompleted = rememberChoiceCheckbox.checked
 
         if (strictValidationCheckbox.checked) {
-            var signingKeyValue = signingKeyField.text.trim()
+            var signingKeyValue = _pendingSigningKey
             if (signingKeyValue.length > 0) {
                 _mavlink2SigningKey.rawValue = signingKeyValue
             }
@@ -313,7 +331,7 @@ FirstRunPrompt {
                         }
                         QGCCheckBox {
                             id: strictValidationCheckbox
-                            text: qsTr("Strict MAVLink validation (GEC-6)")
+                            text: qsTr("Strict MAVLink validation")
                             checked: _strictValidation.rawValue
                         }
                         Rectangle {
@@ -340,14 +358,20 @@ FirstRunPrompt {
                                     QGCTextField {
                                         id: signingKeyField
                                         Layout.fillWidth: true
-                                        text: _mavlink2SigningKey.rawValue ? _mavlink2SigningKey.rawValue.toString() : ""
+                                        text: _pendingSigningKey
                                         echoMode: _showSigningKey ? TextInput.Normal : TextInput.Password
                                         placeholderText: qsTr("Enter key or leave blank to keep current key")
+                                        onTextChanged: _pendingSigningKey = text
                                     }
                                     QGCButton {
                                         text: ""
                                         iconSource: _showSigningKey ? "/InstrumentValueIcons/view-show.svg" : "/InstrumentValueIcons/view-hide.svg"
-                                        onClicked: _showSigningKey = !_showSigningKey
+                                        onClicked: {
+                                            _showSigningKey = !_showSigningKey
+                                            _refreshSigningKeyField()
+                                            signingKeyField.forceActiveFocus()
+                                            signingKeyField.cursorPosition = signingKeyField.text.length
+                                        }
                                     }
                                 }
                             }

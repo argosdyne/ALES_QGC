@@ -603,14 +603,12 @@ void MAVLinkProtocol::_startLogging(void)
     if(appSettings->disableAllPersistence()->rawValue().toBool()) {
         return;
     }
-#ifdef __mobile__
-    //-- Mobile build don't write to /tmp unless told to do so
     if (!appSettings->telemetrySave()->rawValue().toBool()) {
         return;
     }
-#endif
-    //-- Log is always written to a temp file. If later the user decides they want
-    //   it, it's all there for them.
+    //-- If telemetry logging is disabled, don't create or write a temp telemetry log.
+    //-- When enabled, log to a temp file first and move it to the final save path when
+    //   the session ends.
     if (!_tempLogFile.isOpen()) {
         if (!_logSuspendReplay) {
             if (!_tempLogFile.open()) {
