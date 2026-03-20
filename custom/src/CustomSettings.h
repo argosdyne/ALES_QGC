@@ -24,4 +24,5 @@ public:
     DEFINE_SETTINGFACT(securityStrictMavlinkValidation)
     DEFINE_SETTINGFACT(securityAllowlistVehicleIds)
     DEFINE_SETTINGFACT(securityWizardCompleted)
+    DEFINE_SETTINGFACT(securityRememberChoice)
 };

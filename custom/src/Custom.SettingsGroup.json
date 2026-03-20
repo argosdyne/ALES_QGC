@@ -96,6 +96,12 @@
     "shortDesc":        "Secure setup wizard completion state",
     "type":             "bool",
     "default":          false
+},
+{
+    "name":             "securityRememberChoice",
+    "shortDesc":        "Remember secure setup selection",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }

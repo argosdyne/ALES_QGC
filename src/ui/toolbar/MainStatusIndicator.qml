@@ -28,6 +28,10 @@ RowLayout {
     property real   _margins:           ScreenTools.defaultFontPixelWidth
     property real   _spacing:           ScreenTools.defaultFontPixelWidth / 2
     property bool   _healthAndArmingChecksSupported: _activeVehicle ? _activeVehicle.healthAndArmingCheckReport.supported : false
+    property var    _customSettings:    QGroundControl.corePlugin.settings
+    property bool   _strictMavlinkValidation: _customSettings ? _customSettings.securityStrictMavlinkValidation.rawValue : false
+    property string _mavlinkSigningKey: QGroundControl.settingsManager.appSettings.mavlink2SigningKey.rawValue.toString()
+    property bool   _showInsecureBadge: _activeVehicle && (!_strictMavlinkValidation || _mavlinkSigningKey.length === 0)
 
     QGCLabel {
         id:             mainStatusLabel
@@ -120,6 +124,22 @@ RowLayout {
     Item {
         Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
         height:                 1
+    }
+
+    QGCLabel {
+        Layout.preferredHeight: _root.height
+        verticalAlignment:      Text.AlignVCenter
+        text:                   qsTr("Insecure")
+        color:                  qgcPal.colorOrange
+        font.family:            ScreenTools.demiboldFontFamily
+        font.pointSize:         ScreenTools.defaultFontPointSize
+        visible:                _showInsecureBadge
+    }
+
+    Item {
+        Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth
+        height:                 1
+        visible:                _showInsecureBadge
     }
 
     FlightModeMenuIndicator {

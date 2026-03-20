@@ -222,7 +222,15 @@ bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
 QList<int> CustomPlugin::firstRunPromptCustomIds(void)
 {
     QSettings settings;
+    const QString wizardKey = QStringLiteral("Custom/securityWizardCompleted");
+    const bool rememberChoice = settings.value(QStringLiteral("Custom/securityRememberChoice"), false).toBool();
     const bool wizardDone = settings.value(QStringLiteral("Custom/securityWizardCompleted"), false).toBool();
+
+    if (!rememberChoice) {
+        settings.setValue(wizardKey, false);
+        return QList<int>({ secureConnectionFirstRunPromptId });
+    }
+
     if (!wizardDone) {
         return QList<int>({ secureConnectionFirstRunPromptId });
     }

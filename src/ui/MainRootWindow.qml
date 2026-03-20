@@ -113,6 +113,10 @@ ApplicationWindow {
     }
 
     function _showSecureConnectionPromptFallback() {
+        if (firstRunPromptManager.rgPromptIds.indexOf(QGroundControl.corePlugin.secureConnectionFirstRunPromptId) < 0) {
+            return false
+        }
+
         if (firstRunPromptManager.securePromptShown) {
             console.log("Secure prompt already shown in first-run chain")
             return false
