@@ -20,6 +20,7 @@ DECLARE_SETTINGSFACT(CustomSettings, networkVideoUrl)
 DECLARE_SETTINGSFACT(CustomSettings, securityStrictMavlinkValidation)
 DECLARE_SETTINGSFACT(CustomSettings, securityAllowlistVehicleIds)
 DECLARE_SETTINGSFACT(CustomSettings, securityWizardCompleted)
+DECLARE_SETTINGSFACT(CustomSettings, securityRememberChoice)
 
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)
 {

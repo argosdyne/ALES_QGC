@@ -9,6 +9,7 @@
 
 import QtQuick          2.12
 import QtQuick.Layouts  1.12
+import Qt.labs.settings 1.0
 
 import QGroundControl           1.0
 import QGroundControl.Controls  1.0
@@ -20,8 +21,9 @@ FirstRunPrompt {
     title:      qsTr("Secure Setup")
     promptId:   QGroundControl.corePlugin.secureConnectionFirstRunPromptId
     buttons:    StandardButton.NoButton
-    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 23
-    readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 28
+    readonly property real _dialogWidth:      ScreenTools.defaultFontPixelWidth * 66
+    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
+    readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 24
     readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 7
     readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
@@ -39,8 +41,16 @@ FirstRunPrompt {
     property Fact _strictValidation: _customSettings.securityStrictMavlinkValidation
     property Fact _allowlistIds:     _customSettings.securityAllowlistVehicleIds
     property Fact _wizardCompleted:  _customSettings.securityWizardCompleted
+    property Fact _rememberChoice:   _customSettings.securityRememberChoice
     property Fact _mavlink2SigningKey: _appSettings.mavlink2SigningKey
     property bool _showSigningKey:   false
+
+    Settings {
+        id: secureSetupSettings
+        category: "Custom"
+        property bool securityRememberChoice: false
+        property bool securityWizardCompleted: false
+    }
 
     function _comboIndexForBind(address) {
         return address === "0.0.0.0" ? 1 : 0
@@ -113,7 +123,10 @@ FirstRunPrompt {
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
         _strictValidation.rawValue = strictValidationCheckbox.checked
         _allowlistIds.rawValue = allowlistIdsCheckbox.checked
+        _rememberChoice.rawValue = rememberChoiceCheckbox.checked
         _wizardCompleted.rawValue = true
+        secureSetupSettings.securityRememberChoice = rememberChoiceCheckbox.checked
+        secureSetupSettings.securityWizardCompleted = true
 
         if (strictValidationCheckbox.checked) {
             var signingKeyValue = signingKeyField.text.trim()
@@ -143,14 +156,14 @@ FirstRunPrompt {
     }
 
     ColumnLayout {
-        width:      ScreenTools.defaultFontPixelWidth * 56
+        width:      _dialogWidth
         spacing:    ScreenTools.defaultFontPixelHeight * 0.6
 
         QGCFlickable {
             Layout.fillWidth:       true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 22
+            Layout.preferredHeight: Math.min(formColumn.implicitHeight, ScreenTools.defaultFontPixelHeight * 26)
             clip:                   true
-            contentHeight:          formColumn.height
+            contentHeight:          formColumn.implicitHeight
             contentWidth:           formColumn.width
 
             ColumnLayout {
@@ -303,13 +316,6 @@ FirstRunPrompt {
                             text: qsTr("Strict MAVLink validation (GEC-6)")
                             checked: _strictValidation.rawValue
                         }
-                        QGCLabel {
-                            visible: strictValidationCheckbox.checked
-                            text: qsTr("Reject malformed or invalid MAVLink packets")
-                            color: qgcPal.colorGrey
-                            wrapMode: Text.WordWrap
-                            Layout.fillWidth: true
-                        }
                         Rectangle {
                             visible: strictValidationCheckbox.checked
                             Layout.fillWidth: true
@@ -359,6 +365,7 @@ FirstRunPrompt {
                     color:              qgcPal.colorBlue
                     Layout.fillWidth:   true
                 }
+
             }
         }
 
@@ -367,6 +374,11 @@ FirstRunPrompt {
             QGCButton {
                 text: qsTr("Continue offline")
                 onClicked: _saveConfiguration(false)
+            }
+            QGCCheckBox {
+                id: rememberChoiceCheckbox
+                text: qsTr("Remember my choice")
+                checked: _rememberChoice.rawValue
             }
             Item { Layout.fillWidth: true }
             QGCButton {
