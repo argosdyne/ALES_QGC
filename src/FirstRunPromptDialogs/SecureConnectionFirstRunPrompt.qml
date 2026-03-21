@@ -22,18 +22,16 @@ FirstRunPrompt {
     promptId:   QGroundControl.corePlugin.secureConnectionFirstRunPromptId
     markAsShownOnClose: false
     buttons:    StandardButton.NoButton
-    readonly property real _dialogWidth:      ScreenTools.defaultFontPixelWidth * 66
-    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
-    readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 24
+    // readonly property real _dialogWidth:      ScreenTools.defaultFontPixelWidth * 66
+    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 23
+    readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 28
+    // readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
+    // readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 24
     readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 7
     readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
-
-    property bool _udpChecked: true
-    property bool _tcpChecked: true
-    property bool _videoChecked: true
 
     property Fact _udpEnabled:       _customSettings.networkUdpListenerEnabled
     property Fact _tcpEnabled:       _customSettings.networkTcpServerEnabled
@@ -134,10 +132,9 @@ FirstRunPrompt {
             }
         }
 
-        _udpEnabled.rawValue = enableSelectedServices && _udpChecked
-        _tcpEnabled.rawValue = enableSelectedServices && _tcpChecked
-        _videoEnabled.rawValue = enableSelectedServices && _videoChecked
-        _videoSettings.streamEnabled.rawValue = enableSelectedServices && _videoChecked
+        _udpEnabled.rawValue = enableSelectedServices && udpCheckbox.checked
+        _tcpEnabled.rawValue = enableSelectedServices && tcpCheckbox.checked
+        _videoEnabled.rawValue = enableSelectedServices && videoCheckbox.checked
 
         _udpPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpPort.rawValue
         _tcpPort.rawValue = tcpPortValue > 0 ? tcpPortValue : _tcpPort.rawValue
@@ -145,7 +142,7 @@ FirstRunPrompt {
         _tcpBind.rawValue = _bindForComboIndex(tcpBindCombo.currentIndex)
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
         _strictValidation.rawValue = strictValidationCheckbox.checked
-        _allowlistIds.rawValue = allowlistIdsCheckbox.checked
+        // _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _rememberChoice.rawValue = rememberChoiceCheckbox.checked
         _wizardCompleted.rawValue = true
         secureSetupSettings.securityRememberChoice = rememberChoiceCheckbox.checked
@@ -166,6 +163,8 @@ FirstRunPrompt {
 
         if (_videoEnabled.rawValue) {
             _applyVideoSource(_videoUrl.rawValue.toString())
+        } else {
+            _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
         }
 
         if (!_udpEnabled.rawValue && !_tcpEnabled.rawValue && !_videoEnabled.rawValue) {
@@ -177,14 +176,14 @@ FirstRunPrompt {
     }
 
     ColumnLayout {
-        width:      _dialogWidth
+        width:      ScreenTools.defaultFontPixelWidth * 56
         spacing:    ScreenTools.defaultFontPixelHeight * 0.6
 
         QGCFlickable {
             Layout.fillWidth:       true
-            Layout.preferredHeight: Math.min(formColumn.implicitHeight, ScreenTools.defaultFontPixelHeight * 26)
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 20
             clip:                   true
-            contentHeight:          formColumn.implicitHeight
+            contentHeight:          formColumn.height
             contentWidth:           formColumn.width
 
             ColumnLayout {
@@ -197,7 +196,6 @@ FirstRunPrompt {
                     font.family:        ScreenTools.demiboldFontFamily
                     font.pointSize:     ScreenTools.largeFontPointSize
                     Layout.fillWidth:   true
-                    wrapMode:           Text.WordWrap
                 }
 
                 QGCLabel {
@@ -225,8 +223,7 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: udpCheckbox
                                 text: qsTr("MAVLink UDP Listener")
-                                checked: _udpChecked
-                                onClicked: _udpChecked = checked
+                                checked: _udpEnabled.rawValue
                                 Layout.preferredWidth: _labelColumnWidth
                             }
                             QGCLabel { text: qsTr("Port:") }
@@ -265,8 +262,7 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: tcpCheckbox
                                 text: qsTr("MAVLink TCP Connection")
-                                checked: _tcpChecked
-                                onClicked: _tcpChecked = checked
+                                checked: _tcpEnabled.rawValue
                                 Layout.preferredWidth: _labelColumnWidth
                             }
                             QGCLabel { text: qsTr("Port:") }
@@ -305,8 +301,7 @@ FirstRunPrompt {
                             QGCCheckBox {
                                 id: videoCheckbox
                                 text: qsTr("Video Streaming (GStreamer)")
-                                checked: _videoChecked
-                                onClicked: _videoChecked = checked
+                                checked: _videoEnabled.rawValue
                                 Layout.preferredWidth: _videoLabelColumnWidth
                             }
                             QGCLabel { text: qsTr("URI:") }
@@ -340,12 +335,10 @@ FirstRunPrompt {
                             text: qsTr("Strict MAVLink validation")
                             checked: _strictValidation.rawValue
                         }
-                        Rectangle {
+                        Item {
                             visible: strictValidationCheckbox.checked
                             Layout.fillWidth: true
-                            color: qgcPal.windowShadeDark
-                            radius: 3
-                            height: signingColumn.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.8
+                            height: strictValidationCheckbox.checked ? signingColumn.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.8 : 0
 
                             ColumnLayout {
                                 id: signingColumn
@@ -363,7 +356,8 @@ FirstRunPrompt {
 
                                     QGCTextField {
                                         id: signingKeyField
-                                        Layout.fillWidth: true
+                                        // Layout.fillWidth: true
+                                        width: ScreenTools.defaultFontPixelWidth * 100
                                         text: _pendingSigningKey
                                         echoMode: _showSigningKey ? TextInput.Normal : TextInput.Password
                                         placeholderText: qsTr("Enter key or leave blank to keep current key")
@@ -382,20 +376,17 @@ FirstRunPrompt {
                                 }
                             }
                         }
-                        QGCCheckBox {
-                            id: allowlistIdsCheckbox
-                            text: qsTr("Allowlist Vehicle IDs (SYSID/COMPID)")
-                            checked: _allowlistIds.rawValue
-                        }
+                        
                     }
                 }
 
-                QGCLabel {
-                    text:               qsTr("Learn more: Network services & ports")
-                    color:              qgcPal.colorBlue
-                    Layout.fillWidth:   true
-                }
             }
+        }
+
+        QGCCheckBox {
+            id: rememberChoiceCheckbox
+            text: qsTr("Remember my choice")
+            checked: _rememberChoice.rawValue
         }
 
         RowLayout {
@@ -404,11 +395,7 @@ FirstRunPrompt {
                 text: qsTr("Continue offline")
                 onClicked: _saveConfiguration(false)
             }
-            QGCCheckBox {
-                id: rememberChoiceCheckbox
-                text: qsTr("Remember my choice")
-                checked: _rememberChoice.rawValue
-            }
+            
             Item { Layout.fillWidth: true }
             QGCButton {
                 text: qsTr("Start (Enable Selected Services)")

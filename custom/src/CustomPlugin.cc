@@ -115,15 +115,6 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     _settings = new CustomSettings(this);
     _codevRTCMManager->setToolbox(toolbox);
 
-    // Secure-by-default: reset network services to OFF on each launch and force the prompt flow.
-    _settings->networkUdpListenerEnabled()->setRawValue(false);
-    _settings->networkTcpServerEnabled()->setRawValue(false);
-    _settings->networkVideoStreamingEnabled()->setRawValue(false);
-    _settings->securityWizardCompleted()->setRawValue(false);
-
-    auto videoSettings = toolbox->settingsManager()->videoSettings();
-    videoSettings->streamEnabled()->setRawValue(false);
-
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
 

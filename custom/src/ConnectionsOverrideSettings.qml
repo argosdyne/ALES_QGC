@@ -124,14 +124,13 @@ Rectangle {
                     anchors.margins:        _margins
 
                     QGCLabel {
-                        text: qsTr("Settings > Connections")
+                        text: qsTr("Connections")
                         font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.largeFontPointSize
+                        font.pointSize: ScreenTools.mediumFontPointSize
                     }
 
                     QGCLabel {
                         text: qsTr("NETWORK SERVICES (MANUAL OVERRIDE)")
-                        color: qgcPal.colorBlue
                         font.family: ScreenTools.demiboldFontFamily
                     }
 

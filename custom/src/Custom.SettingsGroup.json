@@ -29,7 +29,7 @@
     "name":             "privacyVideoRecordingEnabled",
     "shortDesc":        "Enable manual video recording",
     "type":             "bool",
-    "default":          false
+    "default":          true
 },
 {
     "name":             "networkUdpListenerEnabled",

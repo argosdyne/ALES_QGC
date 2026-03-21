@@ -179,7 +179,7 @@ Rectangle {
                                             source: "/custom/img/png/camera.png"
                                         }
                                         QGCLabel {
-                                            text: qsTr("Camera")
+                                            text: qsTr("Video Streaming")
                                             anchors.verticalCenter: cameraIcon.verticalCenter
                                         }
                                     }
