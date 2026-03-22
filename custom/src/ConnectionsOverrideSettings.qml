@@ -38,6 +38,7 @@ Rectangle {
 
     function _applyVideoState(enabled) {
         _videoEnabled.rawValue = enabled
+        _videoSettings.streamEnabled.rawValue = enabled
         CustomQmlInterface.logSecurityEvent("Video streaming " + (enabled ? "enabled" : "disabled") + " from Connections settings")
         if (enabled) {
             var videoUri = _videoUrl.rawValue.toString().trim()
@@ -61,8 +62,6 @@ Rectangle {
             if (portMatch && portMatch.length > 1) {
                 _videoSettings.udpPort.rawValue = parseInt(portMatch[1], 10)
             }
-        } else {
-            _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
         }
     }
 
@@ -83,6 +82,17 @@ Rectangle {
             QGroundControl.linkManager.refreshNetworkLinks()
         } else {
             QGroundControl.linkManager.disconnectLinksByType(LinkConfiguration.TypeTcp)
+        }
+    }
+
+    function _openNetworkServicesPage() {
+        var item = _root
+        while (item) {
+            if (item.hasOwnProperty("source")) {
+                item.source = "qrc:/custom/NetworkServicesPortsSettings.qml"
+                return
+            }
+            item = item.parent
         }
     }
 
@@ -114,14 +124,13 @@ Rectangle {
                     anchors.margins:        _margins
 
                     QGCLabel {
-                        text: qsTr("Settings > Connections")
+                        text: qsTr("Connections")
                         font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.largeFontPointSize
+                        font.pointSize: ScreenTools.mediumFontPointSize
                     }
 
                     QGCLabel {
                         text: qsTr("NETWORK SERVICES (MANUAL OVERRIDE)")
-                        color: qgcPal.colorBlue
                         font.family: ScreenTools.demiboldFontFamily
                     }
 
@@ -201,8 +210,15 @@ Rectangle {
                     }
 
                     QGCLabel {
+                        id: networkServicesDocLink
                         text: qsTr("Open Network Services & Ports Documentation")
                         color: qgcPal.colorBlue
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: _root._openNetworkServicesPage()
+                        }
                     }
                 }
             }

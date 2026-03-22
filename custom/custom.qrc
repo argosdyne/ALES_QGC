@@ -45,6 +45,7 @@
         <file alias="void.png">res/Images/void.png</file>
         <file alias="checked.svg">res/Images/checked.svg</file>
         <file alias="yes.svg">res/Images/yes.svg</file>
+        <file alias="check_used.svg">res/Images/check_used.svg</file>
         <file alias="CustomAppIconOutdoor.png">res/Images/argoBrandLogoBlack.png</file>
         <file alias="png/aircraftBindTip.png">res/Images/aircraftBindTip.png</file>
         <file alias="png/error.png">res/Images/error.png</file>
@@ -52,6 +53,14 @@
         <file alias="png/success.png">res/Images/success.png</file>
         <file alias="png/warning.png">res/Images/warning.png</file>
         <file alias="png/session_lock.png">res/Images/session_lock.png</file>
+        <file alias="png/Audio.png">res/Images/Audio.png</file>
+        <file alias="png/camera.png">res/Images/camera.png</file>
+        <file alias="png/Location.png">res/Images/Location.png</file>
+        <file alias="png/Microphone.png">res/Images/Microphone.png</file>
+        <file alias="png/TelemetryGPS.png">res/Images/TelemetryGPS.png</file>
+        <file alias="png/TelemetryLog.png">res/Images/TelemetryLog.png</file>
+        <file alias="png/video.png">res/Images/video.png</file>
+        <file alias="png/check_used.png">res/Images/check_used.png</file>
         <file>res/Images/redWarning.svg</file>
     </qresource>
     <qresource prefix="/qmlimages">

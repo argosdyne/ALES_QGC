@@ -26,6 +26,24 @@ Item {
 
     property bool loaded: false
 
+    function clearConsoleLog() {
+        debugMessageModel.clearMessages()
+    }
+
+    function deleteAllSavedLogFiles() {
+        var folderPath = writeDialog.folder
+        var fileNames = fileController.getFiles(folderPath, ["*.txt", "*.log"])
+
+        for (var i = 0; i < fileNames.length; i++) {
+            var fullPath = fileController.fullyQualifiedFilename(folderPath, fileNames[i])
+            fileController.deleteFile(fullPath)
+        }
+    }
+
+    QGCFileDialogController {
+        id: fileController
+    }
+
     Item {
         id:             panel
         anchors.fill:   parent
@@ -103,13 +121,51 @@ Item {
                 id:              writeButton
                 anchors.bottom:  parent.bottom
                 anchors.left:    parent.left
-                onClicked:       writeDialog.openForSave()
+                leftPadding:        0
+                rightPadding:       0
+                onClicked: {
+                    if (!QGroundControl.settingsManager.appSettings.telemetrySave.rawValue) {
+                        mainWindow.showMessageDialog(qsTr("Telemetry Logs Disabled"),
+                                                     qsTr("Telemetry logs are not saved, Please enable it in Privacy Settings."))
+                        return
+                    }
+                    writeDialog.openForSave()
+                }
                 text:            qsTr("Save App Log")
+            }
+
+            QGCButton {
+                id:              clearButton
+                anchors.bottom:  parent.bottom
+                anchors.left:    writeButton.right
+                leftPadding:        0
+                rightPadding:       0
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                onClicked:       _root.clearConsoleLog()
+                text:            qsTr("Clear Log")
+            }
+
+            QGCButton {
+                id:              deleteAllSavedButton
+                anchors.bottom:  parent.bottom
+                anchors.left:    clearButton.right
+                leftPadding:        0
+                rightPadding:       0
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth
+                onClicked: {
+                    mainWindow.showMessageDialog(qsTr("Delete All Saved Log Files"),
+                                                 qsTr("All saved .txt/.log files in the log folder will be permanently deleted. Continue?"),
+                                                 StandardButton.Yes | StandardButton.No,
+                                                 function() { _root.deleteAllSavedLogFiles() })
+                }
+                text:            qsTr("Delete Log")
             }
 
             QGCLabel {
                 id:                     gstLabel
-                anchors.left:           writeButton.right
+                anchors.left:           deleteAllSavedButton.right
+                leftPadding:        0
+                rightPadding:       0
                 anchors.leftMargin:     ScreenTools.defaultFontPixelWidth
                 anchors.verticalCenter: gstCombo.verticalCenter
                 text:                   qsTr("GStreamer Debug Level")
@@ -129,6 +185,8 @@ Item {
             QGCButton {
                 id:                     followTail
                 anchors.right:          filterButton.left
+                leftPadding:        0
+                rightPadding:       0
                 anchors.rightMargin:    ScreenTools.defaultFontPixelWidth
                 anchors.bottom:         parent.bottom
                 text:                   qsTr("Show Latest")
@@ -146,6 +204,8 @@ Item {
                 id:             filterButton
                 anchors.bottom: parent.bottom
                 anchors.right:  parent.right
+                leftPadding:        0
+                rightPadding:       0
                 text:           qsTr("Set Logging")
                 onClicked:      filtersDialogComponent.createObject(mainWindow).open()
             }

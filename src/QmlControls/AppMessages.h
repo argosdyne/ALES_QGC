@@ -25,6 +25,7 @@ class AppLogModel : public QStringListModel
     Q_OBJECT
 public:
     Q_INVOKABLE void writeMessages(const QString dest_file);
+    Q_INVOKABLE void clearMessages();
     static void log(const QString message);
 
 signals:

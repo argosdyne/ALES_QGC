@@ -79,7 +79,7 @@ Rectangle {
                     QGCLabel {
                         text: qsTr("Network Services & Ports")
                         font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.largeFontPointSize
+                        font.pointSize: ScreenTools.mediumFontPointSize
                     }
 
                     Rectangle {
@@ -108,7 +108,6 @@ Rectangle {
 
                     QGCLabel {
                         text: qsTr("SERVICE CATALOG")
-                        color: qgcPal.colorBlue
                         font.family: ScreenTools.demiboldFontFamily
                     }
 
