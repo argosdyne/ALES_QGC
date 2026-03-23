@@ -4737,8 +4737,10 @@ void Vehicle::_checkGeoFenceAlertTierLocal(void)
         return;
     }
 
-    const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
-    const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+    const bool allowInclusionExclusionChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowHomeCircleChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
     const double marginMeters = (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_MARGIN"))
         ? qMax(0.0, _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_MARGIN")->rawValue().toDouble())
         : 0.0;
@@ -4755,7 +4757,7 @@ void Vehicle::_checkGeoFenceAlertTierLocal(void)
         }
     };
 
-    if (allowPolygonChecks) {
+    if (allowInclusionExclusionChecks) {
         const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
         for (const QGCFencePolygon& polygon : polygons) {
             if (!polygon.isValid()) {
@@ -4782,7 +4784,7 @@ void Vehicle::_checkGeoFenceAlertTierLocal(void)
         }
     }
 
-    if (allowCircleChecks) {
+    if (allowInclusionExclusionChecks) {
         const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
         for (const QGCFenceCircle& circle : circles) {
             const QGeoCoordinate center = circle.center();
@@ -4816,7 +4818,7 @@ void Vehicle::_checkGeoFenceAlertTierLocal(void)
         }
     }
 
-    if (allowCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+    if (allowHomeCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
         const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
         if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
             hasGeometry = true;
@@ -5063,10 +5065,12 @@ bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
         return false;
     }
 
-    const bool allowPolygonChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
-    const bool allowCircleChecks = !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+    const bool allowInclusionExclusionChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowHomeCircleChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
 
-    if (allowPolygonChecks) {
+    if (allowInclusionExclusionChecks) {
         const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
         for (const QGCFencePolygon& polygon : polygons) {
             if (!polygon.isValid()) {
@@ -5080,7 +5084,7 @@ bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
         }
     }
 
-    if (allowCircleChecks) {
+    if (allowInclusionExclusionChecks) {
         const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
         for (const QGCFenceCircle& circle : circles) {
             const QGeoCoordinate center = circle.center();
@@ -5100,7 +5104,7 @@ bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
         }
     }
 
-    if (allowCircleChecks) {
+    if (allowHomeCircleChecks) {
         if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
             const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
             if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
