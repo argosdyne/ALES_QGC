@@ -224,6 +224,7 @@
         <file alias="QGroundControl/FactControls/FactCheckBox.qml">src/FactSystem/FactControls/FactCheckBox.qml</file>
         <file alias="QGroundControl/FactControls/FactComboBox.qml">src/FactSystem/FactControls/FactComboBox.qml</file>
         <file alias="QGroundControl/FactControls/FactLabel.qml">src/FactSystem/FactControls/FactLabel.qml</file>
+        <file alias="QGroundControl/FactControls/FactSpinBox.qml">src/FactSystem/FactControls/FactSpinBox.qml</file>
         <file alias="QGroundControl/FactControls/FactTextField.qml">src/FactSystem/FactControls/FactTextField.qml</file>
         <file alias="QGroundControl/FactControls/FactTextFieldGrid.qml">src/FactSystem/FactControls/FactTextFieldGrid.qml</file>
         <file alias="QGroundControl/FactControls/FactTextFieldRow.qml">src/FactSystem/FactControls/FactTextFieldRow.qml</file>

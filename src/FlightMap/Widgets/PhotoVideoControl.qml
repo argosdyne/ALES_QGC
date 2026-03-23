@@ -13,6 +13,7 @@ import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.4
 import QtQuick.Dialogs          1.2
 import QtGraphicalEffects       1.0
+import QtQuick.Window           2.11
 
 import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
@@ -22,6 +23,11 @@ import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
+import QGroundControl.FlightDisplay     1.0
+import QGroundControl.FlightMap         1.0
+
+
+
 Item {    
     implicitHeight: content.implicitHeight    
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -93,6 +99,8 @@ Item {
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
+    property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
         console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
@@ -151,6 +159,21 @@ Item {
         }
     }
 
+    function getZoomValue() {
+        // 기본값
+        if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
+            return "1";
+        }
+
+        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
+        var digital = (_dZoom ? _dZoom.value : 1.0);
+
+        var effective = optical * digital;
+        
+        return effective.toFixed(0);
+
+    }
+
     Timer {
         id:             simplePhotoCaptureTimer
         interval:       500
@@ -192,50 +215,28 @@ Item {
                     onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
                 }
             }
-            //Camera Settings + YS
-            ColumnLayout {
-                spacing: ScreenTools.defaultFontPixelHeight * 0.5
+            //Camera Settings
+            Rectangle {
+                height: ScreenTools.defaultFontPixelHeight * 2
+                width: height
+                radius: width
+                color: "gray"
 
-                Rectangle {
-                    height: ScreenTools.defaultFontPixelHeight * 2
+                QGCColoredImage {
+                    anchors.centerIn: parent
+                    source: "/res/cameraSetting.svg"
+                    mipmap: true
+                    height: ScreenTools.defaultFontPixelHeight
                     width: height
-                    radius: width
-                    color: "gray"
-
-                    QGCColoredImage {
-                        anchors.centerIn: parent
-                        source: "/res/cameraSetting.svg"
-                        mipmap: true
-                        height: ScreenTools.defaultFontPixelHeight
-                        width: height
-                        sourceSize.height: height
-                        color: qgcPal.text
-                        fillMode: Image.PreserveAspectFit
-                        visible: !_onlySimpleCameraAvailable
-                    }
-                    QGCMouseArea {
-                        fillItem: parent
-                        onClicked: settingsDialogComponent.createObject(mainWindow).open()
-                    }
+                    sourceSize.height: height
+                    color: qgcPal.text
+                    fillMode: Image.PreserveAspectFit
+                    visible: !_onlySimpleCameraAvailable
                 }
-
-                // Rectangle {
-                //     height: ScreenTools.defaultFontPixelHeight * 2
-                //     width: height
-                //     radius: width
-                //     color: "gray"
-
-                //     QGCLabel {
-                //         anchors.centerIn: parent
-                //         text: "YS"
-                //         font.bold: true
-                //         color: qgcPal.text
-                //     }
-                //     QGCMouseArea {
-                //         fillItem: parent
-                //         onClicked: ysDialogComponent.createObject(mainWindow).open()
-                //     }
-                // }
+                QGCMouseArea {
+                    fillItem: parent
+                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
+                }
             }
         }
         // ───────────────────────────────
@@ -385,9 +386,8 @@ Item {
 
                 Label {
                     anchors.centerIn: parent
-                    text: "x" + (_hasZoom && _mavlinkCamera
-                                 ? _mavlinkCamera.zoomLevel.toFixed(0)
-                                 : 1)
+                    text: "x" + getZoomValue()
+
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -672,29 +672,35 @@ Item {
                                 readOnly:           fact.readOnly
                                 selectByMouse:      !fact.readOnly
                                 activeFocusOnPress: !fact.readOnly
-                            }                        
-                            QGCSlider {
-                                Layout.fillWidth:           true
-                                maximumValue:               parent._fact.max
-                                minimumValue:               parent._fact.min
-                                stepSize:                   parent._fact.increment
-                                displayValue:               true
-                                visible:                    parent._isSlider
-                                updateValueWhileDragging:   false
-                                property bool initialized:  false
-
-                                onValueChanged: {
-                                    if (!initialized) {
-                                        return
-                                    }
-                                    parent._fact.value = value
-                                }
-
-                                Component.onCompleted: {
-                                    value = parent._fact.value
-                                    initialized = true
-                                }
                             }
+                            FactSpinBox {
+                                Layout.fillWidth:   true
+                                fact:               parent._fact
+                                visible:            parent._isSlider
+                            }
+
+                            // QGCSlider {
+                            //     Layout.fillWidth:           true
+                            //     maximumValue:               parent._fact.max
+                            //     minimumValue:               parent._fact.min
+                            //     stepSize:                   parent._fact.increment
+                            //     displayValue:               true
+                            //     visible:                    parent._isSlider
+                            //     updateValueWhileDragging:   false
+                            //     property bool initialized:  false
+
+                            //     onValueChanged: {
+                            //         if (!initialized) {
+                            //             return
+                            //         }
+                            //         parent._fact.value = value
+                            //     }
+
+                            //     Component.onCompleted: {
+                            //         value = parent._fact.value
+                            //         initialized = true
+                            //     }
+                            // }
                             QGCSwitch {
                                 checked:        parent._fact ? parent._fact.value : false
                                 visible:        parent._isBool
@@ -778,22 +784,6 @@ Item {
                         }
                     }    
                   }
-            }
-        }
-    }
-
-    Component {
-        id: ysDialogComponent
-
-        QGCPopupDialog {
-            id:         ysDialog
-            title:      qsTr("YS")
-            buttons:    StandardButton.Close
-
-            Rectangle {
-                width:  ScreenTools.defaultFontPixelWidth * 40
-                height: ScreenTools.defaultFontPixelHeight * 20
-                color:  "white"
             }
         }
     }
