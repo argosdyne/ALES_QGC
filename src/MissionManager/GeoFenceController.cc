@@ -659,6 +659,57 @@ double GeoFenceController::paramCircularFence(void)
     return 0;
 }
 
+bool GeoFenceController::paramCircularFenceActive(void) const
+{
+    if (!_managerVehicle) {
+        return false;
+    }
+
+    if (_managerVehicle->isOfflineEditingVehicle()) {
+        Fact* radiusFact = const_cast<GeoFenceController*>(this)->cageRadius();
+        return radiusFact && (radiusFact->rawValue().toDouble() > 0.0);
+    }
+
+    if (_managerVehicle->px4Firmware()) {
+        if (_px4ParamCircularFenceFact) {
+            return _px4ParamCircularFenceFact->rawValue().toDouble() > 0.0;
+        }
+
+        if (!_managerVehicle->parameterManager() ||
+            !_managerVehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, _px4ParamCircularFence)) {
+            return false;
+        }
+
+        return _managerVehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, _px4ParamCircularFence)->rawValue().toDouble() > 0.0;
+    }
+
+    if (_managerVehicle->apmFirmware()) {
+        if (_apmParamCircularFenceEnabledFact && _apmParamCircularFenceTypeFact && _apmParamCircularFenceRadiusFact) {
+            const bool enabled = _apmParamCircularFenceEnabledFact->rawValue().toInt() != 0;
+            const bool circleTypeEnabled = (_apmParamCircularFenceTypeFact->rawValue().toUInt() & (1 << 1)) != 0;
+            const bool hasRadius = _apmParamCircularFenceRadiusFact->rawValue().toDouble() > 0.0;
+            return enabled && circleTypeEnabled && hasRadius;
+        }
+
+        if (!_managerVehicle->parameterManager() ||
+            !_managerVehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, _apmParamCircularFenceRadius) ||
+            !_managerVehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, _apmParamCircularFenceEnabled) ||
+            !_managerVehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, _apmParamCircularFenceType)) {
+            return false;
+        }
+
+        const bool enabled =
+            _managerVehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, _apmParamCircularFenceEnabled)->rawValue().toInt() != 0;
+        const bool circleTypeEnabled =
+            (_managerVehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, _apmParamCircularFenceType)->rawValue().toUInt() & (1 << 1)) != 0;
+        const bool hasRadius =
+            _managerVehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, _apmParamCircularFenceRadius)->rawValue().toDouble() > 0.0;
+        return enabled && circleTypeEnabled && hasRadius;
+    }
+
+    return false;
+}
+
 Fact* GeoFenceController::cageRadius(void)
 {
     if (!_managerVehicle) {

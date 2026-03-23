@@ -159,6 +159,14 @@ public:
     };
     Q_ENUM(CheckList)
 
+    enum GeoFenceAlertTier {
+        GeoFenceAlertTierNone = 0,
+        GeoFenceAlertTierMargin,
+        GeoFenceAlertTierBreach,
+        GeoFenceAlertTierContingency,
+    };
+    Q_ENUM(GeoFenceAlertTier)
+
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
@@ -179,6 +187,7 @@ public:
     Q_PROPERTY(bool                 messageTypeError            READ messageTypeError                                               NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 geoFenceMarginWarning       READ geoFenceMarginWarning                                          NOTIFY geoFenceMarginWarningChanged)
     Q_PROPERTY(bool                 geoFenceBreached            READ geoFenceBreached                                               NOTIFY geoFenceBreachedChanged)
+    Q_PROPERTY(int                  geoFenceAlertTier           READ geoFenceAlertTier                                              NOTIFY geoFenceAlertTierChanged)
     Q_PROPERTY(bool                 geoFenceLoaded              READ geoFenceLoaded                                                 NOTIFY geoFenceLoadedChanged)
     Q_PROPERTY(bool                 geoFenceActive              READ geoFenceActive                                                 NOTIFY geoFenceActiveChanged)
     Q_PROPERTY(bool                 geoFenceParamsMissing       READ geoFenceParamsMissing                                          NOTIFY geoFenceParamsMissingChanged)
@@ -613,6 +622,7 @@ public:
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
     bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
     bool            geoFenceBreached            () const { return _geoFenceBreached; }
+    int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
     bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
     bool            geoFenceActive              () const { return _geoFenceActive; }
     bool            geoFenceParamsMissing       () const { return _geoFenceParamsMissing; }
@@ -993,6 +1003,7 @@ signals:
     void messageTypeChanged             ();
     void geoFenceMarginWarningChanged  ();
     void geoFenceBreachedChanged       (bool breached);
+    void geoFenceAlertTierChanged      (int tier);
     void geoFenceLoadedChanged         (bool loaded);
     void geoFenceActiveChanged         (bool active);
     void geoFenceParamsMissingChanged  (bool missing);
@@ -1140,15 +1151,18 @@ private:
     void _handleGimbalOrientation       (const mavlink_message_t& message);
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
+    void _checkGeoFenceAlertTierLocal   (void);
     void _checkGeoFenceBreachLocal      (void);
     void _checkGeoFenceMargin           (void);
     void _setGeoFenceMarginWarning      (bool warningActive);
     void _setGeoFenceBreached           (bool breached);
+    void _setGeoFenceAlertTier          (GeoFenceAlertTier tier, const QString& reason = QString());
     void _updateGeoFenceActiveState     (void);
     void _updateGeoFenceParamsMissing   (void);
     void _updateParachuteState          (void);
     void _updateLinkQuality             (void);
     void _logGeoFenceEvent              (const QString& reason, const QString& details = QString());
+    double _geoFenceContingencyWidthMeters(void) const;
     void _handleEvent(uint8_t comp_id, std::unique_ptr<events::parser::ParsedEvent> event);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1230,6 +1244,10 @@ private:
     bool            _globalPositionIntMessageAvailable      = false;
     bool            _altitudeMessageAvailable               = false;
     bool            _geoFenceBreached                       = false;
+    GeoFenceAlertTier _geoFenceAlertTier                    = GeoFenceAlertTierNone;
+    bool            _fenceStatusReceived                    = false;
+    bool            _fenceStatusBreached                    = false;
+    uint16_t        _lastFenceBreachCount                   = 0;
     qint64          _lastGeoFenceMarginWarningMSecs         = 0;
     qint64          _lastGeoFenceBreachMessageMSecs         = 0;
     bool            _geoFenceMarginWarning                  = false;

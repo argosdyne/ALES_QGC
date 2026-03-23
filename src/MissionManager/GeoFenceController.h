@@ -37,6 +37,7 @@ public:
 
     // Radius of the "paramCircularFence" which is called the "Geofence Failsafe" in PX4 and the "Circular Geofence" on ArduPilot
     Q_PROPERTY(double               paramCircularFence      READ paramCircularFence                                 NOTIFY paramCircularFenceChanged)
+    Q_PROPERTY(bool                 paramCircularFenceActive READ paramCircularFenceActive                          NOTIFY paramCircularFenceChanged)
     Q_PROPERTY(bool                 cageSupported           READ cageSupported                                      NOTIFY cageSupportChanged)
     Q_PROPERTY(Fact*                cageRadius              READ cageRadius                                        NOTIFY cageParamsChanged)
     Q_PROPERTY(Fact*                cageMaxAltitude         READ cageMaxAltitude                                   NOTIFY cageParamsChanged)
@@ -77,6 +78,7 @@ public:
     Q_INVOKABLE QString geoFenceSelfTestReport(void) const;
 
     double  paramCircularFence  (void);
+    bool    paramCircularFenceActive(void) const;
     Fact*   breachReturnAltitude(void) { return &_breachReturnAltitudeFact; }
 
     // Overrides from PlanElementController

@@ -1060,6 +1060,7 @@ Item {
         Item {
             property var mapRef: map
             property real _radius: myGeoFenceController.paramCircularFence
+            property bool _active: myGeoFenceController.paramCircularFenceActive
             property real _margin: _root.fenceMarginMeters
             property real _cvWidth: _root.contingencyWidthMeters
 
@@ -1071,7 +1072,7 @@ Item {
                 border.width:   _borderWidthInclusion
                 center:         homePosition
                 radius:         _radius
-                visible:        showOperationalLayer && homePosition.isValid && _radius > 0
+                visible:        _active && showOperationalLayer && homePosition.isValid && _radius > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
 
@@ -1083,7 +1084,7 @@ Item {
                 center:         homePosition
                 radius:         Math.max(0, _radius - _margin)
                 opacity:        _root.opacity * fenceOpacity
-                visible:        showBufferLayer && homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
+                visible:        _active && showBufferLayer && homePosition.isValid && _radius > 0 && _margin > 0 && radius > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
 
@@ -1095,7 +1096,7 @@ Item {
                 center:         homePosition
                 radius:         _radius + _cvWidth
                 opacity:        _root.opacity * fenceOpacity
-                visible:        showContingencyLayer && homePosition.isValid && _radius > 0 && _cvWidth > 0
+                visible:        _active && showContingencyLayer && homePosition.isValid && _radius > 0 && _cvWidth > 0
                 Component.onCompleted: { if (mapRef && mapRef.addMapItem) mapRef.addMapItem(this) }
             }
         }
