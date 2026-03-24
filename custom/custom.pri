@@ -79,7 +79,7 @@ SOURCES += \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
-    $$PWD/src/RTCM/SerialPortRTCMSource.cpp \    
+    $$PWD/src/RTCM/SerialPortRTCMSource.cpp \
     $$PWD/src/SiYi/SiYiCamera.cc \
     $$PWD/src/SiYi/SiYiCrcApi.cc \
     $$PWD/src/SiYi/SiYiManager.cc \
@@ -91,14 +91,14 @@ SOURCES += \
     $$PWD/src/ARLink/ARManager.cpp \
     $$PWD/src/CustomQmlInterface.cc \
     $$PWD/src/AVIATOR/AVIATORInterface.cpp \
-    $$PWD/src/MissionManager/FlightZoneManager.cpp \
+    $$PWD/src/MissionManager/FlightZoneManager.cpp
 
 HEADERS += \
     $$PWD/src/CustomPlugin.h \
     $$PWD/src/RTCM/CodevRTCMManager.h \
     $$PWD/src/RTCM/NTRIPRTCMSource.h \
     $$PWD/src/RTCM/RTCMBase.h \
-    $$PWD/src/RTCM/SerialPortRTCMSource.h \    
+    $$PWD/src/RTCM/SerialPortRTCMSource.h \
     $$PWD/src/SiYi/SiYiCamera.h \
     $$PWD/src/SiYi/SiYiCrcApi.h \
     $$PWD/src/SiYi/SiYiManager.h \
@@ -111,7 +111,7 @@ HEADERS += \
     $$PWD/src/ARLink/ARManager.h \
     $$PWD/src/CustomQmlInterface.h \
     $$PWD/src/AVIATOR/AVIATORInterface.h \
-    $$PWD/src/MissionManager/FlightZoneManager.h \
+    $$PWD/src/MissionManager/FlightZoneManager.h
 
 INCLUDEPATH += \
     $$PWD/src \
@@ -119,14 +119,27 @@ INCLUDEPATH += \
     $$PWD/src/RTCM/ \
     $$PWD/src/ARLink/ \
     $$PWD/src/AVIATOR/ \
-    $$PWD/src/MissionManager \    
+    $$PWD/src/MissionManager \
+    $$PWD/src/Rhythm
+
+# Ensure make can locate custom sources in subfolders
+VPATH += \
+    $$PWD/src \
+    $$PWD/src/RTCM \
+    $$PWD/src/SiYi \
+    $$PWD/src/ARLink \
+    $$PWD/src/AVIATOR \
+    $$PWD/src/MissionManager \
+    $$PWD/src/FirmwarePlugin \
+    $$PWD/src/AutoPilotPlugin
+DEPENDPATH += $$VPATH
 
 #-------------------------------------------------------------------------------------
 # Custom Firmware/AutoPilot Plugin
 
 INCLUDEPATH += \
     $$PWD/src/FirmwarePlugin \
-    $$PWD/src/AutoPilotPlugin
+    $$PWD/src/AutoPilotPlugin \
     $$PWD/src/FirmwarePlugin/APM/
 
 HEADERS += \

@@ -100,6 +100,7 @@ add_custom_target(QmlControlsQml
 		QGCGroupBox.qml
 		QGCHoverButton.qml
 		QGCLabel.qml
+		QGCSpinBox.qml
 		QGCListView.qml
 		QGCMapLabel.qml
 		QGCMenuItem.qml

@@ -65,6 +65,8 @@
 #include "Autotune.h"
 #include "RemoteIDManager.h"
 
+#include "AudioControl.h"
+
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
 #define UPDATE_TIMER 50
@@ -332,6 +334,10 @@ Vehicle::Vehicle(LinkInterface*             link,
 
     // Start timer to limit altitude above terrain queries
     _altitudeAboveTerrQueryTimer.restart();
+
+    //Create Audio Control
+    _audioControl = _firmwarePlugin->createAudioControl(this);
+    emit audioControlChanged();
 }
 
 // Disconnected Vehicle for offline editing

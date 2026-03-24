@@ -21,6 +21,9 @@ QMAKE_CXXFLAGS += -wd4309
 QMAKE_CXXFLAGS += /utf-8
 }
 
+# Ensure .cc files are compiled as C++ across toolchains
+QMAKE_EXT_CPP += .cc
+
 # These are disabled until proven correct
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED
@@ -609,6 +612,7 @@ HEADERS += \
     src/AnalyzeView/ULogParser.h \
     src/AnalyzeView/MavlinkConsoleController.h \
     src/Audio/AudioOutput.h \
+    src/Audio/AudioControl.h \
     src/Vehicle/Autotune.h \
     src/Camera/QGCCameraControl.h \
     src/Camera/QGCCameraIO.h \
@@ -882,6 +886,7 @@ SOURCES += \
     src/AnalyzeView/ULogParser.cc \
     src/AnalyzeView/MavlinkConsoleController.cc \
     src/Audio/AudioOutput.cc \
+    src/Audio/AudioControl.cc \
     src/Vehicle/Autotune.cpp \
     src/Camera/QGCCameraControl.cc \
     src/Camera/QGCCameraIO.cc \
