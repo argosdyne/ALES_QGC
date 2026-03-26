@@ -606,6 +606,18 @@ Item {
                             insertComplexItemAfterCurrent("Init Path")
                         }
 
+                    },
+                    ToolStripAction {
+                        text:               qsTr("Vision LiDAR")
+                        iconSource:         "/qmlimages/VisionLidar.svg"
+                        enabled:            true
+                        visible :           true
+                        onTriggered: {
+                            visionLidarPanel.visible = true
+                            rightPanel.visible = false
+                            rightControls.visible = false
+                            missionItemEditor.visible = false
+                        }
                     }
 
                 ]
@@ -621,6 +633,66 @@ Item {
             onDropped: allAddClickBoolsOff()
         }
 
+        //-----------------------------------------------------------
+        //Vision Lidar editing controls
+        Rectangle {
+            id: visionLidarPanel
+            height: parent.height
+            width: _rightPanelWidth
+            color: "transparent"
+            opacity: visionLidarTabBar.visible ? 0.2 : 0
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            anchors.rightMargin: _toolsMargin
+            visible: false
+            z: 100
+
+            //-----------------------------------------------------------
+            //Vision Lidar Right Panel Controls
+            Row {
+                width: parent.width
+                height: ScreenTools.defaultFontPixelHeight * 2
+                anchors.topMargin: _toolsMargin
+
+                // 왼쪽 (Vision LiDAR)
+                Rectangle {
+
+                    width: parent.width * 0.7
+                    height: parent.height
+                    color: "#00826F"   // 초록색 (QGC 느낌)
+
+                    QGCLabel {
+                        anchors.centerIn: parent
+                        text: qsTr("Vision LiDAR")
+                        color: "white"
+                    }
+                }
+
+                // 오른쪽 (Close 버튼)
+                Rectangle {
+                    width: parent.width * 0.3
+                    height: parent.height
+                    color: "#485058"
+
+                    QGCLabel {
+                        anchors.centerIn: parent
+                        text: qsTr("Close")
+                        color: "white"
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            console.log("Close Clicked")
+                            visionLidarPanel.visible = false
+                            rightPanel.visible =        true
+                            rightControls.visible =     true
+                            missionItemEditor.visible = true
+                        }
+                    }
+                }
+            }
+        }
         //-----------------------------------------------------------
         // Right pane for mission editing controls
         Rectangle {
