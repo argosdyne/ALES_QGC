@@ -124,11 +124,11 @@ Item {
                 leftPadding:        0
                 rightPadding:       0
                 onClicked: {
-                    if (!QGroundControl.settingsManager.appSettings.telemetrySave.rawValue) {
-                        mainWindow.showMessageDialog(qsTr("Telemetry Logs Disabled"),
-                                                     qsTr("Telemetry logs are not saved, Please enable it in Privacy Settings."))
-                        return
-                    }
+                    // if (!QGroundControl.settingsManager.appSettings.telemetrySave.rawValue) {
+                    //     mainWindow.showMessageDialog(qsTr("Telemetry Logs Disabled"),
+                    //                                  qsTr("Telemetry logs are not saved, Please enable it in Privacy Settings."))
+                    //     return
+                    // }
                     writeDialog.openForSave()
                 }
                 text:            qsTr("Save App Log")

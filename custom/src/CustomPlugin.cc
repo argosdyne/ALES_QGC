@@ -13,6 +13,7 @@
 #include <QQmlEngine>
 #include <QDateTime>
 #include <QSettings>
+#include <QCoreApplication>
 #include <cstring>
 #include "QGCSettings.h"
 #include "MAVLinkLogManager.h"
@@ -128,6 +129,16 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 #endif
 
     qmlRegisterSingletonInstance<AVIATORInterface>("CustomQmlInterface", 1, 0, "AVIATORInterface", _aviatorInterface);
+
+    connect(qApp, &QCoreApplication::aboutToQuit, this, []() {
+        QSettings settings;
+        const bool rememberChoice = settings.value(QStringLiteral("Custom/securityRememberChoice"), false).toBool();
+        if (!rememberChoice) {
+            settings.setValue(QStringLiteral("Custom/networkUdpListenerEnabled"), false);
+            settings.setValue(QStringLiteral("Custom/networkTcpServerEnabled"), false);
+            settings.setValue(QStringLiteral("Custom/networkVideoStreamingEnabled"), false);
+        }
+    });
 }
 
 void CustomPlugin::_handleRCChannelValues(const quint16* channels, int count)

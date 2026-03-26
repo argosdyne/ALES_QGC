@@ -175,6 +175,14 @@ FirstRunPrompt {
         close()
     }
 
+    Component.onCompleted: {
+        if (!_rememberChoice.rawValue) {
+            udpCheckbox.checked = false
+            tcpCheckbox.checked = false
+            videoCheckbox.checked = false
+        }
+    }
+
     ColumnLayout {
         width:      ScreenTools.defaultFontPixelWidth * 56
         spacing:    ScreenTools.defaultFontPixelHeight * 0.6
