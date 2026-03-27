@@ -646,54 +646,306 @@ Item {
             anchors.rightMargin: _toolsMargin
             visible: false
             z: 100
-
-            //-----------------------------------------------------------
-            //Vision Lidar Right Panel Controls
-            Row {
+            Column {
                 width: parent.width
-                height: ScreenTools.defaultFontPixelHeight * 2
-                anchors.topMargin: _toolsMargin
+                height: parent.height / 3
 
-                // 왼쪽 (Vision LiDAR)
-                Rectangle {
+                //-----------------------------------------------------------
+                //Vision Lidar Right Panel Controls
+                Row {
+                    id: visionLidarTitle
+                    width: parent.width
+                    height: ScreenTools.defaultFontPixelHeight * 2
+                    anchors.topMargin: _toolsMargin
 
-                    width: parent.width * 0.7
-                    height: parent.height
-                    color: "#00826F"   // 초록색 (QGC 느낌)
+                    // 왼쪽 (Vision LiDAR)
+                    Rectangle {
+                        width: parent.width * 0.7
+                        height: parent.height
+                        color: "#00826F"   // 초록색 (QGC 느낌)
 
-                    QGCLabel {
-                        anchors.centerIn: parent
-                        text: qsTr("Vision LiDAR")
-                        color: "white"
+                        QGCLabel {
+                            anchors.centerIn: parent
+                            text: qsTr("Vision LiDAR")
+                            color: "white"
+                        }
+                    }
+
+                    // 오른쪽 (Close 버튼)
+                    Rectangle {
+                        width: parent.width * 0.3
+                        height: parent.height
+                        color: "#485058"
+
+                        QGCLabel {
+                            anchors.centerIn: parent
+                            text: qsTr("Close")
+                            color: "white"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                console.log("Close Clicked")
+                                visionLidarPanel.visible = false
+                                rightPanel.visible =        true
+                                rightControls.visible =     true
+                                missionItemEditor.visible = true
+                            }
+                        }
                     }
                 }
 
-                // 오른쪽 (Close 버튼)
-                Rectangle {
-                    width: parent.width * 0.3
-                    height: parent.height
-                    color: "#485058"
+                //-----------------------------------------------------------
+                //Vision Lidar Obstacle Detection function controls
+                // Rectangle {
+                //     width: parent.width
+                //     height: parent.height - visionLidarTitle.height
+                //     color: "red"
 
-                    QGCLabel {
-                        anchors.centerIn: parent
-                        text: qsTr("Close")
-                        color: "white"
+                //     Column  {
+                //         width: parent.width
+                //         spacing: ScreenTools.defaultFontPixelHeight
+                //         anchors.top: parent.top
+                //         anchors.topMargin: ScreenTools.defaultFontPixelHeight * 2
+
+                //         Row {
+                //             width: parent.width
+                //             anchors.leftMargin: ScreenTools.defaultFontPixelHeight
+                //             anchors.rightMargin: ScreenTools.defaultFontPixelHeight
+                //             anchors.left: parent.left
+                //             anchors.right: parent.right
+
+                //             QGCCheckBox {
+                //                 id: obstacleCheck
+                //                 Layout.fillWidth: true
+                //                 Layout.preferredHeight: ScreenTools.defaultFontPixelHeight
+                //                 text: qsTr("Use Obstacle Detection")
+                //                 visible: true
+                //                 onClicked: {
+                //                     console.log("Click CHeckbox")
+                //                 }
+                //             }
+                //         }
+                //         //-----------------------------------------------------------
+                //         // 2. Avoid / Stop
+                //         Row {
+                //             spacing: 20
+
+                //             RadioButton {
+                //                 id: avoidBtn
+                //                 text: qsTr("Avoid")
+                //                 checked: true
+                //                 enabled: obstacleCheck.checked
+                //             }
+
+                //             RadioButton {
+                //                 id: stopBtn
+
+                //                 enabled: obstacleCheck.checked
+                //                 opacity: obstacleCheck.checked ? 1.0 : 0.5
+
+                //                 Text {
+                //                     text: qsTr("Stop")
+                //                     color: "white"
+                //                     anchors.right: parent.right
+                //                     //anchors.rightMargin: ScreenTools.defaultFontPixelHeight
+                //                 }
+                //             }
+                //         }
+
+                //         //-----------------------------------------------------------
+                //         // 3. Detection Distance
+                //         QGCLabel {
+                //             text: qsTr("Detection Distance")
+                //             opacity: obstacleCheck.checked ? 1.0 : 0.5
+                //         }
+
+                //         //-----------------------------------------------------------
+                //         // 4. Distance Options
+                //         Grid {
+                //             columns: 2
+                //             spacing: 10
+
+                //             Repeater {
+                //                 model: ["20m", "30m", "50m", "100m"]
+
+                //                 delegate: RadioButton {
+                //                     text: modelData
+                //                     enabled: obstacleCheck.checked
+                //                 }
+                //             }
+                //         }
+                //     }
+
+                // }
+
+                Rectangle {
+                    id:     root
+                    width:  parent.width
+                    height: contentColumn.implicitHeight + 24
+                    color:  "#1a1a2e"
+                    //radius: ScreenTools.defaultFontPixelHeight
+
+                    property bool useObstacleDetection: true
+                    property bool avoidMode:            true
+                    property int  detectionDistance:    20
+
+                    ColumnLayout {
+                        id: contentColumn
+                        anchors {
+                            left:    parent.left
+                            right:   parent.right
+                            top:     parent.top
+                            margins: ScreenTools.defaultFontPixelHeight * 0.6
+                        }
+                        spacing: ScreenTools.defaultFontPixelHeight
+
+                        // ── Row 1: Use Obstacle Detection ──────────────────────────
+                        // CheckBox 대신 이걸로 교체
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
+
+                            Item {
+                                implicitWidth:  18
+                                implicitHeight: 18
+
+                                Rectangle {
+                                    anchors.fill:  parent
+                                    radius:        3
+                                    color:         root.useObstacleDetection ? "white" : "transparent"
+                                    border.color:  "white"
+                                    border.width:  2
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text:             "✓"
+                                        color:            "#1a1a2e"
+                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 1.5
+                                        font.bold:        true
+                                        visible:          root.useObstacleDetection
+                                    }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked:    root.useObstacleDetection = !root.useObstacleDetection
+                                }
+                            }
+
+                            Text {
+                                text:              qsTr("Use Obstacle Detection")
+                                color:             "white"
+                                font.pixelSize:    ScreenTools.defaultFontPointSize * 1.5
+                                font.bold:         true
+                                Layout.fillWidth:  true
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        GridLayout {
+                            Layout.fillWidth: true
+                            columns:          2
+                            rowSpacing:       6
+                            columnSpacing:    0
+
+                            // Row 1: Avoid / Stop
+                            RowLayout {
+                                spacing:          6
+                                Layout.fillWidth: true
+                                RadioBtn { selected: root.avoidMode;  enabled: root.useObstacleDetection; onClicked: root.avoidMode = true  }
+                                Text {
+                                    text:           qsTr("Avoid")
+                                    color:          root.useObstacleDetection ? "white" : "#666"
+                                    font.pixelSize: ScreenTools.defaultFontPointSize * 1.5
+                                    MouseArea { anchors.fill: parent; enabled: root.useObstacleDetection; onClicked: root.avoidMode = true }
+                                }
+                            }
+                            RowLayout {
+                                spacing:          6
+                                Layout.fillWidth: true
+                                RadioBtn { selected: !root.avoidMode; enabled: root.useObstacleDetection; onClicked: root.avoidMode = false }
+                                Text {
+                                    text:           qsTr("Stop")
+                                    color:          root.useObstacleDetection ? "white" : "#666"
+                                    font.pixelSize: ScreenTools.defaultFontPointSize * 1.5
+                                    MouseArea { anchors.fill: parent; enabled: root.useObstacleDetection; onClicked: root.avoidMode = false }
+                                }
+                            }
+
+                            // Row 2: Detection Distance 라벨 (2열 전체 차지)
+                            Text {
+                                text:                qsTr("Detection Distance")
+                                color:               root.useObstacleDetection ? "white" : "#666"
+                                font.pixelSize:      ScreenTools.defaultFontPointSize * 1.5
+                                font.bold:           true
+                                Layout.columnSpan:   2          // ← 핵심
+                                Layout.fillWidth:    true
+                                Layout.topMargin:    4
+                            }
+
+                            // Rows 3-4: 20 / 30 / 50 / 100
+                            Repeater {
+                                model: [20, 30, 50, 100]
+                                RowLayout {
+                                    spacing:          6
+                                    Layout.fillWidth: true
+                                    RadioBtn {
+                                        selected:  root.detectionDistance === modelData
+                                        enabled:   root.useObstacleDetection
+                                        onClicked: root.detectionDistance = modelData
+                                    }
+                                    Text {
+                                        text:              modelData + "m"
+                                        color:             root.useObstacleDetection ? "white" : "#666"
+                                        font.pixelSize:    ScreenTools.defaultFontPointSize * 1.5
+                                        Layout.fillWidth:  true
+                                        verticalAlignment: Text.AlignVCenter
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            enabled:      root.useObstacleDetection
+                                            onClicked:    root.detectionDistance = modelData
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            console.log("Close Clicked")
-                            visionLidarPanel.visible = false
-                            rightPanel.visible =        true
-                            rightControls.visible =     true
-                            missionItemEditor.visible = true
+                    // ── 인라인 라디오 버튼 컴포넌트 ───────────────────────────────
+                    component RadioBtn: Item {
+                        implicitWidth:  18
+                        implicitHeight: 18
+                        property bool selected: false
+                        signal clicked()
+
+                        Rectangle {
+                            anchors.fill:  parent
+                            radius:        width / 2
+                            color:         "transparent"
+                            border.color:  parent.enabled ? "white" : "#555"
+                            border.width:  2
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width:   10
+                                height:  10
+                                radius:  width / 2
+                                color:   "white"
+                                visible: parent.parent.selected
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled:      parent.enabled
+                            onClicked:    parent.clicked()
                         }
                     }
                 }
             }
         }
-        //-----------------------------------------------------------
+
+       //-----------------------------------------------------------
         // Right pane for mission editing controls
         Rectangle {
             id:                 rightPanel
