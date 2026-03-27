@@ -59,6 +59,10 @@ Item {
 
     function saveSettings() {
         if(_enabled) {
+            // Avoid persisting invalid geometry during startup/shutdown
+            if (window.width <= 0 || window.height <= 0) {
+                return
+            }
             switch(window.visibility) {
             case ApplicationWindow.Windowed:
                 s.x = window.x;

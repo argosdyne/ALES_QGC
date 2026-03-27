@@ -26,6 +26,7 @@ import QGroundControl.Controllers           1.0
 /// All properties defined here are visible to all QML pages.
 ApplicationWindow {
     id:             mainWindow
+    visible:        true
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     property alias  viewOnlyMode: globals.viewOnlyMode
