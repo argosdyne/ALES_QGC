@@ -759,6 +759,10 @@ VideoManager::_updateSettings(unsigned id)
                         if ((settingsChanged |= _updateVideoUri(id, pInfo->uri()))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
+                        if (!pInfo->uri().isEmpty() &&
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != pInfo->uri()) {
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
+                        }
                         break;
                     case VIDEO_STREAM_TYPE_TCP_MPEG:
                         if ((settingsChanged |= _updateVideoUri(id, pInfo->uri()))) {
