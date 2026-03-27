@@ -5,6 +5,7 @@ on:
     branches:
       - 'Argos_Stable4.4'
       - 'Argos_Stable4.4_CICD'
+      - 'ALES_QGC_PrivacyUpdate'
     tags:
       - 'v*'
     paths-ignore:
