@@ -76,6 +76,7 @@ QML_IMPORT_PATH += \
 # Our own, custom sources
 SOURCES += \
     $$PWD/src/CustomPlugin.cc \
+    $$PWD/src/YS/YSManager.cpp \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
@@ -95,6 +96,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/src/CustomPlugin.h \
+    $$PWD/src/YS/YSManager.h \
     $$PWD/src/RTCM/CodevRTCMManager.h \
     $$PWD/src/RTCM/NTRIPRTCMSource.h \
     $$PWD/src/RTCM/RTCMBase.h \
@@ -115,6 +117,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     $$PWD/src \
+    $$PWD/src/YS/ \
     $$PWD/src/SiYi/ \
     $$PWD/src/RTCM/ \
     $$PWD/src/ARLink/ \
@@ -125,6 +128,7 @@ INCLUDEPATH += \
 # Ensure make can locate custom sources in subfolders
 VPATH += \
     $$PWD/src \
+    $$PWD/src/YS \
     $$PWD/src/RTCM \
     $$PWD/src/SiYi \
     $$PWD/src/ARLink \

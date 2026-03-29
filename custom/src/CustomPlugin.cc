@@ -27,6 +27,7 @@
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
+#include "YS/YSManager.h"
 
 #include "M2Manager.h"
 #include "QGroundControlQmlGlobal.h"
@@ -85,6 +86,7 @@ CustomPlugin::CustomPlugin(QGCApplication *app, QGCToolbox* toolbox)
 {
     _options = new CustomOptions(this, this);
     _siyiManager = new SiYiManager(app,toolbox);
+    _ysManager = new YSManager(app, toolbox);
     _codevRTCMManager = new CodevRTCMManager(app, toolbox);
     _showAdvancedUI = false;
 }
@@ -108,6 +110,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     QGCCorePlugin::setToolbox(toolbox);
 
     _siyiManager->setToolbox(toolbox);
+    _ysManager->setToolbox(toolbox);
     if(_codevSettings == nullptr) {
         _codevSettings = new CodevSettings(this);
     }

@@ -184,6 +184,33 @@ Rectangle {
                                     requestAllParameters()
                                 }
                             }
+                            QGCButton {
+                                text: qsTr("Mock Status")
+                                enabled: _ys ? true : false
+                                onClicked: {
+                                    _showDetails = true
+                                    _showParameters = false
+                                    _ys.applyMockStatusSample()
+                                }
+                            }
+                            QGCButton {
+                                text: qsTr("Mock Start")
+                                enabled: _ys ? true : false
+                                onClicked: {
+                                    _showDetails = true
+                                    _showParameters = false
+                                    _ys.applyMockStartAcquisition()
+                                }
+                            }
+                            QGCButton {
+                                text: qsTr("Mock Stop")
+                                enabled: _ys ? true : false
+                                onClicked: {
+                                    _showDetails = true
+                                    _showParameters = false
+                                    _ys.applyMockStopAcquisition()
+                                }
+                            }
                         }
                     }
                 }
@@ -216,11 +243,11 @@ Rectangle {
                             model: [
                                 { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning, valid: _ys && _ys.statusValid },
                                 { label: "Time Not Set", ok: _ys && !_ys.timeNotSet, valid: _ys && _ys.statusValid },
-                                { label: "Scanner Not Ready", ok: _ys && !_ys.scannerNotReady, valid: _ys && _ys.statusValid },
-                                { label: "INS Not Locked", ok: _ys && !_ys.insNotLocked, valid: _ys && _ys.statusValid },
+                                { label: "Scanner Not Ready", ok: _ys && _ys.scannerNotReady, valid: _ys && _ys.statusValid },
+                                { label: "INS Not Locked", ok: _ys && _ys.insNotLocked, valid: _ys && _ys.statusValid },
                                 { label: "Scanner Error", ok: _ys && _ys.scnErr === 0, valid: _ys && _ys.statusValid },
                                 { label: "INS Error", ok: _ys && _ys.insErr === 0, valid: _ys && _ys.statusValid },
-                                { label: "No USB", ok: _ys && !_ys.noUsb, valid: _ys && _ys.statusValid },
+                                { label: "No USB", ok: _ys && _ys.noUsb, valid: _ys && _ys.statusValid },
                                 { label: "USB Full", ok: _ys && !_ys.usbFull, valid: _ys && _ys.statusValid },
                                 { label: "Camera Error", ok: _ys && _ys.camErr === 0, valid: _ys && _ys.statusValid }
                             ]

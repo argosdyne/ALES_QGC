@@ -50,7 +50,7 @@ public:
     bool anyError(void) const { return _insErr || _scnErr || _intErr || _camErr; }
 
     bool acquisitionRunning(void) const { return (_genInfo & kGenInfoAcqRunning) != 0; }
-    bool timeNotSet(void) const { return (_insInfo & kInsInfoTimeNotSet) != 0; }
+    bool timeNotSet(void) const { return (_insErr & kInsInfoTimeNotSet) != 0; }
     bool scannerNotReady(void) const { return (_scnInfo & kScnInfoNotReady) != 0; }
     bool insNotLocked(void) const { return (_insInfo & kInsInfoNotLocked) != 0; }
     bool noUsb(void) const { return (_genInfo & kGenInfoNoUsb) != 0; }
@@ -85,6 +85,9 @@ public:
     Q_INVOKABLE void stopAcquisition(void);
     Q_INVOKABLE void powerOff(void);
     Q_INVOKABLE void requestStatus(void);
+    Q_INVOKABLE void applyMockStatusSample(void);
+    Q_INVOKABLE void applyMockStartAcquisition(void);
+    Q_INVOKABLE void applyMockStopAcquisition(void);
     Q_INVOKABLE void setParameter(int paramIndex, float value);
     Q_INVOKABLE void requestParameter(int paramIndex);
 
@@ -178,11 +181,11 @@ private:
     static constexpr qint64 kParamResponseTimeoutMs = 2000;
     static constexpr qint64 kSetResponseTimeoutMs = 2000;
     // Assumed bit mapping for info bytes (can be adjusted when spec is confirmed)
-    static constexpr quint8 kInsInfoTimeNotSet = 1 << 0;
+    static constexpr quint8 kInsInfoTimeNotSet = 1 << 5;
     static constexpr quint8 kInsInfoNotLocked = 1 << 1;
-    static constexpr quint8 kScnInfoNotReady  = 1 << 0;
+    static constexpr quint8 kScnInfoNotReady  = 1 << 1;
     static constexpr quint8 kGenInfoAcqRunning = 1 << 0;
-    static constexpr quint8 kGenInfoNoUsb     = 1 << 1;
+    static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
 
     enum YSParameterIndex {

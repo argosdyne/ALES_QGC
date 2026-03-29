@@ -416,6 +416,50 @@ void YSManager::powerOff(void)
     _sendCommand(MAV_CMD_USER_2);
 }
 
+void YSManager::applyMockStatusSample(void)
+{
+    // Sample payload from user log (Get Status reply bytes 5..11):
+    // INS infos=0x06, Scanner infos=0x02, General infos=0x01,
+    // INS errors=0x20, Scanner/Internal/Camera errors=0x00.
+    _lastReceivedMessage = QStringLiteral("MOCK YS_STA_00 value=0x20010206");
+    emit messageChanged();
+    _updateStatus(0x06, 0x02, 0x01, 0x20, 0x00, 0x00, 0x00);
+}
+
+void YSManager::applyMockStartAcquisition(void)
+{
+    // Simulates ACK for MAV_CMD_USER_1 start (param1=1.0f, result=ACCEPTED).
+    // MAVLink frame from log: FD 20 ... 00 00 80 3F (param1=1.0f) cmd=31010
+    _lastCommand = MAV_CMD_USER_1;
+    _lastCommandParam1 = 1.0f;
+    _lastReceivedMessage = QStringLiteral("MOCK COMMAND_ACK cmd=31010 result=0 (ACCEPTED) [START]");
+    emit messageChanged();
+    _genInfo |= kGenInfoAcqRunning;
+    _lastStatusMs = _statusTimer.elapsed();
+    if (!_statusValid) {
+        _statusValid = true;
+        emit statusValidChanged();
+    }
+    emit statusChanged();
+}
+
+void YSManager::applyMockStopAcquisition(void)
+{
+    // Simulates ACK for MAV_CMD_USER_1 stop (param1=0.0f, result=ACCEPTED).
+    // MAVLink frame from log: FD 20 ... 00 00 00 00 (param1=0.0f) cmd=31010
+    _lastCommand = MAV_CMD_USER_1;
+    _lastCommandParam1 = 0.0f;
+    _lastReceivedMessage = QStringLiteral("MOCK COMMAND_ACK cmd=31010 result=0 (ACCEPTED) [STOP]");
+    emit messageChanged();
+    _genInfo &= static_cast<quint8>(~kGenInfoAcqRunning);
+    _lastStatusMs = _statusTimer.elapsed();
+    if (!_statusValid) {
+        _statusValid = true;
+        emit statusValidChanged();
+    }
+    emit statusChanged();
+}
+
 
 void YSManager::setParameter(int paramIndex, float value)
 {
