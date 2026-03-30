@@ -174,6 +174,20 @@ public:
     ///     @param sequenceNumber - index for new item, -1 to clear current item
     Q_INVOKABLE void setCurrentPlanViewSeqNum(int sequenceNumber, bool force);
 
+    /// Control vision lidar
+    // Enable/Disable vision lidar
+    Q_INVOKABLE void setVisionLidar(int param);
+
+    //set detection distance of vision lidar
+    Q_INVOKABLE void setVisionLidarDistance(int param);
+
+    //set vision lidar value
+    Q_INVOKABLE void setVisionLidarValue(int param);
+
+    //set obstacleAviodance enable/disable
+    Q_INVOKABLE void setVisionLidarOBAMode(int param);
+
+
     enum SendToVehiclePreCheckState {
         SendToVehiclePreCheckStateOk,                       // Ok to send plan to vehicle
         SendToVehiclePreCheckStateNoActiveVehicle,          // There is no active vehicle

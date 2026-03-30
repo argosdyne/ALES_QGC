@@ -2704,3 +2704,128 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode a
         emit globalAltitudeModeChanged();
     }
 }
+
+// ──────────────────────────────────────────────────────────────────────────────────────────
+
+void MissionController::setVisionLidar(int value){
+    qInfo() << "setVisionLidar : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidar: No active vehicle";
+        return;
+    }
+
+    mavlink_message_t       msg;
+    mavlink_param_set_t     param;
+    SharedLinkInterfacePtr  sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+
+    if (!sharedLink) {
+        qWarning() << "setVisionLidar: No primary link";
+        return;
+    }
+
+    // 파라미터 구조체 초기화
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);   // 0 or 1
+
+    // 파라미터 이름 복사 (최대 16자)
+    strncpy(param.param_id, "EN_VISIONLIDAR", sizeof(param.param_id));
+
+    // 메시지 패킹
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    // 전송
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidar: EN_VISIONLIDAR =" << value;
+}
+
+void MissionController::setVisionLidarDistance(int value){
+    qInfo() << "setVisionLidarDistance : " <<value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidarDist: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "setVisionLidarDist: No primary link";
+        return;
+    }
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);  // 20, 30, 50, 100
+
+    strncpy(param.param_id, "VL_DIST", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidarDist: VL_DIST =" << value;
+
+}
+
+void MissionController::setVisionLidarValue(int value){
+    qInfo() << "setVisionLidarValue : " << value;
+}
+
+void MissionController::setVisionLidarOBAMode(int value){
+    qInfo() << "setVisionLidarOBAMode : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidarObaMode: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "setVisionLidarObaMode: No primary link";
+        return;
+    }
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);  // 0 = Avoid, 1 = Stop
+
+    strncpy(param.param_id, "VL_OBA_MODE", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidarObaMode: VL_OBA_MODE =" << value;
+}
