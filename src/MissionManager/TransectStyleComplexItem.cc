@@ -128,13 +128,13 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
 
     // Save previous vehicle speed
     MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
-    if(manager) {
-        if(manager->activeVehicle()->firmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
-            qInfo() << "This is APM";
 
-            _previousVehicleSpeed = manager->activeVehicle()->parameterManager()->getParameter(MAV_COMP_ID_AUTOPILOT1, "WPNAV_SPEED")->rawValue().toDouble();
+    Vehicle* activeVehicle = manager ? manager -> activeVehicle() : nullptr;
 
-            qInfo() << "_previousVehicleSpeed = " << _previousVehicleSpeed;
+    if(activeVehicle && activeVehicle->firmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA){
+        auto param = activeVehicle->parameterManager()->getParameter(MAV_COMP_ID_AUTOPILOT1, "WPNAV_SPEED");
+        if(param){
+            _previousVehicleSpeed = param->rawValue().toDouble();
         }
     }
 }
