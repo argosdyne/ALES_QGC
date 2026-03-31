@@ -118,7 +118,7 @@ void PlanMasterController::_activeVehicleChanged(Vehicle* activeVehicle)
         // Disconnect old vehicle. Be careful of wildcarding disconnect too much since _managerVehicle may equal _controllerVehicle
         disconnect(_managerVehicle->missionManager(),       nullptr, this, nullptr);
         disconnect(_managerVehicle->geoFenceManager(),      nullptr, this, nullptr);
-        disconnect(_managerVehicle->rallyPointManager(),    nullptr, this, nullptr);
+        disconnect(_managerVehicle->rallyPointManager(),    nullptr, this, nullptr);        
     }
 
     bool newOffline = false;

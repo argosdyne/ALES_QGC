@@ -823,6 +823,17 @@ Item {
                                 Layout.topMargin:    4
                             }
 
+                            // Repeater 위에 추가
+                            Connections {
+                                target: _missionController
+                                onVlValueChanged: {
+                                    var val = _missionController.vlValue
+                                    if (val === 20 || val === 30 || val === 50 || val === 100) {
+                                        root.detectionDistance = val
+                                    }
+                                }
+                            }
+
                             // Rows 3-4: 20 / 30 / 50 / 100
                             Repeater {
                                 model: [20, 30, 50, 100]

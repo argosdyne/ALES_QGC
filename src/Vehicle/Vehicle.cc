@@ -813,6 +813,21 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         }
     }
         break;
+    case MAVLINK_MSG_ID_PARAM_VALUE:
+    {
+        mavlink_param_value_t param;
+        mavlink_msg_param_value_decode(&message, &param);
+
+        QString paramId = QString::fromLatin1(param.param_id,
+                                              strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
+
+        if (paramId == "VL_VALUE") {
+            int16_t val = static_cast<int16_t>(param.param_value);
+            qDebug() << "VL_VALUE received:" << val;
+            emit vlValueChanged(static_cast<int>(val));
+        }
+        break;
+    }
 // #ifdef DAILY_BUILD // Disable use of development/WIP MAVLink messages for release builds
 //         case MAVLINK_MSG_ID_AVAILABLE_MODES_MONITOR:
 //     {

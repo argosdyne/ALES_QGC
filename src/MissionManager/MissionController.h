@@ -112,6 +112,8 @@ public:
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode globalAltitudeMode         READ globalAltitudeMode         WRITE setGlobalAltitudeMode NOTIFY globalAltitudeModeChanged)
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode globalAltitudeModeDefault  READ globalAltitudeModeDefault  NOTIFY globalAltitudeModeChanged)                               ///< Default to use for newly created items
 
+    Q_PROPERTY(int                  vlValue                         MEMBER _vlValue                     NOTIFY vlValueChanged)
+
     Q_INVOKABLE void removeVisualItem(int viIndex);
 
     /// Add a new simple mission item to the list
@@ -272,6 +274,9 @@ public:
     QGroundControlQmlGlobal::AltMode globalAltitudeModeDefault(void);
     void setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode altMode);
 
+    int vlValue() const { return _vlValue; }
+
+
 signals:
     void visualItemsChanged                 (void);
     void waypointPathChanged                (void);
@@ -312,6 +317,7 @@ signals:
     void _recalcMissionFlightStatusSignal   (void);
     void _recalcFlightPathSegmentsSignal    (void);
     void globalAltitudeModeChanged          (void);
+    void vlValueChanged();
 
 private slots:
     void _newMissionItemsAvailableFromVehicle   (bool removeAllRequested);
@@ -330,6 +336,7 @@ private slots:
     void _recalcAll                             (void);
     void _managerVehicleChanged                 (Vehicle* managerVehicle);
     void _takeoffItemNotRequiredChanged         (void);
+    void _onVlValueChanged(int value);
 
 private:
     void                    _init                               (void);
@@ -373,6 +380,10 @@ private:
     static double           _normalizeLat                       (double lat);
     static double           _normalizeLon                       (double lon);
     static bool             _convertToMissionItems              (QmlObjectListModel* visualMissionItems, QList<MissionItem*>& rgMissionItems, QObject* missionItemParent);
+    int _vlValue = 0;
+
+    void _connectToVehicle(Vehicle* vehicle);  // vehicle 연결 헬퍼
+    void _activeVehicleChanged(Vehicle* vehicle);
 
 private:
     Vehicle*                    _controllerVehicle =            nullptr;
@@ -433,4 +444,6 @@ private:
     static const char*  _jsonComplexItemsKey;
 
     static const int    _missionFileVersion;
+
+    Vehicle* _activeVehicle = nullptr;
 };

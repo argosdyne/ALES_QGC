@@ -137,6 +137,15 @@ void MissionController::start(bool flyView)
 
     PlanElementController::start(flyView);
     _init();
+
+    // activeVehicle 변경 감지 연결
+    MultiVehicleManager* multiVehicleManager = qgcApp()->toolbox()->multiVehicleManager();
+
+    connect(multiVehicleManager, &MultiVehicleManager::activeVehicleChanged,
+            this, &MissionController::_activeVehicleChanged);
+
+    // 앱 시작 시 이미 vehicle이 연결되어 있을 수 있으므로 초기 연결도 처리
+    _connectToVehicle(multiVehicleManager->activeVehicle());
 }
 
 void MissionController::_init(void)
@@ -2790,6 +2799,38 @@ void MissionController::setVisionLidarDistance(int value){
 
 void MissionController::setVisionLidarValue(int value){
     qInfo() << "setVisionLidarValue : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if(!vehicle) {
+        qWarning() << "setVisionLidarValue: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if(!sharedLink){
+        qWarning() << "setVIsionLidarVaue: No primary link";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type = MAV_PARAM_TYPE_INT32;
+    param.param_value = static_cast<float>(value); // 0 or 1
+
+    strncpy(param.param_id, "EN_VL_VALUE", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
 void MissionController::setVisionLidarOBAMode(int value){
@@ -2828,4 +2869,35 @@ void MissionController::setVisionLidarOBAMode(int value){
     vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 
     qDebug() << "setVisionLidarObaMode: VL_OBA_MODE =" << value;
+}
+
+// activeVehicle이 바뀔 때마다 연결 갱신
+// 기존 _activeVehicleChanged() 또는 생성자 근처에 추가
+
+void MissionController::_connectToVehicle(Vehicle* vehicle)
+{
+    if (!vehicle) return;
+
+    connect(vehicle, &Vehicle::vlValueChanged,
+            this,    &MissionController::_onVlValueChanged);
+}
+
+void MissionController::_onVlValueChanged(int value)
+{
+    if (_vlValue == value) return;
+    _vlValue = value;
+    emit vlValueChanged();  // QML에 알림
+    qDebug() << "MissionController: vlValue updated to" << _vlValue;
+}
+
+void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
+{
+    // 기존 vehicle 시그널 해제
+    if (_activeVehicle) {
+        disconnect(_activeVehicle, &Vehicle::vlValueChanged,
+                   this,           &MissionController::_onVlValueChanged);
+    }
+
+    _activeVehicle = activeVehicle;
+    _connectToVehicle(activeVehicle);
 }
