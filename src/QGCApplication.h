@@ -193,6 +193,7 @@ private slots:
     void _gpsSurveyInStatus                         (float duration, float accuracyMM,  double latitude, double longitude, float altitude, bool valid, bool active);
     void _gpsNumSatellites                          (int numSatellites);
     void _showDelayedAppMessages                    (void);
+    void _checkForEventLoopLag                      (void);
 
 private:
     QObject*    _rootQmlObject          ();
@@ -224,6 +225,8 @@ private:
     QLocale             _locale;
     bool                _error                  = false;
     QElapsedTimer       _msecsElapsedTime;
+    QTimer              _eventLoopLagMonitorTimer;
+    QElapsedTimer       _eventLoopLagElapsedTimer;
 
     QList<QPair<QString /* title */, QString /* message */>> _delayedAppMessages;
 

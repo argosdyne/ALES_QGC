@@ -87,12 +87,23 @@ Item {
             radius:         ScreenTools.defaultFontPixelHeight / 2
             color:          qgcPal.window
             border.color:   qgcPal.text
+            property var    _pendingFormattedMessages: []
 
             function formatMessage(message) {
                 message = message.replace(new RegExp("<#E>", "g"), "color: " + qgcPal.warningText + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
                 message = message.replace(new RegExp("<#I>", "g"), "color: " + qgcPal.warningText + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
                 message = message.replace(new RegExp("<#N>", "g"), "color: " + qgcPal.text + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
                 return message;
+            }
+
+            function flushPendingMessages() {
+                if (_pendingFormattedMessages.length === 0) {
+                    return
+                }
+
+                messageText.append(_pendingFormattedMessages.join(""))
+                _pendingFormattedMessages = []
+                messageFlick.flick(0, -500)
             }
 
             Component.onCompleted: {
@@ -106,10 +117,20 @@ Item {
             Connections {
                 target: _activeVehicle
                 onNewFormattedMessage :{
-                    messageText.append(formatMessage(formattedMessage))
-                    //-- Hack to scroll down
-                    messageFlick.flick(0,-500)
+                    _pendingFormattedMessages.push(formatMessage(formattedMessage))
+                    if (_pendingFormattedMessages.length >= 10) {
+                        flushPendingMessages()
+                    } else {
+                        appendMessagesTimer.restart()
+                    }
                 }
+            }
+
+            Timer {
+                id:         appendMessagesTimer
+                interval:   250
+                repeat:     false
+                onTriggered: flushPendingMessages()
             }
 
             QGCLabel {
