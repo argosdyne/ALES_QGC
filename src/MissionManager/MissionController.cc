@@ -137,6 +137,15 @@ void MissionController::start(bool flyView)
 
     PlanElementController::start(flyView);
     _init();
+
+    // activeVehicle 변경 감지 연결
+    MultiVehicleManager* multiVehicleManager = qgcApp()->toolbox()->multiVehicleManager();
+
+    connect(multiVehicleManager, &MultiVehicleManager::activeVehicleChanged,
+            this, &MissionController::_activeVehicleChanged);
+
+    // 앱 시작 시 이미 vehicle이 연결되어 있을 수 있으므로 초기 연결도 처리
+    _connectToVehicle(multiVehicleManager->activeVehicle());
 }
 
 void MissionController::_init(void)
@@ -489,8 +498,8 @@ void MissionController::_insertComplexMissionItemWorker(const QGeoCoordinate& ma
 {
     int sequenceNumber = _nextSequenceNumber();
     bool surveyStyleItem = qobject_cast<SurveyComplexItem*>(complexItem) ||
-            qobject_cast<CorridorScanComplexItem*>(complexItem) ||
-            qobject_cast<StructureScanComplexItem*>(complexItem);
+                           qobject_cast<CorridorScanComplexItem*>(complexItem) ||
+                           qobject_cast<StructureScanComplexItem*>(complexItem);
 
     if (surveyStyleItem) {
         bool rollSupported  = false;
@@ -625,11 +634,11 @@ bool MissionController::_loadJsonMissionFileV1(const QJsonObject& json, QmlObjec
 {
     // Validate root object keys
     QList<JsonHelper::KeyValidateInfo> rootKeyInfoList = {
-        { _jsonPlannedHomePositionKey,      QJsonValue::Object, true },
-        { _jsonItemsKey,                    QJsonValue::Array,  true },
-        { _jsonMavAutopilotKey,             QJsonValue::Double, true },
-        { _jsonComplexItemsKey,             QJsonValue::Array,  true },
-    };
+                                                          { _jsonPlannedHomePositionKey,      QJsonValue::Object, true },
+                                                          { _jsonItemsKey,                    QJsonValue::Array,  true },
+                                                          { _jsonMavAutopilotKey,             QJsonValue::Double, true },
+                                                          { _jsonComplexItemsKey,             QJsonValue::Array,  true },
+                                                          };
     if (!JsonHelper::validateKeys(json, rootKeyInfoList, errorString)) {
         return false;
     }
@@ -727,14 +736,14 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
 {
     // Validate root object keys
     QList<JsonHelper::KeyValidateInfo> rootKeyInfoList = {
-        { _jsonPlannedHomePositionKey,      QJsonValue::Array,  true },
-        { _jsonItemsKey,                    QJsonValue::Array,  true },
-        { _jsonFirmwareTypeKey,             QJsonValue::Double, true },
-        { _jsonVehicleTypeKey,              QJsonValue::Double, false },
-        { _jsonCruiseSpeedKey,              QJsonValue::Double, false },
-        { _jsonHoverSpeedKey,               QJsonValue::Double, false },
-        { _jsonGlobalPlanAltitudeModeKey,   QJsonValue::Double, false },
-    };
+                                                          { _jsonPlannedHomePositionKey,      QJsonValue::Array,  true },
+                                                          { _jsonItemsKey,                    QJsonValue::Array,  true },
+                                                          { _jsonFirmwareTypeKey,             QJsonValue::Double, true },
+                                                          { _jsonVehicleTypeKey,              QJsonValue::Double, false },
+                                                          { _jsonCruiseSpeedKey,              QJsonValue::Double, false },
+                                                          { _jsonHoverSpeedKey,               QJsonValue::Double, false },
+                                                          { _jsonGlobalPlanAltitudeModeKey,   QJsonValue::Double, false },
+                                                          };
     if (!JsonHelper::validateKeys(json, rootKeyInfoList, errorString)) {
         return false;
     }
@@ -800,8 +809,8 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
         // Load item based on type
 
         QList<JsonHelper::KeyValidateInfo> itemKeyInfoList = {
-            { VisualMissionItem::jsonTypeKey,  QJsonValue::String, true },
-        };
+                                                              { VisualMissionItem::jsonTypeKey,  QJsonValue::String, true },
+                                                              };
         if (!JsonHelper::validateKeys(itemObject, itemKeyInfoList, errorString)) {
             return false;
         }
@@ -825,8 +834,8 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
             }
         } else if (itemType == VisualMissionItem::jsonTypeComplexItemValue) {
             QList<JsonHelper::KeyValidateInfo> complexItemKeyInfoList = {
-                { ComplexMissionItem::jsonComplexItemTypeKey,  QJsonValue::String, true },
-            };
+                                                                         { ComplexMissionItem::jsonComplexItemTypeKey,  QJsonValue::String, true },
+                                                                         };
             if (!JsonHelper::validateKeys(itemObject, complexItemKeyInfoList, errorString)) {
                 return false;
             }
@@ -1430,13 +1439,13 @@ void MissionController::_recalcFlightPathSegments(void)
         } else {
             // Create a new segment. Since this is the fly view there is no need to wire change signals or worry about correct SegmentType
             coordVector = new FlightPathSegment(
-                        FlightPathSegment::SegmentTypeGeneric,
-                        lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->coordinate() : lastSegmentVisualItemPair.first->exitCoordinate(),
-                        lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->amslEntryAlt() : lastSegmentVisualItemPair.first->amslExitAlt(),
-                        lastSegmentVisualItemPair.second->coordinate(),
-                        lastSegmentVisualItemPair.second->amslEntryAlt(),
-                        !_flyView /* queryTerrainData */,
-                        this);
+                FlightPathSegment::SegmentTypeGeneric,
+                lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->coordinate() : lastSegmentVisualItemPair.first->exitCoordinate(),
+                lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->amslEntryAlt() : lastSegmentVisualItemPair.first->amslExitAlt(),
+                lastSegmentVisualItemPair.second->coordinate(),
+                lastSegmentVisualItemPair.second->amslEntryAlt(),
+                !_flyView /* queryTerrainData */,
+                this);
             _flightPathSegmentHashTable[lastSegmentVisualItemPair] = coordVector;
         }
 
@@ -1730,7 +1739,7 @@ void MissionController::_recalcMissionFlightStatus()
                     _missionFlightStatus.vtolMode = QGCMAVLink::VehicleClassFixedWing;
                 }
             }
-                break;
+            break;
             default:
                 break;
             }
@@ -2357,16 +2366,16 @@ void MissionController::_managerRemoveAllComplete(bool error)
 bool MissionController::_isROIBeginItem(SimpleMissionItem* simpleItem)
 {
     return simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_LOCATION ||
-            simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_WPNEXT_OFFSET ||
-            (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
-             static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_LOCATION);
+           simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_WPNEXT_OFFSET ||
+           (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
+            static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_LOCATION);
 }
 
 bool MissionController::_isROICancelItem(SimpleMissionItem* simpleItem)
 {
     return simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_NONE ||
-            (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
-             static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_NONE);
+           (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
+            static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_NONE);
 }
 
 void MissionController::setCurrentPlanViewSeqNum(int sequenceNumber, bool force)
@@ -2614,8 +2623,8 @@ void MissionController::_updateTimeout()
     }
     //-- Build bounding "cube"
     boundingCube = QGCGeoBoundingCube(
-                QGeoCoordinate(north - 90.0, west - 180.0, minAlt),
-                QGeoCoordinate(south - 90.0, east - 180.0, maxAlt));
+        QGeoCoordinate(north - 90.0, west - 180.0, minAlt),
+        QGeoCoordinate(south - 90.0, east - 180.0, maxAlt));
     if(_travelBoundingCube != boundingCube || _takeoffCoordinate != takeoffCoordinate) {
         _takeoffCoordinate  = takeoffCoordinate;
         _travelBoundingCube = boundingCube;
@@ -2703,4 +2712,192 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode a
         _globalAltMode = altMode;
         emit globalAltitudeModeChanged();
     }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────────────────
+
+void MissionController::setVisionLidar(int value){
+    qInfo() << "setVisionLidar : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidar: No active vehicle";
+        return;
+    }
+
+    mavlink_message_t       msg;
+    mavlink_param_set_t     param;
+    SharedLinkInterfacePtr  sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+
+    if (!sharedLink) {
+        qWarning() << "setVisionLidar: No primary link";
+        return;
+    }
+
+    // 파라미터 구조체 초기화
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);   // 0 or 1
+
+    // 파라미터 이름 복사 (최대 16자)
+    strncpy(param.param_id, "EN_VISIONLIDAR", sizeof(param.param_id));
+
+    // 메시지 패킹
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    // 전송
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidar: EN_VISIONLIDAR =" << value;
+}
+
+void MissionController::setVisionLidarDistance(int value){
+    qInfo() << "setVisionLidarDistance : " <<value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidarDist: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "setVisionLidarDist: No primary link";
+        return;
+    }
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);  // 20, 30, 50, 100
+
+    strncpy(param.param_id, "VL_DIST", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidarDist: VL_DIST =" << value;
+
+}
+
+void MissionController::setVisionLidarValue(int value){
+    qInfo() << "setVisionLidarValue : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if(!vehicle) {
+        qWarning() << "setVisionLidarValue: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if(!sharedLink){
+        qWarning() << "setVIsionLidarVaue: No primary link";
+        return;
+    }
+
+    mavlink_message_t msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type = MAV_PARAM_TYPE_INT32;
+    param.param_value = static_cast<float>(value); // 0 or 1
+
+    strncpy(param.param_id, "EN_VL_VALUE", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+void MissionController::setVisionLidarOBAMode(int value){
+    qInfo() << "setVisionLidarOBAMode : " << value;
+
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "setVisionLidarObaMode: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "setVisionLidarObaMode: No primary link";
+        return;
+    }
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.param_value      = static_cast<float>(value);  // 0 = Avoid, 1 = Stop
+
+    strncpy(param.param_id, "VL_OBA_MODE", sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "setVisionLidarObaMode: VL_OBA_MODE =" << value;
+}
+
+// activeVehicle이 바뀔 때마다 연결 갱신
+// 기존 _activeVehicleChanged() 또는 생성자 근처에 추가
+
+void MissionController::_connectToVehicle(Vehicle* vehicle)
+{
+    if (!vehicle) return;
+
+    connect(vehicle, &Vehicle::vlValueChanged,
+            this,    &MissionController::_onVlValueChanged);
+}
+
+void MissionController::_onVlValueChanged(int value)
+{
+    if (_vlValue == value) return;
+    _vlValue = value;
+    emit vlValueChanged();  // QML에 알림
+    qDebug() << "MissionController: vlValue updated to" << _vlValue;
+}
+
+void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
+{
+    // 기존 vehicle 시그널 해제
+    if (_activeVehicle) {
+        disconnect(_activeVehicle, &Vehicle::vlValueChanged,
+                   this,           &MissionController::_onVlValueChanged);
+    }
+
+    _activeVehicle = activeVehicle;
+    _connectToVehicle(activeVehicle);
 }

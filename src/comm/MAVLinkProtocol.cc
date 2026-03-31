@@ -174,7 +174,7 @@ void MAVLinkProtocol::logSentBytes(LinkInterface* link, QByteArray b){
                                                           &txFrameStatus);
         if (framing == MAVLINK_FRAMING_OK) {
             const QString linkName = link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("Unknown");
-            const uint8_t channel = link ? link->mavlinkChannel() : 0xFF;
+            //const uint8_t channel = link ? link->mavlinkChannel() : 0xFF;
             const bool isMavlink2 = (txMessage.magic == 0xFD);
             const bool isSigned = isMavlink2 && ((txMessage.incompat_flags & MAVLINK_IFLAG_SIGNED) != 0);
 
@@ -185,26 +185,26 @@ void MAVLinkProtocol::logSentBytes(LinkInterface* link, QByteArray b){
             if (isSigned && (rawLen >= MAVLINK_SIGNATURE_BLOCK_LEN)) {
                 const int signatureOffset = rawLen - MAVLINK_SIGNATURE_BLOCK_LEN;
                 const QByteArray signatureBytes(reinterpret_cast<const char*>(rawBuffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
-                qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
-                                                        .arg(linkName)
-                                                        .arg(channel)
-                                                        .arg(txMessage.msgid)
-                                                        .arg(txMessage.seq)
-                                                        .arg(txMessage.sysid)
-                                                        .arg(txMessage.compid)
-                                                        .arg(rawLen)
-                                                        .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
-                                                        .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+                // qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
+                //                                         .arg(linkName)
+                //                                         .arg(channel)
+                //                                         .arg(txMessage.msgid)
+                //                                         .arg(txMessage.seq)
+                //                                         .arg(txMessage.sysid)
+                //                                         .arg(txMessage.compid)
+                //                                         .arg(rawLen)
+                //                                         .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                //                                         .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
             } else {
-                qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 raw: \"%8\"")
-                                                        .arg(linkName)
-                                                        .arg(channel)
-                                                        .arg(txMessage.msgid)
-                                                        .arg(txMessage.seq)
-                                                        .arg(txMessage.sysid)
-                                                        .arg(txMessage.compid)
-                                                        .arg(rawLen)
-                                                        .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+                // qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("TX MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 to: %5/%6 len: %7 raw: \"%8\"")
+                //                                         .arg(linkName)
+                //                                         .arg(channel)
+                //                                         .arg(txMessage.msgid)
+                //                                         .arg(txMessage.seq)
+                //                                         .arg(txMessage.sysid)
+                //                                         .arg(txMessage.compid)
+                //                                         .arg(rawLen)
+                //                                         .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
             }
         }
     }
@@ -327,16 +327,16 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                     const int signatureOffset = rawLen - MAVLINK_SIGNATURE_BLOCK_LEN;
                     const QByteArray signatureBytes(reinterpret_cast<const char*>(rawBuffer + signatureOffset), MAVLINK_SIGNATURE_BLOCK_LEN);
                     const QByteArray rawPacket(reinterpret_cast<const char*>(rawBuffer), rawLen);
-                    qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("RX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 from: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
-                                                            .arg(linkName)
-                                                            .arg(mavlinkChannel)
-                                                            .arg(_message.msgid)
-                                                            .arg(_message.seq)
-                                                            .arg(_message.sysid)
-                                                            .arg(_message.compid)
-                                                            .arg(rawLen)
-                                                            .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
-                                                            .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
+                    // qCInfo(MAVLinkProtocolLog).noquote() << QStringLiteral("RX signed MAVLink link: \"%1\" chan: %2 msgid: %3 seq: %4 from: %5/%6 len: %7 signature: \"%8\" raw: \"%9\"")
+                    //                                         .arg(linkName)
+                    //                                         .arg(mavlinkChannel)
+                    //                                         .arg(_message.msgid)
+                    //                                         .arg(_message.seq)
+                    //                                         .arg(_message.sysid)
+                    //                                         .arg(_message.compid)
+                    //                                         .arg(rawLen)
+                    //                                         .arg(QString::fromLatin1(signatureBytes.toHex(' ').toUpper()))
+                    //                                         .arg(QString::fromLatin1(rawPacket.toHex(' ').toUpper()));
                 } else {
                     qCWarning(MAVLinkProtocolLog) << "RX signed MAVLink packet too short"
                                                   << "msgid" << _message.msgid
