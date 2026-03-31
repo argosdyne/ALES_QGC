@@ -262,6 +262,13 @@ QGCApplication::QGCApplication(int &argc, char* argv[], bool unitTesting)
     _missingParamsDelayedDisplayTimer.setInterval(_missingParamsDelayedDisplayTimerTimeout);
     connect(&_missingParamsDelayedDisplayTimer, &QTimer::timeout, this, &QGCApplication::_missingParamsDisplay);
 
+    // Monitor main thread stalls so we can correlate UI freezes with message storms or other blocking work.
+    _eventLoopLagMonitorTimer.setInterval(100);
+    _eventLoopLagMonitorTimer.setTimerType(Qt::PreciseTimer);
+    connect(&_eventLoopLagMonitorTimer, &QTimer::timeout, this, &QGCApplication::_checkForEventLoopLag);
+    _eventLoopLagElapsedTimer.start();
+    _eventLoopLagMonitorTimer.start();
+
     // Set application information
     QString applicationName;
     if (_runningUnitTests) {
@@ -836,6 +843,33 @@ void QGCApplication::_showDelayedAppMessages(void)
     } else {
         QTimer::singleShot(200, this, &QGCApplication::_showDelayedAppMessages);
     }
+}
+
+void QGCApplication::_checkForEventLoopLag(void)
+{
+    static constexpr qint64 kExpectedIntervalMs = 100;
+    static constexpr qint64 kLagWarningThresholdMs = 250;
+
+    const qint64 elapsedMs = _eventLoopLagElapsedTimer.restart();
+    const qint64 lagMs = elapsedMs - kExpectedIntervalMs;
+    if (lagMs < kLagWarningThresholdMs) {
+        return;
+    }
+
+    QString activeVehicleInfo = QStringLiteral("no active vehicle");
+    if (_toolbox && _toolbox->multiVehicleManager()) {
+        if (Vehicle* activeVehicle = _toolbox->multiVehicleManager()->activeVehicle()) {
+            activeVehicleInfo = QStringLiteral("vehicle=%1 mode=%2 messageCount=%3")
+                                    .arg(activeVehicle->id())
+                                    .arg(activeVehicle->flightMode())
+                                    .arg(activeVehicle->messageCount());
+        }
+    }
+
+    qWarning().noquote() << QStringLiteral("Main thread event loop lag detected: elapsed=%1ms lag=%2ms %3")
+                            .arg(elapsedMs)
+                            .arg(lagMs)
+                            .arg(activeVehicleInfo);
 }
 
 QQuickWindow* QGCApplication::mainRootWindow()
