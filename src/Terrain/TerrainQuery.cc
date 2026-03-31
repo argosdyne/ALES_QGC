@@ -23,6 +23,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTimer>
+#include <QDateTime>
+#include <QHash>
 #include <QtLocation/private/qgeotilespec_p.h>
 
 #include <cmath>
@@ -34,6 +36,52 @@ Q_GLOBAL_STATIC(TerrainAtCoordinateBatchManager, _TerrainAtCoordinateBatchManage
 Q_GLOBAL_STATIC(TerrainTileManager, _terrainTileManager)
 
 static const auto kMapType = UrlFactory::kCopernicusElevationProviderKey;
+static constexpr qint64 kTerrainLogThrottleMs = 5000;
+
+namespace {
+
+struct TerrainLogThrottleState {
+    qint64 lastLogMs = 0;
+    int suppressed = 0;
+};
+
+void logTerrainWarningThrottled(const QString& key, const QString& message)
+{
+    static QHash<QString, TerrainLogThrottleState> states;
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    TerrainLogThrottleState& state = states[key];
+
+    if ((now - state.lastLogMs) < kTerrainLogThrottleMs) {
+        ++state.suppressed;
+        return;
+    }
+
+    QString fullMessage = message;
+    if (state.suppressed > 0) {
+        fullMessage += QStringLiteral(" suppressed=%1").arg(state.suppressed);
+        state.suppressed = 0;
+    }
+
+    state.lastLogMs = now;
+    qCWarning(TerrainQueryLog) << fullMessage;
+}
+
+bool terrainSslUnavailable()
+{
+    return !QSslSocket::supportsSsl();
+}
+
+void logTerrainSslUnavailable(const char* source)
+{
+    logTerrainWarningThrottled(QStringLiteral("terrain-ssl-unavailable"),
+                               QStringLiteral("%1 skipped terrain request because SSL/TLS is unavailable; buildSsl=%2 runtimeSsl=%3")
+                                   .arg(QString::fromLatin1(source))
+                                   .arg(QSslSocket::sslLibraryBuildVersionString())
+                                   .arg(QSslSocket::sslLibraryVersionString()));
+}
+
+}
 
 TerrainAirMapQuery::TerrainAirMapQuery(QObject* parent)
     : TerrainQueryInterface(parent)
@@ -106,6 +154,12 @@ void TerrainAirMapQuery::requestCarpetHeights(const QGeoCoordinate& swCoord, con
 
 void TerrainAirMapQuery::_sendQuery(const QString& path, const QUrlQuery& urlQuery)
 {
+    if (terrainSslUnavailable()) {
+        logTerrainSslUnavailable("TerrainAirMapQuery::_sendQuery");
+        _requestFailed();
+        return;
+    }
+
     QUrl url(QStringLiteral("https://api.airmap.com/elevation/v1/ele") + path);
     qCDebug(TerrainQueryLog) << "_sendQuery" << url;
     url.setQuery(urlQuery);
@@ -139,7 +193,10 @@ void TerrainAirMapQuery::_requestError(QNetworkReply::NetworkError code)
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(QObject::sender());
 
     if (code != QNetworkReply::NoError) {
-        qCWarning(TerrainQueryLog) << "_requestError error:url:data" << reply->error() << reply->url() << reply->readAll();
+        logTerrainWarningThrottled(QStringLiteral("terrain-request-error-%1").arg(static_cast<int>(reply->error())),
+                                   QStringLiteral("_requestError error=%1 url=%2")
+                                       .arg(static_cast<int>(reply->error()))
+                                       .arg(reply->url().toString()));
         return;
     }
 }
@@ -147,11 +204,13 @@ void TerrainAirMapQuery::_requestError(QNetworkReply::NetworkError code)
 void TerrainAirMapQuery::_sslErrors(const QList<QSslError> &errors)
 {
     for (const auto &error : errors) {
-        qCWarning(TerrainQueryLog) << "SSL error: " << error.errorString();
+        logTerrainWarningThrottled(QStringLiteral("terrain-ssl-error-%1").arg(error.error()),
+                                   QStringLiteral("SSL error: %1").arg(error.errorString()));
 
         const auto &certificate = error.certificate();
         if (!certificate.isNull()) {
-            qCWarning(TerrainQueryLog) << "SSL Certificate problem: " << certificate.toText();
+            logTerrainWarningThrottled(QStringLiteral("terrain-ssl-cert-%1").arg(error.error()),
+                                       QStringLiteral("SSL certificate problem for error=%1").arg(error.errorString()));
         }
     }
 }
@@ -161,7 +220,10 @@ void TerrainAirMapQuery::_requestFinished(void)
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(QObject::sender());
 
     if (reply->error() != QNetworkReply::NoError) {
-        qCWarning(TerrainQueryLog) << "_requestFinished error:url:data" << reply->error() << reply->url() << reply->readAll();
+        logTerrainWarningThrottled(QStringLiteral("terrain-request-finished-%1").arg(static_cast<int>(reply->error())),
+                                   QStringLiteral("_requestFinished error=%1 url=%2")
+                                       .arg(static_cast<int>(reply->error()))
+                                       .arg(reply->url().toString()));
         reply->deleteLater();
         _requestFailed();
         return;
@@ -445,6 +507,13 @@ bool TerrainTileManager::getAltitudesForCoordinates(const QList<QGeoCoordinate>&
             altitudes.push_back(elevation);
         } else {
             if (_state != State::Downloading) {
+                if (terrainSslUnavailable()) {
+                    _tilesMutex.unlock();
+                    error = true;
+                    logTerrainSslUnavailable("TerrainTileManager::getAltitudesForCoordinates");
+                    return true;
+                }
+
                 QNetworkRequest request = getQGCMapEngine()->urlFactory()->getTileURL(
                     kMapType, getQGCMapEngine()->urlFactory()->long2tileX(kMapType, coordinate.longitude(), 1),
                     getQGCMapEngine()->urlFactory()->lat2tileY(kMapType, coordinate.latitude(), 1),
@@ -500,7 +569,8 @@ void TerrainTileManager::_terrainDone(QByteArray responseBytes, QNetworkReply::N
 
     // handle potential errors
     if (error != QNetworkReply::NoError) {
-        qCWarning(TerrainQueryLog) << "Elevation tile fetching returned error (" << error << ")";
+        logTerrainWarningThrottled(QStringLiteral("terrain-tile-error-%1").arg(static_cast<int>(error)),
+                                   QStringLiteral("Elevation tile fetching returned error (%1)").arg(static_cast<int>(error)));
         _tileFailed();
         reply->deleteLater();
         return;

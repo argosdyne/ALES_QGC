@@ -16,6 +16,7 @@ Item {
     id: root
     anchors.fill: parent
     property var showText: obstacleDistance._showText
+    property real _maxSafeGradientRadiusPixels: 8192
 
     function paintObstacleOverlay(ctx) {
         const vehiclePoint = _root.fromCoordinate(_activeVehicleCoordinate, false)
@@ -23,12 +24,26 @@ Item {
         const centerY = vehiclePoint.y
         const maxRadiusPixels = 0.9 * root.height / 2 // Max pixels to center
         const minRadiusPixels = maxRadiusPixels * 0.2
+        if (!isFinite(centerX) || !isFinite(centerY) || !isFinite(maxRadiusPixels) || maxRadiusPixels <= 0 ||
+                !isFinite(minRadiusPixels) || minRadiusPixels < 0 ||
+                !isFinite(obstacleDistance._maxRadiusMeters) || obstacleDistance._maxRadiusMeters <= 0 ||
+                !isFinite(obstacleDistance._incrementDeg) || obstacleDistance._incrementDeg <= 0 ||
+                !isFinite(obstacleDistance._rangesLen) || obstacleDistance._rangesLen <= 0) {
+            return
+        }
         const metersPerPixelInCycle = (maxRadiusPixels - minRadiusPixels) / obstacleDistance._maxRadiusMeters
+        if (!isFinite(metersPerPixelInCycle) || metersPerPixelInCycle <= 0) {
+            return
+        }
 
         const leftCoord  = mapControl.toCoordinate(Qt.point(0, root.y), false)
         const rightCoord = mapControl.toCoordinate(Qt.point(100, root.y), false)
         const metersIn100Pixels = leftCoord.distanceTo(rightCoord)
         const metersPerPixel = 100.0 / metersIn100Pixels
+
+        if (!isFinite(metersIn100Pixels) || metersIn100Pixels <= 0 || !isFinite(metersPerPixel) || metersPerPixel <= 0) {
+            return
+        }
 
         var minGradPixels = minRadiusPixels
         var maxGradPixels = maxRadiusPixels
@@ -37,6 +52,10 @@ Item {
             minGradPixels = 0
             maxGradPixels =  obstacleDistance._maxRadiusMeters * metersPerPixel
             metersToPixels = metersPerPixel
+        }
+
+        if (!isFinite(metersToPixels) || metersToPixels <= 0 || !isFinite(maxGradPixels) || maxGradPixels <= 0 || maxGradPixels > _maxSafeGradientRadiusPixels) {
+            return
         }
 
         var grad = ctx.createRadialGradient(centerX, centerY, minGradPixels, centerX, centerY, maxGradPixels)
@@ -49,11 +68,24 @@ Item {
 
         var points = []
         const height = minRadiusPixels / 8
+        if (!isFinite(height) || height < 0) {
+            return
+        }
         for (var i = 0; i < obstacleDistance._rangesLen; ++i) {
             const deg = i * obstacleDistance._incrementDeg
             const rad =  deg * Math.PI / 180.0
-            const m = obstacleDistance._ranges[obstacleDistance._degToRangeIdx(deg, true)] / 100.0
+            const rangeIdx = obstacleDistance._degToRangeIdx(deg, true)
+            if (!isFinite(rangeIdx) || rangeIdx < 0 || rangeIdx >= obstacleDistance._ranges.length) {
+                continue
+            }
+            const m = obstacleDistance._ranges[rangeIdx] / 100.0
+            if (!isFinite(m)) {
+                continue
+            }
             const pixels = minGradPixels + m * metersToPixels
+            if (!isFinite(pixels) || pixels < 0 || pixels > _maxSafeGradientRadiusPixels) {
+                continue
+            }
             const outerX = centerX + pixels * Math.cos(rad)
             const outerY = centerY + pixels * Math.sin(rad)
             const innerX = centerX + (pixels - height) * Math.cos(rad)
@@ -62,12 +94,19 @@ Item {
             points.push({'outer_x': outerX, 'outer_y': outerY, 'inner_x': innerX, 'inner_y': innerY, 'range': m})
         }
 
+        if (points.length < 4) {
+            return
+        }
+
         ctx.strokeStyle = Qt.rgba(0, 0, 0, 0.8)
         ctx.font = "bold 22px sans-serif"
         ctx.lineWidth = 2;
         var mPrev = -1
         for (var i = 0; i < points.length; i += 3) {
             const i3 = (i + 3) % points.length // catch the line from the last to the first point
+            if (i + 2 >= points.length) {
+                break
+            }
 
             ctx.beginPath()
             ctx.fillStyle = grad
