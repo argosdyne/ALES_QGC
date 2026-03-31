@@ -28,6 +28,17 @@ Rectangle {
 
     QGCPalette { id: qgcPal }
 
+    Timer {
+        id: statusPollTimer
+        interval: 2000
+        repeat: true
+        running: root.visible && _showDetails && _ys
+
+        onTriggered: {
+            _ys.requestStatus()
+        }
+    }
+
     property var _ys:             QGroundControl.corePlugin.ysManager
     property bool _showDetails:   false
     property bool _showParameters:false
@@ -131,10 +142,12 @@ Rectangle {
                             spacing: ScreenTools.defaultFontPixelHeight * 0.6
                             QGCButton {
                                 text: qsTr("PWR OFF")
+                                enabled: _ys && _ys.statusValid
                                 onClicked: if (_ys) { _ys.powerOff() }
                             }
                             QGCButton {
                                 text: _ys && _ys.acquisitionRunning ? qsTr("Acquisition OFF") : qsTr("Acquisition ON")
+                                enabled: _ys && _ys.statusValid
                                 onClicked: {
                                     if (_ys) {
                                         if (_ys.acquisitionRunning) {
@@ -243,11 +256,11 @@ Rectangle {
                             model: [
                                 { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning, valid: _ys && _ys.statusValid },
                                 { label: "Time Not Set", ok: _ys && !_ys.timeNotSet, valid: _ys && _ys.statusValid },
-                                { label: "Scanner Not Ready", ok: _ys && _ys.scannerNotReady, valid: _ys && _ys.statusValid },
-                                { label: "INS Not Locked", ok: _ys && _ys.insNotLocked, valid: _ys && _ys.statusValid },
+                                { label: "Scanner Not Ready", ok: _ys && !_ys.scannerNotReady, valid: _ys && _ys.statusValid },
+                                { label: "INS Not Locked", ok: _ys && !_ys.insNotLocked, valid: _ys && _ys.statusValid },
                                 { label: "Scanner Error", ok: _ys && _ys.scnErr === 0, valid: _ys && _ys.statusValid },
                                 { label: "INS Error", ok: _ys && _ys.insErr === 0, valid: _ys && _ys.statusValid },
-                                { label: "No USB", ok: _ys && _ys.noUsb, valid: _ys && _ys.statusValid },
+                                { label: "No USB", ok: _ys && !_ys.noUsb, valid: _ys && _ys.statusValid },
                                 { label: "USB Full", ok: _ys && !_ys.usbFull, valid: _ys && _ys.statusValid },
                                 { label: "Camera Error", ok: _ys && _ys.camErr === 0, valid: _ys && _ys.statusValid }
                             ]
