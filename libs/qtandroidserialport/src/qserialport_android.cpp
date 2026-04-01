@@ -196,7 +196,7 @@ bool QSerialPortPrivate::open(QIODevice::OpenMode mode)
 
     if (deviceId == BAD_PORT)
     {
-        qWarning() << "Error opening" << systemLocation.toLatin1().data();
+        //qWarning() << "Error opening" << systemLocation.toLatin1().data();
         q_ptr->setError(QSerialPort::DeviceNotFoundError);
         return false;
     }

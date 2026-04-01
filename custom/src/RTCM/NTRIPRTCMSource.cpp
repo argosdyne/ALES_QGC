@@ -4,12 +4,16 @@ QGC_LOGGING_CATEGORY(NTRIPRTCMSourceLog, "NTRIPRTCMSourceLog")
 #include <fstream>
 #include <QtNetwork>
 #include <QStandardPaths>
+#include <QElapsedTimer>
 
 NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
     : RTCMBase ("NTRIPRTCM", parent)
     , _tcpSocket(new QTcpSocket(this))
     , _gpggamessageFact(0, "gpggamessage", FactMetaData::valueTypeString)
 {
+    // Help avoid idle-session drops on some networks (best-effort; cannot guarantee server behavior).
+    _tcpSocket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
+
     connect(_tcpSocket, SIGNAL(connected()), this, SLOT(_onSocketConnected()));
     connect(_tcpSocket, SIGNAL(disconnected()), this, SLOT(_onSocketDisconnected()));
     connect(_tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_onSocketError(QAbstractSocket::SocketError)));
@@ -38,7 +42,19 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
             _sendGPGGATimer.stop();
             _sendGPGGATimer.start();
         }
-    });    
+    });
+
+    // Auto‑reconnect timer: used only when user requested to stay logged in.
+    _reconnectTimer.setSingleShot(true);
+    _reconnectTimer.setInterval(5000);   // 5s backoff before reconnect
+    connect(&_reconnectTimer, &QTimer::timeout, this, [this]() {
+        if (_shouldReconnect) {
+            qCDebug(NTRIPRTCMSourceLog) << "NTRIP: attempting auto‑reconnect";
+            _tcpSocket->abort();
+            _tcpSocket->connectToHost(host()->rawValueString(),
+                                      static_cast<quint16>(port()->rawValue().toInt()));
+        }
+    });
     if(host()->rawValue().toString() != "" && port()->rawValue().toString() != ""){ //�̹� ���� ä���� �ִٸ�
         onReadyRead();
     }
@@ -55,7 +71,7 @@ QStringList NTRIPRTCMSource::getContentList() const
 }
 void NTRIPRTCMSource::addItem(const QString &item)
 {
-    contentList.append(item);
+    contentList.append(item);    
     emit contentListChanged();
 }
 
@@ -211,25 +227,56 @@ void NTRIPRTCMSource::get_caster_xml() {
 
 void NTRIPRTCMSource::_handle_send_gpgga_time_out()
 {
-    if(_tcpSocket->isOpen() && _tcpSocket->isValid() && _tcpSocket->isWritable()) {
-        if(gpggamessage()->rawValueString().isEmpty()) {
-            QString test_message = QString("$GPGGA,%1,3080.7144,N,12134.3847,E,1,04,24.4,19.7,M,1,M,,*").arg(QDateTime::currentDateTimeUtc().toString("hhmmss.zzz"));
-            QByteArray array = test_message.toLatin1();
-            uint8_t result = static_cast<uint8_t>(array.at(1));
-            for(int i = 2; array.at(i) != '*'; i++) {
-                result ^= static_cast<uint8_t>(array.at(i));
-            }
-            QString res_str = QString::number(result, 16);
-            test_message.append(res_str.count() == 2 ? res_str : '0' + res_str);
-            //qCDebug(NTRIPRTCMSourceLog) << "Send GPGGA:" << test_message;
-            test_message.append("\r\n");
-            _tcpSocket->write(test_message.toUtf8());
-        } else {
-            QString message = gpggamessage()->rawValueString();
-            message.append("\r\n");
-            _tcpSocket->write(message.toUtf8());
-            qCDebug(NTRIPRTCMSourceLog) << "Send GPGGA:" << message;
+    static QElapsedTimer s_socketFailLogTimer;
+    static QElapsedTimer s_fakeGgaWarnTimer;
+    if (!s_socketFailLogTimer.isValid()) {
+        s_socketFailLogTimer.start();
+    }
+    if (!s_fakeGgaWarnTimer.isValid()) {
+        s_fakeGgaWarnTimer.start();
+    }
+
+    if (!(_tcpSocket->isOpen() && _tcpSocket->isValid() && _tcpSocket->isWritable())) {
+        if (s_socketFailLogTimer.elapsed() >= 5000) {
+            s_socketFailLogTimer.restart();
+            qCWarning(NTRIPRTCMSourceLog) << "GPGGA not sent: TCP not ready — open:"
+                << _tcpSocket->isOpen() << "valid:" << _tcpSocket->isValid()
+                << "writable:" << _tcpSocket->isWritable() << "state:" << _tcpSocket->state()
+                << "error:" << _tcpSocket->errorString();
         }
+        return;
+    }
+
+    // Prefer user/fact GPGGA, then last GGA built from vehicle GPS_RAW_INT (valid rover position).
+    QString line = gpggamessage()->rawValueString().trimmed();
+    if (line.isEmpty() && !_gpggaFromVehicle.isEmpty()) {
+        line = _gpggaFromVehicle.trimmed();
+    }
+    if (line.isEmpty()) {
+        if (s_fakeGgaWarnTimer.elapsed() >= 30000) {
+            s_fakeGgaWarnTimer.restart();
+            qCWarning(NTRIPRTCMSourceLog)
+                << "GPGGA: no vehicle position yet — using built-in fallback coordinates. "
+                   "Enable AutoUpdate GPGGA, connect vehicle, or use Get from Vehicle to avoid caster disconnects.";
+        }
+        line = QString("$GPGGA,%1,3080.7144,N,12134.3847,E,1,04,24.4,19.7,M,1,M,,*").arg(QDateTime::currentDateTimeUtc().toString("hhmmss.zzz"));
+        QByteArray array = line.toLatin1();
+        uint8_t result = static_cast<uint8_t>(array.at(1));
+        for (int i = 2; array.at(i) != '*'; i++) {
+            result ^= static_cast<uint8_t>(array.at(i));
+        }
+        QString res_str = QString::number(result, 16);
+        line.append(res_str.count() == 2 ? res_str : QStringLiteral("0") + res_str);
+    }
+
+    if (!line.endsWith(QStringLiteral("\r\n"))) {
+        line.append(QStringLiteral("\r\n"));
+    }
+    const qint64 w = _tcpSocket->write(line.toUtf8());
+    if (w < 0) {
+        qCWarning(NTRIPRTCMSourceLog) << "GPGGA write failed:" << _tcpSocket->errorString();
+    } else {
+        qCInfo(NTRIPRTCMSourceLog) << "Send GPGGA:" << line.trimmed();
     }
 }
 
@@ -291,6 +338,7 @@ void NTRIPRTCMSource::getFromVehicle()
 void NTRIPRTCMSource::logIn()
 {
     qCDebug(NTRIPRTCMSourceLog) << "Log In...";
+    _shouldReconnect = true;
     setIsLogIning(true);
     _tcpSocket->connectToHost(host()->rawValueString(), static_cast<quint16>(port()->rawValue().toInt()));
 }
@@ -298,6 +346,9 @@ void NTRIPRTCMSource::logIn()
 void NTRIPRTCMSource::logOut()
 {
     qCDebug(NTRIPRTCMSourceLog) << "Log Out";
+    _shouldReconnect = false;
+    _reconnectTimer.stop();
+    _sendGPGGATimer.stop();
     _tcpSocket->close();
 
     if (_tcpSocket->state() != QAbstractSocket::UnconnectedState) {
@@ -335,10 +386,11 @@ void NTRIPRTCMSource::_onSocketConnected()
     QString userinfo = QString(userinfo_raw.toLatin1().toBase64());
     QStringList parts = mountpoint()->rawValue().toString().split(':');
     QString mountPoint = parts[0];
+    // keep-alive: many casters close the stream prematurely if "Connection: close" is used.
     QString request = QString("GET /%1 HTTP/1.1\r\n"
                               "User-Agent: NTRIPSource/v1.0\r\n"
                               "Accept: */*\r\n"
-                              "Connection: close\r\n"
+                              "Connection: keep-alive\r\n"
                               "Authorization: Basic %2\r\n"
                               "\r\n").arg(mountPoint).arg(userinfo);
 
@@ -355,10 +407,14 @@ void NTRIPRTCMSource::_onSocketReplied()
         }
         setIsLogIning(false);
         setIsLogIn(true);
+        // Successful start of stream: cancel any pending reconnect.
+        _reconnectTimer.stop();
         if(_sendGPGGATimer.isActive()) {
             _sendGPGGATimer.stop();
         }
         _sendGPGGATimer.start();
+        qCInfo(NTRIPRTCMSourceLog) << "NTRIP login OK, GPGGA timer started with interval(ms):"
+                                   << _sendGPGGATimer.interval();
         _handle_send_gpgga_time_out();
         qCDebug(NTRIPRTCMSourceLog) << "Socket ICY 200 OK";
     } else if(data.contains("Unauthorized")) {
@@ -413,17 +469,29 @@ void NTRIPRTCMSource::_onSocketReplied()
 void NTRIPRTCMSource::_onSocketError(QAbstractSocket::SocketError error)
 {
     _sendGPGGATimer.stop();
-    qCDebug(NTRIPRTCMSourceLog) << QString("Socket Error:") << error;
+    qCWarning(NTRIPRTCMSourceLog) << "NTRIP TCP error:" << error << _tcpSocket->errorString()
+        << "— GPGGA/RTCM from caster will stop until reconnect";
     _tcpSocket->close();
     setIsLogIn(false);
     setIsLogIning(false);
+    // If user wanted to stay logged in, try to reconnect after a short delay.
+    if (_shouldReconnect && !_reconnectTimer.isActive()) {
+        _reconnectTimer.start();
+    }
 }
 
 void NTRIPRTCMSource::_onSocketDisconnected()
 {
     _sendGPGGATimer.stop();
+    qCWarning(NTRIPRTCMSourceLog) << "NTRIP TCP disconnected"
+        << "shouldReconnect:" << _shouldReconnect << "peer:" << _tcpSocket->peerName();
     setIsLogIn(false);
     setIsLogIning(false);
+    // Same logic as error: schedule a reconnect only if user didn't explicitly log out.
+    if (_shouldReconnect && !_reconnectTimer.isActive()) {
+        qCInfo(NTRIPRTCMSourceLog) << "NTRIP: scheduling reconnect in" << _reconnectTimer.interval() << "ms";
+        _reconnectTimer.start();
+    }
 }
 
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, host)

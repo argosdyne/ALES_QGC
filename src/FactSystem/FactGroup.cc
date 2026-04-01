@@ -18,6 +18,8 @@
 #include <QFile>
 #include <QQmlEngine>
 
+QGC_LOGGING_CATEGORY(FactGroupLog, "FactGroupLog")
+
 FactGroup::FactGroup(int updateRateMsecs, const QString& metaDataFile, QObject* parent, bool ignoreCamelCase)
     : QObject(parent)
     , _updateRateMSecs(updateRateMsecs)
@@ -101,7 +103,7 @@ Fact* FactGroup::getFact(const QString& name)
         fact = _nameToFactMap[camelCaseName];
         QQmlEngine::setObjectOwnership(fact, QQmlEngine::CppOwnership);
     } else {
-        qWarning() << "Unknown Fact" << camelCaseName;
+        //qWarning(FactGroupLog) << "Unknown Fact" << camelCaseName;
     }
 
     return fact;
@@ -116,7 +118,7 @@ FactGroup* FactGroup::getFactGroup(const QString& name)
         factGroup = _nameToFactGroupMap[camelCaseName];
         QQmlEngine::setObjectOwnership(factGroup, QQmlEngine::CppOwnership);
     } else {
-        qWarning() << "Unknown FactGroup" << camelCaseName;
+        //qWarning(FactGroupLog) << "Unknown FactGroup" << camelCaseName;
     }
 
     return factGroup;

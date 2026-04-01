@@ -73,6 +73,9 @@ private:
     Fact _gpggamessageFact;
     bool _isLogIn{false};
     bool _isLogIning{false};
+    // If true, socket errors/disconnects will trigger automatic reconnect attempts.
+    QTimer _reconnectTimer;
+    bool   _shouldReconnect{false};
     QStringList contentList;
 };
 
