@@ -28,6 +28,16 @@ Rectangle {
 
     QGCPalette { id: qgcPal }
 
+    Timer {
+        id: statusPollTimer
+        interval: 4000
+        repeat: true
+        running: root.visible && _ys
+
+        onTriggered: {
+            _ys.requestStatus()
+        }
+    }
     property var _ys:             QGroundControl.corePlugin.ysManager
     property bool _showDetails:   false
     property bool _showParameters:false
@@ -131,13 +141,15 @@ Rectangle {
                             spacing: ScreenTools.defaultFontPixelHeight * 0.6
                             QGCButton {
                                 text: qsTr("PWR OFF")
+                                enabled: _ys && _ys.statusValid
                                 onClicked: if (_ys) { _ys.powerOff() }
                             }
                             QGCButton {
-                                text: _ys && _ys.acquisitionRunning ? qsTr("Acquisition OFF") : qsTr("Acquisition ON")
+                                text: _ys && _ys.acquisitionRunning && _ys.statusValid ? qsTr("Acquisition OFF") : qsTr("Acquisition ON")
+                                enabled: _ys && _ys.statusValid
                                 onClicked: {
                                     if (_ys) {
-                                        if (_ys.acquisitionRunning) {
+                                        if (_ys.acquisitionRunning && _ys.statusValid) {
                                             _ys.stopAcquisition()
                                         } else {
                                             _ys.startAcquisition()
@@ -177,6 +189,7 @@ Rectangle {
                             }
                             QGCButton {
                                 text: qsTr("Configure")
+                                visible: false // Configuration is currently not supported, so hide button for now. Can be re-enabled when configuration functionality is added.
                                 enabled: _ys ? true : false
                                 onClicked: {
                                     _showParameters = true

@@ -47,13 +47,13 @@ public:
     Q_PROPERTY(QString lastReceivedMessage     READ lastReceivedMessage     NOTIFY messageChanged)
 
     bool statusValid(void) const { return _statusValid; }
-    bool anyError(void) const { return _insErr || _scnErr || _intErr || _camErr; }
+    bool anyError(void) const { return timeNotSet() || scannerNotReady() || insNotLocked() || noUsb() || usbFull() || _insErr || _scnErr || _intErr || _camErr; }
 
     bool acquisitionRunning(void) const { return (_genInfo & kGenInfoAcqRunning) != 0; }
-    bool timeNotSet(void) const { return (_insInfo & kInsInfoTimeNotSet) != 0; }
-    bool scannerNotReady(void) const { return (_scnInfo & kScnInfoNotReady) != 0; }
-    bool insNotLocked(void) const { return (_insInfo & kInsInfoNotLocked) != 0; }
-    bool noUsb(void) const { return (_genInfo & kGenInfoNoUsb) != 0; }
+    bool timeNotSet(void) const { return (_insErr  & kInsInfoTimeNotSet) != 0; }
+    bool scannerNotReady(void) const { return (_scnInfo & kScnInfoNotReady) == 0; }
+    bool insNotLocked(void) const { return (_insInfo & kInsInfoNotLocked) == 0; }
+    bool noUsb(void) const { return (_genInfo & kGenInfoNoUsb) == 0; }
     bool usbFull(void) const { return (_genInfo & kGenInfoUsbFull) != 0; }
 
     quint8 insInfo(void) const { return _insInfo; }
@@ -173,16 +173,16 @@ private:
     QString _lastSentMessage;
     QString _lastReceivedMessage;
 
-    static constexpr qint64 kStatusTimeoutMs = 4000;
+    static constexpr qint64 kStatusTimeoutMs = 5000;
     static constexpr qint64 kStatusResponseTimeoutMs = 2000;
     static constexpr qint64 kParamResponseTimeoutMs = 2000;
     static constexpr qint64 kSetResponseTimeoutMs = 2000;
     // Assumed bit mapping for info bytes (can be adjusted when spec is confirmed)
-    static constexpr quint8 kInsInfoTimeNotSet = 1 << 0;
-    static constexpr quint8 kInsInfoNotLocked = 1 << 1;
-    static constexpr quint8 kScnInfoNotReady  = 1 << 0;
+    static constexpr quint8 kInsInfoTimeNotSet = 1 << 5;  
+    static constexpr quint8 kInsInfoNotLocked = 1 << 1;   
+    static constexpr quint8 kScnInfoNotReady  = 1 << 1; 
     static constexpr quint8 kGenInfoAcqRunning = 1 << 0;
-    static constexpr quint8 kGenInfoNoUsb     = 1 << 1;
+    static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
 
     enum YSParameterIndex {

@@ -185,13 +185,13 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
 void YSManager::_updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
                               quint8 insErr, quint8 scnErr, quint8 intErr, quint8 camErr)
 {
-    _insInfo = insInfo;
-    _scnInfo = scnInfo;
-    _genInfo = genInfo;
-    _insErr = insErr;
-    _scnErr = scnErr;
-    _intErr = intErr;
-    _camErr = camErr;
+    _insInfo = insInfo & 0x1F; // Mask to 5 bits as INS info only has 5 info flags.;
+    _scnInfo = scnInfo & 0x1F; // Mask to 5 bits as scanner info only has 5 info flags.
+    _genInfo = genInfo & 0x0F; // Mask to 4 bits as general info only has 4 info flags.;
+    _insErr = insErr & 0x3F; // Mask to 6 bits as INS error only has 6 error flags.;
+    _scnErr = scnErr & 0x1F; // Mask to 5 bits as scanner error only has 5 error flags.
+    _intErr = intErr & 0x03; // Mask to 2 bits as internal error only has 2 error flags.;
+    _camErr = camErr & 0x07; // Mask to 3 bits as camera error only has 3 error flags.;
     _lastStatusMs = _statusTimer.elapsed();
     _awaitingFreshStatus = false;
     if (!_statusValid) {
@@ -265,10 +265,13 @@ void YSManager::_checkStatusTimeout(void)
         return;
     }
 
-    if (_awaitingFreshStatus && _statusValid) {
-        _statusValid = false;
-        emit statusValidChanged();
-    }
+   if (_statusValid) {
+        const qint64 nowMs = _statusTimer.elapsed();
+        if (_lastStatusMs >= 0 && (nowMs - _lastStatusMs) > kStatusTimeoutMs) {
+            _statusValid = false;
+            emit statusValidChanged();
+        }
+   }
 }
 
 void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
@@ -438,10 +441,10 @@ void YSManager::requestParameter(int paramIndex)
 
 void YSManager::requestStatus(void)
 {
-    if (_statusValid) {
-        _statusValid = false;
-        emit statusValidChanged();
-    }
+    // if (_statusValid) {
+    //     _statusValid = false;
+    //     emit statusValidChanged();
+    // }
     _awaitingFreshStatus = true;
     _pendingParamIndex = -1;
     _enqueueStatusRequest("YS_STA_00");
