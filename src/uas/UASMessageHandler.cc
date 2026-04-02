@@ -18,6 +18,37 @@
 #include "UASMessageHandler.h"
 #include "MultiVehicleManager.h"
 #include "Vehicle.h"
+#include <QDateTime>
+#include <QRegularExpression>
+
+namespace {
+
+static constexpr int kMaxStoredMessages              = 200;
+static constexpr qint64 kDuplicateThrottleWindowMs   = 3000;
+static constexpr qint64 kUiBurstWindowMs             = 2000;
+static constexpr int kUiBurstThreshold               = 8;
+static const QRegularExpression kHtmlTagExpression(QStringLiteral("<[^>]*>"));
+
+QString throttleKeyForText(const QString& text)
+{
+    QString plainText = text;
+    plainText.remove(kHtmlTagExpression);
+    plainText = plainText.simplified().toLower();
+
+    if (plainText.contains(QStringLiteral("radio failsafe"))) {
+        return QStringLiteral("radio-failsafe");
+    }
+    if (plainText.contains(QStringLiteral("precland0")) || plainText.contains(QStringLiteral("precland1")) || plainText.contains(QStringLiteral("precland"))) {
+        return QStringLiteral("precland-nactive");
+    }
+    if (plainText.contains(QStringLiteral("prearm: radio failsafe on"))) {
+        return QStringLiteral("prearm-radio-failsafe");
+    }
+
+    return QString();
+}
+
+}
 
 UASMessage::UASMessage(int componentid, int severity, QString text)
 {
@@ -77,6 +108,8 @@ void UASMessageHandler::clearMessages()
         delete _messages.last();
         _messages.pop_back();
     }
+    _messageDisplayTimeMap.clear();
+    _uiMessageBurstWindow.clear();
     _errorCount   = 0;
     _warningCount = 0;
     _normalCount  = 0;
@@ -122,6 +155,12 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
     // 3: Otherwise color it the standard color, white.
 
     _mutex.lock();
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (_shouldDropDuplicateMessage(severity, text, now)) {
+        _mutex.unlock();
+        return;
+    }
 
     if (_activeComponent < 0) {
         _activeComponent = compId;
@@ -195,16 +234,60 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
     }
     message->_setFormatedText(QString("<font style=\"%1\">[%2%3]%4 %5</font><br/>").arg(style).arg(dateString).arg(compString).arg(severityText).arg(text));
 
+    _messages.append(message);
+    _trimMessages();
+    int count = _messages.count();
+
+    const bool suppressUiUpdate = _shouldSuppressUiUpdate(severity, now);
     _mutex.unlock();
 
-    emit textMessageReceived(message);
+    if (!suppressUiUpdate) {
+        emit textMessageReceived(message);
+    }
 
-    _messages.append(message);
-    int count = _messages.count();
     emit textMessageCountChanged(count);
 
-    if (_showErrorsInToolbar && message->severityIsError()) {
+    if (!suppressUiUpdate && _showErrorsInToolbar && message->severityIsError()) {
         _app->showCriticalVehicleMessage(message->getText());
+    }
+}
+
+bool UASMessageHandler::_shouldDropDuplicateMessage(int severity, const QString& text, qint64 now)
+{
+    Q_UNUSED(severity);
+
+    const QString key = throttleKeyForText(text);
+    if (key.isEmpty()) {
+        return false;
+    }
+
+    const auto it = _messageDisplayTimeMap.constFind(key);
+    if (it != _messageDisplayTimeMap.constEnd() && (now - it.value()) < kDuplicateThrottleWindowMs) {
+        return true;
+    }
+
+    _messageDisplayTimeMap[key] = now;
+    return false;
+}
+
+bool UASMessageHandler::_shouldSuppressUiUpdate(int severity, qint64 now)
+{
+    if (severity > MAV_SEVERITY_WARNING) {
+        return false;
+    }
+
+    while (!_uiMessageBurstWindow.isEmpty() && (now - _uiMessageBurstWindow.head()) > kUiBurstWindowMs) {
+        _uiMessageBurstWindow.dequeue();
+    }
+
+    _uiMessageBurstWindow.enqueue(now);
+    return _uiMessageBurstWindow.count() > kUiBurstThreshold;
+}
+
+void UASMessageHandler::_trimMessages()
+{
+    while (_messages.count() > kMaxStoredMessages) {
+        delete _messages.takeFirst();
     }
 }
 

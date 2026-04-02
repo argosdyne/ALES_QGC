@@ -12,6 +12,8 @@
 #include <QObject>
 #include <QVector>
 #include <QMutex>
+#include <QHash>
+#include <QQueue>
 
 #include "QGCToolbox.h"
 
@@ -132,11 +134,17 @@ private slots:
     void _activeVehicleChanged(Vehicle* vehicle);
 
 private:
+    bool _shouldDropDuplicateMessage(int severity, const QString& text, qint64 now);
+    bool _shouldSuppressUiUpdate(int severity, qint64 now);
+    void _trimMessages();
+
     Vehicle*                _activeVehicle;
     int                     _activeComponent;
     bool                    _multiComp;
     QVector<UASMessage*>    _messages;
     QMutex                  _mutex;
+    QHash<QString, qint64>  _messageDisplayTimeMap;
+    QQueue<qint64>          _uiMessageBurstWindow;
     int                     _errorCount;
     int                     _errorCountTotal;
     int                     _warningCount;
