@@ -30,14 +30,32 @@ MapQuickItem {
     anchorPoint.y:  vehicleItem.height / 2
 
     property real   _ratio: 1
-    property real   _maxDistance:   isNaN(proximityValues.maxDistance)
+    property real   _maxDistance: isNaN(proximityValues.maxDistance) ? 0 : proximityValues.maxDistance
+    property real   _maxDrawableDiameter: 4096
+    property bool   _sizeValid: true
 
     function calcSize() {
         var scaleLinePixelLength    = 100
         var leftCoord               = map.toCoordinate(Qt.point(0, 0), false /* clipToViewPort */)
         var rightCoord              = map.toCoordinate(Qt.point(scaleLinePixelLength, 0), false /* clipToViewPort */)
-        var scaleLineMeters         = Math.round(leftCoord.distanceTo(rightCoord))
-        _ratio = scaleLinePixelLength / scaleLineMeters;
+        var distanceMeters          = leftCoord.distanceTo(rightCoord)
+        var scaleLineMeters         = Math.round(distanceMeters)
+        if (!isFinite(distanceMeters) || scaleLineMeters <= 0) {
+            _ratio = 1
+            _sizeValid = false
+        } else {
+            _ratio = scaleLinePixelLength / scaleLineMeters
+
+            var proposedDiameter = proximityValues.maxDistance * 2 * _ratio
+            _sizeValid = isFinite(_ratio) &&
+                         _ratio > 0 &&
+                         isFinite(proposedDiameter) &&
+                         proposedDiameter > 0 &&
+                         proposedDiameter <= _maxDrawableDiameter
+            if (!_sizeValid) {
+                _ratio = 1
+            }
+        }
     }
 
     ProximityRadarValues {
@@ -85,6 +103,10 @@ MapQuickItem {
             }
 
             onPaint: {
+                if (!_sizeValid || width <= 0 || height <= 0 || !isFinite(width) || !isFinite(height)) {
+                    return
+                }
+
                 var ctx = getContext("2d");
                 ctx.reset();
                 ctx.translate(width/2, height/2)
@@ -93,10 +115,14 @@ MapQuickItem {
                 ctx.strokeStyle = Qt.rgba(1, 0, 0, 1);
                 for(var i=0; i<proximityValues.rgRotationValues.length; i++){
                     var rotationValue = proximityValues.rgRotationValues[i]
-                    if (!isNaN(rotationValue)) {
+                    if (!isNaN(rotationValue) && isFinite(rotationValue)) {
                         var a=deg2rad(360-22.5)+Math.PI/4*i;
+                        var radius = rotationValue * _ratio
+                        if (!isFinite(radius) || radius < 0 || radius > _maxDrawableDiameter) {
+                            continue
+                        }
                         ctx.beginPath();
-                        ctx.arc(0, 0, rotationValue * _ratio, a, a + Math.PI/4,false);
+                        ctx.arc(0, 0, radius, a, a + Math.PI/4,false);
                         ctx.stroke();
                     }
                 }
@@ -105,9 +131,8 @@ MapQuickItem {
 
         Rectangle {
             id:                 detectionLimitCircle
-            width:              proximityValues.maxDistance * 2 *_ratio
-            height:             proximityValues.maxDistance * 2 *_ratio
-            anchors.fill:       detectionLimitCircle
+            width:              _sizeValid ? Math.min(proximityValues.maxDistance * 2 * _ratio, _maxDrawableDiameter) : 0
+            height:             _sizeValid ? Math.min(proximityValues.maxDistance * 2 * _ratio, _maxDrawableDiameter) : 0
             color:              Qt.rgba(1,1,1,0)
             border.color:       Qt.rgba(1,1,1,1)
             border.width:       5

@@ -150,10 +150,10 @@ public class QGCActivity extends QtActivity
                             UsbSerialDriver driver = _findDriverByDeviceId(device.getDeviceId());
 
                             if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                                qgcLogDebug("Permission granted to " + device.getDeviceName());
+                                safeQgcLogDebug("Permission granted to " + device.getDeviceName());
                                 driver.setPermissionStatus(UsbSerialDriver.permissionStatusSuccess);
                             } else {
-                                qgcLogDebug("Permission denied for " + device.getDeviceName());
+                                safeQgcLogDebug("Permission denied for " + device.getDeviceName());
                                 driver.setPermissionStatus(UsbSerialDriver.permissionStatusDenied);
                             }
                         }
@@ -184,6 +184,22 @@ public class QGCActivity extends QtActivity
     // Native C++ functions called to log output
     public static native void qgcLogDebug(String message);
     public static native void qgcLogWarning(String message);
+
+    public static void safeQgcLogDebug(String message) {
+        try {
+            qgcLogDebug(message);
+        } catch (UnsatisfiedLinkError e) {
+            Log.d(TAG, message + " (native log unavailable)");
+        }
+    }
+
+    public static void safeQgcLogWarning(String message) {
+        try {
+            qgcLogWarning(message);
+        } catch (UnsatisfiedLinkError e) {
+            Log.w(TAG, message + " (native log unavailable)");
+        }
+    }
 
     public native void nativeInit();
 
@@ -305,7 +321,7 @@ public class QGCActivity extends QtActivity
             }
 
             if (!found) {
-                qgcLogDebug("Remove stale driver " + _drivers.get(i).getDevice().getDeviceName());
+                safeQgcLogDebug("Remove stale driver " + _drivers.get(i).getDevice().getDeviceName());
                 _drivers.remove(i);
             }
         }
@@ -326,14 +342,14 @@ public class QGCActivity extends QtActivity
                 String          deviceName =    device.getDeviceName();
 
                 _drivers.add(newDriver);
-                qgcLogDebug("Adding new driver " + deviceName);
+                safeQgcLogDebug("Adding new driver " + deviceName);
 
                 // Request permission if needed
                 if (_usbManager.hasPermission(device)) {
-                    qgcLogDebug("Already have permission to use device " + deviceName);
+                    safeQgcLogDebug("Already have permission to use device " + deviceName);
                     newDriver.setPermissionStatus(UsbSerialDriver.permissionStatusSuccess);
                 } else {
-                    qgcLogDebug("Requesting permission to use device " + deviceName);
+                    safeQgcLogDebug("Requesting permission to use device " + deviceName);
                     newDriver.setPermissionStatus(UsbSerialDriver.permissionStatusRequested);
                     _usbManager.requestPermission(device, _usbPermissionIntent);
                 }
@@ -402,12 +418,12 @@ public class QGCActivity extends QtActivity
 
         UsbSerialDriver driver = _findDriverByDeviceName(deviceName);
         if (driver == null) {
-            qgcLogWarning("Attempt to open unknown device " + deviceName);
+            safeQgcLogWarning("Attempt to open unknown device " + deviceName);
             return BAD_DEVICE_ID;
         }
 
         if (driver.permissionStatus() != UsbSerialDriver.permissionStatusSuccess) {
-            qgcLogWarning("Attempt to open device with incorrect permission status " + deviceName + " " + driver.permissionStatus());
+            safeQgcLogWarning("Attempt to open device with incorrect permission status " + deviceName + " " + driver.permissionStatus());
             return BAD_DEVICE_ID;
         }
 
@@ -425,7 +441,7 @@ public class QGCActivity extends QtActivity
             m_ioManager.put(deviceId, ioManager);
             m_Executor.submit(ioManager);
 
-            qgcLogDebug("Port open successful");
+            safeQgcLogDebug("Port open successful");
         } catch(IOException exA) {
             driver.setPermissionStatus(UsbSerialDriver.permissionStatusRequestRequired);
             _userDataHashByDeviceId.remove(deviceId);
@@ -434,7 +450,7 @@ public class QGCActivity extends QtActivity
                 m_ioManager.get(deviceId).stop();
                 m_ioManager.remove(deviceId);
             }
-            qgcLogWarning("Port open exception: " + exA.getMessage());
+            safeQgcLogWarning("Port open exception: " + exA.getMessage());
             return BAD_DEVICE_ID;
         }
 
