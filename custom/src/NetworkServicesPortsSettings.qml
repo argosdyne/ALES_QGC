@@ -50,113 +50,135 @@ Rectangle {
         }
 
     QGCFlickable {
-        anchors.fill:   parent
         clip:           true
-        contentHeight:  contentColumn.height
-        contentWidth:   contentColumn.width
+        anchors.fill:   parent
+        contentHeight:  outerItem.height
+        contentWidth:   outerItem.width
 
-        Column {
-            id:                 contentColumn
-            width:              _root.width
-            spacing:            ScreenTools.defaultFontPixelHeight
+        Item {
+            id:     outerItem
+            width:  Math.max(_root.width, settingsColumn.width)
+            height: settingsColumn.height
 
-            Rectangle {
-                width:                      _panelWidth
+            ColumnLayout {
+                id:                         settingsColumn
                 anchors.horizontalCenter:   parent.horizontalCenter
-                color:                      qgcPal.windowShade
-                border.color:               qgcPal.windowShadeDark
-                radius:                     4
-                height:                     cardColumn.height + _margins * 2
+                width:                      _panelWidth
+                spacing:                    ScreenTools.defaultFontPixelHeight * 0.6
 
-                Column {
-                    id:                     cardColumn
-                    spacing:                ScreenTools.defaultFontPixelHeight * 0.7
-                    anchors.left:           parent.left
-                    anchors.right:          parent.right
-                    anchors.top:            parent.top
-                    anchors.margins:        _margins
+                QGCLabel {
+                    text:               qsTr("Network Services & Ports")
+                    font.family:        ScreenTools.demiboldFontFamily
+                    font.pointSize:     ScreenTools.mediumFontPointSize
+                }
 
-                    QGCLabel {
-                        text: qsTr("Network Services & Ports")
-                        font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.mediumFontPointSize
-                    }
+                Rectangle {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: summarySection.height + (_margins * 4)
+                    color:                  qgcPal.windowShade
 
-                    Rectangle {
-                        width:          parent.width
-                        color:          qgcPal.windowShadeDark
-                        border.color:   qgcPal.windowShadeDark
-                        radius:         3
-                        height:         summaryColumn.height + _margins
+                    Item {
+                        id:                 summarySection
+                        anchors.margins:    _margins
+                        anchors.top:        parent.top
+                        anchors.left:       parent.left
+                        anchors.right:      parent.right
+                        height:             summaryCard.height
 
-                        Column {
-                            id:                     summaryColumn
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
-                            spacing:                ScreenTools.defaultFontPixelHeight * 0.2
+                        Rectangle {
+                            id:             summaryCard
+                            width:          parent.width
+                            color:          qgcPal.window
+                            border.color:   qgcPal.windowShadeDark
+                            border.width:   1
+                            height:         summaryColumn.height + (_margins * 4)
 
-                            QGCLabel { text: qsTr("Factory Default: ALL OFF"); font.family: ScreenTools.demiboldFontFamily }
-                            QGCLabel {
-                                text: qsTr("Current Status: Secure (%1 Listening Ports)").arg(_openPortCount)
-                                color: _openPortCount === 0 ? qgcPal.colorGreen : qgcPal.colorRed
-                                font.family: ScreenTools.demiboldFontFamily
+                            Column {
+                                id:                     summaryColumn
+                                anchors.left:           parent.left
+                                anchors.right:          parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.margins:        _margins * 1.2
+                                spacing:                ScreenTools.defaultFontPixelHeight * 0.35
+
+                                QGCLabel { text: qsTr("Factory Default: ALL OFF"); font.family: ScreenTools.demiboldFontFamily }
+                                QGCLabel {
+                                    text: qsTr("Current Status : Secure (%1 Listening Ports)").arg(_openPortCount)
+                                    color: _openPortCount === 0 ? qgcPal.colorGreen : qgcPal.colorRed
+                                    font.family: ScreenTools.demiboldFontFamily
+                                }
                             }
                         }
                     }
+                }
 
-                    QGCLabel {
-                        text: qsTr("SERVICE CATALOG")
-                        font.family: ScreenTools.demiboldFontFamily
-                    }
+                QGCLabel {
+                    text:               qsTr("Service Catalog")
+                    font.family:        ScreenTools.demiboldFontFamily
+                    font.pointSize:     ScreenTools.mediumFontPointSize
+                }
 
-                    Rectangle {
-                        width:          parent.width
-                        color:          "transparent"
-                        border.color:   qgcPal.windowShadeDark
-                        radius:         3
-                        height:         udpColumn.height + _margins
+                Rectangle {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: catalogSection.height + (_margins * 2)
+                    color:                  qgcPal.windowShade
 
-                        Column {
-                            id:                     udpColumn
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
-                            spacing:                ScreenTools.defaultFontPixelHeight * 0.25
+                    Column {
+                        id:                     catalogSection
+                        anchors.left:           parent.left
+                        anchors.right:          parent.right
+                        anchors.top:            parent.top
+                        anchors.margins:        _margins
+                        spacing:                _margins
 
-                            QGCLabel { text: qsTr("MAVLink UDP Listener"); font.family: ScreenTools.demiboldFontFamily }
-                            QGCLabel { text: qsTr("Protocol: UDP | Default Port: %1 | Bind: %2").arg(_udpPort.rawValue).arg(_udpBind.rawValue) }
-                            QGCLabel { text: qsTr("Disable capability: Yes (Instant)") }
+                        Rectangle {
+                            width:          parent.width
+                            color:          qgcPal.window
+                            border.color:   qgcPal.windowShadeDark
+                            border.width:   1
+                            height:         udpColumn.height + (_margins * 1.5)
+
+                            Column {
+                                id:                     udpColumn
+                                anchors.left:           parent.left
+                                anchors.right:          parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.margins:        _margins * 1.2
+                                spacing:                ScreenTools.defaultFontPixelHeight * 0.35
+
+                                QGCLabel { text: qsTr("MAVLink UDP Listener"); font.family: ScreenTools.demiboldFontFamily }
+                                QGCLabel { text: qsTr("Protocol: UDP           Default Port : %1           Bind : %2").arg(_udpPort.rawValue).arg(_udpBind.rawValue) }
+                                QGCLabel { text: qsTr("Disable capability : Yes (Instant)") }
+                            }
                         }
-                    }
 
-                    Rectangle {
-                        width:          parent.width
-                        color:          "transparent"
-                        border.color:   qgcPal.windowShadeDark
-                        radius:         3
-                        height:         tcpColumn.height + _margins
+                        Rectangle {
+                            width:          parent.width
+                            color:          qgcPal.window
+                            border.color:   qgcPal.windowShadeDark
+                            border.width:   1
+                            height:         tcpColumn.height + (_margins * 1.5)
 
-                        Column {
-                            id:                     tcpColumn
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
-                            spacing:                ScreenTools.defaultFontPixelHeight * 0.25
+                            Column {
+                                id:                     tcpColumn
+                                anchors.left:           parent.left
+                                anchors.right:          parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.margins:        _margins * 1.2
+                                spacing:                ScreenTools.defaultFontPixelHeight * 0.35
 
-                            QGCLabel { text: qsTr("MAVLink TCP Connection"); font.family: ScreenTools.demiboldFontFamily }
-                            QGCLabel { text: qsTr("Protocol: TCP | Default Port: %1 | Bind: %2").arg(_tcpPort.rawValue).arg(_tcpBind.rawValue) }
-                            QGCLabel { text: qsTr("Disable capability: Yes (Instant)") }
+                                QGCLabel { text: qsTr("MAVLink TCP Connection"); font.family: ScreenTools.demiboldFontFamily }
+                                QGCLabel { text: qsTr("Protocol: TCP           Default Port : %1           Bind : %2").arg(_tcpPort.rawValue).arg(_tcpBind.rawValue) }
+                                QGCLabel { text: qsTr("Disable capability : Yes (Instant)") }
+                            }
                         }
-                    }
 
-                    QGCButton {
-                        width: parent.width
-                        text: qsTr("Export as Audit Report (.txt)")
-                        onClicked: saveDialog.openForSave()
+                        QGCButton {
+                            width:      parent.width * 0.62
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text:       qsTr("Export as Audit Report (.txt)")
+                            onClicked:  saveDialog.openForSave()
+                        }
                     }
                 }
             }

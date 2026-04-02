@@ -97,127 +97,102 @@ Rectangle {
     }
 
     QGCFlickable {
-        anchors.fill:   parent
         clip:           true
-        contentHeight:  contentColumn.height
-        contentWidth:   contentColumn.width
+        anchors.fill:   parent
+        contentHeight:  outerItem.height
+        contentWidth:   outerItem.width
 
-        Column {
-            id:                 contentColumn
-            width:              _root.width
-            spacing:            ScreenTools.defaultFontPixelHeight
+        Item {
+            id:     outerItem
+            width:  Math.max(_root.width, settingsColumn.width)
+            height: settingsColumn.height
 
-            Rectangle {
-                width:                      _panelWidth
+            ColumnLayout {
+                id:                         settingsColumn
                 anchors.horizontalCenter:   parent.horizontalCenter
-                color:                      qgcPal.windowShade
-                border.color:               qgcPal.windowShadeDark
-                radius:                     4
-                height:                     sectionColumn.height + _margins * 2
+                width:                      _panelWidth *5/6
 
-                Column {
-                    id:                     sectionColumn
-                    spacing:                ScreenTools.defaultFontPixelHeight * 0.7
-                    anchors.left:           parent.left
-                    anchors.right:          parent.right
-                    anchors.top:            parent.top
-                    anchors.margins:        _margins
+                QGCLabel {
+                    id:   connectionsSectionLabel
+                    text: qsTr("Connections")
+                    font.family:    ScreenTools.demiboldFontFamily
+                }
 
-                    QGCLabel {
-                        text: qsTr("Connections")
-                        font.family: ScreenTools.demiboldFontFamily
-                        font.pointSize: ScreenTools.mediumFontPointSize
-                    }
+                Rectangle {
+                    Layout.preferredHeight: connectionsCol.height + (_margins * 6)
+                    Layout.preferredWidth:  _panelWidth
+                    color:                  qgcPal.windowShade
+                    Layout.fillWidth:       true
 
-                    QGCLabel {
-                        text: qsTr("NETWORK SERVICES (MANUAL OVERRIDE)")
-                        font.family: ScreenTools.demiboldFontFamily
-                    }
+                    ColumnLayout {
+                        id:                         connectionsCol                       
+                        anchors.top:                parent.top
+                        anchors.topMargin:          _margins *3
+                        anchors.left:               parent.left
+                        anchors.leftMargin:            _margins *3
+                        anchors.right:              parent.right
+                        anchors.rightMargin:           _margins *5
+                        spacing:                    _margins *1.5
 
-                    Rectangle {
-                        width:          parent.width
-                        color:          qgcPal.windowShadeDark
-                        radius:         3
-                        height:         udpRow.height + _margins
+                        QGCLabel {
+                            text:           qsTr("Network Services (Manual OverRide)")
+                            font.family:    ScreenTools.demiboldFontFamily
+                        }
 
                         RowLayout {
-                            id:                     udpRow
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
+                            Layout.fillWidth:   true
+                            spacing:            _margins
 
                             QGCLabel {
-                                Layout.fillWidth: true
-                                text: qsTr("MAVLink UDP Listener (%1)").arg(_udpPort.rawValue)
+                                Layout.fillWidth:   true
+                                text:               qsTr("MAVLink UDP Listener (%1)").arg(_udpPort.rawValue)
                             }
                             QGCComboBox {
-                                model: ["OFF", "ON"]
-                                currentIndex: _root.boolToIndex(_udpEnabled.rawValue)
-                                onActivated: _root._setUdpEnabled(_root.indexToBool(index))
+                                model:          ["OFF", "ON"]
+                                currentIndex:   _root.boolToIndex(_udpEnabled.rawValue)
+                                onActivated:    _root._setUdpEnabled(_root.indexToBool(index))
                             }
                         }
-                    }
-
-                    Rectangle {
-                        width:          parent.width
-                        color:          qgcPal.windowShadeDark
-                        radius:         3
-                        height:         tcpRow.height + _margins
 
                         RowLayout {
-                            id:                     tcpRow
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
+                            Layout.fillWidth:   true
+                            spacing:            _margins
 
                             QGCLabel {
-                                Layout.fillWidth: true
-                                text: qsTr("MAVLink TCP Connection (%1)").arg(_tcpPort.rawValue)
+                                Layout.fillWidth:   true
+                                text:               qsTr("MAVLink TCP Connection (%1)").arg(_tcpPort.rawValue)
                             }
                             QGCComboBox {
-                                model: ["OFF", "ON"]
-                                currentIndex: _root.boolToIndex(_tcpEnabled.rawValue)
-                                onActivated: _root._setTcpEnabled(_root.indexToBool(index))
+                                model:          ["OFF", "ON"]
+                                currentIndex:   _root.boolToIndex(_tcpEnabled.rawValue)
+                                onActivated:    _root._setTcpEnabled(_root.indexToBool(index))
                             }
                         }
-                    }
-
-                    Rectangle {
-                        width:          parent.width
-                        color:          qgcPal.windowShadeDark
-                        radius:         3
-                        height:         videoRow.height + _margins
 
                         RowLayout {
-                            id:                     videoRow
-                            anchors.left:           parent.left
-                            anchors.right:          parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins:        _margins
+                            Layout.fillWidth:   true
+                            spacing:            _margins
 
                             QGCLabel {
-                                Layout.fillWidth: true
-                                text: qsTr("Video Streaming (GStreamer)")
+                                Layout.fillWidth:   true
+                                text:               qsTr("Video Streaming (GStreamer)")
                             }
                             QGCComboBox {
-                                model: ["OFF", "ON"]
-                                currentIndex: _root.boolToIndex(_videoEnabled.rawValue)
-                                onActivated: _root._applyVideoState(_root.indexToBool(index))
+                                model:          ["OFF", "ON"]
+                                currentIndex:   _root.boolToIndex(_videoEnabled.rawValue)
+                                onActivated:    _root._applyVideoState(_root.indexToBool(index))
                             }
                         }
-                    }
 
-                    QGCLabel {
-                        id: networkServicesDocLink
-                        text: qsTr("Open Network Services & Ports Documentation")
-                        color: qgcPal.colorBlue
+                        QGCLabel {
+                            text:   qsTr("Open Network Services & Ports Documentation")
+                            color:  qgcPal.colorGrey
 
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: _root._openNetworkServicesPage()
+                            MouseArea {
+                                anchors.fill:   parent
+                                cursorShape:    Qt.PointingHandCursor
+                                onClicked:      _root._openNetworkServicesPage()
+                            }
                         }
                     }
                 }
