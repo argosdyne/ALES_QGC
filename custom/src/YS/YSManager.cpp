@@ -151,9 +151,9 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
             if (ack.command == MAV_CMD_USER_1 && ack.result == MAV_RESULT_ACCEPTED) {
                 const bool startRequested = _lastCommand == MAV_CMD_USER_1 && _lastCommandParam1 > 0.5f;
                 if (startRequested) {
-                    _genInfo |= kGenInfoAcqRunning;
+                    kGenInfoAcqRunning = true;
                 } else {
-                    _genInfo &= static_cast<quint8>(~kGenInfoAcqRunning);
+                    kGenInfoAcqRunning = false;
                 }
                 _lastStatusMs = _statusTimer.elapsed();
                 if (!_statusValid) {
@@ -280,33 +280,34 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
         return;
     }
     _lastReceivedMessage.clear();
-    mavlink_message_t msg{};
-    mavlink_msg_command_long_pack(
-        kYellowScanSysId,
-        kYellowScanCompId,
-        &msg,
-        kYellowScanSysId,
-        kYellowScanCompId,
-        static_cast<uint16_t>(command),
-        0,
-        param1,
-        param2,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f);
-
-    const QString hex = _formatMavlinkHex(msg);
-    _updateSentMessage(QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3 | hex=%4")
-                           .arg(command)
-                           .arg(param1)
-                           .arg(param2)
-                           .arg(hex));
-
     if (_vehicle) {
         SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
         if (sharedLink) {
+            MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+            mavlink_message_t msg{};
+            mavlink_msg_command_long_pack_chan(
+                static_cast<uint8_t>(mavlink->getSystemId()),
+                static_cast<uint8_t>(mavlink->getComponentId()),
+                sharedLink->mavlinkChannel(),
+                &msg,
+                kYellowScanSysId,
+                kYellowScanCompId,
+                static_cast<uint16_t>(command),
+                0,
+                param1,
+                param2,
+                0.0f,
+                0.0f,
+                0.0f,
+                0.0f,
+                0.0f);
+
+            const QString hex = _formatMavlinkHex(msg);
+            _updateSentMessage(QStringLiteral("CMD_LONG cmd=%1 p1=%2 p2=%3 | hex=%4")
+                                   .arg(command)
+                                   .arg(param1)
+                                   .arg(param2)
+                                   .arg(hex));
             _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
         }
     }
@@ -315,24 +316,25 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
 void YSManager::_sendNamedValueInt(const char* name, int32_t value)
 {
     _lastReceivedMessage.clear();
-    mavlink_message_t msg{};
-    mavlink_msg_named_value_int_pack(
-        kYellowScanSysId,
-        kYellowScanCompId,
-        &msg,
-        0,
-        name,
-        value);
-
-    const QString hex = _formatMavlinkHex(msg);
-    _updateSentMessage(QStringLiteral("NAMED_VALUE_INT %1 value=%2 | hex=%3")
-                           .arg(QString::fromLatin1(name))
-                           .arg(value)
-                           .arg(hex));
-
     if (_vehicle) {
         SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
         if (sharedLink) {
+            MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+            mavlink_message_t msg{};
+            mavlink_msg_named_value_int_pack_chan(
+                static_cast<uint8_t>(mavlink->getSystemId()),
+                static_cast<uint8_t>(mavlink->getComponentId()),
+                sharedLink->mavlinkChannel(),
+                &msg,
+                0,
+                name,
+                value);
+
+            const QString hex = _formatMavlinkHex(msg);
+            _updateSentMessage(QStringLiteral("NAMED_VALUE_INT %1 value=%2 | hex=%3")
+                                   .arg(QString::fromLatin1(name))
+                                   .arg(value)
+                                   .arg(hex));
             _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
         }
     }

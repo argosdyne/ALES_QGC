@@ -49,7 +49,7 @@ public:
     bool statusValid(void) const { return _statusValid; }
     bool anyError(void) const { return timeNotSet() || scannerNotReady() || insNotLocked() || noUsb() || usbFull() || _insErr || _scnErr || _intErr || _camErr; }
 
-    bool acquisitionRunning(void) const { return (_genInfo & kGenInfoAcqRunning) != 0; }
+    bool acquisitionRunning(void) const { return kGenInfoAcqRunning; }
     bool timeNotSet(void) const { return (_insErr  & kInsInfoTimeNotSet) != 0; }
     bool scannerNotReady(void) const { return (_scnInfo & kScnInfoNotReady) == 0; }
     bool insNotLocked(void) const { return (_insInfo & kInsInfoNotLocked) == 0; }
@@ -180,8 +180,8 @@ private:
     // Assumed bit mapping for info bytes (can be adjusted when spec is confirmed)
     static constexpr quint8 kInsInfoTimeNotSet = 1 << 5;  
     static constexpr quint8 kInsInfoNotLocked = 1 << 1;   
-    static constexpr quint8 kScnInfoNotReady  = 1 << 1; 
-    static constexpr quint8 kGenInfoAcqRunning = 1 << 0;
+    static constexpr quint8 kScnInfoNotReady  = 1 << 1;
+    bool kGenInfoAcqRunning = false;
     static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
 
