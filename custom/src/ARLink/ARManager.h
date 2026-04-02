@@ -1,6 +1,9 @@
 #pragma once
 #include <QThread>
 #include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QTimer>
 #include "QGCToolbox.h"
 #include "ARConnection.h"
 
@@ -102,9 +105,15 @@ signals:
 private slots:
     void _received_message(quint16 cmd, QByteArray message);
     void _bindTimerout();
+    void _pollDoodleInfo();
+    void _handleDoodleReply(QNetworkReply* reply);
+    void _handleLegacyMountedChanged(bool mounted);
 
 private:
     void _handle_device_info(const QByteArray& message);
+    void _requestDoodleLogin();
+    void _requestDoodleRadioInfo();
+    void _setMountedFromDoodle(bool mounted);
     // void _handle_osd_info(const QByteArray& message);
 
     bool                _mounted{false};
@@ -112,14 +121,20 @@ private:
     bool                _auto{false};
     bool                _binding{false};
     bool                _bindTimeout{false};
+    bool                _usingDoodleApi{false};
+    bool                _doodleRequestInFlight{false};
 
     bool                _pairTriggered{false};
 
     // QThread workerThread;
     ARConnection* _connection{nullptr};
+    QNetworkAccessManager* _networkManager{nullptr};
     QJsonObject _jsonObject;
     QTimer _bindTimer;
+    QTimer _doodlePollTimer;
     QString _deviceIP;
+    QString _doodleDeviceIP{"192.168.2.72"};
+    QString _rpcSession;
 
     static const char* _bbConn;
     static const char* _brFreq;
@@ -149,4 +164,9 @@ private:
     static const char* _is24G;
     static const char* _selfTemperature;
     static const char* _skyTemperature;
+    static const char* _signal;
+    static const char* _noise;
+    static const char* _bitrate;
+    static const char* _channel;
+    static const char* _frequency;
 };
