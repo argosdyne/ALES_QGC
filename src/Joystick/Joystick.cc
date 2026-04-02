@@ -189,7 +189,7 @@ void Joystick::_setDefaultCalibration(void) {
     _buttonFrequencyHz  = _defaultButtonFrequencyHz;
     _throttleMode       = ThrottleModeDownZero;
     _calibrated         = true;
-    _circleCorrection   = false;
+    _circleCorrection   = true;
 
     _saveSettings();
 }
@@ -264,7 +264,7 @@ void Joystick::_loadSettings()
     _deadband           = settings.value(_deadbandSettingsKey,          false).toBool();
     _axisFrequencyHz    = settings.value(_axisFrequencySettingsKey,     _defaultAxisFrequencyHz).toFloat();
     _buttonFrequencyHz  = settings.value(_buttonFrequencySettingsKey,   _defaultButtonFrequencyHz).toFloat();
-    _circleCorrection   = settings.value(_circleCorrectionSettingsKey,  false).toBool();
+    _circleCorrection   = settings.value(_circleCorrectionSettingsKey,  true).toBool();
     _negativeThrust     = settings.value(_negativeThrustSettingsKey,    false).toBool();
 
 
