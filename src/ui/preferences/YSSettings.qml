@@ -30,7 +30,7 @@ Rectangle {
 
     Timer {
         id: statusPollTimer
-        interval: 4000
+        interval: 9000
         repeat: true
         running: root.visible && _ys
 

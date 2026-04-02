@@ -173,7 +173,7 @@ private:
     QString _lastSentMessage;
     QString _lastReceivedMessage;
 
-    static constexpr qint64 kStatusTimeoutMs = 5000;
+    static constexpr qint64 kStatusTimeoutMs = 10000;
     static constexpr qint64 kStatusResponseTimeoutMs = 2000;
     static constexpr qint64 kParamResponseTimeoutMs = 2000;
     static constexpr qint64 kSetResponseTimeoutMs = 2000;
