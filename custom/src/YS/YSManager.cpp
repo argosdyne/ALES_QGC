@@ -163,6 +163,17 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
                 emit statusChanged();
             }
 
+            if (ack.command == MAV_CMD_USER_2 && ack.result == MAV_RESULT_ACCEPTED) {
+                kGenInfoAcqRunning = false;
+                _awaitingFreshStatus = false;
+                _lastStatusMs = -1;
+                if (_statusValid) {
+                    _statusValid = false;
+                    emit statusValidChanged();
+                }
+                emit statusChanged();
+            }
+
             if (_pendingOp == PendingGet && ack.command == MAV_CMD_DO_GET_PARAMETER) {
                 _pendingOp = PendingNone;
                 _pendingParamIndex = -1;
@@ -408,16 +419,37 @@ QString YSManager::_mavResultToString(uint8_t result) const
 
 void YSManager::startAcquisition(void)
 {
+    if (_pendingStatus) {
+        _hasPendingControlCommand = true;
+        _pendingControlCommand    = MAV_CMD_USER_1;
+        _pendingControlParam1     = 1.0f;
+        _pendingControlParam2     = 0.0f;
+        return;
+    }
     _sendCommand(MAV_CMD_USER_1, 1.0f);
 }
 
 void YSManager::stopAcquisition(void)
 {
+    if (_pendingStatus) {
+        _hasPendingControlCommand = true;
+        _pendingControlCommand    = MAV_CMD_USER_1;
+        _pendingControlParam1     = 0.0f;
+        _pendingControlParam2     = 0.0f;
+        return;
+    }
     _sendCommand(MAV_CMD_USER_1, 0.0f);
 }
 
 void YSManager::powerOff(void)
 {
+    if (_pendingStatus) {
+        _hasPendingControlCommand = true;
+        _pendingControlCommand    = MAV_CMD_USER_2;
+        _pendingControlParam1     = 0.0f;
+        _pendingControlParam2     = 0.0f;
+        return;
+    }
     _sendCommand(MAV_CMD_USER_2);
 }
 
@@ -470,9 +502,19 @@ void YSManager::_enqueueStatusRequest(const char* name)
     }
 }
 
+void YSManager::_flushPendingControlCommand(void)
+{
+    if (!_hasPendingControlCommand) {
+        return;
+    }
+    _hasPendingControlCommand = false;
+    _sendCommand(_pendingControlCommand, _pendingControlParam1, _pendingControlParam2);
+}
+
 void YSManager::_startNextStatus(void)
 {
     if (_pendingStatusQueue.isEmpty()) {
+        _flushPendingControlCommand();
         return;
     }
     _pendingStatus = true;

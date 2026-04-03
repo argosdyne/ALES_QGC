@@ -121,6 +121,7 @@ private:
     void _updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
                        quint8 insErr, quint8 scnErr, quint8 intErr, quint8 camErr);
     void _sendCommand(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f);
+    void _flushPendingControlCommand(void);
     void _setParameterValue(int paramIndex, float value);
 
     Vehicle* _vehicle{nullptr};
@@ -140,6 +141,11 @@ private:
     float _lastCommandParam2{0.0f};
     qint64 _lastCommandMs{-1000};
     qint64 _lastSentMs{-1000};
+
+    bool _hasPendingControlCommand{false};
+    MAV_CMD _pendingControlCommand{static_cast<MAV_CMD>(0)};
+    float _pendingControlParam1{0.0f};
+    float _pendingControlParam2{0.0f};
 
     enum PendingOp {
         PendingNone,
@@ -173,7 +179,7 @@ private:
     QString _lastSentMessage;
     QString _lastReceivedMessage;
 
-    static constexpr qint64 kStatusTimeoutMs = 10000;
+    static constexpr qint64 kStatusTimeoutMs = 7000;
     static constexpr qint64 kStatusResponseTimeoutMs = 2000;
     static constexpr qint64 kParamResponseTimeoutMs = 2000;
     static constexpr qint64 kSetResponseTimeoutMs = 2000;

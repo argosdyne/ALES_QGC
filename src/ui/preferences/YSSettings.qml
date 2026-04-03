@@ -28,9 +28,17 @@ Rectangle {
 
     QGCPalette { id: qgcPal }
 
+    Component.onCompleted: {
+        if (_ys) {
+           _ys.requestStatus()
+            syncParametersFromManager()
+
+        }
+    }
+
     Timer {
         id: statusPollTimer
-        interval: 9000
+        interval: 6000
         repeat: true
         running: root.visible && _ys
 
@@ -107,8 +115,6 @@ Rectangle {
         target: _ys
         function onParameterChanged() { syncParametersFromManager() }
     }
-
-    Component.onCompleted: syncParametersFromManager()
 
     ColumnLayout {
         anchors.fill:   parent
