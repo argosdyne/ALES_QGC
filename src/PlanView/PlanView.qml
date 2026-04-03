@@ -695,6 +695,7 @@ Item {
                     }
                 }
 
+                //Vision Lidar functions
                 Rectangle {
 
                     property bool   useObstacleDetection:   false
@@ -704,7 +705,7 @@ Item {
 
                     id:     root
                     width:  parent.width
-                    height: contentColumn.implicitHeight + 24
+                    height: contentColumn.implicitHeight * 1.2
                     color:  backgroundColor
 
                     ColumnLayout {
@@ -724,8 +725,8 @@ Item {
                             Layout.fillWidth: true
 
                             Item {
-                                implicitWidth:  ScreenTools.defaultFontPointSize * 1.5
-                                implicitHeight: ScreenTools.defaultFontPointSize * 1.5
+                                implicitWidth:  ScreenTools.defaultFontPointSize * 3 //1.5
+                                implicitHeight: ScreenTools.defaultFontPointSize * 3 //1.5
 
                                 Rectangle {
                                     anchors.fill: parent
@@ -738,7 +739,7 @@ Item {
                                         anchors.centerIn: parent
                                         text:             "✓"
                                         color:            backgroundColor
-                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 1.2
+                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 2.4 //1.2
                                         font.bold:        true
                                         visible:          root.useObstacleDetection
                                     }
@@ -748,7 +749,7 @@ Item {
                             Text {
                                 text:              qsTr("Use Obstacle Detection")
                                 color:             "white"
-                                font.pixelSize:    ScreenTools.defaultFontPointSize * 1.5
+                                font.pixelSize:    ScreenTools.defaultFontPointSize * 2 //1.5
                                 font.bold:         true
                                 Layout.fillWidth:  true
                                 verticalAlignment: Text.AlignVCenter
@@ -761,10 +762,19 @@ Item {
                                     root.useObstacleDetection = !root.useObstacleDetection
                                     if (root.useObstacleDetection) {
                                         _missionController.setVisionLidar(1)
+                                        _missionController.setVisionLidarValue(1)
                                     } else {
+                                        _missionController.setVisionLidarValue(0)
                                         _missionController.setVisionLidar(0)
                                     }
                                 }
+                            }
+                        }
+
+                        Connections {
+                            target: _missionController
+                            onVlOBAValueChanged: {
+                                root.avoidMode = _missionController.vlOBAValue === 1
                             }
                         }
 
@@ -782,7 +792,7 @@ Item {
                                 Text {
                                     text:           qsTr("Avoid")
                                     color:          root.useObstacleDetection ? "white" : "#666"
-                                    font.pixelSize: ScreenTools.defaultFontPointSize * 1.5
+                                    font.pixelSize: ScreenTools.defaultFontPointSize * 3//1.5
                                 }
 
                                 MouseArea {
@@ -800,7 +810,7 @@ Item {
                                 Text {
                                     text:           qsTr("Stop")
                                     color:          root.useObstacleDetection ? "white" : "#666"
-                                    font.pixelSize: ScreenTools.defaultFontPointSize * 1.5
+                                    font.pixelSize: ScreenTools.defaultFontPointSize * 3//1.5
                                 }
 
                                 MouseArea {
@@ -816,9 +826,9 @@ Item {
                             Text {
                                 text:                qsTr("Detection Distance")
                                 color:               root.useObstacleDetection ? "white" : "#666"
-                                font.pixelSize:      ScreenTools.defaultFontPointSize * 1.5
+                                font.pixelSize:      ScreenTools.defaultFontPointSize * 2.5 //1.5
                                 font.bold:           true
-                                Layout.columnSpan:   2          // ← 핵심
+                                Layout.columnSpan:   2
                                 Layout.fillWidth:    true
                                 Layout.topMargin:    4
                             }
@@ -847,7 +857,7 @@ Item {
                                     Text {
                                         text:              modelData + "m"
                                         color:             root.useObstacleDetection ? "white" : "#666"
-                                        font.pixelSize:    ScreenTools.defaultFontPointSize * 1.5
+                                        font.pixelSize:    ScreenTools.defaultFontPointSize * 3//1.5
                                         Layout.fillWidth:  true
                                         verticalAlignment: Text.AlignVCenter
                                     }
@@ -867,8 +877,8 @@ Item {
 
                     // ── 인라인 라디오 버튼 컴포넌트 ───────────────────────────────
                     component RadioBtn: Item {
-                        implicitWidth:  ScreenTools.defaultFontPixelHeight
-                        implicitHeight: ScreenTools.defaultFontPixelHeight
+                        implicitWidth:  ScreenTools.defaultFontPixelHeight * 1.5
+                        implicitHeight: ScreenTools.defaultFontPixelHeight * 1.5
                         property bool selected: false
                         signal clicked()
 
@@ -881,8 +891,8 @@ Item {
 
                             Rectangle {
                                 anchors.centerIn: parent
-                                width:   10
-                                height:  10
+                                width:   parent.width / 2
+                                height:  parent.width / 2
                                 radius:  width / 2
                                 color:   "white"
                                 visible: parent.parent.selected

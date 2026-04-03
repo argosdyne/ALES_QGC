@@ -823,6 +823,21 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         }
         break;
     }
+    case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
+    {
+        mavlink_param_request_read_t param;
+        mavlink_msg_param_request_read_decode(&message, &param);
+
+        QString paramId = QString::fromLatin1(param.param_id, strnlen(param.param_id, MAVLINK_MSG_PARAM_REQUEST_READ_FIELD_PARAM_ID_LEN));
+
+        if(paramId == "VL_OBA_MODE"){
+            int16_t val = static_cast<int16_t>(param.param_index);
+            qDebug() << "VL_OBA_MODE received: " << val;
+            emit vlOBAValueChanged(static_cast<int>(val));
+        }
+        break;
+    }
+
 // #ifdef DAILY_BUILD // Disable use of development/WIP MAVLink messages for release builds
 //         case MAVLINK_MSG_ID_AVAILABLE_MODES_MONITOR:
 //     {
