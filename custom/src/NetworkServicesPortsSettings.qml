@@ -64,12 +64,11 @@ Rectangle {
                 id:                         settingsColumn
                 anchors.horizontalCenter:   parent.horizontalCenter
                 width:                      _panelWidth
-                spacing:                    ScreenTools.defaultFontPixelHeight * 0.6
+                spacing:                    ScreenTools.defaultFontPixelHeight * 0.3
 
                 QGCLabel {
                     text:               qsTr("Network Services & Ports")
                     font.family:        ScreenTools.demiboldFontFamily
-                    font.pointSize:     ScreenTools.mediumFontPointSize
                 }
 
                 Rectangle {
@@ -79,8 +78,8 @@ Rectangle {
 
                     Item {
                         id:                 summarySection
-                        anchors.margins:    _margins
-                        anchors.top:        parent.top
+                        anchors.margins:    _margins * 2
+                        anchors.verticalCenter: parent.verticalCenter
                         anchors.left:       parent.left
                         anchors.right:      parent.right
                         height:             summaryCard.height
@@ -89,7 +88,7 @@ Rectangle {
                             id:             summaryCard
                             width:          parent.width
                             color:          qgcPal.window
-                            border.color:   qgcPal.windowShadeDark
+                            border.color:   "#B5B5B5"
                             border.width:   1
                             height:         summaryColumn.height + (_margins * 4)
 
@@ -115,12 +114,11 @@ Rectangle {
                 QGCLabel {
                     text:               qsTr("Service Catalog")
                     font.family:        ScreenTools.demiboldFontFamily
-                    font.pointSize:     ScreenTools.mediumFontPointSize
                 }
 
                 Rectangle {
                     Layout.fillWidth:       true
-                    Layout.preferredHeight: catalogSection.height + (_margins * 2)
+                    Layout.preferredHeight: catalogSection.height + (_margins * 4)
                     color:                  qgcPal.windowShade
 
                     Column {
@@ -128,13 +126,13 @@ Rectangle {
                         anchors.left:           parent.left
                         anchors.right:          parent.right
                         anchors.top:            parent.top
-                        anchors.margins:        _margins
-                        spacing:                _margins
+                        anchors.margins:        _margins * 2
+                        spacing:                _margins * 2
 
                         Rectangle {
                             width:          parent.width
                             color:          qgcPal.window
-                            border.color:   qgcPal.windowShadeDark
+                            border.color:   "#B5B5B5"
                             border.width:   1
                             height:         udpColumn.height + (_margins * 1.5)
 
@@ -147,7 +145,7 @@ Rectangle {
                                 spacing:                ScreenTools.defaultFontPixelHeight * 0.35
 
                                 QGCLabel { text: qsTr("MAVLink UDP Listener"); font.family: ScreenTools.demiboldFontFamily }
-                                QGCLabel { text: qsTr("Protocol: UDP           Default Port : %1           Bind : %2").arg(_udpPort.rawValue).arg(_udpBind.rawValue) }
+                                QGCLabel { text: qsTr("Protocol: UDP             Default Port : %1             Bind : %2").arg(_udpPort.rawValue).arg(_udpBind.rawValue) }
                                 QGCLabel { text: qsTr("Disable capability : Yes (Instant)") }
                             }
                         }
@@ -155,7 +153,7 @@ Rectangle {
                         Rectangle {
                             width:          parent.width
                             color:          qgcPal.window
-                            border.color:   qgcPal.windowShadeDark
+                            border.color:   "#B5B5B5"
                             border.width:   1
                             height:         tcpColumn.height + (_margins * 1.5)
 
@@ -168,7 +166,7 @@ Rectangle {
                                 spacing:                ScreenTools.defaultFontPixelHeight * 0.35
 
                                 QGCLabel { text: qsTr("MAVLink TCP Connection"); font.family: ScreenTools.demiboldFontFamily }
-                                QGCLabel { text: qsTr("Protocol: TCP           Default Port : %1           Bind : %2").arg(_tcpPort.rawValue).arg(_tcpBind.rawValue) }
+                                QGCLabel { text: qsTr("Protocol: TCP             Default Port : %1             Bind : %2").arg(_tcpPort.rawValue).arg(_tcpBind.rawValue) }
                                 QGCLabel { text: qsTr("Disable capability : Yes (Instant)") }
                             }
                         }

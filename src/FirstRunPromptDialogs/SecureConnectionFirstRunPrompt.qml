@@ -21,14 +21,14 @@ FirstRunPrompt {
     title:      qsTr("Secure Setup")
     promptId:   QGroundControl.corePlugin.secureConnectionFirstRunPromptId
     markAsShownOnClose: false
-    buttons:    StandardButton.NoButton
+    // buttons:    StandardButton.Close
     // readonly property real _dialogWidth:      ScreenTools.defaultFontPixelWidth * 66
-    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 23
+    readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 26
     readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 28
     // readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
     // readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 24
-    readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 7
-    readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 11
+    readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 10
+    readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 12
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
@@ -184,12 +184,16 @@ FirstRunPrompt {
     }
 
     ColumnLayout {
+        anchors.top: parent.top
+        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.3
+        anchors.left: parent.left
+        anchors.leftMargin: ScreenTools.defaultFontPixelWidth
         width:      ScreenTools.defaultFontPixelWidth * 56
-        spacing:    ScreenTools.defaultFontPixelHeight * 0.6
+        spacing:    ScreenTools.defaultFontPixelHeight * 0.4
 
         QGCFlickable {
             Layout.fillWidth:       true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 20
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 23
             clip:                   true
             contentHeight:          formColumn.height
             contentWidth:           formColumn.width
@@ -197,12 +201,12 @@ FirstRunPrompt {
             ColumnLayout {
                 id:         formColumn
                 width:      parent.width
-                spacing:    ScreenTools.defaultFontPixelHeight * 0.55
+                spacing:    ScreenTools.defaultFontPixelHeight * 0.5
 
                 QGCLabel {
                     text:               qsTr("Configure Connections (Secure by Default)")
                     font.family:        ScreenTools.demiboldFontFamily
-                    font.pointSize:     ScreenTools.largeFontPointSize
+                    font.pointSize:     ScreenTools.mediumFontPointSize
                     Layout.fillWidth:   true
                 }
 
@@ -213,110 +217,115 @@ FirstRunPrompt {
                     wrapMode:           Text.WordWrap
                 }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    color: "#2f3946"
-                    radius: 3
-                    height: udpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
+                ColumnLayout {
+                    width:      parent.width
+                    spacing:    0
 
-                    ColumnLayout {
-                        id: udpColumn
-                        anchors.fill: parent
-                        anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
-                        spacing: ScreenTools.defaultFontPixelHeight * 0.25
+                    Rectangle {
+                        Layout.fillWidth: true
+                        color: "#2f3946"
+                        radius: 3
+                        height: udpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.6
+                        ColumnLayout {
+                            id: udpColumn
+                            anchors.fill: parent
+                            anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.4
+
                             QGCCheckBox {
                                 id: udpCheckbox
-                                text: qsTr("MAVLink UDP Listener")
+                                text: qsTr("  MAVLink UDP Listener")
                                 checked: _udpEnabled.rawValue
-                                Layout.preferredWidth: _labelColumnWidth
                             }
-                            QGCLabel { text: qsTr("Port:") }
-                            QGCTextField {
-                                id: udpPortField
-                                text: _udpPort.rawValue.toString()
-                                validator: IntValidator { bottom: 1; top: 65535 }
-                                Layout.preferredWidth: _portFieldWidth
-                            }
-                            QGCLabel { text: qsTr("Bind:") }
-                            QGCComboBox {
-                                id: udpBindCombo
-                                model: [ "127.0.0.1", "0.0.0.0" ]
-                                currentIndex: _comboIndexForBind(_udpBind.rawValue)
-                                Layout.preferredWidth: _bindFieldWidth
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: ScreenTools.defaultFontPixelWidth * 0.8
+                                QGCLabel { text: qsTr("Port:") }
+                                QGCTextField {
+                                    id: udpPortField
+                                    text: _udpPort.rawValue.toString()
+                                    validator: IntValidator { bottom: 1; top: 65535 }
+                                    Layout.preferredWidth: _portFieldWidth
+                                }
+                                QGCLabel { text: qsTr("Bind:") }
+                                QGCComboBox {
+                                    id: udpBindCombo
+                                    model: [ "127.0.0.1", "0.0.0.0" ]
+                                    currentIndex: _comboIndexForBind(_udpBind.rawValue)
+                                    Layout.preferredWidth: _bindFieldWidth
+                                }
                             }
                         }
                     }
-                }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    color: "#344151"
-                    radius: 3
-                    height: tcpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
+                    Rectangle {
+                        Layout.fillWidth: true
+                        color: "#344151"
+                        radius: 3
+                        height: tcpColumn.implicitHeight + ScreenTools.defaultFontPixelWidth 
 
-                    ColumnLayout {
-                        id: tcpColumn
-                        anchors.fill: parent
-                        anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
-                        spacing: ScreenTools.defaultFontPixelHeight * 0.25
+                        ColumnLayout {
+                            id: tcpColumn
+                            anchors.fill: parent
+                            anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.4
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.6
                             QGCCheckBox {
                                 id: tcpCheckbox
-                                text: qsTr("MAVLink TCP Connection")
+                                text: qsTr("  MAVLink TCP Connection")
                                 checked: _tcpEnabled.rawValue
-                                Layout.preferredWidth: _labelColumnWidth
                             }
-                            QGCLabel { text: qsTr("Port:") }
-                            QGCTextField {
-                                id: tcpPortField
-                                text: _tcpPort.rawValue.toString()
-                                validator: IntValidator { bottom: 1; top: 65535 }
-                                Layout.preferredWidth: _portFieldWidth
-                            }
-                            QGCLabel { text: qsTr("Bind:") }
-                            QGCComboBox {
-                                id: tcpBindCombo
-                                model: [ "127.0.0.1", "0.0.0.0" ]
-                                currentIndex: _comboIndexForBind(_tcpBind.rawValue)
-                                Layout.preferredWidth: _bindFieldWidth
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: ScreenTools.defaultFontPixelWidth * 0.8
+                                QGCLabel { text: qsTr("Port:") }
+                                QGCTextField {
+                                    id: tcpPortField
+                                    text: _tcpPort.rawValue.toString()
+                                    validator: IntValidator { bottom: 1; top: 65535 }
+                                    Layout.preferredWidth: _portFieldWidth
+                                }
+                                QGCLabel { text: qsTr("Bind:") }
+                                QGCComboBox {
+                                    id: tcpBindCombo
+                                    model: [ "127.0.0.1", "0.0.0.0" ]
+                                    currentIndex: _comboIndexForBind(_tcpBind.rawValue)
+                                    Layout.preferredWidth: _bindFieldWidth
+                                }
                             }
                         }
                     }
-                }
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    color: "#2b3542"
-                    radius: 3
-                    height: videoColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
+                    Rectangle {
+                        Layout.fillWidth: true
+                        color: "#2b3542"
+                        radius: 3
+                        height: videoColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
 
-                    ColumnLayout {
-                        id: videoColumn
-                        anchors.fill: parent
-                        anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
-                        spacing: ScreenTools.defaultFontPixelHeight * 0.25
+                        ColumnLayout {
+                            id: videoColumn
+                            anchors.fill: parent
+                            anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.4
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.6
                             QGCCheckBox {
                                 id: videoCheckbox
-                                text: qsTr("Video Streaming (GStreamer)")
+                                text: qsTr("  Video Streaming (GStreamer)")
                                 checked: _videoEnabled.rawValue
-                                Layout.preferredWidth: _videoLabelColumnWidth
                             }
-                            QGCLabel { text: qsTr("URI:") }
-                            QGCTextField {
-                                id: videoUriField
-                                text: _videoUrl.rawValue.toString()
-                                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 18
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: ScreenTools.defaultFontPixelWidth * 0.6
+                                QGCLabel { text: qsTr("URL:") }
+                                QGCTextField {
+                                    id: videoUriField
+                                    text: _videoUrl.rawValue.toString()
+                                    Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 28
+                                }
                             }
                         }
                     }
@@ -326,21 +335,22 @@ FirstRunPrompt {
                     Layout.fillWidth: true
                     color: "#313c4a"
                     radius: 3
-                    height: securityColumn.implicitHeight + ScreenTools.defaultFontPixelWidth * 1.2
+                    height: securityColumn.implicitHeight + ScreenTools.defaultFontPixelWidth 
 
                     ColumnLayout {
                         id: securityColumn
                         anchors.fill: parent
                         anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
-                        spacing: ScreenTools.defaultFontPixelHeight * 0.2
+                        spacing: ScreenTools.defaultFontPixelHeight * 0.4
 
                         QGCLabel {
                             text: qsTr("Security (recommended)")
                             font.family: ScreenTools.demiboldFontFamily
+                            font.pointSize:     ScreenTools.mediumFontPointSize
                         }
                         QGCCheckBox {
                             id: strictValidationCheckbox
-                            text: qsTr("Strict MAVLink validation")
+                            text: qsTr("  Strict MAVLink validation")
                             checked: _strictValidation.rawValue
                         }
                         Item {
@@ -384,7 +394,7 @@ FirstRunPrompt {
                                 }
                             }
                         }
-                        
+
                     }
                 }
 
@@ -403,7 +413,7 @@ FirstRunPrompt {
                 text: qsTr("Continue offline")
                 onClicked: _saveConfiguration(false)
             }
-            
+
             Item { Layout.fillWidth: true }
             QGCButton {
                 text: qsTr("Start (Enable Selected Services)")
@@ -411,6 +421,7 @@ FirstRunPrompt {
                 onClicked: _saveConfiguration(true)
             }
         }
+        Item { Layout.fillWidth: true; height: ScreenTools.defaultFontPixelHeight * 0.2 }
     }
 
     QGCSimpleMessageDialog {
