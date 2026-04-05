@@ -13,7 +13,7 @@
 #include "StructureScanComplexItem.h"
 
 StructureScanPlanCreator::StructureScanPlanCreator(PlanMasterController* planMasterController, QObject* parent)
-    : PlanCreator(planMasterController, StructureScanComplexItem::tr("Structure Scan"), QStringLiteral("/qmlimages/PlanCreator/StructureScanPlanCreator.png"), parent)
+    : PlanCreator(planMasterController, StructureScanComplexItem::name, QStringLiteral("/qmlimages/PlanCreator/StructureScanPlanCreator.png"), parent)
 {
 
 }

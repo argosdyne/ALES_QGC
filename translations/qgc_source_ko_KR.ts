@@ -138,7 +138,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMCameraComponent.qml" line="239"/>
       <location filename="../src/AutoPilotPlugins/APM/APMCameraComponent.qml" line="239"/>
       <source>Stabilize</source>
-      <translation>수평유지모드</translation>
+      <translation>자세안정</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMCameraComponent.qml" line="251"/>
@@ -11561,7 +11561,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="43"/>
       <source>Stabilized/Main</source>
-      <translation>수평유지모드/주모드</translation>
+      <translation>자세안정/주모드</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="44"/>
@@ -13366,12 +13366,12 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="234"/>
       <source>Batteries required:</source>
-      <translation>배터리가 필요함:</translation>
+      <translation>배터리 필요:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
       <source>Upload Required</source>
-      <translation>업로드가 필요합니다</translation>
+      <translation>업로드 필요</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
@@ -13477,6 +13477,31 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
       <source>Pattern</source>
       <translation>패턴</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="73"/>
+      <source>Survey</source>
+      <translation>서베이</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="75"/>
+      <source>Corridor Scan</source>
+      <translation>복도 스캔</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="77"/>
+      <source>Structure Scan</source>
+      <translation>구조 스캔</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="79"/>
+      <source>Init Path</source>
+      <translation>경로 초기화</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="88"/>
+      <source>Blank</source>
+      <translation>백지</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="708"/>
@@ -21945,7 +21970,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Stabilize</source>
-      <translation>수평유지모드</translation>
+      <translation>자세안정</translation>
     </message>
     <message>
       <source>Standby Mode</source>

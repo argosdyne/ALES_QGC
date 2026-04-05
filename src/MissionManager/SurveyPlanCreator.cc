@@ -13,7 +13,7 @@
 #include "SurveyComplexItem.h"
 
 SurveyPlanCreator::SurveyPlanCreator(PlanMasterController* planMasterController, QObject* parent)
-    : PlanCreator(planMasterController, SurveyComplexItem::tr("Survey"), QStringLiteral("/qmlimages/PlanCreator/SurveyPlanCreator.png"), parent)
+    : PlanCreator(planMasterController, SurveyComplexItem::name, QStringLiteral("/qmlimages/PlanCreator/SurveyPlanCreator.png"), parent)
 {
 
 }
