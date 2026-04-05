@@ -59,10 +59,12 @@ Rectangle {
     property bool   _showSaveVideoSettings:     _isGst || _videoAutoStreamConfig
     property bool   _disableAllDataPersistence: QGroundControl.settingsManager.appSettings.disableAllPersistence.rawValue
 
-    property string gpsDisabled: "Disabled"
-    property string gpsUdpPort:  "UDP Port"
+    property string gpsDisabled: qsTr("Disabled")
+    property string gpsUdpPort:  qsTr("UDP Port")
 
     readonly property real _internalWidthRatio: 0.8
+
+    // Language change dialog handled directly in the language combo below
 
         QGCFlickable {
             clip:               true
@@ -567,11 +569,27 @@ Rectangle {
                                     text:           qsTr("Language")
                                     visible: QGroundControl.settingsManager.appSettings.qLocaleLanguage.visible
                                 }
-                                FactComboBox {
+                                QGCComboBox {
+                                    id:                     languageCombo
                                     Layout.preferredWidth:  _comboFieldWidth
-                                    fact:                   QGroundControl.settingsManager.appSettings.qLocaleLanguage
-                                    indexModel:             false
+                                    model:                  QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumStrings
+                                    currentIndex:           QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumIndex
                                     visible:                QGroundControl.settingsManager.appSettings.qLocaleLanguage.visible
+
+                                    onActivated: {
+                                        var selectedIndex = index
+                                        var previousIndex = QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumIndex
+                                        currentIndex = previousIndex  // revert visual until user confirms
+                                        mainWindow.showMessageDialog(
+                                            qsTr("Restart Required"),
+                                            qsTr("Language change requires restarting %1. Turn off now?").arg(QGroundControl.appName),
+                                            StandardButton.Yes | StandardButton.No,
+                                            function() {
+                                                QGroundControl.settingsManager.appSettings.qLocaleLanguage.value = QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumValues[selectedIndex]
+                                                mainWindow.close()
+                                            }
+                                        )
+                                    }
                                 }
 
                                 QGCLabel {
@@ -914,7 +932,7 @@ Rectangle {
                                         var index = nmeaPortCombo.find(QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaPort.valueString);
                                         nmeaPortCombo.currentIndex = index;
                                         if (QGroundControl.linkManager.serialPorts.length === 0) {
-                                            nmeaPortCombo.model.append({text: "Serial <none available>"})
+                                            nmeaPortCombo.model.append({text: qsTr("Serial <none available>")})
                                         }
                                     }
                                 }
