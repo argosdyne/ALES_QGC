@@ -655,7 +655,7 @@ Item {
                             ? _activeVehicle.gimbalPitch
                             : 0
                     pitch = Math.abs(pitch) < 0.5 ? 0 : pitch
-                    return pitch.toFixed(0) + "째"
+                    return pitch.toFixed(0) + "°"
                 }
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
@@ -670,7 +670,7 @@ Item {
                             ? _activeVehicle.gimbalYaw
                             : 0
                     yaw = Math.abs(yaw) < 0.5 ? 0 : yaw
-                    return yaw.toFixed(0) + "째"
+                    return yaw.toFixed(0) + "°"
                 }
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
