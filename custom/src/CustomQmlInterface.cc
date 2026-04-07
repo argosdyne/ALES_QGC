@@ -2,6 +2,8 @@
 #include "CustomPlugin.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
+#include <QCoreApplication>
+#include <QLocale>
 
 #define CHAR_NUMBER_EACH_ROW 30
 
@@ -29,6 +31,18 @@ CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
 static const char* kDbFileName = "qgcMapCache.db";
 #define CACHE_PATH_VERSION  "300"
 
+namespace {
+bool _isMapDownloadMessage(const QString& message)
+{
+    static const char* kSourceText = "Please download the map of the flight area.";
+    if (message.contains(QLatin1String(kSourceText))) {
+        return true;
+    }
+    const QString translated = QCoreApplication::translate("QGeoTiledMapReplyQGC", kSourceText);
+    return translated != QLatin1String(kSourceText) && message.contains(translated);
+}
+}
+
 void CustomQmlInterface::showMapUpdateDate(){
 #ifdef __mobile__
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)      + QLatin1String("/QGCMapCache" CACHE_PATH_VERSION);
@@ -44,7 +58,7 @@ void CustomQmlInterface::showMapUpdateDate(){
     QFileInfo cacheFileInfo(fullCachePath);
     if (cacheFileInfo.exists()) {
         QDateTime lastModified = cacheFileInfo.lastModified();
-        QString msg = "Map tiles updated at " + lastModified.toString();
+        QString msg = tr("Map tiles updated at %1").arg(QLocale().toString(lastModified, QLocale::ShortFormat));
         showMessage(msg, SystemMessage::Info);
     }
 }
@@ -136,7 +150,7 @@ void CustomQmlInterface::_slaveModeChanged(bool slaveMode)
 void CustomQmlInterface::showMessage(const QString& message, SystemMessage::SystemMessageType type)
 {
     static bool mapMessageShown = false;
-    if (message.contains("Please download the map")) {
+    if (_isMapDownloadMessage(message)) {
         if (mapMessageShown)
             return;
         mapMessageShown = true;
@@ -146,7 +160,7 @@ void CustomQmlInterface::showMessage(const QString& message, SystemMessage::Syst
     m->setContext(message);
     m->setType(type);
 
-    if (message.contains("Please download the map")) {
+    if (_isMapDownloadMessage(message)) {
         _normalSystemMessages.append(m);
     }
     else if (type != SystemMessage::SystemMessageType::Warning && type != SystemMessage::SystemMessageType::Error) {
@@ -323,7 +337,7 @@ void SystemMessage::setType(const SystemMessageType &type)
 {
     _type = type;
     if(_timer.isActive()) _timer.stop();
-    if(_context.contains("Please download the map")){
+    if(_isMapDownloadMessage(_context)){
     }
     else if(type == SystemMessageType::Error) {
         _timer.start(20000);    
@@ -348,6 +362,18 @@ static bool _geoAwarenessInsideMessageShown = false;
 static bool _geoAwarenessNearMessageShown = false;
 static bool _geoAwarenessNoDataMessageShown = false;
 
+namespace {
+bool _containsSourceOrTranslation(const QString& message, const char* sourceText)
+{
+    if (message.contains(QLatin1String(sourceText))) {
+        return true;
+    }
+
+    const QString translated = QCoreApplication::translate("FlightZoneManager", sourceText);
+    return translated != QLatin1String(sourceText) && message.contains(translated);
+}
+}
+
 void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 {
 
@@ -356,36 +382,31 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
     // qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
     // qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
 
-    enum MessageType {
-        None,
-        Inside,
-        Near,
-        NoData
-    };
+    GeoAwarenessErrorId type = GeoAwarenessErrorId::Unknown;
 
-    MessageType type = None;
-
-    if (message.contains("Drone is inside")) {
-        type = Inside;
-    } else if (message.contains("The distance between the aircraft")) {
-        type = Near;
-    } else if (message.contains("Cannot access GeoZone data")) {
-        type = NoData;
+    if (_containsSourceOrTranslation(message, "Drone is inside")) {
+        type = GeoAwarenessErrorId::Inside;
+    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close. Distance : %1M")) {
+        type = GeoAwarenessErrorId::Near;
+    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close.")) {
+        type = GeoAwarenessErrorId::Near;
+    } else if (_containsSourceOrTranslation(message, "Cannot access GeoZone data.<br>Please check local files or internet connection.")) {
+        type = GeoAwarenessErrorId::NoData;
     }
 
     // 이미 보여줬다면 return
     switch (type) {
-    case Inside:
+    case GeoAwarenessErrorId::Inside:
         if (_geoAwarenessInsideMessageShown)
             return;
         _geoAwarenessInsideMessageShown = true;
         break;
-    case Near:
+    case GeoAwarenessErrorId::Near:
         if (_geoAwarenessNearMessageShown)
             return;
         _geoAwarenessNearMessageShown = true;
         break;
-    case NoData:
+    case GeoAwarenessErrorId::NoData:
         if (_geoAwarenessNoDataMessageShown)
             return;
         _geoAwarenessNoDataMessageShown = true;
@@ -396,6 +417,7 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 
     SystemMessage* m = new SystemMessage(this);
     m->setGeoAwarenessContext(message);
+    m->setGeoAwarenessErrorId(type);
     m->setGeoAwarenessType();
 
 
@@ -460,12 +482,18 @@ void SystemMessage::geoAwarenessCloseItstyle()
     if(index > 0) {
         _customQmlInterface->_geoAwarenessRefreshSystemMessageUI(false);
     }
-    if (_geoAwarenessContext.contains("Drone is inside")) {
+    switch (_geoAwarenessErrorId) {
+    case GeoAwarenessErrorId::Inside:
         _geoAwarenessInsideMessageShown = false;
-    } else if (_geoAwarenessContext.contains("The distance between the aircraft")) {
+        break;
+    case GeoAwarenessErrorId::Near:
         _geoAwarenessNearMessageShown = false;
-    } else if (_geoAwarenessContext.contains("Cannot access GeoZone data")) {
+        break;
+    case GeoAwarenessErrorId::NoData:
         _geoAwarenessNoDataMessageShown = false;
+        break;
+    default:
+        break;
     }
 }
 
