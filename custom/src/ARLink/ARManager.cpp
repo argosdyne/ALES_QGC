@@ -1,5 +1,7 @@
 ﻿#include "ARManager.h"
 #include "JsonHelper.h"
+#include "CustomPlugin.h"
+#include "CustomSettings.h"
 #include <QQmlEngine>
 #include <QJsonDocument>
 #include <QNetworkInterface>
@@ -199,6 +201,19 @@ void ARManager::setToolbox(QGCToolbox* toolbox)
     QGCTool::setToolbox(toolbox);
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qmlRegisterUncreatableType<ARManager>("CustomQmlInterface", 1, 0, "ARManager", "Reference only");
+
+    // Read Doodle Labs IP from persistent settings
+    CustomPlugin* plugin = dynamic_cast<CustomPlugin*>(_toolbox->corePlugin());
+    if (plugin && plugin->settings()) {
+        Fact* ipFact = plugin->settings()->doodleLabsIP();
+        _doodleDeviceIP = ipFact->rawValue().toString();
+        connect(ipFact, &Fact::rawValueChanged, this, [this](QVariant value) {
+            _doodleDeviceIP = value.toString();
+            _rpcSession.clear();
+            qInfo() << "[Doodle Labs] IP changed to:" << _doodleDeviceIP;
+        });
+    }
+
 #if !defined (Q_OS_ANDROID)
     if(_auto)
 #endif

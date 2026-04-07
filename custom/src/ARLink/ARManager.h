@@ -136,7 +136,7 @@ private:
     QString _deviceIP;
     QNetworkAccessManager* _networkManager{nullptr};  // Core Qt object used to send HTTP network requests
     QTimer _doodlePollTimer;                            // Timer for periodically polling Doodle device status
-    QString _doodleDeviceIP{ "192.168.2.72" };          // Stores the current device IP address
+    QString _doodleDeviceIP;                              // Loaded from settings (default: 192.168.2.72)
     QString _rpcSession;                                // Session/token used for authenticated API communication
             
     static const char* _bbConn;
