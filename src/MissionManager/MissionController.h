@@ -192,6 +192,8 @@ public:
 
     void _sendParamInt(const QString& paramId, int value);
 
+    void _requestOBAValue();
+
 
     enum SendToVehiclePreCheckState {
         SendToVehiclePreCheckStateOk,                       // Ok to send plan to vehicle

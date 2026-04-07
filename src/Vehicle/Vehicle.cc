@@ -817,23 +817,37 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
                                               strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
 
         if (paramId == "VL_VALUE") {
-            int16_t val = static_cast<int16_t>(param.param_value);
+            // static_cast 대신 union으로 비트 역변환
+            union {
+                float   f;
+                int16_t i;
+            } conv;
+
+            conv.f = param.param_value;  // float 비트 그대로 복사
+            int16_t val = conv.i;        // int16_t로 읽기
+
             qDebug() << "VL_VALUE received:" << val;
             emit vlValueChanged(static_cast<int>(val));
         }
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
-    {
-        mavlink_param_request_read_t param;
-        mavlink_msg_param_request_read_decode(&message, &param);
+        else if (paramId == "VL_OBA_MODE") {
+            union {
+                float   f;
+                int32_t i32;
+                int16_t i16;
+                uint8_t u8;
+            } conv;
+            conv.f = param.param_value;
 
-        QString paramId = QString::fromLatin1(param.param_id, strnlen(param.param_id, MAVLINK_MSG_PARAM_REQUEST_READ_FIELD_PARAM_ID_LEN));
+            int val = 0;
+            switch (param.param_type) {
+            case MAV_PARAM_TYPE_UINT8:  val = static_cast<int>(conv.u8);  break;
+            case MAV_PARAM_TYPE_INT16:  val = static_cast<int>(conv.i16); break;
+            case MAV_PARAM_TYPE_INT32:  val = static_cast<int>(conv.i32); break;
+            default:                    val = static_cast<int>(conv.i32); break;
+            }
 
-        if(paramId == "VL_OBA_MODE"){
-            int16_t val = static_cast<int16_t>(param.param_index);
-            qDebug() << "VL_OBA_MODE received: " << val;
-            emit vlOBAValueChanged(static_cast<int>(val));
+            qDebug() << "VL_OBA_MODE received:" << val;
+            emit vlOBAValueChanged(val);
         }
         break;
     }

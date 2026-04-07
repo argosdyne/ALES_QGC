@@ -2735,6 +2735,46 @@ void MissionController::setVisionLidarValue(int value) {
 void MissionController::setVisionLidarOBAMode(int value) {
     qInfo() << "setVisionLidarOBAMode:" << value;
     _sendParamInt("VL_OBA_MODE", value);
+
+    //Request OBA Value delay 1s
+    QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
+}
+
+void MissionController::_requestOBAValue()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "requestVisionLidarOBAMode: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "requestVisionLidarOBAMode: No primary link";
+        return;
+    }
+
+    mavlink_message_t            msg;
+    mavlink_param_request_read_t request;
+
+    memset(&request, 0, sizeof(request));
+    request.target_system    = vehicle->id();
+    request.target_component = vehicle->defaultComponentId();
+    request.param_index      = -1;  // 이름으로 검색
+    strncpy(request.param_id, "VL_OBA_MODE", sizeof(request.param_id));
+
+    qInfo() << "Param id : " << request.param_id;
+    qInfo() << "param size : " << sizeof(request.param_id);
+
+    mavlink_msg_param_request_read_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &request
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    qDebug() << "PARAM_REQUEST_READ sent: VL_OBA_MODE";
 }
 
 // Send Method
