@@ -1,4 +1,7 @@
 #include "RTCMBase.h"
+#include "QGCLoggingCategory.h"
+
+QGC_LOGGING_CATEGORY(RTCMBaseLog, "RTCMBaseLog")
 
 using namespace std;
 
@@ -98,6 +101,7 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
              "%s%02X",str,result);
 
     _gpggaFromVehicle = QString::fromStdString(str_reslut);
+    qInfo(RTCMBaseLog) << "gpggaFromVehicle: " << _gpggaFromVehicle;
     emit pgggaMessageChanged(_gpggaFromVehicle);
 }
 
@@ -117,6 +121,7 @@ void RTCMBase::handle_send_rtcm_time_out()
 
 void RTCMBase::streamTimeout()
 {
+    qWarning(RTCMBaseLog) << "RTCM: no MAVLink GPS_RTCM_DATA sent for 2s — streaming flag cleared (vehicle RTK may drop if corrections stopped)";
     setStreaming(false);
 }
 
