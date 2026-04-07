@@ -830,7 +830,9 @@ GstVideoReceiver::_makeSource(const QString& uri)
             break;
         }
 
-        g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
+        // A30TR/Viewpro RTSP streams can fail caps negotiation with this parser hook enabled.
+        // Keep parsebin default autoplug behavior to match the known-good legacy build.
+        //g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
 
         gst_bin_add_many(GST_BIN(bin), source, parser, nullptr);
 

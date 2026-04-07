@@ -30,7 +30,7 @@ import QGroundControl.FlightMap         1.0
 
 Item {    
     implicitHeight: content.implicitHeight    
-    visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
+    visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel && !_isA30TRCamera
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
 
@@ -65,6 +65,10 @@ Item {
     property var    _mavlinkCamera:                             _mavlinkCameraManager ? _mavlinkCameraManager.currentCameraInstance : null
     property bool   _multipleMavlinkCameras:                    _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count > 1 : false
     property string _mavlinkCameraName:                         _mavlinkCamera && _multipleMavlinkCameras ? _mavlinkCamera.modelName : ""
+    property bool   _isA30TRCamera:                             _videoStreamSettings &&
+                                                                _videoStreamSettings.rtspUrl &&
+                                                                _videoStreamSettings.rtspUrl.rawValue &&
+                                                                _videoStreamSettings.rtspUrl.rawValue.toString().indexOf("192.168.2.119:554") !== -1
     property bool   _noMavlinkCameraStreams:                    _mavlinkCamera ? _mavlinkCamera.streamLabels.length : true
     property bool   _multipleMavlinkCameraStreams:              _mavlinkCamera ? _mavlinkCamera.streamLabels.length > 1 : false
     property int    _mavlinCameraCurStreamIndex:                _mavlinkCamera ? _mavlinkCamera.currentStream : -1

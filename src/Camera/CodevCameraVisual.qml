@@ -651,7 +651,7 @@ Item {
                         id:                     pseudocolorNameLabel
                         anchors.top:            pseudocolorImage.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text:                   _pseudocolor.enumStrings[index]
+                        text:                   qsTranslate("CodevCameraControl", _pseudocolor.enumStrings[index])
                         color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
                     }
 

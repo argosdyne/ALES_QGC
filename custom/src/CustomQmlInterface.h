@@ -13,6 +13,14 @@ class CodevRTCMManager;
 class mDNSManager;
 class LTEManager;
 #define DEFAULT_REMOTE_PORT_UDP_QGC_SLAVE   14599   ///< Slave port
+
+enum class GeoAwarenessErrorId {
+    Unknown = 0,
+    Inside,
+    Near,
+    NoData
+};
+
 class SystemMessage : public QObject
 {
     Q_OBJECT
@@ -68,6 +76,8 @@ public:
     void setGeoAwarenessY(const float& geoy);
     QPropertyAnimation* geoAwarenessCreateYAnimation(QVariant from, QVariant to);    
     void setGeoAwarenessType();
+    void setGeoAwarenessErrorId(GeoAwarenessErrorId errorId) { _geoAwarenessErrorId = errorId; }
+    GeoAwarenessErrorId geoAwarenessErrorId(void) const { return _geoAwarenessErrorId; }
 
 
 public slots:
@@ -105,6 +115,7 @@ private:
     float _geoAwarenessY;
     QPropertyAnimation *_geoAwarenessYAnimation;
     QTimer _geoAwarenessTimer;
+    GeoAwarenessErrorId _geoAwarenessErrorId{GeoAwarenessErrorId::Unknown};
 
 };
 
