@@ -19,6 +19,11 @@ YSManager::YSManager(QGCApplication* app, QGCToolbox* toolbox)
     _statusPollTimer.setInterval(500);
     _statusPollTimer.setSingleShot(false);
     connect(&_statusPollTimer, &QTimer::timeout, this, &YSManager::_checkStatusTimeout);
+
+    _powerStatusResetTimer.setSingleShot(true);
+    _powerStatusResetTimer.setInterval(static_cast<int>(10000));
+    connect(&_powerStatusResetTimer, &QTimer::timeout, this, &YSManager::_restorePowerStatus);
+
     _commandTimer.start();
     _statusRequestTimer.start();
     _paramRequestTimer.start();
@@ -163,7 +168,7 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
                 emit statusChanged();
             }
 
-            if (ack.command == MAV_CMD_USER_2 && ack.result == MAV_RESULT_ACCEPTED) {
+            if (ack.command == MAV_CMD_USER_2) {
                 kGenInfoAcqRunning = false;
                 _awaitingFreshStatus = false;
                 _lastStatusMs = -1;
@@ -196,6 +201,9 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
 void YSManager::_updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
                               quint8 insErr, quint8 scnErr, quint8 intErr, quint8 camErr)
 {
+    if(!_pwrStatus) {
+        return;
+    }
     _insInfo = insInfo & 0x1F; // Mask to 5 bits as INS info only has 5 info flags.;
     _scnInfo = scnInfo & 0x1F; // Mask to 5 bits as scanner info only has 5 info flags.
     _genInfo = genInfo & 0x0F; // Mask to 4 bits as general info only has 4 info flags.;
@@ -238,6 +246,11 @@ void YSManager::_setParameterValue(int paramIndex, float value)
     }
 
     emit parameterChanged();
+}
+
+void YSManager::_restorePowerStatus(void)
+{
+    _pwrStatus = true;
 }
 
 void YSManager::_checkStatusTimeout(void)
@@ -441,6 +454,8 @@ void YSManager::stopAcquisition(void)
 
 void YSManager::powerOff(void)
 {
+    _pwrStatus = false;
+    _powerStatusResetTimer.start();
     if (_pendingStatus) {
         _hasPendingControlCommand = true;
         _pendingControlCommand    = MAV_CMD_USER_2;
@@ -473,10 +488,6 @@ void YSManager::requestParameter(int paramIndex)
 
 void YSManager::requestStatus(void)
 {
-    // if (_statusValid) {
-    //     _statusValid = false;
-    //     emit statusValidChanged();
-    // }
     _awaitingFreshStatus = true;
     _pendingParamIndex = -1;
     _enqueueStatusRequest("YS_STA_00");

@@ -102,6 +102,7 @@ private slots:
     void _setActiveVehicle(Vehicle* vehicle);
     void _mavlinkReceived(const mavlink_message_t& message);
     void _checkStatusTimeout(void);
+    void _restorePowerStatus(void);
 
 private:
     static constexpr int kYellowScanSysId = 1;
@@ -129,6 +130,7 @@ private:
     QElapsedTimer _statusRequestTimer;
     QElapsedTimer _paramRequestTimer;
     QTimer _statusPollTimer;
+    QTimer _powerStatusResetTimer;
     qint64 _lastStatusMs{-1};
     qint64 _lastStatusRequestMs{-1000};
     qint64 _lastParamRequestMs{-1000};
@@ -158,6 +160,8 @@ private:
     float _pendingSetValue{0.0f};
     bool _paramSetFailed[6]{false, false, false, false, false, false};
     bool _pendingStatus{false};
+    bool _pwrStatus{true};
+    bool kGenInfoAcqRunning = false;
     QStringList _pendingStatusQueue;
 
     quint8 _insInfo{0};
@@ -187,7 +191,6 @@ private:
     static constexpr quint8 kInsInfoTimeNotSet = 1 << 5;  
     static constexpr quint8 kInsInfoNotLocked = 1 << 1;   
     static constexpr quint8 kScnInfoNotReady  = 1 << 1;
-    bool kGenInfoAcqRunning = false;
     static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
 

@@ -147,7 +147,7 @@ Rectangle {
                             spacing: ScreenTools.defaultFontPixelHeight * 0.6
                             QGCButton {
                                 text: qsTr("PWR OFF")
-                                enabled: _ys && _ys.statusValid
+                                enabled: _ys && _ys.statusValid && !_ys.acquisitionRunning
                                 onClicked: if (_ys) { _ys.powerOff() }
                             }
                             QGCButton {
@@ -441,6 +441,7 @@ Rectangle {
             radius:             ScreenTools.defaultFontPixelHeight * 0.4
             color:              qgcPal.windowShade
             border.color:       qgcPal.text
+            visible: false // Hide message monitor for now, can be re-enabled when needed for debugging
 
             Column {
                 id: messageMonitorCol
