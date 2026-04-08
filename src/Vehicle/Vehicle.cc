@@ -3567,7 +3567,7 @@ void Vehicle::_requestMessageWaitForMessageResultHandler(void* resultHandlerData
 
 void Vehicle::setPrearmError(const QString& prearmError)
 {
-    _prearmError = prearmError;
+    _prearmError = QCoreApplication::translate("UASWarning", prearmError.toUtf8().constData());
     emit prearmErrorChanged(_prearmError);
     if (!_prearmError.isEmpty()) {
         _prearmErrorTimer.start();

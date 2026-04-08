@@ -169,8 +169,11 @@ CustomPlugin::settingsPages()
             _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
         }
         else {
-            qInfo() << "M2Manager is null";
-            _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
+            bool isDoodle = _qmlInterface && _qmlInterface->arManager()
+                && _qmlInterface->arManager()->usingDoodleApi();
+
+            qInfo() << "M2Manager is null, isDoodle:" << isDoodle;
+            _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
         }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)

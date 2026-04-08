@@ -369,7 +369,12 @@ QGCCacheWorker::_getTileSets(QGCMapTask* mtask)
             set->setMaxZoom(query.value("maxZoom").toInt());
             set->setType(getQGCMapEngine()->urlFactory()->getTypeFromId(query.value("type").toInt()));
             set->setTotalTileCount(query.value("numTiles").toUInt());
-            set->setDefaultSet(query.value("defaultSet").toInt() != 0);
+            const bool isDefaultSet = (query.value("defaultSet").toInt() != 0);
+            set->setDefaultSet(isDefaultSet);
+            if (isDefaultSet) {
+                // Keep DB identifier stable and only localize what is shown in UI.
+                set->setName(tr("Default Tile Set"));
+            }
             set->setCreationDate(QDateTime::fromSecsSinceEpoch(query.value("date").toUInt()));
             _updateSetTotals(set);
             //-- Object created here must be moved to app thread to be used there

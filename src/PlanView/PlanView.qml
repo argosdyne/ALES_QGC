@@ -67,6 +67,36 @@ Item {
         return coordinate
     }
 
+    function _localizedComplexItemName(name) {
+        switch (name) {
+        case "Survey":
+            return qsTr("Survey")
+        case "Corridor Scan":
+            return qsTr("Corridor Scan")
+        case "Structure Scan":
+            return qsTr("Structure Scan")
+        case "Init Path":
+            return qsTr("Init Path")
+        default:
+            return name
+        }
+    }
+
+    function _localizedPlanCreatorName(name) {
+        switch (name) {
+        case "Blank":
+            return qsTr("Blank")
+        case "Survey":
+            return qsTr("Survey")
+        case "Corridor Scan":
+            return qsTr("Corridor Scan")
+        case "Structure Scan":
+            return qsTr("Structure Scan")
+        default:
+            return name
+        }
+    }
+
     property bool _firstMissionLoadComplete:    false
     property bool _firstFenceLoadComplete:      false
     property bool _firstRallyLoadComplete:      false
@@ -568,7 +598,7 @@ Item {
                         onMyAddROIOnClickChanged: checked = _addROIOnClick
                     },
                     ToolStripAction {
-                        text:               _singleComplexItem ? _missionController.complexMissionItemNames[0] : qsTr("Pattern")
+                        text:               _singleComplexItem ? _localizedComplexItemName(_missionController.complexMissionItemNames[0]) : qsTr("Pattern")
                         iconSource:         "/qmlimages/MapDrawShape.svg"
                         enabled:            _missionController.flyThroughCommandsAllowed
                         visible:            toolStrip._isMissionLayer
@@ -1229,7 +1259,7 @@ Item {
                 model: _missionController.complexMissionItemNames
 
                 QGCButton {
-                    text:               modelData
+                    text:               _localizedComplexItemName(modelData)
                     Layout.fillWidth:   true
 
                     onClicked: {
@@ -1313,7 +1343,7 @@ Item {
                             anchors.left:           parent.left
                             anchors.right:          parent.right
                             horizontalAlignment:    Text.AlignHCenter
-                            text:                   object.name
+                            text:                   _localizedPlanCreatorName(object.name)
                             color:                  button.pressed || button.highlighted ? qgcPal.buttonHighlightText : qgcPal.buttonText
                         }
 

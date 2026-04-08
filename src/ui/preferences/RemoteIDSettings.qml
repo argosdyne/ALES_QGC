@@ -72,8 +72,8 @@ Rectangle {
     property var    gcsPosition:        QGroundControl.qgcPositionManger.gcsPosition
     property real   gcsHeading:         QGroundControl.qgcPositionManger.gcsHeading
     property real   gcsHDOP:            QGroundControl.qgcPositionManger.gcsPositionHorizontalAccuracy
-    property string gpsDisabled:        "Disabled"
-    property string gpsUdpPort:         "UDP Port"
+    property string gpsDisabled:        qsTr("Disabled")
+    property string gpsUdpPort:         qsTr("UDP Port")
 
     QGCPalette { id: qgcPal }
 
@@ -624,7 +624,7 @@ Rectangle {
                                 var index = nmeaPortCombo.find(QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaPort.valueString);
                                 nmeaPortCombo.currentIndex = index;
                                 if (QGroundControl.linkManager.serialPorts.length === 0) {
-                                    nmeaPortCombo.model.append({text: "Serial <none available>"})
+                                    nmeaPortCombo.model.append({text: qsTr("Serial <none available>")})
                                 }
                             }
                         }

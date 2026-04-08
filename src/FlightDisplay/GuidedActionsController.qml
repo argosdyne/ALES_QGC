@@ -195,22 +195,22 @@ Item {
         if (actionCode === actionTakeoff) {
                 guidedValueSlider.setMinVal(_activeVehicle.minimumTakeoffAltitude())
                 guidedValueSlider.setValue(_activeVehicle ? _activeVehicle.minimumTakeoffAltitude() : 0)
-                guidedValueSlider.setDisplayText("Height")
+                guidedValueSlider.setDisplayText(qsTr("Height"))
         } else if (actionCode === actionChangeSpeed) {
             guidedValueSlider.setIsSpeedSlider(true)
             if (_fixedWing) {
-                guidedValueSlider.setDisplayText("Set Airspeed")
+                guidedValueSlider.setDisplayText(qsTr("Set Airspeed"))
                 guidedValueSlider.setMinVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.minimumEquivalentAirspeed()).toFixed(1))
                 guidedValueSlider.setMaxVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumEquivalentAirspeed()).toFixed(1))
                 guidedValueSlider.setValue(_activeVehicle.airSpeed.value)
             } else if (!_fixedWing && _activeVehicle.haveMRSpeedLimits) {
-                guidedValueSlider.setDisplayText("Set Speed")
+                guidedValueSlider.setDisplayText(qsTr("Set Speed"))
                 guidedValueSlider.setMinVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(0.1).toFixed(1))
                 guidedValueSlider.setMaxVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()).toFixed(1))
                 guidedValueSlider.setValue(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()/2).toFixed(1))
             }
         } else if (actionCode === actionChangeAlt || actionCode === actionOrbit || actionCode === actionGoto || actionCode === actionPause) {
-            guidedValueSlider.setDisplayText("New Alt(rel)")
+            guidedValueSlider.setDisplayText(qsTr("New Alt(rel)"))
             guidedValueSlider.configureAsRelativeAltSliderExp()
         }
     }
