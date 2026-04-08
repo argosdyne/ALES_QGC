@@ -190,6 +190,8 @@ public:
     //set obstacleAviodance enable/disable
     Q_INVOKABLE void setVisionLidarOBAMode(int param);
 
+    Q_INVOKABLE void getVisionLidarOBAMode();
+
     void _sendParamInt(const QString& paramId, int value);
 
     void _requestOBAValue();

@@ -2740,6 +2740,11 @@ void MissionController::setVisionLidarOBAMode(int value) {
     QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
 }
 
+void MissionController::getVisionLidarOBAMode(){
+    qInfo() << "getVisionLidarOBAMode";
+    QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
+}
+
 void MissionController::_requestOBAValue()
 {
     Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();

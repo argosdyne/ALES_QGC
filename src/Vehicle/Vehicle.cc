@@ -813,40 +813,15 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         mavlink_param_value_t param;
         mavlink_msg_param_value_decode(&message, &param);
 
-        QString paramId = QString::fromLatin1(param.param_id,
-                                              strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
+        QString paramId = QString::fromLatin1(param.param_id, strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
 
         if (paramId == "VL_VALUE") {
-            // static_cast 대신 union으로 비트 역변환
-            union {
-                float   f;
-                int16_t i;
-            } conv;
-
-            conv.f = param.param_value;  // float 비트 그대로 복사
-            int16_t val = conv.i;        // int16_t로 읽기
-
+            int val = static_cast<int>(param.param_value);
             qDebug() << "VL_VALUE received:" << val;
             emit vlValueChanged(static_cast<int>(val));
         }
         else if (paramId == "VL_OBA_MODE") {
-            union {
-                float   f;
-                int32_t i32;
-                int16_t i16;
-                uint8_t u8;
-            } conv;
-            conv.f = param.param_value;
-
-            int val = 0;
-            switch (param.param_type) {
-            case MAV_PARAM_TYPE_UINT8:  val = static_cast<int>(conv.u8);  break;
-            case MAV_PARAM_TYPE_INT16:  val = static_cast<int>(conv.i16); break;
-            case MAV_PARAM_TYPE_INT32:  val = static_cast<int>(conv.i32); break;
-            default:                    val = static_cast<int>(conv.i32); break;
-            }
-
-            qDebug() << "VL_OBA_MODE received:" << val;
+            int val = static_cast<int>(param.param_value);
             emit vlOBAValueChanged(val);
         }
         break;

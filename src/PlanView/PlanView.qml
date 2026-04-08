@@ -700,7 +700,7 @@ Item {
 
                     property bool   useObstacleDetection:   false
                     property bool   avoidMode:              true
-                    property int    detectionDistance:      20
+                    property int    detectionDistance:      1500
                     property color  backgroundColor:        "#1a1a2e"
 
                     id:     root
@@ -738,7 +738,7 @@ Item {
                                     Text {
                                         anchors.centerIn: parent
                                         text:             "✓"
-                                        color:            backgroundColor
+                                        color:            root.backgroundColor
                                         font.pixelSize:   ScreenTools.defaultFontPointSize * 2.4 //1.2
                                         font.bold:        true
                                         visible:          root.useObstacleDetection
@@ -763,6 +763,7 @@ Item {
                                     if (root.useObstacleDetection) {
                                         _missionController.setVisionLidar(1)
                                         _missionController.setVisionLidarValue(1)
+                                        _missionController.getVisionLidarOBAMode();
                                     } else {
                                         _missionController.setVisionLidarValue(0)
                                         _missionController.setVisionLidar(0)
@@ -778,11 +779,9 @@ Item {
                             }
                         }
 
-                        GridLayout {
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelHeight
                             Layout.fillWidth: true
-                            columns:          2
-                            rowSpacing:       6
-                            columnSpacing:    0
 
                             // Row 1: Avoid / Stop
                             RowLayout {
@@ -821,6 +820,7 @@ Item {
                                     }
                                 }
                             }
+                        }
 
                             // Row 2: Detection Distance 라벨 (2열 전체 차지)
                             Text {
@@ -838,41 +838,147 @@ Item {
                                 target: _missionController
                                 onVlValueChanged: {
                                     var val = _missionController.vlValue
-                                    if (val === 20 || val === 30 || val === 50 || val === 100) {
-                                        root.detectionDistance = val
-                                    }
+                                    root.detectionDistance = val
                                 }
                             }
 
-                            // Rows 3-4: 20 / 30 / 50 / 100
-                            Repeater {
-                                model: [20, 30, 50, 100]
-                                RowLayout {
-                                    spacing:          6
-                                    Layout.fillWidth: true
-                                    RadioBtn {
-                                        selected:  root.detectionDistance === modelData
-                                        enabled:   root.useObstacleDetection
-                                    }
+                            RowLayout {
+                                spacing: ScreenTools.defaultFontPixelHeight * 0.5
+                                Layout.fillWidth: true
+
+                                id: topRoyLayout
+                                property real minDistance: 200 //0.2
+                                property real maxDistance: 5000 //50.0
+                                property real step: 10 //0.1
+
+                                property real controlSize: ScreenTools.defaultFontPixelHeight * 2.2
+
+                                // 감소 버튼
+                                Rectangle {
+                                    implicitWidth:  topRoyLayout.controlSize
+                                    implicitHeight: topRoyLayout.controlSize
+                                    radius:         4
+                                    color:          "#444"
+
                                     Text {
-                                        text:              modelData + "m"
-                                        color:             root.useObstacleDetection ? "white" : "#666"
-                                        font.pixelSize:    ScreenTools.defaultFontPointSize * 3//1.5
-                                        Layout.fillWidth:  true
-                                        verticalAlignment: Text.AlignVCenter
+                                        anchors.centerIn: parent
+                                        text: "-"
+                                        color: "white"
+                                        font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.2
+                                    }
+
+                                    Timer {
+                                        id: minusTimer
+                                        interval: 100   // 반복 속도 (ms)
+                                        repeat: true
+                                        //running: false
+
+                                        onTriggered: {
+                                            let base = isNaN(root.detectionDistance) ? topRoyLayout.minDistance : root.detectionDistance
+                                            let newValue = base - topRoyLayout.step
+
+                                            newValue = Math.max(topRoyLayout.minDistance, newValue)
+                                            newValue = Math.round(newValue * 10) / 10
+
+                                            root.detectionDistance = newValue
+                                        }
                                     }
 
                                     MouseArea {
                                         anchors.fill: parent
                                         enabled: root.useObstacleDetection
-                                        onClicked: {
-                                            root.detectionDistance = modelData
-                                            _missionController.setVisionLidarDistance(modelData)
+
+                                        onPressed: {
+                                            // ✅ 즉시 실행
+                                            let base = isNaN(root.detectionDistance) ? topRoyLayout.minDistance : root.detectionDistance
+                                            let newValue = base - topRoyLayout.step
+
+                                            newValue = Math.max(topRoyLayout.minDistance, newValue)
+                                            newValue = Math.round(newValue * 10) / 10
+
+                                            root.detectionDistance = newValue
+
+                                            minusTimer.start()
+                                        }
+
+                                        onReleased: {
+                                            minusTimer.stop()
+                                            _missionController.setVisionLidarDistance(root.detectionDistance)
+                                        }
+
+                                        onCanceled: {
+                                            minusTimer.stop()
+                                        }
+                                    }
+                                }
+
+                                // ✨ 입력 필드 (자동 크기)
+                                Text {
+                                    width: ScreenTools.defaultFontPixelHeight * 6
+                                    text: root.detectionDistance.toFixed(0) + " cm"
+                                    color: root.useObstacleDetection ? "white" : "#666"
+                                    font.pixelSize: ScreenTools.defaultFontPointSize * 3
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 증가 버튼
+                                Rectangle {
+                                    implicitWidth:  topRoyLayout.controlSize
+                                    implicitHeight: topRoyLayout.controlSize
+                                    radius:         4
+                                    color:          "#444"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "+"
+                                        color: "white"
+                                        font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.2
+                                    }
+
+                                    Timer {
+                                        id: plusTimer
+                                        interval: 100
+                                        repeat: true
+                                        //running: false
+
+                                        onTriggered: {
+                                            let base = isNaN(root.detectionDistance) ? topRoyLayout.minDistance : root.detectionDistance
+                                            let newValue = base + topRoyLayout.step
+
+                                            newValue = Math.min(topRoyLayout.maxDistance, newValue)
+                                            newValue = Math.round(newValue * 10) / 10
+
+                                            root.detectionDistance = newValue
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        enabled: root.useObstacleDetection
+
+                                        onPressed: {
+                                            let base = isNaN(root.detectionDistance) ? topRoyLayout.minDistance : root.detectionDistance
+                                            let newValue = base + topRoyLayout.step
+
+                                            newValue = Math.min(topRoyLayout.maxDistance, newValue)
+                                            newValue = Math.round(newValue * 10) / 10
+
+                                            root.detectionDistance = newValue
+
+                                            plusTimer.start()
+                                        }
+
+                                        onReleased: {
+                                            plusTimer.stop()
+                                            _missionController.setVisionLidarDistance(root.detectionDistance)
+                                        }
+
+                                        onCanceled: {
+                                            plusTimer.stop()
                                         }
                                     }
                                 }
                             }
-                        }
                     }
 
                     // ── 인라인 라디오 버튼 컴포넌트 ───────────────────────────────
