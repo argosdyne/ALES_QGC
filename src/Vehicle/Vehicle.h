@@ -1052,6 +1052,8 @@ signals:
     void initialConnectComplete         ();
 
     void sensorsParametersResetAck      (bool success);
+    void vlValueChanged                 (int value); //Vision Lidar
+    void vlOBAValueChanged              (int value);
 
 private slots:
     void _mavlinkMessageReceived            (LinkInterface* link, mavlink_message_t message);
