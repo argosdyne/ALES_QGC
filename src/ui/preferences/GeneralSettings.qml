@@ -777,6 +777,17 @@ Rectangle {
                                     visible:    _remoteIDEnable.visible
                                     property Fact _remoteIDEnable: QGroundControl.settingsManager.remoteIDSettings.enable
                                 }
+
+                                RowLayout {
+                                    spacing: _margins
+                                    QGCLabel {
+                                        text: qsTr("Doodle Labs IP")
+                                    }
+                                    FactTextField {
+                                        Layout.preferredWidth:  _comboFieldWidth
+                                        fact:                   QGroundControl.corePlugin.settings.doodleLabsIP
+                                    }
+                                }
                             }
                         }
 
