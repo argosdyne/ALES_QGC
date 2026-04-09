@@ -268,42 +268,42 @@ Page {
         height: _s(20)
         anchors.left: pinSection.left
         y: pinSection.y + pinSection.height + _s(28)
-        // Row {
-        //     spacing: _s(13)
-        //     anchors.left: parent.left
+        Row {
+            spacing: _s(13)
+            anchors.left: parent.left
 
-        //     Rectangle {
-        //         id: rememberBox
-        //         width: _s(36); height: _s(36)
-        //         radius: 4
-        //         color:        "transparent"
-        //         border.color: rememberBox.checked ? "#FFFFFF" : "#888888"
-        //         border.width: 2
-        //         property bool checked: false
+            Rectangle {
+                id: rememberBox
+                width: _s(36); height: _s(36)
+                radius: 4
+                color:        "transparent"
+                border.color: rememberBox.checked ? "#FFFFFF" : "#888888"
+                border.width: 2
+                property bool checked: false
 
-        //         Image {
-        //             source: "qrc:/custom/img/checked.svg"
-        //             x: _s(5)
-        //             y: _s(2)
-        //             width: _s(28)
-        //             height: _s(28)
-        //             fillMode: Image.PreserveAspectFit
-        //             visible: rememberBox.checked
-        //         }
-        //         MouseArea {
-        //             anchors.fill: parent
-        //             onClicked: rememberBox.checked = !rememberBox.checked
-        //         }
-        //     }
+                Image {
+                    source: "qrc:/custom/img/checked.svg"
+                    x: _s(5)
+                    y: _s(2)
+                    width: _s(28)
+                    height: _s(28)
+                    fillMode: Image.PreserveAspectFit
+                    visible: rememberBox.checked
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: rememberBox.checked = !rememberBox.checked
+                }
+            }
 
-        //     Text {
-        //         text: "Remember me"
-        //         color: "#AEAEAE"
-        //         font.family: "Roboto"
-        //         font.pixelSize: _s(24)
-        //         anchors.verticalCenter: parent.verticalCenter
-        //     }
-        // }
+            Text {
+                text: "Remember me"
+                color: "#AEAEAE"
+                font.family: "Roboto"
+                font.pixelSize: _s(24)
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
     }
 
     // ===== ERROR / STATUS TEXT =====
