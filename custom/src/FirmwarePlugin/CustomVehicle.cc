@@ -268,7 +268,7 @@ void CustomVehicle::_handletextMessageReceivedCustom(UASMessage* message)
         } else if(message->getSeverity() == MAV_SEVERITY_WARNING) {
             type = SystemMessage::Warning;
         } else if(message->getSeverity() == MAV_SEVERITY_NOTICE) {
-            type = SystemMessage::Success;
+            type = SystemMessage::Warning;
         }
         if(type != SystemMessage::Info) {
             _plugin->showMessage(message->getText(), type);
