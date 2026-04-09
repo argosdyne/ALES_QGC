@@ -11,6 +11,13 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QQuaternion>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QtMath>
+#include <limits>
 
 #include <Eigen/Eigen>
 
@@ -72,6 +79,63 @@ const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode no
 
 const char* Vehicle::_settingsGroup =               "Vehicle%1";        // %1 replaced with mavlink system id
 const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
+
+namespace {
+
+double _distancePointToSegmentMeters(const QPointF& point, const QPointF& segmentStart, const QPointF& segmentEnd)
+{
+    const double dx = segmentEnd.x() - segmentStart.x();
+    const double dy = segmentEnd.y() - segmentStart.y();
+    const double segmentLengthSquared = dx * dx + dy * dy;
+    if (qFuzzyIsNull(segmentLengthSquared)) {
+        const double ddx = point.x() - segmentStart.x();
+        const double ddy = point.y() - segmentStart.y();
+        return qSqrt(ddx * ddx + ddy * ddy);
+    }
+
+    const double t = ((point.x() - segmentStart.x()) * dx + (point.y() - segmentStart.y()) * dy) / segmentLengthSquared;
+    const double clamped = qBound(0.0, t, 1.0);
+    const double projX = segmentStart.x() + clamped * dx;
+    const double projY = segmentStart.y() + clamped * dy;
+    const double ddx = point.x() - projX;
+    const double ddy = point.y() - projY;
+    return qSqrt(ddx * ddx + ddy * ddy);
+}
+
+QPointF _nedPointFromCoordinate(const QGeoCoordinate& coordinate, const QGeoCoordinate& origin)
+{
+    if (coordinate == origin) {
+        return QPointF(0.0, 0.0);
+    }
+
+    double north = 0.0;
+    double east = 0.0;
+    double down = 0.0;
+    convertGeoToNed(coordinate, origin, &north, &east, &down);
+    return QPointF(east, north);
+}
+
+double _distanceToPolygonBoundaryMeters(const QGCFencePolygon& polygon, const QGeoCoordinate& coordinate)
+{
+    if (polygon.count() < 2) {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    const QGeoCoordinate origin = polygon.vertexCoordinate(0);
+    const QPointF point = _nedPointFromCoordinate(coordinate, origin);
+
+    double minDistance = std::numeric_limits<double>::infinity();
+    for (int i = 0; i < polygon.count(); i++) {
+        const int nextIndex = (i + 1) % polygon.count();
+        const QPointF start = _nedPointFromCoordinate(polygon.vertexCoordinate(i), origin);
+        const QPointF end = _nedPointFromCoordinate(polygon.vertexCoordinate(nextIndex), origin);
+        minDistance = qMin(minDistance, _distancePointToSegmentMeters(point, start, end));
+    }
+
+    return minDistance;
+}
+
+} // namespace
 
 const char* Vehicle::_rollFactName =                "roll";
 const char* Vehicle::_pitchFactName =               "pitch";
@@ -378,6 +442,7 @@ void Vehicle::_commonInit()
     connect(this, &Vehicle::homePositionChanged,    this, &Vehicle::_updateDistanceHeadingToHome);
     connect(this, &Vehicle::hobbsMeterChanged,      this, &Vehicle::_updateHobbsMeter);
     connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_updateAltAboveTerrain);
+    connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_checkGeoFenceAlertTierLocal);
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
 
@@ -407,6 +472,7 @@ void Vehicle::_commonInit()
 
     _parameterManager = new ParameterManager(this);
     connect(_parameterManager, &ParameterManager::parametersReadyChanged, this, &Vehicle::_parametersReady);
+    connect(_parameterManager, &ParameterManager::missingParametersChanged, this, [this](bool){ _updateGeoFenceParamsMissing(); });
 
     connect(_initialConnectStateMachine, &InitialConnectStateMachine::progressUpdate,
             this, &Vehicle::_gotProgressUpdate);
@@ -416,10 +482,18 @@ void Vehicle::_commonInit()
 
     _autotune = _firmwarePlugin->createAutotune(this);
 
+
+
     // GeoFenceManager needs to access ParameterManager so make sure to create after
     _geoFenceManager = new GeoFenceManager(this);
     connect(_geoFenceManager, &GeoFenceManager::error,          this, &Vehicle::_geoFenceManagerError);
     connect(_geoFenceManager, &GeoFenceManager::loadComplete,   this, &Vehicle::_firstGeoFenceLoadComplete);
+    connect(_geoFenceManager, &GeoFenceManager::loadComplete,   this, [this]() {
+        if (!_geoFenceLoaded) {
+            _geoFenceLoaded = true;
+            emit geoFenceLoadedChanged(true);
+        }
+    });
 
     _rallyPointManager = new RallyPointManager(this);
     connect(_rallyPointManager, &RallyPointManager::error,          this, &Vehicle::_rallyPointManagerError);
@@ -998,11 +1072,15 @@ void Vehicle::_chunkedStatusTextCompleted(uint8_t compId)
     // then read it aloud.
     bool readAloud = false;
 
+    const bool fenceBreachText =
+        messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+        messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive);
+
     if (messageText.startsWith("#")) {
         messageText.remove(0, 1);
         readAloud = true;
     }
-    else if (severity <= MAV_SEVERITY_NOTICE) {
+    else if (severity <= MAV_SEVERITY_NOTICE || fenceBreachText) {
         readAloud = true;
     }
 
@@ -1902,6 +1980,8 @@ void Vehicle::_handleRadioStatus(mavlink_message_t& message)
         _telemetryRNoise = rnoise;
         emit telemetryRNoiseChanged(_telemetryRNoise);
     }
+
+    _updateLinkQuality();
 }
 
 void Vehicle::_handleRCChannels(mavlink_message_t& message)
@@ -2147,6 +2227,7 @@ void Vehicle::resetAllMessages()
     if(type != _currentMessageType) {
         emit messageTypeChanged();
     }
+    _setGeoFenceMarginWarning(false);
 }
 
 // Reset warning counts only
@@ -2172,6 +2253,7 @@ void Vehicle::resetErrorLevelMessages()
     if (prevMessagetype != _currentMessageType) {
         emit messageTypeChanged();
     }
+    _setGeoFenceMarginWarning(false);
 }
 
 // this function called in three cases:
@@ -2494,6 +2576,10 @@ void Vehicle::_firstMissionLoadComplete()
 void Vehicle::_firstGeoFenceLoadComplete()
 {
     disconnect(_geoFenceManager, &GeoFenceManager::loadComplete, this, &Vehicle::_firstGeoFenceLoadComplete);
+    if (!_geoFenceLoaded) {
+        _geoFenceLoaded = true;
+        emit geoFenceLoadedChanged(true);
+    }
     _initialConnectStateMachine->advance();
 }
 
@@ -2516,6 +2602,23 @@ void Vehicle::_parametersReady(bool parametersReady)
     if (parametersReady) {
         disconnect(_parameterManager, &ParameterManager::parametersReadyChanged, this, &Vehicle::_parametersReady);
         _setupAutoDisarmSignalling();
+        _updateGeoFenceActiveState();
+        _updateGeoFenceParamsMissing();
+        _updateParachuteState();
+        _updateLinkQuality();
+
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+            Fact* fenceEnableFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE");
+            connect(fenceEnableFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
+        }
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
+            Fact* fenceTypeFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE");
+            connect(fenceTypeFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
+        }
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "CHUTE_ENABLED")) {
+            Fact* chuteEnabledFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "CHUTE_ENABLED");
+            connect(chuteEnabledFact, &Fact::rawValueChanged, this, &Vehicle::_updateParachuteState);
+        }
         _initialConnectStateMachine->advance();
     }
 
@@ -2581,6 +2684,7 @@ void Vehicle::_remoteControlRSSIChanged(uint8_t rssi)
     if(_rcRSSI != filteredRSSI) {
         _rcRSSI = filteredRSSI;
         emit rcRSSIChanged(_rcRSSI);
+        _updateLinkQuality();
     }
 }
 
@@ -4125,6 +4229,7 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
         _mavlinkLossCount       = totalLoss;
         _mavlinkLossPercent     = lossPercent;
         emit mavlinkStatusChanged();
+        _updateLinkQuality();
     }
 }
 
@@ -4402,35 +4507,516 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
 
     mavlink_msg_fence_status_decode(&message, &fenceStatus);
 
-    qCDebug(VehicleLog) << "_handleFenceStatus breach_status" << fenceStatus.breach_status;
+    qCDebug(VehicleLog) << "_handleFenceStatus breach_status" << fenceStatus.breach_status << "breach_count" << fenceStatus.breach_count;
 
-    static qint64 lastUpdate = 0;
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if (fenceStatus.breach_status == 1) {
-        if (now - lastUpdate > 3000) {
-            lastUpdate = now;
-            QString breachTypeStr;
-            switch (fenceStatus.breach_type) {
-                case FENCE_BREACH_NONE:
-                    return;
-                case FENCE_BREACH_MINALT:
-                    breachTypeStr = tr("minimum altitude");
-                    break;
-                case FENCE_BREACH_MAXALT:
-                    breachTypeStr = tr("maximum altitude");
-                    break;
-                case FENCE_BREACH_BOUNDARY:
-                    breachTypeStr = tr("boundary");
-                    break;
-                default:
-                    break;
+    const bool statusBreached = fenceStatus.breach_status != 0;
+    bool breachCountIncreased = false;
+    if (!_fenceStatusReceived) {
+        _fenceStatusReceived = true;
+    } else if (fenceStatus.breach_count > _lastFenceBreachCount) {
+        breachCountIncreased = true;
+    }
+
+    bool shouldAlert = statusBreached || (breachCountIncreased && fenceStatus.breach_type != FENCE_BREACH_NONE);
+    bool breachedNow = statusBreached;
+
+    bool fenceActive = true;
+    if (_parameterManager && _parameterManager->parametersReady()) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE") &&
+            _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            fenceActive = false;
+        }
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
+            const uint32_t fenceTypeMask =
+                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
+            if (fenceTypeMask == 0) {
+                fenceActive = false;
+            }
+        }
+    }
+    if (!fenceActive) {
+        breachedNow = false;
+    }
+    _fenceStatusBreached = breachedNow;
+
+    // If geofence is inactive, suppress both stateful and event-only alerts.
+    shouldAlert = shouldAlert && fenceActive;
+
+    QString breachTypeStr;
+    if (shouldAlert) {
+        switch (fenceStatus.breach_type) {
+            case FENCE_BREACH_NONE:
+                breachTypeStr = tr("unknown");
+                break;
+            case FENCE_BREACH_MINALT:
+                breachTypeStr = tr("minimum altitude");
+                break;
+            case FENCE_BREACH_MAXALT:
+                breachTypeStr = tr("maximum altitude");
+                break;
+            case FENCE_BREACH_BOUNDARY:
+                breachTypeStr = tr("boundary");
+                break;
+            default:
+                breachTypeStr = tr("unknown");
+                break;
+        }
+    }
+
+    if (shouldAlert && _geoFenceAlertTier < GeoFenceAlertTierBreach) {
+        _setGeoFenceAlertTier(GeoFenceAlertTierBreach, breachTypeStr);
+    } else if (!statusBreached && _geoFenceAlertTier == GeoFenceAlertTierBreach) {
+        _checkGeoFenceAlertTierLocal();
+    }
+
+    if (!shouldAlert) {
+        _lastGeoFenceBreachMessageMSecs = now;
+    }
+
+    _lastFenceBreachCount = fenceStatus.breach_count;
+}
+
+double Vehicle::_geoFenceContingencyWidthMeters(void) const
+{
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("ContingencyVolume"));
+    const double maxSpeed = qMax(0.0, settings.value(QStringLiteral("maxSpeed"), 15.0).toDouble());
+    const double latency = qMax(0.0, settings.value(QStringLiteral("latency"), 1.0).toDouble());
+    const double maneuverTime = qMax(0.0, settings.value(QStringLiteral("maneuverTime"), 3.0).toDouble());
+    const double windSpeed = qMax(0.0, settings.value(QStringLiteral("windSpeed"), 0.0).toDouble());
+    const double positionError = qMax(0.0, settings.value(QStringLiteral("positionError"), 10.0).toDouble());
+    settings.endGroup();
+
+    return (maxSpeed * latency) + ((maxSpeed + windSpeed) * maneuverTime) + positionError;
+}
+
+void Vehicle::_setGeoFenceAlertTier(GeoFenceAlertTier tier, const QString& reason)
+{
+    if (_geoFenceAlertTier == tier) {
+        return;
+    }
+
+    const GeoFenceAlertTier previousTier = _geoFenceAlertTier;
+    const bool breachCleared = previousTier >= GeoFenceAlertTierBreach && tier < GeoFenceAlertTierBreach;
+    _geoFenceAlertTier = tier;
+    emit geoFenceAlertTierChanged(static_cast<int>(tier));
+
+    _setGeoFenceMarginWarning(tier == GeoFenceAlertTierMargin);
+    _setGeoFenceBreached(tier >= GeoFenceAlertTierBreach);
+
+    QString message;
+    QString speech;
+    int severity = MAV_SEVERITY_INFO;
+
+    switch (tier) {
+    case GeoFenceAlertTierMargin:
+        severity = MAV_SEVERITY_WARNING;
+        message = tr("Approaching geofence margin");
+        speech = message;
+        _lastGeoFenceMarginWarningMSecs = QDateTime::currentMSecsSinceEpoch();
+        if (breachCleared) {
+            _logGeoFenceEvent(QStringLiteral("BREACH_EXIT"));
+        }
+        _logGeoFenceEvent(QStringLiteral("MARGIN_ENTER"), reason);
+        break;
+    case GeoFenceAlertTierBreach:
+        severity = MAV_SEVERITY_ERROR;
+        message = reason.isEmpty() ? tr("GeoFence breach") : tr("GeoFence breach: %1").arg(reason);
+        speech = reason.isEmpty() ? tr("boundary fence breached") : reason + QStringLiteral(" ") + tr("fence breached");
+        _lastGeoFenceBreachMessageMSecs = QDateTime::currentMSecsSinceEpoch();
+        _logGeoFenceEvent(QStringLiteral("BREACH_ENTER"), reason);
+        break;
+    case GeoFenceAlertTierContingency:
+        severity = MAV_SEVERITY_ERROR;
+        message = reason.isEmpty() ? tr("GeoFence over contingency") : tr("GeoFence over contingency: %1").arg(reason);
+        speech = reason.isEmpty() ? tr("over contingency") : reason + QStringLiteral(" ") + tr("over contingency");
+        _lastGeoFenceBreachMessageMSecs = QDateTime::currentMSecsSinceEpoch();
+        _logGeoFenceEvent(QStringLiteral("CONTINGENCY_ENTER"), reason);
+        break;
+    case GeoFenceAlertTierNone:
+        if (previousTier == GeoFenceAlertTierMargin) {
+            message = tr("Geofence margin cleared");
+            _logGeoFenceEvent(QStringLiteral("MARGIN_EXIT"));
+        } else if (previousTier == GeoFenceAlertTierContingency) {
+            message = tr("Exited contingency area");
+            _logGeoFenceEvent(QStringLiteral("CONTINGENCY_EXIT"));
+        } else if (previousTier == GeoFenceAlertTierBreach) {
+            message = tr("Exited breach area");
+            _logGeoFenceEvent(QStringLiteral("BREACH_EXIT"));
+        }
+        break;
+    }
+
+    if (!message.isEmpty()) {
+        emit textMessageReceived(id(), defaultComponentId(), severity, message.toHtmlEscaped(), "");
+    }
+
+    if (!speech.isEmpty()) {
+        qgcApp()->toolbox()->audioOutput()->say(speech);
+    }
+}
+
+void Vehicle::_setGeoFenceMarginWarning(bool warningActive)
+{
+    if (_geoFenceMarginWarning == warningActive) {
+        return;
+    }
+    _geoFenceMarginWarning = warningActive;
+    emit geoFenceMarginWarningChanged();
+
+    if (warningActive) {
+        _logGeoFenceEvent(QStringLiteral("MARGIN_ENTER"));
+    } else {
+        _logGeoFenceEvent(QStringLiteral("MARGIN_EXIT"));
+    }
+}
+
+void Vehicle::_setGeoFenceBreached(bool breached)
+{
+    if (_geoFenceBreached == breached) {
+        return;
+    }
+    _geoFenceBreached = breached;
+    emit geoFenceBreachedChanged(breached);
+
+    if (breached && _geoFenceMarginWarning) {
+        _setGeoFenceMarginWarning(false);
+    }
+}
+
+void Vehicle::_updateGeoFenceActiveState(void)
+{
+    bool active = false;
+    if (_geoFenceManager && _geoFenceManager->supported() && _parameterManager && _parameterManager->parametersReady()) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+            active = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() != 0;
+        } else {
+            active = true;
+        }
+
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
+            const uint32_t fenceTypeMask = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
+            if (fenceTypeMask == 0) {
+                active = false;
+            }
+        }
+    }
+
+    if (!active) {
+        // If fence is disabled, clear any latched warnings/breach state.
+        _fenceStatusBreached = false;
+        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
+        _setGeoFenceBreached(false);
+        _setGeoFenceMarginWarning(false);
+    }
+
+    if (_geoFenceActive == active) {
+        return;
+    }
+    _geoFenceActive = active;
+    emit geoFenceActiveChanged(active);
+}
+
+void Vehicle::_updateGeoFenceParamsMissing(void)
+{
+    bool missing = false;
+    if (_parameterManager) {
+        missing = _parameterManager->missingParameters();
+        if (_geoFenceManager && _geoFenceManager->supported()) {
+            if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+                missing = true;
+            }
+        }
+    }
+
+    if (_geoFenceParamsMissing == missing) {
+        return;
+    }
+    _geoFenceParamsMissing = missing;
+    emit geoFenceParamsMissingChanged(missing);
+}
+
+void Vehicle::_checkGeoFenceAlertTierLocal(void)
+{
+    if (!_geoFenceManager || !_geoFenceManager->supported() || !_coordinate.isValid()) {
+        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
+        return;
+    }
+
+    if (!_parameterManager || !_parameterManager->parametersReady()) {
+        return;
+    }
+
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE") &&
+        _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
+        return;
+    }
+
+    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
+        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
+        : 0;
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
+        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
+        return;
+    }
+
+    const bool allowInclusionExclusionChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowHomeCircleChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+    const double marginMeters = (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_MARGIN"))
+        ? qMax(0.0, _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_MARGIN")->rawValue().toDouble())
+        : 0.0;
+    const double contingencyWidthMeters = qMax(0.0, _geoFenceContingencyWidthMeters());
+
+    bool hasGeometry = false;
+    GeoFenceAlertTier tier = GeoFenceAlertTierNone;
+    QString tierReason;
+
+    auto updateTier = [&](GeoFenceAlertTier candidateTier, const QString& candidateReason) {
+        if (candidateTier > tier) {
+            tier = candidateTier;
+            tierReason = candidateReason;
+        }
+    };
+
+    if (allowInclusionExclusionChecks) {
+        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
+        for (const QGCFencePolygon& polygon : polygons) {
+            if (!polygon.isValid()) {
+                continue;
             }
 
-            qgcApp()->toolbox()->audioOutput()->say(breachTypeStr + " " + tr("fence breached"));
+            hasGeometry = true;
+            const bool contains = polygon.containsCoordinate(_coordinate);
+            const double distanceToBoundary = _distanceToPolygonBoundaryMeters(polygon, _coordinate);
+
+            if (polygon.inclusion()) {
+                if (contains) {
+                    if (marginMeters > 0.0 && distanceToBoundary <= marginMeters) {
+                        updateTier(GeoFenceAlertTierMargin, tr("boundary"));
+                    }
+                } else {
+                    updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
+                               tr("boundary"));
+                }
+            } else if (contains) {
+                updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
+                           tr("exclusion"));
+            }
         }
-    } else {
-        lastUpdate = now;
     }
+
+    if (allowInclusionExclusionChecks) {
+        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
+        for (const QGCFenceCircle& circle : circles) {
+            const QGeoCoordinate center = circle.center();
+            if (!center.isValid()) {
+                continue;
+            }
+
+            const double radiusMeters = circle.radius()->rawValue().toDouble();
+            if (radiusMeters <= 0.0) {
+                continue;
+            }
+
+            hasGeometry = true;
+            const double distanceToCenter = _coordinate.distanceTo(center);
+            const double distanceToBoundary = qAbs(radiusMeters - distanceToCenter);
+            const bool contains = distanceToCenter <= radiusMeters;
+
+            if (circle.inclusion()) {
+                if (contains) {
+                    if (marginMeters > 0.0 && distanceToBoundary <= marginMeters) {
+                        updateTier(GeoFenceAlertTierMargin, tr("boundary"));
+                    }
+                } else {
+                    updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
+                               tr("boundary"));
+                }
+            } else if (contains) {
+                updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
+                           tr("exclusion"));
+            }
+        }
+    }
+
+    if (allowHomeCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+        const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+        if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
+            hasGeometry = true;
+            const double distanceToHome = _coordinate.distanceTo(_homePosition);
+            if (distanceToHome <= fenceRadiusMeters) {
+                if (marginMeters > 0.0 && (fenceRadiusMeters - distanceToHome) <= marginMeters) {
+                    updateTier(GeoFenceAlertTierMargin, tr("boundary"));
+                }
+            } else {
+                const double overrunMeters = distanceToHome - fenceRadiusMeters;
+                updateTier((contingencyWidthMeters > 0.0 && overrunMeters > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
+                           tr("boundary"));
+            }
+        }
+    }
+
+    if (!hasGeometry) {
+        if (_fenceStatusBreached && _geoFenceAlertTier >= GeoFenceAlertTierBreach) {
+            return;
+        }
+        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
+        return;
+    }
+
+    if (_fenceStatusBreached && tier < GeoFenceAlertTierBreach) {
+        return;
+    }
+
+    _setGeoFenceAlertTier(tier, tierReason);
+}
+
+void Vehicle::_updateParachuteState(void)
+{
+    bool available = false;
+    bool enabled = false;
+
+    if (_parameterManager && _parameterManager->parametersReady()) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "CHUTE_ENABLED")) {
+            available = true;
+            enabled = _parameterManager->getParameter(FactSystem::defaultComponentId, "CHUTE_ENABLED")->rawValue().toInt() != 0;
+        }
+    }
+
+    if (_parachuteAvailable != available) {
+        _parachuteAvailable = available;
+        emit parachuteAvailableChanged(available);
+    }
+    if (_parachuteEnabled != enabled) {
+        _parachuteEnabled = enabled;
+        emit parachuteEnabledChanged(enabled);
+    }
+}
+
+void Vehicle::_updateLinkQuality(void)
+{
+    const bool wasWarning = _linkQualityWarning;
+    const bool wasCritical = _linkQualityCritical;
+
+    bool warning = false;
+    bool critical = false;
+
+    const bool lossStatsValid = (_mavlinkReceivedCount >= 50 || _mavlinkSentCount >= 50);
+    if (lossStatsValid) {
+        if (_mavlinkLossPercent >= 25.0f) {
+            critical = true;
+        } else if (_mavlinkLossPercent >= 10.0f) {
+            warning = true;
+        }
+    }
+
+    int rssiLocal = _telemetryLRSSI;
+    int rssiRemote = _telemetryRRSSI;
+    const bool rssiValid = (rssiLocal != 0 || rssiRemote != 0) && (rssiLocal > -120 || rssiRemote > -120);
+    int rssiWorst = 0;
+    if (rssiValid) {
+        if (rssiLocal == 0) {
+            rssiWorst = rssiRemote;
+        } else if (rssiRemote == 0) {
+            rssiWorst = rssiLocal;
+        } else {
+            rssiWorst = qMin(rssiLocal, rssiRemote);
+        }
+
+        if (rssiWorst <= -100) {
+            critical = true;
+        } else if (rssiWorst <= -90) {
+            warning = true;
+        }
+    } else if (_rcRSSI > 0 && _rcRSSI <= 100) {
+        if (_rcRSSI < 20) {
+            critical = true;
+        } else if (_rcRSSI < 40) {
+            warning = true;
+        }
+    }
+
+    if (_linkQualityWarning != warning) {
+        _linkQualityWarning = warning;
+        emit linkQualityWarningChanged(warning);
+    }
+    if (_linkQualityCritical != critical) {
+        _linkQualityCritical = critical;
+        emit linkQualityCriticalChanged(critical);
+    }
+
+    if (!wasCritical && critical) {
+        emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, tr("C2 link quality critical").toHtmlEscaped(), "");
+    } else if (!wasWarning && warning) {
+        emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, tr("C2 link quality degraded").toHtmlEscaped(), "");
+    }
+}
+
+void Vehicle::_logGeoFenceEvent(const QString& reason, const QString& details)
+{
+    QString basePath;
+    if (_toolbox && _toolbox->settingsManager()) {
+        basePath = _toolbox->settingsManager()->appSettings()->telemetrySavePath();
+    }
+    if (basePath.isEmpty()) {
+        basePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    }
+
+    QDir dir(basePath);
+    if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
+        return;
+    }
+
+    const QString dateStamp = QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyyMMdd"));
+    const QString fileName = dir.filePath(QStringLiteral("GeoFenceEvents_%1.csv").arg(dateStamp));
+    const bool newFile = !QFile::exists(fileName);
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        return;
+    }
+
+    auto csvEscape = [](const QString& value) {
+        QString v = value;
+        v.replace("\"", "\"\"");
+        if (v.contains(',') || v.contains('\n')) {
+            v = "\"" + v + "\"";
+        }
+        return v;
+    };
+
+    QTextStream out(&file);
+    if (newFile) {
+        out << "timestamp,lat,lon,alt_m,groundspeed_mps,reason,details\n";
+    }
+
+    const QGeoCoordinate coord = _coordinate;
+    const QString lat = coord.isValid() ? QString::number(coord.latitude(), 'f', 7) : QString();
+    const QString lon = coord.isValid() ? QString::number(coord.longitude(), 'f', 7) : QString();
+    const QString alt = coord.isValid() ? QString::number(coord.altitude(), 'f', 1) : QString();
+    const double speed = _groundSpeedFact.rawValue().toDouble();
+
+    out << QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs) << ","
+        << lat << ","
+        << lon << ","
+        << alt << ","
+        << QString::number(speed, 'f', 2) << ","
+        << csvEscape(reason) << ","
+        << csvEscape(details) << "\n";
+}
+
+void Vehicle::_checkGeoFenceMargin(void)
+{
+    _checkGeoFenceAlertTierLocal();
+}
+
+void Vehicle::_checkGeoFenceBreachLocal(void)
+{
+    _checkGeoFenceAlertTierLocal();
 }
 
 void Vehicle::updateFlightDistance(double distance)
@@ -4470,6 +5056,92 @@ void Vehicle::sendParamMapRC(const QString& paramName, double scale, double cent
                                        static_cast<float>(minValue),
                                        static_cast<float>(maxValue));
     sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+}
+
+void Vehicle::deployParachute(void)
+{
+    sendMavCommand(_defaultComponentId, MAV_CMD_DO_PARACHUTE, true, 2, 0, 0, 0, 0, 0, 0);
+}
+
+bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
+{
+    if (!_geoFenceManager || !_geoFenceManager->supported()) {
+        return false;
+    }
+
+    if (!_parameterManager || !_parameterManager->parametersReady()) {
+        return false;
+    }
+
+    if (!coordinate.isValid()) {
+        return false;
+    }
+
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+        if (_parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
+            return false;
+        }
+    }
+
+    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
+        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
+        : 0;
+    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
+        return false;
+    }
+
+    const bool allowInclusionExclusionChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
+    const bool allowHomeCircleChecks =
+        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
+
+    if (allowInclusionExclusionChecks) {
+        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
+        for (const QGCFencePolygon& polygon : polygons) {
+            if (!polygon.isValid()) {
+                continue;
+            }
+            const bool contains = polygon.containsCoordinate(coordinate);
+            const bool isOutside = polygon.inclusion() ? !contains : contains;
+            if (isOutside) {
+                return true;
+            }
+        }
+    }
+
+    if (allowInclusionExclusionChecks) {
+        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
+        for (const QGCFenceCircle& circle : circles) {
+            const QGeoCoordinate center = circle.center();
+            if (!center.isValid()) {
+                continue;
+            }
+            const double radiusMeters = circle.radius()->rawValue().toDouble();
+            if (radiusMeters <= 0.0) {
+                continue;
+            }
+            const double distanceToCenter = coordinate.distanceTo(center);
+            const bool contains = distanceToCenter <= radiusMeters;
+            const bool isOutside = circle.inclusion() ? !contains : contains;
+            if (isOutside) {
+                return true;
+            }
+        }
+    }
+
+    if (allowHomeCircleChecks) {
+        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
+            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
+            if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
+                const double distanceToHome = coordinate.distanceTo(_homePosition);
+                if (distanceToHome > fenceRadiusMeters) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 void Vehicle::clearAllParamMapRC(void)

@@ -15,7 +15,53 @@ QGCFlickable {
     clip:           true
 
     property var    myGeoFenceController
+    property var    myGeoCageController
     property var    flightMap
+    property bool   show3DView: false
+    property int    _breachStyle: Qt.SolidLine
+    property real   fenceOpacity: 0.9
+    property color  boundaryColor: "#ffb300"
+    property bool   fillTopFace: false
+    property bool   fillSideFaces: false
+    property bool   hideOccludedEdges: true
+    property bool   showOccludedEdgesDashed: false
+    property real   extrudeScale: 1.0
+    property real   minExtrudeScale: 0.6
+    property real   maxExtrudeScale: 1.6
+    property real   _extrudeScaleMinLimit: 0.1
+    property real   _extrudeScaleMaxLimit: 10.0
+    property bool   showMinMaxAltitude: false
+    property int    circleSegments: 40
+
+    Component.onCompleted: {
+        show3DView = globals.geoFenceShow3D
+        _breachStyle = globals.geoFenceBreachStyle
+        fenceOpacity = globals.geoFenceFenceOpacity
+        boundaryColor = globals.geoFenceBoundaryColor
+        fillTopFace = globals.geoFenceFillTopFace
+        fillSideFaces = globals.geoFenceFillSideFaces
+        hideOccludedEdges = globals.geoFenceHideOccludedEdges
+        showOccludedEdgesDashed = globals.geoFenceShowOccludedEdgesDashed
+        extrudeScale = globals.geoFenceExtrudeScale
+        minExtrudeScale = globals.geoFenceMinExtrudeScale
+        maxExtrudeScale = globals.geoFenceMaxExtrudeScale
+        showMinMaxAltitude = globals.geoFenceShowMinMaxAltitude
+        circleSegments = globals.geoFenceCircleSegments
+    }
+
+    onShow3DViewChanged: globals.geoFenceShow3D = show3DView
+    on_BreachStyleChanged: globals.geoFenceBreachStyle = _breachStyle
+    onFenceOpacityChanged: globals.geoFenceFenceOpacity = fenceOpacity
+    onBoundaryColorChanged: globals.geoFenceBoundaryColor = boundaryColor
+    onFillTopFaceChanged: globals.geoFenceFillTopFace = fillTopFace
+    onFillSideFacesChanged: globals.geoFenceFillSideFaces = fillSideFaces
+    onHideOccludedEdgesChanged: globals.geoFenceHideOccludedEdges = hideOccludedEdges
+    onShowOccludedEdgesDashedChanged: globals.geoFenceShowOccludedEdgesDashed = showOccludedEdgesDashed
+    onExtrudeScaleChanged: globals.geoFenceExtrudeScale = extrudeScale
+    onMinExtrudeScaleChanged: globals.geoFenceMinExtrudeScale = minExtrudeScale
+    onMaxExtrudeScaleChanged: globals.geoFenceMaxExtrudeScale = maxExtrudeScale
+    onShowMinMaxAltitudeChanged: globals.geoFenceShowMinMaxAltitude = showMinMaxAltitude
+    onCircleSegmentsChanged: globals.geoFenceCircleSegments = circleSegments
 
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
@@ -72,6 +118,132 @@ QGCFlickable {
                     spacing:            _margin
                     visible:            myGeoFenceController.supported
 
+                    Row {
+                        spacing: _margin
+                        QGCCheckBox {
+                            text:       qsTr("Operational")
+                            checked:    globals.geoFenceShowOperational
+                            onClicked:  globals.geoFenceShowOperational = checked
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Buffer")
+                            checked:    globals.geoFenceShowBuffer
+                            onClicked:  globals.geoFenceShowBuffer = checked
+                        }
+                        QGCCheckBox {
+                            text:       qsTr("Contingency")
+                            checked:    globals.geoFenceShowContingency
+                            onClicked:  globals.geoFenceShowContingency = checked
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            var loaded = myGeoFenceController.fenceLoaded ? qsTr("Loaded") : qsTr("Not Loaded")
+                            var active = myGeoFenceController.fenceActive ? qsTr("Active") : qsTr("Inactive")
+                            var missing = myGeoFenceController.fenceParamsMissing ? qsTr("Missing Params") : qsTr("Params OK")
+                            return qsTr("Fence Status: %1 | %2 | %3").arg(loaded).arg(active).arg(missing)
+                        }
+                        color: myGeoFenceController.fenceParamsMissing ? "orange" : qgcPal.text
+                    }
+
+                    SectionHeader {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        text:           qsTr("Contingency Volume")
+                    }
+
+                    GridLayout {
+                        columns:        2
+                        rowSpacing:     _margin / 2
+                        columnSpacing:  _margin
+
+                        QGCLabel { text: qsTr("Vmax (m/s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvMaxSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Latency (s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvLatency = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Maneuver (s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvManeuverTime = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Wind (m/s)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvWindSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Position Error (m)") }
+                        QGCTextField {
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvPositionError = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            if (!myGeoFenceController) {
+                                return ""
+                            }
+                            return qsTr("CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)")
+                                .arg(myGeoFenceController.cvWidthMeters.toFixed(1))
+                                .arg(myGeoFenceController.cvReactionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvCorrectionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvPositionError.toFixed(1))
+                        }
+                        color: qgcPal.text
+                    }
+
                     Repeater {
                         model: myGeoFenceController.params
 
@@ -125,6 +297,11 @@ QGCFlickable {
                             var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
                             var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
                             myGeoFenceController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
+                            if (myGeoCageController) {
+                                myGeoCageController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
+                            }
+                            polygonSection.checked = true
+                            circleSection.checked = false
                         }
                     }
 
@@ -137,6 +314,162 @@ QGCFlickable {
                             var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
                             var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
                             myGeoFenceController.addInclusionCircle(topLeftCoord, bottomRightCoord)
+                            if (myGeoFenceController.circles.count > 0) {
+                                myGeoFenceController.clearAllInteractive()
+                                myGeoFenceController.circles.get(myGeoFenceController.circles.count - 1).interactive = true
+                            }
+                            circleSection.checked = true
+                            polygonSection.checked = false
+                        }
+                    }
+
+                    QGCButton {
+                        Layout.fillWidth:   true
+                        text:               qsTr("GeoFence Self-Test")
+                        onClicked: {
+                            var report = myGeoFenceController.geoFenceSelfTestReport()
+                            mainWindow.showMessageDialog(qsTr("GeoFence Self-Test"), report)
+                        }
+                    }
+
+                    QGCCheckBox {
+                        text:       qsTr("3D View")
+                        checked:    show3DView
+                        onClicked:  show3DView = checked
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Vertical cage") }
+                    QGCRadioButton {
+                            checked: _breachStyle === Qt.SolidLine
+                            text: qsTr("Solid")
+                            onClicked: _breachStyle = Qt.SolidLine
+                        }
+                        QGCRadioButton {
+                            checked: _breachStyle === Qt.DotLine
+                            text: qsTr("Dotted")
+                            onClicked: _breachStyle = Qt.DotLine
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Opacity") }
+                        QGCSlider {
+                            id: opacitySlider
+                            width: _editFieldWidth
+                            minimumValue: 0.1
+                            maximumValue: 1.0
+                            stepSize: 0.05
+                            value: fenceOpacity
+                            onValueChanged: fenceOpacity = value
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Min/Max Altitude") }
+                        SpinBox {
+                            width: _editFieldWidth / 2
+                            minimumValue: _extrudeScaleMinLimit
+                            maximumValue: _extrudeScaleMaxLimit
+                            stepSize: 0.05
+                            decimals: 2
+                            value: minExtrudeScale
+                            onValueChanged: {
+                                minExtrudeScale = value
+                                if (maxExtrudeScale < minExtrudeScale) {
+                                    maxExtrudeScale = minExtrudeScale
+                                }
+                                if (extrudeScale < minExtrudeScale) {
+                                    extrudeScale = minExtrudeScale
+                                }
+                            }
+                        }
+                        SpinBox {
+                            width: _editFieldWidth / 2
+                            minimumValue: _extrudeScaleMinLimit
+                            maximumValue: _extrudeScaleMaxLimit
+                            stepSize: 0.05
+                            decimals: 2
+                            value: maxExtrudeScale
+                            onValueChanged: {
+                                maxExtrudeScale = value
+                                if (minExtrudeScale > maxExtrudeScale) {
+                                    minExtrudeScale = maxExtrudeScale
+                                }
+                                if (extrudeScale > maxExtrudeScale) {
+                                    extrudeScale = maxExtrudeScale
+                                }
+                                extrudeScale = maxExtrudeScale
+                            }
+                        }
+                    }
+
+                    Column {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCCheckBox {
+                            text: qsTr("Fill top/bottom faces")
+                            checked: fillTopFace
+                            onClicked: fillTopFace = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Fill side faces")
+                            checked: fillSideFaces
+                            onClicked: fillSideFaces = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Hide occluded edges")
+                            checked: hideOccludedEdges
+                            onClicked: hideOccludedEdges = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Show occluded edges (dashed)")
+                            checked: showOccludedEdgesDashed
+                            onClicked: showOccludedEdgesDashed = checked
+                        }
+                        QGCCheckBox {
+                            text: qsTr("Show Min/Max Altitude")
+                            checked: showMinMaxAltitude
+                            onClicked: showMinMaxAltitude = checked
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Boundary Color") }
+                        QGCComboBox {
+                            model: [
+                                { name: qsTr("Yellow"), color: "#ffb300" },
+                                { name: qsTr("Orange"), color: "#ff7a00" },
+                                { name: qsTr("Red"), color: "#e53935" },
+                                { name: qsTr("Blue"), color: "#1976d2" },
+                                { name: qsTr("Green"), color: "#2e7d32" }
+                            ]
+                            textRole: "name"
+                            currentIndex: 0
+                            onCurrentIndexChanged: boundaryColor = model[currentIndex].color
+                        }
+                    }
+
+                    Row {
+                        spacing: _margin / 2
+                        visible: show3DView
+                        QGCLabel { text: qsTr("Circle segments") }
+                        SpinBox {
+                            width: _editFieldWidth / 2
+                            minimumValue: 12
+                            maximumValue: 120
+                            stepSize: 4
+                            decimals: 0
+                            value: circleSegments
+                            onValueChanged: circleSegments = Math.round(value)
                         }
                     }
 
@@ -388,7 +721,7 @@ QGCFlickable {
                         anchors.right:      parent.right
                         columns:            4
                         flow:               GridLayout.TopToBottom
-                        visible:            polygonSection.checked && myGeoFenceController.circles.count > 0
+                        visible:            circleSection.checked && myGeoFenceController.circles.count > 0
 
                         QGCLabel {
                             text:               qsTr("Inclusion")

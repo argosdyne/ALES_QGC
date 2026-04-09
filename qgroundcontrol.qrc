@@ -121,6 +121,8 @@
         <file alias="QGroundControl/Controls/FlightModeDropdown.qml">src/QmlControls/FlightModeDropdown.qml</file>
         <file alias="QGroundControl/Controls/FlightModeMenu.qml">src/QmlControls/FlightModeMenu.qml</file>
         <file alias="QGroundControl/Controls/FWLandingPatternMapVisual.qml">src/PlanView/FWLandingPatternMapVisual.qml</file>
+        <file alias="QGroundControl/Controls/GeoCageEditor.qml">src/PlanView/GeoCageEditor.qml</file>
+        <file alias="QGroundControl/Controls/GeoCageMapVisuals.qml">src/PlanView/GeoCageMapVisuals.qml</file>
         <file alias="QGroundControl/Controls/GeoFenceEditor.qml">src/PlanView/GeoFenceEditor.qml</file>
         <file alias="QGroundControl/Controls/GeoFenceMapVisuals.qml">src/PlanView/GeoFenceMapVisuals.qml</file>
         <file alias="QGroundControl/Controls/HorizontalFactValueGrid.qml">src/QmlControls/HorizontalFactValueGrid.qml</file>

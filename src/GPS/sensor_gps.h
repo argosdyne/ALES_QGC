@@ -92,4 +92,19 @@ struct sensor_gps_s {
 	static constexpr uint8_t RTCM_MSG_USED_UNKNOWN = 0;
 	static constexpr uint8_t RTCM_MSG_USED_NOT_USED = 1;
 	static constexpr uint8_t RTCM_MSG_USED_USED = 2;
+
+	// Convenience setters for legacy drivers that provide PX4 integer formats (lat/lon 1e-7 deg, alt mm)
+	inline void set_position(int32_t lat_e7, int32_t lon_e7, int32_t alt_msl_mm, int32_t alt_ellipsoid_mm) {
+		latitude_deg = static_cast<double>(lat_e7) * 1e-7;
+		longitude_deg = static_cast<double>(lon_e7) * 1e-7;
+		altitude_msl_m = static_cast<double>(alt_msl_mm) * 1e-3;
+		altitude_ellipsoid_m = static_cast<double>(alt_ellipsoid_mm) * 1e-3;
+	}
+
+	inline void set_position(double lat_deg, double lon_deg, double alt_msl_m, double alt_ellipsoid_m) {
+		latitude_deg = lat_deg;
+		longitude_deg = lon_deg;
+		altitude_msl_m = alt_msl_m;
+		altitude_ellipsoid_m = alt_ellipsoid_m;
+	}
 };
