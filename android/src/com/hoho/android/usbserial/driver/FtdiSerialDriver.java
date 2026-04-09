@@ -233,18 +233,18 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
         try {
             ftD2xx = D2xxManager.getInstance(QGCActivity.m_context);
         } catch (D2xxManager.D2xxException ex) {
-            QGCActivity.qgcLogDebug("D2xxManager.getInstance threw exception: " + ex.getMessage());
+            QGCActivity.safeQgcLogDebug("D2xxManager.getInstance threw exception: " + ex.getMessage());
         }
 
         if (ftD2xx == null) {
             String errMsg = "Unable to retrieve D2xxManager instance.";
-            QGCActivity.qgcLogWarning(errMsg);
+            QGCActivity.safeQgcLogWarning(errMsg);
             throw new IOException(errMsg);
         }
-        QGCActivity.qgcLogDebug("Opened D2xxManager");
+        QGCActivity.safeQgcLogDebug("Opened D2xxManager");
 
         int DevCount = ftD2xx.createDeviceInfoList(QGCActivity.m_context);
-        QGCActivity.qgcLogDebug("Found " + DevCount + " ftdi devices.");
+        QGCActivity.safeQgcLogDebug("Found " + DevCount + " ftdi devices.");
         if (DevCount < 1) {
             throw new IOException("No FTDI Devices found");
         }
@@ -253,13 +253,13 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
         try {
             m_ftDev = ftD2xx.openByIndex(QGCActivity.m_context, 0);
         } catch (NullPointerException e) {
-            QGCActivity.qgcLogDebug("ftD2xx.openByIndex exception: " + e.getMessage());
+            QGCActivity.safeQgcLogDebug("ftD2xx.openByIndex exception: " + e.getMessage());
         } finally {
             if (m_ftDev == null) {
                 throw new IOException("No FTDI Devices found");
             }
         }
-        QGCActivity.qgcLogDebug("Opened FTDI device.");
+        QGCActivity.safeQgcLogDebug("Opened FTDI device.");
     }
 
     @Override
@@ -268,7 +268,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
             try {
                 m_ftDev.close();
             } catch (Exception e) {
-                QGCActivity.qgcLogWarning("close exception: " + e.getMessage());
+                QGCActivity.safeQgcLogWarning("close exception: " + e.getMessage());
             }
             m_ftDev = null;
         }
@@ -285,7 +285,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
                 totalBytesRead = m_ftDev.read(dest, bytesAvailable, timeoutMillis);
             } catch (NullPointerException e) {
                 final String errorMsg = "Error reading: " + e.getMessage();
-                QGCActivity.qgcLogWarning(errorMsg);
+                QGCActivity.safeQgcLogWarning(errorMsg);
                 throw new IOException(errorMsg, e);
             }
         }
@@ -299,7 +299,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
             m_ftDev.write(src);
             return src.length;
         } catch (Exception e) {
-            QGCActivity.qgcLogWarning("Error writing: " + e.getMessage());
+            QGCActivity.safeQgcLogWarning("Error writing: " + e.getMessage());
         }
         return 0;
     }
@@ -309,7 +309,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
             m_ftDev.setBaudRate(baudRate);
             return baudRate;
         } catch (Exception e) {
-            QGCActivity.qgcLogWarning("Error setting baud rate: " + e.getMessage());
+            QGCActivity.safeQgcLogWarning("Error setting baud rate: " + e.getMessage());
         }
         return 0;
     }
@@ -360,7 +360,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
         try {
             m_ftDev.setDataCharacteristics((byte)dataBits, (byte)stopBits, (byte)parity);
         } catch (Exception e) {
-            QGCActivity.qgcLogWarning("Error setDataCharacteristics: " + e.getMessage());
+            QGCActivity.safeQgcLogWarning("Error setDataCharacteristics: " + e.getMessage());
         }
     }
     @Override
@@ -408,7 +408,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
                 m_ftDev.purge(D2xxManager.FT_PURGE_RX);
             } catch (Exception e) {
                 String errMsg = "Error purgeHwBuffers(RX): "+ e.getMessage();
-                QGCActivity.qgcLogWarning(errMsg);
+                QGCActivity.safeQgcLogWarning(errMsg);
                 throw new IOException(errMsg);
             }
         }
@@ -418,7 +418,7 @@ public class FtdiSerialDriver extends CommonUsbSerialDriver {
                 m_ftDev.purge(D2xxManager.FT_PURGE_TX);
             } catch (Exception e) {
                 String errMsg = "Error purgeHwBuffers(TX): " + e.getMessage();
-                QGCActivity.qgcLogWarning(errMsg);
+                QGCActivity.safeQgcLogWarning(errMsg);
                 throw new IOException(errMsg);
             }
         }

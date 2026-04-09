@@ -92,12 +92,28 @@ TransectStyleComplexItemEditor {
                         visible:    true
                     },
                     {
+                        text:       qsTr("Aggressive fly-through"),
+                        fact:       missionItem.aggressiveFlyThrough,
+                        enabled:    missionItem.hoverAndCaptureAllowed ? !missionItem.hoverAndCapture.rawValue : true,
+                        visible:    true
+                    },
+                    {
                         text:       qsTr("Fly alternate transects"),
                         fact:       missionItem.flyAlternateTransects,
                         enabled:    true,
                         visible:    _vehicle ? (_vehicle.fixedWing || _vehicle.vtol) : false
                     }
                 ]
+            }
+
+            QGCLabel {
+                text:       qsTr("Pass-through radius")
+                visible:    !forPresets && missionItem.aggressiveFlyThrough.rawValue
+            }
+            FactTextField {
+                Layout.fillWidth:   true
+                fact:               missionItem.passThroughRadius
+                visible:            !forPresets && missionItem.aggressiveFlyThrough.rawValue
             }
         }
     }

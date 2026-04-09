@@ -479,11 +479,11 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
                 processJsonFile(jsonDoc);
             });
         } else {
-            QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+            QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
             CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         }
     } else {
-        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
     }
     reply->deleteLater();
@@ -1528,7 +1528,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }
@@ -1539,7 +1539,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     QJsonDocument doc = QJsonDocument::fromJson(data);
     if (!doc.isObject()) {
         qWarning() << "Invalid JSON format";
-        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
+        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }

@@ -17,6 +17,52 @@
 #include <QDebug>
 #include <QFile>
 #include <QQmlEngine>
+#include <QDateTime>
+#include <QHash>
+
+namespace {
+
+struct UnknownFactLogState {
+    qint64 lastLogMs = 0;
+    int suppressedCount = 0;
+};
+
+QString describeObject(const QObject* object)
+{
+    if (!object) {
+        return QStringLiteral("null");
+    }
+
+    return QStringLiteral("%1(name=%2, parent=%3)")
+        .arg(object->metaObject()->className())
+        .arg(object->objectName().isEmpty() ? QStringLiteral("<empty>") : object->objectName())
+        .arg(object->parent() ? object->parent()->metaObject()->className() : QStringLiteral("null"));
+}
+
+void logUnknownFactThrottled(const FactGroup* factGroup, const QString& factName)
+{
+    static constexpr qint64 kUnknownFactLogWindowMs = 5000;
+    static QHash<QString, UnknownFactLogState> s_unknownFactLogState;
+
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    UnknownFactLogState& state = s_unknownFactLogState[factName];
+    if (state.lastLogMs != 0 && (now - state.lastLogMs) < kUnknownFactLogWindowMs) {
+        state.suppressedCount++;
+        return;
+    }
+
+    const int suppressedCount = state.suppressedCount;
+    state.lastLogMs = now;
+    state.suppressedCount = 0;
+
+    qWarning().noquote() << QStringLiteral("Unknown Fact %1 owner=%2 updateRateMs=%3 suppressed=%4")
+        .arg(factName)
+        .arg(describeObject(factGroup))
+        .arg(factGroup ? factGroup->updateRateMs() : -1)
+        .arg(suppressedCount);
+}
+
+}
 
 FactGroup::FactGroup(int updateRateMsecs, const QString& metaDataFile, QObject* parent, bool ignoreCamelCase)
     : QObject(parent)
@@ -101,7 +147,7 @@ Fact* FactGroup::getFact(const QString& name)
         fact = _nameToFactMap[camelCaseName];
         QQmlEngine::setObjectOwnership(fact, QQmlEngine::CppOwnership);
     } else {
-        qWarning() << "Unknown Fact" << camelCaseName;
+        logUnknownFactThrottled(this, camelCaseName);
     }
 
     return fact;

@@ -440,25 +440,39 @@ ApplicationWindow {
                                     standardButtons:    StandardButton.Ok
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOnConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               QGroundControl.corePlugin.showAdvancedUIMessage
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               QGroundControl.corePlugin.showAdvancedUIMessage
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = true
-                                        advancedModeOnConfirmation.close()
                                     }
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOffConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               qsTr("Turn off Advanced Mode?")
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               qsTr("Turn off Advanced Mode?")
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = false
-                                        advancedModeOffConfirmation.close()
                                     }
                                 }
                             }

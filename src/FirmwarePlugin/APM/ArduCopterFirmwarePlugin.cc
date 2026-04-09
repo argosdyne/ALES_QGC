@@ -15,7 +15,6 @@
 #include "QGCApplication.h"
 #include "MissionManager.h"
 #include "ParameterManager.h"
-
 bool ArduCopterFirmwarePlugin::_remapParamNameIntialized = false;
 FirmwarePlugin::remapParamNameMajorVersionMap_t ArduCopterFirmwarePlugin::_remapParamName;
 

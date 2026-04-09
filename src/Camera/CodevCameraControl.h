@@ -138,6 +138,7 @@ public:
     void handleCommandAck(const mavlink_command_ack_t& ack) final;
     void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
     void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;
+    void _localizeFactMetaData(Fact* fact);
 
     // sendMavCommander
     typedef struct {
