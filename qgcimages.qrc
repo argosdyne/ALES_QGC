@@ -138,6 +138,7 @@
         <file alias="PaperPlane.svg">src/ui/toolbar/Images/PaperPlane.svg</file>
         <file alias="PatternCamera.png">resources/PatternCamera.png</file>
         <file alias="PatternGrid.png">resources/PatternGrid.png</file>
+		<file alias="VisionLidar.svg">resources/VisionLidar.svg</file>
         <file alias="PatternPresets.png">resources/PatternPresets.png</file>
         <file alias="PatternTerrain.png">resources/PatternTerrain.png</file>
         <file alias="PiP.svg">src/FlightMap/Images/PiP.svg</file>
