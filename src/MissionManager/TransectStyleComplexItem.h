@@ -158,7 +158,8 @@ protected:
     void    _appendLoadedMissionItems       (QList<MissionItem*>& items, QObject* missionItemParent);
     void    _recalcComplexDistance          (void);
     void    _appendYSInitPathMaxSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
-    void    _appendYSInitPathPreviousSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathTurnSpeed      (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathPreviousSpeed  (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
     void    _appendYSInitPathYaw            (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
 
     int                 _sequenceNumber = 0;
@@ -174,7 +175,8 @@ protected:
         CoordTypeSurveyExit,            ///< Waypoint at exit edge of survey polygon
         CoordTypeTurnaround,            ///< Turnaround extension waypoint
         CoordTypeYellowScan,            ///< YellowScan initiation path
-        CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed(10m/s)
+        CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed (10 m/s)
+        CoordTypeYellowScanTurnSpeed,   ///< YellowScan pre-U-turn slow speed (3 m/s)
         CoordTypeYellowScanPreviousSpeed,
         CoordTypeYellowScanChangeYaw
     };
