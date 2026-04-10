@@ -117,3 +117,14 @@ void QGCFencePolygon::setstrokeOpacity(double opacity) {
         emit strokeOpcaityChanged();
     }
 }
+
+QVariantList QGCFencePolygon::offsetPath(double distanceMeters) const
+{
+    if (count() < 3) {
+        return QVariantList();
+    }
+
+    QGCFencePolygon temp(*this);
+    temp.offset(distanceMeters);
+    return temp.path();
+}

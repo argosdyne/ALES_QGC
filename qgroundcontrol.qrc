@@ -52,6 +52,7 @@
         <file alias="QGroundControl/FlightMap/SplitIndicator.qml">src/FlightMap/MapItems/SplitIndicator.qml</file>
         <file alias="AnalyzeView.qml">src/AnalyzeView/AnalyzeView.qml</file>
         <file alias="AppSettings.qml">src/ui/AppSettings.qml</file>
+        <file alias="DeviceSettings.qml">src/ui/preferences/DeviceSettings.qml</file>
         <file alias="BluetoothSettings.qml">src/ui/preferences/BluetoothSettings.qml</file>
         <file alias="CorridorScanEditor.qml">src/PlanView/CorridorScanEditor.qml</file>
 		<file alias="YellowScanInitPathEditor.qml">src/PlanView/YellowScanInitPathEditor.qml</file>
@@ -120,6 +121,8 @@
         <file alias="QGroundControl/Controls/FlightModeDropdown.qml">src/QmlControls/FlightModeDropdown.qml</file>
         <file alias="QGroundControl/Controls/FlightModeMenu.qml">src/QmlControls/FlightModeMenu.qml</file>
         <file alias="QGroundControl/Controls/FWLandingPatternMapVisual.qml">src/PlanView/FWLandingPatternMapVisual.qml</file>
+        <file alias="QGroundControl/Controls/GeoCageEditor.qml">src/PlanView/GeoCageEditor.qml</file>
+        <file alias="QGroundControl/Controls/GeoCageMapVisuals.qml">src/PlanView/GeoCageMapVisuals.qml</file>
         <file alias="QGroundControl/Controls/GeoFenceEditor.qml">src/PlanView/GeoFenceEditor.qml</file>
         <file alias="QGroundControl/Controls/GeoFenceMapVisuals.qml">src/PlanView/GeoFenceMapVisuals.qml</file>
         <file alias="QGroundControl/Controls/HorizontalFactValueGrid.qml">src/QmlControls/HorizontalFactValueGrid.qml</file>
@@ -284,6 +287,7 @@
         <file alias="QGroundControl/FlightMap/MissionItemView.qml">src/FlightMap/MapItems/MissionItemView.qml</file>
         <file alias="QGroundControl/FlightMap/MissionLineView.qml">src/FlightMap/MapItems/MissionLineView.qml</file>
         <file alias="QGroundControl/FlightMap/PhotoVideoControl.qml">src/FlightMap/Widgets/PhotoVideoControl.qml</file>
+		<file alias="QGroundControl/FlightMap/AudioControl.qml">src/FlightMap/Widgets/AudioControl.qml</file>
         <file alias="QGroundControl/FlightMap/PlanMapItems.qml">src/FlightMap/MapItems/PlanMapItems.qml</file>
         <file alias="QGroundControl/FlightMap/PolygonEditor.qml">src/FlightMap/MapItems/PolygonEditor.qml</file>
         <file alias="QGroundControl/FlightMap/ProximityRadarMapView.qml">src/FlightMap/MapItems/ProximityRadarMapView.qml</file>

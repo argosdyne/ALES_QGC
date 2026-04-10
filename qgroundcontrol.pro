@@ -612,6 +612,7 @@ HEADERS += \
     src/AnalyzeView/ULogParser.h \
     src/AnalyzeView/MavlinkConsoleController.h \
     src/Audio/AudioOutput.h \
+    src/Audio/AudioControl.h \
     src/Vehicle/Autotune.h \
     src/Camera/QGCCameraControl.h \
     src/Camera/QGCCameraIO.h \
@@ -637,7 +638,7 @@ HEADERS += \
     src/MissionManager/YellowScanInitPathComplexItem.h \
     src/MissionManager/BlankPlanCreator.h \
     src/MissionManager/FixedWingLandingComplexItem.h \
-    #src/MissionManager/GeoCageController.h \
+    src/MissionManager/GeoCageController.h \
     src/MissionManager/GeoFenceController.h \
     src/MissionManager/GeoFenceManager.h \
     src/MissionManager/KMLPlanDomDocument.h \
@@ -885,6 +886,7 @@ SOURCES += \
     src/AnalyzeView/ULogParser.cc \
     src/AnalyzeView/MavlinkConsoleController.cc \
     src/Audio/AudioOutput.cc \
+    src/Audio/AudioControl.cc \
     src/Vehicle/Autotune.cpp \
     src/Camera/QGCCameraControl.cc \
     src/Camera/QGCCameraIO.cc \
@@ -910,7 +912,7 @@ SOURCES += \
     src/MissionManager/BlankPlanCreator.cc \
     src/MissionManager/FixedWingLandingComplexItem.cc \
     src/MissionManager/GeoFenceController.cc \
-    #src/MissionManager/GeoCageController.cc \
+    src/MissionManager/GeoCageController.cc \
     src/MissionManager/GeoFenceManager.cc \
     src/MissionManager/KMLPlanDomDocument.cc \
     src/MissionManager/LandingComplexItem.cc \

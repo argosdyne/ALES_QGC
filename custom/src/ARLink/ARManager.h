@@ -1,6 +1,9 @@
 #pragma once
 #include <QThread>
 #include <QJsonObject>
+#include <QNetworkAccessManager>     // http client
+#include <QNetworkReply>             // response object
+#include <QTimer>                    // loop/pooling
 #include "QGCToolbox.h"
 #include "ARConnection.h"
 
@@ -16,6 +19,7 @@ public:
     bool                connected()     { return _connected; }
     bool                binding()       { return _binding; }
     bool                bindTimeout()   { return _bindTimeout; }
+    bool                 usingDoodleApi() const { return _usingDoodleApi; }
 
     Q_PROPERTY(QVariant rssiA           READ rssiA          NOTIFY rssiChanged)
     Q_PROPERTY(QVariant rssiB           READ rssiB          NOTIFY rssiChanged)
@@ -101,17 +105,27 @@ signals:
 
 private slots:
     void _received_message(quint16 cmd, QByteArray message);
+    // Methods
     void _bindTimerout();
+    void _pollDoodleInfo();                          // timer callback, decides login vs info request
+    void _handleDoodleReply(QNetworkReply* reply);   // prcoess all HTTP responses
+    void _handleLegacyMountedChanged(bool mounted);  // Prevents conflicting state updates between old and new systems
 
 private:
     void _handle_device_info(const QByteArray& message);
+    void _requestDoodleLogin();                     // sends ubus login post request
+    void _requestDoodleRadioInfo();                 // sends request for radio status signal      
+    void _setMountedFromDoodle(bool mounted);       // sends api coming result to internal state
     // void _handle_osd_info(const QByteArray& message);
 
+    // variables
     bool                _mounted{false};
     bool                _connected{false};
     bool                _auto{false};
     bool                _binding{false};
     bool                _bindTimeout{false};
+    bool                _usingDoodleApi{false};        // falg to indicate doodle api usage
+    bool                _doodleRequestInFlight{false}; // prevents overlapping HTTP request
 
     bool                _pairTriggered{false};
 
@@ -120,7 +134,11 @@ private:
     QJsonObject _jsonObject;
     QTimer _bindTimer;
     QString _deviceIP;
-
+    QNetworkAccessManager* _networkManager{nullptr};  // Core Qt object used to send HTTP network requests
+    QTimer _doodlePollTimer;                            // Timer for periodically polling Doodle device status
+    QString _doodleDeviceIP;                              // Loaded from settings (default: 192.168.2.72)
+    QString _rpcSession;                                // Session/token used for authenticated API communication
+            
     static const char* _bbConn;
     static const char* _brFreq;
     static const char* _slotTxFreq;
@@ -149,4 +167,9 @@ private:
     static const char* _is24G;
     static const char* _selfTemperature;
     static const char* _skyTemperature;
+    static const char* _signal;
+    static const char* _noise;
+    static const char* _bitrate;
+    static const char* _channel;
+    static const char* _frequency;
 };

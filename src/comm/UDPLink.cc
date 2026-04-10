@@ -16,6 +16,8 @@
 #include <QNetworkInterface>
 #include <iostream>
 #include <QHostInfo>
+#include <QDateTime>
+#include <QHash>
 
 #include "UDPLink.h"
 #include "QGC.h"
@@ -24,6 +26,38 @@
 #include "AutoConnectSettings.h"
 
 static const char* kZeroconfRegistration = "_qgroundcontrol._udp";
+
+namespace {
+
+struct UdpWriteErrorLogState {
+    qint64 lastLogMs = 0;
+    int suppressedCount = 0;
+};
+
+void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
+{
+    static constexpr qint64 kUdpWriteErrorLogWindowMs = 5000;
+    static QHash<QString, UdpWriteErrorLogState> s_udpWriteErrorLogState;
+
+    const QString key = QStringLiteral("%1:%2").arg(address.toString()).arg(port);
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    UdpWriteErrorLogState& state = s_udpWriteErrorLogState[key];
+    if (state.lastLogMs != 0 && (now - state.lastLogMs) < kUdpWriteErrorLogWindowMs) {
+        state.suppressedCount++;
+        return;
+    }
+
+    const int suppressedCount = state.suppressedCount;
+    state.lastLogMs = now;
+    state.suppressedCount = 0;
+
+    qWarning().noquote() << QStringLiteral("Error writing to %1 %2 suppressed=%3")
+        .arg(address.toString())
+        .arg(port)
+        .arg(suppressedCount);
+}
+
+}
 
 static bool is_ip(const QString& address)
 {
@@ -164,7 +198,7 @@ void UDPLink::_writeDataGram(const QByteArray data, const UDPCLient* target)
 {
     //qDebug() << "UDP Out" << target->address << target->port;
     if(_socket->writeDatagram(data, target->address, target->port) < 0) {
-        qWarning() << "Error writing to" << target->address << target->port;
+        logUdpWriteErrorThrottled(target->address, target->port);
     }
 }
 

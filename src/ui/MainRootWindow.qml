@@ -90,6 +90,24 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+
+        // GeoFence 3D visuals (session only)
+        property bool               geoFenceShow3D:                 false
+        property int                geoFenceBreachStyle:            Qt.SolidLine
+        property real               geoFenceFenceOpacity:           0.9
+        property color              geoFenceBoundaryColor:          "#ffb300"
+        property bool               geoFenceFillTopFace:            true
+        property bool               geoFenceFillSideFaces:          false
+        property bool               geoFenceHideOccludedEdges:      true
+        property bool               geoFenceShowOccludedEdgesDashed:false
+        property real               geoFenceExtrudeScale:           1.0
+        property real               geoFenceMinExtrudeScale:        0.6
+        property real               geoFenceMaxExtrudeScale:        1.6
+        property bool               geoFenceShowMinMaxAltitude:     false
+        property int                geoFenceCircleSegments:         40
+        property bool               geoFenceShowOperational:        true
+        property bool               geoFenceShowBuffer:             true
+        property bool               geoFenceShowContingency:        true
     }
 
     /// Default color palette used throughout the UI
@@ -422,25 +440,39 @@ ApplicationWindow {
                                     standardButtons:    StandardButton.Ok
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOnConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               QGroundControl.corePlugin.showAdvancedUIMessage
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               QGroundControl.corePlugin.showAdvancedUIMessage
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = true
-                                        advancedModeOnConfirmation.close()
                                     }
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOffConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               qsTr("Turn off Advanced Mode?")
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               qsTr("Turn off Advanced Mode?")
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = false
-                                        advancedModeOffConfirmation.close()
                                     }
                                 }
                             }
@@ -918,6 +950,54 @@ ApplicationWindow {
                 visible = false
                 source = ""
             }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceWarningOverlay
+        anchors.fill: parent
+        color:      "#ffcc00"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 1
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceWarningOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.35; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.35; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceBreachOverlay
+        anchors.fill: parent
+        color:      "#ff6a00"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 2
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceBreachOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.55; duration: 160; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.55; to: 0.0; duration: 160; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceContingencyOverlay
+        anchors.fill: parent
+        color:      "#ff2b2b"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier >= 3
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceContingencyOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.7; duration: 140; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.7; to: 0.0; duration: 140; easing.type: Easing.InOutQuad }
         }
     }
 }

@@ -27,6 +27,7 @@
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
+#include "YS/YSManager.h"
 
 #include "M2Manager.h"
 #include "QGroundControlQmlGlobal.h"
@@ -86,6 +87,7 @@ CustomPlugin::CustomPlugin(QGCApplication *app, QGCToolbox* toolbox)
     _options = new CustomOptions(this, this);
     _siyiManager = new SiYiManager(app,toolbox);
     _codevRTCMManager = new CodevRTCMManager(app, toolbox);
+    _ysManager = new YSManager(app, toolbox);
     _showAdvancedUI = false;
 }
 
@@ -108,6 +110,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     QGCCorePlugin::setToolbox(toolbox);
 
     _siyiManager->setToolbox(toolbox);
+    _ysManager->setToolbox(toolbox);
     if(_codevSettings == nullptr) {
         _codevSettings = new CodevSettings(this);
     }
@@ -160,6 +163,7 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("General"),     "qrc:/qml/GeneralSettings.qml",     "qrc:/res/gear-white.svg");
         _addSettingsEntry(tr("Comm Links"),  "qrc:/qml/LinkSettings.qml",        "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Offline Maps"),"qrc:/qml/OfflineMap.qml",          "qrc:/res/waves.svg");
+        _addSettingsEntry(tr("Yellow Scan"), "qrc:/qml/DeviceSettings.qml",   "qrc:/res/cameraSetting.svg");
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
@@ -169,8 +173,11 @@ CustomPlugin::settingsPages()
             _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
         }
         else {
-            qInfo() << "M2Manager is null";
-            _addSettingsEntry(tr("Enpulse"), "qrc:/qml/ARSettings.qml");
+            bool isDoodle = _qmlInterface && _qmlInterface->arManager()
+                && _qmlInterface->arManager()->usingDoodleApi();
+
+            qInfo() << "M2Manager is null, isDoodle:" << isDoodle;
+            _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
         }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)

@@ -73,6 +73,8 @@ private:
     Fact _gpggamessageFact;
     bool _isLogIn{false};
     bool _isLogIning{false};
+    QTimer _reconnectTimer;
+    bool   _shouldReconnect{false};
     QStringList contentList;
 };
 

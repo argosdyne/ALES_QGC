@@ -86,7 +86,7 @@ Rectangle {
         QGCButton {
             id:                 disconnectButton
             text:               qsTr("Disconnect")
-            onClicked:          _activeVehicle.closeVehicle()
+            onClicked:          { if (_activeVehicle) _activeVehicle.closeVehicle() }  // guard: vehicle may be nulled by link-loss before click lands
             visible:            _activeVehicle && _communicationLost && currentToolbar === flyViewToolbar
         }
     }

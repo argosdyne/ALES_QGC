@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QSignalSpy>
 
+#include <algorithm>
 #include <memory>
 
 #ifndef NO_SERIAL_LINK
@@ -541,13 +542,20 @@ void LinkManager::_updateAutoConnectLinks(void)
     // port is connected leaks file handles due to a bug somewhere in android serial code. In order to work around that
     // bug after we connect the first serial port we stop probing for additional ports.
     if (!_isSerialPortConnected()) {
-        SerialConfiguration *serialConfig = new SerialConfiguration(tr("115200 on %1 (AutoConnect)").arg("/dev/ttyS4"));
-        serialConfig->setBaud(115200);
-        serialConfig->setDynamic(true);
-        serialConfig->setPortName("/dev/ttyS4");
-        SharedLinkConfigurationPtr sharedConfig(serialConfig);
-        createConnectedLink(sharedConfig, false);
         portList = QGCSerialPortInfo::availablePorts();
+        const QString androidSerialPort = QStringLiteral("/dev/ttyS4");
+        const bool hasAndroidSerialPort = std::any_of(portList.cbegin(), portList.cend(), [&androidSerialPort](const QGCSerialPortInfo& portInfo) {
+            return portInfo.systemLocation().trimmed() == androidSerialPort;
+        });
+        if (hasAndroidSerialPort && !_portAlreadyConnected(androidSerialPort)) {
+            SerialConfiguration* serialConfig = new SerialConfiguration(tr("115200 on %1 (AutoConnect)").arg(androidSerialPort));
+            serialConfig->setBaud(115200);
+            serialConfig->setDynamic(true);
+            serialConfig->setPortName(androidSerialPort);
+            serialConfig->setAutoConnect(true);
+            SharedLinkConfigurationPtr sharedConfig(serialConfig);
+            createConnectedLink(sharedConfig, false);
+        }
     }
     else {
         //qDebug() << "Skipping serial port list";

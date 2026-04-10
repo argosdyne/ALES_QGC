@@ -17,6 +17,7 @@
 #include "QGCCorePlugin.h"
 #include "VideoManager.h"
 #include "SettingsManager.h"
+#include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
 static const char *kIR_TEMP_RECT = "IR_TEMP_RECT";
@@ -60,6 +61,22 @@ static QStringList detected_labels_database = {
     "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
     "hair drier", "toothbrush"
 };
+
+static QString _translateCameraSettingText(const QString& sourceText)
+{
+    const QByteArray sourceUtf8 = sourceText.toUtf8();
+    return QCoreApplication::translate("CodevCameraControl", sourceUtf8.constData());
+}
+
+static QStringList _translateCameraSettingList(const QStringList& sourceList)
+{
+    QStringList translated;
+    translated.reserve(sourceList.size());
+    for (const QString& s : sourceList) {
+        translated << _translateCameraSettingText(s);
+    }
+    return translated;
+}
 
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
     : QGCCameraControl(info, vehicle, compID, link, parent)
@@ -763,6 +780,46 @@ void CodevCameraControl::_parametersReady()
     if(fact) {
         factChanged(fact);
         connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged);
+    }
+
+    for (const QString& factName : activeSettings()) {
+        _localizeFactMetaData(getFact(factName));
+    }
+    // Translate option range lists and original option names so dynamic enum updates stay localized.
+    for (auto it = _originalOptNames.begin(); it != _originalOptNames.end(); ++it) {
+        it.value() = _translateCameraSettingList(it.value());
+    }
+    for (QGCCameraOptionRange* range : _optionRanges) {
+        if (range) {
+            range->optNames = _translateCameraSettingList(range->optNames);
+        }
+    }
+}
+
+void CodevCameraControl::_localizeFactMetaData(Fact* fact)
+{
+    if (!fact) {
+        return;
+    }
+
+    FactMetaData* meta = fact->metaData();
+    if (!meta) {
+        return;
+    }
+
+    const QString shortDescription = meta->shortDescription();
+    if (!shortDescription.isEmpty()) {
+        meta->setShortDescription(_translateCameraSettingText(shortDescription));
+    }
+
+    const QString longDescription = meta->longDescription();
+    if (!longDescription.isEmpty()) {
+        meta->setLongDescription(_translateCameraSettingText(longDescription));
+    }
+
+    const QStringList enumStrings = meta->enumStrings();
+    if (!enumStrings.isEmpty()) {
+        meta->setEnumInfo(_translateCameraSettingList(enumStrings), meta->enumValues());
     }
 }
 

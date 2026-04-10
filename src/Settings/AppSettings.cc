@@ -262,7 +262,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
 
 void AppSettings::_qLocaleLanguageChanged()
 {
-    qgcApp()->setLanguage();
+    emit languageChangeRequiresRestart();
 }
 
 void AppSettings::_checkSavePathDirectories(void)

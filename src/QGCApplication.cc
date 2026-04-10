@@ -79,6 +79,7 @@
 #include "MissionCommandTree.h"
 #include "QGCMapPolygon.h"
 #include "QGCMapCircle.h"
+#include "GeoCageController.h"
 #include "ParameterManager.h"
 #include "SettingsManager.h"
 #include "QGCCorePlugin.h"
@@ -108,6 +109,8 @@
 #include "CustomActionManager.h"
 #include "GimbalController.h"
 #include "FlightZoneManager.h"
+
+#include "AudioControl.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -258,6 +261,13 @@ QGCApplication::QGCApplication(int &argc, char* argv[], bool unitTesting)
     _missingParamsDelayedDisplayTimer.setSingleShot(true);
     _missingParamsDelayedDisplayTimer.setInterval(_missingParamsDelayedDisplayTimerTimeout);
     connect(&_missingParamsDelayedDisplayTimer, &QTimer::timeout, this, &QGCApplication::_missingParamsDisplay);
+
+    // Monitor main thread stalls so we can correlate UI freezes with message storms or other blocking work.
+    _eventLoopLagMonitorTimer.setInterval(100);
+    _eventLoopLagMonitorTimer.setTimerType(Qt::PreciseTimer);
+    connect(&_eventLoopLagMonitorTimer, &QTimer::timeout, this, &QGCApplication::_checkForEventLoopLag);
+    _eventLoopLagElapsedTimer.start();
+    _eventLoopLagMonitorTimer.start();
 
     // Set application information
     QString applicationName;
@@ -473,6 +483,7 @@ void QGCApplication::_initCommon()
 
     qmlRegisterUncreatableType<MissionController>       (kQGCControllers,                   1, 0, "MissionController",          kRefOnly);
     qmlRegisterUncreatableType<GeoFenceController>      (kQGCControllers,                   1, 0, "GeoFenceController",         kRefOnly);
+    qmlRegisterUncreatableType<GeoCageController>       (kQGCControllers,                   1, 0, "GeoCageController",          kRefOnly);
     qmlRegisterUncreatableType<RallyPointController>    (kQGCControllers,                   1, 0, "RallyPointController",       kRefOnly);
 
     qmlRegisterUncreatableType<MissionItem>         (kQGroundControl,                       1, 0, "MissionItem",                kRefOnly);
@@ -543,6 +554,8 @@ void QGCApplication::_initCommon()
     qmlRegisterSingletonType<ScreenToolsController>     ("QGroundControl.ScreenToolsController",    1, 0, "ScreenToolsController",  screenToolsControllerSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("QGroundControl.ShapeFileHelper",          1, 0, "ShapeFileHelper",        shapeFileHelperSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("MAVLink",                                 1, 0, "MAVLink",                mavlinkSingletonFactory);
+
+    qRegisterMetaType<AudioControl*>("AudioControl*");
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {
@@ -830,6 +843,33 @@ void QGCApplication::_showDelayedAppMessages(void)
     } else {
         QTimer::singleShot(200, this, &QGCApplication::_showDelayedAppMessages);
     }
+}
+
+void QGCApplication::_checkForEventLoopLag(void)
+{
+    static constexpr qint64 kExpectedIntervalMs = 100;
+    static constexpr qint64 kLagWarningThresholdMs = 250;
+
+    const qint64 elapsedMs = _eventLoopLagElapsedTimer.restart();
+    const qint64 lagMs = elapsedMs - kExpectedIntervalMs;
+    if (lagMs < kLagWarningThresholdMs) {
+        return;
+    }
+
+    QString activeVehicleInfo = QStringLiteral("no active vehicle");
+    if (_toolbox && _toolbox->multiVehicleManager()) {
+        if (Vehicle* activeVehicle = _toolbox->multiVehicleManager()->activeVehicle()) {
+            activeVehicleInfo = QStringLiteral("vehicle=%1 mode=%2 messageCount=%3")
+                                    .arg(activeVehicle->id())
+                                    .arg(activeVehicle->flightMode())
+                                    .arg(activeVehicle->messageCount());
+        }
+    }
+
+    qWarning().noquote() << QStringLiteral("Main thread event loop lag detected: elapsed=%1ms lag=%2ms %3")
+                            .arg(elapsedMs)
+                            .arg(lagMs)
+                            .arg(activeVehicleInfo);
 }
 
 QQuickWindow* QGCApplication::mainRootWindow()

@@ -40,6 +40,7 @@ PlanMasterController::PlanMasterController(QObject* parent)
     , _managerVehicle       (_controllerVehicle)
     , _missionController    (this)
     , _geoFenceController   (this)
+    , _geoCageController    (this)
     , _rallyPointController (this)
 {
     _commonInit();
@@ -53,6 +54,7 @@ PlanMasterController::PlanMasterController(MAV_AUTOPILOT firmwareType, MAV_TYPE 
     , _managerVehicle       (_controllerVehicle)
     , _missionController    (this)
     , _geoFenceController   (this)
+    , _geoCageController    (this)
     , _rallyPointController (this)
 {
     _commonInit();
@@ -63,10 +65,12 @@ void PlanMasterController::_commonInit(void)
 {
     connect(&_missionController,    &MissionController::dirtyChanged,               this, &PlanMasterController::dirtyChanged);
     connect(&_geoFenceController,   &GeoFenceController::dirtyChanged,              this, &PlanMasterController::dirtyChanged);
+    connect(&_geoCageController,    &GeoCageController::dirtyChanged,               this, &PlanMasterController::dirtyChanged);
     connect(&_rallyPointController, &RallyPointController::dirtyChanged,            this, &PlanMasterController::dirtyChanged);
 
     connect(&_missionController,    &MissionController::containsItemsChanged,       this, &PlanMasterController::containsItemsChanged);
     connect(&_geoFenceController,   &GeoFenceController::containsItemsChanged,      this, &PlanMasterController::containsItemsChanged);
+    connect(&_geoCageController,    &GeoCageController::containsItemsChanged,       this, &PlanMasterController::containsItemsChanged);
     connect(&_rallyPointController, &RallyPointController::containsItemsChanged,    this, &PlanMasterController::containsItemsChanged);
 
     connect(&_missionController,    &MissionController::syncInProgressChanged,      this, &PlanMasterController::syncInProgressChanged);
@@ -532,18 +536,19 @@ void PlanMasterController::removeAllFromVehicle(void)
 
 bool PlanMasterController::containsItems(void) const
 {
-    return _missionController.containsItems() || _geoFenceController.containsItems() || _rallyPointController.containsItems();
+    return _missionController.containsItems() || _geoFenceController.containsItems() || _geoCageController.containsItems() || _rallyPointController.containsItems();
 }
 
 bool PlanMasterController::dirty(void) const
 {
-    return _missionController.dirty() || _geoFenceController.dirty() || _rallyPointController.dirty();
+    return _missionController.dirty() || _geoFenceController.dirty() || _geoCageController.dirty() || _rallyPointController.dirty();
 }
 
 void PlanMasterController::setDirty(bool dirty)
 {
     _missionController.setDirty(dirty);
     _geoFenceController.setDirty(dirty);
+    _geoCageController.setDirty(dirty);
     _rallyPointController.setDirty(dirty);
 }
 

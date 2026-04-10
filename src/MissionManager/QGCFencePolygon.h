@@ -50,6 +50,9 @@ public:
     void setstrokeOpacity(double opacity);
     double strokeOpacity (void) const {return _strokeOpacity;}
 
+    /// Returns an offset path (as a QVariantList of QGeoCoordinate) without modifying the polygon.
+    Q_INVOKABLE QVariantList offsetPath(double distanceMeters) const;
+
 signals:
     void inclusionChanged   (bool inclusion);
     void colorInclusionChanged ();

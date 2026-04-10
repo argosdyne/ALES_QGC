@@ -28,6 +28,15 @@ Item {
 
     property var  _activeVehicle:   QGroundControl.multiVehicleManager.activeVehicle
     property bool _hasTelemetry:    _activeVehicle ? _activeVehicle.telemetryLRSSI !== 0 : false
+    property bool _linkWarn:        _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
+    property bool _blinkOn:         true
+
+    Timer {
+        interval:   450
+        repeat:     true
+        running:    _linkWarn
+        onTriggered: _blinkOn = !_blinkOn
+    }
 
     Component {
         id: telemRSSIInfo
@@ -81,7 +90,9 @@ Item {
         sourceSize.height:  height
         source:             "/qmlimages/TelemRSSI.svg"
         fillMode:           Image.PreserveAspectFit
-        color:              qgcPal.buttonText
+        color:              _activeVehicle && _activeVehicle.linkQualityCritical ? qgcPal.colorRed :
+                            _activeVehicle && _activeVehicle.linkQualityWarning ? qgcPal.warningText : qgcPal.buttonText
+        opacity:            _linkWarn ? (_blinkOn ? 1.0 : 0.2) : 1.0
     }
     MouseArea {
         anchors.fill: parent
