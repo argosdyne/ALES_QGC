@@ -217,6 +217,7 @@ bool SecurityManager::setPin(const QString &pin)
     s.setValue("lockoutUntil_login", 0);
     s.remove("failedAttempts");
     s.remove("lockoutUntil");
+    s.setValue("rememberMeEnabled", false);
 #ifdef Q_OS_ANDROID
     s.setValue("useKeystore", true);  // Flag that Keystore HMAC was used
 #endif
@@ -427,6 +428,24 @@ bool SecurityManager::hasStoredPin() const
     bool ok = s.contains("derived");
     s.endGroup();
     return ok;
+}
+
+bool SecurityManager::rememberMeEnabled() const
+{
+    QSettings s;
+    s.beginGroup("SecurityManager");
+    const bool enabled = s.value("rememberMeEnabled", false).toBool();
+    s.endGroup();
+    return enabled && hasStoredPin();
+}
+
+void SecurityManager::setRememberMeEnabled(bool enabled)
+{
+    QSettings s;
+    s.beginGroup("SecurityManager");
+    s.setValue("rememberMeEnabled", enabled);
+    s.endGroup();
+    s.sync();
 }
 
 bool SecurityManager::verifyPin(const QString &pin)
@@ -692,24 +711,24 @@ bool SecurityManager::hasSequentialDigits(const QString &pin) const
 {
     if (pin.length() < 2) return false;
 
-    // Check ascending: each digit is 1 more than previous
+    // Check ascending sequence with wraparound support (e.g. 567890)
     bool isAscending = true;
     for (int i = 1; i < pin.length(); ++i) {
-        int prev = pin.at(i - 1).digitValue();
-        int curr = pin.at(i).digitValue();
-        if (prev == -1 || curr == -1 || curr != prev + 1) {
+        const int prev = pin.at(i - 1).digitValue();
+        const int curr = pin.at(i).digitValue();
+        if (prev == -1 || curr == -1 || ((prev + 1) % 10) != curr) {
             isAscending = false;
             break;
         }
     }
     if (isAscending) return true;
 
-    // Check descending: each digit is 1 less than previous
+    // Check descending sequence with wraparound support (e.g. 098765)
     bool isDescending = true;
     for (int i = 1; i < pin.length(); ++i) {
-        int prev = pin.at(i - 1).digitValue();
-        int curr = pin.at(i).digitValue();
-        if (prev == -1 || curr == -1 || curr != prev - 1) {
+        const int prev = pin.at(i - 1).digitValue();
+        const int curr = pin.at(i).digitValue();
+        if (prev == -1 || curr == -1 || ((prev + 9) % 10) != curr) {
             isDescending = false;
             break;
         }

@@ -29,6 +29,7 @@ Page {
     property string pinText: ""
     property bool   pinBoxFocused: false
     property int    _logoTapCount: 0
+    property bool   _rememberedLogin: false
     readonly property string _lockoutScope: "login"
 
     background: Rectangle {
@@ -97,6 +98,25 @@ Page {
     }
 
     function getPINValue() { return pinText }
+
+    function _syncRememberMeUI() {
+        try {
+            _rememberedLogin = securityManager.rememberMeEnabled()
+        } catch(e) {
+            _rememberedLogin = false
+        }
+
+        rememberBox.checked = _rememberedLogin
+
+        if (_rememberedLogin) {
+            pinText = "000000"
+            hiddenInput.text = pinText
+        } else {
+            pinText = ""
+            hiddenInput.text = ""
+        }
+    }
+
     function _s(px) { return Math.round(px * _uiScale) }
 
     Item {
@@ -265,7 +285,7 @@ Page {
     Item {
         id: rememberRow
         width: parent.width
-        height: _s(20)
+        height: _s(36)
         anchors.left: pinSection.left
         y: pinSection.y + pinSection.height + _s(28)
         Row {
@@ -292,7 +312,16 @@ Page {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: rememberBox.checked = !rememberBox.checked
+                    onClicked: {
+                        rememberBox.checked = !rememberBox.checked
+
+                        if (!rememberBox.checked) {
+                            loginPage._rememberedLogin = false
+                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
+                            pinText = ""
+                            hiddenInput.text = ""
+                        }
+                    }
                 }
             }
 
@@ -302,6 +331,21 @@ Page {
                 font.family: "Roboto"
                 font.pixelSize: _s(24)
                 anchors.verticalCenter: parent.verticalCenter
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        rememberBox.checked = !rememberBox.checked
+
+                        if (!rememberBox.checked) {
+                            loginPage._rememberedLogin = false
+                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
+                            pinText = ""
+                            hiddenInput.text = ""
+                        }
+                    }
+                }
             }
         }
     }
@@ -348,10 +392,25 @@ Page {
                     lockoutTimer.start()
                     return
                 }
+
+                var remembered = false
+                try { remembered = securityManager.rememberMeEnabled() } catch(e) { remembered = false }
+
+                if (rememberBox.checked && remembered) {
+                    unlockError.text  = "Remembered login. Loading..."
+                    unlockError.color = "#0fa18f"
+                    unlockError.visible = true
+                    unlockTriggerTimer.action = "unlock"
+                    unlockTriggerTimer.start()
+                    return
+                }
+
                 var pin = getPINValue()
                 var ok = false
                 try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
                 if (ok) {
+                    try { securityManager.setRememberMeEnabled(rememberBox.checked) } catch(e) {}
+                    loginPage._rememberedLogin = rememberBox.checked
                     unlockError.text  = "PIN verified. Loading..."
                     unlockError.color = "#0fa18f"
                     unlockError.visible = true
@@ -420,6 +479,8 @@ Page {
 
     Component.onCompleted: {
         // Don't auto-show keyboard, wait for user to click input field
+        _syncRememberMeUI()
+
         if (securityManager.isLockedForScope(loginPage._lockoutScope)) {
             lockoutTimer.start()
         }

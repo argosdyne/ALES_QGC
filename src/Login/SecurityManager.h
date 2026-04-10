@@ -27,6 +27,8 @@ public:
     Q_INVOKABLE bool setPin(const QString &pin);
     Q_INVOKABLE bool verifyPin(const QString &pin);
     Q_INVOKABLE bool hasStoredPin() const;
+    Q_INVOKABLE bool rememberMeEnabled() const;
+    Q_INVOKABLE void setRememberMeEnabled(bool enabled);
     Q_INVOKABLE QString generateAndStoreRecoveryKey();
     Q_INVOKABLE bool verifyRecoveryKey(const QString &recoveryKey);
     Q_INVOKABLE bool hasStoredRecoveryKey() const;
