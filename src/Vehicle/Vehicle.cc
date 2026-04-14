@@ -297,6 +297,10 @@ Vehicle::Vehicle(LinkInterface*             link,
     _mavCommandResponseCheckTimer.start();
     connect(&_mavCommandResponseCheckTimer, &QTimer::timeout, this, &Vehicle::_sendMavCommandResponseTimeoutCheck);
 
+    // Birdcom test repeat timer.
+    _birdComCommandRepeatTimer.setSingleShot(false);
+    connect(&_birdComCommandRepeatTimer, &QTimer::timeout, this, &Vehicle::_sendBirdComRepeatedCommand);
+
     // Chunked status text timeout timer
     _chunkedStatusTextTimer.setSingleShot(true);
     _chunkedStatusTextTimer.setInterval(1000);
@@ -3362,6 +3366,7 @@ void Vehicle::_sendMavCommandWorker(
     entry.elapsedTimer.start();
 
     _mavCommandList.append(entry);
+    _configureBirdComCommandRepeat(entry);
     _sendMavCommandFromList(_mavCommandList.count() - 1);
 }
 
@@ -3445,6 +3450,21 @@ void Vehicle::_sendMavCommandFromList(int index)
                                              &cmd);
     }
 
+    if (_birdComRepeatCommandValid &&
+        commandEntry.targetCompId == _birdComRepeatCommand.targetCompId &&
+        commandEntry.command == _birdComRepeatCommand.command &&
+        commandEntry.frame == _birdComRepeatCommand.frame &&
+        qFuzzyCompare(commandEntry.rgParam1 + 1.0f, _birdComRepeatCommand.rgParam1 + 1.0f) &&
+        qFuzzyCompare(commandEntry.rgParam2 + 1.0f, _birdComRepeatCommand.rgParam2 + 1.0f) &&
+        qFuzzyCompare(commandEntry.rgParam3 + 1.0f, _birdComRepeatCommand.rgParam3 + 1.0f) &&
+        qFuzzyCompare(commandEntry.rgParam4 + 1.0f, _birdComRepeatCommand.rgParam4 + 1.0f) &&
+        qFuzzyCompare(commandEntry.rgParam5 + 1.0, _birdComRepeatCommand.rgParam5 + 1.0) &&
+        qFuzzyCompare(commandEntry.rgParam6 + 1.0, _birdComRepeatCommand.rgParam6 + 1.0) &&
+        qFuzzyCompare(commandEntry.rgParam7 + 1.0f, _birdComRepeatCommand.rgParam7 + 1.0f)) {
+        _birdComRepeatMessage = msg;
+        _birdComRepeatMessageValid = true;
+    }
+
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
@@ -3462,6 +3482,67 @@ void Vehicle::_sendMavCommandResponseTimeoutCheck(void)
             _sendMavCommandFromList(i);
         }
     }
+}
+
+int Vehicle::_birdComRepeatIntervalForCommand(const MavCommandListEntry_t& commandEntry) const
+{
+    switch (commandEntry.command) {
+    case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+    case MAV_CMD_NAV_LAND:
+        return _birdComRepeatFastMSecs;
+    case MAV_CMD_DO_SET_MODE: {
+        const int customMode = qRound(commandEntry.rgParam2);
+        // ArduPilot mode values: RTL=6, LAND=9.
+        if (customMode == 6 || customMode == 9) {
+            return _birdComRepeatFastMSecs;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return _birdComRepeatSlowMSecs;
+}
+
+void Vehicle::_configureBirdComCommandRepeat(const MavCommandListEntry_t& commandEntry)
+{
+    _birdComRepeatCommand = commandEntry;
+    _birdComRepeatCommandValid = true;
+    _birdComRepeatMessageValid = false;
+
+    const int intervalMs = _birdComRepeatIntervalForCommand(commandEntry);
+    if (_birdComCommandRepeatTimer.interval() != intervalMs) {
+        _birdComCommandRepeatTimer.setInterval(intervalMs);
+    }
+    if (!_birdComCommandRepeatTimer.isActive()) {
+        _birdComCommandRepeatTimer.start();
+    }
+
+    qInfo(VehicleLog) << "Birdcom repeat configured command:" << int(commandEntry.command)
+                        << "interval(ms):" << intervalMs;
+}
+
+void Vehicle::_sendBirdComRepeatedCommand(void)
+{
+    if (!_birdComRepeatCommandValid) {
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "_sendBirdComRepeatedCommand: primary link gone";
+        return;
+    }
+
+    if (!_birdComRepeatMessageValid) {
+        qCDebug(VehicleLog) << "_sendBirdComRepeatedCommand: no saved Birdcom repeat message to resend";
+        return;
+    }
+
+    qInfo(VehicleLog) << "Birdcom repeat message resend command:" << int(_birdComRepeatCommand.command)
+                        << "interval(ms):" << _birdComCommandRepeatTimer.interval();
+    sendMessageOnLinkThreadSafe(sharedLink.get(), _birdComRepeatMessage);
 }
 
 void Vehicle::_handleCommandAck(mavlink_message_t& message)
