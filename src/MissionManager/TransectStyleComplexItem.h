@@ -127,6 +127,8 @@ public:
 
     void replaceSpacing (void);
 
+    void setFixedYawDeg(double bearing);
+
 signals:
     void cameraShotsChanged             (void);
     void timeBetweenShotsChanged        (void);
@@ -162,7 +164,9 @@ protected:
     void    _appendLoadedMissionItems       (QList<MissionItem*>& items, QObject* missionItemParent);
     void    _recalcComplexDistance          (void);
     void    _appendYSInitPathMaxSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
-    void    _appendYSInitPathPreviousSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathTurnSpeed      (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathPreviousSpeed  (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
+    void    _appendYSInitPathYaw            (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
 
     int                 _sequenceNumber = 0;
     QGeoCoordinate      _coordinate;
@@ -177,8 +181,10 @@ protected:
         CoordTypeSurveyExit,            ///< Waypoint at exit edge of survey polygon
         CoordTypeTurnaround,            ///< Turnaround extension waypoint
         CoordTypeYellowScan,            ///< YellowScan initiation path
-        CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed(10m/s)
-        CoordTypeYellowScanPreviousSpeed
+        CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed (10 m/s)
+        CoordTypeYellowScanTurnSpeed,   ///< YellowScan pre-U-turn slow speed (3 m/s)
+        CoordTypeYellowScanPreviousSpeed,
+        CoordTypeYellowScanChangeYaw
     };
 
     typedef struct {
@@ -264,5 +270,6 @@ private:
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;
 
-    double _previousVehicleSpeed;
+    double _previousVehicleSpeed;    
+    double _yellowScanInitPathAngle;
 };
