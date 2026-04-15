@@ -45,8 +45,10 @@ Item {
     }
 
     Component.onCompleted: {
-        console.log("CodevCameraVisual load")
-        console.log("aiInThermal = ", aiInThermal)
+        console.log("[CodevCameraVisual] load camera=", _camera ? _camera.modelName : "null",
+                    "paramComplete=", _camera ? _camera.paramComplete : false,
+                    "aiInThermal=", aiInThermal,
+                    "activeSettings=", _camera ? _camera.activeSettings : [])
     }
 
     Connections {

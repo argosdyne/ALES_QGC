@@ -78,7 +78,7 @@ protected:
     virtual void    _handleHeartbeat        (const mavlink_message_t& message);
     virtual void    _handleCameraInfo       (const mavlink_message_t& message, LinkInterface* link);
     virtual void    _handleStorageInfo      (const mavlink_message_t& message);
-    virtual void    _handleCameraSettings   (const mavlink_message_t& message);
+    virtual void    _handleCameraSettings   (const mavlink_message_t& message, LinkInterface* link);
     virtual void    _handleParamAck         (const mavlink_message_t& message);
     virtual void    _handleParamValue       (const mavlink_message_t& message);
     virtual void    _handleCaptureStatus    (const mavlink_message_t& message);
@@ -90,6 +90,9 @@ protected:
     virtual void    _handleRCChannels       (const mavlink_message_t& message);
     virtual void    _handleCommandAck       (const mavlink_message_t& message);
     virtual void    _handleImageCaptured    (const mavlink_message_t& message);
+    virtual void    _addCameraControlToLists(QGCCameraControl* cameraControl);
+    virtual void    _removeCameraControlFromLists(QGCCameraControl* cameraControl);
+    virtual QGCCameraControl* _createCameraControlFromSettingsFallback(int compID, LinkInterface* link);
 
 protected:
 
@@ -98,6 +101,8 @@ protected:
         CameraStruct(QObject* parent, uint8_t compID_);
         QElapsedTimer lastHeartbeat;
         bool    infoReceived = false;
+        bool    cameraCreated = false;
+        bool    fallbackCreated = false;
         bool    gaveUp       = false;
         int     tryCount     = 0;
         uint8_t compID       = 0;

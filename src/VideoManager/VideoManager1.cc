@@ -597,13 +597,6 @@ VideoManager::_udpPortChanged()
 void
 VideoManager::_rtspUrlChanged()
 {
-    const QString source = _videoSettings->videoSource()->rawValue().toString();
-    const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
-
-    qInfo() << "[VideoManager]" << "_rtspUrlChanged"
-            << "source" << source
-            << "rtsp" << rtsp
-            << "currentUri" << _videoUri[0];
     _restartVideo(0);
 }
 

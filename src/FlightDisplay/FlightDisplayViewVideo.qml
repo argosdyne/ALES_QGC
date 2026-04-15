@@ -248,11 +248,38 @@ Item {
 
         //-- Camera Extra Controls QML
         Loader {
+            id: cameraExtraControlsLoader
             anchors.fill: parent
             //source: _camera ? _camera.extraControlsQml : ""
             //source: _camera.extraControlsQml
             visible: pipState.state === pipState.fullState && !QGroundControl.videoManager.fullScreen
             source: _camera && _camera.paramComplete && _camera.extraControlsQml ? _camera.extraControlsQml : ""
+
+            Component.onCompleted: {
+                console.log("[CameraLoader] completed isCamera=", _isCamera,
+                            "camera=", _camera ? _camera.modelName : "null",
+                            "paramComplete=", _camera ? _camera.paramComplete : false,
+                            "extraControlsQml=", _camera ? _camera.extraControlsQml : "",
+                            "source=", source,
+                            "visible=", visible)
+            }
+
+            onSourceChanged: {
+                console.log("[CameraLoader] sourceChanged isCamera=", _isCamera,
+                            "camera=", _camera ? _camera.modelName : "null",
+                            "paramComplete=", _camera ? _camera.paramComplete : false,
+                            "extraControlsQml=", _camera ? _camera.extraControlsQml : "",
+                            "source=", source,
+                            "visible=", visible)
+            }
+
+            onLoaded: {
+                console.log("[CameraLoader] loaded isCamera=", _isCamera,
+                            "camera=", _camera ? _camera.modelName : "null",
+                            "paramComplete=", _camera ? _camera.paramComplete : false,
+                            "item=", item,
+                            "source=", source)
+            }
 
         }
     }

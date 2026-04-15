@@ -210,9 +210,9 @@ QGCCameraControl::~QGCCameraControl()
 void
 QGCCameraControl::_initWhenReady()
 {
-    qCDebug(CameraControlLog) << "_initWhenReady()";
+    qInfo() << "[CameraControl]" << "_initWhenReady compId" << _compID;
     if(isBasic()) {
-        qCDebug(CameraControlLog) << "Basic, MAVLink only messages.";
+        qInfo() << "[CameraControl]" << "Basic camera, MAVLink only messages compId" << _compID;
         _requestCameraSettings();
         QTimer::singleShot(250, this, &QGCCameraControl::_checkForVideoStreams);
         //-- Basic cameras have no parameters
@@ -222,6 +222,19 @@ QGCCameraControl::_initWhenReady()
         _requestAllParameters();
         //-- Give some time to load the parameters before going after the camera settings
         QTimer::singleShot(2000, this, &QGCCameraControl::_requestCameraSettings);
+        //-- Some camera firmwares never answer all PARAM_EXT requests. If we already
+        //-- have a valid definition and active settings, unblock the UI after a grace period.
+        QTimer::singleShot(8000, this, [this]() {
+            if (!_paramComplete && !_activeSettings.isEmpty()) {
+                qWarning() << "[CameraControl]"
+                           << "forcing paramComplete after timeout for compId" << _compID
+                           << "active settings" << _activeSettings;
+                _paramComplete = true;
+                emit parametersReady();
+                _requestCameraSettings();
+                _checkForVideoStreams();
+            }
+        });
     }
     connect(_vehicle, &Vehicle::mavCommandResult, this, &QGCCameraControl::_mavCommandResult);
     connect(&_captureStatusTimer, &QTimer::timeout, this, &QGCCameraControl::_requestCaptureStatus);
@@ -1090,6 +1103,11 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         _addFactGroup(this, "camera");
         _processRanges();
         _activeSettings = _settings;
+        qInfo() << "[CameraControl]"
+                << "Camera definition loaded for compId" << _compID
+                << "settings count" << _settings.count()
+                << "initial active settings" << _activeSettings
+                << "paramComplete" << _paramComplete;
         emit activeSettingsChanged();
         return true;
     }
@@ -1202,7 +1220,7 @@ QGCCameraControl::_requestAllParameters()
                 static_cast<uint8_t>(_vehicle->id()),
                 static_cast<uint8_t>(compID()));
     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
-    qCDebug(CameraControlVerboseLog) << "Request all parameters";
+    qInfo() << "[CameraControl]" << "Request all parameters compId" << _compID << "count" << _paramIO.keys().count();
 }
 
 //-----------------------------------------------------------------------------
@@ -1269,6 +1287,12 @@ QGCCameraControl::_updateActiveList()
     }
     if(active != _activeSettings) {
         qCDebug(CameraControlVerboseLog) << "Excluding" << exclusionList;
+        qInfo() << "[CameraControl]"
+                << "_updateActiveList compId" << _compID
+                << "settings" << _settings
+                << "exclusions" << exclusionList
+                << "new active settings" << active
+                << "paramComplete" << _paramComplete;
         _activeSettings = active;
         emit activeSettingsChanged();
         //-- Force validity of "Facts" based on active set
@@ -1453,7 +1477,7 @@ QGCCameraControl::_requestParamUpdates()
 void
 QGCCameraControl::_requestCameraSettings()
 {
-    qCDebug(CameraControlLog) << "_requestCameraSettings()";
+    qInfo() << "[CameraControl]" << "_requestCameraSettings compId" << _compID;
     if(_vehicle) {
         // Use REQUEST_MESSAGE instead of deprecated REQUEST_CAMERA_SETTINGS
         // first time and every other time after that.
@@ -1479,7 +1503,7 @@ QGCCameraControl::_requestCameraSettings()
 void
 QGCCameraControl::_requestStorageInfo()
 {
-    qCDebug(CameraControlLog) << "_requestStorageInfo()";
+    qInfo() << "[CameraControl]" << "_requestStorageInfo compId" << _compID;
     if(_vehicle) {
         // Use REQUEST_MESSAGE instead of deprecated REQUEST_CAMERA_SETTINGS
         // first time and every other time after that.
@@ -1505,7 +1529,13 @@ QGCCameraControl::_requestStorageInfo()
 void
 QGCCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
 {
-    qCDebug(CameraControlLog) << "handleSettings() Mode:" << settings.mode_id;
+    qInfo() << "[CameraControl]"
+            << "handleSettings() compId" << _compID
+            << "mode" << settings.mode_id
+            << "zoom" << settings.zoomLevel
+            << "focus" << settings.focusLevel
+            << "active settings" << _activeSettings
+            << "paramComplete" << _paramComplete;
     _setCameraMode(static_cast<CameraMode>(settings.mode_id));
     qreal z = static_cast<qreal>(settings.zoomLevel);
     qreal f = static_cast<qreal>(settings.focusLevel);
@@ -2199,21 +2229,21 @@ void
 QGCCameraControl::_dataReady(QByteArray data)
 {
     if(data.size()) {
-        qCDebug(CameraControlLog) << "Parsing camera definition";
+        qInfo() << "[CameraControl]" << "Parsing camera definition for compId" << _compID << "bytes" << data.size();
         _loadCameraDefinitionFile(data);
     } else {
-        qCDebug(CameraControlLog) << "No camera definition received, trying to search on our own...";
+        qInfo() << "[CameraControl]" << "No camera definition received, trying offline search for compId" << _compID;
         QFile definitionFile;
         if(qgcApp()->toolbox()->corePlugin()->getOfflineCameraDefinitionFile(_modelName, definitionFile)) {
-            qCDebug(CameraControlLog) << "Found offline definition file for: " << _modelName << ", loading: " << definitionFile.fileName();
+            qInfo() << "[CameraControl]" << "Found offline definition file for" << _modelName << "loading" << definitionFile.fileName();
             if (definitionFile.open(QIODevice::ReadOnly)) {
                 QByteArray newData = definitionFile.readAll();
                 _loadCameraDefinitionFile(newData);
             } else {
-                qCDebug(CameraControlLog) << "error opening offline definition file for: " << _modelName;
+                qInfo() << "[CameraControl]" << "Error opening offline definition file for" << _modelName;
             }
         } else {
-            qCDebug(CameraControlLog) << "No offline camera definition file found";
+            qInfo() << "[CameraControl]" << "No offline camera definition file found for" << _modelName;
         }
     }
     _initWhenReady();
@@ -2223,12 +2253,22 @@ QGCCameraControl::_dataReady(QByteArray data)
 void
 QGCCameraControl::_paramDone()
 {
+    QStringList pending;
     for(const QString& param: _paramIO.keys()) {
         if(!_paramIO[param]->paramDone()) {
-            return;
+            pending << param;
         }
     }
+    if (!pending.isEmpty()) {
+        qInfo() << "[CameraControl]"
+                << "_paramDone pending compId" << _compID
+                << "pending params" << pending;
+        return;
+    }
     //-- All parameters loaded (or timed out)
+    qInfo() << "[CameraControl]"
+            << "_paramDone complete compId" << _compID
+            << "active settings" << _activeSettings;
     _paramComplete = true;
     emit parametersReady();
     //-- Check for video streaming
@@ -2275,7 +2315,10 @@ QGCCameraControl::validateParameter(Fact* pFact, QVariant& newValue)
 QStringList
 QGCCameraControl::activeSettings()
 {
-    qCDebug(CameraControlLog) << "Active:" << _activeSettings;
+    qInfo() << "[CameraControl]"
+            << "activeSettings() compId" << _compID
+            << "paramComplete" << _paramComplete
+            << "active settings" << _activeSettings;
     return _activeSettings;
 }
 

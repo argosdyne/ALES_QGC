@@ -637,20 +637,35 @@ void CodevCameraControl::stepZoom(int direction)
 QStringList CodevCameraControl::activeSettings()
 {
     QStringList settings = _activeSettings;
+    QStringList removedSettings;
     if(!_hasTrack) {
         settings.removeOne(kTRACK_ALGORITHM);
+        removedSettings << kTRACK_ALGORITHM;
     }
     if(!_hasDetect) {
         settings.removeOne(kSMART_SELECT);
+        removedSettings << kSMART_SELECT;
     }
     settings.removeOne(kFACTORY_CALI);
+    removedSettings << kFACTORY_CALI;
+    qInfo() << "[CodevCamera]"
+            << "activeSettings() compId" << compID()
+            << "paramComplete" << paramComplete()
+            << "base" << _activeSettings
+            << "removed" << removedSettings
+            << "track" << _hasTrack
+            << "detect" << _hasDetect
+            << "result" << settings;
     return settings;
 }
 
 void CodevCameraControl::_parametersReady()
 {
 
-    qInfo() << "CodevCameraControl parametersReady";
+    qInfo() << "[CodevCamera]"
+            << "_parametersReady compId" << compID()
+            << "paramComplete" << paramComplete()
+            << "initial active settings" << _activeSettings;
     disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
 
     // nvidia system status
@@ -767,6 +782,14 @@ void CodevCameraControl::_parametersReady()
             }
         }
     }
+
+    qInfo() << "[CodevCamera]"
+            << "_parametersReady compId" << compID()
+            << "paramComplete" << paramComplete()
+            << "hasTrack" << _hasTrack
+            << "hasDetect" << _hasDetect
+            << "active settings after custom setup" << _activeSettings
+            << "returned active settings" << activeSettings();
 
     // json transfor request
     fact = getFact(kJSON_TR_REQ);
