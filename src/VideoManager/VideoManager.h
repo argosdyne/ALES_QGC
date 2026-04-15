@@ -180,5 +180,7 @@ protected:
     QString                 _uvcVideoSourceID;
     bool                    _fullScreen             = false;
     Vehicle*                _activeVehicle          = nullptr;
+    bool                    _deferPrimaryStartUntilSinkReady = false;
+    bool                    _restartPrimaryOnSinkReady = false;
 };
 #endif

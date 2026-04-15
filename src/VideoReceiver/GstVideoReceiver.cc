@@ -837,20 +837,10 @@ GstVideoReceiver::_makeSource(const QString& uri)
             break;
         }
 
-        const bool isA30TRPrimaryStream = uri.contains(QStringLiteral("192.168.2.119:8554/eo"), Qt::CaseInsensitive);
-        const bool isLegacyViewproRtsp =
-            isRtsp &&
-            !isA30TRPrimaryStream &&
-            (uri.contains(QStringLiteral("192.168.2.119:554"), Qt::CaseInsensitive) ||
-             uri.contains(QStringLiteral("viewpro"), Qt::CaseInsensitive) ||
-             uri.contains(QStringLiteral("a30tr"), Qt::CaseInsensitive));
-
-        // A30TR/Viewpro legacy RTSP streams can fail caps negotiation with this parser hook enabled.
-        // Keep parsebin default autoplug behavior for those URIs, but enable the hook for the
-        // known primary stream and normal RTSP sources so Android decoders can negotiate caps.
-        if (!isLegacyViewproRtsp) {
-            //g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
-        }
+        // Keep parsebin default autoplug behavior for RTSP sources.
+        // The Android package currently reports missing H.264 parsers when this hook
+        // forces caps toward AVC/AU on A30TR/R3 streams, so leave it disabled here.
+        // g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
 
         gst_bin_add_many(GST_BIN(bin), source, parser, nullptr);
 
