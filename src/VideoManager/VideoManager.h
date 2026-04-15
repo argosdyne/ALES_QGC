@@ -50,7 +50,7 @@ public:
     Q_PROPERTY(double           hfov                    READ    hfov                                        NOTIFY aspectRatioChanged)
     Q_PROPERTY(double           thermalHfov             READ    thermalHfov                                 NOTIFY aspectRatioChanged)
     Q_PROPERTY(bool             autoStreamConfigured    READ    autoStreamConfigured                        NOTIFY autoStreamConfiguredChanged)
-    Q_PROPERTY(bool             hasThermal              READ    hasThermal                                  NOTIFY decodingChanged)
+    Q_PROPERTY(bool             hasThermal              READ    hasThermal                                  NOTIFY hasThermalChanged)
     Q_PROPERTY(QString          imageFile               READ    imageFile                                   NOTIFY imageFileChanged)
     Q_PROPERTY(bool             streaming               READ    streaming                                   NOTIFY streamingChanged)
     Q_PROPERTY(bool             decoding                READ    decoding                                    NOTIFY decodingChanged)
@@ -124,6 +124,7 @@ signals:
     void isTaisyncChanged           ();
     void aspectRatioChanged         ();
     void autoStreamConfiguredChanged();
+    void hasThermalChanged          ();
     void imageFileChanged           ();
     void streamingChanged           ();
     void decodingChanged            ();
@@ -143,6 +144,7 @@ protected slots:
     void _communicationLostChanged  (bool communicationLost);
     void _fpvChanged                ();
     void _streamEnabledChanged      ();
+    void _thermalModeChanged        ();
 
 protected:
     friend class FinishVideoInitialization;

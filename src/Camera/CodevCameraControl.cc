@@ -1361,6 +1361,18 @@ void CodevCameraControl::_sendNextQueuedMavCommand()
 void CodevCameraControl::_requestStreamInfo(uint8_t streamID)
 {
     qCDebug(CodevCameraLog) << "Requesting video stream info for:" << streamID;
+    if (streamID == 0) {
+        // Some Codev firmware builds do not reliably answer the wildcard request.
+        // Probe the first two streams directly so EO and thermal are both discovered after restart.
+        _expectedCount = qMax(_expectedCount, 2);
+        sendMavCommand(
+            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
+            1);
+        sendMavCommand(
+            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
+            2);
+        return;
+    }
     sendMavCommand(
         MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,           // Command id
         streamID);                                          // Stream ID

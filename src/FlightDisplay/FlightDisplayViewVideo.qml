@@ -182,14 +182,28 @@ Item {
                 onThermalModeChanged:   thermalItem.pipOrNot()
             }
             onVisibleChanged: {
+                console.log("[THERMAL_UI]",
+                            "thermalItem.visibleChanged",
+                            "visible=", visible,
+                            "hasThermal=", QGroundControl.videoManager.hasThermal,
+                            "thermalMode=", _camera ? _camera.thermalMode : -1,
+                            "width=", width,
+                            "height=", height)
                 thermalItem.pipOrNot()
             }
+            onWidthChanged: console.log("[THERMAL_UI]", "thermalItem.widthChanged", "width=", width, "height=", height)
+            onHeightChanged: console.log("[THERMAL_UI]", "thermalItem.heightChanged", "width=", width, "height=", height)
             QGCVideoBackground {
                 id:             thermalVideo
                 objectName:     "thermalVideo"
                 anchors.fill:   parent
                 receiver:       QGroundControl.videoManager.thermalVideoReceiver
                 opacity:        _camera ? (_camera.thermalMode === QGCCameraControl.THERMAL_BLEND ? _camera.thermalOpacity / 100 : 1.0) : 0
+                onOpacityChanged: console.log("[THERMAL_UI]",
+                                              "thermalVideo.opacityChanged",
+                                              "opacity=", opacity,
+                                              "thermalMode=", _camera ? _camera.thermalMode : -1,
+                                              "thermalOpacity=", _camera ? _camera.thermalOpacity : -1)
             }
         }
 

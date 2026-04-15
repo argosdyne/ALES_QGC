@@ -111,13 +111,27 @@ Item {
                     "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
                     "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
                     "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
-                    "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [])
+                    "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
+                    "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
+                    "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
+                    "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
+                    "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
     }
 
     Component.onCompleted: logCameraSettingsState("completed")
     onVisibleChanged: logCameraSettingsState("visibleChanged")
     on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
     on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
+    on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
+
+    Connections {
+        target: _mavlinkCamera
+        function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
+        function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
+        function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
+        function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
+        function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
+    }
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
@@ -669,7 +683,11 @@ Item {
                         displayValue:               true
                         updateValueWhileDragging:   true
                         visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
-                        onValueChanged:             _mavlinkCamera.thermalOpacity = value
+                        onPressedChanged: {
+                            if (!pressed && _mavlinkCamera && Math.abs(_mavlinkCamera.thermalOpacity - value) > 0.1) {
+                                _mavlinkCamera.thermalOpacity = value
+                            }
+                        }
                     }
 
                     // Mavlink Camera Protocol active settings

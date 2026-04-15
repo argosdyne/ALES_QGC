@@ -554,6 +554,9 @@ QGCCameraControl::setThermalMode(ThermalViewMode mode)
     QSettings settings;
     settings.setValue(kThermalMode, static_cast<uint32_t>(mode));
     _thermalMode = mode;
+    if (_thermalMode == THERMAL_BLEND && (_thermalOpacity <= 0.1 || _thermalOpacity > 100.0)) {
+        setThermalOpacity(85.0);
+    }
     emit thermalModeChanged();
 }
 
@@ -1636,6 +1639,15 @@ QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
 {
     qCDebug(CameraControlLog) << "handleVideoInfo:" << vi->stream_id << vi->uri;
     _expectedCount = vi->count;
+    qInfo() << "THERMAL_TRACE"
+            << "handleVideoInfo"
+            << "compId" << _compID
+            << "streamId" << vi->stream_id
+            << "count" << vi->count
+            << "type" << vi->type
+            << "flags" << vi->flags
+            << "uri" << vi->uri
+            << "existingStreams" << _streams.count();
     if(!_findStream(vi->stream_id, false)) {
         qCDebug(CameraControlLog) << "Create stream handler for stream ID:" << vi->stream_id;
         QGCVideoStreamInfo* pStream = new QGCVideoStreamInfo(this, vi);
@@ -1649,15 +1661,41 @@ QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
         } else {
             emit thermalStreamChanged();
         }
+        qInfo() << "THERMAL_TRACE"
+                << "streamAdded"
+                << "compId" << _compID
+                << "streamId" << pStream->streamID()
+                << "name" << pStream->name()
+                << "isThermal" << pStream->isThermal()
+                << "uri" << pStream->uri()
+                << "streamsNow" << _streams.count()
+                << "labelsNow" << _streamLabels;
     }
     //-- Check for missing count
     if(_streams.count() < _expectedCount) {
+        qInfo() << "THERMAL_TRACE"
+                << "streamInfoPending"
+                << "compId" << _compID
+                << "streams" << _streams.count()
+                << "expected" << _expectedCount;
         _streamInfoTimer.start(1000);
     } else {
         //-- Done
         qCDebug(CameraControlLog) << "All stream handlers done";
         _streamInfoTimer.stop();
         _videoStreamInfoRetries = 0;
+        QGCVideoStreamInfo* pCurrent = currentStreamInstance();
+        QGCVideoStreamInfo* pThermal = thermalStreamInstance();
+        qInfo() << "THERMAL_TRACE"
+                << "streamInfoComplete"
+                << "compId" << _compID
+                << "streams" << _streams.count()
+                << "expected" << _expectedCount
+                << "currentStreamId" << (pCurrent ? pCurrent->streamID() : -1)
+                << "currentUri" << (pCurrent ? pCurrent->uri() : QStringLiteral("null"))
+                << "thermalStreamId" << (pThermal ? pThermal->streamID() : -1)
+                << "thermalUri" << (pThermal ? pThermal->uri() : QStringLiteral("null"));
+        resumeStream();
         emit autoStreamChanged();
         emit _vehicle->cameraManager()->streamChanged();
     }
@@ -1773,6 +1811,14 @@ void
 QGCCameraControl::stopStream()
 {
     QGCVideoStreamInfo* pInfo = currentStreamInstance();
+    QGCVideoStreamInfo* pThermalInfo = thermalStreamInstance();
+    qInfo() << "THERMAL_TRACE"
+            << "stopStream"
+            << "compId" << _compID
+            << "currentStreamId" << (pInfo ? pInfo->streamID() : -1)
+            << "currentUri" << (pInfo ? pInfo->uri() : QStringLiteral("null"))
+            << "thermalStreamId" << (pThermalInfo ? pThermalInfo->streamID() : -1)
+            << "thermalUri" << (pThermalInfo ? pThermalInfo->uri() : QStringLiteral("null"));
     if(pInfo) {
         //-- Stop current stream
         _vehicle->sendMavCommand(
@@ -1781,6 +1827,13 @@ QGCCameraControl::stopStream()
             false,                                  // ShowError
             pInfo->streamID());                     // Stream ID
     }
+    if(pThermalInfo && (!pInfo || pThermalInfo->streamID() != pInfo->streamID())) {
+        _vehicle->sendMavCommand(
+            _compID,
+            MAV_CMD_VIDEO_STOP_STREAMING,
+            false,
+            pThermalInfo->streamID());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1788,6 +1841,16 @@ void
 QGCCameraControl::resumeStream()
 {
     QGCVideoStreamInfo* pInfo = currentStreamInstance();
+    QGCVideoStreamInfo* pThermalInfo = thermalStreamInstance();
+    qInfo() << "THERMAL_TRACE"
+            << "resumeStream"
+            << "compId" << _compID
+            << "currentStreamId" << (pInfo ? pInfo->streamID() : -1)
+            << "currentUri" << (pInfo ? pInfo->uri() : QStringLiteral("null"))
+            << "thermalStreamId" << (pThermalInfo ? pThermalInfo->streamID() : -1)
+            << "thermalUri" << (pThermalInfo ? pThermalInfo->uri() : QStringLiteral("null"))
+            << "streamLabels" << _streamLabels
+            << "expectedCount" << _expectedCount;
     if(pInfo) {
         //-- Start new stream
         _vehicle->sendMavCommand(
@@ -1795,6 +1858,13 @@ QGCCameraControl::resumeStream()
             MAV_CMD_VIDEO_START_STREAMING,          // Command id
             false,                                  // ShowError
             pInfo->streamID());                     // Stream ID
+    }
+    if(pThermalInfo && (!pInfo || pThermalInfo->streamID() != pInfo->streamID())) {
+        _vehicle->sendMavCommand(
+            _compID,
+            MAV_CMD_VIDEO_START_STREAMING,
+            false,
+            pThermalInfo->streamID());
     }
 }
 
