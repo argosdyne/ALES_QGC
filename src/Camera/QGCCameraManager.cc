@@ -27,7 +27,6 @@ namespace {
 
 static constexpr quint16 kCameraDefinitionLocalPort = 38081;
 static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
-static const char* kDefaultCodevDefinitionUrl = "http://192.168.2.119/Codev_R3_023.xml";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
 static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
@@ -78,7 +77,7 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qCDebug(CameraManagerLog) << "QGCCameraManager Created";
-    qInfo() << "[CameraManager]" << "BUILD_TAG ales-fallback-v4-local-caminfo-proxy 2026-04-15";
+    qInfo() << "[CameraManager]" << "BUILD_TAG ales-fallback-v5-no-hardcoded-definition-url 2026-04-15";
     connect(qgcApp()->toolbox()->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &QGCCameraManager::_vehicleReady);
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &QGCCameraManager::_mavlinkMessageReceived);
     connect(&_cameraTimer, &QTimer::timeout, this, &QGCCameraManager::_cameraTimeout);
@@ -129,7 +128,11 @@ QString
 QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
 {
     if (_cameraDefinitionHttpPort == 0) {
-        return QString::fromLatin1(kDefaultCodevDefinitionUrl);
+        qWarning() << "[CameraManager]"
+                   << "camera definition local url unavailable"
+                   << "compId" << compID
+                   << "reason" << "local_http_server_not_listening";
+        return QString();
     }
 
     return QStringLiteral("http://127.0.0.1:%1%2")
@@ -150,7 +153,12 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
         return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());
     }
 
-    return QString::fromLatin1(kDefaultCodevDefinitionUrl);
+    qWarning() << "[CameraManager]"
+               << "camera definition upstream unavailable"
+               << "compId" << compID
+               << "reason" << "rtsp_host_missing"
+               << "rtspUrl" << rtspUrl;
+    return QString();
 }
 
 void
@@ -440,8 +448,25 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
     }
 
     mavlink_message_t synthesizedMessage{};
-    _ensureCameraDefinitionHttpServer();
+    if (!_ensureCameraDefinitionHttpServer()) {
+        qWarning() << "[CameraManager]"
+                   << "_injectSynthesizedCameraInformation failed"
+                   << "compId" << compID
+                   << "reason" << reason
+                   << "error" << "local_http_server_unavailable";
+        return false;
+    }
+
     const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
+    if (definitionUrl.isEmpty()) {
+        qWarning() << "[CameraManager]"
+                   << "_injectSynthesizedCameraInformation failed"
+                   << "compId" << compID
+                   << "reason" << reason
+                   << "error" << "definition_url_empty";
+        return false;
+    }
+
     if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
         qInfo() << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation no synth profile"
@@ -580,7 +605,9 @@ QGCCameraControl*
 QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInterface* link)
 {
     mavlink_camera_information_t info{};
-    const bool useCodevProfile = _populateCodevFallbackCameraInfo(compID, _cameraDefinitionLocalUrl(compID).toLatin1(), info);
+    const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
+    const bool useCodevProfile = !definitionUrl.isEmpty() &&
+                                 _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), info);
     if (!useCodevProfile) {
         const QByteArray vendor = QByteArrayLiteral("Unknown");
         const QByteArray modelName = QStringLiteral("Camera %1").arg(compID).toLatin1();

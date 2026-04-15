@@ -2666,14 +2666,22 @@ void Vehicle::_parametersReady(bool parametersReady)
         _updateParachuteState();
         _updateLinkQuality();
 
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-            Fact* fenceEnableFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE");
-            connect(fenceEnableFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
+        auto connectGeoFenceParam = [this](const char* paramName) {
+            if (_parameterManager->parameterExists(FactSystem::defaultComponentId, paramName)) {
+                Fact* fact = _parameterManager->getParameter(FactSystem::defaultComponentId, paramName);
+                connect(fact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
+                connect(fact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceParamsMissing);
+            }
+        };
+
+        if (px4Firmware()) {
+            connectGeoFenceParam("GF_MAX_HOR_DIST");
+            connectGeoFenceParam("GF_MAX_VER_DIST");
+        } else {
+            connectGeoFenceParam("FENCE_ENABLE");
+            connectGeoFenceParam("FENCE_TYPE");
         }
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
-            Fact* fenceTypeFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE");
-            connect(fenceTypeFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
-        }
+
         if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "CHUTE_ENABLED")) {
             Fact* chuteEnabledFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "CHUTE_ENABLED");
             connect(chuteEnabledFact, &Fact::rawValueChanged, this, &Vehicle::_updateParachuteState);
@@ -4748,16 +4756,31 @@ void Vehicle::_updateGeoFenceActiveState(void)
 {
     bool active = false;
     if (_geoFenceManager && _geoFenceManager->supported() && _parameterManager && _parameterManager->parametersReady()) {
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-            active = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() != 0;
-        } else {
-            active = true;
-        }
+        if (px4Firmware()) {
+            const bool hasMaxHorDist = _parameterManager->parameterExists(FactSystem::defaultComponentId, "GF_MAX_HOR_DIST");
+            const bool hasMaxVerDist = _parameterManager->parameterExists(FactSystem::defaultComponentId, "GF_MAX_VER_DIST");
 
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
-            const uint32_t fenceTypeMask = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
-            if (fenceTypeMask == 0) {
-                active = false;
+            const double maxHorDist = hasMaxHorDist
+                ? _parameterManager->getParameter(FactSystem::defaultComponentId, "GF_MAX_HOR_DIST")->rawValue().toDouble()
+                : 0.0;
+            const double maxVerDist = hasMaxVerDist
+                ? _parameterManager->getParameter(FactSystem::defaultComponentId, "GF_MAX_VER_DIST")->rawValue().toDouble()
+                : 0.0;
+
+            active = maxHorDist > 0.0 || maxVerDist > 0.0 ||
+                     !_geoFenceManager->polygons().isEmpty() || !_geoFenceManager->circles().isEmpty();
+        } else {
+            if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
+                active = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() != 0;
+            } else {
+                active = true;
+            }
+
+            if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
+                const uint32_t fenceTypeMask = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
+                if (fenceTypeMask == 0) {
+                    active = false;
+                }
             }
         }
     }
@@ -4782,12 +4805,22 @@ void Vehicle::_updateGeoFenceParamsMissing(void)
     bool missing = false;
     if (_parameterManager && _geoFenceManager && _geoFenceManager->supported()) {
         if (_parameterManager->parametersReady()) {
-            static const char* kRequiredFenceParams[] = {
+            static const char* kRequiredApmFenceParams[] = {
                 "FENCE_ENABLE",
                 "FENCE_TYPE",
             };
+            static const char* kRequiredPx4FenceParams[] = {
+                "GF_MAX_HOR_DIST",
+                "GF_MAX_VER_DIST",
+            };
 
-            for (const char* paramName : kRequiredFenceParams) {
+            const char* const* requiredParams = px4Firmware() ? kRequiredPx4FenceParams : kRequiredApmFenceParams;
+            const size_t requiredParamCount = px4Firmware()
+                ? (sizeof(kRequiredPx4FenceParams) / sizeof(kRequiredPx4FenceParams[0]))
+                : (sizeof(kRequiredApmFenceParams) / sizeof(kRequiredApmFenceParams[0]));
+
+            for (size_t i = 0; i < requiredParamCount; ++i) {
+                const char* paramName = requiredParams[i];
                 if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, paramName)) {
                     missing = true;
                     break;
