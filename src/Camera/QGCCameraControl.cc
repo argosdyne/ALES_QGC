@@ -251,6 +251,10 @@ QGCCameraControl::_initWhenReady()
 QString
 QGCCameraControl::firmwareVersion()
 {
+    if (_info.firmware_version == 0) {
+        return QString();
+    }
+
     int major = (_info.firmware_version >> 24) & 0xFF;
     int minor = (_info.firmware_version >> 16) & 0xFF;
     int build = _info.firmware_version & 0xFFFF;
@@ -2103,7 +2107,11 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 
     QString ftpPrefix(QStringLiteral("%1://").arg(FTPManager::mavlinkFTPScheme));
     if (!xmlFile.exists() && url.startsWith(ftpPrefix, Qt::CaseInsensitive)) {
-        qCDebug(CameraControlLog) << "No camera definition file cached, attempt ftp download";
+        qInfo() << "[CameraControl]"
+                << "camera definition source ftp"
+                << "compId" << _compID
+                << "cacheFile" << _cacheFile
+                << "url" << url;
         int ver = static_cast<int>(_info.cam_definition_version);
         QString ext = "";
         if (url.endsWith(".lzma", Qt::CaseInsensitive)) { ext = ".lzma"; }
@@ -2121,7 +2129,11 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
     }
 
     if (!xmlFile.exists()) {
-        qCDebug(CameraControlLog) << "No camera definition file cached, attempt http download";
+        qInfo() << "[CameraControl]"
+                << "camera definition source http"
+                << "compId" << _compID
+                << "cacheFile" << _cacheFile
+                << "url" << url;
         _httpRequest(url);
         return;
     }
@@ -2138,7 +2150,12 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
         return;
     }
     //-- We have it
-    qCDebug(CameraControlLog) << "Using cached camera definition file:" << _cacheFile;
+    qInfo() << "[CameraControl]"
+            << "camera definition source cache"
+            << "compId" << _compID
+            << "cacheFile" << _cacheFile
+            << "url" << url
+            << "bytes" << bytes.size();
     _cached = true;
     emit dataReady(bytes);
 }
@@ -2147,7 +2164,11 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 void
 QGCCameraControl::_httpRequest(const QString &url)
 {
-    qCDebug(CameraControlLog) << "Request camera definition:" << url;
+    qInfo() << "[CameraControl]"
+            << "request camera definition"
+            << "compId" << _compID
+            << "cacheFile" << _cacheFile
+            << "url" << url;
     if(!_netManager) {
         _netManager = new QNetworkAccessManager(this);
     }
@@ -2178,6 +2199,12 @@ QGCCameraControl::_downloadFinished()
     QByteArray data = reply->readAll();
     if(err == QNetworkReply::NoError && http_code == 200) {
         data.append("\n");
+        qInfo() << "[CameraControl]"
+                << "camera definition http response"
+                << "compId" << _compID
+                << "url" << reply->url().toDisplayString()
+                << "status" << http_code
+                << "bytes" << data.size();
     } else {
         data.clear();
         qWarning() << QString("Camera Definition (%1) download error: %2 status: %3").arg(
@@ -2232,10 +2259,18 @@ QGCCameraControl::_dataReady(QByteArray data)
         qInfo() << "[CameraControl]" << "Parsing camera definition for compId" << _compID << "bytes" << data.size();
         _loadCameraDefinitionFile(data);
     } else {
-        qInfo() << "[CameraControl]" << "No camera definition received, trying offline search for compId" << _compID;
+        qInfo() << "[CameraControl]"
+                << "camera definition source offline-search"
+                << "compId" << _compID
+                << "cacheFile" << _cacheFile
+                << "model" << _modelName;
         QFile definitionFile;
         if(qgcApp()->toolbox()->corePlugin()->getOfflineCameraDefinitionFile(_modelName, definitionFile)) {
-            qInfo() << "[CameraControl]" << "Found offline definition file for" << _modelName << "loading" << definitionFile.fileName();
+            qInfo() << "[CameraControl]"
+                    << "camera definition source offline"
+                    << "compId" << _compID
+                    << "model" << _modelName
+                    << "file" << definitionFile.fileName();
             if (definitionFile.open(QIODevice::ReadOnly)) {
                 QByteArray newData = definitionFile.readAll();
                 _loadCameraDefinitionFile(newData);

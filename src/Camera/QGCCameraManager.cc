@@ -9,12 +9,28 @@
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
 #include "CodevCameraControl.h"
+#include "SettingsManager.h"
+#include "VideoSettings.h"
+
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPointer>
+#include <QRegularExpression>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QUrl>
 
 QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
 
 namespace {
 
-static bool _populateCodevFallbackCameraInfo(int compID, mavlink_camera_information_t& info)
+static constexpr quint16 kCameraDefinitionLocalPort = 38081;
+static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
+static const char* kDefaultCodevDefinitionUrl = "http://192.168.2.119/Codev_R3_023.xml";
+static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
+
+static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return false;
@@ -22,15 +38,28 @@ static bool _populateCodevFallbackCameraInfo(int compID, mavlink_camera_informat
 
     const QByteArray vendor = QByteArrayLiteral("Codev");
     const QByteArray modelName = QByteArrayLiteral("R3");
-    const QByteArray definitionUri = QByteArrayLiteral("http://192.168.2.119/Codev_R3_023.xml");
 
     memset(&info, 0, sizeof(info));
     memcpy(info.vendor_name, vendor.constData(), qMin(static_cast<int>(sizeof(info.vendor_name)) - 1, vendor.size()));
     memcpy(info.model_name, modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, modelName.size()));
     memcpy(info.cam_definition_uri, definitionUri.constData(), qMin(static_cast<int>(sizeof(info.cam_definition_uri)) - 1, definitionUri.size()));
-    info.cam_definition_version = 23;
+    // Match FlyDynamics3 behavior: fallback only supplies a definition profile.
+    // Firmware version must come from a real CAMERA_INFORMATION payload, not be synthesized from the XML/profile revision.
+    info.firmware_version = 0;
+    info.cam_definition_version = kCodevFallbackDefinitionVersion;
     info.flags = 0x75f; // Matches the real Codev CAMERA_INFORMATION seen in FlyDynamics3 logs.
 
+    return true;
+}
+
+static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, mavlink_message_t& message)
+{
+    mavlink_camera_information_t info{};
+    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, info)) {
+        return false;
+    }
+
+    mavlink_msg_camera_information_encode(vehicle->id(), static_cast<uint8_t>(compID), &message, &info);
     return true;
 }
 
@@ -49,7 +78,7 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qCDebug(CameraManagerLog) << "QGCCameraManager Created";
-    qInfo() << "[CameraManager]" << "BUILD_TAG ales-fallback-v2-codev-profile 2026-04-14";
+    qInfo() << "[CameraManager]" << "BUILD_TAG ales-fallback-v4-local-caminfo-proxy 2026-04-15";
     connect(qgcApp()->toolbox()->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &QGCCameraManager::_vehicleReady);
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &QGCCameraManager::_mavlinkMessageReceived);
     connect(&_cameraTimer, &QTimer::timeout, this, &QGCCameraManager::_cameraTimeout);
@@ -62,6 +91,178 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
 //-----------------------------------------------------------------------------
 QGCCameraManager::~QGCCameraManager()
 {
+}
+
+bool
+QGCCameraManager::_ensureCameraDefinitionHttpServer()
+{
+    if (_cameraDefinitionHttpServer) {
+        return _cameraDefinitionHttpServer->isListening();
+    }
+
+    _cameraDefinitionHttpServer = new QTcpServer(this);
+    if (!_cameraDefinitionHttpServer->listen(QHostAddress::LocalHost, kCameraDefinitionLocalPort)) {
+        qWarning() << "[CameraManager]"
+                   << "camera definition local server failed on port" << kCameraDefinitionLocalPort
+                   << "error" << _cameraDefinitionHttpServer->errorString()
+                   << "retrying with ephemeral port";
+        if (!_cameraDefinitionHttpServer->listen(QHostAddress::LocalHost, 0)) {
+            qWarning() << "[CameraManager]"
+                       << "camera definition local server failed"
+                       << _cameraDefinitionHttpServer->errorString();
+            _cameraDefinitionHttpServer->deleteLater();
+            _cameraDefinitionHttpServer = nullptr;
+            return false;
+        }
+    }
+
+    _cameraDefinitionHttpServer->setMaxPendingConnections(2);
+    _cameraDefinitionHttpPort = _cameraDefinitionHttpServer->serverPort();
+    connect(_cameraDefinitionHttpServer, &QTcpServer::newConnection, this, &QGCCameraManager::_newCameraDefinitionHttpConnection);
+    qInfo() << "[CameraManager]"
+            << "camera definition local server listening"
+            << "port" << _cameraDefinitionHttpPort;
+    return true;
+}
+
+QString
+QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
+{
+    if (_cameraDefinitionHttpPort == 0) {
+        return QString::fromLatin1(kDefaultCodevDefinitionUrl);
+    }
+
+    return QStringLiteral("http://127.0.0.1:%1%2")
+        .arg(_cameraDefinitionHttpPort)
+        .arg(QString::fromLatin1(kCameraDefinitionPathFormat).arg(compID));
+}
+
+QString
+QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
+{
+    if (compID != MAV_COMP_ID_CAMERA) {
+        return QString();
+    }
+
+    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    const QUrl videoUrl(rtspUrl);
+    if (!videoUrl.host().isEmpty()) {
+        return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());
+    }
+
+    return QString::fromLatin1(kDefaultCodevDefinitionUrl);
+}
+
+void
+QGCCameraManager::_replyCameraDefinitionHttp(QTcpSocket* socket, int statusCode, const QByteArray& body, const QByteArray& contentType) const
+{
+    if (!socket) {
+        return;
+    }
+
+    QByteArray statusText = "OK";
+    if (statusCode == 404) {
+        statusText = "Not Found";
+    } else if (statusCode >= 500) {
+        statusText = "Bad Gateway";
+    }
+
+    QByteArray header;
+    header += "HTTP/1.1 " + QByteArray::number(statusCode) + ' ' + statusText + "\r\n";
+    header += "Server: ALESCameraDefinitionProxy\r\n";
+    header += "Content-Type: " + contentType + "\r\n";
+    header += "Connection: close\r\n";
+    header += "Content-Length: " + QByteArray::number(body.size()) + "\r\n\r\n";
+
+    socket->write(header);
+    if (!body.isEmpty()) {
+        socket->write(body);
+    }
+    socket->disconnectFromHost();
+}
+
+void
+QGCCameraManager::_newCameraDefinitionHttpConnection()
+{
+    while (_cameraDefinitionHttpServer && _cameraDefinitionHttpServer->hasPendingConnections()) {
+        QTcpSocket* socket = _cameraDefinitionHttpServer->nextPendingConnection();
+        connect(socket, &QTcpSocket::readyRead, this, &QGCCameraManager::_handleCameraDefinitionHttpRequest);
+    }
+}
+
+void
+QGCCameraManager::_handleCameraDefinitionHttpRequest()
+{
+    QTcpSocket* socket = qobject_cast<QTcpSocket*>(sender());
+    if (!socket) {
+        return;
+    }
+
+    const QByteArray requestData = socket->readAll();
+    const QList<QByteArray> requestLines = requestData.split('\n');
+    if (requestLines.isEmpty()) {
+        _replyCameraDefinitionHttp(socket, 400, QByteArrayLiteral("empty request"), QByteArrayLiteral("text/plain"));
+        return;
+    }
+
+    const QRegularExpression requestRegex(QStringLiteral("^GET\\s+(/camera/(\\d+)/caminfo\\.xml)\\s+HTTP/"));
+    const QString requestLine = QString::fromLatin1(requestLines.first()).trimmed();
+    const QRegularExpressionMatch match = requestRegex.match(requestLine);
+    if (!match.hasMatch()) {
+        qWarning() << "[CameraManager]"
+                   << "camera definition local server unsupported request"
+                   << requestLine;
+        _replyCameraDefinitionHttp(socket, 404, QByteArrayLiteral("not found"), QByteArrayLiteral("text/plain"));
+        return;
+    }
+
+    const int compID = match.captured(2).toInt();
+    const QString upstreamUrl = _cameraDefinitionUpstreamUrl(compID);
+    if (upstreamUrl.isEmpty()) {
+        _replyCameraDefinitionHttp(socket, 404, QByteArrayLiteral("no upstream"), QByteArrayLiteral("text/plain"));
+        return;
+    }
+
+    if (!_cameraDefinitionNetworkManager) {
+        _cameraDefinitionNetworkManager = new QNetworkAccessManager(this);
+    }
+
+    qInfo() << "[CameraManager]"
+            << "camera definition local server proxy request"
+            << "compId" << compID
+            << "upstreamUrl" << upstreamUrl;
+
+    QNetworkRequest request{QUrl(upstreamUrl)};
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
+    QNetworkReply* reply = _cameraDefinitionNetworkManager->get(request);
+    QPointer<QTcpSocket> guardedSocket(socket);
+    connect(reply, &QNetworkReply::finished, this, [this, guardedSocket, reply, compID, upstreamUrl]() {
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QByteArray body;
+        int responseStatus = 502;
+
+        if (reply->error() == QNetworkReply::NoError && statusCode == 200) {
+            body = reply->readAll();
+            responseStatus = 200;
+            qInfo() << "[CameraManager]"
+                    << "camera definition local server proxy response"
+                    << "compId" << compID
+                    << "upstreamUrl" << upstreamUrl
+                    << "bytes" << body.size();
+        } else {
+            qWarning() << "[CameraManager]"
+                       << "camera definition local server upstream error"
+                       << "compId" << compID
+                       << "upstreamUrl" << upstreamUrl
+                       << "status" << statusCode
+                       << "error" << reply->errorString();
+        }
+
+        if (guardedSocket) {
+            _replyCameraDefinitionHttp(guardedSocket, responseStatus, body, QByteArrayLiteral("application/xml; charset=utf-8"));
+        }
+        reply->deleteLater();
+    });
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +324,7 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
                 _handleStorageInfo(message);
                 break;
             case MAVLINK_MSG_ID_HEARTBEAT:
-                _handleHeartbeat(message);
+                _handleHeartbeat(message, link);
                 break;
             case MAVLINK_MSG_ID_CAMERA_INFORMATION:
                 _handleCameraInfo(message, link);
@@ -167,7 +368,7 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
 
 //-----------------------------------------------------------------------------
 void
-QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message)
+QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message, LinkInterface* link)
 {
     qInfo() << "[CameraManager]"
             << "_handleHeartbeat"
@@ -181,7 +382,7 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message)
         pInfo->lastHeartbeat.start();
         _cameraInfoRequest[sCompID] = pInfo;
         //-- Request camera info
-        _requestCameraInfo(message.compid, pInfo->tryCount);
+        _requestCameraInfo(message.compid, pInfo->tryCount, link);
     } else {
         if(_cameraInfoRequest[sCompID]) {
             CameraStruct* pInfo = _cameraInfoRequest[sCompID];
@@ -207,7 +408,7 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message)
                                 << "compid" << message.compid
                                 << "try" << pInfo->tryCount;
                         //-- Request camera info again.
-                        _requestCameraInfo(message.compid, pInfo->tryCount);
+                        _requestCameraInfo(message.compid, pInfo->tryCount, link);
                     }
                 }
             }
@@ -215,6 +416,50 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message)
             qWarning() << "_cameraInfoRequest[" << sCompID << "] is null";
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface* link, const char* reason)
+{
+    const QString sCompID = QString::number(compID);
+    if (!_cameraInfoRequest.contains(sCompID) || !_cameraInfoRequest[sCompID]) {
+        qWarning() << "[CameraManager]"
+                   << "_injectSynthesizedCameraInformation skipped no request"
+                   << "compId" << compID
+                   << "reason" << reason;
+        return false;
+    }
+
+    if (_cameraInfoRequest[sCompID]->infoReceived || _findCamera(compID)) {
+        qInfo() << "[CameraManager]"
+                << "_injectSynthesizedCameraInformation skipped existing camera/info"
+                << "compId" << compID
+                << "reason" << reason;
+        return false;
+    }
+
+    mavlink_message_t synthesizedMessage{};
+    _ensureCameraDefinitionHttpServer();
+    const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
+    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
+        qInfo() << "[CameraManager]"
+                << "_injectSynthesizedCameraInformation no synth profile"
+                << "compId" << compID
+                << "reason" << reason;
+        return false;
+    }
+
+    qInfo() << "[CameraManager]"
+            << "_injectSynthesizedCameraInformation"
+            << "compId" << compID
+            << "reason" << reason
+            << "definitionUrl" << definitionUrl
+            << "msgid" << synthesizedMessage.msgid
+            << "link" << link;
+
+    _mavlinkMessageReceived(synthesizedMessage, link);
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -335,7 +580,7 @@ QGCCameraControl*
 QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInterface* link)
 {
     mavlink_camera_information_t info{};
-    const bool useCodevProfile = _populateCodevFallbackCameraInfo(compID, info);
+    const bool useCodevProfile = _populateCodevFallbackCameraInfo(compID, _cameraDefinitionLocalUrl(compID).toLatin1(), info);
     if (!useCodevProfile) {
         const QByteArray vendor = QByteArrayLiteral("Unknown");
         const QByteArray modelName = QStringLiteral("Camera %1").arg(compID).toLatin1();
@@ -695,7 +940,7 @@ QGCCameraManager::_handleTrackingImageStatus(const mavlink_message_t& message)
 
 //-----------------------------------------------------------------------------
 void
-QGCCameraManager::_requestCameraInfo(int compID, int tryCount)
+QGCCameraManager::_requestCameraInfo(int compID, int tryCount, LinkInterface* link)
 {
     qInfo() << "[CameraManager]"
             << "_requestCameraInfo"
@@ -708,6 +953,10 @@ QGCCameraManager::_requestCameraInfo(int compID, int tryCount)
             MAV_CMD_REQUEST_CAMERA_INFORMATION,     // command id
             false,                                  // showError
             1);                                     // Do Request
+
+        // FlyDynamics3 receives a CAMERA_INFORMATION response through TeamModeRouter.
+        // ALES does not have that router path, so synthesize the same message locally.
+        _injectSynthesizedCameraInformation(compID, link, "request_camera_info");
     }
 }
 
@@ -847,5 +1096,3 @@ QGCCameraManager::_stepStream(int direction)
         }
     }
 }
-
-
