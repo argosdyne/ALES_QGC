@@ -7839,6 +7839,18 @@ Click Ok to start the auto-tuning process.
       <source>GeoFence circle not stored as object</source>
       <translation>GeoFence circle이 오브젝트로 저장되어있지 않습니다</translation>
     </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
+      <source>GeoFence self-test passed. Polygons: %1, Circles: %2, Circular fence: %3 m.</source>
+      <translation>GeoFence 자체 테스트를 통과했습니다. 다각형: %1, 원: %2, 원형 펜스: %3 m.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="819"/>
+      <source>GeoFence self-test issues:
+- %1</source>
+      <translation>GeoFence 자체 테스트 문제:
+- %1</translation>
+    </message>
   </context>
   <context>
     <name>GeoFenceEditor</name>
@@ -7856,6 +7868,91 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="66"/>
       <source>This vehicle does not support GeoFence.</source>
       <translation>기체가 GeoFence를 지원하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="124"/>
+      <source>Operational</source>
+      <translation>운용</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="129"/>
+      <source>Buffer</source>
+      <translation>버퍼</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="134"/>
+      <source>Contingency</source>
+      <translation>비상</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Loaded</source>
+      <translation>로드됨</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Not Loaded</source>
+      <translation>미로드</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Active</source>
+      <translation>활성</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Inactive</source>
+      <translation>비활성</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Missing Params</source>
+      <translation>파라미터 누락</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Params OK</source>
+      <translation>파라미터 정상</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="148"/>
+      <source>Fence Status: %1 | %2 | %3</source>
+      <translation>펜스 상태: %1 | %2 | %3</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="156"/>
+      <source>Contingency Volume</source>
+      <translation>비상 영역</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="164"/>
+      <source>Vmax (m/s)</source>
+      <translation>최대 속도 (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="177"/>
+      <source>Latency (s)</source>
+      <translation>지연 시간 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="190"/>
+      <source>Maneuver (s)</source>
+      <translation>기동 시간 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="203"/>
+      <source>Wind (m/s)</source>
+      <translation>풍속 (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="216"/>
+      <source>Position Error (m)</source>
+      <translation>위치 오차 (m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="238"/>
+      <source>CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)</source>
+      <translation>CV 너비: %1 m (반응: %2 m, 보정: %3 m, 오차: %4 m)</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="116"/>
@@ -7931,6 +8028,41 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="327"/>
       <source>Remove Breach Return Point</source>
       <translation>경계 위반시 귀환 위치 지우기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="328"/>
+      <source>GeoFence Self-Test</source>
+      <translation>GeoFence 자체 테스트</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="336"/>
+      <source>3D View</source>
+      <translation>3D 보기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="344"/>
+      <source>Vertical cage</source>
+      <translation>수직 케이지</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="347"/>
+      <source>Solid</source>
+      <translation>실선</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="352"/>
+      <source>Dotted</source>
+      <translation>점선</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="360"/>
+      <source>Opacity</source>
+      <translation>투명도</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="375"/>
+      <source>Min/Max Altitude</source>
+      <translation>최소/최대 고도</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="342"/>
@@ -10598,6 +10730,34 @@ Click Ok to start the auto-tuning process.
   <context>
     <name>MissionItem</name>
     <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="41"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="79"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="114"/>
+      <source>Param1:</source>
+      <translation>파라미터1:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="42"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="80"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="115"/>
+      <source>Param2:</source>
+      <translation>파라미터2:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="43"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="81"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="116"/>
+      <source>Param3:</source>
+      <translation>파라미터3:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="44"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="82"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="117"/>
+      <source>Param4:</source>
+      <translation>파라미터4:</translation>
+    </message>
+    <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="285"/>
       <source>Type found: %1 must be: %2</source>
       <translation>타입:%1은 %2이어야 합니다</translation>
@@ -12171,6 +12331,56 @@ Is this really what you want?</source>
   <context>
     <name>PX4SimpleFlightModes</name>
     <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="35"/>
+      <source>Channel %1</source>
+      <translation>채널 %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="40"/>
+      <source>Unassigned</source>
+      <translation>미할당</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="42"/>
+      <source>Arm switch channel</source>
+      <translation>시동 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="44"/>
+      <source>Gear switch channel</source>
+      <translation>기어 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="46"/>
+      <source>Kill switch channel</source>
+      <translation>킬 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="48"/>
+      <source>Loiter switch channel</source>
+      <translation>정지비행 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="50"/>
+      <source>Offboard switch channel</source>
+      <translation>오프보드 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="52"/>
+      <source>Return switch channel</source>
+      <translation>복귀 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="54"/>
+      <source>Transition switch channel</source>
+      <translation>전환 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="56"/>
+      <source>Flaps switch channel</source>
+      <translation>플랩 스위치 채널</translation>
+    </message>
+    <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
       <source>Flight Mode Settings</source>
@@ -13472,6 +13682,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
       <source>ROI</source>
       <translation>관심 영역(ROI)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="735"/>
+      <source>Vision LiDAR</source>
+      <translation>비전 라이다</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
@@ -16796,6 +17011,11 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
       <translation>전송된 실제 AMSL 고도: %1 %2</translation>
     </message>
     <message>
+      <location filename="../src/PlanView/SimpleItemEditor.qml" line="45"/>
+      <source>Param%1</source>
+      <translation>파라미터%1</translation>
+    </message>
+    <message>
       <location filename="../src/PlanView/SimpleItemEditor.qml" line="243"/>
       <source>Flight Speed</source>
       <translation>비행속도</translation>
@@ -16803,6 +17023,11 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
   </context>
   <context>
     <name>SimpleMissionItem</name>
+    <message>
+      <location filename="../src/MissionManager/SimpleMissionItem.cc" line="435"/>
+      <source>Param%1</source>
+      <translation>파라미터%1</translation>
+    </message>
     <message>
       <location filename="../src/MissionManager/SimpleMissionItem.cc" line="399"/>
       <source>Unknown: %1</source>
