@@ -20,6 +20,7 @@
         <file alias="APMSupportForwardingIndicator.qml">src/ui/toolbar/APMSupportForwardingIndicator.qml</file>
         <file alias="GimbalIndicator.qml">src/ui/toolbar/GimbalIndicator.qml</file>
         <file alias="M2LinkIndicator.qml">src/M2Link/M2LinkIndicator.qml</file>
+		<file alias="RajantLinkIndicator.qml">src/RajantLink/RajantLinkIndicator.qml</file>
 		<file alias="MainToolBar.qml">src/ui/toolbar/MainToolBar.qml</file>
     </qresource>
     <qresource prefix="/checklists">
@@ -33,6 +34,7 @@
     <qresource prefix="/qml">
 		<file alias="CodevCameraVisual.qml">src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">src/M2Link/M2Settings.qml</file>
+		<file alias="RajantSettings.qml">src/RajantLink/RajantSettings.qml</file>
 		<!--<file alias="QGCBusyIndicator.qml">src/QmlControls/QGCBusyIndicator.qml</file> -->
 		<file alias="QGroundControl/Controls/PseudocolorBar.qml">src/QmlControls/PseudocolorBar.qml</file>
 		<file alias="QGroundControl/Controls/TouchSelectArea.qml">src/QmlControls/TouchSelectArea.qml</file>

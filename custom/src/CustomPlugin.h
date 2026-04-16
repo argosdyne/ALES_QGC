@@ -22,8 +22,11 @@
 #include "codevsettings.h"
 
 #include "QGroundControlQmlGlobal.h"
+#include <QProcess>
+#include <QTcpSocket>
 
 #include "M2Manager.h"
+#include "RajantManager.h"
 
 class CustomOptions;
 class CustomPlugin;
@@ -108,10 +111,14 @@ public:
     Q_PROPERTY(M2Manager*           m2Manager               READ m2Manager              NOTIFY m2ManagerChanged)
     M2Manager*              m2Manager           ()  { return _m2Manager; }
 
+    Q_PROPERTY(RajantManager* rajantManager           READ rajantManager          NOTIFY rajantManagerChanged)
+    RajantManager* rajantManager() { return _rajantManager; }
+
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
     void m2ManagerChanged               ();
+    void rajantManagerChanged           ();
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -123,10 +130,20 @@ private slots:
 
 private:
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
+    void _initRajantDiscovery();
+    void _onRajantScanFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void _tryNextRajantCandidate();
+    void _onRajantProbeConnected();
+    void _onRajantProbeError(QAbstractSocket::SocketError error); 
     QGroundControlQmlGlobal* qGroundControlQmlGlobal;
 
     QUdpSocket*             _m2boardcastSocket      = nullptr;
     M2Manager*              _m2Manager              = nullptr;
+    RajantManager* _rajantManager = nullptr;
+    QStringList             _rajantCandidates;
+    QTcpSocket* _rajantProbeSocket = nullptr;
+    QString                 _rajantPassword = "breadcrumb-admin";
+    int                     _rajantDiscoveryRetries = 0;
 
 private:
     SiYiManager* _siyiManager = nullptr;
