@@ -43,8 +43,8 @@ ColumnLayout {
             property string name: qsTr("Horizontal")
             property string plotTitle: qsTr("Horizontal (Y direction, sidewards)")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.localPosition.vy.value },
-                { name: "Setpoint", value: globals.activeVehicle.localPositionSetpoint.vy.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.localPosition.vy.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.localPositionSetpoint.vy.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -76,8 +76,8 @@ ColumnLayout {
         property var vertical: QtObject {
             property string name: qsTr("Vertical")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.localPosition.vz.value },
-                { name: "Setpoint", value: globals.activeVehicle.localPositionSetpoint.vz.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.localPosition.vz.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.localPositionSetpoint.vz.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -106,11 +106,9 @@ ColumnLayout {
                 }
             }
         }
-        title: "Velocity"
+        title: qsTr("Velocity")
         tuningMode: Vehicle.ModeVelocityAndPosition
         unit: "m/s"
         axis: [ horizontal, vertical ]
     }
 }
-
-

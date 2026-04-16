@@ -11611,6 +11611,16 @@ Is this really what you want?</source>
       <translation>자동 튜닝 비활성화됨</translation>
     </message>
     <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>ON</source>
+      <translation>켬</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>OFF</source>
+      <translation>끔</translation>
+    </message>
+    <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="227"/>
       <source>Select Tuning:</source>
       <translation>튜닝 선택:</translation>
@@ -12247,6 +12257,58 @@ Is this really what you want?</source>
       <source>Disabled</source>
       <translation>비활성화</translation>
     </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Direct velocity</source>
+      <translation>직접 속도</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Smoothed velocity</source>
+      <translation>완만한 속도</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Acceleration based</source>
+      <translation>가속도 기반</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch</source>
+      <translation>롤/피치</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>롤/피치/요</translation>
+    </message>
+  </context>
+  <context>
+    <name>Parameter.MetaData.json</name>
+    <message>
+      <source>Disabled</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch</source>
+      <translation>롤/피치</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>롤/피치/요</translation>
+    </message>
+    <message>
+      <source>Simple position control</source>
+      <translation>단순 위치 제어</translation>
+    </message>
+    <message>
+      <source>Smooth position control</source>
+      <translation>부드러운 위치 제어</translation>
+    </message>
+    <message>
+      <source>Smooth position control (Jerk optimized)</source>
+      <translation>부드러운 위치 제어(저크 최적화)</translation>
+    </message>
   </context>
   <context>
     <name>PX4RadioComponent</name>
@@ -12351,9 +12413,19 @@ Is this really what you want?</source>
       <translation>기어 스위치 채널</translation>
     </message>
     <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="45"/>
+      <source>Landing gear switch channel</source>
+      <translation>착륙 장치 스위치 채널</translation>
+    </message>
+    <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="46"/>
       <source>Kill switch channel</source>
       <translation>킬 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="47"/>
+      <source>Emergency Kill switch channel</source>
+      <translation>비상 킬 스위치 채널</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="48"/>
@@ -12424,25 +12496,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <source>Rate Controller</source>
-      <translation>Rate Controller</translation>
+      <translation>레이트 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <source>Attitude Controller</source>
-      <translation>Attitude Controller</translation>
+      <translation>자세 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <source>Velocity Controller</source>
-      <translation>Velocity Controller</translation>
+      <translation>속도 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <source>Position Controller</source>
-      <translation>Position Controller</translation>
+      <translation>위치 컨트롤러</translation>
     </message>
   </context>
   <context>
@@ -12457,7 +12529,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="36"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="36"/>
       <source>Proportional Gain (MC_ROLL_P)</source>
-      <translation>Proportional Gain (MC_ROLL_P)</translation>
+      <translation>비례 이득 (MC_ROLL_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="37"/>
@@ -12465,7 +12537,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="54"/>
       <source>Increase for more responsiveness, reduce if the attitude overshoots.</source>
-      <translation>Increase for more responsiveness, reduce if the attitude overshoots.</translation>
+      <translation>응답성을 높이려면 증가시키고, 자세 오버슈트가 발생하면 줄이십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="46"/>
@@ -12477,7 +12549,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="53"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="53"/>
       <source>Proportional Gain (MC_PITCH_P)</source>
-      <translation>Proportional Gain (MC_PITCH_P)</translation>
+      <translation>비례 이득 (MC_PITCH_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="63"/>
@@ -12489,13 +12561,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="70"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="70"/>
       <source>Proportional Gain (MC_YAW_P)</source>
-      <translation>Proportional Gain (MC_YAW_P)</translation>
+      <translation>비례 이득 (MC_YAW_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="71"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="71"/>
       <source>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</source>
-      <translation>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</translation>
+      <translation>응답성을 높이려면 증가시키고, 자세 오버슈트가 발생하면 줄이십시오(요가 고정될 때만 설정값이 존재하며, 즉 스틱을 중앙에 둘 때입니다).</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Attitude</source>
+      <translation>자세</translation>
     </message>
   </context>
   <context>
@@ -12504,25 +12588,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="30"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="30"/>
       <source>Position control mode (set this to &apos;simple&apos; during tuning):</source>
-      <translation>Position control mode (set this to &apos;simple&apos; during tuning):</translation>
+      <translation>위치 제어 모드(튜닝 중에는 &apos;simple&apos;로 설정):</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="43"/>
       <source>Horizontal</source>
-      <translation>Horizontal</translation>
+      <translation>수평</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="44"/>
       <source>Horizontal (Y direction, sidewards)</source>
-      <translation>Horizontal (Y direction, sidewards)</translation>
+      <translation>수평(Y 방향, 측면)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="51"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="51"/>
       <source>Proportional gain (MPC_XY_P)</source>
-      <translation>Proportional gain (MPC_XY_P)</translation>
+      <translation>비례 이득 (MPC_XY_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="52"/>
@@ -12530,19 +12614,31 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="69"/>
       <source>Increase for more responsiveness, reduce if the position overshoots (there is only a setpoint when hovering, i.e. when centering the stick).</source>
-      <translation>Increase for more responsiveness, reduce if the position overshoots (there is only a setpoint when hovering, i.e. when centering the stick).</translation>
+      <translation>응답성을 높이려면 증가시키고, 위치 오버슈트가 발생하면 줄이십시오(호버링 시에만 설정값이 존재하며, 즉 스틱을 중앙에 둘 때입니다).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="61"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="61"/>
       <source>Vertical</source>
-      <translation>Vertical</translation>
+      <translation>수직</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <source>Proportional gain (MPC_Z_P)</source>
-      <translation>Proportional gain (MPC_Z_P)</translation>
+      <translation>비례 이득 (MPC_Z_P)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Position</source>
+      <translation>위치</translation>
     </message>
   </context>
   <context>
@@ -12551,13 +12647,13 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="32"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="32"/>
       <source>Airmode (disable during tuning) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
-      <translation>Airmode (disable during tuning) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+      <translation>에어모드(튜닝 중 비활성화) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="44"/>
       <source>Thrust curve &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
-      <translation>Thrust curve &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+      <translation>추력 곡선 &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="57"/>
@@ -12569,7 +12665,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="64"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="64"/>
       <source>Overall Multiplier (MC_ROLLRATE_K)</source>
-      <translation>Overall Multiplier (MC_ROLLRATE_K)</translation>
+      <translation>전체 배율 (MC_ROLLRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="65"/>
@@ -12579,7 +12675,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="98"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="131"/>
       <source>Multiplier for P, I and D gains: increase for more responsiveness, reduce if the rates overshoot (and increasing D does not help).</source>
-      <translation>Multiplier for P, I and D gains: increase for more responsiveness, reduce if the rates overshoot (and increasing D does not help).</translation>
+      <translation>P, I, D 이득 배율: 응답성을 높이려면 증가시키고, 속도 오버슈트가 발생하면 줄이십시오(D를 올려도 도움이 되지 않는 경우).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="72"/>
@@ -12599,7 +12695,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="80"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="80"/>
       <source>Integral Gain (MC_ROLLRATE_I)</source>
-      <translation>Integral Gain (MC_ROLLRATE_I)</translation>
+      <translation>적분 이득 (MC_ROLLRATE_I)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="81"/>
@@ -12609,7 +12705,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="114"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="139"/>
       <source>Generally does not need much adjustment, reduce this when seeing slow oscillations.</source>
-      <translation>Generally does not need much adjustment, reduce this when seeing slow oscillations.</translation>
+      <translation>일반적으로 큰 조정이 필요 없으며, 느린 진동이 보이면 값을 낮추십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="90"/>
@@ -12621,7 +12717,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="97"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="97"/>
       <source>Overall Multiplier (MC_PITCHRATE_K)</source>
-      <translation>Overall Multiplier (MC_PITCHRATE_K)</translation>
+      <translation>전체 배율 (MC_PITCHRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="105"/>
@@ -12633,7 +12729,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="113"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="113"/>
       <source>Integral Gain (MC_PITCHRATE_I)</source>
-      <translation>Integral Gain (MC_PITCHRATE_I)</translation>
+      <translation>적분 이득 (MC_PITCHRATE_I)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="123"/>
@@ -12645,13 +12741,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="130"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="130"/>
       <source>Overall Multiplier (MC_YAWRATE_K)</source>
-      <translation>Overall Multiplier (MC_YAWRATE_K)</translation>
+      <translation>전체 배율 (MC_YAWRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="138"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="138"/>
       <source>Integral Gain (MC_YAWRATE_I)</source>
-      <translation>Integral Gain (MC_YAWRATE_I)</translation>
+      <translation>적분 이득 (MC_YAWRATE_I)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Rate</source>
+      <translation>레이트</translation>
     </message>
   </context>
   <context>
@@ -12660,25 +12768,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="30"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="30"/>
       <source>Position control mode (set this to &apos;simple&apos; during tuning):</source>
-      <translation>Position control mode (set this to &apos;simple&apos; during tuning):</translation>
+      <translation>위치 제어 모드(튜닝 중에는 &apos;simple&apos;로 설정):</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="43"/>
       <source>Horizontal</source>
-      <translation>Horizontal</translation>
+      <translation>수평</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="44"/>
       <source>Horizontal (Y direction, sidewards)</source>
-      <translation>Horizontal (Y direction, sidewards)</translation>
+      <translation>수평(Y 방향, 측면)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="51"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="51"/>
       <source>Proportional gain (MPC_XY_VEL_P_ACC)</source>
-      <translation>Proportional gain (MPC_XY_VEL_P_ACC)</translation>
+      <translation>비례 이득 (MPC_XY_VEL_P_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="52"/>
@@ -12686,19 +12794,19 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="85"/>
       <source>Increase for more responsiveness, reduce if the velocity overshoots (and increasing D does not help).</source>
-      <translation>Increase for more responsiveness, reduce if the velocity overshoots (and increasing D does not help).</translation>
+      <translation>응답성을 높이려면 증가시키고, 속도 오버슈트가 발생하면 줄이십시오(D를 올려도 도움이 되지 않는 경우).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="59"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="59"/>
       <source>Integral gain (MPC_XY_VEL_I_ACC)</source>
-      <translation>Integral gain (MPC_XY_VEL_I_ACC)</translation>
+      <translation>적분 이득 (MPC_XY_VEL_I_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="60"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="60"/>
       <source>Increase to reduce steady-state error (e.g. wind)</source>
-      <translation>Increase to reduce steady-state error (e.g. wind)</translation>
+      <translation>정상상태 오차(예: 바람)를 줄이려면 증가시키십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="67"/>
@@ -12718,31 +12826,43 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="77"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="77"/>
       <source>Vertical</source>
-      <translation>Vertical</translation>
+      <translation>수직</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="84"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="84"/>
       <source>Proportional gain (MPC_Z_VEL_P_ACC)</source>
-      <translation>Proportional gain (MPC_Z_VEL_P_ACC)</translation>
+      <translation>비례 이득 (MPC_Z_VEL_P_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="92"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="92"/>
       <source>Integral gain (MPC_Z_VEL_I_ACC)</source>
-      <translation>Integral gain (MPC_Z_VEL_I_ACC)</translation>
+      <translation>적분 이득 (MPC_Z_VEL_I_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="93"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="93"/>
       <source>Increase to reduce steady-state error</source>
-      <translation>Increase to reduce steady-state error</translation>
+      <translation>정상상태 오차를 줄이려면 증가시키십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="100"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="100"/>
       <source>Differential gain (MPC_Z_VEL_D_ACC)</source>
       <translation>미분 이득 (MPC_Z_VEL_D_ACC)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Velocity</source>
+      <translation>속도</translation>
     </message>
   </context>
   <context>
