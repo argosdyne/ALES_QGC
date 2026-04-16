@@ -12259,6 +12259,191 @@ Is this really what you want?</source>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>disabled</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Warning</source>
+      <translation>경고</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Hold mode</source>
+      <translation>홀드 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return mode</source>
+      <translation>복귀 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Terminate</source>
+      <translation>종료</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land mode</source>
+      <translation>착륙 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at critical level, land at emergency level</source>
+      <translation>중요 수준에서는 복귀하고, 비상 수준에서는 착륙</translation>
+    </message>
+        <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disabled</source>
+      <translation>비활성화</translation>
+    </message>
+        <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Lockdown</source>
+      <translation>잠금</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disarm</source>
+      <translation>시동 해제</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at current altitude</source>
+      <translation>현재 고도로 복귀</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at specified altitude:</source>
+      <translation>지정 고도로 복귀:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Loiter above Home for:</source>
+      <translation>홈 상공에서 대기:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land with descent speed:</source>
+      <translation>하강 속도로 착륙:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>external HITL</source>
+      <translation>외부 HITL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL enabled</source>
+      <translation>HITL 활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL 및 SIH 비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>SIH enabled</source>
+      <translation>SIH 활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>when armed until disarm (default)</source>
+      <translation>시동 후 해제 전까지(기본)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until disarm</source>
+      <translation>부팅 후 해제 전까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until shutdown</source>
+      <translation>부팅 후 종료까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>depending on AUX1 RC channel</source>
+      <translation>AUX1 RC 채널에 따라</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from 1st armed until shutdown</source>
+      <translation>첫 시동 후 종료까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>All mission messages</source>
+      <translation>모든 미션 메시지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Geotagging messages</source>
+      <translation>지오태깅 메시지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disable</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, on command</source>
+      <translation>시간 기반, 명령 시</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, always on</source>
+      <translation>시간 기반, 항상 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, always on</source>
+      <translation>거리 기반, 항상 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, on command (Survey mode)</source>
+      <translation>거리 기반, 명령 시(측량 모드)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>GPIO</source>
+      <translation>GPIO</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Seagull MAP2 (over PWM)</source>
+      <translation>Seagull MAP2(PWM 사용)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>MAVLink (forward via MAV_CMD_IMAGE_START_CAPTURE)</source>
+      <translation>MAVLink(MAV_CMD_IMAGE_START_CAPTURE로 전달)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Generic PWM (IR trigger, servo)</source>
+      <translation>일반 PWM(IR 트리거, 서보)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active low</source>
+      <translation>낮은 레벨에서 활성</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active high</source>
+      <translation>높은 레벨에서 활성</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
       <source>Direct velocity</source>
       <translation>직접 속도</translation>
     </message>
@@ -12271,6 +12456,21 @@ Is this really what you want?</source>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
       <source>Acceleration based</source>
       <translation>가속도 기반</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Position mode</source>
+      <translation>위치 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Altitude mode</source>
+      <translation>고도 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Manual</source>
+      <translation>수동</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
@@ -12288,6 +12488,14 @@ Is this really what you want?</source>
     <message>
       <source>Disabled</source>
       <translation>비활성화</translation>
+    </message>
+    <message>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL 및 SIH 비활성화</translation>
+    </message>
+    <message>
+      <source>SIH enabled</source>
+      <translation>SIH 활성화</translation>
     </message>
     <message>
       <source>Roll/Pitch</source>
@@ -16113,7 +16321,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <source>Low Battery Failsafe Trigger</source>
-      <translation>Battery1 안전장치 트리거</translation>
+      <translation>배터리 부족 안전장치 트리거</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="95"/>
@@ -16147,7 +16355,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="137"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="137"/>
       <source>Object Detection</source>
-      <translation>Object Detection</translation>
+      <translation>객체 감지</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="165"/>
@@ -16191,7 +16399,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="238"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="238"/>
       <source>Show obstacle distance overlay</source>
-      <translation>Show obstacle distance overlay</translation>
+      <translation>장애물 거리 오버레이 표시</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="249"/>
@@ -16245,19 +16453,19 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="423"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="423"/>
       <source>Return To Launch Settings</source>
-      <translation>Return To Launch Settings</translation>
+      <translation>복귀 설정</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="462"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="462"/>
       <source>Return to launch, then:</source>
-      <translation>Return to launch, then:</translation>
+      <translation>복귀 후 다음 동작:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="605"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="605"/>
       <source>Telemetry logging to vehicle storage:</source>
-      <translation>Telemetry logging to vehicle storage:</translation>
+      <translation>기체 저장소에 텔레메트리 기록:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="451"/>
@@ -16323,13 +16531,13 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="628"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="628"/>
       <source>Hardware in the Loop Simulation</source>
-      <translation>Hardware in the Loop 시뮬레이션</translation>
+      <translation>하드웨어 인 더 루프 시뮬레이션</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="657"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="657"/>
       <source>HITL Enabled:</source>
-      <translation>HITL 활성화</translation>
+      <translation>HITL 활성화:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.cc" line="19"/>
@@ -16583,6 +16791,26 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
   <context>
     <name>SensorsSetup</name>
     <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="62"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="69"/>
+      <source>Roll</source>
+      <translation>롤</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="71"/>
+      <source>Pitch</source>
+      <translation>피치</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="73"/>
+      <source>Yaw</source>
+      <translation>요</translation>
+    </message>
+    <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="41"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="42"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="41"/>
@@ -16666,7 +16894,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="47"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="47"/>
       <source>To level the horizon you need to place the vehicle in its level flight position and leave still.</source>
-      <translation>To level the horizon you need to place the vehicle in its level flight position and leave still.</translation>
+      <translation>수평을 맞추려면 기체를 수평 비행 자세로 놓고 움직이지 않은 상태로 두십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="278"/>
@@ -16680,7 +16908,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="289"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="289"/>
       <source>ROTATION_NONE indicates component points in direction of flight.</source>
-      <translation>ROTATION_NONE indicates component points in direction of flight.</translation>
+      <translation>ROTATION_NONE은 구성 요소가 비행 방향을 향함을 의미합니다.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="296"/>
@@ -16700,15 +16928,15 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <source>Adjust orientations as needed.
 
 ROTATION_NONE indicates component points in direction of flight.</source>
-      <translation>Adjust orientations as needed.
+      <translation>필요에 따라 방향을 조정하십시오.
 
-ROTATION_NONE indicates component points in direction of flight.</translation>
+ROTATION_NONE은 구성 요소가 비행 방향을 향함을 의미합니다.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="374"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="374"/>
       <source>Mag %1 Orientation</source>
-      <translation>Mag %1 Orientation</translation>
+      <translation>자기 센서 %1 방향</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="403"/>
@@ -16759,6 +16987,18 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="460"/>
       <source>Airspeed</source>
       <translation>대기속도</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="468"/>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="468"/>
+      <source>Orientations</source>
+      <translation>방향</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="489"/>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="489"/>
+      <source>Set Orientations</source>
+      <translation>방향 설정</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="471"/>
