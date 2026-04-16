@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
  *
  * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
  *
@@ -19,6 +19,9 @@
 #include "GimbalController.h"
 
 #include <QSettings>
+#include <QDateTime>
+#include <algorithm>
+#include <cmath>
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 QGC_LOGGING_CATEGORY(JoystickValuesLog, "JoystickValuesLog")
@@ -110,16 +113,27 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     , _buttonCount(buttonCount)
     , _hatCount(hatCount)
     , _hatButtonCount(4 * hatCount)
-    , _totalButtonCount(_buttonCount+_hatButtonCount)
+    , _axisVirtualButtonCount(qMax(0, _axisCount - _axisVirtualButtonStartAxis) * 2)
+    , _totalButtonCount(_buttonCount + _hatButtonCount + _axisVirtualButtonCount)
     , _multiVehicleManager(multiVehicleManager)
 {
     qRegisterMetaType<GRIPPER_ACTIONS>();
 
     _rgAxisValues   = new int[static_cast<size_t>(_axisCount)];
+    _rgLastAxisValues = new int[static_cast<size_t>(_axisCount)];
+    _rgAxisNeutralValues = new int[static_cast<size_t>(_axisCount)];
+    _rgAxisNeutralInited = new bool[static_cast<size_t>(_axisCount)];
     _rgCalibration  = new Calibration_t[static_cast<size_t>(_axisCount)];
     _rgButtonValues = new uint8_t[static_cast<size_t>(_totalButtonCount)];
+    _rgVirtualButtonReleaseMSecs = new qint64[static_cast<size_t>(_axisVirtualButtonCount)];
     for (int i = 0; i < _axisCount; i++) {
         _rgAxisValues[i] = 0;
+        _rgLastAxisValues[i] = 0;
+        _rgAxisNeutralValues[i] = 0;
+        _rgAxisNeutralInited[i] = false;
+    }
+    for (int i = 0; i < _axisVirtualButtonCount; i++) {
+        _rgVirtualButtonReleaseMSecs[i] = 0;
     }
     for (int i = 0; i < _totalButtonCount; i++) {
         _rgButtonValues[i] = BUTTON_UP;
@@ -146,6 +160,10 @@ Joystick::~Joystick()
         qWarning() << "Joystick thread still running!";
     }
     delete[] _rgAxisValues;
+    delete[] _rgLastAxisValues;
+    delete[] _rgAxisNeutralValues;
+    delete[] _rgAxisNeutralInited;
+    delete[] _rgVirtualButtonReleaseMSecs;
     delete[] _rgCalibration;
     delete[] _rgButtonValues;
     _assignableButtonActions.clearAndDeleteContents();
@@ -521,6 +539,7 @@ void Joystick::run()
 void Joystick::_handleButtons()
 {
     int lastBbuttonValues[256];
+    std::fill_n(lastBbuttonValues, 256, static_cast<int>(BUTTON_UP));
     //-- Update button states
     for (int buttonIndex = 0; buttonIndex < _buttonCount; buttonIndex++) {
         bool newButtonValue = _getButton(buttonIndex);
@@ -551,6 +570,138 @@ void Joystick::_handleButtons()
                 _rgButtonValues[rgButtonValueIndex] = BUTTON_UP;
                 emit rawButtonPressedChanged(rgButtonValueIndex, newButtonValue);
             }
+        }
+    }
+    //-- Update virtual axis-buttons (for dial/extra axes): each axis contributes 2 virtual buttons.
+    //   virtualIndex+0: axis negative direction
+    //   virtualIndex+1: axis positive direction
+    const int axisVirtualStartIndex = _buttonCount + _hatButtonCount;
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    for (int axisIndex = _axisVirtualButtonStartAxis; axisIndex < _axisCount; axisIndex++) {
+        const int rgAxisButtonBaseIndex = axisVirtualStartIndex + (axisIndex - _axisVirtualButtonStartAxis) * 2;
+        if (rgAxisButtonBaseIndex + 1 >= _totalButtonCount) {
+            break;
+        }
+        const int virtualAxisOffset = (axisIndex - _axisVirtualButtonStartAxis) * 2;
+        if (virtualAxisOffset + 1 >= _axisVirtualButtonCount) {
+            break;
+        }
+
+        // Use calibrated/normalized value with deadband for stable triggering.
+        const float axisValue = _adjustRange(_rgAxisValues[axisIndex], _rgCalibration[axisIndex], _deadband);
+        const int axisRawValue = _rgAxisValues[axisIndex];
+        const int axisDeltaRaw = axisRawValue - _rgLastAxisValues[axisIndex];
+        _rgLastAxisValues[axisIndex] = axisRawValue;
+
+        const int axisMinRaw = _rgCalibration[axisIndex].min;
+        const int axisMaxRaw = _rgCalibration[axisIndex].max;
+        const int axisCenterRaw = _rgCalibration[axisIndex].center;
+        int axisRangeRaw = axisMaxRaw - axisMinRaw;
+        if (axisRangeRaw <= 0) {
+            axisRangeRaw = 65535;
+        }
+        const float axisDeltaNorm = static_cast<float>(axisDeltaRaw) / static_cast<float>(axisRangeRaw);
+        const bool axisNearCenter = std::fabs(axisValue) < _axisVirtualButtonOnThreshold;
+        const float centerRatio = static_cast<float>(axisCenterRaw - axisMinRaw) / static_cast<float>(axisRangeRaw);
+        const bool dialLikeAxis = (centerRatio <= 0.2f || centerRatio >= 0.8f);
+        const float motionThreshold = dialLikeAxis ? (_axisVirtualMotionOnThreshold * 0.5f) : _axisVirtualMotionOnThreshold;
+        if (dialLikeAxis && !_rgAxisNeutralInited[axisIndex]) {
+            _rgAxisNeutralValues[axisIndex] = axisRawValue;
+            _rgAxisNeutralInited[axisIndex] = true;
+        }
+        if (dialLikeAxis) {
+            // Learn neutral only around center and near-stationary to avoid drifting while the dial is held.
+            const int neutralErrorRaw = std::abs(axisRawValue - _rgAxisNeutralValues[axisIndex]);
+            const int neutralLearnWindowRaw = std::max(8, static_cast<int>(axisRangeRaw * _axisVirtualDialOffThreshold * 0.5f));
+            if ((neutralErrorRaw <= neutralLearnWindowRaw) &&
+                (std::abs(axisDeltaRaw) < static_cast<int>(axisRangeRaw * motionThreshold))) {
+                const float alpha = 0.08f;
+                const float neutral = static_cast<float>(_rgAxisNeutralValues[axisIndex]);
+                _rgAxisNeutralValues[axisIndex] = static_cast<int>((1.0f - alpha) * neutral + alpha * static_cast<float>(axisRawValue));
+            }
+        }
+        const int neutralRaw = dialLikeAxis ? _rgAxisNeutralValues[axisIndex] : axisCenterRaw;
+        int sideRangeRaw = (axisRawValue >= neutralRaw) ? (axisMaxRaw - neutralRaw) : (neutralRaw - axisMinRaw);
+        if (sideRangeRaw <= 0) {
+            sideRangeRaw = axisRangeRaw / 2;
+        }
+        if (sideRangeRaw <= 0) {
+            sideRangeRaw = 32767;
+        }
+        const float centeredNorm = std::max(-1.0f, std::min(1.0f,
+            static_cast<float>(axisRawValue - neutralRaw) / static_cast<float>(sideRangeRaw)));
+
+        // Negative direction button
+        bool negButtonDown = false;
+        if (dialLikeAxis) {
+            // Dial-like axis: use centered position so one side stays active until returning to center.
+            if (_rgButtonValues[rgAxisButtonBaseIndex] == BUTTON_UP) {
+                negButtonDown = centeredNorm <= -_axisVirtualDialOnThreshold;
+            } else {
+                negButtonDown = centeredNorm <= -_axisVirtualDialOffThreshold;
+            }
+        } else if (axisNearCenter && axisDeltaNorm <= -motionThreshold) {
+            // Relative-like behavior around center: trigger by movement direction.
+            negButtonDown = true;
+        } else if (_rgButtonValues[rgAxisButtonBaseIndex] == BUTTON_UP) {
+            negButtonDown = axisValue <= -_axisVirtualButtonOnThreshold;
+        } else {
+            negButtonDown = axisValue <= -_axisVirtualButtonOffThreshold;
+        }
+        if (rgAxisButtonBaseIndex < 256) {
+            lastBbuttonValues[rgAxisButtonBaseIndex] = _rgButtonValues[rgAxisButtonBaseIndex];
+        }
+        if (!dialLikeAxis) {
+            if (negButtonDown) {
+                _rgVirtualButtonReleaseMSecs[virtualAxisOffset] = nowMs + _axisVirtualButtonHoldMs;
+            }
+            if (!negButtonDown && nowMs < _rgVirtualButtonReleaseMSecs[virtualAxisOffset]) {
+                negButtonDown = true;
+            }
+        }
+        if (negButtonDown && _rgButtonValues[rgAxisButtonBaseIndex] == BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonBaseIndex] = BUTTON_DOWN;
+            emit rawButtonPressedChanged(rgAxisButtonBaseIndex, true);
+        } else if (!negButtonDown && _rgButtonValues[rgAxisButtonBaseIndex] != BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonBaseIndex] = BUTTON_UP;
+            emit rawButtonPressedChanged(rgAxisButtonBaseIndex, false);
+        }
+
+        // Positive direction button
+        const int rgAxisButtonPosIndex = rgAxisButtonBaseIndex + 1;
+        bool posButtonDown = false;
+        if (dialLikeAxis) {
+            // Dial-like axis: use centered position so one side stays active until returning to center.
+            if (_rgButtonValues[rgAxisButtonPosIndex] == BUTTON_UP) {
+                posButtonDown = centeredNorm >= _axisVirtualDialOnThreshold;
+            } else {
+                posButtonDown = centeredNorm >= _axisVirtualDialOffThreshold;
+            }
+        } else if (axisNearCenter && axisDeltaNorm >= motionThreshold) {
+            // Relative-like behavior around center: trigger by movement direction.
+            posButtonDown = true;
+        } else if (_rgButtonValues[rgAxisButtonPosIndex] == BUTTON_UP) {
+            posButtonDown = axisValue >= _axisVirtualButtonOnThreshold;
+        } else {
+            posButtonDown = axisValue >= _axisVirtualButtonOffThreshold;
+        }
+        if (rgAxisButtonPosIndex < 256) {
+            lastBbuttonValues[rgAxisButtonPosIndex] = _rgButtonValues[rgAxisButtonPosIndex];
+        }
+        if (!dialLikeAxis) {
+            if (posButtonDown) {
+                _rgVirtualButtonReleaseMSecs[virtualAxisOffset + 1] = nowMs + _axisVirtualButtonHoldMs;
+            }
+            if (!posButtonDown && nowMs < _rgVirtualButtonReleaseMSecs[virtualAxisOffset + 1]) {
+                posButtonDown = true;
+            }
+        }
+        if (posButtonDown && _rgButtonValues[rgAxisButtonPosIndex] == BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonPosIndex] = BUTTON_DOWN;
+            emit rawButtonPressedChanged(rgAxisButtonPosIndex, true);
+        } else if (!posButtonDown && _rgButtonValues[rgAxisButtonPosIndex] != BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonPosIndex] = BUTTON_UP;
+            emit rawButtonPressedChanged(rgAxisButtonPosIndex, false);
         }
     }
     //-- Process button press/release
@@ -698,7 +849,8 @@ void Joystick::_handleAxis()
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
-            for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
+            const int maxButtonBits = qMin(_totalButtonCount, 64);
+            for (int buttonIndex = 0; buttonIndex < maxButtonBits; buttonIndex++) {
                 quint64 buttonBit = static_cast<quint64>(1LL << buttonIndex);
                 if (_rgButtonValues[buttonIndex] != BUTTON_UP) {
                     // Mark the button as pressed as long as its pressed
