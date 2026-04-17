@@ -11,6 +11,7 @@
 
 #include "QmlObjectListModel.h"
 
+#include <QElapsedTimer>
 #include <QGeoCoordinate>
 
 class Vehicle;
@@ -43,7 +44,13 @@ private:
     QVariantList    _points;
     QGeoCoordinate  _lastPoint;
     double          _lastAzimuth;
+    QElapsedTimer   _lastPointUpdateTimer;
 
     static constexpr double _distanceTolerance = 2.0;
     static constexpr double _azimuthTolerance = 1.5;
+    static constexpr double _maxJumpDistanceMeters = 5000.0;
+    static constexpr double _minJumpDistanceForSpeedCheckMeters = 30.0;
+    static constexpr double _minAllowedJumpSpeedMetersPerSecond = 20.0;
+    static constexpr double _groundSpeedJumpFactor = 3.0;
+    static constexpr double _groundSpeedJumpOffsetMetersPerSecond = 8.0;
 };

@@ -21,10 +21,48 @@ void TrajectoryPoints::_vehicleCoordinateChanged(QGeoCoordinate coordinate)
 {
     // The goal of this algorithm is to limit the number of trajectory points whic represent the vehicle path.
     // Fewer points means higher performance of map display.
+    if (!coordinate.isValid()) {
+        return;
+    }
 
     if (_lastPoint.isValid()) {
         double distance = _lastPoint.distanceTo(coordinate);
         if (distance > _distanceTolerance) {
+            const double elapsedSeconds = _lastPointUpdateTimer.isValid() ? qMax(0.001, _lastPointUpdateTimer.elapsed() / 1000.0) : 0.0;
+            const double impliedSpeed = elapsedSeconds > 0.0 ? (distance / elapsedSeconds) : 0.0;
+            double currentGroundSpeed = _vehicle->groundSpeed()->rawValue().toDouble();
+            if (!qIsFinite(currentGroundSpeed) || currentGroundSpeed < 0.0) {
+                currentGroundSpeed = 0.0;
+            }
+            const double allowedJumpSpeed = qMax(_minAllowedJumpSpeedMetersPerSecond,
+                                                 (currentGroundSpeed * _groundSpeedJumpFactor) + _groundSpeedJumpOffsetMetersPerSecond);
+            const bool overDistanceLimit = distance > _maxJumpDistanceMeters;
+            const bool overSpeedLimit = distance > _minJumpDistanceForSpeedCheckMeters &&
+                                        elapsedSeconds > 0.0 &&
+                                        impliedSpeed > allowedJumpSpeed;
+            if (overDistanceLimit || overSpeedLimit) {
+                qWarning() << "[TrajectoryPoints]"
+                           << "ignore abnormal coordinate jump"
+                           << "distance" << distance
+                           << "elapsedSec" << elapsedSeconds
+                           << "impliedSpeed" << impliedSpeed
+                           << "groundSpeed" << currentGroundSpeed
+                           << "allowedJumpSpeed" << allowedJumpSpeed
+                           << "from" << _lastPoint
+                           << "to" << coordinate;
+                _lastPoint = coordinate;
+                _lastAzimuth = qQNaN();
+                if (_points.isEmpty()) {
+                    _points.append(QVariant::fromValue(coordinate));
+                    emit pointAdded(coordinate);
+                } else {
+                    _points[_points.count() - 1] = QVariant::fromValue(coordinate);
+                    emit updateLastPoint(coordinate);
+                }
+                _lastPointUpdateTimer.restart();
+                return;
+            }
+
             //-- Update flight distance
             _vehicle->updateFlightDistance(distance);
             // Vehicle has moved far enough from previous point for an update
@@ -49,6 +87,8 @@ void TrajectoryPoints::_vehicleCoordinateChanged(QGeoCoordinate coordinate)
         _points.append(QVariant::fromValue(coordinate));
         emit pointAdded(coordinate);
     }
+
+    _lastPointUpdateTimer.restart();
 }
 
 void TrajectoryPoints::start(void)
@@ -67,5 +107,6 @@ void TrajectoryPoints::clear(void)
     _points.clear();
     _lastPoint = QGeoCoordinate();
     _lastAzimuth = qQNaN();
+    _lastPointUpdateTimer.invalidate();
     emit pointsCleared();
 }
