@@ -43,7 +43,7 @@ RajantManager::~RajantManager()
 
 void RajantManager::connectToNode(const QString& address)
 {
-    if (address.isEmpty()) return;
+    if (address.isEmpty() || !_socket) return;
 
     _nodeAddress = address;
     _authState = AUTH_WAIT_CHALLENGE;
@@ -106,7 +106,11 @@ void RajantManager::_onSocketDisconnected()
     _setAuthenticated(false);
     _setStatusText("Disconnected");
 
-    // Auto-reconnect
+    // Air unit: do NOT auto-retry. CustomPlugin kicks reconnect() when the
+    // ground unit sees the peer return. Repeatedly attempting SSL on an
+    // unreachable scoped-IPv6 address destabilizes Qt 5.15.2 on Windows.
+    if (_isAirUnit) return;
+
     if (!_reconnTimer->isActive()) {
         _reconnTimer->start();
     }
@@ -115,8 +119,12 @@ void RajantManager::_onSocketDisconnected()
 void RajantManager::_onSocketError(QAbstractSocket::SocketError error)
 {
     Q_UNUSED(error);
+    if (!_socket) return;
     qWarning() << "RajantManager: socket error:" << _socket->errorString();
     _setStatusText("Error: " + _socket->errorString());
+
+    // Air unit waits for peer-return kick (see _onSocketDisconnected).
+    if (_isAirUnit) return;
 
     if (!_reconnTimer->isActive()) {
         _reconnTimer->start();
@@ -191,8 +199,8 @@ void RajantManager::_processFrame(const QByteArray& payload)
 
         // Report radio count on first State response (used for air unit identification)
         _radioCount = msg.state.wireless.size();
-        if (!_firstStateEmitted) {
-            _firstStateEmitted = true;
+        bool firstState = !_firstStateEmitted;
+        if (firstState) {
 
             // Print full node info like the Java QuickTest output
             qInfo() << "";
@@ -221,8 +229,6 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 }
             }
             qInfo() << "";
-
-            emit firstStateReceived(_radioCount);
         }
 
         for (const auto& w : msg.state.wireless) {
@@ -252,13 +258,20 @@ void RajantManager::_processFrame(const QByteArray& payload)
             }
             break; // use first active radio
         }
+        // Emit firstStateReceived once we have at least one active peer
+        // (CustomPlugin uses this to trigger air-unit connection).
+        if (!_firstStateEmitted && _peerCount > 0) {
+            _firstStateEmitted = true;
+            emit firstStateReceived(_radioCount);
+        }
 
         // Always log current RSSI (every poll)
-        // Ground unit: Peer.signal = signal ground receives from air (drone)
-        qInfo() << QString("[%1] RSSI: %2 / %3 dBm (ground<-air) | SNR: %4 dB | Rate: %5 Mbps | Ch: %6 | Radio: %7")
-                   .arg(_nodeAddress)
-                   .arg(_signal).arg(_noise).arg(_snr)
-                   .arg(_linkRate).arg(_channel).arg(_radioName);
+        QString direction = _isAirUnit ? "air<-ground" : "ground<-air";
+        QString safeAddr = _nodeAddress;
+        safeAddr.replace('%', "%%"); // escape % in IPv6 scope ID so QString::arg doesn't misparse
+        qInfo() << QString("[%1] RSSI: %2 / %3 dBm (%4)")
+            .arg(safeAddr)
+            .arg(_signal).arg(_noise).arg(direction);
 
         if (dataChanged) {
             _setStatusText(QString("RSSI: %1 dBm / Noise: %2 dBm / SNR: %3 dB")

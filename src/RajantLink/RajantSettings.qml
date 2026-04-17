@@ -19,7 +19,9 @@ Rectangle {
     property real _labelWidth:                  _panelWidth * 0.4
     property real _valueWidth:                  _panelWidth * 0.4
     property var rajantManager:                 QGroundControl.corePlugin.rajantManager
+    property var rajantAirManager:              QGroundControl.corePlugin.rajantAirManager
     property bool _connected:                   rajantManager ? rajantManager.connected && rajantManager.authenticated : false
+    property bool _airConnected:                rajantAirManager ? rajantAirManager.connected && rajantAirManager.authenticated : false
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -74,35 +76,55 @@ Rectangle {
                         QGCLabel {
                             text:           qsTr("Node Address:")
                             Layout.minimumWidth: _labelWidth
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.nodeAddress : qsTr("N/A")
                             Layout.minimumWidth: _valueWidth
+                            visible:        false
                         }
                         QGCLabel {
                             text:           qsTr("Radio:")
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.radioName + " (ch " + rajantManager.channel + ")" : ""
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           qsTr("Signal:")
                             visible:        _connected
                         }
                         QGCLabel {
-                            text:           rajantManager ? rajantManager.signal + " dBm" : ""
+                            text:           rajantManager ? rajantManager.signal + " / " + rajantManager.noise + " dBm" : ""
                             visible:        _connected
                         }
                         QGCLabel {
-                            text:           qsTr("Noise Floor:")
+                            text:           qsTr("Noise:")
                             visible:        _connected
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.noise + " dBm" : ""
                             visible:        _connected
                         }
+
+                        QGCLabel {
+                            text:           qsTr("Sky Signal:")
+                            visible:        _airConnected
+                        }
+                        QGCLabel {
+                            text:           rajantAirManager ? rajantAirManager.signal + " / " + rajantAirManager.noise + " dBm" : ""
+                            visible:        _airConnected
+                        }
+                        QGCLabel {
+                            text:           qsTr("Sky Noise:")
+                            visible:        _airConnected
+                        }
+                        QGCLabel {
+                            text:           rajantAirManager ? rajantAirManager.noise + " dBm" : ""
+                            visible:        _airConnected
+                        }
+
                         QGCLabel {
                             text:           qsTr("SNR:")
                             visible:        _connected
@@ -113,11 +135,11 @@ Rectangle {
                         }
                         QGCLabel {
                             text:           qsTr("Link Rate:")
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.linkRate + " Mbps" : ""
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           qsTr("Tx Power:")
@@ -134,6 +156,12 @@ Rectangle {
                         QGCLabel {
                             text:           rajantManager ? rajantManager.peerCount.toString() : ""
                             visible:        _connected
+                        }
+                        QGCLabel {
+                            text:           qsTr("Version:")
+                        }
+                        QGCLabel {
+                            text:           qsTr("Rajant BCAPI 11.29")
                         }
                     }
                 }

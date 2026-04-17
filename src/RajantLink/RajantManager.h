@@ -76,7 +76,7 @@ public:
     Q_INVOKABLE void reconnect();
 
     int radioCount() const { return _radioCount; }
-    QString peerLinkLocalAddress() const { return _peerLinkLocalAddress; }
+    void setIsAirUnit(bool isAir) { _isAirUnit = isAir; }
 
 signals:
     void connectedChanged();
@@ -116,12 +116,11 @@ private:
     QTimer*         _reconnTimer        = nullptr;
     static const int _pollInterval      = 1000;  // ms
     static const int _reconnectInterval = 5000;  // ms
-    static const int _maxReconnectAttempts = 5;  // stop after 5 attempts
+    static const int _maxReconnectAttempts = 10;  // stop after 10 attempts
     int             _reconnectAttempts  = 0;
 
     bool            _firstStateEmitted  = false;
     int             _radioCount         = 0;
-    QString         _peerLinkLocalAddress;
 
     // Air unit radio data
     int     _signal     = 0;
@@ -139,6 +138,7 @@ private:
     int     _groundSnr      = 0;
 
     QString _statusText;
+    bool    _isAirUnit = false;
 
     // Auth state
     enum AuthState { AUTH_WAIT_CHALLENGE, AUTH_WAIT_RESULT, AUTH_DONE };
