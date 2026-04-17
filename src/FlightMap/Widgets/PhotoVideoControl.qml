@@ -102,40 +102,8 @@ Item {
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
 
-    function logCameraSettingsState(tag) {
-        console.log("[PhotoVideoControl]", tag,
-                    "visible=", visible,
-                    "activeVehicle=", _activeVehicle ? _activeVehicle.vehicleUID : "null",
-                    "cameraManager=", _mavlinkCameraManager ? "yes" : "no",
-                    "currentCameraIndex=", _mavlinkCameraManagerCurCameraIndex,
-                    "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
-                    "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
-                    "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
-                    "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
-                    "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
-                    "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
-                    "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
-                    "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
-    }
-
-    Component.onCompleted: logCameraSettingsState("completed")
-    onVisibleChanged: logCameraSettingsState("visibleChanged")
-    on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
-    on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
-    on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
-
-    Connections {
-        target: _mavlinkCamera
-        function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
-        function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
-        function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
-        function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
-        function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
-    }
-
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
-        console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
 
         if (_mavlinkCamera){
@@ -144,13 +112,10 @@ Item {
             } else {
                 _mavlinkCamera.setPhotoMode()
             }
+            return
         }
-        console.warn("No camera available to switch mode!")
-
     }
     function toggleShooting() {
-        console.log("toggleShooting", _anyVideoStreamAvailable)        
-
         // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
         //    if (_mavlinkCamera && (_mavlinkCamera.capturesVideo || _mavlinkCamera.capturesPhotos) ) {
@@ -267,10 +232,7 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: {
-                        logCameraSettingsState("settingsButtonClicked")
-                        settingsDialogComponent.createObject(mainWindow).open()
-                    }
+                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
                 }
             }
         }
@@ -559,8 +521,6 @@ Item {
             id:         settingsDialog            
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
-            Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
-            onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
 
             ColumnLayout {
                 spacing: _margins
@@ -569,8 +529,6 @@ Item {
                     id:     gridLayout
                     flow:   GridLayout.TopToBottom
                     rows:   dynamicRows + (_mavlinkCamera ? _mavlinkCamera.activeSettings.length : 0)
-                    Component.onCompleted: logCameraSettingsState("gridLayoutCompleted")
-                    onRowsChanged: logCameraSettingsState("gridLayoutRowsChanged")
 
                     property int dynamicRows: 10
 
@@ -603,11 +561,9 @@ Item {
                     Repeater {
                         id: activeSettingsLabelRepeater
                         model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
-                        onModelChanged: logCameraSettingsState("activeSettingsLabelModelChanged")
 
                         QGCLabel {
                             text: _mavlinkCamera.getFact(modelData).shortDescription
-                            Component.onCompleted: console.log("[PhotoVideoControl] activeSettingsLabel", modelData, "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null")
                         }
                     }
 
@@ -694,7 +650,6 @@ Item {
                     Repeater {
                         id: activeSettingsEditorRepeater
                         model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
-                        onModelChanged: logCameraSettingsState("activeSettingsEditorModelChanged")
 
                         RowLayout {
                             Layout.fillWidth:   true
@@ -705,14 +660,6 @@ Item {
                             property bool   _isCombo:   !_isBool && _fact.enumStrings.length > 0
                             property bool   _isSlider:  _fact && !isNaN(_fact.increment)
                             property bool   _isEdit:    !_isBool && !_isSlider && _fact.enumStrings.length < 1
-
-                            Component.onCompleted: console.log("[PhotoVideoControl] activeSettingsEditor",
-                                                               modelData,
-                                                               "fact=", _fact ? _fact.name : "null",
-                                                               "typeBool=", _isBool,
-                                                               "typeCombo=", _isCombo,
-                                                               "typeSlider=", _isSlider,
-                                                               "typeEdit=", _isEdit)
 
                             FactComboBox {
                                 Layout.fillWidth:   true
