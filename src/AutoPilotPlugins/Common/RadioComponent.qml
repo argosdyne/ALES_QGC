@@ -40,6 +40,41 @@ SetupPage {
             {
             }
 
+            function _localizedRadioEnumText(text) {
+                if (!text || text.length === 0) {
+                    return text
+                }
+
+                var channelMatch = /^Channel\s+(\d+)$/.exec(text)
+                if (channelMatch) {
+                    return qsTranslate("PX4SimpleFlightModes", "Channel %1").arg(channelMatch[1])
+                }
+
+                var fromSimpleModes = qsTranslate("PX4SimpleFlightModes", text)
+                if (fromSimpleModes !== text) {
+                    return fromSimpleModes
+                }
+
+                var fromMetaData = qsTranslate("PX4ParameterMetaData", text)
+                if (fromMetaData !== text) {
+                    return fromMetaData
+                }
+
+                return text
+            }
+
+            function _localizedEnumStrings(enumStrings) {
+                if (!enumStrings) {
+                    return enumStrings
+                }
+
+                var localized = []
+                for (var i = 0; i < enumStrings.length; i++) {
+                    localized.push(_localizedRadioEnumText(enumStrings[i]))
+                }
+                return localized
+            }
+
             QGCPalette { id: qgcPal; colorGroupEnabled: radioPage.enabled }
 
             RadioComponentController {
@@ -370,11 +405,12 @@ SetupPage {
 
                             QGCLabel {
                                 Layout.fillWidth:   true
-                                text:               fact.shortDescription
+                                text:               _localizedRadioEnumText(fact.shortDescription)
                             }
                             FactComboBox {
                                 width:      ScreenTools.defaultFontPixelWidth * 15
                                 fact:       parent.fact
+                                model:      _localizedEnumStrings(parent.fact.enumStrings)
                                 indexModel: false
                             }
                         }

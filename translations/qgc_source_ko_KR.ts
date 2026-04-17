@@ -12180,7 +12180,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="68"/>
       <source>Responsiveness</source>
-      <translation>Responsiveness</translation>
+      <translation>반응성</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="69"/>
@@ -12198,13 +12198,13 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="108"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="108"/>
       <source>Horizontal velocity (m/s)</source>
-      <translation>Horizontal velocity (m/s)</translation>
+      <translation>수평 속도(m/s)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="109"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="109"/>
       <source>Limit the horizonal velocity (applies to all modes).</source>
-      <translation>Limit the horizonal velocity (applies to all modes).</translation>
+      <translation>수평 속도를 제한합니다(모든 모드에 적용).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="124"/>
@@ -12216,25 +12216,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
       <source>Vertial velocity (m/s)</source>
-      <translation>Vertial velocity (m/s)</translation>
+      <translation>수직 속도(m/s)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="144"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="144"/>
       <source>Limit the vertical velocity (applies to all modes).</source>
-      <translation>Limit the vertical velocity (applies to all modes).</translation>
+      <translation>수직 속도를 제한합니다(모든 모드에 적용).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="159"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="159"/>
       <source>Mission Turning Radius</source>
-      <translation>Mission Turning Radius</translation>
+      <translation>미션 회전 반경</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="160"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="160"/>
       <source>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</source>
-      <translation>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</translation>
+      <translation>값을 높이면 미션에서 회전이 더 둥글어집니다(코너 커팅). 정확한 코너 추적이 필요하면 최소값을 사용하십시오.</translation>
     </message>
   </context>
   <context>
@@ -12482,6 +12482,31 @@ Is this really what you want?</source>
       <source>Roll/Pitch/Yaw</source>
       <translation>롤/피치/요</translation>
     </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX1 Passthrough RC channel</source>
+      <translation>AUX1 패스스루 RC 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX2 Passthrough RC channel</source>
+      <translation>AUX2 패스스루 RC 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM1 tuning channel</source>
+      <translation>PARAM1 튜닝 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM2 tuning channel</source>
+      <translation>PARAM2 튜닝 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM3 tuning channel</source>
+      <translation>PARAM3 튜닝 채널</translation>
+    </message>
   </context>
   <context>
     <name>Parameter.MetaData.json</name>
@@ -12589,13 +12614,13 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="52"/>
       <source>Aux1</source>
-      <translation>Aux1</translation>
+      <translation>보조1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="57"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="57"/>
       <source>Aux2</source>
-      <translation>Aux2</translation>
+      <translation>보조2</translation>
     </message>
   </context>
   <context>
@@ -20193,7 +20218,7 @@ Confirm change?</source>
 <message>
         <location filename="../custom/src/CustomPlugin.cc" line="179"/>
         <source>GeoAwareness</source>
-        <translation>지오 인식</translation>
+        <translation>지리 인식</translation>
     </message>
 <message>
         <location filename="../custom/src/CustomPlugin.cc" line="182"/>
@@ -20861,7 +20886,7 @@ Confirm change?</source>
 <message>
         <location filename="../src/QmlControls/QGCPopupDialog.qml" line="159"/>
         <source>Ok</source>
-        <translation>확인</translation>
+        <translation>OK</translation>
     </message>
 <message>
         <location filename="../src/QmlControls/QGCPopupDialog.qml" line="162"/>
