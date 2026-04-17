@@ -30,6 +30,12 @@
     "shortDesc":        "Doodle Labs IP Address",
     "type":             "string",
     "default":          "192.168.2.72"
+},
+{
+    "name":             "doodleLabsIPEnable",
+    "shortDesc":        "Enable Doodle Labs IP",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }
