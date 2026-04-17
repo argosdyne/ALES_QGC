@@ -116,6 +116,8 @@ private:
     QTimer*         _reconnTimer        = nullptr;
     static const int _pollInterval      = 1000;  // ms
     static const int _reconnectInterval = 5000;  // ms
+    static const int _maxReconnectAttempts = 5;  // stop after 5 attempts
+    int             _reconnectAttempts  = 0;
 
     bool            _firstStateEmitted  = false;
     int             _radioCount         = 0;

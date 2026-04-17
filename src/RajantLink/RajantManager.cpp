@@ -92,6 +92,7 @@ void RajantManager::_onSocketEncrypted()
 {
     qInfo() << "RajantManager: SSL handshake complete on" << _nodeAddress;
     _setConnected(true);
+    _reconnectAttempts = 0; // reset on successful connection
     _setStatusText("SSL connected, waiting for auth challenge...");
     _authState = AUTH_WAIT_CHALLENGE;
     // Server will send the BCAPI auth challenge now that SSL is established
@@ -126,9 +127,18 @@ void RajantManager::_reconnectTimer()
 {
     if (_connected) {
         _reconnTimer->stop();
+        _reconnectAttempts = 0;
         return;
     }
-    qInfo() << "RajantManager: attempting reconnect to" << _nodeAddress;
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+        _reconnTimer->stop();
+        qWarning() << "RajantManager: max reconnect attempts reached, stopping.";
+        _setStatusText("Disconnected - max retries reached");
+        return;
+    }
+    _reconnectAttempts++;
+    qInfo() << "RajantManager: reconnect attempt" << _reconnectAttempts
+        << "of" << _maxReconnectAttempts << "to" << _nodeAddress;
     connectToNode(_nodeAddress);
 }
 
