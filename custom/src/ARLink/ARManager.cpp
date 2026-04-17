@@ -353,7 +353,7 @@ void ARManager::_bindTimerout()
 
 void ARManager::_pollDoodleInfo()  // pool loop
 {
-    if (_doodleRequestInFlight) {
+    if (_doodlePollingStopped || _doodleRequestInFlight) {
         return;
     }
 
@@ -363,6 +363,14 @@ void ARManager::_pollDoodleInfo()  // pool loop
     else {
         _requestDoodleRadioInfo();
     }
+}
+
+void ARManager::stopDoodlePolling(const char* reason)
+{
+    if (_doodlePollingStopped) return;
+    _doodlePollingStopped = true;
+    _doodlePollTimer.stop();
+    qInfo() << "[Doodle API] polling stopped:" << (reason ? reason : "");
 }
 
 void ARManager::_requestDoodleLogin()  // ubus login
@@ -456,16 +464,34 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
 
     if (reply->error() != QNetworkReply::NoError) {
         qCWarning(ARManagerLog) << "[Doodle API]" << operation << "failed:" << reply->errorString();
-        if (operation == "login" || operation == "info") {
+        // Log only the first failure, then stay silent — otherwise this spams the
+        // console every 800ms when no Doodle hardware is present on the LAN.
+        if (_doodleConsecutiveFailures == 0) {
+            qWarning() << "[Doodle API]" << operation << "failed:" << reply->errorString()
+                       << "(further failures silenced)";
+        }
+if (operation == "login" || operation == "info") {
             _rpcSession.clear();
             _setMountedFromDoodle(false);
             if (_usingDoodleApi) {
                 setConnected(false);
             }
+            _doodleConsecutiveFailures++;
+            // After N consecutive login failures assume no Doodle hardware and stop
+            // polling permanently. Avoids burning SSL handshakes and — critically —
+            // avoids the QNetworkReplyHttpImpl transferTimeout race that has been
+            // observed to cause heap corruption (0xc0000374) in Qt 5.15.2.
+            constexpr int kMaxConsecutiveFailures = 10;
+            if (!_doodlePollingStopped &&
+                _doodleConsecutiveFailures >= kMaxConsecutiveFailures &&
+                !_usingDoodleApi) {
+                stopDoodlePolling("no Doodle hardware detected after repeated failures");
+            }
         }
         reply->deleteLater();
         return;
     }
+    _doodleConsecutiveFailures = 0;
 
     if (operation == "login") {
         QJsonParseError parseError;
