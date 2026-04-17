@@ -150,7 +150,18 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
     const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
-        return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());
+        int port = videoUrl.port();
+
+        if(port == -1)
+            port = 554;
+
+        if(port == 8554)
+        {
+            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host()); // Rythmn3
+        }
+        else {
+            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // Sony ILX-LR1
+        }
     }
 
     qWarning() << "[CameraManager]"
