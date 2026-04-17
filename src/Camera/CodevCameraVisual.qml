@@ -44,20 +44,9 @@ Item {
         }
     }
 
-    Component.onCompleted: {
-        console.log("[CodevCameraVisual] load camera=", _camera ? _camera.modelName : "null",
-                    "paramComplete=", _camera ? _camera.paramComplete : false,
-                    "aiInThermal=", aiInThermal,
-                    "activeSettings=", _camera ? _camera.activeSettings : [])
-    }
-
     Connections {
         id: aviatorConnections
         target: AVIATORInterface
-
-        Component.onCompleted: {
-            console.log("QGroundControl.aviatorInterface =", AVIATORInterface)
-        }
 
         function thermalZoomTigger(start) {
             if(start && _irZoom) {
@@ -98,7 +87,6 @@ Item {
             }
         }
         function onButtonPressed(type, pressed) {
-            console.log("use onButtonPressed Function", type)
             if(type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM) {
                 thermalZoomTigger(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_IR_SWITCH) {
@@ -133,28 +121,6 @@ Item {
         height: !isNaN(_camera.trackingImageRect.bottom) ? _camera.trackingImageRect.height * aiParentItem.height : width
         radius: !isNaN(_camera.trackingImageRect.bottom) ? 0 : (width / 2)
     }
-
-    // MouseArea {
-    //     id: trackingClickArea
-    //     anchors.fill: parent
-    //     z: 1
-    //     hoverEnabled: true
-    //     acceptedButtons: Qt.AllButtons
-    //     enabled: true
-    //     // cursorShape: Qt.CrossCursor
-
-    //     onClicked: {
-    //         var normX = mouse.x / width
-    //         var normY = mouse.y / height
-    //         var radius = 0.1
-
-    //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
-
-    //         // Start tracking using the globally available camera
-    //         // Exit tracking mode
-    //     }
-    // }
-
 
     Item {
         id: videoContentOverlayItem
@@ -257,11 +223,6 @@ Item {
         height: thermalItem.height
         clip: true
         visible: thermalItem.visible
-        onVisibleChanged: console.log("[THERMAL_UI]",
-                                      "thermalOverlayItem.visibleChanged",
-                                      "visible=", visible,
-                                      "x=", x, "y=", y,
-                                      "width=", width, "height=", height)
 
         Rectangle {
             id: minTempRect
@@ -328,7 +289,6 @@ Item {
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
-                                        console.log("setSpotTemp Point = ", x, y)
                 } else if(aiInThermal) {
                     var point = Qt.point(x, y)
                     _ensureTrackingDefaults()
@@ -368,14 +328,6 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
-        onVisibleChanged: console.log("[THERMAL_UI]",
-                                      "irToolsPanel.visibleChanged",
-                                      "visible=", visible,
-                                      "factoryCaliFact=", !!_factoryCali,
-                                      "factoryCaliValue=", _factoryCali ? _factoryCali.value : "null",
-                                      "thermalItemVisible=", thermalItem.visible,
-                                      "pseudocolorFact=", !!_pseudocolor,
-                                      "thermometryFact=", !!_thermometry)
 
         PseudocolorBar {
             id: pseudocolorBar
@@ -392,11 +344,6 @@ Item {
                 }
             }
             onVisibleChanged: {
-                console.log("[THERMAL_UI]",
-                            "pseudocolorBar.visibleChanged",
-                            "visible=", visible,
-                            "thermalItemVisible=", thermalItem.visible,
-                            "hasPseudocolor=", !!_pseudocolor)
                 if(visible && _pseudocolor) {
                     setPseudocolorBarIndex(_pseudocolor.enumIndex)
                 } else {
@@ -422,12 +369,6 @@ Item {
             checked: _thermometry ? _thermometry.value : false
             visible: thermalItem.visible && !!_thermometry
             enabled: !!_thermometry
-            onVisibleChanged: console.log("[THERMAL_UI]",
-                                          "thermometryButton.visibleChanged",
-                                          "visible=", visible,
-                                          "thermalItemVisible=", thermalItem.visible,
-                                          "hasThermometry=", !!_thermometry,
-                                          "thermometryValue=", _thermometry ? _thermometry.value : "null")
             source: {
                 if(!checked) {
                     return "qrc:/qmlimages/thermometry.svg"
