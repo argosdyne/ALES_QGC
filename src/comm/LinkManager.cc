@@ -47,7 +47,7 @@
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
 
-const char* LinkManager::_defaultUDPLinkName =                  "UDP Link (AutoConnect)";
+const char* LinkManager::_defaultUDPLinkName =                  "UDP Link (AutoConnect) %1";
 const char* LinkManager::_mavlinkForwardingLinkName =           "MAVLink Forwarding Link";
 const char* LinkManager::_mavlinkForwardingSupportLinkName =    "MAVLink Support Forwarding Link";
 
@@ -387,23 +387,37 @@ bool LinkManager::_portAlreadyConnected(const QString& portName)
 void LinkManager::_addUDPAutoConnectLink(void)
 {
     if (_autoConnectSettings->autoConnectUDP()->rawValue().toBool()) {
-        bool foundUDP = false;
+        //support multiple auto-connect UDP listen ports.
+        QStringList ports = _autoConnectSettings->udpListenPort()->rawValue().toString().split(',', Qt::SkipEmptyParts);
 
-        for (int i = 0; i < _rgLinks.count(); i++) {
-            SharedLinkConfigurationPtr linkConfig = _rgLinks[i]->linkConfiguration();
-            if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == _defaultUDPLinkName) {
-                foundUDP = true;
-                break;
+        for (QString port : ports) {
+            port = port.trimmed();
+            bool ok = false;
+            const quint16 portValue = port.toUShort(&ok);
+            if (!ok || portValue == 0) {
+                qCWarning(LinkManagerLog) << "Ignoring invalid UDP auto-connect port:" << port;
+                continue;
             }
-        }
 
-        if (!foundUDP) {
-            qCDebug(LinkManagerLog) << "New auto-connect UDP port added";
-            //-- Default UDPConfiguration is set up for autoconnect
-            UDPConfiguration* udpConfig = new UDPConfiguration(_defaultUDPLinkName);
-            udpConfig->setDynamic(true);
-            SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
-            createConnectedLink(config);
+            const QString linkName = QString(_defaultUDPLinkName).arg(portValue);
+            bool foundUDP = false;
+
+            for (int i = 0; i < _rgLinks.count(); i++) {
+                SharedLinkConfigurationPtr linkConfig = _rgLinks[i]->linkConfiguration();
+                if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == linkName) {
+                    foundUDP = true;
+                    break;
+                }
+            }
+
+            if (!foundUDP) {
+                qCDebug(LinkManagerLog) << "New auto-connect UDP port added:" << portValue;
+                UDPConfiguration* udpConfig = new UDPConfiguration(linkName);
+                udpConfig->setDynamic(true);
+                udpConfig->setLocalPort(portValue);
+                SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
+                createConnectedLink(config);
+            }
         }
     }
 }
