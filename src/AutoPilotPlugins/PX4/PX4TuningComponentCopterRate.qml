@@ -25,6 +25,36 @@ ColumnLayout {
     property Fact _thrustModelFactor: controller.getParameterFact(-1, "THR_MDL_FAC", false)
     property alias autotuningEnabled: pidTuning.autotuningEnabled
 
+    function _localizedEnumText(enumText) {
+        if (!enumText || enumText.length === 0) {
+            return enumText
+        }
+
+        const fromMetaDataJson = qsTranslate("Parameter.MetaData.json", enumText)
+        if (fromMetaDataJson !== enumText) {
+            return fromMetaDataJson
+        }
+
+        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
+        if (fromMetaData !== enumText) {
+            return fromMetaData
+        }
+
+        return enumText
+    }
+
+    function _localizedEnumStrings(enumStrings) {
+        if (!enumStrings) {
+            return enumStrings
+        }
+
+        var localized = []
+        for (var i = 0; i < enumStrings.length; i++) {
+            localized.push(_localizedEnumText(enumStrings[i]))
+        }
+        return localized
+    }
+
     GridLayout {
         columns: 2
 
@@ -36,6 +66,7 @@ ColumnLayout {
         }
         FactComboBox {
             fact:               _airmode
+            model:              _localizedEnumStrings(_airmode.enumStrings)
             indexModel:         false
             visible:            _airmode
         }

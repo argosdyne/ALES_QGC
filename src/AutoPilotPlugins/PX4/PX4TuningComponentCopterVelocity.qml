@@ -23,6 +23,36 @@ ColumnLayout {
     anchors.fill: parent
     property Fact _mcPosMode:       controller.getParameterFact(-1, "MPC_POS_MODE", false)
 
+    function _localizedEnumText(enumText) {
+        if (!enumText || enumText.length === 0) {
+            return enumText
+        }
+
+        const fromMetaDataJson = qsTranslate("Parameter.MetaData.json", enumText)
+        if (fromMetaDataJson !== enumText) {
+            return fromMetaDataJson
+        }
+
+        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
+        if (fromMetaData !== enumText) {
+            return fromMetaData
+        }
+
+        return enumText
+    }
+
+    function _localizedEnumStrings(enumStrings) {
+        if (!enumStrings) {
+            return enumStrings
+        }
+
+        var localized = []
+        for (var i = 0; i < enumStrings.length; i++) {
+            localized.push(_localizedEnumText(enumStrings[i]))
+        }
+        return localized
+    }
+
     GridLayout {
         columns: 2
 
@@ -32,6 +62,7 @@ ColumnLayout {
         }
         FactComboBox {
             fact:               _mcPosMode
+            model:              _localizedEnumStrings(_mcPosMode.enumStrings)
             indexModel:         false
             visible:            _mcPosMode
         }
