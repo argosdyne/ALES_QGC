@@ -16,6 +16,7 @@
 #include "QGCApplication.h"
 #include "SettingsManager.h"
 #include "AppSettings.h"
+#include "QGCLoggingCategory.h"
 
 #include <QStringListModel>
 #include <QtConcurrent>
@@ -29,9 +30,11 @@ static void msgHandler(QtMsgType type, const QMessageLogContext &context, const 
 {
     const char symbols[] = { 'D', 'E', '!', 'X', 'I' };
     QString output = QString("[%1] at %2:%3 - \"%4\"").arg(symbols[type]).arg(context.file).arg(context.line).arg(msg);
+    const QString category = QString::fromUtf8(context.category ? context.category : "");
+    const bool categoryEnabled = !category.isEmpty() && QGCLoggingCategoryRegister::instance()->categoryLoggingOn(category);
 
     // Avoid recursion
-    if (!QString(context.category).startsWith("qt.quick")) {
+    if (!category.startsWith("qt.quick") && categoryEnabled) {
         debug_model->log(output);
     }
 
