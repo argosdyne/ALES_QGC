@@ -387,34 +387,33 @@ bool LinkManager::_portAlreadyConnected(const QString& portName)
 void LinkManager::_addUDPAutoConnectLink(void)
 {
     if (_autoConnectSettings->autoConnectUDP()->rawValue().toBool()) {
-        //support multiple auto-connect UDP listen ports.
-        QStringList ports = _autoConnectSettings->udpListenPort()->rawValue().toString().split(',', Qt::SkipEmptyParts);
+        const QStringList ports = _autoConnectSettings->udpListenPort()->rawValue().toString().split(',', Qt::SkipEmptyParts);
 
-        for (QString port : ports) {
+        for (QString port: ports) {
             port = port.trimmed();
+
             bool ok = false;
-            const quint16 portValue = port.toUShort(&ok);
-            if (!ok || portValue == 0) {
-                qCWarning(LinkManagerLog) << "Ignoring invalid UDP auto-connect port:" << port;
+            const quint16 localPort = port.toUShort(&ok);
+            if (!ok || localPort == 0) {
+                qCWarning(LinkManagerLog) << "Skipping invalid auto-connect UDP port:" << port;
                 continue;
             }
 
-            const QString linkName = QString(_defaultUDPLinkName).arg(portValue);
             bool foundUDP = false;
 
             for (int i = 0; i < _rgLinks.count(); i++) {
                 SharedLinkConfigurationPtr linkConfig = _rgLinks[i]->linkConfiguration();
-                if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == linkName) {
+                if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == QString(_defaultUDPLinkName).arg(port)) {
                     foundUDP = true;
                     break;
                 }
             }
 
             if (!foundUDP) {
-                qCDebug(LinkManagerLog) << "New auto-connect UDP port added:" << portValue;
-                UDPConfiguration* udpConfig = new UDPConfiguration(linkName);
+                qCDebug(LinkManagerLog) << "New auto-connect UDP port added";
+                UDPConfiguration* udpConfig = new UDPConfiguration(QString(_defaultUDPLinkName).arg(port));
                 udpConfig->setDynamic(true);
-                udpConfig->setLocalPort(portValue);
+                udpConfig->setLocalPort(localPort);
                 SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
                 createConnectedLink(config);
             }
