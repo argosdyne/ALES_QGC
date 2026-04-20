@@ -7837,17 +7837,47 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="151"/>
       <source>GeoFence supports version %1</source>
-      <translation>GeoFence는 버젼 %1을 지원합니다</translation>
+      <translation>GeoFence는 버전 %1을 지원합니다</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="158"/>
       <source>GeoFence polygon not stored as object</source>
-      <translation>GeoFence 다각형이 오브젝트로 저장되지 않았습니다</translation>
+      <translation>GeoFence 다각형이 객체로 저장되지 않았습니다</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="172"/>
       <source>GeoFence circle not stored as object</source>
-      <translation>GeoFence circle이 오브젝트로 저장되어있지 않습니다</translation>
+      <translation>GeoFence 원이 객체로 저장되지 않았습니다</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="776"/>
+      <source>GeoFence is not supported by this vehicle.</source>
+      <translation>이 기체는 GeoFence를 지원하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="786"/>
+      <source>No GeoFence items configured.</source>
+      <translation>구성된 GeoFence 항목이 없습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="792"/>
+      <source>Polygon %1 is invalid or has too few points.</source>
+      <translation>다각형 %1이 유효하지 않거나 점 개수가 너무 적습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="799"/>
+      <source>Circle %1 has an invalid center.</source>
+      <translation>원 %1의 중심점이 유효하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="803"/>
+      <source>Circle %1 has an invalid radius.</source>
+      <translation>원 %1의 반지름이 유효하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="809"/>
+      <source>Fence margin is zero; buffer warnings will be disabled.</source>
+      <translation>펜스 마진이 0이므로 버퍼 경고가 비활성화됩니다.</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
@@ -23486,7 +23516,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>ESC: </source>
-      <translation>ESC: </translation>
+      <translation>ESC 상태: </translation>
     </message>
     <message>
       <source>Enable fence failed (cannot autoenable</source>
@@ -23530,7 +23560,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+      <translation>파라미터 오류: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>Failed to allocate %u bytes for HarmonicNotchFilter</source>
@@ -23570,19 +23600,19 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failsafe. Long event off: reason=%u</source>
-      <translation>페일세이프. Long 이벤트 종료: 이유=%u</translation>
+      <translation>페일세이프. 장기 이벤트 해제: 사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Long event on: type=%u/reason=%u</source>
-      <translation>페일세이프. Long 이벤트 시작: 타입=%u/이유=%u</translation>
+      <translation>페일세이프. 장기 이벤트 활성화: 유형=%u/사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event off: reason=%u</source>
-      <translation>페일세이프. Short 이벤트 종료: 이유=%u</translation>
+      <translation>페일세이프. 단기 이벤트 해제: 사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event on: type=%u/reason=%u</source>
-      <translation>페일세이프. Short 이벤트 시작: 타입=%u/이유=%u</translation>
+      <translation>페일세이프. 단기 이벤트 활성화: 유형=%u/사유=%u</translation>
     </message>
     <message>
       <source>Failsafe: Estimated %.0f seconds to home</source>
@@ -23766,11 +23796,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Loiter to alt was stuck at %d</source>
-      <translation>Loiter to alt가 %d에서 멈춤</translation>
+      <translation>지정 고도 로이터가 %d에서 정체되었습니다</translation>
     </message>
     <message>
       <source>Lua: %s</source>
-      <translation>Lua: %s</translation>
+      <translation>Lua 로그: %s</translation>
     </message>
     <message>
       <source>Lua: %s did not return a delay (0x%d)</source>
@@ -23886,7 +23916,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>AutoTune: (%c) %s</source>
-      <translation>AutoTune: (%c) %s</translation>
+      <translation>AutoTune 상태: (%c) %s</translation>
     </message>
     <message>
       <source>AutoTune: Saved gains for %s%s%s</source>
@@ -23894,23 +23924,23 @@ Confirm change?</source>
     </message>
     <message>
       <source>AutoTune: WFL (%s) (%f &gt; %f)</source>
-      <translation>AutoTune: WFL (%s) (%f &gt; %f)</translation>
+      <translation>AutoTune WFL: (%s) (%f &gt; %f)</translation>
     </message>
     <message>
       <source>AutoTune: lean=%f target=%f</source>
-      <translation>AutoTune: lean=%f target=%f</translation>
+      <translation>AutoTune: lean=%f, 목표=%f</translation>
     </message>
     <message>
       <source>AutoTune: p=%f accel=%f</source>
-      <translation>AutoTune: p=%f accel=%f</translation>
+      <translation>AutoTune: p=%f, 가속도=%f</translation>
     </message>
     <message>
       <source>AutoTune: p=%f d=%f</source>
-      <translation>AutoTune: p=%f d=%f</translation>
+      <translation>AutoTune: p=%f, d=%f</translation>
     </message>
     <message>
       <source>AutoTune: rotation=%f target=%f</source>
-      <translation>AutoTune: rotation=%f target=%f</translation>
+      <translation>AutoTune: 회전=%f, 목표=%f</translation>
     </message>
     <message>
       <source>AutoTune: success %u/%u</source>
@@ -24163,11 +24193,11 @@ Confirm change?</source>
     <!-- ── 기존 항목 유지 ── -->
     <message>
       <source>PreArm: Radio failsafe on</source>
-      <translation>PreArm: 무선 페일세이프가 활성화되어 있습니다</translation>
+      <translation>PreArm: 라디오 페일세이프 활성</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix</source>
-      <translation>PreArm: 3D GPS 고정 대기 중</translation>
+      <translation>PreArm: 3D 위치 고정 대기 중</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix </source>
@@ -24191,7 +24221,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: EKF attitude is bad</source>
-      <translation>PreArm: EKF 자세 추정 상태가 비정상입니다</translation>
+      <translation>PreArm: EKF 자세 추정 불량</translation>
     </message>
     <message>
       <source>PreArm: fence requires position</source>
@@ -24215,7 +24245,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>ACRO_BAL_ROLL/PITCH</source>
-      <translation>ACRO_BAL_ROLL/PITCH</translation>
+      <translation>ACRO 밸런스 롤/피치</translation>
     </message>
     <message>
       <source>AC_Fence: invalid polygon vertex count</source>
@@ -24643,7 +24673,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>FS_LONG_TIMEOUT이 FS_SHORT_TIMEOUT보다 짧습니다</translation>
+      <translation>파라미터 오류: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>Failsafe ended</source>
@@ -24743,7 +24773,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>GCS Failsafe</source>
-      <translation>GCS 페일세이프</translation>
+      <translation>지상관제소(GCS) 안전장치</translation>
     </message>
     <message>
       <source>GCS Failsafe - Continuing Auto Mode</source>
@@ -25840,7 +25870,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: ACRO_BAL_ROLL/PITCH</source>
-      <translation>PreArm: ACRO_BAL_ROLL/PITCH</translation>
+      <translation>시동 전 점검: ACRO_BAL_ROLL/PITCH</translation>
     </message>
     <message>
       <source>PreArm: Mode not armable</source>
@@ -25884,7 +25914,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+      <translation>시동 전 점검: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>PreArm: GPS is not healthy</source>
@@ -26228,7 +26258,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>#Gain: %2.0f%%</source>
-      <translation>#Gain: %2.0f%%</translation>
+      <translation>게인: %2.0f%%</translation>
     </message>
     <message>
       <source>#Input Hold Disabled</source>
@@ -26376,7 +26406,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: %s</source>
-      <translation>PreArm: %s</translation>
+      <translation>시동 전 점검: %s</translation>
     </message>
     <message>
       <source>PreArm: servo function %u unassigned</source>
@@ -26384,7 +26414,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm:[^</source>
-      <translation>PreArm:[^</translation>
+      <translation>시동 전 점검:[^</translation>
     </message>
     <message>
       <source>Proximity %d deg, %4.2fm</source>
@@ -26832,7 +26862,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>hello, world</source>
-      <translation>hello, world</translation>
+      <translation>안녕하세요, world</translation>
     </message>
     <message>
       <source>hover throttle delta: %f</source>
@@ -26876,12 +26906,12 @@ Confirm change?</source>
     </message>
     <message>
       <source>x: %f e: %f r: %f d: %f</source>
-      <translation>x: %f e: %f r: %f d: %f</translation>
+      <translation>디버그: x=%f e=%f r=%f d=%f</translation>
     </message>
   
     <message>
       <source>%s #%i fail: %s%s%s%s%s!</source>
-      <translation>%s #%i fail: %s%s%s%s%s!</translation>
+      <translation>%s #%i 실패: %s%s%s%s%s!</translation>
     </message>
     <message>
       <source>%s #%i failed: %s%s%s%s%s!</source>
@@ -26889,175 +26919,175 @@ Confirm change?</source>
     </message>
     <message>
       <source>%sdelayed data old: %8.4f</source>
-      <translation>%sdelayed data old: %8.4f</translation>
+      <translation>%s지연 데이터가 오래됨: %8.4f</translation>
     </message>
     <message>
       <source>%sDownward-facing Lidar detected with ID %zu</source>
-      <translation>%sDownward-facing Lidar 감지됨 with ID %zu</translation>
+      <translation>%s하향 라이다 감지됨, ID %zu</translation>
     </message>
     <message>
       <source>%sDownward-facing Sonar detected with ID %zu</source>
-      <translation>%sDownward-facing Sonar 감지됨 with ID %zu</translation>
+      <translation>%s하향 소나 감지됨, ID %zu</translation>
     </message>
     <message>
       <source>%soffline. %s</source>
-      <translation>%soffline. %s</translation>
+      <translation>%s오프라인. %s</translation>
     </message>
     <message>
       <source>%sreinit x</source>
-      <translation>%sreinit x</translation>
+      <translation>%sx 재초기화</translation>
     </message>
     <message>
       <source>%sreinit x, x(%zu) not finite</source>
-      <translation>%sreinit x, x(%zu) not finite</translation>
+      <translation>%sx 재초기화, x(%zu)가 유한값이 아님</translation>
     </message>
     <message>
       <source>[cal] %s side already completed</source>
-      <translation>[cal] %s side already completed</translation>
+      <translation>[cal] %s 면은 이미 완료됨</translation>
     </message>
     <message>
       <source>[cal] %s side done, rotate to a different side</source>
-      <translation>[cal] %s side done, rotate to a different side</translation>
+      <translation>[cal] %s 면 완료, 다른 면으로 회전하십시오</translation>
     </message>
     <message>
       <source>[cal] %s side result: [%.3f %.3f %.3f]</source>
-      <translation>[cal] %s side result: [%.3f %.3f %.3f]</translation>
+      <translation>[cal] %s 면 결과: [%.3f %.3f %.3f]</translation>
     </message>
     <message>
       <source>[cal] accel %d invalid X-axis, check rotation</source>
-      <translation>[cal] 가속도계 %d 유효하지 않음 X-axis, check rotation</translation>
+      <translation>[cal] 가속도계 %d X축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
     </message>
     <message>
       <source>[cal] accel %d invalid Y-axis, check rotation</source>
-      <translation>[cal] 가속도계 %d 유효하지 않음 Y-axis, check rotation</translation>
+      <translation>[cal] 가속도계 %d Y축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
     </message>
     <message>
       <source>[cal] accel %d invalid Z-axis, check rotation</source>
-      <translation>[cal] 가속도계 %d 유효하지 않음 Z-axis, check rotation</translation>
+      <translation>[cal] 가속도계 %d Z축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
     </message>
     <message>
       <source>[cal] Battery connected</source>
-      <translation>[cal] 배터리 connected</translation>
+      <translation>[cal] 배터리 연결됨</translation>
     </message>
     <message>
       <source>[cal] Blow into front of pitot without touching</source>
-      <translation>[cal] Blow into front of pitot without touching</translation>
+      <translation>[cal] 피토관 전면에 접촉 없이 바람을 불어넣으십시오</translation>
     </message>
     <message>
       <source>[cal] Connect battery now</source>
-      <translation>[cal] Connect 배터리 now</translation>
+      <translation>[cal] 지금 배터리를 연결하십시오</translation>
     </message>
     <message>
       <source>[cal] Create air pressure! (got %d, wanted: 50 Pa)</source>
-      <translation>[cal] Create air pressure! (got %d, wanted: 50 Pa)</translation>
+      <translation>[cal] 공기 압력을 생성하십시오! (현재 %d, 목표: 50 Pa)</translation>
     </message>
     <message>
       <source>[cal] detected motion, hold still...</source>
-      <translation>[cal] 감지됨 motion, hold still...</translation>
+      <translation>[cal] 움직임 감지됨, 기체를 정지 상태로 유지하십시오...</translation>
     </message>
     <message>
       <source>[cal] detected rest position, hold still...</source>
-      <translation>[cal] 감지됨 rest position, hold still...</translation>
+      <translation>[cal] 정지 자세 감지됨, 그대로 유지하십시오...</translation>
     </message>
     <message>
       <source>[cal] Ensure sensor is not measuring wind</source>
-      <translation>[cal] Ensure sensor is not measuring wind</translation>
+      <translation>[cal] 센서가 풍속을 측정하지 않도록 하십시오</translation>
     </message>
     <message>
       <source>[cal] External Mag: %d (%</source>
-      <translation>[cal] External Mag: %d (%</translation>
+      <translation>[cal] 외부 자력계: %d (%</translation>
     </message>
     <message>
       <source>[cal] Hold still, measuring %s side</source>
-      <translation>[cal] Hold still, measuring %s side</translation>
+      <translation>[cal] 정지 유지, %s 면 측정 중</translation>
     </message>
     <message>
       <source>[cal] hold vehicle still on a pending side</source>
-      <translation>[cal] hold vehicle still on a pending side</translation>
+      <translation>[cal] 대기 중인 면에서 기체를 정지 상태로 유지하십시오</translation>
     </message>
     <message>
       <source>[cal] Negative pressure difference detected (%d Pa)</source>
-      <translation>[cal] Negative pressure difference 감지됨 (%d Pa)</translation>
+      <translation>[cal] 음압 차이 감지됨 (%d Pa)</translation>
     </message>
     <message>
       <source>[cal] Offset of %d Pascal</source>
-      <translation>[cal] Offset of %d Pascal</translation>
+      <translation>[cal] 오프셋 %d Pascal</translation>
     </message>
     <message>
       <source>[cal] pending:%s</source>
-      <translation>[cal] pending:%s</translation>
+      <translation>[cal] 대기:%s</translation>
     </message>
     <message>
       <source>[cal] Positive pressure: OK (%d Pa)</source>
-      <translation>[cal] Positive pressure: OK (%d Pa)</translation>
+      <translation>[cal] 양압: 정상 (%d Pa)</translation>
     </message>
     <message>
       <source>[cal] Rotate vehicle</source>
-      <translation>[cal] Rotate vehicle</translation>
+      <translation>[cal] 기체를 회전시키십시오</translation>
     </message>
     <message>
       <source>[cal] Swap static and dynamic ports or set SENS_DPRES_REV</source>
-      <translation>[cal] Swap static and dynamic ports or set SENS_DPRES_REV</translation>
+      <translation>[cal] 정압/동압 포트를 바꾸거나 SENS_DPRES_REV를 설정하십시오</translation>
     </message>
     <message>
       <source>[IO] config read fail, abort.</source>
-      <translation>[IO] config read fail, abort.</translation>
+      <translation>[IO] 설정 읽기 실패, 중단합니다.</translation>
     </message>
     <message>
       <source>[logger] %s</source>
-      <translation>[logger] %s</translation>
+      <translation>[로거] %s</translation>
     </message>
     <message>
       <source>[lpe] baro fault, r %5.2f m, beta %5.2f</source>
-      <translation>[lpe] baro fault, r %5.2f m, beta %5.2f</translation>
+      <translation>[lpe] 기압계 이상, r %5.2f m, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] baro OK</source>
-      <translation>[lpe] baro OK</translation>
+      <translation>[lpe] 기압계 정상</translation>
     </message>
     <message>
       <source>[lpe] baro timeout</source>
-      <translation>[lpe] baro 타임아웃</translation>
+      <translation>[lpe] 기압계 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] flow fault,  beta %5.2f</source>
-      <translation>[lpe] flow fault,  beta %5.2f</translation>
+      <translation>[lpe] 광류 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] flow init:</source>
-      <translation>[lpe] flow init:</translation>
+      <translation>[lpe] 광류 초기화:</translation>
     </message>
     <message>
       <source>[lpe] flow OK</source>
-      <translation>[lpe] flow OK</translation>
+      <translation>[lpe] 광류 정상</translation>
     </message>
     <message>
       <source>[lpe] flow timeout</source>
-      <translation>[lpe] flow 타임아웃</translation>
+      <translation>[lpe] 광류 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] global origin init (gps) : lat %6.2f lon %6.2f alt %5.1f m</source>
-      <translation>[lpe] global origin init (gps) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+      <translation>[lpe] 전역 원점 초기화(gps): lat %6.2f lon %6.2f alt %5.1f m</translation>
     </message>
     <message>
       <source>[lpe] global origin init (mocap) : lat %6.2f lon %6.2f alt %5.1f m</source>
-      <translation>[lpe] global origin init (mocap) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+      <translation>[lpe] 전역 원점 초기화(mocap): lat %6.2f lon %6.2f alt %5.1f m</translation>
     </message>
     <message>
       <source>[lpe] global origin init (parameter) : lat %6.2f lon %6.2f alt %5.1f m</source>
-      <translation>[lpe] global origin init (parameter) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+      <translation>[lpe] 전역 원점 초기화(parameter): lat %6.2f lon %6.2f alt %5.1f m</translation>
     </message>
     <message>
       <source>[lpe] global origin init (vision) : lat %6.2f lon %6.2f alt %5.1f m</source>
-      <translation>[lpe] global origin init (vision) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+      <translation>[lpe] 전역 원점 초기화(vision): lat %6.2f lon %6.2f alt %5.1f m</translation>
     </message>
     <message>
       <source>[lpe] gps fault %3g %3g %3g %3g %3g %3g</source>
-      <translation>[lpe] gps fault %3g %3g %3g %3g %3g %3g</translation>
+      <translation>[lpe] GPS 이상 %3g %3g %3g %3g %3g %3g</translation>
     </message>
     <message>
       <source>[lpe] GPS OK</source>
-      <translation>[lpe] GPS OK</translation>
+      <translation>[lpe] GPS 정상</translation>
     </message>
     <message>
       <source>[lpe] GPS timeout</source>
@@ -27065,51 +27095,51 @@ Confirm change?</source>
     </message>
     <message>
       <source>[lpe] land fault,  beta %5.2f</source>
-      <translation>[lpe] land fault,  beta %5.2f</translation>
+      <translation>[lpe] 착륙 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] land init</source>
-      <translation>[lpe] land init</translation>
+      <translation>[lpe] 착륙 초기화</translation>
     </message>
     <message>
       <source>[lpe] land OK</source>
-      <translation>[lpe] land OK</translation>
+      <translation>[lpe] 착륙 정상</translation>
     </message>
     <message>
       <source>[lpe] land timeout</source>
-      <translation>[lpe] land 타임아웃</translation>
+      <translation>[lpe] 착륙 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] lidar fault,  beta %5.2f</source>
-      <translation>[lpe] lidar fault,  beta %5.2f</translation>
+      <translation>[lpe] 라이다 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] lidar init:</source>
-      <translation>[lpe] lidar init:</translation>
+      <translation>[lpe] 라이다 초기화:</translation>
     </message>
     <message>
       <source>[lpe] lidar OK</source>
-      <translation>[lpe] lidar OK</translation>
+      <translation>[lpe] 라이다 정상</translation>
     </message>
     <message>
       <source>[lpe] lidar timeout</source>
-      <translation>[lpe] lidar 타임아웃</translation>
+      <translation>[lpe] 라이다 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] mocap data invalid. eph: %f epv: %f</source>
-      <translation>[lpe] mocap data 유효하지 않음. eph: %f epv: %f</translation>
+      <translation>[lpe] mocap 데이터가 유효하지 않습니다. eph: %f epv: %f</translation>
     </message>
     <message>
       <source>[lpe] mocap fault, beta %5.2f</source>
-      <translation>[lpe] mocap fault, beta %5.2f</translation>
+      <translation>[lpe] mocap 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] mocap OK</source>
-      <translation>[lpe] mocap OK</translation>
+      <translation>[lpe] mocap 정상</translation>
     </message>
     <message>
       <source>[lpe] mocap position init:</source>
-      <translation>[lpe] mocap position init:</translation>
+      <translation>[lpe] mocap 위치 초기화:</translation>
     </message>
     <message>
       <source>[lpe] mocap timeout</source>
@@ -27117,43 +27147,43 @@ Confirm change?</source>
     </message>
     <message>
       <source>[lpe] sonar fault,  beta %5.2f</source>
-      <translation>[lpe] sonar fault,  beta %5.2f</translation>
+      <translation>[lpe] 소나 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] sonar init std &gt; min</source>
-      <translation>[lpe] sonar init std &gt; min</translation>
+      <translation>[lpe] 소나 초기화 std &gt; min</translation>
     </message>
     <message>
       <source>[lpe] sonar init timeout</source>
-      <translation>[lpe] sonar init 타임아웃</translation>
+      <translation>[lpe] 소나 초기화 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] sonar OK</source>
-      <translation>[lpe] sonar OK</translation>
+      <translation>[lpe] 소나 정상</translation>
     </message>
     <message>
       <source>[lpe] sonar timeout</source>
-      <translation>[lpe] sonar 타임아웃</translation>
+      <translation>[lpe] 소나 타임아웃</translation>
     </message>
     <message>
       <source>[lpe] vision data invalid. eph: %f epv: %f</source>
-      <translation>[lpe] vision data 유효하지 않음. eph: %f epv: %f</translation>
+      <translation>[lpe] 비전 데이터가 유효하지 않습니다. eph: %f epv: %f</translation>
     </message>
     <message>
       <source>[lpe] vision position fault, beta %5.2f</source>
-      <translation>[lpe] vision position fault, beta %5.2f</translation>
+      <translation>[lpe] 비전 위치 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] vision position init:</source>
-      <translation>[lpe] vision position init:</translation>
+      <translation>[lpe] 비전 위치 초기화:</translation>
     </message>
     <message>
       <source>[lpe] vision position OK</source>
-      <translation>[lpe] vision position OK</translation>
+      <translation>[lpe] 비전 위치 정상</translation>
     </message>
     <message>
       <source>[lpe] vision position timeout</source>
-      <translation>[lpe] vision position 타임아웃</translation>
+      <translation>[lpe] 비전 위치 타임아웃</translation>
     </message>
     <message>
       <source>Accel %</source>
@@ -27169,31 +27199,31 @@ Confirm change?</source>
     </message>
     <message>
       <source>Airspeed sensor failure detected. Check connection and reboot.</source>
-      <translation>대기속도 sensor 고장 감지됨. Check connection and reboot.</translation>
+      <translation>대기속도 센서 고장 감지. 연결 상태 확인 후 재부팅하십시오.</translation>
     </message>
     <message>
       <source>Airspeed sensor healthy, start using again (%i, %i)</source>
-      <translation>대기속도 sensor healthy, start using again (%i, %i)</translation>
+      <translation>대기속도 센서가 정상입니다. 다시 사용을 시작합니다 (%i, %i)</translation>
     </message>
     <message>
       <source>Airspeed sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</source>
-      <translation>대기속도 sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</translation>
+      <translation>대기속도 센서 번호 %d ASPD_SCALE 업데이트: %.4f --&gt; %.4f</translation>
     </message>
     <message>
       <source>Already higher than takeoff altitude</source>
-      <translation>Already higher than takeoff altitude</translation>
+      <translation>이미 이륙 고도보다 높습니다</translation>
     </message>
     <message>
       <source>Altitude change is outside geofence</source>
-      <translation>Altitude change is outside 지오펜스</translation>
+      <translation>고도 변경 값이 지오펜스 범위를 벗어났습니다</translation>
     </message>
     <message>
       <source>Approaching max flight time (system will RTL in %i minutes)</source>
-      <translation>Approaching max flight time (system will RTL in %i 분)</translation>
+      <translation>최대 비행 시간에 근접했습니다 (시스템이 %i분 후 RTL 수행)</translation>
     </message>
     <message>
       <source>Approaching max flight time (system will RTL in %i seconds)</source>
-      <translation>Approaching max flight time (system will RTL in %i 초)</translation>
+      <translation>최대 비행 시간에 근접했습니다 (시스템이 %i초 후 RTL 수행)</translation>
     </message>
     <message>
       <source>Arm auth: Denied</source>
@@ -27201,19 +27231,19 @@ Confirm change?</source>
     </message>
     <message>
       <source>Arm auth: Denied because airspace is in use</source>
-      <translation>시동 인증: 거부됨 because airspace is in use</translation>
+      <translation>시동 인증 거부: 공역이 사용 중입니다</translation>
     </message>
     <message>
       <source>Arm auth: Denied because of bad weather</source>
-      <translation>시동 인증: 거부됨 because of bad weather</translation>
+      <translation>시동 인증 거부: 기상 상태가 불량합니다</translation>
     </message>
     <message>
       <source>Arm auth: Denied by timeout in authorizer</source>
-      <translation>시동 인증: 거부됨 by 타임아웃 in authorizer</translation>
+      <translation>시동 인증 거부: 인증기 타임아웃</translation>
     </message>
     <message>
       <source>Arm auth: Denied, waypoint %</source>
-      <translation>시동 인증: 거부됨, waypoint %</translation>
+      <translation>시동 인증 거부, 웨이포인트 %</translation>
     </message>
     <message>
       <source>Arm auth: No response</source>
@@ -27229,63 +27259,63 @@ Confirm change?</source>
     </message>
     <message>
       <source>Arm stick gesture disabled if arm switch in use</source>
-      <translation>Arm stick gesture disabled if arm switch in use</translation>
+      <translation>ARM 스위치를 사용하는 경우 스틱 ARM 제스처는 비활성화됩니다</translation>
     </message>
     <message>
       <source>Armed by %s</source>
-      <translation>Armed by %s</translation>
+      <translation>%s에 의해 시동(ARM)되었습니다</translation>
     </message>
     <message>
       <source>Arming denied: calibrating</source>
-      <translation>시동 거부: calibrating</translation>
+      <translation>시동 거부: 보정 중입니다</translation>
     </message>
     <message>
       <source>Arming denied: Resolve system health failures first</source>
-      <translation>시동 거부: Resolve system health 고장s first</translation>
+      <translation>시동 거부: 먼저 시스템 상태 이상을 해결하십시오</translation>
     </message>
     <message>
       <source>Arming denied: switch to manual mode first</source>
-      <translation>시동 거부: switch to manual mode first</translation>
+      <translation>시동 거부: 먼저 수동 모드로 전환하십시오</translation>
     </message>
     <message>
       <source>Arming denied: throttle not in safe position</source>
-      <translation>시동 거부: throttle not in safe position</translation>
+      <translation>시동 거부: 스로틀이 안전 위치가 아닙니다</translation>
     </message>
     <message>
       <source>Ascent speed has been constrained by max speed</source>
-      <translation>Ascent speed has been constrained by max speed</translation>
+      <translation>상승 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Assuming vehicle is facing heading %.1f degrees</source>
-      <translation>Assuming vehicle is facing heading %.1f degrees</translation>
+      <translation>기체가 헤딩 %.1f도를 향하고 있다고 가정합니다</translation>
     </message>
     <message>
       <source>attitude estimator not running - check system boot</source>
-      <translation>attitude estimator not running - check system boot</translation>
+      <translation>자세 추정기가 동작하지 않습니다 - 시스템 부팅 상태를 확인하십시오</translation>
     </message>
     <message>
       <source>attitude required for mag quick cal</source>
-      <translation>attitude required for mag quick cal</translation>
+      <translation>자력계 빠른 보정에는 자세 정보가 필요합니다</translation>
     </message>
     <message>
       <source>Autotune aborted before finishing</source>
-      <translation>Autotune aborted before finishing</translation>
+      <translation>오토튠이 완료 전에 중단되었습니다</translation>
     </message>
     <message>
       <source>Autotune axis timeout, skipping to next axis</source>
-      <translation>Autotune axis 타임아웃, skipping to next axis</translation>
+      <translation>오토튠 축 타임아웃, 다음 축으로 건너뜁니다</translation>
     </message>
     <message>
       <source>Autotune finished successfully</source>
-      <translation>Autotune finished successfully</translation>
+      <translation>오토튠이 성공적으로 완료되었습니다</translation>
     </message>
     <message>
       <source>Autotune returned to idle</source>
-      <translation>Autotune returned to idle</translation>
+      <translation>오토튠이 유휴 상태로 복귀했습니다</translation>
     </message>
     <message>
       <source>Autotune started</source>
-      <translation>Autotune started</translation>
+      <translation>오토튠이 시작되었습니다</translation>
     </message>
     <message>
       <source>Battery %d: %s. %s</source>
@@ -27293,39 +27323,39 @@ Confirm change?</source>
     </message>
     <message>
       <source>Battery %i disconnected</source>
-      <translation>배터리 %i disconnected</translation>
+      <translation>배터리 %i 연결 해제됨</translation>
     </message>
     <message>
       <source>Battery %i missing</source>
-      <translation>배터리 %i missing</translation>
+      <translation>배터리 %i 누락</translation>
     </message>
     <message>
       <source>Calibration denied: not supported in SIH mode</source>
-      <translation>보정 거부됨: not supported in SIH mode</translation>
+      <translation>보정 거부: SIH 모드에서는 지원되지 않습니다</translation>
     </message>
     <message>
       <source>calibration save failed</source>
-      <translation>보정 save 실패</translation>
+      <translation>보정 저장 실패</translation>
     </message>
     <message>
       <source>Calibration: Disabling RC input</source>
-      <translation>보정: Disabling RC input</translation>
+      <translation>보정: RC 입력 비활성화</translation>
     </message>
     <message>
       <source>Calibration: Restoring RC input</source>
-      <translation>보정: Restoring RC input</translation>
+      <translation>보정: RC 입력 복원</translation>
     </message>
     <message>
       <source>Climb to %.1f meters above home</source>
-      <translation>Climb to %.1f meters above home</translation>
+      <translation>홈 위치 기준 %.1f미터까지 상승</translation>
     </message>
     <message>
       <source>command denied during calibration: %</source>
-      <translation>command 거부됨 during 보정: %</translation>
+      <translation>보정 중 명령 거부: %</translation>
     </message>
     <message>
       <source>Compass needs calibration - Land now!</source>
-      <translation>나침반 needs 보정 - Land now!</translation>
+      <translation>나침반 보정이 필요합니다 - 즉시 착륙하십시오!</translation>
     </message>
     <message>
       <source>Connection to ground station lost</source>
@@ -27337,11 +27367,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Control high latency failed! Telemetry unavailable</source>
-      <translation>Control high latency 실패! Telemetry unavailable</translation>
+      <translation>고지연 제어 실패! 텔레메트리 사용 불가</translation>
     </message>
     <message>
       <source>Could not set mission closest to position.</source>
-      <translation>Could not set mission closest to position.</translation>
+      <translation>현재 위치 기준 가장 가까운 미션 항목을 설정할 수 없습니다.</translation>
     </message>
     <message>
       <source>Critical battery</source>
@@ -27349,7 +27379,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Cruise speed has been constrained by max speed</source>
-      <translation>Cruise speed has been constrained by max speed</translation>
+      <translation>순항 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Dangerously low battery! Shutting system down in 60 seconds</source>
@@ -27357,595 +27387,595 @@ Confirm change?</source>
     </message>
     <message>
       <source>Descent speed has been constrained by max speed</source>
-      <translation>Descent speed has been constrained by max speed</translation>
+      <translation>하강 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Detected %u gyros, but will calibrate only %u</source>
-      <translation>감지됨 %u gyros, but will calibrate only %u</translation>
+      <translation>자이로 %u개 감지, 이 중 %u개만 보정합니다</translation>
     </message>
     <message>
       <source>Detected %u mags, but will calibrate only %u</source>
-      <translation>감지됨 %u mags, but will calibrate only %u</translation>
+      <translation>자력계 %u개 감지, 이 중 %u개만 보정합니다</translation>
     </message>
     <message>
       <source>Disable transmitting with IRIDIUM mavlink on device %s</source>
-      <translation>Disable transmitting with IRIDIUM mavlink on device %s</translation>
+      <translation>장치 %s에서 IRIDIUM mavlink 송신을 비활성화합니다</translation>
     </message>
     <message>
       <source>Disable transmitting with IRIDIUM mavlink on device %s by command</source>
-      <translation>Disable transmitting with IRIDIUM mavlink on device %s by command</translation>
+      <translation>명령에 의해 장치 %s의 IRIDIUM mavlink 송신을 비활성화합니다</translation>
     </message>
     <message>
       <source>Disarmed by %s</source>
-      <translation>Disarmed by %s</translation>
+      <translation>%s에 의해 시동이 해제되었습니다</translation>
     </message>
     <message>
       <source>Disarming denied: not landed</source>
-      <translation>Dis시동 거부: not landed</translation>
+      <translation>시동 해제 거부: 착륙 상태가 아닙니다</translation>
     </message>
     <message>
       <source>Disconnect battery and try again</source>
-      <translation>Disconnect 배터리 and try again</translation>
+      <translation>배터리를 분리한 후 다시 시도하십시오</translation>
     </message>
     <message>
       <source>DO JUMP waypoint could not be written.</source>
-      <translation>DO JUMP waypoint could not be written.</translation>
+      <translation>DO JUMP 웨이포인트를 기록할 수 없습니다.</translation>
     </message>
     <message>
       <source>EKF2_MAG_TYPE invalid, resetting to default</source>
-      <translation>EKF2_MAG_TYPE 유효하지 않음, resetting to default</translation>
+      <translation>EKF2_MAG_TYPE이 유효하지 않아 기본값으로 재설정합니다</translation>
     </message>
     <message>
       <source>Emergency battery level</source>
-      <translation>Emergency 배터리 level</translation>
+      <translation>배터리 긴급 수준</translation>
     </message>
     <message>
       <source>Enable transmitting with IRIDIUM mavlink on device %s</source>
-      <translation>Enable transmitting with IRIDIUM mavlink on device %s</translation>
+      <translation>장치 %s에서 IRIDIUM mavlink 송신을 활성화합니다</translation>
     </message>
     <message>
       <source>Enable transmitting with IRIDIUM mavlink on device %s by command</source>
-      <translation>Enable transmitting with IRIDIUM mavlink on device %s by command</translation>
+      <translation>명령에 의해 장치 %s의 IRIDIUM mavlink 송신을 활성화합니다</translation>
     </message>
     <message>
       <source>Error loading settings</source>
-      <translation>Error loading settings</translation>
+      <translation>설정 로드 오류</translation>
     </message>
     <message>
       <source>Error saving settings</source>
-      <translation>Error saving settings</translation>
+      <translation>설정 저장 오류</translation>
     </message>
     <message>
       <source>ERROR: cannot open calibration storage</source>
-      <translation>ERROR: cannot open 보정 storage</translation>
+      <translation>오류: 보정 저장소를 열 수 없습니다</translation>
     </message>
     <message>
       <source>ERROR: invalid orientation</source>
-      <translation>ERROR: 유효하지 않음 orientation</translation>
+      <translation>오류: 방향 설정이 유효하지 않습니다</translation>
     </message>
     <message>
       <source>ERROR: missing data, sensor %d</source>
-      <translation>ERROR: missing data, sensor %d</translation>
+      <translation>오류: 데이터 누락, 센서 %d</translation>
     </message>
     <message>
       <source>ERROR: Motion during calibration</source>
-      <translation>ERROR: Motion during 보정</translation>
+      <translation>오류: 보정 중 움직임 감지</translation>
     </message>
     <message>
       <source>ERROR: out of memory</source>
-      <translation>ERROR: out of memory</translation>
+      <translation>오류: 메모리 부족</translation>
     </message>
     <message>
       <source>ERROR: Waypoint index exceeds list capacity</source>
-      <translation>ERROR: Waypoint index exceeds list capacity</translation>
+      <translation>오류: 웨이포인트 인덱스가 목록 용량을 초과했습니다</translation>
     </message>
     <message>
       <source>ERROR: wp index out of bounds</source>
-      <translation>ERROR: wp index out of bounds</translation>
+      <translation>오류: 웨이포인트 인덱스가 범위를 벗어났습니다</translation>
     </message>
     <message>
       <source>esc</source>
-      <translation>esc</translation>
+      <translation>ESC 장치</translation>
     </message>
     <message>
       <source>ESC calibration denied! Press safety button first</source>
-      <translation>ESC 보정 거부됨! Press safety button first</translation>
+      <translation>ESC 보정 거부! 먼저 안전 버튼을 누르십시오</translation>
     </message>
     <message>
       <source>ESC failure: Not all ESCs are armed. Land now!</source>
-      <translation>ESC 고장: Not all ESCs are armed. Land now!</translation>
+      <translation>ESC 오류: 모든 ESC가 시동되지 않았습니다. 즉시 착륙하십시오!</translation>
     </message>
     <message>
       <source>ESC%d: %s. %s</source>
-      <translation>ESC%d: %s. %s</translation>
+      <translation>ESC%d 상태: %s. %s</translation>
     </message>
     <message>
       <source>esc_id %1.f check CRC is different,will upload tap esc firmware</source>
-      <translation>esc_id %1.f check CRC is different,will upload tap esc firmware</translation>
+      <translation>esc_id %1.f CRC가 달라 TAP ESC 펌웨어를 업로드합니다</translation>
     </message>
     <message>
       <source>esc_id %1.f found board revision failed</source>
-      <translation>esc_id %1.f found board revision 실패</translation>
+      <translation>esc_id %1.f 보드 리비전 확인 실패</translation>
     </message>
     <message>
       <source>esc_id %1.f found board revision: %02</source>
-      <translation>esc_id %1.f found board revision: %02</translation>
+      <translation>esc_id %1.f 보드 리비전 확인: %02</translation>
     </message>
     <message>
       <source>esc_id %1.f found bootloader revision failed</source>
-      <translation>esc_id %1.f found bootloader revision 실패</translation>
+      <translation>esc_id %1.f 부트로더 리비전 확인 실패</translation>
     </message>
     <message>
       <source>esc_id %1.f found bootloader revision: %4.4f</source>
-      <translation>esc_id %1.f found bootloader revision: %4.4f</translation>
+      <translation>esc_id %1.f 부트로더 리비전 확인: %4.4f</translation>
     </message>
     <message>
       <source>esc_id %1.f found firmware revision failed</source>
-      <translation>esc_id %1.f found firmware revision 실패</translation>
+      <translation>esc_id %1.f 펌웨어 리비전 확인 실패</translation>
     </message>
     <message>
       <source>esc_id %1.f found firmware revision: %4.4f</source>
-      <translation>esc_id %1.f found firmware revision: %4.4f</translation>
+      <translation>esc_id %1.f 펌웨어 리비전 확인: %4.4f</translation>
     </message>
     <message>
       <source>excess pitch angle</source>
-      <translation>excess pitch angle</translation>
+      <translation>피치 각도 초과</translation>
     </message>
     <message>
       <source>excess roll angle</source>
-      <translation>excess roll angle</translation>
+      <translation>롤 각도 초과</translation>
     </message>
     <message>
       <source>Executing Mission</source>
-      <translation>Executing Mission</translation>
+      <translation>미션 실행 중</translation>
     </message>
     <message>
       <source>Fail</source>
-      <translation>Fail</translation>
+      <translation>실패</translation>
     </message>
     <message>
       <source>Failed to communicate with IO, abort.</source>
-      <translation>실패 to communicate with IO, abort.</translation>
+      <translation>IO와 통신에 실패하여 중단합니다.</translation>
     </message>
     <message>
       <source>Failed: No magnetometer available or enabled</source>
-      <translation>실패: No magnetometer available or enabled</translation>
+      <translation>실패: 사용 가능하거나 활성화된 자력계가 없습니다</translation>
     </message>
     <message>
       <source>Failed: This calibration requires rotation.</source>
-      <translation>실패: This 보정 requires rotation.</translation>
+      <translation>실패: 이 보정은 기체 회전이 필요합니다.</translation>
     </message>
     <message>
       <source>Failsafe activated</source>
-      <translation>Failsafe activated</translation>
+      <translation>페일세이프가 활성화되었습니다</translation>
     </message>
     <message>
       <source>Failsafe activated: entering Hold for %i seconds</source>
-      <translation>Failsafe activated: entering Hold for %i 초</translation>
+      <translation>페일세이프 활성화: %i초 동안 Hold로 진입</translation>
     </message>
     <message>
       <source>Figure 8 command not supported.</source>
-      <translation>Figure 8 command not supported.</translation>
+      <translation>Figure 8 명령은 지원되지 않습니다.</translation>
     </message>
     <message>
       <source>Figure 8 command only available for fixed wing and vtol vehicles.</source>
-      <translation>Figure 8 command only available for fixed wing and vtol vehicles.</translation>
+      <translation>Figure 8 명령은 고정익 및 VTOL 기체에서만 사용할 수 있습니다.</translation>
     </message>
     <message>
       <source>Figure 8 command rejected, Only available in fixed wing mode.</source>
-      <translation>Figure 8 command rejected, Only available in fixed wing mode.</translation>
+      <translation>Figure 8 명령이 거부되었습니다. 고정익 모드에서만 사용할 수 있습니다.</translation>
     </message>
     <message>
       <source>Figure 8 is outside geofence</source>
-      <translation>Figure 8 is outside 지오펜스</translation>
+      <translation>Figure 8 경로가 지오펜스 외부입니다</translation>
     </message>
     <message>
       <source>GCS connection regained</source>
-      <translation>GCS connection 복구됨</translation>
+      <translation>GCS 연결이 복구되었습니다</translation>
     </message>
     <message>
       <source>Geofence imported</source>
-      <translation>지오펜스 imported</translation>
+      <translation>지오펜스를 가져왔습니다</translation>
     </message>
     <message>
       <source>Geofence invalid, doesn&apos;t contain current vehicle position</source>
-      <translation>지오펜스 유효하지 않음, doesn&apos;t contain current vehicle position</translation>
+      <translation>지오펜스가 유효하지 않습니다. 현재 기체 위치를 포함하지 않습니다</translation>
     </message>
     <message>
       <source>Geofence invalid, doesn&apos;t contain Home position</source>
-      <translation>지오펜스 유효하지 않음, doesn&apos;t contain Home position</translation>
+      <translation>지오펜스가 유효하지 않습니다. 홈 위치를 포함하지 않습니다</translation>
     </message>
     <message>
       <source>Geofence requires valid home position</source>
-      <translation>지오펜스 requires 정상 home position</translation>
+      <translation>지오펜스에는 유효한 홈 위치가 필요합니다</translation>
     </message>
     <message>
       <source>Geofence violation for waypoint %zu</source>
-      <translation>지오펜스 violation for waypoint %zu</translation>
+      <translation>웨이포인트 %zu에서 지오펜스 위반</translation>
     </message>
     <message>
       <source>Geofence: approaching or outside geofence</source>
-      <translation>지오펜스: approaching or outside 지오펜스</translation>
+      <translation>지오펜스: 경계 접근 또는 외부 이탈</translation>
     </message>
     <message>
       <source>Geofence: exceeding maximum altitude above Home</source>
-      <translation>지오펜스: exceeding maximum altitude above Home</translation>
+      <translation>지오펜스: 홈 기준 최대 고도 초과</translation>
     </message>
     <message>
       <source>Geofence: exceeding maximum distance to Home</source>
-      <translation>지오펜스: exceeding maximum distance to Home</translation>
+      <translation>지오펜스: 홈까지의 최대 거리 초과</translation>
     </message>
     <message>
       <source>Geofence: import error</source>
-      <translation>지오펜스: import error</translation>
+      <translation>지오펜스: 가져오기 오류</translation>
     </message>
     <message>
       <source>GNSS data fusion started</source>
-      <translation>GNSS data fusion started</translation>
+      <translation>GNSS 데이터 융합이 시작되었습니다</translation>
     </message>
     <message>
       <source>GNSS data fusion stopped</source>
-      <translation>GNSS data fusion stopped</translation>
+      <translation>GNSS 데이터 융합이 중지되었습니다</translation>
     </message>
     <message>
       <source>GNSS heading not reliable - Land now!</source>
-      <translation>GNSS heading not reliable - Land now!</translation>
+      <translation>GNSS 헤딩 신뢰도 낮음 - 즉시 착륙하십시오!</translation>
     </message>
     <message>
       <source>GNSS signal jammed</source>
-      <translation>GNSS signal jammed</translation>
+      <translation>GNSS 신호 재밍 감지</translation>
     </message>
     <message>
       <source>GNSS signal spoofed</source>
-      <translation>GNSS signal spoofed</translation>
+      <translation>GNSS 신호 스푸핑 감지</translation>
     </message>
     <message>
       <source>GPS jamming detected</source>
-      <translation>GPS jamming 감지됨</translation>
+      <translation>GPS 재밍 감지</translation>
     </message>
     <message>
       <source>GPS required for baro cal</source>
-      <translation>GPS required for baro cal</translation>
+      <translation>기압계 보정에는 GPS가 필요합니다</translation>
     </message>
     <message>
       <source>GPS required for mag quick cal</source>
-      <translation>GPS required for mag quick cal</translation>
+      <translation>자력계 빠른 보정에는 GPS가 필요합니다</translation>
     </message>
     <message>
       <source>Gyro %</source>
-      <translation>Gyro %</translation>
+      <translation>자이로 %</translation>
     </message>
     <message>
       <source>Hardware fault: Camera capture disabled</source>
-      <translation>Hardware fault: Camera capture disabled</translation>
+      <translation>하드웨어 오류: 카메라 캡처 비활성화됨</translation>
     </message>
     <message>
       <source>Hardware fault: GPS PPS disabled</source>
-      <translation>Hardware fault: GPS PPS disabled</translation>
+      <translation>하드웨어 오류: GPS PPS 비활성화됨</translation>
     </message>
     <message>
       <source>High latency data link lost</source>
-      <translation>High latency data link lost</translation>
+      <translation>고지연 데이터 링크가 끊어졌습니다</translation>
     </message>
     <message>
       <source>Holding at %d m above landing waypoint.</source>
-      <translation>Holding at %d m above landing waypoint.</translation>
+      <translation>착륙 웨이포인트 상공 %d m에서 대기 중입니다.</translation>
     </message>
     <message>
       <source>Hover thrust has been constrained by min/max</source>
-      <translation>Hover thrust has been constrained by min/max</translation>
+      <translation>호버 추력이 최소/최대 한계로 제한되었습니다</translation>
     </message>
     <message>
       <source>IGN MISSION_ITEM: Busy</source>
-      <translation>IGN MISSION_ITEM: Busy</translation>
+      <translation>IGN MISSION_ITEM: 사용 중</translation>
     </message>
     <message>
       <source>IGN MISSION_ITEM: Invalid item</source>
-      <translation>IGN MISSION_ITEM: 유효하지 않음 item</translation>
+      <translation>IGN MISSION_ITEM: 유효하지 않은 항목</translation>
     </message>
     <message>
       <source>IGN MISSION_ITEM: No transfer</source>
-      <translation>IGN MISSION_ITEM: No transfer</translation>
+      <translation>IGN MISSION_ITEM: 전송 없음</translation>
     </message>
     <message>
       <source>IGN MISSION_ITEM_REQUEST(_INT): No active transfer</source>
-      <translation>IGN MISSION_ITEM_REQUEST(_INT): No active transfer</translation>
+      <translation>IGN MISSION_ITEM_REQUEST(_INT): 활성 전송 없음</translation>
     </message>
     <message>
       <source>Invalid mission state.</source>
-      <translation>유효하지 않음 mission state.</translation>
+      <translation>유효하지 않은 미션 상태입니다.</translation>
     </message>
     <message>
       <source>IO protocol/firmware mismatch, abort.</source>
-      <translation>IO protocol/firmware mismatch, abort.</translation>
+      <translation>IO 프로토콜/펌웨어 불일치, 중단합니다.</translation>
     </message>
     <message>
       <source>IO RC config upload fail</source>
-      <translation>IO RC config upload fail</translation>
+      <translation>IO RC 설정 업로드 실패</translation>
     </message>
     <message>
       <source>Kill disengaged</source>
-      <translation>Kill disengaged</translation>
+      <translation>킬 스위치 해제됨</translation>
     </message>
     <message>
       <source>Land tilt has been constrained by max tilt</source>
-      <translation>Land tilt has been constrained by max tilt</translation>
+      <translation>착륙 기울기가 최대 기울기 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Landing at current position</source>
-      <translation>Landing at current position</translation>
+      <translation>현재 위치에 착륙합니다</translation>
     </message>
     <message>
       <source>Landing detected</source>
-      <translation>Landing 감지됨</translation>
+      <translation>착륙 감지됨</translation>
     </message>
     <message>
       <source>Landing target fault, beta %5.2f</source>
-      <translation>Landing target fault, beta %5.2f</translation>
+      <translation>착륙 타깃 이상, beta %5.2f</translation>
     </message>
     <message>
       <source>Landing target init</source>
-      <translation>Landing target init</translation>
+      <translation>착륙 타깃 초기화</translation>
     </message>
     <message>
       <source>Landing target OK</source>
-      <translation>Landing target OK</translation>
+      <translation>착륙 타깃 정상</translation>
     </message>
     <message>
       <source>Landing target timeout</source>
-      <translation>Landing target 타임아웃</translation>
+      <translation>착륙 타깃 타임아웃</translation>
     </message>
     <message>
       <source>Landing target: coordinate frame %</source>
-      <translation>Landing target: coordinate frame %</translation>
+      <translation>착륙 타깃: 좌표 프레임 %</translation>
     </message>
     <message>
       <source>level</source>
-      <translation>level</translation>
+      <translation>수평</translation>
     </message>
     <message>
       <source>Low battery</source>
-      <translation>Low 배터리</translation>
+      <translation>배터리 부족</translation>
     </message>
     <message>
       <source>Mag quick calibration finished</source>
-      <translation>Mag quick 보정 finished</translation>
+      <translation>자력계 빠른 보정 완료</translation>
     </message>
     <message>
       <source>Manual backward speed has been constrained by forward speed</source>
-      <translation>Manual backward speed has been constrained by forward speed</translation>
+      <translation>수동 후진 속도가 전진 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Manual sideways speed has been constrained by forward speed</source>
-      <translation>Manual sideways speed has been constrained by forward speed</translation>
+      <translation>수동 횡이동 속도가 전진 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>Manual speed has been constrained by max speed</source>
-      <translation>Manual speed has been constrained by max speed</translation>
+      <translation>수동 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
     </message>
     <message>
       <source>MAVLink signing disabled</source>
-      <translation>MAVLink signing disabled</translation>
+      <translation>MAVLink 서명 기능이 비활성화되었습니다</translation>
     </message>
     <message>
       <source>MAVLink signing key accepted</source>
-      <translation>MAVLink signing key accepted</translation>
+      <translation>MAVLink 서명 키가 승인되었습니다</translation>
     </message>
     <message>
       <source>MAVLink signing: blank key rejected</source>
-      <translation>MAVLink signing: blank key rejected</translation>
+      <translation>MAVLink 서명: 빈 키가 거부되었습니다</translation>
     </message>
     <message>
       <source>MAVLink signing: rejected while armed</source>
-      <translation>MAVLink signing: rejected while armed</translation>
+      <translation>MAVLink 서명: 시동(ARM) 상태에서는 거부됩니다</translation>
     </message>
     <message>
       <source>Maximum flight time reached</source>
-      <translation>Maximum flight time reached</translation>
+      <translation>최대 비행 시간에 도달했습니다</translation>
     </message>
     <message>
       <source>Mission cannot be completed</source>
-      <translation>Mission cannot be completed</translation>
+      <translation>미션을 완료할 수 없습니다</translation>
     </message>
     <message>
       <source>Mission could not reset jump count.</source>
-      <translation>Mission could not reset jump count.</translation>
+      <translation>미션 점프 카운트를 재설정할 수 없습니다.</translation>
     </message>
     <message>
       <source>Mission download request ignored, already active</source>
-      <translation>Mission download request ignored, already active</translation>
+      <translation>미션 다운로드 요청이 무시되었습니다(이미 활성 상태)</translation>
     </message>
     <message>
       <source>Mission finished, landed</source>
-      <translation>Mission finished, landed</translation>
+      <translation>미션 완료, 착륙했습니다</translation>
     </message>
     <message>
       <source>Mission finished, loitering</source>
-      <translation>Mission finished, loitering</translation>
+      <translation>미션 완료, 로이터 중입니다</translation>
     </message>
     <message>
       <source>Mission item could not be set.</source>
-      <translation>Mission item could not be set.</translation>
+      <translation>미션 항목을 설정할 수 없습니다.</translation>
     </message>
     <message>
       <source>Mission land item could not be read.</source>
-      <translation>Mission land item could not be read.</translation>
+      <translation>미션 착륙 항목을 읽을 수 없습니다.</translation>
     </message>
     <message>
       <source>Mission rejected: Add Landing item or remove Takeoff.</source>
-      <translation>Mission rejected: Add Landing item or remove Takeoff.</translation>
+      <translation>미션 거부: Landing 항목을 추가하거나 Takeoff 항목을 제거하십시오.</translation>
     </message>
     <message>
       <source>Mission rejected: Add Takeoff item or remove Landing.</source>
-      <translation>Mission rejected: Add Takeoff item or remove Landing.</translation>
+      <translation>미션 거부: Takeoff 항목을 추가하거나 Landing 항목을 제거하십시오.</translation>
     </message>
     <message>
       <source>Mission rejected: invalid land start.</source>
-      <translation>Mission rejected: 유효하지 않음 land start.</translation>
+      <translation>미션 거부: 유효하지 않은 착륙 시작 지점입니다.</translation>
     </message>
     <message>
       <source>Mission rejected: item %i: unsupported cmd: %d</source>
-      <translation>Mission rejected: item %i: unsupported cmd: %d</translation>
+      <translation>미션 거부: 항목 %i: 지원되지 않는 명령: %d</translation>
     </message>
     <message>
       <source>Mission rejected: Landing waypoint/pattern required.</source>
-      <translation>Mission rejected: Landing waypoint/pattern required.</translation>
+      <translation>미션 거부: 착륙 웨이포인트/패턴이 필요합니다.</translation>
     </message>
     <message>
       <source>Mission rejected: Mission contains VTOL items but vehicle is not a VTOL</source>
-      <translation>Mission rejected: Mission contains VTOL items but vehicle is not a VTOL</translation>
+      <translation>미션 거부: 미션에 VTOL 항목이 있으나 기체가 VTOL이 아닙니다</translation>
     </message>
     <message>
       <source>Mission rejected: more than one land start.</source>
-      <translation>Mission rejected: more than one land start.</translation>
+      <translation>미션 거부: land start가 2개 이상입니다.</translation>
     </message>
     <message>
       <source>Mission rejected: No home pos, WP %d uses rel alt</source>
-      <translation>Mission rejected: No home pos, WP %d uses rel alt</translation>
+      <translation>미션 거부: 홈 위치 없음, WP %d가 상대 고도를 사용합니다</translation>
     </message>
     <message>
       <source>Mission rejected: starts with land waypoint.</source>
-      <translation>Mission rejected: starts with land waypoint.</translation>
+      <translation>미션 거부: 착륙 웨이포인트로 시작합니다.</translation>
     </message>
     <message>
       <source>Mission rejected: starts with landing</source>
-      <translation>Mission rejected: starts with landing</translation>
+      <translation>미션 거부: 착륙 항목으로 시작합니다</translation>
     </message>
     <message>
       <source>Mission rejected: Takeoff altitude below home altitude!</source>
-      <translation>Mission rejected: Takeoff altitude below home altitude!</translation>
+      <translation>미션 거부: 이륙 고도가 홈 고도보다 낮습니다!</translation>
     </message>
     <message>
       <source>Mission rejected: takeoff not first waypoint item</source>
-      <translation>Mission rejected: takeoff not first waypoint item</translation>
+      <translation>미션 거부: 이륙 항목이 첫 번째 웨이포인트가 아닙니다</translation>
     </message>
     <message>
       <source>Mission rejected: Takeoff or Landing item missing.</source>
-      <translation>Mission rejected: Takeoff or Landing item missing.</translation>
+      <translation>미션 거부: Takeoff 또는 Landing 항목이 누락되었습니다.</translation>
     </message>
     <message>
       <source>Mission rejected: Takeoff waypoint required.</source>
-      <translation>Mission rejected: Takeoff waypoint required.</translation>
+      <translation>미션 거부: 이륙 웨이포인트가 필요합니다.</translation>
     </message>
     <message>
       <source>Mission start denied! No valid mission</source>
-      <translation>Mission start 거부됨! No 정상 mission</translation>
+      <translation>미션 시작 거부! 유효한 미션이 없습니다</translation>
     </message>
     <message>
       <source>Mission storage: Unable to write to microSD</source>
-      <translation>Mission storage: Unable to write to microSD</translation>
+      <translation>미션 저장소: microSD에 기록할 수 없습니다</translation>
     </message>
     <message>
       <source>Mission sync timeout</source>
-      <translation>Mission sync 타임아웃</translation>
+      <translation>미션 동기화 타임아웃</translation>
     </message>
     <message>
       <source>motion during calibration</source>
-      <translation>motion during 보정</translation>
+      <translation>보정 중 움직임 감지</translation>
     </message>
     <message>
       <source>motion, retrying..</source>
-      <translation>motion, retrying..</translation>
+      <translation>움직임 감지, 재시도 중..</translation>
     </message>
     <message>
       <source>Motor failure: Motor %d overcurrent detected</source>
-      <translation>Motor 고장: Motor %d overcurrent 감지됨</translation>
+      <translation>모터 고장: 모터 %d 과전류 감지</translation>
     </message>
     <message>
       <source>Motor failure: Motor %d undercurrent detected</source>
-      <translation>Motor 고장: Motor %d undercurrent 감지됨</translation>
+      <translation>모터 고장: 모터 %d 저전류 감지</translation>
     </message>
     <message>
       <source>No airspeed sensor detected. Switch to non-airspeed mode.</source>
-      <translation>No 대기속도 sensor 감지됨. Switch to non-대기속도 mode.</translation>
+      <translation>대기속도 센서가 감지되지 않았습니다. 비-대기속도 모드로 전환합니다.</translation>
     </message>
     <message>
       <source>No gyros found</source>
-      <translation>No gyros found</translation>
+      <translation>자이로를 찾을 수 없습니다</translation>
     </message>
     <message>
       <source>no inputs, aborting</source>
-      <translation>no inputs, aborting</translation>
+      <translation>입력이 없어 중단합니다</translation>
     </message>
     <message>
       <source>No mags found</source>
-      <translation>No mags found</translation>
+      <translation>자력계를 찾을 수 없습니다</translation>
     </message>
     <message>
       <source>No valid mission available, loitering</source>
-      <translation>No 정상 mission available, loitering</translation>
+      <translation>유효한 미션이 없어 로이터합니다</translation>
     </message>
     <message>
       <source>No valid mission available, refusing takeoff</source>
-      <translation>No 정상 mission available, refusing takeoff</translation>
+      <translation>유효한 미션이 없어 이륙을 거부합니다</translation>
     </message>
     <message>
       <source>Not enough bandwidth to enable log streaming</source>
-      <translation>Not enough bandwidth to enable log streaming</translation>
+      <translation>로그 스트리밍을 활성화하기에 대역폭이 부족합니다</translation>
     </message>
     <message>
       <source>Not yet ready for mission, no position lock.</source>
-      <translation>Not yet ready for mission, no position lock.</translation>
+      <translation>아직 미션 준비가 되지 않았습니다(위치 고정 없음).</translation>
     </message>
     <message>
       <source>Obstacle message received in unsupported frame %i</source>
-      <translation>Obstacle message received in unsupported frame %i</translation>
+      <translation>지원되지 않는 프레임 %i에서 장애물 메시지를 수신했습니다</translation>
     </message>
     <message>
       <source>ODOMETRY: estimator_type %</source>
-      <translation>ODOMETRY: estimator_type %</translation>
+      <translation>ODOMETRY: 추정기 타입 %</translation>
     </message>
     <message>
       <source>Onboard controller regained</source>
-      <translation>Onboard controller 복구됨</translation>
+      <translation>온보드 컨트롤러가 복구되었습니다</translation>
     </message>
     <message>
       <source>Orbit command rejected</source>
-      <translation>Orbit command rejected</translation>
+      <translation>오빗 명령이 거부되었습니다</translation>
     </message>
     <message>
       <source>Orbit is outside geofence</source>
-      <translation>Orbit is outside 지오펜스</translation>
+      <translation>오빗 경로가 지오펜스 외부입니다</translation>
     </message>
     <message>
       <source>Orbit radius limit exceeded</source>
-      <translation>Orbit radius limit exceeded</translation>
+      <translation>오빗 반경 제한을 초과했습니다</translation>
     </message>
     <message>
       <source>Parachute system lost</source>
-      <translation>Parachute system lost</translation>
+      <translation>낙하산 시스템 연결이 끊겼습니다</translation>
     </message>
     <message>
       <source>Parachute system regained</source>
-      <translation>Parachute system 복구됨</translation>
+      <translation>낙하산 시스템이 복구되었습니다</translation>
     </message>
     <message>
       <source>parameter_rc_channel_index out of bounds</source>
-      <translation>parameter_rc_channel_index out of bounds</translation>
+      <translation>parameter_rc_channel_index가 범위를 벗어났습니다</translation>
     </message>
     <message>
       <source>Pilot took over using sticks</source>
-      <translation>Pilot took over using sticks</translation>
+      <translation>조종사가 스틱으로 수동 개입했습니다</translation>
     </message>
     <message>
       <source>Position estimate has low accuracy</source>
-      <translation>Position estimate has low accuracy</translation>
+      <translation>위치 추정 정확도가 낮습니다</translation>
     </message>
     <message>
       <source>Precision landing</source>
-      <translation>Precision landing</translation>
+      <translation>정밀 착륙</translation>
     </message>
     <message>
       <source>Preflight Fail: Accel %u inconsistent - check cal</source>
-      <translation>사전 점검 실패: 가속도계 %u inconsistent - check cal</translation>
+      <translation>사전 점검 실패: 가속도계 %u 불일치 - 보정값을 확인하십시오</translation>
     </message>
     <message>
       <source>Preflight Fail: Accel %u uncalibrated</source>
-      <translation>사전 점검 실패: 가속도계 %u 보정 안 됨</translation>
+      <translation>사전 점검 실패: 가속도계 %u 미보정</translation>
     </message>
     <message>
       <source>Preflight Fail: Accel Sensor %u missing</source>
-      <translation>사전 점검 실패: 가속도계 Sensor %u missing</translation>
+      <translation>사전 점검 실패: 가속도계 센서 %u 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: Airspeed invalid</source>
@@ -27953,503 +27983,503 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Airspeed selector module down</source>
-      <translation>사전 점검 실패: 대기속도 selector module down</translation>
+      <translation>사전 점검 실패: 대기속도 선택기 모듈 비정상</translation>
     </message>
     <message>
       <source>Preflight Fail: Airspeed too high</source>
-      <translation>사전 점검 실패: 대기속도 too high</translation>
+      <translation>사전 점검 실패: 대기속도가 너무 높습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Altitude failure</source>
-      <translation>사전 점검 실패: Altitude 고장</translation>
+      <translation>사전 점검 실패: 고도 추정 실패</translation>
     </message>
     <message>
       <source>Preflight Fail: Attitude failure (pitch)</source>
-      <translation>사전 점검 실패: Attitude 고장 (pitch)</translation>
+      <translation>사전 점검 실패: 자세 추정 실패 (pitch)</translation>
     </message>
     <message>
       <source>Preflight Fail: Attitude failure (roll)</source>
-      <translation>사전 점검 실패: Attitude 고장 (roll)</translation>
+      <translation>사전 점검 실패: 자세 추정 실패 (roll)</translation>
     </message>
     <message>
       <source>Preflight Fail: Avionics Power high: %6.2f Volt</source>
-      <translation>사전 점검 실패: Avionics Power high: %6.2f Volt</translation>
+      <translation>사전 점검 실패: 항전원 전압 높음: %6.2f Volt</translation>
     </message>
     <message>
       <source>Preflight Fail: Avionics Power low: %6.2f Volt</source>
-      <translation>사전 점검 실패: Avionics Power low: %6.2f Volt</translation>
+      <translation>사전 점검 실패: 항전원 전압 낮음: %6.2f Volt</translation>
     </message>
     <message>
       <source>Preflight Fail: barometer %u missing</source>
-      <translation>사전 점검 실패: barometer %u missing</translation>
+      <translation>사전 점검 실패: 기압계 %u 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: Battery unhealthy</source>
-      <translation>사전 점검 실패: 배터리 unhealthy</translation>
+      <translation>사전 점검 실패: 배터리 상태 불량</translation>
     </message>
     <message>
       <source>Preflight Fail: Compass %u fault</source>
-      <translation>사전 점검 실패: 나침반 %u fault</translation>
+      <translation>사전 점검 실패: 나침반 %u 이상</translation>
     </message>
     <message>
       <source>Preflight Fail: Compass %u uncalibrated</source>
-      <translation>사전 점검 실패: 나침반 %u 보정 안 됨</translation>
+      <translation>사전 점검 실패: 나침반 %u 미보정</translation>
     </message>
     <message>
       <source>Preflight Fail: Compass Sensor %u missing</source>
-      <translation>사전 점검 실패: 나침반 Sensor %u missing</translation>
+      <translation>사전 점검 실패: 나침반 센서 %u 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: Compasses %d째 inconsistent</source>
-      <translation>사전 점검 실패: 나침반es %d째 inconsistent</translation>
+      <translation>사전 점검 실패: 나침반 %d 불일치</translation>
     </message>
     <message>
       <source>Preflight Fail: CPU load too high: %3.1f%%</source>
-      <translation>사전 점검 실패: CPU load too high: %3.1f%%</translation>
+      <translation>사전 점검 실패: CPU 부하 과다: %3.1f%%</translation>
     </message>
     <message>
       <source>Preflight Fail: Crash dumps present on SD</source>
-      <translation>사전 점검 실패: Crash dumps present on SD</translation>
+      <translation>사전 점검 실패: SD에 크래시 덤프가 존재합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Distance Sensor %u missing</source>
-      <translation>사전 점검 실패: Distance Sensor %u missing</translation>
+      <translation>사전 점검 실패: 거리 센서 %u 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: ekf2 missing data</source>
-      <translation>사전 점검 실패: ekf2 missing data</translation>
+      <translation>사전 점검 실패: ekf2 데이터 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: ESC telemetry missing</source>
-      <translation>사전 점검 실패: ESC telemetry missing</translation>
+      <translation>사전 점검 실패: ESC 텔레메트리 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: Flight termination active</source>
-      <translation>사전 점검 실패: Flight termination active</translation>
+      <translation>사전 점검 실패: 비행 종료 기능 활성 상태</translation>
     </message>
     <message>
       <source>Preflight Fail: Flying with USB is not safe</source>
-      <translation>사전 점검 실패: Flying with USB is not safe</translation>
+      <translation>사전 점검 실패: USB 연결 상태 비행은 안전하지 않습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Found %i compass (required: %</source>
-      <translation>사전 점검 실패: Found %i 나침반 (required: %</translation>
+      <translation>사전 점검 실패: 나침반 %i개 감지 (필요: %</translation>
     </message>
     <message>
       <source>Preflight Fail: Geofence RTL requires valid home</source>
-      <translation>사전 점검 실패: 지오펜스 RTL requires 정상 home</translation>
+      <translation>사전 점검 실패: 지오펜스 RTL에는 유효한 홈 위치가 필요합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Global position estimate required</source>
-      <translation>사전 점검 실패: Global position estimate required</translation>
+      <translation>사전 점검 실패: 전역 위치 추정이 필요합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Gyro %u inconsistent - check cal</source>
-      <translation>사전 점검 실패: Gyro %u inconsistent - check cal</translation>
+      <translation>사전 점검 실패: 자이로 %u 불일치 - 보정값을 확인하십시오</translation>
     </message>
     <message>
       <source>Preflight Fail: Gyro %u uncalibrated</source>
-      <translation>사전 점검 실패: Gyro %u 보정 안 됨</translation>
+      <translation>사전 점검 실패: 자이로 %u 미보정</translation>
     </message>
     <message>
       <source>Preflight Fail: Gyro Sensor %u missing</source>
-      <translation>사전 점검 실패: Gyro Sensor %u missing</translation>
+      <translation>사전 점검 실패: 자이로 센서 %u 누락</translation>
     </message>
     <message>
       <source>Preflight Fail: heading estimate invalid</source>
-      <translation>사전 점검 실패: heading estimate 유효하지 않음</translation>
+      <translation>사전 점검 실패: 헤딩 추정이 유효하지 않습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: height estimate not stable</source>
-      <translation>사전 점검 실패: height estimate not stable</translation>
+      <translation>사전 점검 실패: 고도 추정이 안정적이지 않습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: High Accelerometer Bias</source>
-      <translation>사전 점검 실패: High 가속도계erometer Bias</translation>
+      <translation>사전 점검 실패: 가속도계 바이어스 과다</translation>
     </message>
     <message>
       <source>Preflight Fail: High Gyro Bias</source>
-      <translation>사전 점검 실패: High Gyro Bias</translation>
+      <translation>사전 점검 실패: 자이로 바이어스 과다</translation>
     </message>
     <message>
       <source>Preflight Fail: Home position required</source>
-      <translation>사전 점검 실패: Home position required</translation>
+      <translation>사전 점검 실패: 홈 위치가 필요합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: horizontal position unstable</source>
-      <translation>사전 점검 실패: horizontal position unstable</translation>
+      <translation>사전 점검 실패: 수평 위치 추정이 불안정합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: horizontal velocity unstable</source>
-      <translation>사전 점검 실패: horizontal velocity unstable</translation>
+      <translation>사전 점검 실패: 수평 속도 추정이 불안정합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Imbalanced propeller detected</source>
-      <translation>사전 점검 실패: Imbalanced propeller 감지됨</translation>
+      <translation>사전 점검 실패: 프로펠러 불균형 감지</translation>
     </message>
     <message>
       <source>Preflight Fail: Kill switch engaged</source>
-      <translation>사전 점검 실패: Kill switch engaged</translation>
+      <translation>사전 점검 실패: 킬 스위치가 활성화되어 있습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Landing gear switch set in UP position</source>
-      <translation>사전 점검 실패: Landing gear switch set in UP position</translation>
+      <translation>사전 점검 실패: 랜딩기어 스위치가 UP 위치입니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Missing FMU SD Card</source>
-      <translation>사전 점검 실패: Missing FMU SD Card</translation>
+      <translation>사전 점검 실패: FMU SD 카드가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No connection to the GCS</source>
-      <translation>사전 점검 실패: No connection to the GCS</translation>
+      <translation>사전 점검 실패: GCS 연결이 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No CPU and RAM load information</source>
-      <translation>사전 점검 실패: No CPU and RAM load information</translation>
+      <translation>사전 점검 실패: CPU/RAM 부하 정보가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No rally point available</source>
-      <translation>사전 점검 실패: No rally point available</translation>
+      <translation>사전 점검 실패: 사용 가능한 랠리 포인트가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Accel %u</source>
-      <translation>사전 점검 실패: No 정상 data from 가속도계 %u</translation>
+      <translation>사전 점검 실패: 가속도계 %u의 유효한 데이터가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Baro %u</source>
-      <translation>사전 점검 실패: No 정상 data from Baro %u</translation>
+      <translation>사전 점검 실패: 기압계 %u의 유효한 데이터가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Compass %u</source>
-      <translation>사전 점검 실패: No 정상 data from 나침반 %u</translation>
+      <translation>사전 점검 실패: 나침반 %u의 유효한 데이터가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Gyro %u</source>
-      <translation>사전 점검 실패: No 정상 data from Gyro %u</translation>
+      <translation>사전 점검 실패: 자이로 %u의 유효한 데이터가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid distance sensor %u data</source>
-      <translation>사전 점검 실패: No 정상 distance sensor %u data</translation>
+      <translation>사전 점검 실패: 거리 센서 %u의 유효한 데이터가 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Open Drone ID system missing</source>
-      <translation>사전 점검 실패: Open Drone ID system missing</translation>
+      <translation>사전 점검 실패: Open Drone ID 시스템이 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Open Drone ID system not ready</source>
-      <translation>사전 점검 실패: Open Drone ID system not ready</translation>
+      <translation>사전 점검 실패: Open Drone ID 시스템이 준비되지 않았습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Parachute system missing</source>
-      <translation>사전 점검 실패: Parachute system missing</translation>
+      <translation>사전 점검 실패: 낙하산 시스템이 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Parachute system not ready</source>
-      <translation>사전 점검 실패: Parachute system not ready</translation>
+      <translation>사전 점검 실패: 낙하산 시스템이 준비되지 않았습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Power module not connected</source>
-      <translation>사전 점검 실패: Power module not connected</translation>
+      <translation>사전 점검 실패: 전원 모듈이 연결되지 않았습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Power redundancy not met: %d of %</source>
-      <translation>사전 점검 실패: Power redundancy not met: %d of %</translation>
+      <translation>사전 점검 실패: 전원 이중화 조건 미충족: %d of %</translation>
     </message>
     <message>
       <source>Preflight Fail: Press safety button first</source>
-      <translation>사전 점검 실패: Press safety button first</translation>
+      <translation>사전 점검 실패: 먼저 안전 버튼을 누르십시오</translation>
     </message>
     <message>
       <source>Preflight Fail: RAM usage too high: %3.1f%%</source>
-      <translation>사전 점검 실패: RAM usage too high: %3.1f%%</translation>
+      <translation>사전 점검 실패: RAM 사용률 과다: %3.1f%%</translation>
     </message>
     <message>
       <source>Preflight Fail: RC ERROR: RC%d_MAX &gt; %u</source>
-      <translation>사전 점검 실패: RC ERROR: RC%d_MAX &gt; %u</translation>
+      <translation>사전 점검 실패: RC 오류: RC%d_MAX &gt; %u</translation>
     </message>
     <message>
       <source>Preflight Fail: RC ERROR: RC%d_MIN &lt; %u</source>
-      <translation>사전 점검 실패: RC ERROR: RC%d_MIN &lt; %u</translation>
+      <translation>사전 점검 실패: RC 오류: RC%d_MIN &lt; %u</translation>
     </message>
     <message>
       <source>Preflight Fail: RC ERROR: RC%d_TRIM &lt; MIN (%d/%d)</source>
-      <translation>사전 점검 실패: RC ERROR: RC%d_TRIM &lt; MIN (%d/%d)</translation>
+      <translation>사전 점검 실패: RC 오류: RC%d_TRIM &lt; MIN (%d/%d)</translation>
     </message>
     <message>
       <source>Preflight Fail: RC ERROR: RC%d_TRIM &gt; MAX (%d/%d)</source>
-      <translation>사전 점검 실패: RC ERROR: RC%d_TRIM &gt; MAX (%d/%d)</translation>
+      <translation>사전 점검 실패: RC 오류: RC%d_TRIM &gt; MAX (%d/%d)</translation>
     </message>
     <message>
       <source>Preflight Fail: RTL switch engaged</source>
-      <translation>사전 점검 실패: RTL switch engaged</translation>
+      <translation>사전 점검 실패: RTL 스위치가 활성화되어 있습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Strong magnetic interference</source>
-      <translation>사전 점검 실패: Strong magnetic interference</translation>
+      <translation>사전 점검 실패: 강한 자기 간섭</translation>
     </message>
     <message>
       <source>Preflight Fail: system power unavailable</source>
-      <translation>사전 점검 실패: system power unavailable</translation>
+      <translation>사전 점검 실패: 시스템 전원 사용 불가</translation>
     </message>
     <message>
       <source>Preflight Fail: Task watchdog dumps present on SD</source>
-      <translation>사전 점검 실패: Task watchdog dumps present on SD</translation>
+      <translation>사전 점검 실패: SD에 태스크 워치독 덤프가 존재합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Traffic avoidance system missing</source>
-      <translation>사전 점검 실패: Traffic avoidance system missing</translation>
+      <translation>사전 점검 실패: 교통 회피 시스템이 없습니다</translation>
     </message>
     <message>
       <source>Preflight Fail: triggered by external system</source>
-      <translation>사전 점검 실패: triggered by external system</translation>
+      <translation>사전 점검 실패: 외부 시스템에 의해 트리거됨</translation>
     </message>
     <message>
       <source>Preflight Fail: Vehicle is in safety configuration</source>
-      <translation>사전 점검 실패: Vehicle is in safety configuration</translation>
+      <translation>사전 점검 실패: 기체가 안전 구성 상태입니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Vehicle is in transition state</source>
-      <translation>사전 점검 실패: Vehicle is in transition state</translation>
+      <translation>사전 점검 실패: 기체가 전환 상태입니다</translation>
     </message>
     <message>
       <source>Preflight Fail: Vehicle is not in multicopter mode</source>
-      <translation>사전 점검 실패: Vehicle is not in multicopter mode</translation>
+      <translation>사전 점검 실패: 기체가 멀티콥터 모드가 아닙니다</translation>
     </message>
     <message>
       <source>Preflight Fail: vertical velocity unstable</source>
-      <translation>사전 점검 실패: vertical velocity unstable</translation>
+      <translation>사전 점검 실패: 수직 속도 추정이 불안정합니다</translation>
     </message>
     <message>
       <source>Preflight Fail: VTOL fixed-wing system failure detected</source>
-      <translation>사전 점검 실패: VTOL fixed-wing system 고장 감지됨</translation>
+      <translation>사전 점검 실패: VTOL 고정익 시스템 오류 감지</translation>
     </message>
     <message>
       <source>Primary airspeed index bigger than number connected sensors. Take last sensor.</source>
-      <translation>Primary 대기속도 index bigger than number connected sensors. Take last sensor.</translation>
+      <translation>기본 대기속도 인덱스가 연결된 센서 수보다 큽니다. 마지막 센서를 사용합니다.</translation>
     </message>
     <message>
       <source>Quad-chute triggered</source>
-      <translation>Quad-chute triggered</translation>
+      <translation>쿼드-슈트가 작동했습니다</translation>
     </message>
     <message>
       <source>Received unknown mission type, abort.</source>
-      <translation>Received unknown mission type, abort.</translation>
+      <translation>알 수 없는 미션 유형 수신, 중단합니다.</translation>
     </message>
     <message>
       <source>REJ. MIS ITEM: partner id mismatch</source>
-      <translation>REJ. MIS ITEM: partner id mismatch</translation>
+      <translation>REJ. MIS ITEM: 파트너 ID 불일치</translation>
     </message>
     <message>
       <source>REJ. WP CMD: partner id mismatch</source>
-      <translation>REJ. WP CMD: partner id mismatch</translation>
+      <translation>REJ. WP CMD: 파트너 ID 불일치</translation>
     </message>
     <message>
       <source>Remote ID system lost</source>
-      <translation>Remote ID system lost</translation>
+      <translation>원격 ID 시스템 연결이 끊겼습니다</translation>
     </message>
     <message>
       <source>Remote ID system regained</source>
-      <translation>Remote ID system 복구됨</translation>
+      <translation>원격 ID 시스템이 복구되었습니다</translation>
     </message>
     <message>
       <source>Reposition is outside geofence</source>
-      <translation>Reposition is outside 지오펜스</translation>
+      <translation>재배치 지점이 지오펜스 외부입니다</translation>
     </message>
     <message>
       <source>Retry calibration (mag %</source>
-      <translation>Retry 보정 (mag %</translation>
+      <translation>보정 재시도 (mag %</translation>
     </message>
     <message>
       <source>Retry calibration (sphere NaN, %</source>
-      <translation>Retry 보정 (sphere NaN, %</translation>
+      <translation>보정 재시도 (sphere NaN, %</translation>
     </message>
     <message>
       <source>Retry calibration (unable to fit mag %</source>
-      <translation>Retry 보정 (unable to fit mag %</translation>
+      <translation>보정 재시도 (mag 피팅 불가, %</translation>
     </message>
     <message>
       <source>Returning to launch</source>
-      <translation>Returning to launch</translation>
+      <translation>이륙 지점으로 복귀합니다</translation>
     </message>
     <message>
       <source>RTL Mission land: climb to %d m</source>
-      <translation>RTL Mission land: climb to %d m</translation>
+      <translation>RTL 미션 착륙: %d m까지 상승</translation>
     </message>
     <message>
       <source>RTL: completed, loitering</source>
-      <translation>RTL: completed, loitering</translation>
+      <translation>RTL: 완료, 로이터 중</translation>
     </message>
     <message>
       <source>RTL: land at destination</source>
-      <translation>RTL: land at destination</translation>
+      <translation>RTL: 목적지에 착륙</translation>
     </message>
     <message>
       <source>RTL: start return at %d m (%d m above destination)</source>
-      <translation>RTL: start return at %d m (%d m above destination)</translation>
+      <translation>RTL: %d m에서 복귀 시작(목적지 상공 %d m)</translation>
     </message>
     <message>
       <source>RTL: unsupported MAV_FRAME</source>
-      <translation>RTL: unsupported MAV_FRAME</translation>
+      <translation>RTL: 지원되지 않는 MAV_FRAME</translation>
     </message>
     <message>
       <source>Septentrio: Baud rate %d is unsupported, falling back to default %</source>
-      <translation>Septentrio: Baud rate %d is unsupported, falling back to default %</translation>
+      <translation>Septentrio: Baud rate %d는 지원되지 않아 기본값 %로 복귀합니다</translation>
     </message>
     <message>
       <source>Septentrio: Device paths must be different</source>
-      <translation>Septentrio: Device paths must be different</translation>
+      <translation>Septentrio: 장치 경로는 서로 달라야 합니다</translation>
     </message>
     <message>
       <source>Septentrio: Failed to configure receiver internal logging</source>
-      <translation>Septentrio: 실패 to configure receiver internal logging</translation>
+      <translation>Septentrio: 수신기 내부 로깅 구성에 실패했습니다</translation>
     </message>
     <message>
       <source>Septentrio: Logging stream should be different from main stream</source>
-      <translation>Septentrio: Logging stream should be different from main stream</translation>
+      <translation>Septentrio: 로깅 스트림은 메인 스트림과 달라야 합니다</translation>
     </message>
     <message>
       <source>SET_POSITION_TARGET_GLOBAL_INT force not supported</source>
-      <translation>SET_POSITION_TARGET_GLOBAL_INT force not supported</translation>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT force는 지원되지 않습니다</translation>
     </message>
     <message>
       <source>SET_POSITION_TARGET_GLOBAL_INT invalid coordinate frame %</source>
-      <translation>SET_POSITION_TARGET_GLOBAL_INT 유효하지 않음 coordinate frame %</translation>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT 유효하지 않은 좌표 프레임 %</translation>
     </message>
     <message>
       <source>SET_POSITION_TARGET_LOCAL_NED coordinate frame %</source>
-      <translation>SET_POSITION_TARGET_LOCAL_NED coordinate frame %</translation>
+      <translation>SET_POSITION_TARGET_LOCAL_NED 좌표 프레임 %</translation>
     </message>
     <message>
       <source>SET_POSITION_TARGET_LOCAL_NED force not supported</source>
-      <translation>SET_POSITION_TARGET_LOCAL_NED force not supported</translation>
+      <translation>SET_POSITION_TARGET_LOCAL_NED force는 지원되지 않습니다</translation>
     </message>
     <message>
       <source>SET_POSITION_TARGET_LOCAL_NED invalid</source>
-      <translation>SET_POSITION_TARGET_LOCAL_NED 유효하지 않음</translation>
+      <translation>SET_POSITION_TARGET_LOCAL_NED가 유효하지 않습니다</translation>
     </message>
     <message>
       <source>Switching to %s is currently not available</source>
-      <translation>Switching to %s is currently not available</translation>
+      <translation>%s로의 전환은 현재 사용할 수 없습니다</translation>
     </message>
     <message>
       <source>System does not support shutdown</source>
-      <translation>System does not support shutdown</translation>
+      <translation>시스템이 종료 기능을 지원하지 않습니다</translation>
     </message>
     <message>
       <source>Takeoff detected</source>
-      <translation>Takeoff 감지됨</translation>
+      <translation>이륙 감지됨</translation>
     </message>
     <message>
       <source>Target altitude higher than max HAGL</source>
-      <translation>Target altitude higher than max HAGL</translation>
+      <translation>목표 고도가 최대 HAGL보다 높습니다</translation>
     </message>
     <message>
       <source>Terrain collision risk, descent is stopped</source>
-      <translation>Terrain collision risk, descent is stopped</translation>
+      <translation>지형 충돌 위험으로 하강이 중지되었습니다</translation>
     </message>
     <message>
       <source>Tilt constrained to safe value</source>
-      <translation>Tilt constrained to safe value</translation>
+      <translation>기울기가 안전 값으로 제한되었습니다</translation>
     </message>
     <message>
       <source>Timeout waiting for battery</source>
-      <translation>타임아웃 waiting for 배터리</translation>
+      <translation>배터리 대기 타임아웃</translation>
     </message>
     <message>
       <source>timeout: no motion</source>
-      <translation>타임아웃: no motion</translation>
+      <translation>타임아웃: 움직임 없음</translation>
     </message>
     <message>
       <source>Traffic avoidance system lost</source>
-      <translation>Traffic avoidance system lost</translation>
+      <translation>교통 회피 시스템 연결이 끊겼습니다</translation>
     </message>
     <message>
       <source>Traffic avoidance system regained</source>
-      <translation>Traffic avoidance system 복구됨</translation>
+      <translation>교통 회피 시스템이 복구되었습니다</translation>
     </message>
     <message>
       <source>Transition to hover mode and descend.</source>
-      <translation>Transition to hover mode and descend.</translation>
+      <translation>호버 모드로 전환 후 하강합니다.</translation>
     </message>
     <message>
       <source>Transponder Failure</source>
-      <translation>Transponder 고장</translation>
+      <translation>트랜스폰더 고장</translation>
     </message>
     <message>
       <source>Transponder System Failure</source>
-      <translation>Transponder System 고장</translation>
+      <translation>트랜스폰더 시스템 고장</translation>
     </message>
     <message>
       <source>trim cal done</source>
-      <translation>trim cal done</translation>
+      <translation>트림 보정 완료</translation>
     </message>
     <message>
       <source>TRIM: PARAM SET FAIL</source>
-      <translation>TRIM: PARAM SET FAIL</translation>
+      <translation>TRIM: 파라미터 설정 실패</translation>
     </message>
     <message>
       <source>unable to reach heading within timeout</source>
-      <translation>unable to reach heading within 타임아웃</translation>
+      <translation>타임아웃 내 목표 헤딩에 도달할 수 없습니다</translation>
     </message>
     <message>
       <source>Unable to write on micro SD</source>
-      <translation>Unable to write on micro SD</translation>
+      <translation>micro SD에 기록할 수 없습니다</translation>
     </message>
     <message>
       <source>Unsupported ARM_DISARM param: %.3f</source>
-      <translation>Unsupported ARM_DISARM param: %.3f</translation>
+      <translation>지원되지 않는 ARM_DISARM 파라미터: %.3f</translation>
     </message>
     <message>
       <source>Unsupported auto mode</source>
-      <translation>Unsupported auto mode</translation>
+      <translation>지원되지 않는 자동 모드</translation>
     </message>
     <message>
       <source>Unsupported base mode</source>
-      <translation>Unsupported base mode</translation>
+      <translation>지원되지 않는 베이스 모드</translation>
     </message>
     <message>
       <source>Unsupported main mode</source>
-      <translation>Unsupported main mode</translation>
+      <translation>지원되지 않는 메인 모드</translation>
     </message>
     <message>
       <source>Warning: mag %</source>
-      <translation>경고: mag %</translation>
+      <translation>경고: 자력계 %</translation>
     </message>
     <message>
       <source>Waypoint could not be read.</source>
-      <translation>Waypoint could not be read.</translation>
+      <translation>웨이포인트를 읽을 수 없습니다.</translation>
     </message>
     <message>
       <source>WPM: IGN CLEAR CMD: Busy</source>
-      <translation>WPM: IGN CLEAR CMD: Busy</translation>
+      <translation>WPM: IGN CLEAR CMD: 사용 중</translation>
     </message>
     <message>
       <source>WPM: IGN MISSION_COUNT: Busy</source>
-      <translation>WPM: IGN MISSION_COUNT: Busy</translation>
+      <translation>WPM: IGN MISSION_COUNT: 사용 중</translation>
     </message>
     <message>
       <source>WPM: IGN WP CURR CMD: Busy</source>
-      <translation>WPM: IGN WP CURR CMD: Busy</translation>
+      <translation>WPM: IGN WP CURR CMD: 사용 중</translation>
     </message>
     <message>
       <source>WPM: REJ. CMD: Busy</source>
-      <translation>WPM: REJ. CMD: Busy</translation>
+      <translation>WPM: REJ. CMD: 사용 중</translation>
     </message>
     <message>
       <source>WPM: REJ. CMD: partner id mismatch</source>
-      <translation>WPM: REJ. CMD: partner id mismatch</translation>
+      <translation>WPM: REJ. CMD: 파트너 ID 불일치</translation>
     </message>
     <message>
       <source>WPM: REJ. CMD: Req. WP was unexpected</source>
-      <translation>WPM: REJ. CMD: Req. WP was unexpected</translation>
+      <translation>WPM: REJ. CMD: 요청된 WP가 예상과 다릅니다</translation>
     </message>
     <message>
       <source>WPM: WP CURR CMD: Not in list</source>
-      <translation>WPM: WP CURR CMD: Not in list</translation>
+      <translation>WPM: WP CURR CMD: 목록에 없음</translation>
     </message>
     <message>
       <source>Yaw Airmode requires disabling the stick arm gesture</source>
-      <translation>Yaw Airmode requires disabling the stick arm gesture</translation>
+      <translation>Yaw Airmode 사용에는 스틱 ARM 제스처 비활성화가 필요합니다</translation>
     </message>
 </context>
   <context>
@@ -28632,6 +28662,12 @@ Confirm change?</source>
     </message>
   </context>
 </TS>
+
+
+
+
+
+
 
 
 
