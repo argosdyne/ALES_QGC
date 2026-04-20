@@ -232,6 +232,11 @@ Vehicle::Vehicle(LinkInterface*             link,
     _mavCommandResponseCheckTimer.start();
     connect(&_mavCommandResponseCheckTimer, &QTimer::timeout, this, &Vehicle::_sendMavCommandResponseTimeoutCheck);
 
+    // Birdcom test repeat timer.
+    _birdComCommandRepeatTimer.setSingleShot(false);
+    _birdComCommandRepeatTimer.setInterval(_birdComRepeatFastMSecs);
+    connect(&_birdComCommandRepeatTimer, &QTimer::timeout, this, &Vehicle::_sendBirdComRepeatedCommand);
+
     // Chunked status text timeout timer
     _chunkedStatusTextTimer.setSingleShot(true);
     _chunkedStatusTextTimer.setInterval(1000);
@@ -3331,6 +3336,7 @@ void Vehicle::_sendMavCommandWorker(
     entry.elapsedTimer.start();
 
     _mavCommandList.append(entry);
+    _configureBirdComCommandRepeat(entry);
     _sendMavCommandFromList(_mavCommandList.count() - 1);
 }
 
@@ -3414,6 +3420,13 @@ void Vehicle::_sendMavCommandFromList(int index)
                                              &cmd);
     }
 
+    Vehicle::BirdComRepeatEntry_t* repeatEntry = _findBirdComRepeatEntry(commandEntry);
+    if (repeatEntry && !repeatEntry->repeatMessageValid) {
+        repeatEntry->repeatMessage = msg;
+        repeatEntry->repeatMessageValid = true;
+        repeatEntry->lastSend.start();
+    }
+
     sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
@@ -3429,6 +3442,101 @@ void Vehicle::_sendMavCommandResponseTimeoutCheck(void)
         if (commandEntry.elapsedTimer.elapsed() > commandEntry.ackTimeoutMSecs) {
             // Try sending command again
             _sendMavCommandFromList(i);
+        }
+    }
+}
+
+bool Vehicle::_birdComRepeatEntryMatches(const MavCommandListEntry_t& a, const MavCommandListEntry_t& b) const
+{
+    return a.targetCompId == b.targetCompId &&
+           a.command == b.command &&
+           a.frame == b.frame &&
+           qFuzzyCompare(a.rgParam1 + 1.0f, b.rgParam1 + 1.0f) &&
+           qFuzzyCompare(a.rgParam2 + 1.0f, b.rgParam2 + 1.0f) &&
+           qFuzzyCompare(a.rgParam3 + 1.0f, b.rgParam3 + 1.0f) &&
+           qFuzzyCompare(a.rgParam4 + 1.0f, b.rgParam4 + 1.0f) &&
+           qFuzzyCompare(a.rgParam5 + 1.0, b.rgParam5 + 1.0) &&
+           qFuzzyCompare(a.rgParam6 + 1.0, b.rgParam6 + 1.0) &&
+           qFuzzyCompare(a.rgParam7 + 1.0f, b.rgParam7 + 1.0f);
+}
+
+Vehicle::BirdComRepeatEntry_t* Vehicle::_findBirdComRepeatEntry(const MavCommandListEntry_t& commandEntry)
+{
+    for (int i = 0; i < _birdComRepeatList.count(); i++) {
+        if (_birdComRepeatEntryMatches(_birdComRepeatList[i].commandEntry, commandEntry)) {
+            return &_birdComRepeatList[i];
+        }
+    }
+    return nullptr;
+}
+
+int Vehicle::_birdComRepeatIntervalForCommand(const MavCommandListEntry_t& commandEntry) const
+{
+    switch (commandEntry.command) {
+    case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+    case MAV_CMD_NAV_LAND:
+        return _birdComRepeatFastMSecs;
+    case MAV_CMD_DO_SET_MODE: {
+        const int customMode = qRound(commandEntry.rgParam2);
+        // ArduPilot mode values: RTL=6, LAND=9.
+        if (customMode == 6 || customMode == 9) {
+            return _birdComRepeatFastMSecs;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return _birdComRepeatSlowMSecs;
+}
+
+void Vehicle::_configureBirdComCommandRepeat(const MavCommandListEntry_t& commandEntry)
+{
+    BirdComRepeatEntry_t* repeatEntry = _findBirdComRepeatEntry(commandEntry);
+    if (!repeatEntry) {
+        BirdComRepeatEntry_t newEntry;
+        newEntry.commandEntry = commandEntry;
+        newEntry.intervalMs = _birdComRepeatIntervalForCommand(commandEntry);
+        newEntry.repeatMessageValid = false;
+        _birdComRepeatList.append(newEntry);
+    } else {
+        repeatEntry->intervalMs = _birdComRepeatIntervalForCommand(commandEntry);
+    }
+
+    if (!_birdComCommandRepeatTimer.isActive()) {
+        _birdComCommandRepeatTimer.start();
+    }
+
+    qInfo(VehicleLog) << "Birdcom repeat configured command:" << int(commandEntry.command)
+                      << "interval(ms):" << _birdComRepeatIntervalForCommand(commandEntry)
+                      << "repeatListCount:" << _birdComRepeatList.count();
+}
+
+void Vehicle::_sendBirdComRepeatedCommand(void)
+{
+    if (_birdComRepeatList.isEmpty()) {
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "_sendBirdComRepeatedCommand: primary link gone";
+        return;
+    }
+
+    for (int i = 0; i < _birdComRepeatList.count(); i++) {
+        BirdComRepeatEntry_t& repeatEntry = _birdComRepeatList[i];
+
+        if (!repeatEntry.repeatMessageValid) {
+            continue;
+        }
+
+        if (!repeatEntry.lastSend.isValid() || repeatEntry.lastSend.elapsed() >= repeatEntry.intervalMs) {
+            qInfo(VehicleLog) << "Birdcom repeat message resend command:" << int(repeatEntry.commandEntry.command)
+                              << "interval(ms):" << repeatEntry.intervalMs;
+            sendMessageOnLinkThreadSafe(sharedLink.get(), repeatEntry.repeatMessage);
+            repeatEntry.lastSend.start();
         }
     }
 }

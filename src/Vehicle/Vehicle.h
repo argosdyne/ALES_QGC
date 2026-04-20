@@ -1386,6 +1386,20 @@ private:
     static const int                _mavCommandAckTimeoutMSecs              = 3000;
     static const int                _mavCommandAckTimeoutMSecsHighLatency   = 120000;
 
+    // Birdcom test behavior: resend latest command periodically.
+    typedef struct BirdComRepeatEntry {
+        MavCommandListEntry_t   commandEntry;
+        mavlink_message_t       repeatMessage;
+        bool                    repeatMessageValid = false;
+        int                     intervalMs         = 0;
+        QElapsedTimer           lastSend;
+    } BirdComRepeatEntry_t;
+
+    QTimer                          _birdComCommandRepeatTimer;
+    QList<BirdComRepeatEntry_t>     _birdComRepeatList;
+    static const int                _birdComRepeatFastMSecs                 = 1000;   // RTL/Land repeat every 1 second
+    static const int                _birdComRepeatSlowMSecs                 = 10000;  // Other commands repeat every 60 seconds
+
     void _sendMavCommandWorker  (
             bool commandInt, bool showError, 
             const MavCmdAckHandlerInfo_t* ackHandlerInfo,   ///> nullptr to signale no handlers
@@ -1395,6 +1409,11 @@ private:
     int  _findMavCommandListEntryIndex(int targetCompId, MAV_CMD command);
     bool _sendMavCommandShouldRetry(MAV_CMD command);
     bool _commandCanBeDuplicated(MAV_CMD command);
+    void _configureBirdComCommandRepeat(const MavCommandListEntry_t& commandEntry);
+    int  _birdComRepeatIntervalForCommand(const MavCommandListEntry_t& commandEntry) const;
+    void _sendBirdComRepeatedCommand(void);
+    BirdComRepeatEntry_t* _findBirdComRepeatEntry(const MavCommandListEntry_t& commandEntry);
+    bool _birdComRepeatEntryMatches(const MavCommandListEntry_t& a, const MavCommandListEntry_t& b) const;
 
     QMap<uint8_t /* batteryId */, uint8_t /* MAV_BATTERY_CHARGE_STATE_OK */> _lowestBatteryChargeStateAnnouncedMap;
 
