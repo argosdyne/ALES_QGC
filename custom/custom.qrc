@@ -56,7 +56,6 @@
         <file alias="png/Audio.png">res/Images/Audio.png</file>
         <file alias="png/camera.png">res/Images/camera.png</file>
         <file alias="png/Location.png">res/Images/Location.png</file>
-        <file alias="png/Microphone.png">res/Images/Microphone.png</file>
         <file alias="png/TelemetryGPS.png">res/Images/TelemetryGPS.png</file>
         <file alias="png/TelemetryLog.png">res/Images/TelemetryLog.png</file>
         <file alias="png/video.png">res/Images/video.png</file>
@@ -151,4 +150,3 @@
         <file alias="ARLinkIndicator.qml">src/ARLink/ARLinkIndicator.qml</file>
     </qresource>
 </RCC>
-

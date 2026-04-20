@@ -10,6 +10,7 @@
 #include "SecurityLogModel.h"
 
 #include <QCoreApplication>
+#include <QGuiApplication>
 #include <QDebug>
 #include <QEvent>
 #include <QMetaObject>
@@ -34,6 +35,27 @@ SessionManager::SessionManager(QObject *parent)
 
     if (qApp) {
         qApp->installEventFilter(this);
+    }
+    if (auto* guiApp = qobject_cast<QGuiApplication*>(qApp)) {
+        connect(guiApp, &QGuiApplication::applicationStateChanged,
+                this, [this](Qt::ApplicationState state) {
+            qInfo() << "[SESSION_TRACE][CPP] applicationStateChanged fallback state=" << state;
+
+            switch (state) {
+            case Qt::ApplicationActive:
+                onAppForeground();
+                break;
+            case Qt::ApplicationInactive:
+            case Qt::ApplicationHidden:
+            case Qt::ApplicationSuspended:
+                onAppBackground();
+                break;
+            default:
+                break;
+            }
+        });
+    } else {
+        qWarning() << "[SESSION_TRACE][CPP] applicationStateChanged fallback unavailable: qApp is not QGuiApplication";
     }
 }
 
