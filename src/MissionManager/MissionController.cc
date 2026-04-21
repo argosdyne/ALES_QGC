@@ -1754,7 +1754,7 @@ void MissionController::_recalcMissionFlightStatus()
         double hoverTime = distance / _missionFlightStatus.hoverSpeed;
         double cruiseTime = distance / _missionFlightStatus.cruiseSpeed;
         double landTime = qAbs(altDifference) / _appSettings->offlineEditingDescentSpeed()->rawValue().toDouble();
-        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, distance, landTime, -1);
+        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, landTime, distance, -1);
     }
 
     if (_missionFlightStatus.mAhBattery != 0 && _missionFlightStatus.batteryChangePoint == -1) {
