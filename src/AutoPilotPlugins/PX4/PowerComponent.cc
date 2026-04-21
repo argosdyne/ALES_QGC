@@ -13,6 +13,31 @@
 
 #include "PowerComponent.h"
 #include "PX4AutoPilotPlugin.h"
+#include "ParameterManager.h"
+
+namespace {
+
+QString _batteryParamName(ParameterManager* parameterManager, const QString& paramSuffix)
+{
+    const QString indexedName = QStringLiteral("BAT1_%1").arg(paramSuffix);
+    if (parameterManager->parameterExists(FactSystem::defaultComponentId, indexedName)) {
+        return indexedName;
+    }
+
+    return QStringLiteral("BAT_%1").arg(paramSuffix);
+}
+
+bool _batteryParamExists(ParameterManager* parameterManager, const QString& paramSuffix)
+{
+    return parameterManager->parameterExists(FactSystem::defaultComponentId, _batteryParamName(parameterManager, paramSuffix));
+}
+
+Fact* _batteryParamFact(ParameterManager* parameterManager, const QString& paramSuffix)
+{
+    return parameterManager->getParameter(FactSystem::defaultComponentId, _batteryParamName(parameterManager, paramSuffix));
+}
+
+}
 
 PowerComponent::PowerComponent(Vehicle* vehicle, AutoPilotPlugin* autopilot, QObject* parent) :
     VehicleComponent(vehicle, autopilot, parent),
@@ -42,21 +67,25 @@ bool PowerComponent::requiresSetup(void) const
 
 bool PowerComponent::setupComplete(void) const
 {
-    if (!_vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, "BAT1_SOURCE") ||
-        !_vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, "BAT1_V_CHARGED") ||
-        !_vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, "BAT1_V_EMPTY") ||
-        !_vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, "BAT1_N_CELLS")) {
+    ParameterManager* parameterManager = _vehicle->parameterManager();
+    if (!_batteryParamExists(parameterManager, QStringLiteral("SOURCE")) ||
+        !_batteryParamExists(parameterManager, QStringLiteral("V_CHARGED")) ||
+        !_batteryParamExists(parameterManager, QStringLiteral("V_EMPTY")) ||
+        !_batteryParamExists(parameterManager, QStringLiteral("N_CELLS"))) {
         return true;
     }
-    return _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, "BAT1_SOURCE")->rawValue().toInt() == -1 ||
-        (_vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, "BAT1_V_CHARGED")->rawValue().toFloat() != 0.0f &&
-        _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, "BAT1_V_EMPTY")->rawValue().toFloat() != 0.0f &&
-        _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, "BAT1_N_CELLS")->rawValue().toInt() != 0);
+    return _batteryParamFact(parameterManager, QStringLiteral("SOURCE"))->rawValue().toInt() == -1 ||
+        (_batteryParamFact(parameterManager, QStringLiteral("V_CHARGED"))->rawValue().toFloat() != 0.0f &&
+        _batteryParamFact(parameterManager, QStringLiteral("V_EMPTY"))->rawValue().toFloat() != 0.0f &&
+        _batteryParamFact(parameterManager, QStringLiteral("N_CELLS"))->rawValue().toInt() != 0);
 }
 
 QStringList PowerComponent::setupCompleteChangedTriggerList(void) const
 {
-    return {"BAT1_SOURCE", "BAT1_V_CHARGED", "BAT1_V_EMPTY", "BAT1_N_CELLS"};
+    return {
+        "BAT1_SOURCE", "BAT1_V_CHARGED", "BAT1_V_EMPTY", "BAT1_N_CELLS",
+        "BAT_SOURCE", "BAT_V_CHARGED", "BAT_V_EMPTY", "BAT_N_CELLS"
+    };
 }
 
 QUrl PowerComponent::setupSource(void) const
