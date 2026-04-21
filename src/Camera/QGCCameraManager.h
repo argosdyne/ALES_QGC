@@ -22,6 +22,9 @@
 Q_DECLARE_LOGGING_CATEGORY(CameraManagerLog)
 
 class Joystick;
+class QNetworkAccessManager;
+class QTcpServer;
+class QTcpSocket;
 
 //-----------------------------------------------------------------------------
 /// Camera Manager
@@ -60,6 +63,8 @@ signals:
 protected slots:
     virtual void    _vehicleReady           (bool ready);
     virtual void    _mavlinkMessageReceived (const mavlink_message_t& message, LinkInterface* link);
+    virtual void    _newCameraDefinitionHttpConnection();
+    virtual void    _handleCameraDefinitionHttpRequest();
     virtual void    _activeJoystickChanged  (Joystick* joystick);
     virtual void    _stepZoom               (int direction);
     virtual void    _startZoom              (int direction);
@@ -74,11 +79,11 @@ protected slots:
 
 protected:
     virtual QGCCameraControl* _findCamera   (int id);
-    virtual void    _requestCameraInfo      (int compID, int tryCount);
-    virtual void    _handleHeartbeat        (const mavlink_message_t& message);
+    virtual void    _requestCameraInfo      (int compID, int tryCount, LinkInterface* link);
+    virtual void    _handleHeartbeat        (const mavlink_message_t& message, LinkInterface* link);
     virtual void    _handleCameraInfo       (const mavlink_message_t& message, LinkInterface* link);
     virtual void    _handleStorageInfo      (const mavlink_message_t& message);
-    virtual void    _handleCameraSettings   (const mavlink_message_t& message);
+    virtual void    _handleCameraSettings   (const mavlink_message_t& message, LinkInterface* link);
     virtual void    _handleParamAck         (const mavlink_message_t& message);
     virtual void    _handleParamValue       (const mavlink_message_t& message);
     virtual void    _handleCaptureStatus    (const mavlink_message_t& message);
@@ -90,6 +95,14 @@ protected:
     virtual void    _handleRCChannels       (const mavlink_message_t& message);
     virtual void    _handleCommandAck       (const mavlink_message_t& message);
     virtual void    _handleImageCaptured    (const mavlink_message_t& message);
+    virtual void    _addCameraControlToLists(QGCCameraControl* cameraControl);
+    virtual void    _removeCameraControlFromLists(QGCCameraControl* cameraControl);
+    virtual QGCCameraControl* _createCameraControlFromSettingsFallback(int compID, LinkInterface* link);
+    virtual bool    _injectSynthesizedCameraInformation(int compID, LinkInterface* link, const char* reason);
+    virtual bool    _ensureCameraDefinitionHttpServer();
+    virtual QString _cameraDefinitionLocalUrl(int compID) const;
+    virtual QString _cameraDefinitionUpstreamUrl(int compID) const;
+    virtual void    _replyCameraDefinitionHttp(QTcpSocket* socket, int statusCode, const QByteArray& body, const QByteArray& contentType) const;
 
 protected:
 
@@ -98,6 +111,8 @@ protected:
         CameraStruct(QObject* parent, uint8_t compID_);
         QElapsedTimer lastHeartbeat;
         bool    infoReceived = false;
+        bool    cameraCreated = false;
+        bool    fallbackCreated = false;
         bool    gaveUp       = false;
         int     tryCount     = 0;
         uint8_t compID       = 0;
@@ -114,4 +129,7 @@ protected:
     QElapsedTimer       _lastCameraChange;
     QTimer              _cameraTimer;
     QMap<QString, CameraStruct*> _cameraInfoRequest;
+    QTcpServer*         _cameraDefinitionHttpServer = nullptr;
+    QNetworkAccessManager* _cameraDefinitionNetworkManager = nullptr;
+    quint16             _cameraDefinitionHttpPort = 0;
 };
