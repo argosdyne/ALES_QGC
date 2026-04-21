@@ -406,7 +406,10 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    onClicked: {
+                        var current = Math.round(_mavlinkCamera.zoomLevel)
+                        _mavlinkCamera.setZoomLevel(current + 1)
+                    }
                 }
             }
 
@@ -452,7 +455,10 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    onClicked: {
+                        var current = Math.round(_mavlinkCamera.zoomLevel)
+                        _mavlinkCamera.setZoomLevel(Math.max(1, current - 1))
+                    }
                 }
             }
         }
