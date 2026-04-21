@@ -69,67 +69,56 @@ QGCCameraManager::_vehicleReady(bool ready)
 void
 QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, LinkInterface* link)
 {
-    if (message.sysid != _vehicle->id()) {
-        return;
-    }
-
-    const bool acceptedHeartbeatCompid =
-        message.compid == MAV_COMP_ID_AUTOPILOT1 ||
-        message.compid == MAV_COMP_ID_GIMBAL ||
-        message.compid == MAV_COMP_ID_UDP_BRIDGE ||
-        (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6);
-
-    switch (message.msgid) {
-        case MAVLINK_MSG_ID_HEARTBEAT:
-            // Keep heartbeat discovery scoped to known camera/bridge components.
-            if (acceptedHeartbeatCompid) {
+    //-- Only pay attention to camera components, as identified by their compId
+    if(message.sysid == _vehicle->id() && (message.compid == MAV_COMP_ID_AUTOPILOT1 || message.compid == MAV_COMP_ID_GIMBAL ||
+        (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6))) {
+        switch (message.msgid) {
+            case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
+                _handleCaptureStatus(message);
+                break;
+            case MAVLINK_MSG_ID_STORAGE_INFORMATION:
+                _handleStorageInfo(message);
+                break;
+            case MAVLINK_MSG_ID_HEARTBEAT:
                 _handleHeartbeat(message);
-            }
-            break;
-        case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
-            _handleCaptureStatus(message);
-            break;
-        case MAVLINK_MSG_ID_STORAGE_INFORMATION:
-            _handleStorageInfo(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_INFORMATION:
-            _handleCameraInfo(message, link);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_SETTINGS:
-            _handleCameraSettings(message);
-            break;
-        case MAVLINK_MSG_ID_PARAM_EXT_ACK:
-            _handleParamAck(message);
-            break;
-        case MAVLINK_MSG_ID_PARAM_EXT_VALUE:
-            _handleParamValue(message);
-            break;
-        case MAVLINK_MSG_ID_VIDEO_STREAM_INFORMATION:
-            _handleVideoStreamInfo(message);
-            break;
-        case MAVLINK_MSG_ID_VIDEO_STREAM_STATUS:
-            _handleVideoStreamStatus(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS:
-            _handleTrackingGeoStatus(message);
-            break;
-        case MAVLINK_MSG_ID_COMMAND_ACK:
-            _handleCommandAck(message);
-            break;
-        case MAVLINK_MSG_ID_RC_CHANNELS:
-            _handleRCChannels(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
-            _handleImageCaptured(message);
-            break;
-        case MAVLINK_MSG_ID_BATTERY_STATUS:
-            _handleBatteryStatus(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_TRACKING_IMAGE_STATUS:
-            _handleTrackingImageStatus(message);
-            break;
-        default:
-            break;
+                break;
+            case MAVLINK_MSG_ID_CAMERA_INFORMATION:
+                _handleCameraInfo(message, link);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_SETTINGS:
+                _handleCameraSettings(message);
+                break;
+            case MAVLINK_MSG_ID_PARAM_EXT_ACK:
+                _handleParamAck(message);
+                break;
+            case MAVLINK_MSG_ID_PARAM_EXT_VALUE:
+                _handleParamValue(message);
+                break;
+            case MAVLINK_MSG_ID_VIDEO_STREAM_INFORMATION:
+                _handleVideoStreamInfo(message);
+                break;
+            case MAVLINK_MSG_ID_VIDEO_STREAM_STATUS:
+                _handleVideoStreamStatus(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS:
+                _handleTrackingGeoStatus(message);
+                break;
+            case MAVLINK_MSG_ID_COMMAND_ACK:
+                _handleCommandAck(message);
+                break;
+            case MAVLINK_MSG_ID_RC_CHANNELS:
+                _handleRCChannels(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
+                _handleImageCaptured(message);
+                break;
+            case MAVLINK_MSG_ID_BATTERY_STATUS:
+                _handleBatteryStatus(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_TRACKING_IMAGE_STATUS:
+                _handleTrackingImageStatus(message);
+                break;
+        }
     }
 }
 
@@ -234,15 +223,10 @@ void
 QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterface* link)
 {
     qCDebug(CameraManagerLog) << "_handleCameraInfo";
+    //-- Have we requested it?
     QString sCompID = QString::number(message.compid);
-    // If camera info arrives before heartbeat discovery/request, create the slot now.
-    if(!_cameraInfoRequest.contains(sCompID) || !_cameraInfoRequest[sCompID]) {
-        CameraStruct* pInfo = new CameraStruct(this, message.compid);
-        pInfo->lastHeartbeat.start();
-        _cameraInfoRequest[sCompID] = pInfo;
-    }
-
-    if(_cameraInfoRequest[sCompID] && !_cameraInfoRequest[sCompID]->infoReceived) {
+    if(_cameraInfoRequest.contains(sCompID) && !_cameraInfoRequest[sCompID]->infoReceived) {
+        //-- Flag it as done
         _cameraInfoRequest[sCompID]->infoReceived = true;
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
@@ -377,27 +361,11 @@ QGCCameraManager::_handleParamValue(const mavlink_message_t& message)
 void
 QGCCameraManager::_handleVideoStreamInfo(const mavlink_message_t& message)
 {
-    mavlink_video_stream_information_t streamInfo;
-    mavlink_msg_video_stream_information_decode(&message, &streamInfo);
-    qCInfo(CameraManagerLog) << "VIDEO_STREAM_INFORMATION received:"
-                             << "sysid:" << message.sysid
-                             << "compid:" << message.compid
-                             << "stream_id:" << streamInfo.stream_id
-                             << "count:" << streamInfo.count
-                             << "uri:" << reinterpret_cast<const char*>(streamInfo.uri);
-
     QGCCameraControl* pCamera = _findCamera(message.compid);
-    if(!pCamera && _cameras.count() == 1) {
-        pCamera = currentCameraInstance();
-        if (pCamera) {
-            qCWarning(CameraManagerLog) << "VIDEO_STREAM_INFORMATION compid mismatch. Using single available camera instance. msg.compid:"
-                                        << message.compid << "camera.compid:" << pCamera->compID();
-        }
-    }
     if(pCamera) {
+        mavlink_video_stream_information_t streamInfo;
+        mavlink_msg_video_stream_information_decode(&message, &streamInfo);
         pCamera->handleVideoInfo(&streamInfo);
-    } else {
-        qCWarning(CameraManagerLog) << "VIDEO_STREAM_INFORMATION dropped: no camera instance for compid" << message.compid;
     }
 }
 
