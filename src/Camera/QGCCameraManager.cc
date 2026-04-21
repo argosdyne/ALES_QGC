@@ -150,17 +150,21 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
     const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
-        int port = videoUrl.port();
+        QString path = videoUrl.path();               
+        QString lastSegment = path.section('/', -1);  
 
-        if(port == -1)
-            port = 554;
+        qInfo() << "[CameraManager] Path =" << path
+                << "LastSegment =" << lastSegment
+                << "RTSPURL =" << rtspUrl;
 
-        if(port == 8554)
-        {
-            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host()); // Rythmn3
+        if (lastSegment.compare("eo", Qt::CaseInsensitive) == 0) {
+            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());   // EO → R3
         }
-        else {
-            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // Sony ILX-LR1
+        else if (lastSegment.compare("cr", Qt::CaseInsensitive) == 0) {
+            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // CR → LR1
+        }
+        else {            
+            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host());
         }
     }
 
