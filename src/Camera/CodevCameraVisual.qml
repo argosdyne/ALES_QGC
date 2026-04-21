@@ -35,6 +35,19 @@ Item {
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
+    property string _cameraModelUpper: _camera ? ((_camera.modelName || "").toUpperCase()) : ""
+        property string _cameraVendorUpper: _camera ? ((_camera.vendor || "").toUpperCase()) : ""
+    property bool _isSonyIR1: _camera && (
+                                       _cameraVendorUpper.indexOf("SONY") !== -1 ||
+                                       _cameraModelUpper.indexOf("SONY") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR-1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR_1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR 1") !== -1 ||
+                                       _cameraModelUpper.indexOf("LR1") !== -1)
+
+    property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
+
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
             _smartSelect.value = "Yolov8"
@@ -450,7 +463,7 @@ Item {
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _tofEN ? _tofEN.value : false
-            visible: _tofEN
+            visible: _hasLaserRangefinder
             source: "qrc:/qmlimages/rangefinder.svg"
             onClicked: {
                 _tofEN.value = !_tofEN.value
