@@ -4,8 +4,11 @@
 #include <QNetworkAccessManager>     // http client
 #include <QNetworkReply>             // response object
 #include <QTimer>                    // loop/pooling
+#include "QGCLoggingCategory.h"
 #include "QGCToolbox.h"
 #include "ARConnection.h"
+
+Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
 class ARManager : public QGCTool
 {

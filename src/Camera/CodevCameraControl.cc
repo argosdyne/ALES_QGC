@@ -599,7 +599,7 @@ void CodevCameraControl::stepZoom(int direction)
                 _opticalRange = 1.0f;
             }
 
-            qInfo() << "Zoom in optical Range = " << _opticalRange;
+            qCDebug(CodevCameraLog) << "Zoom in optical Range = " << _opticalRange;
             _opticalRange = std::min(100.0f, newLevel + direction);
 
             sendMavCommand(
@@ -623,7 +623,7 @@ void CodevCameraControl::stepZoom(int direction)
             _dZoomFact->setRawValue(static_cast<float>(next));
         } else {
             // 2) 디지털이 1.0이면 광학 RANGE 감소
-            qInfo() << "Zoom out optical Range = " << _opticalRange;
+            qCDebug(CodevCameraLog) << "Zoom out optical Range = " << _opticalRange;
             _opticalRange = std::max(0.0f, newLevel + direction); //Direction = -1
 
             sendMavCommand(
@@ -648,7 +648,7 @@ QStringList CodevCameraControl::activeSettings()
     }
     settings.removeOne(kFACTORY_CALI);
     removedSettings << kFACTORY_CALI;
-    qInfo() << "[CodevCamera]"
+    qCDebug(CodevCameraLog) << "[CodevCamera]"
             << "activeSettings() compId" << compID()
             << "paramComplete" << paramComplete()
             << "base" << _activeSettings
@@ -662,7 +662,7 @@ QStringList CodevCameraControl::activeSettings()
 void CodevCameraControl::_parametersReady()
 {
 
-    qInfo() << "[CodevCamera]"
+    qCDebug(CodevCameraLog) << "[CodevCamera]"
             << "_parametersReady compId" << compID()
             << "paramComplete" << paramComplete()
             << "initial active settings" << _activeSettings;
@@ -783,7 +783,7 @@ void CodevCameraControl::_parametersReady()
         }
     }
 
-    qInfo() << "[CodevCamera]"
+    qCDebug(CodevCameraLog) << "[CodevCamera]"
             << "_parametersReady compId" << compID()
             << "paramComplete" << paramComplete()
             << "hasTrack" << _hasTrack
@@ -1078,7 +1078,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
                 if (_trackingInvalidStartMs < 0) {
                     _trackingInvalidStartMs = nowMs;
                 } else if (nowMs - _trackingInvalidStartMs >= kTrackingInvalidStopDelayMs) {
-                    qWarning() << "Tracking rect invalid/undesired for too long, stopping tracking"
+                    qCWarning(CodevCameraLog) << "Tracking rect invalid/undesired for too long, stopping tracking"
                                << "rect" << left << top << right << bottom;
                     setTrackingEnabled(false);
                     stopTracking();
