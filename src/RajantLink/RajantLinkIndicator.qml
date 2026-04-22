@@ -14,16 +14,11 @@ Item {
     QGCPalette { id: qgcPal }
 
     property var  rajantManager:    QGroundControl.corePlugin.rajantManager
-    property var  rajantAirManager: QGroundControl.corePlugin.rajantAirManager
     property bool _connected:       rajantManager ? rajantManager.connected && rajantManager.authenticated : false
-    property bool _airConnected:    rajantAirManager ? rajantAirManager.connected && rajantAirManager.authenticated : false
     property int  _signal:          rajantManager ? rajantManager.signal : 0
     property int  _noise:           rajantManager ? rajantManager.noise  : 0
     property int  _snr:             rajantManager ? rajantManager.snr    : 0
     property int  _linkRate:        rajantManager ? rajantManager.linkRate : 0
-    // Air unit data (air <- ground direction)
-    property int  _airSignal:       rajantAirManager ? rajantAirManager.signal : 0
-    property int  _airNoise:        rajantAirManager ? rajantAirManager.noise  : 0
 
     function getSignalStrength(signal) {
         // Map dBm signal to percentage for signal icon
@@ -69,68 +64,46 @@ Item {
                     columns:                    2
                     anchors.horizontalCenter:   parent.horizontalCenter
 
+                    QGCLabel { text: qsTr("Radio:"); color: qgcPal.text }
+                    QGCLabel {
+                        text: rajantManager ? rajantManager.radioName + " (ch " + rajantManager.channel + ")" : "N/A"
+                        color: qgcPal.text
+                    }
+
                     QGCLabel { text: qsTr("Signal:"); color: qgcPal.text }
                     QGCLabel {
-                        text: _connected ? _signal + " / " + _noise + " dBm" : qsTr("N/A")
+                        text: _connected ? _signal + " dBm" : qsTr("N/A")
                         color: qgcPal.text
                     }
 
-                    QGCLabel { text: qsTr("Sky Signal:"); color: qgcPal.text }
-                    QGCLabel {
-                        text: _airConnected ? _airSignal + " / " + _airNoise + " dBm" : qsTr("N/A")
-                        color: qgcPal.text
-                    }
-
-                    QGCLabel { text: qsTr("Noise:"); color: qgcPal.text; visible: false }
+                    QGCLabel { text: qsTr("Noise:"); color: qgcPal.text }
                     QGCLabel {
                         text: _connected ? _noise + " dBm" : qsTr("N/A")
                         color: qgcPal.text
-                        visible: false
                     }
 
-                    QGCLabel { text: qsTr("Sky Noise:"); color: qgcPal.text; visible: false }
-                    QGCLabel {
-                        text: _airConnected ? _airNoise + " dBm" : qsTr("N/A")
-                        color: qgcPal.text
-                        visible: false
-                    }
-
-                    QGCLabel { text: qsTr("Main Link:"); color: qgcPal.text }
-                    QGCLabel { text: qsTr("UDP"); color: qgcPal.text }
-
-                    QGCLabel { text: qsTr("Radio:"); color: qgcPal.text; visible: false }
-                    QGCLabel {
-                        text: rajantManager ? rajantManager.radioName + " (ch " + rajantManager.channel + ")" : "N/A"
-                        color: qgcPal.text; 
-                        visible: false
-                    }
-
-                    QGCLabel { text: qsTr("SNR:"); color: qgcPal.text; visible: false }
+                    QGCLabel { text: qsTr("SNR:"); color: qgcPal.text }
                     QGCLabel {
                         text: _connected ? _snr + " dB" : qsTr("N/A")
-                        color: qgcPal.text; 
-                        visible: false
+                        color: qgcPal.text
                     }
 
-                    QGCLabel { text: qsTr("Link Rate:"); color: qgcPal.text; visible: false }
+                    QGCLabel { text: qsTr("Link Rate:"); color: qgcPal.text }
                     QGCLabel {
                         text: _connected ? _linkRate + " Mbps" : qsTr("N/A")
-                        color: qgcPal.text; 
-                        visible: false
+                        color: qgcPal.text
                     }
 
-                    QGCLabel { text: qsTr("Tx Power:"); color: qgcPal.text; visible: false }
+                    QGCLabel { text: qsTr("Tx Power:"); color: qgcPal.text }
                     QGCLabel {
                         text: _connected && rajantManager ? rajantManager.txPower + " dBm" : qsTr("N/A")
-                        color: qgcPal.text; 
-                        visible: false
+                        color: qgcPal.text
                     }
 
-                    QGCLabel { text: qsTr("Peers:"); color: qgcPal.text; visible: false }
+                    QGCLabel { text: qsTr("Peers:"); color: qgcPal.text }
                     QGCLabel {
                         text: _connected && rajantManager ? rajantManager.peerCount.toString() : qsTr("N/A")
-                        color: qgcPal.text; 
-                        visible: false
+                        color: qgcPal.text
                     }
                 }
             }

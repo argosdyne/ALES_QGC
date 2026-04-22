@@ -94,11 +94,6 @@ public:
     Q_INVOKABLE void enableRemote24G();
     Q_INVOKABLE void enableRemote58G();
 
-    // Permanently stops Doodle API polling. Called when another radio link
-    // (Rajant / M2) is detected — avoids continuous failed HTTPS requests
-    // that have been observed to cause heap corruption in Qt 5.15.2.
-    void stopDoodlePolling(const char* reason);
-
 signals:
     void                mountedChanged();
     void                connectedChanged();
@@ -131,8 +126,6 @@ private:
     bool                _bindTimeout{false};
     bool                _usingDoodleApi{false};        // falg to indicate doodle api usage
     bool                _doodleRequestInFlight{false}; // prevents overlapping HTTP request
-    bool                _doodlePollingStopped{false}; // true once stopDoodlePolling() has been called
-    int                 _doodleConsecutiveFailures{0};
 
     bool                _pairTriggered{false};
 

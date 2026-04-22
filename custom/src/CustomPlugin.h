@@ -113,15 +113,12 @@ public:
 
     Q_PROPERTY(RajantManager* rajantManager           READ rajantManager          NOTIFY rajantManagerChanged)
     RajantManager* rajantManager() { return _rajantManager; }
-    Q_PROPERTY(RajantManager* rajantAirManager        READ rajantAirManager       NOTIFY rajantAirManagerChanged)
-    RajantManager* rajantAirManager() { return _rajantAirManager; }
 
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
     void m2ManagerChanged               ();
     void rajantManagerChanged           ();
-    void rajantAirManagerChanged        ();
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -142,10 +139,8 @@ private:
 
     QUdpSocket*             _m2boardcastSocket      = nullptr;
     M2Manager*              _m2Manager              = nullptr;
-    RajantManager*          _rajantManager          = nullptr;
-    RajantManager*          _rajantAirManager       = nullptr;
+    RajantManager* _rajantManager = nullptr;
     QStringList             _rajantCandidates;
-    QStringList             _allRajantCandidates;
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";
     int                     _rajantDiscoveryRetries = 0;

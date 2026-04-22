@@ -34,7 +34,6 @@
 #include "QGroundControlQmlGlobal.h"
 #include <QFile>
 #include <QNetworkInterface>
-#include <QSet>
 
 #if defined(Q_OS_ANDROID)
 #include <QtConcurrent>
@@ -52,22 +51,6 @@
 QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 
 static const char *kSlaveMode = "SlaveMode";
-
-// Identifies a Rajant node from its IPv6 link-local address by extracting the
-// last 3 bytes of the underlying MAC (which is identical across the node's
-// interfaces — only the OUI's U/L bit differs in EUI-64). Used to dedupe
-// netsh neighbor entries so we end up with exactly one candidate per physical
-// node (ground + air).
-//
-// Example: fe80::848d:84ff:feef:d84d  -> "efd84d"
-//          fe80::868d:84ff:feef:d84d  -> "efd84d"  (same node)
-//          fe80::848d:84ff:feef:e8d9  -> "efe8d9"  (different node)
-static QString rajantNodeId(const QString& addr)
-{
-    QString base = addr.section('%', 0, 0);
-    base.remove(':');
-    return base.right(6).toLower();
-}
 
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
     : QGCFlyViewOptions(options, parent)
@@ -502,9 +485,6 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
                         qInfo() << "new M2Manager";
                         _m2Manager = new M2Manager(ipStr, this);
                         emit m2ManagerChanged();
-                        if (_qmlInterface && _qmlInterface->arManager()) {
-                            _qmlInterface->arManager()->stopDoodlePolling("M2 link detected");
-                        }
                     }
 
                     _m2boardcastSocket->disconnect();
@@ -544,109 +524,6 @@ void CustomPlugin::_initRajantDiscovery()
     //
     // Works on both Windows (netsh) and Android/Linux (ip -6 neigh).
 
-    // Ground connected — try to find air unit
-    if (_rajantManager != nullptr) {
-        if (_rajantAirManager != nullptr) return; // both connected, done
-        if (_rajantManager->peerCount() == 0) {
-            // Air unit not online yet, retry
-            QTimer::singleShot(10000, this, &CustomPlugin::_initRajantDiscovery);
-            return;
-        }
-
-        // Air unit is online — pick its address from the saved candidates.
-        // Match by node ID (last 3 MAC bytes) so two interfaces of the same
-        // Rajant aren't mistaken for two different nodes.
-        QString groundAddr  = _rajantManager->nodeAddress();
-        QString groundId    = rajantNodeId(groundAddr);
-        QString groundScope = groundAddr.section('%', 1);
-        QString airAddr;
-
-        for (const QString& candidate : _allRajantCandidates) {
-            if (rajantNodeId(candidate) == groundId) continue;
-            QString base = candidate.section('%', 0, 0);
-            airAddr = groundScope.isEmpty() ? base : base + "%" + groundScope;
-            break;
-        }
-
-#if defined(Q_OS_ANDROID)
-        if (airAddr.isEmpty()) {
-            qInfo() << "RajantDiscovery: peer detected, running SUP for air unit...";
-            QByteArray supReq;
-            supReq.append(BcapiProtocol::encodeTag(1, BcapiProtocol::VARINT));
-            supReq.append(BcapiProtocol::encodeVarint(0x73757000));
-            supReq.append(BcapiProtocol::encodeTag(2, BcapiProtocol::VARINT));
-            supReq.append(BcapiProtocol::encodeVarint(0));
-            QByteArray svc = "com.rajant.breadcrumb.v11";
-            supReq.append(BcapiProtocol::encodeTag(3, BcapiProtocol::LENGTH_DELIMITED));
-            supReq.append(BcapiProtocol::encodeVarint(svc.size()));
-            supReq.append(svc);
-
-            int sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-            if (sock >= 0) {
-                struct sockaddr_in6 bind6;
-                memset(&bind6, 0, sizeof(bind6));
-                bind6.sin6_family = AF_INET6;
-                bind6.sin6_addr = in6addr_any;
-                ::bind(sock, reinterpret_cast<struct sockaddr*>(&bind6), sizeof(bind6));
-                struct timeval tv = {2, 0};
-                setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-
-                const auto ifaces = QNetworkInterface::allInterfaces();
-                for (const auto& iface : ifaces) {
-                    if (!(iface.flags() & QNetworkInterface::IsUp)) continue;
-                    if (iface.flags() & QNetworkInterface::IsLoopBack) continue;
-                    unsigned int idx = iface.index();
-                    if (idx == 0) continue;
-                    setsockopt(sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, &idx, sizeof(idx));
-                    struct sockaddr_in6 dst;
-                    memset(&dst, 0, sizeof(dst));
-                    dst.sin6_family = AF_INET6;
-                    dst.sin6_port = htons(35057);
-                    dst.sin6_scope_id = idx;
-                    inet_pton(AF_INET6, "ff02::1", &dst.sin6_addr);
-                    sendto(sock, supReq.constData(), supReq.size(), 0,
-                           reinterpret_cast<struct sockaddr*>(&dst), sizeof(dst));
-                }
-                char buf[548];
-                struct sockaddr_in6 src;
-                while (true) {
-                    socklen_t slen = sizeof(src);
-                    ssize_t n = recvfrom(sock, buf, sizeof(buf), 0,
-                                         reinterpret_cast<struct sockaddr*>(&src), &slen);
-                    if (n <= 0) break;
-                    char ab[INET6_ADDRSTRLEN];
-                    inet_ntop(AF_INET6, &src.sin6_addr, ab, sizeof(ab));
-                    QString resp = QString::fromLatin1(ab);
-                    if (!resp.startsWith("fe80", Qt::CaseInsensitive)) continue;
-                    if (rajantNodeId(resp) == groundId) continue;
-                    char ifn[IF_NAMESIZE] = {};
-                    QString scope = (src.sin6_scope_id > 0 && if_indextoname(src.sin6_scope_id, ifn))
-                        ? QString::fromLatin1(ifn) : QString::number(src.sin6_scope_id);
-                    airAddr = resp + "%" + scope;
-                    break;
-                }
-                ::close(sock);
-            }
-        }
-#endif
-
-        if (airAddr.isEmpty()) {
-            qInfo() << "RajantDiscovery: air unit not found yet, retrying...";
-            QTimer::singleShot(10000, this, &CustomPlugin::_initRajantDiscovery);
-            return;
-        }
-
-        qInfo() << "RajantDiscovery: connecting to air unit:" << airAddr;
-        _rajantAirManager = new RajantManager(airAddr, _rajantPassword, this);
-        _rajantAirManager->setIsAirUnit(true);
-        emit rajantAirManagerChanged();
-        connect(_rajantAirManager, &RajantManager::firstStateReceived, this,
-            [airAddr](int airRadioCount) {
-                qInfo() << "=== Rajant Air Unit:" << airAddr << "Radios:" << airRadioCount << "===";
-        });
-        return;
-    }
-
     // Skip if another radio link is already connected — not a Rajant setup
     if (_m2Manager != nullptr) {
         qInfo() << "RajantDiscovery: M2 detected, skipping.";
@@ -684,9 +561,6 @@ void CustomPlugin::_initRajantDiscovery()
         qInfo() << "RajantDiscovery: using RAJANT_NODE env override:" << addr;
         _rajantManager = new RajantManager(addr, _rajantPassword, this);
         emit rajantManagerChanged();
-        if (_qmlInterface && _qmlInterface->arManager()) {
-            _qmlInterface->arManager()->stopDoodlePolling("Rajant env override set");
-        }
         return;
     }
 
@@ -711,18 +585,7 @@ void CustomPlugin::_initRajantDiscovery()
         QStringList candidates = watcher->result();
         watcher->deleteLater();
 
-        // Dedupe by node ID so two interfaces of the same Rajant collapse
-        // into one candidate — mirrors the Windows _onRajantScanFinished path.
-        QStringList unique;
-        QSet<QString> seenIds;
-        for (const QString& c : candidates) {
-            QString id = rajantNodeId(c);
-            if (id.isEmpty() || seenIds.contains(id)) continue;
-            seenIds.insert(id);
-            unique.append(c);
-        }
-        _rajantCandidates = unique;
-        _allRajantCandidates = unique; // saved for air-unit lookup after ground connects
+        _rajantCandidates = candidates;
 
         if (_rajantCandidates.isEmpty()) {
             qWarning() << "RajantDiscovery: no Rajant nodes found. Retrying in 10s...";
@@ -730,7 +593,6 @@ void CustomPlugin::_initRajantDiscovery()
             return;
         }
 
-        qInfo() << "RajantDiscovery: deduped to" << unique.size() << "unique node(s):" << unique;
         qInfo() << "RajantDiscovery: probing" << _rajantCandidates.size() << "candidates via TCP:2300...";
         _tryNextRajantCandidate();
         });
@@ -1157,23 +1019,6 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
         return;
     }
 
-    // Dedupe by node ID (last 3 bytes of MAC). Different IPv6 link-locals
-    // can map to the same physical Rajant node — collapse them so we end up
-    // with at most one candidate per node (typically: ground + air = 2).
-    {
-        QStringList unique;
-        QSet<QString> seenIds;
-        for (const QString& c : _rajantCandidates) {
-            QString id = rajantNodeId(c);
-            if (id.isEmpty() || seenIds.contains(id)) continue;
-            seenIds.insert(id);
-            unique.append(c);
-        }
-        _rajantCandidates = unique;
-        _allRajantCandidates = unique; // kept for air-unit lookup after ground connects
-        qInfo() << "RajantDiscovery: deduped to" << unique.size() << "unique node(s):" << unique;
-    }
-
     // For Windows, we need to add the scope ID (interface index) to each candidate
     // Find all interfaces with fe80:: addresses and try each combination
 #if defined(Q_OS_WIN)
@@ -1263,56 +1108,17 @@ void CustomPlugin::_onRajantProbeConnected()
     // Ground unit's Peer.signal = signal ground receives from air (drone).
     // This is the RSSI value the pilot needs on the GCS toolbar.
     _rajantManager = new RajantManager(address, _rajantPassword, this);
-    if (_qmlInterface && _qmlInterface->arManager()) {
-        _qmlInterface->arManager()->stopDoodlePolling("Rajant ground unit detected");
-    }
-    
-    // Stop probing — ground is identified, air will be derived from
-    // _allRajantCandidates (saved during netsh dedup), not from re-probing.
     _rajantCandidates.clear();
     emit rajantManagerChanged();
 
     connect(_rajantManager, &RajantManager::firstStateReceived, this,
-        [this, address](int radioCount) {
+        [address](int radioCount) {
             qInfo() << "";
             qInfo() << "=== Rajant Discovery Complete ===";
             qInfo() << "  Ground unit:" << address;
             qInfo() << "  Radios:     " << radioCount;
             qInfo() << "  Displaying:  RSSI (ground <- air)";
             qInfo() << "";
-
-            if (_rajantAirManager != nullptr) return; // already created — guard against double-fire
-
-            // Pick the OTHER node from _allRajantCandidates (different node ID)
-            // and reach it via the ground's scope. Never use peer LinkLocal
-            // (%wlan0wds is internal to the Rajant node and unreachable).
-            QString groundId    = rajantNodeId(address);
-            QString groundScope = address.section('%', 1);
-            QString airAddr;
-            for (const QString& cand : _allRajantCandidates) {
-                if (rajantNodeId(cand) == groundId) continue;
-                QString cBase = cand.section('%', 0, 0);
-                airAddr = groundScope.isEmpty() ? cBase : cBase + "%" + groundScope;
-                break;
-            }
-            if (airAddr.isEmpty()) {
-                qInfo() << "RajantDiscovery: no second Rajant node discovered — air unit not connected.";
-                return;
-            }
-
-            qInfo() << "RajantDiscovery: connecting to air unit:" << airAddr;
-            _rajantAirManager = new RajantManager(airAddr, _rajantPassword, this);
-            _rajantAirManager->setIsAirUnit(true);
-            emit rajantAirManagerChanged();
-
-            connect(_rajantAirManager, &RajantManager::firstStateReceived, this,
-                [airAddr](int airRadioCount) {
-                    qInfo() << "";
-                    qInfo() << "=== Rajant Air Unit:" << airAddr << "===";
-                    qInfo() << "  Radios:" << airRadioCount;
-                    qInfo() << "  Displaying: RSSI (air <- ground)";
-                    qInfo() << "";
-            });
         });
 }
 
