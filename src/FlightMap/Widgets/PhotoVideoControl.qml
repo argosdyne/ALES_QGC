@@ -65,7 +65,7 @@ Item {
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
     property int    _mavlinkCameraManagerCurCameraIndex:        _mavlinkCameraManager ? _mavlinkCameraManager.currentCamera : -1
     property bool   _noMavlinkCameras:                          _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count === 0 : true
-    property var    _mavlinkCamera:                             !_noMavlinkCameras ? (_mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex) && _mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex).paramComplete ? _mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex) : null) : null
+    property var    _mavlinkCamera:                             _mavlinkCameraManager ? _mavlinkCameraManager.currentCameraInstance : null
     property bool   _multipleMavlinkCameras:                    _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count > 1 : false
     property string _mavlinkCameraName:                         _mavlinkCamera && _multipleMavlinkCameras ? _mavlinkCamera.modelName : ""
     property bool   _noMavlinkCameraStreams:                    _mavlinkCamera ? _mavlinkCamera.streamLabels.length : true
@@ -100,6 +100,37 @@ Item {
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+
+    function logCameraSettingsState(tag) {
+        console.log("[PhotoVideoControl]", tag,
+                    "visible=", visible,
+                    "activeVehicle=", _activeVehicle ? _activeVehicle.vehicleUID : "null",
+                    "cameraManager=", _mavlinkCameraManager ? "yes" : "no",
+                    "currentCameraIndex=", _mavlinkCameraManagerCurCameraIndex,
+                    "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
+                    "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
+                    "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
+                    "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
+                    "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
+                    "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
+                    "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
+                    "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
+    }
+
+    Component.onCompleted: logCameraSettingsState("completed")
+    onVisibleChanged: logCameraSettingsState("visibleChanged")
+    on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
+    on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
+    on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
+
+    Connections {
+        target: _mavlinkCamera
+        function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
+        function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
+        function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
+        function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
+        function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
+    }
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
@@ -235,7 +266,10 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
+                    onClicked: {
+                        logCameraSettingsState("settingsButtonClicked")
+                        settingsDialogComponent.createObject(mainWindow).open()
+                    }
                 }
             }
         }
@@ -524,6 +558,8 @@ Item {
             id:         settingsDialog            
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
+            Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
+            onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
 
             ColumnLayout {
                 spacing: _margins
@@ -532,6 +568,8 @@ Item {
                     id:     gridLayout
                     flow:   GridLayout.TopToBottom
                     rows:   dynamicRows + (_mavlinkCamera ? _mavlinkCamera.activeSettings.length : 0)
+                    Component.onCompleted: logCameraSettingsState("gridLayoutCompleted")
+                    onRowsChanged: logCameraSettingsState("gridLayoutRowsChanged")
 
                     property int dynamicRows: 10
 
@@ -562,7 +600,9 @@ Item {
 
                     // Mavlink Camera Protocol active settings
                     Repeater {
+                        id: activeSettingsLabelRepeater
                         model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
+                        onModelChanged: logCameraSettingsState("activeSettingsLabelModelChanged")
 
                         QGCLabel {
                             text: _mavlinkCamera.getFact(modelData).shortDescription
@@ -641,12 +681,18 @@ Item {
                         displayValue:               true
                         updateValueWhileDragging:   true
                         visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
-                        onValueChanged:             _mavlinkCamera.thermalOpacity = value
+                        onPressedChanged: {
+                            if (!pressed && _mavlinkCamera && Math.abs(_mavlinkCamera.thermalOpacity - value) > 0.1) {
+                                _mavlinkCamera.thermalOpacity = value
+                            }
+                        }
                     }
 
                     // Mavlink Camera Protocol active settings
                     Repeater {
+                        id: activeSettingsEditorRepeater
                         model: _mavlinkCamera ? _mavlinkCamera.activeSettings : []
+                        onModelChanged: logCameraSettingsState("activeSettingsEditorModelChanged")
 
                         RowLayout {
                             Layout.fillWidth:   true

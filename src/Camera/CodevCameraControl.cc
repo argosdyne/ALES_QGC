@@ -560,13 +560,17 @@ void CodevCameraControl::stepZoom(int direction)
 QStringList CodevCameraControl::activeSettings()
 {
     QStringList settings = _activeSettings;
+    QStringList removedSettings;
     if(!_hasTrack) {
         settings.removeOne(kTRACK_ALGORITHM);
+        removedSettings << kTRACK_ALGORITHM;
     }
     if(!_hasDetect) {
         settings.removeOne(kSMART_SELECT);
+        removedSettings << kSMART_SELECT;
     }
     settings.removeOne(kFACTORY_CALI);
+    removedSettings << kFACTORY_CALI;
     return settings;
 }
 
@@ -1221,6 +1225,18 @@ void CodevCameraControl::_sendNextQueuedMavCommand()
 void CodevCameraControl::_requestStreamInfo(uint8_t streamID)
 {
     qCDebug(CodevCameraLog) << "Requesting video stream info for:" << streamID;
+    if (streamID == 0) {
+        // Some Codev firmware builds do not reliably answer the wildcard request.
+        // Probe the first two streams directly so EO and thermal are both discovered after restart.
+        _expectedCount = qMax(_expectedCount, 2);
+        sendMavCommand(
+            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
+            1);
+        sendMavCommand(
+            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
+            2);
+        return;
+    }
     sendMavCommand(
         MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,           // Command id
         streamID);                                          // Stream ID
