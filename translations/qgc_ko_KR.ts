@@ -12797,8 +12797,8 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
-      <source>Upload Required</source>
-      <translation type="unfinished">Upload Required</translation>
+      <source>Req. Upload</source>
+      <translation type="unfinished">업로드 필요</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
