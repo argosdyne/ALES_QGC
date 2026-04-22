@@ -134,7 +134,11 @@ private:
     void _onRajantScanFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void _tryNextRajantCandidate();
     void _onRajantProbeConnected();
-    void _onRajantProbeError(QAbstractSocket::SocketError error); 
+    void _onRajantProbeError(QAbstractSocket::SocketError error);
+    // Returns the name of an active non-Rajant link, or empty if none.
+    // Used to pre-empt Rajant discovery / probing whenever Enpulse M1, M2 or
+    // DoodleLab are already running — Rajant should never compete for the link.
+    QString _activeNonRajantLinkName() const;
     QGroundControlQmlGlobal* qGroundControlQmlGlobal;
 
     QUdpSocket*             _m2boardcastSocket      = nullptr;
