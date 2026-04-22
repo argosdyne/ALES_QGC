@@ -61,6 +61,9 @@ void RajantManager::connectToNode(const QString& address)
     _socket->setSslConfiguration(sslConfig);
 
     _socket->connectToHostEncrypted(address, _port);
+
+    // Detect silently-dead TCP connections faster (radio unplugged, cable pulled, etc.)
+    _socket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
 }
 
 void RajantManager::disconnect()
@@ -104,6 +107,16 @@ void RajantManager::_onSocketDisconnected()
     _setConnected(false);
     _setAuthenticated(false);
     _setStatusText("Disconnected");
+
+    // Wipe cached values so UI immediately shows N/A instead of stale numbers
+    _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
+    _skySignal = 0; _skySnr = 0;
+    _peerCount = 0;
+    _staleCount = 0;
+    _lastPeerChange.invalidate();
+    if (_linkLive) { _linkLive = false; emit linkLiveChanged(); }
+    emit radioDataChanged();
+    emit skyDataChanged();
 
     // Auto-reconnect
     if (!_reconnTimer->isActive()) {
@@ -188,6 +201,18 @@ void RajantManager::_processFrame(const QByteArray& payload)
             qInfo() << "";
             qInfo() << "=== Rajant Node:" << _nodeAddress << "===";
             qInfo() << "  Wireless radios:" << _radioCount;
+            for (const auto& w : msg.state.wireless) {
+                if (!w.nodeName.isEmpty()) {
+                    qInfo() << "  Hostname:       " << w.nodeName;
+                    break;
+                }
+            }
+            for (const auto& w : msg.state.wireless) {
+                if (!w.firmwareVersion.isEmpty()) {
+                    qInfo() << "  Firmware:       " << w.firmwareVersion;
+                    break;
+                }
+            }
 
             for (int i = 0; i < msg.state.wireless.size(); i++) {
                 const auto& w = msg.state.wireless[i];
@@ -200,8 +225,9 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 for (int j = 0; j < w.peers.size(); j++) {
                     const auto& p = w.peers[j];
                     qInfo() << "      Peer" << j << ":";
-                    qInfo() << "        Signal: " << p.signal << "dBm";
-                    qInfo() << "        RSSI:   " << p.rssi << "dB (SNR)";
+                    qInfo() << "        Signal: " << p.signal << "dBm  (ground <- sky)";
+                    qInfo() << "        SNR:    " << p.rssi << "dB    (ground <- sky)";
+                    qInfo() << "        PeerSNR:" << p.peerSnr << "dB    (sky <- ground, reported by sky)";
                     qInfo() << "        Rate:   " << (p.rate * 10) << "Mbps";
                     qInfo() << "        Enabled:" << p.enabled;
                     if (!p.ipv4Address.isEmpty())
@@ -215,6 +241,31 @@ void RajantManager::_processFrame(const QByteArray& payload)
             emit firstStateReceived(_radioCount);
         }
 
+        bool skyChanged = false;
+        bool peerChanged = false;
+
+        // Capture node identity from any radio that reports it
+        for (const auto& w : msg.state.wireless) {
+            if (!w.nodeName.isEmpty() && w.nodeName != _nodeName) {
+                _nodeName = w.nodeName;
+                dataChanged = true;
+            }
+            if (!w.firmwareVersion.isEmpty() && w.firmwareVersion != _firmwareVersion) {
+                _firmwareVersion = w.firmwareVersion;
+                dataChanged = true;
+            }
+        }
+
+        // Is there an enabled peer on any radio? If every peer says enabled=false,
+        // the mesh link is down even if BCAPI/TCP is still up.
+        bool hasEnabledPeer = false;
+        for (const auto& w : msg.state.wireless) {
+            for (const auto& p : w.peers) {
+                if (p.enabled) { hasEnabledPeer = true; break; }
+            }
+            if (hasEnabledPeer) break;
+        }
+
         for (const auto& w : msg.state.wireless) {
             if (w.peers.isEmpty()) continue;
 
@@ -225,6 +276,14 @@ void RajantManager::_processFrame(const QByteArray& payload)
             int newNoise   = w.noise;
             int newSnr     = peer.rssi;
             int newRate    = peer.rate * 10; // stored as 10s of Mbps
+
+            // Sky-side values — derived, no 2nd SSL session needed.
+            //   skySnr    = peer-reported SNR (what the sky radio measures from ground)
+            //   skySignal = skySnr + noise  (estimate: assumes sky noise ~= ground noise)
+            int newSkySnr    = peer.peerSnr;
+            int newSkySignal = (peer.peerSnr > 0 && w.noise < 0)
+                ? (peer.peerSnr + w.noise)
+                : 0;
 
             if (newSignal != _signal || newNoise != _noise || newSnr != _snr ||
                 newRate != _linkRate || w.name != _radioName ||
@@ -239,21 +298,72 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 _txPower   = w.txpower;
                 _peerCount = w.peers.size();
                 dataChanged = true;
+                peerChanged = true;
+            }
+            if (newSkySnr != _skySnr || newSkySignal != _skySignal) {
+                _skySnr    = newSkySnr;
+                _skySignal = newSkySignal;
+                skyChanged = true;
+                peerChanged = true;
             }
             break; // use first active radio
         }
 
-        // Always log current RSSI (every poll)
-        // Ground unit: Peer.signal = signal ground receives from air (drone)
-        qInfo() << QString("[%1] RSSI: %2 / %3 dBm (ground<-air) | SNR: %4 dB | Rate: %5 Mbps | Ch: %6 | Radio: %7")
-                   .arg(_nodeAddress)
-                   .arg(_signal).arg(_noise).arg(_snr)
-                   .arg(_linkRate).arg(_channel).arg(_radioName);
+        // Link-health detection — fixes stale values when the far end is powered off
+        // while the local TCP session is still alive.
+        //   1. peer.enabled == false on every peer → ground knows peer is gone.
+        //   2. 10 consecutive polls (~10s) with no change in any peer value → no RF
+        //      jitter means the ground is just replaying a cached entry.
+        //   3. Wall-clock safety net: _linkDeadTimeoutMs (10s) since last peerChanged,
+        //      regardless of poll count (catches edge cases where the counter
+        //      somehow doesn't advance).
+        if (peerChanged) {
+            _staleCount = 0;
+            _lastPeerChange.restart();
+        } else {
+            _staleCount++;
+        }
+        const bool elapsedOk = _lastPeerChange.isValid()
+            && _lastPeerChange.elapsed() < _linkDeadTimeoutMs;
+        const bool shouldBeLive = hasEnabledPeer && _staleCount < 10 && elapsedOk;
+        if (shouldBeLive != _linkLive) {
+            _linkLive = shouldBeLive;
+            if (!_linkLive) {
+                qWarning() << "RajantManager: link appears dead (hasEnabledPeer="
+                           << hasEnabledPeer << ", staleCount=" << _staleCount
+                           << ", elapsedMs=" << (_lastPeerChange.isValid() ? _lastPeerChange.elapsed() : -1)
+                           << ") — clearing UI values";
+                _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
+                _skySignal = 0; _skySnr = 0; _peerCount = 0;
+                dataChanged = true;
+                skyChanged = true;
+            } else {
+                qInfo() << "RajantManager: link is live again";
+            }
+            emit linkLiveChanged();
+        }
+
+        // Log RSSI only when the link is live — avoids log spam of stale values
+        // when the remote end has been powered off. staleCount included so we can
+        // verify the stale-detection counter is actually advancing.
+        if (_linkLive) {
+            qInfo() << QString("[%1] Ground: %2 dBm / %3 dB | Sky: %4 dBm / %5 dB | Noise: %6 dBm | Rate: %7 Mbps | Ch: %8 | Radio: %9 | stale=%10")
+                       .arg(_nodeAddress)
+                       .arg(_signal).arg(_snr)
+                       .arg(_skySignal).arg(_skySnr)
+                       .arg(_noise)
+                       .arg(_linkRate).arg(_channel).arg(_radioName)
+                       .arg(_staleCount);
+        }
 
         if (dataChanged) {
-            _setStatusText(QString("RSSI: %1 dBm / Noise: %2 dBm / SNR: %3 dB")
-                           .arg(_signal).arg(_noise).arg(_snr));
+            _setStatusText(QString("Ground: %1 dBm / %2 dB | Sky: %3 dBm / %4 dB")
+                           .arg(_signal).arg(_snr)
+                           .arg(_skySignal).arg(_skySnr));
             emit radioDataChanged();
+        }
+        if (skyChanged) {
+            emit skyDataChanged();
         }
     }
 }

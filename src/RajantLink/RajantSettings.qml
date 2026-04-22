@@ -18,8 +18,14 @@ Rectangle {
     property real _panelWidth:                  _root.width * _internalWidthRatio
     property real _labelWidth:                  _panelWidth * 0.4
     property real _valueWidth:                  _panelWidth * 0.4
-    property var rajantManager:                 QGroundControl.corePlugin.rajantManager
-    property bool _connected:                   rajantManager ? rajantManager.connected && rajantManager.authenticated : false
+    property var  rajantManager:                QGroundControl.corePlugin.rajantManager
+    // Treat a dead mesh link the same as disconnected — UI goes to N/A, not stale values
+    property bool _connected:                   rajantManager ? rajantManager.connected && rajantManager.authenticated && rajantManager.linkLive : false
+    property int  _signal:                      rajantManager ? rajantManager.signal    : 0
+    property int  _noise:                       rajantManager ? rajantManager.noise     : 0
+    property int  _snr:                         rajantManager ? rajantManager.snr       : 0
+    property int  _skySignal:                   rajantManager ? rajantManager.skySignal : 0
+    property int  _skySnr:                      rajantManager ? rajantManager.skySnr    : 0
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -74,25 +80,39 @@ Rectangle {
                         QGCLabel {
                             text:           qsTr("Node Address:")
                             Layout.minimumWidth: _labelWidth
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.nodeAddress : qsTr("N/A")
                             Layout.minimumWidth: _valueWidth
+                            visible:        false
                         }
                         QGCLabel {
                             text:           qsTr("Radio:")
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.radioName + " (ch " + rajantManager.channel + ")" : ""
+                            visible:        false
+                        }
+                        QGCLabel {
+                            text:           qsTr("RSSI:")
                             visible:        _connected
                         }
                         QGCLabel {
-                            text:           qsTr("Signal:")
+                            text:           _connected
+                                              ? _signal + " dBm / " + _snr + " dB"
+                                              : ""
                             visible:        _connected
                         }
                         QGCLabel {
-                            text:           rajantManager ? rajantManager.signal + " dBm" : ""
+                            text:           qsTr("Sky RSSI:")
+                            visible:        _connected
+                        }
+                        QGCLabel {
+                            text:           _connected && _skySnr > 0
+                                              ? _skySignal + " dBm / " + _skySnr + " dB"
+                                              : qsTr("N/A")
                             visible:        _connected
                         }
                         QGCLabel {
@@ -100,24 +120,16 @@ Rectangle {
                             visible:        _connected
                         }
                         QGCLabel {
-                            text:           rajantManager ? rajantManager.noise + " dBm" : ""
-                            visible:        _connected
-                        }
-                        QGCLabel {
-                            text:           qsTr("SNR:")
-                            visible:        _connected
-                        }
-                        QGCLabel {
-                            text:           rajantManager ? rajantManager.snr + " dB" : ""
+                            text:           _connected ? _noise + " dBm" : ""
                             visible:        _connected
                         }
                         QGCLabel {
                             text:           qsTr("Link Rate:")
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           rajantManager ? rajantManager.linkRate + " Mbps" : ""
-                            visible:        _connected
+                            visible:        false
                         }
                         QGCLabel {
                             text:           qsTr("Tx Power:")
@@ -134,6 +146,24 @@ Rectangle {
                         QGCLabel {
                             text:           rajantManager ? rajantManager.peerCount.toString() : ""
                             visible:        _connected
+                        }
+                        QGCLabel {
+                            text:           qsTr("Hostname:")
+                            // visible:        _connected && rajantManager && rajantManager.nodeName.length > 0
+                            visible:        false
+                        }
+                        QGCLabel {
+                            text:           rajantManager ? rajantManager.nodeName : ""
+                            // visible:        _connected && rajantManager && rajantManager.nodeName.length > 0
+                            visible:        false
+                        }
+                        QGCLabel {
+                            text:           qsTr("Firmware:")
+                            visible:        _connected && rajantManager && rajantManager.firmwareVersion.length > 0
+                        }
+                        QGCLabel {
+                            text:           rajantManager ? rajantManager.firmwareVersion : ""
+                            visible:        _connected && rajantManager && rajantManager.firmwareVersion.length > 0
                         }
                     }
                 }

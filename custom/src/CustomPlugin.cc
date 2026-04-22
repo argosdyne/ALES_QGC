@@ -515,10 +515,12 @@ void CustomPlugin::_initRajantDiscovery()
     // Auto-discover Rajant nodes on the network.
     //
     // Method:
-    //   1. Query the IPv6 neighbor table for fe80:: link-local addresses
-    //   2. Filter by Rajant OUI MAC prefix (84:8D:84 or 86:8D:84)
-    //   3. Try TCP:2300 on each candidate to verify it's a BCAPI node
-    //   4. Connect to the first one that responds
+    //   1. Collect fe80:: link-local IPv6 neighbors (SUP multicast on Android,
+    //      system neighbor table on desktop, netlink fallback on Android).
+    //   2. Probe TCP:2300 on each candidate. The TCP probe is the real gate:
+    //      only Rajant BCAPI nodes listen on 2300, so non-Rajant neighbors
+    //      fall out naturally — no hardcoded MAC OUI list to maintain.
+    //   3. Connect to the first candidate that responds.
     //
     // Works on both Windows (netsh) and Android/Linux (ip -6 neigh).
 
@@ -573,7 +575,8 @@ void CustomPlugin::_initRajantDiscovery()
     //   2. Send UDP poke to gateway to ensure ARP entry exists in kernel
     //   3. Send SUP multicast to discover Rajant nodes via their own protocol
     //   4. Query kernel neighbor table via Netlink to get MAC addresses
-    //   5. Filter for Rajant OUI and construct fe80:: EUI-64 addresses
+    //   5. Construct fe80:: EUI-64 addresses from every neighbor MAC
+    //      (no OUI filter — TCP:2300 probe is the real gate)
     //   6. Probe TCP:2300 on candidates
 
     _rajantCandidates.clear();
@@ -860,16 +863,17 @@ void CustomPlugin::_initRajantDiscovery()
                         qInfo() << "RajantDiscovery: neigh" << ipBuf << "MAC:" << mac
                             << "iface:" << ifn << "family:" << ndm->ndm_family;
 
-                        // Check for Rajant OUI
-                        bool isRajant = ((macAddr[0] == 0x84 || macAddr[0] == 0x86) &&
-                            macAddr[1] == 0x8D && macAddr[2] == 0x84);
-                        if (!isRajant) continue;
+                        // No OUI filter: every fe80:: neighbor with a MAC is a candidate.
+                        // Non-Rajant devices will simply fail the TCP:2300 probe.
 
                         if (ndm->ndm_family == AF_INET6 && dstAddr) {
-                            QString addr6 = QString("%1%%%2").arg(ipBuf, ifn);
+                            // Only fe80:: link-local addresses can host a Rajant BCAPI peer
+                            QString ip6Str = QString::fromLatin1(ipBuf);
+                            if (!ip6Str.startsWith("fe80", Qt::CaseInsensitive)) continue;
+                            QString addr6 = QString("%1%%%2").arg(ip6Str, ifn);
                             if (!_rajantCandidates.contains(addr6)) {
                                 _rajantCandidates.append(addr6);
-                                qInfo() << "RajantDiscovery: RAJANT IPv6:" << addr6;
+                                qInfo() << "RajantDiscovery: candidate IPv6:" << addr6 << "MAC:" << mac;
                             }
                         }
                         else if (ndm->ndm_family == AF_INET && dstAddr) {
@@ -894,7 +898,7 @@ void CustomPlugin::_initRajantDiscovery()
                                         QString addr6 = QString("%1%%%2").arg(euiBuf, sid);
                                         if (!_rajantCandidates.contains(addr6)) {
                                             _rajantCandidates.append(addr6);
-                                            qInfo() << "RajantDiscovery: RAJANT ARP->IPv6:" << addr6
+                                            qInfo() << "RajantDiscovery: candidate ARP->IPv6:" << addr6
                                                 << "(from" << ipBuf << "MAC:" << mac << ")";
                                         }
                                         break;
@@ -956,9 +960,10 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
         return;
     }
 
-    // Parse the output for fe80:: addresses with Rajant MAC OUI
-    // Rajant OUI: 84-8D-84 or 86-8D-84 (Windows format with dashes)
-    //             84:8d:84 or 86:8d:84 (Linux format with colons)
+    // Collect every fe80:: link-local neighbor as a candidate.
+    // We no longer filter by MAC OUI — the TCP:2300 probe is the real gate,
+    // so this works with any Rajant hardware variant (old, OEM, re-branded)
+    // regardless of which manufacturer prefix the MAC uses.
     _rajantCandidates.clear();
 
     const QStringList lines = output.split('\n');
@@ -966,14 +971,7 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
         QString trimmed = line.trimmed();
         if (!trimmed.contains("fe80", Qt::CaseInsensitive)) continue;
 
-        // Check for Rajant MAC OUI
-        bool isRajant = trimmed.contains("84-8d-84", Qt::CaseInsensitive) ||
-            trimmed.contains("86-8d-84", Qt::CaseInsensitive) ||
-            trimmed.contains("84:8d:84", Qt::CaseInsensitive) ||
-            trimmed.contains("86:8d:84", Qt::CaseInsensitive);
-        if (!isRajant) continue;
-
-        // Check it's reachable (not "Unreachable")
+        // Skip entries the OS has marked as stale / unreachable
         if (trimmed.contains("Unreachable", Qt::CaseInsensitive)) continue;
 
         // Extract the fe80:: address
@@ -988,9 +986,11 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
         // On Windows, we need to find the interface index for scoping
         // The address from netsh doesn't include the scope, we need to add it
         // We'll try connecting without scope first, then with detected interfaces
-        _rajantCandidates.append(ipv6Addr);
-        qInfo() << "RajantDiscovery: found Rajant node candidate:" << ipv6Addr
-            << "MAC:" << (parts.size() > 1 ? parts.at(1) : "unknown");
+        if (!_rajantCandidates.contains(ipv6Addr)) {
+            _rajantCandidates.append(ipv6Addr);
+            qInfo() << "RajantDiscovery: candidate:" << ipv6Addr
+                << "MAC:" << (parts.size() > 1 ? parts.at(1) : "unknown");
+        }
     }
 
     if (_rajantCandidates.isEmpty()) {
