@@ -114,7 +114,8 @@ private slots:
 private:
     void _handle_device_info(const QByteArray& message);
     void _requestDoodleLogin();                     // sends ubus login post request
-    void _requestDoodleRadioInfo();                 // sends request for radio status signal      
+    void _requestDoodleRadioInfo();                 // sends request for radio status signal
+    void _stopDoodlePolling(const char* reason);    // permanently stops Doodle polling (no auto-restart)
     void _setMountedFromDoodle(bool mounted);       // sends api coming result to internal state
     // void _handle_osd_info(const QByteArray& message);
 
@@ -126,6 +127,7 @@ private:
     bool                _bindTimeout{false};
     bool                _usingDoodleApi{false};        // falg to indicate doodle api usage
     bool                _doodleRequestInFlight{false}; // prevents overlapping HTTP request
+    bool                _doodlePollingStopped{false};  // true once Doodle polling has been permanently stopped
 
     bool                _pairTriggered{false};
 
