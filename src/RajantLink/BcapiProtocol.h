@@ -181,9 +181,10 @@ inline QByteArray buildStateQuery(qint64 seqNum)
 // --- Parsed result structures ---
 
 struct PeerInfo {
-    qint32 signal   = 0;  // received signal strength (dBm)
-    qint32 rssi     = 0;  // SNR (dB)
+    qint32 signal   = 0;  // received signal strength at us, from peer (dBm)
+    qint32 rssi     = 0;  // SNR at us, from peer (dB)
     qint32 rate     = 0;  // link rate (in 10s of Mbps)
+    qint32 peerSnr  = 0;  // peer-reported SNR (dB) - what the far end hears from us
     bool   enabled  = false;
     QString ipv4Address;
     QString linkLocalAddress;
@@ -194,6 +195,8 @@ struct WirelessInfo {
     qint32  noise    = 0;   // noise floor (dBm)
     quint32 channel  = 0;
     qint32  txpower  = 0;   // dBm
+    QString nodeName;        // hostname, e.g. "rajant-115877" (Wireless field 15 -> sub-field 3)
+    QString firmwareVersion; // e.g. "10.4-4019-rajant.115.c0a11264" (Wireless field 34)
     QList<PeerInfo> peers;
 };
 
@@ -251,6 +254,7 @@ inline PeerInfo decodePeer(const QByteArray& data, int offset, int len)
             pos += slen;
             break;
         }
+        case 15: peer.peerSnr = decodeVarintInt32(data, pos); break;
         default:
             skipField(tag.wireType, data, pos);
             break;
@@ -276,10 +280,33 @@ inline WirelessInfo decodeWireless(const QByteArray& data, int offset, int len)
         case 5:  w.noise = decodeVarintInt32(data, pos); break;
         case 6:  w.channel = static_cast<quint32>(decodeVarint(data, pos)); break;
         case 10: w.txpower = decodeVarintInt32(data, pos); break;
+        case 15: { // nodeInfo (embedded) — contains hostname at sub-field 3
+            int nlen = static_cast<int>(decodeVarint(data, pos));
+            int npos = pos;
+            int nend = pos + nlen;
+            while (npos < nend) {
+                Tag ntag = decodeTag(data, npos);
+                if (ntag.fieldNumber == 3 && ntag.wireType == LENGTH_DELIMITED) {
+                    int slen = static_cast<int>(decodeVarint(data, npos));
+                    w.nodeName = QString::fromUtf8(data.mid(npos, slen));
+                    npos += slen;
+                } else {
+                    skipField(ntag.wireType, data, npos);
+                }
+            }
+            pos += nlen;
+            break;
+        }
         case 16: { // peer (embedded, repeated)
             int plen = static_cast<int>(decodeVarint(data, pos));
             w.peers.append(decodePeer(data, pos, plen));
             pos += plen;
+            break;
+        }
+        case 34: { // firmwareVersion (string)
+            int slen = static_cast<int>(decodeVarint(data, pos));
+            w.firmwareVersion = QString::fromUtf8(data.mid(pos, slen));
+            pos += slen;
             break;
         }
         default:

@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QSslSocket>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QUdpSocket>
 #include <QNetworkInterface>
 #include "BcapiProtocol.h"
@@ -32,9 +33,10 @@ public:
     // Connection state
     Q_PROPERTY(bool     connected       READ connected      NOTIFY connectedChanged)
     Q_PROPERTY(bool     authenticated   READ authenticated  NOTIFY authenticatedChanged)
+    Q_PROPERTY(bool     linkLive        READ linkLive       NOTIFY linkLiveChanged)
     Q_PROPERTY(QString  nodeAddress     READ nodeAddress     CONSTANT)
 
-    // Air unit radio data (primary display values)
+    // Ground-side radio data (what the ground node directly measures)
     Q_PROPERTY(int      signal          READ signal          NOTIFY radioDataChanged)
     Q_PROPERTY(int      noise           READ noise           NOTIFY radioDataChanged)
     Q_PROPERTY(int      snr             READ snr             NOTIFY radioDataChanged)
@@ -44,16 +46,22 @@ public:
     Q_PROPERTY(int      txPower         READ txPower         NOTIFY radioDataChanged)
     Q_PROPERTY(int      peerCount       READ peerCount       NOTIFY radioDataChanged)
 
-    // Second node data (ground unit, optional)
-    Q_PROPERTY(int      groundSignal    READ groundSignal    NOTIFY groundDataChanged)
-    Q_PROPERTY(int      groundNoise     READ groundNoise     NOTIFY groundDataChanged)
-    Q_PROPERTY(int      groundSnr       READ groundSnr       NOTIFY groundDataChanged)
+    // Sky-side radio data (derived from ground session, no 2nd SSL needed):
+    //   skySnr    = peer-reported SNR from Rajant Peer.field15 (measured by sky)
+    //   skySignal = skySnr + noise  (estimated dBm, assumes sky noise ~= ground noise)
+    Q_PROPERTY(int      skySignal       READ skySignal       NOTIFY skyDataChanged)
+    Q_PROPERTY(int      skySnr          READ skySnr          NOTIFY skyDataChanged)
+
+    // Node identity read from the radio State payload
+    Q_PROPERTY(QString  nodeName        READ nodeName        NOTIFY radioDataChanged)
+    Q_PROPERTY(QString  firmwareVersion READ firmwareVersion NOTIFY radioDataChanged)
 
     // Readable status string
     Q_PROPERTY(QString  statusText      READ statusText      NOTIFY statusTextChanged)
 
     bool    connected()     const { return _connected; }
     bool    authenticated() const { return _authenticated; }
+    bool    linkLive()      const { return _linkLive; }
     QString nodeAddress()   const { return _nodeAddress; }
 
     int     signal()        const { return _signal; }
@@ -65,9 +73,11 @@ public:
     int     txPower()       const { return _txPower; }
     int     peerCount()     const { return _peerCount; }
 
-    int     groundSignal()  const { return _groundSignal; }
-    int     groundNoise()   const { return _groundNoise; }
-    int     groundSnr()     const { return _groundSnr; }
+    int     skySignal()     const { return _skySignal; }
+    int     skySnr()        const { return _skySnr; }
+
+    QString nodeName()        const { return _nodeName; }
+    QString firmwareVersion() const { return _firmwareVersion; }
 
     QString statusText()    const { return _statusText; }
 
@@ -81,8 +91,9 @@ public:
 signals:
     void connectedChanged();
     void authenticatedChanged();
+    void linkLiveChanged();
     void radioDataChanged();
-    void groundDataChanged();
+    void skyDataChanged();
     void statusTextChanged();
     void firstStateReceived(int radioCount);
 
@@ -108,6 +119,10 @@ private:
     quint16         _port               = 2300;
     bool            _connected          = false;
     bool            _authenticated      = false;
+    bool            _linkLive           = false;  // true when peer is reachable + data flowing
+    int             _staleCount         = 0;      // consecutive polls with unchanged peer values
+    QElapsedTimer   _lastPeerChange;              // wall-clock: last time peer data actually changed
+    static const int _linkDeadTimeoutMs = 10000;  // 10 s of no peer change → link dead
     QByteArray      _recvBuffer;
     qint64          _seqNum             = 0;
 
@@ -131,10 +146,13 @@ private:
     int     _txPower    = 0;
     int     _peerCount  = 0;
 
-    // Ground unit radio data (optional second node)
-    int     _groundSignal   = 0;
-    int     _groundNoise    = 0;
-    int     _groundSnr      = 0;
+    // Sky-side radio data (derived from peer-reported SNR + ground noise)
+    int     _skySignal      = 0;  // estimated dBm = skySnr + noise
+    int     _skySnr         = 0;  // peer-reported SNR (dB), direct from Peer.field15
+
+    // Node identity (populated from State payload)
+    QString _nodeName;            // hostname, e.g. "rajant-115877"
+    QString _firmwareVersion;     // e.g. "10.4-4019-rajant.115.c0a11264"
 
     QString _statusText;
 
