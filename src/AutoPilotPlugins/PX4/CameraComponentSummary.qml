@@ -11,6 +11,15 @@ Item {
 
     FactPanelController { id: controller; }
 
+    function _localizedEnumText(enumText) {
+        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
+        if (fromMetaData !== enumText) {
+            return fromMetaData
+        }
+
+        return enumText
+    }
+
     property Fact _camTriggerMode:  controller.getParameterFact(-1, "TRIG_MODE", false)
     property Fact _camTriggerInterface:  controller.getParameterFact(-1, "TRIG_INTERFACE", false)
     property Fact _camTriggerPol:   controller.getParameterFact(-1, "TRIG_POLARITY", false) // Don't bitch about missing as these only exist if trigger mode is enabled
@@ -23,12 +32,12 @@ Item {
 
         VehicleSummaryRow {
             labelText: qsTr("Trigger interface")
-            valueText: _camTriggerInterface ? _camTriggerInterface.enumStringValue : ""
+            valueText: _camTriggerInterface ? _localizedEnumText(_camTriggerInterface.enumStringValue) : ""
         }
 
         VehicleSummaryRow {
             labelText: qsTr("Trigger mode")
-            valueText: _camTriggerMode ? _camTriggerMode.enumStringValue : ""
+            valueText: _camTriggerMode ? _localizedEnumText(_camTriggerMode.enumStringValue) : ""
         }
 
         VehicleSummaryRow {

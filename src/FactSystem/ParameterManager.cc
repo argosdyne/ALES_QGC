@@ -661,7 +661,6 @@ void ParameterManager::refreshAllParameters(uint8_t componentId)
                                                             .arg(_vehicle->firmwareMinorVersion())
                                                             .arg(_vehicle->firmwarePatchVersion());
     }
-
     qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId == MAV_COMP_ID_ALL ? -1 : componentId)
                                 << "param-ftp state"
                                 << "tryftp" << _tryftp

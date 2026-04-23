@@ -16,6 +16,9 @@
 #include "QGCCorePlugin.h"
 
 #include <QDir>
+#include <QCryptographicHash>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QDomDocument>
 #include <QDomNodeList>
@@ -63,6 +66,36 @@ static const char* kPhotoLapse      = "PhotoLapse";
 static const char* kPhotoLapseCount = "PhotoLapseCount";
 static const char* kThermalOpacity  = "ThermalOpacity";
 static const char* kThermalMode     = "ThermalMode";
+
+static QString _cameraDefinitionUri(const mavlink_camera_information_t* info)
+{
+    QByteArray uri(reinterpret_cast<const char*>(info->cam_definition_uri), sizeof(info->cam_definition_uri));
+    const int nullIndex = uri.indexOf('\0');
+    if (nullIndex >= 0) {
+        uri.truncate(nullIndex);
+    }
+    return QString::fromUtf8(uri);
+}
+
+static QString _mavlinkFixedString(const uint8_t* data, int maxLen)
+{
+    QByteArray raw(reinterpret_cast<const char*>(data), maxLen);
+    const int nullIndex = raw.indexOf('\0');
+    if (nullIndex >= 0) {
+        raw.truncate(nullIndex);
+    }
+    return QString::fromUtf8(raw);
+}
+
+static QString _mavlinkFixedString(const char* data, int maxLen)
+{
+    QByteArray raw(data, maxLen);
+    const int nullIndex = raw.indexOf('\0');
+    if (nullIndex >= 0) {
+        raw.truncate(nullIndex);
+    }
+    return QString::fromUtf8(raw);
+}
 
 //-----------------------------------------------------------------------------
 // Known Parameters
@@ -165,14 +198,18 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     memcpy(&_info, info, sizeof(mavlink_camera_information_t));
     connect(this, &QGCCameraControl::dataReady, this, &QGCCameraControl::_dataReady);
-    _vendor = QString(reinterpret_cast<const char*>(info->vendor_name));
-    _modelName = QString(reinterpret_cast<const char*>(info->model_name));
+    _vendor = _mavlinkFixedString(info->vendor_name, sizeof(info->vendor_name));
+    _modelName = _mavlinkFixedString(info->model_name, sizeof(info->model_name));
     int ver = static_cast<int>(_info.cam_definition_version);
-    _cacheFile = QString::asprintf("%s/%s_%s_%03d.xml",
-        qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
-        _vendor.toStdString().c_str(),
-        _modelName.toStdString().c_str(),
-        ver);
+    const QString definitionUri = _cameraDefinitionUri(info);
+    const QString uriHash = QString::fromLatin1(QCryptographicHash::hash(definitionUri.toUtf8(), QCryptographicHash::Sha1).toHex().left(12));
+    const QString cacheBaseName = QStringLiteral("%1_%2_%3_%4")
+                                      .arg(_vendor)
+                                      .arg(_modelName)
+                                      .arg(ver, 3, 10, QLatin1Char('0'))
+                                      .arg(uriHash);
+    _cacheFile = QStringLiteral("%1/%2.xml")
+                     .arg(qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath(), cacheBaseName);
     if(info->cam_definition_uri[0] != 0) {
         //-- Process camera definition file
         _handleDefinitionFile(info->cam_definition_uri);
@@ -1648,6 +1685,7 @@ void
 QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
 {
     qCDebug(CameraControlLog) << "handleVideoInfo:" << vi->stream_id << vi->uri;
+    _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
     _expectedCount = vi->count;
     qCDebug(CameraControlLog) << "THERMAL_TRACE"
             << "handleVideoInfo"
@@ -1708,6 +1746,85 @@ QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
         resumeStream();
         emit autoStreamChanged();
         emit _vehicle->cameraManager()->streamChanged();
+    }
+}
+
+QString QGCCameraControl::_cameraRtspSettingsKey() const
+{
+    // Compare by vehicle/component so camera model/vendor changes are still detected.
+    return QStringLiteral("Camera/LastRtsp/%1/%2")
+        .arg(_vehicle ? _vehicle->id() : -1)
+        .arg(_compID);
+}
+
+void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamUri)
+{
+    if (!streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
+        return;
+    }
+
+    QSettings settings;
+    const QString key = _cameraRtspSettingsKey();
+    const QString previousUri = settings.value(key).toString();
+    if (previousUri.isEmpty()) {
+        settings.setValue(key, streamUri);
+        return;
+    }
+
+    if (previousUri.compare(streamUri, Qt::CaseInsensitive) == 0) {
+        return;
+    }
+
+    qWarning() << "[CameraControl]"
+               << "RTSP URI changed, invalidating camera definition cache"
+               << "compId" << _compID
+               << "previous" << previousUri
+               << "current" << streamUri;
+    _purgeCameraDefinitionCache();
+    _cached = false;
+    settings.setValue(key, streamUri);
+
+    const QString definitionUri = _cameraDefinitionUri(&_info);
+    if (!definitionUri.isEmpty()) {
+        _handleDefinitionFile(definitionUri);
+    }
+}
+
+void QGCCameraControl::_purgeCameraDefinitionCache()
+{
+    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
+    if (parameterSavePath.isEmpty()) {
+        return;
+    }
+
+    QDir cacheDir(parameterSavePath);
+    if (!cacheDir.exists()) {
+        return;
+    }
+
+    // Remove the active cache file first.
+    if (QFile::exists(_cacheFile) && !QFile::remove(_cacheFile)) {
+        qWarning() << "[CameraControl] Failed to remove active cache file:" << _cacheFile;
+    }
+
+    // Remove legacy/new camera definition cache files:
+    //   vendor_model_001.xml
+    //   vendor_model_001_<hash>.xml
+    const QRegularExpression pattern(QStringLiteral("^.+_.+_\\d{3}(?:_[0-9a-fA-F]{12})?\\.xml$"));
+
+    const QFileInfoList files = cacheDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoSymLinks);
+    for (const QFileInfo& fileInfo : files) {
+        if (fileInfo.absoluteFilePath().compare(_cacheFile, Qt::CaseInsensitive) == 0) {
+            continue;
+        }
+        if (!pattern.match(fileInfo.fileName()).hasMatch()) {
+            continue;
+        }
+        if (!QFile::remove(fileInfo.absoluteFilePath())) {
+            qWarning() << "[CameraControl] Failed to remove cache file:" << fileInfo.absoluteFilePath();
+        } else {
+            qInfo() << "[CameraControl] Removed cache file:" << fileInfo.absoluteFilePath();
+        }
     }
 }
 
@@ -2192,15 +2309,13 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
                 << "compId" << _compID
                 << "cacheFile" << _cacheFile
                 << "url" << url;
-        int ver = static_cast<int>(_info.cam_definition_version);
         QString ext = "";
         if (url.endsWith(".lzma", Qt::CaseInsensitive)) { ext = ".lzma"; }
         if (url.endsWith(".xz", Qt::CaseInsensitive)) { ext = ".xz"; }
-        QString fileName = QString::asprintf("%s_%s_%03d.xml%s",
-            _vendor.toStdString().c_str(),
-            _modelName.toStdString().c_str(),
-            ver,
-            ext.toStdString().c_str());
+        QString fileName = QFileInfo(_cacheFile).fileName();
+        if (!ext.isEmpty()) {
+            fileName += ext;
+        }
         connect(_vehicle->ftpManager(), &FTPManager::downloadComplete, this, &QGCCameraControl::_ftpDownloadComplete);
         _vehicle->ftpManager()->download(_compID, url,
             qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),

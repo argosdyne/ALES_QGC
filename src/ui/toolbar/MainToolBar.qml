@@ -175,7 +175,19 @@ Rectangle {
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        visible:            !QGroundControl.corePlugin.rajantManager
         source:             QGroundControl.corePlugin.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
+    }
+    
+    // Rajant BCAPI Link Indicator (shown when Rajant is connected, replaces ARLink/M2)
+    Loader {
+        id:                 rajantLinkIndicator
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        visible:            QGroundControl.corePlugin.rajantManager ? true : false
+        source:             visible ? "qrc:/toolbar/RajantLinkIndicator.qml" : ""
     }
 
     // Small parameter download progress bar

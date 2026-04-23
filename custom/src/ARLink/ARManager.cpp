@@ -353,8 +353,32 @@ void ARManager::_bindTimerout()
 
 void ARManager::_pollDoodleInfo()  // pool loop
 {
+    if (_doodlePollingStopped) {
+        return;
+    }
     if (_doodleRequestInFlight) {
         return;
+    }
+
+    // Doodle hardware is mutually exclusive with Enpulse M1, Enpulse M2, and
+    // Rajant on the same LAN. If any of those links has already come up, stop
+    // wasting HTTPS attempts trying to log in to a Doodle that isn't there.
+    //   - Enpulse M1 is active when our own ARConnection reports connected
+    //     while _usingDoodleApi is still false (shared _connected flag).
+    //   - M2 and Rajant are owned by CustomPlugin, so we ask the plugin.
+    if (_connected && !_usingDoodleApi) {
+        _stopDoodlePolling("Enpulse M1 connected");
+        return;
+    }
+    if (CustomPlugin* plugin = dynamic_cast<CustomPlugin*>(_toolbox->corePlugin())) {
+        if (plugin->m2Manager() != nullptr) {
+            _stopDoodlePolling("Enpulse M2 connected");
+            return;
+        }
+        if (plugin->rajantManager() != nullptr) {
+            _stopDoodlePolling("Rajant connected");
+            return;
+        }
     }
 
     if (_rpcSession.isEmpty()) {
@@ -363,6 +387,14 @@ void ARManager::_pollDoodleInfo()  // pool loop
     else {
         _requestDoodleRadioInfo();
     }
+}
+
+void ARManager::_stopDoodlePolling(const char* reason)
+{
+    if (_doodlePollingStopped) return;
+    _doodlePollingStopped = true;
+    _doodlePollTimer.stop();
+    qInfo() << "[Doodle API] polling stopped:" << (reason ? reason : "");
 }
 
 void ARManager::_requestDoodleLogin()  // ubus login
