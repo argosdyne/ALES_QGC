@@ -102,6 +102,12 @@ Item {
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
 
+    // Debounce rapid zoom taps: the camera's stepZoom() computes its next
+    // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
+    // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
+    // commands +1 on top of it, producing a 2–3× overshoot.
+    property real _zoomLastMs: 0
+
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
         _videoStreamInPhotoMode = photoMode
@@ -368,7 +374,11 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    onClicked: {
+                        if (Date.now() - _zoomLastMs < 150) return
+                        _zoomLastMs = Date.now()
+                        _mavlinkCamera.stepZoom(1)
+                    }
                 }
             }
 
@@ -414,7 +424,11 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    onClicked: {
+                        if (Date.now() - _zoomLastMs < 150) return
+                        _zoomLastMs = Date.now()
+                        _mavlinkCamera.stepZoom(-1)
+                    }
                 }
             }
         }
