@@ -87,7 +87,7 @@ void RajantManager::reconnect()
 void RajantManager::_onSslErrors(const QList<QSslError>& errors)
 {
     // Rajant nodes use self-signed certificates — this is expected
-    qInfo() << "RajantManager: ignoring SSL errors (self-signed cert):" << errors.size();
+    // qInfo() << "RajantManager: ignoring SSL errors (self-signed cert):" << errors.size();
     _socket->ignoreSslErrors();
 }
 
@@ -141,7 +141,7 @@ void RajantManager::_reconnectTimer()
         _reconnTimer->stop();
         return;
     }
-    qInfo() << "RajantManager: attempting reconnect to" << _nodeAddress;
+    // qInfo() << "RajantManager: attempting reconnect to" << _nodeAddress;
     connectToNode(_nodeAddress);
 }
 
@@ -161,7 +161,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
 
     // Handle auth challenge from server
     if (!msg.authChallenge.isEmpty() && _authState == AUTH_WAIT_CHALLENGE) {
-        qInfo() << "RajantManager: received auth challenge (" << msg.authChallenge.size() << "bytes), sending SHA-384 response";
+        // qInfo() << "RajantManager: received auth challenge (" << msg.authChallenge.size() << "bytes), sending SHA-384 response";
         QByteArray authResp = BcapiProtocol::buildAuthResponse(
             msg.authChallenge, _password, ++_seqNum);
         _socket->write(authResp);
@@ -343,18 +343,17 @@ void RajantManager::_processFrame(const QByteArray& payload)
             emit linkLiveChanged();
         }
 
-        // Log RSSI only when the link is live — avoids log spam of stale values
-        // when the remote end has been powered off. staleCount included so we can
-        // verify the stale-detection counter is actually advancing.
-        if (_linkLive) {
-            qInfo() << QString("[%1] Ground: %2 dBm / %3 dB | Sky: %4 dBm / %5 dB | Noise: %6 dBm | Rate: %7 Mbps | Ch: %8 | Radio: %9 | stale=%10")
-                       .arg(_nodeAddress)
-                       .arg(_signal).arg(_snr)
-                       .arg(_skySignal).arg(_skySnr)
-                       .arg(_noise)
-                       .arg(_linkRate).arg(_channel).arg(_radioName)
-                       .arg(_staleCount);
-        }
+        // Per-poll RSSI log disabled to avoid 1-per-second log spam in production.
+        // Re-enable locally for debugging signal/stale behavior:
+        // if (_linkLive) {
+        //     qInfo() << QString("[%1] Ground: %2 dBm / %3 dB | Sky: %4 dBm / %5 dB | Noise: %6 dBm | Rate: %7 Mbps | Ch: %8 | Radio: %9 | stale=%10")
+        //                .arg(_nodeAddress)
+        //                .arg(_signal).arg(_snr)
+        //                .arg(_skySignal).arg(_skySnr)
+        //                .arg(_noise)
+        //                .arg(_linkRate).arg(_channel).arg(_radioName)
+        //                .arg(_staleCount);
+        // }
 
         if (dataChanged) {
             _setStatusText(QString("Ground: %1 dBm / %2 dB | Sky: %3 dBm / %4 dB")
