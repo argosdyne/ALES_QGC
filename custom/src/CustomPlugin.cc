@@ -49,6 +49,11 @@
 
 QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 
+// ARManagerLog is defined in custom/src/ARLink/ARManager.cpp; Rajant discovery
+// piggybacks on that category so its messages land in the QGC console/log file
+// (the QGC message handler drops categoryless qInfo/qWarning).
+Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
+
 static const char *kSlaveMode = "SlaveMode";
 
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
@@ -548,7 +553,7 @@ void CustomPlugin::_initRajantDiscovery()
     // compete for the link with Enpulse M1/M2 or DoodleLab.
     QString blocking = _activeNonRajantLinkName();
     if (!blocking.isEmpty()) {
-        qInfo() << "RajantDiscovery:" << blocking << "is active — skipping Rajant scan.";
+        qCInfo(ARManagerLog) << "RajantDiscovery:" << blocking << "is active — skipping Rajant scan.";
         return;
     }
 
@@ -559,7 +564,7 @@ void CustomPlugin::_initRajantDiscovery()
     static const int maxRetries = 5;   // 5 x 10s = 50 seconds
 #endif
     if (_rajantDiscoveryRetries >= maxRetries) {
-        qInfo() << "RajantDiscovery: no Rajant hardware found after"
+        qCInfo(ARManagerLog) << "RajantDiscovery: no Rajant hardware found after"
             << _rajantDiscoveryRetries << "attempts. Stopping discovery.";
         return;
     }
@@ -575,13 +580,13 @@ void CustomPlugin::_initRajantDiscovery()
     QByteArray envAddr = qgetenv("RAJANT_NODE");
     if (!envAddr.isEmpty()) {
         QString addr = QString::fromUtf8(envAddr);
-        qInfo() << "RajantDiscovery: using RAJANT_NODE env override:" << addr;
+        qCInfo(ARManagerLog) << "RajantDiscovery: using RAJANT_NODE env override:" << addr;
         _rajantManager = new RajantManager(addr, _rajantPassword, this);
         emit rajantManagerChanged();
         return;
     }
 
-    // qInfo() << "RajantDiscovery: starting auto-discovery...";
+    // qCInfo(ARManagerLog) << "RajantDiscovery: starting auto-discovery...";
 
 #if defined(Q_OS_ANDROID)
     // Android: apps are sandboxed — "ip" command and /proc/net files are blocked.
@@ -613,7 +618,7 @@ void CustomPlugin::_initRajantDiscovery()
         if (!(iface.flags() & QNetworkInterface::IsUp)) continue;
         if (iface.flags() & QNetworkInterface::IsLoopBack) continue;
 
-        qInfo() << "RajantDiscovery: interface" << iface.name()
+        qCInfo(ARManagerLog) << "RajantDiscovery: interface" << iface.name()
             << "index:" << iface.index() << "flags:" << iface.flags();
 
         bool isWifi = iface.name().startsWith("wlan", Qt::CaseInsensitive) ||
@@ -628,7 +633,7 @@ void CustomPlugin::_initRajantDiscovery()
             quint32 gw = (ip4 & mask) | 1;
             if (gw == ip4) continue;
             QString gwStr = QHostAddress(gw).toString();
-            qInfo() << "RajantDiscovery:" << iface.name() << "ip:" << addr.toString()
+            qCInfo(ARManagerLog) << "RajantDiscovery:" << iface.name() << "ip:" << addr.toString()
                 << "gateway:" << gwStr << (isWifi ? "(wifi)" : "(ethernet)");
             if (!gatewayIPs.contains(gwStr))
                 gatewayIPs.append(gwStr);
@@ -655,7 +660,7 @@ void CustomPlugin::_initRajantDiscovery()
         }
         if (attempt == 0) usleep(100000); // 100ms between pokes
     }
-    qInfo() << "RajantDiscovery: ARP poke sent to" << gatewayIPs;
+    qCInfo(ARManagerLog) << "RajantDiscovery: ARP poke sent to" << gatewayIPs;
     // Wait for ARP to complete
     usleep(500000); // 500ms
 
@@ -701,7 +706,7 @@ void CustomPlugin::_initRajantDiscovery()
 
             ssize_t sent = sendto(supSock, supRequest.constData(), supRequest.size(), 0,
                 reinterpret_cast<struct sockaddr*>(&dst), sizeof(dst));
-            qInfo() << "RajantDiscovery: SUP on" << iface.name()
+            qCInfo(ARManagerLog) << "RajantDiscovery: SUP on" << iface.name()
                 << (sent > 0 ? "OK" : strerror(errno));
         }
 
@@ -744,20 +749,20 @@ void CustomPlugin::_initRajantDiscovery()
 
             if (!foundCandidates.contains(addr6)) {
                 foundCandidates.append(addr6);
-                qInfo() << "RajantDiscovery: SUP response from" << addr6;
+                qCInfo(ARManagerLog) << "RajantDiscovery: SUP response from" << addr6;
             }
         }
         ::close(supSock);
     }
     else {
-        qInfo() << "RajantDiscovery: UDP6 socket failed:" << strerror(errno);
+        qCInfo(ARManagerLog) << "RajantDiscovery: UDP6 socket failed:" << strerror(errno);
     }
 
     // --- Step 2b: Identify the ground unit (Ethernet gateway's MAC) and put it first ---
     // The gateway on eth0 (not wlan0) is the directly-connected Rajant ground unit.
     // Match its MAC (from ARP/netlink) to the SUP fe80:: candidates.
     if (foundCandidates.size() > 1 && !ethernetGatewayIPs.isEmpty()) {
-        qInfo() << "RajantDiscovery: identifying ground unit from ethernet gateways:" << ethernetGatewayIPs;
+        qCInfo(ARManagerLog) << "RajantDiscovery: identifying ground unit from ethernet gateways:" << ethernetGatewayIPs;
         int nlSock = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
         if (nlSock >= 0) {
             struct { struct nlmsghdr nlh; struct ndmsg ndm; } req;
@@ -805,7 +810,7 @@ void CustomPlugin::_initRajantDiscovery()
                         inet_ntop(AF_INET6, eui, euiBuf, sizeof(euiBuf));
                         QString groundPrefix = QString::fromLatin1(euiBuf);
 
-                        qInfo() << "RajantDiscovery: gateway" << ip4Buf
+                        qCInfo(ARManagerLog) << "RajantDiscovery: gateway" << ip4Buf
                             << "MAC -> ground unit fe80::" << groundPrefix;
 
                         // Move matching candidate to front of the list
@@ -813,7 +818,7 @@ void CustomPlugin::_initRajantDiscovery()
                             if (foundCandidates[i].startsWith(groundPrefix, Qt::CaseInsensitive)) {
                                 QString ground = foundCandidates.takeAt(i);
                                 foundCandidates.prepend(ground);
-                                qInfo() << "RajantDiscovery: prioritized ground unit:" << ground;
+                                qCInfo(ARManagerLog) << "RajantDiscovery: prioritized ground unit:" << ground;
                                 break;
                             }
                         }
@@ -826,7 +831,7 @@ void CustomPlugin::_initRajantDiscovery()
 
     // --- Step 3: Netlink neighbor table fallback (if no SUP responses) ---
     if (foundCandidates.isEmpty()) {
-        qInfo() << "RajantDiscovery: no SUP response, reading neighbor table via netlink...";
+        qCInfo(ARManagerLog) << "RajantDiscovery: no SUP response, reading neighbor table via netlink...";
 
         int nlSock = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
         if (nlSock >= 0) {
@@ -883,7 +888,7 @@ void CustomPlugin::_initRajantDiscovery()
                             else if (ndm->ndm_family == AF_INET)
                                 inet_ntop(AF_INET, dstAddr, ipBuf, sizeof(ipBuf));
                         }
-                        qInfo() << "RajantDiscovery: neigh" << ipBuf << "MAC:" << mac
+                        qCInfo(ARManagerLog) << "RajantDiscovery: neigh" << ipBuf << "MAC:" << mac
                             << "iface:" << ifn << "family:" << ndm->ndm_family;
 
                         // No OUI filter: every fe80:: neighbor with a MAC is a candidate.
@@ -896,7 +901,7 @@ void CustomPlugin::_initRajantDiscovery()
                             QString addr6 = QString("%1%%%2").arg(ip6Str, ifn);
                             if (!foundCandidates.contains(addr6)) {
                                 foundCandidates.append(addr6);
-                                qInfo() << "RajantDiscovery: candidate IPv6:" << addr6 << "MAC:" << mac;
+                                qCInfo(ARManagerLog) << "RajantDiscovery: candidate IPv6:" << addr6 << "MAC:" << mac;
                             }
                         }
                         else if (ndm->ndm_family == AF_INET && dstAddr) {
@@ -921,7 +926,7 @@ void CustomPlugin::_initRajantDiscovery()
                                         QString addr6 = QString("%1%%%2").arg(euiBuf, sid);
                                         if (!foundCandidates.contains(addr6)) {
                                             foundCandidates.append(addr6);
-                                            qInfo() << "RajantDiscovery: candidate ARP->IPv6:" << addr6
+                                            qCInfo(ARManagerLog) << "RajantDiscovery: candidate ARP->IPv6:" << addr6
                                                 << "(from" << ipBuf << "MAC:" << mac << ")";
                                         }
                                         break;
@@ -933,12 +938,12 @@ void CustomPlugin::_initRajantDiscovery()
                 }
             }
             else {
-                qWarning() << "RajantDiscovery: netlink send failed:" << strerror(errno);
+                qCWarning(ARManagerLog) << "RajantDiscovery: netlink send failed:" << strerror(errno);
             }
             ::close(nlSock);
         }
         else {
-            qWarning() << "RajantDiscovery: netlink socket failed:" << strerror(errno);
+            qCWarning(ARManagerLog) << "RajantDiscovery: netlink socket failed:" << strerror(errno);
         }
     }
 
@@ -948,17 +953,17 @@ void CustomPlugin::_initRajantDiscovery()
             // Re-check: another link may have come online while the worker was running.
             QString blocking = _activeNonRajantLinkName();
             if (!blocking.isEmpty()) {
-                qInfo() << "RajantDiscovery:" << blocking
+                qCInfo(ARManagerLog) << "RajantDiscovery:" << blocking
                         << "came online during scan — discarding candidates.";
                 return;
             }
             _rajantCandidates = foundCandidates;
             if (_rajantCandidates.isEmpty()) {
-                qWarning() << "RajantDiscovery: no Rajant nodes found. Retrying in 10s...";
+                qCWarning(ARManagerLog) << "RajantDiscovery: no Rajant nodes found. Retrying in 10s...";
                 QTimer::singleShot(10000, this, &CustomPlugin::_initRajantDiscovery);
                 return;
             }
-            qInfo() << "RajantDiscovery: probing" << _rajantCandidates.size() << "candidates via TCP:2300...";
+            qCInfo(ARManagerLog) << "RajantDiscovery: probing" << _rajantCandidates.size() << "candidates via TCP:2300...";
             _tryNextRajantCandidate();
         }, Qt::QueuedConnection);
     }); // end QtConcurrent::run
@@ -989,7 +994,7 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
     process->deleteLater();
 
     if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
-        qWarning() << "RajantDiscovery: neighbor scan failed, exit code:" << exitCode;
+        qCWarning(ARManagerLog) << "RajantDiscovery: neighbor scan failed, exit code:" << exitCode;
         // Retry after 10 seconds
         QTimer::singleShot(10000, this, &CustomPlugin::_initRajantDiscovery);
         return;
@@ -1023,13 +1028,13 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
         // We'll try connecting without scope first, then with detected interfaces
         if (!_rajantCandidates.contains(ipv6Addr)) {
             _rajantCandidates.append(ipv6Addr);
-            qInfo() << "RajantDiscovery: candidate:" << ipv6Addr
+            qCInfo(ARManagerLog) << "RajantDiscovery: candidate:" << ipv6Addr
                 << "MAC:" << (parts.size() > 1 ? parts.at(1) : "unknown");
         }
     }
 
     if (_rajantCandidates.isEmpty()) {
-        qInfo() << "RajantDiscovery: no Rajant nodes found on network."
+        qCInfo(ARManagerLog) << "RajantDiscovery: no Rajant nodes found on network."
             << "Make sure a Rajant node is connected via Ethernet.";
 
         // Retry discovery after 10 seconds
@@ -1064,7 +1069,7 @@ void CustomPlugin::_onRajantScanFinished(int exitCode, QProcess::ExitStatus exit
     _rajantCandidates = scopedCandidates;
 #endif
 
-    qInfo() << "RajantDiscovery: probing" << _rajantCandidates.size() << "candidates via TCP:2300...";
+    qCInfo(ARManagerLog) << "RajantDiscovery: probing" << _rajantCandidates.size() << "candidates via TCP:2300...";
 
     // Try connecting to each candidate
     _tryNextRajantCandidate();
@@ -1075,21 +1080,21 @@ void CustomPlugin::_tryNextRajantCandidate()
     // Re-check on every probe — another link may have come online between probes.
     QString blocking = _activeNonRajantLinkName();
     if (!blocking.isEmpty()) {
-        qInfo() << "RajantDiscovery:" << blocking
+        qCInfo(ARManagerLog) << "RajantDiscovery:" << blocking
                 << "is active — aborting probe sequence.";
         _rajantCandidates.clear();
         return;
     }
 
     if (_rajantCandidates.isEmpty()) {
-        qInfo() << "RajantDiscovery: no candidates responded on TCP:2300."
+        qCInfo(ARManagerLog) << "RajantDiscovery: no candidates responded on TCP:2300."
             << "Retrying in 10 seconds...";
         QTimer::singleShot(10000, this, &CustomPlugin::_initRajantDiscovery);
         return;
     }
 
     QString candidate = _rajantCandidates.takeFirst();
-    qInfo() << "RajantDiscovery: probing" << candidate << "...";
+    qCInfo(ARManagerLog) << "RajantDiscovery: probing" << candidate << "...";
 
     // Clean up previous probe socket
     if (_rajantProbeSocket) {
@@ -1109,7 +1114,7 @@ void CustomPlugin::_tryNextRajantCandidate()
     QTimer::singleShot(3000, this, [this, candidate]() {
         if (_rajantProbeSocket && _rajantProbeSocket->state() != QAbstractSocket::ConnectedState &&
             _rajantProbeSocket->property("address").toString() == candidate) {
-            qInfo() << "RajantDiscovery: timeout probing" << candidate;
+            qCInfo(ARManagerLog) << "RajantDiscovery: timeout probing" << candidate;
             _rajantProbeSocket->abort();
             _tryNextRajantCandidate();
         }
@@ -1122,7 +1127,7 @@ void CustomPlugin::_tryNextRajantCandidate()
 void CustomPlugin::_onRajantProbeConnected()
 {
     QString address = _rajantProbeSocket->property("address").toString();
-    qInfo() << "RajantDiscovery: TCP:2300 responded on" << address
+    qCInfo(ARManagerLog) << "RajantDiscovery: TCP:2300 responded on" << address
         << "- connecting to identify node type...";
 
     // Clean up probe socket
@@ -1140,12 +1145,12 @@ void CustomPlugin::_onRajantProbeConnected()
 
     connect(_rajantManager, &RajantManager::firstStateReceived, this,
         [address](int radioCount) {
-            qInfo() << "";
-            qInfo() << "=== Rajant Discovery Complete ===";
-            qInfo() << "  Ground unit:" << address;
-            qInfo() << "  Radios:     " << radioCount;
-            qInfo() << "  Displaying:  RSSI (ground <- air)";
-            qInfo() << "";
+            qCInfo(ARManagerLog) << "";
+            qCInfo(ARManagerLog) << "=== Rajant Discovery Complete ===";
+            qCInfo(ARManagerLog) << "  Ground unit:" << address;
+            qCInfo(ARManagerLog) << "  Radios:     " << radioCount;
+            qCInfo(ARManagerLog) << "  Displaying:  RSSI (ground <- air)";
+            qCInfo(ARManagerLog) << "";
         });
 }
 
@@ -1153,7 +1158,7 @@ void CustomPlugin::_onRajantProbeError(QAbstractSocket::SocketError error)
 {
     Q_UNUSED(error);
     QString address = _rajantProbeSocket->property("address").toString();
-    qInfo() << "RajantDiscovery: probe failed on" << address << "-" << _rajantProbeSocket->errorString();
+    qCInfo(ARManagerLog) << "RajantDiscovery: probe failed on" << address << "-" << _rajantProbeSocket->errorString();
     _tryNextRajantCandidate();
 }
 

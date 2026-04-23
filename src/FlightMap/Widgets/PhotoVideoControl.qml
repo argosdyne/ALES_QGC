@@ -102,6 +102,12 @@ Item {
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
 
+    // Debounce rapid zoom taps: the camera's stepZoom() computes its next
+    // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
+    // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
+    // commands +1 on top of it, producing a 2–3× overshoot.
+    property real _zoomLastMs: 0
+
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
         _videoStreamInPhotoMode = photoMode
@@ -368,7 +374,11 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    onClicked: {
+                        if (Date.now() - _zoomLastMs < 150) return
+                        _zoomLastMs = Date.now()
+                        _mavlinkCamera.stepZoom(1)
+                    }
                 }
             }
 
@@ -414,7 +424,11 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    onClicked: {
+                        if (Date.now() - _zoomLastMs < 150) return
+                        _zoomLastMs = Date.now()
+                        _mavlinkCamera.stepZoom(-1)
+                    }
                 }
             }
         }
@@ -521,6 +535,29 @@ Item {
             id:         settingsDialog            
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
+
+            // Nano tracker can runaway on very close targets — warn the operator
+            // only when the tracking algorithm is actively switched to "Nano".
+            property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
+
+            Connections {
+                target: settingsDialog._trackAlgorithmFact
+                ignoreUnknownSignals: true
+                function onValueChanged() {
+                    if (settingsDialog._trackAlgorithmFact
+                            && settingsDialog._trackAlgorithmFact.value === "Nano") {
+                        nanoRunawayWarning.open()
+                    }
+                }
+            }
+
+            MessageDialog {
+                id:                 nanoRunawayWarning
+                title:              qsTr("Tracking Algorithm")
+                text:               qsTr("If the target is close, camera runaway may occur.")
+                standardButtons:    StandardButton.Ok
+                onAccepted:         nanoRunawayWarning.close()
+            }
 
             ColumnLayout {
                 spacing: _margins

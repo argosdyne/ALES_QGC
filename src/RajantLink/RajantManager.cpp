@@ -1,7 +1,10 @@
 #include "RajantManager.h"
 #include <QHostAddress>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 #include <QSslConfiguration>
+
+Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
 RajantManager::RajantManager(const QString& nodeAddress, const QString& password, QObject* parent)
     : QObject(parent)
@@ -52,7 +55,7 @@ void RajantManager::connectToNode(const QString& address)
     _firstStateEmitted = false;
 
     _setStatusText("Connecting (SSL) to " + address + "...");
-    qInfo() << "RajantManager: connecting SSL to" << address << "port" << _port;
+    qCInfo(ARManagerLog) << "RajantManager: connecting SSL to" << address << "port" << _port;
 
     // Configure SSL to accept self-signed certs
     QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
@@ -87,13 +90,13 @@ void RajantManager::reconnect()
 void RajantManager::_onSslErrors(const QList<QSslError>& errors)
 {
     // Rajant nodes use self-signed certificates — this is expected
-    // qInfo() << "RajantManager: ignoring SSL errors (self-signed cert):" << errors.size();
+    // qCInfo(ARManagerLog) << "RajantManager: ignoring SSL errors (self-signed cert):" << errors.size();
     _socket->ignoreSslErrors();
 }
 
 void RajantManager::_onSocketEncrypted()
 {
-    qInfo() << "RajantManager: SSL handshake complete on" << _nodeAddress;
+    qCInfo(ARManagerLog) << "RajantManager: SSL handshake complete on" << _nodeAddress;
     _setConnected(true);
     _setStatusText("SSL connected, waiting for auth challenge...");
     _authState = AUTH_WAIT_CHALLENGE;
@@ -102,7 +105,7 @@ void RajantManager::_onSocketEncrypted()
 
 void RajantManager::_onSocketDisconnected()
 {
-    qWarning() << "RajantManager: disconnected from" << _nodeAddress;
+    qCWarning(ARManagerLog) << "RajantManager: disconnected from" << _nodeAddress;
     _pollTimer->stop();
     _setConnected(false);
     _setAuthenticated(false);
@@ -127,7 +130,7 @@ void RajantManager::_onSocketDisconnected()
 void RajantManager::_onSocketError(QAbstractSocket::SocketError error)
 {
     Q_UNUSED(error);
-    qWarning() << "RajantManager: socket error:" << _socket->errorString();
+    qCWarning(ARManagerLog) << "RajantManager: socket error:" << _socket->errorString();
     _setStatusText("Error: " + _socket->errorString());
 
     if (!_reconnTimer->isActive()) {
@@ -141,7 +144,7 @@ void RajantManager::_reconnectTimer()
         _reconnTimer->stop();
         return;
     }
-    // qInfo() << "RajantManager: attempting reconnect to" << _nodeAddress;
+    // qCInfo(ARManagerLog) << "RajantManager: attempting reconnect to" << _nodeAddress;
     connectToNode(_nodeAddress);
 }
 
@@ -161,7 +164,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
 
     // Handle auth challenge from server
     if (!msg.authChallenge.isEmpty() && _authState == AUTH_WAIT_CHALLENGE) {
-        // qInfo() << "RajantManager: received auth challenge (" << msg.authChallenge.size() << "bytes), sending SHA-384 response";
+        // qCInfo(ARManagerLog) << "RajantManager: received auth challenge (" << msg.authChallenge.size() << "bytes), sending SHA-384 response";
         QByteArray authResp = BcapiProtocol::buildAuthResponse(
             msg.authChallenge, _password, ++_seqNum);
         _socket->write(authResp);
@@ -173,14 +176,14 @@ void RajantManager::_processFrame(const QByteArray& payload)
     // Handle auth result
     if (msg.authResultStatus >= 0) {
         if (msg.authResultStatus == 1) { // SUCCESS
-            qInfo() << "RajantManager: authentication successful on" << _nodeAddress;
+            qCInfo(ARManagerLog) << "RajantManager: authentication successful on" << _nodeAddress;
             _setAuthenticated(true);
             _setStatusText("Authenticated - polling RSSI");
             // Start polling state
             _pollState(); // immediate first query
             _pollTimer->start(_pollInterval);
         } else {
-            qWarning() << "RajantManager: authentication FAILED (status:" << msg.authResultStatus << ")";
+            qCWarning(ARManagerLog) << "RajantManager: authentication FAILED (status:" << msg.authResultStatus << ")";
             _setStatusText("Auth failed - check password");
             _socket->close();
         }
@@ -198,45 +201,45 @@ void RajantManager::_processFrame(const QByteArray& payload)
             _firstStateEmitted = true;
 
             // Print full node info like the Java QuickTest output
-            qInfo() << "";
-            qInfo() << "=== Rajant Node:" << _nodeAddress << "===";
-            qInfo() << "  Wireless radios:" << _radioCount;
+            qCInfo(ARManagerLog) << "";
+            qCInfo(ARManagerLog) << "=== Rajant Node:" << _nodeAddress << "===";
+            qCInfo(ARManagerLog) << "  Wireless radios:" << _radioCount;
             for (const auto& w : msg.state.wireless) {
                 if (!w.nodeName.isEmpty()) {
-                    qInfo() << "  Hostname:       " << w.nodeName;
+                    qCInfo(ARManagerLog) << "  Hostname:       " << w.nodeName;
                     break;
                 }
             }
             for (const auto& w : msg.state.wireless) {
                 if (!w.firmwareVersion.isEmpty()) {
-                    qInfo() << "  Firmware:       " << w.firmwareVersion;
+                    qCInfo(ARManagerLog) << "  Firmware:       " << w.firmwareVersion;
                     break;
                 }
             }
 
             for (int i = 0; i < msg.state.wireless.size(); i++) {
                 const auto& w = msg.state.wireless[i];
-                qInfo() << "  Radio" << i << ":";
-                qInfo() << "    Name:   " << w.name;
-                qInfo() << "    Channel:" << w.channel;
-                qInfo() << "    Noise:  " << w.noise << "dBm";
-                qInfo() << "    TxPower:" << w.txpower << "dBm";
-                qInfo() << "    Peers:  " << w.peers.size();
+                qCInfo(ARManagerLog) << "  Radio" << i << ":";
+                qCInfo(ARManagerLog) << "    Name:   " << w.name;
+                qCInfo(ARManagerLog) << "    Channel:" << w.channel;
+                qCInfo(ARManagerLog) << "    Noise:  " << w.noise << "dBm";
+                qCInfo(ARManagerLog) << "    TxPower:" << w.txpower << "dBm";
+                qCInfo(ARManagerLog) << "    Peers:  " << w.peers.size();
                 for (int j = 0; j < w.peers.size(); j++) {
                     const auto& p = w.peers[j];
-                    qInfo() << "      Peer" << j << ":";
-                    qInfo() << "        Signal: " << p.signal << "dBm  (ground <- sky)";
-                    qInfo() << "        SNR:    " << p.rssi << "dB    (ground <- sky)";
-                    qInfo() << "        PeerSNR:" << p.peerSnr << "dB    (sky <- ground, reported by sky)";
-                    qInfo() << "        Rate:   " << (p.rate * 10) << "Mbps";
-                    qInfo() << "        Enabled:" << p.enabled;
+                    qCInfo(ARManagerLog) << "      Peer" << j << ":";
+                    qCInfo(ARManagerLog) << "        Signal: " << p.signal << "dBm  (ground <- sky)";
+                    qCInfo(ARManagerLog) << "        SNR:    " << p.rssi << "dB    (ground <- sky)";
+                    qCInfo(ARManagerLog) << "        PeerSNR:" << p.peerSnr << "dB    (sky <- ground, reported by sky)";
+                    qCInfo(ARManagerLog) << "        Rate:   " << (p.rate * 10) << "Mbps";
+                    qCInfo(ARManagerLog) << "        Enabled:" << p.enabled;
                     if (!p.ipv4Address.isEmpty())
-                        qInfo() << "        IPv4:   " << p.ipv4Address;
+                        qCInfo(ARManagerLog) << "        IPv4:   " << p.ipv4Address;
                     if (!p.linkLocalAddress.isEmpty())
-                        qInfo() << "        LinkLocal:" << p.linkLocalAddress;
+                        qCInfo(ARManagerLog) << "        LinkLocal:" << p.linkLocalAddress;
                 }
             }
-            qInfo() << "";
+            qCInfo(ARManagerLog) << "";
 
             emit firstStateReceived(_radioCount);
         }
@@ -329,7 +332,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
         if (shouldBeLive != _linkLive) {
             _linkLive = shouldBeLive;
             if (!_linkLive) {
-                qWarning() << "RajantManager: link appears dead (hasEnabledPeer="
+                qCWarning(ARManagerLog) << "RajantManager: link appears dead (hasEnabledPeer="
                            << hasEnabledPeer << ", staleCount=" << _staleCount
                            << ", elapsedMs=" << (_lastPeerChange.isValid() ? _lastPeerChange.elapsed() : -1)
                            << ") — clearing UI values";
@@ -338,7 +341,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 dataChanged = true;
                 skyChanged = true;
             } else {
-                qInfo() << "RajantManager: link is live again";
+                qCInfo(ARManagerLog) << "RajantManager: link is live again";
             }
             emit linkLiveChanged();
         }
@@ -346,7 +349,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
         // Per-poll RSSI log disabled to avoid 1-per-second log spam in production.
         // Re-enable locally for debugging signal/stale behavior:
         // if (_linkLive) {
-        //     qInfo() << QString("[%1] Ground: %2 dBm / %3 dB | Sky: %4 dBm / %5 dB | Noise: %6 dBm | Rate: %7 Mbps | Ch: %8 | Radio: %9 | stale=%10")
+        //     qCInfo(ARManagerLog) << QString("[%1] Ground: %2 dBm / %3 dB | Sky: %4 dBm / %5 dB | Noise: %6 dBm | Rate: %7 Mbps | Ch: %8 | Radio: %9 | stale=%10")
         //                .arg(_nodeAddress)
         //                .arg(_signal).arg(_snr)
         //                .arg(_skySignal).arg(_skySnr)
