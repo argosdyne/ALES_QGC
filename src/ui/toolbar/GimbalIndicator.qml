@@ -96,10 +96,15 @@ Item {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                         text: modelData.text
                         visible: modelData.visible
+                        opacity: mainWindow.droneControlBlocked ? 0.65 : 1
                         fontWeight: Font.Medium
                         pointSize: ScreenTools.smallFontPointSize
                         backRadius: panelRadius * 0.5
                         onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
                             var callback = callbackList.find(function(item) {
                                 return item.hasOwnProperty(modelData.id);
                             });
@@ -389,6 +394,10 @@ Item {
     MouseArea {
         anchors.fill: parent
         onClicked: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                return
+            }
             mainWindow.showIndicatorPopup(_root, gimbalControlsPopup, false)
         }
     }

@@ -26,6 +26,7 @@ QGCComboBox {
     font.pointSize:         ScreenTools.mediumFontPointSize
     currentIndex:           -1
     sizeToContents:         true
+    opacity:                mainWindow.droneControlBlocked ? 0.65 : 1
 
     property bool showIndicator: _activeVehicle.vtol && _activeVehicle.px4Firmware
 
@@ -33,6 +34,11 @@ QGCComboBox {
     property bool   _fwdFlight:     _activeVehicle.vtolInFwdFlight
 
     onActivated: {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            currentIndex = -1
+            return
+        }
         if (index == 0) {
             if (_fwdFlight) {
                 mainWindow.vtolTransitionToMRFlightRequest()

@@ -672,6 +672,10 @@ FlightMap {
             title:                  qsTr("Edit ROI Position")
             coordinate:             roiLocationItem.coordinate
             onCoordinateChanged: {
+                if (mainWindow.droneControlBlocked) {
+                    mainWindow.showAdminPrivilegesRequiredDialog()
+                    return
+                }
                 roiLocationItem.coordinate = coordinate
                 _activeVehicle.guidedModeROI(coordinate)
             }
@@ -689,6 +693,11 @@ FlightMap {
                 Layout.fillWidth:   true
                 text:               qsTr("Cancel ROI")
                 onClicked: {
+                    if (mainWindow.droneControlBlocked) {
+                        mainWindow.showAdminPrivilegesRequiredDialog()
+                        popup.close()
+                        return
+                    }
                     _activeVehicle.stopGuidedModeROI()
                     popup.close()
                 }

@@ -173,6 +173,10 @@ Rectangle {
                             Layout.alignment:   Qt.AlignCenter
 
                             onClicked: {
+                                if (mainWindow.droneControlBlocked) {
+                                    mainWindow.showAdminPrivilegesRequiredDialog()
+                                    return
+                                }
                                 var vehicle = QGroundControl.multiVehicleManager.activeVehicle
                                 object.sendTo(vehicle)
                             }

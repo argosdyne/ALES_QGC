@@ -165,7 +165,13 @@ RowLayout {
 
         QGCMouseArea {
             anchors.fill:   parent
-            onClicked:      mainWindow.showIndicatorPopup(vtolModeLabel, vtolTransitionComponent)
+            onClicked: {
+                if (mainWindow.droneControlBlocked) {
+                    mainWindow.showAdminPrivilegesRequiredDialog()
+                    return
+                }
+                mainWindow.showIndicatorPopup(vtolModeLabel, vtolTransitionComponent)
+            }
         }
     }
 
@@ -199,6 +205,7 @@ RowLayout {
                         Layout.alignment:   _healthAndArmingChecksSupported ? Qt.AlignLeft : Qt.AlignHCenter
                         // FIXME: forceArm is not possible anymore if _healthAndArmingChecksSupported == true
                         enabled:            _armed || !_healthAndArmingChecksSupported || _activeVehicle.healthAndArmingCheckReport.canArm
+                        opacity:            mainWindow.droneControlBlocked ? 0.65 : 1
                         text:               _armed ?  qsTr("Disarm") : (forceArm ? qsTr("Force Arm") : qsTr("Arm"))
 
                         property bool forceArm: false
@@ -206,6 +213,12 @@ RowLayout {
                         onPressAndHold: forceArm = true
 
                         onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                forceArm = false
+                                mainWindow.hideIndicatorPopup()
+                                return
+                            }
                             if (_armed) {
                                 mainWindow.disarmVehicleRequest()
                             } else {
@@ -390,8 +403,14 @@ RowLayout {
                 anchors.top:        parent.top
                 anchors.left:       parent.left
                 text:               _vtolInFWDFlight ? qsTr("Transition to Multi-Rotor") : qsTr("Transition to Fixed Wing")
+                opacity:            mainWindow.droneControlBlocked ? 0.65 : 1
 
                 onClicked: {
+                    if (mainWindow.droneControlBlocked) {
+                        mainWindow.showAdminPrivilegesRequiredDialog()
+                        mainWindow.hideIndicatorPopup()
+                        return
+                    }
                     if (_vtolInFWDFlight) {
                         mainWindow.vtolTransitionToMRFlightRequest()
                     } else {

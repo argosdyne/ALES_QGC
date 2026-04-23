@@ -26,6 +26,7 @@ QGCComboBox {
     font.pointSize:         ScreenTools.mediumFontPointSize
     currentIndex:           -1
     sizeToContents:         true
+    opacity:                mainWindow.droneControlBlocked ? 0.65 : 1
 
     property bool showIndicator: true
 
@@ -33,6 +34,11 @@ QGCComboBox {
     property bool   _armed:         _activeVehicle ? _activeVehicle.armed : false
 
     onActivated: {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            currentIndex = -1
+            return
+        }
         if (index == 0) {
             mainWindow.armVehicleRequest()
         } else {
