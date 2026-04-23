@@ -405,6 +405,9 @@ protected slots:
     virtual void    _checkForVideoStreams   ();
 
 private:
+    QString _cameraRtspSettingsKey          () const;
+    void    _checkRtspChangeAndInvalidateCache(const QString& streamUri);
+    void    _purgeCameraDefinitionCache     ();
     bool    _handleLocalization             (QByteArray& bytes);
     bool    _replaceLocaleStrings           (const QDomNode node, QByteArray& bytes);
     bool    _loadCameraDefinitionFile       (QByteArray& bytes);

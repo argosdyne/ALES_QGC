@@ -1144,6 +1144,20 @@ bool
 GstVideoReceiver::_addVideoSink(GstPad* pad)
 {
     GstCaps* caps = gst_pad_query_caps(pad, nullptr);
+    if (caps != nullptr) {
+        gchar* capsStr = gst_caps_to_string(caps);
+        qInfo() << "[GstVideoReceiver]" << "_addVideoSink"
+                << "uri" << _uri
+                << "caps" << (capsStr ? capsStr : "<null>");
+        if (capsStr != nullptr) {
+            g_free(capsStr);
+            capsStr = nullptr;
+        }
+    } else {
+        qWarning() << "[GstVideoReceiver]" << "_addVideoSink"
+                   << "uri" << _uri
+                   << "caps query returned null";
+    }
 
     gst_object_ref(_videoSink); // gst_bin_add() will steal one reference
 
@@ -1386,6 +1400,26 @@ GstVideoReceiver::_onBusMessage(GstBus* bus, GstMessage* msg, gpointer data)
                 pThis->stop();
             });
         } while(0);
+        break;
+    case GST_MESSAGE_WARNING:
+        do {
+            gchar* debug = nullptr;
+            GError* error = nullptr;
+
+            gst_message_parse_warning(msg, &error, &debug);
+
+            if (debug != nullptr) {
+                qWarning() << "[GstVideoReceiver]" << "GST_MESSAGE_WARNING debug" << pThis->_uri << debug;
+                g_free(debug);
+                debug = nullptr;
+            }
+
+            if (error != nullptr) {
+                qWarning() << "[GstVideoReceiver]" << "GST_MESSAGE_WARNING" << pThis->_uri << error->message;
+                g_error_free(error);
+                error = nullptr;
+            }
+        } while (0);
         break;
     case GST_MESSAGE_EOS:
         pThis->_slotHandler.dispatch([pThis](){
