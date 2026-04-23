@@ -219,6 +219,10 @@ public enum UsbSerialProber {
      * @return {@code true} if supported
      */
     private static boolean testIfSupported(final UsbDevice usbDevice, final Map<Integer, int[]> supportedDevices) {
+        if ("codev".equalsIgnoreCase(usbDevice.getManufacturerName())
+                && "codev rc cdc".equalsIgnoreCase(usbDevice.getProductName())) {
+            return false;
+        }
         return supportedDevices.containsKey(usbDevice.getVendorId());
     }
 }
