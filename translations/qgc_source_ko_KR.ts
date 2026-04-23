@@ -13731,6 +13731,16 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
         <source>Gimbal Yaw</source>
         <translation>짐벌 요</translation>
     </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="555"/>
+      <source>Tracking Algorithm</source>
+      <translation>추적 알고리즘</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="556"/>
+      <source>If the target is close, camera runaway may occur.</source>
+      <translation>타겟이 가까울 경우, 카메라 Runaway 발생 할 수 있음</translation>
+    </message>
 </context>
   <context>
     <name>PlanManager</name>

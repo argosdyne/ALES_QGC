@@ -536,6 +536,29 @@ Item {
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
 
+            // Nano tracker can runaway on very close targets — warn the operator
+            // only when the tracking algorithm is actively switched to "Nano".
+            property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
+
+            Connections {
+                target: settingsDialog._trackAlgorithmFact
+                ignoreUnknownSignals: true
+                function onValueChanged() {
+                    if (settingsDialog._trackAlgorithmFact
+                            && settingsDialog._trackAlgorithmFact.value === "Nano") {
+                        nanoRunawayWarning.open()
+                    }
+                }
+            }
+
+            MessageDialog {
+                id:                 nanoRunawayWarning
+                title:              qsTr("Tracking Algorithm")
+                text:               qsTr("If the target is close, camera runaway may occur.")
+                standardButtons:    StandardButton.Ok
+                onAccepted:         nanoRunawayWarning.close()
+            }
+
             ColumnLayout {
                 spacing: _margins
 
