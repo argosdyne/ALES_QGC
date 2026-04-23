@@ -70,7 +70,11 @@ bool QGCLoggingCategoryRegister::categoryLoggingOn(const QString& category)
 void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& commandLineLoggingOptions)
 {
     QString filterRules;
-    QString filterRuleFormat("%1.debug=true\n");
+    const auto enableCategoryLevels = [&filterRules](const QString& category) {
+        filterRules += QStringLiteral("%1.debug=true\n").arg(category);
+        filterRules += QStringLiteral("%1.info=true\n").arg(category);
+        filterRules += QStringLiteral("%1.warning=true\n").arg(category);
+    };
     bool    videoAllLogSet = false;
 
     if (!commandLineLoggingOptions.isEmpty()) {
@@ -78,11 +82,14 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
     }
 
     filterRules += "*Log.debug=false\n";
+    filterRules += "*Log.info=false\n";
+    filterRules += "*Log.warning=false\n";
+    filterRules += "*Log.critical=true\n";
 
     // Set up filters defined in settings
     foreach (QString category, _registeredCategories) {
         if (categoryLoggingOn(category)) {
-            filterRules += filterRuleFormat.arg(category);
+            enableCategoryLevels(category);
             if (category == kVideoAllLogCategory) {
                 videoAllLogSet = true;
             }
@@ -95,12 +102,14 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
 
         if (logList[0] == "full") {
             filterRules += "*Log.debug=true\n";
+            filterRules += "*Log.info=true\n";
+            filterRules += "*Log.warning=true\n";
             for(int i=1; i<logList.count(); i++) {
-                filterRules += filterRuleFormat.arg(logList[i]);
+                enableCategoryLevels(logList[i]);
             }
         } else {
             for (auto& category: logList) {
-                filterRules += filterRuleFormat.arg(category);
+                enableCategoryLevels(category);
                 if (category == kVideoAllLogCategory) {
                     videoAllLogSet = true;
                 }
@@ -109,13 +118,13 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
     }
 
     if (videoAllLogSet) {
-        filterRules += filterRuleFormat.arg("VideoManagerLog");
-        filterRules += filterRuleFormat.arg("VideoReceiverLog");
-        filterRules += filterRuleFormat.arg("GStreamerLog");
+        enableCategoryLevels(QStringLiteral("VideoManagerLog"));
+        enableCategoryLevels(QStringLiteral("VideoReceiverLog"));
+        enableCategoryLevels(QStringLiteral("GStreamerLog"));
     }
 
     // Logging from GStreamer library itself controlled by gstreamer debug levels is always turned on
-    filterRules += filterRuleFormat.arg("GStreamerAPILog");
+    enableCategoryLevels(QStringLiteral("GStreamerAPILog"));
 
     filterRules += "qt.qml.connections=false";
 

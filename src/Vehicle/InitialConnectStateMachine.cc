@@ -108,6 +108,10 @@ void InitialConnectStateMachine::_stateRequestAutopilotVersion(StateMachine* sta
             connectMachine->advance();
         } else {
             qCDebug(InitialConnectStateMachineLog) << "Sending REQUEST_MESSAGE:AUTOPILOT_VERSION";
+            qCInfo(InitialConnectStateMachineLog) << "autopilot-version request"
+                                                  << "targetSysId" << vehicle->id()
+                                                  << "targetCompId" << MAV_COMP_ID_AUTOPILOT1
+                                                  << "msgId" << MAVLINK_MSG_ID_AUTOPILOT_VERSION;
             vehicle->requestMessage(_autopilotVersionRequestMessageHandler,
                                     connectMachine,
                                     MAV_COMP_ID_AUTOPILOT1,
@@ -128,6 +132,17 @@ void InitialConnectStateMachine::_autopilotVersionRequestMessageHandler(void* re
 
         mavlink_autopilot_version_t autopilotVersion;
         mavlink_msg_autopilot_version_decode(&message, &autopilotVersion);
+        qCInfo(InitialConnectStateMachineLog) << "autopilot-version received"
+                                              << "sysid" << message.sysid
+                                              << "compid" << message.compid
+                                              << "msgId" << message.msgid
+                                              << "capabilities" << QStringLiteral("0x%1").arg(static_cast<qulonglong>(autopilotVersion.capabilities), 0, 16)
+                                              << "uid" << autopilotVersion.uid
+                                              << "vendorId" << autopilotVersion.vendor_id
+                                              << "productId" << autopilotVersion.product_id
+                                              << "flightSwVersion" << QStringLiteral("0x%1").arg(autopilotVersion.flight_sw_version, 0, 16)
+                                              << "middlewareSwVersion" << QStringLiteral("0x%1").arg(autopilotVersion.middleware_sw_version, 0, 16)
+                                              << "osSwVersion" << QStringLiteral("0x%1").arg(autopilotVersion.os_sw_version, 0, 16);
 
         vehicle->_uid = (quint64)autopilotVersion.uid;
         vehicle->_firmwareBoardVendorId = autopilotVersion.vendor_id;
