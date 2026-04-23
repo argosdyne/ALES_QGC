@@ -54,6 +54,7 @@ Item {
         width:      (_maxFMCharLength + 4) * ScreenTools.defaultFontPixelWidth
         model:      activeVehicle ? activeVehicle.flightModes : 0
         visible:    activeVehicle.flightModeSetAvailable
+        opacity:    mainWindow.droneControlBlocked ? 0.65 : 1
 
         onModelChanged: {
             if (activeVehicle && visible) {
@@ -61,6 +62,13 @@ Item {
             }
         }
 
-        onActivated: activeVehicle.flightMode = textAt(index)
+        onActivated: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                currentIndex = find(flightMode)
+                return
+            }
+            activeVehicle.flightMode = textAt(index)
+        }
     }
 }

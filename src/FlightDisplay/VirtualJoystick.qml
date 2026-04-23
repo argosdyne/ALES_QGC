@@ -24,7 +24,7 @@ Item {
 
     Timer {
         interval:   40  // 25Hz, same as real joystick rate
-        running:    QGroundControl.settingsManager.appSettings.virtualJoystick.value && _activeVehicle
+        running:    QGroundControl.settingsManager.appSettings.virtualJoystick.value && _activeVehicle && !mainWindow.joystickInputBlocked
         repeat:     true
         onTriggered: {
             if (_activeVehicle) {
@@ -53,5 +53,14 @@ Item {
         anchors.bottom:         parent.bottom
         width:                  parent.height
         height:                 parent.height
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        visible: mainWindow.droneControlBlocked
+        onPressed: {
+            mouse.accepted = true
+            mainWindow.showAdminPrivilegesRequiredDialog()
+        }
     }
 }

@@ -30,6 +30,9 @@ ApplicationWindow {
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     property alias  viewOnlyMode: globals.viewOnlyMode
+    readonly property bool droneControlBlocked: viewOnlyMode
+    readonly property bool joystickInputBlocked: viewOnlyMode || loginOverlay.visible
+    property double _lastAdminPrivilegesPopupMs: 0
     property var _loginPageComponent:    null
     property var _registerPageComponent: null
     property var _recoveryKeyPageComponent: null
@@ -206,6 +209,12 @@ ApplicationWindow {
     //-------------------------------------------------------------------------
     //-- Global Scope Functions
 
+    function _updateJoystickInputBlockedState() {
+        if (joystickManager && joystickManager.activeJoystick) {
+            joystickManager.activeJoystick.inputBlocked = joystickInputBlocked
+        }
+    }
+
     /// Prevent view switching
     function pushPreventViewSwitch() {
         _rgPreventViewSwitch.push(true)
@@ -290,6 +299,22 @@ ApplicationWindow {
            console.log("Failed to create dialog.");
        }
    }
+
+    function showAdminPrivilegesRequiredDialog() {
+        var nowMs = Date.now()
+        if ((nowMs - _lastAdminPrivilegesPopupMs) < 750) {
+            return
+        }
+        _lastAdminPrivilegesPopupMs = nowMs
+        showMessageDialog(
+            qsTr("Permission Required"),
+            qsTr("Admin privileges required. Please switch to Admin mode to continue."),
+            StandardButton.Yes | StandardButton.No,
+            function() {
+                showLoginOverlay()
+            }
+        )
+    }
 
     // This variant is only meant to be called by QGCApplication
     function _showMessageDialog(dialogTitle, dialogText) {
@@ -1167,4 +1192,13 @@ ApplicationWindow {
             showLoginOverlay()
         }
     }
+
+    Connections {
+        target: joystickManager
+        function onActiveJoystickChanged() {
+            _updateJoystickInputBlockedState()
+        }
+    }
+
+    onJoystickInputBlockedChanged: _updateJoystickInputBlockedState()
 }
