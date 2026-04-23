@@ -1780,7 +1780,7 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
                << "compId" << _compID
                << "previous" << previousUri
                << "current" << streamUri;
-    _purgeCameraDefinitionCache();    
+    _purgeCameraDefinitionCache();
     _cached = false;
     settings.setValue(key, streamUri);
 
