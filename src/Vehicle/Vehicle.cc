@@ -4988,6 +4988,12 @@ void Vehicle::_updateLinkQuality(void)
         }
     }
 
+    const bool operational = armed() || flying();
+    if (!operational) {
+        warning = false;
+        critical = false;
+    }
+
     if (_linkQualityWarning != warning) {
         _linkQualityWarning = warning;
         emit linkQualityWarningChanged(warning);
