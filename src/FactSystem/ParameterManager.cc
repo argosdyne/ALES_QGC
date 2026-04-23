@@ -66,6 +66,22 @@ const QHash<int, QString> _mavlinkCompIdHash {
     { MAV_COMP_ID_GPS2,     "GPS2" }
 };
 
+static bool _skipParamFtpForFirmwareVersion(const Vehicle* vehicle)
+{
+    if (!vehicle->apmFirmware()) {
+        return false;
+    }
+
+    const int majorVersion = vehicle->firmwareMajorVersion();
+    const int minorVersion = vehicle->firmwareMinorVersion();
+
+    if (majorVersion == Vehicle::versionNotSetValue || minorVersion == Vehicle::versionNotSetValue) {
+        return false;
+    }
+
+    return majorVersion == 4 && minorVersion == 0;
+}
+
 ParameterManager::ParameterManager(Vehicle* vehicle)
     : QObject                           (vehicle)
     , _vehicle                          (vehicle)
@@ -162,18 +178,22 @@ void ParameterManager::_logInitialLoadProgress(const QString& event, int compone
 
     qCInfo(ParameterManagerLog).noquote() << message;
 
-    if ((event == QStringLiteral("request-complete") || event == QStringLiteral("request-failed")) && !_timedOutReadParamNamesByComp.isEmpty()) {
+    if (event == QStringLiteral("request-complete") || event == QStringLiteral("request-failed")) {
         QStringList timedOutEntries;
         for (auto compIt = _timedOutReadParamNamesByComp.constBegin(); compIt != _timedOutReadParamNamesByComp.constEnd(); ++compIt) {
             QStringList names = compIt.value();
             names.removeDuplicates();
             names.sort();
-            timedOutEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
+            if (!names.isEmpty()) {
+                timedOutEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
+            }
         }
-        qCWarning(ParameterManagerLog) << _logVehiclePrefix(componentId)
-                                       << "fc-param-load timed-out-names"
-                                       << "elapsedMs" << (_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
-                                       << "entries" << timedOutEntries;
+        if (!timedOutEntries.isEmpty()) {
+            qCWarning(ParameterManagerLog) << _logVehiclePrefix(componentId)
+                                           << "fc-param-load timed-out-names"
+                                           << "elapsedMs" << (_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
+                                           << "entries" << timedOutEntries;
+        }
     }
 }
 
@@ -373,6 +393,9 @@ void ParameterManager::_handleParamValue(int componentId, QString parameterName,
         _receivedParamNamesByComp[componentId] << parameterName;
         _receivedParamNamesByComp[componentId].sort();
         _timedOutReadParamNamesByComp[componentId].removeAll(parameterName);
+        if (_timedOutReadParamNamesByComp[componentId].isEmpty()) {
+            _timedOutReadParamNamesByComp.remove(componentId);
+        }
         _logInitialLoadProgress(QStringLiteral("param-received"), componentId, parameterName);
     }
 
@@ -628,6 +651,16 @@ void ParameterManager::refreshAllParameters(uint8_t componentId)
         _initialRequestTimeoutTimer.start();
     }
 
+    if (_tryftp && _skipParamFtpForFirmwareVersion(_vehicle)) {
+        _tryftp = false;
+        qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId == MAV_COMP_ID_ALL ? -1 : componentId)
+                                    << "param-ftp skipped"
+                                    << "reason" << "unsupported-apm-version"
+                                    << "firmwareVersion" << QStringLiteral("%1.%2.%3")
+                                                            .arg(_vehicle->firmwareMajorVersion())
+                                                            .arg(_vehicle->firmwareMinorVersion())
+                                                            .arg(_vehicle->firmwarePatchVersion());
+    }
     qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId == MAV_COMP_ID_ALL ? -1 : componentId)
                                 << "param-ftp state"
                                 << "tryftp" << _tryftp

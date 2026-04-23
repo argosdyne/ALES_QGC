@@ -150,8 +150,8 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
     const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
-        QString path = videoUrl.path();               
-        QString lastSegment = path.section('/', -1);  
+        const QString path = videoUrl.path();
+        const QString lastSegment = path.section('/', -1);
 
         qInfo() << "[CameraManager] Path =" << path
                 << "LastSegment =" << lastSegment
@@ -163,7 +163,7 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
         else if (lastSegment.compare("cr", Qt::CaseInsensitive) == 0) {
             return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // CR → LR1
         }
-        else {            
+        else {
             return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host());
         }
     }
