@@ -30,8 +30,8 @@ ColumnLayout {
         property var roll: QtObject {
             property string name: qsTr("Roll")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.roll.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.roll.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.roll.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.roll.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -47,8 +47,8 @@ ColumnLayout {
         property var pitch: QtObject {
             property string name: qsTr("Pitch")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.pitch.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.pitch.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.pitch.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.pitch.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -64,8 +64,8 @@ ColumnLayout {
         property var yaw: QtObject {
             property string name: qsTr("Yaw")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.heading.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.yaw.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.heading.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.yaw.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -78,7 +78,7 @@ ColumnLayout {
                 }
             }
         }
-        title: "Attitude"
+        title: qsTr("Attitude")
         tuningMode: Vehicle.ModeRateAndAttitude
         unit: "deg"
         axis: [ roll, pitch, yaw ]
@@ -86,4 +86,3 @@ ColumnLayout {
         showAutoTuning:     true
     }
 }
-
