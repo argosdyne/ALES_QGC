@@ -110,7 +110,7 @@
       <extracomment>.QGC.MetaData.Facts[chargeState].enumStrings, </extracomment>
       <location filename="../src/Vehicle/BatteryFact.json"/>
       <source>n/a,Ok,Low,Critical,Emergency,Failed,Unhealthy,Charging</source>
-      <translation>N/A,확인,부족,심각,비상,실패,위험,충전중</translation>
+      <translation>N/A,OK,부족,심각,비상,실패,위험,충전중</translation>
     </message>
   </context>
   <context>

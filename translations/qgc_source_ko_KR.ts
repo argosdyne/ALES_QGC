@@ -7241,6 +7241,16 @@ Click Ok to start the auto-tuning process.
       <source>Multi-Vehicle</source>
       <translation>다중 기체</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK CRITICAL</source>
+      <translation>C2 링크 위험</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK WARNING</source>
+      <translation>C2 링크 경고</translation>
+    </message>
   
 <message>
         <location filename="../custom/res/Custom/FlightDisplay/FlyViewWidgetLayer.qml" line="206"/>
@@ -7827,17 +7837,59 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="151"/>
       <source>GeoFence supports version %1</source>
-      <translation>GeoFence는 버젼 %1을 지원합니다</translation>
+      <translation>GeoFence는 버전 %1을 지원합니다</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="158"/>
       <source>GeoFence polygon not stored as object</source>
-      <translation>GeoFence 다각형이 오브젝트로 저장되지 않았습니다</translation>
+      <translation>GeoFence 다각형이 객체로 저장되지 않았습니다</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="172"/>
       <source>GeoFence circle not stored as object</source>
-      <translation>GeoFence circle이 오브젝트로 저장되어있지 않습니다</translation>
+      <translation>GeoFence 원이 객체로 저장되지 않았습니다</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="776"/>
+      <source>GeoFence is not supported by this vehicle.</source>
+      <translation>이 기체는 GeoFence를 지원하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="786"/>
+      <source>No GeoFence items configured.</source>
+      <translation>구성된 GeoFence 항목이 없습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="792"/>
+      <source>Polygon %1 is invalid or has too few points.</source>
+      <translation>다각형 %1이 유효하지 않거나 점 개수가 너무 적습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="799"/>
+      <source>Circle %1 has an invalid center.</source>
+      <translation>원 %1의 중심점이 유효하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="803"/>
+      <source>Circle %1 has an invalid radius.</source>
+      <translation>원 %1의 반지름이 유효하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="809"/>
+      <source>Fence margin is zero; buffer warnings will be disabled.</source>
+      <translation>펜스 마진이 0이므로 버퍼 경고가 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
+      <source>GeoFence self-test passed. Polygons: %1, Circles: %2, Circular fence: %3 m.</source>
+      <translation>GeoFence 자체 테스트를 통과했습니다. 다각형: %1, 원: %2, 원형 펜스: %3 m.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="819"/>
+      <source>GeoFence self-test issues:
+- %1</source>
+      <translation>GeoFence 자체 테스트 문제:
+- %1</translation>
     </message>
   </context>
   <context>
@@ -7856,6 +7908,91 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="66"/>
       <source>This vehicle does not support GeoFence.</source>
       <translation>기체가 GeoFence를 지원하지 않습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="124"/>
+      <source>Operational</source>
+      <translation>운용</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="129"/>
+      <source>Buffer</source>
+      <translation>버퍼</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="134"/>
+      <source>Contingency</source>
+      <translation>비상</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Loaded</source>
+      <translation>로드됨</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Not Loaded</source>
+      <translation>미로드</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Active</source>
+      <translation>활성</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Inactive</source>
+      <translation>비활성</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Missing Params</source>
+      <translation>파라미터 누락</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Params OK</source>
+      <translation>파라미터 정상</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="148"/>
+      <source>Fence Status: %1 | %2 | %3</source>
+      <translation>펜스 상태: %1 | %2 | %3</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="156"/>
+      <source>Contingency Volume</source>
+      <translation>비상 영역</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="164"/>
+      <source>Vmax (m/s)</source>
+      <translation>최대 속도 (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="177"/>
+      <source>Latency (s)</source>
+      <translation>지연 시간 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="190"/>
+      <source>Maneuver (s)</source>
+      <translation>기동 시간 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="203"/>
+      <source>Wind (m/s)</source>
+      <translation>풍속 (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="216"/>
+      <source>Position Error (m)</source>
+      <translation>위치 오차 (m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="238"/>
+      <source>CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)</source>
+      <translation>CV 너비: %1 m (반응: %2 m, 보정: %3 m, 오차: %4 m)</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="116"/>
@@ -7931,6 +8068,41 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="327"/>
       <source>Remove Breach Return Point</source>
       <translation>경계 위반시 귀환 위치 지우기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="328"/>
+      <source>GeoFence Self-Test</source>
+      <translation>GeoFence 자체 테스트</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="336"/>
+      <source>3D View</source>
+      <translation>3D 보기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="344"/>
+      <source>Vertical cage</source>
+      <translation>수직 케이지</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="347"/>
+      <source>Solid</source>
+      <translation>실선</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="352"/>
+      <source>Dotted</source>
+      <translation>점선</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="360"/>
+      <source>Opacity</source>
+      <translation>투명도</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="375"/>
+      <source>Min/Max Altitude</source>
+      <translation>최소/최대 고도</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="342"/>
@@ -9969,6 +10141,39 @@ Click Ok to start the auto-tuning process.
       <translation>MR(vtol)</translation>
     </message>
     <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA OFF</source>
+      <translation>낙하산 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA ARMED</source>
+      <translation>낙하산 준비됨</translation>
+    </message>
+    <message>
+      <source>PARA ON</source>
+      <translation>낙하산 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE ON</source>
+      <translation>펜스 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE OFF</source>
+      <translation>펜스 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="192"/>
+      <source>FENCE PARAMS MISSING</source>
+      <translation>펜스 파라미터 누락</translation>
+    </message>
+    <message>
+      <source>FENCE PARAMs MISSING</source>
+      <translation>펜스 파라미터 누락</translation>
+    </message>
+    <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="196"/>
       <source>Sensor Status</source>
       <translation>센서 상태</translation>
@@ -10597,6 +10802,34 @@ Click Ok to start the auto-tuning process.
   </context>
   <context>
     <name>MissionItem</name>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="41"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="79"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="114"/>
+      <source>Param1:</source>
+      <translation>파라미터1:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="42"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="80"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="115"/>
+      <source>Param2:</source>
+      <translation>파라미터2:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="43"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="81"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="116"/>
+      <source>Param3:</source>
+      <translation>파라미터3:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="44"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="82"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="117"/>
+      <source>Param4:</source>
+      <translation>파라미터4:</translation>
+    </message>
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="285"/>
       <source>Type found: %1 must be: %2</source>
@@ -11451,6 +11684,16 @@ Is this really what you want?</source>
       <translation>자동 튜닝 비활성화됨</translation>
     </message>
     <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>ON</source>
+      <translation>켬</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>OFF</source>
+      <translation>끔</translation>
+    </message>
+    <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="227"/>
       <source>Select Tuning:</source>
       <translation>튜닝 선택:</translation>
@@ -12010,7 +12253,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="68"/>
       <source>Responsiveness</source>
-      <translation>Responsiveness</translation>
+      <translation>반응성</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="69"/>
@@ -12028,13 +12271,13 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="108"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="108"/>
       <source>Horizontal velocity (m/s)</source>
-      <translation>Horizontal velocity (m/s)</translation>
+      <translation>수평 속도(m/s)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="109"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="109"/>
       <source>Limit the horizonal velocity (applies to all modes).</source>
-      <translation>Limit the horizonal velocity (applies to all modes).</translation>
+      <translation>수평 속도를 제한합니다(모든 모드에 적용).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="124"/>
@@ -12046,25 +12289,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
       <source>Vertial velocity (m/s)</source>
-      <translation>Vertial velocity (m/s)</translation>
+      <translation>수직 속도(m/s)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="144"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="144"/>
       <source>Limit the vertical velocity (applies to all modes).</source>
-      <translation>Limit the vertical velocity (applies to all modes).</translation>
+      <translation>수직 속도를 제한합니다(모든 모드에 적용).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="159"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="159"/>
       <source>Mission Turning Radius</source>
-      <translation>Mission Turning Radius</translation>
+      <translation>미션 회전 반경</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="160"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="160"/>
       <source>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</source>
-      <translation>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</translation>
+      <translation>값을 높이면 미션에서 회전이 더 둥글어집니다(코너 커팅). 정확한 코너 추적이 필요하면 최소값을 사용하십시오.</translation>
     </message>
   </context>
   <context>
@@ -12086,6 +12329,291 @@ Is this really what you want?</source>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="342"/>
       <source>Disabled</source>
       <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>disabled</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Warning</source>
+      <translation>경고</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Hold mode</source>
+      <translation>홀드 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return mode</source>
+      <translation>복귀 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Terminate</source>
+      <translation>종료</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land mode</source>
+      <translation>착륙 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at critical level, land at emergency level</source>
+      <translation>중요 수준에서는 복귀하고, 비상 수준에서는 착륙</translation>
+    </message>
+        <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disabled</source>
+      <translation>비활성화</translation>
+    </message>
+        <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Lockdown</source>
+      <translation>잠금</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disarm</source>
+      <translation>시동 해제</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at current altitude</source>
+      <translation>현재 고도로 복귀</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at specified altitude:</source>
+      <translation>지정 고도로 복귀:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Loiter above Home for:</source>
+      <translation>홈 상공에서 대기:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land with descent speed:</source>
+      <translation>하강 속도로 착륙:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>external HITL</source>
+      <translation>외부 HITL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL enabled</source>
+      <translation>HITL 활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL 및 SIH 비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>SIH enabled</source>
+      <translation>SIH 활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>when armed until disarm (default)</source>
+      <translation>시동 후 해제 전까지(기본)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until disarm</source>
+      <translation>부팅 후 해제 전까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until shutdown</source>
+      <translation>부팅 후 종료까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>depending on AUX1 RC channel</source>
+      <translation>AUX1 RC 채널에 따라</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from 1st armed until shutdown</source>
+      <translation>첫 시동 후 종료까지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>All mission messages</source>
+      <translation>모든 미션 메시지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Geotagging messages</source>
+      <translation>지오태깅 메시지</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disable</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, on command</source>
+      <translation>시간 기반, 명령 시</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, always on</source>
+      <translation>시간 기반, 항상 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, always on</source>
+      <translation>거리 기반, 항상 켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, on command (Survey mode)</source>
+      <translation>거리 기반, 명령 시(측량 모드)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>GPIO</source>
+      <translation>GPIO</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Seagull MAP2 (over PWM)</source>
+      <translation>Seagull MAP2(PWM 사용)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>MAVLink (forward via MAV_CMD_IMAGE_START_CAPTURE)</source>
+      <translation>MAVLink(MAV_CMD_IMAGE_START_CAPTURE로 전달)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Generic PWM (IR trigger, servo)</source>
+      <translation>일반 PWM(IR 트리거, 서보)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active low</source>
+      <translation>낮은 레벨에서 활성</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active high</source>
+      <translation>높은 레벨에서 활성</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Direct velocity</source>
+      <translation>직접 속도</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Smoothed velocity</source>
+      <translation>완만한 속도</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Acceleration based</source>
+      <translation>가속도 기반</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Position mode</source>
+      <translation>위치 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Altitude mode</source>
+      <translation>고도 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Manual</source>
+      <translation>수동</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch</source>
+      <translation>롤/피치</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>롤/피치/요</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX1 Passthrough RC channel</source>
+      <translation>AUX1 패스스루 RC 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX2 Passthrough RC channel</source>
+      <translation>AUX2 패스스루 RC 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM1 tuning channel</source>
+      <translation>PARAM1 튜닝 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM2 tuning channel</source>
+      <translation>PARAM2 튜닝 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM3 tuning channel</source>
+      <translation>PARAM3 튜닝 채널</translation>
+    </message>
+  </context>
+  <context>
+    <name>Parameter.MetaData.json</name>
+    <message>
+      <source>Disabled</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL 및 SIH 비활성화</translation>
+    </message>
+    <message>
+      <source>SIH enabled</source>
+      <translation>SIH 활성화</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch</source>
+      <translation>롤/피치</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>롤/피치/요</translation>
+    </message>
+    <message>
+      <source>Simple position control</source>
+      <translation>단순 위치 제어</translation>
+    </message>
+    <message>
+      <source>Smooth position control</source>
+      <translation>부드러운 위치 제어</translation>
+    </message>
+    <message>
+      <source>Smooth position control (Jerk optimized)</source>
+      <translation>부드러운 위치 제어(저크 최적화)</translation>
     </message>
   </context>
   <context>
@@ -12159,17 +12687,77 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="52"/>
       <source>Aux1</source>
-      <translation>Aux1</translation>
+      <translation>보조1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="57"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponentSummary.qml" line="57"/>
       <source>Aux2</source>
-      <translation>Aux2</translation>
+      <translation>보조2</translation>
     </message>
   </context>
   <context>
     <name>PX4SimpleFlightModes</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="35"/>
+      <source>Channel %1</source>
+      <translation>채널 %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="40"/>
+      <source>Unassigned</source>
+      <translation>미할당</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="42"/>
+      <source>Arm switch channel</source>
+      <translation>시동 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="44"/>
+      <source>Gear switch channel</source>
+      <translation>기어 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="45"/>
+      <source>Landing gear switch channel</source>
+      <translation>착륙 장치 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="46"/>
+      <source>Kill switch channel</source>
+      <translation>킬 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="47"/>
+      <source>Emergency Kill switch channel</source>
+      <translation>비상 킬 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="48"/>
+      <source>Loiter switch channel</source>
+      <translation>정지비행 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="50"/>
+      <source>Offboard switch channel</source>
+      <translation>오프보드 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="52"/>
+      <source>Return switch channel</source>
+      <translation>복귀 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="54"/>
+      <source>Transition switch channel</source>
+      <translation>전환 스위치 채널</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="56"/>
+      <source>Flaps switch channel</source>
+      <translation>플랩 스위치 채널</translation>
+    </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
@@ -12214,25 +12802,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <source>Rate Controller</source>
-      <translation>Rate Controller</translation>
+      <translation>레이트 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <source>Attitude Controller</source>
-      <translation>Attitude Controller</translation>
+      <translation>자세 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <source>Velocity Controller</source>
-      <translation>Velocity Controller</translation>
+      <translation>속도 컨트롤러</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <source>Position Controller</source>
-      <translation>Position Controller</translation>
+      <translation>위치 컨트롤러</translation>
     </message>
   </context>
   <context>
@@ -12247,7 +12835,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="36"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="36"/>
       <source>Proportional Gain (MC_ROLL_P)</source>
-      <translation>Proportional Gain (MC_ROLL_P)</translation>
+      <translation>비례 이득 (MC_ROLL_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="37"/>
@@ -12255,7 +12843,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="54"/>
       <source>Increase for more responsiveness, reduce if the attitude overshoots.</source>
-      <translation>Increase for more responsiveness, reduce if the attitude overshoots.</translation>
+      <translation>응답성을 높이려면 증가시키고, 자세 오버슈트가 발생하면 줄이십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="46"/>
@@ -12267,7 +12855,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="53"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="53"/>
       <source>Proportional Gain (MC_PITCH_P)</source>
-      <translation>Proportional Gain (MC_PITCH_P)</translation>
+      <translation>비례 이득 (MC_PITCH_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="63"/>
@@ -12279,13 +12867,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="70"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="70"/>
       <source>Proportional Gain (MC_YAW_P)</source>
-      <translation>Proportional Gain (MC_YAW_P)</translation>
+      <translation>비례 이득 (MC_YAW_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="71"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAttitude.qml" line="71"/>
       <source>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</source>
-      <translation>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</translation>
+      <translation>응답성을 높이려면 증가시키고, 자세 오버슈트가 발생하면 줄이십시오(요가 고정될 때만 설정값이 존재하며, 즉 스틱을 중앙에 둘 때입니다).</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Attitude</source>
+      <translation>자세</translation>
     </message>
   </context>
   <context>
@@ -12294,25 +12894,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="30"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="30"/>
       <source>Position control mode (set this to &apos;simple&apos; during tuning):</source>
-      <translation>Position control mode (set this to &apos;simple&apos; during tuning):</translation>
+      <translation>위치 제어 모드(튜닝 중에는 &apos;simple&apos;로 설정):</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="43"/>
       <source>Horizontal</source>
-      <translation>Horizontal</translation>
+      <translation>수평</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="44"/>
       <source>Horizontal (Y direction, sidewards)</source>
-      <translation>Horizontal (Y direction, sidewards)</translation>
+      <translation>수평(Y 방향, 측면)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="51"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="51"/>
       <source>Proportional gain (MPC_XY_P)</source>
-      <translation>Proportional gain (MPC_XY_P)</translation>
+      <translation>비례 이득 (MPC_XY_P)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="52"/>
@@ -12320,19 +12920,31 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="69"/>
       <source>Increase for more responsiveness, reduce if the position overshoots (there is only a setpoint when hovering, i.e. when centering the stick).</source>
-      <translation>Increase for more responsiveness, reduce if the position overshoots (there is only a setpoint when hovering, i.e. when centering the stick).</translation>
+      <translation>응답성을 높이려면 증가시키고, 위치 오버슈트가 발생하면 줄이십시오(호버링 시에만 설정값이 존재하며, 즉 스틱을 중앙에 둘 때입니다).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="61"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="61"/>
       <source>Vertical</source>
-      <translation>Vertical</translation>
+      <translation>수직</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <source>Proportional gain (MPC_Z_P)</source>
-      <translation>Proportional gain (MPC_Z_P)</translation>
+      <translation>비례 이득 (MPC_Z_P)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Position</source>
+      <translation>위치</translation>
     </message>
   </context>
   <context>
@@ -12341,13 +12953,13 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="32"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="32"/>
       <source>Airmode (disable during tuning) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
-      <translation>Airmode (disable during tuning) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+      <translation>에어모드(튜닝 중 비활성화) &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="44"/>
       <source>Thrust curve &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
-      <translation>Thrust curve &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+      <translation>추력 곡선 &lt;b&gt;&lt;a href=&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="57"/>
@@ -12359,7 +12971,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="64"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="64"/>
       <source>Overall Multiplier (MC_ROLLRATE_K)</source>
-      <translation>Overall Multiplier (MC_ROLLRATE_K)</translation>
+      <translation>전체 배율 (MC_ROLLRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="65"/>
@@ -12369,7 +12981,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="98"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="131"/>
       <source>Multiplier for P, I and D gains: increase for more responsiveness, reduce if the rates overshoot (and increasing D does not help).</source>
-      <translation>Multiplier for P, I and D gains: increase for more responsiveness, reduce if the rates overshoot (and increasing D does not help).</translation>
+      <translation>P, I, D 이득 배율: 응답성을 높이려면 증가시키고, 속도 오버슈트가 발생하면 줄이십시오(D를 올려도 도움이 되지 않는 경우).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="72"/>
@@ -12389,7 +13001,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="80"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="80"/>
       <source>Integral Gain (MC_ROLLRATE_I)</source>
-      <translation>Integral Gain (MC_ROLLRATE_I)</translation>
+      <translation>적분 이득 (MC_ROLLRATE_I)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="81"/>
@@ -12399,7 +13011,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="114"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="139"/>
       <source>Generally does not need much adjustment, reduce this when seeing slow oscillations.</source>
-      <translation>Generally does not need much adjustment, reduce this when seeing slow oscillations.</translation>
+      <translation>일반적으로 큰 조정이 필요 없으며, 느린 진동이 보이면 값을 낮추십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="90"/>
@@ -12411,7 +13023,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="97"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="97"/>
       <source>Overall Multiplier (MC_PITCHRATE_K)</source>
-      <translation>Overall Multiplier (MC_PITCHRATE_K)</translation>
+      <translation>전체 배율 (MC_PITCHRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="105"/>
@@ -12423,7 +13035,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="113"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="113"/>
       <source>Integral Gain (MC_PITCHRATE_I)</source>
-      <translation>Integral Gain (MC_PITCHRATE_I)</translation>
+      <translation>적분 이득 (MC_PITCHRATE_I)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="123"/>
@@ -12435,13 +13047,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="130"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="130"/>
       <source>Overall Multiplier (MC_YAWRATE_K)</source>
-      <translation>Overall Multiplier (MC_YAWRATE_K)</translation>
+      <translation>전체 배율 (MC_YAWRATE_K)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="138"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="138"/>
       <source>Integral Gain (MC_YAWRATE_I)</source>
-      <translation>Integral Gain (MC_YAWRATE_I)</translation>
+      <translation>적분 이득 (MC_YAWRATE_I)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Rate</source>
+      <translation>레이트</translation>
     </message>
   </context>
   <context>
@@ -12450,25 +13074,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="30"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="30"/>
       <source>Position control mode (set this to &apos;simple&apos; during tuning):</source>
-      <translation>Position control mode (set this to &apos;simple&apos; during tuning):</translation>
+      <translation>위치 제어 모드(튜닝 중에는 &apos;simple&apos;로 설정):</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="43"/>
       <source>Horizontal</source>
-      <translation>Horizontal</translation>
+      <translation>수평</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="44"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="44"/>
       <source>Horizontal (Y direction, sidewards)</source>
-      <translation>Horizontal (Y direction, sidewards)</translation>
+      <translation>수평(Y 방향, 측면)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="51"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="51"/>
       <source>Proportional gain (MPC_XY_VEL_P_ACC)</source>
-      <translation>Proportional gain (MPC_XY_VEL_P_ACC)</translation>
+      <translation>비례 이득 (MPC_XY_VEL_P_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="52"/>
@@ -12476,19 +13100,19 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="85"/>
       <source>Increase for more responsiveness, reduce if the velocity overshoots (and increasing D does not help).</source>
-      <translation>Increase for more responsiveness, reduce if the velocity overshoots (and increasing D does not help).</translation>
+      <translation>응답성을 높이려면 증가시키고, 속도 오버슈트가 발생하면 줄이십시오(D를 올려도 도움이 되지 않는 경우).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="59"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="59"/>
       <source>Integral gain (MPC_XY_VEL_I_ACC)</source>
-      <translation>Integral gain (MPC_XY_VEL_I_ACC)</translation>
+      <translation>적분 이득 (MPC_XY_VEL_I_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="60"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="60"/>
       <source>Increase to reduce steady-state error (e.g. wind)</source>
-      <translation>Increase to reduce steady-state error (e.g. wind)</translation>
+      <translation>정상상태 오차(예: 바람)를 줄이려면 증가시키십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="67"/>
@@ -12508,31 +13132,43 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="77"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="77"/>
       <source>Vertical</source>
-      <translation>Vertical</translation>
+      <translation>수직</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="84"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="84"/>
       <source>Proportional gain (MPC_Z_VEL_P_ACC)</source>
-      <translation>Proportional gain (MPC_Z_VEL_P_ACC)</translation>
+      <translation>비례 이득 (MPC_Z_VEL_P_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="92"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="92"/>
       <source>Integral gain (MPC_Z_VEL_I_ACC)</source>
-      <translation>Integral gain (MPC_Z_VEL_I_ACC)</translation>
+      <translation>적분 이득 (MPC_Z_VEL_I_ACC)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="93"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="93"/>
       <source>Increase to reduce steady-state error</source>
-      <translation>Increase to reduce steady-state error</translation>
+      <translation>정상상태 오차를 줄이려면 증가시키십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="100"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterVelocity.qml" line="100"/>
       <source>Differential gain (MPC_Z_VEL_D_ACC)</source>
       <translation>미분 이득 (MPC_Z_VEL_D_ACC)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>응답</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>설정값</translation>
+    </message>
+    <message>
+      <source>Velocity</source>
+      <translation>속도</translation>
     </message>
   </context>
   <context>
@@ -13472,6 +14108,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
       <source>ROI</source>
       <translation>관심 영역(ROI)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="735"/>
+      <source>Vision LiDAR</source>
+      <translation>비전 라이다</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
@@ -15778,7 +16419,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <source>Low Battery Failsafe Trigger</source>
-      <translation>Battery1 안전장치 트리거</translation>
+      <translation>배터리 부족 안전장치 트리거</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="95"/>
@@ -15812,7 +16453,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="137"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="137"/>
       <source>Object Detection</source>
-      <translation>Object Detection</translation>
+      <translation>객체 감지</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="165"/>
@@ -15856,7 +16497,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="238"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="238"/>
       <source>Show obstacle distance overlay</source>
-      <translation>Show obstacle distance overlay</translation>
+      <translation>장애물 거리 오버레이 표시</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="249"/>
@@ -15910,19 +16551,19 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="423"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="423"/>
       <source>Return To Launch Settings</source>
-      <translation>Return To Launch Settings</translation>
+      <translation>복귀 설정</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="462"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="462"/>
       <source>Return to launch, then:</source>
-      <translation>Return to launch, then:</translation>
+      <translation>복귀 후 다음 동작:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="605"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="605"/>
       <source>Telemetry logging to vehicle storage:</source>
-      <translation>Telemetry logging to vehicle storage:</translation>
+      <translation>기체 저장소에 텔레메트리 기록:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="451"/>
@@ -15988,13 +16629,13 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="628"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="628"/>
       <source>Hardware in the Loop Simulation</source>
-      <translation>Hardware in the Loop 시뮬레이션</translation>
+      <translation>하드웨어 인 더 루프 시뮬레이션</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="657"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="657"/>
       <source>HITL Enabled:</source>
-      <translation>HITL 활성화</translation>
+      <translation>HITL 활성화:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.cc" line="19"/>
@@ -16248,6 +16889,26 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
   <context>
     <name>SensorsSetup</name>
     <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="62"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="69"/>
+      <source>Roll</source>
+      <translation>롤</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="71"/>
+      <source>Pitch</source>
+      <translation>피치</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="73"/>
+      <source>Yaw</source>
+      <translation>요</translation>
+    </message>
+    <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="41"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="42"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="41"/>
@@ -16331,7 +16992,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="47"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="47"/>
       <source>To level the horizon you need to place the vehicle in its level flight position and leave still.</source>
-      <translation>To level the horizon you need to place the vehicle in its level flight position and leave still.</translation>
+      <translation>수평을 맞추려면 기체를 수평 비행 자세로 놓고 움직이지 않은 상태로 두십시오.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="278"/>
@@ -16345,7 +17006,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="289"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="289"/>
       <source>ROTATION_NONE indicates component points in direction of flight.</source>
-      <translation>ROTATION_NONE indicates component points in direction of flight.</translation>
+      <translation>ROTATION_NONE은 구성 요소가 비행 방향을 향함을 의미합니다.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="296"/>
@@ -16365,15 +17026,15 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <source>Adjust orientations as needed.
 
 ROTATION_NONE indicates component points in direction of flight.</source>
-      <translation>Adjust orientations as needed.
+      <translation>필요에 따라 방향을 조정하십시오.
 
-ROTATION_NONE indicates component points in direction of flight.</translation>
+ROTATION_NONE은 구성 요소가 비행 방향을 향함을 의미합니다.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="374"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="374"/>
       <source>Mag %1 Orientation</source>
-      <translation>Mag %1 Orientation</translation>
+      <translation>자기 센서 %1 방향</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="403"/>
@@ -16424,6 +17085,18 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="460"/>
       <source>Airspeed</source>
       <translation>대기속도</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="468"/>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="468"/>
+      <source>Orientations</source>
+      <translation>방향</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="489"/>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="489"/>
+      <source>Set Orientations</source>
+      <translation>방향 설정</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="471"/>
@@ -16796,6 +17469,11 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
       <translation>전송된 실제 AMSL 고도: %1 %2</translation>
     </message>
     <message>
+      <location filename="../src/PlanView/SimpleItemEditor.qml" line="45"/>
+      <source>Param%1</source>
+      <translation>파라미터%1</translation>
+    </message>
+    <message>
       <location filename="../src/PlanView/SimpleItemEditor.qml" line="243"/>
       <source>Flight Speed</source>
       <translation>비행속도</translation>
@@ -16803,6 +17481,11 @@ ROTATION_NONE indicates component points in direction of flight.</translation>
   </context>
   <context>
     <name>SimpleMissionItem</name>
+    <message>
+      <location filename="../src/MissionManager/SimpleMissionItem.cc" line="435"/>
+      <source>Param%1</source>
+      <translation>파라미터%1</translation>
+    </message>
     <message>
       <location filename="../src/MissionManager/SimpleMissionItem.cc" line="399"/>
       <source>Unknown: %1</source>
@@ -19608,7 +20291,7 @@ Confirm change?</source>
 <message>
         <location filename="../custom/src/CustomPlugin.cc" line="179"/>
         <source>GeoAwareness</source>
-        <translation>지오 인식</translation>
+        <translation>지리 인식</translation>
     </message>
 <message>
         <location filename="../custom/src/CustomPlugin.cc" line="182"/>
@@ -20911,6 +21594,11 @@ Confirm change?</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="477"/>
       <source>Simple accelerometer calibration is less precise but allows calibrating without rotating the vehicle. Check this if you have a large/heavy vehicle.</source>
       <translation>간이 가속도계 캘리브레이션은 정밀도는 낮지만 기체를 회전시키지 않고 캘리브레이션할 수 있습니다. 대형/중량 기체인 경우 선택하십시오.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="481"/>
+      <source>Simple Accelerometer Calibration</source>
+      <translation>간이 가속도계 캘리브레이션</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="529"/>
@@ -22828,7 +23516,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>ESC: </source>
-      <translation>ESC: </translation>
+      <translation>ESC 상태: </translation>
     </message>
     <message>
       <source>Enable fence failed (cannot autoenable</source>
@@ -22872,7 +23560,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+      <translation>파라미터 오류: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>Failed to allocate %u bytes for HarmonicNotchFilter</source>
@@ -22912,19 +23600,19 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failsafe. Long event off: reason=%u</source>
-      <translation>페일세이프. Long 이벤트 종료: 이유=%u</translation>
+      <translation>페일세이프. 장기 이벤트 해제: 사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Long event on: type=%u/reason=%u</source>
-      <translation>페일세이프. Long 이벤트 시작: 타입=%u/이유=%u</translation>
+      <translation>페일세이프. 장기 이벤트 활성화: 유형=%u/사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event off: reason=%u</source>
-      <translation>페일세이프. Short 이벤트 종료: 이유=%u</translation>
+      <translation>페일세이프. 단기 이벤트 해제: 사유=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event on: type=%u/reason=%u</source>
-      <translation>페일세이프. Short 이벤트 시작: 타입=%u/이유=%u</translation>
+      <translation>페일세이프. 단기 이벤트 활성화: 유형=%u/사유=%u</translation>
     </message>
     <message>
       <source>Failsafe: Estimated %.0f seconds to home</source>
@@ -23108,11 +23796,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Loiter to alt was stuck at %d</source>
-      <translation>Loiter to alt가 %d에서 멈춤</translation>
+      <translation>지정 고도 로이터가 %d에서 정체되었습니다</translation>
     </message>
     <message>
       <source>Lua: %s</source>
-      <translation>Lua: %s</translation>
+      <translation>Lua 로그: %s</translation>
     </message>
     <message>
       <source>Lua: %s did not return a delay (0x%d)</source>
@@ -23228,7 +23916,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>AutoTune: (%c) %s</source>
-      <translation>AutoTune: (%c) %s</translation>
+      <translation>AutoTune 상태: (%c) %s</translation>
     </message>
     <message>
       <source>AutoTune: Saved gains for %s%s%s</source>
@@ -23236,23 +23924,23 @@ Confirm change?</source>
     </message>
     <message>
       <source>AutoTune: WFL (%s) (%f &gt; %f)</source>
-      <translation>AutoTune: WFL (%s) (%f &gt; %f)</translation>
+      <translation>AutoTune WFL: (%s) (%f &gt; %f)</translation>
     </message>
     <message>
       <source>AutoTune: lean=%f target=%f</source>
-      <translation>AutoTune: lean=%f target=%f</translation>
+      <translation>AutoTune: lean=%f, 목표=%f</translation>
     </message>
     <message>
       <source>AutoTune: p=%f accel=%f</source>
-      <translation>AutoTune: p=%f accel=%f</translation>
+      <translation>AutoTune: p=%f, 가속도=%f</translation>
     </message>
     <message>
       <source>AutoTune: p=%f d=%f</source>
-      <translation>AutoTune: p=%f d=%f</translation>
+      <translation>AutoTune: p=%f, d=%f</translation>
     </message>
     <message>
       <source>AutoTune: rotation=%f target=%f</source>
-      <translation>AutoTune: rotation=%f target=%f</translation>
+      <translation>AutoTune: 회전=%f, 목표=%f</translation>
     </message>
     <message>
       <source>AutoTune: success %u/%u</source>
@@ -23505,11 +24193,11 @@ Confirm change?</source>
     <!-- ── 기존 항목 유지 ── -->
     <message>
       <source>PreArm: Radio failsafe on</source>
-      <translation>PreArm: 무선 페일세이프가 활성화되어 있습니다</translation>
+      <translation>PreArm: 라디오 페일세이프 활성</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix</source>
-      <translation>PreArm: 3D GPS 고정 대기 중</translation>
+      <translation>PreArm: 3D 위치 고정 대기 중</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix </source>
@@ -23533,7 +24221,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: EKF attitude is bad</source>
-      <translation>PreArm: EKF 자세 추정 상태가 비정상입니다</translation>
+      <translation>PreArm: EKF 자세 추정 불량</translation>
     </message>
     <message>
       <source>PreArm: fence requires position</source>
@@ -23557,7 +24245,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>ACRO_BAL_ROLL/PITCH</source>
-      <translation>ACRO_BAL_ROLL/PITCH</translation>
+      <translation>ACRO 밸런스 롤/피치</translation>
     </message>
     <message>
       <source>AC_Fence: invalid polygon vertex count</source>
@@ -23985,7 +24673,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>FS_LONG_TIMEOUT이 FS_SHORT_TIMEOUT보다 짧습니다</translation>
+      <translation>파라미터 오류: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>Failsafe ended</source>
@@ -24085,7 +24773,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>GCS Failsafe</source>
-      <translation>GCS 페일세이프</translation>
+      <translation>지상관제소(GCS) 안전장치</translation>
     </message>
     <message>
       <source>GCS Failsafe - Continuing Auto Mode</source>
@@ -25182,7 +25870,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: ACRO_BAL_ROLL/PITCH</source>
-      <translation>PreArm: ACRO_BAL_ROLL/PITCH</translation>
+      <translation>시동 전 점검: ACRO_BAL_ROLL/PITCH</translation>
     </message>
     <message>
       <source>PreArm: Mode not armable</source>
@@ -25226,7 +25914,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
-      <translation>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+      <translation>시동 전 점검: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
     </message>
     <message>
       <source>PreArm: GPS is not healthy</source>
@@ -25570,7 +26258,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>#Gain: %2.0f%%</source>
-      <translation>#Gain: %2.0f%%</translation>
+      <translation>게인: %2.0f%%</translation>
     </message>
     <message>
       <source>#Input Hold Disabled</source>
@@ -25718,7 +26406,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: %s</source>
-      <translation>PreArm: %s</translation>
+      <translation>시동 전 점검: %s</translation>
     </message>
     <message>
       <source>PreArm: servo function %u unassigned</source>
@@ -25726,7 +26414,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm:[^</source>
-      <translation>PreArm:[^</translation>
+      <translation>시동 전 점검:[^</translation>
     </message>
     <message>
       <source>Proximity %d deg, %4.2fm</source>
@@ -26174,7 +26862,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>hello, world</source>
-      <translation>hello, world</translation>
+      <translation>안녕하세요, world</translation>
     </message>
     <message>
       <source>hover throttle delta: %f</source>
@@ -26197,11 +26885,1790 @@ Confirm change?</source>
       <translation>최근 3초간 목표 미수신, 정지</translation>
     </message>
     <message>
+      <source>Preflight Fail: Accel 0 uncalibrated</source>
+      <translation>사전 점검 실패: 가속도계 0 보정 안 됨</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass 0 uncalibrated</source>
+      <translation>사전 점검 실패: 나침반 0 보정 안 됨</translation>
+    </message>
+    <message>
+      <source>C2 link quality degraded</source>
+      <translation>C2 링크 품질 저하</translation>
+    </message>
+    <message>
+      <source>C2 link quality critical</source>
+      <translation>C2 링크 품질 위험</translation>
+    </message>
+    <message>
+      <source>Data link regained</source>
+      <translation>데이터 링크 복구됨</translation>
+    </message>
+    <message>
       <source>x: %f e: %f r: %f d: %f</source>
-      <translation>x: %f e: %f r: %f d: %f</translation>
+      <translation>디버그: x=%f e=%f r=%f d=%f</translation>
+    </message>
+  
+    <message>
+      <source>%s #%i fail: %s%s%s%s%s!</source>
+      <translation>%s #%i 실패: %s%s%s%s%s!</translation>
+    </message>
+    <message>
+      <source>%s #%i failed: %s%s%s%s%s!</source>
+      <translation>%s #%i 실패: %s%s%s%s%s!</translation>
+    </message>
+    <message>
+      <source>%sdelayed data old: %8.4f</source>
+      <translation>%s지연 데이터가 오래됨: %8.4f</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Lidar detected with ID %zu</source>
+      <translation>%s하향 라이다 감지됨, ID %zu</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Sonar detected with ID %zu</source>
+      <translation>%s하향 소나 감지됨, ID %zu</translation>
+    </message>
+    <message>
+      <source>%soffline. %s</source>
+      <translation>%s오프라인. %s</translation>
+    </message>
+    <message>
+      <source>%sreinit x</source>
+      <translation>%sx 재초기화</translation>
+    </message>
+    <message>
+      <source>%sreinit x, x(%zu) not finite</source>
+      <translation>%sx 재초기화, x(%zu)가 유한값이 아님</translation>
+    </message>
+    <message>
+      <source>[cal] %s side already completed</source>
+      <translation>[cal] %s 면은 이미 완료됨</translation>
+    </message>
+    <message>
+      <source>[cal] %s side done, rotate to a different side</source>
+      <translation>[cal] %s 면 완료, 다른 면으로 회전하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] %s side result: [%.3f %.3f %.3f]</source>
+      <translation>[cal] %s 면 결과: [%.3f %.3f %.3f]</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid X-axis, check rotation</source>
+      <translation>[cal] 가속도계 %d X축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Y-axis, check rotation</source>
+      <translation>[cal] 가속도계 %d Y축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Z-axis, check rotation</source>
+      <translation>[cal] 가속도계 %d Z축이 유효하지 않습니다. 회전 방향을 확인하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] Battery connected</source>
+      <translation>[cal] 배터리 연결됨</translation>
+    </message>
+    <message>
+      <source>[cal] Blow into front of pitot without touching</source>
+      <translation>[cal] 피토관 전면에 접촉 없이 바람을 불어넣으십시오</translation>
+    </message>
+    <message>
+      <source>[cal] Connect battery now</source>
+      <translation>[cal] 지금 배터리를 연결하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] Create air pressure! (got %d, wanted: 50 Pa)</source>
+      <translation>[cal] 공기 압력을 생성하십시오! (현재 %d, 목표: 50 Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] detected motion, hold still...</source>
+      <translation>[cal] 움직임 감지됨, 기체를 정지 상태로 유지하십시오...</translation>
+    </message>
+    <message>
+      <source>[cal] detected rest position, hold still...</source>
+      <translation>[cal] 정지 자세 감지됨, 그대로 유지하십시오...</translation>
+    </message>
+    <message>
+      <source>[cal] Ensure sensor is not measuring wind</source>
+      <translation>[cal] 센서가 풍속을 측정하지 않도록 하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] External Mag: %d (%</source>
+      <translation>[cal] 외부 자력계: %d (%</translation>
+    </message>
+    <message>
+      <source>[cal] Hold still, measuring %s side</source>
+      <translation>[cal] 정지 유지, %s 면 측정 중</translation>
+    </message>
+    <message>
+      <source>[cal] hold vehicle still on a pending side</source>
+      <translation>[cal] 대기 중인 면에서 기체를 정지 상태로 유지하십시오</translation>
+    </message>
+    <message>
+      <source>[cal] Negative pressure difference detected (%d Pa)</source>
+      <translation>[cal] 음압 차이 감지됨 (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Offset of %d Pascal</source>
+      <translation>[cal] 오프셋 %d Pascal</translation>
+    </message>
+    <message>
+      <source>[cal] pending:%s</source>
+      <translation>[cal] 대기:%s</translation>
+    </message>
+    <message>
+      <source>[cal] Positive pressure: OK (%d Pa)</source>
+      <translation>[cal] 양압: 정상 (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Rotate vehicle</source>
+      <translation>[cal] 기체를 회전시키십시오</translation>
+    </message>
+    <message>
+      <source>[cal] Swap static and dynamic ports or set SENS_DPRES_REV</source>
+      <translation>[cal] 정압/동압 포트를 바꾸거나 SENS_DPRES_REV를 설정하십시오</translation>
+    </message>
+    <message>
+      <source>[IO] config read fail, abort.</source>
+      <translation>[IO] 설정 읽기 실패, 중단합니다.</translation>
+    </message>
+    <message>
+      <source>[logger] %s</source>
+      <translation>[로거] %s</translation>
+    </message>
+    <message>
+      <source>[lpe] baro fault, r %5.2f m, beta %5.2f</source>
+      <translation>[lpe] 기압계 이상, r %5.2f m, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] baro OK</source>
+      <translation>[lpe] 기압계 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] baro timeout</source>
+      <translation>[lpe] 기압계 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] flow fault,  beta %5.2f</source>
+      <translation>[lpe] 광류 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] flow init:</source>
+      <translation>[lpe] 광류 초기화:</translation>
+    </message>
+    <message>
+      <source>[lpe] flow OK</source>
+      <translation>[lpe] 광류 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] flow timeout</source>
+      <translation>[lpe] 광류 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (gps) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] 전역 원점 초기화(gps): lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (mocap) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] 전역 원점 초기화(mocap): lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (parameter) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] 전역 원점 초기화(parameter): lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (vision) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] 전역 원점 초기화(vision): lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] gps fault %3g %3g %3g %3g %3g %3g</source>
+      <translation>[lpe] GPS 이상 %3g %3g %3g %3g %3g %3g</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS OK</source>
+      <translation>[lpe] GPS 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS timeout</source>
+      <translation>[lpe] GPS 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] land fault,  beta %5.2f</source>
+      <translation>[lpe] 착륙 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] land init</source>
+      <translation>[lpe] 착륙 초기화</translation>
+    </message>
+    <message>
+      <source>[lpe] land OK</source>
+      <translation>[lpe] 착륙 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] land timeout</source>
+      <translation>[lpe] 착륙 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar fault,  beta %5.2f</source>
+      <translation>[lpe] 라이다 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar init:</source>
+      <translation>[lpe] 라이다 초기화:</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar OK</source>
+      <translation>[lpe] 라이다 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar timeout</source>
+      <translation>[lpe] 라이다 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] mocap 데이터가 유효하지 않습니다. eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap fault, beta %5.2f</source>
+      <translation>[lpe] mocap 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap OK</source>
+      <translation>[lpe] mocap 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap position init:</source>
+      <translation>[lpe] mocap 위치 초기화:</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap timeout</source>
+      <translation>[lpe] mocap 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar fault,  beta %5.2f</source>
+      <translation>[lpe] 소나 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init std &gt; min</source>
+      <translation>[lpe] 소나 초기화 std &gt; min</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init timeout</source>
+      <translation>[lpe] 소나 초기화 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar OK</source>
+      <translation>[lpe] 소나 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar timeout</source>
+      <translation>[lpe] 소나 타임아웃</translation>
+    </message>
+    <message>
+      <source>[lpe] vision data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] 비전 데이터가 유효하지 않습니다. eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position fault, beta %5.2f</source>
+      <translation>[lpe] 비전 위치 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position init:</source>
+      <translation>[lpe] 비전 위치 초기화:</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position OK</source>
+      <translation>[lpe] 비전 위치 정상</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position timeout</source>
+      <translation>[lpe] 비전 위치 타임아웃</translation>
+    </message>
+    <message>
+      <source>Accel %</source>
+      <translation>가속도계 %</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation invalid</source>
+      <translation>대기속도 추정 유효하지 않음</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation valid</source>
+      <translation>대기속도 추정 정상</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor failure detected. Check connection and reboot.</source>
+      <translation>대기속도 센서 고장 감지. 연결 상태 확인 후 재부팅하십시오.</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor healthy, start using again (%i, %i)</source>
+      <translation>대기속도 센서가 정상입니다. 다시 사용을 시작합니다 (%i, %i)</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</source>
+      <translation>대기속도 센서 번호 %d ASPD_SCALE 업데이트: %.4f --&gt; %.4f</translation>
+    </message>
+    <message>
+      <source>Already higher than takeoff altitude</source>
+      <translation>이미 이륙 고도보다 높습니다</translation>
+    </message>
+    <message>
+      <source>Altitude change is outside geofence</source>
+      <translation>고도 변경 값이 지오펜스 범위를 벗어났습니다</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i minutes)</source>
+      <translation>최대 비행 시간에 근접했습니다 (시스템이 %i분 후 RTL 수행)</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i seconds)</source>
+      <translation>최대 비행 시간에 근접했습니다 (시스템이 %i초 후 RTL 수행)</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied</source>
+      <translation>시동 인증: 거부됨</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because airspace is in use</source>
+      <translation>시동 인증 거부: 공역이 사용 중입니다</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because of bad weather</source>
+      <translation>시동 인증 거부: 기상 상태가 불량합니다</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied by timeout in authorizer</source>
+      <translation>시동 인증 거부: 인증기 타임아웃</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied, waypoint %</source>
+      <translation>시동 인증 거부, 웨이포인트 %</translation>
+    </message>
+    <message>
+      <source>Arm auth: No response</source>
+      <translation>시동 인증: 응답 없음</translation>
+    </message>
+    <message>
+      <source>Arm auth: Requesting authorization...</source>
+      <translation>시동 인증: 승인 요청 중...</translation>
+    </message>
+    <message>
+      <source>Arm auth: Temporarily rejected</source>
+      <translation>시동 인증: 일시 거부</translation>
+    </message>
+    <message>
+      <source>Arm stick gesture disabled if arm switch in use</source>
+      <translation>ARM 스위치를 사용하는 경우 스틱 ARM 제스처는 비활성화됩니다</translation>
+    </message>
+    <message>
+      <source>Armed by %s</source>
+      <translation>%s에 의해 시동(ARM)되었습니다</translation>
+    </message>
+    <message>
+      <source>Arming denied: calibrating</source>
+      <translation>시동 거부: 보정 중입니다</translation>
+    </message>
+    <message>
+      <source>Arming denied: Resolve system health failures first</source>
+      <translation>시동 거부: 먼저 시스템 상태 이상을 해결하십시오</translation>
+    </message>
+    <message>
+      <source>Arming denied: switch to manual mode first</source>
+      <translation>시동 거부: 먼저 수동 모드로 전환하십시오</translation>
+    </message>
+    <message>
+      <source>Arming denied: throttle not in safe position</source>
+      <translation>시동 거부: 스로틀이 안전 위치가 아닙니다</translation>
+    </message>
+    <message>
+      <source>Ascent speed has been constrained by max speed</source>
+      <translation>상승 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Assuming vehicle is facing heading %.1f degrees</source>
+      <translation>기체가 헤딩 %.1f도를 향하고 있다고 가정합니다</translation>
+    </message>
+    <message>
+      <source>attitude estimator not running - check system boot</source>
+      <translation>자세 추정기가 동작하지 않습니다 - 시스템 부팅 상태를 확인하십시오</translation>
+    </message>
+    <message>
+      <source>attitude required for mag quick cal</source>
+      <translation>자력계 빠른 보정에는 자세 정보가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Autotune aborted before finishing</source>
+      <translation>오토튠이 완료 전에 중단되었습니다</translation>
+    </message>
+    <message>
+      <source>Autotune axis timeout, skipping to next axis</source>
+      <translation>오토튠 축 타임아웃, 다음 축으로 건너뜁니다</translation>
+    </message>
+    <message>
+      <source>Autotune finished successfully</source>
+      <translation>오토튠이 성공적으로 완료되었습니다</translation>
+    </message>
+    <message>
+      <source>Autotune returned to idle</source>
+      <translation>오토튠이 유휴 상태로 복귀했습니다</translation>
+    </message>
+    <message>
+      <source>Autotune started</source>
+      <translation>오토튠이 시작되었습니다</translation>
+    </message>
+    <message>
+      <source>Battery %d: %s. %s</source>
+      <translation>배터리 %d: %s. %s</translation>
+    </message>
+    <message>
+      <source>Battery %i disconnected</source>
+      <translation>배터리 %i 연결 해제됨</translation>
+    </message>
+    <message>
+      <source>Battery %i missing</source>
+      <translation>배터리 %i 누락</translation>
+    </message>
+    <message>
+      <source>Calibration denied: not supported in SIH mode</source>
+      <translation>보정 거부: SIH 모드에서는 지원되지 않습니다</translation>
+    </message>
+    <message>
+      <source>calibration save failed</source>
+      <translation>보정 저장 실패</translation>
+    </message>
+    <message>
+      <source>Calibration: Disabling RC input</source>
+      <translation>보정: RC 입력 비활성화</translation>
+    </message>
+    <message>
+      <source>Calibration: Restoring RC input</source>
+      <translation>보정: RC 입력 복원</translation>
+    </message>
+    <message>
+      <source>Climb to %.1f meters above home</source>
+      <translation>홈 위치 기준 %.1f미터까지 상승</translation>
+    </message>
+    <message>
+      <source>command denied during calibration: %</source>
+      <translation>보정 중 명령 거부: %</translation>
+    </message>
+    <message>
+      <source>Compass needs calibration - Land now!</source>
+      <translation>나침반 보정이 필요합니다 - 즉시 착륙하십시오!</translation>
+    </message>
+    <message>
+      <source>Connection to ground station lost</source>
+      <translation>지상국 연결 끊김</translation>
+    </message>
+    <message>
+      <source>Connection to mission computer lost</source>
+      <translation>미션 컴퓨터 연결 끊김</translation>
+    </message>
+    <message>
+      <source>Control high latency failed! Telemetry unavailable</source>
+      <translation>고지연 제어 실패! 텔레메트리 사용 불가</translation>
+    </message>
+    <message>
+      <source>Could not set mission closest to position.</source>
+      <translation>현재 위치 기준 가장 가까운 미션 항목을 설정할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Critical battery</source>
+      <translation>배터리 위험</translation>
+    </message>
+    <message>
+      <source>Cruise speed has been constrained by max speed</source>
+      <translation>순항 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Dangerously low battery! Shutting system down in 60 seconds</source>
+      <translation>배터리 수준이 매우 낮습니다! 60초 후 시스템을 종료합니다</translation>
+    </message>
+    <message>
+      <source>Descent speed has been constrained by max speed</source>
+      <translation>하강 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Detected %u gyros, but will calibrate only %u</source>
+      <translation>자이로 %u개 감지, 이 중 %u개만 보정합니다</translation>
+    </message>
+    <message>
+      <source>Detected %u mags, but will calibrate only %u</source>
+      <translation>자력계 %u개 감지, 이 중 %u개만 보정합니다</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>장치 %s에서 IRIDIUM mavlink 송신을 비활성화합니다</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>명령에 의해 장치 %s의 IRIDIUM mavlink 송신을 비활성화합니다</translation>
+    </message>
+    <message>
+      <source>Disarmed by %s</source>
+      <translation>%s에 의해 시동이 해제되었습니다</translation>
+    </message>
+    <message>
+      <source>Disarming denied: not landed</source>
+      <translation>시동 해제 거부: 착륙 상태가 아닙니다</translation>
+    </message>
+    <message>
+      <source>Disconnect battery and try again</source>
+      <translation>배터리를 분리한 후 다시 시도하십시오</translation>
+    </message>
+    <message>
+      <source>DO JUMP waypoint could not be written.</source>
+      <translation>DO JUMP 웨이포인트를 기록할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>EKF2_MAG_TYPE invalid, resetting to default</source>
+      <translation>EKF2_MAG_TYPE이 유효하지 않아 기본값으로 재설정합니다</translation>
+    </message>
+    <message>
+      <source>Emergency battery level</source>
+      <translation>배터리 긴급 수준</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>장치 %s에서 IRIDIUM mavlink 송신을 활성화합니다</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>명령에 의해 장치 %s의 IRIDIUM mavlink 송신을 활성화합니다</translation>
+    </message>
+    <message>
+      <source>Error loading settings</source>
+      <translation>설정 로드 오류</translation>
+    </message>
+    <message>
+      <source>Error saving settings</source>
+      <translation>설정 저장 오류</translation>
+    </message>
+    <message>
+      <source>ERROR: cannot open calibration storage</source>
+      <translation>오류: 보정 저장소를 열 수 없습니다</translation>
+    </message>
+    <message>
+      <source>ERROR: invalid orientation</source>
+      <translation>오류: 방향 설정이 유효하지 않습니다</translation>
+    </message>
+    <message>
+      <source>ERROR: missing data, sensor %d</source>
+      <translation>오류: 데이터 누락, 센서 %d</translation>
+    </message>
+    <message>
+      <source>ERROR: Motion during calibration</source>
+      <translation>오류: 보정 중 움직임 감지</translation>
+    </message>
+    <message>
+      <source>ERROR: out of memory</source>
+      <translation>오류: 메모리 부족</translation>
+    </message>
+    <message>
+      <source>ERROR: Waypoint index exceeds list capacity</source>
+      <translation>오류: 웨이포인트 인덱스가 목록 용량을 초과했습니다</translation>
+    </message>
+    <message>
+      <source>ERROR: wp index out of bounds</source>
+      <translation>오류: 웨이포인트 인덱스가 범위를 벗어났습니다</translation>
+    </message>
+    <message>
+      <source>esc</source>
+      <translation>ESC 장치</translation>
+    </message>
+    <message>
+      <source>ESC calibration denied! Press safety button first</source>
+      <translation>ESC 보정 거부! 먼저 안전 버튼을 누르십시오</translation>
+    </message>
+    <message>
+      <source>ESC failure: Not all ESCs are armed. Land now!</source>
+      <translation>ESC 오류: 모든 ESC가 시동되지 않았습니다. 즉시 착륙하십시오!</translation>
+    </message>
+    <message>
+      <source>ESC%d: %s. %s</source>
+      <translation>ESC%d 상태: %s. %s</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f check CRC is different,will upload tap esc firmware</source>
+      <translation>esc_id %1.f CRC가 달라 TAP ESC 펌웨어를 업로드합니다</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision failed</source>
+      <translation>esc_id %1.f 보드 리비전 확인 실패</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision: %02</source>
+      <translation>esc_id %1.f 보드 리비전 확인: %02</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision failed</source>
+      <translation>esc_id %1.f 부트로더 리비전 확인 실패</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision: %4.4f</source>
+      <translation>esc_id %1.f 부트로더 리비전 확인: %4.4f</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision failed</source>
+      <translation>esc_id %1.f 펌웨어 리비전 확인 실패</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision: %4.4f</source>
+      <translation>esc_id %1.f 펌웨어 리비전 확인: %4.4f</translation>
+    </message>
+    <message>
+      <source>excess pitch angle</source>
+      <translation>피치 각도 초과</translation>
+    </message>
+    <message>
+      <source>excess roll angle</source>
+      <translation>롤 각도 초과</translation>
+    </message>
+    <message>
+      <source>Executing Mission</source>
+      <translation>미션 실행 중</translation>
+    </message>
+    <message>
+      <source>Fail</source>
+      <translation>실패</translation>
+    </message>
+    <message>
+      <source>Failed to communicate with IO, abort.</source>
+      <translation>IO와 통신에 실패하여 중단합니다.</translation>
+    </message>
+    <message>
+      <source>Failed: No magnetometer available or enabled</source>
+      <translation>실패: 사용 가능하거나 활성화된 자력계가 없습니다</translation>
+    </message>
+    <message>
+      <source>Failed: This calibration requires rotation.</source>
+      <translation>실패: 이 보정은 기체 회전이 필요합니다.</translation>
+    </message>
+    <message>
+      <source>Failsafe activated</source>
+      <translation>페일세이프가 활성화되었습니다</translation>
+    </message>
+    <message>
+      <source>Failsafe activated: entering Hold for %i seconds</source>
+      <translation>페일세이프 활성화: %i초 동안 Hold로 진입</translation>
+    </message>
+    <message>
+      <source>Figure 8 command not supported.</source>
+      <translation>Figure 8 명령은 지원되지 않습니다.</translation>
+    </message>
+    <message>
+      <source>Figure 8 command only available for fixed wing and vtol vehicles.</source>
+      <translation>Figure 8 명령은 고정익 및 VTOL 기체에서만 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+      <source>Figure 8 command rejected, Only available in fixed wing mode.</source>
+      <translation>Figure 8 명령이 거부되었습니다. 고정익 모드에서만 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+      <source>Figure 8 is outside geofence</source>
+      <translation>Figure 8 경로가 지오펜스 외부입니다</translation>
+    </message>
+    <message>
+      <source>GCS connection regained</source>
+      <translation>GCS 연결이 복구되었습니다</translation>
+    </message>
+    <message>
+      <source>Geofence imported</source>
+      <translation>지오펜스를 가져왔습니다</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain current vehicle position</source>
+      <translation>지오펜스가 유효하지 않습니다. 현재 기체 위치를 포함하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain Home position</source>
+      <translation>지오펜스가 유효하지 않습니다. 홈 위치를 포함하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Geofence requires valid home position</source>
+      <translation>지오펜스에는 유효한 홈 위치가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Geofence violation for waypoint %zu</source>
+      <translation>웨이포인트 %zu에서 지오펜스 위반</translation>
+    </message>
+    <message>
+      <source>Geofence: approaching or outside geofence</source>
+      <translation>지오펜스: 경계 접근 또는 외부 이탈</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum altitude above Home</source>
+      <translation>지오펜스: 홈 기준 최대 고도 초과</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum distance to Home</source>
+      <translation>지오펜스: 홈까지의 최대 거리 초과</translation>
+    </message>
+    <message>
+      <source>Geofence: import error</source>
+      <translation>지오펜스: 가져오기 오류</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion started</source>
+      <translation>GNSS 데이터 융합이 시작되었습니다</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion stopped</source>
+      <translation>GNSS 데이터 융합이 중지되었습니다</translation>
+    </message>
+    <message>
+      <source>GNSS heading not reliable - Land now!</source>
+      <translation>GNSS 헤딩 신뢰도 낮음 - 즉시 착륙하십시오!</translation>
+    </message>
+    <message>
+      <source>GNSS signal jammed</source>
+      <translation>GNSS 신호 재밍 감지</translation>
+    </message>
+    <message>
+      <source>GNSS signal spoofed</source>
+      <translation>GNSS 신호 스푸핑 감지</translation>
+    </message>
+    <message>
+      <source>GPS jamming detected</source>
+      <translation>GPS 재밍 감지</translation>
+    </message>
+    <message>
+      <source>GPS required for baro cal</source>
+      <translation>기압계 보정에는 GPS가 필요합니다</translation>
+    </message>
+    <message>
+      <source>GPS required for mag quick cal</source>
+      <translation>자력계 빠른 보정에는 GPS가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Gyro %</source>
+      <translation>자이로 %</translation>
+    </message>
+    <message>
+      <source>Hardware fault: Camera capture disabled</source>
+      <translation>하드웨어 오류: 카메라 캡처 비활성화됨</translation>
+    </message>
+    <message>
+      <source>Hardware fault: GPS PPS disabled</source>
+      <translation>하드웨어 오류: GPS PPS 비활성화됨</translation>
+    </message>
+    <message>
+      <source>High latency data link lost</source>
+      <translation>고지연 데이터 링크가 끊어졌습니다</translation>
+    </message>
+    <message>
+      <source>Holding at %d m above landing waypoint.</source>
+      <translation>착륙 웨이포인트 상공 %d m에서 대기 중입니다.</translation>
+    </message>
+    <message>
+      <source>Hover thrust has been constrained by min/max</source>
+      <translation>호버 추력이 최소/최대 한계로 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Busy</source>
+      <translation>IGN MISSION_ITEM: 사용 중</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Invalid item</source>
+      <translation>IGN MISSION_ITEM: 유효하지 않은 항목</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: No transfer</source>
+      <translation>IGN MISSION_ITEM: 전송 없음</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM_REQUEST(_INT): No active transfer</source>
+      <translation>IGN MISSION_ITEM_REQUEST(_INT): 활성 전송 없음</translation>
+    </message>
+    <message>
+      <source>Invalid mission state.</source>
+      <translation>유효하지 않은 미션 상태입니다.</translation>
+    </message>
+    <message>
+      <source>IO protocol/firmware mismatch, abort.</source>
+      <translation>IO 프로토콜/펌웨어 불일치, 중단합니다.</translation>
+    </message>
+    <message>
+      <source>IO RC config upload fail</source>
+      <translation>IO RC 설정 업로드 실패</translation>
+    </message>
+    <message>
+      <source>Kill disengaged</source>
+      <translation>킬 스위치 해제됨</translation>
+    </message>
+    <message>
+      <source>Land tilt has been constrained by max tilt</source>
+      <translation>착륙 기울기가 최대 기울기 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Landing at current position</source>
+      <translation>현재 위치에 착륙합니다</translation>
+    </message>
+    <message>
+      <source>Landing detected</source>
+      <translation>착륙 감지됨</translation>
+    </message>
+    <message>
+      <source>Landing target fault, beta %5.2f</source>
+      <translation>착륙 타깃 이상, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>Landing target init</source>
+      <translation>착륙 타깃 초기화</translation>
+    </message>
+    <message>
+      <source>Landing target OK</source>
+      <translation>착륙 타깃 정상</translation>
+    </message>
+    <message>
+      <source>Landing target timeout</source>
+      <translation>착륙 타깃 타임아웃</translation>
+    </message>
+    <message>
+      <source>Landing target: coordinate frame %</source>
+      <translation>착륙 타깃: 좌표 프레임 %</translation>
+    </message>
+    <message>
+      <source>level</source>
+      <translation>수평</translation>
+    </message>
+    <message>
+      <source>Low battery</source>
+      <translation>배터리 부족</translation>
+    </message>
+    <message>
+      <source>Mag quick calibration finished</source>
+      <translation>자력계 빠른 보정 완료</translation>
+    </message>
+    <message>
+      <source>Manual backward speed has been constrained by forward speed</source>
+      <translation>수동 후진 속도가 전진 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Manual sideways speed has been constrained by forward speed</source>
+      <translation>수동 횡이동 속도가 전진 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Manual speed has been constrained by max speed</source>
+      <translation>수동 속도가 최대 속도 제한에 의해 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>MAVLink signing disabled</source>
+      <translation>MAVLink 서명 기능이 비활성화되었습니다</translation>
+    </message>
+    <message>
+      <source>MAVLink signing key accepted</source>
+      <translation>MAVLink 서명 키가 승인되었습니다</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: blank key rejected</source>
+      <translation>MAVLink 서명: 빈 키가 거부되었습니다</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: rejected while armed</source>
+      <translation>MAVLink 서명: 시동(ARM) 상태에서는 거부됩니다</translation>
+    </message>
+    <message>
+      <source>Maximum flight time reached</source>
+      <translation>최대 비행 시간에 도달했습니다</translation>
+    </message>
+    <message>
+      <source>Mission cannot be completed</source>
+      <translation>미션을 완료할 수 없습니다</translation>
+    </message>
+    <message>
+      <source>Mission could not reset jump count.</source>
+      <translation>미션 점프 카운트를 재설정할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Mission download request ignored, already active</source>
+      <translation>미션 다운로드 요청이 무시되었습니다(이미 활성 상태)</translation>
+    </message>
+    <message>
+      <source>Mission finished, landed</source>
+      <translation>미션 완료, 착륙했습니다</translation>
+    </message>
+    <message>
+      <source>Mission finished, loitering</source>
+      <translation>미션 완료, 로이터 중입니다</translation>
+    </message>
+    <message>
+      <source>Mission item could not be set.</source>
+      <translation>미션 항목을 설정할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Mission land item could not be read.</source>
+      <translation>미션 착륙 항목을 읽을 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Landing item or remove Takeoff.</source>
+      <translation>미션 거부: Landing 항목을 추가하거나 Takeoff 항목을 제거하십시오.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Takeoff item or remove Landing.</source>
+      <translation>미션 거부: Takeoff 항목을 추가하거나 Landing 항목을 제거하십시오.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: invalid land start.</source>
+      <translation>미션 거부: 유효하지 않은 착륙 시작 지점입니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: item %i: unsupported cmd: %d</source>
+      <translation>미션 거부: 항목 %i: 지원되지 않는 명령: %d</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Landing waypoint/pattern required.</source>
+      <translation>미션 거부: 착륙 웨이포인트/패턴이 필요합니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Mission contains VTOL items but vehicle is not a VTOL</source>
+      <translation>미션 거부: 미션에 VTOL 항목이 있으나 기체가 VTOL이 아닙니다</translation>
+    </message>
+    <message>
+      <source>Mission rejected: more than one land start.</source>
+      <translation>미션 거부: land start가 2개 이상입니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: No home pos, WP %d uses rel alt</source>
+      <translation>미션 거부: 홈 위치 없음, WP %d가 상대 고도를 사용합니다</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with land waypoint.</source>
+      <translation>미션 거부: 착륙 웨이포인트로 시작합니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with landing</source>
+      <translation>미션 거부: 착륙 항목으로 시작합니다</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff altitude below home altitude!</source>
+      <translation>미션 거부: 이륙 고도가 홈 고도보다 낮습니다!</translation>
+    </message>
+    <message>
+      <source>Mission rejected: takeoff not first waypoint item</source>
+      <translation>미션 거부: 이륙 항목이 첫 번째 웨이포인트가 아닙니다</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff or Landing item missing.</source>
+      <translation>미션 거부: Takeoff 또는 Landing 항목이 누락되었습니다.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff waypoint required.</source>
+      <translation>미션 거부: 이륙 웨이포인트가 필요합니다.</translation>
+    </message>
+    <message>
+      <source>Mission start denied! No valid mission</source>
+      <translation>미션 시작 거부! 유효한 미션이 없습니다</translation>
+    </message>
+    <message>
+      <source>Mission storage: Unable to write to microSD</source>
+      <translation>미션 저장소: microSD에 기록할 수 없습니다</translation>
+    </message>
+    <message>
+      <source>Mission sync timeout</source>
+      <translation>미션 동기화 타임아웃</translation>
+    </message>
+    <message>
+      <source>motion during calibration</source>
+      <translation>보정 중 움직임 감지</translation>
+    </message>
+    <message>
+      <source>motion, retrying..</source>
+      <translation>움직임 감지, 재시도 중..</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d overcurrent detected</source>
+      <translation>모터 고장: 모터 %d 과전류 감지</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d undercurrent detected</source>
+      <translation>모터 고장: 모터 %d 저전류 감지</translation>
+    </message>
+    <message>
+      <source>No airspeed sensor detected. Switch to non-airspeed mode.</source>
+      <translation>대기속도 센서가 감지되지 않았습니다. 비-대기속도 모드로 전환합니다.</translation>
+    </message>
+    <message>
+      <source>No gyros found</source>
+      <translation>자이로를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+      <source>no inputs, aborting</source>
+      <translation>입력이 없어 중단합니다</translation>
+    </message>
+    <message>
+      <source>No mags found</source>
+      <translation>자력계를 찾을 수 없습니다</translation>
+    </message>
+    <message>
+      <source>No valid mission available, loitering</source>
+      <translation>유효한 미션이 없어 로이터합니다</translation>
+    </message>
+    <message>
+      <source>No valid mission available, refusing takeoff</source>
+      <translation>유효한 미션이 없어 이륙을 거부합니다</translation>
+    </message>
+    <message>
+      <source>Not enough bandwidth to enable log streaming</source>
+      <translation>로그 스트리밍을 활성화하기에 대역폭이 부족합니다</translation>
+    </message>
+    <message>
+      <source>Not yet ready for mission, no position lock.</source>
+      <translation>아직 미션 준비가 되지 않았습니다(위치 고정 없음).</translation>
+    </message>
+    <message>
+      <source>Obstacle message received in unsupported frame %i</source>
+      <translation>지원되지 않는 프레임 %i에서 장애물 메시지를 수신했습니다</translation>
+    </message>
+    <message>
+      <source>ODOMETRY: estimator_type %</source>
+      <translation>ODOMETRY: 추정기 타입 %</translation>
+    </message>
+    <message>
+      <source>Onboard controller regained</source>
+      <translation>온보드 컨트롤러가 복구되었습니다</translation>
+    </message>
+    <message>
+      <source>Orbit command rejected</source>
+      <translation>오빗 명령이 거부되었습니다</translation>
+    </message>
+    <message>
+      <source>Orbit is outside geofence</source>
+      <translation>오빗 경로가 지오펜스 외부입니다</translation>
+    </message>
+    <message>
+      <source>Orbit radius limit exceeded</source>
+      <translation>오빗 반경 제한을 초과했습니다</translation>
+    </message>
+    <message>
+      <source>Parachute system lost</source>
+      <translation>낙하산 시스템 연결이 끊겼습니다</translation>
+    </message>
+    <message>
+      <source>Parachute system regained</source>
+      <translation>낙하산 시스템이 복구되었습니다</translation>
+    </message>
+    <message>
+      <source>parameter_rc_channel_index out of bounds</source>
+      <translation>parameter_rc_channel_index가 범위를 벗어났습니다</translation>
+    </message>
+    <message>
+      <source>Pilot took over using sticks</source>
+      <translation>조종사가 스틱으로 수동 개입했습니다</translation>
+    </message>
+    <message>
+      <source>Position estimate has low accuracy</source>
+      <translation>위치 추정 정확도가 낮습니다</translation>
+    </message>
+    <message>
+      <source>Precision landing</source>
+      <translation>정밀 착륙</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u inconsistent - check cal</source>
+      <translation>사전 점검 실패: 가속도계 %u 불일치 - 보정값을 확인하십시오</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u uncalibrated</source>
+      <translation>사전 점검 실패: 가속도계 %u 미보정</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel Sensor %u missing</source>
+      <translation>사전 점검 실패: 가속도계 센서 %u 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed invalid</source>
+      <translation>사전 점검 실패: 대기속도 유효하지 않음</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed selector module down</source>
+      <translation>사전 점검 실패: 대기속도 선택기 모듈 비정상</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed too high</source>
+      <translation>사전 점검 실패: 대기속도가 너무 높습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Altitude failure</source>
+      <translation>사전 점검 실패: 고도 추정 실패</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (pitch)</source>
+      <translation>사전 점검 실패: 자세 추정 실패 (pitch)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (roll)</source>
+      <translation>사전 점검 실패: 자세 추정 실패 (roll)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power high: %6.2f Volt</source>
+      <translation>사전 점검 실패: 항전원 전압 높음: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power low: %6.2f Volt</source>
+      <translation>사전 점검 실패: 항전원 전압 낮음: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: barometer %u missing</source>
+      <translation>사전 점검 실패: 기압계 %u 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Battery unhealthy</source>
+      <translation>사전 점검 실패: 배터리 상태 불량</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u fault</source>
+      <translation>사전 점검 실패: 나침반 %u 이상</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u uncalibrated</source>
+      <translation>사전 점검 실패: 나침반 %u 미보정</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass Sensor %u missing</source>
+      <translation>사전 점검 실패: 나침반 센서 %u 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <translation>사전 점검 실패: 나침반 %d 불일치</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: CPU load too high: %3.1f%%</source>
+      <translation>사전 점검 실패: CPU 부하 과다: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Crash dumps present on SD</source>
+      <translation>사전 점검 실패: SD에 크래시 덤프가 존재합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Distance Sensor %u missing</source>
+      <translation>사전 점검 실패: 거리 센서 %u 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ekf2 missing data</source>
+      <translation>사전 점검 실패: ekf2 데이터 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ESC telemetry missing</source>
+      <translation>사전 점검 실패: ESC 텔레메트리 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flight termination active</source>
+      <translation>사전 점검 실패: 비행 종료 기능 활성 상태</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flying with USB is not safe</source>
+      <translation>사전 점검 실패: USB 연결 상태 비행은 안전하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Found %i compass (required: %</source>
+      <translation>사전 점검 실패: 나침반 %i개 감지 (필요: %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Geofence RTL requires valid home</source>
+      <translation>사전 점검 실패: 지오펜스 RTL에는 유효한 홈 위치가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Global position estimate required</source>
+      <translation>사전 점검 실패: 전역 위치 추정이 필요합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u inconsistent - check cal</source>
+      <translation>사전 점검 실패: 자이로 %u 불일치 - 보정값을 확인하십시오</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u uncalibrated</source>
+      <translation>사전 점검 실패: 자이로 %u 미보정</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro Sensor %u missing</source>
+      <translation>사전 점검 실패: 자이로 센서 %u 누락</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: heading estimate invalid</source>
+      <translation>사전 점검 실패: 헤딩 추정이 유효하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: height estimate not stable</source>
+      <translation>사전 점검 실패: 고도 추정이 안정적이지 않습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Accelerometer Bias</source>
+      <translation>사전 점검 실패: 가속도계 바이어스 과다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Gyro Bias</source>
+      <translation>사전 점검 실패: 자이로 바이어스 과다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Home position required</source>
+      <translation>사전 점검 실패: 홈 위치가 필요합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal position unstable</source>
+      <translation>사전 점검 실패: 수평 위치 추정이 불안정합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal velocity unstable</source>
+      <translation>사전 점검 실패: 수평 속도 추정이 불안정합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Imbalanced propeller detected</source>
+      <translation>사전 점검 실패: 프로펠러 불균형 감지</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Kill switch engaged</source>
+      <translation>사전 점검 실패: 킬 스위치가 활성화되어 있습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Landing gear switch set in UP position</source>
+      <translation>사전 점검 실패: 랜딩기어 스위치가 UP 위치입니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Missing FMU SD Card</source>
+      <translation>사전 점검 실패: FMU SD 카드가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No connection to the GCS</source>
+      <translation>사전 점검 실패: GCS 연결이 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No CPU and RAM load information</source>
+      <translation>사전 점검 실패: CPU/RAM 부하 정보가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No rally point available</source>
+      <translation>사전 점검 실패: 사용 가능한 랠리 포인트가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Accel %u</source>
+      <translation>사전 점검 실패: 가속도계 %u의 유효한 데이터가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Baro %u</source>
+      <translation>사전 점검 실패: 기압계 %u의 유효한 데이터가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Compass %u</source>
+      <translation>사전 점검 실패: 나침반 %u의 유효한 데이터가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Gyro %u</source>
+      <translation>사전 점검 실패: 자이로 %u의 유효한 데이터가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid distance sensor %u data</source>
+      <translation>사전 점검 실패: 거리 센서 %u의 유효한 데이터가 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system missing</source>
+      <translation>사전 점검 실패: Open Drone ID 시스템이 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system not ready</source>
+      <translation>사전 점검 실패: Open Drone ID 시스템이 준비되지 않았습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system missing</source>
+      <translation>사전 점검 실패: 낙하산 시스템이 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system not ready</source>
+      <translation>사전 점검 실패: 낙하산 시스템이 준비되지 않았습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power module not connected</source>
+      <translation>사전 점검 실패: 전원 모듈이 연결되지 않았습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power redundancy not met: %d of %</source>
+      <translation>사전 점검 실패: 전원 이중화 조건 미충족: %d of %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Press safety button first</source>
+      <translation>사전 점검 실패: 먼저 안전 버튼을 누르십시오</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RAM usage too high: %3.1f%%</source>
+      <translation>사전 점검 실패: RAM 사용률 과다: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MAX &gt; %u</source>
+      <translation>사전 점검 실패: RC 오류: RC%d_MAX &gt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MIN &lt; %u</source>
+      <translation>사전 점검 실패: RC 오류: RC%d_MIN &lt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &lt; MIN (%d/%d)</source>
+      <translation>사전 점검 실패: RC 오류: RC%d_TRIM &lt; MIN (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &gt; MAX (%d/%d)</source>
+      <translation>사전 점검 실패: RC 오류: RC%d_TRIM &gt; MAX (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RTL switch engaged</source>
+      <translation>사전 점검 실패: RTL 스위치가 활성화되어 있습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Strong magnetic interference</source>
+      <translation>사전 점검 실패: 강한 자기 간섭</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: system power unavailable</source>
+      <translation>사전 점검 실패: 시스템 전원 사용 불가</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Task watchdog dumps present on SD</source>
+      <translation>사전 점검 실패: SD에 태스크 워치독 덤프가 존재합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Traffic avoidance system missing</source>
+      <translation>사전 점검 실패: 교통 회피 시스템이 없습니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: triggered by external system</source>
+      <translation>사전 점검 실패: 외부 시스템에 의해 트리거됨</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in safety configuration</source>
+      <translation>사전 점검 실패: 기체가 안전 구성 상태입니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in transition state</source>
+      <translation>사전 점검 실패: 기체가 전환 상태입니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is not in multicopter mode</source>
+      <translation>사전 점검 실패: 기체가 멀티콥터 모드가 아닙니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: vertical velocity unstable</source>
+      <translation>사전 점검 실패: 수직 속도 추정이 불안정합니다</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: VTOL fixed-wing system failure detected</source>
+      <translation>사전 점검 실패: VTOL 고정익 시스템 오류 감지</translation>
+    </message>
+    <message>
+      <source>Primary airspeed index bigger than number connected sensors. Take last sensor.</source>
+      <translation>기본 대기속도 인덱스가 연결된 센서 수보다 큽니다. 마지막 센서를 사용합니다.</translation>
+    </message>
+    <message>
+      <source>Quad-chute triggered</source>
+      <translation>쿼드-슈트가 작동했습니다</translation>
+    </message>
+    <message>
+      <source>Received unknown mission type, abort.</source>
+      <translation>알 수 없는 미션 유형 수신, 중단합니다.</translation>
+    </message>
+    <message>
+      <source>REJ. MIS ITEM: partner id mismatch</source>
+      <translation>REJ. MIS ITEM: 파트너 ID 불일치</translation>
+    </message>
+    <message>
+      <source>REJ. WP CMD: partner id mismatch</source>
+      <translation>REJ. WP CMD: 파트너 ID 불일치</translation>
+    </message>
+    <message>
+      <source>Remote ID system lost</source>
+      <translation>원격 ID 시스템 연결이 끊겼습니다</translation>
+    </message>
+    <message>
+      <source>Remote ID system regained</source>
+      <translation>원격 ID 시스템이 복구되었습니다</translation>
+    </message>
+    <message>
+      <source>Reposition is outside geofence</source>
+      <translation>재배치 지점이 지오펜스 외부입니다</translation>
+    </message>
+    <message>
+      <source>Retry calibration (mag %</source>
+      <translation>보정 재시도 (mag %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (sphere NaN, %</source>
+      <translation>보정 재시도 (sphere NaN, %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (unable to fit mag %</source>
+      <translation>보정 재시도 (mag 피팅 불가, %</translation>
+    </message>
+    <message>
+      <source>Returning to launch</source>
+      <translation>이륙 지점으로 복귀합니다</translation>
+    </message>
+    <message>
+      <source>RTL Mission land: climb to %d m</source>
+      <translation>RTL 미션 착륙: %d m까지 상승</translation>
+    </message>
+    <message>
+      <source>RTL: completed, loitering</source>
+      <translation>RTL: 완료, 로이터 중</translation>
+    </message>
+    <message>
+      <source>RTL: land at destination</source>
+      <translation>RTL: 목적지에 착륙</translation>
+    </message>
+    <message>
+      <source>RTL: start return at %d m (%d m above destination)</source>
+      <translation>RTL: %d m에서 복귀 시작(목적지 상공 %d m)</translation>
+    </message>
+    <message>
+      <source>RTL: unsupported MAV_FRAME</source>
+      <translation>RTL: 지원되지 않는 MAV_FRAME</translation>
+    </message>
+    <message>
+      <source>Septentrio: Baud rate %d is unsupported, falling back to default %</source>
+      <translation>Septentrio: Baud rate %d는 지원되지 않아 기본값 %로 복귀합니다</translation>
+    </message>
+    <message>
+      <source>Septentrio: Device paths must be different</source>
+      <translation>Septentrio: 장치 경로는 서로 달라야 합니다</translation>
+    </message>
+    <message>
+      <source>Septentrio: Failed to configure receiver internal logging</source>
+      <translation>Septentrio: 수신기 내부 로깅 구성에 실패했습니다</translation>
+    </message>
+    <message>
+      <source>Septentrio: Logging stream should be different from main stream</source>
+      <translation>Septentrio: 로깅 스트림은 메인 스트림과 달라야 합니다</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT force not supported</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT force는 지원되지 않습니다</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT invalid coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT 유효하지 않은 좌표 프레임 %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED 좌표 프레임 %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED force not supported</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED force는 지원되지 않습니다</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED invalid</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED가 유효하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Switching to %s is currently not available</source>
+      <translation>%s로의 전환은 현재 사용할 수 없습니다</translation>
+    </message>
+    <message>
+      <source>System does not support shutdown</source>
+      <translation>시스템이 종료 기능을 지원하지 않습니다</translation>
+    </message>
+    <message>
+      <source>Takeoff detected</source>
+      <translation>이륙 감지됨</translation>
+    </message>
+    <message>
+      <source>Target altitude higher than max HAGL</source>
+      <translation>목표 고도가 최대 HAGL보다 높습니다</translation>
+    </message>
+    <message>
+      <source>Terrain collision risk, descent is stopped</source>
+      <translation>지형 충돌 위험으로 하강이 중지되었습니다</translation>
+    </message>
+    <message>
+      <source>Tilt constrained to safe value</source>
+      <translation>기울기가 안전 값으로 제한되었습니다</translation>
+    </message>
+    <message>
+      <source>Timeout waiting for battery</source>
+      <translation>배터리 대기 타임아웃</translation>
+    </message>
+    <message>
+      <source>timeout: no motion</source>
+      <translation>타임아웃: 움직임 없음</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system lost</source>
+      <translation>교통 회피 시스템 연결이 끊겼습니다</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system regained</source>
+      <translation>교통 회피 시스템이 복구되었습니다</translation>
+    </message>
+    <message>
+      <source>Transition to hover mode and descend.</source>
+      <translation>호버 모드로 전환 후 하강합니다.</translation>
+    </message>
+    <message>
+      <source>Transponder Failure</source>
+      <translation>트랜스폰더 고장</translation>
+    </message>
+    <message>
+      <source>Transponder System Failure</source>
+      <translation>트랜스폰더 시스템 고장</translation>
+    </message>
+    <message>
+      <source>trim cal done</source>
+      <translation>트림 보정 완료</translation>
+    </message>
+    <message>
+      <source>TRIM: PARAM SET FAIL</source>
+      <translation>TRIM: 파라미터 설정 실패</translation>
+    </message>
+    <message>
+      <source>unable to reach heading within timeout</source>
+      <translation>타임아웃 내 목표 헤딩에 도달할 수 없습니다</translation>
+    </message>
+    <message>
+      <source>Unable to write on micro SD</source>
+      <translation>micro SD에 기록할 수 없습니다</translation>
+    </message>
+    <message>
+      <source>Unsupported ARM_DISARM param: %.3f</source>
+      <translation>지원되지 않는 ARM_DISARM 파라미터: %.3f</translation>
+    </message>
+    <message>
+      <source>Unsupported auto mode</source>
+      <translation>지원되지 않는 자동 모드</translation>
+    </message>
+    <message>
+      <source>Unsupported base mode</source>
+      <translation>지원되지 않는 베이스 모드</translation>
+    </message>
+    <message>
+      <source>Unsupported main mode</source>
+      <translation>지원되지 않는 메인 모드</translation>
+    </message>
+    <message>
+      <source>Warning: mag %</source>
+      <translation>경고: 자력계 %</translation>
+    </message>
+    <message>
+      <source>Waypoint could not be read.</source>
+      <translation>웨이포인트를 읽을 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>WPM: IGN CLEAR CMD: Busy</source>
+      <translation>WPM: IGN CLEAR CMD: 사용 중</translation>
+    </message>
+    <message>
+      <source>WPM: IGN MISSION_COUNT: Busy</source>
+      <translation>WPM: IGN MISSION_COUNT: 사용 중</translation>
+    </message>
+    <message>
+      <source>WPM: IGN WP CURR CMD: Busy</source>
+      <translation>WPM: IGN WP CURR CMD: 사용 중</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Busy</source>
+      <translation>WPM: REJ. CMD: 사용 중</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: partner id mismatch</source>
+      <translation>WPM: REJ. CMD: 파트너 ID 불일치</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Req. WP was unexpected</source>
+      <translation>WPM: REJ. CMD: 요청된 WP가 예상과 다릅니다</translation>
+    </message>
+    <message>
+      <source>WPM: WP CURR CMD: Not in list</source>
+      <translation>WPM: WP CURR CMD: 목록에 없음</translation>
+    </message>
+    <message>
+      <source>Yaw Airmode requires disabling the stick arm gesture</source>
+      <translation>Yaw Airmode 사용에는 스틱 ARM 제스처 비활성화가 필요합니다</translation>
+    </message>
+</context>
+  <context>
+    <name>DeviceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="139"/>
+      <source>YellowScan 3D LiDAR</source>
+      <translation>YellowScan 3D LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="149"/>
+      <source>PWR OFF</source>
+      <translation>전원 OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition OFF</source>
+      <translation>데이터 수집 OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition ON</source>
+      <translation>데이터 수집 ON</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="199"/>
+      <source>Configure</source>
+      <translation>설정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="233"/>
+      <source>Details</source>
+      <translation>상세</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="238"/>
+      <source>Acquisition Running</source>
+      <translation>데이터 수집 동작 중</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="239"/>
+      <source>Time Not Set</source>
+      <translation>시간 미설정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="240"/>
+      <source>Scanner Not Ready</source>
+      <translation>스캐너 준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="241"/>
+      <source>INS Not Locked</source>
+      <translation>INS 미잠금</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="242"/>
+      <source>Scanner Error</source>
+      <translation>스캐너 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="243"/>
+      <source>INS Error</source>
+      <translation>INS 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="244"/>
+      <source>No USB</source>
+      <translation>USB 없음</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="245"/>
+      <source>USB Full</source>
+      <translation>USB 가득 참</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="246"/>
+      <source>Camera Error</source>
+      <translation>카메라 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="268"/>
+      <source>Parameters</source>
+      <translation>파라미터</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="271"/>
+      <source>Get Param</source>
+      <translation>파라미터 읽기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="276"/>
+      <source>Set Param</source>
+      <translation>파라미터 쓰기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="295"/>
+      <source>Scanner High Sensitivity</source>
+      <translation>스캐너 고감도</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>On</source>
+      <translation>켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>Off</source>
+      <translation>꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="320"/>
+      <source>Scanner Pattern</source>
+      <translation>스캐너 패턴</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>Repetition</source>
+      <translation>반복</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="345"/>
+      <source>Emb. Camera</source>
+      <translation>내장 카메라</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Disable</source>
+      <translation>비활성</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Enable</source>
+      <translation>활성</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="370"/>
+      <source>Emb. Cam. Init. Height</source>
+      <translation>내장 카메라 초기 높이</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="379"/>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="420"/>
+      <source>Float</source>
+      <translation>실수</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="397"/>
+      <source>Emb. Cam. Trigger Mode</source>
+      <translation>내장 카메라 트리거 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Time</source>
+      <translation>시간</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Distance</source>
+      <translation>거리</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="454"/>
+      <source>Message Monitor</source>
+      <translation>메시지 모니터</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="465"/>
+      <source>Sent:</source>
+      <translation>송신:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="485"/>
+      <source>Received:</source>
+      <translation>수신:</translation>
     </message>
   </context>
 </TS>
+
+
+
+
+
+
+
 
 
 

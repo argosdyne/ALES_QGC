@@ -35,6 +35,39 @@ SetupPage {
                 id:         controller
             }
 
+            function _localizedPx4EnumText(enumText) {
+                switch (enumText) {
+                case "Disabled":
+                case "Lockdown":
+                case "None":
+                case "Warning":
+                case "Hold mode":
+                case "Return mode":
+                case "Terminate":
+                case "Land mode":
+                case "Disarm":
+                case "Return at critical level, land at emergency level":
+                case "Position mode":
+                case "Altitude mode":
+                case "Manual":
+                case "disabled":
+                case "All mission messages":
+                case "Geotagging messages":
+                case "when armed until disarm (default)":
+                case "from boot until disarm":
+                case "from boot until shutdown":
+                case "depending on AUX1 RC channel":
+                case "from 1st armed until shutdown":
+                case "external HITL":
+                case "HITL enabled":
+                case "HITL and SIH disabled":
+                case "SIH enabled":
+                    return qsTranslate("PX4ParameterMetaData", enumText)
+                default:
+                    return enumText
+                }
+            }
+
             readonly property string hitlParam: "SYS_HITL"
 
             property real _margins:         ScreenTools.defaultFontPixelHeight
@@ -106,9 +139,18 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _lowBattAction
-                                indexModel:         false
+                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
+                                currentIndex:       fact ? fact.enumIndex : 0
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
+                                onModelChanged: {
+                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
+                                }
+                                onActivated: {
+                                    if (fact) {
+                                        fact.value = fact.enumValues[index]
+                                    }
+                                }
                             }
 
                             QGCLabel {
@@ -288,9 +330,18 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _rcLossAction
-                                indexModel:         false
+                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
+                                currentIndex:       fact ? fact.enumIndex : 0
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
+                                onModelChanged: {
+                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
+                                }
+                                onActivated: {
+                                    if (fact) {
+                                        fact.value = fact.enumValues[index]
+                                    }
+                                }
                             }
 
                             QGCLabel {
@@ -340,9 +391,18 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _dlLossAction
-                                indexModel:         false
+                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
+                                currentIndex:       fact ? fact.enumIndex : 0
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
+                                onModelChanged: {
+                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
+                                }
+                                onActivated: {
+                                    if (fact) {
+                                        fact.value = fact.enumValues[index]
+                                    }
+                                }
                             }
 
                             QGCLabel {
@@ -393,9 +453,18 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _fenceAction
-                                indexModel:         false
+                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
+                                currentIndex:       fact ? fact.enumIndex : 0
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
+                                onModelChanged: {
+                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
+                                }
+                                onActivated: {
+                                    if (fact) {
+                                        fact.value = fact.enumValues[index]
+                                    }
+                                }
                             }
 
                             QGCCheckBox {
@@ -736,9 +805,18 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _hitlEnabled
-                                indexModel:         false
+                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
+                                currentIndex:       fact ? fact.enumIndex : 0
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
+                                onModelChanged: {
+                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
+                                }
+                                onActivated: {
+                                    if (fact) {
+                                        fact.value = fact.enumValues[index]
+                                    }
+                                }
                             }
                         }
                     }
