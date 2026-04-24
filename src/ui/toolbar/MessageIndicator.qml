@@ -31,8 +31,9 @@ Item {
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property bool   _isMessageImportant:    _activeVehicle ? !_activeVehicle.messageTypeNormal && !_activeVehicle.messageTypeNone : false
-    property bool   _linkWarning:          _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
-    property bool   _blinkWarning:          _activeVehicle && (_activeVehicle.messageTypeWarning || _activeVehicle.messageTypeError || _linkWarning)
+    property bool   _linkWarning:           _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
+    property bool   _vehicleOperational:    _activeVehicle && (_activeVehicle.armed || _activeVehicle.flying)
+    property bool   _blinkWarning:          _vehicleOperational && (_activeVehicle.messageTypeWarning || _activeVehicle.messageTypeError || _linkWarning)
     property bool   _blinkOn:               true
 
     function dropMessageIndicator() {
