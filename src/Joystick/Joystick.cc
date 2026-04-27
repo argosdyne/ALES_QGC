@@ -630,7 +630,7 @@ void Joystick::_handleAxis()
             _rgAxisValues[axisIndex] = newAxisValue;
             emit rawAxisValueChanged(axisIndex, newAxisValue);
         }
-        if (_activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
+        if (_activeVehicle && _activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
             int     axis = _rgFunctionAxis[rollFunction];
             float   roll = _adjustRange(_rgAxisValues[axis],    _rgCalibration[axis], _deadband);
 
@@ -697,18 +697,18 @@ void Joystick::_handleAxis()
             qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
-            quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
+            // quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
             for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
-                quint64 buttonBit = static_cast<quint64>(1LL << buttonIndex);
+                // quint64 buttonBit = static_cast<quint64>(1LL << buttonIndex);
                 if (_rgButtonValues[buttonIndex] != BUTTON_UP) {
                     // Mark the button as pressed as long as its pressed
-                    buttonPressedBits |= buttonBit;
+                    // buttonPressedBits |= buttonBit;
                 }
             }
             emit axisValues(roll, pitch, yaw, throttle);
 
-            uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
-            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            // uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
+            // _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
         }
     }
 }
@@ -983,6 +983,19 @@ void Joystick::setCircleCorrection(bool circleCorrection)
     emit circleCorrectionChanged(_circleCorrection);
 }
 
+bool Joystick::droneControlBlocked() const
+{
+    return _droneControlBlocked.load();
+}
+
+void Joystick::setDroneControlBlocked(bool blocked)
+{
+    const bool previous = _droneControlBlocked.exchange(blocked);
+    if (previous != blocked) {
+        emit droneControlBlockedChanged(blocked);
+    }
+}
+
 void Joystick::setAxisFrequency(float val)
 {
     //-- Arbitrary limits
@@ -1021,6 +1034,20 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     if (!_activeVehicle || !_activeVehicle->joystickEnabled() || action == _buttonActionNone) {
         return;
     }
+
+    // Block only drone control actions: arming/mode changes.
+    bool isDroneControlAction = false;
+    if (action == _buttonActionArm || action == _buttonActionDisarm ||
+        action == _buttonActionToggleArm || action == _buttonActionVTOLFixedWing ||
+        action == _buttonActionVTOLMultiRotor ||
+        _activeVehicle->flightModes().contains(action)) {
+        isDroneControlAction = true;
+    }
+
+    if (isDroneControlAction && _droneControlBlocked.load()) {
+        return;
+    }
+
     if (action == _buttonActionArm) {
         if (buttonDown) emit setArmed(true);
     } else if (action == _buttonActionDisarm) {

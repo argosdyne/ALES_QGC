@@ -139,6 +139,9 @@ private:
     CustomPlugin* _plugin{nullptr};
     QTimer _rcChannelsTimer;
     bool _rcOnUDP{false};
+    bool _blockedRcLatched{false};
+    int _blockedRcCount{0};
+    quint16 _blockedRcChannels[18]{};
     int _channel_id{0};
     QString _linkdelay;
 

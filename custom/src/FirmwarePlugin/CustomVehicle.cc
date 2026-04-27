@@ -86,9 +86,31 @@ void CustomVehicle::_rcChannelsTimeOut()
 
 void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
+    const quint16* sendChannels = channels;
+    int sendCount = count;
+
+    if (_plugin->droneControlBlocked()) {
+        if (!_blockedRcLatched) {
+            const int safeCount = (count > 18) ? 18 : count;
+            if (safeCount > 0) {
+                memcpy(_blockedRcChannels, channels, static_cast<size_t>(safeCount) * sizeof(quint16));
+                _blockedRcCount = safeCount;
+                _blockedRcLatched = true;
+            }
+        }
+
+        if (_blockedRcLatched) {
+            sendChannels = _blockedRcChannels;
+            sendCount = _blockedRcCount;
+        }
+    } else {
+        _blockedRcLatched = false;
+        _blockedRcCount = 0;
+    }
+
     //qInfo() << "CustomVehicle.cc -> SendRcChannelValues";
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
-    if(count >= 14) {
+    if(sendCount >= 14) {
         mavlink_message_t msg;
         if(_plugin->slaveMode()) {
             //qInfo() << "_plugin->slaveMode()";
@@ -98,31 +120,31 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                 &msg,
                 static_cast<uint8_t>(id()),
                 0,
-                channels[0],
-                channels[1],
-                channels[2],
-                channels[3],
-                channels[4],
-                channels[5],
-                channels[6],
-                channels[7],
-                channels[8],
-                channels[9],
-                channels[10],
-                channels[11],
-                channels[12],
-                channels[13],
-                channels[14],
-                channels[15],
-                channels[16],
-                channels[17]
+                sendChannels[0],
+                sendChannels[1],
+                sendChannels[2],
+                sendChannels[3],
+                sendChannels[4],
+                sendChannels[5],
+                sendChannels[6],
+                sendChannels[7],
+                sendChannels[8],
+                sendChannels[9],
+                sendChannels[10],
+                sendChannels[11],
+                sendChannels[12],
+                sendChannels[13],
+                sendChannels[14],
+                sendChannels[15],
+                sendChannels[16],
+                sendChannels[17]
             );
         } else {
            //qInfo()<< "else slave mode";
             mavlink_rc_channels_t rc_channels;
-            memcpy(&rc_channels.chan1_raw, channels, 18 * 2);
+            memcpy(&rc_channels.chan1_raw, sendChannels, 18 * 2);
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
-            rc_channels.chancount = static_cast<uint8_t>(count);
+            rc_channels.chancount = static_cast<uint8_t>(sendCount);
             rc_channels.rssi = 255;
             mavlink_msg_rc_channels_encode(
                 static_cast<uint8_t>(mavlink->getSystemId()),

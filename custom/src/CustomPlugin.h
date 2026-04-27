@@ -68,6 +68,7 @@ public:
     Q_PROPERTY(SiYiManager* siyiManager READ siyiManager CONSTANT)
     Q_PROPERTY(int secureConnectionFirstRunPromptId MEMBER secureConnectionFirstRunPromptId CONSTANT)
     Q_PROPERTY(YSManager* ysManager READ ysManager CONSTANT)
+    Q_PROPERTY(bool droneControlBlocked READ droneControlBlocked WRITE setDroneControlBlocked NOTIFY droneControlBlockedChanged)
 
 
     bool coachMode() { return _coachMode; }
@@ -79,6 +80,13 @@ public:
     bool forceSendRC() { return _forceSendRC; }
     void setForceSendRC(const bool& force) {
         _forceSendRC = force;
+    }
+    bool droneControlBlocked() const { return _droneControlBlocked; }
+    void setDroneControlBlocked(bool blocked) {
+        if (_droneControlBlocked != blocked) {
+            _droneControlBlocked = blocked;
+            emit droneControlBlockedChanged(_droneControlBlocked);
+        }
     }
 
     CustomPlugin(QGCApplication* app, QGCToolbox *toolbox);
@@ -117,6 +125,7 @@ signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
     void m2ManagerChanged               ();
+    void droneControlBlockedChanged(bool blocked);
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -148,5 +157,6 @@ private:
     bool _coachMode{false};
     bool _slaveMode{false};
     bool _forceSendRC{false};
+    bool _droneControlBlocked{false};
 
 };

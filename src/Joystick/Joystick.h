@@ -113,6 +113,7 @@ public:
     Q_PROPERTY(float    exponential             READ exponential            WRITE setExponential        NOTIFY exponentialChanged)
     Q_PROPERTY(bool     accumulator             READ accumulator            WRITE setAccumulator        NOTIFY accumulatorChanged)
     Q_PROPERTY(bool     circleCorrection        READ circleCorrection       WRITE setCircleCorrection   NOTIFY circleCorrectionChanged)
+    Q_PROPERTY(bool     droneControlBlocked     READ droneControlBlocked   WRITE setDroneControlBlocked NOTIFY droneControlBlockedChanged)
 
     Q_INVOKABLE void    setButtonRepeat     (int button, bool repeat);
     Q_INVOKABLE bool    getButtonRepeat     (int button);
@@ -168,6 +169,9 @@ public:
     bool  circleCorrection  () const;
     void  setCircleCorrection(bool circleCorrection);
 
+    bool  droneControlBlocked() const;
+    void  setDroneControlBlocked(bool blocked);
+
     void  setTXMode         (int mode);
     int   getTXMode         () { return _transmitterMode; }
 
@@ -197,6 +201,7 @@ signals:
     void accumulatorChanged         (bool accumulator);
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
+    void droneControlBlockedChanged (bool blocked);
     void axisValues                 (float roll, float pitch, float yaw, float throttle);
 
     void axisFrequencyHzChanged     ();
@@ -275,6 +280,7 @@ protected:
     bool    _accumulator            = false;
     bool    _deadband               = false;
     bool    _circleCorrection       = true;
+    std::atomic<bool> _droneControlBlocked{false};
     float   _axisFrequencyHz        = _defaultAxisFrequencyHz;
     float   _buttonFrequencyHz      = _defaultButtonFrequencyHz;
     Vehicle* _activeVehicle         = nullptr;

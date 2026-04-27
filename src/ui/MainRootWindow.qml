@@ -53,6 +53,7 @@ ApplicationWindow {
         _systemRestorePageComponent = Qt.createComponent("qrc:/login/SystemRestoreScreen.qml")
         loadInitialLoginUI()
         loginOverlay.open()
+        _updateJoystickInputBlockedState()
     }
 
     QtObject {
@@ -211,7 +212,10 @@ ApplicationWindow {
 
     function _updateJoystickInputBlockedState() {
         if (joystickManager && joystickManager.activeJoystick) {
-            joystickManager.activeJoystick.inputBlocked = joystickInputBlocked
+            joystickManager.activeJoystick.droneControlBlocked = joystickInputBlocked
+        }
+        if (QGroundControl.corePlugin && QGroundControl.corePlugin.droneControlBlocked !== undefined) {
+            QGroundControl.corePlugin.droneControlBlocked = joystickInputBlocked
         }
     }
 
@@ -1184,6 +1188,8 @@ ApplicationWindow {
                 anchors.fill: parent   
             }
         }
+
+        onVisibleChanged: _updateJoystickInputBlockedState()
     }
 
     Connections {
@@ -1201,4 +1207,5 @@ ApplicationWindow {
     }
 
     onJoystickInputBlockedChanged: _updateJoystickInputBlockedState()
+    onViewOnlyModeChanged: _updateJoystickInputBlockedState()
 }
