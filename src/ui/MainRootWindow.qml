@@ -357,6 +357,11 @@ ApplicationWindow {
 
     // Show login overlay 
     function showLoginOverlay() {
+        if (globals.activeVehicle && (globals.activeVehicle.flying || globals.activeVehicle.landing)) {
+            showMessageDialog(qsTr("Lock Screen"), qsTr("Cannot lock screen during flight"))
+            return
+        }
+
         if (loginFlowSettings.recoveryKeyPending) {
             loginOverlay.open()
         }
@@ -1189,6 +1194,11 @@ ApplicationWindow {
     Connections {
         target: sessionManager
         onSessionLocked: {
+            if (globals.activeVehicle && (globals.activeVehicle.flying || globals.activeVehicle.landing)) {
+                showMessageDialog(qsTr("Lock Screen"), qsTr("Cannot lock screen during flight"))
+                sessionManager.startSession()
+                return
+            }
             showLoginOverlay()
         }
     }

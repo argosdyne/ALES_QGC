@@ -2336,6 +2336,13 @@ QGeoCoordinate Vehicle::homePosition()
 
 void Vehicle::setArmed(bool armed, bool showError)
 {
+    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
+    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    if (droneControlBlocked) {
+        qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
+        return;
+    }
+
     // We specifically use COMMAND_LONG:MAV_CMD_COMPONENT_ARM_DISARM since it is supported by more flight stacks.
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
@@ -2345,6 +2352,13 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
+    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
+    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    if (droneControlBlocked) {
+        qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
+        return;
+    }
+
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
                    true,    // show error if fails
