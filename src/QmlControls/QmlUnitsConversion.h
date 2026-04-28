@@ -11,21 +11,20 @@
 #define QMLUNITSCONVERSION_H
 
 #include <QObject>
-#include <qmath.h>
 #include "FactMetaData.h"
 
 class QmlUnitsConversion : public QObject
 {
     Q_OBJECT
 public:
-    QmlUnitsConversion(QObject *parent=nullptr): QObject(parent) {}
+    QmlUnitsConversion(QObject *parent=nullptr);
     ~QmlUnitsConversion() = default;
 
-    Q_PROPERTY(QString appSettingsHorizontalDistanceUnitsString READ appSettingsHorizontalDistanceUnitsString CONSTANT)
-    Q_PROPERTY(QString appSettingsVerticalDistanceUnitsString   READ appSettingsVerticalDistanceUnitsString   CONSTANT)
-    Q_PROPERTY(QString appSettingsAreaUnitsString               READ appSettingsAreaUnitsString               CONSTANT)
-    Q_PROPERTY(QString appSettingsWeightUnitsString             READ appSettingsWeightUnitsString             CONSTANT)
-    Q_PROPERTY(QString appSettingsSpeedUnitsString              READ appSettingsSpeedUnitsString              CONSTANT)
+    Q_PROPERTY(QString appSettingsHorizontalDistanceUnitsString READ appSettingsHorizontalDistanceUnitsString NOTIFY appSettingsHorizontalDistanceUnitsStringChanged)
+    Q_PROPERTY(QString appSettingsVerticalDistanceUnitsString   READ appSettingsVerticalDistanceUnitsString   NOTIFY appSettingsVerticalDistanceUnitsStringChanged)
+    Q_PROPERTY(QString appSettingsAreaUnitsString               READ appSettingsAreaUnitsString               NOTIFY appSettingsAreaUnitsStringChanged)
+    Q_PROPERTY(QString appSettingsWeightUnitsString             READ appSettingsWeightUnitsString             NOTIFY appSettingsWeightUnitsStringChanged)
+    Q_PROPERTY(QString appSettingsSpeedUnitsString              READ appSettingsSpeedUnitsString              NOTIFY appSettingsSpeedUnitsStringChanged)
 
     /// Converts from meters to the user specified distance unit
     Q_INVOKABLE QVariant metersToAppSettingsHorizontalDistanceUnits(const QVariant& meters) const { return FactMetaData::metersToAppSettingsHorizontalDistanceUnits(meters); }
@@ -66,10 +65,17 @@ public:
     Q_INVOKABLE QVariant appSettingsSpeedUnitsToMetersSecond(const QVariant& speed) const { return FactMetaData::appSettingsSpeedUnitsToMetersSecond(speed); }
 
     /// Returns the string for speed units which has configued by user
-    QString appSettingsSpeedUnitsString() { return FactMetaData::appSettingsSpeedUnitsString(); }
+    QString appSettingsSpeedUnitsString() const { return FactMetaData::appSettingsSpeedUnitsString(); }
 
-    Q_INVOKABLE double degreesToRadians(double degrees) { return qDegreesToRadians(degrees); }
-    Q_INVOKABLE double radiansToDegrees(double radians) { return qRadiansToDegrees(radians); }
+    Q_INVOKABLE double degreesToRadians(double degrees) const;
+    Q_INVOKABLE double radiansToDegrees(double radians) const;
+
+signals:
+    void appSettingsHorizontalDistanceUnitsStringChanged(void);
+    void appSettingsVerticalDistanceUnitsStringChanged(void);
+    void appSettingsAreaUnitsStringChanged(void);
+    void appSettingsWeightUnitsStringChanged(void);
+    void appSettingsSpeedUnitsStringChanged(void);
 };
 
 #endif // QMLUNITSCONVERSION_H

@@ -25,6 +25,7 @@ add_library(QmlControls
 	QGroundControlQmlGlobal.h
 	QmlObjectListModel.cc
 	QmlObjectListModel.h
+	QmlUnitsConversion.cc
 	QmlUnitsConversion.h
 	RCChannelMonitorController.cc
 	RCChannelMonitorController.h

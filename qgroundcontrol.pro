@@ -982,6 +982,7 @@ SOURCES += \
     src/QmlControls/GeoZoneFileDialogController.cc \
     src/QmlControls/QGCImageProvider.cc \
     src/QmlControls/QGroundControlQmlGlobal.cc \
+    src/QmlControls/QmlUnitsConversion.cc \
     src/QmlControls/QmlObjectListModel.cc \
     src/QmlControls/QGCGeoBoundingCube.cc \
     src/QmlControls/RCChannelMonitorController.cc \
