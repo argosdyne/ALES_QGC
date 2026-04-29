@@ -142,7 +142,7 @@ inline QByteArray frameMessage(const QByteArray& protobuf)
 
 // --- Auth message builders ---
 
-inline QByteArray buildAuthResponse(const QByteArray& challenge, const QString& password, qint64 seqNum)
+inline QByteArray buildAuthResponse(const QByteArray& challenge, const QString& password, qint64 seqNum, int role = 2)
 {
     // SHA-384(password_bytes + challenge_bytes)
     QCryptographicHash hash(QCryptographicHash::Sha384);
@@ -155,7 +155,7 @@ inline QByteArray buildAuthResponse(const QByteArray& challenge, const QString& 
     auth += encodeVarintField(1, 0);                   // action = LOGIN
     auth += encodeBytesField(3, response);             // challengeOrResponse
     auth += encodeStringField(4, "ALESQGC");           // userAgent
-    auth += encodeVarintField(8, 2);                   // role = ADMIN
+    auth += encodeVarintField(8, static_cast<quint64>(role)); // role (ADMIN=2, CO per platform proto)
 
     // BCMessage: ack=true, sequenceNumber, auth
     QByteArray msg;
@@ -166,15 +166,56 @@ inline QByteArray buildAuthResponse(const QByteArray& challenge, const QString& 
     return frameMessage(msg);
 }
 
-inline QByteArray buildStateQuery(qint64 seqNum)
+inline QByteArray buildStateQueryFilter(qint64 seqNum, const QString& filterPath)
 {
-    // BCMessage: ack=true, sequenceNumber, state={}, stateFilterPath="wireless"
+    // BCMessage: ack=true, sequenceNumber, state={}, stateFilterPath=filterPath
     QByteArray msg;
     msg += encodeVarintField(1, 1);                    // ack = true
     msg += encodeVarintField(2, static_cast<quint64>(seqNum)); // sequenceNumber
     msg += encodeEmbeddedField(6, QByteArray());       // state = {} (empty = get all)
-    msg += encodeStringField(601, "wireless");         // stateFilterPath
+    msg += encodeStringField(601, filterPath);         // stateFilterPath
 
+    return frameMessage(msg);
+}
+
+inline QByteArray buildStateQuery(qint64 seqNum)
+{
+    return buildStateQueryFilter(seqNum, QStringLiteral("wireless"));
+}
+
+// NOTE:
+// Field numbers for Config/InstaMesh/Task are based on Rajant BCAPI behavior
+// observed in integration docs and may need adjustment for firmware variants.
+inline QByteArray buildSetNetworkName(qint64 seqNum, const QString& networkName)
+{
+    // Config.InstaMesh.networkName
+    // BCMessage.config(5) -> Config.instamesh(16) -> InstaMesh.networkName(1)
+    QByteArray instaMesh;
+    instaMesh += encodeStringField(1, networkName);
+
+    QByteArray config;
+    config += encodeEmbeddedField(16, instaMesh);
+
+    QByteArray msg;
+    msg += encodeVarintField(1, 1); // ack
+    msg += encodeVarintField(2, static_cast<quint64>(seqNum));
+    msg += encodeEmbeddedField(5, config);
+    return frameMessage(msg);
+}
+
+inline QByteArray buildRebootTask(qint64 seqNum, int delayMs, const QString& clientId)
+{
+    // TaskCommand.REBOOT
+    // BCMessage.runTask(9) -> TaskCommand.action(1), delay(2), clientId(3)
+    QByteArray task;
+    task += encodeVarintField(1, 1);          // REBOOT (TaskAction.REBOOT=1)
+    task += encodeVarintField(2, static_cast<quint64>(delayMs));
+    task += encodeStringField(3, clientId);
+
+    QByteArray msg;
+    msg += encodeVarintField(1, 1); // ack
+    msg += encodeVarintField(2, static_cast<quint64>(seqNum));
+    msg += encodeEmbeddedField(9, task);
     return frameMessage(msg);
 }
 

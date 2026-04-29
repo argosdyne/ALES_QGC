@@ -117,12 +117,27 @@ public:
     Q_PROPERTY(bool rajantPowerBusy                   READ rajantPowerBusy        NOTIFY rajantPowerBusyChanged)
     Q_PROPERTY(bool rajantPowerOnState                READ rajantPowerOnState     NOTIFY rajantPowerOnStateChanged)
     Q_PROPERTY(QString rajantPowerStatus              READ rajantPowerStatus      NOTIFY rajantPowerStatusChanged)
+    Q_PROPERTY(bool rajantNodeConnected               READ rajantNodeConnected    NOTIFY rajantNodeStatusChanged)
+    Q_PROPERTY(QString rajantNodeAddress              READ rajantNodeAddress      NOTIFY rajantNodeStatusChanged)
+    Q_PROPERTY(QString rajantNodeSerial               READ rajantNodeSerial       NOTIFY rajantNodeStatusChanged)
+    Q_PROPERTY(QString rajantCurrentNetworkName       READ rajantCurrentNetworkName NOTIFY rajantNodeStatusChanged)
+    Q_PROPERTY(bool rajantPairingBusy                 READ rajantPairingBusy      NOTIFY rajantPairingBusyChanged)
+    Q_PROPERTY(QString rajantPairingStatus            READ rajantPairingStatus    NOTIFY rajantPairingStatusChanged)
     bool rajantPowerSupported() const;
     bool rajantPowerBusy() const { return _rajantPowerBusy; }
     bool rajantPowerOnState() const { return _rajantPowerOnState; }
     QString rajantPowerStatus() const { return _rajantPowerStatus; }
+    bool rajantNodeConnected() const { return _rajantNodeConnected; }
+    QString rajantNodeAddress() const { return _rajantNodeAddress; }
+    QString rajantNodeSerial() const { return _rajantNodeSerial; }
+    QString rajantCurrentNetworkName() const { return _rajantCurrentNetworkName; }
+    bool rajantPairingBusy() const { return _rajantPairingBusy; }
+    QString rajantPairingStatus() const { return _rajantPairingStatus; }
     Q_INVOKABLE bool rajantPowerOn();
     Q_INVOKABLE bool rajantPowerOff();
+    Q_INVOKABLE bool rajantProbeStatus();
+    Q_INVOKABLE bool rajantConnectDevice(const QString& droneNameOrSuffix);
+    Q_INVOKABLE bool rajantDisconnectDevice();
 
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
@@ -132,6 +147,9 @@ signals:
     void rajantPowerBusyChanged         ();
     void rajantPowerOnStateChanged      ();
     void rajantPowerStatusChanged       ();
+    void rajantNodeStatusChanged        ();
+    void rajantPairingBusyChanged       ();
+    void rajantPairingStatusChanged     ();
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -144,6 +162,17 @@ private slots:
 private:
     bool _setRajantPower(bool on);
     void _setRajantPowerStatus(const QString& status);
+    bool _sendRajantPairingCommand(const QString& command, QString* responseOut, int timeoutMs = 5000);
+    static QString _sanitizeDroneNetworkName(const QString& rawInput);
+    void _setRajantPairingStatus(const QString& status);
+    void _updateRajantNodeStatus(bool connected, const QString& address, const QString& serial, const QString& networkName);
+    bool _supProbeRajantNode(int waitMs, QString* nodeAddressOut);
+    bool _bcapiConnectAuthenticate(const QString& nodeAddress, QSslSocket& socket, qint64& seqNum, QString* errorOut);
+    bool _bcapiSetNetworkName(QSslSocket& socket, qint64& seqNum, const QString& networkName, QString* errorOut);
+    bool _bcapiReboot(QSslSocket& socket, qint64& seqNum, QString* errorOut);
+    bool _bcapiReadSerial(QSslSocket& socket, qint64& seqNum, QString* serialOut, QString* errorOut);
+    bool _bcapiReadCurrentNetworkName(QSslSocket& socket, qint64& seqNum, QString* networkNameOut, QString* errorOut);
+    bool _bcapiWaitForMessage(QSslSocket& socket, int timeoutMs, BcapiProtocol::BcapiMessage* msgOut, QByteArray* payloadOut, QString* errorOut);
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
     void _initRajantDiscovery();
     void _onRajantScanFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -166,6 +195,12 @@ private:
     bool                    _rajantPowerBusy = false;
     bool                    _rajantPowerOnState = false;
     QString                 _rajantPowerStatus;
+    bool                    _rajantNodeConnected = false;
+    QString                 _rajantNodeAddress;
+    QString                 _rajantNodeSerial;
+    QString                 _rajantCurrentNetworkName;
+    bool                    _rajantPairingBusy = false;
+    QString                 _rajantPairingStatus;
 
 private:
     SiYiManager* _siyiManager = nullptr;

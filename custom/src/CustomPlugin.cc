@@ -36,6 +36,12 @@
 #include <QNetworkInterface>
 #include <QtConcurrent>
 #include <QLocalSocket>
+#include <QRegularExpression>
+#include <QUuid>
+#include <QElapsedTimer>
+#include <QNetworkDatagram>
+#include <functional>
+#include <QSet>
 
 #if defined(Q_OS_ANDROID)
 #include <sys/socket.h>
@@ -56,6 +62,47 @@ QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
 static const char *kSlaveMode = "SlaveMode";
+
+static bool _isPrintableAscii(const QByteArray& data)
+{
+    if (data.isEmpty()) return false;
+    int printable = 0;
+    for (char c : data) {
+        const uchar u = static_cast<uchar>(c);
+        if (u >= 32 && u <= 126) printable++;
+    }
+    return (printable * 100 / data.size()) >= 85;
+}
+
+static QStringList _extractProtoStrings(const QByteArray& data)
+{
+    QStringList out;
+    std::function<void(const QByteArray&)> walk = [&](const QByteArray& blob) {
+        int pos = 0;
+        while (pos < blob.size()) {
+            const int beforeTag = pos;
+            BcapiProtocol::Tag tag = BcapiProtocol::decodeTag(blob, pos);
+            if (tag.fieldNumber == 0 || pos <= beforeTag) break;
+            if (tag.wireType == BcapiProtocol::LENGTH_DELIMITED) {
+                const int len = static_cast<int>(BcapiProtocol::decodeVarint(blob, pos));
+                if (len < 0 || pos + len > blob.size()) break;
+                QByteArray chunk = blob.mid(pos, len);
+                if (_isPrintableAscii(chunk)) {
+                    const QString s = QString::fromUtf8(chunk).trimmed();
+                    if (!s.isEmpty()) out << s;
+                }
+                // Try nested protobuf parse as well.
+                if (len >= 2) walk(chunk);
+                pos += len;
+            } else {
+                BcapiProtocol::skipField(tag.wireType, blob, pos);
+            }
+        }
+    };
+    walk(data);
+    out.removeDuplicates();
+    return out;
+}
 
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
     : QGCFlyViewOptions(options, parent)
@@ -334,6 +381,471 @@ void CustomPlugin::_setRajantPowerStatus(const QString& status)
         _rajantPowerStatus = status;
         emit rajantPowerStatusChanged();
     }
+}
+
+bool CustomPlugin::rajantProbeStatus()
+{
+    if (_rajantPairingBusy) {
+        _setRajantPairingStatus(tr("Pairing command is already running."));
+        return false;
+    }
+
+    _rajantPairingBusy = true;
+    emit rajantPairingBusyChanged();
+
+    bool ok = false;
+    QString nodeAddr;
+    if (_supProbeRajantNode(3000, &nodeAddr)) {
+        qCInfo(ARManagerLog) << "RajantPairing: SUP status probe found node:" << nodeAddr;
+        QString serial = _rajantNodeSerial;
+        QString networkName = _rajantCurrentNetworkName;
+        QString err;
+
+        QSslSocket socket;
+        qint64 seqNum = 0;
+        if (_bcapiConnectAuthenticate(nodeAddr, socket, seqNum, &err)) {
+            qCInfo(ARManagerLog) << "RajantPairing: BCAPI auth OK on" << nodeAddr;
+            QString s;
+            if (_bcapiReadSerial(socket, seqNum, &s, nullptr)) {
+                serial = s;
+                qCInfo(ARManagerLog) << "RajantPairing: serial read OK:" << serial;
+            } else {
+                qCWarning(ARManagerLog) << "RajantPairing: serial read failed on" << nodeAddr;
+            }
+            QString n;
+            if (_bcapiReadCurrentNetworkName(socket, seqNum, &n, nullptr)) {
+                networkName = n;
+                qCInfo(ARManagerLog) << "RajantPairing: network name read OK:" << networkName;
+            } else {
+                qCWarning(ARManagerLog) << "RajantPairing: network name read failed on" << nodeAddr;
+            }
+            socket.disconnectFromHost();
+            socket.waitForDisconnected(1000);
+        } else {
+            qCWarning(ARManagerLog) << "RajantPairing: BCAPI auth failed on" << nodeAddr << "-" << err;
+            // Fallback: if RajantManager is already connected, retry with that known node address.
+            if (_rajantManager && _rajantManager->connected()) {
+                const QString fallbackAddr = _rajantManager->nodeAddress();
+                qCInfo(ARManagerLog) << "RajantPairing: retrying BCAPI read via RajantManager node:" << fallbackAddr;
+                QSslSocket fallbackSock;
+                qint64 fallbackSeq = 0;
+                QString fallbackErr;
+                if (_bcapiConnectAuthenticate(fallbackAddr, fallbackSock, fallbackSeq, &fallbackErr)) {
+                    QString s;
+                    if (_bcapiReadSerial(fallbackSock, fallbackSeq, &s, nullptr)) {
+                        serial = s;
+                        qCInfo(ARManagerLog) << "RajantPairing: fallback serial OK:" << serial;
+                    }
+                    QString n;
+                    if (_bcapiReadCurrentNetworkName(fallbackSock, fallbackSeq, &n, nullptr)) {
+                        networkName = n;
+                        qCInfo(ARManagerLog) << "RajantPairing: fallback network name OK:" << networkName;
+                    }
+                } else {
+                    qCWarning(ARManagerLog) << "RajantPairing: fallback auth failed -" << fallbackErr;
+                }
+                fallbackSock.disconnectFromHost();
+                fallbackSock.waitForDisconnected(1000);
+            }
+        }
+
+        _updateRajantNodeStatus(true, nodeAddr, serial, networkName);
+        _setRajantPairingStatus(tr("Node status: Connected"));
+        ok = true;
+    } else {
+        _updateRajantNodeStatus(false, QString(), QString(), QString());
+        _setRajantPairingStatus(tr("Node status: Not connected"));
+    }
+
+    _rajantPairingBusy = false;
+    emit rajantPairingBusyChanged();
+    return ok;
+}
+
+bool CustomPlugin::rajantConnectDevice(const QString& droneNameOrSuffix)
+{
+    if (_rajantPairingBusy) {
+        _setRajantPairingStatus(tr("Pairing command is already running."));
+        return false;
+    }
+
+    const QString networkName = _sanitizeDroneNetworkName(droneNameOrSuffix);
+    if (networkName.isEmpty()) {
+        _setRajantPairingStatus(tr("Invalid drone name/suffix. Expected Drone-XXXXXX or XXXXXX."));
+        return false;
+    }
+
+    _rajantPairingBusy = true;
+    emit rajantPairingBusyChanged();
+
+    bool ok = false;
+    QString err;
+    QString nodeAddr;
+    if (!_supProbeRajantNode(3000, &nodeAddr)) {
+        _setRajantPairingStatus(tr("No Rajant node found by SUP probe."));
+    } else {
+        QSslSocket socket;
+        qint64 seqNum = 0;
+        if (!_bcapiConnectAuthenticate(nodeAddr, socket, seqNum, &err)) {
+            _setRajantPairingStatus(tr("Auth failed: %1").arg(err));
+        } else if (!_bcapiSetNetworkName(socket, seqNum, networkName, &err)) {
+            _setRajantPairingStatus(tr("Set network name failed: %1").arg(err));
+        } else if (!_bcapiReboot(socket, seqNum, &err)) {
+            _setRajantPairingStatus(tr("Reboot failed: %1").arg(err));
+        } else {
+            _rajantCurrentNetworkName = networkName;
+            emit rajantNodeStatusChanged();
+            _setRajantPairingStatus(tr("Connected to %1: network name applied and reboot requested.").arg(networkName));
+            _rajantDiscoveryRetries = 0;
+            QTimer::singleShot(4000, this, &CustomPlugin::_initRajantDiscovery);
+            ok = true;
+        }
+        socket.disconnectFromHost();
+        socket.waitForDisconnected(1000);
+    }
+
+    _rajantPairingBusy = false;
+    emit rajantPairingBusyChanged();
+    return ok;
+}
+
+bool CustomPlugin::rajantDisconnectDevice()
+{
+    if (_rajantPairingBusy) {
+        _setRajantPairingStatus(tr("Pairing command is already running."));
+        return false;
+    }
+
+    _rajantPairingBusy = true;
+    emit rajantPairingBusyChanged();
+
+    bool ok = false;
+    QString err;
+    QString nodeAddr;
+    if (!_supProbeRajantNode(3000, &nodeAddr)) {
+        _setRajantPairingStatus(tr("No Rajant node found by SUP probe."));
+    } else {
+        QSslSocket socket;
+        qint64 seqNum = 0;
+        QString serial;
+        if (!_bcapiConnectAuthenticate(nodeAddr, socket, seqNum, &err)) {
+            _setRajantPairingStatus(tr("Auth failed: %1").arg(err));
+        } else if (!_bcapiReadSerial(socket, seqNum, &serial, &err)) {
+            _setRajantPairingStatus(tr("Read serial failed: %1").arg(err));
+        } else {
+            const QString suffix = serial.right(6);
+            const QString easyName = QStringLiteral("EasyGripper-%1").arg(suffix);
+            if (!_bcapiSetNetworkName(socket, seqNum, easyName, &err)) {
+                _setRajantPairingStatus(tr("Set network name failed: %1").arg(err));
+            } else if (!_bcapiReboot(socket, seqNum, &err)) {
+                _setRajantPairingStatus(tr("Reboot failed: %1").arg(err));
+            } else {
+                _rajantNodeSerial = serial;
+                _rajantCurrentNetworkName = easyName;
+                emit rajantNodeStatusChanged();
+                _setRajantPairingStatus(tr("Disconnected from drone mesh: %1 applied and reboot requested.").arg(easyName));
+                ok = true;
+            }
+        }
+        socket.disconnectFromHost();
+        socket.waitForDisconnected(1000);
+    }
+
+    _rajantPairingBusy = false;
+    emit rajantPairingBusyChanged();
+    return ok;
+}
+
+bool CustomPlugin::_sendRajantPairingCommand(const QString& command, QString* responseOut, int timeoutMs)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(timeoutMs);
+    if (responseOut) {
+        *responseOut = tr("Deprecated path.");
+    }
+    return false;
+}
+
+QString CustomPlugin::_sanitizeDroneNetworkName(const QString& rawInput)
+{
+    QString in = rawInput.trimmed();
+    if (in.isEmpty()) return QString();
+
+    QRegularExpression reFull(QStringLiteral("^Drone-[A-Za-z0-9]{6}$"), QRegularExpression::CaseInsensitiveOption);
+    if (reFull.match(in).hasMatch()) {
+        if (!in.startsWith(QStringLiteral("Drone-")))
+            in = QStringLiteral("Drone-") + in.mid(6);
+        return in;
+    }
+
+    QRegularExpression reSuffix(QStringLiteral("^[A-Za-z0-9]{6}$"));
+    if (reSuffix.match(in).hasMatch()) {
+        return QStringLiteral("Drone-") + in.toUpper();
+    }
+    return QString();
+}
+
+void CustomPlugin::_setRajantPairingStatus(const QString& status)
+{
+    if (_rajantPairingStatus != status) {
+        _rajantPairingStatus = status;
+        emit rajantPairingStatusChanged();
+    }
+}
+
+void CustomPlugin::_updateRajantNodeStatus(bool connected, const QString& address, const QString& serial, const QString& networkName)
+{
+    bool changed = false;
+    if (_rajantNodeConnected != connected) {
+        _rajantNodeConnected = connected;
+        changed = true;
+    }
+    if (_rajantNodeAddress != address) {
+        _rajantNodeAddress = address;
+        changed = true;
+    }
+    if (_rajantNodeSerial != serial) {
+        _rajantNodeSerial = serial;
+        changed = true;
+    }
+    if (_rajantCurrentNetworkName != networkName) {
+        _rajantCurrentNetworkName = networkName;
+        changed = true;
+    }
+    if (changed) {
+        emit rajantNodeStatusChanged();
+    }
+}
+
+bool CustomPlugin::_supProbeRajantNode(int waitMs, QString* nodeAddressOut)
+{
+    // SUP request matching existing discovery flow.
+    QByteArray supRequest;
+    supRequest.append(BcapiProtocol::encodeTag(1, BcapiProtocol::VARINT));
+    supRequest.append(BcapiProtocol::encodeVarint(0x73757000));
+    supRequest.append(BcapiProtocol::encodeTag(2, BcapiProtocol::VARINT));
+    supRequest.append(BcapiProtocol::encodeVarint(0)); // REQUEST
+    QByteArray svcName = "com.rajant.breadcrumb.v11";
+    supRequest.append(BcapiProtocol::encodeTag(3, BcapiProtocol::LENGTH_DELIMITED));
+    supRequest.append(BcapiProtocol::encodeVarint(svcName.size()));
+    supRequest.append(svcName);
+    supRequest.append(BcapiProtocol::encodeTag(5, BcapiProtocol::VARINT));
+    supRequest.append(BcapiProtocol::encodeVarint(500));
+
+    QUdpSocket socket;
+    if (!socket.bind(QHostAddress::AnyIPv6, 0, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)) {
+        return false;
+    }
+
+    const auto interfaces = QNetworkInterface::allInterfaces();
+    for (const auto& iface : interfaces) {
+        if (!(iface.flags() & QNetworkInterface::IsUp)) continue;
+        if (iface.flags() & QNetworkInterface::IsLoopBack) continue;
+        QHostAddress group(QStringLiteral("ff02::1"));
+        group.setScopeId(iface.name());
+        socket.writeDatagram(supRequest, group, 35057);
+    }
+
+    QElapsedTimer timer;
+    timer.start();
+    while (timer.elapsed() < waitMs) {
+        const int remaining = waitMs - static_cast<int>(timer.elapsed());
+        if (!socket.waitForReadyRead(qMin(remaining, 300))) continue;
+        while (socket.hasPendingDatagrams()) {
+            QNetworkDatagram d = socket.receiveDatagram();
+            const QHostAddress sender = d.senderAddress();
+            if (sender.protocol() != QAbstractSocket::IPv6Protocol) continue;
+            const QString ip = sender.toString();
+            if (!ip.startsWith(QStringLiteral("fe80"), Qt::CaseInsensitive)) continue;
+            QByteArray resp = d.data();
+            int pos = 0;
+            bool isResponse = false;
+            while (pos < resp.size()) {
+                BcapiProtocol::Tag tag = BcapiProtocol::decodeTag(resp, pos);
+                if (tag.fieldNumber == 0) break;
+                if (tag.wireType == BcapiProtocol::VARINT) {
+                    quint64 val = BcapiProtocol::decodeVarint(resp, pos);
+                    if (tag.fieldNumber == 2 && val == 1) isResponse = true;
+                } else if (tag.wireType == BcapiProtocol::LENGTH_DELIMITED) {
+                    pos += static_cast<int>(BcapiProtocol::decodeVarint(resp, pos));
+                } else {
+                    break;
+                }
+            }
+            if (!isResponse) continue;
+            QString addr = ip;
+            if (nodeAddressOut) *nodeAddressOut = addr;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CustomPlugin::_bcapiWaitForMessage(QSslSocket& socket, int timeoutMs, BcapiProtocol::BcapiMessage* msgOut, QByteArray* payloadOut, QString* errorOut)
+{
+    QByteArray recvBuffer;
+    QElapsedTimer timer;
+    timer.start();
+    while (timer.elapsed() < timeoutMs) {
+        if (socket.bytesAvailable() == 0 && !socket.waitForReadyRead(qMin(300, timeoutMs - static_cast<int>(timer.elapsed())))) {
+            continue;
+        }
+        recvBuffer.append(socket.readAll());
+        QByteArray payload;
+        while (BcapiProtocol::readFrame(recvBuffer, payload)) {
+            if (payloadOut) *payloadOut = payload;
+            if (msgOut) *msgOut = BcapiProtocol::parseBcMessage(payload);
+            return true;
+        }
+    }
+    if (errorOut) *errorOut = tr("Timed out waiting for BCAPI response.");
+    return false;
+}
+
+bool CustomPlugin::_bcapiConnectAuthenticate(const QString& nodeAddress, QSslSocket& socket, qint64& seqNum, QString* errorOut)
+{
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+    sslConfig.setProtocol(QSsl::AnyProtocol);
+    socket.setSslConfiguration(sslConfig);
+    socket.connectToHostEncrypted(nodeAddress, 2300);
+    if (!socket.waitForEncrypted(5000)) {
+        if (errorOut) *errorOut = socket.errorString();
+        return false;
+    }
+
+    BcapiProtocol::BcapiMessage msg;
+    QByteArray payload;
+    if (!_bcapiWaitForMessage(socket, 5000, &msg, &payload, errorOut)) return false;
+    if (msg.authChallenge.isEmpty()) {
+        if (errorOut) *errorOut = tr("No auth challenge received.");
+        return false;
+    }
+
+    // Prefer ADMIN first for robust read/status across firmware variants.
+    const QByteArray challenge = msg.authChallenge;
+    QByteArray auth = BcapiProtocol::buildAuthResponse(challenge, _rajantPassword, ++seqNum, 2 /*ADMIN*/);
+    socket.write(auth);
+    socket.flush();
+
+    if (!_bcapiWaitForMessage(socket, 5000, &msg, &payload, errorOut)) return false;
+    if (msg.authResultStatus == 1) return true;
+
+    // Retry with CO role for compatibility.
+    auth = BcapiProtocol::buildAuthResponse(challenge, _rajantPassword, ++seqNum, 1 /*CO*/);
+    socket.write(auth);
+    socket.flush();
+    if (!_bcapiWaitForMessage(socket, 5000, &msg, &payload, errorOut)) return false;
+    if (msg.authResultStatus == 1) return true;
+
+    if (errorOut) *errorOut = tr("Authentication failed (status %1)").arg(msg.authResultStatus);
+    return false;
+}
+
+bool CustomPlugin::_bcapiSetNetworkName(QSslSocket& socket, qint64& seqNum, const QString& networkName, QString* errorOut)
+{
+    const QByteArray msg = BcapiProtocol::buildSetNetworkName(++seqNum, networkName);
+    if (socket.write(msg) != msg.size() || !socket.waitForBytesWritten(3000)) {
+        if (errorOut) *errorOut = tr("Failed to write config message.");
+        return false;
+    }
+    // Best-effort ack read (some firmware may ack asynchronously).
+    BcapiProtocol::BcapiMessage rx;
+    QByteArray payload;
+    _bcapiWaitForMessage(socket, 1200, &rx, &payload, nullptr);
+    return true;
+}
+
+bool CustomPlugin::_bcapiReboot(QSslSocket& socket, qint64& seqNum, QString* errorOut)
+{
+    const QString clientId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    const QByteArray msg = BcapiProtocol::buildRebootTask(++seqNum, 3000, clientId);
+    if (socket.write(msg) != msg.size() || !socket.waitForBytesWritten(3000)) {
+        if (errorOut) *errorOut = tr("Failed to write reboot task.");
+        return false;
+    }
+    return true;
+}
+
+bool CustomPlugin::_bcapiReadSerial(QSslSocket& socket, qint64& seqNum, QString* serialOut, QString* errorOut)
+{
+    const QByteArray msg = BcapiProtocol::buildStateQueryFilter(++seqNum, QStringLiteral("hardware"));
+    if (socket.write(msg) != msg.size() || !socket.waitForBytesWritten(3000)) {
+        if (errorOut) *errorOut = tr("Failed to request hardware state.");
+        return false;
+    }
+
+    BcapiProtocol::BcapiMessage rx;
+    QByteArray payload;
+    if (!_bcapiWaitForMessage(socket, 5000, &rx, &payload, errorOut)) return false;
+
+    const QStringList strings = _extractProtoStrings(payload);
+    QRegularExpression re(QStringLiteral("^([A-Z]{2,4}\\d?-\\d{3,5}[A-Z]?-\\d{5,8})$"),
+                          QRegularExpression::CaseInsensitiveOption);
+    QRegularExpression re2(QStringLiteral("^([A-Za-z0-9\\-]*-\\d{6,})$"));
+
+    QString serial;
+    for (const QString& s : strings) {
+        if (re.match(s).hasMatch()) { serial = s; break; }
+    }
+    if (serial.isEmpty()) {
+        for (const QString& s : strings) {
+            if (re2.match(s).hasMatch()) { serial = s; break; }
+        }
+    }
+
+    if (serial.isEmpty()) {
+        if (errorOut) *errorOut = tr("Serial not found in hardware response.");
+        qCWarning(ARManagerLog) << "RajantPairing: serial not found. Candidate strings:" << strings;
+        return false;
+    }
+
+    if (serial.length() < 6) {
+        if (errorOut) *errorOut = tr("Invalid serial in response.");
+        return false;
+    }
+
+    if (serialOut) *serialOut = serial;
+    return true;
+}
+
+bool CustomPlugin::_bcapiReadCurrentNetworkName(QSslSocket& socket, qint64& seqNum, QString* networkNameOut, QString* errorOut)
+{
+    // Query full state (no stateFilterPath) to maximize chance of seeing InstaMesh fields.
+    QByteArray msg;
+    msg += BcapiProtocol::encodeVarintField(1, 1); // ack
+    msg += BcapiProtocol::encodeVarintField(2, static_cast<quint64>(++seqNum));
+    msg += BcapiProtocol::encodeEmbeddedField(6, QByteArray()); // state={}
+    msg = BcapiProtocol::frameMessage(msg);
+
+    if (socket.write(msg) != msg.size() || !socket.waitForBytesWritten(3000)) {
+        if (errorOut) *errorOut = tr("Failed to request current network name.");
+        return false;
+    }
+
+    BcapiProtocol::BcapiMessage rx;
+    QByteArray payload;
+    if (!_bcapiWaitForMessage(socket, 5000, &rx, &payload, errorOut)) return false;
+
+    const QStringList strings = _extractProtoStrings(payload);
+    // Known patterns from deployment.
+    QRegularExpression re(QStringLiteral("^(Drone-[A-Za-z0-9]{6}|EasyGripper-[A-Za-z0-9]{6}|Rajant Mesh Network)$"),
+                          QRegularExpression::CaseInsensitiveOption);
+    QString networkName;
+    for (const QString& s : strings) {
+        if (re.match(s).hasMatch()) {
+            networkName = s;
+            break;
+        }
+    }
+    if (networkName.isEmpty()) {
+        if (errorOut) *errorOut = tr("Current network name not found in state response.");
+        qCWarning(ARManagerLog) << "RajantPairing: network name not found. Candidate strings:" << strings;
+        return false;
+    }
+
+    if (networkNameOut) *networkNameOut = networkName;
+    return true;
 }
 
 QGCOptions* CustomPlugin::options()
@@ -1273,6 +1785,12 @@ void CustomPlugin::_onRajantProbeConnected()
             qCInfo(ARManagerLog) << "  Radios:     " << radioCount;
             qCInfo(ARManagerLog) << "  Displaying:  RSSI (ground <- air)";
             qCInfo(ARManagerLog) << "";
+        });
+
+    // Auto-refresh node details (serial/network) as soon as BCAPI link is live.
+    connect(_rajantManager, &RajantManager::firstStateReceived, this,
+        [this](int) {
+            QTimer::singleShot(500, this, [this]() { rajantProbeStatus(); });
         });
 }
 
