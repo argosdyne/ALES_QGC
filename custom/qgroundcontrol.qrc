@@ -51,6 +51,7 @@
 		<file alias="FlightDisplayViewUVC.qml">../src/FlightDisplay/FlightDisplayViewUVC.qml</file>
 		<file alias="FWLandingPatternEditor.qml">../src/PlanView/FWLandingPatternEditor.qml</file>
 		<file alias="GeneralSettings.qml">../src/ui/preferences/GeneralSettings.qml</file>
+		<file alias="VideoSettingsPage.qml">../src/ui/preferences/VideoSettingsPage.qml</file>
 		<file alias="CodevCameraVisual.qml">../src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">../src/M2Link/M2Settings.qml</file>
 		<!--<flie alias="QGCBusyIndicator.qml">../src/QmlControls/QGCBusyIndicator.qml</flie> -->

@@ -26,6 +26,7 @@ import QGroundControl.FlightMap         1.0
 import QGroundControl.Palette           1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Vehicle           1.0
+import CustomQmlInterface               1.0
 
 //import CustomQuickInterface             1.0
 //import Custom.Widgets                   1.0
@@ -69,6 +70,16 @@ Item {
     property bool   _hasGimbal:             activeVehicle && activeVehicle.gimbalData
     property Fact   _viewproPip:            _camera ? _camera.getFact("PIP MODE") : null
     property Fact   _viewproColorPalette:   _camera ? _camera.getFact("IR MODE") : null
+    property Fact   _aviatorUsbOutFact:     (typeof AVIATORInterface !== "undefined" && AVIATORInterface) ? AVIATORInterface.usbOut : null
+    property Fact   _aviatorVersionFact:    (typeof AVIATORInterface !== "undefined" && AVIATORInterface) ? AVIATORInterface.version : null
+    property Fact   _cameraUsbConnectionModeFact: _findFactByKeywords(["usb connection mode", "usb mode", "pc remote", "usb out", "rc_usb_out"], ["RC_USB_OUT", "USB Connection Mode", "USB_MODE"])
+    property Fact   _usbConnectionModeFact: _cameraUsbConnectionModeFact ? _cameraUsbConnectionModeFact : _aviatorUsbOutFact
+    property Fact   _cameraVersionFact:     _findFactByKeywords(["camera version", "firmware version", "rc_version", "version"], ["RC_VERSION", "Camera Version", "Firmware Version"])
+    property Fact   _displayUsbFact:        _usbConnectionModeFact ? _usbConnectionModeFact : _aviatorUsbOutFact
+    property string _displayVersion:        _cameraVersionFact ? _cameraVersionFact.valueString : ((_camera && _camera.firmwareVersion !== "") ? _camera.firmwareVersion : (_aviatorVersionFact ? _aviatorVersionFact.valueString : ""))
+    property double _localRecordStartMs:    0
+    property int    _localRecordElapsedMs:  0
+    property string _localRecordTimeStr:    _formatElapsed(_localRecordElapsedMs)
 
     function capitalize(str) {
         var strs = str
@@ -82,6 +93,78 @@ Item {
                     "camera=", _camera ? _camera.modelName : "null",
                     "paramComplete=", _camera ? _camera.paramComplete : false,
                     "activeSettings=", _camera ? _camera.activeSettings : [])
+    function _findFactByKeywords(keywords, fallbackFactNames) {
+        if (!_camera) {
+            return null
+        }
+
+        if (_camera.paramComplete && _camera.activeSettings) {
+            for (var i = 0; i < _camera.activeSettings.length; i++) {
+                var settingName = _camera.activeSettings[i]
+                var fact = _camera.getFact(settingName)
+                if (!fact) {
+                    continue
+                }
+
+                var haystack = (settingName + " " + fact.name + " " + fact.shortDescription).toLowerCase()
+                for (var j = 0; j < keywords.length; j++) {
+                    if (haystack.indexOf(keywords[j]) !== -1) {
+                        return fact
+                    }
+                }
+            }
+        }
+
+        if (fallbackFactNames) {
+            for (var k = 0; k < fallbackFactNames.length; k++) {
+                try {
+                    var fallbackFact = _camera.getFact(fallbackFactNames[k])
+                    if (fallbackFact) {
+                        return fallbackFact
+                    }
+                } catch (e) {
+                }
+            }
+        }
+
+        return null
+    }
+
+    function _usbModeDisplayText(fact) {
+        if (!fact) {
+            return ""
+        }
+
+        if (fact.enumStrings && fact.enumStrings.length > 0) {
+            return fact.enumOrValueString
+        }
+
+        var mode = parseInt(fact.value)
+        switch (mode) {
+        case 0: return qsTr("Sel. When Connect")
+        case 1: return qsTr("USB Streaming")
+        case 2: return qsTr("MassStorage (MSC)")
+        case 3: return qsTr("MTP")
+        case 4: return qsTr("PC Remote")
+        default: return fact.valueString
+        }
+    }
+
+    function _formatElapsed(ms) {
+        var total = Math.floor(ms / 1000)
+        var h = Math.floor(total / 3600)
+        var m = Math.floor((total % 3600) / 60)
+        var s = total % 60
+        function pad(v) { return v < 10 ? ("0" + v) : ("" + v) }
+        return pad(h) + ":" + pad(m) + ":" + pad(s)
+    }
+
+    Timer {
+        id:                 _localRecordTimer
+        interval:           500
+        repeat:             true
+        running:            _fallbackVideoAvailable && _videoManager && _videoManager.recording
+        onTriggered:        _localRecordElapsedMs = Math.max(0, Date.now() - _localRecordStartMs)
     }
 
     Connections {
@@ -739,6 +822,64 @@ Item {
                         height:     1
                         width:      cameraSettingsCol.width
                         visible:    _isCamera && _camera.streamLabels.length > 1
+                    }
+                    //-------------------------------------------
+                    //-- USB Connection Mode
+                    Row {
+                        spacing:        ScreenTools.defaultFontPixelWidth
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible:        _camera && _displayUsbFact
+                        property bool   _isCombo: _displayUsbFact && _displayUsbFact.enumStrings.length > 0
+                        QGCLabel {
+                            text:       qsTr("USB Connection Mode")
+                            width:      _labelFieldWidth
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        FactComboBox {
+                            width:      parent._isCombo ? _editFieldWidth : 0
+                            height:     parent._isCombo ? _editFieldHeight : 0
+                            fact:       _displayUsbFact
+                            indexModel: false
+                            visible:    parent._isCombo && _displayUsbFact === _usbConnectionModeFact
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        QGCLabel {
+                            visible:    !parent._isCombo
+                            width:      !parent._isCombo ? _editFieldWidth : 0
+                            text:       _usbModeDisplayText(_displayUsbFact)
+                            anchors.verticalCenter: parent.verticalCenter
+                            elide:      Text.ElideRight
+                        }
+                    }
+                    Rectangle {
+                        color:      qgcPal.button
+                        height:     1
+                        width:      cameraSettingsCol.width
+                        visible:    _camera && _displayUsbFact
+                    }
+                    //-------------------------------------------
+                    //-- Camera Version
+                    Row {
+                        spacing:        ScreenTools.defaultFontPixelWidth
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible:        _camera && _displayVersion !== ""
+                        QGCLabel {
+                            text:       qsTr("Version")
+                            width:      _labelFieldWidth
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        QGCLabel {
+                            text:       _displayVersion
+                            width:      _editFieldWidth
+                            anchors.verticalCenter: parent.verticalCenter
+                            elide:      Text.ElideRight
+                        }
+                    }
+                    Rectangle {
+                        color:      qgcPal.button
+                        height:     1
+                        width:      cameraSettingsCol.width
+                        visible:    _camera && _displayVersion !== ""
                     }
                     //-------------------------------------------
                     //-- Thermal Modes

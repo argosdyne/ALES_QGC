@@ -15,6 +15,7 @@ import QGroundControl           1.0
 import QGroundControl.Controls  1.0
 import QGroundControl.FactSystem 1.0
 import QGroundControl.ScreenTools 1.0
+import QGroundControl.FactControls 1.0
 
 FirstRunPrompt {
     id:         root
@@ -321,9 +322,9 @@ FirstRunPrompt {
                                 Layout.fillWidth: true
                                 spacing: ScreenTools.defaultFontPixelWidth * 0.6
                                 QGCLabel { text: qsTr("URL:") }
-                                QGCTextField {
+                                FactTextField {
                                     id: videoUriField
-                                    text: _videoUrl.rawValue.toString()
+                                    fact: _videoSettings.rtspUrl
                                     Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 28
                                 }
                             }
