@@ -911,6 +911,11 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
             int val = static_cast<int>(param.param_value);
             emit vlOBAValueChanged(val);
         }
+        else if (paramId == "SL_STATUS") {
+            int val = static_cast<int>(param.param_value);
+            qCInfo(LifeVestLog) << "SL_STATUS received:" << val << "from compid" << message.compid;
+            emit slStatusChanged(val);
+        }
         break;
     }
 

@@ -36,6 +36,12 @@
     "shortDesc":        "Enable Doodle Labs IP",
     "type":             "bool",
     "default":          false
+},
+{
+    "name":             "lifeJacketEnable",
+    "shortDesc":        "Enable Life Jacket",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }

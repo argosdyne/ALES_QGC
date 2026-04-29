@@ -139,6 +139,8 @@
         <file alias="PatternCamera.png">resources/PatternCamera.png</file>
         <file alias="PatternGrid.png">resources/PatternGrid.png</file>
 		<file alias="VisionLidar.svg">resources/VisionLidar.svg</file>
+		<file alias="LifeVestButton.svg">resources/LifeVestButton.svg</file>
+		<file alias="LifeVest.svg">resources/LifeVest.svg</file>
         <file alias="PatternPresets.png">resources/PatternPresets.png</file>
         <file alias="PatternTerrain.png">resources/PatternTerrain.png</file>
         <file alias="PiP.svg">src/FlightMap/Images/PiP.svg</file>

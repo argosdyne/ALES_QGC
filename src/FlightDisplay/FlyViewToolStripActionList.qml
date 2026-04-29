@@ -58,6 +58,12 @@ ToolStripActionList {
             text:           qsTr("GeoZone")
             iconSource:     "/res/waypoint.svg"
             onTriggered:    mainWindow.showGeoZoneMakeView()
+        },
+        ToolStripAction {
+            text:           qsTr("Life Jacket")
+            iconSource:     "/qmlimages/LifeVestButton.svg"
+            visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value
+            onTriggered:    mainWindow.lifeVestPanelVisible = true
         }
     ]
 }

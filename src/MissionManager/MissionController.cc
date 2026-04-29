@@ -37,6 +37,7 @@
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
 QGC_LOGGING_CATEGORY(MissionControllerLog, "MissionControllerLog")
+QGC_LOGGING_CATEGORY(LifeVestLog,         "LifeVestLog")
 
 const char* MissionController::_settingsGroup =                 "MissionController";
 const char* MissionController::_jsonFileTypeValue =             "Mission";
@@ -2743,6 +2744,53 @@ void MissionController::getVisionLidarOBAMode(){
     QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
 }
 
+// LifeVest deployment 
+
+// LifeVest commands (MAVLink COMMAND_LONG, QGC -> BirdCom)
+// CMD_USER_DEPLOY_LIFE_VEST (id 42675) is a vendor-specific command used by
+// the custom BirdCom / AB120 firmware. Not part of the standard MAVLink dialect.
+// Pattern mirrors AudioControl::sendCommand for CMD_PLAY_AUDIO (id 6000).
+void MissionController::deployLifeVest()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qCWarning(LifeVestLog) << "deployLifeVest: No active vehicle";
+        return;
+    }
+
+    qCInfo(LifeVestLog) << "Sending CMD_USER_DEPLOY_LIFE_VEST"
+                        << "param1:" << 1;
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCWarning(LifeVestLog) << "deployLifeVest: No primary link";
+        return;
+    }
+
+    mavlink_message_t      msg;
+    mavlink_command_long_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
+
+    cmd.target_system    = vehicle->id();
+    cmd.target_component = MAV_COMP_ID_AUTOPILOT1;
+    cmd.command          = 42675; // CMD_USER_DEPLOY_LIFE_VEST
+    cmd.confirmation     = 0;
+
+    cmd.param1 = 1; // 1 = deploy
+
+    mavlink_msg_command_long_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &cmd
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qCInfo(LifeVestLog) << "TX CMD_USER_DEPLOY_LIFE_VEST"
+                        << "param1:" << 1;
+}
+
 void MissionController::_requestOBAValue()
 {
     Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
@@ -2778,6 +2826,58 @@ void MissionController::_requestOBAValue()
 
     vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
     qDebug() << "PARAM_REQUEST_READ sent: VL_OBA_MODE";
+}
+
+// Searchlight controls (PARAM_SET / PARAM_REQUEST_READ on "SL_STATUS")
+// BirdCom searchlight component id (per spec). Outgoing PARAM_REQUEST_READ
+// targets this compid; incoming PARAM_VALUE from BirdCom arrives with
+// message.compid == BIRDCOM_SL_COMPONENT_ID.
+static constexpr int BIRDCOM_SL_COMPONENT_ID = 162;
+
+void MissionController::setSearchlight(int value)
+{
+    qCInfo(LifeVestLog) << "setSearchlight:" << value;
+    _sendParamInt("SL_STATUS", value);
+}
+
+void MissionController::getSearchlight()
+{
+    qCInfo(LifeVestLog) << "getSearchlight";
+    _requestSlStatus();
+}
+
+void MissionController::_requestSlStatus()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qCWarning(LifeVestLog) << "_requestSlStatus: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCWarning(LifeVestLog) << "_requestSlStatus: No primary link";
+        return;
+    }
+
+    mavlink_message_t            msg;
+    mavlink_param_request_read_t request;
+
+    memset(&request, 0, sizeof(request));
+    request.target_system    = vehicle->id();
+    request.target_component = BIRDCOM_SL_COMPONENT_ID; // BirdCom searchlight component
+    request.param_index      = -1;
+    strncpy(request.param_id, "SL_STATUS", sizeof(request.param_id));
+
+    mavlink_msg_param_request_read_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &request
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    qCInfo(LifeVestLog) << "PARAM_REQUEST_READ sent: SL_STATUS to compid" << BIRDCOM_SL_COMPONENT_ID;
 }
 
 // Send Method
@@ -2828,6 +2928,7 @@ void MissionController::_connectToVehicle(Vehicle* vehicle)
 
     connect(vehicle, &Vehicle::vlValueChanged, this,    &MissionController::_onVlValueChanged);
     connect(vehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
+    connect(vehicle, &Vehicle::slStatusChanged, this,   &MissionController::_onSlStatusChanged);
 }
 
 void MissionController::_onVlValueChanged(int value)
@@ -2843,6 +2944,7 @@ void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
     if (_activeVehicle) {
         disconnect(_activeVehicle, &Vehicle::vlValueChanged, this, &MissionController::_onVlValueChanged);
         disconnect(_activeVehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
+        disconnect(_activeVehicle, &Vehicle::slStatusChanged, this, &MissionController::_onSlStatusChanged);
     }
     _activeVehicle = activeVehicle;
     _connectToVehicle(activeVehicle);
@@ -2853,4 +2955,12 @@ void MissionController::_onvlOBAValueChanged(int value) {
     _vlOBAValue = value;
     emit vlOBAValueChanged();
     qDebug() << "MissionController: vlOBAValue updated to : " << _vlOBAValue;
+}
+
+void MissionController::_onSlStatusChanged(int value)
+{
+    if (_slStatus == value) return;
+    _slStatus = value;
+    emit slStatusChanged();
+    qCInfo(LifeVestLog) << "MissionController: slStatus updated to :" << _slStatus;
 }
