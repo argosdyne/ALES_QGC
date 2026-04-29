@@ -24,6 +24,8 @@ import Custom.Widgets 1.0
 import CustomQmlInterface 1.0
 
 Item {
+    id: _flyViewOverlay
+
     property var parentToolInsets                       // These insets tell you what screen real estate is available for positioning the controls in your overlay
     property var totalToolInsets:   _totalToolInsets    // The insets updated for the custom overlay additions
     property var mapControl
@@ -32,6 +34,8 @@ Item {
     readonly property real   indicatorValueWidth:   ScreenTools.defaultFontPixelWidth * 7
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
+    property var    _missionController:     globals.planMasterControllerFlyView ? globals.planMasterControllerFlyView.missionController : null
+    property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 22
     property real   _indicatorDiameter:     ScreenTools.defaultFontPixelWidth * 18
     property real   _indicatorsHeight:      ScreenTools.defaultFontPixelHeight
     property var    _sepColor:              qgcPal.globalTheme === QGCPalette.Light ? Qt.rgba(0,0,0,0.5) : Qt.rgba(1,1,1,0.5)
@@ -669,4 +673,204 @@ Item {
 //            anchors.centerIn:   parent
 //        }
 //    }
+
+    //-----------------------------------------------------------
+    // Life Jacket panel (left-anchored, beside the toolStrip)
+    Rectangle {
+        id:                  lifeVestPanel
+        anchors.left:        parent.left
+        anchors.leftMargin:  ScreenTools.defaultFontPixelWidth * 10 + _toolsMargin
+        anchors.top:         parent.top
+        anchors.topMargin:   _toolsMargin + ScreenTools.defaultFontPixelHeight * 3
+        width:               _rightPanelWidth
+        height:              lifeVestColumn.implicitHeight
+        color:               "transparent"
+        visible:             mainWindow.lifeVestPanelVisible && QGroundControl.corePlugin.settings.lifeJacketEnable.value
+        z:                   QGroundControl.zOrderWidgets + 1
+
+        onVisibleChanged: {
+            if (visible && _missionController) {
+                _missionController.getSearchlight()
+            }
+        }
+
+        // Catch clicks on empty / black areas of the panel so they don't fall
+        // through to the map below (which would trigger "Set Home" etc.)
+        MouseArea {
+            anchors.fill:    parent
+            propagateComposedEvents: false
+            preventStealing: true
+            onClicked:       (mouse) => mouse.accepted = true
+            onPressed:       (mouse) => mouse.accepted = true
+        }
+
+        Column {
+            id:    lifeVestColumn
+            width: parent.width
+
+            // Title bar
+            Row {
+                width:  parent.width
+                height: ScreenTools.defaultFontPixelHeight * 2
+
+                Rectangle {
+                    width:  parent.width * 0.7
+                    height: parent.height
+                    color:  "#00826F"
+
+                    QGCLabel {
+                        anchors.centerIn: parent
+                        text:             qsTranslate("FlyViewOverlay", "Life Jacket")
+                        color:            "white"
+                    }
+                }
+
+                Rectangle {
+                    width:  parent.width * 0.3
+                    height: parent.height
+                    color:  "#485058"
+
+                    QGCLabel {
+                        anchors.centerIn: parent
+                        text:             qsTranslate("FlyViewOverlay", "Close")
+                        color:            "white"
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked:    mainWindow.lifeVestPanelVisible = false
+                    }
+                }
+            }
+
+            // Body
+            Rectangle {
+                id:     lifeVestRoot
+                width:  parent.width
+                height: lifeVestContent.implicitHeight + ScreenTools.defaultFontPixelHeight * 2
+                color:  "#1a1a2e"
+
+                property bool searchlightOn: false
+
+                Connections {
+                    target: _missionController
+                    onSlStatusChanged: {
+                        if (_missionController) {
+                            lifeVestRoot.searchlightOn = _missionController.slStatus === 1
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    id: lifeVestContent
+                    anchors {
+                        left:    parent.left
+                        right:   parent.right
+                        top:     parent.top
+                        margins: ScreenTools.defaultFontPixelHeight * 0.6
+                    }
+                    spacing: ScreenTools.defaultFontPixelHeight * 0.6
+
+                    Image {
+                        source:                 "/qmlimages/LifeVest.svg"
+                        fillMode:               Image.PreserveAspectFit
+                        Layout.alignment:       Qt.AlignHCenter
+                        Layout.preferredWidth:  72
+                        Layout.preferredHeight: 84
+                        sourceSize.width:       width
+                        sourceSize.height:      height
+                        smooth:                 true
+                    }
+
+                    // Drop Life Jacket button
+                    Rectangle {
+                        Layout.alignment:       Qt.AlignHCenter
+                        Layout.preferredWidth:  lifeVestRoot.width * 0.75
+                        Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2
+                        radius:                 4
+                        color:                  dropMouseArea.pressed ? "#005f52" : "#00826F"
+
+                        Text {
+                            anchors.centerIn: parent
+                            text:             qsTranslate("FlyViewOverlay", "Drop Life Jacket")
+                            color:            "white"
+                            font.pixelSize:   ScreenTools.defaultFontPointSize * 1.3
+                            font.bold:        true
+                        }
+
+                        MouseArea {
+                            id:           dropMouseArea
+                            anchors.fill: parent
+                            onClicked: {
+                                console.log("Drop Life Jacket clicked")
+                                if (_missionController) {
+                                    _missionController.deployLifeVest()
+                                }
+                            }
+                        }
+                    }
+
+                    // Searchlight label
+                    Text {
+                        text:              qsTranslate("FlyViewOverlay", "Searchlight")
+                        color:             "white"
+                        font.pixelSize:    ScreenTools.defaultFontPointSize * 1.4
+                        font.bold:         true
+                        Layout.alignment:  Qt.AlignHCenter
+                        Layout.topMargin:  ScreenTools.defaultFontPixelHeight * 0.3
+                    }
+
+                    // ON / OFF toggle
+                    Rectangle {
+                        Layout.alignment:       Qt.AlignHCenter
+                        Layout.preferredWidth:  lifeVestRoot.width * 0.5
+                        Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.6
+                        radius:                 3
+                        color:                  "#3a3f47"
+                        border.color:           "#1a1a2e"
+                        border.width:           1
+
+                        Row {
+                            anchors.fill: parent
+                            Rectangle {
+                                width:  parent.width / 2
+                                height: parent.height
+                                color:  lifeVestRoot.searchlightOn ? "#3a3f47" : "#9aa1a8"
+                                Text {
+                                    anchors.centerIn: parent
+                                    text:             qsTr("OFF")
+                                    color:            "white"
+                                    font.pixelSize:   ScreenTools.defaultFontPointSize * 1.1
+                                    font.bold:        true
+                                }
+                            }
+                            Rectangle {
+                                width:  parent.width / 2
+                                height: parent.height
+                                color:  lifeVestRoot.searchlightOn ? "#00826F" : "#3a3f47"
+                                Text {
+                                    anchors.centerIn: parent
+                                    text:             qsTr("ON")
+                                    color:            "white"
+                                    font.pixelSize:   ScreenTools.defaultFontPointSize * 1.1
+                                    font.bold:        true
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                lifeVestRoot.searchlightOn = !lifeVestRoot.searchlightOn
+                                console.log("Searchlight:", lifeVestRoot.searchlightOn ? "ON" : "OFF")
+                                if (_missionController) {
+                                    _missionController.setSearchlight(lifeVestRoot.searchlightOn ? 1 : 0)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

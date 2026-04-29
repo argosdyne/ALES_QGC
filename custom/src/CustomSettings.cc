@@ -10,6 +10,7 @@ DECLARE_SETTINGSFACT(CustomSettings, is3DMap)
 DECLARE_SETTINGSFACT(CustomSettings, rtcmSource)
 DECLARE_SETTINGSFACT(CustomSettings, doodleLabsIP)
 DECLARE_SETTINGSFACT(CustomSettings, doodleLabsIPEnable)
+DECLARE_SETTINGSFACT(CustomSettings, lifeJacketEnable)
 
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)
 {

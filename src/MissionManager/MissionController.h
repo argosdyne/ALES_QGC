@@ -32,6 +32,7 @@ class QDomDocument;
 class PlanViewSettings;
 
 Q_DECLARE_LOGGING_CATEGORY(MissionControllerLog)
+Q_DECLARE_LOGGING_CATEGORY(LifeVestLog)
 
 typedef QPair<VisualMissionItem*,VisualMissionItem*> VisualItemPair;
 typedef QHash<VisualItemPair, FlightPathSegment*> FlightPathSegmentHashTable;
@@ -114,6 +115,7 @@ public:
 
     Q_PROPERTY(int                  vlValue                         MEMBER _vlValue                     NOTIFY vlValueChanged)
     Q_PROPERTY(int                  vlOBAValue                      MEMBER _vlOBAValue                  NOTIFY vlOBAValueChanged)
+    Q_PROPERTY(int                  slStatus                        MEMBER _slStatus                    NOTIFY slStatusChanged)
 
     Q_INVOKABLE void removeVisualItem(int viIndex);
 
@@ -192,9 +194,21 @@ public:
 
     Q_INVOKABLE void getVisionLidarOBAMode();
 
+    /// Send LifeVest commands to the vehicle via MAVLink COMMAND_LONG.
+    // Drops the life vest (CMD_USER_DEPLOY_LIFE_VEST = 42700, param1 = 1)
+    Q_INVOKABLE void deployLifeVest();
+
+    /// Searchlight controls (PARAM_SET / PARAM_REQUEST_READ on "SL_STATUS").
+    // value: 1 = ON, 0 = OFF
+    Q_INVOKABLE void setSearchlight(int value);
+
+    // Request current SL_STATUS from BirdCom; reply arrives as PARAM_VALUE
+    Q_INVOKABLE void getSearchlight();
+
     void _sendParamInt(const QString& paramId, int value);
 
     void _requestOBAValue();
+    void _requestSlStatus();
 
 
     enum SendToVehiclePreCheckState {
@@ -323,6 +337,7 @@ signals:
     void globalAltitudeModeChanged          (void);
     void vlValueChanged();
     void vlOBAValueChanged();
+    void slStatusChanged();
 
 private slots:
     void _newMissionItemsAvailableFromVehicle   (bool removeAllRequested);
@@ -343,6 +358,7 @@ private slots:
     void _takeoffItemNotRequiredChanged         (void);
     void _onVlValueChanged(int value);
     void _onvlOBAValueChanged(int value);
+    void _onSlStatusChanged(int value);
 
 private:
     void                    _init                               (void);
@@ -388,6 +404,7 @@ private:
     static bool             _convertToMissionItems              (QmlObjectListModel* visualMissionItems, QList<MissionItem*>& rgMissionItems, QObject* missionItemParent);
     int _vlValue = 0;
     int _vlOBAValue = 1;
+    int _slStatus = 0;
 
     void _connectToVehicle(Vehicle* vehicle);
     void _activeVehicleChanged(Vehicle* vehicle);

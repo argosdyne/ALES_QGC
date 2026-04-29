@@ -14,4 +14,5 @@ public:
     DEFINE_SETTINGFACT(teamMode)
     DEFINE_SETTINGFACT(doodleLabsIP)
     DEFINE_SETTINGFACT(doodleLabsIPEnable)
+    DEFINE_SETTINGFACT(lifeJacketEnable)
 };
