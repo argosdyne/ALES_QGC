@@ -108,6 +108,12 @@ public:
     /// Returns the string for speed units which has configued by user
     static QString appSettingsSpeedUnitsString();
 
+    /// Returns true if this metadata uses app settings for unit translation.
+    bool usesAppSettingsUnits(void) const;
+
+    /// Refreshes app-settings-based translators after a units settings change.
+    void refreshAppSettingsTranslation(void);
+
     static const QString defaultCategory    ();
     static const QString defaultGroup       ();
 

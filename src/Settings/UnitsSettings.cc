@@ -42,7 +42,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, horizontalDistanceUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultHorizontalDistanceUnit);
-        metaData->setQGCRebootRequired(true);
         _horizontalDistanceUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _horizontalDistanceUnitsFact;
@@ -72,7 +71,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, verticalDistanceUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultVerticalAltitudeUnit);
-        metaData->setQGCRebootRequired(true);
         _verticalDistanceUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _verticalDistanceUnitsFact;
@@ -108,7 +106,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, areaUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultAreaUnit);
-        metaData->setQGCRebootRequired(true);
         _areaUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _areaUnitsFact;
@@ -120,7 +117,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, speedUnits)
         // Distance/Area/Speed units settings can't be loaded from json since it creates an infinite loop of meta data loading.
         QStringList     enumStrings;
         QVariantList    enumValues;
-        enumStrings << "Feet/second" << "Meters/second" << "Miles/hour" << "Kilometers/hour" << UnitsSettings::tr("Knots");
+        enumStrings << UnitsSettings::tr("Feet/second") << UnitsSettings::tr("Meters/second") << UnitsSettings::tr("Miles/hour") << UnitsSettings::tr("Kilometers/hour") << UnitsSettings::tr("Knots");
         enumValues <<
             QVariant::fromValue(static_cast<uint32_t>(SpeedUnitsFeetPerSecond)) <<
             QVariant::fromValue(static_cast<uint32_t>(SpeedUnitsMetersPerSecond)) <<
@@ -143,7 +140,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, speedUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultSpeedUnit);
-        metaData->setQGCRebootRequired(true);
         _speedUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _speedUnitsFact;
@@ -173,7 +169,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, temperatureUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultTemperatureUnit);
-        metaData->setQGCRebootRequired(true);
         _temperatureUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _temperatureUnitsFact;
@@ -206,7 +201,6 @@ DECLARE_SETTINGSFACT_NO_FUNC(UnitsSettings, weightUnits)
                 break;
         }
         metaData->setRawDefaultValue(defaultWeightUnit);
-        metaData->setQGCRebootRequired(true);
         _weightUnitsFact = new SettingsFact(_settingsGroup, metaData, this);
     }
     return _weightUnitsFact;

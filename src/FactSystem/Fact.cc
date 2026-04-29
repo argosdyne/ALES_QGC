@@ -12,6 +12,7 @@
 #include "QGCMAVLink.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
+#include "SettingsManager.h"
 
 #include <QtQml>
 #include <QQmlEngine>
@@ -28,6 +29,7 @@ Fact::Fact(QObject* parent)
     , _deferredValueChangeSignal(false)
     , _valueSliderModel         (nullptr)
     , _ignoreQGCRebootRequired  (false)
+    , _appSettingsUnitsTrackingSetup(false)
 {    
     FactMetaData* metaData = new FactMetaData(_type, this);
     setMetaData(metaData);
@@ -46,6 +48,7 @@ Fact::Fact(int componentId, QString name, FactMetaData::ValueType_t type, QObjec
     , _deferredValueChangeSignal(false)
     , _valueSliderModel         (nullptr)
     , _ignoreQGCRebootRequired  (false)
+    , _appSettingsUnitsTrackingSetup(false)
 {
     FactMetaData* metaData = new FactMetaData(_type, this);
     setMetaData(metaData);
@@ -64,6 +67,7 @@ Fact::Fact(const QString& settingsGroup, FactMetaData* metaData, QObject* parent
     , _deferredValueChangeSignal(false)
     , _valueSliderModel         (nullptr)
     , _ignoreQGCRebootRequired  (false)
+    , _appSettingsUnitsTrackingSetup(false)
 {
     qgcApp()->toolbox()->corePlugin()->adjustSettingMetaData(settingsGroup, *metaData);
     setMetaData(metaData, true /* setDefaultFromMetaData */);
@@ -95,6 +99,7 @@ const Fact& Fact::operator=(const Fact& other)
     _deferredValueChangeSignal  = other._deferredValueChangeSignal;
     _valueSliderModel           = nullptr;
     _ignoreQGCRebootRequired    = other._ignoreQGCRebootRequired;
+    _appSettingsUnitsTrackingSetup = other._appSettingsUnitsTrackingSetup;
     if (_metaData && other._metaData) {
         *_metaData = *other._metaData;
     } else {
@@ -580,10 +585,37 @@ QString Fact::group(void) const
 void Fact::setMetaData(FactMetaData* metaData, bool setDefaultFromMetaData)
 {
     _metaData = metaData;
+    _setupAppSettingsUnitsTracking();
     if (setDefaultFromMetaData && metaData->defaultValueAvailable()) {
         setRawValue(rawDefaultValue());
     }
     emit valueChanged(cookedValue());
+}
+
+void Fact::_setupAppSettingsUnitsTracking(void)
+{
+    if (_appSettingsUnitsTrackingSetup || !_metaData || !_metaData->usesAppSettingsUnits() || !qgcApp() || !qgcApp()->toolbox()) {
+        return;
+    }
+
+    auto unitsSettings = qgcApp()->toolbox()->settingsManager()->unitsSettings();
+    const auto refreshUnits = [this](QVariant) {
+        if (!_metaData) {
+            return;
+        }
+
+        _metaData->refreshAppSettingsTranslation();
+        emit valueChanged(cookedValue());
+    };
+
+    connect(unitsSettings->horizontalDistanceUnits(), &Fact::rawValueChanged, this, refreshUnits);
+    connect(unitsSettings->verticalDistanceUnits(), &Fact::rawValueChanged, this, refreshUnits);
+    connect(unitsSettings->areaUnits(),               &Fact::rawValueChanged, this, refreshUnits);
+    connect(unitsSettings->speedUnits(),              &Fact::rawValueChanged, this, refreshUnits);
+    connect(unitsSettings->temperatureUnits(),        &Fact::rawValueChanged, this, refreshUnits);
+    connect(unitsSettings->weightUnits(),             &Fact::rawValueChanged, this, refreshUnits);
+
+    _appSettingsUnitsTrackingSetup = true;
 }
 
 bool Fact::valueEqualsDefault(void) const

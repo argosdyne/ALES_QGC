@@ -1074,6 +1074,22 @@ const FactMetaData::AppSettingsTranslation_s* FactMetaData::_findAppSettingsUnit
     return nullptr;
 }
 
+bool FactMetaData::usesAppSettingsUnits(void) const
+{
+    for (size_t i=0; i<sizeof(_rgAppSettingsTranslations)/sizeof(_rgAppSettingsTranslations[0]); i++) {
+        if (_rawUnits.toLower() == _rgAppSettingsTranslations[i].rawUnits.toLower()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void FactMetaData::refreshAppSettingsTranslation(void)
+{
+    _setAppSettingsTranslators();
+}
+
 QVariant FactMetaData::metersToAppSettingsHorizontalDistanceUnits(const QVariant& meters)
 {
     const AppSettingsTranslation_s* pAppSettingsTranslation = _findAppSettingsUnitsTranslation("m", UnitHorizontalDistance);

@@ -60,7 +60,7 @@ public:
     Q_PROPERTY(bool         vehicleRebootRequired   READ vehicleRebootRequired                              CONSTANT)
     Q_PROPERTY(bool         qgcRebootRequired       READ qgcRebootRequired                                  CONSTANT)
     Q_PROPERTY(QString      shortDescription        READ shortDescription                                   CONSTANT)
-    Q_PROPERTY(QString      units                   READ cookedUnits                                        CONSTANT)
+    Q_PROPERTY(QString      units                   READ cookedUnits                                        NOTIFY valueChanged)
     Q_PROPERTY(QVariant     value                   READ cookedValue            WRITE setCookedValue        NOTIFY valueChanged)
     Q_PROPERTY(QVariant     rawValue                READ rawValue               WRITE setRawValue           NOTIFY rawValueChanged)
     Q_PROPERTY(bool         valueEqualsDefault      READ valueEqualsDefault                                 NOTIFY valueChanged)
@@ -197,6 +197,7 @@ private slots:
 
 private:
     void _init(void);
+    void _setupAppSettingsUnitsTracking(void);
     
 protected:
     QString _variantToString(const QVariant& variant, int decimalPlaces) const;
@@ -211,4 +212,5 @@ protected:
     bool                        _deferredValueChangeSignal;
     FactValueSliderListModel*   _valueSliderModel;
     bool                        _ignoreQGCRebootRequired;
+    bool                        _appSettingsUnitsTrackingSetup;
 };
