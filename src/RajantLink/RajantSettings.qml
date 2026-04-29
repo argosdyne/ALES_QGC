@@ -18,6 +18,7 @@ Rectangle {
     property real _panelWidth:                  _root.width * _internalWidthRatio
     property real _labelWidth:                  _panelWidth * 0.4
     property real _valueWidth:                  _panelWidth * 0.4
+    property var  corePlugin:                   QGroundControl.corePlugin
     property var  rajantManager:                QGroundControl.corePlugin.rajantManager
     // Treat a dead mesh link the same as disconnected — UI goes to N/A, not stale values
     property bool _connected:                   rajantManager ? rajantManager.connected && rajantManager.authenticated && rajantManager.linkLive : false
@@ -165,6 +166,81 @@ Rectangle {
                             text:           rajantManager ? rajantManager.firmwareVersion : ""
                             visible:        _connected && rajantManager && rajantManager.firmwareVersion.length > 0
                         }
+                    }
+                }
+            }
+            //-----------------------------------------------------------------
+            //-- Power Control
+            Item {
+                width:                      _panelWidth
+                height:                     powerLabel.height
+                anchors.margins:            ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter:   parent.horizontalCenter
+                QGCLabel {
+                    id:                     powerLabel
+                    text:                   qsTr("Module Power")
+                    font.family:            ScreenTools.demiboldFontFamily
+                }
+            }
+            Rectangle {
+                height:                     powerCol.height + (ScreenTools.defaultFontPixelHeight * 2)
+                width:                      _panelWidth
+                color:                      qgcPal.windowShade
+                anchors.margins:            ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter:   parent.horizontalCenter
+                Column {
+                    id:                     powerCol
+                    spacing:                ScreenTools.defaultFontPixelHeight * 0.8
+                    width:                  parent.width
+                    anchors.centerIn:       parent
+
+                    QGCLabel {
+                        text:               corePlugin && corePlugin.rajantPowerSupported
+                                              ? qsTr("Control Rajant power via gpio442.")
+                                              : qsTr("GPIO power control is available on Linux/Android only.")
+                        width:              parent.width - (ScreenTools.defaultFontPixelWidth * 4)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        wrapMode:           Text.WordWrap
+                    }
+
+                    Row {
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        QGCButton {
+                            text:           qsTr("Power ON")
+                            enabled:        corePlugin && corePlugin.rajantPowerSupported && !corePlugin.rajantPowerBusy
+                            onClicked:      corePlugin.rajantPowerOn()
+                        }
+                        QGCButton {
+                            text:           qsTr("Power OFF")
+                            enabled:        corePlugin && corePlugin.rajantPowerSupported && !corePlugin.rajantPowerBusy
+                            onClicked:      corePlugin.rajantPowerOff()
+                        }
+                    }
+
+                    Row {
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Rectangle {
+                            width:          ScreenTools.defaultFontPixelHeight * 0.8
+                            height:         width
+                            radius:         width * 0.5
+                            color:          corePlugin && corePlugin.rajantPowerOnState ? qgcPal.colorGreen : qgcPal.textDisabled
+                            border.color:   qgcPal.text
+                        }
+                        QGCLabel {
+                            text:           corePlugin && corePlugin.rajantPowerOnState
+                                              ? qsTr("Power: ON")
+                                              : qsTr("Power: OFF")
+                        }
+                    }
+
+                    QGCLabel {
+                        text:               corePlugin ? corePlugin.rajantPowerStatus : ""
+                        visible:            text.length > 0
+                        width:              parent.width - (ScreenTools.defaultFontPixelWidth * 4)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        wrapMode:           Text.WordWrap
                     }
                 }
             }

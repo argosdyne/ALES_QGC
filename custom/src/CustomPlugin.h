@@ -113,12 +113,25 @@ public:
 
     Q_PROPERTY(RajantManager* rajantManager           READ rajantManager          NOTIFY rajantManagerChanged)
     RajantManager* rajantManager() { return _rajantManager; }
+    Q_PROPERTY(bool rajantPowerSupported              READ rajantPowerSupported   CONSTANT)
+    Q_PROPERTY(bool rajantPowerBusy                   READ rajantPowerBusy        NOTIFY rajantPowerBusyChanged)
+    Q_PROPERTY(bool rajantPowerOnState                READ rajantPowerOnState     NOTIFY rajantPowerOnStateChanged)
+    Q_PROPERTY(QString rajantPowerStatus              READ rajantPowerStatus      NOTIFY rajantPowerStatusChanged)
+    bool rajantPowerSupported() const;
+    bool rajantPowerBusy() const { return _rajantPowerBusy; }
+    bool rajantPowerOnState() const { return _rajantPowerOnState; }
+    QString rajantPowerStatus() const { return _rajantPowerStatus; }
+    Q_INVOKABLE bool rajantPowerOn();
+    Q_INVOKABLE bool rajantPowerOff();
 
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
     void m2ManagerChanged               ();
     void rajantManagerChanged           ();
+    void rajantPowerBusyChanged         ();
+    void rajantPowerOnStateChanged      ();
+    void rajantPowerStatusChanged       ();
 
 public slots:
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
@@ -129,6 +142,8 @@ private slots:
 
 
 private:
+    bool _setRajantPower(bool on);
+    void _setRajantPowerStatus(const QString& status);
     void _addSettingsEntry(const QString& title, const char* qmlFile, const char* iconFile = nullptr);
     void _initRajantDiscovery();
     void _onRajantScanFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -148,6 +163,9 @@ private:
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";
     int                     _rajantDiscoveryRetries = 0;
+    bool                    _rajantPowerBusy = false;
+    bool                    _rajantPowerOnState = false;
+    QString                 _rajantPowerStatus;
 
 private:
     SiYiManager* _siyiManager = nullptr;

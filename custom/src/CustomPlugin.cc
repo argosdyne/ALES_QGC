@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QNetworkInterface>
 #include <QtConcurrent>
+#include <QLocalSocket>
 
 #if defined(Q_OS_ANDROID)
 #include <sys/socket.h>
@@ -197,13 +198,10 @@ CustomPlugin::settingsPages()
                 && _qmlInterface->arManager()->usingDoodleApi();
 
             qInfo() << "M2Manager is null, isDoodle:" << isDoodle;
-            // Show Rajant settings if available, otherwise Enpulse/DoodleLab
-            if (_rajantManager != nullptr) {
-                _addSettingsEntry(tr("Rajant"), "qrc:/qml/RajantSettings.qml");
-            }
-            else {
-                _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
-            }
+            // Always show Rajant settings page so SmartController pairing
+            // controls (GPIO power) are available even before discovery.
+            _addSettingsEntry(tr("Rajant"), "qrc:/qml/RajantSettings.qml");
+            _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
         }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)
@@ -212,6 +210,130 @@ CustomPlugin::settingsPages()
 #endif
     }
     return _customSettingsList;
+}
+
+bool CustomPlugin::rajantPowerSupported() const
+{
+#if defined(Q_OS_ANDROID) || defined(Q_OS_LINUX)
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool CustomPlugin::rajantPowerOn()
+{
+    return _setRajantPower(true);
+}
+
+bool CustomPlugin::rajantPowerOff()
+{
+    return _setRajantPower(false);
+}
+
+bool CustomPlugin::_setRajantPower(bool on)
+{
+    if (!rajantPowerSupported()) {
+        _setRajantPowerStatus(tr("GPIO power control is only supported on Linux/Android."));
+        return false;
+    }
+
+    if (_rajantPowerBusy) {
+        _setRajantPowerStatus(tr("GPIO power command is already running."));
+        return false;
+    }
+
+    _rajantPowerBusy = true;
+    emit rajantPowerBusyChanged();
+
+    bool ok = false;
+    QString errorText;
+
+#if defined(Q_OS_ANDROID)
+    // Production Android path:
+    // App -> privileged native daemon (system/vendor) via local socket.
+    // Daemon is responsible for writing /sys/class/gpio/gpio442/value.
+    {
+        QLocalSocket sock;
+        const QString socketPath = QStringLiteral("/dev/socket/rajant_gpio");
+        const QByteArray request = on ? QByteArrayLiteral("POWER_ON\n")
+                                      : QByteArrayLiteral("POWER_OFF\n");
+
+        sock.connectToServer(socketPath, QIODevice::ReadWrite);
+        if (sock.waitForConnected(2000)) {
+            if (sock.write(request) == request.size() && sock.waitForBytesWritten(2000)) {
+                if (sock.waitForReadyRead(3000)) {
+                    const QByteArray reply = sock.readAll().trimmed();
+                    if (reply == "OK" || reply == "1" || reply == "ON" || reply == "OFF") {
+                        ok = true;
+                    } else {
+                        errorText = tr("Daemon rejected command: %1").arg(QString::fromUtf8(reply));
+                    }
+                } else {
+                    errorText = tr("No response from GPIO daemon.");
+                }
+            } else {
+                errorText = tr("Failed to send command to GPIO daemon.");
+            }
+            sock.disconnectFromServer();
+        } else {
+            errorText = tr("Cannot connect to GPIO daemon at %1.").arg(socketPath);
+        }
+    }
+#else
+    const QString value = on ? QStringLiteral("1") : QStringLiteral("0");
+    const QString command = QStringLiteral("echo %1 > /sys/class/gpio/gpio442/value").arg(value);
+
+    QProcess process;
+    process.start(QStringLiteral("sh"), QStringList() << QStringLiteral("-c") << command);
+    if (!process.waitForStarted(3000)) {
+        _setRajantPowerStatus(tr("Failed to start shell for GPIO command."));
+        _rajantPowerBusy = false;
+        emit rajantPowerBusyChanged();
+        return false;
+    }
+
+    if (!process.waitForFinished(5000)) {
+        process.kill();
+        process.waitForFinished(1000);
+        _setRajantPowerStatus(tr("GPIO command timed out."));
+        _rajantPowerBusy = false;
+        emit rajantPowerBusyChanged();
+        return false;
+    }
+
+    ok = (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0);
+    const QString stderrText = QString::fromLocal8Bit(process.readAllStandardError()).trimmed();
+    if (!ok) {
+        errorText = stderrText.isEmpty()
+            ? tr("GPIO command failed (exit code %1).").arg(process.exitCode())
+            : tr("GPIO command failed: %1").arg(stderrText);
+    }
+#endif
+
+    if (ok) {
+        if (_rajantPowerOnState != on) {
+            _rajantPowerOnState = on;
+            emit rajantPowerOnStateChanged();
+        }
+        _setRajantPowerStatus(on
+            ? tr("Power ON command sent to gpio442.")
+            : tr("Power OFF command sent to gpio442."));
+    } else {
+        _setRajantPowerStatus(errorText);
+    }
+
+    _rajantPowerBusy = false;
+    emit rajantPowerBusyChanged();
+    return ok;
+}
+
+void CustomPlugin::_setRajantPowerStatus(const QString& status)
+{
+    if (_rajantPowerStatus != status) {
+        _rajantPowerStatus = status;
+        emit rajantPowerStatusChanged();
+    }
 }
 
 QGCOptions* CustomPlugin::options()
