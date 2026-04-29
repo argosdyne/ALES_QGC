@@ -132,20 +132,26 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: !selectItem.busy       
-        pressAndHoldInterval: enableRectangle ? 200 : 800
+        // Keep MouseArea enabled so the 2nd tap of a double-click is never
+        // dropped while click animations are running.
+        enabled: true
+        preventStealing: true
+        pressAndHoldInterval: enableRectangle ? 350 : 800
         property bool isPressAndHold: false
         onClicked: {
+            if(selectItem.busy) return
             if(!enablePoint) return
             touchPointTrack(mouseX, mouseY)
         }
         onPressed: {
+            if(selectItem.busy) return
             if(!enableRectangle) return
             isPressAndHold = false
             rangeRect.x = mouseX
             rangeRect.y = mouseY
         }
         onPressAndHold: {
+            if(selectItem.busy) return
             if(!enableRectangle) {
                 touchPressAndHold(mouseX / selectItem.width, mouseY / selectItem.height)
                 return

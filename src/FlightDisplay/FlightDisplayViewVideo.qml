@@ -236,6 +236,17 @@ Item {
             }
         }
 
+        // In full screen mode, camera extra controls are hidden, so we need
+        // a dedicated input layer to always allow exiting with double-click.
+        MouseArea {
+            anchors.fill: parent
+            enabled: QGroundControl.videoManager.fullScreen
+            acceptedButtons: Qt.LeftButton
+            onDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = false
+            }
+        }
+
         //-- Camera Extra Controls QML
         Loader {
             anchors.fill: parent
