@@ -182,6 +182,42 @@ inline QByteArray buildStateQuery(qint64 seqNum)
     return frameMessage(msg);
 }
 
+inline QByteArray buildSetNetworkNameRequest(const QString& networkName, qint64 seqNum)
+{
+    // BCMessage.config (field 5) -> Config.instamesh (field 90) -> networkName (field 21)
+    QByteArray instamesh;
+    instamesh += encodeStringField(21, networkName);
+
+    QByteArray config;
+    config += encodeEmbeddedField(90, instamesh);
+
+    QByteArray msg;
+    msg += encodeVarintField(1, 1); // ack = true
+    msg += encodeVarintField(2, static_cast<quint64>(seqNum));
+    msg += encodeEmbeddedField(5, config);
+
+    return frameMessage(msg);
+}
+
+inline QByteArray buildRebootTaskRequest(qint64 seqNum, int delayMs, const QString& clientId)
+{
+    // BCMessage.runTask (field 15) -> TaskCommand
+    // TaskCommand.action=1(REBOOT=0), delay=3, clientId=9
+    QByteArray task;
+    task += encodeVarintField(1, 0); // REBOOT
+    task += encodeVarintField(3, static_cast<quint64>(delayMs < 0 ? 0 : delayMs));
+    if (!clientId.isEmpty()) {
+        task += encodeStringField(9, clientId);
+    }
+
+    QByteArray msg;
+    msg += encodeVarintField(1, 1); // ack = true
+    msg += encodeVarintField(2, static_cast<quint64>(seqNum));
+    msg += encodeEmbeddedField(15, task);
+
+    return frameMessage(msg);
+}
+
 // --- Parsed result structures ---
 
 struct PeerInfo {
@@ -439,6 +475,10 @@ inline StateResult decodeState(const QByteArray& data, int offset, int len)
 struct BcapiMessage {
     QByteArray authChallenge;     // from auth.challengeOrResponse
     int        authResultStatus = -1; // -1=no result, 0=FAILURE, 1=SUCCESS
+    int        configResultStatus = -1; // BCMessage.configResult[0].status
+    QString    configResultDescription;
+    int        runTaskResultStatus = -1; // BCMessage.runTaskResult.status
+    QString    runTaskResultDescription;
     StateResult state;
     bool       hasState = false;
 };
@@ -481,11 +521,49 @@ inline BcapiMessage parseBcMessage(const QByteArray& data)
             }
             break;
         }
+        case 500: { // configResult (repeated Result)
+            int rlen = static_cast<int>(decodeVarint(data, pos));
+            int rend = pos + rlen;
+            int status = -1;
+            QString description;
+            while (pos < rend) {
+                Tag rtag = decodeTag(data, pos);
+                if (rtag.fieldNumber == 1) {
+                    status = static_cast<int>(decodeVarint(data, pos));
+                } else if (rtag.fieldNumber == 2 && rtag.wireType == LENGTH_DELIMITED) {
+                    int dlen = static_cast<int>(decodeVarint(data, pos));
+                    description = QString::fromUtf8(data.mid(pos, dlen));
+                    pos += dlen;
+                } else {
+                    skipField(rtag.wireType, data, pos);
+                }
+            }
+            msg.configResultStatus = status;
+            msg.configResultDescription = description;
+            break;
+        }
         case 6: { // state (embedded)
             int slen = static_cast<int>(decodeVarint(data, pos));
             msg.state = decodeState(data, pos, slen);
             msg.hasState = true;
             pos += slen;
+            break;
+        }
+        case 1500: { // runTaskResult (Result)
+            int rlen = static_cast<int>(decodeVarint(data, pos));
+            int rend = pos + rlen;
+            while (pos < rend) {
+                Tag rtag = decodeTag(data, pos);
+                if (rtag.fieldNumber == 1) {
+                    msg.runTaskResultStatus = static_cast<int>(decodeVarint(data, pos));
+                } else if (rtag.fieldNumber == 2 && rtag.wireType == LENGTH_DELIMITED) {
+                    int dlen = static_cast<int>(decodeVarint(data, pos));
+                    msg.runTaskResultDescription = QString::fromUtf8(data.mid(pos, dlen));
+                    pos += dlen;
+                } else {
+                    skipField(rtag.wireType, data, pos);
+                }
+            }
             break;
         }
         default:

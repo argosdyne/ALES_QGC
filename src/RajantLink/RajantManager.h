@@ -61,6 +61,7 @@ public:
 
     // Readable status string
     Q_PROPERTY(QString  statusText      READ statusText      NOTIFY statusTextChanged)
+    Q_PROPERTY(bool     pairingBusy     READ pairingBusy     NOTIFY pairingBusyChanged)
 
     bool    connected()     const { return _connected; }
     bool    authenticated() const { return _authenticated; }
@@ -86,10 +87,13 @@ public:
     QString linkLocalAddress() const { return _peerLinkLocalAddress; }
 
     QString statusText()    const { return _statusText; }
+    bool pairingBusy() const { return _pairingBusy; }
 
     Q_INVOKABLE void connectToNode(const QString& address);
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE void reconnect();
+    Q_INVOKABLE void pairToDrone(const QString& droneInput);
+    Q_INVOKABLE void disconnectFromDroneMesh();
 
     int radioCount() const { return _radioCount; }
 signals:
@@ -100,6 +104,7 @@ signals:
     void skyDataChanged();
     void statusTextChanged();
     void firstStateReceived(int radioCount);
+    void pairingBusyChanged();
 
 private slots:
     void _onSocketEncrypted();
@@ -115,6 +120,10 @@ private:
     void _setConnected(bool v);
     void _setAuthenticated(bool v);
     void _setStatusText(const QString& text);
+    void _setPairingBusy(bool busy);
+    void _sendSetNetworkName(const QString& networkName);
+    void _sendRebootTask(int delayMs = 3000);
+    void _failPairing(const QString& reason);
 
     // Connection
     QSslSocket*     _socket             = nullptr;
@@ -165,4 +174,14 @@ private:
     // Auth state
     enum AuthState { AUTH_WAIT_CHALLENGE, AUTH_WAIT_RESULT, AUTH_DONE };
     AuthState _authState = AUTH_WAIT_CHALLENGE;
+
+    enum PendingCommand {
+        PendingNone,
+        PendingSetNetworkName,
+        PendingReboot
+    };
+    PendingCommand _pendingCommand = PendingNone;
+    bool            _pairingBusy = false;
+    bool            _awaitingReconnectAfterReboot = false;
+    QString         _targetNetworkName;
 };

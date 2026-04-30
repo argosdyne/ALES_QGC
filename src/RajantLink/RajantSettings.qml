@@ -26,6 +26,7 @@ Rectangle {
     property int  _snr:                         rajantManager ? rajantManager.snr       : 0
     property int  _skySignal:                   rajantManager ? rajantManager.skySignal : 0
     property int  _skySnr:                      rajantManager ? rajantManager.skySnr    : 0
+    property bool _pairingBusy:                 rajantManager ? rajantManager.pairingBusy : false
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -77,28 +78,35 @@ Rectangle {
                             color:          _connected ? qgcPal.colorGreen : qgcPal.colorRed
                             Layout.preferredWidth: _labelWidth
                         }
+
                         QGCLabel {
-                            text:           ""
-                            visible:        _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
+                            text:           qsTr("Node adress:")
+                            Layout.minimumWidth: _labelWidth
                         }
                         QGCLabel {
                             text:           _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
-                                              ? qsTr("IPv6 link-local: ") + rajantManager.linkLocalAddress
-                                              : ""
-                            color:          qgcPal.text
-                            font.pointSize: ScreenTools.smallFontPointSize
-                            visible:        _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
-                        }
-                        QGCLabel {
-                            text:           qsTr("Node Address:")
-                            Layout.minimumWidth: _labelWidth
-                            visible:        false
-                        }
-                        QGCLabel {
-                            text:           rajantManager ? rajantManager.nodeAddress : qsTr("N/A")
+                                              ?  rajantManager.linkLocalAddress
+                                              : qsTr("N/A")
                             Layout.minimumWidth: _valueWidth
-                            visible:        false
                         }
+
+                         QGCLabel {
+                            text:           qsTr("Serial Number:")
+                        }
+                        QGCLabel {
+                            text:           rajantManager && rajantManager.serialNumber.length > 0
+                                              ? rajantManager.serialNumber
+                                              : qsTr("N/A")
+                        }
+                        QGCLabel {
+                            text:           qsTr("Current Network Name:")
+                        }
+                        QGCLabel {
+                            text:           rajantManager && rajantManager.networkName.length > 0
+                                              ? rajantManager.networkName
+                                              : qsTr("N/A")
+                        }
+     
                         QGCLabel {
                             text:           qsTr("Radio:")
                             visible:        false
@@ -159,22 +167,7 @@ Rectangle {
                             text:           rajantManager ? rajantManager.peerCount.toString() : ""
                             visible:        _connected
                         }
-                        QGCLabel {
-                            text:           qsTr("Serial Number:")
-                        }
-                        QGCLabel {
-                            text:           rajantManager && rajantManager.serialNumber.length > 0
-                                              ? rajantManager.serialNumber
-                                              : qsTr("N/A")
-                        }
-                        QGCLabel {
-                            text:           qsTr("Current Network Name:")
-                        }
-                        QGCLabel {
-                            text:           rajantManager && rajantManager.networkName.length > 0
-                                              ? rajantManager.networkName
-                                              : qsTr("N/A")
-                        }
+                       
                         QGCLabel {
                             text:           qsTr("Hostname:")
                             // visible:        _connected && rajantManager && rajantManager.nodeName.length > 0
@@ -193,6 +186,68 @@ Rectangle {
                             text:           rajantManager ? rajantManager.firmwareVersion : ""
                             visible:        _connected && rajantManager && rajantManager.firmwareVersion.length > 0
                         }
+                    }
+                }
+            }
+
+            //-----------------------------------------------------------------
+            //-- Pairing Device
+            Item {
+                width:                      _panelWidth
+                height:                     pairingLabel.height
+                anchors.margins:            ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter:   parent.horizontalCenter
+                QGCLabel {
+                    id:                     pairingLabel
+                    text:                   qsTr("Pairing Device")
+                    font.family:            ScreenTools.demiboldFontFamily
+                }
+            }
+            Rectangle {
+                width:                      _panelWidth
+                height:                     pairingCol.height + (ScreenTools.defaultFontPixelHeight * 2)
+                color:                      qgcPal.windowShade
+                anchors.margins:            ScreenTools.defaultFontPixelWidth
+                anchors.horizontalCenter:   parent.horizontalCenter
+
+                Column {
+                    id:                     pairingCol
+                    width:                  parent.width - ScreenTools.defaultFontPixelWidth * 2
+                    spacing:                ScreenTools.defaultFontPixelHeight * 0.6
+                    anchors.centerIn:       parent
+
+                    QGCLabel {
+                        text:               qsTr("Set Network Name:")
+                    }
+
+                    QGCTextField {
+                                    id:                     networkNameInput
+                                    Layout.preferredWidth:  parent.width
+                                    Layout.fillWidth:       true
+                                    text:                   editingConfig.name
+                                    placeholderText:        qsTr("Drone-XXXXXX")
+                                }
+
+                    Row {
+                        spacing:            ScreenTools.defaultFontPixelWidth
+                        QGCButton {
+                            text:           qsTr("Connect")
+                            enabled:        rajantManager && !_pairingBusy
+                                            && networkNameInput.text.trim().length > 0
+                            onClicked: {
+                                rajantManager.pairToDrone(networkNameInput.text)
+                            }
+                        }
+                        QGCButton {
+                            text:           qsTr("Disconnect")
+                            enabled:        rajantManager && _connected && !_pairingBusy
+                            onClicked:      rajantManager.disconnectFromDroneMesh()
+                        }
+                    }
+
+                    QGCLabel {
+                        text:               _pairingBusy ? qsTr("Applying settings and waiting reboot/reconnect...") : ""
+                        visible:            _pairingBusy
                     }
                 }
             }

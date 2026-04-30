@@ -3,6 +3,7 @@
 #include <QLoggingCategory>
 #include <QQmlEngine>
 #include <QSslConfiguration>
+#include <QUuid>
 
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
@@ -87,6 +88,9 @@ void RajantManager::disconnect()
     _networkName.clear();
     _nodeName.clear();
     _firmwareVersion.clear();
+    _pendingCommand = PendingNone;
+    _awaitingReconnectAfterReboot = false;
+    _setPairingBusy(false);
     emit radioDataChanged();
     emit skyDataChanged();
 }
@@ -110,6 +114,9 @@ void RajantManager::_onSocketEncrypted()
     _setConnected(true);
     _setStatusText("SSL connected, waiting for auth challenge...");
     _authState = AUTH_WAIT_CHALLENGE;
+    if (_awaitingReconnectAfterReboot) {
+        _setStatusText("Reconnected, waiting for authentication...");
+    }
     // Server will send the BCAPI auth challenge now that SSL is established
 }
 
@@ -135,6 +142,9 @@ void RajantManager::_onSocketDisconnected()
     if (_linkLive) { _linkLive = false; emit linkLiveChanged(); }
     emit radioDataChanged();
     emit skyDataChanged();
+    if (_awaitingReconnectAfterReboot) {
+        _setStatusText("Reboot in progress, waiting for node to come back...");
+    }
 
     // Auto-reconnect
     if (!_reconnTimer->isActive()) {
@@ -197,12 +207,45 @@ void RajantManager::_processFrame(const QByteArray& payload)
             // Start polling state
             _pollState(); // immediate first query
             _pollTimer->start(_pollInterval);
+            if (_awaitingReconnectAfterReboot) {
+                _awaitingReconnectAfterReboot = false;
+                _setPairingBusy(false);
+                _setStatusText(QString("Pairing complete. Network set to \"%1\"").arg(_targetNetworkName));
+            }
         } else {
             qCWarning(ARManagerLog) << "RajantManager: authentication FAILED (status:" << msg.authResultStatus << ")";
             _setStatusText("Auth failed - check password");
             _socket->close();
         }
         _authState = AUTH_DONE;
+        return;
+    }
+
+    // Handle config write result
+    if (msg.configResultStatus >= 0 && _pendingCommand == PendingSetNetworkName) {
+        if (msg.configResultStatus == 1 || msg.configResultStatus == 2) {
+            qCInfo(ARManagerLog) << "RajantManager: set networkName accepted:" << _targetNetworkName;
+            _setStatusText(QString("Network name set to \"%1\". Rebooting...").arg(_targetNetworkName));
+            _pendingCommand = PendingNone;
+            _sendRebootTask(3000);
+        } else {
+            _pendingCommand = PendingNone;
+            _failPairing(QString("Set networkName failed: %1").arg(msg.configResultDescription));
+        }
+        return;
+    }
+
+    // Handle reboot task result
+    if (msg.runTaskResultStatus >= 0 && _pendingCommand == PendingReboot) {
+        if (msg.runTaskResultStatus == 1 || msg.runTaskResultStatus == 2) {
+            qCInfo(ARManagerLog) << "RajantManager: reboot task accepted";
+            _pendingCommand = PendingNone;
+            _awaitingReconnectAfterReboot = true;
+            _setStatusText("Reboot accepted. Waiting for reconnect...");
+        } else {
+            _pendingCommand = PendingNone;
+            _failPairing(QString("Reboot request failed: %1").arg(msg.runTaskResultDescription));
+        }
         return;
     }
 
@@ -429,4 +472,74 @@ void RajantManager::_setStatusText(const QString& text)
         _statusText = text;
         emit statusTextChanged();
     }
+}
+
+void RajantManager::_setPairingBusy(bool busy)
+{
+    if (_pairingBusy != busy) {
+        _pairingBusy = busy;
+        emit pairingBusyChanged();
+    }
+}
+
+void RajantManager::_sendSetNetworkName(const QString& networkName)
+{
+    if (!_authenticated || !_socket || _socket->state() != QAbstractSocket::ConnectedState) {
+        _failPairing("Not connected/authenticated");
+        return;
+    }
+
+    _targetNetworkName = networkName;
+    _pendingCommand = PendingSetNetworkName;
+    QByteArray req = BcapiProtocol::buildSetNetworkNameRequest(networkName, ++_seqNum);
+    _socket->write(req);
+    _socket->flush();
+    _setStatusText(QString("Applying network name \"%1\"...").arg(networkName));
+}
+
+void RajantManager::_sendRebootTask(int delayMs)
+{
+    if (!_authenticated || !_socket || _socket->state() != QAbstractSocket::ConnectedState) {
+        _failPairing("Cannot reboot: not connected/authenticated");
+        return;
+    }
+
+    _pendingCommand = PendingReboot;
+    _awaitingReconnectAfterReboot = true;
+    const QString clientId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    QByteArray req = BcapiProtocol::buildRebootTaskRequest(++_seqNum, delayMs, clientId);
+    _socket->write(req);
+    _socket->flush();
+}
+
+void RajantManager::_failPairing(const QString& reason)
+{
+    _awaitingReconnectAfterReboot = false;
+    _pendingCommand = PendingNone;
+    _setPairingBusy(false);
+    _setStatusText(reason);
+    qCWarning(ARManagerLog) << "RajantManager pairing failed:" << reason;
+}
+
+void RajantManager::pairToDrone(const QString& droneInput)
+{
+    const QString name = droneInput.trimmed();
+    if (name.isEmpty()) {
+        _setStatusText("Pairing failed: empty drone input");
+        return;
+    }
+    _setPairingBusy(true);
+    _sendSetNetworkName(name);
+}
+
+void RajantManager::disconnectFromDroneMesh()
+{
+    if (_serialNumber.isEmpty() || _serialNumber.size() < 6) {
+        _setStatusText("Disconnect failed: serial number unavailable");
+        return;
+    }
+    const QString suffix = _serialNumber.right(6);
+    const QString name = QString("EasyGripper-%1").arg(suffix);
+    _setPairingBusy(true);
+    _sendSetNetworkName(name);
 }
