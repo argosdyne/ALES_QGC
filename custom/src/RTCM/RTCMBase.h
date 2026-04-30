@@ -35,6 +35,7 @@ public:
 
 signals:
     void sendMavlinkRTCM(mavlink_gps_rtcm_data_t message);
+    void rtcmChunkSent();
     void pgggaMessageChanged(QVariant message);
     void streamingChanged(bool streaming);
 

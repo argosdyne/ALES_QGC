@@ -21,6 +21,52 @@ Column {
     property real _margins: ScreenTools.defaultFontPixelHeight * 0.5
     property var  _ntripSource: CustomQmlInterface.codevRTCMManager.rtcmSource
 
+    Connections {
+        target: _ntripSource
+        onContentListChanged: {
+            root._syncSavedMountPointSelection()
+        }
+    }
+
+    function _syncSavedMountPointSelection() {
+        if (!_ntripSource || !_ntripSource.contentList || _ntripSource.contentList.length === 0) {
+            return
+        }
+
+        var savedMountPoint = _ntripSource.mountpoint.rawValue
+        if (savedMountPoint === undefined || savedMountPoint === null) {
+            return
+        }
+        savedMountPoint = String(savedMountPoint)
+        if (savedMountPoint === "") {
+            return
+        }
+
+        var savedName = savedMountPoint.split(":")[0]
+        var index = -1
+
+        for (var i = 0; i < _ntripSource.contentList.length; i++) {
+            var item = _ntripSource.contentList[i]
+            if (item === savedMountPoint || item.split(":")[0] === savedName) {
+                index = i
+                break
+            }
+        }
+
+        if (index >= 0) {
+            cbMountPoint.currentIndex = index
+        }
+    }
+
+    function _saveMountPointFromIndex(index) {
+        if (!_ntripSource || !_ntripSource.contentList || index < 0 || index >= _ntripSource.contentList.length) {
+            return
+        }
+        var selectedItem = String(_ntripSource.contentList[index])
+        var mountPointName = selectedItem.split(":")[0]
+        _ntripSource.mountpoint.rawValue = mountPointName
+    }
+
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
     GridLayout {
@@ -64,15 +110,12 @@ Column {
             Layout.minimumWidth: _labelWidth
             model : _ntripSource.contentList
             //model: _ntripSource.mountPointList
+            onModelChanged: root._syncSavedMountPointSelection()
+            Component.onCompleted: root._syncSavedMountPointSelection()
 
-            //When Selected Item changed call this function
-            onActivated: {
-                    if (index !== -1) {
-                        var selectedItem = model[index]; // ���õ� ������ ��������
-                        // C++�� ���õ� ������ ������
-                        _ntripSource.mountpoint.value = selectedItem;
-                    }
-                }
+            // Save only mountpoint name (without ":format") for stable persistence.
+            onActivated: root._saveMountPointFromIndex(index)
+            onCurrentIndexChanged: root._saveMountPointFromIndex(currentIndex)
         }
         QGCLabel {
             text:           qsTr("User:")
@@ -132,6 +175,79 @@ Column {
                 color: _ntripSource.isLogIn ? qgcPal.colorGreen : qgcPal.colorRed
                 sourceSize.height: height
                 sourceSize.width:  width
+            }
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("RTCM: %1 fps | total %2 frames | %3 KB")
+                    .arg(_ntripSource.rtcmFramesPerSecond)
+                    .arg(_ntripSource.rtcmTotalFrames)
+                    .arg((_ntripSource.rtcmTotalBytes / 1024.0).toFixed(1))
+            color: (_ntripSource.isLogIn && _ntripSource.rtcmFramesPerSecond > 0) ? qgcPal.colorGreen : qgcPal.text
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("Raw %1 B/s | Dropped %2 B/s | MAVLink sent %3/s | Last RTCM %4")
+                    .arg(_ntripSource.rawBytesPerSecond)
+                    .arg(_ntripSource.droppedBytesPerSecond)
+                    .arg(_ntripSource.mavlinkRtcmSentPerSecond)
+                    .arg(_ntripSource.lastRtcmReceivedSec >= 0 ? (_ntripSource.lastRtcmReceivedSec + qsTr("s ago")) : qsTr("N/A"))
+            color: (_ntripSource.isLogIn && _ntripSource.rawBytesPerSecond > 0) ? qgcPal.text : qgcPal.colorOrange
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("CRC errors %1/s | total %2 | last %3")
+                    .arg(_ntripSource.crcErrorsPerSecond)
+                    .arg(_ntripSource.crcErrorsTotal)
+                    .arg(_ntripSource.lastCrcErrorAt !== "" ? _ntripSource.lastCrcErrorAt : qsTr("N/A"))
+            color: _ntripSource.crcErrorsPerSecond > 0 ? qgcPal.colorRed : qgcPal.text
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("CRC log file: %1").arg(_ntripSource.crcErrorLogPath)
+            color: qgcPal.text
+            wrapMode: Text.WrapAnywhere
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("Caster raw HEX (latest): %1")
+                    .arg(_ntripSource.lastRawChunkHexPreview !== "" ? _ntripSource.lastRawChunkHexPreview : qsTr("N/A"))
+            color: qgcPal.text
+            wrapMode: Text.WrapAnywhere
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            text: qsTr("Last RTCM type: %1 | frame HEX: %2")
+                    .arg(_ntripSource.lastRtcmMessageType >= 0 ? _ntripSource.lastRtcmMessageType : qsTr("N/A"))
+                    .arg(_ntripSource.lastRtcmFrameHexPreview !== "" ? _ntripSource.lastRtcmFrameHexPreview : qsTr("N/A"))
+            color: (_ntripSource.lastRtcmMessageType >= 0) ? qgcPal.colorGreen : qgcPal.colorOrange
+            wrapMode: Text.WrapAnywhere
+        }
+        QGCLabel {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            visible: _ntripSource.isLogIn
+            color: (_ntripSource.droppedBytesPerSecond > 1024 || _ntripSource.lastRtcmReceivedSec > 5) ? qgcPal.colorRed : qgcPal.colorOrange
+            text: {
+                if (_ntripSource.lastRtcmReceivedSec < 0) {
+                    return qsTr("RTCM warning: No RTCM frame received yet.")
+                }
+                if (_ntripSource.lastRtcmReceivedSec > 5) {
+                    return qsTr("RTCM warning: RTCM stream stalled (%1s since last frame).").arg(_ntripSource.lastRtcmReceivedSec)
+                }
+                if (_ntripSource.droppedBytesPerSecond > 1024) {
+                    return qsTr("RTCM warning: High dropped bytes (%1 B/s).").arg(_ntripSource.droppedBytesPerSecond)
+                }
+                if (_ntripSource.rawBytesPerSecond > 0 && _ntripSource.rtcmFramesPerSecond === 0) {
+                    return qsTr("RTCM warning: Raw data exists but no RTCM frame parsed.")
+                }
+                return qsTr("RTCM status: stream looks healthy.")
             }
         }
 
