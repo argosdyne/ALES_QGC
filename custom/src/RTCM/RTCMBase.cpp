@@ -77,6 +77,21 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
     lon = deg2dms(gps_raw_int.lon * 1e-7);
 
     std::string time = QDateTime::fromMSecsSinceEpoch(gps_raw_int.time_usec / 1000, Qt::UTC).toString("hhmmss.zzz").toStdString();
+    // Map MAVLink GPS fix type to NMEA GGA fix quality.
+    // MAVLink: 5=float RTK, 6=fixed RTK. NMEA GGA uses 4=fixed RTK, 5=float RTK.
+    int gga_fix_quality = 0;
+    if (gps_raw_int.fix_type >= 2 && gps_raw_int.fix_type <= 3) {
+        gga_fix_quality = 1;      // GPS fix (2D/3D)
+    } else if (gps_raw_int.fix_type == 4) {
+        gga_fix_quality = 2;      // DGPS
+    } else if (gps_raw_int.fix_type == 5) {
+        gga_fix_quality = 5;      // RTK float
+    } else if (gps_raw_int.fix_type == 6) {
+        gga_fix_quality = 4;      // RTK fixed
+    } else if (gps_raw_int.fix_type >= 7) {
+        gga_fix_quality = 1;      // Static/PPP -> valid fix fallback
+    }
+
     snprintf(str, sizeof(str),
              "$GPGGA,%s,%09.04f,%c,%010.04f,%c,%d,%02d,%.1f,%.1f,M,0.0,M,5,0*",
              time.c_str(),
@@ -84,7 +99,7 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
              lat_uint,
              lon,
              lon_uint,
-             gps_raw_int.fix_type,
+             gga_fix_quality,
              gps_raw_int.satellites_visible,
              gps_eph,
              gps_raw_int.alt / 1000.0);
@@ -101,7 +116,7 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
              "%s%02X",str,result);
 
     _gpggaFromVehicle = QString::fromStdString(str_reslut);
-    qInfo(RTCMBaseLog) << "gpggaFromVehicle: " << _gpggaFromVehicle;
+    //qInfo(RTCMBaseLog) << "gpggaFromVehicle: " << _gpggaFromVehicle;
     emit pgggaMessageChanged(_gpggaFromVehicle);
 }
 
@@ -177,6 +192,7 @@ void RTCMBase::send_rtcm_data(std::shared_ptr<rtcm_data_t> work)
     mavlink_gps_rtcm_data.len = work->len;
     memcpy(mavlink_gps_rtcm_data.data, work->data, 180);
 
+    emit rtcmChunkSent();
     emit sendMavlinkRTCM(mavlink_gps_rtcm_data);
 }
 
