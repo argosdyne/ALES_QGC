@@ -624,6 +624,14 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[Vehicle]"
+                << "_mavlinkMessageReceived entry"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid
+                << "link" << link;
+    }
     // If the link is already running at Mavlink V2 set our max proto version to it.
     unsigned mavlinkVersion = _mavlink->getCurrentVersion();
     if (_maxProtoVersion != mavlinkVersion && mavlinkVersion >= 200) {
@@ -669,16 +677,59 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
 
     // Give the plugin a change to adjust the message contents
     if (!_firmwarePlugin->adjustIncomingMavlinkMessage(this, &message)) {
+        if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+            qWarning() << "[Vehicle]"
+                       << "_mavlinkMessageReceived dropped by firmware plugin"
+                       << "sysid" << message.sysid
+                       << "compid" << message.compid
+                       << "msgid" << message.msgid;
+        }
         return;
+    }
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[Vehicle]"
+                << "_mavlinkMessageReceived after firmware plugin"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid;
     }
 
     // Give the Core Plugin access to all mavlink traffic
     if (!_toolbox->corePlugin()->mavlinkMessage(this, link, message)) {
+        if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+            qWarning() << "[Vehicle]"
+                       << "_mavlinkMessageReceived dropped by core plugin"
+                       << "sysid" << message.sysid
+                       << "compid" << message.compid
+                       << "msgid" << message.msgid;
+        }
         return;
+    }
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[Vehicle]"
+                << "_mavlinkMessageReceived after core plugin"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid;
     }
 
     if (!_terrainProtocolHandler->mavlinkMessageReceived(message)) {
+        if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+            qWarning() << "[Vehicle]"
+                       << "_mavlinkMessageReceived dropped by terrain handler"
+                       << "sysid" << message.sysid
+                       << "compid" << message.compid
+                       << "msgid" << message.msgid;
+        }
         return;
+    }
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[Vehicle]"
+                << "_mavlinkMessageReceived before emit"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid
+                << "link" << link;
     }
     _ftpManager->_mavlinkMessageReceived(message);
     _parameterManager->mavlinkMessageReceived(message);
@@ -838,6 +889,14 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     // This must be emitted after the vehicle processes the message. This way the vehicle state is up to date when anyone else
     // does processing.
     //emit mavlinkMessageReceived(message);
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[Vehicle]"
+                << "_mavlinkMessageReceived emit mavlinkMessageReceived"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid
+                << "link" << link;
+    }
     emit mavlinkMessageReceived(message, link);
 
     _uas->receiveMessage(message);

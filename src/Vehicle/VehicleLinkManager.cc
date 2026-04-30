@@ -29,6 +29,14 @@ VehicleLinkManager::VehicleLinkManager(Vehicle* vehicle)
 
 void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION || message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS) {
+        qInfo() << "[VehicleLinkManager]"
+                << "mavlinkMessageReceived"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid
+                << "link" << link;
+    }
     // Radio status messages come from Sik Radios directly. It doesn't indicate there is any life on the other end.
     if (message.msgid != MAVLINK_MSG_ID_RADIO_STATUS) {
         int linkIndex = _containsLinkIndex(link);

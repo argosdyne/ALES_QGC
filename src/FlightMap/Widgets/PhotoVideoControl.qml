@@ -606,6 +606,7 @@ Item {
 
                         QGCLabel {
                             text: _mavlinkCamera.getFact(modelData).shortDescription
+                            Component.onCompleted: console.log("[PhotoVideoControl] activeSettingsLabel", modelData, "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null")
                         }
                     }
 
@@ -703,6 +704,14 @@ Item {
                             property bool   _isCombo:   !_isBool && _fact.enumStrings.length > 0
                             property bool   _isSlider:  _fact && !isNaN(_fact.increment)
                             property bool   _isEdit:    !_isBool && !_isSlider && _fact.enumStrings.length < 1
+
+                            Component.onCompleted: console.log("[PhotoVideoControl] activeSettingsEditor",
+                                                               modelData,
+                                                               "fact=", _fact ? _fact.name : "null",
+                                                               "typeBool=", _isBool,
+                                                               "typeCombo=", _isCombo,
+                                                               "typeSlider=", _isSlider,
+                                                               "typeEdit=", _isEdit)
 
                             FactComboBox {
                                 Layout.fillWidth:   true

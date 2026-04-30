@@ -150,23 +150,26 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
     const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
-        QString path = videoUrl.path();
-        QString lastSegment = path.section('/', -1);
-
-        qInfo() << "[CameraManager] Path =" << path
-                << "LastSegment =" << lastSegment
-                << "RTSPURL =" << rtspUrl;
-
-        if (lastSegment.compare("eo", Qt::CaseInsensitive) == 0) {
-            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());   // EO → R3
-
+        const QString lastSegment = videoUrl.path().section('/', -1);
+        int port = videoUrl.port();
+        if (port == -1) {
+            port = 554;
         }
-        else if (lastSegment.compare("cr", Qt::CaseInsensitive) == 0) {
-            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // CR → LR1
+
+        qInfo() << "[CameraManager]"
+                << "camera definition upstream select"
+                << "rtspUrl" << rtspUrl
+                << "host" << videoUrl.host()
+                << "port" << port
+                << "pathTail" << lastSegment;
+
+        if (lastSegment.compare("eo", Qt::CaseInsensitive) == 0 || port == 8554) {
+            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());
         }
-        else {
+        if (lastSegment.compare("cr", Qt::CaseInsensitive) == 0) {
             return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host());
         }
+        return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host());
     }
 
     qWarning() << "[CameraManager]"
@@ -341,51 +344,51 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
     //-- Only pay attention to camera components, as identified by their compId
     if(sysMatch && compMatch) {
         switch (message.msgid) {
-        case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
-            _handleCaptureStatus(message);
-            break;
-        case MAVLINK_MSG_ID_STORAGE_INFORMATION:
-            _handleStorageInfo(message);
-            break;
-        case MAVLINK_MSG_ID_HEARTBEAT:
-            _handleHeartbeat(message, link);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_INFORMATION:
-            _handleCameraInfo(message, link);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_SETTINGS:
-            _handleCameraSettings(message, link);
-            break;
-        case MAVLINK_MSG_ID_PARAM_EXT_ACK:
-            _handleParamAck(message);
-            break;
-        case MAVLINK_MSG_ID_PARAM_EXT_VALUE:
-            _handleParamValue(message);
-            break;
-        case MAVLINK_MSG_ID_VIDEO_STREAM_INFORMATION:
-            _handleVideoStreamInfo(message);
-            break;
-        case MAVLINK_MSG_ID_VIDEO_STREAM_STATUS:
-            _handleVideoStreamStatus(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS:
-            _handleTrackingGeoStatus(message);
-            break;
-        case MAVLINK_MSG_ID_COMMAND_ACK:
-            _handleCommandAck(message);
-            break;
-        case MAVLINK_MSG_ID_RC_CHANNELS:
-            _handleRCChannels(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
-            _handleImageCaptured(message);
-            break;
-        case MAVLINK_MSG_ID_BATTERY_STATUS:
-            _handleBatteryStatus(message);
-            break;
-        case MAVLINK_MSG_ID_CAMERA_TRACKING_IMAGE_STATUS:
-            _handleTrackingImageStatus(message);
-            break;
+            case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
+                _handleCaptureStatus(message);
+                break;
+            case MAVLINK_MSG_ID_STORAGE_INFORMATION:
+                _handleStorageInfo(message);
+                break;
+            case MAVLINK_MSG_ID_HEARTBEAT:
+                _handleHeartbeat(message, link);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_INFORMATION:
+                _handleCameraInfo(message, link);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_SETTINGS:
+                _handleCameraSettings(message, link);
+                break;
+            case MAVLINK_MSG_ID_PARAM_EXT_ACK:
+                _handleParamAck(message);
+                break;
+            case MAVLINK_MSG_ID_PARAM_EXT_VALUE:
+                _handleParamValue(message);
+                break;
+            case MAVLINK_MSG_ID_VIDEO_STREAM_INFORMATION:
+                _handleVideoStreamInfo(message);
+                break;
+            case MAVLINK_MSG_ID_VIDEO_STREAM_STATUS:
+                _handleVideoStreamStatus(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_TRACKING_GEO_STATUS:
+                _handleTrackingGeoStatus(message);
+                break;
+            case MAVLINK_MSG_ID_COMMAND_ACK:
+                _handleCommandAck(message);
+                break;
+            case MAVLINK_MSG_ID_RC_CHANNELS:
+                _handleRCChannels(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
+                _handleImageCaptured(message);
+                break;
+            case MAVLINK_MSG_ID_BATTERY_STATUS:
+                _handleBatteryStatus(message);
+                break;
+            case MAVLINK_MSG_ID_CAMERA_TRACKING_IMAGE_STATUS:
+                _handleTrackingImageStatus(message);
+                break;
         }
     }
 }

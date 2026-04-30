@@ -58,8 +58,10 @@ Item {
     }
 
     Component.onCompleted: {
-        console.log("CodevCameraVisual load")
-        console.log("aiInThermal = ", aiInThermal)
+        console.log("[CodevCameraVisual] load camera=", _camera ? _camera.modelName : "null",
+                    "paramComplete=", _camera ? _camera.paramComplete : false,
+                    "aiInThermal=", aiInThermal,
+                    "activeSettings=", _camera ? _camera.activeSettings : [])
     }
 
     Connections {
@@ -268,6 +270,11 @@ Item {
         height: thermalItem.height
         clip: true
         visible: thermalItem.visible
+        onVisibleChanged: console.log("[THERMAL_UI]",
+                                      "thermalOverlayItem.visibleChanged",
+                                      "visible=", visible,
+                                      "x=", x, "y=", y,
+                                      "width=", width, "height=", height)
 
         Rectangle {
             id: minTempRect
@@ -374,6 +381,14 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
+        onVisibleChanged: console.log("[THERMAL_UI]",
+                                      "irToolsPanel.visibleChanged",
+                                      "visible=", visible,
+                                      "factoryCaliFact=", !!_factoryCali,
+                                      "factoryCaliValue=", _factoryCali ? _factoryCali.value : "null",
+                                      "thermalItemVisible=", thermalItem.visible,
+                                      "pseudocolorFact=", !!_pseudocolor,
+                                      "thermometryFact=", !!_thermometry)
 
         PseudocolorBar {
             id: pseudocolorBar
@@ -420,6 +435,12 @@ Item {
             checked: _thermometry ? _thermometry.value : false
             visible: thermalItem.visible && !!_thermometry
             enabled: !!_thermometry
+            onVisibleChanged: console.log("[THERMAL_UI]",
+                                          "thermometryButton.visibleChanged",
+                                          "visible=", visible,
+                                          "thermalItemVisible=", thermalItem.visible,
+                                          "hasThermometry=", !!_thermometry,
+                                          "thermometryValue=", _thermometry ? _thermometry.value : "null")
             source: {
                 if(!checked) {
                     return "qrc:/qmlimages/thermometry.svg"
