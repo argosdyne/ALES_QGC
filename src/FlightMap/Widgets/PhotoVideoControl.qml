@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-import QtQuick                  2.4
+import QtQuick                  2.11
 import QtPositioning            5.2
 import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.4
@@ -107,6 +107,19 @@ Item {
     // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
     // commands +1 on top of it, producing a 2–3× overshoot.
     property real _zoomLastMs: 0
+
+    // FlyDynamics3-style: button mode flips based on which territory the next
+    // step would be. In optical territory the button is press-to-zoom (firmware
+    // continuous zoom on press, stop on release — no timer). In digital
+    // territory the button is tap-only (each tap = one EO_DZOOM step via
+    // CodevCameraControl::stepZoom).
+    //   - zoom-in optical territory:  zoomLevel < 29.5
+    //   - zoom-out optical territory: digital fact at min (==1.0)
+    property real _opticalMaxThreshold: 29.5
+    property bool _zoomInActive: false
+    property bool _zoomOutActive: false
+    property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
+    property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
@@ -374,10 +387,29 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: {
-                        if (Date.now() - _zoomLastMs < 150) return
-                        _zoomLastMs = Date.now()
-                        _mavlinkCamera.stepZoom(1)
+                    onPressed: {
+                        if (Date.now() - _zoomLastMs >= 150) {
+                            _zoomLastMs = Date.now()
+                            _mavlinkCamera.stepZoom(1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_mavlinkCamera && _zoomInCanContinuous) {
+                            _mavlinkCamera.startZoom(1)
+                            _zoomInActive = true
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
                     }
                 }
             }
@@ -424,10 +456,29 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: {
-                        if (Date.now() - _zoomLastMs < 150) return
-                        _zoomLastMs = Date.now()
-                        _mavlinkCamera.stepZoom(-1)
+                    onPressed: {
+                        if (Date.now() - _zoomLastMs >= 150) {
+                            _zoomLastMs = Date.now()
+                            _mavlinkCamera.stepZoom(-1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_mavlinkCamera && _zoomOutCanContinuous) {
+                            _mavlinkCamera.startZoom(-1)
+                            _zoomOutActive = true
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
                     }
                 }
             }
