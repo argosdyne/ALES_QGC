@@ -93,6 +93,8 @@ Item {
                     "camera=", _camera ? _camera.modelName : "null",
                     "paramComplete=", _camera ? _camera.paramComplete : false,
                     "activeSettings=", _camera ? _camera.activeSettings : [])
+    }
+
     function _findFactByKeywords(keywords, fallbackFactNames) {
         if (!_camera) {
             return null

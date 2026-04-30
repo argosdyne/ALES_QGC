@@ -142,6 +142,9 @@ FirstRunPrompt {
         _udpBind.rawValue = _bindForComboIndex(udpBindCombo.currentIndex)
         _tcpBind.rawValue = _bindForComboIndex(tcpBindCombo.currentIndex)
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
+        if (videoUriValue.length) {
+            _videoSettings.rtspUrl.rawValue = videoUriValue
+        }
         _strictValidation.rawValue = strictValidationCheckbox.checked
         // _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _rememberChoice.rawValue = rememberChoiceCheckbox.checked
@@ -190,7 +193,7 @@ FirstRunPrompt {
         anchors.left: parent.left
         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
         width:      ScreenTools.defaultFontPixelWidth * 56
-        spacing:    ScreenTools.defaultFontPixelHeight * 0.4
+        spacing:    ScreenTools.defaultFontPixelHeight * 0.3
 
         QGCFlickable {
             Layout.fillWidth:       true
@@ -202,7 +205,7 @@ FirstRunPrompt {
             ColumnLayout {
                 id:         formColumn
                 width:      parent.width
-                spacing:    ScreenTools.defaultFontPixelHeight * 0.5
+                spacing:    ScreenTools.defaultFontPixelHeight * 0.4
 
                 QGCLabel {
                     text:               qsTr("Configure Connections (Secure by Default)")
@@ -322,9 +325,9 @@ FirstRunPrompt {
                                 Layout.fillWidth: true
                                 spacing: ScreenTools.defaultFontPixelWidth * 0.6
                                 QGCLabel { text: qsTr("URL:") }
-                                FactTextField {
+                                QGCTextField  {
                                     id: videoUriField
-                                    fact: _videoSettings.rtspUrl
+                                    text: _videoUrl.rawValue.toString()
                                     Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 28
                                 }
                             }
@@ -364,19 +367,19 @@ FirstRunPrompt {
                                 anchors.fill: parent
                                 anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
                                 spacing: ScreenTools.defaultFontPixelHeight * 0.2
-
-                                QGCLabel {
-                                    text: qsTr("Signing key (hex or passphrase)")
-                                    Layout.fillWidth: true
-                                }
+                           
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: ScreenTools.defaultFontPixelWidth * 0.5
 
+                                    QGCLabel {
+                                    text: qsTr("Signing key:")
+                                    }
+
                                     QGCTextField {
                                         id: signingKeyField
                                         // Layout.fillWidth: true
-                                        width: ScreenTools.defaultFontPixelWidth * 100
+                                        Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 22.5
                                         text: _pendingSigningKey
                                         echoMode: _showSigningKey ? TextInput.Normal : TextInput.Password
                                         placeholderText: qsTr("Enter key or leave blank to keep current key")
