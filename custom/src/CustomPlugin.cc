@@ -55,6 +55,7 @@ QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
 static const char *kSlaveMode = "SlaveMode";
+static const char *kPinnedRajantLocalNode = "Rajant/LocalNodeAddress";
 
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
     : QGCFlyViewOptions(options, parent)
@@ -572,6 +573,18 @@ void CustomPlugin::_initRajantDiscovery()
         _rajantManager = new RajantManager(addr, _rajantPassword, this);
         emit rajantManagerChanged();
         return;
+    }
+
+    // Prefer previously pinned local node address.
+    {
+        QSettings settings;
+        _pinnedRajantLocalNode = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!_pinnedRajantLocalNode.isEmpty()) {
+            qCInfo(ARManagerLog) << "RajantDiscovery: using pinned local node:" << _pinnedRajantLocalNode;
+            _rajantManager = new RajantManager(_pinnedRajantLocalNode, _rajantPassword, this);
+            emit rajantManagerChanged();
+            return;
+        }
     }
 
     // qCInfo(ARManagerLog) << "RajantDiscovery: starting auto-discovery...";
@@ -1127,6 +1140,12 @@ void CustomPlugin::_onRajantProbeConnected()
     // The first node to respond is the directly-connected ground unit.
     // Ground unit's Peer.signal = signal ground receives from air (drone).
     // This is the RSSI value the pilot needs on the GCS toolbar.
+    // Pin this address as local node for subsequent reconnects and write operations.
+    {
+        QSettings settings;
+        settings.setValue(kPinnedRajantLocalNode, address);
+        _pinnedRajantLocalNode = address;
+    }
     _rajantManager = new RajantManager(address, _rajantPassword, this);
     _rajantCandidates.clear();
     emit rajantManagerChanged();

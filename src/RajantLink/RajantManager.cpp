@@ -4,8 +4,10 @@
 #include <QQmlEngine>
 #include <QSslConfiguration>
 #include <QUuid>
+#include <QSettings>
 
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
+static const char *kPinnedRajantLocalNode = "Rajant/LocalNodeAddress";
 
 RajantManager::RajantManager(const QString& nodeAddress, const QString& password, QObject* parent)
     : QObject(parent)
@@ -202,6 +204,10 @@ void RajantManager::_processFrame(const QByteArray& payload)
     if (msg.authResultStatus >= 0) {
         if (msg.authResultStatus == 1) { // SUCCESS
             qCInfo(ARManagerLog) << "RajantManager: authentication successful on" << _nodeAddress;
+            {
+                QSettings settings;
+                settings.setValue(kPinnedRajantLocalNode, _nodeAddress);
+            }
             _setAuthenticated(true);
             _setStatusText("Authenticated - polling RSSI");
             // Start polling state
@@ -523,6 +529,14 @@ void RajantManager::_failPairing(const QString& reason)
 
 void RajantManager::pairToDrone(const QString& droneInput)
 {
+    {
+        QSettings settings;
+        const QString pinned = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!pinned.isEmpty() && QString::compare(pinned, _nodeAddress, Qt::CaseInsensitive) != 0) {
+            _setStatusText(QString("Pairing blocked: connected node is not pinned local node (%1)").arg(pinned));
+            return;
+        }
+    }
     const QString name = droneInput.trimmed();
     if (name.isEmpty()) {
         _setStatusText("Pairing failed: empty drone input");
@@ -534,6 +548,14 @@ void RajantManager::pairToDrone(const QString& droneInput)
 
 void RajantManager::disconnectFromDroneMesh()
 {
+    {
+        QSettings settings;
+        const QString pinned = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!pinned.isEmpty() && QString::compare(pinned, _nodeAddress, Qt::CaseInsensitive) != 0) {
+            _setStatusText(QString("Disconnect blocked: connected node is not pinned local node (%1)").arg(pinned));
+            return;
+        }
+    }
     if (_serialNumber.isEmpty() || _serialNumber.size() < 6) {
         _setStatusText("Disconnect failed: serial number unavailable");
         return;
