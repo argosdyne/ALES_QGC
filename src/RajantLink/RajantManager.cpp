@@ -79,6 +79,16 @@ void RajantManager::disconnect()
     _setConnected(false);
     _setAuthenticated(false);
     _setStatusText("Disconnected");
+    _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
+    _skySignal = 0; _skySnr = 0;
+    _peerCount = 0;
+    _peerLinkLocalAddress.clear();
+    _serialNumber.clear();
+    _networkName.clear();
+    _nodeName.clear();
+    _firmwareVersion.clear();
+    emit radioDataChanged();
+    emit skyDataChanged();
 }
 
 void RajantManager::reconnect()
@@ -114,6 +124,11 @@ void RajantManager::_onSocketDisconnected()
     // Wipe cached values so UI immediately shows N/A instead of stale numbers
     _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
     _skySignal = 0; _skySnr = 0;
+    _peerLinkLocalAddress.clear();
+    _serialNumber.clear();
+    _networkName.clear();
+    _nodeName.clear();
+    _firmwareVersion.clear();
     _peerCount = 0;
     _staleCount = 0;
     _lastPeerChange.invalidate();
@@ -247,7 +262,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
         bool skyChanged = false;
         bool peerChanged = false;
 
-        // Capture node identity from any radio that reports it
+        // Capture node identity from state payload.
         for (const auto& w : msg.state.wireless) {
             if (!w.nodeName.isEmpty() && w.nodeName != _nodeName) {
                 _nodeName = w.nodeName;
@@ -257,6 +272,14 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 _firmwareVersion = w.firmwareVersion;
                 dataChanged = true;
             }
+        }
+        if (!msg.state.hardwareSerial.isEmpty() && msg.state.hardwareSerial != _serialNumber) {
+            _serialNumber = msg.state.hardwareSerial;
+            dataChanged = true;
+        }
+        if (!msg.state.networkName.isEmpty() && msg.state.networkName != _networkName) {
+            _networkName = msg.state.networkName;
+            dataChanged = true;
         }
 
         // Is there an enabled peer on any radio? If every peer says enabled=false,
@@ -279,6 +302,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
             int newNoise   = w.noise;
             int newSnr     = peer.rssi;
             int newRate    = peer.rate * 10; // stored as 10s of Mbps
+            const QString newLinkLocal = peer.linkLocalAddress;
 
             // Sky-side values — derived, no 2nd SSL session needed.
             //   skySnr    = peer-reported SNR (what the sky radio measures from ground)
@@ -291,7 +315,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
             if (newSignal != _signal || newNoise != _noise || newSnr != _snr ||
                 newRate != _linkRate || w.name != _radioName ||
                 static_cast<int>(w.channel) != _channel || w.txpower != _txPower ||
-                w.peers.size() != _peerCount) {
+                w.peers.size() != _peerCount || newLinkLocal != _peerLinkLocalAddress) {
                 _signal    = newSignal;
                 _noise     = newNoise;
                 _snr       = newSnr;
@@ -300,6 +324,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 _channel   = static_cast<int>(w.channel);
                 _txPower   = w.txpower;
                 _peerCount = w.peers.size();
+                _peerLinkLocalAddress = newLinkLocal;
                 dataChanged = true;
                 peerChanged = true;
             }
@@ -338,6 +363,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
                            << ") — clearing UI values";
                 _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
                 _skySignal = 0; _skySnr = 0; _peerCount = 0;
+                _peerLinkLocalAddress.clear();
                 dataChanged = true;
                 skyChanged = true;
             } else {

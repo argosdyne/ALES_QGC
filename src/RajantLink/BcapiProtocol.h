@@ -18,8 +18,8 @@
  *   3. Server sends BCMessage with authResult.status = SUCCESS(1)
  *
  * State query:
- *   Client sends BCMessage with empty state + stateFilterPath="wireless"
- *   Server responds with BCMessage containing State.wireless[] data
+ *   Client sends BCMessage with empty state + filter paths
+ *   (wireless + hardware.serial + configuration.active.instamesh.networkName)
  *
  * Protobuf field reference:
  *   BCMessage.ack              = field 1, varint
@@ -37,6 +37,8 @@
  *   Result.status              = field 1, varint (FAILURE=0, SUCCESS=1)
  *
  *   State.wireless             = field 40, repeated embedded
+ *   State.configuration        = field 105, embedded
+ *   State.hardware             = field 110, embedded
  *   Wireless.name              = field 4, string
  *   Wireless.noise             = field 5, int32
  *   Wireless.channel           = field 6, uint32
@@ -168,12 +170,14 @@ inline QByteArray buildAuthResponse(const QByteArray& challenge, const QString& 
 
 inline QByteArray buildStateQuery(qint64 seqNum)
 {
-    // BCMessage: ack=true, sequenceNumber, state={}, stateFilterPath="wireless"
+    // BCMessage: ack=true, sequenceNumber, state={}, filtered to required fields.
     QByteArray msg;
     msg += encodeVarintField(1, 1);                    // ack = true
     msg += encodeVarintField(2, static_cast<quint64>(seqNum)); // sequenceNumber
     msg += encodeEmbeddedField(6, QByteArray());       // state = {} (empty = get all)
     msg += encodeStringField(601, "wireless");         // stateFilterPath
+    msg += encodeStringField(601, "hardware.serial");
+    msg += encodeStringField(601, "configuration.active.instamesh.networkName");
 
     return frameMessage(msg);
 }
@@ -202,6 +206,8 @@ struct WirelessInfo {
 
 struct StateResult {
     QList<WirelessInfo> wireless;
+    QString hardwareSerial;  // State.hardware.serial
+    QString networkName;     // State.configuration.active.instamesh.networkName
 };
 
 // --- Protobuf field skipper ---
@@ -280,7 +286,7 @@ inline WirelessInfo decodeWireless(const QByteArray& data, int offset, int len)
         case 5:  w.noise = decodeVarintInt32(data, pos); break;
         case 6:  w.channel = static_cast<quint32>(decodeVarint(data, pos)); break;
         case 10: w.txpower = decodeVarintInt32(data, pos); break;
-        case 15: { // nodeInfo (embedded) — contains hostname at sub-field 3
+        case 15: { // nodeInfo (embedded) - hostname at sub-field 3
             int nlen = static_cast<int>(decodeVarint(data, pos));
             int npos = pos;
             int nend = pos + nlen;
@@ -317,6 +323,77 @@ inline WirelessInfo decodeWireless(const QByteArray& data, int offset, int len)
     return w;
 }
 
+inline QString decodeHardwareSerial(const QByteArray& data, int offset, int len)
+{
+    int pos = offset;
+    int end = offset + len;
+    QString serial;
+    while (pos < end) {
+        Tag tag = decodeTag(data, pos);
+        if (tag.fieldNumber == 1 && tag.wireType == LENGTH_DELIMITED) { // Hardware.serial
+            int slen = static_cast<int>(decodeVarint(data, pos));
+            serial = QString::fromUtf8(data.mid(pos, slen));
+            pos += slen;
+        } else {
+            skipField(tag.wireType, data, pos);
+        }
+    }
+    return serial;
+}
+
+inline QString decodeConfigInstaMeshNetworkName(const QByteArray& data, int offset, int len)
+{
+    int pos = offset;
+    int end = offset + len;
+    while (pos < end) {
+        Tag tag = decodeTag(data, pos);
+        if (tag.fieldNumber == 90 && tag.wireType == LENGTH_DELIMITED) { // Config.instamesh
+            int ilen = static_cast<int>(decodeVarint(data, pos));
+            int ipos = pos;
+            int iend = pos + ilen;
+            while (ipos < iend) {
+                Tag itag = decodeTag(data, ipos);
+                if (itag.fieldNumber == 21 && itag.wireType == LENGTH_DELIMITED) { // InstaMesh.networkName
+                    int slen = static_cast<int>(decodeVarint(data, ipos));
+                    return QString::fromUtf8(data.mid(ipos, slen));
+                }
+                skipField(itag.wireType, data, ipos);
+            }
+            pos += ilen;
+        } else {
+            skipField(tag.wireType, data, pos);
+        }
+    }
+    return QString();
+}
+
+inline QString decodeStateConfigurationNetworkName(const QByteArray& data, int offset, int len)
+{
+    int pos = offset;
+    int end = offset + len;
+    QString savedName;
+    while (pos < end) {
+        Tag tag = decodeTag(data, pos);
+        if (tag.wireType == LENGTH_DELIMITED && (tag.fieldNumber == 1 || tag.fieldNumber == 2 || tag.fieldNumber == 3)) {
+            // State.Configuration: saved=1, active=2, factory=3 (Config)
+            int clen = static_cast<int>(decodeVarint(data, pos));
+            QString candidate = decodeConfigInstaMeshNetworkName(data, pos, clen);
+            if (tag.fieldNumber == 2 && !candidate.isEmpty()) {
+                return candidate; // prefer active
+            }
+            if (tag.fieldNumber == 1 && !candidate.isEmpty()) {
+                savedName = candidate;
+            } else if (savedName.isEmpty() && tag.fieldNumber == 3 && !candidate.isEmpty()) {
+                savedName = candidate;
+            }
+            pos += clen;
+        } else {
+            skipField(tag.wireType, data, pos);
+        }
+    }
+    return savedName;
+}
+
 inline StateResult decodeState(const QByteArray& data, int offset, int len)
 {
     StateResult result;
@@ -329,6 +406,24 @@ inline StateResult decodeState(const QByteArray& data, int offset, int len)
             int wlen = static_cast<int>(decodeVarint(data, pos));
             result.wireless.append(decodeWireless(data, pos, wlen));
             pos += wlen;
+            break;
+        }
+        case 105: { // configuration (embedded)
+            int clen = static_cast<int>(decodeVarint(data, pos));
+            const QString name = decodeStateConfigurationNetworkName(data, pos, clen);
+            if (!name.isEmpty()) {
+                result.networkName = name;
+            }
+            pos += clen;
+            break;
+        }
+        case 110: { // hardware (embedded)
+            int hlen = static_cast<int>(decodeVarint(data, pos));
+            const QString serial = decodeHardwareSerial(data, pos, hlen);
+            if (!serial.isEmpty()) {
+                result.hardwareSerial = serial;
+            }
+            pos += hlen;
             break;
         }
         default:

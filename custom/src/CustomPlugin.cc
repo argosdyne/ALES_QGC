@@ -187,23 +187,11 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
+        _addSettingsEntry(tr("Rajant"), "qrc:/qml/RajantSettings.qml");
 
         if(_m2Manager != nullptr) {
             qInfo() << "M2Manager Not null";
             _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
-        }
-        else {
-            bool isDoodle = _qmlInterface && _qmlInterface->arManager()
-                && _qmlInterface->arManager()->usingDoodleApi();
-
-            qInfo() << "M2Manager is null, isDoodle:" << isDoodle;
-            // Show Rajant settings if available, otherwise Enpulse/DoodleLab
-            if (_rajantManager != nullptr) {
-                _addSettingsEntry(tr("Rajant"), "qrc:/qml/RajantSettings.qml");
-            }
-            else {
-                _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
-            }
         }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
 #if defined(QT_DEBUG)

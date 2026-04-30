@@ -55,6 +55,9 @@ public:
     // Node identity read from the radio State payload
     Q_PROPERTY(QString  nodeName        READ nodeName        NOTIFY radioDataChanged)
     Q_PROPERTY(QString  firmwareVersion READ firmwareVersion NOTIFY radioDataChanged)
+    Q_PROPERTY(QString  serialNumber    READ serialNumber    NOTIFY radioDataChanged)
+    Q_PROPERTY(QString  networkName     READ networkName     NOTIFY radioDataChanged)
+    Q_PROPERTY(QString  linkLocalAddress READ linkLocalAddress NOTIFY radioDataChanged)
 
     // Readable status string
     Q_PROPERTY(QString  statusText      READ statusText      NOTIFY statusTextChanged)
@@ -78,6 +81,9 @@ public:
 
     QString nodeName()        const { return _nodeName; }
     QString firmwareVersion() const { return _firmwareVersion; }
+    QString serialNumber()    const { return _serialNumber; }
+    QString networkName()     const { return _networkName; }
+    QString linkLocalAddress() const { return _peerLinkLocalAddress; }
 
     QString statusText()    const { return _statusText; }
 
@@ -86,8 +92,6 @@ public:
     Q_INVOKABLE void reconnect();
 
     int radioCount() const { return _radioCount; }
-    QString peerLinkLocalAddress() const { return _peerLinkLocalAddress; }
-
 signals:
     void connectedChanged();
     void authenticatedChanged();
@@ -152,6 +156,8 @@ private:
 
     // Node identity (populated from State payload)
     QString _nodeName;            // hostname, e.g. "rajant-115877"
+    QString _serialNumber;        // e.g. "AG1-5250M-115877"
+    QString _networkName;         // current InstaMesh network name
     QString _firmwareVersion;     // e.g. "10.4-4019-rajant.115.c0a11264"
 
     QString _statusText;

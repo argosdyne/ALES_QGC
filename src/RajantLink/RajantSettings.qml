@@ -78,6 +78,18 @@ Rectangle {
                             Layout.preferredWidth: _labelWidth
                         }
                         QGCLabel {
+                            text:           ""
+                            visible:        _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
+                        }
+                        QGCLabel {
+                            text:           _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
+                                              ? qsTr("IPv6 link-local: ") + rajantManager.linkLocalAddress
+                                              : ""
+                            color:          qgcPal.text
+                            font.pointSize: ScreenTools.smallFontPointSize
+                            visible:        _connected && rajantManager && rajantManager.linkLocalAddress.length > 0
+                        }
+                        QGCLabel {
                             text:           qsTr("Node Address:")
                             Layout.minimumWidth: _labelWidth
                             visible:        false
@@ -146,6 +158,22 @@ Rectangle {
                         QGCLabel {
                             text:           rajantManager ? rajantManager.peerCount.toString() : ""
                             visible:        _connected
+                        }
+                        QGCLabel {
+                            text:           qsTr("Serial Number:")
+                        }
+                        QGCLabel {
+                            text:           rajantManager && rajantManager.serialNumber.length > 0
+                                              ? rajantManager.serialNumber
+                                              : qsTr("N/A")
+                        }
+                        QGCLabel {
+                            text:           qsTr("Current Network Name:")
+                        }
+                        QGCLabel {
+                            text:           rajantManager && rajantManager.networkName.length > 0
+                                              ? rajantManager.networkName
+                                              : qsTr("N/A")
                         }
                         QGCLabel {
                             text:           qsTr("Hostname:")
