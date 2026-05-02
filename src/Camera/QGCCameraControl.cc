@@ -1828,6 +1828,15 @@ void QGCCameraControl::_purgeCameraDefinitionCache()
     }
 }
 
+void QGCCameraControl::resetDefinitionCacheForReconnect()
+{
+    _purgeCameraDefinitionCache();
+    _cached = false;
+
+    QSettings settings;
+    settings.remove(_cameraRtspSettingsKey());
+}
+
 //-----------------------------------------------------------------------------
 void
 QGCCameraControl::handleVideoStatus(const mavlink_video_stream_status_t* vs)
