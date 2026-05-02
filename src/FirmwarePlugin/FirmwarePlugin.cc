@@ -802,6 +802,78 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle*)
                     this);               // parent
         _cameraList.append(QVariant::fromValue(metaData));
 
+        //New Sony camera features
+        // Sony ILX-IR
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 24mm
+            "Sony ILX-IR 24mm",
+            tr("Sony"),
+            tr("ILX-IR 24mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            24,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 24mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 35mm
+            "Sony ILX-IR 35mm",
+            tr("Sony"),
+            tr("ILX-IR 35mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            35,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 35mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 40mm
+            "Sony ILX-IR 40mm",
+            tr("Sony"),
+            tr("ILX-IR 40mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            40,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 40mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 50mm
+            "Sony ILX-IR 50mm",
+            tr("Sony"),
+            tr("ILX-IR 50mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            50,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 50mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+
+
         metaData = new CameraMetaData(
                     "Yuneec CGOET",
                     tr("Yuneec"),
