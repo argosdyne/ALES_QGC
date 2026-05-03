@@ -106,7 +106,7 @@ Rectangle {
                                               ? rajantManager.networkName
                                               : qsTr("N/A")
                         }
-     
+
                         QGCLabel {
                             text:           qsTr("Radio:")
                             visible:        false
@@ -167,7 +167,7 @@ Rectangle {
                             text:           rajantManager ? rajantManager.peerCount.toString() : ""
                             visible:        _connected
                         }
-                       
+
                         QGCLabel {
                             text:           qsTr("Hostname:")
                             // visible:        _connected && rajantManager && rajantManager.nodeName.length > 0
@@ -212,42 +212,64 @@ Rectangle {
 
                 Column {
                     id:                     pairingCol
-                    width:                  parent.width - ScreenTools.defaultFontPixelWidth * 2
-                    spacing:                ScreenTools.defaultFontPixelHeight * 0.6
+                    width:                  parent.width
+                    spacing:                ScreenTools.defaultFontPixelHeight * 0.5
                     anchors.centerIn:       parent
 
-                    QGCLabel {
-                        text:               qsTr("Set Network Name:")
-                    }
+                    GridLayout {
+                        anchors.margins:    ScreenTools.defaultFontPixelHeight
+                        columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        columns:            2
 
-                    QGCTextField {
-                                    id:                     networkNameInput
-                                    Layout.preferredWidth:  parent.width
-                                    Layout.fillWidth:       true
-                                    text:                   editingConfig.name
-                                    placeholderText:        qsTr("Drone-XXXXXX")
-                                }
+                        QGCLabel {
+                            text:           qsTr("Set Network Name:")
+                            Layout.preferredWidth: _labelWidth
+                        }
 
-                    Row {
-                        spacing:            ScreenTools.defaultFontPixelWidth
-                        QGCButton {
-                            text:           qsTr("Connect")
-                            enabled:        rajantManager && !_pairingBusy
-                                            && networkNameInput.text.trim().length > 0
-                            onClicked: {
-                                rajantManager.pairToDrone(networkNameInput.text)
+                        QGCTextField {
+                            id:                     networkNameInput
+                            Layout.preferredWidth:  _valueWidth
+                            Layout.fillWidth:       true
+                            placeholderText:        qsTr("Drone-XXXXXX")
+                            enabled:                !_pairingBusy
+                        }
+
+                        Item {
+                            Layout.preferredWidth: _labelWidth
+                            Layout.preferredHeight: actionRow.height
+                        }
+
+                        Row {
+                            id:                     actionRow
+                            spacing:                ScreenTools.defaultFontPixelWidth
+                            Layout.preferredWidth:  _valueWidth
+                            Layout.topMargin:       ScreenTools.defaultFontPixelHeight * 0.8
+                            Layout.alignment:       Qt.AlignHCenter
+                            QGCButton {
+                                text:               qsTr("Connect")
+                                width:              (actionRow.width - actionRow.spacing) / 2
+                                enabled:            rajantManager && !_pairingBusy
+                                                    && networkNameInput.text.trim().length > 0
+                                onClicked:          rajantManager.pairToDrone(networkNameInput.text)
+                            }
+                            QGCButton {
+                                text:               qsTr("Disconnect")
+                                width:              (actionRow.width - actionRow.spacing) / 2
+                                enabled:            rajantManager && _connected && !_pairingBusy
+                                onClicked:          rajantManager.disconnectFromDroneMesh()
                             }
                         }
-                        QGCButton {
-                            text:           qsTr("Disconnect")
-                            enabled:        rajantManager && _connected && !_pairingBusy
-                            onClicked:      rajantManager.disconnectFromDroneMesh()
-                        }
-                    }
 
-                    QGCLabel {
-                        text:               _pairingBusy ? qsTr("Applying settings and waiting reboot/reconnect...") : ""
-                        visible:            _pairingBusy
+                        Item {
+                            Layout.preferredWidth: _labelWidth
+                            visible:        _pairingBusy
+                        }
+                        QGCLabel {
+                            text:           _pairingBusy ? qsTr("Applying settings and waiting reboot...") : ""
+                            visible:        _pairingBusy
+                            Layout.preferredWidth: _valueWidth
+                        }
                     }
                 }
             }
