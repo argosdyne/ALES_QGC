@@ -447,6 +447,13 @@ Rectangle {
                                     text: qsTr("Enable Audio")
                                     fact: QGroundControl.settingsManager.flyViewSettings.enableAudioController                                    
                                 }
+                                                                
+                                Item { width: 1; height:1 }
+                                FactCheckBox {
+                                    id: enableOpticalFlowCheck
+                                    text: qsTr("Enable Optical Flow Sensor")
+                                    fact: QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController
+                                }
                             }
                         }
                     }
