@@ -31,6 +31,7 @@ Item {
     visible:        QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController.value
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+    property var    _opticalFlowController:                     _activeVehicle ? _activeVehicle.opticalFlowController : null
 
     implicitWidth:  root.implicitWidth
     implicitHeight: root.implicitHeight
@@ -42,6 +43,16 @@ Item {
 
         implicitWidth: contentLayout.implicitWidth + _margins * 2
         implicitHeight: contentLayout.implicitHeight + _margins * 2
+
+        // Catch clicks on empty / black areas of the panel so they don't fall
+        // through to the map below (which would trigger "Set Home" etc.)
+        MouseArea {
+            anchors.fill:    parent
+            propagateComposedEvents: false
+            preventStealing: true
+            onClicked:       (mouse) => mouse.accepted = true
+            onPressed:       (mouse) => mouse.accepted = true
+        }
 
         ColumnLayout {
             id: contentLayout
@@ -80,7 +91,12 @@ Item {
                 MouseArea {
                     id: gpsMouseArea
                     anchors.fill: parent
-                    onClicked: console.log("Optical Flow: GPS pressed")
+                    onClicked: {
+                        console.log("Optical Flow: GPS pressed")
+                        if (_opticalFlowController) {
+                            _opticalFlowController.setModeGPS()
+                        }
+                    }
                 }
             }
 
@@ -104,7 +120,12 @@ Item {
                 MouseArea {
                     id: opticalMouseArea
                     anchors.fill: parent
-                    onClicked: console.log("Optical Flow: Optical pressed")
+                    onClicked: {
+                        console.log("Optical Flow: Optical pressed")
+                        if (_opticalFlowController) {
+                            _opticalFlowController.setModeOptical()
+                        }
+                    }
                 }
             }
 
@@ -128,7 +149,12 @@ Item {
                 MouseArea {
                     id: autoMouseArea
                     anchors.fill: parent
-                    onClicked: console.log("Optical Flow: Auto pressed")
+                    onClicked: {
+                        console.log("Optical Flow: Auto pressed")
+                        if (_opticalFlowController) {
+                            _opticalFlowController.setModeAuto()
+                        }
+                    }
                 }
             }
 
@@ -152,7 +178,12 @@ Item {
                 MouseArea {
                     id: calibMouseArea
                     anchors.fill: parent
-                    onClicked: console.log("Optical Flow: Calib pressed")
+                    onClicked: {
+                        console.log("Optical Flow: Calib pressed")
+                        if (_opticalFlowController) {
+                            _opticalFlowController.calibrate()
+                        }
+                    }
                 }
             }
             }

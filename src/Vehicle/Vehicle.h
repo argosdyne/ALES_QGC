@@ -80,6 +80,7 @@ class Autotune;
 class RemoteIDManager;
 class GimbalController;
 class AudioControl;
+class OpticalFlowController;
 
 namespace events {
 namespace parser {
@@ -279,6 +280,7 @@ public:
     Q_PROPERTY(double               loadProgress                READ loadProgress                                                   NOTIFY loadProgressChanged)
     Q_PROPERTY(bool                 initialConnectComplete      READ isInitialConnectComplete                                       NOTIFY initialConnectComplete)    
     Q_PROPERTY(AudioControl* audioControl READ audioControl CONSTANT)
+    Q_PROPERTY(OpticalFlowController* opticalFlowController READ opticalFlowController CONSTANT)
     // The following properties relate to Orbit status
     Q_PROPERTY(bool             orbitActive     READ orbitActive        NOTIFY orbitActiveChanged)
     Q_PROPERTY(QGCMapCircle*    orbitMapCircle  READ orbitMapCircle     CONSTANT)
@@ -919,6 +921,7 @@ public:
     QString                     hobbsMeter          ();
 
     AudioControl*               audioControl        () {return _audioControl; }
+    OpticalFlowController*      opticalFlowController() { return _opticalFlowController; }
 
     /// The vehicle is responsible for making the initial request for the Plan.
     /// @return: true: initial request is complete, false: initial request is still in progress;
@@ -1291,6 +1294,7 @@ private:
     QGCCameraManager* _cameraManager = nullptr;
 
     AudioControl* _audioControl = nullptr;
+    OpticalFlowController* _opticalFlowController = nullptr;
 
     QString             _prearmError;
     QTimer              _prearmErrorTimer;
