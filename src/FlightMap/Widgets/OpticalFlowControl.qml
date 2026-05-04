@@ -47,8 +47,7 @@ Item {
             id: contentLayout
             anchors.margins: _margins
             anchors.centerIn: parent
-            spacing: ScreenTools.defaultFontPixelHeight / 4
-
+            spacing: ScreenTools.defaultFontPixelHeight / 2
             QGCLabel {
                 text: qsTr("Optical Flow Sensor")
                 color: qgcPal.buttonText
