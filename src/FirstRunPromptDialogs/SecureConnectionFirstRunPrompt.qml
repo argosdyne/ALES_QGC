@@ -33,6 +33,7 @@ FirstRunPrompt {
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
+    readonly property var _autoConnectSettings: QGroundControl.settingsManager.autoConnectSettings
 
     property Fact _udpEnabled:       _customSettings.networkUdpListenerEnabled
     property Fact _tcpEnabled:       _customSettings.networkTcpServerEnabled
@@ -46,6 +47,7 @@ FirstRunPrompt {
     property Fact _allowlistIds:     _customSettings.securityAllowlistVehicleIds
     property Fact _wizardCompleted:  _customSettings.securityWizardCompleted
     property Fact _rememberChoice:   _customSettings.securityRememberChoice
+    property Fact _udpListenPort:    _autoConnectSettings.udpListenPort
     property Fact _mavlink2SigningKey: _appSettings.mavlink2SigningKey
     property string _pendingSigningKey: _mavlink2SigningKey && _mavlink2SigningKey.rawValue ? _mavlink2SigningKey.rawValue.toString() : ""
     property bool _showSigningKey:   false
@@ -139,6 +141,7 @@ FirstRunPrompt {
 
         _udpPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpPort.rawValue
         _tcpPort.rawValue = tcpPortValue > 0 ? tcpPortValue : _tcpPort.rawValue
+        _udpListenPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpListenPort.rawValue
         _udpBind.rawValue = _bindForComboIndex(udpBindCombo.currentIndex)
         _tcpBind.rawValue = _bindForComboIndex(tcpBindCombo.currentIndex)
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
@@ -148,7 +151,7 @@ FirstRunPrompt {
         _strictValidation.rawValue = strictValidationCheckbox.checked
         // _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _rememberChoice.rawValue = rememberChoiceCheckbox.checked
-        _wizardCompleted.rawValue = true
+        _wizardCompleted.rawValue = rememberChoiceCheckbox.checked
         secureSetupSettings.securityRememberChoice = rememberChoiceCheckbox.checked
         secureSetupSettings.securityWizardCompleted = rememberChoiceCheckbox.checked
 
@@ -171,9 +174,15 @@ FirstRunPrompt {
             _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
         }
 
+        // Recreate network links so changed secure setup and ports apply immediately.
+        QGroundControl.linkManager.disconnectNetworkLinks()
+
+        if (_udpEnabled.rawValue || _tcpEnabled.rawValue) {
+            QGroundControl.linkManager.refreshNetworkLinks()
+        }
+
         if (!_udpEnabled.rawValue && !_tcpEnabled.rawValue && !_videoEnabled.rawValue) {
             CustomQmlInterface.logSecurityEvent("Continue offline applied. Network services disabled.")
-            QGroundControl.linkManager.disconnectNetworkLinks()
         }
 
         close()
@@ -184,6 +193,11 @@ FirstRunPrompt {
             udpCheckbox.checked = false
             tcpCheckbox.checked = false
             videoCheckbox.checked = false
+            _udpEnabled.rawValue = false
+            _tcpEnabled.rawValue = false
+            _videoEnabled.rawValue = false
+            _wizardCompleted.rawValue = false
+            QGroundControl.linkManager.disconnectNetworkLinks()
         }
     }
 
