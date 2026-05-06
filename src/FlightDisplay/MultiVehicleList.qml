@@ -146,7 +146,6 @@ Item {
 
                 Row {
                     spacing: ScreenTools.defaultFontPixelWidth
-                    opacity: mainWindow.droneControlBlocked ? 0.65 : 1
 
                     QGCButton {
                         text:       qsTr("Arm")

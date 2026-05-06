@@ -60,7 +60,6 @@ Item {
                     id:             roiButton
                     visible:        _activeVehicle && _activeVehicle.isROIEnabled
                     text:           qsTr("Disable ROI")
-                    opacity:        mainWindow.droneControlBlocked ? 0.65 : 1
                     onClicked: {
                         if (mainWindow.droneControlBlocked) {
                             mainWindow.showAdminPrivilegesRequiredDialog()

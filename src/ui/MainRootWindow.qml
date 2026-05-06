@@ -30,7 +30,7 @@ ApplicationWindow {
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     property alias  viewOnlyMode: globals.viewOnlyMode
-    readonly property bool droneControlBlocked: viewOnlyMode
+    readonly property bool droneControlBlocked: viewOnlyMode || loginOverlay.visible
     readonly property bool joystickInputBlocked: viewOnlyMode || loginOverlay.visible
     property double _lastAdminPrivilegesPopupMs: 0
     property var _loginPageComponent:    null
@@ -38,6 +38,8 @@ ApplicationWindow {
     property var _recoveryKeyPageComponent: null
     property var _forgotPinPageComponent: null
     property var _systemRestorePageComponent: null
+    property var _controlBlockedDialog: null
+    property bool controlBlockedDialogActive: false
 
     Component.onCompleted: {
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
@@ -289,6 +291,30 @@ ApplicationWindow {
         simpleMessageDialogComponent.createObject(mainWindow, { title: dialogTitle, text: dialogText, buttons: buttons, acceptFunction: acceptFunction }).open()
     }
 
+    function showControlBlockedDialog() {
+        if (controlBlockedDialogActive) {
+            return
+        }
+
+        controlBlockedDialogActive = true
+        _controlBlockedDialog = simpleMessageDialogComponent.createObject(mainWindow, {
+            title: qsTr("Permission Required"),
+            text: qsTr("Please switch to Admin mode to continue."),
+            buttons: StandardButton.Yes | StandardButton.No,
+            acceptFunction: function() { showLoginOverlay() }
+        })
+
+        if (_controlBlockedDialog) {
+            _controlBlockedDialog.closed.connect(function() {
+                controlBlockedDialogActive = false
+                _controlBlockedDialog = null
+            })
+            _controlBlockedDialog.open()
+        } else {
+            controlBlockedDialogActive = false
+        }
+    }
+
     // -- Custom Simple message dialog
 
     function showCustomMessageDialog(dialogComponent) {
@@ -301,14 +327,9 @@ ApplicationWindow {
    }
 
     function showAdminPrivilegesRequiredDialog() {
-        var nowMs = Date.now()
-        if ((nowMs - _lastAdminPrivilegesPopupMs) < 750) {
-            return
-        }
-        _lastAdminPrivilegesPopupMs = nowMs
         showMessageDialog(
             qsTr("Permission Required"),
-            qsTr("Admin privileges required. Please switch to Admin mode to continue."),
+            qsTr("Please switch to Admin mode to continue."),
             StandardButton.Yes | StandardButton.No,
             function() {
                 showLoginOverlay()
@@ -357,11 +378,6 @@ ApplicationWindow {
 
     // Show login overlay 
     function showLoginOverlay() {
-        if (globals.activeVehicle && (globals.activeVehicle.flying || globals.activeVehicle.landing)) {
-            showMessageDialog(qsTr("Lock Screen"), qsTr("Cannot lock screen during flight"))
-            return
-        }
-
         if (loginFlowSettings.recoveryKeyPending) {
             loginOverlay.open()
         }
@@ -601,6 +617,8 @@ ApplicationWindow {
                         text:               qsTr("Lock Screen")
                         imageResource:      "/custom/img/png/session_lock.png"
                         imageColor:         "transparent"
+                        enabled:            !(globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing))
+                        opacity:                (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) ? 0.65 : 1
                         onClicked: {
                             toolSelectDialog.close()
                             mainWindow.showLoginOverlay()
@@ -1194,8 +1212,7 @@ ApplicationWindow {
     Connections {
         target: sessionManager
         onSessionLocked: {
-            if (globals.activeVehicle && (globals.activeVehicle.flying || globals.activeVehicle.landing)) {
-                showMessageDialog(qsTr("Lock Screen"), qsTr("Cannot lock screen during flight"))
+            if (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) {
                 sessionManager.startSession()
                 return
             }

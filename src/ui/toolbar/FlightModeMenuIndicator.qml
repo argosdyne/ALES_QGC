@@ -56,7 +56,6 @@ Item {
                         QGCButton {
                             text: modelData
                             Layout.fillWidth: true
-                            opacity: mainWindow.droneControlBlocked ? 0.65 : 1
                             onClicked: {
                                 if (mainWindow.droneControlBlocked) {
                                     mainWindow.showAdminPrivilegesRequiredDialog()

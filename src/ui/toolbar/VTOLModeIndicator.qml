@@ -26,7 +26,6 @@ QGCComboBox {
     font.pointSize:         ScreenTools.mediumFontPointSize
     currentIndex:           -1
     sizeToContents:         true
-    opacity:                mainWindow.droneControlBlocked ? 0.65 : 1
 
     property bool showIndicator: _activeVehicle.vtol && _activeVehicle.px4Firmware
 

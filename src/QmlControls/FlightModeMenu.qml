@@ -30,7 +30,7 @@ QGCLabel {
         id: flightModeMenuItemComponent
 
         MenuItem {
-            opacity: mainWindow.droneControlBlocked ? 0.65 : 1
+            enabled: true
             onTriggered: {
                 if (mainWindow.droneControlBlocked) {
                     mainWindow.showAdminPrivilegesRequiredDialog()

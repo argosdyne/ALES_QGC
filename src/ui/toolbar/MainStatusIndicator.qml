@@ -205,7 +205,6 @@ RowLayout {
                         Layout.alignment:   _healthAndArmingChecksSupported ? Qt.AlignLeft : Qt.AlignHCenter
                         // FIXME: forceArm is not possible anymore if _healthAndArmingChecksSupported == true
                         enabled:            _armed || !_healthAndArmingChecksSupported || _activeVehicle.healthAndArmingCheckReport.canArm
-                        opacity:            mainWindow.droneControlBlocked ? 0.65 : 1
                         text:               _armed ?  qsTr("Disarm") : (forceArm ? qsTr("Force Arm") : qsTr("Arm"))
 
                         property bool forceArm: false
@@ -403,7 +402,6 @@ RowLayout {
                 anchors.top:        parent.top
                 anchors.left:       parent.left
                 text:               _vtolInFWDFlight ? qsTr("Transition to Multi-Rotor") : qsTr("Transition to Fixed Wing")
-                opacity:            mainWindow.droneControlBlocked ? 0.65 : 1
 
                 onClicked: {
                     if (mainWindow.droneControlBlocked) {
