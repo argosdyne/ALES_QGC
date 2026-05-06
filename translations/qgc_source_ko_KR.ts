@@ -14436,6 +14436,31 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
         <source>Plan overwrite</source>
         <translation>계획 덮어쓰기</translation>
     </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="748"/>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="816"/>
+      <source>Use Obstacle Detection</source>
+      <translation>장애물 감지 사용</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="858"/>
+      <source>Avoid</source>
+      <translation>회피</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="876"/>
+      <source>Stop</source>
+      <translation>정지</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="893"/>
+      <source>Detection Distance</source>
+      <translation>감지 거리</translation>
+    </message>
 </context>
   <context>
     <name>PolygonEditor</name>
