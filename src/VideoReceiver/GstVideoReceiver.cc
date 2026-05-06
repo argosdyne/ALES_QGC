@@ -393,7 +393,13 @@ GstVideoReceiver::startDecoding(void* sink)
         return;
     }
 
-    qCDebug(VideoReceiverLog) << "Starting decoding" << _uri;
+    qInfo() << "[GstVideoReceiver]" << "startDecoding"
+            << "uri" << _uri
+            << "streaming" << _streaming
+            << "pipeline" << (_pipeline != nullptr)
+            << "existingSink" << (_videoSink != nullptr)
+            << "decoding" << _decoding
+            << "sink" << sink;
 
     if (_pipeline == nullptr) {
         if (_videoSink != nullptr) {
@@ -435,6 +441,7 @@ GstVideoReceiver::startDecoding(void* sink)
     _removingDecoder = false;
 
     if (!_streaming) {
+        qInfo() << "[GstVideoReceiver]" << "startDecoding deferred until streaming" << _uri;
         _dispatchSignal([this](){
             emit onStartDecodingComplete(STATUS_OK);
         });
@@ -451,7 +458,7 @@ GstVideoReceiver::startDecoding(void* sink)
 
     g_object_set(_decoderValve, "drop", FALSE, nullptr);
 
-    qCDebug(VideoReceiverLog) << "Decoding started" << _uri;
+    qInfo() << "[GstVideoReceiver]" << "startDecoding branch added" << _uri;
 
     _dispatchSignal([this](){
         emit onStartDecodingComplete(STATUS_OK);
@@ -830,7 +837,10 @@ GstVideoReceiver::_makeSource(const QString& uri)
             break;
         }
 
-        g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
+        // Keep parsebin default autoplug behavior for RTSP sources.
+        // The Android package currently reports missing H.264 parsers when this hook
+        // forces caps toward AVC/AU on A30TR/R3 streams, so leave it disabled here.
+        // g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
 
         gst_bin_add_many(GST_BIN(bin), source, parser, nullptr);
 
@@ -922,6 +932,11 @@ GstVideoReceiver::_makeDecoder(GstCaps* caps, GstElement* videoSink)
     Q_UNUSED(caps)
     Q_UNUSED(videoSink)
     GstElement* decoder = nullptr;
+
+    qInfo() << "[GstVideoReceiver]" << "_makeDecoder"
+            << "uri" << _uri
+            << "capsProvided" << (caps != nullptr)
+            << "videoSinkProvided" << (videoSink != nullptr);
 
     do {
         if ((decoder = gst_element_factory_make("decodebin3", nullptr)) == nullptr) {
@@ -1165,7 +1180,7 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
 
     if(!gst_element_link(_decoder, _videoSink)) {
         gst_bin_remove(GST_BIN(_pipeline), _videoSink);
-        qCCritical(VideoReceiverLog) << "Unable to link video sink";
+        qCCritical(VideoReceiverLog) << "Unable to link video sink" << _uri;
         if (caps != nullptr) {
             gst_caps_unref(caps);
             caps = nullptr;
@@ -1217,7 +1232,7 @@ GstVideoReceiver::_noteVideoSinkFrame(void)
     _lastVideoFrameTime = QDateTime::currentSecsSinceEpoch();
     if (!_decoding) {
         _decoding = true;
-        qCDebug(VideoReceiverLog) << "Decoding started";
+        qInfo() << "[GstVideoReceiver]" << "decodingChanged true" << _uri;
         _dispatchSignal([this](){
             emit decodingChanged(_decoding);
         });
@@ -1384,13 +1399,13 @@ GstVideoReceiver::_onBusMessage(GstBus* bus, GstMessage* msg, gpointer data)
             gst_message_parse_error(msg, &error, &debug);
 
             if (debug != nullptr) {
-                qCDebug(VideoReceiverLog) << "GStreamer debug: " << debug;
+                qWarning() << "[GstVideoReceiver]" << "GST_MESSAGE_ERROR debug" << pThis->_uri << debug;
                 g_free(debug);
                 debug = nullptr;
             }
 
             if (error != nullptr) {
-                qCCritical(VideoReceiverLog) << "GStreamer error:" << error->message;
+                qCCritical(VideoReceiverLog) << "GStreamer error:" << pThis->_uri << error->message;
                 g_error_free(error);
                 error = nullptr;
             }

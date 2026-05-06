@@ -16,6 +16,8 @@
 #include <QNetworkInterface>
 #include <iostream>
 #include <QHostInfo>
+#include <QDateTime>
+#include <QHash>
 
 #include "UDPLink.h"
 #include "QGC.h"
@@ -24,6 +26,52 @@
 #include "AutoConnectSettings.h"
 
 static const char* kZeroconfRegistration = "_qgroundcontrol._udp";
+
+namespace {
+
+struct UdpWriteErrorLogState {
+    qint64 lastLogMs = 0;
+    int suppressedCount = 0;
+};
+
+void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
+{
+    static constexpr qint64 kUdpWriteErrorLogWindowMs = 5000;
+    static QHash<QString, UdpWriteErrorLogState> s_udpWriteErrorLogState;
+
+    const QString key = QStringLiteral("%1:%2").arg(address.toString()).arg(port);
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    UdpWriteErrorLogState& state = s_udpWriteErrorLogState[key];
+    if (state.lastLogMs != 0 && (now - state.lastLogMs) < kUdpWriteErrorLogWindowMs) {
+        state.suppressedCount++;
+        return;
+    }
+
+    const int suppressedCount = state.suppressedCount;
+    state.lastLogMs = now;
+    state.suppressedCount = 0;
+
+qWarning().noquote() << QStringLiteral("Error writing to %1 %2 suppressed=%3")
+        .arg(address.toString())
+        .arg(port)
+        .arg(suppressedCount);
+}
+
+quint16 firstUdpAutoConnectPort(AutoConnectSettings* settings)
+{
+    const QStringList ports = settings->udpListenPort()->rawValue().toString().split(',', Qt::SkipEmptyParts);
+    for (QString port: ports) {
+        bool ok = false;
+        const quint16 value = port.trimmed().toUShort(&ok);
+        if (ok && value != 0) {
+            return value;
+        }
+    }
+
+    return 14550;
+}
+
+}
 
 static bool is_ip(const QString& address)
 {
@@ -164,7 +212,7 @@ void UDPLink::_writeDataGram(const QByteArray data, const UDPCLient* target)
 {
     //qDebug() << "UDP Out" << target->address << target->port;
     if(_socket->writeDatagram(data, target->address, target->port) < 0) {
-        qWarning() << "Error writing to" << target->address << target->port;
+        logUdpWriteErrorThrottled(target->address, target->port);
     }
 }
 
@@ -316,7 +364,7 @@ void UDPLink::_deregisterZeroconf()
 UDPConfiguration::UDPConfiguration(const QString& name) : LinkConfiguration(name)
 {
     AutoConnectSettings* settings = qgcApp()->toolbox()->settingsManager()->autoConnectSettings();
-    _localPort = settings->udpListenPort()->rawValue().toInt();
+    _localPort = firstUdpAutoConnectPort(settings);
     QString targetHostIP = settings->udpTargetHostIP()->rawValue().toString();
     if (!targetHostIP.isEmpty()) {
         addHost(targetHostIP, settings->udpTargetHostPort()->rawValue().toUInt());
@@ -437,7 +485,7 @@ void UDPConfiguration::loadSettings(QSettings& settings, const QString& root)
     AutoConnectSettings* acSettings = qgcApp()->toolbox()->settingsManager()->autoConnectSettings();
     _clearTargetHosts();
     settings.beginGroup(root);
-    _localPort = (quint16)settings.value("port", acSettings->udpListenPort()->rawValue().toInt()).toUInt();
+    _localPort = static_cast<quint16>(settings.value("port", firstUdpAutoConnectPort(acSettings)).toUInt());
     int hostCount = settings.value("hostCount", 0).toInt();
     for (int i=0; i<hostCount; i++) {
         QString hkey = QString("host%1").arg(i);

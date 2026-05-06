@@ -134,6 +134,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, videoSource)
 {
     if (!_videoSourceFact) {
         _videoSourceFact = _createSettingsFact(videoSourceName);
+        qInfo() << "[VideoSettings]" << "videoSource loaded" << _videoSourceFact->rawValue().toString();
         //-- Check for sources no longer available
         if(!_videoSourceFact->enumValues().contains(_videoSourceFact->rawValue().toString())) {
             if (_noVideo) {
@@ -178,6 +179,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl)
 {
     if (!_rtspUrlFact) {
         _rtspUrlFact = _createSettingsFact(rtspUrlName);
+        qInfo() << "[VideoSettings]" << "rtspUrl loaded" << _rtspUrlFact->rawValue().toString();
         connect(_rtspUrlFact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
     }
     return _rtspUrlFact;
@@ -243,5 +245,10 @@ bool VideoSettings::streamConfigured(void)
 
 void VideoSettings::_configChanged(QVariant)
 {
+    qInfo() << "[VideoSettings]" << "configChanged"
+            << "source" << videoSource()->rawValue().toString()
+            << "rtsp" << rtspUrl()->rawValue().toString()
+            << "tcp" << tcpUrl()->rawValue().toString()
+            << "udpPort" << udpPort()->rawValue().toInt();
     emit streamConfiguredChanged(streamConfigured());
 }
