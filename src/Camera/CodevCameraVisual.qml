@@ -352,6 +352,9 @@ Item {
                    _camera.trackingEnabled = true
                 }
             }
+            onTouchDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+            }
         }
     }
 

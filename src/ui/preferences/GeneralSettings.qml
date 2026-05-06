@@ -298,7 +298,7 @@ Rectangle {
                             GridLayout {
                                 id:         videoGrid
                                 columns:    2
-                                visible:    _videoSettings.visible
+                                visible:    false
 
                                 QGCLabel {
                                     text:               qsTr("Video Settings")

@@ -799,13 +799,24 @@ VideoManager::_updateSettings(unsigned id)
 
     if(_activeVehicle && _activeVehicle->cameraManager()) {
         QGCVideoStreamInfo* pInfo = _activeVehicle->cameraManager()->currentStreamInstance();
+        if (!pInfo && id == 0) {
+            qCWarning(VideoManagerLog) << "Auto-discovery: currentStreamInstance is null for primary stream";
+        }
         if(pInfo) {
             if (id == 0) {
+                qCWarning(VideoManagerLog).noquote()
+                    << QStringLiteral("Auto-discovery primary stream: type=%1 uri=\"%2\"")
+                          .arg(pInfo->type())
+                          .arg(pInfo->uri());
                 qCDebug(VideoManagerLog) << "Configure primary stream:" << pInfo->uri();
                 switch(pInfo->type()) {
                     case VIDEO_STREAM_TYPE_RTSP:
                         if ((settingsChanged |= _updateVideoUri(id, pInfo->uri()))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+                        }
+                        if (!pInfo->uri().isEmpty() &&
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != pInfo->uri()) {
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
                         }
                         break;
                     case VIDEO_STREAM_TYPE_TCP_MPEG:
@@ -835,6 +846,10 @@ VideoManager::_updateSettings(unsigned id)
             else if (id == 1) { //-- Thermal stream (if any)
                 QGCVideoStreamInfo* pTinfo = _activeVehicle->cameraManager()->thermalStreamInstance();
                 if (pTinfo) {
+                    qCWarning(VideoManagerLog).noquote()
+                        << QStringLiteral("Auto-discovery thermal stream: type=%1 uri=\"%2\"")
+                              .arg(pTinfo->type())
+                              .arg(pTinfo->uri());
                     qCDebug(VideoManagerLog) << "Configure secondary stream:" << pTinfo->uri();
                     switch(pTinfo->type()) {
                         case VIDEO_STREAM_TYPE_RTSP:
@@ -851,6 +866,9 @@ VideoManager::_updateSettings(unsigned id)
                             settingsChanged |= _updateVideoUri(id, pTinfo->uri());
                             break;
                     }
+                }
+                else {
+                    qCWarning(VideoManagerLog) << "Auto-discovery: thermalStreamInstance is null";
                 }
             }
             return settingsChanged;
@@ -1025,7 +1043,14 @@ VideoManager::_startReceiver(unsigned id)
                 _deferPrimaryStartUntilSinkReady = false;
             }
             _videoReceiver[id]->start(_videoUri[id], timeout, _lowLatencyStreaming[id] ? -1 : 0);
+        } else {
+            qCWarning(VideoManagerLog)
+                << "StartReceiver skipped due to empty URI. id=" << id
+                << "videoSource=" << source;
         }
+    } else {
+        qCWarning(VideoManagerLog)
+            << "StartReceiver skipped: receiver is null for id" << id;
     }
 #else
     Q_UNUSED(id);

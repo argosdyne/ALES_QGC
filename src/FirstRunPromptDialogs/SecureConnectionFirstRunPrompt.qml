@@ -15,6 +15,7 @@ import QGroundControl           1.0
 import QGroundControl.Controls  1.0
 import QGroundControl.FactSystem 1.0
 import QGroundControl.ScreenTools 1.0
+import QGroundControl.FactControls 1.0
 
 FirstRunPrompt {
     id:         root
@@ -32,6 +33,7 @@ FirstRunPrompt {
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
     readonly property var _videoSettings:    QGroundControl.settingsManager.videoSettings
+    readonly property var _autoConnectSettings: QGroundControl.settingsManager.autoConnectSettings
 
     property Fact _udpEnabled:       _customSettings.networkUdpListenerEnabled
     property Fact _tcpEnabled:       _customSettings.networkTcpServerEnabled
@@ -45,6 +47,7 @@ FirstRunPrompt {
     property Fact _allowlistIds:     _customSettings.securityAllowlistVehicleIds
     property Fact _wizardCompleted:  _customSettings.securityWizardCompleted
     property Fact _rememberChoice:   _customSettings.securityRememberChoice
+    property Fact _udpListenPort:    _autoConnectSettings.udpListenPort
     property Fact _mavlink2SigningKey: _appSettings.mavlink2SigningKey
     property string _pendingSigningKey: _mavlink2SigningKey && _mavlink2SigningKey.rawValue ? _mavlink2SigningKey.rawValue.toString() : ""
     property bool _showSigningKey:   false
@@ -138,13 +141,17 @@ FirstRunPrompt {
 
         _udpPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpPort.rawValue
         _tcpPort.rawValue = tcpPortValue > 0 ? tcpPortValue : _tcpPort.rawValue
+        _udpListenPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpListenPort.rawValue
         _udpBind.rawValue = _bindForComboIndex(udpBindCombo.currentIndex)
         _tcpBind.rawValue = _bindForComboIndex(tcpBindCombo.currentIndex)
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
+        if (videoUriValue.length) {
+            _videoSettings.rtspUrl.rawValue = videoUriValue
+        }
         _strictValidation.rawValue = strictValidationCheckbox.checked
         // _allowlistIds.rawValue = allowlistIdsCheckbox.checked
         _rememberChoice.rawValue = rememberChoiceCheckbox.checked
-        _wizardCompleted.rawValue = true
+        _wizardCompleted.rawValue = rememberChoiceCheckbox.checked
         secureSetupSettings.securityRememberChoice = rememberChoiceCheckbox.checked
         secureSetupSettings.securityWizardCompleted = rememberChoiceCheckbox.checked
 
@@ -167,9 +174,15 @@ FirstRunPrompt {
             _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
         }
 
+        // Recreate network links so changed secure setup and ports apply immediately.
+        QGroundControl.linkManager.disconnectNetworkLinks()
+
+        if (_udpEnabled.rawValue || _tcpEnabled.rawValue) {
+            QGroundControl.linkManager.refreshNetworkLinks()
+        }
+
         if (!_udpEnabled.rawValue && !_tcpEnabled.rawValue && !_videoEnabled.rawValue) {
             CustomQmlInterface.logSecurityEvent("Continue offline applied. Network services disabled.")
-            QGroundControl.linkManager.disconnectNetworkLinks()
         }
 
         close()
@@ -180,6 +193,11 @@ FirstRunPrompt {
             udpCheckbox.checked = false
             tcpCheckbox.checked = false
             videoCheckbox.checked = false
+            _udpEnabled.rawValue = false
+            _tcpEnabled.rawValue = false
+            _videoEnabled.rawValue = false
+            _wizardCompleted.rawValue = false
+            QGroundControl.linkManager.disconnectNetworkLinks()
         }
     }
 
@@ -189,7 +207,7 @@ FirstRunPrompt {
         anchors.left: parent.left
         anchors.leftMargin: ScreenTools.defaultFontPixelWidth
         width:      ScreenTools.defaultFontPixelWidth * 56
-        spacing:    ScreenTools.defaultFontPixelHeight * 0.4
+        spacing:    ScreenTools.defaultFontPixelHeight * 0.3
 
         QGCFlickable {
             Layout.fillWidth:       true
@@ -201,7 +219,7 @@ FirstRunPrompt {
             ColumnLayout {
                 id:         formColumn
                 width:      parent.width
-                spacing:    ScreenTools.defaultFontPixelHeight * 0.5
+                spacing:    ScreenTools.defaultFontPixelHeight * 0.4
 
                 QGCLabel {
                     text:               qsTr("Configure Connections (Secure by Default)")
@@ -321,7 +339,7 @@ FirstRunPrompt {
                                 Layout.fillWidth: true
                                 spacing: ScreenTools.defaultFontPixelWidth * 0.6
                                 QGCLabel { text: qsTr("URL:") }
-                                QGCTextField {
+                                QGCTextField  {
                                     id: videoUriField
                                     text: _videoUrl.rawValue.toString()
                                     Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 28
@@ -363,19 +381,19 @@ FirstRunPrompt {
                                 anchors.fill: parent
                                 anchors.margins: ScreenTools.defaultFontPixelWidth * 0.6
                                 spacing: ScreenTools.defaultFontPixelHeight * 0.2
-
-                                QGCLabel {
-                                    text: qsTr("Signing key (hex or passphrase)")
-                                    Layout.fillWidth: true
-                                }
+                           
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: ScreenTools.defaultFontPixelWidth * 0.5
 
+                                    QGCLabel {
+                                    text: qsTr("Signing key:")
+                                    }
+
                                     QGCTextField {
                                         id: signingKeyField
                                         // Layout.fillWidth: true
-                                        width: ScreenTools.defaultFontPixelWidth * 100
+                                        Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 22.5
                                         text: _pendingSigningKey
                                         echoMode: _showSigningKey ? TextInput.Normal : TextInput.Password
                                         placeholderText: qsTr("Enter key or leave blank to keep current key")
