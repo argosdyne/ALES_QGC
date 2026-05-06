@@ -236,6 +236,17 @@ Item {
             }
         }
 
+        // Keep an explicit fullscreen double-click catcher here since camera extraControls
+        // are hidden while in fullscreen mode.
+        MouseArea {
+            anchors.fill: parent
+            enabled: QGroundControl.videoManager.fullScreen
+            acceptedButtons: Qt.LeftButton
+            onDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = false
+            }
+        }
+
         //-- Camera Extra Controls QML
         Loader {
             anchors.fill: parent
