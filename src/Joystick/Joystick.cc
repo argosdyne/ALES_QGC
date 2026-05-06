@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 QGC_LOGGING_CATEGORY(JoystickValuesLog, "JoystickValuesLog")
@@ -614,32 +615,9 @@ void Joystick::_handleButtons()
                                        && (_rgAxisNeutralValues[axisIndex] > static_cast<int>(axisRangeRaw * 0.02f));
         const bool dialLikeAxis = dialLikeByCalibration || inferredUnsignedDial;
         const float motionThreshold = dialLikeAxis ? (_axisVirtualMotionOnThreshold * 1.2f) : _axisVirtualMotionOnThreshold;
-        if (dialLikeAxis) {
-            // Learn neutral around center while near-stationary.
-            // This keeps startup stable but still follows slow hardware drift.
-            const int neutralErrorRaw = std::abs(axisRawValue - _rgAxisNeutralValues[axisIndex]);
-            const int neutralLearnWindowRaw = std::max(10, static_cast<int>(axisRangeRaw * _axisVirtualDialOffThreshold * 0.8f));
-            const bool negWasDown = _rgButtonValues[rgAxisButtonBaseIndex] != BUTTON_UP;
-            const bool posWasDown = _rgButtonValues[rgAxisButtonBaseIndex + 1] != BUTTON_UP;
-            const bool noDialButtonDown = !negWasDown && !posWasDown;
-            const bool lowMotionForLearn = (std::abs(axisDeltaRaw) < static_cast<int>(axisRangeRaw * motionThreshold * 0.7f));
-            if (noDialButtonDown &&
-                (neutralErrorRaw <= neutralLearnWindowRaw) &&
-                lowMotionForLearn) {
-                const float alpha = 0.12f;
-                const float neutral = static_cast<float>(_rgAxisNeutralValues[axisIndex]);
-                _rgAxisNeutralValues[axisIndex] = static_cast<int>((1.0f - alpha) * neutral + alpha * static_cast<float>(axisRawValue));
-            } else if (!noDialButtonDown &&
-                       lowMotionForLearn &&
-                       (neutralErrorRaw <= neutralLearnWindowRaw * 3)) {
-                // Sticky-release assist: if a dial button is latched but axis is nearly stationary
-                // around neutral, very slowly pull neutral toward the current value.
-                const float alpha = 0.03f;
-                const float neutral = static_cast<float>(_rgAxisNeutralValues[axisIndex]);
-                _rgAxisNeutralValues[axisIndex] = static_cast<int>((1.0f - alpha) * neutral + alpha * static_cast<float>(axisRawValue));
-            }
-        }
-        const int neutralRaw = dialLikeAxis ? _rgAxisNeutralValues[axisIndex] : axisCenterRaw;
+        // For dial buttons with firmware-fixed center, keep neutral fixed during runtime.
+        // Unsigned-like axes still use first-sample neutral initialized above.
+        const int neutralRaw = dialLikeAxis ? (inferredUnsignedDial ? _rgAxisNeutralValues[axisIndex] : axisCenterRaw) : axisCenterRaw;
         int centeredRaw = axisRawValue - neutralRaw;
         int sideRangeRaw = qMax(axisMaxRaw - neutralRaw, neutralRaw - axisMinRaw);
         if (sideRangeRaw <= 0) {
@@ -671,14 +649,14 @@ void Joystick::_handleButtons()
             const float dialOn  = _axisVirtualDialOnThreshold * 0.85f;
             const float dialOff = _axisVirtualDialOffThreshold;
             // Raw-count guard to reject center jitter seen on some dials.
-            const int rawOnThreshold  = qMax(14, static_cast<int>(axisRangeRaw * 0.012f));
+            const int rawOnThreshold  = qMax(8, static_cast<int>(axisRangeRaw * 0.004f));
             const int rawOffThreshold = qMax(8,  rawOnThreshold / 2);
             const bool negWasDown = _rgButtonValues[rgAxisButtonBaseIndex] != BUTTON_UP;
             const bool posWasDown = _rgButtonValues[rgAxisButtonPosIndex] != BUTTON_UP;
             // Treat a center RANGE as neutral (not a single value).
             // Use hysteresis so neutral does not chatter around the boundary.
-            const int neutralBandRaw = qMax(rawOffThreshold, static_cast<int>(axisRangeRaw * 0.060f));
-            const int neutralBandReleaseRaw = qMax(neutralBandRaw + 8, static_cast<int>(axisRangeRaw * 0.090f));
+            const int neutralBandRaw = qMax(rawOffThreshold, static_cast<int>(axisRangeRaw * 0.020f));
+            const int neutralBandReleaseRaw = qMax(neutralBandRaw + 4, static_cast<int>(axisRangeRaw * 0.035f));
             const int activeNeutralBandRaw = (negWasDown || posWasDown) ? neutralBandReleaseRaw : neutralBandRaw;
             const bool inNeutral = (std::abs(centeredRaw) <= activeNeutralBandRaw) || (std::fabs(centeredNorm) <= dialOff);
             const int rawHoldThreshold = qMax(rawOffThreshold, neutralBandRaw);
@@ -852,18 +830,18 @@ void Joystick::_handleAxis()
                     axis = _rgFunctionAxis[throttleFunction];
             float   throttle = _adjustRange(_rgAxisValues[axis],_rgCalibration[axis], _throttleMode==ThrottleModeDownZero?false:_deadband);
 
-            // These are only used for printing JoystickValuesLog
-            float   gimbalPitch = 0.0f;
-            float   gimbalYaw   = 0.0f;
+            // Optional aux dials (mapped from gimbal pitch/yaw functions)
+            float   gimbalPitch = std::numeric_limits<float>::quiet_NaN();
+            float   gimbalYaw   = std::numeric_limits<float>::quiet_NaN();
 
-            if(_axisCount > 4) {
-                axis = _rgFunctionAxis[gimbalPitchFunction];
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
+            axis = _rgFunctionAxis[gimbalPitchFunction];
+            if (_validAxis(axis)) {
+                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
             }
 
-            if(_axisCount > 5) {
-                axis = _rgFunctionAxis[gimbalYawFunction];
-                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
+            axis = _rgFunctionAxis[gimbalYawFunction];
+            if (_validAxis(axis)) {
+                gimbalYaw = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
             }
 
             if (_accumulator) {
@@ -916,9 +894,10 @@ void Joystick::_handleAxis()
                 }
             }
             emit axisValues(roll, pitch, yaw, throttle);
+            emit rcDialValues(gimbalPitch, gimbalYaw);
 
             uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
-            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons, gimbalPitch, gimbalYaw);
         }
     }
 }
@@ -1023,6 +1002,9 @@ void Joystick::setFunctionAxis(AxisFunction_t function, int axis)
     _rgFunctionAxis[function] = axis;
     _saveSettings();
     emit calibratedChanged(_calibrated);
+    if (function == gimbalPitchFunction || function == gimbalYawFunction) {
+        emit rcDialAxisChanged();
+    }
 }
 
 int Joystick::getFunctionAxis(AxisFunction_t function)

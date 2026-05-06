@@ -64,6 +64,8 @@ void JoystickManager::init() {
         return;
     }
     connect(this, &JoystickManager::updateAvailableJoysticksSignal, this, &JoystickManager::restartJoystickCheckTimer);
+#else
+    qWarning() << "Joystick backend selected: none";
 #endif
     connect(&_joystickCheckTimer, &QTimer::timeout, this, &JoystickManager::_updateAvailableJoysticks);
     _joystickCheckTimerCounter = 5;

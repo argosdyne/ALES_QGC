@@ -23,6 +23,17 @@ import QGroundControl.FactControls  1.0
 Item {
     width:                  grid.width  + (ScreenTools.defaultFontPixelWidth  * 2)
     height:                 grid.height + (ScreenTools.defaultFontPixelHeight * 2)
+
+    function _axisModel() {
+        var model = []
+        if (!_activeJoystick) {
+            return model
+        }
+        for (var i = 0; i < _activeJoystick.axisCount; i++) {
+            model.push(qsTr("Axis %1").arg(i))
+        }
+        return model
+    }
     //---------------------------------------------------------------------
     GridLayout {
         id:                 grid
@@ -181,6 +192,34 @@ Item {
                     qsTr("step of calibration by gently wiggling each axis. ") +
                     qsTr("Deadband can also be adjusted by clicking and ") +
                     qsTr("dragging vertically on the corresponding axis monitor.")
+        }
+
+        //-----------------------------------------------------------------
+        //-- RC dial axis mapping (channels 9/10)
+        QGCLabel {
+            text:               qsTr("RC Channel 9 dial axis")
+            Layout.alignment:   Qt.AlignVCenter
+            visible:            advancedSettings.checked
+        }
+        QGCComboBox {
+            enabled:            advancedSettings.checked && _activeJoystick
+            visible:            advancedSettings.checked
+            model:              _axisModel()
+            currentIndex:       _activeJoystick ? _activeJoystick.rc9DialAxis : -1
+            onActivated:        if (_activeJoystick) { _activeJoystick.rc9DialAxis = index }
+        }
+
+        QGCLabel {
+            text:               qsTr("RC Channel 10 dial axis")
+            Layout.alignment:   Qt.AlignVCenter
+            visible:            advancedSettings.checked
+        }
+        QGCComboBox {
+            enabled:            advancedSettings.checked && _activeJoystick
+            visible:            advancedSettings.checked
+            model:              _axisModel()
+            currentIndex:       _activeJoystick ? _activeJoystick.rc10DialAxis : -1
+            onActivated:        if (_activeJoystick) { _activeJoystick.rc10DialAxis = index }
         }
     }
 }
