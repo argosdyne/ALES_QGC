@@ -91,6 +91,7 @@ public:
     QGCOptions*             options                         (void) final;
     QString                 brandImageIndoor                (void) const final;
     QString                 brandImageOutdoor               (void) const final;
+    bool                    getOfflineCameraDefinitionFile (QString cameraname, QFile& file) final;
     bool                    overrideSettingsGroupVisibility (QString name) final;
     bool                    adjustSettingMetaData           (const QString& settingsGroup, FactMetaData& metaData) final;
     void                    paletteOverride                 (QString colorName, QGCPalette::PaletteColorInfo_t& colorInfo) final;
