@@ -7823,8 +7823,8 @@ Click Ok to start the auto-tuning process.
     </message>
 <message>
         <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
-        <source>Enable Optical Flow</source>
-        <translation>옵티컬 플로우 활성화</translation>
+        <source>Enable Optical Flow Sensor</source>
+        <translation>옵티컬 플로우 센서 활성화</translation>
     </message>
 <message>
         <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
