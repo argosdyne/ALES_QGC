@@ -768,6 +768,7 @@ Item {
                     property bool   useObstacleDetection:   false
                     property bool   avoidMode:              true
                     property int    detectionDistance:      1500
+                    property int    currentDistance:        0
                     property color  backgroundColor:        "#1a1a2e"
 
                     id:     root
@@ -902,8 +903,7 @@ Item {
                         Connections {
                             target: _missionController
                             onVlValueChanged: {
-                                var val = _missionController.vlValue
-                                root.detectionDistance = val
+                                root.currentDistance = _missionController.vlValue
                             }
                         }
 
@@ -1039,6 +1039,29 @@ Item {
                                         plusTimer.stop()
                                     }
                                 }
+                            }
+                        }
+
+                        //Current sensor distance text
+                        Text {
+                            text:                qsTr("Current Distance")
+                            color:               root.useObstacleDetection ? "white" : "#666"
+                            font.pixelSize:      ScreenTools.defaultFontPointSize * 2.5
+                            font.bold:           true
+                            Layout.columnSpan:   2
+                            Layout.fillWidth:    true
+                            Layout.topMargin:    4
+                        }
+
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.5
+                            Layout.fillWidth: true
+
+                            Text {
+                                text: root.currentDistance.toFixed(0) + " cm"
+                                color: root.useObstacleDetection ? "white" : "#666"
+                                font.pixelSize: ScreenTools.defaultFontPointSize * 3
+                                verticalAlignment: Text.AlignVCenter
                             }
                         }
                     }

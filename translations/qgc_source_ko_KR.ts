@@ -14150,6 +14150,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <translation>비전 라이다</translation>
     </message>
     <message>
+      <location filename="../src/PlanView/PlanView.qml" line="1047"/>
+      <source>Current Distance</source>
+      <translation>현재 거리</translation>
+    </message>
+    <message>
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
       <source>Pattern</source>
       <translation>패턴</translation>
