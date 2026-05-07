@@ -111,6 +111,7 @@
 #include "FlightZoneManager.h"
 
 #include "AudioControl.h"
+#include "OpticalFlowController.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -556,6 +557,7 @@ void QGCApplication::_initCommon()
     qmlRegisterSingletonType<ShapeFileHelper>           ("MAVLink",                                 1, 0, "MAVLink",                mavlinkSingletonFactory);
 
     qRegisterMetaType<AudioControl*>("AudioControl*");
+    qRegisterMetaType<OpticalFlowController*>("OpticalFlowController*");
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {
