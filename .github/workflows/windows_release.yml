@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'Argos_Stable4.4'
-      - 'ALES_QGC_V01.03.00'
+      - 'ALES_QGC_V01.03.00A'
     tags:
       - 'v*'
     paths-ignore:
