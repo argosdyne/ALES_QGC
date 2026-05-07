@@ -32,6 +32,7 @@ Item {
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
     property var    _opticalFlowController:                     _activeVehicle ? _activeVehicle.opticalFlowController : null
+    property string _selectedMode:                              ""
 
     implicitWidth:  root.implicitWidth
     implicitHeight: root.implicitHeight
@@ -71,21 +72,41 @@ Item {
                 spacing: ScreenTools.defaultFontPixelHeight / 2
                 Layout.alignment: Qt.AlignHCenter
 
-            // GPS
+            // GPS (radio)
             Rectangle {
                 radius: _margins
-                color: gpsMouseArea.pressed
+                color: _selectedMode === "gps"
                        ? qgcPal.buttonHighlight
-                       : qgcPal.button
+                       : (gpsMouseArea.pressed ? qgcPal.buttonHighlight : qgcPal.button)
 
-                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
+                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 4.5
                 Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
 
-                Text {
+                RowLayout {
                     anchors.centerIn: parent
-                    text: qsTr("GPS")
-                    color: qgcPal.buttonText
-                    font.pointSize: ScreenTools.defaultFontPointSize
+                    spacing: ScreenTools.defaultFontPixelHeight / 4
+
+                    Rectangle {
+                        width:  ScreenTools.defaultFontPixelHeight * 0.7
+                        height: width
+                        radius: width / 2
+                        color:  "transparent"
+                        border.color: qgcPal.buttonText
+                        border.width: 1
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width:  parent.width * 0.5
+                            height: width
+                            radius: width / 2
+                            color:  qgcPal.buttonText
+                            visible: _selectedMode === "gps"
+                        }
+                    }
+                    Text {
+                        text: qsTr("GPS")
+                        color: qgcPal.buttonText
+                        font.pointSize: ScreenTools.defaultFontPointSize
+                    }
                 }
 
                 MouseArea {
@@ -93,6 +114,7 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         console.log("Optical Flow: GPS pressed")
+                        _selectedMode = "gps"
                         if (_opticalFlowController) {
                             _opticalFlowController.setModeGPS()
                         }
@@ -100,21 +122,41 @@ Item {
                 }
             }
 
-            // Optical
+            // Optical (radio)
             Rectangle {
                 radius: _margins
-                color: opticalMouseArea.pressed
+                color: _selectedMode === "optical"
                        ? qgcPal.buttonHighlight
-                       : qgcPal.button
+                       : (opticalMouseArea.pressed ? qgcPal.buttonHighlight : qgcPal.button)
 
-                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
+                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 4.5
                 Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
 
-                Text {
+                RowLayout {
                     anchors.centerIn: parent
-                    text: qsTr("Optical")
-                    color: qgcPal.buttonText
-                    font.pointSize: ScreenTools.defaultFontPointSize
+                    spacing: ScreenTools.defaultFontPixelHeight / 4
+
+                    Rectangle {
+                        width:  ScreenTools.defaultFontPixelHeight * 0.7
+                        height: width
+                        radius: width / 2
+                        color:  "transparent"
+                        border.color: qgcPal.buttonText
+                        border.width: 1
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width:  parent.width * 0.5
+                            height: width
+                            radius: width / 2
+                            color:  qgcPal.buttonText
+                            visible: _selectedMode === "optical"
+                        }
+                    }
+                    Text {
+                        text: qsTr("Optical")
+                        color: qgcPal.buttonText
+                        font.pointSize: ScreenTools.defaultFontPointSize
+                    }
                 }
 
                 MouseArea {
@@ -122,6 +164,7 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         console.log("Optical Flow: Optical pressed")
+                        _selectedMode = "optical"
                         if (_opticalFlowController) {
                             _opticalFlowController.setModeOptical()
                         }
@@ -129,21 +172,41 @@ Item {
                 }
             }
 
-            // Auto
+            // Auto (radio)
             Rectangle {
                 radius: _margins
-                color: autoMouseArea.pressed
+                color: _selectedMode === "auto"
                        ? qgcPal.buttonHighlight
-                       : qgcPal.button
+                       : (autoMouseArea.pressed ? qgcPal.buttonHighlight : qgcPal.button)
 
-                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
+                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 4.5
                 Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
 
-                Text {
+                RowLayout {
                     anchors.centerIn: parent
-                    text: qsTr("Auto")
-                    color: qgcPal.buttonText
-                    font.pointSize: ScreenTools.defaultFontPointSize
+                    spacing: ScreenTools.defaultFontPixelHeight / 4
+
+                    Rectangle {
+                        width:  ScreenTools.defaultFontPixelHeight * 0.7
+                        height: width
+                        radius: width / 2
+                        color:  "transparent"
+                        border.color: qgcPal.buttonText
+                        border.width: 1
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width:  parent.width * 0.5
+                            height: width
+                            radius: width / 2
+                            color:  qgcPal.buttonText
+                            visible: _selectedMode === "auto"
+                        }
+                    }
+                    Text {
+                        text: qsTr("Auto")
+                        color: qgcPal.buttonText
+                        font.pointSize: ScreenTools.defaultFontPointSize
+                    }
                 }
 
                 MouseArea {
@@ -151,37 +214,72 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         console.log("Optical Flow: Auto pressed")
+                        _selectedMode = "auto"
                         if (_opticalFlowController) {
                             _opticalFlowController.setModeAuto()
                         }
                     }
                 }
             }
+            }
 
-            // Calib
+            RowLayout {
+                spacing: ScreenTools.defaultFontPixelHeight / 2
+                Layout.alignment: Qt.AlignHCenter
+
+            // Calib Start
             Rectangle {
                 radius: _margins
-                color: calibMouseArea.pressed
+                color: calibStartMouseArea.pressed
                        ? qgcPal.buttonHighlight
                        : qgcPal.button
 
-                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 3.5
+                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 4.5
                 Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTr("Calib")
+                    text: qsTr("Calib Start")
                     color: qgcPal.buttonText
                     font.pointSize: ScreenTools.defaultFontPointSize
                 }
 
                 MouseArea {
-                    id: calibMouseArea
+                    id: calibStartMouseArea
                     anchors.fill: parent
                     onClicked: {
-                        console.log("Optical Flow: Calib pressed")
+                        console.log("Optical Flow: Calib Start pressed")
                         if (_opticalFlowController) {
                             _opticalFlowController.calibrate()
+                        }
+                    }
+                }
+            }
+
+            // Calib Stop
+            Rectangle {
+                radius: _margins
+                color: calibStopMouseArea.pressed
+                       ? qgcPal.buttonHighlight
+                       : qgcPal.button
+
+                Layout.preferredWidth: ScreenTools.defaultFontPixelHeight * 4.5
+                Layout.minimumHeight: ScreenTools.defaultFontPixelHeight * 2
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("Calib Stop")
+                    color: qgcPal.buttonText
+                    font.pointSize: ScreenTools.defaultFontPointSize
+                }
+
+                MouseArea {
+                    id: calibStopMouseArea
+                    anchors.fill: parent
+                    onClicked: {
+                        console.log("Optical Flow: Calib Stop pressed")
+                        if (_opticalFlowController) {
+                            _opticalFlowController.calibrateStop()
                         }
                     }
                 }

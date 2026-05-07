@@ -29,6 +29,7 @@ public:
     Q_INVOKABLE void setModeOptical();
     Q_INVOKABLE void setModeAuto();
     Q_INVOKABLE void calibrate();
+    Q_INVOKABLE void calibrateStop();
 
     void sendCommand(uint16_t commandId);
 

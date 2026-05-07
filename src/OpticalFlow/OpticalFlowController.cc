@@ -17,10 +17,11 @@ QGC_LOGGING_CATEGORY(OpticalFlowLog, "OpticalFlowLog")
 
 // Vendor-specific MAVLink command IDs (not registered in the MAVLink XML).
 // Free range verified against ardupilotmega.xml / common.xml and project sources.
-static constexpr uint16_t CMD_OPTICAL_FLOW_GPS     = 42685;
-static constexpr uint16_t CMD_OPTICAL_FLOW_OPTICAL = 42686;
-static constexpr uint16_t CMD_OPTICAL_FLOW_AUTO    = 42687;
-static constexpr uint16_t CMD_OPTICAL_FLOW_CALIB   = 42688;
+static constexpr uint16_t CMD_OPTICAL_FLOW_GPS        = 42685;
+static constexpr uint16_t CMD_OPTICAL_FLOW_OPTICAL    = 42686;
+static constexpr uint16_t CMD_OPTICAL_FLOW_AUTO       = 42687;
+static constexpr uint16_t CMD_OPTICAL_FLOW_CALIB      = 42688;
+static constexpr uint16_t CMD_OPTICAL_FLOW_CALIB_STOP = 42689;
 
 OpticalFlowController::OpticalFlowController(Vehicle* vehicle)
     : _vehicle(vehicle)
@@ -52,8 +53,14 @@ void OpticalFlowController::setModeAuto()
 
 void OpticalFlowController::calibrate()
 {
-    qCInfo(OpticalFlowLog) << "OpticalFlow: Calibration requested";
+    qCInfo(OpticalFlowLog) << "OpticalFlow: Calibration start requested";
     sendCommand(CMD_OPTICAL_FLOW_CALIB);
+}
+
+void OpticalFlowController::calibrateStop()
+{
+    qCInfo(OpticalFlowLog) << "OpticalFlow: Calibration stop requested";
+    sendCommand(CMD_OPTICAL_FLOW_CALIB_STOP);
 }
 
 void OpticalFlowController::sendCommand(uint16_t commandId)

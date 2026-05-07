@@ -20132,8 +20132,13 @@ Confirm change?</source>
     </message>
 <message>
         <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="148"/>
-        <source>Calib</source>
-        <translation>보정</translation>
+        <source>Calib Start</source>
+        <translation>보정 시작</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="180"/>
+        <source>Calib Stop</source>
+        <translation>보정 정지</translation>
     </message>
 </context>
 <context>
