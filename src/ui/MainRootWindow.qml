@@ -30,11 +30,16 @@ ApplicationWindow {
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     property alias  viewOnlyMode: globals.viewOnlyMode
+    readonly property bool droneControlBlocked: viewOnlyMode || loginOverlay.visible
+    readonly property bool joystickInputBlocked: viewOnlyMode || loginOverlay.visible
+    property double _lastAdminPrivilegesPopupMs: 0
     property var _loginPageComponent:    null
     property var _registerPageComponent: null
     property var _recoveryKeyPageComponent: null
     property var _forgotPinPageComponent: null
     property var _systemRestorePageComponent: null
+    property var _controlBlockedDialog: null
+    property bool controlBlockedDialogActive: false
 
     Component.onCompleted: {
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
@@ -206,6 +211,12 @@ ApplicationWindow {
     //-------------------------------------------------------------------------
     //-- Global Scope Functions
 
+    function _updateJoystickInputBlockedState() {
+        if (joystickManager && joystickManager.activeJoystick) {
+            joystickManager.activeJoystick.inputBlocked = joystickInputBlocked
+        }
+    }
+
     /// Prevent view switching
     function pushPreventViewSwitch() {
         _rgPreventViewSwitch.push(true)
@@ -280,6 +291,30 @@ ApplicationWindow {
         simpleMessageDialogComponent.createObject(mainWindow, { title: dialogTitle, text: dialogText, buttons: buttons, acceptFunction: acceptFunction }).open()
     }
 
+    function showControlBlockedDialog() {
+        if (controlBlockedDialogActive) {
+            return
+        }
+
+        controlBlockedDialogActive = true
+        _controlBlockedDialog = simpleMessageDialogComponent.createObject(mainWindow, {
+            title: qsTr("Permission Required"),
+            text: qsTr("Please switch to Admin mode to continue."),
+            buttons: StandardButton.Yes | StandardButton.No,
+            acceptFunction: function() { showLoginOverlay() }
+        })
+
+        if (_controlBlockedDialog) {
+            _controlBlockedDialog.closed.connect(function() {
+                controlBlockedDialogActive = false
+                _controlBlockedDialog = null
+            })
+            _controlBlockedDialog.open()
+        } else {
+            controlBlockedDialogActive = false
+        }
+    }
+
     // -- Custom Simple message dialog
 
     function showCustomMessageDialog(dialogComponent) {
@@ -290,6 +325,17 @@ ApplicationWindow {
            console.log("Failed to create dialog.");
        }
    }
+
+    function showAdminPrivilegesRequiredDialog() {
+        showMessageDialog(
+            qsTr("Permission Required"),
+            qsTr("Please switch to Admin mode to continue."),
+            StandardButton.Yes | StandardButton.No,
+            function() {
+                showLoginOverlay()
+            }
+        )
+    }
 
     // This variant is only meant to be called by QGCApplication
     function _showMessageDialog(dialogTitle, dialogText) {
@@ -571,6 +617,8 @@ ApplicationWindow {
                         text:               qsTr("Lock Screen")
                         imageResource:      "/custom/img/png/session_lock.png"
                         imageColor:         "transparent"
+                        enabled:            !(globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing))
+                        opacity:                (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) ? 0.65 : 1
                         onClicked: {
                             toolSelectDialog.close()
                             mainWindow.showLoginOverlay()
@@ -1164,7 +1212,20 @@ ApplicationWindow {
     Connections {
         target: sessionManager
         onSessionLocked: {
+            if (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) {
+                sessionManager.startSession()
+                return
+            }
             showLoginOverlay()
         }
     }
+
+    Connections {
+        target: joystickManager
+        function onActiveJoystickChanged() {
+            _updateJoystickInputBlockedState()
+        }
+    }
+
+    onJoystickInputBlockedChanged: _updateJoystickInputBlockedState()
 }

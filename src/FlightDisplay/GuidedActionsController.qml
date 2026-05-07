@@ -364,6 +364,10 @@ Item {
 
     // Called when an action is about to be executed in order to confirm
     function confirmAction(actionCode, actionData, mapIndicator) {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            return
+        }
         var showImmediate = true
         closeAll()
         confirmDialog.action = actionCode
@@ -528,6 +532,10 @@ Item {
 
     // Executes the specified action
     function executeAction(actionCode, actionData, sliderOutputValue, optionChecked) {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            return
+        }
         var i;
         var rgVehicle;
         switch (actionCode) {

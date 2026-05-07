@@ -165,7 +165,13 @@ RowLayout {
 
         QGCMouseArea {
             anchors.fill:   parent
-            onClicked:      mainWindow.showIndicatorPopup(vtolModeLabel, vtolTransitionComponent)
+            onClicked: {
+                if (mainWindow.droneControlBlocked) {
+                    mainWindow.showAdminPrivilegesRequiredDialog()
+                    return
+                }
+                mainWindow.showIndicatorPopup(vtolModeLabel, vtolTransitionComponent)
+            }
         }
     }
 
@@ -206,6 +212,12 @@ RowLayout {
                         onPressAndHold: forceArm = true
 
                         onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                forceArm = false
+                                mainWindow.hideIndicatorPopup()
+                                return
+                            }
                             if (_armed) {
                                 mainWindow.disarmVehicleRequest()
                             } else {
@@ -392,6 +404,11 @@ RowLayout {
                 text:               _vtolInFWDFlight ? qsTr("Transition to Multi-Rotor") : qsTr("Transition to Fixed Wing")
 
                 onClicked: {
+                    if (mainWindow.droneControlBlocked) {
+                        mainWindow.showAdminPrivilegesRequiredDialog()
+                        mainWindow.hideIndicatorPopup()
+                        return
+                    }
                     if (_vtolInFWDFlight) {
                         mainWindow.vtolTransitionToMRFlightRequest()
                     } else {

@@ -33,6 +33,11 @@ QGCComboBox {
     property bool   _fwdFlight:     _activeVehicle.vtolInFwdFlight
 
     onActivated: {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            currentIndex = -1
+            return
+        }
         if (index == 0) {
             if (_fwdFlight) {
                 mainWindow.vtolTransitionToMRFlightRequest()

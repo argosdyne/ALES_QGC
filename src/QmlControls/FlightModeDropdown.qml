@@ -61,6 +61,13 @@ Item {
             }
         }
 
-        onActivated: activeVehicle.flightMode = textAt(index)
+        onActivated: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                currentIndex = find(flightMode)
+                return
+            }
+            activeVehicle.flightMode = textAt(index)
+        }
     }
 }

@@ -150,31 +150,61 @@ Item {
                     QGCButton {
                         text:       qsTr("Arm")
                         visible:    _vehicle && !_vehicle.armed
-                        onClicked:  _vehicle.armed = true
+                        onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
+                            _vehicle.armed = true
+                        }
                     }
 
                     QGCButton {
                         text:       qsTr("Start Mission")
                         visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.missionFlightMode
-                        onClicked:  _vehicle.startMission()
+                        onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
+                            _vehicle.startMission()
+                        }
                     }
 
                     QGCButton {
                         text:       qsTr("Pause")
                         visible:    _vehicle && _vehicle.armed && _vehicle.pauseVehicleSupported
-                        onClicked:  _vehicle.pauseVehicle()
+                        onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
+                            _vehicle.pauseVehicle()
+                        }
                     }
 
                     QGCButton {
                         text:       qsTr("RTL")
                         visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.rtlFlightMode
-                        onClicked:  _vehicle.flightMode = _vehicle.rtlFlightMode
+                        onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
+                            _vehicle.flightMode = _vehicle.rtlFlightMode
+                        }
                     }
 
                     QGCButton {
                         text:       qsTr("Take control")
                         visible:    _vehicle && _vehicle.armed && _vehicle.flightMode !== _vehicle.takeControlFlightMode
-                        onClicked:  _vehicle.flightMode = _vehicle.takeControlFlightMode
+                        onClicked: {
+                            if (mainWindow.droneControlBlocked) {
+                                mainWindow.showAdminPrivilegesRequiredDialog()
+                                return
+                            }
+                            _vehicle.flightMode = _vehicle.takeControlFlightMode
+                        }
                     }
                 } // Row
             } // ColumnLayout

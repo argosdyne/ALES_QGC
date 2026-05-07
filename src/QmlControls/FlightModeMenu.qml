@@ -31,7 +31,13 @@ QGCLabel {
 
         MenuItem {
             enabled: true
-            onTriggered: currentVehicle.flightMode = text
+            onTriggered: {
+                if (mainWindow.droneControlBlocked) {
+                    mainWindow.showAdminPrivilegesRequiredDialog()
+                    return
+                }
+                currentVehicle.flightMode = text
+            }
         }
     }
 
@@ -66,6 +72,12 @@ QGCLabel {
         visible:            currentVehicle && currentVehicle.flightModeSetAvailable
         anchors.leftMargin: mouseAreaLeftMargin
         anchors.fill:       parent
-        onClicked:          flightModesMenu.popup((_root.width - flightModesMenu.width) / 2, _root.height)
+        onClicked: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                return
+            }
+            flightModesMenu.popup((_root.width - flightModesMenu.width) / 2, _root.height)
+        }
     }
 }

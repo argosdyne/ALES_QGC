@@ -57,6 +57,10 @@ Item {
                             text: modelData
                             Layout.fillWidth: true
                             onClicked: {
+                                if (mainWindow.droneControlBlocked) {
+                                    mainWindow.showAdminPrivilegesRequiredDialog()
+                                    return
+                                }
                                 activeVehicle.flightMode = text
                                 mainWindow.hideIndicatorPopup()
                             }
@@ -97,6 +101,12 @@ Item {
 
     QGCMouseArea {
         anchors.fill:   parent
-        onClicked:      mainWindow.showIndicatorPopup(_root, flightModeMenu)
+        onClicked: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                return
+            }
+            mainWindow.showIndicatorPopup(_root, flightModeMenu)
+        }
     }
 }

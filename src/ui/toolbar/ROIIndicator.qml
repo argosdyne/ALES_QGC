@@ -61,6 +61,11 @@ Item {
                     visible:        _activeVehicle && _activeVehicle.isROIEnabled
                     text:           qsTr("Disable ROI")
                     onClicked: {
+                        if (mainWindow.droneControlBlocked) {
+                            mainWindow.showAdminPrivilegesRequiredDialog()
+                            mainWindow.hideIndicatorPopup()
+                            return
+                        }
                         if(_activeVehicle)
                             _activeVehicle.stopGuidedModeROI()
                         mainWindow.hideIndicatorPopup()
@@ -85,6 +90,10 @@ Item {
     MouseArea {
         anchors.fill:   parent
         onClicked: {
+            if (mainWindow.droneControlBlocked) {
+                mainWindow.showAdminPrivilegesRequiredDialog()
+                return
+            }
             mainWindow.showIndicatorPopup(_root, roiInfo)
         }
     }

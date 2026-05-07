@@ -33,6 +33,11 @@ QGCComboBox {
     property var _flightModes:      _activeVehicle ? _activeVehicle.flightModes : [ ]
 
     onActivated: {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            currentIndex = -1
+            return
+        }
         _activeVehicle.flightMode = _flightModes[index]
         currentIndex = -1
     }

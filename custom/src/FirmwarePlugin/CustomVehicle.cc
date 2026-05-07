@@ -2,6 +2,7 @@
 #include "ParameterManager.h"
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
+#include <QQuickWindow>
 
 const char* CustomVehicle::_escFactGroupName = "esc";
 static const char* kGPSPrimeParam = "SENS_GPS_PRIME";
@@ -89,6 +90,46 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
     //qInfo() << "CustomVehicle.cc -> SendRcChannelValues";
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
+        constexpr int kMaxRcChannels = 18;
+        constexpr quint16 kNeutralPwm = 1500;
+        constexpr quint16 kNeutralNoise = 100;
+
+        quint16 channelsToSend[kMaxRcChannels];
+        for (int i = 0; i < kMaxRcChannels; ++i) {
+            channelsToSend[i] = channels[i];
+        }
+
+        QQuickWindow* mainWindow = qgcApp()->mainRootWindow();
+        const bool droneControlBlocked = mainWindow && mainWindow->property("droneControlBlocked").toBool();
+        static bool s_prevOverThreshold = false;
+        if (droneControlBlocked) {
+            bool movedOverThreshold = false;
+            for (int i = 0; i < 4; ++i) {
+                const int delta = qAbs(static_cast<int>(channels[i]) - static_cast<int>(kNeutralPwm));
+                if (delta > kNeutralNoise) {
+                    movedOverThreshold = true;
+                    break;
+                }
+            }
+
+            if (movedOverThreshold && !s_prevOverThreshold) {
+                if (mainWindow) {
+                    const bool dialogActive = mainWindow->property("controlBlockedDialogActive").toBool();
+                    if (!dialogActive) {
+                        QMetaObject::invokeMethod(mainWindow, "showControlBlockedDialog", Qt::QueuedConnection);
+                    }
+                } 
+            }
+            s_prevOverThreshold = movedOverThreshold;
+
+            // While in view-only/login, force neutral sticks (CH1-CH4)
+            // so local joystick/RC input does not generate control changes.
+            for (int i = 0; i < 4; ++i) {
+                channelsToSend[i] = kNeutralPwm;
+            }
+        } else {
+            s_prevOverThreshold = false;
+        }
         mavlink_message_t msg;
         if(_plugin->slaveMode()) {
             //qInfo() << "_plugin->slaveMode()";
@@ -98,29 +139,29 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                 &msg,
                 static_cast<uint8_t>(id()),
                 0,
-                channels[0],
-                channels[1],
-                channels[2],
-                channels[3],
-                channels[4],
-                channels[5],
-                channels[6],
-                channels[7],
-                channels[8],
-                channels[9],
-                channels[10],
-                channels[11],
-                channels[12],
-                channels[13],
-                channels[14],
-                channels[15],
-                channels[16],
-                channels[17]
+                channelsToSend[0],
+                channelsToSend[1],
+                channelsToSend[2],
+                channelsToSend[3],
+                channelsToSend[4],
+                channelsToSend[5],
+                channelsToSend[6],
+                channelsToSend[7],
+                channelsToSend[8],
+                channelsToSend[9],
+                channelsToSend[10],
+                channelsToSend[11],
+                channelsToSend[12],
+                channelsToSend[13],
+                channelsToSend[14],
+                channelsToSend[15],
+                channelsToSend[16],
+                channelsToSend[17]
             );
         } else {
            //qInfo()<< "else slave mode";
             mavlink_rc_channels_t rc_channels;
-            memcpy(&rc_channels.chan1_raw, channels, 18 * 2);
+            memcpy(&rc_channels.chan1_raw, channelsToSend, 18 * 2);
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
             rc_channels.chancount = static_cast<uint8_t>(count);
             rc_channels.rssi = 255;

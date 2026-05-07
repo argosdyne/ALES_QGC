@@ -33,6 +33,11 @@ QGCComboBox {
     property bool   _armed:         _activeVehicle ? _activeVehicle.armed : false
 
     onActivated: {
+        if (mainWindow.droneControlBlocked) {
+            mainWindow.showAdminPrivilegesRequiredDialog()
+            currentIndex = -1
+            return
+        }
         if (index == 0) {
             mainWindow.armVehicleRequest()
         } else {
