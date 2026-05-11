@@ -2,6 +2,7 @@
 #include "ParameterManager.h"
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
+#include "QGCCameraManager.h"
 
 const char* CustomVehicle::_escFactGroupName = "esc";
 static const char* kGPSPrimeParam = "SENS_GPS_PRIME";
@@ -28,6 +29,11 @@ CustomVehicle::CustomVehicle(LinkInterface*             link,
     connect(this, &CustomVehicle::mavlinkMessageReceived, this, &CustomVehicle::_mavlinkMessageReceived);
     connect(qgcApp()->toolbox()->uasMessageHandler(), &UASMessageHandler::textMessageReceived,      this, &CustomVehicle::_handletextMessageReceivedCustom);
     connect(distanceToHome(), &Fact::rawValueChanged, this, &CustomVehicle::_handledistanceToHomeChanged);
+    if (_plugin && cameraManager()) {
+        connect(_plugin, &CustomPlugin::rcChannelValuesChanged,
+                cameraManager(), &QGCCameraManager::handleAviatorRCChannelValues,
+                Qt::UniqueConnection);
+    }
 
     _addFactGroup(&_escFactGroup, _escFactGroupName);
 
@@ -86,7 +92,21 @@ void CustomVehicle::_rcChannelsTimeOut()
 
 void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
-    //qInfo() << "CustomVehicle.cc -> SendRcChannelValues";
+    qInfo(VehicleLog) << "[RCFlow]"
+                      << "send rc channels"
+                      << "vehicleId" << id()
+                      << "count" << count
+                      << "slaveMode" << _plugin->slaveMode()
+                      << "forceSendRC" << _plugin->forceSendRC()
+                      << "ch1-4"
+                      << channels[0] << channels[1] << channels[2] << channels[3]
+                      << "ch5-8"
+                      << channels[4] << channels[5] << channels[6] << channels[7]
+                      << "ch9-12"
+                      << channels[8] << channels[9] << channels[10] << channels[11]
+                      << "ch13-18"
+                      << channels[12] << channels[13] << channels[14]
+                      << channels[15] << channels[16] << channels[17];
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
         mavlink_message_t msg;

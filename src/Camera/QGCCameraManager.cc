@@ -681,10 +681,19 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
                 << "CAMERA_INFORMATION handled"
                 << reinterpret_cast<const char*>(info.model_name)
                 << reinterpret_cast<const char*>(info.vendor_name)
-                << "compId" << message.compid;
+                << "compId" << message.compid
+                << "flags" << Qt::hex << info.flags << Qt::dec
+                << "camDefVersion" << info.cam_definition_version
+                << "camDefUri" << reinterpret_cast<const char*>(info.cam_definition_uri)
+                << "firmwareVersion" << info.firmware_version
+                << "link" << link;
         QGCCameraControl* pCamera = nullptr;
         if (QGCCameraControl* existingCamera = _findCamera(message.compid)) {
             if (_cameraInfoRequest[sCompID]->fallbackCreated) {
+                qCInfo(CameraManagerLog) << "[CameraFlow]"
+                        << "replacing fallback camera with real CAMERA_INFORMATION"
+                        << "compId" << message.compid
+                        << "model" << existingCamera->modelName();
                 _removeCameraControlFromLists(existingCamera);
                 existingCamera->deleteLater();
             } else {
@@ -694,14 +703,26 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
         }
         QString vendor = QString(reinterpret_cast<const char*>(info.vendor_name));
         if (vendor.toUpper().compare("CODEV") == 0) {
+            qCInfo(CameraManagerLog) << "[CameraFlow]"
+                    << "creating CodevCameraControl from CAMERA_INFORMATION"
+                    << "compId" << message.compid;
             pCamera = new CodevCameraControl(&info, _vehicle, message.compid, link, this);
         } else {
+            qCInfo(CameraManagerLog) << "[CameraFlow]"
+                    << "creating firmware camera control from CAMERA_INFORMATION"
+                    << "compId" << message.compid
+                    << "vendor" << vendor;
             pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, message.compid, link, this);
         }
         if(pCamera) {
             _cameraInfoRequest[sCompID]->infoReceived = true;
             _cameraInfoRequest[sCompID]->cameraCreated = true;
             _cameraInfoRequest[sCompID]->fallbackCreated = false;
+            qCInfo(CameraManagerLog) << "[CameraFlow]"
+                    << "camera control created"
+                    << "compId" << message.compid
+                    << "camera" << pCamera->modelName()
+                    << "paramComplete" << pCamera->paramComplete();
             _addCameraControlToLists(pCamera);
         } else {
             qCWarning(CameraManagerLog) << "[CameraManager]"
@@ -786,14 +807,14 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
     qCDebug(CameraManagerLog) << "[CameraManager]" << "BUILD_TAG _handleCameraSettings ales-fallback-v2-codev-profile";
     QGCCameraControl* pCamera = _findCamera(message.compid);
     const QString sCompID = QString::number(message.compid);
-    qCDebug(CameraManagerLog) << "[CameraManager]"
+    qCInfo(CameraManagerLog) << "[CameraFlow]"
             << "_handleCameraSettings entry"
             << "compId" << message.compid
             << "hasCamera" << (pCamera != nullptr)
             << "hasRequest" << _cameraInfoRequest.contains(sCompID)
             << "link" << link;
     if (!pCamera && _cameraInfoRequest.contains(sCompID)) {
-        qCDebug(CameraManagerLog) << "[CameraManager]"
+        qCInfo(CameraManagerLog) << "[CameraFlow]"
                 << "_handleCameraSettings creating fallback camera"
                 << "compId" << message.compid;
         pCamera = _createCameraControlFromSettingsFallback(message.compid, link);
@@ -802,9 +823,10 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             pInfo->cameraCreated = true;
             pInfo->fallbackCreated = true;
             pInfo->lastHeartbeat.start();
-            qCDebug(CameraManagerLog) << "[CameraManager]"
+            qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "_handleCameraSettings fallback camera registered"
                     << "compId" << message.compid
+                    << "camera" << pCamera->modelName()
                     << "cameraCreated" << pInfo->cameraCreated
                     << "fallbackCreated" << pInfo->fallbackCreated;
         }
@@ -812,7 +834,7 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
     if(pCamera) {
         mavlink_camera_settings_t settings;
         mavlink_msg_camera_settings_decode(&message, &settings);
-        qCDebug(CameraManagerLog) << "[CameraManager]"
+        qCInfo(CameraManagerLog) << "[CameraFlow]"
                 << "_handleCameraSettings compId" << message.compid
                 << "camera" << pCamera->modelName()
                 << "mode" << settings.mode_id
@@ -821,7 +843,7 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
                 << "paramComplete" << pCamera->paramComplete()
                 << "active settings before handle" << pCamera->activeSettings();
         pCamera->handleSettings(settings);
-        qCDebug(CameraManagerLog) << "[CameraManager]"
+        qCInfo(CameraManagerLog) << "[CameraFlow]"
                 << "_handleCameraSettings compId" << message.compid
                 << "camera" << pCamera->modelName()
                 << "paramComplete" << pCamera->paramComplete()
@@ -900,7 +922,7 @@ QGCCameraManager::_handleCommandAck(const mavlink_message_t& message)
 {
     mavlink_command_ack_t ack;
     mavlink_msg_command_ack_decode(&message, &ack);
-    qCDebug(CameraManagerLog) << "[CameraManager]"
+    qCInfo(CameraManagerLog) << "[CameraFlow]"
             << "_handleCommandAck"
             << "compid" << message.compid
             << "command" << ack.command
@@ -922,6 +944,41 @@ QGCCameraManager::_handleRCChannels(const mavlink_message_t& message)
         mavlink_msg_rc_channels_decode(&message, &rcChannels);
         pCamera->handleRCChannels(rcChannels);
     }
+}
+
+void
+QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int count)
+{
+    if (!channels || count < 10) {
+        return;
+    }
+
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if (!pCamera) {
+        qCInfo(CameraManagerLog) << "[RCFlow]"
+                << "camera manager aviator rc ignored"
+                << "reason" << "no current camera"
+                << "count" << count;
+        return;
+    }
+
+    mavlink_rc_channels_t rcChannels;
+    memset(&rcChannels, 0, sizeof(rcChannels));
+    const int copyCount = qMin(count, 18);
+    memcpy(&rcChannels.chan1_raw, channels, static_cast<size_t>(copyCount) * sizeof(quint16));
+    rcChannels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    rcChannels.chancount = static_cast<uint8_t>(copyCount);
+    rcChannels.rssi = 255;
+
+    qCInfo(CameraManagerLog) << "[RCFlow]"
+            << "camera manager aviator rc dispatch"
+            << "cameraCompId" << pCamera->compID()
+            << "count" << copyCount
+            << "ch9" << rcChannels.chan9_raw
+            << "ch10" << rcChannels.chan10_raw
+            << "ch11" << rcChannels.chan11_raw;
+
+    pCamera->handleRCChannels(rcChannels);
 }
 
 void
