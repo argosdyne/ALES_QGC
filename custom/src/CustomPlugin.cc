@@ -234,11 +234,23 @@ bool CustomPlugin::getOfflineCameraDefinitionFile(QString cameraname, QFile& fil
 {
     const QString cameraName = cameraname.trimmed().toUpper();
 
+    qCInfo(CustomLog) << "[CameraFlow]"
+                      << "getOfflineCameraDefinitionFile"
+                      << "requestName" << cameraname
+                      << "normalizedName" << cameraName;
+
     if (cameraName == QStringLiteral("R3") || cameraName == QStringLiteral("CODEV R3")) {
         file.setFileName(QStringLiteral(":/camera-definitions/Codev_R3_023.xml"));
+        qCInfo(CustomLog) << "[CameraFlow]"
+                          << "getOfflineCameraDefinitionFile"
+                          << "matched" << cameraName
+                          << "file" << file.fileName();
         return true;
     }
 
+    qCInfo(CustomLog) << "[CameraFlow]"
+                      << "getOfflineCameraDefinitionFile"
+                      << "no-match" << cameraName;
     return false;
 }
 

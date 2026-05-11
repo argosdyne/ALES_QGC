@@ -1,6 +1,7 @@
 #pragma once
 
 #include "QGCCameraControl.h"
+#include <QElapsedTimer>
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
@@ -172,6 +173,7 @@ protected slots:
     void _requestJSONTransfor(QVariant data);
     void _downloadJSONFinished();
     void _paramSlefChanged();
+    void _handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link);
     // sendMavCommander
     void _sendMavCommandAgain();
     void _mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle) override;
@@ -184,9 +186,15 @@ protected:
     void _requestStreamInfo(uint8_t streamID) final;
     void _requestStreamStatus(uint8_t streamID) final;
     void _requestThermometryData();
+    bool _sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag);
+    bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
+    void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
 
     bool _isTakingPhotoTimelapse();
     void _sendNextQueuedMavCommand();
+    bool _consumeQueuedCommandAck(int ackCompId, const mavlink_command_ack_t& ack, const char* sourceTag);
+    void _logControlState(const char* sourceTag) const;
+    QString _factValueForLog(const char* factName) const;
     MAVLinkProtocol* _pMavlink;
 
     bool _hasTrack{false};
@@ -207,6 +215,12 @@ protected:
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};
     qint64 _trackingInvalidStartMs{-1};
+    QElapsedTimer _rcGimbalCommandTimer;
+    quint16 _lastRcGimbalPitchRaw{1500};
+    quint16 _lastRcGimbalYawRaw{1500};
+    bool _lastRcGimbalWasCentered{true};
+    float _rcMountPitchTarget{0.0f};
+    float _rcMountYawTarget{0.0f};
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치
