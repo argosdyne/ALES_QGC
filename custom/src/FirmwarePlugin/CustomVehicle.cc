@@ -8,6 +8,12 @@ const char* CustomVehicle::_escFactGroupName = "esc";
 static const char* kGPSPrimeParam = "SENS_GPS_PRIME";
 static const char* kRTLBakHomeLatFact = "RTL_BAK_HOME_LAT";
 static const char* kRTLBakHomeLonFact = "RTL_BAK_HOME_LON";
+
+static bool _isR3CameraModel(const QString& modelName)
+{
+    return modelName.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
+            || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
+}
 static const char* kSYS_LIDAR_ODOM = "SYS_LIDAR_ODOM";
 
 CustomVehicle::CustomVehicle(LinkInterface*             link,
@@ -103,8 +109,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
             rcCameraModel = camera->modelName();
             rcCameraVendor = camera->vendor();
             neutralizeR3GimbalRC = camera->compID() == MAV_COMP_ID_CAMERA
-                    && (rcCameraModel.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
-                        || rcCameraVendor.contains(QStringLiteral("Codev"), Qt::CaseInsensitive));
+                    && _isR3CameraModel(rcCameraModel);
         }
     }
     if (neutralizeR3GimbalRC) {
