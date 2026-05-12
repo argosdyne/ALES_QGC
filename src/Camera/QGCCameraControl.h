@@ -438,6 +438,7 @@ protected:
     int                                 _compID             = 0;
     mavlink_camera_information_t        _info;
     int                                 _version            = 0;
+    int                                 _definitionRetryCount = 0;
     bool                                _cached             = false;
     bool                                _paramComplete      = false;
     qreal                               _zoomLevel          = 0.0;

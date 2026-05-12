@@ -2409,15 +2409,31 @@ QGCCameraControl::_downloadFinished()
                 << "url" << reply->url().toDisplayString()
                 << "status" << http_code
                 << "bytes" << data.size();
+        emit dataReady(data);
     } else {
-        data.clear();
         qCWarning(CameraControlLog) << QString("Camera Definition (%1) download error: %2 status: %3").arg(
             reply->url().toDisplayString(),
             reply->errorString(),
             reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString()
         );
+        // Retry the camera-supplied definition before falling through to the
+        // offline fallback inside _dataReady. First install often races the
+        // camera coming up; a couple of retries usually wins.
+        static constexpr int kMaxRetries = 3;
+        static constexpr int kRetryDelayMs = 2000;
+        const QString uri = _cameraDefinitionUri(&_info);
+        if (_definitionRetryCount < kMaxRetries && !uri.isEmpty()) {
+            _definitionRetryCount++;
+            qCWarning(CameraControlLog) << "[CameraControl]"
+                                        << "HTTP definition retry" << _definitionRetryCount << "of" << kMaxRetries
+                                        << "in" << kRetryDelayMs << "ms for compId" << _compID;
+            QTimer::singleShot(kRetryDelayMs, this, [this, uri]() {
+                _handleDefinitionFile(uri);
+            });
+        } else {
+            emit dataReady(QByteArray());
+        }
     }
-    emit dataReady(data);
     //reply->deleteLater();
 }
 
@@ -2441,12 +2457,35 @@ void QGCCameraControl::_ftpDownloadComplete(const QString& fileName, const QStri
 
     QFile xmlFile(outputFileName);
 
+    auto retryOrFallback = [this](const char* reason) {
+        static constexpr int kMaxRetries = 3;
+        static constexpr int kRetryDelayMs = 2000;
+        const QString uri = _cameraDefinitionUri(&_info);
+        if (_definitionRetryCount < kMaxRetries && !uri.isEmpty()) {
+            _definitionRetryCount++;
+            qCWarning(CameraControlLog) << "[CameraControl]" << reason
+                                        << "compId" << _compID
+                                        << "retry" << _definitionRetryCount << "of" << kMaxRetries
+                                        << "in" << kRetryDelayMs << "ms";
+            QTimer::singleShot(kRetryDelayMs, this, [this, uri]() {
+                _handleDefinitionFile(uri);
+            });
+        } else {
+            qCWarning(CameraControlLog) << "[CameraControl]" << reason
+                                        << "compId" << _compID
+                                        << "giving up after" << _definitionRetryCount << "retries; trying offline fallback";
+            emit dataReady(QByteArray());
+        }
+    };
+
     if (!xmlFile.exists()) {
         qCDebug(CameraControlLog) << "No camera definition file present after ftp download completed";
+        retryOrFallback("FTP download produced no file");
         return;
     }
     if (!xmlFile.open(QIODevice::ReadOnly)) {
         qCWarning(CameraControlLog) << "Could not read downloaded camera definition file: " << fileName;
+        retryOrFallback("FTP download file unreadable");
         return;
     }
 
