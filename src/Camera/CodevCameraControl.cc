@@ -93,6 +93,12 @@ static bool _isValidRcGimbalPwm(uint16_t raw)
     return raw >= kRcGimbalMinValid && raw <= kRcGimbalMaxValid && raw != 0xFFFF;
 }
 
+static bool _isR3CameraModel(const QString& modelName)
+{
+    return modelName.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
+            || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
+}
+
 static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
 {
     if (!_isValidRcGimbalPwm(raw)) {
@@ -1483,6 +1489,20 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
                     << "cameraCompId" << _compID
                     << "vehicleId" << (_vehicle ? _vehicle->id() : -1);
             skipDirectControlLogTimer.restart();
+        }
+        return;
+    }
+
+    if (!_isR3CameraModel(modelName())) {
+        static QElapsedTimer skipNonR3LogTimer;
+        if (!skipNonR3LogTimer.isValid() || skipNonR3LogTimer.elapsed() >= 1000) {
+            qCInfo(CodevCameraLog) << "[RCFlow]"
+                    << "skip native R3 rc forwarding"
+                    << "reason" << "non_r3_camera"
+                    << "cameraCompId" << _compID
+                    << "model" << modelName()
+                    << "vendor" << vendor();
+            skipNonR3LogTimer.restart();
         }
         return;
     }
