@@ -188,6 +188,7 @@ protected:
     void _requestThermometryData();
     bool _sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag);
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
+    void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
     void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
 
     bool _isTakingPhotoTimelapse();
@@ -216,11 +217,12 @@ protected:
     bool _busy_in_track_setup{false};
     qint64 _trackingInvalidStartMs{-1};
     QElapsedTimer _rcGimbalCommandTimer;
+    QElapsedTimer _rcCameraSettingsRequestTimer;
     quint16 _lastRcGimbalPitchRaw{1500};
     quint16 _lastRcGimbalYawRaw{1500};
+    quint16 _lastRcGimbalZoomRaw{1500};
+    quint16 _lastRcGimbalCenterRaw{1500};
     bool _lastRcGimbalWasCentered{true};
-    float _rcMountPitchTarget{0.0f};
-    float _rcMountYawTarget{0.0f};
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치

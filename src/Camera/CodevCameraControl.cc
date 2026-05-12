@@ -46,12 +46,14 @@ static constexpr float kTrackingSmallBoxArea = 0.002f;
 static constexpr float kTrackingCenterMargin = 0.35f;
 static constexpr float kTrackingCenterMax = 0.65f;
 static constexpr uint16_t kRcGimbalCenter = 1500;
-static constexpr uint16_t kRcGimbalDeadzone = 40;
+static constexpr uint16_t kRcGimbalDeadzone = 50;
 static constexpr uint16_t kRcGimbalMinValid = 900;
 static constexpr uint16_t kRcGimbalMaxValid = 2100;
 static constexpr uint16_t kRcGimbalChangeThreshold = 20;
-static constexpr qint64 kRcGimbalCommandMinIntervalMs = 100;
-static constexpr float kRcGimbalMaxRateDegS = 30.0f;
+static constexpr qint64 kRcCameraSettingsRequestMinIntervalMs = 1000;
+static constexpr qint64 kRcGimbalCommandMinIntervalMs = 50;
+static constexpr float kRcGimbalMaxPitchRateDegS = 3.0f;
+static constexpr float kRcGimbalMaxYawRateDegS = 30.0f;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -91,7 +93,7 @@ static bool _isValidRcGimbalPwm(uint16_t raw)
     return raw >= kRcGimbalMinValid && raw <= kRcGimbalMaxValid && raw != 0xFFFF;
 }
 
-static float _rcPwmToGimbalRate(uint16_t raw)
+static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
 {
     if (!_isValidRcGimbalPwm(raw)) {
         return 0.0f;
@@ -105,9 +107,9 @@ static float _rcPwmToGimbalRate(uint16_t raw)
     const float signedRange = delta > 0
             ? static_cast<float>(kRcGimbalMaxValid - kRcGimbalCenter)
             : static_cast<float>(kRcGimbalCenter - kRcGimbalMinValid);
-    return qBound(-kRcGimbalMaxRateDegS,
-                  (static_cast<float>(delta) / signedRange) * kRcGimbalMaxRateDegS,
-                  kRcGimbalMaxRateDegS);
+    return qBound(-maxRateDegS,
+                  (static_cast<float>(delta) / signedRange) * maxRateDegS,
+                  maxRateDegS);
 }
 
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
@@ -263,6 +265,43 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
                                     &cmd);
     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
     return true;
+}
+
+void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag)
+{
+    mavlink_rc_channels_t outbound = rc;
+    outbound.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    if (outbound.chancount < 18) {
+        outbound.chancount = 18;
+    }
+    if (outbound.chan11_raw == 0) {
+        outbound.chan11_raw = kRcGimbalCenter;
+    }
+    if (outbound.chan15_raw == 0) {
+        outbound.chan15_raw = kRcGimbalCenter;
+    }
+    outbound.rssi = rc.rssi == 0 ? 255 : rc.rssi;
+
+    qCInfo(CodevCameraLog) << "[RCFlow]"
+            << sourceTag
+            << "forward rc channels to R3"
+            << "cameraCompId" << _compID
+            << "sourceSysId" << _vehicle->id()
+            << "sourceCompId" << MAV_COMP_ID_AUTOPILOT1
+            << "message" << MAVLINK_MSG_ID_RC_CHANNELS
+            << "ch9Pitch" << outbound.chan9_raw
+            << "ch10Yaw" << outbound.chan10_raw
+            << "ch11Zoom" << outbound.chan11_raw
+            << "ch15Center" << outbound.chan15_raw
+            << "chancount" << outbound.chancount
+            << "queueSize" << _mavCommandQueue.count();
+
+    mavlink_message_t msg;
+    mavlink_msg_rc_channels_encode(static_cast<uint8_t>(_vehicle->id()),
+                                   MAV_COMP_ID_AUTOPILOT1,
+                                   &msg,
+                                   &outbound);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
 }
 
 void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
@@ -1428,17 +1467,36 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     static uint16_t rc_zoom_value = 0;
     if(rc_zoom_value != rc.chan11_raw) {
         rc_zoom_value = rc.chan11_raw;
-        _requestCameraSettings();
+        if (!_rcCameraSettingsRequestTimer.isValid()
+                || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs) {
+            _requestCameraSettings();
+            _rcCameraSettingsRequestTimer.restart();
+        }
+    }
+
+    if (!_vehicle || !_vehicle->px4Firmware()) {
+        static QElapsedTimer skipDirectControlLogTimer;
+        if (!skipDirectControlLogTimer.isValid() || skipDirectControlLogTimer.elapsed() >= 1000) {
+            qCInfo(CodevCameraLog) << "[RCFlow]"
+                    << "skip Codev direct rc gimbal control"
+                    << "reason" << "non_px4_vehicle"
+                    << "cameraCompId" << _compID
+                    << "vehicleId" << (_vehicle ? _vehicle->id() : -1);
+            skipDirectControlLogTimer.restart();
+        }
+        return;
     }
 
     const uint16_t pitchRaw = rc.chan9_raw;
     const uint16_t yawRaw = rc.chan10_raw;
+    const uint16_t zoomRaw = rc.chan11_raw;
+    const uint16_t centerRaw = rc.chan15_raw;
     if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
         return;
     }
 
-    const float pitchRate = _rcPwmToGimbalRate(pitchRaw);
-    const float yawRate = _rcPwmToGimbalRate(yawRaw);
+    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
+    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
     const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
 
     const bool firstCommand = !_rcGimbalCommandTimer.isValid();
@@ -1448,38 +1506,41 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
 
     const bool rawChanged =
             qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
-            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold;
+            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
     const bool centerTransition = centered != _lastRcGimbalWasCentered;
-    const bool refreshHeldCommand = !centered && _rcGimbalCommandTimer.elapsed() >= 250;
+    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
+    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
 
     if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
         return;
     }
 
-    if (!firstCommand && _rcGimbalCommandTimer.elapsed() < kRcGimbalCommandMinIntervalMs) {
+    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
         return;
     }
 
-    _rcMountPitchTarget += pitchRate * 0.1f;
-    _rcMountYawTarget += yawRate * 0.1f;
-    _rcMountPitchTarget = qBound(-90.0f, _rcMountPitchTarget, 30.0f);
-    _rcMountYawTarget = qBound(-180.0f, _rcMountYawTarget, 180.0f);
-
     qCInfo(CodevCameraLog) << "[RCFlow]"
-            << "Codev aviator rc gimbal"
+            << "Codev aviator rc gimbal native R3 RC"
             << "cameraCompId" << _compID
             << "ch9Pitch" << pitchRaw
             << "ch10Yaw" << yawRaw
+            << "ch11Zoom" << zoomRaw
+            << "ch15Center" << centerRaw
             << "pitchRate" << pitchRate
             << "yawRate" << yawRate
-            << "mountPitchTarget" << _rcMountPitchTarget
-            << "mountYawTarget" << _rcMountYawTarget
+            << "elapsedMs" << elapsedMs
+            << "rawChanged" << rawChanged
+            << "centerTransition" << centerTransition
             << "centered" << centered
             << "queueSize" << _mavCommandQueue.count();
 
-    _sendLegacyMountControl(_rcMountPitchTarget, _rcMountYawTarget, "aviatorRC");
+    _sendR3RcChannels(rc, "aviatorRC-native");
     _lastRcGimbalPitchRaw = pitchRaw;
     _lastRcGimbalYawRaw = yawRaw;
+    _lastRcGimbalZoomRaw = zoomRaw;
+    _lastRcGimbalCenterRaw = centerRaw;
     _lastRcGimbalWasCentered = centered;
     _rcGimbalCommandTimer.restart();
 
