@@ -92,21 +92,44 @@ void CustomVehicle::_rcChannelsTimeOut()
 
 void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
+    quint16 sendChannels[18];
+    memcpy(sendChannels, channels, sizeof(sendChannels));
+
+    bool neutralizeR3GimbalRC = false;
+    QString rcCameraModel;
+    QString rcCameraVendor;
+    if (count >= 10 && firmwareType() == MAV_AUTOPILOT_PX4 && cameraManager()) {
+        if (QGCCameraControl* camera = cameraManager()->currentCameraInstance()) {
+            rcCameraModel = camera->modelName();
+            rcCameraVendor = camera->vendor();
+            neutralizeR3GimbalRC = camera->compID() == MAV_COMP_ID_CAMERA
+                    && (rcCameraModel.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
+                        || rcCameraVendor.contains(QStringLiteral("Codev"), Qt::CaseInsensitive));
+        }
+    }
+    if (neutralizeR3GimbalRC) {
+        sendChannels[8] = 1500;
+        sendChannels[9] = 1500;
+    }
+
     qInfo(VehicleLog) << "[RCFlow]"
                       << "send rc channels"
                       << "vehicleId" << id()
                       << "count" << count
                       << "slaveMode" << _plugin->slaveMode()
                       << "forceSendRC" << _plugin->forceSendRC()
+                      << "neutralizeR3GimbalRC" << neutralizeR3GimbalRC
+                      << "cameraModel" << rcCameraModel
+                      << "cameraVendor" << rcCameraVendor
                       << "ch1-4"
-                      << channels[0] << channels[1] << channels[2] << channels[3]
+                      << sendChannels[0] << sendChannels[1] << sendChannels[2] << sendChannels[3]
                       << "ch5-8"
-                      << channels[4] << channels[5] << channels[6] << channels[7]
+                      << sendChannels[4] << sendChannels[5] << sendChannels[6] << sendChannels[7]
                       << "ch9-12"
-                      << channels[8] << channels[9] << channels[10] << channels[11]
+                      << sendChannels[8] << sendChannels[9] << sendChannels[10] << sendChannels[11]
                       << "ch13-18"
-                      << channels[12] << channels[13] << channels[14]
-                      << channels[15] << channels[16] << channels[17];
+                      << sendChannels[12] << sendChannels[13] << sendChannels[14]
+                      << sendChannels[15] << sendChannels[16] << sendChannels[17];
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
         mavlink_message_t msg;
@@ -118,29 +141,29 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                 &msg,
                 static_cast<uint8_t>(id()),
                 0,
-                channels[0],
-                channels[1],
-                channels[2],
-                channels[3],
-                channels[4],
-                channels[5],
-                channels[6],
-                channels[7],
-                channels[8],
-                channels[9],
-                channels[10],
-                channels[11],
-                channels[12],
-                channels[13],
-                channels[14],
-                channels[15],
-                channels[16],
-                channels[17]
+                sendChannels[0],
+                sendChannels[1],
+                sendChannels[2],
+                sendChannels[3],
+                sendChannels[4],
+                sendChannels[5],
+                sendChannels[6],
+                sendChannels[7],
+                sendChannels[8],
+                sendChannels[9],
+                sendChannels[10],
+                sendChannels[11],
+                sendChannels[12],
+                sendChannels[13],
+                sendChannels[14],
+                sendChannels[15],
+                sendChannels[16],
+                sendChannels[17]
             );
         } else {
            //qInfo()<< "else slave mode";
             mavlink_rc_channels_t rc_channels;
-            memcpy(&rc_channels.chan1_raw, channels, 18 * 2);
+            memcpy(&rc_channels.chan1_raw, sendChannels, 18 * 2);
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
             rc_channels.chancount = static_cast<uint8_t>(count);
             rc_channels.rssi = 255;
