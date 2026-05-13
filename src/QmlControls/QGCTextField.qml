@@ -26,21 +26,12 @@ TextField {
 
     property real _helpLayoutWidth: 0
 
-    Component.onCompleted: selectAllIfActiveFocus()
-    onActiveFocusChanged: selectAllIfActiveFocus()
-
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
     onEditingFinished: {
         if (ScreenTools.isMobile) {
             // Toss focus on mobile after Done on virtual keyboard. Prevent strange interactions.
             focus = false
-        }
-    }
-
-    function selectAllIfActiveFocus() {
-        if (activeFocus) {
-            selectAll()
         }
     }
 
