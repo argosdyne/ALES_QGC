@@ -110,7 +110,8 @@ Item {
         id: c2LinkWarningBanner
         anchors.top:            parent.top
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin:      _toolsMargin
+        //anchors.topMargin:      _toolsMargin
+        anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 2.0 // pushed down below camera LRF readout
         z:                      QGroundControl.zOrderTopMost
         visible:                _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
 
