@@ -5011,10 +5011,16 @@ void Vehicle::_updateLinkQuality(void)
         _linkQualityCritical = critical;
         emit linkQualityCriticalChanged(critical);
     }
-
-    if (!wasCritical && critical) {
+    // Fire STATUSTEXT on transition into bad state, with a 30s cooldown per severity
+    // so a flapping link can't spam the message indicator.
+    static qint64 lastC2CriticalEmitMs = 0;
+    static qint64 lastC2WarningEmitMs  = 0;
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (!wasCritical && critical && (nowMs - lastC2CriticalEmitMs) > 30000) {
+        lastC2CriticalEmitMs = nowMs;
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, tr("C2 link quality critical").toHtmlEscaped(), "");
-    } else if (!wasWarning && warning) {
+    } else if (!wasWarning && warning && (nowMs - lastC2WarningEmitMs) > 30000) {
+        lastC2WarningEmitMs = nowMs;
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, tr("C2 link quality degraded").toHtmlEscaped(), "");
     }
 }
