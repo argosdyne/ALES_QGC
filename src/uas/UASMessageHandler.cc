@@ -39,6 +39,12 @@ QString throttleKeyForText(const QString& text)
     if (plainText.contains(QStringLiteral("radio failsafe"))) {
         return QStringLiteral("radio-failsafe");
     }
+    if (plainText.contains(QStringLiteral("c2 link quality critical"))) {
+        return QStringLiteral("c2-link-critical");
+    }
+    if (plainText.contains(QStringLiteral("c2 link quality degraded"))) {
+        return QStringLiteral("c2-link-degraded");
+    }
     if (plainText.contains(QStringLiteral("precland0")) || plainText.contains(QStringLiteral("precland1")) || plainText.contains(QStringLiteral("precland"))) {
         return QStringLiteral("precland-nactive");
     }
