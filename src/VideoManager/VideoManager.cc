@@ -50,6 +50,19 @@ static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver
 };
 #endif
 
+namespace {
+
+static bool manualVideoOverrideEnabled()
+{
+    QSettings settings;
+    const bool enabled = settings.value(QStringLiteral("Custom/networkVideoStreamingEnabled"), false).toBool();
+    const QString url = settings.value(QStringLiteral("Custom/networkVideoUrl")).toString().trimmed();
+
+    return enabled && !url.isEmpty();
+}
+
+} // namespace
+
 //-----------------------------------------------------------------------------
 VideoManager::VideoManager(QGCApplication* app, QGCToolbox* toolbox)
     : QGCTool(app, toolbox)
@@ -553,6 +566,11 @@ bool
 VideoManager::autoStreamConfigured()
 {
 #if defined(QGC_GST_STREAMING)
+    if (manualVideoOverrideEnabled()) {
+        qCDebug(VideoManagerLog) << "Auto-discovery disabled due to manual video override";
+        return false;
+    }
+
     if(_activeVehicle && _activeVehicle->cameraManager()) {
         QGCVideoStreamInfo* pInfo = _activeVehicle->cameraManager()->currentStreamInstance();
         if(pInfo) {
@@ -843,7 +861,7 @@ VideoManager::_updateSettings(unsigned id)
 
     //-- Auto discovery
 
-    if(_activeVehicle && _activeVehicle->cameraManager()) {
+    if (!manualVideoOverrideEnabled() && _activeVehicle && _activeVehicle->cameraManager()) {
         QGCVideoStreamInfo* pInfo = _activeVehicle->cameraManager()->currentStreamInstance();
         if (!pInfo && id == 0) {
             qCWarning(VideoManagerLog) << "Auto-discovery: currentStreamInstance is null for primary stream";
@@ -932,6 +950,10 @@ VideoManager::_updateSettings(unsigned id)
             }
             return settingsChanged;
         }
+    } else if (manualVideoOverrideEnabled() && id == 0) {
+        qInfo() << "[VideoManager]" << "Skipping auto-discovery because manual video override is active"
+                << "source" << _videoSettings->videoSource()->rawValue().toString()
+                << "rtsp" << _videoSettings->rtspUrl()->rawValue().toString();
     }
     QString source = _videoSettings->videoSource()->rawValue().toString();
     if (source == VideoSettings::videoSourceUDPH264)

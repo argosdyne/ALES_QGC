@@ -35,6 +35,7 @@ Item {
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
     property bool   _hasZoom:           _camera && _camera.hasZoom
     property int    _fitMode:           QGroundControl.settingsManager.videoSettings.videoFit.rawValue
+    property bool   _videoStreamingAllowed: QGroundControl.corePlugin.settings.networkVideoStreamingEnabled.rawValue
 
     function getWidth() {
         return videoBackground.getWidth()
@@ -50,7 +51,7 @@ Item {
             anchors.fill:   parent
             source:         "/res/NoVideoBackground.jpg"
             fillMode:       Image.PreserveAspectCrop
-            visible:        !(QGroundControl.videoManager.decoding)
+            visible:        !(_videoStreamingAllowed && QGroundControl.videoManager.decoding)
 
             Rectangle {
                 anchors.centerIn:   parent
@@ -63,7 +64,7 @@ Item {
 
             QGCLabel {
                 id:                 noVideoLabel
-                text:               QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
+                text:               (_videoStreamingAllowed && QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue) ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
                 font.family:        ScreenTools.demiboldFontFamily
                 color:              "white"
                 font.pointSize:     useSmallFont ? ScreenTools.smallFontPointSize : ScreenTools.largeFontPointSize
@@ -75,7 +76,7 @@ Item {
         id:             videoBackground
         anchors.fill:   parent
         color:          "black"
-        visible:        QGroundControl.videoManager.decoding
+        visible:        _videoStreamingAllowed && QGroundControl.videoManager.decoding
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -147,7 +148,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            QGroundControl.videoManager.decoding
+            visible:            _videoStreamingAllowed && QGroundControl.videoManager.decoding
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource
