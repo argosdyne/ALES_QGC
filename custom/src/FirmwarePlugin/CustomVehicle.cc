@@ -14,6 +14,7 @@ static bool _isR3CameraModel(const QString& modelName)
     return modelName.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
             || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
 }
+
 static const char* kSYS_LIDAR_ODOM = "SYS_LIDAR_ODOM";
 
 CustomVehicle::CustomVehicle(LinkInterface*             link,
@@ -101,17 +102,54 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
 
-    bool neutralizeR3GimbalRC = false;
+    const bool neutralizeR3GimbalRC = false;
+    bool isR3GimbalRC = false;
+    bool px4MountManualMappingDisabled = false;
     QString rcCameraModel;
     QString rcCameraVendor;
     if (count >= 10 && firmwareType() == MAV_AUTOPILOT_PX4 && cameraManager()) {
         if (QGCCameraControl* camera = cameraManager()->currentCameraInstance()) {
             rcCameraModel = camera->modelName();
             rcCameraVendor = camera->vendor();
-            neutralizeR3GimbalRC = camera->compID() == MAV_COMP_ID_CAMERA
+            isR3GimbalRC = camera->compID() == MAV_COMP_ID_CAMERA
                     && _isR3CameraModel(rcCameraModel);
         }
     }
+
+    if (isR3GimbalRC) {
+        auto px4MountParamValue = [this](const char* paramName, int& value) -> bool {
+            if (!parameterManager()->parametersReady()) {
+                return false;
+            }
+            if (!parameterManager()->parameterExists(defaultComponentId(), paramName)) {
+                return false;
+            }
+
+            value = parameterManager()->getParameter(defaultComponentId(), paramName)->rawValue().toInt();
+            return true;
+        };
+
+        bool checkedMountManualParam = false;
+        bool mountManualParamMapped = false;
+        const char* mountManualParams[] = {
+            "MNT_MAN_PITCH",
+            "MNT_MAN_YAW",
+            "MNT_MAN_ROLL",
+        };
+        for (const char* mountManualParam : mountManualParams) {
+            int paramValue = 0;
+            if (px4MountParamValue(mountManualParam, paramValue)) {
+                checkedMountManualParam = true;
+                if (paramValue != 0) {
+                    mountManualParamMapped = true;
+                    break;
+                }
+            }
+        }
+
+        px4MountManualMappingDisabled = checkedMountManualParam && !mountManualParamMapped;
+    }
+
     if (neutralizeR3GimbalRC) {
         sendChannels[8] = 1500;
         sendChannels[9] = 1500;
@@ -123,9 +161,13 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                       << "count" << count
                       << "slaveMode" << _plugin->slaveMode()
                       << "forceSendRC" << _plugin->forceSendRC()
+                      << "isR3GimbalRC" << isR3GimbalRC
+                      << "px4MountManualMappingDisabled" << px4MountManualMappingDisabled
                       << "neutralizeR3GimbalRC" << neutralizeR3GimbalRC
                       << "cameraModel" << rcCameraModel
                       << "cameraVendor" << rcCameraVendor
+                      << "rawCh9-12"
+                      << channels[8] << channels[9] << channels[10] << channels[11]
                       << "ch1-4"
                       << sendChannels[0] << sendChannels[1] << sendChannels[2] << sendChannels[3]
                       << "ch5-8"
