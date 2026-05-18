@@ -123,6 +123,7 @@ void MissionManager::generateResumeMission(int resumeIndex)
                            << MAV_CMD_DO_DIGICAM_CONTROL
                            << MAV_CMD_DO_MOUNT_CONFIGURE
                            << MAV_CMD_DO_MOUNT_CONTROL
+                           << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
                            << MAV_CMD_DO_SET_CAM_TRIGG_DIST
                            << MAV_CMD_DO_FENCE_ENABLE
                            << MAV_CMD_IMAGE_START_CAPTURE

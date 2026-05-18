@@ -433,8 +433,8 @@ double MissionItem::specifiedGimbalYaw(void) const
 {
     double gimbalYaw = std::numeric_limits<double>::quiet_NaN();
 
-    if (_commandFact.rawValue().toInt() == MAV_CMD_DO_MOUNT_CONTROL && _param7Fact.rawValue().toInt() == MAV_MOUNT_MODE_MAVLINK_TARGETING) {
-        gimbalYaw = _param3Fact.rawValue().toDouble();
+    if (_commandFact.rawValue().toInt() == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW) {
+        gimbalYaw = _param2Fact.rawValue().toDouble();
     }
 
     return gimbalYaw;
@@ -444,7 +444,7 @@ double MissionItem::specifiedGimbalPitch(void) const
 {
     double gimbalPitch = std::numeric_limits<double>::quiet_NaN();
 
-    if (_commandFact.rawValue().toInt() == MAV_CMD_DO_MOUNT_CONTROL && _param7Fact.rawValue().toInt() == MAV_MOUNT_MODE_MAVLINK_TARGETING) {
+    if (_commandFact.rawValue().toInt() == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW) {
         gimbalPitch = _param1Fact.rawValue().toDouble();
     }
 

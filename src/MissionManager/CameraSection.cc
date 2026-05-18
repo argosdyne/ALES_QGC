@@ -133,17 +133,20 @@ void CameraSection::appendSectionItems(QList<MissionItem*>& items, QObject* miss
     }
 
     if (_specifyGimbal) {
-        MissionItem* item = new MissionItem(nextSequenceNumber++,
-                                            MAV_CMD_DO_MOUNT_CONTROL,
-                                            MAV_FRAME_MISSION,
-                                            _gimbalPitchFact.rawValue().toDouble(),
-                                            0,                                      // Gimbal roll
-                                            _gimbalYawFact.rawValue().toDouble(),
-                                            0, 0, 0,                                // param 4-6 not used
-                                            MAV_MOUNT_MODE_MAVLINK_TARGETING,
-                                            true,                                   // autoContinue
-                                            false,                                  // isCurrentItem
-                                            missionItemParent);
+        MissionItem* item = new MissionItem(
+            nextSequenceNumber++,
+            MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+            MAV_FRAME_MISSION,
+            _gimbalPitchFact.rawValue().toDouble(),
+            _gimbalYawFact.rawValue().toDouble(),
+            0,
+            0,
+            0,
+            0,
+            0,
+            true,
+            false,
+            missionItemParent);
         items.append(item);
     }
 
@@ -260,11 +263,11 @@ bool CameraSection::_scanGimbal(QmlObjectListModel* visualItems, int scanIndex)
     SimpleMissionItem* item = visualItems->value<SimpleMissionItem*>(scanIndex);
     if (item) {
         MissionItem& missionItem = item->missionItem();
-        if ((MAV_CMD)item->command() == MAV_CMD_DO_MOUNT_CONTROL) {
-            if (missionItem.param2() == 0 && missionItem.param4() == 0 && missionItem.param5() == 0 && missionItem.param6() == 0 && missionItem.param7() == MAV_MOUNT_MODE_MAVLINK_TARGETING) {
+        if ((MAV_CMD)item->command() == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW) {
+            if (missionItem.param3() == 0 && missionItem.param4() == 0 && missionItem.param5() == 0 && missionItem.param6() == 0) {
                 setSpecifyGimbal(true);
                 gimbalPitch()->setRawValue(missionItem.param1());
-                gimbalYaw()->setRawValue(missionItem.param3());
+                gimbalYaw()->setRawValue(missionItem.param2());
                 visualItems->removeAt(scanIndex)->deleteLater();
                 return true;
             }
