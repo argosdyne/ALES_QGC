@@ -26,6 +26,8 @@ Item {
 
     property bool useSmallFont: true
 
+    property var    _videoManager:       QGroundControl.videoManager
+    property var    _videoSettings:      QGroundControl.settingsManager.videoSettings
     property double _ar:                QGroundControl.videoManager.aspectRatio
     property bool   _showGrid:          QGroundControl.settingsManager.videoSettings.gridLines.rawValue > 0
     property var    _dynamicCameras:    globals.activeVehicle ? globals.activeVehicle.cameraManager : null
@@ -41,6 +43,55 @@ Item {
     }
     function getHeight() {
         return videoBackground.getHeight()
+    }
+
+    function _diagnosticStatusText() {
+        if (!_videoSettings.streamEnabled.rawValue) {
+            return qsTr("Video disabled")
+        }
+        if (_videoManager.decoding) {
+            return qsTr("Video live")
+        }
+        if (_videoManager.streaming) {
+            return qsTr("Streaming")
+        }
+        return qsTr("Waiting for video")
+    }
+
+    function _diagnosticProfileText() {
+        return _videoManager.lowLatencyActive ? qsTr("Low Latency") : qsTr("Default")
+    }
+
+    function _diagnosticTransportText() {
+        const source = _videoSettings.videoSource.rawValue
+        if (source === _videoSettings.rtspVideoSource) {
+            return qsTr("RTSP/TCP")
+        }
+        if (source === _videoSettings.tcpVideoSource) {
+            return qsTr("TCP")
+        }
+        if (source === _videoSettings.udp264VideoSource) {
+            return qsTr("UDP H.264")
+        }
+        if (source === _videoSettings.udp265VideoSource) {
+            return qsTr("UDP H.265")
+        }
+        if (source === _videoSettings.mpegtsVideoSource) {
+            return qsTr("MPEG-TS")
+        }
+        return source
+    }
+
+    function _diagnosticLatencyText() {
+        const source = _videoSettings.videoSource.rawValue
+        if (source === _videoSettings.rtspVideoSource) {
+            return (_videoManager.lowLatencyActive ? 80 : 17) + " ms"
+        }
+        return qsTr("n/a")
+    }
+
+    function _diagnosticSinkSyncText() {
+        return _videoManager.lowLatencyActive ? qsTr("false") : qsTr("true")
     }
 
     property double _thermalHeightFactor: 0.85 //-- TODO
@@ -241,6 +292,84 @@ Item {
 
             onDoubleClicked: {
                 QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+            }
+        }
+
+        Rectangle {
+            id: diagnosticsOverlay
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: ScreenTools.defaultFontPixelWidth
+            radius: ScreenTools.defaultFontPixelWidth * 0.5
+            color: Qt.rgba(0, 0, 0, 0.62)
+            border.color: Qt.rgba(1, 1, 1, 0.18)
+            border.width: 1
+            visible: _videoManager.streaming || _videoManager.decoding
+            z: 20
+            width: diagnosticsColumn.width + (ScreenTools.defaultFontPixelWidth * 2)
+            height: diagnosticsColumn.height + (ScreenTools.defaultFontPixelHeight * 1.2)
+
+            Column {
+                id: diagnosticsColumn
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.margins: ScreenTools.defaultFontPixelWidth
+                spacing: ScreenTools.defaultFontPixelHeight * 0.15
+
+                QGCLabel {
+                    text: qsTr("Diagnostics")
+                    color: "white"
+                    font.family: ScreenTools.demiboldFontFamily
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Status: %1").arg(_diagnosticStatusText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Profile: %1").arg(_diagnosticProfileText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Transport: %1").arg(_diagnosticTransportText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("RTSP Latency: %1").arg(_diagnosticLatencyText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Sink Sync: %1").arg(_diagnosticSinkSyncText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Streaming: %1").arg(_videoManager.streaming ? qsTr("true") : qsTr("false"))
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Decoder: %1").arg(_videoManager.decoderName !== "" ? _videoManager.decoderName : qsTr("pending"))
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Resolution: %1 x %2").arg(_videoManager.videoSize.width).arg(_videoManager.videoSize.height)
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
             }
         }
 

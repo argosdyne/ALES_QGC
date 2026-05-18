@@ -17,6 +17,7 @@
 
 #include <QObject>
 #include <QSize>
+#include <QString>
 
 class VideoReceiver : public QObject
 {
@@ -54,6 +55,7 @@ signals:
     void recordingChanged(bool active);
     void recordingStarted(void);
     void videoSizeChanged(QSize size);
+    void decoderNameChanged(const QString& name);
 
     void onStartComplete(STATUS status);
     void onStopComplete(STATUS status);

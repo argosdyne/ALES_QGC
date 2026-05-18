@@ -56,6 +56,8 @@ public:
     Q_PROPERTY(bool             decoding                READ    decoding                                    NOTIFY decodingChanged)
     Q_PROPERTY(bool             recording               READ    recording                                   NOTIFY recordingChanged)
     Q_PROPERTY(QSize            videoSize               READ    videoSize                                   NOTIFY videoSizeChanged)
+    Q_PROPERTY(bool             lowLatencyActive       READ    lowLatencyActive                            NOTIFY lowLatencyActiveChanged)
+    Q_PROPERTY(QString          decoderName            READ    decoderName                                 NOTIFY decoderNameChanged)
 
     virtual bool        hasVideo            ();
     virtual bool        isGStreamer         ();
@@ -86,6 +88,14 @@ public:
     QSize videoSize(void) {
         const quint32 size = _videoSize;
         return QSize((size >> 16) & 0xFFFF, size & 0xFFFF);
+    }
+
+    bool lowLatencyActive(void) const {
+        return _lowLatencyStreaming[0];
+    }
+
+    QString decoderName(void) const {
+        return _decoderName;
     }
 
 // FIXME: AV: they should be removed after finishing multiple video stream support
@@ -131,6 +141,8 @@ signals:
     void recordingChanged           ();
     void recordingStarted           ();
     void videoSizeChanged           ();
+    void lowLatencyActiveChanged    ();
+    void decoderNameChanged         ();
 
 protected slots:
     void _videoSourceChanged        ();
@@ -178,6 +190,7 @@ protected:
     QAtomicInteger<bool>    _decoding               = false;
     QAtomicInteger<bool>    _recording              = false;
     QAtomicInteger<quint32> _videoSize              = 0;
+    QString                 _decoderName;
     VideoSettings*          _videoSettings          = nullptr;
     QString                 _uvcVideoSourceID;
     bool                    _fullScreen             = false;
