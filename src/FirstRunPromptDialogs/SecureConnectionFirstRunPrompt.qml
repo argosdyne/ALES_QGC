@@ -189,6 +189,10 @@ FirstRunPrompt {
     }
 
     Component.onCompleted: {
+        var rtspUrl = _videoSettings.rtspUrl.rawValue.toString()
+        var defaultVideoUrl = _videoUrl.rawValue.toString()
+        videoUriField.text = rtspUrl.length > 0 ? rtspUrl : defaultVideoUrl
+
         if (!_rememberChoice.rawValue) {
             udpCheckbox.checked = false
             tcpCheckbox.checked = false
