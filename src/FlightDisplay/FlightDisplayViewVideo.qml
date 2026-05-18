@@ -86,7 +86,7 @@ Item {
     function _diagnosticLatencyText() {
         const source = _videoSettings.videoSource.rawValue
         if (source === _videoSettings.rtspVideoSource) {
-            return (_videoManager.lowLatencyActive ? 80 : 17) + " ms"
+            return (_videoManager.activeVideoBufferMs > 0 ? _videoManager.activeVideoBufferMs : 17) + " ms"
         }
         return qsTr("n/a")
     }
@@ -332,6 +332,12 @@ Item {
 
                 QGCLabel {
                     text: qsTr("Profile: %1").arg(_diagnosticProfileText())
+                    color: "white"
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+
+                QGCLabel {
+                    text: qsTr("Device Mode: %1").arg(_videoManager.deviceVideoMode)
                     color: "white"
                     font.pointSize: ScreenTools.smallFontPointSize
                 }

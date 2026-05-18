@@ -20,6 +20,9 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QSysInfo>
+#ifdef Q_OS_ANDROID
+#include <QtAndroidExtras/QAndroidJniObject>
+#endif
 
 #include <gst/rtsp/gstrtsptransport.h>
 
@@ -63,6 +66,18 @@ QString gstFactoryName(GstElement* element)
     return factory != nullptr
         ? QString::fromUtf8(gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)))
         : QStringLiteral("<no-factory>");
+}
+
+bool isRockchipManufacturer()
+{
+#ifdef Q_OS_ANDROID
+    const QAndroidJniObject manufacturer = QAndroidJniObject::getStaticObjectField(
+            "android/os/Build", "MANUFACTURER", "Ljava/lang/String;");
+    if (manufacturer.isValid()) {
+        return manufacturer.toString().contains(QStringLiteral("rockchip"), Qt::CaseInsensitive);
+    }
+#endif
+    return false;
 }
 
 void configureStartupParserHints(GstElement* element)
@@ -1041,10 +1056,14 @@ GstVideoReceiver::_makeSource(const QString& uri)
                 g_object_set(static_cast<gpointer>(source),
                              "location", qPrintable(uri),
                              "latency", rtspLatency,
-                             "protocols", GST_RTSP_LOWER_TRANS_TCP,
                              "udp-reconnect", 1,
                              "timeout", _udpReconnect_us,
                              NULL);
+                if (!isRockchipManufacturer()) {
+                    g_object_set(static_cast<gpointer>(source),
+                                 "protocols", GST_RTSP_LOWER_TRANS_TCP,
+                                 NULL);
+                }
                 g_signal_connect(source, "new-manager", G_CALLBACK(_onRtspNewManager), this);
                 if (GST_IS_CHILD_PROXY(source)) {
                     g_signal_connect(source, "child-added", G_CALLBACK(_onChildAdded), this);
@@ -1467,7 +1486,7 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
 
     gst_element_sync_state_with_parent(_videoSink);
 
-    const gboolean sinkSync = (_buffer <= 0);
+    const gboolean sinkSync = isRockchipManufacturer() ? (_buffer >= 0) : (_buffer <= 0);
     g_object_set(_videoSink,
                  "sync", sinkSync,
                  "qos", FALSE,

@@ -58,6 +58,8 @@ public:
     Q_PROPERTY(QSize            videoSize               READ    videoSize                                   NOTIFY videoSizeChanged)
     Q_PROPERTY(bool             lowLatencyActive       READ    lowLatencyActive                            NOTIFY lowLatencyActiveChanged)
     Q_PROPERTY(QString          decoderName            READ    decoderName                                 NOTIFY decoderNameChanged)
+    Q_PROPERTY(int              activeVideoBufferMs    READ    activeVideoBufferMs                         NOTIFY activeVideoBufferMsChanged)
+    Q_PROPERTY(QString          deviceVideoMode        READ    deviceVideoMode                             NOTIFY deviceVideoModeChanged)
 
     virtual bool        hasVideo            ();
     virtual bool        isGStreamer         ();
@@ -96,6 +98,14 @@ public:
 
     QString decoderName(void) const {
         return _decoderName;
+    }
+
+    int activeVideoBufferMs(void) const {
+        return _activeVideoBufferMs;
+    }
+
+    QString deviceVideoMode(void) const {
+        return _legacyRockchipStreaming ? QStringLiteral("rockchip-legacy") : QStringLiteral("default-low-latency");
     }
 
 // FIXME: AV: they should be removed after finishing multiple video stream support
@@ -143,6 +153,8 @@ signals:
     void videoSizeChanged           ();
     void lowLatencyActiveChanged    ();
     void decoderNameChanged         ();
+    void activeVideoBufferMsChanged ();
+    void deviceVideoModeChanged     ();
 
 protected slots:
     void _videoSourceChanged        ();
@@ -191,11 +203,14 @@ protected:
     QAtomicInteger<bool>    _recording              = false;
     QAtomicInteger<quint32> _videoSize              = 0;
     QString                 _decoderName;
+    int                     _activeVideoBufferMs    = 0;
     VideoSettings*          _videoSettings          = nullptr;
     QString                 _uvcVideoSourceID;
     bool                    _fullScreen             = false;
     Vehicle*                _activeVehicle          = nullptr;
     bool                    _deferPrimaryStartUntilSinkReady = false;
     bool                    _restartPrimaryOnSinkReady = false;
+    bool                    _legacyRockchipStreaming = false;
+    bool                    _primaryTimeoutRecoveryPending = false;
 };
 #endif
