@@ -196,6 +196,10 @@ ApplicationWindow {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
     }
 
+    function showAboutTool() {
+        aboutDialogComponent.createObject(mainWindow).open()
+    }
+
     //-------------------------------------------------------------------------
     //-- Global simple message dialog
 
@@ -223,6 +227,87 @@ ApplicationWindow {
         id: simpleMessageDialogComponent
 
         QGCSimpleMessageDialog {
+        }
+    }
+
+    Component {
+        id: aboutDialogComponent
+
+        QGCPopupDialog {
+            id:         aboutDialog
+            title:      qsTr("About")
+            buttons:    StandardButton.Close
+
+            property string _companyName:           "Argosdyne"
+            property string _productDisplayName:    QGroundControl.appName
+            property string _productVersion:        QGroundControl.qgcVersion
+
+            ColumnLayout {
+                width:                   Math.min(ScreenTools.defaultFontPixelWidth * 60, aboutDialog._maxContentWidth)
+                spacing:                 ScreenTools.defaultFontPixelHeight * 0.7
+
+                    ColumnLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("AlesQGC Smart Controller v1.0")
+                            font.pointSize:     ScreenTools.largeFontPointSize
+                            font.family:        ScreenTools.demiboldFontFamily
+                            wrapMode:           Text.WordWrap
+                        }
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("Copyright © 2024 %1. All rights reserved.").arg(aboutDialog._companyName)
+                            color:              qgcPal.text
+                            opacity:            0.75
+                            wrapMode:           Text.WordWrap
+                        }
+                }
+
+                Rectangle {
+                    Layout.fillWidth:   true
+                    Layout.preferredHeight: 1
+                    color:              qgcPal.text
+                    opacity:            0.15
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("This product includes software developed by the QGroundControl project <br/> (<a href=\"https://qgroundcontrol.com\" style=\"color:%1;text-decoration:underline;\">https://qgroundcontrol.com</a>).").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    text:               qsTr("QGroundControl is licensed under the Apache License, Version 2.0.")
+                    wrapMode:           Text.WordWrap
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("You may obtain a copy of the Apache License at:<br><a href=\"https://www.apache.org/licenses/LICENSE-2.0\" style=\"color:%1;text-decoration:underline;\">https://www.apache.org/licenses/LICENSE-2.0</a>").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                Item {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.7
+                }
+
+            }
         }
     }
 
@@ -381,6 +466,19 @@ ApplicationWindow {
                                 toolSelectDialog.close()
                                 mainWindow.showSettingsTool()
                             }
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 aboutButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("About")
+                        imageResource:      "/custom/img/about.svg"
+                        imageColor:         "transparent"
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showAboutTool()
                         }
                     }
 
