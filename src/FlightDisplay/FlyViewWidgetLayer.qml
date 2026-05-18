@@ -203,6 +203,16 @@ Item {
         anchors.right: parent.right
         width: _rightPanelWidth
         anchors.top: parent.top
+        visible: _mainWindowIsMap && QGroundControl.settingsManager.flyViewSettings.enableAudioController.value
+    }
+
+    //-- Optical Flow Control
+    OpticalFlowControl {
+        id: opticalFlowControl
+        anchors.margins: _toolsMargin
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        visible: _mainWindowIsMap && QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController.value
     }
 
     TelemetryValuesBar {

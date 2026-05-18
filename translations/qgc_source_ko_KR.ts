@@ -7822,6 +7822,11 @@ Click Ok to start the auto-tuning process.
         <translation>오디오 활성화</translation>
     </message>
 <message>
+        <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
+        <source>Enable Optical Flow Sensor</source>
+        <translation>옵티컬 플로우 센서 활성화</translation>
+    </message>
+<message>
         <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
         <source>Save application data to SD Card</source>
         <translation>애플리케이션 데이터를 SD 카드에 저장</translation>
@@ -10080,6 +10085,37 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/MainRootWindow.qml" line="520"/>
       <source>Back</source>
       <translation>뒤로 가기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="222"/>
+      <location filename="../src/ui/MainRootWindow.qml" line="413"/>
+      <source>About</source>
+      <translation>정보</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="255"/>
+      <source>EasyGripper Smart Controller v1.0</source>
+      <translation>EasyGripper 스마트 컨트롤러 v1.0</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="262"/>
+      <source>Copyright © 2024 %1. All rights reserved.</source>
+      <translation>저작권 © 2024 %1. 모든 권리 보유.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="284"/>
+      <source>This product includes software developed by the QGroundControl project &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</source>
+      <translation>이 제품에는 QGroundControl 프로젝트에서 개발한 소프트웨어가 포함되어 있습니다.&lt;br/&gt;(&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="290"/>
+      <source>QGroundControl is licensed under the Apache License, Version 2.0.</source>
+      <translation>QGroundControl은 Apache License, 버전 2.0에 따라 라이선스가 부여됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="301"/>
+      <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
+      <translation>Apache License 사본은 다음에서 확인할 수 있습니다:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
     </message>
   
 <message>
@@ -14145,6 +14181,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <translation>비전 라이다</translation>
     </message>
     <message>
+      <location filename="../src/PlanView/PlanView.qml" line="1047"/>
+      <source>Current Distance</source>
+      <translation>현재 거리</translation>
+    </message>
+    <message>
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
       <source>Pattern</source>
       <translation>패턴</translation>
@@ -14435,6 +14476,31 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
         <location filename="../src/PlanView/PlanView.qml" line="874"/>
         <source>Plan overwrite</source>
         <translation>계획 덮어쓰기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="748"/>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="816"/>
+      <source>Use Obstacle Detection</source>
+      <translation>장애물 감지 사용</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="858"/>
+      <source>Avoid</source>
+      <translation>회피</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="876"/>
+      <source>Stop</source>
+      <translation>정지</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="893"/>
+      <source>Detection Distance</source>
+      <translation>감지 거리</translation>
     </message>
 </context>
   <context>
@@ -19901,6 +19967,21 @@ Confirm change?</source>
         <translation>N/A</translation>
     </message>
 <message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+        <source>Node adress:</source>
+        <translation>노드 주소:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+        <source>Serial Number:</source>
+        <translation>시리얼 번호:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="98"/>
+        <source>Current Network Name:</source>
+        <translation>현재 네트워크 이름:</translation>
+    </message>
+<message>
         <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
         <source>Radio:</source>
         <translation>무선기:</translation>
@@ -19944,6 +20025,36 @@ Confirm change?</source>
         <location filename="../src/RajantLink/RajantSettings.qml" line="161"/>
         <source>Firmware:</source>
         <translation>펌웨어:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="193"/>
+        <source>Pairing Device</source>
+        <translation>장치 페어링</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="219"/>
+        <source>Set Network Name:</source>
+        <translation>네트워크 이름 설정:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="227"/>
+        <source>Enter full mesh name</source>
+        <translation>전체 메시 이름 입력</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="244"/>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="252"/>
+        <source>Disconnect</source>
+        <translation>연결 해제</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="266"/>
+        <source>Applying settings and waiting reboot...</source>
+        <translation>설정을 적용하고 재부팅을 기다리는 중...</translation>
     </message>
 </context>
 <context>
@@ -20100,6 +20211,40 @@ Confirm change?</source>
         <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="134"/>
         <source>Stop</source>
         <translation>정지</translation>
+    </message>
+</context>
+<context>
+
+    <name>OpticalFlowControl</name>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="52"/>
+        <source>Optical Flow Sensor</source>
+        <translation>옵티컬 플로우 센서</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="76"/>
+        <source>GPS</source>
+        <translation>GPS</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="100"/>
+        <source>Optical</source>
+        <translation>옵티컬</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="124"/>
+        <source>Auto</source>
+        <translation>자동</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="148"/>
+        <source>Calib Start</source>
+        <translation>보정 시작</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="180"/>
+        <source>Calib Stop</source>
+        <translation>보정 정지</translation>
     </message>
 </context>
 <context>

@@ -29,23 +29,49 @@ static constexpr quint16 kCameraDefinitionLocalPort = 38081;
 static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
+struct CodevFallbackProfile {
+    QByteArray modelName;
+    uint8_t definitionVersion = kCodevFallbackDefinitionVersion;
+};
+
+static CodevFallbackProfile _codevFallbackProfileFromRtsp()
+{
+    CodevFallbackProfile profile;
+    profile.modelName = QByteArrayLiteral("R3");
+    profile.definitionVersion = kCodevFallbackDefinitionVersion;
+
+    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    const QUrl videoUrl(rtspUrl);
+    if (videoUrl.host().isEmpty()) {
+        return profile;
+    }
+
+    const QString lastSegment = videoUrl.path().section('/', -1);
+    if (lastSegment.compare(QStringLiteral("cr"), Qt::CaseInsensitive) == 0) {
+        profile.modelName = QByteArrayLiteral("RLR1");
+        profile.definitionVersion = 13;
+    }
+
+    return profile;
+}
+
 static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return false;
     }
 
-    const QByteArray vendor = QByteArrayLiteral("Codev");
-    const QByteArray modelName = QByteArrayLiteral("R3");
+    const CodevFallbackProfile profile = _codevFallbackProfileFromRtsp();
+    const QByteArray vendor = QByteArrayLiteral("Codev");    
 
     memset(&info, 0, sizeof(info));
     memcpy(info.vendor_name, vendor.constData(), qMin(static_cast<int>(sizeof(info.vendor_name)) - 1, vendor.size()));
-    memcpy(info.model_name, modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, modelName.size()));
+    memcpy(info.model_name, profile.modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, profile.modelName.size()));
     memcpy(info.cam_definition_uri, definitionUri.constData(), qMin(static_cast<int>(sizeof(info.cam_definition_uri)) - 1, definitionUri.size()));
     // Match FlyDynamics3 behavior: fallback only supplies a definition profile.
     // Firmware version must come from a real CAMERA_INFORMATION payload, not be synthesized from the XML/profile revision.
     info.firmware_version = 0;
-    info.cam_definition_version = kCodevFallbackDefinitionVersion;
+    info.cam_definition_version = profile.definitionVersion;
     info.flags = 0x75f; // Matches the real Codev CAMERA_INFORMATION seen in FlyDynamics3 logs.
 
     return true;
@@ -731,6 +757,7 @@ QGCCameraManager::_cameraTimeout()
                     QGCCameraControl* pCamera = _findCamera(pInfo->compID);
                     if(pCamera) {
                         qCWarning(CameraManagerLog) << "Camera" << pCamera->modelName() << "stopped transmitting. Removing from list.";
+                        pCamera->resetDefinitionCacheForReconnect();
                         autoStream = pCamera->autoStream();
                         _removeCameraControlFromLists(pCamera);
                         pCamera->deleteLater();

@@ -447,6 +447,13 @@ Rectangle {
                                     text: qsTr("Enable Audio")
                                     fact: QGroundControl.settingsManager.flyViewSettings.enableAudioController                                    
                                 }
+                                                                
+                                Item { width: 1; height:1 }
+                                FactCheckBox {
+                                    id: enableOpticalFlowCheck
+                                    text: qsTr("Enable Optical Flow Sensor")
+                                    fact: QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController
+                                }
                             }
                         }
                     }
@@ -798,6 +805,8 @@ Rectangle {
                                 FactCheckBox {
                                     text: qsTr("Enable Life Jacket")
                                     fact: QGroundControl.corePlugin.settings.lifeJacketEnable
+                                    // Hide for PX4 vehicles; show for APM or when no vehicle is connected
+                                    visible:    !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
                                 }
                             }
                         }

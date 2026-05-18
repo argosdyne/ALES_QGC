@@ -55,6 +55,7 @@ QGC_LOGGING_CATEGORY(CustomLog, "CustomLog")
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
 
 static const char *kSlaveMode = "SlaveMode";
+static const char *kPinnedRajantLocalNode = "Rajant/LocalNodeAddress";
 
 CustomFlyViewOptions::CustomFlyViewOptions(CustomOptions* options, QObject* parent)
     : QGCFlyViewOptions(options, parent)
@@ -192,7 +193,7 @@ CustomPlugin::settingsPages()
             qInfo() << "M2Manager Not null";
             _addSettingsEntry(tr("M2Link"), "qrc:/qml/M2Settings.qml");
         }
-        else {
+          else {
             bool isDoodle = _qmlInterface && _qmlInterface->arManager()
                 && _qmlInterface->arManager()->usingDoodleApi();
 
@@ -227,6 +228,18 @@ QString CustomPlugin::brandImageIndoor(void) const
 QString CustomPlugin::brandImageOutdoor(void) const
 {
     return QStringLiteral("/custom/img/CustomAppIconOutdoor.png");
+}
+
+bool CustomPlugin::getOfflineCameraDefinitionFile(QString cameraname, QFile& file)
+{
+    const QString cameraName = cameraname.trimmed().toUpper();
+
+    if (cameraName == QStringLiteral("R3") || cameraName == QStringLiteral("CODEV R3")) {
+        file.setFileName(QStringLiteral(":/camera-definitions/Codev_R3_023.xml"));
+        return true;
+    }
+
+    return false;
 }
 
 bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
@@ -584,6 +597,18 @@ void CustomPlugin::_initRajantDiscovery()
         _rajantManager = new RajantManager(addr, _rajantPassword, this);
         emit rajantManagerChanged();
         return;
+    }
+
+    // Prefer previously pinned local node address.
+    {
+        QSettings settings;
+        _pinnedRajantLocalNode = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!_pinnedRajantLocalNode.isEmpty()) {
+            qCInfo(ARManagerLog) << "RajantDiscovery: using pinned local node:" << _pinnedRajantLocalNode;
+            _rajantManager = new RajantManager(_pinnedRajantLocalNode, _rajantPassword, this);
+            emit rajantManagerChanged();
+            return;
+        }
     }
 
     // qCInfo(ARManagerLog) << "RajantDiscovery: starting auto-discovery...";
@@ -1139,6 +1164,12 @@ void CustomPlugin::_onRajantProbeConnected()
     // The first node to respond is the directly-connected ground unit.
     // Ground unit's Peer.signal = signal ground receives from air (drone).
     // This is the RSSI value the pilot needs on the GCS toolbar.
+    // Pin this address as local node for subsequent reconnects and write operations.
+    {
+        QSettings settings;
+        settings.setValue(kPinnedRajantLocalNode, address);
+        _pinnedRajantLocalNode = address;
+    }
     _rajantManager = new RajantManager(address, _rajantPassword, this);
     _rajantCandidates.clear();
     emit rajantManagerChanged();

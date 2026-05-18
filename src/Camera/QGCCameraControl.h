@@ -323,6 +323,7 @@ public:
     virtual void        handleRCChannels    (const mavlink_rc_channels_t&) {}
     virtual void        handleCommandAck    (const mavlink_command_ack_t&) {}
     virtual void        handleImageCaptured (const mavlink_camera_image_captured_t&) {}
+    virtual void        resetDefinitionCacheForReconnect();
 
     virtual bool        trackingEnabled     () { return _trackingStatus & TRACKING_ENABLED; }
     virtual void        setTrackingEnabled  (bool set);
@@ -437,6 +438,7 @@ protected:
     int                                 _compID             = 0;
     mavlink_camera_information_t        _info;
     int                                 _version            = 0;
+    int                                 _definitionRetryCount = 0;
     bool                                _cached             = false;
     bool                                _paramComplete      = false;
     qreal                               _zoomLevel          = 0.0;

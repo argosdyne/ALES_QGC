@@ -15,5 +15,6 @@ add_custom_target(FligthMapWidgetsQml
 		QGCPitchIndicator.qml
 		QGCWaypointEditor.qml
 		AudioControl.qml
+		OpticalFlowControl.qml
 )
 

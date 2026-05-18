@@ -3,8 +3,11 @@
 #include <QLoggingCategory>
 #include <QQmlEngine>
 #include <QSslConfiguration>
+#include <QUuid>
+#include <QSettings>
 
 Q_DECLARE_LOGGING_CATEGORY(ARManagerLog)
+static const char *kPinnedRajantLocalNode = "Rajant/LocalNodeAddress";
 
 RajantManager::RajantManager(const QString& nodeAddress, const QString& password, QObject* parent)
     : QObject(parent)
@@ -79,6 +82,19 @@ void RajantManager::disconnect()
     _setConnected(false);
     _setAuthenticated(false);
     _setStatusText("Disconnected");
+    _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
+    _skySignal = 0; _skySnr = 0;
+    _peerCount = 0;
+    _peerLinkLocalAddress.clear();
+    _serialNumber.clear();
+    _networkName.clear();
+    _nodeName.clear();
+    _firmwareVersion.clear();
+    _pendingCommand = PendingNone;
+    _awaitingReconnectAfterReboot = false;
+    _setPairingBusy(false);
+    emit radioDataChanged();
+    emit skyDataChanged();
 }
 
 void RajantManager::reconnect()
@@ -100,6 +116,9 @@ void RajantManager::_onSocketEncrypted()
     _setConnected(true);
     _setStatusText("SSL connected, waiting for auth challenge...");
     _authState = AUTH_WAIT_CHALLENGE;
+    if (_awaitingReconnectAfterReboot) {
+        _setStatusText("Reconnected, waiting for authentication...");
+    }
     // Server will send the BCAPI auth challenge now that SSL is established
 }
 
@@ -114,12 +133,20 @@ void RajantManager::_onSocketDisconnected()
     // Wipe cached values so UI immediately shows N/A instead of stale numbers
     _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
     _skySignal = 0; _skySnr = 0;
+    _peerLinkLocalAddress.clear();
+    _serialNumber.clear();
+    _networkName.clear();
+    _nodeName.clear();
+    _firmwareVersion.clear();
     _peerCount = 0;
     _staleCount = 0;
     _lastPeerChange.invalidate();
     if (_linkLive) { _linkLive = false; emit linkLiveChanged(); }
     emit radioDataChanged();
     emit skyDataChanged();
+    if (_awaitingReconnectAfterReboot) {
+        _setStatusText("Reboot in progress, waiting for node to come back...");
+    }
 
     // Auto-reconnect
     if (!_reconnTimer->isActive()) {
@@ -177,17 +204,54 @@ void RajantManager::_processFrame(const QByteArray& payload)
     if (msg.authResultStatus >= 0) {
         if (msg.authResultStatus == 1) { // SUCCESS
             qCInfo(ARManagerLog) << "RajantManager: authentication successful on" << _nodeAddress;
+            {
+                QSettings settings;
+                settings.setValue(kPinnedRajantLocalNode, _nodeAddress);
+            }
             _setAuthenticated(true);
             _setStatusText("Authenticated - polling RSSI");
             // Start polling state
             _pollState(); // immediate first query
             _pollTimer->start(_pollInterval);
+            if (_awaitingReconnectAfterReboot) {
+                _awaitingReconnectAfterReboot = false;
+                _setPairingBusy(false);
+                _setStatusText(QString("Pairing complete. Network set to \"%1\"").arg(_targetNetworkName));
+            }
         } else {
             qCWarning(ARManagerLog) << "RajantManager: authentication FAILED (status:" << msg.authResultStatus << ")";
             _setStatusText("Auth failed - check password");
             _socket->close();
         }
         _authState = AUTH_DONE;
+        return;
+    }
+
+    // Handle config write result
+    if (msg.configResultStatus >= 0 && _pendingCommand == PendingSetNetworkName) {
+        if (msg.configResultStatus == 1 || msg.configResultStatus == 2) {
+            qCInfo(ARManagerLog) << "RajantManager: set networkName accepted:" << _targetNetworkName;
+            _setStatusText(QString("Network name set to \"%1\". Rebooting...").arg(_targetNetworkName));
+            _pendingCommand = PendingNone;
+            _sendRebootTask(3000);
+        } else {
+            _pendingCommand = PendingNone;
+            _failPairing(QString("Set networkName failed: %1").arg(msg.configResultDescription));
+        }
+        return;
+    }
+
+    // Handle reboot task result
+    if (msg.runTaskResultStatus >= 0 && _pendingCommand == PendingReboot) {
+        if (msg.runTaskResultStatus == 1 || msg.runTaskResultStatus == 2) {
+            qCInfo(ARManagerLog) << "RajantManager: reboot task accepted";
+            _pendingCommand = PendingNone;
+            _awaitingReconnectAfterReboot = true;
+            _setStatusText("Reboot accepted. Waiting for reconnect...");
+        } else {
+            _pendingCommand = PendingNone;
+            _failPairing(QString("Reboot request failed: %1").arg(msg.runTaskResultDescription));
+        }
         return;
     }
 
@@ -247,7 +311,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
         bool skyChanged = false;
         bool peerChanged = false;
 
-        // Capture node identity from any radio that reports it
+        // Capture node identity from state payload.
         for (const auto& w : msg.state.wireless) {
             if (!w.nodeName.isEmpty() && w.nodeName != _nodeName) {
                 _nodeName = w.nodeName;
@@ -257,6 +321,14 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 _firmwareVersion = w.firmwareVersion;
                 dataChanged = true;
             }
+        }
+        if (!msg.state.hardwareSerial.isEmpty() && msg.state.hardwareSerial != _serialNumber) {
+            _serialNumber = msg.state.hardwareSerial;
+            dataChanged = true;
+        }
+        if (!msg.state.networkName.isEmpty() && msg.state.networkName != _networkName) {
+            _networkName = msg.state.networkName;
+            dataChanged = true;
         }
 
         // Is there an enabled peer on any radio? If every peer says enabled=false,
@@ -279,6 +351,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
             int newNoise   = w.noise;
             int newSnr     = peer.rssi;
             int newRate    = peer.rate * 10; // stored as 10s of Mbps
+            const QString newLinkLocal = peer.linkLocalAddress;
 
             // Sky-side values — derived, no 2nd SSL session needed.
             //   skySnr    = peer-reported SNR (what the sky radio measures from ground)
@@ -291,7 +364,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
             if (newSignal != _signal || newNoise != _noise || newSnr != _snr ||
                 newRate != _linkRate || w.name != _radioName ||
                 static_cast<int>(w.channel) != _channel || w.txpower != _txPower ||
-                w.peers.size() != _peerCount) {
+                w.peers.size() != _peerCount || newLinkLocal != _peerLinkLocalAddress) {
                 _signal    = newSignal;
                 _noise     = newNoise;
                 _snr       = newSnr;
@@ -300,6 +373,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
                 _channel   = static_cast<int>(w.channel);
                 _txPower   = w.txpower;
                 _peerCount = w.peers.size();
+                _peerLinkLocalAddress = newLinkLocal;
                 dataChanged = true;
                 peerChanged = true;
             }
@@ -338,6 +412,7 @@ void RajantManager::_processFrame(const QByteArray& payload)
                            << ") — clearing UI values";
                 _signal = 0; _noise = 0; _snr = 0; _linkRate = 0;
                 _skySignal = 0; _skySnr = 0; _peerCount = 0;
+                _peerLinkLocalAddress.clear();
                 dataChanged = true;
                 skyChanged = true;
             } else {
@@ -403,4 +478,90 @@ void RajantManager::_setStatusText(const QString& text)
         _statusText = text;
         emit statusTextChanged();
     }
+}
+
+void RajantManager::_setPairingBusy(bool busy)
+{
+    if (_pairingBusy != busy) {
+        _pairingBusy = busy;
+        emit pairingBusyChanged();
+    }
+}
+
+void RajantManager::_sendSetNetworkName(const QString& networkName)
+{
+    if (!_authenticated || !_socket || _socket->state() != QAbstractSocket::ConnectedState) {
+        _failPairing("Not connected/authenticated");
+        return;
+    }
+
+    _targetNetworkName = networkName;
+    _pendingCommand = PendingSetNetworkName;
+    QByteArray req = BcapiProtocol::buildSetNetworkNameRequest(networkName, ++_seqNum);
+    _socket->write(req);
+    _socket->flush();
+    _setStatusText(QString("Applying network name \"%1\"...").arg(networkName));
+}
+
+void RajantManager::_sendRebootTask(int delayMs)
+{
+    if (!_authenticated || !_socket || _socket->state() != QAbstractSocket::ConnectedState) {
+        _failPairing("Cannot reboot: not connected/authenticated");
+        return;
+    }
+
+    _pendingCommand = PendingReboot;
+    _awaitingReconnectAfterReboot = true;
+    const QString clientId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    QByteArray req = BcapiProtocol::buildRebootTaskRequest(++_seqNum, delayMs, clientId);
+    _socket->write(req);
+    _socket->flush();
+}
+
+void RajantManager::_failPairing(const QString& reason)
+{
+    _awaitingReconnectAfterReboot = false;
+    _pendingCommand = PendingNone;
+    _setPairingBusy(false);
+    _setStatusText(reason);
+    qCWarning(ARManagerLog) << "RajantManager pairing failed:" << reason;
+}
+
+void RajantManager::pairToDrone(const QString& droneInput)
+{
+    {
+        QSettings settings;
+        const QString pinned = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!pinned.isEmpty() && QString::compare(pinned, _nodeAddress, Qt::CaseInsensitive) != 0) {
+            _setStatusText(QString("Pairing blocked: connected node is not pinned local node (%1)").arg(pinned));
+            return;
+        }
+    }
+    const QString name = droneInput.trimmed();
+    if (name.isEmpty()) {
+        _setStatusText("Pairing failed: empty drone input");
+        return;
+    }
+    _setPairingBusy(true);
+    _sendSetNetworkName(name);
+}
+
+void RajantManager::disconnectFromDroneMesh()
+{
+    {
+        QSettings settings;
+        const QString pinned = settings.value(kPinnedRajantLocalNode).toString().trimmed();
+        if (!pinned.isEmpty() && QString::compare(pinned, _nodeAddress, Qt::CaseInsensitive) != 0) {
+            _setStatusText(QString("Disconnect blocked: connected node is not pinned local node (%1)").arg(pinned));
+            return;
+        }
+    }
+    if (_serialNumber.isEmpty() || _serialNumber.size() < 6) {
+        _setStatusText("Disconnect failed: serial number unavailable");
+        return;
+    }
+    const QString suffix = _serialNumber.right(6);
+    const QString name = QString("EasyGripper-%1").arg(suffix);
+    _setPairingBusy(true);
+    _sendSetNetworkName(name);
 }

@@ -33,6 +33,9 @@ Item {
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
+    property bool _thermalVisible: QGroundControl.videoManager.hasThermal &&
+                                   _camera  &&
+                                   _camera.thermalMode !== QGCCameraControl.THERMAL_OFF
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
     property string _cameraModelUpper: _camera ? ((_camera.modelName || "").toUpperCase()) : ""
@@ -62,7 +65,7 @@ Item {
         target: AVIATORInterface
 
         function thermalZoomTigger(start) {
-            if(start && _irZoom) {
+            if(start && _irZoom && _thermalVisible) {
                 var v = _irZoom.value + _irZoom.increment
                 if(v > (_irZoom.max + 0.01)) {
                     v = _irZoom.min
@@ -318,6 +321,9 @@ Item {
                    _camera.startTracking(rec)
                    _camera.trackingEnabled = true
                 }
+            }
+            onTouchDoubleClicked: {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
             }
         }
     }

@@ -91,6 +91,7 @@ public:
     QGCOptions*             options                         (void) final;
     QString                 brandImageIndoor                (void) const final;
     QString                 brandImageOutdoor               (void) const final;
+    bool                    getOfflineCameraDefinitionFile (QString cameraname, QFile& file) final;
     bool                    overrideSettingsGroupVisibility (QString name) final;
     bool                    adjustSettingMetaData           (const QString& settingsGroup, FactMetaData& metaData) final;
     void                    paletteOverride                 (QString colorName, QGCPalette::PaletteColorInfo_t& colorInfo) final;
@@ -148,6 +149,7 @@ private:
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";
     int                     _rajantDiscoveryRetries = 0;
+    QString                 _pinnedRajantLocalNode;
 
 private:
     SiYiManager* _siyiManager = nullptr;

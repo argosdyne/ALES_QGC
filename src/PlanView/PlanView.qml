@@ -767,7 +767,9 @@ Item {
 
                     property bool   useObstacleDetection:   false
                     property bool   avoidMode:              true
+                    property bool   stopChecked:            false
                     property int    detectionDistance:      1500
+                    property int    currentDistance:        0
                     property color  backgroundColor:        "#1a1a2e"
 
                     id:     root
@@ -845,6 +847,9 @@ Item {
                             }
                         }
 
+                        
+                        // Avoid / Stop radio buttons hidden — Avoid is not used; Stop is exposed below as a checkbox
+                        /*
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelHeight
                             Layout.fillWidth: true
@@ -888,6 +893,57 @@ Item {
                             }
                         }
 
+                        */
+                        
+                        // Stop ──────────────────────────────────────────────
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
+                            Layout.fillWidth: true
+
+                            Item {
+                                implicitWidth:  ScreenTools.defaultFontPointSize * 3
+                                implicitHeight: ScreenTools.defaultFontPointSize * 3
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius:       3
+                                    color:        (root.stopChecked && root.useObstacleDetection) ? "white" : "transparent"
+                                    border.color: root.useObstacleDetection ? "white" : "#666"
+                                    border.width: 2
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text:             "✓"
+                                        color:            root.backgroundColor
+                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 2.4
+                                        font.bold:        true
+                                        visible:          root.stopChecked && root.useObstacleDetection
+                                    }
+                                }
+                            }
+
+                            Text {
+                                text:              qsTr("Stop")
+                                color:             root.useObstacleDetection ? "white" : "#666"
+                                font.pixelSize:    ScreenTools.defaultFontPointSize * 2
+                                font.bold:         true
+                                Layout.fillWidth:  true
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled:      root.useObstacleDetection
+                                onClicked: {
+                                    root.stopChecked = !root.stopChecked
+                                    if (root.stopChecked) {
+                                        root.avoidMode = false
+                                        _missionController.setVisionLidarOBAMode(0)
+                                    }
+                                }
+                            }
+                        }
+
                         //Detection Distance text
                         Text {
                             text:                qsTr("Detection Distance")
@@ -902,8 +958,7 @@ Item {
                         Connections {
                             target: _missionController
                             onVlValueChanged: {
-                                var val = _missionController.vlValue
-                                root.detectionDistance = val
+                                root.currentDistance = _missionController.vlValue
                             }
                         }
 
@@ -1039,6 +1094,29 @@ Item {
                                         plusTimer.stop()
                                     }
                                 }
+                            }
+                        }
+
+                        //Current sensor distance text
+                        Text {
+                            text:                qsTr("Current Distance")
+                            color:               root.useObstacleDetection ? "white" : "#666"
+                            font.pixelSize:      ScreenTools.defaultFontPointSize * 2.5
+                            font.bold:           true
+                            Layout.columnSpan:   2
+                            Layout.fillWidth:    true
+                            Layout.topMargin:    4
+                        }
+
+                        RowLayout {
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.5
+                            Layout.fillWidth: true
+
+                            Text {
+                                text: root.currentDistance.toFixed(0) + " cm"
+                                color: root.useObstacleDetection ? "white" : "#666"
+                                font.pixelSize: ScreenTools.defaultFontPointSize * 3
+                                verticalAlignment: Text.AlignVCenter
                             }
                         }
                     }
