@@ -60,6 +60,9 @@ signals:
     void    currentCameraChanged    ();
     void    streamChanged           ();
 
+public slots:
+    void    handleAviatorRCChannelValues(const quint16* channels, int count);
+
 protected slots:
     virtual void    _vehicleReady           (bool ready);
     virtual void    _mavlinkMessageReceived (const mavlink_message_t& message, LinkInterface* link);

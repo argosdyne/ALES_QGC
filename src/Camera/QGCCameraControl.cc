@@ -754,6 +754,15 @@ QGCCameraControl::_mavCommandResult(int vehicleId, int component, int command, i
     if(_vehicle->id() != vehicleId || compID() != component) {
         return;
     }
+    qCInfo(CameraControlLog) << "[CameraFlow]"
+            << "_mavCommandResult"
+            << "compId" << _compID
+            << "command" << command
+            << "result" << result
+            << "noResponse" << noReponseFromVehicle
+            << "cameraMode" << _cameraMode
+            << "videoStatus" << _video_status
+            << "photoStatus" << _photo_status;
     if(!noReponseFromVehicle && result == MAV_RESULT_IN_PROGRESS) {
         //-- Do Nothing
         qCDebug(CameraControlLog) << "In progress response for" << command;
@@ -1521,7 +1530,12 @@ QGCCameraControl::_requestParamUpdates()
 void
 QGCCameraControl::_requestCameraSettings()
 {
-    qInfo() << "[CameraControl]" << "_requestCameraSettings compId" << _compID;
+    qCInfo(CameraControlLog) << "[CameraFlow]"
+            << "_requestCameraSettings"
+            << "compId" << _compID
+            << "retryCount" << _cameraSettingsRetries
+            << "basic" << isBasic()
+            << "paramComplete" << _paramComplete;
     if(_vehicle) {
         // Use REQUEST_MESSAGE instead of deprecated REQUEST_CAMERA_SETTINGS
         // first time and every other time after that.
@@ -2291,6 +2305,14 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 {
     //-- First check and see if we have it cached
     QFile xmlFile(_cacheFile);
+    qCInfo(CameraControlLog) << "[CameraFlow]"
+            << "_handleDefinitionFile"
+            << "compId" << _compID
+            << "model" << _modelName
+            << "vendor" << _vendor
+            << "url" << url
+            << "cacheFile" << _cacheFile
+            << "cacheExists" << xmlFile.exists();
 
     QString ftpPrefix(QStringLiteral("%1://").arg(FTPManager::mavlinkFTPScheme));
     if (!xmlFile.exists() && url.startsWith(ftpPrefix, Qt::CaseInsensitive)) {
@@ -2440,6 +2462,12 @@ void QGCCameraControl::_ftpDownloadComplete(const QString& fileName, const QStri
 void
 QGCCameraControl::_dataReady(QByteArray data)
 {
+    qCInfo(CameraControlLog) << "[CameraFlow]"
+            << "_dataReady"
+            << "compId" << _compID
+            << "model" << _modelName
+            << "bytes" << data.size()
+            << "cached" << _cached;
     if(data.size()) {
         qInfo() << "[CameraControl]" << "Parsing camera definition for compId" << _compID << "bytes" << data.size();
         _loadCameraDefinitionFile(data);
@@ -2450,6 +2478,12 @@ QGCCameraControl::_dataReady(QByteArray data)
             qCDebug(CameraControlLog) << "Found offline definition file for: " << _modelName << ", loading: " << definitionFile.fileName();
             if (definitionFile.open(QIODevice::ReadOnly)) {
                 QByteArray newData = definitionFile.readAll();
+                qCInfo(CameraControlLog) << "[CameraFlow]"
+                        << "offline camera definition opened"
+                        << "compId" << _compID
+                        << "model" << _modelName
+                        << "file" << definitionFile.fileName()
+                        << "bytes" << newData.size();
                 _loadCameraDefinitionFile(newData);
             } else {
                 qCDebug(CameraControlLog) << "error opening offline definition file for: " << _modelName;

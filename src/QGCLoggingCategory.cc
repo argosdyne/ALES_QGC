@@ -70,7 +70,7 @@ bool QGCLoggingCategoryRegister::categoryLoggingOn(const QString& category)
 void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& commandLineLoggingOptions)
 {
     QString filterRules;
-    QString filterRuleFormat("%1.debug=true\n");
+    QString filterRuleFormat("%1.debug=true\n%1.info=true\n");
     bool    videoAllLogSet = false;
 
     if (!commandLineLoggingOptions.isEmpty()) {
@@ -78,6 +78,7 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
     }
 
     filterRules += "*Log.debug=false\n";
+    filterRules += "*Log.info=false\n";
 
     // Set up filters defined in settings
     foreach (QString category, _registeredCategories) {
@@ -95,6 +96,7 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
 
         if (logList[0] == "full") {
             filterRules += "*Log.debug=true\n";
+            filterRules += "*Log.info=true\n";
             for(int i=1; i<logList.count(); i++) {
                 filterRules += filterRuleFormat.arg(logList[i]);
             }
