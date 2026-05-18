@@ -10086,6 +10086,47 @@ Click Ok to start the auto-tuning process.
       <source>Back</source>
       <translation>뒤로 가기</translation>
     </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="222"/>
+      <location filename="../src/ui/MainRootWindow.qml" line="413"/>
+      <source>About</source>
+      <translation>정보</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="255"/>
+      <source>EasyGripper Smart Controller v1.0</source>
+      <translation>EasyGripper 스마트 컨트롤러 v1.0</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="262"/>
+      <source>Copyright © 2024 %1. All rights reserved.</source>
+      <translation>저작권 © 2024 %1. 모든 권리 보유.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="284"/>
+      <source>This product includes software developed by the QGroundControl project &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</source>
+      <translation>이 제품에는 QGroundControl 프로젝트에서 개발한 소프트웨어가 포함되어 있습니다.&lt;br/&gt;(&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="290"/>
+      <source>QGroundControl is licensed under the Apache License, Version 2.0.</source>
+      <translation>QGroundControl은 Apache License, 버전 2.0에 따라 라이선스가 부여됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="301"/>
+      <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
+      <translation>Apache License 사본은 다음에서 확인할 수 있습니다:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310"/>
+      <source>Android %1</source>
+      <translation>Android %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="324"/>
+      <source>Develope under: %1 - Security patch %2</source>
+      <translation>컨트롤러: %1 - 보안 패치 %2</translation>
+    </message>
   
 <message>
         <location filename="../src/ui/MainRootWindow.qml" line="230"/>

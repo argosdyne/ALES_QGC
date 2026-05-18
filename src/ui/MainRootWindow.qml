@@ -226,6 +226,113 @@ ApplicationWindow {
         }
     }
 
+    Component {
+        id: aboutDialogComponent
+
+        QGCPopupDialog {
+            id:         aboutDialog
+            title:      qsTr("About")
+            buttons:    StandardButton.Close
+
+            property string _companyName:           "Argosdyne"
+            property string _productDisplayName:    QGroundControl.appName
+            property string _productVersion:        QGroundControl.qgcVersion
+
+            ColumnLayout {
+                width:                   Math.min(ScreenTools.defaultFontPixelWidth * 60, aboutDialog._maxContentWidth)
+                spacing:                 ScreenTools.defaultFontPixelHeight * 0.7
+
+                    ColumnLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("AlesQGC Smart Controller v1.0")
+                            font.pointSize:     ScreenTools.largeFontPointSize
+                            font.family:        ScreenTools.demiboldFontFamily
+                            wrapMode:           Text.WordWrap
+                        }
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("Copyright © 2024 %1. All rights reserved.").arg(aboutDialog._companyName)
+                            color:              qgcPal.text
+                            opacity:            0.75
+                            wrapMode:           Text.WordWrap
+                        }
+                }
+
+                Rectangle {
+                    Layout.fillWidth:   true
+                    Layout.preferredHeight: 1
+                    color:              qgcPal.text
+                    opacity:            0.15
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("This product includes software developed by the QGroundControl project <br/> (<a href=\"https://qgroundcontrol.com\" style=\"color:%1;text-decoration:underline;\">https://qgroundcontrol.com</a>).").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    text:               qsTr("QGroundControl is licensed under the Apache License, Version 2.0.")
+                    wrapMode:           Text.WordWrap
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("You may obtain a copy of the Apache License at:<br><a href=\"https://www.apache.org/licenses/LICENSE-2.0\" style=\"color:%1;text-decoration:underline;\">https://www.apache.org/licenses/LICENSE-2.0</a>").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth:   true
+                    visible:            ScreenTools.isAndroid
+                    spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                    property string _androidVersionText: ScreenTools.androidVersion === "" ? qsTr("Unknown") : qsTr("Android %1").arg(ScreenTools.androidVersion)
+                    property string _androidSecurityPatchText: _formattedAndroidSecurityPatch()
+
+                    function _formattedAndroidSecurityPatch() {
+                        if (ScreenTools.androidSecurityPatch === "") {
+                            return qsTr("Unknown")
+                        }
+
+                        var patchDate = Date.fromLocaleString(Qt.locale(), ScreenTools.androidSecurityPatch, "yyyy-MM-dd")
+                        return isNaN(patchDate.getTime()) ? ScreenTools.androidSecurityPatch : Qt.formatDate(patchDate, "yyyy/MM/dd")
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Develope under: %1 - Security patch %2").arg(parent._androidVersionText).arg(parent._androidSecurityPatchText)
+                        color:              qgcPal.text
+                        opacity:            0.75
+                        wrapMode:           Text.WordWrap
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.7
+                }
+
+            }
+        }
+    }
+
     /// Saves main window position and size
     MainWindowSavedState {
         window: mainWindow

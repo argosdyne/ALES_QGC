@@ -18,6 +18,10 @@
 
 #include "SettingsManager.h"
 
+#if defined(Q_OS_ANDROID)
+#include <QtAndroidExtras/QAndroidJniObject>
+#endif
+
 #if defined(__ios__)
 #include <sys/utsname.h>
 #endif
@@ -43,6 +47,39 @@ ScreenToolsController::iOSDevice() const
 #else
     return QString();
 #endif
+}
+
+QString
+ScreenToolsController::androidVersion() const
+{
+#if defined(Q_OS_ANDROID)
+    return QAndroidJniObject::getStaticObjectField(
+        "android/os/Build$VERSION",
+        "RELEASE",
+        "Ljava/lang/String;").toString();
+#else
+    return QString();
+#endif
+}
+
+QString
+ScreenToolsController::androidSecurityPatch() const
+{
+#if defined(Q_OS_ANDROID)
+    static const int androidMarshmallowSdk = 23;
+    const int sdkInt = QAndroidJniObject::getStaticField<jint>(
+        "android/os/Build$VERSION",
+        "SDK_INT");
+
+    if (sdkInt >= androidMarshmallowSdk) {
+        return QAndroidJniObject::getStaticObjectField(
+            "android/os/Build$VERSION",
+            "SECURITY_PATCH",
+            "Ljava/lang/String;").toString();
+    }
+#endif
+
+    return QString();
 }
 
 QString

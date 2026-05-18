@@ -39,6 +39,8 @@ public:
     Q_PROPERTY(bool     isSerialAvailable   READ isSerialAvailable  CONSTANT)
     Q_PROPERTY(bool     hasTouch            READ hasTouch           CONSTANT)
     Q_PROPERTY(QString  iOSDevice           READ iOSDevice          CONSTANT)
+    Q_PROPERTY(QString  androidVersion      READ androidVersion     CONSTANT)
+    Q_PROPERTY(QString  androidSecurityPatch READ androidSecurityPatch CONSTANT)
     Q_PROPERTY(QString  fixedFontFamily     READ fixedFontFamily    CONSTANT)
     Q_PROPERTY(QString  normalFontFamily    READ normalFontFamily   CONSTANT)
     Q_PROPERTY(QString  boldFontFamily      READ boldFontFamily     CONSTANT)
@@ -108,6 +110,8 @@ public:
 
     bool        hasTouch            () const;
     QString     iOSDevice           () const;
+    QString     androidVersion      () const;
+    QString     androidSecurityPatch() const;
     QString     fixedFontFamily     () const;
     QString     normalFontFamily    () const;
     QString     boldFontFamily      () const;
