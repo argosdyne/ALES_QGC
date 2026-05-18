@@ -17,6 +17,7 @@
 #include "QGCCorePlugin.h"
 #include "VideoManager.h"
 #include "SettingsManager.h"
+#include "GimbalController.h"
 #include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
@@ -44,6 +45,15 @@ static constexpr qint64 kTrackingInvalidStopDelayMs = 10000;
 static constexpr float kTrackingSmallBoxArea = 0.002f;
 static constexpr float kTrackingCenterMargin = 0.35f;
 static constexpr float kTrackingCenterMax = 0.65f;
+static constexpr uint16_t kRcGimbalCenter = 1500;
+static constexpr uint16_t kRcGimbalDeadzone = 50;
+static constexpr uint16_t kRcGimbalMinValid = 900;
+static constexpr uint16_t kRcGimbalMaxValid = 2100;
+static constexpr uint16_t kRcGimbalChangeThreshold = 20;
+static constexpr qint64 kRcCameraSettingsRequestMinIntervalMs = 1000;
+static constexpr qint64 kRcGimbalCommandMinIntervalMs = 50;
+static constexpr float kRcGimbalMaxPitchRateDegS = 3.0f;
+static constexpr float kRcGimbalMaxYawRateDegS = 30.0f;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -78,6 +88,36 @@ static QStringList _translateCameraSettingList(const QStringList& sourceList)
     return translated;
 }
 
+static bool _isValidRcGimbalPwm(uint16_t raw)
+{
+    return raw >= kRcGimbalMinValid && raw <= kRcGimbalMaxValid && raw != 0xFFFF;
+}
+
+static bool _isR3CameraModel(const QString& modelName)
+{
+    return modelName.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
+            || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
+}
+
+static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
+{
+    if (!_isValidRcGimbalPwm(raw)) {
+        return 0.0f;
+    }
+
+    const int delta = static_cast<int>(raw) - static_cast<int>(kRcGimbalCenter);
+    if (qAbs(delta) <= kRcGimbalDeadzone) {
+        return 0.0f;
+    }
+
+    const float signedRange = delta > 0
+            ? static_cast<float>(kRcGimbalMaxValid - kRcGimbalCenter)
+            : static_cast<float>(kRcGimbalCenter - kRcGimbalMinValid);
+    return qBound(-maxRateDegS,
+                  (static_cast<float>(delta) / signedRange) * maxRateDegS,
+                  maxRateDegS);
+}
+
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
     : QGCCameraControl(info, vehicle, compID, link, parent)
     , _pMavlink(qgcApp()->toolbox()->mavlinkProtocol())
@@ -105,11 +145,222 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     connect(&_resetDetectObjectsPacket, &QTimer::timeout, [this]() {
         _targetObjects.clearAndDeleteContents();
     });
+    connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &CodevCameraControl::_handleVehicleMavlinkMessage);
 
+}
+
+bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
+{
+    if (!_vehicle->px4Firmware()) {
+        return false;
+    }
+
+    GimbalController* gimbalController = _vehicle->gimbalController();
+    Gimbal* activeGimbal = gimbalController ? gimbalController->activeGimbal() : nullptr;
+    if (!activeGimbal) {
+        qCInfo(CodevCameraLog) << "[CameraFlow]"
+                << sourceTag
+                << "px4 gimbal manager unavailable"
+                << "cameraCompId" << _compID;
+        return false;
+    }
+
+    const uint managerCompId = activeGimbal->managerCompid()->rawValue().toUInt();
+    const uint deviceId = activeGimbal->deviceId()->rawValue().toUInt();
+    if (managerCompId == 0 || deviceId == 0) {
+        qCInfo(CodevCameraLog) << "[CameraFlow]"
+                << sourceTag
+                << "px4 gimbal manager incomplete"
+                << "cameraCompId" << _compID
+                << "managerCompId" << managerCompId
+                << "deviceId" << deviceId;
+        return false;
+    }
+
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << sourceTag
+            << "using gimbal manager"
+            << "cameraCompId" << _compID
+            << "targetCompId" << managerCompId
+            << "deviceId" << deviceId
+            << "command" << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
+            << "pitch" << pitch
+            << "yaw" << yaw
+            << "flags" << flags;
+    sendMavCommandWithTarget(
+        MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+        static_cast<int>(managerCompId),
+        pitch,
+        yaw,
+        NAN,
+        NAN,
+        static_cast<float>(flags),
+        0.0f,
+        static_cast<float>(deviceId));
+    return true;
+}
+
+bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag)
+{
+    if (!_vehicle->px4Firmware()) {
+        return false;
+    }
+
+    GimbalController* gimbalController = _vehicle->gimbalController();
+    Gimbal* activeGimbal = gimbalController ? gimbalController->activeGimbal() : nullptr;
+    uint managerCompId = 0;
+    uint deviceId = 0;
+    float pitchParam = NAN;
+    float yawParam = NAN;
+    float pitchRateParam = pitchRate;
+    float yawRateParam = yawRate;
+
+    if (activeGimbal) {
+        managerCompId = activeGimbal->managerCompid()->rawValue().toUInt();
+        deviceId = activeGimbal->deviceId()->rawValue().toUInt();
+
+        // Some gimbals ignore rate params. Use small angle increments, same model as QGC click-drag.
+        pitchParam = activeGimbal->absolutePitch()->rawValue().toFloat() + (pitchRate * 0.1f);
+        yawParam = activeGimbal->bodyYaw()->rawValue().toFloat() + (yawRate * 0.1f);
+        pitchRateParam = NAN;
+        yawRateParam = NAN;
+    }
+
+    if (managerCompId == 0 || deviceId == 0) {
+        qCInfo(CodevCameraLog) << "[RCFlow]"
+                << sourceTag
+                << "px4 gimbal manager unavailable, fallback to gimbal component"
+                << "cameraCompId" << _compID
+                << "managerCompId" << managerCompId
+                << "deviceId" << deviceId;
+        managerCompId = MAV_COMP_ID_GIMBAL;
+        deviceId = 1;
+    }
+
+    qCInfo(CodevCameraLog) << "[RCFlow]"
+            << sourceTag
+            << "send gimbal manager rc command"
+            << "cameraCompId" << _compID
+            << "targetCompId" << managerCompId
+            << "deviceId" << deviceId
+            << "command" << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
+            << "pitch" << pitchParam
+            << "yaw" << yawParam
+            << "pitchRate" << pitchRate
+            << "yawRate" << yawRate
+            << "flags" << flags
+            << "queueSize" << _mavCommandQueue.count();
+
+    mavlink_message_t msg;
+    mavlink_command_long_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
+    cmd.target_system = _vehicle->id();
+    cmd.target_component = static_cast<uint8_t>(managerCompId);
+    cmd.command = MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW;
+    cmd.confirmation = 0;
+    cmd.param1 = pitchParam;
+    cmd.param2 = yawParam;
+    cmd.param3 = pitchRateParam;
+    cmd.param4 = yawRateParam;
+    cmd.param5 = static_cast<float>(flags);
+    cmd.param6 = 0.0f;
+    cmd.param7 = static_cast<float>(deviceId);
+    mavlink_msg_command_long_encode(_pMavlink->getSystemId(),
+                                    _pMavlink->getComponentId(),
+                                    &msg,
+                                    &cmd);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    return true;
+}
+
+void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag)
+{
+    mavlink_rc_channels_t outbound = rc;
+    outbound.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    if (outbound.chancount < 18) {
+        outbound.chancount = 18;
+    }
+    if (outbound.chan11_raw == 0) {
+        outbound.chan11_raw = kRcGimbalCenter;
+    }
+    if (outbound.chan15_raw == 0) {
+        outbound.chan15_raw = kRcGimbalCenter;
+    }
+    outbound.rssi = rc.rssi == 0 ? 255 : rc.rssi;
+
+    qCInfo(CodevCameraLog) << "[RCFlow]"
+            << sourceTag
+            << "forward rc channels to R3"
+            << "cameraCompId" << _compID
+            << "sourceSysId" << _vehicle->id()
+            << "sourceCompId" << MAV_COMP_ID_AUTOPILOT1
+            << "message" << MAVLINK_MSG_ID_RC_CHANNELS
+            << "ch9Pitch" << outbound.chan9_raw
+            << "ch10Yaw" << outbound.chan10_raw
+            << "ch11Zoom" << outbound.chan11_raw
+            << "ch15Center" << outbound.chan15_raw
+            << "chancount" << outbound.chancount
+            << "queueSize" << _mavCommandQueue.count();
+
+    mavlink_message_t msg;
+    mavlink_msg_rc_channels_encode(static_cast<uint8_t>(_vehicle->id()),
+                                   MAV_COMP_ID_AUTOPILOT1,
+                                   &msg,
+                                   &outbound);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+}
+
+void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
+{
+    qCInfo(CodevCameraLog) << "[RCFlow]"
+            << sourceTag
+            << "send legacy mount control"
+            << "cameraCompId" << _compID
+            << "targetCompId" << MAV_COMP_ID_GIMBAL
+            << "command" << MAV_CMD_DO_MOUNT_CONTROL
+            << "pitch" << pitch
+            << "roll" << 0.0f
+            << "yaw" << yaw
+            << "mode" << MAV_MOUNT_MODE_MAVLINK_TARGETING;
+
+    mavlink_message_t msg;
+    mavlink_command_long_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
+    cmd.target_system = _vehicle->id();
+    cmd.target_component = MAV_COMP_ID_GIMBAL;
+    cmd.command = MAV_CMD_DO_MOUNT_CONTROL;
+    cmd.confirmation = 0;
+    cmd.param1 = pitch;
+    cmd.param2 = 0.0f;
+    cmd.param3 = yaw;
+    cmd.param4 = 0.0f;
+    cmd.param5 = 0.0f;
+    cmd.param6 = 0.0f;
+    cmd.param7 = MAV_MOUNT_MODE_MAVLINK_TARGETING;
+    mavlink_msg_command_long_encode(_pMavlink->getSystemId(),
+                                    _pMavlink->getComponentId(),
+                                    &msg,
+                                    &cmd);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
 }
 
 void CodevCameraControl::centerGimbal()
 {
+    _logControlState("centerGimbal");
+    const uint32_t gimbalManagerFlags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
+        | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
+        | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
+
+    if (_sendGimbalManagerPitchYaw(0.0f, 0.0f, gimbalManagerFlags, "centerGimbal")) {
+        return;
+    }
+
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "centerGimbal"
+            << "using legacy mount control"
+            << "cameraCompId" << _compID
+            << "targetCompId" << MAV_COMP_ID_GIMBAL
+            << "command" << MAV_CMD_DO_MOUNT_CONTROL;
     sendMavCommandWithTarget(
         MAV_CMD_DO_MOUNT_CONTROL,           // Command id
         MAV_COMP_ID_GIMBAL,                 // Target id
@@ -213,10 +464,28 @@ void CodevCameraControl::deinitTracker()
 void CodevCameraControl::gimbalControlInImage(QPointF point)
 {
     if(point.x() == 0.0 && point.x() == 0.0) return;
-    qCDebug(CodevCameraLog) << "Gimbal Point:" << point;
+    _logControlState("gimbalControlInImage");
     float dzoom = 1.0f;
     Fact* fact = getFact(kEO_DZOOM);
     if(fact) dzoom = fact->rawValue().toFloat();
+
+    const uint32_t gimbalManagerFlags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
+        | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
+        | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
+
+    if (_sendGimbalManagerPitchYaw(static_cast<float>(point.y()), static_cast<float>(point.x()), gimbalManagerFlags, "gimbalControlInImage")) {
+        return;
+    }
+
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "gimbalControlInImage"
+            << "using legacy mount control"
+            << "cameraCompId" << _compID
+            << "targetCompId" << MAV_COMP_ID_GIMBAL
+            << "command" << MAV_CMD_DO_MOUNT_CONTROL
+            << "point" << point
+            << "zoomLevel" << _zoomLevel
+            << "dzoom" << dzoom;
     sendMavCommandWithTarget(
         MAV_CMD_DO_MOUNT_CONTROL,
         MAV_COMP_ID_GIMBAL,
@@ -666,6 +935,7 @@ void CodevCameraControl::_parametersReady()
             << "_parametersReady compId" << compID()
             << "paramComplete" << paramComplete()
             << "initial active settings" << _activeSettings;
+    _logControlState("_parametersReady before setup");
     disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
 
     // nvidia system status
@@ -790,6 +1060,7 @@ void CodevCameraControl::_parametersReady()
             << "hasDetect" << _hasDetect
             << "active settings after custom setup" << _activeSettings
             << "returned active settings" << activeSettings();
+    _logControlState("_parametersReady after setup");
 
     // json transfor request
     fact = getFact(kJSON_TR_REQ);
@@ -816,6 +1087,82 @@ void CodevCameraControl::_parametersReady()
         if (range) {
             range->optNames = _translateCameraSettingList(range->optNames);
         }
+    }
+}
+
+QString CodevCameraControl::_factValueForLog(const char* factName) const
+{
+    Fact* fact = const_cast<CodevCameraControl*>(this)->getFact(factName);
+    if (!fact) {
+        return QStringLiteral("<missing>");
+    }
+
+    QString value = fact->rawValueString().trimmed();
+    value.remove(QChar('\0'));
+    if (value.isEmpty()) {
+        value = fact->rawValue().toString();
+    }
+    return value;
+}
+
+void CodevCameraControl::_logControlState(const char* sourceTag) const
+{
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << sourceTag
+            << "state"
+            << "cameraCompId" << _compID
+            << "model" << _modelName
+            << "yawMode" << _factValueForLog("YAW_MODE")
+            << "gbSpeed" << _factValueForLog("GB_SPEED")
+            << "yawSmooth" << _factValueForLog("YAW_SMOOTH")
+            << "landingMode" << _factValueForLog("LANDING_MODE")
+            << "landModeSwitch" << _factValueForLog("LANDMODE_SWITCH")
+            << "aiSource" << _factValueForLog("AI_SOURCE")
+            << "eoDZoom" << _factValueForLog("EO_DZOOM")
+            << "eoZoomMode" << _factValueForLog("EO_ZOOM_MODE")
+            << "trackAlgorithm" << _factValueForLog("TRACK_ALGORITHM")
+            << "smartSelect" << _factValueForLog("SMART_SELECT");
+}
+
+bool CodevCameraControl::_consumeQueuedCommandAck(int ackCompId, const mavlink_command_ack_t& ack, const char* sourceTag)
+{
+    if (!_mavCommandQueue.count()) {
+        return false;
+    }
+
+    const MavCommandQueueEntry_t& queuedCommand = _mavCommandQueue[0];
+    if (queuedCommand.command != ack.command || queuedCommand.component != ackCompId) {
+        return false;
+    }
+
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << sourceTag
+            << "matched queued ack"
+            << "cameraCompId" << _compID
+            << "ackCompId" << ackCompId
+            << "command" << ack.command
+            << "result" << ack.result
+            << "queueSizeBefore" << _mavCommandQueue.count();
+
+    _mavCommandAckTimer.stop();
+    _mavCommandQueue.removeFirst();
+    _sendNextQueuedMavCommand();
+    return true;
+}
+
+void CodevCameraControl::_handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link)
+{
+    Q_UNUSED(link);
+
+    if (message.sysid != _vehicle->id() || message.msgid != MAVLINK_MSG_ID_COMMAND_ACK) {
+        return;
+    }
+
+    mavlink_command_ack_t ack;
+    mavlink_msg_command_ack_decode(&message, &ack);
+
+    if (_consumeQueuedCommandAck(message.compid, ack, "rawAck")) {
+        _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
     }
 }
 
@@ -1126,17 +1473,111 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     static uint16_t rc_zoom_value = 0;
     if(rc_zoom_value != rc.chan11_raw) {
         rc_zoom_value = rc.chan11_raw;
-        _requestCameraSettings();
+        if (!_rcCameraSettingsRequestTimer.isValid()
+                || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs) {
+            _requestCameraSettings();
+            _rcCameraSettingsRequestTimer.restart();
+        }
     }
+
+    if (!_vehicle || !_vehicle->px4Firmware()) {
+        static QElapsedTimer skipDirectControlLogTimer;
+        if (!skipDirectControlLogTimer.isValid() || skipDirectControlLogTimer.elapsed() >= 1000) {
+            qCInfo(CodevCameraLog) << "[RCFlow]"
+                    << "skip Codev direct rc gimbal control"
+                    << "reason" << "non_px4_vehicle"
+                    << "cameraCompId" << _compID
+                    << "vehicleId" << (_vehicle ? _vehicle->id() : -1);
+            skipDirectControlLogTimer.restart();
+        }
+        return;
+    }
+
+    if (!_isR3CameraModel(modelName())) {
+        static QElapsedTimer skipNonR3LogTimer;
+        if (!skipNonR3LogTimer.isValid() || skipNonR3LogTimer.elapsed() >= 1000) {
+            qCInfo(CodevCameraLog) << "[RCFlow]"
+                    << "skip native R3 rc forwarding"
+                    << "reason" << "non_r3_camera"
+                    << "cameraCompId" << _compID
+                    << "model" << modelName()
+                    << "vendor" << vendor();
+            skipNonR3LogTimer.restart();
+        }
+        return;
+    }
+
+    const uint16_t pitchRaw = rc.chan9_raw;
+    const uint16_t yawRaw = rc.chan10_raw;
+    const uint16_t zoomRaw = rc.chan11_raw;
+    const uint16_t centerRaw = rc.chan15_raw;
+    if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
+        return;
+    }
+
+    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
+    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
+    const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
+
+    const bool firstCommand = !_rcGimbalCommandTimer.isValid();
+    if (firstCommand) {
+        _rcGimbalCommandTimer.start();
+    }
+
+    const bool rawChanged =
+            qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
+    const bool centerTransition = centered != _lastRcGimbalWasCentered;
+    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
+    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
+
+    if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
+        return;
+    }
+
+    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
+        return;
+    }
+
+    qCInfo(CodevCameraLog) << "[RCFlow]"
+            << "Codev aviator rc gimbal native R3 RC"
+            << "cameraCompId" << _compID
+            << "ch9Pitch" << pitchRaw
+            << "ch10Yaw" << yawRaw
+            << "ch11Zoom" << zoomRaw
+            << "ch15Center" << centerRaw
+            << "pitchRate" << pitchRate
+            << "yawRate" << yawRate
+            << "elapsedMs" << elapsedMs
+            << "rawChanged" << rawChanged
+            << "centerTransition" << centerTransition
+            << "centered" << centered
+            << "queueSize" << _mavCommandQueue.count();
+
+    _sendR3RcChannels(rc, "aviatorRC-native");
+    _lastRcGimbalPitchRaw = pitchRaw;
+    _lastRcGimbalYawRaw = yawRaw;
+    _lastRcGimbalZoomRaw = zoomRaw;
+    _lastRcGimbalCenterRaw = centerRaw;
+    _lastRcGimbalWasCentered = centered;
+    _rcGimbalCommandTimer.restart();
+
 }
 
 void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
 {
-    qCDebug(CodevCameraLog) << QStringLiteral("_handleCommandAck command(%1) result(%2)").arg(ack.command).arg(ack.result);
-    if (_mavCommandQueue.count() && ack.command == _mavCommandQueue[0].command) {
-        _mavCommandAckTimer.stop();
-        _mavCommandQueue.removeFirst();
-        _sendNextQueuedMavCommand();
+    const int queuedTarget = _mavCommandQueue.count() ? _mavCommandQueue[0].component : -1;
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "Codev handleCommandAck"
+            << "compId" << compID()
+            << "command" << ack.command
+            << "result" << ack.result
+            << "queueSize" << _mavCommandQueue.count()
+            << "queuedTarget" << queuedTarget;
+    if (_consumeQueuedCommandAck(compID(), ack, "cameraAck")) {
+        // Queue handled by direct camera component ACK.
     } else if(ack.result == MAV_RESULT_ACCEPTED) {
         switch(ack.command) {
             case MAV_CMD_VIDEO_START_CAPTURE:
@@ -1190,6 +1631,13 @@ void CodevCameraControl::sendMavCommand(MAV_CMD command, float param1, float par
     entry.rgParam[5] = static_cast<double>(param6);
     entry.rgParam[6] = static_cast<double>(param7);
 
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "queue camera command"
+            << "cameraCompId" << _compID
+            << "targetCompId" << entry.component
+            << "command" << command
+            << "params"
+            << param1 << param2 << param3 << param4 << param5 << param6 << param7;
     _mavCommandQueue.append(entry);
 
     if (_mavCommandQueue.count() == 1) {
@@ -1212,6 +1660,13 @@ void CodevCameraControl::sendMavCommandWithTarget(MAV_CMD command, int target_co
     entry.rgParam[5] = static_cast<double>(param6);
     entry.rgParam[6] = static_cast<double>(param7);
 
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "queue targeted command"
+            << "cameraCompId" << _compID
+            << "targetCompId" << target_component
+            << "command" << command
+            << "params"
+            << param1 << param2 << param3 << param4 << param5 << param6 << param7;
     _mavCommandQueue.append(entry);
 
     if (_mavCommandQueue.count() == 1) {
@@ -1231,16 +1686,23 @@ void CodevCameraControl::_sendMavCommandAgain()
     MavCommandQueueEntry_t& queuedCommand = _mavCommandQueue[0];
 
     if (_mavCommandRetryCount++ > _mavCommandMaxRetryCount) {
-        qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending failed" << queuedCommand.command;
+        const MAV_CMD failedCommand = queuedCommand.command;
+        qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending failed" << failedCommand;
         _mavCommandQueue.removeFirst();
         _sendNextQueuedMavCommand();
-        _mavCommandResult(_vehicle->id(), compID(), queuedCommand.command, MAV_RESULT_CANCELLED, true);
+        _mavCommandResult(_vehicle->id(), compID(), failedCommand, MAV_RESULT_CANCELLED, true);
         return;
     }
 
     _mavCommandAckTimer.start();
 
-    qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending" << queuedCommand.command;
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "_sendMavCommandAgain sending"
+            << "cameraCompId" << _compID
+            << "targetCompId" << queuedCommand.component
+            << "command" << queuedCommand.command
+            << "retry" << _mavCommandRetryCount
+            << "queueSize" << _mavCommandQueue.count();
 
     mavlink_message_t       msg;
     mavlink_command_long_t  cmd;
@@ -1269,8 +1731,23 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
 {
     //-- Is this ours?
     if(_vehicle->id() != vehicleId || compID() != component) {
+        qCInfo(CodevCameraLog) << "[CameraFlow]"
+                << "Codev _mavCommandResult ignored"
+                << "cameraCompId" << _compID
+                << "vehicleId" << vehicleId
+                << "component" << component
+                << "command" << command
+                << "result" << result
+                << "noResponse" << noReponseFromVehicle;
         return;
     }
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << "Codev _mavCommandResult"
+            << "cameraCompId" << _compID
+            << "component" << component
+            << "command" << command
+            << "result" << result
+            << "noResponse" << noReponseFromVehicle;
     if(!noReponseFromVehicle && result == MAV_RESULT_IN_PROGRESS) {
         //-- Do Nothing
         qCDebug(CodevCameraLog) << "In progress response for" << command;
