@@ -29,6 +29,7 @@ Item {
     property var    _videoManager:       QGroundControl.videoManager
     property var    _videoSettings:      QGroundControl.settingsManager.videoSettings
     property double _ar:                QGroundControl.videoManager.aspectRatio
+    property bool   _showDiagnostics:   false
     property bool   _showGrid:          QGroundControl.settingsManager.videoSettings.gridLines.rawValue > 0
     property var    _dynamicCameras:    globals.activeVehicle ? globals.activeVehicle.cameraManager : null
     property bool   _connected:         globals.activeVehicle ? !globals.activeVehicle.communicationLost : false
@@ -304,7 +305,7 @@ Item {
             color: Qt.rgba(0, 0, 0, 0.62)
             border.color: Qt.rgba(1, 1, 1, 0.18)
             border.width: 1
-            visible: _videoManager.streaming || _videoManager.decoding
+            visible: _showDiagnostics && (_videoManager.streaming || _videoManager.decoding)
             z: 20
             width: diagnosticsColumn.width + (ScreenTools.defaultFontPixelWidth * 2)
             height: diagnosticsColumn.height + (ScreenTools.defaultFontPixelHeight * 1.2)
