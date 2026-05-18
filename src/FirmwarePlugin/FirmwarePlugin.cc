@@ -1087,27 +1087,77 @@ bool FirmwarePlugin::_armVehicleAndValidate(Vehicle* vehicle)
 bool FirmwarePlugin::_setFlightModeAndValidate(Vehicle* vehicle, const QString& flightMode)
 {
     if (vehicle->flightMode() == flightMode) {
+        qCInfo(FirmwarePluginLog) << "_setFlightModeAndValidate skip, already in mode"
+                                  << "targetMode" << flightMode;
         return true;
     }
 
     bool flightModeChanged = false;
+    const bool usesCommandAckForModeChange = vehicle->firmwarePlugin()->MAV_CMD_DO_SET_MODE_is_supported();
+    constexpr int retryCount = 3;
+    constexpr int waitIntervalMSecs = 100;
+    constexpr int ackTimeoutMSecs = 3000;
+    constexpr int waitIterationsPerAttempt = ackTimeoutMSecs / waitIntervalMSecs;
 
-    // We try 3 times
-    for (int retries=0; retries<3; retries++) {
-        vehicle->setFlightMode(flightMode);
+    qCInfo(FirmwarePluginLog) << "_setFlightModeAndValidate begin"
+                              << "currentMode" << vehicle->flightMode()
+                              << "targetMode" << flightMode
+                              << "usesCommandAckForModeChange" << usesCommandAckForModeChange
+                              << "defaultComponentId" << vehicle->defaultComponentId();
 
-        // Wait for vehicle to return flight mode
-        for (int i=0; i<13; i++) {
+    // Avoid re-sending mode changes while the previous MAV_CMD_DO_SET_MODE is still pending.
+    for (int retries = 0; retries < retryCount; retries++) {
+        const bool modeCommandPending = usesCommandAckForModeChange &&
+                                        vehicle->isMavCommandPending(vehicle->defaultComponentId(), MAV_CMD_DO_SET_MODE);
+
+        qCInfo(FirmwarePluginLog) << "_setFlightModeAndValidate attempt"
+                                  << "attempt" << (retries + 1)
+                                  << "currentMode" << vehicle->flightMode()
+                                  << "targetMode" << flightMode
+                                  << "modeCommandPending" << modeCommandPending;
+
+        if (!modeCommandPending) {
+            vehicle->setFlightMode(flightMode);
+        } else {
+            qCInfo(FirmwarePluginLog) << "_setFlightModeAndValidate reusing pending mode command"
+                                      << "attempt" << (retries + 1)
+                                      << "targetMode" << flightMode;
+        }
+
+        // Wait for the vehicle heartbeat to reflect the requested mode change. For stacks which use
+        // MAV_CMD_DO_SET_MODE, keep waiting until the previous command has had enough time to ack/timeout.
+        for (int i = 0; i < waitIterationsPerAttempt; i++) {
             if (vehicle->flightMode() == flightMode) {
                 flightModeChanged = true;
+                qCInfo(FirmwarePluginLog) << "_setFlightModeAndValidate success"
+                                          << "attempt" << (retries + 1)
+                                          << "waitIteration" << i
+                                          << "resultMode" << vehicle->flightMode();
                 break;
             }
+
             QGC::SLEEP::msleep(100);
             qgcApp()->processEvents(QEventLoop::ExcludeUserInputEvents);
         }
+
         if (flightModeChanged) {
             break;
         }
+
+        qCWarning(FirmwarePluginLog) << "_setFlightModeAndValidate attempt timed out waiting for heartbeat"
+                                     << "attempt" << (retries + 1)
+                                     << "currentMode" << vehicle->flightMode()
+                                     << "targetMode" << flightMode
+                                     << "modeCommandPending" << (usesCommandAckForModeChange &&
+                                                                 vehicle->isMavCommandPending(vehicle->defaultComponentId(), MAV_CMD_DO_SET_MODE));
+    }
+
+    if (!flightModeChanged) {
+        qCWarning(FirmwarePluginLog) << "_setFlightModeAndValidate failed"
+                                     << "finalMode" << vehicle->flightMode()
+                                     << "targetMode" << flightMode
+                                     << "modeCommandPending" << (usesCommandAckForModeChange &&
+                                                                 vehicle->isMavCommandPending(vehicle->defaultComponentId(), MAV_CMD_DO_SET_MODE));
     }
 
     return flightModeChanged;

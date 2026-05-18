@@ -2449,10 +2449,18 @@ void Vehicle::setFlightMode(const QString& flightMode)
     uint8_t     base_mode;
     uint32_t    custom_mode;
 
-    qCInfo(VehicleLog) << "Send flightMode : " << flightMode;
+    qCInfo(VehicleLog) << "setFlightMode requested"
+                       << "currentMode" << this->flightMode()
+                       << "targetMode" << flightMode
+                       << "defaultComponentId" << defaultComponentId();
 
     if (setFlightModeCustom(flightMode, &base_mode, &custom_mode)) {
-        qCInfo(VehicleLog) << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
+        qCInfo(VehicleLog) << "setFlightMode resolved"
+                           << "targetMode" << flightMode
+                           << "baseMode" << base_mode
+                           << "customMode" << custom_mode
+                           << "currentBaseMode" << _base_mode
+                           << "currentCustomMode" << _custom_mode;
         SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
         if (!sharedLink) {
             qCDebug(VehicleLog) << "setFlightMode: primary link gone!";
@@ -2466,13 +2474,16 @@ void Vehicle::setFlightMode(const QString& flightMode)
         newBaseMode |= base_mode;
 
         if (_firmwarePlugin->MAV_CMD_DO_SET_MODE_is_supported()) {
+            qCInfo(VehicleLog) << "setFlightMode using MAV_CMD_DO_SET_MODE"
+                               << "targetComponent" << defaultComponentId()
+                               << "targetMode" << flightMode
+                               << "param1BaseMode" << MAV_MODE_FLAG_CUSTOM_MODE_ENABLED
+                               << "param2CustomMode" << custom_mode;
             sendMavCommand(defaultComponentId(),
                            MAV_CMD_DO_SET_MODE,
                            true,    // show error if fails
                            MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                            custom_mode);
-
-            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported";
         } else {
             mavlink_message_t msg;
             mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
@@ -2484,7 +2495,10 @@ void Vehicle::setFlightMode(const QString& flightMode)
                                            custom_mode);
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 
-            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported not";
+            qCInfo(VehicleLog) << "setFlightMode using SET_MODE"
+                               << "targetMode" << flightMode
+                               << "newBaseMode" << newBaseMode
+                               << "customMode" << custom_mode;
         }
     } else {
         qCWarning(VehicleLog) << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
@@ -3378,6 +3392,14 @@ void Vehicle::_sendMavCommandWorker(
         QString rawCommandName  = _toolbox->missionCommandTree()->rawName(command);
 
         qCDebug(VehicleLog) << QStringLiteral("_sendMavCommandWorker failing %1").arg(compIdAll ? "MAV_COMP_ID_ALL not supportded" : "duplicate command") << rawCommandName;
+        if (command == MAV_CMD_DO_SET_MODE) {
+            qCWarning(VehicleLog) << "MAV_CMD_DO_SET_MODE blocked before send"
+                                  << "reason" << (compIdAll ? "compIdAll" : "duplicatePendingCommand")
+                                  << "targetComponent" << targetCompId
+                                  << "currentMode" << flightMode()
+                                  << "baseMode" << _base_mode
+                                  << "customMode" << _custom_mode;
+        }
 
         MavCmdResultFailureCode_t failureCode = compIdAll ? MavCmdResultCommandResultOnly : MavCmdResultFailureDuplicateCommand;
         if (ackHandlerInfo && ackHandlerInfo->resultHandler) {
@@ -3422,6 +3444,16 @@ void Vehicle::_sendMavCommandWorker(
     entry.ackTimeoutMSecs   = sharedLink->linkConfiguration()->isHighLatency() ? _mavCommandAckTimeoutMSecsHighLatency : _mavCommandAckTimeoutMSecs;
     entry.elapsedTimer.start();
 
+    if (command == MAV_CMD_DO_SET_MODE) {
+        qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE queued"
+                           << "targetComponent" << targetCompId
+                           << "param1BaseMode" << param1
+                           << "param2CustomMode" << param2
+                           << "ackTimeoutMSecs" << entry.ackTimeoutMSecs
+                           << "maxTries" << entry.maxTries
+                           << "currentMode" << flightMode();
+    }
+
     _mavCommandList.append(entry);
     _sendMavCommandFromList(_mavCommandList.count() - 1);
 }
@@ -3434,6 +3466,16 @@ void Vehicle::_sendMavCommandFromList(int index)
 
     if (++_mavCommandList[index].tryCount > commandEntry.maxTries) {
         qCDebug(VehicleLog) << "_sendMavCommandFromList giving up after max retries" << rawCommandName;
+        if (commandEntry.command == MAV_CMD_DO_SET_MODE) {
+            qCWarning(VehicleLog) << "MAV_CMD_DO_SET_MODE timed out waiting for ACK"
+                                  << "targetComponent" << commandEntry.targetCompId
+                                  << "param1BaseMode" << commandEntry.rgParam1
+                                  << "param2CustomMode" << commandEntry.rgParam2
+                                  << "elapsedMSecs" << commandEntry.elapsedTimer.elapsed()
+                                  << "currentMode" << flightMode()
+                                  << "baseMode" << _base_mode
+                                  << "customMode" << _custom_mode;
+        }
         _mavCommandList.removeAt(index);
         if (commandEntry.ackHandlerInfo.resultHandler) {
             mavlink_command_ack_t ack = {};
@@ -3455,6 +3497,14 @@ void Vehicle::_sendMavCommandFromList(int index)
     }
 
     qCDebug(VehicleLog) << "_sendMavCommandFromList command:tryCount" << rawCommandName << commandEntry.tryCount;
+    if (commandEntry.command == MAV_CMD_DO_SET_MODE) {
+        qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE sending"
+                           << "targetComponent" << commandEntry.targetCompId
+                           << "tryCount" << commandEntry.tryCount
+                           << "param1BaseMode" << commandEntry.rgParam1
+                           << "param2CustomMode" << commandEntry.rgParam2
+                           << "currentMode" << flightMode();
+    }
 
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
@@ -3532,6 +3582,15 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
 
     QString rawCommandName  =_toolbox->missionCommandTree()->rawName(static_cast<MAV_CMD>(ack.command));
     qCDebug(VehicleLog) << QStringLiteral("_handleCommandAck command(%1) result(%2)").arg(rawCommandName).arg(QGCMAVLink::mavResultToString(static_cast<MAV_RESULT>(ack.result)));
+    if (ack.command == MAV_CMD_DO_SET_MODE) {
+        qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE ACK received"
+                           << "ackCompId" << message.compid
+                           << "result" << QGCMAVLink::mavResultToString(static_cast<MAV_RESULT>(ack.result))
+                           << "resultEnum" << ack.result
+                           << "currentMode" << flightMode()
+                           << "baseMode" << _base_mode
+                           << "customMode" << _custom_mode;
+    }
 
     if (ack.command == MAV_CMD_DO_SET_ROI_LOCATION) {
         if (ack.result == MAV_RESULT_ACCEPTED) {
@@ -3559,6 +3618,13 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
 #endif
 
     int entryIndex = _findMavCommandListEntryIndex(message.compid, static_cast<MAV_CMD>(ack.command));
+    if (ack.command == MAV_CMD_DO_SET_MODE) {
+        qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE ACK lookup"
+                           << "ackCompId" << message.compid
+                           << "entryIndex" << entryIndex
+                           << "pendingOnDefaultComp" << isMavCommandPending(defaultComponentId(), MAV_CMD_DO_SET_MODE)
+                           << "defaultComponentId" << defaultComponentId();
+    }
     if (entryIndex != -1) {
         if (ack.result == MAV_RESULT_IN_PROGRESS) {
             MavCommandListEntry_t commandEntry;
@@ -3605,6 +3671,14 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
         }
     } else {
         qCDebug(VehicleLog) << "_handleCommandAck Ack not in list" << rawCommandName;
+        if (ack.command == MAV_CMD_DO_SET_MODE) {
+            qCWarning(VehicleLog) << "MAV_CMD_DO_SET_MODE ACK not matched to pending command"
+                                  << "ackCompId" << message.compid
+                                  << "defaultComponentId" << defaultComponentId()
+                                  << "currentMode" << flightMode()
+                                  << "baseMode" << _base_mode
+                                  << "customMode" << _custom_mode;
+        }
     }
 
     // advance PID tuning setup/teardown
