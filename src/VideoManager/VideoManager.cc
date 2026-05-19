@@ -678,7 +678,6 @@ VideoManager::_rtspUrlChanged()
     if (!_autoUpdatingRtspUrl) {
         _manualPrimaryRtspActive = !rtsp.isEmpty();
         _manualPrimaryRtspUrl = rtsp;
-        _manualPrimaryRtspCameraCompId = _currentPrimaryCameraCompId();
     }
 
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged"
@@ -686,7 +685,6 @@ VideoManager::_rtspUrlChanged()
             << "rtsp" << rtsp
             << "currentUri" << _videoUri[0]
             << "manualOverride" << _manualPrimaryRtspActive
-            << "manualCompId" << _manualPrimaryRtspCameraCompId
             << "autoUpdate" << _autoUpdatingRtspUrl;
     _restartVideo(0);
 }
@@ -913,25 +911,14 @@ VideoManager::_updateSettings(unsigned id)
                     case VIDEO_STREAM_TYPE_RTSP:
                     {
                         const QString discoveredRtspUrl = pInfo->uri();
-                        const int currentCameraCompId = _currentPrimaryCameraCompId();
-                        if (_manualPrimaryRtspActive &&
-                            _manualPrimaryRtspCameraCompId < 0 &&
-                            currentCameraCompId >= 0) {
-                            _manualPrimaryRtspCameraCompId = currentCameraCompId;
-                        }
-
                         const bool preserveManualRtsp = _manualPrimaryRtspActive &&
-                                                        !_manualPrimaryRtspUrl.isEmpty() &&
-                                                        currentCameraCompId >= 0 &&
-                                                        currentCameraCompId == _manualPrimaryRtspCameraCompId;
+                                                        !_manualPrimaryRtspUrl.isEmpty();
                         const QString effectiveRtspUrl = preserveManualRtsp ? _manualPrimaryRtspUrl : discoveredRtspUrl;
 
                         qCDebug(VideoManagerLog) << "[VideoManager]" << "RTSP auto-config"
-                                << "compId" << currentCameraCompId
                                 << "discovered" << discoveredRtspUrl
                                 << "effective" << effectiveRtspUrl
-                                << "preserveManual" << preserveManualRtsp
-                                << "manualCompId" << _manualPrimaryRtspCameraCompId;
+                                << "preserveManual" << preserveManualRtsp;
 
                         if ((settingsChanged |= _updateVideoUri(id, effectiveRtspUrl))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
@@ -1255,7 +1242,6 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
         }
     }
     _activeVehicle = vehicle;
-    _manualPrimaryRtspCameraCompId = -1;
     if(_activeVehicle) {
         connect(_activeVehicle->vehicleLinkManager(), &VehicleLinkManager::communicationLostChanged, this, &VideoManager::_communicationLostChanged);
         if(_activeVehicle->cameraManager()) {
@@ -1328,21 +1314,6 @@ VideoManager::_thermalModeChanged()
 #endif
 }
 
-//----------------------------------------------------------------------------------------
-int
-VideoManager::_currentPrimaryCameraCompId() const
-{
-    if (_activeVehicle && _activeVehicle->cameraManager()) {
-        QGCCameraControl* pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
-        if (pCamera) {
-            return pCamera->compID();
-        }
-    }
-
-    return -1;
-}
-
-//----------------------------------------------------------------------------------------
 void
 VideoManager::_aspectRatioChanged()
 {

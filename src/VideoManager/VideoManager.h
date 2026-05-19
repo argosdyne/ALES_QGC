@@ -168,7 +168,6 @@ protected slots:
     void _fpvChanged                ();
     void _streamEnabledChanged      ();
     void _thermalModeChanged        ();
-    int  _currentPrimaryCameraCompId() const;
 
 protected:
     friend class FinishVideoInitialization;
@@ -215,6 +214,5 @@ protected:
     bool                    _autoUpdatingRtspUrl = false;
     bool                    _manualPrimaryRtspActive = false;
     QString                 _manualPrimaryRtspUrl;
-    int                     _manualPrimaryRtspCameraCompId = -1;
 };
 #endif
