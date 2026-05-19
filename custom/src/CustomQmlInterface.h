@@ -145,6 +145,8 @@ public:
     Q_INVOKABLE QString exportTextReport(const QString& fileName, const QString& contents);
     Q_INVOKABLE bool exportTextReportToPath(const QString& filePath, const QString& contents);
     Q_INVOKABLE void logSecurityEvent(const QString& message);
+    Q_INVOKABLE void clearUserLogs();
+    Q_INVOKABLE void notifyFactoryResetCompleted();
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;
@@ -160,6 +162,7 @@ signals:
     void gimbalResetTigger(bool start);
 
     void defaultFontPixelChanged();    
+    void factoryResetCompleted();
 
 public slots:
     /**

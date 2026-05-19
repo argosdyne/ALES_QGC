@@ -3,8 +3,12 @@
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
 #include "Login/SecurityLogModel.h"
+#include "SettingsManager.h"
+#include "AppSettings.h"
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QStringList>
 #include <QTextStream>
 
 #define CHAR_NUMBER_EACH_ROW 30
@@ -163,6 +167,45 @@ void CustomQmlInterface::logSecurityEvent(const QString& message)
 
     SecurityLog::logEvent(trimmed);
     qInfo().noquote() << "SECURITY:" << trimmed;
+}
+
+void CustomQmlInterface::clearUserLogs()
+{
+    SecurityLogModel* securityLogModel = SecurityLog::getModel();
+    if (securityLogModel) {
+        securityLogModel->clearLog();
+    }
+
+    if (!_toolbox || !_toolbox->settingsManager() || !_toolbox->settingsManager()->appSettings()) {
+        return;
+    }
+
+    const QStringList logDirs = {
+        _toolbox->settingsManager()->appSettings()->telemetrySavePath(),
+        _toolbox->settingsManager()->appSettings()->logSavePath(),
+        _toolbox->settingsManager()->appSettings()->crashSavePath()
+    };
+
+    for (const QString& logDirPath: logDirs) {
+        if (logDirPath.trimmed().isEmpty()) {
+            continue;
+        }
+
+        QDir logDir(logDirPath);
+        if (!logDir.exists()) {
+            continue;
+        }
+
+        const QFileInfoList entries = logDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+        for (const QFileInfo& entry: entries) {
+            QFile::remove(entry.absoluteFilePath());
+        }
+    }
+}
+
+void CustomQmlInterface::notifyFactoryResetCompleted()
+{
+    emit factoryResetCompleted();
 }
 
 void CustomQmlInterface::_slaveModeChanged(bool slaveMode)

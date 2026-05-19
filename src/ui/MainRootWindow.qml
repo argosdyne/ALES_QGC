@@ -444,6 +444,25 @@ ApplicationWindow {
         })
     }
 
+    function showRegisterAfterFactoryReset() {
+        loginFlowSettings.recoveryKeyPending = false
+        sessionManager.sessionManagementEnabled = true
+        firstRunPromptManager.promptFlowStarted = false
+        firstRunPromptManager.securePromptShown = false
+        firstRunPromptManager.securePromptRetryCount = 0
+        firstRunPromptManager.clearNextPromptSignal()
+        toolDrawer.visible = false
+        toolDrawer.toolSource = ""
+        hideIndicatorPopup()
+        viewSwitch(toolbar.flyViewToolbar)
+        flightView.visible = true
+        loginStack.clear()
+        var regComp = loginStack.push(_registerPageComponent)
+        setupRegisterPageConnections(regComp)
+        globals.viewOnlyMode = false
+        loginOverlay.open()
+    }
+
     function setupLoginPageConnections(loginComponent) {
         loginComponent.unlockClicked.connect(function() {
             sessionManager.startSession()
@@ -1217,6 +1236,13 @@ ApplicationWindow {
                 return
             }
             showLoginOverlay()
+        }
+    }
+
+    Connections {
+        target: CustomQmlInterface
+        function onFactoryResetCompleted() {
+            showRegisterAfterFactoryReset()
         }
     }
 

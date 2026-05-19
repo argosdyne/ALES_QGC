@@ -1,5 +1,6 @@
 import QtQuick                  2.3
 import QtQuick.Controls         1.2
+import QtQuick.Dialogs          1.3
 import QtQuick.Layouts          1.2
 
 import QGroundControl                       1.0
@@ -464,6 +465,8 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     height: summaryTitle.implicitHeight + ScreenTools.defaultFontPixelHeight + summaryFrame.height
+                            + ScreenTools.defaultFontPixelHeight + factoryResetTitle.implicitHeight
+                            + ScreenTools.defaultFontPixelHeight * 0.4 + factoryResetFrame.height
 
                     QGCLabel {
                         id: summaryTitle
@@ -509,7 +512,6 @@ Rectangle {
                                     QGCLabel {
                                         width: parent.width
                                         text: qsTr("Recorded only when user enables. Stored locally.")
-                                        font.pointSize: ScreenTools.smallFontPointSize
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
                                     }
@@ -542,7 +544,6 @@ Rectangle {
                                     QGCLabel {
                                         width: parent.width
                                         text: qsTr("Stored as flight logs on local system for analysis.")
-                                        font.pointSize: ScreenTools.smallFontPointSize
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
                                     }
@@ -574,12 +575,71 @@ Rectangle {
                                     QGCLabel {
                                         width: parent.width
                                         text: qsTr("No audio data is collected or recorded.")
-                                        font.pointSize: ScreenTools.smallFontPointSize
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    QGCLabel {
+                        id: factoryResetTitle
+                        anchors.top: summaryFrame.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight
+                        text: qsTr("Factory Reset")
+                    }
+
+                    Rectangle {
+                        id: factoryResetFrame
+                        anchors.top: factoryResetTitle.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.4
+                        width: summaryFrame.width
+                        color: qgcPal.windowShade
+                        height: factoryResetColumn.height + ScreenTools.defaultFontPixelHeight * 2
+
+                        Column {
+                            id: factoryResetColumn
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.margins: _margins * 2.5
+
+                            QGCButton {
+                                text: qsTr("Factory Reset")
+                                onClicked: factoryResetDialog.visible = true
+                            }
+
+                            
+                            QGCLabel {
+                                width: parent.width
+                                text: qsTr("Securely delete all user information and data")
+                                color: qgcPal.colorGrey
+                                wrapMode: Text.WordWrap
+
+                            }
+                        }
+
+                        MessageDialog {
+                            id: factoryResetDialog
+                            visible: false
+                            icon: StandardIcon.Warning
+                            standardButtons: StandardButton.Yes | StandardButton.No
+                            title: qsTr("Factory Reset")
+                            text: qsTr("This action will delete all your data and logs. A full initial setup will be required. Do you want to continue?")
+
+                            onYes: {
+                                for (var i = 0; i < QGroundControl.mavlinkLogManager.logFiles.count; i++) {
+                                    QGroundControl.mavlinkLogManager.logFiles.get(i).selected = true
+                                }
+                                QGroundControl.mavlinkLogManager.deleteLog()
+                                securityManager.clearStored()
+                                CustomQmlInterface.clearUserLogs()
+                                factoryResetDialog.visible = false
+                                CustomQmlInterface.notifyFactoryResetCompleted()
+                            }
+                            onNo: factoryResetDialog.visible = false
                         }
                     }
                 }
