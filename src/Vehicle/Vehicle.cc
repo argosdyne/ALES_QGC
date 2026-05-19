@@ -69,6 +69,7 @@
 #include "OpticalFlowController.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
+QGC_LOGGING_CATEGORY(C2LinkLog,  "C2LinkLog")
 
 #define UPDATE_TIMER 50
 #define DEFAULT_LAT  38.965767f
@@ -728,6 +729,41 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
             return;
         }
     }
+
+    // Per-message-type rate logger (disabled): counts each msgid received from the FC
+    // and dumps a sorted summary once per second to C2LinkLog so we can see exactly
+    // what the SR* stream-rate params are producing on the link.
+    // Re-enable by removing the #if 0 / #endif guard.
+#if 0
+    {
+        static QHash<uint32_t, uint32_t> msgCounts;
+        static qint64 lastDumpMs = 0;
+        msgCounts[message.msgid]++;
+        const qint64 nowDumpMs = QDateTime::currentMSecsSinceEpoch();
+        if (lastDumpMs == 0) {
+            lastDumpMs = nowDumpMs;
+        } else if ((nowDumpMs - lastDumpMs) >= 1000) {
+            QList<QPair<uint32_t, uint32_t>> sorted;
+            sorted.reserve(msgCounts.size());
+            for (auto it = msgCounts.constBegin(); it != msgCounts.constEnd(); ++it) {
+                sorted.append(qMakePair(it.key(), it.value()));
+            }
+            std::sort(sorted.begin(), sorted.end(),
+                      [](const QPair<uint32_t, uint32_t>& a, const QPair<uint32_t, uint32_t>& b) {
+                          return a.second > b.second;
+                      });
+            uint32_t total = 0;
+            QString breakdown;
+            for (const auto& p : sorted) {
+                breakdown += QString(" id=%1(%2/s)").arg(p.first).arg(p.second);
+                total += p.second;
+            }
+            qCInfo(C2LinkLog) << "[C2Link/msgs] total=" << total << "msg/s |" << breakdown;
+            msgCounts.clear();
+            lastDumpMs = nowDumpMs;
+        }
+    }
+#endif
 
     // We give the link manager first whack since it it reponsible for adding new links
     _vehicleLinkManager->mavlinkMessageReceived(link, message);
@@ -4254,6 +4290,42 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
         _mavlinkLossCount       = totalLoss;
         _mavlinkLossPercent     = lossPercent;
         emit mavlinkStatusChanged();
+
+        // Per-second rate logger: prints msg/s arriving + lost + total + lossPct
+        // once per second to C2LinkLog so we can correlate rate with link health.
+        static qint64 lastTickMs   = 0;
+        static uint64_t lastRx     = 0;
+        static uint64_t lastLost   = 0;
+        const qint64 nowTickMs     = QDateTime::currentMSecsSinceEpoch();
+        if (lastTickMs == 0) {
+            lastTickMs = nowTickMs;
+            lastRx     = totalReceived;
+            lastLost   = totalLoss;
+        } else if ((nowTickMs - lastTickMs) >= 5000) {
+            const double sec      = (nowTickMs - lastTickMs) / 1000.0;
+            const double rxRate   = (totalReceived - lastRx)   / sec;
+            const double lossRate = (totalLoss     - lastLost) / sec;
+            const double total    = rxRate + lossRate;
+            const double pct      = (total > 0.0) ? (lossRate / total * 100.0) : 0.0;
+            qCInfo(C2LinkLog) << "[Mavlink Link Status]"
+                                << "received="    << QString::number(rxRate, 'f', 1) << "msg/s"
+                                << "lost="  << QString::number(lossRate, 'f', 1) << "msg/s"
+                                << "total=" << QString::number(total, 'f', 1) << "msg/s"
+                                << "loss rate=" << QString::number(pct, 'f', 1) << "%";
+            lastTickMs = nowTickMs;
+            lastRx     = totalReceived;
+            lastLost   = totalLoss;
+        }
+
+        //// Throttle banner re-evaluation on the packet-tick path to once every 7 s
+        //// in both directions. State-change callers (arm/disarm/flying) still call
+        //// _updateLinkQuality() directly and react instantly.
+        //static qint64 lastQualityEvalMs = 0;
+        //const qint64 nowQualityEvalMs = QDateTime::currentMSecsSinceEpoch();
+        //if (lastQualityEvalMs == 0 || (nowQualityEvalMs - lastQualityEvalMs) >= 7000) {
+        //    lastQualityEvalMs = nowQualityEvalMs;
+        //    _updateLinkQuality();
+        //}
         _updateLinkQuality();
     }
 }
@@ -4961,13 +5033,15 @@ void Vehicle::_updateLinkQuality(void)
 
     bool warning = false;
     bool critical = false;
+    // 0=none, 1=mavlink-loss, 2=telemetry-rssi, 3=rc-rssi
+    int triggeredBy = 0;
 
     const bool lossStatsValid = (_mavlinkReceivedCount >= 50 || _mavlinkSentCount >= 50);
     if (lossStatsValid) {
-        if (_mavlinkLossPercent >= 25.0f) {
-            critical = true;
-        } else if (_mavlinkLossPercent >= 10.0f) {
-            warning = true;
+        if (_mavlinkLossPercent >= 50.0f) {
+            critical = true; triggeredBy = 1;
+        } else if (_mavlinkLossPercent >= 35.0f) {
+            warning = true; triggeredBy = 1;
         }
     }
 
@@ -4984,21 +5058,44 @@ void Vehicle::_updateLinkQuality(void)
             rssiWorst = qMin(rssiLocal, rssiRemote);
         }
 
-        if (rssiWorst <= -100) {
-            critical = true;
-        } else if (rssiWorst <= -90) {
-            warning = true;
+        if (rssiWorst <= -110) {
+            critical = true; if (triggeredBy == 0) triggeredBy = 2;
+        } else if (rssiWorst <= -100) {
+            warning = true; if (triggeredBy == 0) triggeredBy = 2;
         }
     } else if (_rcRSSI > 0 && _rcRSSI <= 100) {
         if (_rcRSSI < 20) {
-            critical = true;
+            critical = true; if (triggeredBy == 0) triggeredBy = 3;
         } else if (_rcRSSI < 40) {
-            warning = true;
+            warning = true; if (triggeredBy == 0) triggeredBy = 3;
         }
     }
 
     const bool operational = armed() || flying();
-    if (!operational) {
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+
+    // Arm-grace: suppress warnings for 3s after entering operational state so cached
+    // loss%/RSSI values can refresh before being evaluated. Without this, any stale
+    // bad value cached while disarmed would fire the banner once at arm time.
+    static bool prevOperational = false;
+    static qint64 armEnteredAtMs = 0;
+    if (operational && !prevOperational) {
+        armEnteredAtMs = nowMs;
+        //qCInfo(C2LinkLog) << "[C2Link] entered operational"
+        //                    << "loss%=" << _mavlinkLossPercent
+        //                    << "rssiL=" << _telemetryLRSSI
+        //                    << "rssiR=" << _telemetryRRSSI
+        //                    << "rcRSSI=" << _rcRSSI
+        //                    << "lossStatsValid=" << lossStatsValid
+        //                    << "rssiValid=" << rssiValid
+        //                    << "wouldWarn=" << warning
+        //                    << "wouldCrit=" << critical
+        //                    << "trigBy=" << triggeredBy;
+    }
+    prevOperational = operational;
+    const bool inArmGrace = operational && (nowMs - armEnteredAtMs) < 3000;
+
+    if (!operational || inArmGrace) {
         warning = false;
         critical = false;
     }
@@ -5006,16 +5103,36 @@ void Vehicle::_updateLinkQuality(void)
     if (_linkQualityWarning != warning) {
         _linkQualityWarning = warning;
         emit linkQualityWarningChanged(warning);
+        qCInfo(C2LinkLog) << "[C2Link] warning =>" << warning
+                           << "loss%=" << _mavlinkLossPercent
+                           << "rcRSSI=" << _rcRSSI
+                           << "rssiWorst=" << (rssiValid ? rssiWorst : 0)
+                           << "trigBy=" << triggeredBy;
     }
     if (_linkQualityCritical != critical) {
         _linkQualityCritical = critical;
         emit linkQualityCriticalChanged(critical);
+        qCInfo(C2LinkLog) << "[C2Link] critical =>" << critical
+                           << "loss%=" << _mavlinkLossPercent
+                           << "rcRSSI=" << _rcRSSI
+                           << "rssiWorst=" << (rssiValid ? rssiWorst : 0)
+                           << "trigBy=" << triggeredBy;
     }
+    //const int newTrigger = (warning || critical) ? triggeredBy : 0;
+    //if (_linkQualityTrigger != newTrigger) {
+    //    _linkQualityTrigger = newTrigger;
+    //    emit linkQualityTriggerChanged(newTrigger);
+    //}
+    //// Pulse: bump the sequence each eval that finds bad state. QML banner listens
+    //// to this to show a brief 2-blink flash, instead of staying lit continuously.
+    //if (warning || critical) {
+    //    _linkQualityEvalSeq++;
+    //    emit linkQualityEvalSeqChanged(_linkQualityEvalSeq);
+    //}
     // Fire STATUSTEXT on transition into bad state, with a 10s cooldown per severity
     // so a flapping link can't spam the message indicator.
     static qint64 lastC2CriticalEmitMs = 0;
     static qint64 lastC2WarningEmitMs  = 0;
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     if (!wasCritical && critical && (nowMs - lastC2CriticalEmitMs) > 10000) {
         lastC2CriticalEmitMs = nowMs;
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, tr("C2 link quality critical").toHtmlEscaped(), "");
