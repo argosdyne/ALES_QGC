@@ -113,7 +113,7 @@ Item {
         //anchors.topMargin:      _toolsMargin
         anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 2.0 // pushed down below camera LRF readout
         z:                      QGroundControl.zOrderTopMost
-        visible:                _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
+        visible:                false   // C2 link warning banner disabled — re-enable by restoring: _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
 
         property bool _blinkOn: true
 
