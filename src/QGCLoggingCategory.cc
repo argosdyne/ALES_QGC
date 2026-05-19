@@ -113,6 +113,7 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
     if (videoAllLogSet) {
         filterRules += filterRuleFormat.arg("VideoManagerLog");
         filterRules += filterRuleFormat.arg("VideoReceiverLog");
+        filterRules += filterRuleFormat.arg("GStreamLog");
         filterRules += filterRuleFormat.arg("GStreamerLog");
     }
 

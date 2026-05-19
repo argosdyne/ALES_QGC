@@ -28,6 +28,7 @@
 #include <gst/gst.h>
 
 Q_DECLARE_LOGGING_CATEGORY(VideoReceiverLog)
+Q_DECLARE_LOGGING_CATEGORY(GStreamLog)
 
 class Worker : public QThread
 {
@@ -105,6 +106,11 @@ protected:
     virtual GstElement* _makeSource(const QString& uri);
     virtual GstElement* _makeDecoder(GstCaps* caps = nullptr, GstElement* videoSink = nullptr);
     virtual GstElement* _makeFileSink(const QString& videoFile, FILE_FORMAT format);
+    void _logElementSummary(const char* context, GstElement* element) const;
+    void _logElementProperty(const char* context, GstElement* element, const char* propertyName) const;
+    void _logCaps(const char* context, GstCaps* caps) const;
+    void _logPadCaps(const char* context, GstElement* element, const char* padName) const;
+    void _logPipelineConfiguration(const char* context) const;
 
     virtual void _onNewSourcePad(GstPad* pad);
     virtual void _onNewDecoderPad(GstPad* pad);
@@ -122,6 +128,9 @@ protected:
 
     static gboolean _onBusMessage(GstBus* bus, GstMessage* message, gpointer user_data);
     static void _onNewPad(GstElement* element, GstPad* pad, gpointer data);
+    static void _onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* element, gpointer data);
+    static void _onChildAdded(GstChildProxy* childProxy, GObject* object, gchar* name, gpointer data);
+    static void _onRtspNewManager(GstElement* src, GstElement* manager, gpointer data);
     static void _wrapWithGhostPad(GstElement* element, GstPad* pad, gpointer data);
     static void _linkPad(GstElement* element, GstPad* pad, gpointer data);
     static gboolean _padProbe(GstElement* element, GstPad* pad, gpointer user_data);
@@ -165,6 +174,7 @@ protected:
     uint32_t            _signalDepth;
 
     bool                _endOfStream;
+    QString             _decoderName;
 
     static const char*  _kFileMux[FILE_FORMAT_MAX - FILE_FORMAT_MIN];
 };

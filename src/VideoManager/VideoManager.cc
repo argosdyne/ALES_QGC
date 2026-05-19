@@ -95,6 +95,10 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
 
    // TODO: Those connections should be Per Video, not per VideoManager.
    _videoSettings = toolbox->settingsManager()->videoSettings();
+   if (!_videoSettings->lowLatencyMode()->rawValue().toBool()) {
+       qCInfo(VideoManagerLog) << "[VideoManager]" << "enabling lowLatencyMode by default";
+       _videoSettings->lowLatencyMode()->setRawValue(true);
+   }
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
    qCDebug(VideoManagerLog) << "[VideoManager]" << "setToolbox"
            << "videoSource" << videoSource
@@ -193,6 +197,13 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         qCDebug(VideoManagerLog) << "Video 0 resized. New resolution: " << size.width() << "x" << size.height();
         _videoSize = ((quint32)size.width() << 16) | (quint32)size.height();
         emit videoSizeChanged();
+    });
+
+    connect(_videoReceiver[0], &VideoReceiver::decoderNameChanged, this, [this](const QString& name){
+        if (_decoderName != name) {
+            _decoderName = name;
+            emit decoderNameChanged();
+        }
     });
 
     //connect(_videoReceiver, &VideoReceiver::onTakeScreenshotComplete, this, [this](VideoReceiver::STATUS status){
@@ -835,11 +846,15 @@ VideoManager::_updateSettings(unsigned id)
     if(!_videoSettings)
         return false;
 
-    const bool lowLatencyStreaming  =_videoSettings->lowLatencyMode()->rawValue().toBool();
+    const bool oldLowLatencyStreaming = _lowLatencyStreaming[id];
+    const bool lowLatencyStreaming  = _videoSettings->lowLatencyMode()->rawValue().toBool();
 
-    bool settingsChanged = _lowLatencyStreaming[id] != lowLatencyStreaming;
+    bool settingsChanged = oldLowLatencyStreaming != lowLatencyStreaming;
 
     _lowLatencyStreaming[id] = lowLatencyStreaming;
+    if (id == 0 && oldLowLatencyStreaming != lowLatencyStreaming) {
+        emit lowLatencyActiveChanged();
+    }
 
     //-- Auto discovery
 
@@ -1114,6 +1129,7 @@ VideoManager::_startReceiver(unsigned id)
             << "uri" << _videoUri[id]
             << "timeout" << timeout
             << "lowLatency" << _lowLatencyStreaming[id];
+    const int bufferSetting = _lowLatencyStreaming[id] ? 80 : 0;
     if (id > 2) {
         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
     } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
@@ -1128,7 +1144,10 @@ VideoManager::_startReceiver(unsigned id)
             if (id == 0) {
                 _deferPrimaryStartUntilSinkReady = false;
             }
-            _videoReceiver[id]->start(_videoUri[id], timeout, _lowLatencyStreaming[id] ? -1 : 0);
+            qCDebug(VideoManagerLog) << "[VideoManager]" << "_startReceiver"
+                    << "id" << id
+                    << "bufferSetting" << bufferSetting;
+            _videoReceiver[id]->start(_videoUri[id], timeout, bufferSetting);
         }
     }
 #else
