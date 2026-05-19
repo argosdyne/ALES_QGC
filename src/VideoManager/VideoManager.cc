@@ -115,9 +115,9 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
    qCInfo(VideoManagerLog) << "[VideoManager]" << "deviceManufacturerMode"
                            << (_legacyRockchipStreaming ? "rockchip-legacy" : "default-low-latency");
    if (!_legacyRockchipStreaming && !_videoSettings->lowLatencyMode()->rawValue().toBool()) {
-       qCInfo(VideoManagerLog) << "[VideoManager]" << "enabling lowLatencyMode by default";
-       _videoSettings->lowLatencyMode()->setRawValue(true);
-   }
+        qCInfo(VideoManagerLog) << "[VideoManager]" << "enabling lowLatencyMode by default";
+        _videoSettings->lowLatencyMode()->setRawValue(true);
+    }
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
    qCDebug(VideoManagerLog) << "[VideoManager]" << "setToolbox"
            << "videoSource" << videoSource
@@ -675,10 +675,19 @@ VideoManager::_rtspUrlChanged()
     const QString source = _videoSettings->videoSource()->rawValue().toString();
     const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
 
+    if (!_autoUpdatingRtspUrl) {
+        _manualPrimaryRtspActive = !rtsp.isEmpty();
+        _manualPrimaryRtspUrl = rtsp;
+        _manualPrimaryRtspCameraCompId = _currentPrimaryCameraCompId();
+    }
+
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged"
             << "source" << source
             << "rtsp" << rtsp
-            << "currentUri" << _videoUri[0];
+            << "currentUri" << _videoUri[0]
+            << "manualOverride" << _manualPrimaryRtspActive
+            << "manualCompId" << _manualPrimaryRtspCameraCompId
+            << "autoUpdate" << _autoUpdatingRtspUrl;
     _restartVideo(0);
 }
 
@@ -904,12 +913,35 @@ VideoManager::_updateSettings(unsigned id)
                     case VIDEO_STREAM_TYPE_RTSP:
                     {
                         const QString discoveredRtspUrl = pInfo->uri();
-                        if ((settingsChanged |= _updateVideoUri(id, discoveredRtspUrl))) {
+                        const int currentCameraCompId = _currentPrimaryCameraCompId();
+                        if (_manualPrimaryRtspActive &&
+                            _manualPrimaryRtspCameraCompId < 0 &&
+                            currentCameraCompId >= 0) {
+                            _manualPrimaryRtspCameraCompId = currentCameraCompId;
+                        }
+
+                        const bool preserveManualRtsp = _manualPrimaryRtspActive &&
+                                                        !_manualPrimaryRtspUrl.isEmpty() &&
+                                                        currentCameraCompId >= 0 &&
+                                                        currentCameraCompId == _manualPrimaryRtspCameraCompId;
+                        const QString effectiveRtspUrl = preserveManualRtsp ? _manualPrimaryRtspUrl : discoveredRtspUrl;
+
+                        qCDebug(VideoManagerLog) << "[VideoManager]" << "RTSP auto-config"
+                                << "compId" << currentCameraCompId
+                                << "discovered" << discoveredRtspUrl
+                                << "effective" << effectiveRtspUrl
+                                << "preserveManual" << preserveManualRtsp
+                                << "manualCompId" << _manualPrimaryRtspCameraCompId;
+
+                        if ((settingsChanged |= _updateVideoUri(id, effectiveRtspUrl))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!discoveredRtspUrl.isEmpty() &&
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != discoveredRtspUrl) {
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(discoveredRtspUrl);
+                        const QString targetRtspSetting = preserveManualRtsp ? _manualPrimaryRtspUrl : discoveredRtspUrl;
+                        if (!targetRtspSetting.isEmpty() &&
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != targetRtspSetting) {
+                            _autoUpdatingRtspUrl = true;
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(targetRtspSetting);
+                            _autoUpdatingRtspUrl = false;
                         }
                         break;
                     }
@@ -1164,9 +1196,9 @@ VideoManager::_startReceiver(unsigned id)
         _activeVideoBufferMs = bufferSetting;
         emit activeVideoBufferMsChanged();
     }
-    if (id > 2) {
-        qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
-    } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
+     if (id > 2) {
+         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
+     } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
         if (id == 0 && _videoSink[0] == nullptr) {
             _deferPrimaryStartUntilSinkReady = true;
             qCDebug(VideoManagerLog) << "[VideoManager]" << "_startReceiver"
@@ -1223,6 +1255,7 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
         }
     }
     _activeVehicle = vehicle;
+    _manualPrimaryRtspCameraCompId = -1;
     if(_activeVehicle) {
         connect(_activeVehicle->vehicleLinkManager(), &VehicleLinkManager::communicationLostChanged, this, &VideoManager::_communicationLostChanged);
         if(_activeVehicle->cameraManager()) {
@@ -1293,6 +1326,20 @@ VideoManager::_thermalModeChanged()
         _restartVideo(1);
     }
 #endif
+}
+
+//----------------------------------------------------------------------------------------
+int
+VideoManager::_currentPrimaryCameraCompId() const
+{
+    if (_activeVehicle && _activeVehicle->cameraManager()) {
+        QGCCameraControl* pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
+        if (pCamera) {
+            return pCamera->compID();
+        }
+    }
+
+    return -1;
 }
 
 //----------------------------------------------------------------------------------------

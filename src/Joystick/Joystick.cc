@@ -657,6 +657,15 @@ void Joystick::_handleAxis()
                 gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
             }
 
+            if (fabsf(gimbalPitch) > 0.01f || fabsf(gimbalYaw) > 0.01f) {
+                qCInfo(GimbalLog) << "[GimbalFlow]"
+                                  << "joystick axis gimbal input"
+                                  << "name" << name()
+                                  << "gimbalPitch" << gimbalPitch
+                                  << "gimbalYaw" << gimbalYaw
+                                  << "axisCount" << _axisCount;
+            }
+
             if (_accumulator) {
                 static float throttle_accu = 0.f;
                 throttle_accu += throttle * (40 / 1000.f); //for throttle to change from min to max it will take 1000ms (40ms is a loop time)
@@ -1054,19 +1063,40 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionToggleVideoRecord) {
         if (buttonDown) emit toggleVideoRecord();
     } else if(action == _buttonActionGimbalUp) {
-        if (buttonDown) emit gimbalPitchStep(1);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal up";
+            emit gimbalPitchStep(1);
+        }
     } else if(action == _buttonActionGimbalDown) {
-        if (buttonDown) emit gimbalPitchStep(-1);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal down";
+            emit gimbalPitchStep(-1);
+        }
     } else if(action == _buttonActionGimbalLeft) {
-        if (buttonDown) emit gimbalYawStep(-1);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal left";
+            emit gimbalYawStep(-1);
+        }
     } else if(action == _buttonActionGimbalRight) {
-        if (buttonDown) emit gimbalYawStep(1);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal right";
+            emit gimbalYawStep(1);
+        }
     } else if(action == _buttonActionGimbalCenter) {
-        if (buttonDown) emit centerGimbal();
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal center";
+            emit centerGimbal();
+        }
     } else if(action == _buttonActionGimbalYawLock) {
-        if (buttonDown) emit gimbalYawLock(true);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal yaw lock";
+            emit gimbalYawLock(true);
+        }
     } else if(action == _buttonActionGimbalYawFollow) {
-        if (buttonDown) emit gimbalYawLock(false);
+        if (buttonDown) {
+            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal yaw follow";
+            emit gimbalYawLock(false);
+        }
     } else if(action == _buttonActionEmergencyStop) {
         if (buttonDown) emit emergencyStop();
     } else if(action == _buttonActionGripperGrab) {

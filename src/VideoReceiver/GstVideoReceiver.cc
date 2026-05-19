@@ -79,7 +79,6 @@ bool isRockchipManufacturer()
 #endif
     return false;
 }
-
 void configureStartupParserHints(GstElement* element)
 {
     if (element == nullptr || gstFactoryName(element) != QStringLiteral("h264parse")) {

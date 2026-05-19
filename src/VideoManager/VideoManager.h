@@ -107,7 +107,6 @@ public:
     QString deviceVideoMode(void) const {
         return _legacyRockchipStreaming ? QStringLiteral("rockchip-legacy") : QStringLiteral("default-low-latency");
     }
-
 // FIXME: AV: they should be removed after finishing multiple video stream support
 // new arcitecture does not assume direct access to video receiver from QML side, even if it works for now
     virtual VideoReceiver*  videoReceiver           () { return _videoReceiver[0]; }
@@ -169,6 +168,7 @@ protected slots:
     void _fpvChanged                ();
     void _streamEnabledChanged      ();
     void _thermalModeChanged        ();
+    int  _currentPrimaryCameraCompId() const;
 
 protected:
     friend class FinishVideoInitialization;
@@ -212,5 +212,9 @@ protected:
     bool                    _restartPrimaryOnSinkReady = false;
     bool                    _legacyRockchipStreaming = false;
     bool                    _primaryTimeoutRecoveryPending = false;
+    bool                    _autoUpdatingRtspUrl = false;
+    bool                    _manualPrimaryRtspActive = false;
+    QString                 _manualPrimaryRtspUrl;
+    int                     _manualPrimaryRtspCameraCompId = -1;
 };
 #endif

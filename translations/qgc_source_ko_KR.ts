@@ -10117,6 +10117,16 @@ Click Ok to start the auto-tuning process.
       <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
       <translation>Apache License 사본은 다음에서 확인할 수 있습니다:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
     </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310"/>
+      <source>Android %1</source>
+      <translation>Android %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="324"/>
+      <source>Develope under: %1 - Security patch %2</source>
+      <translation>컨트롤러: %1 - 보안 패치 %2</translation>
+    </message>
   
 <message>
         <location filename="../src/ui/MainRootWindow.qml" line="230"/>

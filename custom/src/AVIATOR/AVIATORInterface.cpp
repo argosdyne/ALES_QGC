@@ -286,6 +286,22 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         }
     }
 
+    if (_prevChannelValues != newChannelValues) {
+        qCInfo(AVIATORInterfaceLog) << "[RCFlow]"
+                                    << "aviator rc input"
+                                    << "count" << channels.chancount
+                                    << "rssi" << channels.rssi
+                                    << "ch1-4"
+                                    << newChannelValues.value(0) << newChannelValues.value(1) << newChannelValues.value(2) << newChannelValues.value(3)
+                                    << "ch5-8"
+                                    << newChannelValues.value(4) << newChannelValues.value(5) << newChannelValues.value(6) << newChannelValues.value(7)
+                                    << "ch9-12"
+                                    << newChannelValues.value(8) << newChannelValues.value(9) << newChannelValues.value(10) << newChannelValues.value(11)
+                                    << "ch13-18"
+                                    << newChannelValues.value(12) << newChannelValues.value(13) << newChannelValues.value(14)
+                                    << newChannelValues.value(15) << newChannelValues.value(16) << newChannelValues.value(17);
+    }
+
     _prevChannelValues = newChannelValues;
 
 
