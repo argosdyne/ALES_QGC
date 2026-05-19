@@ -4291,6 +4291,8 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
         _mavlinkLossPercent     = lossPercent;
         emit mavlinkStatusChanged();
 
+        // C2Link 5 s rate logger disabled. Re-enable by removing the #if 0 / #endif guard.
+#if 0
         // Per-second rate logger: prints msg/s arriving + lost + total + lossPct
         // once per second to C2LinkLog so we can correlate rate with link health.
         static qint64 lastTickMs   = 0;
@@ -4316,6 +4318,7 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
             lastRx     = totalReceived;
             lastLost   = totalLoss;
         }
+#endif
 
         //// Throttle banner re-evaluation on the packet-tick path to once every 7 s
         //// in both directions. State-change callers (arm/disarm/flying) still call
@@ -5028,6 +5031,10 @@ void Vehicle::_updateParachuteState(void)
 
 void Vehicle::_updateLinkQuality(void)
 {
+    // C2 link quality detection disabled — body short-circuited so all
+    // threshold checks, state toggles, arm-grace tracking, signal emits and
+    // STATUSTEXT generation are skipped. Re-enable by removing the #if 0 / #endif guard.
+#if 0
     const bool wasWarning = _linkQualityWarning;
     const bool wasCritical = _linkQualityCritical;
 
@@ -5129,6 +5136,8 @@ void Vehicle::_updateLinkQuality(void)
     //    _linkQualityEvalSeq++;
     //    emit linkQualityEvalSeqChanged(_linkQualityEvalSeq);
     //}
+    // C2 link STATUSTEXT messages disabled. Re-enable by removing the #if 0 / #endif guard.
+#if 0
     // Fire STATUSTEXT on transition into bad state, with a 10s cooldown per severity
     // so a flapping link can't spam the message indicator.
     static qint64 lastC2CriticalEmitMs = 0;
@@ -5140,6 +5149,8 @@ void Vehicle::_updateLinkQuality(void)
         lastC2WarningEmitMs = nowMs;
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, tr("C2 link quality degraded").toHtmlEscaped(), "");
     }
+#endif // STATUSTEXT block
+#endif // entire _updateLinkQuality body
 }
 
 void Vehicle::_logGeoFenceEvent(const QString& reason, const QString& details)
