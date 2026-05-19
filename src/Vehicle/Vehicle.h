@@ -89,6 +89,7 @@ class ParsedEvent;
 }
 
 Q_DECLARE_LOGGING_CATEGORY(VehicleLog)
+Q_DECLARE_LOGGING_CATEGORY(C2LinkLog)
 
 class Vehicle : public FactGroup
 {
@@ -195,6 +196,8 @@ public:
     Q_PROPERTY(bool                 geoFenceParamsMissing       READ geoFenceParamsMissing                                          NOTIFY geoFenceParamsMissingChanged)
     Q_PROPERTY(bool                 linkQualityWarning          READ linkQualityWarning                                             NOTIFY linkQualityWarningChanged)
     Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
+    Q_PROPERTY(int                  linkQualityTrigger          READ linkQualityTrigger                                             NOTIFY linkQualityTriggerChanged)
+    Q_PROPERTY(int                  linkQualityEvalSeq          READ linkQualityEvalSeq                                             NOTIFY linkQualityEvalSeqChanged)
     Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
     Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
@@ -631,6 +634,8 @@ public:
     bool            geoFenceParamsMissing       () const { return _geoFenceParamsMissing; }
     bool            linkQualityWarning          () const { return _linkQualityWarning; }
     bool            linkQualityCritical         () const { return _linkQualityCritical; }
+    int             linkQualityTrigger          () const { return _linkQualityTrigger; }
+    int             linkQualityEvalSeq          () const { return _linkQualityEvalSeq; }
     bool            parachuteAvailable          () const { return _parachuteAvailable; }
     bool            parachuteEnabled            () const { return _parachuteEnabled; }
     int             newMessageCount             () const{ return _currentMessageCount; }
@@ -1015,6 +1020,8 @@ signals:
     void geoFenceParamsMissingChanged  (bool missing);
     void linkQualityWarningChanged     (bool warning);
     void linkQualityCriticalChanged    (bool critical);
+    void linkQualityTriggerChanged     (int trigger);
+    void linkQualityEvalSeqChanged     (int seq);
     void parachuteAvailableChanged     (bool available);
     void parachuteEnabledChanged       (bool enabled);
     void newMessageCountChanged         ();
@@ -1267,6 +1274,8 @@ private:
     bool            _geoFenceParamsMissing                  = false;
     bool            _linkQualityWarning                     = false;
     bool            _linkQualityCritical                    = false;
+    int             _linkQualityTrigger                     = 0; // 0=none, 1=mavlink-loss, 2=telem-rssi, 3=rc-rssi
+    int             _linkQualityEvalSeq                     = 0; // bumps each 7 s eval-while-bad; QML banner watches this to pulse
     bool            _parachuteAvailable                     = false;
     bool            _parachuteEnabled                       = false;
     double          _defaultCruiseSpeed = qQNaN();
