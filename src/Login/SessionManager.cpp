@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QMetaObject>
+#include <QSettings>
 
 #ifdef Q_OS_ANDROID
 #include <jni.h>
@@ -26,6 +27,9 @@ SessionManager::SessionManager(QObject *parent)
     , m_isAppInBackground(false)
 {
     s_instance = this;
+
+    QSettings settings;
+    m_sessionManagementEnabled = settings.value(QStringLiteral("SessionManagement/Enabled"), true).toBool();
 
     connect(&m_sessionTimer, &QTimer::timeout,
             this, &SessionManager::_onSessionTimeout);
@@ -74,17 +78,51 @@ SessionManager* SessionManager::instance()
     return s_instance;
 }
 
+void SessionManager::setSessionManagementEnabled(bool enabled)
+{
+    if (m_sessionManagementEnabled == enabled) {
+        return;
+    }
+
+    m_sessionManagementEnabled = enabled;
+    QSettings settings;
+    settings.setValue(QStringLiteral("SessionManagement/Enabled"), enabled);
+
+    if (!m_sessionManagementEnabled) {
+        m_sessionActive = false;
+        m_sessionTimer.stop();
+    } else if (!m_isAppInBackground) {
+        startSession();
+    }
+
+    emit sessionManagementEnabledChanged();
+}
+
 void SessionManager::startSession() {
+    if (!m_sessionManagementEnabled) {
+        m_sessionActive = false;
+        m_sessionTimer.stop();
+        return;
+    }
+
     m_isAppInBackground = false;
     m_sessionActive = true;
     _restartInactivityTimer();
 }
 
 void SessionManager::recordUserInteraction() {
+    if (!m_sessionManagementEnabled) {
+        return;
+    }
+
     _restartInactivityTimer();
 }
 
 void SessionManager::_onSessionTimeout() {
+    if (!m_sessionManagementEnabled) {
+        return;
+    }
+
     SecurityLog::logEvent(QStringLiteral("Session timeout - session locked"));
     m_sessionActive = false;
     m_sessionTimer.stop();
@@ -92,6 +130,10 @@ void SessionManager::_onSessionTimeout() {
 }
 
 void SessionManager::onAppBackground() {
+    if (!m_sessionManagementEnabled) {
+        return;
+    }
+
     m_isAppInBackground = true;
     m_sessionActive = false;
     m_sessionTimer.stop();
@@ -132,7 +174,7 @@ bool SessionManager::eventFilter(QObject *watched, QEvent *event) {
 }
 
 void SessionManager::_restartInactivityTimer() {
-    if (!m_sessionActive || m_isAppInBackground) {
+    if (!m_sessionManagementEnabled || !m_sessionActive || m_isAppInBackground) {
         return;
     }
 

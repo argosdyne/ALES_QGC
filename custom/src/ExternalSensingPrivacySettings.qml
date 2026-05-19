@@ -662,6 +662,24 @@ Rectangle {
                                     }
                                 }
                             }
+
+                            RowLayout {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: parent.width - 5 * _margins
+
+                                QGCLabel {
+                                    text: qsTr("Enable Session Management")
+                                    Layout.fillWidth: true
+                                }
+
+                                QGCSwitch {
+                                    checked: sessionManager.sessionManagementEnabled
+                                    onClicked: {
+                                        sessionManager.sessionManagementEnabled = checked
+                                        CustomQmlInterface.logSecurityEvent("Session management " + (checked ? "enabled" : "disabled"))
+                                    }
+                                }
+                            }
                         }
                     }
                 }

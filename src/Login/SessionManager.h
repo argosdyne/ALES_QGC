@@ -15,11 +15,15 @@ class QEvent;
 
 class SessionManager : public QObject {
     Q_OBJECT
+    Q_PROPERTY(bool sessionManagementEnabled READ sessionManagementEnabled WRITE setSessionManagementEnabled NOTIFY sessionManagementEnabledChanged)
     
 public:
     explicit SessionManager(QObject *parent = nullptr);
     ~SessionManager();
     static SessionManager* instance();
+
+    bool sessionManagementEnabled() const { return m_sessionManagementEnabled; }
+    void setSessionManagementEnabled(bool enabled);
     
     // Start session with 15 minute auto-lock
     Q_INVOKABLE void startSession();
@@ -32,6 +36,7 @@ public:
     
 signals:
     void sessionLocked();  // Emitted after 15 minutes of inactivity
+    void sessionManagementEnabledChanged();
     
 private slots:
     void _onSessionTimeout();
@@ -41,7 +46,8 @@ private:
     void _restartInactivityTimer();
 
     QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout
-    static constexpr int SESSION_TIMEOUT_MS = 15 * 60 * 1000;   // 15 minutes = 900000 ms
+    static constexpr int SESSION_TIMEOUT_MS = 0.5 * 60 * 1000;   // 15 minutes = 900000 ms
+    bool m_sessionManagementEnabled = true;
     bool m_isAppInBackground = false;
     bool m_sessionActive = false;
     static SessionManager* s_instance;
