@@ -302,6 +302,32 @@ ApplicationWindow {
                     onLinkActivated:    Qt.openUrlExternally(link)
                 }
 
+                ColumnLayout {
+                    Layout.fillWidth:   true
+                    visible:            ScreenTools.isAndroid
+                    spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                    property string _androidVersionText: ScreenTools.androidVersion === "" ? qsTr("Unknown") : qsTr("Android %1").arg(ScreenTools.androidVersion)
+                    property string _androidSecurityPatchText: _formattedAndroidSecurityPatch()
+
+                    function _formattedAndroidSecurityPatch() {
+                        if (ScreenTools.androidSecurityPatch === "") {
+                            return qsTr("Unknown")
+                        }
+
+                        var patchDate = Date.fromLocaleString(Qt.locale(), ScreenTools.androidSecurityPatch, "yyyy-MM-dd")
+                        return isNaN(patchDate.getTime()) ? ScreenTools.androidSecurityPatch : Qt.formatDate(patchDate, "yyyy/MM/dd")
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Develope under: %1 - Security patch %2").arg(parent._androidVersionText).arg(parent._androidSecurityPatchText)
+                        color:              qgcPal.text
+                        opacity:            0.75
+                        wrapMode:           Text.WordWrap
+                    }
+                }
+
                 Item {
                     Layout.fillWidth:       true
                     Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.7

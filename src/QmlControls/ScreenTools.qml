@@ -86,6 +86,8 @@ Item {
     property bool isShortScreen:                    ((Screen.height / realPixelDensity) < 120) || (ScreenToolsController.isMobile && ((Screen.height / Screen.width) < 0.6))
     property bool isHugeScreen:                     (Screen.width / realPixelDensity) >= (23.5 * 25.4) // 27" monitor
     property bool isSerialAvailable:                ScreenToolsController.isSerialAvailable
+    readonly property string androidVersion:        ScreenToolsController.androidVersion
+    readonly property string androidSecurityPatch:  ScreenToolsController.androidSecurityPatch
 
     readonly property real minTouchMillimeters:     10      ///< Minimum touch size in millimeters
     property real minTouchPixels:                   0       ///< Minimum touch size in pixels
