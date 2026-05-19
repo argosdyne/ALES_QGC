@@ -197,5 +197,10 @@ protected:
     Vehicle*                _activeVehicle          = nullptr;
     bool                    _deferPrimaryStartUntilSinkReady = false;
     bool                    _restartPrimaryOnSinkReady = false;
+    bool                    _legacyRockchipStreaming = false;
+    bool                    _primaryTimeoutRecoveryPending = false;
+    bool                    _autoUpdatingRtspUrl = false;
+    bool                    _manualPrimaryRtspActive = false;
+    QString                 _manualPrimaryRtspUrl;
 };
 #endif

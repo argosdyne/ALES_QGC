@@ -637,11 +637,17 @@ VideoManager::_rtspUrlChanged()
 {
     const QString source = _videoSettings->videoSource()->rawValue().toString();
     const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
+    if (!_autoUpdatingRtspUrl) {
+        _manualPrimaryRtspActive = !rtsp.isEmpty();
+        _manualPrimaryRtspUrl = rtsp;
+    }
 
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged"
             << "source" << source
             << "rtsp" << rtsp
-            << "currentUri" << _videoUri[0];
+            << "currentUri" << _videoUri[0]
+            << "manualOverride" << _manualPrimaryRtspActive
+            << "autoUpdate" << _autoUpdatingRtspUrl;
     _restartVideo(0);
 }
 
@@ -866,17 +872,23 @@ VideoManager::_updateSettings(unsigned id)
                 switch(pInfo->type()) {
                     case VIDEO_STREAM_TYPE_RTSP:
                     {
-                        const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
-                        const bool manualRtspConfigured = !configuredRtspUrl.isEmpty();
-                        const QString effectiveRtspUrl = manualRtspConfigured ? configuredRtspUrl : pInfo->uri();
+                        const QString discoveredRtspUrl = pInfo->uri();
+                        const bool preserveManualRtsp = _manualPrimaryRtspActive &&
+                                                        !_manualPrimaryRtspUrl.isEmpty();
+                        const QString effectiveRtspUrl = preserveManualRtsp ? _manualPrimaryRtspUrl : discoveredRtspUrl;
+
+                        qCDebug(VideoManagerLog) << "[VideoManager]" << "RTSP auto-config"
+                                << "discovered" << discoveredRtspUrl
+                                << "effective" << effectiveRtspUrl
+                                << "preserveManual" << preserveManualRtsp;
 
                         if ((settingsChanged |= _updateVideoUri(id, effectiveRtspUrl))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!manualRtspConfigured &&
-                            !pInfo->uri().isEmpty() &&
-                            configuredRtspUrl != pInfo->uri()) {
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
+                        if (!preserveManualRtsp &&
+                            !discoveredRtspUrl.isEmpty() &&
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != discoveredRtspUrl) {
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(discoveredRtspUrl);
                         }
                         break;
                     }
@@ -1261,7 +1273,6 @@ VideoManager::_thermalModeChanged()
 #endif
 }
 
-//----------------------------------------------------------------------------------------
 void
 VideoManager::_aspectRatioChanged()
 {
