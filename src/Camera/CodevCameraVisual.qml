@@ -35,6 +35,19 @@ Item {
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
+    property string _cameraModelUpper: _camera ? ((_camera.modelName || "").toUpperCase()) : ""
+        property string _cameraVendorUpper: _camera ? ((_camera.vendor || "").toUpperCase()) : ""
+    property bool _isSonyIR1: _camera && (
+                                       _cameraVendorUpper.indexOf("SONY") !== -1 ||
+                                       _cameraModelUpper.indexOf("SONY") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR-1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR_1") !== -1 ||
+                                       _cameraModelUpper.indexOf("IR 1") !== -1 ||
+                                       _cameraModelUpper.indexOf("LR1") !== -1)
+
+    property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
+
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
             _smartSelect.value = "Yolov8"
@@ -45,8 +58,10 @@ Item {
     }
 
     Component.onCompleted: {
-        console.log("CodevCameraVisual load")
-        console.log("aiInThermal = ", aiInThermal)
+        console.log("[CodevCameraVisual] load camera=", _camera ? _camera.modelName : "null",
+                    "paramComplete=", _camera ? _camera.paramComplete : false,
+                    "aiInThermal=", aiInThermal,
+                    "activeSettings=", _camera ? _camera.activeSettings : [])
     }
 
     Connections {
@@ -255,6 +270,11 @@ Item {
         height: thermalItem.height
         clip: true
         visible: thermalItem.visible
+        onVisibleChanged: console.log("[THERMAL_UI]",
+                                      "thermalOverlayItem.visibleChanged",
+                                      "visible=", visible,
+                                      "x=", x, "y=", y,
+                                      "width=", width, "height=", height)
 
         Rectangle {
             id: minTempRect
@@ -361,6 +381,14 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: ScreenTools.defaultFontPixelWidth
         visible: _factoryCali ? !_factoryCali.value : true
+        onVisibleChanged: console.log("[THERMAL_UI]",
+                                      "irToolsPanel.visibleChanged",
+                                      "visible=", visible,
+                                      "factoryCaliFact=", !!_factoryCali,
+                                      "factoryCaliValue=", _factoryCali ? _factoryCali.value : "null",
+                                      "thermalItemVisible=", thermalItem.visible,
+                                      "pseudocolorFact=", !!_pseudocolor,
+                                      "thermometryFact=", !!_thermometry)
 
         PseudocolorBar {
             id: pseudocolorBar
@@ -368,7 +396,7 @@ Item {
             Layout.fillHeight: true
             width: ScreenTools.defaultFontPixelHeight * 6
             orientation: Gradient.Horizontal
-            visible: thermalItem.visible && _pseudocolor
+            visible: thermalItem.visible && !!_pseudocolor
             Component.onCompleted: if(_pseudocolor) setPseudocolorBarIndex(_pseudocolor.enumIndex)
             Connections {
                 target: _pseudocolor
@@ -377,7 +405,15 @@ Item {
                 }
             }
             onVisibleChanged: {
-                if(visible) {
+                console.log("[THERMAL_UI]",
+                            "pseudocolorBar.visibleChanged",
+                            "visible=", visible,
+                            "thermalItemVisible=", thermalItem.visible,
+                            "hasPseudocolor=", !!_pseudocolor)
+                if(visible && _pseudocolor) {
+                    setPseudocolorBarIndex(_pseudocolor.enumIndex)
+                } else {
+                    checked = false
                     pseudocolorPopup.close()
                 }
             }
@@ -397,7 +433,14 @@ Item {
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _thermometry ? _thermometry.value : false
-            visible: thermalItem.visible
+            visible: thermalItem.visible && !!_thermometry
+            enabled: !!_thermometry
+            onVisibleChanged: console.log("[THERMAL_UI]",
+                                          "thermometryButton.visibleChanged",
+                                          "visible=", visible,
+                                          "thermalItemVisible=", thermalItem.visible,
+                                          "hasThermometry=", !!_thermometry,
+                                          "thermometryValue=", _thermometry ? _thermometry.value : "null")
             source: {
                 if(!checked) {
                     return "qrc:/qmlimages/thermometry.svg"
@@ -411,14 +454,16 @@ Item {
                 }
             }
             onClicked: {
-                _thermometry.value = !_thermometry.value
+                if (_thermometry) {
+                    _thermometry.value = !_thermometry.value
+                }
             }
         }
 
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _tofEN ? _tofEN.value : false
-            visible: _tofEN
+            visible: _hasLaserRangefinder
             source: "qrc:/qmlimages/rangefinder.svg"
             onClicked: {
                 _tofEN.value = !_tofEN.value

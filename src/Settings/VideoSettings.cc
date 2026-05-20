@@ -214,8 +214,9 @@ bool VideoSettings::streamConfigured(void)
     }
     //-- If RTSP, check for URL
     if(vSource == videoSourceRTSP) {
-        qCDebug(VideoManagerLog) << "Testing configuration for RTSP Stream:" << rtspUrl()->rawValue().toString();
-        return !rtspUrl()->rawValue().toString().isEmpty();
+        const QString url = rtspUrl()->rawValue().toString();
+        qInfo() << "[VideoSettings]" << "streamConfigured RTSP source" << vSource << "url" << url << "configured" << !url.isEmpty();
+        return !url.isEmpty();
     }
     //-- If TCP, check for URL
     if(vSource == videoSourceTCP) {

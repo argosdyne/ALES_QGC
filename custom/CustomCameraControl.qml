@@ -75,6 +75,35 @@ Item {
         return strs.toUpperCase()
     }
 
+    Component.onCompleted: {
+        console.log("[CameraRoot] completed dynamicCameras=", _dynamicCameras,
+                    "isCamera=", _isCamera,
+                    "curCameraIndex=", _curCameraIndex,
+                    "camera=", _camera ? _camera.modelName : "null",
+                    "paramComplete=", _camera ? _camera.paramComplete : false,
+                    "activeSettings=", _camera ? _camera.activeSettings : [])
+    }
+
+    Connections {
+        target: _dynamicCameras
+        function onCurrentCameraChanged() {
+            console.log("[CameraRoot] currentCameraChanged currentCamera=",
+                        _dynamicCameras ? _dynamicCameras.currentCamera : -1,
+                        "isCamera=", _isCamera,
+                        "camera=", _camera ? _camera.modelName : "null",
+                        "paramComplete=", _camera ? _camera.paramComplete : false,
+                        "activeSettings=", _camera ? _camera.activeSettings : [])
+        }
+        function onCamerasChanged() {
+            console.log("[CameraRoot] camerasChanged count=",
+                        _dynamicCameras && _dynamicCameras.cameras ? _dynamicCameras.cameras.count : -1,
+                        "isCamera=", _isCamera,
+                        "camera=", _camera ? _camera.modelName : "null",
+                        "paramComplete=", _camera ? _camera.paramComplete : false,
+                        "activeSettings=", _camera ? _camera.activeSettings : [])
+        }
+    }
+
 //    Connections {
 //        target: QGroundControl.multiVehicleManager.activeVehicle
 //        onConnectionLostChanged: {
@@ -602,6 +631,24 @@ Item {
         x:                  Math.round((mainWindow.width  - width)  * 0.5)
         y:                  Math.round((mainWindow.height - height) * 0.5)
         closePolicy:        Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        onOpened: {
+            console.log("[CameraSettings] popup opened camera=", _camera ? _camera.modelName : "null",
+                        "paramComplete=", _camera ? _camera.paramComplete : false,
+                        "activeSettings=", _camera ? _camera.activeSettings : [])
+        }
+        Connections {
+            target: _camera
+            function onParametersReady() {
+                console.log("[CameraSettings] parametersReady camera=", _camera ? _camera.modelName : "null",
+                            "paramComplete=", _camera ? _camera.paramComplete : false,
+                            "activeSettings=", _camera ? _camera.activeSettings : [])
+            }
+            function onActiveSettingsChanged() {
+                console.log("[CameraSettings] activeSettingsChanged camera=", _camera ? _camera.modelName : "null",
+                            "paramComplete=", _camera ? _camera.paramComplete : false,
+                            "activeSettings=", _camera ? _camera.activeSettings : [])
+            }
+        }
         background: Rectangle {
             anchors.fill:   parent
             color:          qgcPal.globalTheme === QGCPalette.Light ? Qt.rgba(1,1,1,0.95) : Qt.rgba(0,0,0,0.75)
@@ -1117,4 +1164,3 @@ Item {
         }
     }
 }
-

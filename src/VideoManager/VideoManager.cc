@@ -130,11 +130,16 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         if (status == VideoReceiver::STATUS_OK) {
             _videoStarted[0] = true;
             if (_videoSink[0] != nullptr) {
-                qCDebug(VideoManagerLog) << "Video 0 start decoding";
+                _deferPrimaryStartUntilSinkReady = false;
+                _restartPrimaryOnSinkReady = false;
+                qInfo() << "[VideoManager]" << "video0 startDecoding";
                 // It is absolutely ok to have video receiver active (streaming) and decoding not active
                 // It should be handy for cases when you have many streams and want to show only some of them
                 // NOTE that even if decoder did not start it is still possible to record video
                 _videoReceiver[0]->startDecoding(_videoSink[0]);
+            } else {
+                _restartPrimaryOnSinkReady = true;
+                qWarning() << "[VideoManager]" << "video0 no sink available on start complete";
             }
         } else if (status == VideoReceiver::STATUS_INVALID_URL) {            
             // Invalid URL - don't restart
@@ -188,7 +193,14 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
 
     // FIXME: AV: I believe _thermalVideoReceiver should be handled just like _videoReceiver in terms of event
     // and I expect that it will be changed during multiple video stream activity
-    if (_videoReceiver[1] != nullptr) {
+    if (_videoReceiver[1] != nullptr) {        
+        connect(_videoReceiver[1], &VideoReceiver::streamingChanged, this, [this](bool active){
+            qInfo() << "THERMAL_TRACE"
+                    << "video1.streamingChanged"
+                    << "active" << active
+                    << "uri" << _videoUri[1]
+                    << "sinkReady" << (_videoSink[1] != nullptr);
+        });
         connect(_videoReceiver[1], &VideoReceiver::onStartComplete, this, [this](VideoReceiver::STATUS status) {
             if (status == VideoReceiver::STATUS_OK) {
                 _videoStarted[1] = true;
@@ -207,6 +219,13 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         connect(_videoReceiver[1], &VideoReceiver::onStopComplete, this, [this](VideoReceiver::STATUS) {
             _videoStarted[1] = false;
             _startReceiver(1);
+        });
+        connect(_videoReceiver[1], &VideoReceiver::decodingChanged, this, [this](bool active){
+            qInfo() << "THERMAL_TRACE"
+                    << "video1.decodingChanged"
+                    << "active" << active
+                    << "uri" << _videoUri[1]
+                    << "sinkReady" << (_videoSink[1] != nullptr);
         });
     }
 
@@ -572,6 +591,13 @@ VideoManager::_udpPortChanged()
 void
 VideoManager::_rtspUrlChanged()
 {
+    const QString source = _videoSettings->videoSource()->rawValue().toString();
+    const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
+
+    qInfo() << "[VideoManager]" << "_rtspUrlChanged"
+            << "source" << source
+            << "rtsp" << rtsp
+            << "currentUri" << _videoUri[0];
     _restartVideo(0);
 }
 
@@ -692,8 +718,22 @@ VideoManager::_initVideo()
     if (widget != nullptr && _videoReceiver[0] != nullptr) {
         _videoSink[0] = qgcApp()->toolbox()->corePlugin()->createVideoSink(this, widget);
         if (_videoSink[0] != nullptr) {
-            if (_videoStarted[0]) {
-                _videoReceiver[0]->startDecoding(_videoSink[0]);
+            qInfo() << "[VideoManager]" << "initVideo" << "video0 sink created" << _videoSink[0];
+            if (_deferPrimaryStartUntilSinkReady && !_videoStarted[0]) {
+                qInfo() << "[VideoManager]" << "initVideo"
+                        << "video0 starting deferred receiver now that sink is ready";
+                _deferPrimaryStartUntilSinkReady = false;
+                _startReceiver(0);
+            } else if (_videoStarted[0]) {
+                if (_restartPrimaryOnSinkReady) {
+                    qInfo() << "[VideoManager]" << "initVideo"
+                            << "video0 restarting receiver after late sink creation";
+                    _restartPrimaryOnSinkReady = false;
+                    _stopReceiver(0);
+                } else {
+                    qInfo() << "[VideoManager]" << "initVideo" << "video0 already started, begin decoding";
+                    _videoReceiver[0]->startDecoding(_videoSink[0]);
+                }
             }
         } else {
             qCDebug(VideoManagerLog) << "createVideoSink() failed";
@@ -965,7 +1005,17 @@ VideoManager::_startReceiver(unsigned id)
     if (id > 2) {
         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
     } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
+        if (id == 0 && _videoSink[0] == nullptr) {
+            _deferPrimaryStartUntilSinkReady = true;
+            qInfo() << "[VideoManager]" << "_startReceiver"
+                    << "id" << id
+                    << "deferred until primary sink is ready";
+            return;
+        }
         if (!_videoUri[id].isEmpty()) {
+            if (id == 0) {
+                _deferPrimaryStartUntilSinkReady = false;
+            }
             _videoReceiver[id]->start(_videoUri[id], timeout, _lowLatencyStreaming[id] ? -1 : 0);
         }
     }
@@ -982,6 +1032,9 @@ VideoManager::_stopReceiver(unsigned id)
     if (id > 2) {
         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
     } else if (_videoReceiver[id] != nullptr) {
+        if (id == 0) {
+            _deferPrimaryStartUntilSinkReady = false;
+        }
         _videoReceiver[id]->stop();
     }
 #else
@@ -998,6 +1051,7 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
         if(_activeVehicle->cameraManager()) {
             auto pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
             if(pCamera) {
+                disconnect(pCamera, &QGCCameraControl::thermalModeChanged, this, &VideoManager::_thermalModeChanged);
                 pCamera->stopStream();
             }
             disconnect(_activeVehicle->cameraManager(), &QGCCameraManager::streamChanged, this, &VideoManager::_restartAllVideos);
@@ -1010,6 +1064,7 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
             connect(_activeVehicle->cameraManager(), &QGCCameraManager::streamChanged, this, &VideoManager::_restartAllVideos);
             auto pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
             if(pCamera) {
+                connect(pCamera, &QGCCameraControl::thermalModeChanged, this, &VideoManager::_thermalModeChanged);
                 pCamera->resumeStream();
             }
         }
@@ -1027,8 +1082,42 @@ VideoManager::_communicationLostChanged(bool connectionLost)
 {
     if(connectionLost) {
         //-- Disable full screen video if connection is lost
+        emit hasThermalChanged();
         setfullScreen(false);
     }
+}
+
+//----------------------------------------------------------------------------------------
+void
+VideoManager::_thermalModeChanged()
+{
+#if defined(QGC_GST_STREAMING)
+    if (!_activeVehicle || !_activeVehicle->cameraManager()) {
+        return;
+    }
+
+    auto pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
+    if (!pCamera || pCamera->thermalMode() == QGCCameraControl::THERMAL_OFF) {
+        return;
+    }
+
+    qInfo() << "[VideoManager]" << "_thermalModeChanged"
+            << "mode" << static_cast<int>(pCamera->thermalMode())
+            << "started" << _videoStarted[1]
+            << "uri" << _videoUri[1];
+    qInfo() << "THERMAL_TRACE"
+            << "thermalModeChanged"
+            << "mode" << static_cast<int>(pCamera->thermalMode())
+            << "started" << _videoStarted[1]
+            << "uri" << _videoUri[1]
+            << "hasThermalStream" << (pCamera->thermalStreamInstance() != nullptr);
+
+    if (_videoStarted[1]) {
+        _stopReceiver(1);
+    } else {
+        _restartVideo(1);
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------------------
