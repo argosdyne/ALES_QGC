@@ -168,6 +168,7 @@ FirstRunPrompt {
                                             + " StrictValidation=" + _strictValidation.rawValue
                                             + " Allowlist=" + _allowlistIds.rawValue)
 
+        _videoSettings.streamEnabled.rawValue = _videoEnabled.rawValue
         if (_videoEnabled.rawValue) {
             _applyVideoSource(_videoUrl.rawValue.toString())
         } else {
@@ -189,6 +190,10 @@ FirstRunPrompt {
     }
 
     Component.onCompleted: {
+        var rtspUrl = _videoSettings.rtspUrl.rawValue.toString()
+        var defaultVideoUrl = _videoUrl.rawValue.toString()
+        videoUriField.text = rtspUrl.length > 0 ? rtspUrl : defaultVideoUrl
+
         if (!_rememberChoice.rawValue) {
             udpCheckbox.checked = false
             tcpCheckbox.checked = false
@@ -196,6 +201,8 @@ FirstRunPrompt {
             _udpEnabled.rawValue = false
             _tcpEnabled.rawValue = false
             _videoEnabled.rawValue = false
+            _videoSettings.streamEnabled.rawValue = false
+            _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
             _wizardCompleted.rawValue = false
             QGroundControl.linkManager.disconnectNetworkLinks()
         }
