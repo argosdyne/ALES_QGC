@@ -29,18 +29,22 @@ static constexpr quint16 kCameraDefinitionLocalPort = 38081;
 static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
+static QString _cameraRtspSettingsKey(int vehicleId, int compID)
+{
+    return QStringLiteral("Camera/LastRtsp/%1/%2").arg(vehicleId).arg(compID);
+}
+
 struct CodevFallbackProfile {
     QByteArray modelName;
     uint8_t definitionVersion = kCodevFallbackDefinitionVersion;
 };
 
-static CodevFallbackProfile _codevFallbackProfileFromRtsp()
+static CodevFallbackProfile _codevFallbackProfileFromRtsp(const QString& rtspUrl)
 {
     CodevFallbackProfile profile;
     profile.modelName = QByteArrayLiteral("R3");
     profile.definitionVersion = kCodevFallbackDefinitionVersion;
 
-    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
     const QUrl videoUrl(rtspUrl);
     if (videoUrl.host().isEmpty()) {
         return profile;
@@ -55,13 +59,13 @@ static CodevFallbackProfile _codevFallbackProfileFromRtsp()
     return profile;
 }
 
-static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
+static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, const QString& rtspUrl, mavlink_camera_information_t& info)
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return false;
     }
 
-    const CodevFallbackProfile profile = _codevFallbackProfileFromRtsp();
+    const CodevFallbackProfile profile = _codevFallbackProfileFromRtsp(rtspUrl);
     const QByteArray vendor = QByteArrayLiteral("Codev");    
 
     memset(&info, 0, sizeof(info));
@@ -77,10 +81,10 @@ static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& defin
     return true;
 }
 
-static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, mavlink_message_t& message)
+static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, const QString& rtspUrl, mavlink_message_t& message)
 {
     mavlink_camera_information_t info{};
-    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, info)) {
+    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, rtspUrl, info)) {
         return false;
     }
 
@@ -167,13 +171,25 @@ QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
 }
 
 QString
+QGCCameraManager::_cameraRtspUrlForComp(int compID) const
+{
+    QSettings settings;
+    const QString storedRtspUrl = settings.value(_cameraRtspSettingsKey(_vehicle ? _vehicle->id() : -1, compID)).toString();
+    if (!storedRtspUrl.isEmpty()) {
+        return storedRtspUrl;
+    }
+
+    return qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+}
+
+QString
 QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return QString();
     }
 
-    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    const QString rtspUrl = _cameraRtspUrlForComp(compID);
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
         const QString path = videoUrl.path();
@@ -507,7 +523,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
         return false;
     }
 
-    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
+    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), _cameraRtspUrlForComp(compID), synthesizedMessage)) {
         qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation no synth profile"
                 << "compId" << compID
@@ -647,7 +663,7 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
     mavlink_camera_information_t info{};
     const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
     const bool useCodevProfile = !definitionUrl.isEmpty() &&
-                                 _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), info);
+                                 _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), _cameraRtspUrlForComp(compID), info);
     if (!useCodevProfile) {
         const QByteArray vendor = QByteArrayLiteral("Unknown");
         const QByteArray modelName = QStringLiteral("Camera %1").arg(compID).toLatin1();

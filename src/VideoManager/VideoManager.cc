@@ -46,6 +46,8 @@
 
 QGC_LOGGING_CATEGORY(VideoManagerLog, "VideoManagerLog")
 
+static const char* kManualPrimaryRtspOverrideKey = "VideoManager/ManualPrimaryRtspOverride";
+
 static bool isRockchipManufacturer()
 {
 #ifdef Q_OS_ANDROID
@@ -119,10 +121,16 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
        _videoSettings->lowLatencyMode()->setRawValue(true);
    }
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
+   {
+       QSettings settings;
+       _manualPrimaryRtspActive = settings.value(QString::fromLatin1(kManualPrimaryRtspOverrideKey), false).toBool();
+       _manualPrimaryRtspUrl = _manualPrimaryRtspActive ? _videoSettings->rtspUrl()->rawValue().toString() : QString();
+   }
    qCDebug(VideoManagerLog) << "[VideoManager]" << "setToolbox"
            << "videoSource" << videoSource
            << "rtspUrl" << _videoSettings->rtspUrl()->rawValue().toString()
-           << "streamEnabled" << _videoSettings->streamEnabled()->rawValue().toBool();
+           << "streamEnabled" << _videoSettings->streamEnabled()->rawValue().toBool()
+           << "manualOverride" << _manualPrimaryRtspActive;
    connect(_videoSettings->videoSource(),   &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
    connect(_videoSettings->udpPort(),       &Fact::rawValueChanged, this, &VideoManager::_udpPortChanged);
    connect(_videoSettings->rtspUrl(),       &Fact::rawValueChanged, this, &VideoManager::_rtspUrlChanged);
@@ -674,9 +682,13 @@ VideoManager::_rtspUrlChanged()
 {
     const QString source = _videoSettings->videoSource()->rawValue().toString();
     const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
-    if (!_autoUpdatingRtspUrl) {
+    const bool autoUpdate = _autoUpdatingRtspUrl;
+
+    if (!autoUpdate) {
         _manualPrimaryRtspActive = !rtsp.isEmpty();
         _manualPrimaryRtspUrl = rtsp;
+        QSettings settings;
+        settings.setValue(QString::fromLatin1(kManualPrimaryRtspOverrideKey), _manualPrimaryRtspActive);
     }
 
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged"
@@ -684,7 +696,13 @@ VideoManager::_rtspUrlChanged()
             << "rtsp" << rtsp
             << "currentUri" << _videoUri[0]
             << "manualOverride" << _manualPrimaryRtspActive
-            << "autoUpdate" << _autoUpdatingRtspUrl;
+            << "autoUpdate" << autoUpdate;
+
+    if (autoUpdate) {
+        qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged skipped restart for auto-updated RTSP setting";
+        return;
+    }
+
     _restartVideo(0);
 }
 
@@ -1096,8 +1114,10 @@ VideoManager::_restartVideo(unsigned id)
                 << "receiver" << _videoReceiver[id];
     }
     qCDebug(VideoManagerLog) << "New Video URI " << newUri;
-    // A camera unplug/replug can leave the backend stream dead even when the URI and mode
-    // are unchanged, so a requested restart must always restart the receiver.
+    if (_videoStarted[id] && oldUri == newUri && oldLowLatencyStreaming == newLowLatencyStreaming) {
+        qCDebug(VideoManagerLog) << "No sense to restart video streaming, skipped"  << id;
+        return;
+    }
 
     qCDebug(VideoManagerLog) << "Restart video streaming"  << id;
 
