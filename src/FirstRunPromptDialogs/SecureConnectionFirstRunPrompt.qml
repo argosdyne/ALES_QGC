@@ -168,6 +168,7 @@ FirstRunPrompt {
                                             + " StrictValidation=" + _strictValidation.rawValue
                                             + " Allowlist=" + _allowlistIds.rawValue)
 
+        _videoSettings.streamEnabled.rawValue = _videoEnabled.rawValue
         if (_videoEnabled.rawValue) {
             _applyVideoSource(_videoUrl.rawValue.toString())
         } else {
@@ -200,6 +201,8 @@ FirstRunPrompt {
             _udpEnabled.rawValue = false
             _tcpEnabled.rawValue = false
             _videoEnabled.rawValue = false
+            _videoSettings.streamEnabled.rawValue = false
+            _videoSettings.videoSource.rawValue = _videoSettings.disabledVideoSource
             _wizardCompleted.rawValue = false
             QGroundControl.linkManager.disconnectNetworkLinks()
         }

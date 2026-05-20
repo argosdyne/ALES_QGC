@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
  *
  * (c) 2009-2019 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
  *
@@ -23,6 +23,7 @@
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
 #include "SettingsManager.h"
+#include "VideoSettings.h"
 #include "AppMessages.h"
 #include "QmlComponentInfo.h"
 #include "QGCPalette.h"
@@ -119,6 +120,19 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     _settings = new CustomSettings(this);
     _codevRTCMManager->setToolbox(toolbox);
 
+    QSettings startupSettings;
+    const bool rememberChoice = startupSettings.value(QStringLiteral("Custom/securityRememberChoice"), false).toBool();
+    if (!rememberChoice) {
+        startupSettings.setValue(QStringLiteral("Custom/networkUdpListenerEnabled"), false);
+        startupSettings.setValue(QStringLiteral("Custom/networkTcpServerEnabled"), false);
+        startupSettings.setValue(QStringLiteral("Custom/networkVideoStreamingEnabled"), false);
+
+        if (toolbox->settingsManager() && toolbox->settingsManager()->videoSettings()) {
+            toolbox->settingsManager()->videoSettings()->streamEnabled()->setRawValue(false);
+            toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoDisabled);
+        }
+    }
+
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
 
@@ -129,16 +143,6 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 #endif
 
     qmlRegisterSingletonInstance<AVIATORInterface>("CustomQmlInterface", 1, 0, "AVIATORInterface", _aviatorInterface);
-
-    connect(qApp, &QCoreApplication::aboutToQuit, this, []() {
-        QSettings settings;
-        const bool rememberChoice = settings.value(QStringLiteral("Custom/securityRememberChoice"), false).toBool();
-        if (!rememberChoice) {
-            settings.setValue(QStringLiteral("Custom/networkUdpListenerEnabled"), false);
-            settings.setValue(QStringLiteral("Custom/networkTcpServerEnabled"), false);
-            settings.setValue(QStringLiteral("Custom/networkVideoStreamingEnabled"), false);
-        }
-    });
 }
 
 void CustomPlugin::_handleRCChannelValues(const quint16* channels, int count)
