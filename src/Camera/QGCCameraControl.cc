@@ -1780,8 +1780,25 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
     QSettings settings;
     const QString key = _cameraRtspSettingsKey();
     const QString previousUri = settings.value(key).toString();
+    const QString definitionUri = _cameraDefinitionUri(&_info);
+    const QUrl definitionUrl(definitionUri);
+    const bool usesLocalDefinitionProxy =
+        definitionUrl.scheme().compare(QStringLiteral("http"), Qt::CaseInsensitive) == 0 &&
+        (definitionUrl.host().compare(QStringLiteral("127.0.0.1")) == 0 ||
+         definitionUrl.host().compare(QStringLiteral("localhost"), Qt::CaseInsensitive) == 0);
+
     if (previousUri.isEmpty()) {
         settings.setValue(key, streamUri);
+        if (usesLocalDefinitionProxy && !definitionUri.isEmpty()) {
+            qInfo() << "[CameraControl]"
+                    << "Learned first RTSP URI for fallback camera, reloading definition"
+                    << "compId" << _compID
+                    << "uri" << streamUri
+                    << "definitionUri" << definitionUri;
+            _purgeCameraDefinitionCache();
+            _cached = false;
+            _handleDefinitionFile(definitionUri);
+        }
         return;
     }
 
@@ -1798,7 +1815,6 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
     _cached = false;
     settings.setValue(key, streamUri);
 
-    const QString definitionUri = _cameraDefinitionUri(&_info);
     if (!definitionUri.isEmpty()) {
         _handleDefinitionFile(definitionUri);
     }

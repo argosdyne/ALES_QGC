@@ -42,6 +42,7 @@
 
 QGC_LOGGING_CATEGORY(VideoManagerLog, "VideoManagerLog")
 
+static const char* kManualPrimaryRtspOverrideKey = "VideoManager/ManualPrimaryRtspOverride";
 #if defined(QGC_GST_STREAMING)
 static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver::FILE_FORMAT_MIN] = {
     "mkv",
@@ -100,10 +101,16 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
        _videoSettings->lowLatencyMode()->setRawValue(true);
    }
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
+   {
+       QSettings settings;
+       _manualPrimaryRtspActive = settings.value(QString::fromLatin1(kManualPrimaryRtspOverrideKey), false).toBool();
+       _manualPrimaryRtspUrl = _manualPrimaryRtspActive ? _videoSettings->rtspUrl()->rawValue().toString() : QString();
+   }
    qCDebug(VideoManagerLog) << "[VideoManager]" << "setToolbox"
            << "videoSource" << videoSource
            << "rtspUrl" << _videoSettings->rtspUrl()->rawValue().toString()
-           << "streamEnabled" << _videoSettings->streamEnabled()->rawValue().toBool();
+           << "streamEnabled" << _videoSettings->streamEnabled()->rawValue().toBool()
+           << "manualOverride" << _manualPrimaryRtspActive;
    connect(_videoSettings->videoSource(),   &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
    connect(_videoSettings->udpPort(),       &Fact::rawValueChanged, this, &VideoManager::_udpPortChanged);
    connect(_videoSettings->rtspUrl(),       &Fact::rawValueChanged, this, &VideoManager::_rtspUrlChanged);
@@ -637,9 +644,13 @@ VideoManager::_rtspUrlChanged()
 {
     const QString source = _videoSettings->videoSource()->rawValue().toString();
     const QString rtsp   = _videoSettings->rtspUrl()->rawValue().toString();
-    if (!_autoUpdatingRtspUrl) {
+    const bool autoUpdate = _autoUpdatingRtspUrl;
+
+    if (!autoUpdate) {
         _manualPrimaryRtspActive = !rtsp.isEmpty();
         _manualPrimaryRtspUrl = rtsp;
+        QSettings settings;
+        settings.setValue(QString::fromLatin1(kManualPrimaryRtspOverrideKey), _manualPrimaryRtspActive);
     }
 
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged"
@@ -647,7 +658,13 @@ VideoManager::_rtspUrlChanged()
             << "rtsp" << rtsp
             << "currentUri" << _videoUri[0]
             << "manualOverride" << _manualPrimaryRtspActive
-            << "autoUpdate" << _autoUpdatingRtspUrl;
+            << "autoUpdate" << autoUpdate;
+
+    if (autoUpdate) {
+        qCDebug(VideoManagerLog) << "[VideoManager]" << "_rtspUrlChanged skipped restart for auto-updated RTSP setting";
+        return;
+    }
+
     _restartVideo(0);
 }
 
@@ -1273,10 +1290,6 @@ VideoManager::_thermalModeChanged()
 #endif
 }
 
-<<<<<<< HEAD
-//----------------------------------------------------------------------------------------
-=======
->>>>>>> 3ab19a560 (Keep manual RTSP override across camera changes)
 void
 VideoManager::_aspectRatioChanged()
 {
