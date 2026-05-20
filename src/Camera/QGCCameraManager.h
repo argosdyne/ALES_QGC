@@ -104,6 +104,7 @@ protected:
     virtual bool    _injectSynthesizedCameraInformation(int compID, LinkInterface* link, const char* reason);
     virtual bool    _ensureCameraDefinitionHttpServer();
     virtual QString _cameraDefinitionLocalUrl(int compID) const;
+    virtual QString _cameraRtspUrlForComp(int compID) const;
     virtual QString _cameraDefinitionUpstreamUrl(int compID) const;
     virtual void    _replyCameraDefinitionHttp(QTcpSocket* socket, int statusCode, const QByteArray& body, const QByteArray& contentType) const;
 
