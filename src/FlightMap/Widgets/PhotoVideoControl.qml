@@ -103,12 +103,12 @@ Item {
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
     // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
     // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
-    // commands +1 on top of it, producing a 2â€“3Ã— overshoot.
+    // commands +1 on top of it, producing a 2??Ã— overshoot.
     property real _zoomLastMs: 0
 
     // FlyDynamics3-style: button mode flips based on which territory the next
     // step would be. In optical territory the button is press-to-zoom (firmware
-    // continuous zoom on press, stop on release â€” no timer). In digital
+    // continuous zoom on press, stop on release ??no timer). In digital
     // territory the button is tap-only (each tap = one EO_DZOOM step via
     // CodevCameraControl::stepZoom).
     //   - zoom-in optical territory:  zoomLevel < 29.5
@@ -149,6 +149,37 @@ Item {
         function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
         function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
     }
+
+    function logCameraSettingsState(tag) {
+            console.log("[PhotoVideoControl]", tag,
+                        "visible=", visible,
+                        "activeVehicle=", _activeVehicle ? _activeVehicle.vehicleUID : "null",
+                        "cameraManager=", _mavlinkCameraManager ? "yes" : "no",
+                        "currentCameraIndex=", _mavlinkCameraManagerCurCameraIndex,
+                        "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
+                        "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
+                        "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
+                        "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
+                        "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
+                        "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
+                        "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
+                        "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
+        }
+
+        Component.onCompleted: logCameraSettingsState("completed")
+        onVisibleChanged: logCameraSettingsState("visibleChanged")
+        on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
+        on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
+        on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
+
+        Connections {
+            target: _mavlinkCamera
+            function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
+            function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
+            function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
+            function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
+            function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
+        }
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
@@ -209,12 +240,12 @@ Item {
     }
 
     function getZoomValue() {
-        // ê¸°ë³¸ê°’
+        // ê¸°ë³¸ê°?
         if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
             return "1";
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal â†’ JS Number
+        var optical = _mavlinkCamera.zoomLevel;   // qreal ??JS Number
         var digital = (_dZoom ? _dZoom.value : 1.0);
 
         var effective = optical * digital;
@@ -235,7 +266,7 @@ Item {
         id: content
         anchors.fill: parent
         spacing: ScreenTools.defaultFontPixelHeight * 0.5
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 1. Reset & Setting Button
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth * 6
@@ -291,7 +322,7 @@ Item {
                 }
             }
         }
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 2. Photo/Video Switch Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -354,7 +385,7 @@ Item {
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 3. Photo & Recording Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -380,7 +411,7 @@ Item {
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
@@ -390,7 +421,7 @@ Item {
             visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 5. Zoom in / Zoom Out Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -520,7 +551,7 @@ Item {
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 6. Separator Line
         Rectangle {
             color: "lightgray"
@@ -528,7 +559,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
             columns: 2
@@ -586,7 +617,7 @@ Item {
             }
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 8. Separator Line
         Rectangle {
             color: "lightgray"
@@ -594,7 +625,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
         // 9. SD card Storage
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth
@@ -625,7 +656,7 @@ Item {
             Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
             onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
 
-            // Nano tracker can runaway on very close targets â€” warn the operator
+            // Nano tracker can runaway on very close targets ??warn the operator
             // only when the tracking algorithm is actively switched to "Nano".
             property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
 
