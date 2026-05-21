@@ -58,6 +58,8 @@ public:
     Q_PROPERTY(QSize            videoSize               READ    videoSize                                   NOTIFY videoSizeChanged)
     Q_PROPERTY(bool             lowLatencyActive       READ    lowLatencyActive                            NOTIFY lowLatencyActiveChanged)
     Q_PROPERTY(QString          decoderName            READ    decoderName                                 NOTIFY decoderNameChanged)
+    Q_PROPERTY(int              activeVideoBufferMs    READ    activeVideoBufferMs                         NOTIFY activeVideoBufferMsChanged)
+    Q_PROPERTY(QString          deviceVideoMode        READ    deviceVideoMode                             NOTIFY deviceVideoModeChanged)
 
     virtual bool        hasVideo            ();
     virtual bool        isGStreamer         ();
@@ -98,6 +100,13 @@ public:
         return _decoderName;
     }
 
+    int activeVideoBufferMs(void) const {
+        return _activeVideoBufferMs;
+    }
+
+    QString deviceVideoMode(void) const {
+        return _legacyRockchipStreaming ? QStringLiteral("rockchip-legacy") : QStringLiteral("default-low-latency");
+    }
 // FIXME: AV: they should be removed after finishing multiple video stream support
 // new arcitecture does not assume direct access to video receiver from QML side, even if it works for now
     virtual VideoReceiver*  videoReceiver           () { return _videoReceiver[0]; }
@@ -143,6 +152,8 @@ signals:
     void videoSizeChanged           ();
     void lowLatencyActiveChanged    ();
     void decoderNameChanged         ();
+    void activeVideoBufferMsChanged ();
+    void deviceVideoModeChanged     ();
 
 protected slots:
     void _videoSourceChanged        ();
@@ -191,6 +202,7 @@ protected:
     QAtomicInteger<bool>    _recording              = false;
     QAtomicInteger<quint32> _videoSize              = 0;
     QString                 _decoderName;
+    int                     _activeVideoBufferMs    = 0;
     VideoSettings*          _videoSettings          = nullptr;
     QString                 _uvcVideoSourceID;
     bool                    _fullScreen             = false;

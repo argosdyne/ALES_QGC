@@ -15,6 +15,10 @@
 #include <QDir>
 #include <QQuickWindow>
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroidExtras/QAndroidJniObject>
+#endif
+
 #ifndef QGC_DISABLE_UVC
 #include <QCameraInfo>
 #endif
@@ -43,6 +47,19 @@
 QGC_LOGGING_CATEGORY(VideoManagerLog, "VideoManagerLog")
 
 static const char* kManualPrimaryRtspOverrideKey = "VideoManager/ManualPrimaryRtspOverride";
+
+static bool isRockchipManufacturer()
+{
+#ifdef Q_OS_ANDROID
+    const QAndroidJniObject manufacturer = QAndroidJniObject::getStaticObjectField(
+            "android/os/Build", "MANUFACTURER", "Ljava/lang/String;");
+    if (manufacturer.isValid()) {
+        return manufacturer.toString().contains(QStringLiteral("rockchip"), Qt::CaseInsensitive);
+    }
+#endif
+    return false;
+}
+
 #if defined(QGC_GST_STREAMING)
 static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver::FILE_FORMAT_MIN] = {
     "mkv",
@@ -96,10 +113,13 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
 
    // TODO: Those connections should be Per Video, not per VideoManager.
    _videoSettings = toolbox->settingsManager()->videoSettings();
-   if (!_videoSettings->lowLatencyMode()->rawValue().toBool()) {
-       qCInfo(VideoManagerLog) << "[VideoManager]" << "enabling lowLatencyMode by default";
-       _videoSettings->lowLatencyMode()->setRawValue(true);
-   }
+   _legacyRockchipStreaming = isRockchipManufacturer();
+   qCInfo(VideoManagerLog) << "[VideoManager]" << "deviceManufacturerMode"
+                           << (_legacyRockchipStreaming ? "rockchip-legacy" : "default-low-latency");
+   if (!_legacyRockchipStreaming && !_videoSettings->lowLatencyMode()->rawValue().toBool()) {
+        qCInfo(VideoManagerLog) << "[VideoManager]" << "enabling lowLatencyMode by default";
+        _videoSettings->lowLatencyMode()->setRawValue(true);
+    }
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
    {
        QSettings settings;
@@ -141,6 +161,15 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         emit streamingChanged();
     });
 
+    connect(_videoReceiver[0], &VideoReceiver::timeout, this, [this](){
+        qCWarning(VideoManagerLog) << "[VideoManager]" << "video0 timeout"
+                                   << "uri" << _videoUri[0]
+                                   << "started" << _videoStarted[0]
+                                   << "streaming" << _streaming
+                                   << "decoding" << _decoding;
+        _primaryTimeoutRecoveryPending = true;
+    });
+
     connect(_videoReceiver[0], &VideoReceiver::onStartComplete, this, [this](VideoReceiver::STATUS status) {
         qCDebug(VideoManagerLog) << "[VideoManager]" << "video0 onStartComplete"
                 << "status" << static_cast<int>(status)
@@ -175,6 +204,15 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         _videoStarted[0] = false;
         if (status == VideoReceiver::STATUS_INVALID_URL) {
             qCDebug(VideoManagerLog) << "Invalid video URL. Not restarting";
+        } else if (_primaryTimeoutRecoveryPending) {
+            _primaryTimeoutRecoveryPending = false;
+            _deferPrimaryStartUntilSinkReady = false;
+            _restartPrimaryOnSinkReady = false;
+            qCWarning(VideoManagerLog) << "[VideoManager]" << "video0 scheduling timeout recovery restart";
+            QTimer::singleShot(1000, this, [this]() {
+                qCWarning(VideoManagerLog) << "[VideoManager]" << "video0 timeout recovery restart firing";
+                _startReceiver(0);
+            });
         } else {
             _startReceiver(0);
         }
@@ -902,10 +940,12 @@ VideoManager::_updateSettings(unsigned id)
                         if ((settingsChanged |= _updateVideoUri(id, effectiveRtspUrl))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!preserveManualRtsp &&
-                            !discoveredRtspUrl.isEmpty() &&
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != discoveredRtspUrl) {
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(discoveredRtspUrl);
+                        const QString targetRtspSetting = preserveManualRtsp ? _manualPrimaryRtspUrl : discoveredRtspUrl;
+                        if (!targetRtspSetting.isEmpty() &&
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != targetRtspSetting) {
+                            _autoUpdatingRtspUrl = true;
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(targetRtspSetting);
+                            _autoUpdatingRtspUrl = false;
                         }
                         break;
                     }
@@ -1076,7 +1116,6 @@ VideoManager::_restartVideo(unsigned id)
                 << "receiver" << _videoReceiver[id];
     }
     qCDebug(VideoManagerLog) << "New Video URI " << newUri;
-    // FIXME: AV: use _updateSettings() result to check if settings were changed
     if (_videoStarted[id] && oldUri == newUri && oldLowLatencyStreaming == newLowLatencyStreaming) {
         qCDebug(VideoManagerLog) << "No sense to restart video streaming, skipped"  << id;
         return;
@@ -1158,10 +1197,14 @@ VideoManager::_startReceiver(unsigned id)
             << "uri" << _videoUri[id]
             << "timeout" << timeout
             << "lowLatency" << _lowLatencyStreaming[id];
-    const int bufferSetting = _lowLatencyStreaming[id] ? 80 : 0;
-    if (id > 2) {
-        qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
-    } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
+    const int bufferSetting = _lowLatencyStreaming[id] ? (_legacyRockchipStreaming ? -1 : 80) : 0;
+    if (id == 0 && _activeVideoBufferMs != bufferSetting) {
+        _activeVideoBufferMs = bufferSetting;
+        emit activeVideoBufferMsChanged();
+    }
+     if (id > 2) {
+         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
+     } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
         if (id == 0 && _videoSink[0] == nullptr) {
             _deferPrimaryStartUntilSinkReady = true;
             qCDebug(VideoManagerLog) << "[VideoManager]" << "_startReceiver"
