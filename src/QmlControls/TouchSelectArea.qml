@@ -132,14 +132,16 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: !selectItem.busy       
+        enabled: true
         pressAndHoldInterval: enableRectangle ? 200 : 800
         property bool isPressAndHold: false
         onClicked: {
+            if (selectItem.busy) return
             if(!enablePoint) return
             touchPointTrack(mouseX, mouseY)
         }
         onPressed: {
+            if (selectItem.busy) return
             if(!enableRectangle) return
             isPressAndHold = false
             rangeRect.x = mouseX
@@ -155,6 +157,7 @@ Item {
             rangeRect.opacity = 1
         }
         onPositionChanged: {
+            if (selectItem.busy) return
             if(!enableRectangle || !isPressAndHold) return
             if(rangeRect.opacity == 1 && !hightlightGroup.running && !animationGroup.running) {
                 rangeRect.width = Math.abs(mouseX - rangeRect.x)
@@ -162,6 +165,7 @@ Item {
             }
         }
         onReleased: {
+            if (selectItem.busy) return
             if(!enableRectangle || !isPressAndHold) return
             if(rangeRect.opacity == 1 && !hightlightGroup.running && !animationGroup.running) {
                 rangeRectTrack()

@@ -990,6 +990,10 @@ VideoManager::_restartAllVideos()
 {
     _restartVideo(0);
     _restartVideo(1);
+    qInfo() << "THERMAL_TRACE"
+            << "hasThermalChanged"
+            << "value" << hasThermal();
+    emit hasThermalChanged();
     emit aspectRatioChanged();
 }
 
@@ -1077,6 +1081,10 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
         setfullScreen(false);
     }
     emit autoStreamConfiguredChanged();
+    qInfo() << "THERMAL_TRACE"
+            << "hasThermalChanged"
+            << "value" << hasThermal();
+    emit hasThermalChanged();
     _restartAllVideos();
 }
 

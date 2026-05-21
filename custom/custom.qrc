@@ -122,6 +122,9 @@
         <file alias="AVIATORFact.json">src/AVIATOR/AVIATORFact.json</file>
         <file alias="Vehicle/ESCFact.json">src/FirmwarePlugin/ESCFact.json</file>
     </qresource>
+	<qresource prefix="/camera-definitions">
+		<file alias="Codev_R3_023.xml">res/CameraDefinitions/Codev_R3_023.xml</file>
+	</qresource>
     <qresource prefix="/RTCM">
         <file alias="NTRIPClient.qml">src/RTCM/NTRIPClient.qml</file>
         <file alias="SerialPortRTCMClient.qml">src/RTCM/SerialPortRTCMClient.qml</file>

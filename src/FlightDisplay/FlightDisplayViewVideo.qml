@@ -242,7 +242,7 @@ Item {
             enabled: pipState.state === pipState.fullState
 
             onDoubleClicked: {
-                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+                QGroundControl.videoManager.fullScreen = false
             }
         }
 

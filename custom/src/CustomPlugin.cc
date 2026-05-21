@@ -196,6 +196,18 @@ QString CustomPlugin::brandImageOutdoor(void) const
     return QStringLiteral("/custom/img/CustomAppIconOutdoor.png");
 }
 
+bool CustomPlugin::getOfflineCameraDefinitionFile(QString cameraname, QFile& file)
+{
+    const QString cameraName = cameraname.trimmed().toUpper();
+
+    if (cameraName == QStringLiteral("R3") || cameraName == QStringLiteral("CODEV R3")) {
+        file.setFileName(QStringLiteral(":/camera-definitions/Codev_R3_023.xml"));
+        return true;
+    }
+
+    return false;
+}
+
 bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
 {
     // We have set up our own specific brand imaging. Hide the brand image settings such that the end user
