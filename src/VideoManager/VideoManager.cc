@@ -15,10 +15,6 @@
 #include <QDir>
 #include <QQuickWindow>
 
-#ifdef Q_OS_ANDROID
-#include <QtAndroidExtras/QAndroidJniObject>
-#endif
-
 #ifndef QGC_DISABLE_UVC
 #include <QCameraInfo>
 #endif
@@ -47,18 +43,6 @@
 QGC_LOGGING_CATEGORY(VideoManagerLog, "VideoManagerLog")
 
 static const char* kManualPrimaryRtspOverrideKey = "VideoManager/ManualPrimaryRtspOverride";
-
-static bool isRockchipManufacturer()
-{
-#ifdef Q_OS_ANDROID
-    const QAndroidJniObject manufacturer = QAndroidJniObject::getStaticObjectField(
-            "android/os/Build", "MANUFACTURER", "Ljava/lang/String;");
-    if (manufacturer.isValid()) {
-        return manufacturer.toString().contains(QStringLiteral("rockchip"), Qt::CaseInsensitive);
-    }
-#endif
-    return false;
-}
 #if defined(QGC_GST_STREAMING)
 static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver::FILE_FORMAT_MIN] = {
     "mkv",
