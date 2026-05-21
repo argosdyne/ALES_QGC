@@ -15,6 +15,10 @@
 #include <QDir>
 #include <QQuickWindow>
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroidExtras/QAndroidJniObject>
+#endif
+
 #ifndef QGC_DISABLE_UVC
 #include <QCameraInfo>
 #endif
