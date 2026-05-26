@@ -165,7 +165,7 @@ StableBuild {
 
 # Set the QGC version from git
 APP_VERSION_STR = vUnknown
-VERSION         = 0.0.0   # Marker to indicate out-of-tree build
+VERSION         = 01.04.00   # Marker to indicate out-of-tree build
 MAC_VERSION     = 0.0.0
 MAC_BUILD       = 0
 exists ($$PWD/.git) {
@@ -207,35 +207,42 @@ AndroidBuild {
     PATCH_VERSION   = $$section(VERSION, ".", 2, 2)
     DEV_VERSION     = $$section(VERSION, ".", 3, 3)
 
-    greaterThan(MAJOR_VERSION, 9) {
-        error(Major version larger than 1 digit: $${MAJOR_VERSION})
-    }
-    greaterThan(MINOR_VERSION, 9) {
-        error(Minor version larger than 1 digit: $${MINOR_VERSION})
-    }
-    greaterThan(PATCH_VERSION, 99) {
-        error(Patch version larger than 2 digits: $${PATCH_VERSION})
-    }
-    greaterThan(DEV_VERSION, 999) {
-        error(Dev version larger than 3 digits: $${DEV_VERSION})
-    }
-
-    lessThan(PATCH_VERSION, 10) {
-        PATCH_VERSION = $$join(PATCH_VERSION, "", "0")
-    }
-    equals(DEV_VERSION, "") {
-        DEV_VERSION = "0"
-    }
-    lessThan(DEV_VERSION, 10) {
-        DEV_VERSION = $$join(DEV_VERSION, "", "0")
-    }
-    lessThan(DEV_VERSION, 100) {
-        DEV_VERSION = $$join(DEV_VERSION, "", "0")
-    }
-
     # Use a shell command to strip "rc" and everything after it.
     # Otherwise rc version tags will break the Android build.
     PATCH_VERSION = $$system(echo $$PATCH_VERSION | sed 's/rc.*//')
+
+    # Android release display format is XX.XX.XX. Normalize leading zeroes only
+    # for numeric checks; versionName/versionCode use the VERSION fields as-is.
+    MAJOR_VERSION_NUM = $$replace(MAJOR_VERSION, ^0+, "")
+    MINOR_VERSION_NUM = $$replace(MINOR_VERSION, ^0+, "")
+    PATCH_VERSION_NUM = $$replace(PATCH_VERSION, ^0+, "")
+    DEV_VERSION_NUM   = $$replace(DEV_VERSION, ^0+, "")
+
+    equals(MAJOR_VERSION_NUM, "") {
+        MAJOR_VERSION_NUM = 0
+    }
+    equals(MINOR_VERSION_NUM, "") {
+        MINOR_VERSION_NUM = 0
+    }
+    equals(PATCH_VERSION_NUM, "") {
+        PATCH_VERSION_NUM = 0
+    }
+    equals(DEV_VERSION_NUM, "") {
+        DEV_VERSION_NUM = 0
+    }
+
+    greaterThan(MAJOR_VERSION_NUM, 99) {
+        error(Major version larger than 2 digits: $${MAJOR_VERSION})
+    }
+    greaterThan(MINOR_VERSION_NUM, 99) {
+        error(Minor version larger than 2 digits: $${MINOR_VERSION})
+    }
+    greaterThan(PATCH_VERSION_NUM, 99) {
+        error(Patch version larger than 2 digits: $${PATCH_VERSION})
+    }
+    greaterThan(DEV_VERSION_NUM, 9) {
+        error(Dev version larger than 1 digit: $${DEV_VERSION})
+    }
 
     # Bitness for android version number is 66/34 instead of 64/32 in because of a required version number bump screw-up ages ago
     equals(ANDROID_TARGET_ARCH, arm64-v8a)  {
@@ -246,17 +253,19 @@ AndroidBuild {
         ANDROID_VERSION_BITNESS = 34
     }
 
-    # Version code format: BBMIPPDDD (B=Bitness, I=Minor)
-    ANDROID_VERSION_CODE = "BBMIPPDDD"
+    # Version code format: BBAAIIPPV
+    # BB=bitness, AA=major, II=minor, PP=patch, V=dev/build increment.
+    # Example arm64 VERSION 01.20.01 -> 660120010.
+    ANDROID_VERSION_CODE = "BBAAIIPPV"
     ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "BB", $$ANDROID_VERSION_BITNESS)
-    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "M", $$MAJOR_VERSION)
-    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "I", $$MINOR_VERSION)
+    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "AA", $$MAJOR_VERSION)
+    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "II", $$MINOR_VERSION)
     ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "PP", $$PATCH_VERSION)
-    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "DDD", $$DEV_VERSION)
+    ANDROID_VERSION_CODE = $$replace(ANDROID_VERSION_CODE, "V", $$DEV_VERSION_NUM)
 
-    message(Android version info: $${ANDROID_VERSION_CODE} bitness:$${ANDROID_VERSION_BITNESS} major:$${MAJOR_VERSION} minor:$${MINOR_VERSION} patch:$${PATCH_VERSION} dev:$${DEV_VERSION})
+    message(Android version info: $${ANDROID_VERSION_CODE} bitness:$${ANDROID_VERSION_BITNESS} major:$${MAJOR_VERSION} minor:$${MINOR_VERSION} patch:$${PATCH_VERSION} dev:$${DEV_VERSION_NUM})
 
-    ANDROID_VERSION_NAME    = APP_VERSION_STR
+    ANDROID_VERSION_NAME    = $${VERSION}
 }
 
 DEFINES += EIGEN_MPL2_ONLY

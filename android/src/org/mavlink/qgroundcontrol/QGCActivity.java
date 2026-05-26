@@ -62,6 +62,9 @@ import android.bluetooth.BluetoothDevice;
 import com.hoho.android.usbserial.driver.*;
 import org.qtproject.qt5.android.bindings.QtActivity;
 import org.qtproject.qt5.android.bindings.QtApplication;
+import org.mavlink.qgroundcontrol.update.USBUpdateManager;
+
+import java.io.File;
 
 public class QGCActivity extends QtActivity
 {
@@ -201,6 +204,19 @@ public class QGCActivity extends QtActivity
         }
     }
 
+    public static QGCActivity getInstance() {
+        return _instance;
+    }
+
+    public static void testUsbUpdateScan(String rootPath) {
+        if (_instance == null || rootPath == null) {
+            Log.w(TAG, "USB update test scan ignored because activity or path is not available");
+            return;
+        }
+        USBUpdateManager.scanAndValidate(
+                _instance.getApplicationContext(), new File(rootPath), _instance);
+    }
+
     public native void nativeInit();
 
     // QGCActivity singleton
@@ -270,6 +286,8 @@ public class QGCActivity extends QtActivity
         } catch(Exception e) {
            Log.e(TAG, "Exception: " + e);
         }
+
+        handleUsbUpdateTestIntent(getIntent());
     }
 
     @Override
@@ -279,6 +297,13 @@ public class QGCActivity extends QtActivity
         // Plug in of USB ACCESSORY triggers only onResume event.
         // Then we scan if there is actually anything new
         probeAccessories();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleUsbUpdateTestIntent(intent);
     }
 
     @Override
@@ -303,6 +328,14 @@ public class QGCActivity extends QtActivity
     }
 
     public void onInit(int status) {
+    }
+
+    private void handleUsbUpdateTestIntent(Intent intent) {
+        if (intent == null || !USBUpdateManager.ACTION_TEST_SCAN.equals(intent.getAction())) {
+            return;
+        }
+        String rootPath = intent.getStringExtra(USBUpdateManager.EXTRA_SCAN_PATH);
+        testUsbUpdateScan(rootPath);
     }
 
     /// Incrementally updates the list of drivers connected to the device

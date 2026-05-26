@@ -8,6 +8,7 @@ ANDROID_PACKAGE_QGC_SOURCE_DIR      = $$PWD/android                         # Or
 ANDROID_PACKAGE_CUSTOM_SOURCE_DIR   = $$PWD/custom/android                  # Original location for custom build override package files
 ANDROID_PACKAGE_SETTING_FILE         = $$OUT_PWD/android-AlesQGroundControl-deployment-settings.json
 ANDROID_PACKAGE_SETTING_FILE_TMP     = $$OUT_PWD/android-AlesQGroundControl-deployment-settings-tmp.json
+ANDROID_PACKAGE_UPDATE_JAVA_FILES    = $$files($$PWD/android/src/org/mavlink/qgroundcontrol/update/*.java)
 
 # We always move the package files to the ANDROID_PACKAGE_SOURCE_DIR build dir so we can modify the manifest as needed
 
@@ -42,9 +43,15 @@ contains(QMAKE_HOST.os, Windows){
 
 
 exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR/AndroidManifest.xml) {
-    android_source_dir_target.depends = $$system_path($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR/AndroidManifest.xml)
+    android_source_dir_target.depends = \
+        $$system_path($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR/AndroidManifest.xml) \
+        $$system_path($$PWD/android/src/org/mavlink/qgroundcontrol/QGCActivity.java) \
+        $$ANDROID_PACKAGE_UPDATE_JAVA_FILES
 } else {
-    android_source_dir_target.depends = $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/AndroidManifest.xml)
+    android_source_dir_target.depends = \
+        $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/AndroidManifest.xml) \
+        $$system_path($$PWD/android/src/org/mavlink/qgroundcontrol/QGCActivity.java) \
+        $$ANDROID_PACKAGE_UPDATE_JAVA_FILES
 }
 
 # Custom builds can override android package file
@@ -97,6 +104,7 @@ OTHER_FILES += \
     $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialProber.java \
     $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialRuntimeException.java \
     $$PWD/android/src/org/mavlink/qgroundcontrol/QGCActivity.java \
+    $$ANDROID_PACKAGE_UPDATE_JAVA_FILES \
     $$PWD/android/src/org/mavlink/qgroundcontrol/UsbIoManager.java \
     $$PWD/android/src/org/mavlink/qgroundcontrol/TaiSync.java \
     $$PWD/android/src/org/freedesktop/gstreamer/androidmedia/GstAhcCallback.java \
