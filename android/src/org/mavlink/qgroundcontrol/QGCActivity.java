@@ -41,8 +41,11 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbAccessory;
@@ -72,6 +75,15 @@ public class QGCActivity extends QtActivity
     private static HashMap<Integer, UsbIoManager>       m_ioManager;
     private static HashMap<Integer, Long>               _userDataHashByDeviceId;
     private static final String                         TAG = "QGC_QGCActivity";
+    private static final String                         DPC_PACKAGE = "com.easygripper.dpc";
+    private static final String                         DPC_CONTROL_RECEIVER = "com.easygripper.dpc.DpcControlReceiver";
+    private static final String                         ACTION_DPC_SET_KIOSK_ENABLED = "com.easygripper.dpc.action.SET_KIOSK_ENABLED";
+    private static final String                         ACTION_DPC_REQUEST_KIOSK_STATE = "com.easygripper.dpc.action.REQUEST_KIOSK_STATE";
+    private static final String                         ACTION_DPC_KIOSK_STATE_CHANGED = "com.easygripper.dpc.action.KIOSK_STATE_CHANGED";
+    private static final String                         EXTRA_DPC_ENABLED = "enabled";
+    private static final String                         EXTRA_DPC_PIN = "pin";
+    private static volatile boolean                     _hasKnownDpcKioskState = false;
+    private static volatile boolean                     _knownDpcKioskEnabled = false;
     private static PowerManager.WakeLock                _wakeLock;
     private static final String                         ACTION_USB_PERMISSION = "org.mavlink.qgroundcontrol.action.USB_PERMISSION";
     private static PendingIntent                        _usbPermissionIntent = null;
@@ -175,6 +187,22 @@ public class QGCActivity extends QtActivity
             }
         };
 
+    private final BroadcastReceiver _dpcStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+            final String action = intent.getAction();
+            if (ACTION_DPC_KIOSK_STATE_CHANGED.equals(action)) {
+                _knownDpcKioskEnabled = intent.getBooleanExtra(EXTRA_DPC_ENABLED, false);
+                _hasKnownDpcKioskState = true;
+                Log.i(TAG, "Received DPC kiosk state update: enabled=" + _knownDpcKioskEnabled);
+                return;
+            }
+        }
+    };
+
     // Native C++ functions which connect back to QSerialPort code
     private static native void nativeDeviceHasDisconnected(long userData);
     private static native void nativeDeviceException(long userData, String messageA);
@@ -186,6 +214,90 @@ public class QGCActivity extends QtActivity
     public static native void qgcLogWarning(String message);
 
     public native void nativeInit();
+
+    public static String setDpcKioskEnabled(boolean enabled) {
+        return setDpcKioskEnabledWithPin(enabled, "");
+    }
+
+    public static String setDpcKioskEnabledWithPin(boolean enabled, String pin) {
+        if (_instance == null) {
+            return "NO_ACTIVITY";
+        }
+
+        try {
+            if (pin == null || pin.length() != 8) {
+                return "INVALID_PIN";
+            }
+
+            Intent explicitIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
+            explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
+            explicitIntent.putExtra(EXTRA_DPC_ENABLED, enabled);
+            explicitIntent.putExtra(EXTRA_DPC_PIN, pin);
+            _instance.sendBroadcast(explicitIntent);
+
+            Intent packageIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
+            packageIntent.setPackage(DPC_PACKAGE);
+            packageIntent.putExtra(EXTRA_DPC_ENABLED, enabled);
+            packageIntent.putExtra(EXTRA_DPC_PIN, pin);
+            _instance.sendBroadcast(packageIntent);
+            return "OK";
+        } catch (Throwable t) {
+            Log.e(TAG, "Failed to send DPC control broadcast", t);
+            return "ERROR";
+        }
+    }
+
+    public static boolean isDpcControlSupported() {
+        if (_instance == null) {
+            return false;
+        }
+
+        try {
+            Intent queryIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
+            queryIntent.setPackage(DPC_PACKAGE);
+            List<ResolveInfo> receivers = _instance.getPackageManager().queryBroadcastReceivers(queryIntent, 0);
+            if (receivers != null && !receivers.isEmpty()) {
+                return true;
+            }
+
+            _instance.getPackageManager().getPackageInfo(DPC_PACKAGE, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        } catch (Throwable t) {
+            // Some Android builds restrict package visibility and can cause false negatives.
+            // Be permissive so UI can still allow manual control attempts.
+            Log.w(TAG, "DPC support query uncertain; allowing manual control UI", t);
+            return true;
+        }
+    }
+
+    public static boolean requestDpcKioskState() {
+        if (_instance == null) {
+            return false;
+        }
+        try {
+            Intent explicitIntent = new Intent(ACTION_DPC_REQUEST_KIOSK_STATE);
+            explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
+            _instance.sendBroadcast(explicitIntent);
+
+            Intent packageIntent = new Intent(ACTION_DPC_REQUEST_KIOSK_STATE);
+            packageIntent.setPackage(DPC_PACKAGE);
+            _instance.sendBroadcast(packageIntent);
+            return true;
+        } catch (Throwable t) {
+            Log.w(TAG, "Failed to request DPC kiosk state", t);
+            return false;
+        }
+    }
+
+    public static boolean hasKnownDpcKioskState() {
+        return _hasKnownDpcKioskState;
+    }
+
+    public static boolean getKnownDpcKioskStateEnabled() {
+        return _knownDpcKioskEnabled;
+    }
 
     // QGCActivity singleton
     public QGCActivity()
@@ -221,6 +333,10 @@ public class QGCActivity extends QtActivity
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         _instance.registerReceiver(_instance._usbReceiver, filter);
 
+        IntentFilter dpcFilter = new IntentFilter();
+        dpcFilter.addAction(ACTION_DPC_KIOSK_STATE_CHANGED);
+        _instance.registerReceiver(_instance._dpcStateReceiver, dpcFilter);
+
         // Create intent for usb permission request
         _usbPermissionIntent = PendingIntent.getBroadcast(_instance, 0, new Intent(ACTION_USB_PERMISSION), 0);
 
@@ -254,6 +370,8 @@ public class QGCActivity extends QtActivity
         } catch(Exception e) {
            Log.e(TAG, "Exception: " + e);
         }
+
+        requestDpcKioskState();
     }
 
     @Override
@@ -283,6 +401,11 @@ public class QGCActivity extends QtActivity
             probeAccessoriesTimer.cancel();
         }
         unregisterReceiver(mOpenAccessoryReceiver);
+        try {
+            unregisterReceiver(_dpcStateReceiver);
+        } catch (Throwable t) {
+            Log.w(TAG, "Exception unregistering DPC receiver", t);
+        }
         try {
             if (_wifiMulticastLock != null) {
                 _wifiMulticastLock.release();

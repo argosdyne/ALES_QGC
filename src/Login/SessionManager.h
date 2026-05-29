@@ -40,13 +40,16 @@ signals:
     
 private slots:
     void _onSessionTimeout();
+    void _onBackgroundLockTimeout();
     
 private:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void _restartInactivityTimer();
 
     QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout
+    QTimer m_backgroundLockTimer;    // Grace timer before locking on app background
     static constexpr int SESSION_TIMEOUT_MS = 15 * 60 * 1000;   // 15 minutes = 900000 ms
+    static constexpr int BACKGROUND_LOCK_GRACE_MS = 7000;       // Ignore quick task switches
     bool m_sessionManagementEnabled = true;
     bool m_isAppInBackground = false;
     bool m_sessionActive = false;

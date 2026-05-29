@@ -185,6 +185,7 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("Security Events"), "qrc:/custom/SecurityValidationEventsSettings.qml");
         _addSettingsEntry(tr("Network Services"), "qrc:/custom/NetworkServicesPortsSettings.qml");
         _addSettingsEntry(tr("Connections"), "qrc:/custom/ConnectionsOverrideSettings.qml");
+        _addSettingsEntry(tr("DPC Kiosk"), "qrc:/custom/DpcKioskSettings.qml");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
 

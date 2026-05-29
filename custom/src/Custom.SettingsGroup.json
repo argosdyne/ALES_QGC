@@ -102,6 +102,12 @@
     "shortDesc":        "Remember secure setup selection",
     "type":             "bool",
     "default":          false
+},
+{
+    "name":             "dpcKioskEnabled",
+    "shortDesc":        "Enable DPC kiosk enforcement",
+    "type":             "bool",
+    "default":          true
 }
 ]
 }
