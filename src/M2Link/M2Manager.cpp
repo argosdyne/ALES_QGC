@@ -214,6 +214,13 @@ void M2Manager::_handle_scan(const QByteArray& message)
 
 void M2Manager::_pollInfo()
 {
+    if (!_mounted && !_connected) {
+        // Don't poll if we've never successfully connected
+        // This prevents QIODevice::read spam when no M2 device is present
+        static int skipCount = 0;
+        if (++skipCount < 10) return; // only try every 10th poll (10 seconds)
+        skipCount = 0;
+    }
     QUrl url(QString("http://%1:%2/wifi_info").arg(_deviceIP).arg(_port));
     QNetworkRequest request(url);
     request.setTransferTimeout(400);

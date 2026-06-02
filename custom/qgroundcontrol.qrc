@@ -13,6 +13,7 @@
 		<file alias="ModeIndicator.qml">../src/ui/toolbar/ModeIndicator.qml</file>
 		<file alias="MultiVehicleSelector.qml">../src/ui/toolbar/MultiVehicleSelector.qml</file>
 		<file alias="RCRSSIIndicator.qml">../src/ui/toolbar/RCRSSIIndicator.qml</file>
+		<file alias="RajantLinkIndicator.qml">../src/RajantLink/RajantLinkIndicator.qml</file>
 		<file alias="ROIIndicator.qml">../src/ui/toolbar/ROIIndicator.qml</file>
 		<file alias="TelemetryRSSIIndicator.qml">../src/ui/toolbar/TelemetryRSSIIndicator.qml</file>
 		<file alias="VTOLModeIndicator.qml">../src/ui/toolbar/VTOLModeIndicator.qml</file>
@@ -52,6 +53,7 @@
 		<file alias="GeneralSettings.qml">../src/ui/preferences/GeneralSettings.qml</file>
 		<file alias="CodevCameraVisual.qml">../src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">../src/M2Link/M2Settings.qml</file>
+		<file alias="RajantSettings.qml">../src/RajantLink/RajantSettings.qml</file>
 		<!--<flie alias="QGCBusyIndicator.qml">../src/QmlControls/QGCBusyIndicator.qml</flie> -->
 		<file alias="QGroundControl/Controls/PseudocolorBar.qml">../src/QmlControls/PseudocolorBar.qml</file>
 		<file alias="QGroundControl/Controls/TouchSelectArea.qml">../src/QmlControls/TouchSelectArea.qml</file>
@@ -90,6 +92,7 @@
 		<file alias="PlanToolBar.qml">../src/PlanView/PlanToolBar.qml</file>
 		<file alias="PlanToolBarIndicators.qml">../src/PlanView/PlanToolBarIndicators.qml</file>
 		<file alias="M2LinkIndicator.qml">../src/M2Link/M2LinkIndicator.qml</file>
+		<file alias="RajantLinkIndicator.qml">../src/RajantLink/RajantLinkIndicator.qml</file>
 		<file alias="QGCDelayButton.qml">../src/QmlControls/QGCDelayButton.qml</file>
 		<file alias="PlanView.qml">../src/PlanView/PlanView.qml</file>
 		<file alias="GeoZoneMakeView.qml">../src/PlanView/GeoZoneMakeView.qml</file>

@@ -452,6 +452,7 @@ INCLUDEPATH += \
     src/ui/toolbar \
     src/ui/uas \
 	src/M2Link \
+    src/RajantLink \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     INCLUDEPATH += \
@@ -803,6 +804,8 @@ HEADERS += \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
     src/M2Link/M2Manager.h \
+    src/RajantLink/BcapiProtocol.h \
+    src/RajantLink/RajantManager.h \
     src/Camera/TargetObject.h \
     src/Camera/CodevCameraControl.h \
 
@@ -1073,6 +1076,7 @@ SOURCES += \
     src/AnalyzeView/GeoTagController.cc \
     src/AnalyzeView/ExifParser.cc \
     src/M2Link/M2Manager.cpp \
+    src/RajantLink/RajantManager.cpp \
     src/Camera/TargetObject.cpp \
     src/Camera/CodevCameraControl.cc \
 

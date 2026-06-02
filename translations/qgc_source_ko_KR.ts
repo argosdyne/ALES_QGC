@@ -7372,6 +7372,16 @@ Click Ok to start the auto-tuning process.
       <translation>기타</translation>
     </message>
     <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="782"/>
+      <source>Enable Doodle Labs IP</source>
+      <translation>Doodle Labs IP 활성화</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="790"/>
+      <source>Doodle Labs IP</source>
+      <translation>Doodle Labs IP</translation>
+    </message>
+    <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="468"/>
       <source>Language</source>
       <translation>언어</translation>
@@ -19835,6 +19845,154 @@ Confirm change?</source>
         <location filename="../custom/src/ARLink/ARSettings.qml" line="260"/>
         <source>Air Settings</source>
         <translation>공중 장치 설정</translation>
+    </message>
+</context>
+<context>
+
+    <name>RajantSettings</name>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="51"/>
+        <source>Link Status</source>
+        <translation>링크 상태</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="72"/>
+        <source>Status:</source>
+        <translation>상태:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+        <source>Not Connected</source>
+        <translation>연결 안 됨</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+        <source>Node Address:</source>
+        <translation>노드 주소:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="86"/>
+        <source>N/A</source>
+        <translation>N/A</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+        <source>Radio:</source>
+        <translation>무선기:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="99"/>
+        <source>RSSI:</source>
+        <translation>RSSI:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="109"/>
+        <source>Sky RSSI:</source>
+        <translation>공중 RSSI:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="119"/>
+        <source>Noise Floor:</source>
+        <translation>잡음 수준:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="127"/>
+        <source>Link Rate:</source>
+        <translation>링크 속도:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="135"/>
+        <source>Tx Power:</source>
+        <translation>송신 출력:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="143"/>
+        <source>Peers:</source>
+        <translation>피어:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="151"/>
+        <source>Hostname:</source>
+        <translation>호스트 이름:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="161"/>
+        <source>Firmware:</source>
+        <translation>펌웨어:</translation>
+    </message>
+</context>
+<context>
+
+    <name>RajantLinkIndicator</name>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+        <source>Rajant Link Status</source>
+        <translation>Rajant 링크 상태</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+        <source>Rajant Disconnected</source>
+        <translation>Rajant 연결 끊김</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="70"/>
+        <source>Radio:</source>
+        <translation>무선기:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="77"/>
+        <source>RSSI:</source>
+        <translation>RSSI:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="79"/>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="87"/>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="93"/>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="99"/>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="106"/>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="113"/>
+        <source>N/A</source>
+        <translation>N/A</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="83"/>
+        <source>Sky RSSI:</source>
+        <translation>공중 RSSI:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="91"/>
+        <source>Noise:</source>
+        <translation>잡음:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="97"/>
+        <source>Link Rate:</source>
+        <translation>링크 속도:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="104"/>
+        <source>Tx Power:</source>
+        <translation>송신 출력:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="111"/>
+        <source>Peers:</source>
+        <translation>피어:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="116"/>
+        <source>Main Link:</source>
+        <translation>주 링크:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="117"/>
+        <source>UDP</source>
+        <translation>UDP</translation>
     </message>
 </context>
 <context>
