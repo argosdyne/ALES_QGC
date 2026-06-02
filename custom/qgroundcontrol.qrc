@@ -92,7 +92,6 @@
 		<file alias="PlanToolBar.qml">../src/PlanView/PlanToolBar.qml</file>
 		<file alias="PlanToolBarIndicators.qml">../src/PlanView/PlanToolBarIndicators.qml</file>
 		<file alias="M2LinkIndicator.qml">../src/M2Link/M2LinkIndicator.qml</file>
-		<file alias="RajantLinkIndicator.qml">../src/RajantLink/RajantLinkIndicator.qml</file>
 		<file alias="QGCDelayButton.qml">../src/QmlControls/QGCDelayButton.qml</file>
 		<file alias="PlanView.qml">../src/PlanView/PlanView.qml</file>
 		<file alias="GeoZoneMakeView.qml">../src/PlanView/GeoZoneMakeView.qml</file>
