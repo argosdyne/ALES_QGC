@@ -58,6 +58,24 @@ TransectStyleComplexItemEditor {
                 enabled:            _missionItem.hoverAndCaptureAllowed ? !_missionItem.hoverAndCapture.rawValue : true
                 visible:            !forPresets
             }
+
+            FactCheckBox {
+                Layout.columnSpan:  2
+                text:               qsTr("Aggressive fly-through")
+                fact:               _missionItem.aggressiveFlyThrough
+                enabled:            _missionItem.hoverAndCaptureAllowed ? !_missionItem.hoverAndCapture.rawValue : true
+                visible:            !forPresets
+            }
+
+            QGCLabel {
+                text:       qsTr("Pass-through radius")
+                visible:    !forPresets && _missionItem.aggressiveFlyThrough.rawValue
+            }
+            FactTextField {
+                fact:               _missionItem.passThroughRadius
+                Layout.fillWidth:   true
+                visible:            !forPresets && _missionItem.aggressiveFlyThrough.rawValue
+            }
         }
     }
 }
