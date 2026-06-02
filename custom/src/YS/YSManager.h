@@ -59,8 +59,8 @@ public:
     quint8 insInfo(void) const { return _insInfo; }
     quint8 scnInfo(void) const { return _scnInfo; }
     quint8 genInfo(void) const { return _genInfo; }
-    quint8 insErr(void) const { return _insErr; }
-    quint8 scnErr(void) const { return _scnErr; }
+    quint8 insErr(void) const { return _insErr || (_insInfo & 0x01); }
+    quint8 scnErr(void) const { return _scnErr || (_scnInfo & 0x01); }
     quint8 intErr(void) const { return _intErr; }
     quint8 camErr(void) const { return _camErr; }
 
