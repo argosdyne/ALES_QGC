@@ -79,6 +79,7 @@
 #include "MissionCommandTree.h"
 #include "QGCMapPolygon.h"
 #include "QGCMapCircle.h"
+#include "GeoCageController.h"
 #include "ParameterManager.h"
 #include "SettingsManager.h"
 #include "QGCCorePlugin.h"
@@ -482,6 +483,7 @@ void QGCApplication::_initCommon()
 
     qmlRegisterUncreatableType<MissionController>       (kQGCControllers,                   1, 0, "MissionController",          kRefOnly);
     qmlRegisterUncreatableType<GeoFenceController>      (kQGCControllers,                   1, 0, "GeoFenceController",         kRefOnly);
+    qmlRegisterUncreatableType<GeoCageController>       (kQGCControllers,                   1, 0, "GeoCageController",          kRefOnly);
     qmlRegisterUncreatableType<RallyPointController>    (kQGCControllers,                   1, 0, "RallyPointController",       kRefOnly);
 
     qmlRegisterUncreatableType<MissionItem>         (kQGroundControl,                       1, 0, "MissionItem",                kRefOnly);

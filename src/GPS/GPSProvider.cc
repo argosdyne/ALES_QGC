@@ -229,9 +229,9 @@ int GPSProvider::callback(GPSCallbackType type, void *data1, int data2)
             /* do nothing */
             break;
 
-        case GPSCallbackType::gotRelativePositionMessage:
+        //case GPSCallbackType::gotRelativePositionMessage:
             /* do nothing */
-            break;
+        //    break;
     }
 
     return 0;

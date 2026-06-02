@@ -639,7 +639,7 @@ HEADERS += \
     src/MissionManager/YellowScanInitPathComplexItem.h \
     src/MissionManager/BlankPlanCreator.h \
     src/MissionManager/FixedWingLandingComplexItem.h \
-    #src/MissionManager/GeoCageController.h \
+    src/MissionManager/GeoCageController.h \
     src/MissionManager/GeoFenceController.h \
     src/MissionManager/GeoFenceManager.h \
     src/MissionManager/KMLPlanDomDocument.h \
@@ -915,7 +915,7 @@ SOURCES += \
     src/MissionManager/BlankPlanCreator.cc \
     src/MissionManager/FixedWingLandingComplexItem.cc \
     src/MissionManager/GeoFenceController.cc \
-    #src/MissionManager/GeoCageController.cc \
+    src/MissionManager/GeoCageController.cc \
     src/MissionManager/GeoFenceManager.cc \
     src/MissionManager/KMLPlanDomDocument.cc \
     src/MissionManager/LandingComplexItem.cc \

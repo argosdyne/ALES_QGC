@@ -22,6 +22,8 @@ FlightModeDropdown                      1.0 FlightModeDropdown.qml
 FlightModeMenu                          1.0 FlightModeMenu.qml
 GeoFenceEditor                          1.0 GeoFenceEditor.qml
 GeoFenceMapVisuals                      1.0 GeoFenceMapVisuals.qml
+GeoCageEditor                           1.0 GeoCageEditor.qml
+GeoCageMapVisuals                       1.0 GeoCageMapVisuals.qml
 FlightZoneManagerGeoFenceMapVisuals		1.0 FlightZoneManagerGeoFenceMapVisuals.qml
 GeoZoneMakeViewMapVisuals				1.0 GeoZoneMakeViewMapVisuals.qml
 HackFileDialog                          1.0 HackFileDialog.qml

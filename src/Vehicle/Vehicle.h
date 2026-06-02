@@ -160,6 +160,14 @@ public:
     };
     Q_ENUM(CheckList)
 
+    enum GeoFenceAlertTier {
+        GeoFenceAlertTierNone = 0,
+        GeoFenceAlertTierMargin,
+        GeoFenceAlertTierBreach,
+        GeoFenceAlertTierContingency,
+    };
+    Q_ENUM(GeoFenceAlertTier)
+
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
@@ -178,6 +186,16 @@ public:
     Q_PROPERTY(bool                 messageTypeNormal           READ messageTypeNormal                                              NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeWarning          READ messageTypeWarning                                             NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeError            READ messageTypeError                                               NOTIFY messageTypeChanged)
+    Q_PROPERTY(bool                 geoFenceMarginWarning       READ geoFenceMarginWarning                                          NOTIFY geoFenceMarginWarningChanged)
+    Q_PROPERTY(bool                 geoFenceBreached            READ geoFenceBreached                                               NOTIFY geoFenceBreachedChanged)
+    Q_PROPERTY(int                  geoFenceAlertTier           READ geoFenceAlertTier                                              NOTIFY geoFenceAlertTierChanged)
+    Q_PROPERTY(bool                 geoFenceLoaded              READ geoFenceLoaded                                                 NOTIFY geoFenceLoadedChanged)
+    Q_PROPERTY(bool                 geoFenceActive              READ geoFenceActive                                                 NOTIFY geoFenceActiveChanged)
+    Q_PROPERTY(bool                 geoFenceParamsMissing       READ geoFenceParamsMissing                                          NOTIFY geoFenceParamsMissingChanged)
+    Q_PROPERTY(bool                 linkQualityWarning          READ linkQualityWarning                                             NOTIFY linkQualityWarningChanged)
+    Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
+    Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
+    Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
@@ -457,6 +475,8 @@ public:
 
     /// Sends PARAM_MAP_RC message to vehicle
     Q_INVOKABLE void sendParamMapRC(const QString& paramName, double scale, double centerValue, int tuningID, double minValue, double maxValue);
+    Q_INVOKABLE void deployParachute(void);
+    Q_INVOKABLE bool isCoordinateOutsideFence(const QGeoCoordinate& coordinate);
 
     /// Clears all PARAM_MAP_RC settings from vehicle
     Q_INVOKABLE void clearAllParamMapRC(void);
@@ -601,6 +621,16 @@ public:
     bool            messageTypeNormal           () { return _currentMessageType == MessageNormal; }
     bool            messageTypeWarning          () { return _currentMessageType == MessageWarning; }
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
+    bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
+    bool            geoFenceBreached            () const { return _geoFenceBreached; }
+    int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
+    bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
+    bool            geoFenceActive              () const { return _geoFenceActive; }
+    bool            geoFenceParamsMissing       () const { return _geoFenceParamsMissing; }
+    bool            linkQualityWarning          () const { return _linkQualityWarning; }
+    bool            linkQualityCritical         () const { return _linkQualityCritical; }
+    bool            parachuteAvailable          () const { return _parachuteAvailable; }
+    bool            parachuteEnabled            () const { return _parachuteEnabled; }
     int             newMessageCount             () const{ return _currentMessageCount; }
     int             messageCount                () const{ return _messageCount; }
     QString         formattedMessages           ();
@@ -974,6 +1004,16 @@ signals:
     void messagesSentChanged            ();
     void messagesLostChanged            ();
     void messageTypeChanged             ();
+    void geoFenceMarginWarningChanged  ();
+    void geoFenceBreachedChanged       (bool breached);
+    void geoFenceAlertTierChanged      (int tier);
+    void geoFenceLoadedChanged         (bool loaded);
+    void geoFenceActiveChanged         (bool active);
+    void geoFenceParamsMissingChanged  (bool missing);
+    void linkQualityWarningChanged     (bool warning);
+    void linkQualityCriticalChanged    (bool critical);
+    void parachuteAvailableChanged     (bool available);
+    void parachuteEnabledChanged       (bool enabled);
     void newMessageCountChanged         ();
     void messageCountChanged            ();
     void formattedMessagesChanged       ();
@@ -1118,6 +1158,18 @@ private:
     void _handleGimbalOrientation       (const mavlink_message_t& message);
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
+    void _checkGeoFenceAlertTierLocal   (void);
+    void _checkGeoFenceBreachLocal      (void);
+    void _checkGeoFenceMargin           (void);
+    void _setGeoFenceMarginWarning      (bool warningActive);
+    void _setGeoFenceBreached           (bool breached);
+    void _setGeoFenceAlertTier          (GeoFenceAlertTier tier, const QString& reason = QString());
+    void _updateGeoFenceActiveState     (void);
+    void _updateGeoFenceParamsMissing   (void);
+    void _updateParachuteState          (void);
+    void _updateLinkQuality             (void);
+    void _logGeoFenceEvent              (const QString& reason, const QString& details = QString());
+    double _geoFenceContingencyWidthMeters(void) const;
     void _handleEvent(uint8_t comp_id, std::unique_ptr<events::parser::ParsedEvent> event);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1198,6 +1250,21 @@ private:
     bool            _gps2RawMessageAvailable                = false;
     bool            _globalPositionIntMessageAvailable      = false;
     bool            _altitudeMessageAvailable               = false;
+    bool            _geoFenceBreached                       = false;
+    GeoFenceAlertTier _geoFenceAlertTier                    = GeoFenceAlertTierNone;
+    bool            _fenceStatusReceived                    = false;
+    bool            _fenceStatusBreached                    = false;
+    uint16_t        _lastFenceBreachCount                   = 0;
+    qint64          _lastGeoFenceMarginWarningMSecs         = 0;
+    qint64          _lastGeoFenceBreachMessageMSecs         = 0;
+    bool            _geoFenceMarginWarning                  = false;
+    bool            _geoFenceLoaded                         = false;
+    bool            _geoFenceActive                         = false;
+    bool            _geoFenceParamsMissing                  = false;
+    bool            _linkQualityWarning                     = false;
+    bool            _linkQualityCritical                    = false;
+    bool            _parachuteAvailable                     = false;
+    bool            _parachuteEnabled                       = false;
     double          _defaultCruiseSpeed = qQNaN();
     double          _defaultHoverSpeed = qQNaN();
     int             _telemetryRRSSI = 0;

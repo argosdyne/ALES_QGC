@@ -123,6 +123,8 @@
 		<file alias="QGroundControl/Controls/FWLandingPatternMapVisual.qml">../src/PlanView/FWLandingPatternMapVisual.qml</file>
 		<file alias="QGroundControl/Controls/GeoFenceEditor.qml">../src/PlanView/GeoFenceEditor.qml</file>
 		<file alias="QGroundControl/Controls/GeoFenceMapVisuals.qml">../src/PlanView/GeoFenceMapVisuals.qml</file>
+		<file alias="QGroundControl/Controls/GeoCageMapVisuals.qml">../src/PlanView/GeoCageMapVisuals.qml</file>
+		<file alias="QGroundControl/Controls/GeoCageEditor.qml">../src/PlanView/GeoCageEditor.qml</file>
 		<file alias="QGroundControl/Controls/FlightZoneManagerGeoFenceMapVisuals.qml">../src/PlanView/FlightZoneManagerGeoFenceMapVisuals.qml</file>
 		<file alias="QGroundControl/Controls/GeoZoneMakeViewMapVisuals.qml">../src/PlanView/GeoZoneMakeViewMapVisuals.qml</file>
 		<file alias="QGroundControl/Controls/HorizontalFactValueGrid.qml">../src/QmlControls/HorizontalFactValueGrid.qml</file>
