@@ -392,7 +392,7 @@ void ARManager::_stopDoodlePolling(const char* reason)
     if (_doodlePollingStopped) return;
     _doodlePollingStopped = true;
     _doodlePollTimer.stop();
-    qCInfo(ARManagerLog) << "[Doodle API] polling stopped:" << (reason ? reason : "");
+    qInfo() << "[Doodle API] polling stopped:" << (reason ? reason : "");
 }
 
 void ARManager::_requestDoodleLogin()  // ubus login

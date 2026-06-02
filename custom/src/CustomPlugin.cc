@@ -589,7 +589,7 @@ void CustomPlugin::_initRajantDiscovery()
         return;
     }
 
-    qInfo() << "RajantDiscovery: starting auto-discovery...";
+    // qInfo() << "RajantDiscovery: starting auto-discovery...";
 
 #if defined(Q_OS_ANDROID)
     // Android: apps are sandboxed — "ip" command and /proc/net files are blocked.
