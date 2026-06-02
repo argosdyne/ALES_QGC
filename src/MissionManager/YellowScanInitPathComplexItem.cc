@@ -297,11 +297,13 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
     QGeoCoordinate end = start.atDistanceAndAzimuth(lineLength, bearing);
 
     double actualDistance = start.distanceTo(end);
-    qInfo() << "=== YellowScan Path Info ===";
-    qInfo() << "Target distance:" << lineLength << "m";
-    qInfo() << "Actual distance:" << actualDistance << "m";
-    qInfo() << "Bearing:" << bearing << "degrees";
-    qInfo() << "Turn radius:" << radius << "m";
+     qInfo() << "=== YellowScan Path Info ===";
+     qInfo() << "Target distance:" << lineLength << "m";
+     qInfo() << "Actual distance:" << actualDistance << "m";
+     qInfo() << "Bearing:" << bearing << "degrees";
+     qInfo() << "Turn radius:" << radius << "m";
+
+    setFixedYawDeg(bearing); // Save Current WP angle
 
     QList<TransectStyleComplexItem::CoordInfo_t> transect;
 
@@ -310,16 +312,22 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
 
     // 1회 왕복
     transect.append({start, CoordTypeYellowScan});
+    transect.append({start, CoordTypeYellowScanChangeYaw});
     transect.append({end,   CoordTypeYellowScan});
+    transect.append({end, CoordTypeYellowScanChangeYaw});
 
     // 2회 왕복
     transect.append({end,   CoordTypeYellowScan});
+    transect.append({end, CoordTypeYellowScanChangeYaw});
     transect.append({start, CoordTypeYellowScan});
+    transect.append({start, CoordTypeYellowScanChangeYaw});
 
     // 3회 왕복
-    transect.append({start, CoordTypeYellowScan});
-    transect.append({end,   CoordTypeYellowScan});
-
+    transect.append({start, CoordTypeYellowScan});    
+    transect.append({end,   CoordTypeYellowScan});    
+   // Reduce speed before entering the U-turn so the drone tracks the semicircle
+    // more tightly instead of overshooting the turn.
+    transect.append({end,   CoordTypeYellowScanTurnSpeed});
     // 반원 생성
     double rightAzimuth = bearing + 90.0;
     if (rightAzimuth >= 360.0) rightAzimuth -= 360.0;
@@ -338,6 +346,11 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
         TransectStyleComplexItem::CoordInfo_t coordInfo;
         coordInfo.coord = QGeoCoordinate(p.first, p.second);
         coordInfo.coordType = CoordTypeYellowScan;
+
+        if (!transect.isEmpty() && transect.last().coord.isValid() && transect.last().coord.distanceTo(coordInfo.coord) < 0.05) {
+            continue;
+        }
+
         transect.append(coordInfo);
     }
 

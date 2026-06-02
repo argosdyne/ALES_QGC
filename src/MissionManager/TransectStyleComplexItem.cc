@@ -1216,13 +1216,19 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 }
                 break;
             case CoordTypeYellowScanMaxSpeed:
-                itemCount++; // Max speed command
+                itemCount++; // Speed change command
+                break;
+            case CoordTypeYellowScanTurnSpeed:
+                itemCount++; // Turn speed change command
                 break;
             case CoordTypeYellowScan:
-                itemCount++; // Waypoint
+                itemCount++; // Waypoint only
+                break;
+            case CoordTypeYellowScanChangeYaw:
+                itemCount++; // Yaw command
                 break;
             case CoordTypeYellowScanPreviousSpeed:
-                itemCount++; // Restore previous speed command
+                itemCount++; // Speed restore command
                 break;
             case CoordTypeSurveyExit:
                 bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
@@ -1278,6 +1284,12 @@ void TransectStyleComplexItem::_handleHoverAndCaptureEnabled(QVariant enabled)
     }
 }
 
+void TransectStyleComplexItem::setFixedYawDeg(double bearing){
+    _yellowScanInitPathAngle = bearing;
+
+    qInfo() << "_yellowScanInitPathAngle = " << _yellowScanInitPathAngle;
+}
+
 void TransectStyleComplexItem::appendMissionItems(QList<MissionItem*>& items, QObject* missionItemParent)
 {
     if (_loadedMissionItems.count()) {
@@ -1331,7 +1343,27 @@ void TransectStyleComplexItem::_appendYSInitPathMaxSpeed(QList<MissionItem*>& it
                                         MAV_CMD_DO_CHANGE_SPEED,
                                         MAV_FRAME_MISSION,
                                         _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
-                                        10,
+                                        20,
+                                        -1,                                                                 // No throttle change
+                                        0,                                                                  // Absolute speed change
+                                        0, 0, 0,                                                            // param 5-7 not used
+                                        true,                                                               // autoContinue
+                                        false,                                                              // isCurrentItem
+                                        missionItemParent);
+    items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathTurnSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
+{
+    // Slow down to a fixed 3 m/s before entering the U-turn so the vehicle can
+    // stay tighter to the generated semicircle waypoints.
+    constexpr double turnSpeed = 5.0;
+
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_DO_CHANGE_SPEED,
+                                        MAV_FRAME_MISSION,
+                                        _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
+                                        turnSpeed,
                                         -1,                                                                 // No throttle change
                                         0,                                                                  // Absolute speed change
                                         0, 0, 0,                                                            // param 5-7 not used
@@ -1354,6 +1386,22 @@ void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*
                                         0, 0, 0,                                                            // param 5-7 not used
                                         true,                                                               // autoContinue
                                         false,                                                              // isCurrentItem
+                                        missionItemParent);
+    items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathYaw(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum){
+    //Add drone yaw change mavlink command
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_CONDITION_YAW,
+                                        MAV_FRAME_MISSION,
+                                        _yellowScanInitPathAngle,       // angle
+                                        5,                              // angle speed
+                                        0,
+                                        0,
+                                        0, 0, 0,
+                                        true,
+                                        false,
                                         missionItemParent);
     items.append(item);
 }
@@ -1493,11 +1541,17 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         case CoordTypeYellowScanMaxSpeed:
             _appendYSInitPathMaxSpeed(items, missionItemParent, seqNum);
             break;
+        case CoordTypeYellowScanTurnSpeed:
+            _appendYSInitPathTurnSpeed(items, missionItemParent, seqNum);
+            break;
         case CoordTypeYellowScanPreviousSpeed:
             _appendYSInitPathPreviousSpeed(items, missionItemParent, seqNum);
             break;
-        case CoordTypeYellowScan:
+        case CoordTypeYellowScan:            
             _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
+            break;
+        case CoordTypeYellowScanChangeYaw:
+            _appendYSInitPathYaw(items, missionItemParent, seqNum);
             break;
         case CoordTypeSurveyExit:
             bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
