@@ -122,9 +122,11 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth:   true
+            Layout.alignment:   Qt.AlignTop | Qt.AlignLeft
             spacing:            ScreenTools.defaultFontPixelWidth * 2
 
             Rectangle {
+                Layout.alignment:       Qt.AlignTop | Qt.AlignLeft
                 Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 32
                 Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 12
                 radius:                 ScreenTools.defaultFontPixelHeight * 0.4
@@ -167,21 +169,24 @@ Rectangle {
 
                         Column {
                             spacing: ScreenTools.defaultFontPixelHeight * 0.6
-                            Rectangle {
+                            Item {
                                 id: statusIndicator
-                                width:  ScreenTools.defaultFontPixelHeight * 2
+                                width:  ScreenTools.defaultFontPixelHeight * 2.4
                                 height: width
-                                radius: width * 0.5
-                                color:  _ys && _ys.statusValid ? (_ys.anyError ? qgcPal.colorRed : qgcPal.colorGreen) : qgcPal.button
-                                opacity: _ys && _ys.statusValid ? 1.0 : 0.4
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "!"
-                                    color: "white"
-                                    font.bold: true
+
+                                Image {
+                                    anchors.fill: parent
+                                    source: _ys && _ys.statusValid
+                                                ? (_ys.anyError ? "/custom/img/png/ys_error.png" : "/custom/img/png/ys_enable.png")
+                                                : "/custom/img/png/ys_disable.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    mipmap: true
                                 }
+
                                 MouseArea {
                                     anchors.fill: parent
+                                    enabled: _ys && _ys.statusValid ? true : false
                                     onClicked: {
                                         _showDetails = !_showDetails
                                         if (_showDetails) {
@@ -233,15 +238,15 @@ Rectangle {
 
                         Repeater {
                             model: [
-                                { label: "Acquisition Running", ok: _ys && _ys.acquisitionRunning, valid: _ys && _ys.statusValid },
-                                { label: "Time Not Set", ok: _ys && !_ys.timeNotSet, valid: _ys && _ys.statusValid },
-                                { label: "Scanner Not Ready", ok: _ys && !_ys.scannerNotReady, valid: _ys && _ys.statusValid },
-                                { label: "INS Not Locked", ok: _ys && !_ys.insNotLocked, valid: _ys && _ys.statusValid },
-                                { label: "Scanner Error", ok: _ys && _ys.scnErr === 0, valid: _ys && _ys.statusValid },
-                                { label: "INS Error", ok: _ys && _ys.insErr === 0, valid: _ys && _ys.statusValid },
-                                { label: "No USB", ok: _ys && !_ys.noUsb, valid: _ys && _ys.statusValid },
-                                { label: "USB Full", ok: _ys && !_ys.usbFull, valid: _ys && _ys.statusValid },
-                                { label: "Camera Error", ok: _ys && _ys.camErr === 0, valid: _ys && _ys.statusValid }
+                                { label: qsTr("Acquisition Running"), ok: _ys && _ys.acquisitionRunning, valid: _ys && _ys.statusValid },
+                                { label: qsTr("Time Not Set"), ok: _ys && !_ys.timeNotSet, valid: _ys && _ys.statusValid },
+                                { label: qsTr("Scanner Not Ready"), ok: _ys && !_ys.scannerNotReady, valid: _ys && _ys.statusValid },
+                                { label: qsTr("INS Not Locked"), ok: _ys && !_ys.insNotLocked, valid: _ys && _ys.statusValid },
+                                { label: qsTr("Scanner Error"), ok: _ys && _ys.scnErr === 0, valid: _ys && _ys.statusValid },
+                                { label: qsTr("INS Error"), ok: _ys && _ys.insErr === 0, valid: _ys && _ys.statusValid },
+                                { label: qsTr("No USB"), ok: _ys && !_ys.noUsb, valid: _ys && _ys.statusValid },
+                                { label: qsTr("USB Full"), ok: _ys && !_ys.usbFull, valid: _ys && _ys.statusValid },
+                                { label: qsTr("Camera Error"), ok: _ys && _ys.camErr === 0, valid: _ys && _ys.statusValid }
                             ]
                             delegate: Row {
                                 spacing: ScreenTools.defaultFontPixelWidth

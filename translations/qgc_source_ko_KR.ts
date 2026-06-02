@@ -28819,6 +28819,185 @@ Confirm change?</source>
       <translation>수신:</translation>
     </message>
   </context>
+  <context>
+    <name>DeviceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="139"/>
+      <source>YellowScan 3D LiDAR</source>
+      <translation>YellowScan 3D LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="149"/>
+      <source>PWR OFF</source>
+      <translation>전원 OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition OFF</source>
+      <translation>데이터 수집 OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition ON</source>
+      <translation>데이터 수집 ON</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="199"/>
+      <source>Configure</source>
+      <translation>설정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="233"/>
+      <source>Details</source>
+      <translation>상세</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="238"/>
+      <source>Acquisition Running</source>
+      <translation>데이터 수집 동작 중</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="239"/>
+      <source>Time Not Set</source>
+      <translation>시간 미설정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="240"/>
+      <source>Scanner Not Ready</source>
+      <translation>스캐너 준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="241"/>
+      <source>INS Not Locked</source>
+      <translation>INS 미잠금</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="242"/>
+      <source>Scanner Error</source>
+      <translation>스캐너 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="243"/>
+      <source>INS Error</source>
+      <translation>INS 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="244"/>
+      <source>No USB</source>
+      <translation>USB 없음</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="245"/>
+      <source>USB Full</source>
+      <translation>USB 가득 참</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="246"/>
+      <source>Camera Error</source>
+      <translation>카메라 오류</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="268"/>
+      <source>Parameters</source>
+      <translation>파라미터</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="271"/>
+      <source>Get Param</source>
+      <translation>파라미터 읽기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="276"/>
+      <source>Set Param</source>
+      <translation>파라미터 쓰기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="295"/>
+      <source>Scanner High Sensitivity</source>
+      <translation>스캐너 고감도</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>On</source>
+      <translation>켜짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>Off</source>
+      <translation>꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="320"/>
+      <source>Scanner Pattern</source>
+      <translation>스캐너 패턴</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>Repetition</source>
+      <translation>반복</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="345"/>
+      <source>Emb. Camera</source>
+      <translation>내장 카메라</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Disable</source>
+      <translation>비활성</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Enable</source>
+      <translation>활성</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="370"/>
+      <source>Emb. Cam. Init. Height</source>
+      <translation>내장 카메라 초기 높이</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="379"/>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="420"/>
+      <source>Float</source>
+      <translation>실수</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="397"/>
+      <source>Emb. Cam. Trigger Mode</source>
+      <translation>내장 카메라 트리거 모드</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Time</source>
+      <translation>시간</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Distance</source>
+      <translation>거리</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="454"/>
+      <source>Message Monitor</source>
+      <translation>메시지 모니터</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="465"/>
+      <source>Sent:</source>
+      <translation>송신:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="485"/>
+      <source>Received:</source>
+      <translation>수신:</translation>
+    </message>
+  </context>
 </TS>
 
 

@@ -48,6 +48,9 @@
         <file alias="png/info.png">res/Images/info.png</file>
         <file alias="png/success.png">res/Images/success.png</file>
         <file alias="png/warning.png">res/Images/warning.png</file>
+        <file alias="png/ys_enable.png">res/Images/ys_enable.png</file>
+        <file alias="png/ys_disable.png">res/Images/ys_disable.png</file>
+        <file alias="png/ys_error.png">res/Images/ys_error.png</file>
         <file>res/Images/redWarning.svg</file>
     </qresource>
     <qresource prefix="/qmlimages">
