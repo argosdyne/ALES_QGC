@@ -25,6 +25,7 @@ Item {
     property var  _skyRssiA:    arManager.skyRssiA
     property var  _skyRssiB:    arManager.skyRssiB
     property var  _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property bool _isDoodle: arManager.version == "DoodleLabs ubus"
 
     Component {
         id:                                     arRssiInfo
@@ -75,7 +76,7 @@ Item {
                     }
 
                     QGCLabel {
-                        text:                   qsTr("Sky RSSI:")
+                        text:                   _isDoodle ? qsTr("Peer RSSI:") : qsTr("Sky RSSI:")
                         color:                  qgcPal.text
                     }
                     QGCLabel {
@@ -97,6 +98,7 @@ Item {
 
                 QGCButton {
                     text:                       qsTr("Start Pair")
+                    visible:                    !_isDoodle
                     width:                      ScreenTools.defaultFontPixelWidth * 15
                     anchors.horizontalCenter:   parent.horizontalCenter
                     onClicked: {
@@ -108,14 +110,23 @@ Item {
         }
     }
 
-    function getSignalStrength(rssi) {
-        if(rssi < 10) return 0;
-        if(rssi >= 108) return 30;
-        else if(rssi >= 103) return 50;
-        else if(rssi >= 98) return 70;
-        else if(rssi >= 91) return 85;
-        else return 100;
+function getSignalStrength(rssi) {
+    if (_isDoodle) {
+    if(rssi > 95) return 0;        // Link lost - 0 bars
+    else if(rssi > 85) return 30;  // Poor - 1 bar
+    else if(rssi > 78) return 40;  // Weak - 2 bars
+    else if(rssi > 70) return 60;  // Fair - 3 bars
+    else if(rssi > 50) return 85;  // Good - 4 bars
+    else return 100;               // Excellent (≤50) + Too Strong (<30) - 5 bars
     }
+    // Enpulse: original thresholds        if(rssi < 10) return 0;
+    if(rssi < 10) return 0;
+    if(rssi >= 108) return 30;
+    else if(rssi >= 103) return 50;
+    else if(rssi >= 98) return 70;
+    else if(rssi >= 91) return 85;
+    else return 100;
+}
 
     // Signal
     Row {
@@ -135,12 +146,12 @@ Item {
             spacing: 0
             QGCLabel {
                 id:                     frequencyLable
-                text:                   arManager.is24G ? "2.4G" : "5.8G"
+                text:                   _isDoodle ? "2.4G" : (arManager.is24G ? "2.4G" : "5.8G")
                 font.pointSize:         ScreenTools.defaultFontPointSize
             }
             QGCLabel {
                 id:                     linkNameLable
-                text:                   "Enpulse"
+                text:                   _isDoodle ? "DoodleLab" : "Enpulse"
                 font.pointSize:         ScreenTools.defaultFontPointSize
             }
         }
@@ -284,7 +295,7 @@ Item {
         onClicked: {
             if (_connected) {
                 mainWindow.showIndicatorPopup(_root, arRssiInfo)
-            } else {                
+            } else if (!_isDoodle) {                
                 mainWindow.hideIndicatorPopup()
                 mainWindow.showCustomMessageDialog(arPairGuideComponent)
             }
