@@ -778,8 +778,14 @@ Rectangle {
                                     property Fact _remoteIDEnable: QGroundControl.settingsManager.remoteIDSettings.enable
                                 }
 
+                                FactCheckBox {
+                                    text: qsTr("Enable Doodle Labs IP")
+                                    fact: QGroundControl.corePlugin.settings.doodleLabsIPEnable
+                                }
+
                                 RowLayout {
                                     spacing: _margins
+                                    visible: QGroundControl.corePlugin.settings.doodleLabsIPEnable.value
                                     QGCLabel {
                                         text: qsTr("Doodle Labs IP")
                                     }
