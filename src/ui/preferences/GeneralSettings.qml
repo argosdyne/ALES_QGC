@@ -794,6 +794,11 @@ Rectangle {
                                         fact:                   QGroundControl.corePlugin.settings.doodleLabsIP
                                     }
                                 }
+
+                                FactCheckBox {
+                                    text: qsTr("Enable Life Jacket")
+                                    fact: QGroundControl.corePlugin.settings.lifeJacketEnable
+                                }
                             }
                         }
 

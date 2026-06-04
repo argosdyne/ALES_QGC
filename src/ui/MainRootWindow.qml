@@ -71,6 +71,9 @@ ApplicationWindow {
 
     property var                _rgPreventViewSwitch:       [ false ]
 
+    // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
+    property bool               lifeVestPanelVisible:       false
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------

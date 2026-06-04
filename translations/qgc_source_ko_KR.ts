@@ -7220,6 +7220,11 @@ Click Ok to start the auto-tuning process.
         <source>GeoZone</source>
         <translation>지오존</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="63"/>
+      <source>Life Jacket</source>
+      <translation>구명조끼</translation>
+    </message>
 </context>
   <context>
     <name>FlyViewVideo</name>
@@ -7380,6 +7385,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="790"/>
       <source>Doodle Labs IP</source>
       <translation>Doodle Labs IP</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="800"/>
+      <source>Enable Life Jacket</source>
+      <translation>구명조끼 활성화</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="468"/>
@@ -20628,6 +20638,26 @@ Confirm change?</source>
         <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="262"/>
         <source>NONE:</source>
         <translation>없음:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="687"/>
+      <source>Life Jacket</source>
+      <translation>구명조끼</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="705"/>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="752"/>
+      <source>Drop Life Jacket</source>
+      <translation>구명 조끼 투하</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="772"/>
+      <source>Searchlight</source>
+      <translation>서치라이트</translation>
     </message>
 </context>
 <context>
