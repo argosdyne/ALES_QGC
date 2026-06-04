@@ -97,6 +97,42 @@ static QString _mavlinkFixedString(const char* data, int maxLen)
     return QString::fromUtf8(raw);
 }
 
+static QString _codevModelHintFromRtsp(const QString& rtspUri)
+{
+    const QString lower = rtspUri.trimmed().toLower();
+    if (lower.isEmpty()) {
+        return QString();
+    }
+
+    if (lower.contains(QStringLiteral("/eo")) ||
+        lower.contains(QStringLiteral("=eo")) ||
+        lower.endsWith(QStringLiteral("eo"))) {
+        return QStringLiteral("R3");
+    }
+
+    if (lower.contains(QStringLiteral("/cr")) ||
+        lower.contains(QStringLiteral("=cr")) ||
+        lower.endsWith(QStringLiteral("cr")) ||
+        lower.contains(QStringLiteral("/ir")) ||
+        lower.contains(QStringLiteral("=ir")) ||
+        lower.endsWith(QStringLiteral("ir"))) {
+        return QStringLiteral("RLR1");
+    }
+
+    return QString();
+}
+
+static QString _codevCacheFileNameForModelHint(const QString& modelHint)
+{
+    if (modelHint.compare(QStringLiteral("R3"), Qt::CaseInsensitive) == 0) {
+        return QStringLiteral("Codev_R3_023.xml");
+    }
+    if (modelHint.compare(QStringLiteral("RLR1"), Qt::CaseInsensitive) == 0) {
+        return QStringLiteral("Codev_RLR1_013.xml");
+    }
+    return QString();
+}
+
 //-----------------------------------------------------------------------------
 // Known Parameters
 const char* QGCCameraControl::kCAM_EV          = "CAM_EV";
@@ -898,6 +934,16 @@ QGCCameraControl::_loadCameraDefinitionFile(QByteArray& bytes)
         qCWarning(CameraControlLog) <<  "Unable to load camera constants from camera definition";
         return false;
     }
+    // Recompute cache target from parsed XML constants, not from early fallback info.
+    const int definitionVersion = (_version > 0) ? _version : static_cast<int>(_info.cam_definition_version);
+    const QString cacheBaseName = QStringLiteral("%1_%2_%3")
+                                      .arg(_vendor)
+                                      .arg(_modelName)
+                                      .arg(definitionVersion, 3, 10, QLatin1Char('0'));
+    _cacheFile = QStringLiteral("%1/%2.xml")
+                     .arg(qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath(), cacheBaseName);
+    _info.cam_definition_version = static_cast<uint32_t>(definitionVersion);
+    _recordCameraProfileIfChanged();
     //-- Load camera parameters
     QDomNodeList paramElements = doc.elementsByTagName(kParameters);
     if(!paramElements.size()) {
@@ -1255,8 +1301,9 @@ QGCCameraControl::_requestAllParameters()
 {
     //-- Reset receive list
     for(const QString& paramName: _paramIO.keys()) {
-        if(_paramIO[paramName]) {
-            _paramIO[paramName]->setParamRequest();
+        QGCCameraParamIO* paramIo = _paramIO.value(paramName, nullptr);
+        if(paramIo) {
+            paramIo->setParamRequest();
         } else {
             qCritical() << "QGCParamIO is NULL" << paramName;
         }
@@ -1287,13 +1334,18 @@ QGCCameraControl::_getParamName(const char* param_id)
 void
 QGCCameraControl::handleParamAck(const mavlink_param_ext_ack_t& ack)
 {
+    if (_definitionReloadInProgress) {
+        qCDebug(CameraControlLog) << "Ignoring PARAM_EXT_ACK during definition reload";
+        return;
+    }
     QString paramName = _getParamName(ack.param_id);
     if(!_paramIO.contains(paramName)) {
         qCWarning(CameraControlLog) << "Received PARAM_EXT_ACK for unknown param:" << paramName;
         return;
     }
-    if(_paramIO[paramName]) {
-        _paramIO[paramName]->handleParamAck(ack);
+    QGCCameraParamIO* paramIo = _paramIO.value(paramName, nullptr);
+    if(paramIo) {
+        paramIo->handleParamAck(ack);
     } else {
         qCritical() << "QGCParamIO is NULL" << paramName;
     }
@@ -1303,13 +1355,18 @@ QGCCameraControl::handleParamAck(const mavlink_param_ext_ack_t& ack)
 void
 QGCCameraControl::handleParamValue(const mavlink_param_ext_value_t& value)
 {
+    if (_definitionReloadInProgress) {
+        qInfo() << "Ignoring PARAM_EXT_VALUE during definition reload";
+        return;
+    }
     QString paramName = _getParamName(value.param_id);
     if(!_paramIO.contains(paramName)) {
         qCWarning(CameraControlLog) << "Received PARAM_EXT_VALUE for unknown param:" << paramName;
         return;
     }
-    if(_paramIO[paramName]) {
-        _paramIO[paramName]->handleParamValue(value);
+    QGCCameraParamIO* paramIo = _paramIO.value(paramName, nullptr);
+    if(paramIo) {
+        paramIo->handleParamValue(value);
     } else {
         qCritical() << "QGCParamIO is NULL" << paramName;
     }
@@ -1470,7 +1527,7 @@ QGCCameraControl::_updateRanges(Fact* pFact)
     for(QGCCameraOptionRange* pRange: _optionRanges) {
         if(!changedList.contains(pRange->targetParam) && (pRange->param == pFact->name() || pRange->condition.contains(pFact->name()))) {
             Fact* pTFact = getFact(pRange->targetParam);    //-- The target parameter (the one its range is to change)
-            if(!resetList.contains(pRange->targetParam)) {
+            if(pTFact && !resetList.contains(pRange->targetParam)) {
                 if(pTFact->enumStrings() != _originalOptNames[pRange->targetParam]) {
                     //-- Restore full option set
                     rangesReset[pTFact] = pRange->targetParam;
@@ -1481,21 +1538,38 @@ QGCCameraControl::_updateRanges(Fact* pFact)
     }
     //-- Update limited range set
     for (Fact* f: rangesSet.keys()) {
-        f->setEnumInfo(rangesSet[f]->optNames, rangesSet[f]->optVariants);
+        if (!f) {
+            continue;
+        }
+        QGCCameraOptionRange* range = rangesSet.value(f, nullptr);
+        if (!range) {
+            continue;
+        }
+        f->setEnumInfo(range->optNames, range->optVariants);
         if(!updates.contains(f->name())) {
-            _paramIO[f->name()]->optNames = rangesSet[f]->optNames;
-            _paramIO[f->name()]->optVariants = rangesSet[f]->optVariants;
+            QGCCameraParamIO* paramIo = _paramIO.value(f->name(), nullptr);
+            if (paramIo) {
+                paramIo->optNames = range->optNames;
+                paramIo->optVariants = range->optVariants;
+            }
             emit f->enumsChanged();
-            qCDebug(CameraControlVerboseLog) << "Limited set of options for:" << f->name() << rangesSet[f]->optNames;;
+            qCDebug(CameraControlVerboseLog) << "Limited set of options for:" << f->name() << range->optNames;
             updates << f->name();
         }
     }
     //-- Restore full range set
     for (Fact* f: rangesReset.keys()) {
-        f->setEnumInfo(_originalOptNames[rangesReset[f]], _originalOptValues[rangesReset[f]]);
+        if (!f) {
+            continue;
+        }
+        const QString resetKey = rangesReset.value(f);
+        f->setEnumInfo(_originalOptNames[resetKey], _originalOptValues[resetKey]);
         if(!updates.contains(f->name())) {
-            _paramIO[f->name()]->optNames = _originalOptNames[rangesReset[f]];
-            _paramIO[f->name()]->optVariants = _originalOptValues[rangesReset[f]];
+            QGCCameraParamIO* paramIo = _paramIO.value(f->name(), nullptr);
+            if (paramIo) {
+                paramIo->optNames = _originalOptNames[resetKey];
+                paramIo->optVariants = _originalOptValues[resetKey];
+            }
             emit f->enumsChanged();
             qCDebug(CameraControlVerboseLog) << "Restore full set of options for:" << f->name() << _originalOptNames[f->name()];
             updates << f->name();
@@ -1519,7 +1593,10 @@ void
 QGCCameraControl::_requestParamUpdates()
 {
     for(const QString& param: _updatesToRequest) {
-        _paramIO[param]->paramRequest();
+        QGCCameraParamIO* paramIo = _paramIO.value(param, nullptr);
+        if (paramIo) {
+            paramIo->paramRequest();
+        }
     }
     _updatesToRequest.clear();
 }
@@ -1602,6 +1679,14 @@ QGCCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
     if(std::isfinite(f) && f != _focusLevel) {
         _focusLevel = f;
         emit focusLevelChanged();
+    }
+
+    // Some camera firmwares don't push STORAGE_INFORMATION immediately on first connect.
+    // Proactively refresh storage once every few seconds until capacity is known.
+    if ((_storageTotal == 0 || _storageStatus != STORAGE_READY) &&
+        (!_storageInfoRequestTimer.isValid() || _storageInfoRequestTimer.elapsed() >= 5000)) {
+        _storageInfoRequestTimer.start();
+        _requestStorageInfo();
     }
 }
 
@@ -1687,7 +1772,10 @@ void
 QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
 {
     qCDebug(CameraControlLog) << "handleVideoInfo:" << vi->stream_id << vi->uri;
-    _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
+    const bool isThermalStream = (vi->flags & VIDEO_STREAM_STATUS_FLAGS_THERMAL);
+    const bool isPrimaryStream = (vi->stream_id <= 1);
+    const bool ignoreForProfileSelection = !isPrimaryStream && isThermalStream && vi->count > 1;
+    _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)), ignoreForProfileSelection);
     _expectedCount = vi->count;
     qInfo() << "THERMAL_TRACE"
             << "handleVideoInfo"
@@ -1860,26 +1948,13 @@ void QGCCameraControl::_resetDefinitionState()
     emit activeSettingsChanged();
 }
 
-void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamUri)
+void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamUri, bool ignoreForProfileSelection)
 {
     if (!streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
         return;
     }
-
-    const QString configuredRtsp = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
-    if (configuredRtsp.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
-        const QUrl configuredUrl(configuredRtsp);
-        const QUrl incomingUrl(streamUri);
-        if (!configuredUrl.host().isEmpty() && !incomingUrl.host().isEmpty() &&
-            configuredUrl.host().compare(incomingUrl.host(), Qt::CaseInsensitive) == 0) {
-            const QString configuredSegment = configuredUrl.path().section('/', -1);
-            const QString incomingSegment = incomingUrl.path().section('/', -1);
-            if (!configuredSegment.isEmpty() && !incomingSegment.isEmpty() &&
-                configuredSegment.compare(incomingSegment, Qt::CaseInsensitive) != 0) {
-                // Ignore non-selected stream (e.g. EO/CR secondary stream) to avoid reload loops.
-                return;
-            }
-        }
+    if (ignoreForProfileSelection) {
+        return;
     }
 
     QSettings settings;
@@ -1902,6 +1977,21 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
     }
 
     if (previousUri.compare(streamUri, Qt::CaseInsensitive) == 0) {
+        const QString expectedModelHint = _codevModelHintFromRtsp(streamUri);
+        if (_cached && !expectedModelHint.isEmpty() &&
+            !_modelName.trimmed().toUpper().contains(expectedModelHint.toUpper())) {
+            const QString definitionUri = _cameraDefinitionUri(&_info);
+            if (!definitionUri.isEmpty()) {
+                qInfo() << "[CameraControl]"
+                        << "RTSP unchanged but model mismatch detected, forcing definition reload"
+                        << "compId" << _compID
+                        << "currentModel" << _modelName
+                        << "expectedModel" << expectedModelHint
+                        << "streamUri" << streamUri;
+                _cached = false;
+                _handleDefinitionFile(definitionUri);
+            }
+        }
         return;
     }
 
@@ -1910,6 +2000,16 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
             << "compId" << _compID
             << "previous" << previousUri
             << "current" << streamUri;
+
+    // Keep old XML files and switch target cache file only when RTSP clearly identifies profile.
+    const QString modelHint = _codevModelHintFromRtsp(streamUri);
+    const QString hintCacheFileName = _codevCacheFileNameForModelHint(modelHint);
+    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
+    if (!parameterSavePath.isEmpty() && !hintCacheFileName.isEmpty()) {
+        _cacheFile = QStringLiteral("%1/%2").arg(parameterSavePath, hintCacheFileName);
+        _info.cam_definition_version = (modelHint.compare(QStringLiteral("R3"), Qt::CaseInsensitive) == 0) ? 23 : 13;
+    }
+
     _cached = false;
     settings.setValue(key, streamUri);
 
@@ -2390,18 +2490,57 @@ QGCCameraControl::_loadNameValue(QDomNode option, const QString factName, FactMe
 void
 QGCCameraControl::_handleDefinitionFile(const QString &url)
 {
+    _definitionReloadInProgress = true;
     //-- First check and see if we have it cached
     QFile xmlFile(_cacheFile);
-    if (!xmlFile.exists()) {
-        const QString fallbackCacheFile = _findCachedDefinitionFileByName();
-        if (!fallbackCacheFile.isEmpty()) {
-            xmlFile.setFileName(fallbackCacheFile);
+    QSettings settings;
+    const QString expectedModelHint = _codevModelHintFromRtsp(settings.value(_cameraRtspSettingsKey()).toString());
+    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
+    if (!expectedModelHint.isEmpty() && !parameterSavePath.isEmpty()) {
+        const QString expectedCacheName = _codevCacheFileNameForModelHint(expectedModelHint);
+        if (!expectedCacheName.isEmpty()) {
+            _cacheFile = QStringLiteral("%1/%2").arg(parameterSavePath, expectedCacheName);
+            xmlFile.setFileName(_cacheFile);
+            _info.cam_definition_version = (expectedModelHint.compare(QStringLiteral("R3"), Qt::CaseInsensitive) == 0) ? 23 : 13;
+        }
+    }
+    if (xmlFile.exists() && !expectedModelHint.isEmpty()) {
+        const QString fileName = QFileInfo(xmlFile.fileName()).fileName();
+        const QString expectedToken = QStringLiteral("_%1_").arg(expectedModelHint);
+        if (fileName.startsWith(QStringLiteral("Codev_"), Qt::CaseInsensitive) &&
+            !fileName.contains(expectedToken, Qt::CaseInsensitive)) {
             qInfo() << "[CameraControl]"
-                    << "camera definition source cache-by-name"
+                    << "skip cache due to profile mismatch"
                     << "compId" << _compID
-                    << "vendor" << _vendor
-                    << "model" << _modelName
-                    << "cacheFile" << xmlFile.fileName();
+                    << "cacheFile" << xmlFile.fileName()
+                    << "expectedModel" << expectedModelHint;
+            xmlFile.setFileName(QString());
+        }
+    }
+    if (!xmlFile.exists() && !expectedModelHint.isEmpty()) {
+        const QString cacheName = _codevCacheFileNameForModelHint(expectedModelHint);
+        if (!cacheName.isEmpty() && !parameterSavePath.isEmpty()) {
+            const QString expectedCachePath = QStringLiteral("%1/%2").arg(parameterSavePath, cacheName);
+            QFile expectedXmlFile(expectedCachePath);
+            if (expectedXmlFile.exists()) {
+                xmlFile.setFileName(expectedCachePath);
+            }
+        }
+    }
+    if (!xmlFile.exists()) {
+        // When expected profile is known from RTSP, do not fall back to a stale cache-by-name
+        // derived from currently loaded model. Force fetch/generate of the expected model XML.
+        if (expectedModelHint.isEmpty()) {
+            const QString fallbackCacheFile = _findCachedDefinitionFileByName();
+            if (!fallbackCacheFile.isEmpty()) {
+                xmlFile.setFileName(fallbackCacheFile);
+                qInfo() << "[CameraControl]"
+                        << "camera definition source cache-by-name"
+                        << "compId" << _compID
+                        << "vendor" << _vendor
+                        << "model" << _modelName
+                        << "cacheFile" << xmlFile.fileName();
+            }
         }
     }
     qCInfo(CameraControlLog) << "[CameraFlow]"
@@ -2487,7 +2626,9 @@ QGCCameraControl::_httpRequest(const QString &url)
     QSslConfiguration conf = request.sslConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
     request.setSslConfiguration(conf);
+    _activeDefinitionRequestSeq = ++_definitionRequestSeq;
     QNetworkReply* reply = _netManager->get(request);
+    reply->setProperty("definitionRequestSeq", static_cast<uint>(_activeDefinitionRequestSeq));
     connect(reply, &QNetworkReply::finished,  this, &QGCCameraControl::_downloadFinished);
     _netManager->setProxy(savedProxy);
 }
@@ -2498,6 +2639,17 @@ QGCCameraControl::_downloadFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if(!reply) {
+        return;
+    }
+    const quint32 responseSeq = reply->property("definitionRequestSeq").toUInt();
+    if (responseSeq != _activeDefinitionRequestSeq) {
+        qInfo() << "[CameraControl]"
+                << "ignoring stale camera definition response"
+                << "compId" << _compID
+                << "responseSeq" << responseSeq
+                << "activeSeq" << _activeDefinitionRequestSeq
+                << "url" << reply->url().toDisplayString();
+        reply->deleteLater();
         return;
     }
     int err = reply->error();
@@ -2520,7 +2672,7 @@ QGCCameraControl::_downloadFinished()
             );
     }
     emit dataReady(data);
-    //reply->deleteLater();
+    reply->deleteLater();
 }
 
 void QGCCameraControl::_ftpDownloadComplete(const QString& fileName, const QString& errorMsg)
@@ -2593,6 +2745,7 @@ QGCCameraControl::_dataReady(QByteArray data)
             qCDebug(CameraControlLog) << "No offline camera definition file found";
         }
     }
+    _definitionReloadInProgress = false;
     _initWhenReady();
 }
 
@@ -2602,7 +2755,8 @@ QGCCameraControl::_paramDone()
 {
     QStringList pending;
     for(const QString& param: _paramIO.keys()) {
-        if(!_paramIO[param]->paramDone()) {
+        QGCCameraParamIO* paramIo = _paramIO.value(param, nullptr);
+        if(!paramIo || !paramIo->paramDone()) {
             pending << param;
         }
     }

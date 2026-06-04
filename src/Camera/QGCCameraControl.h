@@ -410,7 +410,7 @@ private:
     void    _recordCameraProfileIfChanged   () const;
     QString _findCachedDefinitionFileByName () const;
     QString _cameraRtspSettingsKey          () const;
-    void    _checkRtspChangeAndInvalidateCache(const QString& streamUri);
+    void    _checkRtspChangeAndInvalidateCache(const QString& streamUri, bool ignoreForProfileSelection);
     bool    _handleLocalization             (QByteArray& bytes);
     bool    _replaceLocaleStrings           (const QDomNode node, QByteArray& bytes);
     bool    _loadCameraDefinitionFile       (QByteArray& bytes);
@@ -438,6 +438,7 @@ protected:
     mavlink_camera_information_t        _info;
     int                                 _version            = 0;
     bool                                _cached             = false;
+    bool                                _definitionReloadInProgress = false;
     bool                                _paramComplete      = false;
     qreal                               _zoomLevel          = 0.0;
     qreal                               _focusLevel         = 0.0;
@@ -445,6 +446,8 @@ protected:
     uint32_t                            _storageTotal       = 0;
     int                                 _batteryRemaining   = -1;
     QNetworkAccessManager*              _netManager         = nullptr;
+    quint32                             _definitionRequestSeq = 0;
+    quint32                             _activeDefinitionRequestSeq = 0;
     QString                             _modelName;
     QString                             _vendor;
     QString                             _cacheFile;
@@ -465,6 +468,7 @@ protected:
     QMap<QString, QGCCameraParamIO*>    _paramIO;
     int                                 _cameraSettingsRetries = 0;
     int                                 _storageInfoRetries = 0;
+    QElapsedTimer                       _storageInfoRequestTimer;
     int                                 _captureInfoRetries = 0;
     bool                                _resetting          = false;
     QTimer                              _recTimer;

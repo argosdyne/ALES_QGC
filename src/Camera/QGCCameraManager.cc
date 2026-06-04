@@ -47,46 +47,27 @@ static QString _mavlinkFixedString(const char* data, int maxLen)
 
 static CodevCameraProfile _codevCameraProfileForRtspPath(const QString& lastSegment)
 {
-    if (lastSegment.compare(QStringLiteral("eo"), Qt::CaseInsensitive) == 0) {
+    const QString segment = lastSegment.trimmed().toLower();
+    if (segment == QStringLiteral("eo") || segment.contains(QStringLiteral("eo"))) {
         return { QByteArrayLiteral("R3"), 23, QStringLiteral("Codev_R3_023.xml") };
     }
+    if (segment == QStringLiteral("cr") ||
+        segment == QStringLiteral("ir") ||
+        segment.contains(QStringLiteral("cr")) ||
+        segment.contains(QStringLiteral("ir"))) {
+        return { QByteArrayLiteral("RLR1"), 13, QStringLiteral("Codev_RLR1_013.xml") };
+    }
 
+    // Keep a non-empty fallback profile so camera initialization is never blocked
+    // when stream path parsing is delayed or the URI format is unexpected.
     return { QByteArrayLiteral("RLR1"), 13, QStringLiteral("Codev_RLR1_013.xml") };
 }
 
 static CodevCameraProfile _codevCameraProfileForRtspUrl(const QString& rtspUrl)
 {
     const QUrl videoUrl(rtspUrl);
-    const QString lastSegment = videoUrl.path().section('/', -1);
-    return _codevCameraProfileForRtspPath(lastSegment);
-}
-
-static QString _expectedCodevModelFromRtsp(const QString& rtspUrl)
-{
-    const QUrl videoUrl(rtspUrl);
-    if (videoUrl.host().isEmpty()) {
-        return QString();
-    }
-    return QString::fromLatin1(_codevCameraProfileForRtspUrl(rtspUrl).modelName);
-}
-
-static bool _isCodevModelCompatible(const QString& actualModel, const QString& expectedModel)
-{
-    const QString actual = actualModel.trimmed().toUpper();
-    const QString expected = expectedModel.trimmed().toUpper();
-    if (expected.isEmpty() || actual == expected) {
-        return true;
-    }
-
-    if (expected == QStringLiteral("RLR1")) {
-        return actual.contains(QStringLiteral("RLR1")) ||
-               actual.contains(QStringLiteral("LR1")) ||
-               actual.contains(QStringLiteral("IR1"));
-    }
-    if (expected == QStringLiteral("R3")) {
-        return actual.contains(QStringLiteral("R3"));
-    }
-    return actual.contains(expected);
+    const QString profileSource = videoUrl.path() + QStringLiteral("?") + videoUrl.query();
+    return _codevCameraProfileForRtspPath(profileSource);
 }
 
 static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, const CodevCameraProfile& profile, mavlink_camera_information_t& info)
@@ -223,7 +204,7 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
     if (!videoUrl.host().isEmpty()) {
         QString path = videoUrl.path();
         QString lastSegment = path.section('/', -1);
-        const CodevCameraProfile profile = _codevCameraProfileForRtspPath(lastSegment);
+        const CodevCameraProfile profile = _codevCameraProfileForRtspUrl(rtspUrl);
 
         qInfo() << "[CameraManager] Path =" << path
                 << "LastSegment =" << lastSegment
@@ -802,7 +783,6 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
             _cameraInfoRequest[sCompID]->infoReceived = true;
             _cameraInfoRequest[sCompID]->cameraCreated = true;
             _cameraInfoRequest[sCompID]->fallbackCreated = false;
-            _cameraInfoRequest[sCompID]->lastForcedModelRebuild.clear();
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "camera control created"
                     << "compId" << message.compid
@@ -906,30 +886,6 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             << "hasRequest" << _cameraInfoRequest.contains(sCompID)
             << "link" << link;
 
-    if (pCamera && _cameraInfoRequest.contains(sCompID)) {
-        CameraStruct* pInfo = _cameraInfoRequest[sCompID];
-        const QString expectedModel = _expectedCodevModelFromRtsp(_cameraReferenceRtspUrl(message.compid));
-        const bool needsRebuild = !expectedModel.isEmpty() &&
-                                  pCamera->vendor().compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 &&
-                                  !_isCodevModelCompatible(pCamera->modelName(), expectedModel);
-        if (needsRebuild &&
-            pInfo->lastForcedModelRebuild.compare(expectedModel, Qt::CaseInsensitive) != 0) {
-            pInfo->lastForcedModelRebuild = expectedModel;
-            qCInfo(CameraManagerLog) << "[CameraFlow]"
-                    << "_handleCameraSettings forcing one-time camera rebuild"
-                    << "compId" << message.compid
-                    << "currentModel" << pCamera->modelName()
-                    << "expectedModel" << expectedModel;
-            _removeCameraControlFromLists(pCamera);
-            pCamera->deleteLater();
-            pCamera = nullptr;
-
-            pInfo->infoReceived = false;
-            pInfo->cameraCreated = false;
-            pInfo->fallbackCreated = false;
-        }
-    }
-
     if (!pCamera && _cameraInfoRequest.contains(sCompID)) {
         qCInfo(CameraManagerLog) << "[CameraFlow]"
                 << "_handleCameraSettings creating fallback camera"
@@ -939,7 +895,6 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             CameraStruct* pInfo = _cameraInfoRequest[sCompID];
             pInfo->cameraCreated = true;
             pInfo->fallbackCreated = true;
-            pInfo->lastForcedModelRebuild.clear();
             pInfo->lastHeartbeat.start();
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "_handleCameraSettings fallback camera registered"
@@ -1006,8 +961,14 @@ QGCCameraManager::_handleVideoStreamInfo(const mavlink_message_t& message)
     mavlink_video_stream_information_t streamInfo;
     mavlink_msg_video_stream_information_decode(&message, &streamInfo);
     const QString streamUri = _mavlinkFixedString(streamInfo.uri, sizeof(streamInfo.uri));
+    const bool isPrimaryStream = (streamInfo.stream_id <= 1);
     if (streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
-        _cameraStreamUriByCompId[static_cast<int>(message.compid)] = streamUri;
+        const int compId = static_cast<int>(message.compid);
+        const bool isThermalStream = (streamInfo.flags & VIDEO_STREAM_STATUS_FLAGS_THERMAL);
+        const bool ignoreForProfileSelection = !isPrimaryStream && isThermalStream && streamInfo.count > 1;
+        if (!ignoreForProfileSelection || !_cameraStreamUriByCompId.contains(compId)) {
+            _cameraStreamUriByCompId[compId] = streamUri;
+        }
     }
 
     QGCCameraControl* pCamera = _findCamera(message.compid);

@@ -2,6 +2,7 @@
 
 #include "QGCCameraControl.h"
 #include <QElapsedTimer>
+#include <QPointer>
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
@@ -209,9 +210,9 @@ protected:
     QmlObjectListModel _targetObjects;
     QStringList _targetObjectLabels;
 
-    Fact* _dZoomFact{nullptr};
-    Fact* _zoomModeFact{nullptr};
-    Fact* _aiSourceFact{nullptr};
+    QPointer<Fact> _dZoomFact;
+    QPointer<Fact> _zoomModeFact;
+    QPointer<Fact> _aiSourceFact;
 
     bool _busy_in_detect_setup{false};
     bool _busy_in_track_setup{false};

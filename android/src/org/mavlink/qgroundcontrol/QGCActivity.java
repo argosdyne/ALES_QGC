@@ -181,24 +181,21 @@ public class QGCActivity extends QtActivity
     private static native void nativeDeviceNewData(long userData, byte[] dataA);
     private static native void nativeUpdateAvailableJoysticks();
 
-    // Native C++ functions called to log output
-    public static native void qgcLogDebug(String message);
-    public static native void qgcLogWarning(String message);
+    // Android-side logging helpers.
+    // Keep these as Java methods to avoid JNI binding failures during early startup.
+    public static void qgcLogDebug(String message) {
+        Log.d(TAG, message);
+    }
+    public static void qgcLogWarning(String message) {
+        Log.w(TAG, message);
+    }
 
     public static void safeQgcLogDebug(String message) {
-        try {
-            qgcLogDebug(message);
-        } catch (UnsatisfiedLinkError e) {
-            Log.d(TAG, message + " (native log unavailable)");
-        }
+        qgcLogDebug(message);
     }
 
     public static void safeQgcLogWarning(String message) {
-        try {
-            qgcLogWarning(message);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, message + " (native log unavailable)");
-        }
+        qgcLogWarning(message);
     }
 
     public native void nativeInit();
@@ -349,9 +346,10 @@ public class QGCActivity extends QtActivity
                     safeQgcLogDebug("Already have permission to use device " + deviceName);
                     newDriver.setPermissionStatus(UsbSerialDriver.permissionStatusSuccess);
                 } else {
-                    safeQgcLogDebug("Requesting permission to use device " + deviceName);
-                    newDriver.setPermissionStatus(UsbSerialDriver.permissionStatusRequested);
-                    _usbManager.requestPermission(device, _usbPermissionIntent);
+                    // Do not auto-trigger USB permission popup during startup scans.
+                    // Device can be requested explicitly from user action flows later.
+                    safeQgcLogDebug("Skipping automatic USB permission request for " + deviceName);
+                    newDriver.setPermissionStatus(UsbSerialDriver.permissionStatusDenied);
                 }
             }
         }

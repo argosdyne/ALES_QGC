@@ -120,7 +120,6 @@ protected:
         bool    gaveUp       = false;
         int     tryCount     = 0;
         uint8_t compID       = 0;
-        QString lastForcedModelRebuild;
     };
 
     Vehicle*            _vehicle            = nullptr;
