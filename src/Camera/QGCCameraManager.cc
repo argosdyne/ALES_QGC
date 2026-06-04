@@ -77,7 +77,7 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qCDebug(CameraManagerLog) << "QGCCameraManager Created";
-    qInfo() << "[CameraManager]" << "BUILD_TAG ales-fallback-v5-no-hardcoded-definition-url 2026-04-15";
+    qCDebug(CameraManagerLog) << "[CameraManager]" << "BUILD_TAG ales-fallback-v5-no-hardcoded-definition-url 2026-04-15";
     connect(qgcApp()->toolbox()->multiVehicleManager(), &MultiVehicleManager::parameterReadyVehicleAvailableChanged, this, &QGCCameraManager::_vehicleReady);
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &QGCCameraManager::_mavlinkMessageReceived);
     connect(&_cameraTimer, &QTimer::timeout, this, &QGCCameraManager::_cameraTimeout);
@@ -101,12 +101,12 @@ QGCCameraManager::_ensureCameraDefinitionHttpServer()
 
     _cameraDefinitionHttpServer = new QTcpServer(this);
     if (!_cameraDefinitionHttpServer->listen(QHostAddress::LocalHost, kCameraDefinitionLocalPort)) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "camera definition local server failed on port" << kCameraDefinitionLocalPort
                    << "error" << _cameraDefinitionHttpServer->errorString()
                    << "retrying with ephemeral port";
         if (!_cameraDefinitionHttpServer->listen(QHostAddress::LocalHost, 0)) {
-            qWarning() << "[CameraManager]"
+            qCWarning(CameraManagerLog) << "[CameraManager]"
                        << "camera definition local server failed"
                        << _cameraDefinitionHttpServer->errorString();
             _cameraDefinitionHttpServer->deleteLater();
@@ -118,7 +118,7 @@ QGCCameraManager::_ensureCameraDefinitionHttpServer()
     _cameraDefinitionHttpServer->setMaxPendingConnections(2);
     _cameraDefinitionHttpPort = _cameraDefinitionHttpServer->serverPort();
     connect(_cameraDefinitionHttpServer, &QTcpServer::newConnection, this, &QGCCameraManager::_newCameraDefinitionHttpConnection);
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "camera definition local server listening"
             << "port" << _cameraDefinitionHttpPort;
     return true;
@@ -128,7 +128,7 @@ QString
 QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
 {
     if (_cameraDefinitionHttpPort == 0) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "camera definition local url unavailable"
                    << "compId" << compID
                    << "reason" << "local_http_server_not_listening";
@@ -168,7 +168,7 @@ QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
         }
     }
 
-    qWarning() << "[CameraManager]"
+    qCWarning(CameraManagerLog) << "[CameraManager]"
                << "camera definition upstream unavailable"
                << "compId" << compID
                << "reason" << "rtsp_host_missing"
@@ -232,7 +232,7 @@ QGCCameraManager::_handleCameraDefinitionHttpRequest()
     const QString requestLine = QString::fromLatin1(requestLines.first()).trimmed();
     const QRegularExpressionMatch match = requestRegex.match(requestLine);
     if (!match.hasMatch()) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "camera definition local server unsupported request"
                    << requestLine;
         _replyCameraDefinitionHttp(socket, 404, QByteArrayLiteral("not found"), QByteArrayLiteral("text/plain"));
@@ -250,7 +250,7 @@ QGCCameraManager::_handleCameraDefinitionHttpRequest()
         _cameraDefinitionNetworkManager = new QNetworkAccessManager(this);
     }
 
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "camera definition local server proxy request"
             << "compId" << compID
             << "upstreamUrl" << upstreamUrl;
@@ -267,13 +267,13 @@ QGCCameraManager::_handleCameraDefinitionHttpRequest()
         if (reply->error() == QNetworkReply::NoError && statusCode == 200) {
             body = reply->readAll();
             responseStatus = 200;
-            qInfo() << "[CameraManager]"
+            qCDebug(CameraManagerLog) << "[CameraManager]"
                     << "camera definition local server proxy response"
                     << "compId" << compID
                     << "upstreamUrl" << upstreamUrl
                     << "bytes" << body.size();
         } else {
-            qWarning() << "[CameraManager]"
+            qCWarning(CameraManagerLog) << "[CameraManager]"
                        << "camera definition local server upstream error"
                        << "compId" << compID
                        << "upstreamUrl" << upstreamUrl
@@ -322,12 +322,11 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
     const bool compMatch = (message.compid >= MAV_COMP_ID_CAMERA && message.compid <= MAV_COMP_ID_CAMERA6);
 
     if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT ||
-        message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION ||
         message.msgid == MAVLINK_MSG_ID_CAMERA_SETTINGS ||
         message.msgid == MAVLINK_MSG_ID_PARAM_EXT_VALUE ||
         message.msgid == MAVLINK_MSG_ID_PARAM_EXT_ACK ||
         message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
-        qInfo() << "[CameraManager]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_mavlinkMessageReceived"
                 << "sysid" << message.sysid
                 << "vehicleId" << _vehicle->id()
@@ -393,14 +392,14 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
 void
 QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message, LinkInterface* link)
 {
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_handleHeartbeat"
             << "sysid" << message.sysid
             << "compid" << message.compid;
     //-- First time hearing from this one?
     QString sCompID = QString::number(message.compid);
     if(!_cameraInfoRequest.contains(sCompID)) {
-        qInfo() << "[CameraManager]" << "First heartbeat from compid" << message.compid;
+        qCDebug(CameraManagerLog) << "[CameraManager]" << "First heartbeat from compid" << message.compid;
         CameraStruct* pInfo = new CameraStruct(this, message.compid);
         pInfo->lastHeartbeat.start();
         _cameraInfoRequest[sCompID] = pInfo;
@@ -419,14 +418,14 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message, LinkInterfa
                     if(pInfo->tryCount > 10) {
                         if(!pInfo->gaveUp) {
                             pInfo->gaveUp = true;
-                            qInfo() << "[CameraManager]"
+                            qCDebug(CameraManagerLog) << "[CameraManager]"
                                     << "Giving up requesting camera info from vehicle"
                                     << _vehicle->id()
                                     << "compid" << message.compid;
                         }
                     } else {
                         pInfo->tryCount++;
-                        qInfo() << "[CameraManager]"
+                        qCDebug(CameraManagerLog) << "[CameraManager]"
                                 << "Retry request camera info"
                                 << "compid" << message.compid
                                 << "try" << pInfo->tryCount;
@@ -436,7 +435,7 @@ QGCCameraManager::_handleHeartbeat(const mavlink_message_t &message, LinkInterfa
                 }
             }
         } else {
-            qWarning() << "_cameraInfoRequest[" << sCompID << "] is null";
+            qCWarning(CameraManagerLog) << "_cameraInfoRequest[" << sCompID << "] is null";
         }
     }
 }
@@ -447,7 +446,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
 {
     const QString sCompID = QString::number(compID);
     if (!_cameraInfoRequest.contains(sCompID) || !_cameraInfoRequest[sCompID]) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "_injectSynthesizedCameraInformation skipped no request"
                    << "compId" << compID
                    << "reason" << reason;
@@ -455,7 +454,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
     }
 
     if (_cameraInfoRequest[sCompID]->infoReceived || _findCamera(compID)) {
-        qInfo() << "[CameraManager]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation skipped existing camera/info"
                 << "compId" << compID
                 << "reason" << reason;
@@ -464,7 +463,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
 
     mavlink_message_t synthesizedMessage{};
     if (!_ensureCameraDefinitionHttpServer()) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "_injectSynthesizedCameraInformation failed"
                    << "compId" << compID
                    << "reason" << reason
@@ -474,7 +473,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
 
     const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
     if (definitionUrl.isEmpty()) {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "_injectSynthesizedCameraInformation failed"
                    << "compId" << compID
                    << "reason" << reason
@@ -483,14 +482,14 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
     }
 
     if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
-        qInfo() << "[CameraManager]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation no synth profile"
                 << "compId" << compID
                 << "reason" << reason;
         return false;
     }
 
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_injectSynthesizedCameraInformation"
             << "compId" << compID
             << "reason" << reason
@@ -506,18 +505,18 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
 QGCCameraControl*
 QGCCameraManager::currentCameraInstance()
 {
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "currentCameraInstance currentCamera" << _currentCamera
             << "cameraCount" << _cameras.count();
     if(_currentCamera < _cameras.count() && _cameras.count()) {
         QGCCameraControl* pCamera = qobject_cast<QGCCameraControl*>(_cameras[_currentCamera]);
-        qInfo() << "[CameraManager]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "currentCameraInstance result"
                 << (pCamera ? pCamera->modelName() : QStringLiteral("null"))
                 << "paramComplete" << (pCamera ? pCamera->paramComplete() : false);
         return pCamera;
     }
-    qInfo() << "[CameraManager]" << "currentCameraInstance returning null";
+    qCDebug(CameraManagerLog) << "[CameraManager]" << "currentCameraInstance returning null";
     return nullptr;
 }
 
@@ -557,7 +556,7 @@ QGCCameraManager::_findCamera(int id)
                     return pCamera;
                 }
             } else {
-                qCritical() << "Null QGCCameraControl instance";
+                qCCritical(CameraManagerLog) << "Null QGCCameraControl instance";
             }
         }
     }
@@ -569,7 +568,7 @@ QGCCameraManager::_findCamera(int id)
 void
 QGCCameraManager::_addCameraControlToLists(QGCCameraControl* cameraControl)
 {
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_addCameraControlToLists camera"
             << cameraControl->modelName()
             << "compId" << cameraControl->compID()
@@ -591,7 +590,7 @@ QGCCameraManager::_removeCameraControlFromLists(QGCCameraControl* cameraControl)
         return;
     }
 
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_removeCameraControlFromLists camera"
             << cameraControl->modelName()
             << "compId" << cameraControl->compID();
@@ -637,7 +636,7 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
                      CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM;
     }
 
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_createCameraControlFromSettingsFallback request"
             << "compId" << compID
             << "profile" << (useCodevProfile ? "codev-r3" : "generic")
@@ -654,13 +653,13 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
         pCamera = _vehicle->firmwarePlugin()->createCameraControl(&info, _vehicle, compID, link, this);
     }
     if (pCamera) {
-        qInfo() << "[CameraManager]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_createCameraControlFromSettingsFallback created camera"
                 << pCamera->modelName()
                 << "compId" << pCamera->compID();
         _addCameraControlToLists(pCamera);
     } else {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "_createCameraControlFromSettingsFallback failed"
                    << "compId" << compID
                    << "link" << link;
@@ -673,14 +672,13 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
 void
 QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterface* link)
 {
-    qInfo() << "[CameraManager]" << "_handleCameraInfo compId" << message.compid;
     //-- Have we requested it?
     QString sCompID = QString::number(message.compid);
     if(_cameraInfoRequest.contains(sCompID) && !_cameraInfoRequest[sCompID]->infoReceived) {
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
-        qInfo() << "[CameraManager]"
-                << "_handleCameraInfo decoded"
+        qCInfo(CameraManagerLog) << "[CameraManager]"
+                << "CAMERA_INFORMATION handled"
                 << reinterpret_cast<const char*>(info.model_name)
                 << reinterpret_cast<const char*>(info.vendor_name)
                 << "compId" << message.compid
@@ -692,18 +690,10 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
         QGCCameraControl* pCamera = nullptr;
         if (QGCCameraControl* existingCamera = _findCamera(message.compid)) {
             if (_cameraInfoRequest[sCompID]->fallbackCreated) {
-                qCInfo(CameraManagerLog) << "[CameraFlow]"
-                        << "replacing fallback camera with real CAMERA_INFORMATION"
-                        << "compId" << message.compid
-                        << "model" << existingCamera->modelName();
                 _removeCameraControlFromLists(existingCamera);
                 existingCamera->deleteLater();
             } else {
                 _cameraInfoRequest[sCompID]->infoReceived = true;
-                qInfo() << "[CameraManager]"
-                        << "_handleCameraInfo camera already exists"
-                        << existingCamera->modelName()
-                        << "compId" << message.compid;
                 return;
             }
         }
@@ -724,26 +714,15 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
             _cameraInfoRequest[sCompID]->infoReceived = true;
             _cameraInfoRequest[sCompID]->cameraCreated = true;
             _cameraInfoRequest[sCompID]->fallbackCreated = false;
-            qCInfo(CameraManagerLog) << "[CameraFlow]"
-                    << "camera control created"
-                    << "compId" << message.compid
-                    << "camera" << pCamera->modelName()
-                    << "paramComplete" << pCamera->paramComplete();
             _addCameraControlToLists(pCamera);
         } else {
-            qWarning() << "[CameraManager]"
+            qCWarning(CameraManagerLog) << "[CameraManager]"
                        << "_handleCameraInfo createCameraControl returned null"
                        << "compId" << message.compid
                        << "vendor" << reinterpret_cast<const char*>(info.vendor_name)
                        << "model" << reinterpret_cast<const char*>(info.model_name)
                        << "link" << link;
         }
-    } else {
-        qInfo() << "[CameraManager]"
-                << "_handleCameraInfo ignored"
-                << "compId" << message.compid
-                << "hasRequest" << _cameraInfoRequest.contains(sCompID)
-                << "infoAlreadyReceived" << (_cameraInfoRequest.contains(sCompID) && _cameraInfoRequest[sCompID] ? _cameraInfoRequest[sCompID]->infoReceived : false);
     }
 }
 
@@ -763,7 +742,7 @@ QGCCameraManager::_cameraTimeout()
                     bool autoStream = false;
                     QGCCameraControl* pCamera = _findCamera(pInfo->compID);
                     if(pCamera) {
-                        qWarning() << "Camera" << pCamera->modelName() << "stopped transmitting. Removing from list.";
+                        qCWarning(CameraManagerLog) << "Camera" << pCamera->modelName() << "stopped transmitting. Removing from list.";
                         autoStream = pCamera->autoStream();
                         _removeCameraControlFromLists(pCamera);
                         pCamera->deleteLater();
@@ -816,17 +795,17 @@ QGCCameraManager::_handleStorageInfo(const mavlink_message_t& message)
 void
 QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkInterface* link)
 {
-    qInfo() << "[CameraManager]" << "BUILD_TAG _handleCameraSettings ales-fallback-v2-codev-profile";
+    qCDebug(CameraManagerLog) << "[CameraManager]" << "BUILD_TAG _handleCameraSettings ales-fallback-v2-codev-profile";
     QGCCameraControl* pCamera = _findCamera(message.compid);
     const QString sCompID = QString::number(message.compid);
-    qCInfo(CameraManagerLog) << "[CameraFlow]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_handleCameraSettings entry"
             << "compId" << message.compid
             << "hasCamera" << (pCamera != nullptr)
             << "hasRequest" << _cameraInfoRequest.contains(sCompID)
             << "link" << link;
     if (!pCamera && _cameraInfoRequest.contains(sCompID)) {
-        qCInfo(CameraManagerLog) << "[CameraFlow]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_handleCameraSettings creating fallback camera"
                 << "compId" << message.compid;
         pCamera = _createCameraControlFromSettingsFallback(message.compid, link);
@@ -835,7 +814,7 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             pInfo->cameraCreated = true;
             pInfo->fallbackCreated = true;
             pInfo->lastHeartbeat.start();
-            qCInfo(CameraManagerLog) << "[CameraFlow]"
+            qCDebug(CameraManagerLog) << "[CameraManager]"
                     << "_handleCameraSettings fallback camera registered"
                     << "compId" << message.compid
                     << "camera" << pCamera->modelName()
@@ -846,7 +825,7 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
     if(pCamera) {
         mavlink_camera_settings_t settings;
         mavlink_msg_camera_settings_decode(&message, &settings);
-        qCInfo(CameraManagerLog) << "[CameraFlow]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_handleCameraSettings compId" << message.compid
                 << "camera" << pCamera->modelName()
                 << "mode" << settings.mode_id
@@ -855,13 +834,13 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
                 << "paramComplete" << pCamera->paramComplete()
                 << "active settings before handle" << pCamera->activeSettings();
         pCamera->handleSettings(settings);
-        qCInfo(CameraManagerLog) << "[CameraFlow]"
+        qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_handleCameraSettings compId" << message.compid
                 << "camera" << pCamera->modelName()
                 << "paramComplete" << pCamera->paramComplete()
                 << "active settings after handle" << pCamera->activeSettings();
     } else {
-        qWarning() << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[CameraManager]"
                    << "_handleCameraSettings no camera to handle settings"
                    << "compId" << message.compid
                    << "hasRequest" << _cameraInfoRequest.contains(sCompID)
@@ -934,7 +913,7 @@ QGCCameraManager::_handleCommandAck(const mavlink_message_t& message)
 {
     mavlink_command_ack_t ack;
     mavlink_msg_command_ack_decode(&message, &ack);
-    qCInfo(CameraManagerLog) << "[CameraFlow]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_handleCommandAck"
             << "compid" << message.compid
             << "command" << ack.command
@@ -1032,7 +1011,7 @@ QGCCameraManager::_handleTrackingImageStatus(const mavlink_message_t& message)
 void
 QGCCameraManager::_requestCameraInfo(int compID, int tryCount, LinkInterface* link)
 {
-    qInfo() << "[CameraManager]"
+    qCDebug(CameraManagerLog) << "[CameraManager]"
             << "_requestCameraInfo"
             << "compid" << compID
             << "try" << tryCount

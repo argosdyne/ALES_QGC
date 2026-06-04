@@ -135,7 +135,6 @@ DECLARE_SETTINGGROUP(App, "")
 
     connect(savePathFact, &Fact::rawValueChanged, this, &AppSettings::savePathsChanged);
     connect(savePathFact, &Fact::rawValueChanged, this, &AppSettings::_checkSavePathDirectories);
-
     _checkSavePathDirectories();
 
     createGeoZoneDirectories();

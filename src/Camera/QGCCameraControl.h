@@ -14,6 +14,7 @@
 #include "QGCApplication.h"
 #include "LinkInterface.h"
 #include <QLoggingCategory>
+#include <QElapsedTimer>
 
 class QDomNode;
 class QDomNodeList;
@@ -423,6 +424,7 @@ private:
     void    _httpRequest                    (const QString& url);
     void    _handleDefinitionFile           (const QString& url);
     void    _ftpDownloadComplete            (const QString& fileName, const QString& errorMsg);
+    void    _logParameterLoadProgress       (const QString& event, const QString& paramName = QString()) const;
 
     QStringList     _loadExclusions         (QDomNode option);
     QStringList     _loadUpdates            (QDomNode option);
@@ -490,4 +492,9 @@ protected:
     QGeoCoordinate                                 _targetCoordinate;
     float                                          _targetDistance;
     int                                            _photoIndex = 0;
+    QElapsedTimer                                  _paramLoadTimer;
+    bool                                           _paramLoadInProgress = false;
+    QStringList                                    _expectedParamNames;
+    QStringList                                    _receivedParamNames;
+    QStringList                                    _timedOutParamNames;
 };

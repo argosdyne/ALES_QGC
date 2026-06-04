@@ -703,6 +703,14 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION) {
+        qCInfo(VehicleLog) << "[Vehicle]"
+                << "CAMERA_INFORMATION received"
+                << "sysid" << message.sysid
+                << "compid" << message.compid
+                << "msgid" << message.msgid
+                << "link" << link;
+    }
     // If the link is already running at Mavlink V2 set our max proto version to it.
     unsigned mavlinkVersion = _mavlink->getCurrentVersion();
     if (_maxProtoVersion != mavlinkVersion && mavlinkVersion >= 200) {
@@ -880,7 +888,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         mavlink_serial_control_t ser;
         mavlink_msg_serial_control_decode(&message, &ser);
         if (static_cast<size_t>(ser.count) > sizeof(ser.data)) {
-            qWarning() << "Invalid count for SERIAL_CONTROL, discarding." << ser.count;
+            qCWarning(VehicleLog) << "Invalid count for SERIAL_CONTROL, discarding." << ser.count;
         } else {
             emit mavlinkSerialControl(ser.device, ser.flags, ser.timeout, ser.baudrate,
                     QByteArray(reinterpret_cast<const char*>(ser.data), ser.count));
@@ -1901,8 +1909,8 @@ void Vehicle::_handleHeartbeat(mavlink_message_t& message)
         if (previousFlightMode != flightMode()) {
             emit flightModeChanged(flightMode());
         }
-        qInfo() << "Flight mode changed:" << flightMode();
-        qInfo() << "HEARTBEAT received - base_mode:" << heartbeat.base_mode
+        qCInfo(VehicleLog) << "Flight mode changed:" << flightMode();
+        qCInfo(VehicleLog) << "HEARTBEAT received - base_mode:" << heartbeat.base_mode
                 << ", custom_mode:" << heartbeat.custom_mode;
 
     }
@@ -2396,10 +2404,10 @@ void Vehicle::setFlightMode(const QString& flightMode)
     uint8_t     base_mode;
     uint32_t    custom_mode;
 
-    qInfo() << "Send flightMode : " << flightMode;
+    qCInfo(VehicleLog) << "Send flightMode : " << flightMode;
 
     if (setFlightModeCustom(flightMode, &base_mode, &custom_mode)) {
-        qInfo() << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
+        qCInfo(VehicleLog) << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
         SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
         if (!sharedLink) {
             qCDebug(VehicleLog) << "setFlightMode: primary link gone!";
@@ -2419,7 +2427,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
                            MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                            custom_mode);
 
-            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported";
+            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported";
         } else {
             mavlink_message_t msg;
             mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
@@ -2431,7 +2439,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
                                            custom_mode);
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 
-            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported not";
+            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported not";
         }
     } else {
         qCWarning(VehicleLog) << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
@@ -2814,7 +2822,7 @@ QString Vehicle::_vehicleIdSpeech()
 void Vehicle::_handleFlightModeChanged(const QString& flightMode)
 {
     _say(tr("%1 %2 flight mode").arg(_vehicleIdSpeech()).arg(flightMode));
-    qInfo() << "_handleFlightModeChanged : " << flightMode;
+    qCInfo(VehicleLog) << "_handleFlightModeChanged : " << flightMode;
     emit guidedModeChanged(_firmwarePlugin->isGuidedMode(this));
 }
 
@@ -3936,7 +3944,7 @@ void Vehicle::_handleMavlinkLoggingData(mavlink_message_t& message)
     mavlink_logging_data_t log;
     mavlink_msg_logging_data_decode(&message, &log);
     if (static_cast<size_t>(log.length) > sizeof(log.data)) {
-        qWarning() << "Invalid length for LOGGING_DATA, discarding." << log.length;
+        qCWarning(VehicleLog) << "Invalid length for LOGGING_DATA, discarding." << log.length;
     } else {
         emit mavlinkLogData(this, log.target_system, log.target_component, log.sequence,
                             log.first_message_offset, QByteArray((const char*)log.data, log.length), false);
@@ -3949,7 +3957,7 @@ void Vehicle::_handleMavlinkLoggingDataAcked(mavlink_message_t& message)
     mavlink_msg_logging_data_acked_decode(&message, &log);
     _ackMavlinkLogData(log.sequence);
     if (static_cast<size_t>(log.length) > sizeof(log.data)) {
-        qWarning() << "Invalid length for LOGGING_DATA_ACKED, discarding." << log.length;
+        qCWarning(VehicleLog) << "Invalid length for LOGGING_DATA_ACKED, discarding." << log.length;
     } else {
         emit mavlinkLogData(this, log.target_system, log.target_component, log.sequence,
                             log.first_message_offset, QByteArray((const char*)log.data, log.length), false);
@@ -4474,17 +4482,17 @@ void Vehicle::_handleGimbalOrientation(const mavlink_message_t& message)
     mavlink_msg_mount_orientation_decode(&message, &o);
     if(fabsf(_curGimbalRoll - o.roll) > 0.5f) {
         _curGimbalRoll = o.roll;
-        qInfo() << "Cur Roll = " << _curGimbalRoll;
+        qCInfo(VehicleLog) << "Cur Roll = " << _curGimbalRoll;
         emit gimbalRollChanged();
     }
     if(fabsf(_curGimbalPitch - o.pitch) > 0.5f) {
         _curGimbalPitch = o.pitch;
-        qInfo() << "Cur Pitch = " << _curGimbalPitch;
+        qCInfo(VehicleLog) << "Cur Pitch = " << _curGimbalPitch;
         emit gimbalPitchChanged();
     }
     if(fabsf(_curGimbalYaw - o.yaw) > 0.5f) {
         _curGimbalYaw = o.yaw;
-        qInfo() << "Cur Yaw = " << _curGimbalYaw;
+        qCInfo(VehicleLog) << "Cur Yaw = " << _curGimbalYaw;
         emit gimbalYawChanged();
     }
     if(!_haveGimbalData) {

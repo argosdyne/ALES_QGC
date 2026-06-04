@@ -11,6 +11,8 @@
 #include <QSslConfiguration>       // ssl protocol
 #include <QSslSocket>              // secure network
 
+QGC_LOGGING_CATEGORY(ARManagerLog, "ARManagerLog")
+
 namespace {
 
     // Robust JSON value-to-int parser. Handles doubles, strings (with units like "54000 kbit/s"), and nested objects with rate/value/avg keys.
@@ -164,10 +166,10 @@ ARManager::ARManager(QGCApplication* app, QGCToolbox* toolbox)
 	}
     if(ipStr.isEmpty()) {
         ipStr = "192.168.2.100";
-        qWarning() << "Set Link Default IP:" << ipStr;
+        qCWarning(ARManagerLog) << "Set Link Default IP:" << ipStr;
     } else {
         _auto = true;
-        qInfo() << "Get Link IP:" << ipStr;
+        qCInfo(ARManagerLog) << "Get Link IP:" << ipStr;
     }
     _deviceIP = ipStr;
     _connection = new ARConnection(ipStr);
@@ -210,7 +212,7 @@ void ARManager::setToolbox(QGCToolbox* toolbox)
         connect(ipFact, &Fact::rawValueChanged, this, [this](QVariant value) {
             _doodleDeviceIP = value.toString();
             _rpcSession.clear();
-            qInfo() << "[Doodle Labs] IP changed to:" << _doodleDeviceIP;
+            qCInfo(ARManagerLog) << "[Doodle Labs] IP changed to:" << _doodleDeviceIP;
         });
     }
 
@@ -326,8 +328,8 @@ void ARManager::_handle_device_info(const QByteArray& message)
                 { _skyTemperature,  QJsonValue::Double, false }
             };
             if (!JsonHelper::validateKeys(jsonObject, keyInfoList, errorString)) {
-                qWarning() << errorString;
-                qInfo() << QString(message);
+                qCWarning(ARManagerLog) << errorString;
+                qCInfo(ARManagerLog) << QString(message);
             } else {
                 setConnected(jsonObject[_bbConn].toDouble() != 0);
                 if(connected() && _bindTimer.isActive() && (_bindTimer.remainingTime() < (_bindTimer.interval() - 15000))) {
@@ -485,7 +487,7 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
     //}
 
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << "[Doodle API]" << operation << "failed:" << reply->errorString();
+        qCWarning(ARManagerLog) << "[Doodle API]" << operation << "failed:" << reply->errorString();
         if (operation == "login" || operation == "info") {
             _rpcSession.clear();
             _setMountedFromDoodle(false);
@@ -505,7 +507,7 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
             if (result.count() > 1 && result.at(1).isObject()) {
                 const QString token = result.at(1).toObject().value("ubus_rpc_session").toString();
                 if (!token.isEmpty()) {
-                    qInfo() << "[Doodle API] login success, token acquired";
+                    qCInfo(ARManagerLog) << "[Doodle API] login success, token acquired";
                     _rpcSession = token;
                     _usingDoodleApi = true;
                     _setMountedFromDoodle(true);

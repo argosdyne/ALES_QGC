@@ -181,9 +181,7 @@ Item {
                 target:                 _camera
                 onThermalModeChanged:   thermalItem.pipOrNot()
             }
-            onVisibleChanged: {
-                thermalItem.pipOrNot()
-            }
+            onVisibleChanged: thermalItem.pipOrNot()
             QGCVideoBackground {
                 id:             thermalVideo
                 objectName:     "thermalVideo"

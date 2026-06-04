@@ -120,40 +120,9 @@ Item {
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
     property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
 
-    function logCameraSettingsState(tag) {
-            console.log("[PhotoVideoControl]", tag,
-                        "visible=", visible,
-                        "activeVehicle=", _activeVehicle ? _activeVehicle.vehicleUID : "null",
-                        "cameraManager=", _mavlinkCameraManager ? "yes" : "no",
-                        "currentCameraIndex=", _mavlinkCameraManagerCurCameraIndex,
-                        "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
-                        "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
-                        "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
-                        "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
-                        "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
-                        "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
-                        "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
-                        "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
-        }
-
-        Component.onCompleted: logCameraSettingsState("completed")
-        onVisibleChanged: logCameraSettingsState("visibleChanged")
-        on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
-        on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
-        on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
-
-        Connections {
-            target: _mavlinkCamera
-            function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
-            function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
-            function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
-            function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
-            function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
-        }
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
-        console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
 
         if (_mavlinkCamera){
@@ -162,13 +131,10 @@ Item {
             } else {
                 _mavlinkCamera.setPhotoMode()
             }
+            return
         }
-        console.warn("No camera available to switch mode!")
-
     }
     function toggleShooting() {
-        console.log("toggleShooting", _anyVideoStreamAvailable)        
-
         // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
         //    if (_mavlinkCamera && (_mavlinkCamera.capturesVideo || _mavlinkCamera.capturesPhotos) ) {
@@ -285,10 +251,7 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: {
-                        logCameraSettingsState("settingsButtonClicked")
-                        settingsDialogComponent.createObject(mainWindow).open()
-                    }
+                    onClicked: settingsDialogComponent.createObject(mainWindow).open()
                 }
             }
         }
@@ -623,8 +586,6 @@ Item {
             id:         settingsDialog            
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
-            Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
-            onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
 
             // Nano tracker can runaway on very close targets — warn the operator
             // only when the tracking algorithm is actively switched to "Nano".
