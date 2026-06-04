@@ -16,12 +16,12 @@
 #include "QGCCorePlugin.h"
 
 #include <QDir>
-#include <QCryptographicHash>
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <QDomDocument>
 #include <QDomNodeList>
+#include <QUrl>
 
 QGC_LOGGING_CATEGORY(CameraControlLog, "CameraControlLog")
 QGC_LOGGING_CATEGORY(CameraControlVerboseLog, "CameraControlVerboseLog")
@@ -200,14 +200,12 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
     connect(this, &QGCCameraControl::dataReady, this, &QGCCameraControl::_dataReady);
     _vendor = _mavlinkFixedString(info->vendor_name, sizeof(info->vendor_name));
     _modelName = _mavlinkFixedString(info->model_name, sizeof(info->model_name));
+    _recordCameraProfileIfChanged();
     int ver = static_cast<int>(_info.cam_definition_version);
-    const QString definitionUri = _cameraDefinitionUri(info);
-    const QString uriHash = QString::fromLatin1(QCryptographicHash::hash(definitionUri.toUtf8(), QCryptographicHash::Sha1).toHex().left(12));
-    const QString cacheBaseName = QStringLiteral("%1_%2_%3_%4")
+    const QString cacheBaseName = QStringLiteral("%1_%2_%3")
                                       .arg(_vendor)
                                       .arg(_modelName)
-                                      .arg(ver, 3, 10, QLatin1Char('0'))
-                                      .arg(uriHash);
+                                      .arg(ver, 3, 10, QLatin1Char('0'));
     _cacheFile = QStringLiteral("%1/%2.xml")
                      .arg(qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath(), cacheBaseName);
     if(info->cam_definition_uri[0] != 0) {
@@ -1761,10 +1759,127 @@ QString QGCCameraControl::_cameraRtspSettingsKey() const
         .arg(_compID);
 }
 
+QString QGCCameraControl::_cameraProfileSettingsKey() const
+{
+    return QStringLiteral("Camera/LastProfile/%1/%2")
+        .arg(_vehicle ? _vehicle->id() : -1)
+        .arg(_compID);
+}
+
+void QGCCameraControl::_recordCameraProfileIfChanged() const
+{
+    QSettings settings;
+    const QString key = _cameraProfileSettingsKey();
+    const QString currentProfile = QStringLiteral("%1/%2")
+                                       .arg(_vendor.isEmpty() ? QStringLiteral("UnknownVendor") : _vendor)
+                                       .arg(_modelName.isEmpty() ? QStringLiteral("UnknownModel") : _modelName);
+    const QString previousProfile = settings.value(key).toString();
+    if (!previousProfile.isEmpty() && previousProfile.compare(currentProfile, Qt::CaseInsensitive) != 0) {
+        qInfo() << "[CameraControl]"
+                << "camera profile changed"
+                << "compId" << _compID
+                << "previous" << previousProfile
+                << "current" << currentProfile;
+    }
+    settings.setValue(key, currentProfile);
+}
+
+QString QGCCameraControl::_findCachedDefinitionFileByName() const
+{
+    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
+    if (parameterSavePath.isEmpty()) {
+        return QString();
+    }
+
+    QDir cacheDir(parameterSavePath);
+    if (!cacheDir.exists()) {
+        return QString();
+    }
+
+    const QString vendor = _vendor.isEmpty() ? QStringLiteral("Unknown") : _vendor;
+    const QString model = _modelName.isEmpty() ? QStringLiteral("Unknown") : _modelName;
+    const QString namePattern = QStringLiteral("^%1_%2_\\d{3}(?:_[0-9a-fA-F]{12})?\\.xml$")
+                                    .arg(QRegularExpression::escape(vendor))
+                                    .arg(QRegularExpression::escape(model));
+    const QRegularExpression pattern(namePattern);
+    const QString expectedVersionToken = QStringLiteral("_%1")
+                                            .arg(static_cast<int>(_info.cam_definition_version), 3, 10, QLatin1Char('0'));
+
+    QString bestSameVersionFile;
+    QDateTime bestSameVersionMtime;
+    QString bestAnyVersionFile;
+    QDateTime bestAnyVersionMtime;
+
+    const QFileInfoList files = cacheDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoSymLinks);
+    for (const QFileInfo& fileInfo : files) {
+        const QString fileName = fileInfo.fileName();
+        if (!pattern.match(fileName).hasMatch()) {
+            continue;
+        }
+
+        if (bestAnyVersionFile.isEmpty() || fileInfo.lastModified() > bestAnyVersionMtime) {
+            bestAnyVersionFile = fileInfo.absoluteFilePath();
+            bestAnyVersionMtime = fileInfo.lastModified();
+        }
+
+        if (fileName.contains(expectedVersionToken, Qt::CaseInsensitive)) {
+            if (bestSameVersionFile.isEmpty() || fileInfo.lastModified() > bestSameVersionMtime) {
+                bestSameVersionFile = fileInfo.absoluteFilePath();
+                bestSameVersionMtime = fileInfo.lastModified();
+            }
+        }
+    }
+
+    return !bestSameVersionFile.isEmpty() ? bestSameVersionFile : bestAnyVersionFile;
+}
+
+void QGCCameraControl::_resetDefinitionState()
+{
+    // Reset all XML-derived runtime state so camera model switches do not keep stale parameters.
+    _paramComplete = false;
+    _updatesToRequest.clear();
+    _requestUpdates.clear();
+    _settings.clear();
+    _activeSettings.clear();
+    _originalOptNames.clear();
+    _originalOptValues.clear();
+
+    qDeleteAll(_paramIO);
+    _paramIO.clear();
+    qDeleteAll(_valueExclusions);
+    _valueExclusions.clear();
+    qDeleteAll(_optionRanges);
+    _optionRanges.clear();
+    qDeleteAll(_nameToFactMap);
+    _nameToFactMap.clear();
+    qDeleteAll(_nameToFactMetaDataMap);
+    _nameToFactMetaDataMap.clear();
+    _factNames.clear();
+
+    emit factNamesChanged();
+    emit activeSettingsChanged();
+}
+
 void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamUri)
 {
     if (!streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
         return;
+    }
+
+    const QString configuredRtsp = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    if (configuredRtsp.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
+        const QUrl configuredUrl(configuredRtsp);
+        const QUrl incomingUrl(streamUri);
+        if (!configuredUrl.host().isEmpty() && !incomingUrl.host().isEmpty() &&
+            configuredUrl.host().compare(incomingUrl.host(), Qt::CaseInsensitive) == 0) {
+            const QString configuredSegment = configuredUrl.path().section('/', -1);
+            const QString incomingSegment = incomingUrl.path().section('/', -1);
+            if (!configuredSegment.isEmpty() && !incomingSegment.isEmpty() &&
+                configuredSegment.compare(incomingSegment, Qt::CaseInsensitive) != 0) {
+                // Ignore non-selected stream (e.g. EO/CR secondary stream) to avoid reload loops.
+                return;
+            }
+        }
     }
 
     QSettings settings;
@@ -1772,6 +1887,17 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
     const QString previousUri = settings.value(key).toString();
     if (previousUri.isEmpty()) {
         settings.setValue(key, streamUri);
+        if (!_paramComplete || !_cached) {
+            const QString definitionUri = _cameraDefinitionUri(&_info);
+            if (!definitionUri.isEmpty()) {
+                qInfo() << "[CameraControl]"
+                        << "RTSP discovered for initial definition retry"
+                        << "compId" << _compID
+                        << "streamUri" << streamUri;
+                _cached = false;
+                _handleDefinitionFile(definitionUri);
+            }
+        }
         return;
     }
 
@@ -1779,56 +1905,17 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
         return;
     }
 
-    qWarning() << "[CameraControl]"
-               << "RTSP URI changed, invalidating camera definition cache"
-               << "compId" << _compID
-               << "previous" << previousUri
-               << "current" << streamUri;
-    _purgeCameraDefinitionCache();
+    qInfo() << "[CameraControl]"
+            << "RTSP URI changed, re-evaluating camera definition source"
+            << "compId" << _compID
+            << "previous" << previousUri
+            << "current" << streamUri;
     _cached = false;
     settings.setValue(key, streamUri);
 
     const QString definitionUri = _cameraDefinitionUri(&_info);
     if (!definitionUri.isEmpty()) {
         _handleDefinitionFile(definitionUri);
-    }
-}
-
-void QGCCameraControl::_purgeCameraDefinitionCache()
-{
-    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
-    if (parameterSavePath.isEmpty()) {
-        return;
-    }
-
-    QDir cacheDir(parameterSavePath);
-    if (!cacheDir.exists()) {
-        return;
-    }
-
-    // Remove the active cache file first.
-    if (QFile::exists(_cacheFile) && !QFile::remove(_cacheFile)) {
-        qWarning() << "[CameraControl] Failed to remove active cache file:" << _cacheFile;
-    }
-
-    // Remove legacy/new camera definition cache files:
-    //   vendor_model_001.xml
-    //   vendor_model_001_<hash>.xml
-    const QRegularExpression pattern(QStringLiteral("^.+_.+_\\d{3}(?:_[0-9a-fA-F]{12})?\\.xml$"));
-
-    const QFileInfoList files = cacheDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoSymLinks);
-    for (const QFileInfo& fileInfo : files) {
-        if (fileInfo.absoluteFilePath().compare(_cacheFile, Qt::CaseInsensitive) == 0) {
-            continue;
-        }
-        if (!pattern.match(fileInfo.fileName()).hasMatch()) {
-            continue;
-        }
-        if (!QFile::remove(fileInfo.absoluteFilePath())) {
-            qWarning() << "[CameraControl] Failed to remove cache file:" << fileInfo.absoluteFilePath();
-        } else {
-            qInfo() << "[CameraControl] Removed cache file:" << fileInfo.absoluteFilePath();
-        }
     }
 }
 
@@ -2305,13 +2392,25 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 {
     //-- First check and see if we have it cached
     QFile xmlFile(_cacheFile);
+    if (!xmlFile.exists()) {
+        const QString fallbackCacheFile = _findCachedDefinitionFileByName();
+        if (!fallbackCacheFile.isEmpty()) {
+            xmlFile.setFileName(fallbackCacheFile);
+            qInfo() << "[CameraControl]"
+                    << "camera definition source cache-by-name"
+                    << "compId" << _compID
+                    << "vendor" << _vendor
+                    << "model" << _modelName
+                    << "cacheFile" << xmlFile.fileName();
+        }
+    }
     qCInfo(CameraControlLog) << "[CameraFlow]"
             << "_handleDefinitionFile"
             << "compId" << _compID
             << "model" << _modelName
             << "vendor" << _vendor
             << "url" << url
-            << "cacheFile" << _cacheFile
+            << "cacheFile" << xmlFile.fileName()
             << "cacheExists" << xmlFile.exists();
 
     QString ftpPrefix(QStringLiteral("%1://").arg(FTPManager::mavlinkFTPScheme));
@@ -2319,7 +2418,7 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
         qInfo() << "[CameraControl]"
                 << "camera definition source ftp"
                 << "compId" << _compID
-                << "cacheFile" << _cacheFile
+                << "cacheFile" << xmlFile.fileName()
                 << "url" << url;
         QString ext = "";
         if (url.endsWith(".lzma", Qt::CaseInsensitive)) { ext = ".lzma"; }
@@ -2339,20 +2438,20 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
         qInfo() << "[CameraControl]"
                 << "camera definition source http"
                 << "compId" << _compID
-                << "cacheFile" << _cacheFile
+                << "cacheFile" << xmlFile.fileName()
                 << "url" << url;
         _httpRequest(url);
         return;
     }
     if (!xmlFile.open(QIODevice::ReadOnly)) {
-        qWarning() << "Could not read cached camera definition file:" << _cacheFile;
+        qWarning() << "Could not read cached camera definition file:" << xmlFile.fileName();
         _httpRequest(url);
         return;
     }
     QByteArray bytes = xmlFile.readAll();
     QDomDocument doc;
     if(!doc.setContent(bytes, false)) {
-        qWarning() << "Could not parse cached camera definition file:" << _cacheFile;
+        qWarning() << "Could not parse cached camera definition file:" << xmlFile.fileName();
         _httpRequest(url);
         return;
     }
@@ -2360,7 +2459,7 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
     qInfo() << "[CameraControl]"
             << "camera definition source cache"
             << "compId" << _compID
-            << "cacheFile" << _cacheFile
+            << "cacheFile" << xmlFile.fileName()
             << "url" << url
             << "bytes" << bytes.size();
     _cached = true;
@@ -2470,6 +2569,7 @@ QGCCameraControl::_dataReady(QByteArray data)
             << "cached" << _cached;
     if(data.size()) {
         qInfo() << "[CameraControl]" << "Parsing camera definition for compId" << _compID << "bytes" << data.size();
+        _resetDefinitionState();
         _loadCameraDefinitionFile(data);
     } else {
         qCDebug(CameraControlLog) << "No camera definition received, trying to search on our own...";
@@ -2484,6 +2584,7 @@ QGCCameraControl::_dataReady(QByteArray data)
                         << "model" << _modelName
                         << "file" << definitionFile.fileName()
                         << "bytes" << newData.size();
+                _resetDefinitionState();
                 _loadCameraDefinitionFile(newData);
             } else {
                 qCDebug(CameraControlLog) << "error opening offline definition file for: " << _modelName;

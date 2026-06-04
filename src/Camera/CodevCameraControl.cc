@@ -936,30 +936,33 @@ void CodevCameraControl::_parametersReady()
             << "paramComplete" << paramComplete()
             << "initial active settings" << _activeSettings;
     _logControlState("_parametersReady before setup");
-    disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
+    // Do not disconnect this slot: first boot can emit parametersReady once in basic mode
+    // before XML is fetched. We need subsequent parametersReady emissions to configure Codev facts.
+    _hasTrack = false;
+    _hasDetect = false;
 
     // nvidia system status
     Fact* fact = getFact(kNV_STATUS);
     if(fact) {
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleNVStatus);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleNVStatus, Qt::UniqueConnection);
     }
 
     // thermometry data
     fact = getFact(kIR_TEMP_DATA);
     if(fact) {
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleThermometryData);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleThermometryData, Qt::UniqueConnection);
     }
 
     // spot metering area
     fact = getFact(kEO_SPOTAE);
     if(fact) {
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::spotMeteringAreaChanged);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::spotMeteringAreaChanged, Qt::UniqueConnection);
     }
 
     // spot focus area
     fact = getFact(kEO_SPOTFOCUS);
     if(fact) {
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::spotFocusAreaChanged);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::spotFocusAreaChanged, Qt::UniqueConnection);
     }
 
     // time zones
@@ -983,7 +986,7 @@ void CodevCameraControl::_parametersReady()
     if (fact) {
         _dZoomFact = fact;
         _dZoomInMaxChange();
-        connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
+        connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange, Qt::UniqueConnection);
     }
 
     // ai source
@@ -995,7 +998,7 @@ void CodevCameraControl::_parametersReady()
     // detect objects
     fact = getFact(kDETECT_OBJECTS);
     if(fact) {
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleDetectObjects);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_handleDetectObjects, Qt::UniqueConnection);
     }
 
     // detect plugins
@@ -1066,14 +1069,14 @@ void CodevCameraControl::_parametersReady()
     fact = getFact(kJSON_TR_REQ);
     if(fact) {
         _requestJSONTransfor(fact->rawValue());
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_requestJSONTransfor);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_requestJSONTransfor, Qt::UniqueConnection);
     }
 
     // camera calibrate flags
     fact = getFact(kCALIBRATE_FLAGS);
     if(fact) {
         factChanged(fact);
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged, Qt::UniqueConnection);
     }
 
     for (const QString& factName : activeSettings()) {

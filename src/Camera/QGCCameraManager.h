@@ -103,6 +103,7 @@ protected:
     virtual QGCCameraControl* _createCameraControlFromSettingsFallback(int compID, LinkInterface* link);
     virtual bool    _injectSynthesizedCameraInformation(int compID, LinkInterface* link, const char* reason);
     virtual bool    _ensureCameraDefinitionHttpServer();
+    virtual QString _cameraReferenceRtspUrl(int compID) const;
     virtual QString _cameraDefinitionLocalUrl(int compID) const;
     virtual QString _cameraDefinitionUpstreamUrl(int compID) const;
     virtual void    _replyCameraDefinitionHttp(QTcpSocket* socket, int statusCode, const QByteArray& body, const QByteArray& contentType) const;
@@ -119,6 +120,7 @@ protected:
         bool    gaveUp       = false;
         int     tryCount     = 0;
         uint8_t compID       = 0;
+        QString lastForcedModelRebuild;
     };
 
     Vehicle*            _vehicle            = nullptr;
@@ -132,6 +134,7 @@ protected:
     QElapsedTimer       _lastCameraChange;
     QTimer              _cameraTimer;
     QMap<QString, CameraStruct*> _cameraInfoRequest;
+    QMap<int, QString>           _cameraStreamUriByCompId;
     QTcpServer*         _cameraDefinitionHttpServer = nullptr;
     QNetworkAccessManager* _cameraDefinitionNetworkManager = nullptr;
     quint16             _cameraDefinitionHttpPort = 0;

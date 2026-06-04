@@ -29,32 +29,91 @@ static constexpr quint16 kCameraDefinitionLocalPort = 38081;
 static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
-static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
+struct CodevCameraProfile {
+    QByteArray modelName;
+    uint8_t definitionVersion = kCodevFallbackDefinitionVersion;
+    QString definitionFileName;
+};
+
+static QString _mavlinkFixedString(const char* data, int maxLen)
+{
+    QByteArray raw(data, maxLen);
+    const int nullIndex = raw.indexOf('\0');
+    if (nullIndex >= 0) {
+        raw.truncate(nullIndex);
+    }
+    return QString::fromUtf8(raw);
+}
+
+static CodevCameraProfile _codevCameraProfileForRtspPath(const QString& lastSegment)
+{
+    if (lastSegment.compare(QStringLiteral("eo"), Qt::CaseInsensitive) == 0) {
+        return { QByteArrayLiteral("R3"), 23, QStringLiteral("Codev_R3_023.xml") };
+    }
+
+    return { QByteArrayLiteral("RLR1"), 13, QStringLiteral("Codev_RLR1_013.xml") };
+}
+
+static CodevCameraProfile _codevCameraProfileForRtspUrl(const QString& rtspUrl)
+{
+    const QUrl videoUrl(rtspUrl);
+    const QString lastSegment = videoUrl.path().section('/', -1);
+    return _codevCameraProfileForRtspPath(lastSegment);
+}
+
+static QString _expectedCodevModelFromRtsp(const QString& rtspUrl)
+{
+    const QUrl videoUrl(rtspUrl);
+    if (videoUrl.host().isEmpty()) {
+        return QString();
+    }
+    return QString::fromLatin1(_codevCameraProfileForRtspUrl(rtspUrl).modelName);
+}
+
+static bool _isCodevModelCompatible(const QString& actualModel, const QString& expectedModel)
+{
+    const QString actual = actualModel.trimmed().toUpper();
+    const QString expected = expectedModel.trimmed().toUpper();
+    if (expected.isEmpty() || actual == expected) {
+        return true;
+    }
+
+    if (expected == QStringLiteral("RLR1")) {
+        return actual.contains(QStringLiteral("RLR1")) ||
+               actual.contains(QStringLiteral("LR1")) ||
+               actual.contains(QStringLiteral("IR1"));
+    }
+    if (expected == QStringLiteral("R3")) {
+        return actual.contains(QStringLiteral("R3"));
+    }
+    return actual.contains(expected);
+}
+
+static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, const CodevCameraProfile& profile, mavlink_camera_information_t& info)
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return false;
     }
 
     const QByteArray vendor = QByteArrayLiteral("Codev");
-    const QByteArray modelName = QByteArrayLiteral("R3");
 
     memset(&info, 0, sizeof(info));
     memcpy(info.vendor_name, vendor.constData(), qMin(static_cast<int>(sizeof(info.vendor_name)) - 1, vendor.size()));
-    memcpy(info.model_name, modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, modelName.size()));
+    memcpy(info.model_name, profile.modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, profile.modelName.size()));
     memcpy(info.cam_definition_uri, definitionUri.constData(), qMin(static_cast<int>(sizeof(info.cam_definition_uri)) - 1, definitionUri.size()));
     // Match FlyDynamics3 behavior: fallback only supplies a definition profile.
     // Firmware version must come from a real CAMERA_INFORMATION payload, not be synthesized from the XML/profile revision.
     info.firmware_version = 0;
-    info.cam_definition_version = kCodevFallbackDefinitionVersion;
+    info.cam_definition_version = profile.definitionVersion;
     info.flags = 0x75f; // Matches the real Codev CAMERA_INFORMATION seen in FlyDynamics3 logs.
 
     return true;
 }
 
-static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, mavlink_message_t& message)
+static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, const CodevCameraProfile& profile, mavlink_message_t& message)
 {
     mavlink_camera_information_t info{};
-    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, info)) {
+    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, profile, info)) {
         return false;
     }
 
@@ -141,31 +200,37 @@ QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
 }
 
 QString
+QGCCameraManager::_cameraReferenceRtspUrl(int compID) const
+{
+    if (_cameraStreamUriByCompId.contains(compID)) {
+        const QString streamUri = _cameraStreamUriByCompId.value(compID);
+        if (streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
+            return streamUri;
+        }
+    }
+    return qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+}
+
+QString
 QGCCameraManager::_cameraDefinitionUpstreamUrl(int compID) const
 {
     if (compID != MAV_COMP_ID_CAMERA) {
         return QString();
     }
 
-    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    const QString rtspUrl = _cameraReferenceRtspUrl(compID);
     const QUrl videoUrl(rtspUrl);
     if (!videoUrl.host().isEmpty()) {
         QString path = videoUrl.path();
         QString lastSegment = path.section('/', -1);
+        const CodevCameraProfile profile = _codevCameraProfileForRtspPath(lastSegment);
 
         qInfo() << "[CameraManager] Path =" << path
                 << "LastSegment =" << lastSegment
                 << "RTSPURL =" << rtspUrl;
 
-        if (lastSegment.compare("eo", Qt::CaseInsensitive) == 0) {
-            return QStringLiteral("http://%1/Codev_R3_023.xml").arg(videoUrl.host());   // EO → R3
-        }
-        else if (lastSegment.compare("cr", Qt::CaseInsensitive) == 0) {
-            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host()); // CR → LR1
-        }
-        else {
-            return QStringLiteral("http://%1/Codev_RLR1_013.xml").arg(videoUrl.host());
-        }
+        return QStringLiteral("http://%1/%2")
+            .arg(videoUrl.host(), profile.definitionFileName);
     }
 
     qWarning() << "[CameraManager]"
@@ -482,7 +547,8 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
         return false;
     }
 
-    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
+    const CodevCameraProfile profile = _codevCameraProfileForRtspUrl(_cameraReferenceRtspUrl(compID));
+    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), profile, synthesizedMessage)) {
         qInfo() << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation no synth profile"
                 << "compId" << compID
@@ -621,8 +687,9 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
 {
     mavlink_camera_information_t info{};
     const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
+    const CodevCameraProfile profile = _codevCameraProfileForRtspUrl(_cameraReferenceRtspUrl(compID));
     const bool useCodevProfile = !definitionUrl.isEmpty() &&
-                                 _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), info);
+                                 _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), profile, info);
     if (!useCodevProfile) {
         const QByteArray vendor = QByteArrayLiteral("Unknown");
         const QByteArray modelName = QStringLiteral("Camera %1").arg(compID).toLatin1();
@@ -676,7 +743,7 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
     qInfo() << "[CameraManager]" << "_handleCameraInfo compId" << message.compid;
     //-- Have we requested it?
     QString sCompID = QString::number(message.compid);
-    if(_cameraInfoRequest.contains(sCompID) && !_cameraInfoRequest[sCompID]->infoReceived) {
+    if(_cameraInfoRequest.contains(sCompID) && _cameraInfoRequest[sCompID]) {
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
         qInfo() << "[CameraManager]"
@@ -689,24 +756,35 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
                 << "camDefUri" << reinterpret_cast<const char*>(info.cam_definition_uri)
                 << "firmwareVersion" << info.firmware_version
                 << "link" << link;
+
         QGCCameraControl* pCamera = nullptr;
         if (QGCCameraControl* existingCamera = _findCamera(message.compid)) {
-            if (_cameraInfoRequest[sCompID]->fallbackCreated) {
+            const QString incomingVendor = QString(reinterpret_cast<const char*>(info.vendor_name));
+            const QString incomingModel = QString(reinterpret_cast<const char*>(info.model_name));
+            const bool profileChanged = existingCamera->vendor().compare(incomingVendor, Qt::CaseInsensitive) != 0 ||
+                                        existingCamera->modelName().compare(incomingModel, Qt::CaseInsensitive) != 0;
+
+            if (_cameraInfoRequest[sCompID]->fallbackCreated || profileChanged) {
                 qCInfo(CameraManagerLog) << "[CameraFlow]"
-                        << "replacing fallback camera with real CAMERA_INFORMATION"
+                        << "replacing camera control from CAMERA_INFORMATION"
                         << "compId" << message.compid
-                        << "model" << existingCamera->modelName();
+                        << "oldVendor" << existingCamera->vendor()
+                        << "oldModel" << existingCamera->modelName()
+                        << "newVendor" << incomingVendor
+                        << "newModel" << incomingModel
+                        << "fallbackCreated" << _cameraInfoRequest[sCompID]->fallbackCreated;
                 _removeCameraControlFromLists(existingCamera);
                 existingCamera->deleteLater();
             } else {
                 _cameraInfoRequest[sCompID]->infoReceived = true;
                 qInfo() << "[CameraManager]"
-                        << "_handleCameraInfo camera already exists"
+                        << "_handleCameraInfo camera already up to date"
                         << existingCamera->modelName()
                         << "compId" << message.compid;
                 return;
             }
         }
+
         QString vendor = QString(reinterpret_cast<const char*>(info.vendor_name));
         if (vendor.toUpper().compare("CODEV") == 0) {
             qCInfo(CameraManagerLog) << "[CameraFlow]"
@@ -724,6 +802,7 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
             _cameraInfoRequest[sCompID]->infoReceived = true;
             _cameraInfoRequest[sCompID]->cameraCreated = true;
             _cameraInfoRequest[sCompID]->fallbackCreated = false;
+            _cameraInfoRequest[sCompID]->lastForcedModelRebuild.clear();
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "camera control created"
                     << "compId" << message.compid
@@ -769,6 +848,7 @@ QGCCameraManager::_cameraTimeout()
                         pCamera->deleteLater();
                         delete pInfo;
                     }
+                    _cameraStreamUriByCompId.remove(static_cast<int>(pInfo->compID));
                     _cameraInfoRequest.remove(sCompID);
                     //-- If we have another camera, switch current camera.
                     if(_cameras.count()) {
@@ -825,6 +905,31 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             << "hasCamera" << (pCamera != nullptr)
             << "hasRequest" << _cameraInfoRequest.contains(sCompID)
             << "link" << link;
+
+    if (pCamera && _cameraInfoRequest.contains(sCompID)) {
+        CameraStruct* pInfo = _cameraInfoRequest[sCompID];
+        const QString expectedModel = _expectedCodevModelFromRtsp(_cameraReferenceRtspUrl(message.compid));
+        const bool needsRebuild = !expectedModel.isEmpty() &&
+                                  pCamera->vendor().compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 &&
+                                  !_isCodevModelCompatible(pCamera->modelName(), expectedModel);
+        if (needsRebuild &&
+            pInfo->lastForcedModelRebuild.compare(expectedModel, Qt::CaseInsensitive) != 0) {
+            pInfo->lastForcedModelRebuild = expectedModel;
+            qCInfo(CameraManagerLog) << "[CameraFlow]"
+                    << "_handleCameraSettings forcing one-time camera rebuild"
+                    << "compId" << message.compid
+                    << "currentModel" << pCamera->modelName()
+                    << "expectedModel" << expectedModel;
+            _removeCameraControlFromLists(pCamera);
+            pCamera->deleteLater();
+            pCamera = nullptr;
+
+            pInfo->infoReceived = false;
+            pInfo->cameraCreated = false;
+            pInfo->fallbackCreated = false;
+        }
+    }
+
     if (!pCamera && _cameraInfoRequest.contains(sCompID)) {
         qCInfo(CameraManagerLog) << "[CameraFlow]"
                 << "_handleCameraSettings creating fallback camera"
@@ -834,6 +939,7 @@ QGCCameraManager::_handleCameraSettings(const mavlink_message_t& message, LinkIn
             CameraStruct* pInfo = _cameraInfoRequest[sCompID];
             pInfo->cameraCreated = true;
             pInfo->fallbackCreated = true;
+            pInfo->lastForcedModelRebuild.clear();
             pInfo->lastHeartbeat.start();
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "_handleCameraSettings fallback camera registered"
@@ -897,10 +1003,15 @@ QGCCameraManager::_handleParamValue(const mavlink_message_t& message)
 void
 QGCCameraManager::_handleVideoStreamInfo(const mavlink_message_t& message)
 {
+    mavlink_video_stream_information_t streamInfo;
+    mavlink_msg_video_stream_information_decode(&message, &streamInfo);
+    const QString streamUri = _mavlinkFixedString(streamInfo.uri, sizeof(streamInfo.uri));
+    if (streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
+        _cameraStreamUriByCompId[static_cast<int>(message.compid)] = streamUri;
+    }
+
     QGCCameraControl* pCamera = _findCamera(message.compid);
     if(pCamera) {
-        mavlink_video_stream_information_t streamInfo;
-        mavlink_msg_video_stream_information_decode(&message, &streamInfo);
         pCamera->handleVideoInfo(&streamInfo);
     }
 }

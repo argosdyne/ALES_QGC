@@ -17,19 +17,20 @@ import CustomQmlInterface 1.0
 
 Item {
     clip: true
-    property Fact _pseudocolor: _camera ? _camera.getFact("IR_PALETTE") : null
-    property Fact _thermometry: _camera ? _camera.getFact("IR_THERMOMETRY") : null
-    property Fact _irZoom: _camera ? _camera.getFact("IR_ZOOM") : null
-    property Fact _spotAE: _camera ? _camera.getFact("EO_SPOTAE") : null
-    property Fact _spotFocus: _camera ? _camera.getFact("EO_SPOTFOCUS") : null
-    property Fact _dZoom: _camera ? _camera.getFact("EO_DZOOM") : null
-    property Fact _tofEN: _camera ? _camera.getFact("TOF_EN") : null
-    property Fact _nvStatus: _camera ? _camera.getFact("NV_STATUS") : null
-    property Fact _nvDebug: _camera ? _camera.getFact("NV_DEBUG") : null
-    property Fact _trackAlg: _camera ? _camera.getFact("TRACK_ALGORITHM") : null
-    property Fact _smartSelect: _camera ? _camera.getFact("SMART_SELECT") : null
-    property Fact _factoryCali: _camera ? _camera.getFact("FACTORY_CALI") : null
-    property Fact _aiSource: _camera ? _camera.getFact("AI_SOURCE") : null
+    property Fact _pseudocolor: null
+    property Fact _thermometry: null
+    property Fact _irZoom: null
+    property Fact _spotAE: null
+    property Fact _spotFocus: null
+    property Fact _dZoom: null
+    property Fact _tofEN: null
+    property Fact _nvStatus: null
+    property Fact _nvDebug: null
+    property Fact _trackAlg: null
+    property Fact _smartSelect: null
+    property Fact _factoryCali: null
+    property Fact _aiSource: null
+    property int _factRefreshTryCount: 0
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
@@ -48,6 +49,63 @@ Item {
 
     property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
 
+    function _safeGetFact(name) {
+        if (!_camera) {
+            return null
+        }
+        return _camera.factExists(name) ? _camera.getFact(name) : null
+    }
+
+    function _refreshFactRefs() {
+        _pseudocolor = _safeGetFact("IR_PALETTE")
+        _thermometry = _safeGetFact("IR_THERMOMETRY")
+        _irZoom = _safeGetFact("IR_ZOOM")
+        _spotAE = _safeGetFact("EO_SPOTAE")
+        _spotFocus = _safeGetFact("EO_SPOTFOCUS")
+        _dZoom = _safeGetFact("EO_DZOOM")
+        _tofEN = _safeGetFact("TOF_EN")
+        _nvStatus = _safeGetFact("NV_STATUS")
+        _nvDebug = _safeGetFact("NV_DEBUG")
+        _trackAlg = _safeGetFact("TRACK_ALGORITHM")
+        _smartSelect = _safeGetFact("SMART_SELECT")
+        _factoryCali = _safeGetFact("FACTORY_CALI")
+        _aiSource = _safeGetFact("AI_SOURCE")
+    }
+
+    Connections {
+        id: cameraFactConnections
+        target: _camera
+        function onParametersReady() {
+            _factRefreshTryCount = 0
+            factRefreshTimer.start()
+            _refreshFactRefs()
+        }
+        function onFactNamesChanged() {
+            _factRefreshTryCount = 0
+            factRefreshTimer.start()
+            _refreshFactRefs()
+        }
+        function onActiveSettingsChanged() {
+            _factRefreshTryCount = 0
+            factRefreshTimer.start()
+            _refreshFactRefs()
+        }
+    }
+
+    Timer {
+        id: factRefreshTimer
+        interval: 500
+        repeat: true
+        running: false
+        onTriggered: {
+            _factRefreshTryCount++
+            _refreshFactRefs()
+            if (!!_trackAlg || _factRefreshTryCount > 120) {
+                stop()
+            }
+        }
+    }
+
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
             _smartSelect.value = "Yolov8"
@@ -58,6 +116,9 @@ Item {
     }
 
     Component.onCompleted: {
+        _factRefreshTryCount = 0
+        factRefreshTimer.start()
+        _refreshFactRefs()
         console.log("[CodevCameraVisual] load camera=", _camera ? _camera.modelName : "null",
                     "paramComplete=", _camera ? _camera.paramComplete : false,
                     "aiInThermal=", aiInThermal,
