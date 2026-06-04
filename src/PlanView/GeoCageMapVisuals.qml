@@ -42,8 +42,30 @@ Item {
     property var _pillarCoords: []
     property var _edgeExtrudeCoords: []
 
+    function _validCoord(coord) {
+        return coord && coord.isValid
+    }
+
+    function _sanitizePath(path) {
+        if (!path || path.length === 0) {
+            return []
+        }
+        var sanitized = []
+        for (var i = 0; i < path.length; i++) {
+            if (!_validCoord(path[i])) {
+                return []
+            }
+            sanitized.push(path[i])
+        }
+        return sanitized
+    }
+
+    function _pathReady(path, minLength) {
+        return path && path.length >= minLength && _sanitizePath(path).length >= minLength
+    }
+
     function _buildSquare(center, radiusMeters) {
-        if (!center.isValid || radiusMeters <= 0) {
+        if (!_validCoord(center) || radiusMeters <= 0) {
             return []
         }
         var p1 = center.atDistanceAndAzimuth(radiusMeters, -135)
@@ -54,7 +76,7 @@ Item {
     }
 
     function _buildCirclePath(center, radiusMeters) {
-        if (!center.isValid || radiusMeters <= 0) {
+        if (!_validCoord(center) || radiusMeters <= 0) {
             return []
         }
         var pts = []
@@ -69,7 +91,7 @@ Item {
         var coords = []
         if (myGeoCageController && myGeoCageController.circles && myGeoCageController.circles.count > 0) {
             var circle = myGeoCageController.circles.get(0)
-            if (circle && circle.radius && circle.radius.rawValue > 0 && circle.center && circle.center.isValid) {
+            if (circle && circle.radius && circle.radius.rawValue > 0 && _validCoord(circle.center)) {
                 _centerCoord = circle.center
                 coords = _buildCirclePath(circle.center, circle.radius.rawValue)
             }
@@ -84,6 +106,7 @@ Item {
                 }
 
                 // rough centroid for label/height calculations
+                coords = _sanitizePath(coords)
                 if (coords.length > 0) {
                     var minLat = coords[0].latitude
                     var maxLat = coords[0].latitude
@@ -97,7 +120,7 @@ Item {
                         maxLon = Math.max(maxLon, c.longitude)
                     }
                     _centerCoord = QtPositioning.coordinate((minLat + maxLat) / 2, (minLon + maxLon) / 2)
-                } else if (poly.center && poly.center.isValid) {
+                } else if (_validCoord(poly.center)) {
                     _centerCoord = poly.center
                 }
             }
@@ -106,7 +129,7 @@ Item {
     }
 
     function _pixelsPerMeter(centerCoord) {
-        if (!map || !centerCoord || !centerCoord.isValid || typeof map.fromCoordinate !== "function") {
+        if (!map || !_validCoord(centerCoord) || typeof map.fromCoordinate !== "function") {
             return 1
         }
         var c1 = centerCoord
@@ -127,9 +150,12 @@ Item {
         }
         var top = []
         for (var i = 0; i < basePath.length; i++) {
+            if (!_validCoord(basePath[i])) {
+                return []
+            }
             var pt = map.fromCoordinate(basePath[i], false)
             if (!pt) {
-                return basePath
+                return []
             }
             // shift upward in screen space and slightly left for perspective
             pt.y = pt.y - heightPx
@@ -146,6 +172,9 @@ Item {
         }
         var tops = []
         for (var i = 0; i < basePath.length; i++) {
+            if (!_validCoord(basePath[i])) {
+                return []
+            }
             var pt = map.fromCoordinate(basePath[i], false)
             if (!pt) {
                 return []
@@ -166,33 +195,34 @@ Item {
 
     function _refreshCoords() {
         var basePath = []
-        var centerCoord = (homePosition && homePosition.isValid) ? homePosition : QtPositioning.coordinate()
+        var centerCoord = _validCoord(homePosition) ? homePosition : QtPositioning.coordinate()
         var radius = _radiusMeters
 
         if (useFenceGeometry) {
             basePath = _baseFromFence()
-            if (_centerCoord && _centerCoord.isValid) {
+            if (_validCoord(_centerCoord)) {
                 centerCoord = _centerCoord
             }
-            if (basePath.length === 0 && centerCoord.isValid && radius > 0) {
+            if (basePath.length === 0 && _validCoord(centerCoord) && radius > 0) {
                 basePath = _buildSquare(centerCoord, radius)
             }
         }
 
         if (basePath.length === 0) {
-            if (!centerCoord.isValid) {
-                if (map && map.center && map.center.isValid) {
+            if (!_validCoord(centerCoord)) {
+                if (map && _validCoord(map.center)) {
                     centerCoord = map.center
                 }
             }
             if (radius <= 0) {
                 radius = 50
             }
-            if (centerCoord.isValid) {
+            if (_validCoord(centerCoord)) {
                 basePath = _buildSquare(centerCoord, radius)
             }
         }
 
+        basePath = _sanitizePath(basePath)
         if (basePath.length < 3) {
             _baseCoords = []
             _topCoords = []
@@ -202,7 +232,7 @@ Item {
         }
 
         // derive a rough radius for height scaling if we came from polygon
-        if (useFenceGeometry && radius <= 0 && _centerCoord && _centerCoord.isValid) {
+        if (useFenceGeometry && radius <= 0 && _validCoord(_centerCoord)) {
             radius = _centerCoord.distanceTo(basePath[0])
         }
 
@@ -224,8 +254,8 @@ Item {
         border.width:   3
         border.color:   boundaryColor
         color:          Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, cageOpacity)
-        visible:        _baseCoords && _baseCoords.length > 2
-        path:           _baseCoords && _baseCoords.length > 2 ? _baseCoords : []
+        visible:        _pathReady(_baseCoords, 3)
+        path:           visible ? _sanitizePath(_baseCoords) : []
         opacity:        _root.opacity
         antialiasing:   true
     }
@@ -235,14 +265,14 @@ Item {
         border.width:   3
         border.color:   boundaryColor
         color:          Qt.rgba(boundaryColor.r, boundaryColor.g, boundaryColor.b, cageOpacity * 0.65)
-        visible:        _topCoords && _topCoords.length > 2 && showVertical
-        path:           _topCoords && _topCoords.length > 2 ? _topCoords : []
+        visible:        _pathReady(_topCoords, 3) && showVertical
+        path:           visible ? _sanitizePath(_topCoords) : []
         opacity:        _root.opacity
         antialiasing:   true
     }
 
     Repeater {
-        model: (_baseCoords.length >= 3 && _topCoords.length === _baseCoords.length) ? _baseCoords.length : 0
+        model: (_pathReady(_baseCoords, 3) && _pathReady(_topCoords, 3) && _topCoords.length === _baseCoords.length) ? _baseCoords.length : 0
 
         MapPolygon {
             visible:    showVertical
@@ -261,26 +291,26 @@ Item {
     }
 
     MapPolyline {
-        visible:    _topCoords && _topCoords.length > 2 && showVertical
+        visible:    _pathReady(_topCoords, 3) && showVertical
         line.width: 3
         line.color: boundaryColor
         opacity:    _root.opacity
-        path:       _topCoords && _topCoords.length > 2 ? _topCoords : []
+        path:       visible ? _sanitizePath(_topCoords) : []
         antialiasing: true
     }
 
     // Edge guide lines (vát) from base edges toward extruded edge (accent only)
     MapPolyline {
-        visible:    _edgeExtrudeCoords && _edgeExtrudeCoords.length === _baseCoords.length && _baseCoords.length >= 2
+        visible:    _pathReady(_edgeExtrudeCoords, 2) && _edgeExtrudeCoords.length === _baseCoords.length
         line.width: 3
         line.color: boundaryColor
         opacity:    _root.opacity * 0.9
-        path:       _edgeExtrudeCoords && _edgeExtrudeCoords.length > 0 ? _edgeExtrudeCoords : []
+        path:       visible ? _sanitizePath(_edgeExtrudeCoords) : []
         antialiasing: true
     }
 
     Repeater {
-        model: (_baseCoords.length >= 3 && _topCoords.length === _baseCoords.length) ? _baseCoords.length : 0
+        model: (_pathReady(_baseCoords, 3) && _pathReady(_topCoords, 3) && _topCoords.length === _baseCoords.length) ? _baseCoords.length : 0
 
         MapPolyline {
             visible:    showVertical
@@ -293,7 +323,7 @@ Item {
     }
 
     Repeater {
-        model: (_baseCoords.length >= 3 && _pillarCoords.length === _baseCoords.length) ? _baseCoords.length : 0
+        model: (_pathReady(_baseCoords, 3) && _pathReady(_pillarCoords, 3) && _pillarCoords.length === _baseCoords.length) ? _baseCoords.length : 0
 
         MapPolyline {
             line.width: 3
@@ -306,8 +336,8 @@ Item {
 
     // Altitude label at the top center
     MapQuickItem {
-        visible:        topFace.visible
-        coordinate:     _topCoords.length > 0 ? _topCoords[1] : homePosition
+        visible:        topFace.visible && _topCoords.length > 1 && _validCoord(_topCoords[1])
+        coordinate:     visible ? _topCoords[1] : QtPositioning.coordinate()
         anchorPoint.x:  labelItem.width / 2
         anchorPoint.y:  labelItem.height
         sourceItem: Rectangle {

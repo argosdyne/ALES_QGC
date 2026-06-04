@@ -1,0 +1,62 @@
+diff --git a/usb/ax88179_178a.c b/usb/ax88179_178a.c
+--- a/usb/ax88179_178a.c
++++ b/usb/ax88179_178a.c
+@@ -891,9 +891,8 @@ ax88179_set_features(struct net_device *net, netdev_features_t features)
+ 	if (changed & NETIF_F_RXCSUM) {
+ 		ax88179_read_cmd(dev, AX_ACCESS_MAC, AX_RXCOE_CTL, 1, 1, &tmp);
+-		tmp ^= AX_RXCOE_IP | AX_RXCOE_TCP | AX_RXCOE_UDP |
+-		       AX_RXCOE_TCPV6 | AX_RXCOE_UDPV6;
++		tmp = 0;
+ 		ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_RXCOE_CTL, 1, 1, &tmp);
+ 	}
+ 
+@@ -1273,12 +1272,10 @@ static int ax88179_bind(struct usbnet *dev, struct usb_interface *intf)
+ 
+-	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+-			      NETIF_F_RXCSUM;
++	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+ 
+-	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+-				 NETIF_F_RXCSUM;
++	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+ 
+-	/* Enable checksum offload */
+-	*tmp = AX_RXCOE_IP | AX_RXCOE_TCP | AX_RXCOE_UDP |
+-	       AX_RXCOE_TCPV6 | AX_RXCOE_UDPV6;
++	/* Disable RX checksum offload. Let the kernel validate RX checksums. */
++	*tmp = 0;
+ 	ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_RXCOE_CTL, 1, 1, tmp);
+ 
+@@ -1341,17 +1338,9 @@ static void
+ ax88179_rx_checksum(struct sk_buff *skb, u32 *pkt_hdr)
+ {
++	/* Do not trust AX88179 RX checksum metadata on this platform. */
+ 	skb->ip_summed = CHECKSUM_NONE;
+-
+-	/* checksum error bit is set */
+-	if ((*pkt_hdr & AX_RXHDR_L3CSUM_ERR) ||
+-	    (*pkt_hdr & AX_RXHDR_L4CSUM_ERR))
+-		return;
+-
+-	/* It must be a TCP or UDP packet with a valid checksum */
+-	if (((*pkt_hdr & AX_RXHDR_L4_TYPE_MASK) == AX_RXHDR_L4_TYPE_TCP) ||
+-	    ((*pkt_hdr & AX_RXHDR_L4_TYPE_MASK) == AX_RXHDR_L4_TYPE_UDP))
+-		skb->ip_summed = CHECKSUM_UNNECESSARY;
+ }
+ 
+@@ -1629,12 +1618,10 @@ static int ax88179_reset(struct usbnet *dev)
+ 
+-	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+-			      NETIF_F_RXCSUM;
++	dev->net->features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+ 
+-	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM |
+-				 NETIF_F_RXCSUM;
++	dev->net->hw_features |= NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
+ 
+-	/* Enable checksum offload */
+-	*tmp = AX_RXCOE_IP | AX_RXCOE_TCP | AX_RXCOE_UDP |
+-	       AX_RXCOE_TCPV6 | AX_RXCOE_UDPV6;
++	/* Disable RX checksum offload. Let the kernel validate RX checksums. */
++	*tmp = 0;
+ 	ax88179_write_cmd(dev, AX_ACCESS_MAC, AX_RXCOE_CTL, 1, 1, tmp);

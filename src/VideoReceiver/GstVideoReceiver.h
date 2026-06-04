@@ -108,6 +108,7 @@ protected:
     virtual GstElement* _makeFileSink(const QString& videoFile, FILE_FORMAT format);
     void _logElementSummary(const char* context, GstElement* element) const;
     void _logElementProperty(const char* context, GstElement* element, const char* propertyName) const;
+    void _logReceiverChecklistProperties(const char* context, GstElement* element) const;
     void _logCaps(const char* context, GstCaps* caps) const;
     void _logPadCaps(const char* context, GstElement* element, const char* padName) const;
     void _logPipelineConfiguration(const char* context) const;

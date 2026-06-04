@@ -106,7 +106,7 @@ Item {
     property bool _geoFenceShow3D:              false
 
     Component.onCompleted: {
-        _geoFenceShow3D = globals.geoFenceShow3D
+        _geoFenceShow3D = globals.geoFenceShow3D === true
     }
 
     on_GeoFenceShow3DChanged: globals.geoFenceShow3D = _geoFenceShow3D
@@ -519,24 +519,24 @@ Item {
                 interactive:            _editingLayer == _layerGeoFence
                 homePosition:           _missionController.plannedHomePosition
                 planView:               true
-                visible:                globals.geoFenceShowOperational || _editingLayer == _layerGeoFence
+                visible:                (globals.geoFenceShowOperational === true) || _editingLayer == _layerGeoFence
                 opacity:                (_editingLayer == _layerGeoFence) || _editingLayer == _layerGeoCage ? 1 : editorMap._nonInteractiveOpacity
-                show3DView:             _geoFenceShow3D
+                show3DView:             _geoFenceShow3D === true
                 breachStyle:            geoFenceEditor ? geoFenceEditor._breachStyle : Qt.SolidLine
                 fenceOpacity:           geoFenceEditor ? geoFenceEditor.fenceOpacity : 1.0
                 boundaryColor:          geoFenceEditor ? geoFenceEditor.boundaryColor : "orange"
-                 fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : false
-                 fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : false
-                 showMinMaxAltitude:     geoFenceEditor ? geoFenceEditor.showMinMaxAltitude : false
-                 hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
-                 showOccludedEdgesDashed: geoFenceEditor ? geoFenceEditor.showOccludedEdgesDashed : false
-                 circleSegments:         geoFenceEditor ? geoFenceEditor.circleSegments : 40
-                 extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
-                 minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
-                 maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
-                 showOperationalLayer:   globals.geoFenceShowOperational || _editingLayer == _layerGeoFence
-                 showBufferLayer:        globals.geoFenceShowBuffer
-                 showContingencyLayer:   globals.geoFenceShowContingency
+                fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace === true : false
+                fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces === true : false
+                showMinMaxAltitude:     geoFenceEditor ? geoFenceEditor.showMinMaxAltitude === true : false
+                hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges !== false : true
+                showOccludedEdgesDashed: geoFenceEditor ? geoFenceEditor.showOccludedEdgesDashed === true : false
+                circleSegments:         geoFenceEditor ? geoFenceEditor.circleSegments : 40
+                extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
+                minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
+                maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
+                showOperationalLayer:   (globals.geoFenceShowOperational === true) || _editingLayer == _layerGeoFence
+                showBufferLayer:        globals.geoFenceShowBuffer === true
+                showContingencyLayer:   globals.geoFenceShowContingency === true
              }
 
             GeoCageMapVisuals {
@@ -544,7 +544,7 @@ Item {
                 myGeoCageController:    _geoCageController
                 interactive:            _editingLayer == _layerGeoCage
                 homePosition:           _missionController.plannedHomePosition
-                visible:                globals.geoFenceShowContingency || (_editingLayer == _layerGeoCage)
+                visible:                (globals.geoFenceShowContingency === true) || (_editingLayer == _layerGeoCage)
                 opacity:                (_editingLayer == _layerGeoCage) ? 1 : editorMap._nonInteractiveOpacity
                 useFenceGeometry:       true
                 id:                     geoCageVisuals

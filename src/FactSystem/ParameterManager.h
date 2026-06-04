@@ -131,6 +131,7 @@ private:
     void    _ftpDownloadProgress                (float progress);
     bool    _parseParamFile                     (const QString& filename);
     void    _logInitialLoadProgress             (const QString& event, int componentId = -1, const QString& paramName = QString()) const;
+    QString _formatPendingIndexRequests         (void) const;
 
     static QVariant _stringToTypedVariant(const QString& string, FactMetaData::ValueType_t type, bool failOk = false);
 

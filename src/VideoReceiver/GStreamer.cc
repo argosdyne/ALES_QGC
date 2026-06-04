@@ -22,6 +22,119 @@
 QGC_LOGGING_CATEGORY(GStreamerLog, "GStreamerLog")
 QGC_LOGGING_CATEGORY(GStreamerAPILog, "GStreamerAPILog")
 
+namespace {
+
+void logRegistryFeature(GstRegistry* registry, const char* featureName)
+{
+    if (registry == nullptr || featureName == nullptr) {
+        return;
+    }
+
+    GstPluginFeature* feature = gst_registry_lookup_feature(registry, featureName);
+    if (feature == nullptr) {
+        qCInfo(GStreamerLog) << "[GStreamer]" << "featureMissing" << featureName;
+        return;
+    }
+
+    qCInfo(GStreamerLog) << "[GStreamer]" << "featurePresent"
+                         << featureName
+                         << "rank" << gst_plugin_feature_get_rank(feature);
+    gst_object_unref(feature);
+}
+
+void updateFeatureRank(GstRegistry* registry, const char* featureName, guint rank)
+{
+    if (registry == nullptr || featureName == nullptr) {
+        return;
+    }
+
+    GstPluginFeature* feature = gst_registry_lookup_feature(registry, featureName);
+    if (feature == nullptr) {
+        qCInfo(GStreamerLog) << "[GStreamer]" << "featureMissingForRankUpdate" << featureName;
+        return;
+    }
+
+    qCInfo(GStreamerLog) << "[GStreamer]" << "featureRankUpdate"
+                         << featureName
+                         << "oldRank" << gst_plugin_feature_get_rank(feature)
+                         << "newRank" << rank;
+    gst_plugin_feature_set_rank(feature, rank);
+    gst_registry_add_feature(registry, feature);
+    gst_object_unref(feature);
+}
+
+#if defined(__android__)
+void boostAndroidHardwareDecoders()
+{
+    GstRegistry* registry = gst_registry_get();
+    if (registry == nullptr) {
+        qCCritical(GStreamerLog) << "[GStreamer] Failed to get registry for Android decoder setup";
+        return;
+    }
+
+    // Prefer Qualcomm Codec2 hardware decoders when they are available.
+    const char* qtiPreferredFeatures[] = {
+        "amcviddec-c2qtiavcdecoderlowlatency",
+        "amcviddec-c2qtiavcdecoder",
+        "amcviddec-c2qtihevcdecoderlowlatency",
+        "amcviddec-c2qtihevcdecoder",
+    };
+
+    for (const char* featureName : qtiPreferredFeatures) {
+        updateFeatureRank(registry, featureName, GST_RANK_PRIMARY + 256);
+    }
+
+    // Keep software fallback available, but make it less preferable.
+    updateFeatureRank(registry, "avdec_h264", GST_RANK_MARGINAL);
+    updateFeatureRank(registry, "avdec_h265", GST_RANK_MARGINAL);
+
+    const char* decoderFeatures[] = {
+        "udpsrc",
+        "rtpjitterbuffer",
+        "decodebin3",
+        "amcviddec-c2qtiavcdecoderlowlatency",
+        "amcviddec-c2qtiavcdecoder",
+        "amcviddec-c2qtihevcdecoderlowlatency",
+        "amcviddec-c2qtihevcdecoder",
+        "avdec_h264",
+        "avdec_h265",
+    };
+
+    for (const char* featureName : decoderFeatures) {
+        logRegistryFeature(registry, featureName);
+    }
+}
+#endif
+
+void logVideoRegistryFeatures()
+{
+    GstRegistry* registry = gst_registry_get();
+    if (registry == nullptr) {
+        qCCritical(GStreamerLog) << "[GStreamer] Failed to get registry for video feature logging";
+        return;
+    }
+
+    const char* features[] = {
+        "udpsrc",
+        "rtpjitterbuffer",
+        "decodebin3",
+        "qmlglsink",
+        "qgcvideosinkbin",
+        "amcviddec-c2qtiavcdecoderlowlatency",
+        "amcviddec-c2qtiavcdecoder",
+        "amcviddec-c2qtihevcdecoderlowlatency",
+        "amcviddec-c2qtihevcdecoder",
+        "avdec_h264",
+        "avdec_h265",
+    };
+
+    for (const char* featureName : features) {
+        logRegistryFeature(registry, featureName);
+    }
+}
+
+} // namespace
+
 static void qt_gst_log(GstDebugCategory * category,
                        GstDebugLevel      level,
                        const gchar      * file,
@@ -144,7 +257,11 @@ GStreamer::blacklist(VideoSettings::VideoDecoderOptions option)
                 "omxh264dec", "omxh265dec",
                 "omxrkvideodec", "rkx264dec", "rkx265dec",
                 "androidmedia",
-                "amcviddec-h264", "amcviddec-h265"
+                "amcviddec-h264", "amcviddec-h265",
+                "amcviddec-c2qtiavcdecoderlowlatency",
+                "amcviddec-c2qtiavcdecoder",
+                "amcviddec-c2qtihevcdecoderlowlatency",
+                "amcviddec-c2qtihevcdecoder"
             };
 
             for (auto name : hwDecoders) {
@@ -216,6 +333,10 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
         g_error_free(error);
     }
 
+    qCInfo(GStreamerLog) << "[GStreamer]" << "initialize"
+                         << "debuglevel" << debuglevel
+                         << "version" << gst_version_string();
+
     // The static plugins we use
 #if defined(__android__) || defined(__ios__)
     GST_PLUGIN_STATIC_REGISTER(coreelements);
@@ -242,6 +363,10 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
     gst_ios_post_init();
 #endif
 
+#if defined(__android__)
+    boostAndroidHardwareDecoders();
+#endif
+
     /* the plugin must be loaded before loading the qml file to register the
      * GstGLVideoItem qml item
      * FIXME Add a QQmlExtensionPlugin into qmlglsink to register GstGLVideoItem
@@ -261,6 +386,7 @@ GStreamer::initialize(int argc, char* argv[], int debuglevel)
     }
 
     GST_PLUGIN_STATIC_REGISTER(qgc);
+    logVideoRegistryFeatures();
 }
 
 void*

@@ -356,22 +356,22 @@ FlightMap {
         myGeoFenceController:   _geoFenceController
         interactive:            false
         planView:               false
-        show3DView:             globals.geoFenceShow3D
+        show3DView:             globals.geoFenceShow3D === true
         breachStyle:            globals.geoFenceBreachStyle
         fenceOpacity:           globals.geoFenceFenceOpacity
         boundaryColor:          globals.geoFenceBoundaryColor
-        fillTopFace:            globals.geoFenceFillTopFace
-        fillSideFaces:          globals.geoFenceFillSideFaces
-        showMinMaxAltitude:     globals.geoFenceShowMinMaxAltitude
-        hideOccludedEdges:      globals.geoFenceHideOccludedEdges
-        showOccludedEdgesDashed: globals.geoFenceShowOccludedEdgesDashed
+        fillTopFace:            globals.geoFenceFillTopFace === true
+        fillSideFaces:          globals.geoFenceFillSideFaces === true
+        showMinMaxAltitude:     globals.geoFenceShowMinMaxAltitude === true
+        hideOccludedEdges:      globals.geoFenceHideOccludedEdges !== false
+        showOccludedEdgesDashed: globals.geoFenceShowOccludedEdgesDashed === true
         circleSegments:         globals.geoFenceCircleSegments
         extrudeScale:           globals.geoFenceExtrudeScale
         minExtrudeScale:        globals.geoFenceMinExtrudeScale
         maxExtrudeScale:        globals.geoFenceMaxExtrudeScale
-        showOperationalLayer:   globals.geoFenceShowOperational
-        showBufferLayer:        globals.geoFenceShowBuffer
-        showContingencyLayer:   globals.geoFenceShowContingency
+        showOperationalLayer:   globals.geoFenceShowOperational === true
+        showBufferLayer:        globals.geoFenceShowBuffer === true
+        showContingencyLayer:   globals.geoFenceShowContingency === true
         homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
     }
 
@@ -379,7 +379,7 @@ FlightMap {
         map:                    _root
         myGeoCageController:    _geoCageController
         interactive:            false
-        visible:                globals.geoFenceShowContingency
+        visible:                globals.geoFenceShowContingency === true
         useFenceGeometry:       true
         homePosition:           _activeVehicle && _activeVehicle.homePosition.isValid ? _activeVehicle.homePosition :  QtPositioning.coordinate()
     }

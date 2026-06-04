@@ -23,7 +23,10 @@ Item {
     anchors.top:    parent.top
     anchors.bottom: parent.bottom
 
-    property bool showIndicator: QGroundControl.gpsRtk ? QGroundControl.gpsRtk.connected.value : false
+    property var  _gpsRtk:       QGroundControl.gpsRtk
+    property bool _rtkConnected: _gpsRtk ? _gpsRtk.connected.value : false
+    property bool _rtkActive:    _gpsRtk ? _gpsRtk.active.value : false
+    property bool showIndicator: _rtkConnected
 
     Component {
         id: gpsInfo
@@ -44,7 +47,7 @@ Item {
 
                 QGCLabel {
                     id:             gpsLabel
-                    text: (QGroundControl.gpsRtk.active.value) ? qsTr("Survey-in Active") : qsTr("RTK Streaming")
+                    text: _rtkActive ? qsTr("Survey-in Active") : qsTr("RTK Streaming")
                     font.family:    ScreenTools.demiboldFontFamily
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
@@ -59,23 +62,23 @@ Item {
 
                     QGCLabel {
                         text: qsTr("Duration:")
-                        visible: QGroundControl.gpsRtk.active.value
+                        visible: _rtkActive
                         }
                     QGCLabel {
-                        text: QGroundControl.gpsRtk.currentDuration.value + ' s'
-                        visible: QGroundControl.gpsRtk.active.value
+                        text: _gpsRtk ? _gpsRtk.currentDuration.value + ' s' : ""
+                        visible: _rtkActive
                         }
                     QGCLabel {
                         // during survey-in show the current accuracy, after that show the final accuracy
-                        text: QGroundControl.gpsRtk.valid.value ? qsTr("Accuracy:") : qsTr("Current Accuracy:")
-                        visible: QGroundControl.gpsRtk.currentAccuracy.value > 0
+                        text: _gpsRtk && _gpsRtk.valid.value ? qsTr("Accuracy:") : qsTr("Current Accuracy:")
+                        visible: _gpsRtk && _gpsRtk.currentAccuracy.value > 0
                         }
                     QGCLabel {
-                        text: QGroundControl.gpsRtk.currentAccuracy.valueString + " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
-                        visible: QGroundControl.gpsRtk.currentAccuracy.value > 0
+                        text: _gpsRtk ? _gpsRtk.currentAccuracy.valueString + " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString : ""
+                        visible: _gpsRtk && _gpsRtk.currentAccuracy.value > 0
                         }
                     QGCLabel { text: qsTr("Satellites:") }
-                    QGCLabel { text: QGroundControl.gpsRtk.numSatellites.value }
+                    QGCLabel { text: _gpsRtk ? _gpsRtk.numSatellites.value : "" }
                 }
             }
         }
@@ -90,7 +93,7 @@ Item {
         fillMode:           Image.PreserveAspectFit
         sourceSize.height:  height
         opacity:            1
-        color:              QGroundControl.gpsRtk.active.value ? qgcPal.colorRed : qgcPal.buttonText
+        color:              _rtkActive ? qgcPal.colorRed : qgcPal.buttonText
     }
 
     Column {
@@ -102,7 +105,7 @@ Item {
         QGCLabel {
             anchors.horizontalCenter:   parent.horizontalCenter
             color:                      qgcPal.buttonText
-            text:                       QGroundControl.gpsRtk.numSatellites.value
+            text:                       _gpsRtk ? _gpsRtk.numSatellites.value : ""
         }
     }
 

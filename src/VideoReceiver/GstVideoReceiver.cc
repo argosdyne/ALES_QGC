@@ -19,10 +19,6 @@
 #include <QDebug>
 #include <QUrl>
 #include <QDateTime>
-#include <QSysInfo>
-#ifdef Q_OS_ANDROID
-#include <QtAndroidExtras/QAndroidJniObject>
-#endif
 
 #include <gst/rtsp/gstrtsptransport.h>
 
@@ -30,6 +26,10 @@ QGC_LOGGING_CATEGORY(VideoReceiverLog, "VideoReceiverLog")
 QGC_LOGGING_CATEGORY(GStreamLog, "GStreamLog")
 
 namespace {
+
+constexpr guint kRtspUdpLatencyMs = 200;
+constexpr gint kUdpSocketBufferBytes = 4 * 1024 * 1024;
+constexpr guint kRtspUdpReconnectTimeoutUs = 5000000u;
 
 const char* gstStateName(GstState state)
 {
@@ -68,16 +68,120 @@ QString gstFactoryName(GstElement* element)
         : QStringLiteral("<no-factory>");
 }
 
-bool isRockchipManufacturer()
+GParamSpec* gstPropertySpec(GstElement* element, const char* propertyName)
 {
-#ifdef Q_OS_ANDROID
-    const QAndroidJniObject manufacturer = QAndroidJniObject::getStaticObjectField(
-            "android/os/Build", "MANUFACTURER", "Ljava/lang/String;");
-    if (manufacturer.isValid()) {
-        return manufacturer.toString().contains(QStringLiteral("rockchip"), Qt::CaseInsensitive);
+    return element != nullptr && propertyName != nullptr && G_OBJECT_GET_CLASS(element) != nullptr
+        ? g_object_class_find_property(G_OBJECT_GET_CLASS(element), propertyName)
+        : nullptr;
+}
+
+bool hasGstProperty(GstElement* element, const char* propertyName)
+{
+    return gstPropertySpec(element, propertyName) != nullptr;
+}
+
+void logMissingProperty(const QString& context, GstElement* element, const char* propertyName)
+{
+    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+                                    << "name=" << (element != nullptr ? gstObjectName(GST_OBJECT(element)) : QStringLiteral("<null>"))
+                                    << "factory=" << gstFactoryName(element)
+                                    << "missing-property=" << QString::fromUtf8(propertyName);
+}
+
+void setGstIntegralProperty(const QString& context, GstElement* element, const char* propertyName, qint64 value)
+{
+    GParamSpec* property = gstPropertySpec(element, propertyName);
+    if (property == nullptr) {
+        logMissingProperty(context, element, propertyName);
+        return;
     }
-#endif
-    return false;
+
+    GValue gvalue = G_VALUE_INIT;
+    g_value_init(&gvalue, property->value_type);
+
+    const GType fundamentalType = G_TYPE_FUNDAMENTAL(property->value_type);
+    switch (fundamentalType) {
+    case G_TYPE_BOOLEAN:
+        g_value_set_boolean(&gvalue, value != 0);
+        break;
+    case G_TYPE_INT:
+        g_value_set_int(&gvalue, static_cast<gint>(value));
+        break;
+    case G_TYPE_UINT:
+        g_value_set_uint(&gvalue, static_cast<guint>(value));
+        break;
+    case G_TYPE_INT64:
+        g_value_set_int64(&gvalue, static_cast<gint64>(value));
+        break;
+    case G_TYPE_UINT64:
+        g_value_set_uint64(&gvalue, static_cast<guint64>(value));
+        break;
+    default:
+        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+                                        << "name=" << gstObjectName(GST_OBJECT(element))
+                                        << "factory=" << gstFactoryName(element)
+                                        << "unsupported-property-type=" << QString::fromUtf8(propertyName)
+                                        << "type=" << QString::fromUtf8(g_type_name(property->value_type));
+        g_value_unset(&gvalue);
+        return;
+    }
+
+    g_object_set_property(G_OBJECT(element), propertyName, &gvalue);
+    g_value_unset(&gvalue);
+
+    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+                                    << "name=" << gstObjectName(GST_OBJECT(element))
+                                    << "factory=" << gstFactoryName(element)
+                                    << QString::fromUtf8(propertyName) + "=" << value;
+}
+
+void setGstUIntProperty(const QString& context, GstElement* element, const char* propertyName, guint value)
+{
+    setGstIntegralProperty(context, element, propertyName, value);
+}
+
+void setGstIntProperty(const QString& context, GstElement* element, const char* propertyName, gint value)
+{
+    setGstIntegralProperty(context, element, propertyName, value);
+}
+
+void setGstBoolProperty(const QString& context, GstElement* element, const char* propertyName, gboolean value)
+{
+    setGstIntegralProperty(context, element, propertyName, value ? 1 : 0);
+}
+
+void setGstRtspTransportProperty(const QString& context, GstElement* element, GstRTSPLowerTrans transport)
+{
+    if (!hasGstProperty(element, "protocols")) {
+        logMissingProperty(context, element, "protocols");
+        return;
+    }
+
+    g_object_set(G_OBJECT(element), "protocols", transport, nullptr);
+    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+                                    << "name=" << gstObjectName(GST_OBJECT(element))
+                                    << "factory=" << gstFactoryName(element)
+                                    << "protocols=udp";
+}
+
+void configureRtspUdpRobustness(GstElement* element, const QString& context)
+{
+    const QString factoryName = gstFactoryName(element);
+    if (factoryName == QStringLiteral("rtspsrc")) {
+        setGstUIntProperty(context, element, "latency", kRtspUdpLatencyMs);
+        setGstBoolProperty(context, element, "drop-on-latency", FALSE);
+        setGstRtspTransportProperty(context, element, GST_RTSP_LOWER_TRANS_UDP);
+        setGstBoolProperty(context, element, "udp-reconnect", TRUE);
+        setGstUIntProperty(context, element, "timeout", kRtspUdpReconnectTimeoutUs);
+        setGstUIntProperty(context, element, "udp-buffer-size", kUdpSocketBufferBytes);
+    } else if (factoryName == QStringLiteral("rtpjitterbuffer")) {
+        setGstUIntProperty(context, element, "latency", kRtspUdpLatencyMs);
+        setGstBoolProperty(context, element, "drop-on-latency", FALSE);
+        setGstBoolProperty(context, element, "do-lost", TRUE);
+        setGstBoolProperty(context, element, "post-drop-messages", TRUE);
+    } else if (factoryName == QStringLiteral("udpsrc")) {
+        setGstIntProperty(context, element, "buffer-size", kUdpSocketBufferBytes);
+    }
 }
 
 void configureStartupParserHints(GstElement* element)
@@ -195,6 +299,68 @@ GstVideoReceiver::_logElementProperty(const char* context, GstElement* element, 
 }
 
 void
+GstVideoReceiver::_logReceiverChecklistProperties(const char* context, GstElement* element) const
+{
+    if (element == nullptr || context == nullptr) {
+        return;
+    }
+
+    const QString factoryName = gstFactoryName(element);
+    const QByteArray contextPrefix = QByteArray(context) + "." + factoryName.toUtf8();
+    const char* scopedContext = contextPrefix.constData();
+
+    if (factoryName == QStringLiteral("rtspsrc")) {
+        _logElementProperty(scopedContext, element, "latency");
+        _logElementProperty(scopedContext, element, "drop-on-latency");
+        _logElementProperty(scopedContext, element, "protocols");
+        _logElementProperty(scopedContext, element, "udp-reconnect");
+        _logElementProperty(scopedContext, element, "timeout");
+        _logElementProperty(scopedContext, element, "udp-buffer-size");
+    } else if (factoryName == QStringLiteral("udpsrc")) {
+        _logElementProperty(scopedContext, element, "port");
+        _logElementProperty(scopedContext, element, "address");
+        _logElementProperty(scopedContext, element, "auto-multicast");
+        _logElementProperty(scopedContext, element, "multicast-iface");
+        _logElementProperty(scopedContext, element, "buffer-size");
+        _logElementProperty(scopedContext, element, "caps");
+    } else if (factoryName == QStringLiteral("rtpjitterbuffer")) {
+        _logElementProperty(scopedContext, element, "latency");
+        _logElementProperty(scopedContext, element, "drop-on-latency");
+        _logElementProperty(scopedContext, element, "do-lost");
+        _logElementProperty(scopedContext, element, "do-retransmission");
+        _logElementProperty(scopedContext, element, "mode");
+        _logElementProperty(scopedContext, element, "max-dropout-time");
+        _logElementProperty(scopedContext, element, "max-misorder-time");
+        _logElementProperty(scopedContext, element, "post-drop-messages");
+        _logPadCaps((contextPrefix + ".src").constData(), element, "src");
+    } else if (factoryName == QStringLiteral("rtph264depay") || factoryName == QStringLiteral("rtph265depay")) {
+        _logElementProperty(scopedContext, element, "request-keyframe");
+        _logElementProperty(scopedContext, element, "wait-for-keyframe");
+        _logPadCaps((contextPrefix + ".src").constData(), element, "src");
+    } else if (factoryName == QStringLiteral("h264parse") || factoryName == QStringLiteral("h265parse")) {
+        _logElementProperty(scopedContext, element, "config-interval");
+        _logElementProperty(scopedContext, element, "disable-passthrough");
+        _logPadCaps((contextPrefix + ".src").constData(), element, "src");
+    } else if (factoryName == QStringLiteral("capsfilter")) {
+        _logElementProperty(scopedContext, element, "caps");
+        _logPadCaps((contextPrefix + ".src").constData(), element, "src");
+    } else if (factoryName == QStringLiteral("queue") || factoryName.endsWith(QStringLiteral("queue"))) {
+        _logElementProperty(scopedContext, element, "max-size-buffers");
+        _logElementProperty(scopedContext, element, "max-size-bytes");
+        _logElementProperty(scopedContext, element, "max-size-time");
+        _logElementProperty(scopedContext, element, "leaky");
+    } else if (factoryName == QStringLiteral("qgcvideosinkbin") ||
+               factoryName == QStringLiteral("qmlglsink") ||
+               factoryName == QStringLiteral("glimagesink")) {
+        _logElementProperty(scopedContext, element, "sync");
+        _logElementProperty(scopedContext, element, "qos");
+        _logElementProperty(scopedContext, element, "max-lateness");
+        _logElementProperty(scopedContext, element, "async");
+        _logElementProperty(scopedContext, element, "force-aspect-ratio");
+    }
+}
+
+void
 GstVideoReceiver::_logCaps(const char* context, GstCaps* caps) const
 {
     if (caps == nullptr) {
@@ -297,6 +463,7 @@ GstVideoReceiver::_logPipelineConfiguration(const char* context) const
                     } else if (factoryName == QStringLiteral("udpsrc") || factoryName == QStringLiteral("rtspsrc")) {
                         _logPadCaps("source.src", element, "src");
                     }
+                    _logReceiverChecklistProperties(context, element);
                 }
                 g_value_reset(&item);
             }
@@ -1052,18 +1219,10 @@ GstVideoReceiver::_makeSource(const QString& uri)
             }
         } else if (isRtsp) {
             if ((source = gst_element_factory_make("rtspsrc", "source")) != nullptr) {
-                const int rtspLatency = _buffer > 0 ? _buffer : 17;
                 g_object_set(static_cast<gpointer>(source),
                              "location", qPrintable(uri),
-                             "latency", rtspLatency,
-                             "udp-reconnect", 1,
-                             "timeout", _udpReconnect_us,
                              NULL);
-                if (!isRockchipManufacturer()) {
-                    g_object_set(static_cast<gpointer>(source),
-                                 "protocols", GST_RTSP_LOWER_TRANS_TCP,
-                                 NULL);
-                }
+                configureRtspUdpRobustness(source, QStringLiteral("rtspsrc.configured"));
                 g_signal_connect(source, "new-manager", G_CALLBACK(_onRtspNewManager), this);
                 if (GST_IS_CHILD_PROXY(source)) {
                     g_signal_connect(source, "child-added", G_CALLBACK(_onChildAdded), this);
@@ -1072,6 +1231,7 @@ GstVideoReceiver::_makeSource(const QString& uri)
         } else if(isUdp264 || isUdp265 || isUdpMPEGTS || isTaisync) {
             if ((source = gst_element_factory_make("udpsrc", "source")) != nullptr) {
                 g_object_set(static_cast<gpointer>(source), "uri", QString("udp://%1:%2").arg(qPrintable(url.host()), QString::number(url.port())).toUtf8().data(), nullptr);
+                configureRtspUdpRobustness(source, QStringLiteral("udpsrc.configured"));
 
                 GstCaps* caps = nullptr;
 
@@ -1155,6 +1315,7 @@ GstVideoReceiver::_makeSource(const QString& uri)
                     qCCritical(VideoReceiverLog) << "gst_element_factory_make('rtpjitterbuffer') failed";
                     break;
                 }
+                configureRtspUdpRobustness(buffer, QStringLiteral("rtpjitterbuffer.configured"));
 
                 gst_bin_add(GST_BIN(bin), buffer);
 
@@ -1486,13 +1647,13 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
 
     gst_element_sync_state_with_parent(_videoSink);
 
-    const gboolean sinkSync = isRockchipManufacturer() ? (_buffer >= 0) : (_buffer <= 0);
     g_object_set(_videoSink,
-                 "sync", sinkSync,
+                 "sync", FALSE,
                  "qos", FALSE,
                  "max-lateness", static_cast<gint64>(-1),
                  NULL);
     _logElementProperty("videoSink", _videoSink, "sync");
+    _logReceiverChecklistProperties("videoSink-configured", _videoSink);
 
     GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-with-videosink");
     _logPipelineConfiguration("video-sink-added");
@@ -1804,6 +1965,8 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
 
     self->_logElementSummary("runtime-element-added", element);
     configureStartupParserHints(element);
+    configureRtspUdpRobustness(element, QStringLiteral("runtime-config"));
+    self->_logReceiverChecklistProperties("runtime-checklist", element);
 
     if (factoryName == QStringLiteral("rtpjitterbuffer")) {
         self->_logElementProperty("rtpjitterbuffer.runtime", element, "latency");
@@ -1814,17 +1977,17 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
         self->_logElementProperty("h264parse.runtime", element, "config-interval");
         self->_logElementProperty("h264parse.runtime", element, "disable-passthrough");
     } else if (factoryName == QStringLiteral("udpsrc")) {
-        qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
-                                     << "uri=" << self->_uri
-                                     << "transport=udp"
-                                     << "element=" << elementName;
+        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
+                                        << "uri=" << self->_uri
+                                        << "transport=udp"
+                                        << "element=" << elementName;
         self->_logElementProperty("udpsrc.runtime", element, "port");
         self->_logElementProperty("udpsrc.runtime", element, "caps");
     } else if (factoryName == QStringLiteral("tcpclientsrc")) {
-        qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
-                                     << "uri=" << self->_uri
-                                     << "transport=tcp"
-                                     << "element=" << elementName;
+        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
+                                        << "uri=" << self->_uri
+                                        << "transport=tcp"
+                                        << "element=" << elementName;
     }
 
     if (self->_decoder != nullptr) {
@@ -1838,10 +2001,10 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
             factoryName != QStringLiteral("decodebin3") &&
             factoryName != QStringLiteral("parsebin") &&
             !factoryName.endsWith(QStringLiteral("queue"))) {
-            qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] decoder-selected"
-                                         << "uri=" << self->_uri
-                                         << "factory=" << factoryName
-                                         << "name=" << elementName;
+            qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] decoder-selected"
+                                            << "uri=" << self->_uri
+                                            << "factory=" << factoryName
+                                            << "name=" << elementName;
             if (self->_decoderName != factoryName) {
                 self->_decoderName = factoryName;
                 self->_dispatchSignal([self, factoryName](){
@@ -1870,7 +2033,9 @@ GstVideoReceiver::_onChildAdded(GstChildProxy* childProxy, GObject* object, gcha
                                  << "factory=" << gstFactoryName(element);
 
     configureStartupParserHints(element);
+    configureRtspUdpRobustness(element, QStringLiteral("child-config"));
     self->_logElementSummary("child-added", element);
+    self->_logReceiverChecklistProperties("child-checklist", element);
     if (gstFactoryName(element) == QStringLiteral("h264parse")) {
         self->_logElementProperty("h264parse.child", element, "config-interval");
         self->_logElementProperty("h264parse.child", element, "disable-passthrough");
@@ -1885,16 +2050,17 @@ GstVideoReceiver::_onRtspNewManager(GstElement* src, GstElement* manager, gpoint
         return;
     }
 
-    qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtspsrc-new-manager"
-                                 << "uri=" << self->_uri
-                                 << "source=" << gstObjectName(GST_OBJECT(src))
-                                 << "manager=" << gstObjectName(GST_OBJECT(manager))
-                                 << "factory=" << gstFactoryName(manager);
+    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtspsrc-new-manager"
+                                    << "uri=" << self->_uri
+                                    << "source=" << gstObjectName(GST_OBJECT(src))
+                                    << "manager=" << gstObjectName(GST_OBJECT(manager))
+                                    << "factory=" << gstFactoryName(manager);
 
     self->_logElementSummary("rtspsrc.manager", manager);
     self->_logElementProperty("rtspsrc.source", src, "latency");
     self->_logElementProperty("rtspsrc.source", src, "drop-on-latency");
     self->_logElementProperty("rtspsrc.source", src, "protocols");
+    self->_logReceiverChecklistProperties("rtspsrc-source-checklist", src);
 
     if (GST_IS_BIN(manager)) {
         g_signal_connect(manager, "deep-element-added", G_CALLBACK(_onDeepElementAdded), self);

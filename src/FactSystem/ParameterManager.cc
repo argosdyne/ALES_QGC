@@ -197,6 +197,26 @@ void ParameterManager::_logInitialLoadProgress(const QString& event, int compone
     }
 }
 
+QString ParameterManager::_formatPendingIndexRequests(void) const
+{
+    QStringList entries;
+
+    for (auto compIt = _waitingReadParamIndexMap.constBegin(); compIt != _waitingReadParamIndexMap.constEnd(); ++compIt) {
+        if (compIt.value().isEmpty()) {
+            continue;
+        }
+
+        QStringList indices;
+        for (auto idxIt = compIt.value().constBegin(); idxIt != compIt.value().constEnd(); ++idxIt) {
+            indices << QString::number(idxIt.key());
+        }
+
+        entries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(indices.join(QStringLiteral(",")));
+    }
+
+    return entries.isEmpty() ? QStringLiteral("[]") : QStringLiteral("[%1]").arg(entries.join(QStringLiteral(";")));
+}
+
 void ParameterManager::_updateProgressBar(void)
 {
     int waitingReadParamIndexCount = 0;
@@ -839,6 +859,8 @@ bool ParameterManager::_fillIndexBatchQueue(bool waitingParamTimeout)
         qCDebug(ParameterManagerLog) << "Refilling index based batch queue due to received parameter";
     }
 
+    QMap<int, QList<int>> requestedByComponent;
+
     for(int componentId: _waitingReadParamIndexMap.keys()) {
         if (_waitingReadParamIndexMap[componentId].count()) {
             qCDebug(ParameterManagerLog) << _logVehiclePrefix(componentId) << "_waitingReadParamIndexMap count" << _waitingReadParamIndexMap[componentId].count();
@@ -864,10 +886,29 @@ bool ParameterManager::_fillIndexBatchQueue(bool waitingParamTimeout)
             } else {
                 // Retry again
                 _indexBatchQueue.append(paramIndex);
+                requestedByComponent[componentId].append(paramIndex);
                 _readParameterRaw(componentId, "", paramIndex);
                 qCDebug(ParameterManagerLog) << _logVehiclePrefix(componentId) << "Read re-request for (paramIndex:" << paramIndex << "retryCount:" << _waitingReadParamIndexMap[componentId][paramIndex] << ")";
             }
         }
+    }
+
+    if (!requestedByComponent.isEmpty()) {
+        QStringList entries;
+        for (auto compIt = requestedByComponent.constBegin(); compIt != requestedByComponent.constEnd(); ++compIt) {
+            QStringList indices;
+            for (int index : compIt.value()) {
+                indices << QString::number(index);
+            }
+            entries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(indices.join(QStringLiteral(",")));
+        }
+
+        qCWarning(ParameterManagerLog).noquote()
+                << QStringLiteral("%1 fc-param-load index-rerequest waitingTimeout %2 requested %3 pending %4")
+                          .arg(_logVehiclePrefix(-1))
+                          .arg(waitingParamTimeout ? QStringLiteral("true") : QStringLiteral("false"))
+                          .arg(entries.join(QStringLiteral(";")))
+                          .arg(_formatPendingIndexRequests());
     }
 
     return _indexBatchQueue.count() != 0;
@@ -886,6 +927,12 @@ void ParameterManager::_waitingParamTimeout(void)
     qCDebug(ParameterManagerLog) << _logVehiclePrefix(-1) << "_waitingParamTimeout";
 
     // Now that we have timed out for possibly the first time we can activate the index batch queue
+    if (!_indexBatchQueueActive) {
+        qCWarning(ParameterManagerLog).noquote()
+                << QStringLiteral("%1 fc-param-load activating-index-retry pending %2")
+                          .arg(_logVehiclePrefix(-1))
+                          .arg(_formatPendingIndexRequests());
+    }
     _indexBatchQueueActive = true;
 
     // First check for any missing parameters from the initial index based load

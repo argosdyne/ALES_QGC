@@ -27,6 +27,16 @@ QGCFlickable {
     property int             _breachStyle:      Qt.SolidLine
     readonly property real  _buttonWidth:      _editFieldWidth * 0.8
 
+    function _syncVisuals() {
+        if (!cageVisuals) {
+            return
+        }
+        cageVisuals.cageOpacity = _opacity
+        cageVisuals.boundaryColor = _boundaryColor
+        cageVisuals.showVertical = _showVertical
+        cageVisuals.breachStyle = _breachStyle
+    }
+
     Rectangle {
         id:             cageRect
         anchors.left:   parent.left
@@ -287,15 +297,6 @@ QGCFlickable {
                         }
                     }
 
-                    function _syncVisuals() {
-                        if (!cageVisuals) {
-                            return
-                        }
-                        cageVisuals.cageOpacity = _opacity
-                        cageVisuals.boundaryColor = _boundaryColor
-                        cageVisuals.showVertical = _showVertical
-                        cageVisuals.breachStyle = _breachStyle
-                    }
                 }
             }
         }

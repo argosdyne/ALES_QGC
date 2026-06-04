@@ -34,19 +34,19 @@ QGCFlickable {
     property int    circleSegments: 40
 
     Component.onCompleted: {
-        show3DView = globals.geoFenceShow3D
+        show3DView = globals.geoFenceShow3D === true
         _breachStyle = globals.geoFenceBreachStyle
-        fenceOpacity = globals.geoFenceFenceOpacity
-        boundaryColor = globals.geoFenceBoundaryColor
-        fillTopFace = globals.geoFenceFillTopFace
-        fillSideFaces = globals.geoFenceFillSideFaces
-        hideOccludedEdges = globals.geoFenceHideOccludedEdges
-        showOccludedEdgesDashed = globals.geoFenceShowOccludedEdgesDashed
-        extrudeScale = globals.geoFenceExtrudeScale
-        minExtrudeScale = globals.geoFenceMinExtrudeScale
-        maxExtrudeScale = globals.geoFenceMaxExtrudeScale
-        showMinMaxAltitude = globals.geoFenceShowMinMaxAltitude
-        circleSegments = globals.geoFenceCircleSegments
+        fenceOpacity = globals.geoFenceFenceOpacity !== undefined ? globals.geoFenceFenceOpacity : 0.9
+        boundaryColor = globals.geoFenceBoundaryColor !== undefined ? globals.geoFenceBoundaryColor : "#ffb300"
+        fillTopFace = globals.geoFenceFillTopFace === true
+        fillSideFaces = globals.geoFenceFillSideFaces === true
+        hideOccludedEdges = globals.geoFenceHideOccludedEdges !== false
+        showOccludedEdgesDashed = globals.geoFenceShowOccludedEdgesDashed === true
+        extrudeScale = globals.geoFenceExtrudeScale !== undefined ? globals.geoFenceExtrudeScale : 1.0
+        minExtrudeScale = globals.geoFenceMinExtrudeScale !== undefined ? globals.geoFenceMinExtrudeScale : 0.6
+        maxExtrudeScale = globals.geoFenceMaxExtrudeScale !== undefined ? globals.geoFenceMaxExtrudeScale : 1.6
+        showMinMaxAltitude = globals.geoFenceShowMinMaxAltitude === true
+        circleSegments = globals.geoFenceCircleSegments !== undefined ? globals.geoFenceCircleSegments : 40
     }
 
     onShow3DViewChanged: globals.geoFenceShow3D = show3DView
@@ -122,17 +122,17 @@ QGCFlickable {
                         spacing: _margin
                         QGCCheckBox {
                             text:       qsTr("Operational")
-                            checked:    globals.geoFenceShowOperational
+                            checked:    globals.geoFenceShowOperational === true
                             onClicked:  globals.geoFenceShowOperational = checked
                         }
                         QGCCheckBox {
                             text:       qsTr("Buffer")
-                            checked:    globals.geoFenceShowBuffer
+                            checked:    globals.geoFenceShowBuffer === true
                             onClicked:  globals.geoFenceShowBuffer = checked
                         }
                         QGCCheckBox {
                             text:       qsTr("Contingency")
-                            checked:    globals.geoFenceShowContingency
+                            checked:    globals.geoFenceShowContingency === true
                             onClicked:  globals.geoFenceShowContingency = checked
                         }
                     }
@@ -163,7 +163,7 @@ QGCFlickable {
 
                         QGCLabel { text: qsTr("Vmax (m/s)") }
                         QGCTextField {
-                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            text: myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onEditingFinished: {
                                 var v = parseFloat(text)
@@ -176,7 +176,7 @@ QGCFlickable {
 
                         QGCLabel { text: qsTr("Latency (s)") }
                         QGCTextField {
-                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            text: myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onEditingFinished: {
                                 var v = parseFloat(text)
@@ -189,7 +189,7 @@ QGCFlickable {
 
                         QGCLabel { text: qsTr("Maneuver (s)") }
                         QGCTextField {
-                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            text: myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onEditingFinished: {
                                 var v = parseFloat(text)
@@ -202,7 +202,7 @@ QGCFlickable {
 
                         QGCLabel { text: qsTr("Wind (m/s)") }
                         QGCTextField {
-                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            text: myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onEditingFinished: {
                                 var v = parseFloat(text)
@@ -215,7 +215,7 @@ QGCFlickable {
 
                         QGCLabel { text: qsTr("Position Error (m)") }
                         QGCTextField {
-                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            text: myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onEditingFinished: {
                                 var v = parseFloat(text)

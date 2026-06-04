@@ -10,16 +10,25 @@
 #include <QApplication>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QLoggingCategory>
 
 #include "AudioOutput.h"
 #include "QGCApplication.h"
 #include "QGC.h"
+#include "QGCLoggingCategory.h"
 #include "SettingsManager.h"
+
+QGC_LOGGING_CATEGORY(AudioOutputLog, "AudioOutputLog")
 
 AudioOutput::AudioOutput(QGCApplication* app, QGCToolbox* toolbox)
     : QGCTool   (app, toolbox)
     , _tts      (nullptr)
 {
+#if defined(Q_OS_ANDROID) && !defined(QGC_ENABLE_ANDROID_TTS)
+    qCInfo(AudioOutputLog) << "Android TextToSpeech disabled for this build";
+    return;
+#endif
+
     if (qgcApp()->runningUnitTests()) {
         // Cloud based unit tests don't have speech capabilty. If you try to crank up
         // speech engine it will pop a qWarning which prevents usage of QT_FATAL_WARNINGS
@@ -39,7 +48,7 @@ AudioOutput::AudioOutput(QGCApplication* app, QGCToolbox* toolbox)
 void AudioOutput::say(const QString& inText)
 {
     if (!_tts) {
-        qDebug() << "say" << inText;
+        Q_UNUSED(inText)
         return;
     }
 
