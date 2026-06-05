@@ -167,6 +167,11 @@ signals:
 protected slots:
     void _parametersReady();
     void _dZoomInMaxChange();
+
+protected:
+    void _clearCameraDefinitionState() override;
+
+private:
     void _handleThermometryData(QVariant data);
     void _handleNVStatus(QVariant data);
     void _handleDetectObjects(QVariant data);

@@ -928,6 +928,24 @@ QStringList CodevCameraControl::activeSettings()
     return settings;
 }
 
+void CodevCameraControl::_clearCameraDefinitionState()
+{
+    qCDebug(CodevCameraLog) << "[CodevCamera]"
+            << "clearing Codev camera definition state for compId" << compID();
+
+    disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
+    disconnect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
+    _dZoomFact    = nullptr;
+    _zoomModeFact = nullptr;
+    _aiSourceFact = nullptr;
+    _hasTrack     = false;
+    _hasDetect    = false;
+
+    QGCCameraControl::_clearCameraDefinitionState();
+
+    connect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady, Qt::UniqueConnection);
+}
+
 void CodevCameraControl::_parametersReady()
 {
 

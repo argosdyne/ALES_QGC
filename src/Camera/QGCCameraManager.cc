@@ -15,6 +15,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QFileInfo>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QTcpServer>
@@ -26,7 +27,7 @@ QGC_LOGGING_CATEGORY(CameraManagerLog, "CameraManagerLog")
 namespace {
 
 static constexpr quint16 kCameraDefinitionLocalPort = 38081;
-static const char* kCameraDefinitionPathFormat = "/camera/%1/caminfo.xml";
+static const char* kCameraDefinitionPathFormat = "/camera/%1/%2";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
 static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
@@ -137,7 +138,7 @@ QGCCameraManager::_cameraDefinitionLocalUrl(int compID) const
 
     return QStringLiteral("http://127.0.0.1:%1%2")
         .arg(_cameraDefinitionHttpPort)
-        .arg(QString::fromLatin1(kCameraDefinitionPathFormat).arg(compID));
+        .arg(QString::fromLatin1(kCameraDefinitionPathFormat).arg(compID).arg(QStringLiteral("caminfo.xml")));
 }
 
 QString
@@ -228,7 +229,7 @@ QGCCameraManager::_handleCameraDefinitionHttpRequest()
         return;
     }
 
-    const QRegularExpression requestRegex(QStringLiteral("^GET\\s+(/camera/(\\d+)/caminfo\\.xml)\\s+HTTP/"));
+    const QRegularExpression requestRegex(QStringLiteral("^GET\\s+(/camera/(\\d+)/[^/\\s?]+\\.xml)\\s+HTTP/"));
     const QString requestLine = QString::fromLatin1(requestLines.first()).trimmed();
     const QRegularExpressionMatch match = requestRegex.match(requestLine);
     if (!match.hasMatch()) {
@@ -674,7 +675,7 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
 {
     //-- Have we requested it?
     QString sCompID = QString::number(message.compid);
-    if(_cameraInfoRequest.contains(sCompID) && !_cameraInfoRequest[sCompID]->infoReceived) {
+    if(_cameraInfoRequest.contains(sCompID)) {
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
         qCInfo(CameraManagerLog) << "[CameraManager]"
@@ -688,16 +689,31 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
                 << "firmwareVersion" << info.firmware_version
                 << "link" << link;
         QGCCameraControl* pCamera = nullptr;
+        const QString incomingVendor = QString(reinterpret_cast<const char*>(info.vendor_name));
+        const QString incomingModel  = QString(reinterpret_cast<const char*>(info.model_name));
         if (QGCCameraControl* existingCamera = _findCamera(message.compid)) {
-            if (_cameraInfoRequest[sCompID]->fallbackCreated) {
-                _removeCameraControlFromLists(existingCamera);
-                existingCamera->deleteLater();
-            } else {
+
+            const bool sameCamera = !_cameraInfoRequest[sCompID]->fallbackCreated &&
+                                    existingCamera->vendor().compare(incomingVendor, Qt::CaseInsensitive) == 0 &&
+                                    existingCamera->modelName().compare(incomingModel, Qt::CaseInsensitive) == 0;
+            if (sameCamera) {
                 _cameraInfoRequest[sCompID]->infoReceived = true;
                 return;
             }
+            qCInfo(CameraManagerLog) << "[CameraManager]"
+                    << "camera replaced on component, rebuilding"
+                    << "compId" << message.compid
+                    << "previousVendor" << existingCamera->vendor()
+                    << "previousModel" << existingCamera->modelName()
+                    << "incomingVendor" << incomingVendor
+                    << "incomingModel" << incomingModel;
+            _removeCameraControlFromLists(existingCamera);
+            existingCamera->deleteLater();
+        } else if (_cameraInfoRequest[sCompID]->infoReceived) {
+            //-- Already processed and no camera present to update.
+            return;
         }
-        QString vendor = QString(reinterpret_cast<const char*>(info.vendor_name));
+        QString vendor = incomingVendor;
         if (vendor.toUpper().compare("CODEV") == 0) {
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "creating CodevCameraControl from CAMERA_INFORMATION"

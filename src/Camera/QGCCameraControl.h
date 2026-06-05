@@ -399,6 +399,8 @@ protected slots:
     virtual void    _downloadFinished       ();
     virtual void    _mavCommandResult       (int vehicleId, int component, int command, int result, bool noReponseFromVehicle);
     virtual void    _dataReady              (QByteArray data);
+
+    virtual void    _clearCameraDefinitionState();
     virtual void    _paramDone              ();
     virtual void    _streamInfoTimeout      ();
     virtual void    _streamStatusTimeout    ();
@@ -447,6 +449,9 @@ protected:
     QString                             _modelName;
     QString                             _vendor;
     QString                             _cacheFile;
+
+    bool                                _definitionFetchDeferred = false;
+    QString                             _deferredDefinitionUri;
     CameraMode                          _cameraMode         = CAM_MODE_UNDEFINED;
     StorageStatus                       _storageStatus      = STORAGE_NOT_SUPPORTED;
     PhotoMode                           _photoMode          = PHOTO_CAPTURE_SINGLE;
