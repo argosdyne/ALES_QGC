@@ -4242,6 +4242,45 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
         _mavlinkLossCount       = totalLoss;
         _mavlinkLossPercent     = lossPercent;
         emit mavlinkStatusChanged();
+
+        // C2Link 5 s rate logger disabled. Re-enable by removing the #if 0 / #endif guard.
+#if 0
+        // Per-second rate logger: prints msg/s arriving + lost + total + lossPct
+        // once per second to C2LinkLog so we can correlate rate with link health.
+        static qint64 lastTickMs   = 0;
+        static uint64_t lastRx     = 0;
+        static uint64_t lastLost   = 0;
+        const qint64 nowTickMs     = QDateTime::currentMSecsSinceEpoch();
+        if (lastTickMs == 0) {
+            lastTickMs = nowTickMs;
+            lastRx     = totalReceived;
+            lastLost   = totalLoss;
+        } else if ((nowTickMs - lastTickMs) >= 5000) {
+            const double sec      = (nowTickMs - lastTickMs) / 1000.0;
+            const double rxRate   = (totalReceived - lastRx)   / sec;
+            const double lossRate = (totalLoss     - lastLost) / sec;
+            const double total    = rxRate + lossRate;
+            const double pct      = (total > 0.0) ? (lossRate / total * 100.0) : 0.0;
+            qCInfo(C2LinkLog) << "[Mavlink Link Status]"
+                                << "received="    << QString::number(rxRate, 'f', 1) << "msg/s"
+                                << "lost="  << QString::number(lossRate, 'f', 1) << "msg/s"
+                                << "total=" << QString::number(total, 'f', 1) << "msg/s"
+                                << "loss rate=" << QString::number(pct, 'f', 1) << "%";
+            lastTickMs = nowTickMs;
+            lastRx     = totalReceived;
+            lastLost   = totalLoss;
+        }
+#endif
+
+        //// Throttle banner re-evaluation on the packet-tick path to once every 7 s
+        //// in both directions. State-change callers (arm/disarm/flying) still call
+        //// _updateLinkQuality() directly and react instantly.
+        //static qint64 lastQualityEvalMs = 0;
+        //const qint64 nowQualityEvalMs = QDateTime::currentMSecsSinceEpoch();
+        //if (lastQualityEvalMs == 0 || (nowQualityEvalMs - lastQualityEvalMs) >= 7000) {
+        //    lastQualityEvalMs = nowQualityEvalMs;
+        //    _updateLinkQuality();
+        //}
         _updateLinkQuality();
     }
 }
@@ -4912,6 +4951,10 @@ void Vehicle::_updateParachuteState(void)
 
 void Vehicle::_updateLinkQuality(void)
 {
+    // C2 link quality detection disabled — body short-circuited so all
+    // threshold checks, state toggles, arm-grace tracking, signal emits and
+    // STATUSTEXT generation are skipped. Re-enable by removing the #if 0 / #endif guard.
+#if 0
     const bool wasWarning = _linkQualityWarning;
     const bool wasCritical = _linkQualityCritical;
 
@@ -4962,11 +5005,31 @@ void Vehicle::_updateLinkQuality(void)
         emit linkQualityCriticalChanged(critical);
     }
 
-    if (!wasCritical && critical) {
+    //const int newTrigger = (warning || critical) ? triggeredBy : 0;
+    //if (_linkQualityTrigger != newTrigger) {
+    //    _linkQualityTrigger = newTrigger;
+    //    emit linkQualityTriggerChanged(newTrigger);
+    //}
+    //// Pulse: bump the sequence each eval that finds bad state. QML banner listens
+    //// to this to show a brief 2-blink flash, instead of staying lit continuously.
+    //if (warning || critical) {
+    //    _linkQualityEvalSeq++;
+    //    emit linkQualityEvalSeqChanged(_linkQualityEvalSeq);
+    //}
+    // C2 link STATUSTEXT messages disabled. Re-enable by removing the #if 0 / #endif guard.
+#if 0
+    // Fire STATUSTEXT on transition into bad state, with a 10s cooldown per severity
+    // so a flapping link can't spam the message indicator.
+    static qint64 lastC2CriticalEmitMs = 0;
+    static qint64 lastC2WarningEmitMs  = 0;
+    if (!wasCritical && critical && (nowMs - lastC2CriticalEmitMs) > 10000) {
+        lastC2CriticalEmitMs = nowMs;
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, tr("C2 link quality critical").toHtmlEscaped(), "");
     } else if (!wasWarning && warning) {
         emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, tr("C2 link quality degraded").toHtmlEscaped(), "");
     }
+#endif // STATUSTEXT block
+#endif // entire _updateLinkQuality body
 }
 
 void Vehicle::_logGeoFenceEvent(const QString& reason, const QString& details)
