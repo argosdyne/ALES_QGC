@@ -148,6 +148,7 @@ Item {
             rangeRect.y = mouseY
         }
         onPressAndHold: {
+            if (selectItem.busy) return
             if(!enableRectangle) {
                 touchPressAndHold(mouseX / selectItem.width, mouseY / selectItem.height)
                 return
