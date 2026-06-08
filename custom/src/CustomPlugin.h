@@ -149,6 +149,7 @@ private:
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";
     int                     _rajantDiscoveryRetries = 0;
+    QString                 _pinnedRajantLocalNode;
 
 private:
     SiYiManager* _siyiManager = nullptr;

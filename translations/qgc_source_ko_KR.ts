@@ -19926,6 +19926,21 @@ Confirm change?</source>
         <translation>N/A</translation>
     </message>
 <message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+        <source>Node adress:</source>
+        <translation>노드 주소:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+        <source>Serial Number:</source>
+        <translation>시리얼 번호:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="98"/>
+        <source>Current Network Name:</source>
+        <translation>현재 네트워크 이름:</translation>
+    </message>
+<message>
         <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
         <source>Radio:</source>
         <translation>무선기:</translation>
@@ -19969,6 +19984,36 @@ Confirm change?</source>
         <location filename="../src/RajantLink/RajantSettings.qml" line="161"/>
         <source>Firmware:</source>
         <translation>펌웨어:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="193"/>
+        <source>Pairing Device</source>
+        <translation>장치 페어링</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="219"/>
+        <source>Set Network Name:</source>
+        <translation>네트워크 이름 설정:</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="227"/>
+        <source>Enter full mesh name</source>
+        <translation>전체 메시 이름 입력</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="244"/>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="252"/>
+        <source>Disconnect</source>
+        <translation>연결 해제</translation>
+    </message>
+<message>
+        <location filename="../src/RajantLink/RajantSettings.qml" line="266"/>
+        <source>Applying settings and waiting reboot...</source>
+        <translation>설정을 적용하고 재부팅을 기다리는 중...</translation>
     </message>
 </context>
 <context>
