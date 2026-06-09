@@ -30,6 +30,8 @@ Page {
     property bool   pinBoxFocused: false
     property int    _logoTapCount: 0
     property bool   _rememberedLogin: false
+    property bool   _rememberedLoginPinEdited: false
+    property bool   _updatingPinFromCode: false
     readonly property string _lockoutScope: "login"
 
     background: Rectangle {
@@ -99,6 +101,13 @@ Page {
 
     function getPINValue() { return pinText }
 
+    function _setPinValue(value) {
+        _updatingPinFromCode = true
+        pinText = value
+        hiddenInput.text = value
+        _updatingPinFromCode = false
+    }
+
     function _syncRememberMeUI() {
         try {
             _rememberedLogin = securityManager.rememberMeEnabled()
@@ -109,12 +118,11 @@ Page {
         rememberBox.checked = _rememberedLogin
 
         if (_rememberedLogin) {
-            pinText = "000000"
-            hiddenInput.text = pinText
+            _setPinValue("000000")
         } else {
-            pinText = ""
-            hiddenInput.text = ""
+            _setPinValue("")
         }
+        _rememberedLoginPinEdited = false
     }
 
     function _s(px) { return Math.round(px * _uiScale) }
@@ -258,7 +266,12 @@ Page {
                     maximumLength: pinLength
                     inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             
-                    onTextChanged: pinText = text
+                    onTextChanged: {
+                        pinText = text
+                        if (!_updatingPinFromCode && _rememberedLogin && rememberBox.checked) {
+                            _rememberedLoginPinEdited = true
+                        }
+                    }
 
                     Keys.onPressed: {
                         if (locked) { event.accepted = true; return }
@@ -317,9 +330,9 @@ Page {
 
                         if (!rememberBox.checked) {
                             loginPage._rememberedLogin = false
+                            loginPage._rememberedLoginPinEdited = false
                             try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            pinText = ""
-                            hiddenInput.text = ""
+                            loginPage._setPinValue("")
                         }
                     }
                 }
@@ -340,9 +353,9 @@ Page {
 
                         if (!rememberBox.checked) {
                             loginPage._rememberedLogin = false
+                            loginPage._rememberedLoginPinEdited = false
                             try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            pinText = ""
-                            hiddenInput.text = ""
+                            loginPage._setPinValue("")
                         }
                     }
                 }
@@ -396,7 +409,7 @@ Page {
                 var remembered = false
                 try { remembered = securityManager.rememberMeEnabled() } catch(e) { remembered = false }
 
-                if (rememberBox.checked && remembered) {
+                if (rememberBox.checked && remembered && !loginPage._rememberedLoginPinEdited) {
                     unlockError.text  = "Remembered login. Loading..."
                     unlockError.color = "#0fa18f"
                     unlockError.visible = true
@@ -418,8 +431,7 @@ Page {
                     unlockTriggerTimer.start()
                 } else {
                     // Clear entered PIN on failure so user can re-enter without manual delete
-                    pinText = ""
-                    hiddenInput.text = ""
+                    _setPinValue("")
                     unlockError.text    = "Invalid PIN"
                     unlockError.color   = "#ff5c5c"
                     unlockError.visible = true
