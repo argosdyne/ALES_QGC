@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 import android.app.Activity;
@@ -59,7 +61,11 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.app.PendingIntent;
 import android.view.WindowManager;
-import android.os.Bundle;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.bluetooth.BluetoothDevice;
 
 import com.hoho.android.usbserial.driver.*;
@@ -82,8 +88,23 @@ public class QGCActivity extends QtActivity
     private static final String                         ACTION_DPC_KIOSK_STATE_CHANGED = "com.easygripper.dpc.action.KIOSK_STATE_CHANGED";
     private static final String                         EXTRA_DPC_ENABLED = "enabled";
     private static final String                         EXTRA_DPC_PIN = "pin";
+    private static final String                         QGC_DPC_PREFS = "qgc_dpc_prefs";
+    private static final String                         KEY_PENDING_REBOOT_FORCE_ON = "pending_reboot_force_on";
+    private static final String                         KEY_LAST_SHUTDOWN_ELAPSED_RT = "last_shutdown_elapsed_rt";
+    private static final String                         KEY_LAST_BOOT_COUNT = "last_boot_count";
+    private static final String                         KEY_LAST_BOOT_ID = "last_boot_id";
+    private static final String                         KEY_KIOSK_OFF_BOOT_ID = "kiosk_off_boot_id";
+    private static final String                         KEY_KIOSK_OFF_ELAPSED_RT = "kiosk_off_elapsed_rt";
+    private static final String                         KEY_PREFS_INITIALIZED = "prefs_initialized";
+    private static final String                         KEY_BOOT_FORCED_KIOSK_ON = "boot_forced_kiosk_on";
+    private static final String                         KEY_KNOWN_KIOSK_ENABLED = "known_kiosk_enabled";
+    private static final String                         KEY_HAS_KNOWN_KIOSK_STATE = "has_known_kiosk_state";
+    private static volatile boolean                     _bootForcedDpcKioskOn = false;
     private static volatile boolean                     _hasKnownDpcKioskState = false;
     private static volatile boolean                     _knownDpcKioskEnabled = false;
+    private static volatile boolean                     _startupBootCheckDone = false;
+    private static Context                              _appContext = null;
+    private static volatile boolean                     _dpcReceiverRegistered = false;
     private static PowerManager.WakeLock                _wakeLock;
     private static final String                         ACTION_USB_PERMISSION = "org.mavlink.qgroundcontrol.action.USB_PERMISSION";
     private static PendingIntent                        _usbPermissionIntent = null;
@@ -187,21 +208,418 @@ public class QGCActivity extends QtActivity
             }
         };
 
-    private final BroadcastReceiver _dpcStateReceiver = new BroadcastReceiver() {
+    private static final BroadcastReceiver _globalDpcStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent == null || intent.getAction() == null) {
-                return;
-            }
-            final String action = intent.getAction();
-            if (ACTION_DPC_KIOSK_STATE_CHANGED.equals(action)) {
-                _knownDpcKioskEnabled = intent.getBooleanExtra(EXTRA_DPC_ENABLED, false);
-                _hasKnownDpcKioskState = true;
-                Log.i(TAG, "Received DPC kiosk state update: enabled=" + _knownDpcKioskEnabled);
-                return;
-            }
+            Log.e(TAG, "Global DPC state receiver fired");
+            applyDpcKioskStateFromIntent(context, intent);
         }
     };
+
+    private static Context getAppContext() {
+        if (_instance != null) {
+            return _instance.getApplicationContext();
+        }
+        return _appContext;
+    }
+
+    public static void initDpcKioskBridge(Context context) {
+        _appContext = context.getApplicationContext();
+        Log.e(TAG, "DPC_REBOOT_CHECK initDpcKioskBridge");
+        if (!_startupBootCheckDone) {
+            runStartupBootCheck(_appContext);
+        }
+        ensureDpcStateReceiverRegistered(_appContext);
+        scheduleDpcStateRequests(_appContext);
+    }
+
+    private static void ensureDpcStateReceiverRegistered(Context context) {
+        if (context == null || _dpcReceiverRegistered) {
+            return;
+        }
+
+        final IntentFilter dpcFilter = new IntentFilter();
+        dpcFilter.addAction(ACTION_DPC_KIOSK_STATE_CHANGED);
+        // API 33+ (TIRAMISU): use numeric literals so this compiles with Qt 5.15 compileSdk < 33.
+        if (Build.VERSION.SDK_INT >= 33) {
+            context.registerReceiver(_globalDpcStateReceiver, dpcFilter, 0x2); // Context.RECEIVER_EXPORTED
+        } else {
+            context.registerReceiver(_globalDpcStateReceiver, dpcFilter);
+        }
+        _dpcReceiverRegistered = true;
+        Log.e(TAG, "DPC state receiver registered at application level");
+    }
+
+    private static android.content.SharedPreferences dpcPrefs(Context context) {
+        return context.getSharedPreferences(QGC_DPC_PREFS, Context.MODE_PRIVATE);
+    }
+
+    private static String readBootId() {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("/proc/sys/kernel/random/boot_id"));
+            final String line = reader.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                return line.trim();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to read boot_id from proc", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        java.io.InputStream inputStream = null;
+        try {
+            final Process process = new ProcessBuilder("cat", "/proc/sys/kernel/random/boot_id").start();
+            inputStream = process.getInputStream();
+            reader = new BufferedReader(new java.io.InputStreamReader(inputStream));
+            final String line = reader.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                return line.trim();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to read boot_id via cat", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+        return "";
+    }
+
+    private static void saveDpcKioskStateToPrefs(Context context) {
+        final android.content.SharedPreferences.Editor editor = dpcPrefs(context).edit()
+                .putBoolean(KEY_BOOT_FORCED_KIOSK_ON, _bootForcedDpcKioskOn)
+                .putBoolean(KEY_KNOWN_KIOSK_ENABLED, _knownDpcKioskEnabled)
+                .putBoolean(KEY_HAS_KNOWN_KIOSK_STATE, _hasKnownDpcKioskState);
+
+        final String bootId = readBootId();
+        final long elapsedRt = SystemClock.elapsedRealtime();
+        if (_hasKnownDpcKioskState && !_knownDpcKioskEnabled) {
+            editor.putLong(KEY_KIOSK_OFF_ELAPSED_RT, elapsedRt);
+            if (!bootId.isEmpty()) {
+                editor.putString(KEY_KIOSK_OFF_BOOT_ID, bootId);
+            }
+            Log.e(TAG, "DPC_REBOOT_CHECK saved OFF markers elapsed=" + elapsedRt + " bootId=" + bootId);
+        } else if (_knownDpcKioskEnabled) {
+            editor.remove(KEY_KIOSK_OFF_BOOT_ID);
+            editor.remove(KEY_KIOSK_OFF_ELAPSED_RT);
+        }
+
+        editor.commit();
+    }
+
+    private static void loadDpcKioskStateFromPrefs(Context context) {
+        final android.content.SharedPreferences prefs = dpcPrefs(context);
+        _bootForcedDpcKioskOn = prefs.getBoolean(KEY_BOOT_FORCED_KIOSK_ON, false);
+        _knownDpcKioskEnabled = prefs.getBoolean(KEY_KNOWN_KIOSK_ENABLED, false);
+        _hasKnownDpcKioskState = prefs.getBoolean(KEY_HAS_KNOWN_KIOSK_STATE, false);
+        Log.e(TAG, "Loaded DPC prefs: bootForced=" + _bootForcedDpcKioskOn
+                + " known=" + _hasKnownDpcKioskState
+                + " enabled=" + _knownDpcKioskEnabled);
+    }
+
+    public static void markBootRequiresDpcKioskOn(Context context) {
+        dpcPrefs(context).edit()
+                .putBoolean(KEY_PENDING_REBOOT_FORCE_ON, true)
+                .commit();
+        Log.e(TAG, "DPC_REBOOT_CHECK marked pending reboot flag");
+    }
+
+    private static boolean isFreshInstall(android.content.SharedPreferences prefs) {
+        return !prefs.getBoolean(KEY_PREFS_INITIALIZED, false);
+    }
+
+    private static void initializeFreshInstall(Context context, android.content.SharedPreferences prefs) {
+        final boolean pendingRebootForce = prefs.getBoolean(KEY_PENDING_REBOOT_FORCE_ON, false);
+
+        prefs.edit()
+                .putBoolean(KEY_PREFS_INITIALIZED, true)
+                .commit();
+
+        if (pendingRebootForce) {
+            Log.e(TAG, "DPC_REBOOT_CHECK fresh install after device boot -> force ON");
+            forceDpcKioskOnAfterReboot(context, "fresh_install_after_boot");
+            updateBootMarkers(context, prefs);
+            return;
+        }
+
+        _bootForcedDpcKioskOn = false;
+        _hasKnownDpcKioskState = false;
+        _knownDpcKioskEnabled = false;
+
+        prefs.edit()
+                .putBoolean(KEY_BOOT_FORCED_KIOSK_ON, false)
+                .putBoolean(KEY_HAS_KNOWN_KIOSK_STATE, false)
+                .putBoolean(KEY_KNOWN_KIOSK_ENABLED, false)
+                .remove(KEY_KIOSK_OFF_BOOT_ID)
+                .remove(KEY_KIOSK_OFF_ELAPSED_RT)
+                .commit();
+
+        updateBootMarkers(context, prefs);
+        Log.e(TAG, "DPC_REBOOT_CHECK fresh install initialized; waiting for DPC state");
+    }
+
+    private void saveLastShutdownElapsed() {
+        final long elapsedRt = SystemClock.elapsedRealtime();
+        dpcPrefs(this).edit()
+                .putLong(KEY_LAST_SHUTDOWN_ELAPSED_RT, elapsedRt)
+                .commit();
+    }
+
+    private static int readBootCount(Context context) {
+        try {
+            return Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT);
+        } catch (Settings.SettingNotFoundException e) {
+            Log.w(TAG, "BOOT_COUNT not available", e);
+            return -1;
+        }
+    }
+
+    private static void forceDpcKioskOnAfterReboot(Context context, String reason) {
+        _bootForcedDpcKioskOn = true;
+        _hasKnownDpcKioskState = true;
+        _knownDpcKioskEnabled = true;
+        dpcPrefs(context).edit()
+                .remove(KEY_KIOSK_OFF_BOOT_ID)
+                .remove(KEY_KIOSK_OFF_ELAPSED_RT)
+                .commit();
+        saveDpcKioskStateToPrefs(context);
+        Log.e(TAG, "DPC_REBOOT_CHECK DEVICE REBOOT -> force ON (" + reason + ")");
+    }
+
+    private static void updateBootMarkers(Context context, android.content.SharedPreferences prefs) {
+        final String currentBootId = readBootId();
+        final int currentBootCount = readBootCount(context);
+        final android.content.SharedPreferences.Editor bootMarkerEditor = prefs.edit();
+        if (currentBootCount >= 0) {
+            bootMarkerEditor.putInt(KEY_LAST_BOOT_COUNT, currentBootCount);
+        }
+        if (!currentBootId.isEmpty()) {
+            bootMarkerEditor.putString(KEY_LAST_BOOT_ID, currentBootId);
+        }
+        bootMarkerEditor.putBoolean(KEY_PENDING_REBOOT_FORCE_ON, false);
+        bootMarkerEditor.commit();
+    }
+
+    private static String evaluateDeviceReboot(Context context, android.content.SharedPreferences prefs) {
+        if (isFreshInstall(prefs)) {
+            Log.e(TAG, "DPC_REBOOT_CHECK evaluate skipped: fresh install");
+            return "";
+        }
+
+        final long currentElapsedRt = SystemClock.elapsedRealtime();
+        final long lastShutdownElapsedRt = prefs.getLong(KEY_LAST_SHUTDOWN_ELAPSED_RT, -1L);
+        final long kioskOffElapsedRt = prefs.getLong(KEY_KIOSK_OFF_ELAPSED_RT, -1L);
+        final String currentBootId = readBootId();
+        final String lastBootId = prefs.getString(KEY_LAST_BOOT_ID, "");
+        final String kioskOffBootId = prefs.getString(KEY_KIOSK_OFF_BOOT_ID, "");
+        final int currentBootCount = readBootCount(context);
+        final int lastBootCount = prefs.getInt(KEY_LAST_BOOT_COUNT, -1);
+        final boolean pendingRebootForce = prefs.getBoolean(KEY_PENDING_REBOOT_FORCE_ON, false);
+
+        Log.e(TAG, "DPC_REBOOT_CHECK evaluate"
+                + " currentElapsed=" + currentElapsedRt
+                + " lastShutdown=" + lastShutdownElapsedRt
+                + " offElapsed=" + kioskOffElapsedRt
+                + " bootId=" + currentBootId
+                + " lastBootId=" + lastBootId
+                + " kioskOffBootId=" + kioskOffBootId
+                + " bootCount=" + currentBootCount
+                + " lastBootCount=" + lastBootCount
+                + " pending=" + pendingRebootForce);
+
+        if (pendingRebootForce) {
+            return "pending_boot_receiver";
+        }
+
+        if (lastShutdownElapsedRt >= 0L && currentElapsedRt + 5000L < lastShutdownElapsedRt) {
+            return "elapsed_realtime_reset";
+        }
+
+        if (!currentBootId.isEmpty() && !lastBootId.isEmpty() && !currentBootId.equals(lastBootId)) {
+            return "boot_id_changed";
+        }
+
+        if (currentBootCount >= 0 && lastBootCount >= 0 && currentBootCount > lastBootCount) {
+            return "boot_count_increased";
+        }
+
+        if (kioskOffElapsedRt >= 0L && currentElapsedRt + 5000L < kioskOffElapsedRt) {
+            return "off_elapsed_reset";
+        }
+
+        if (!currentBootId.isEmpty()
+                && !kioskOffBootId.isEmpty()
+                && !currentBootId.equals(kioskOffBootId)) {
+            return "off_boot_id_changed";
+        }
+
+        return "";
+    }
+
+    public static boolean reconcilePostRebootKioskState() {
+        final Context context = getAppContext();
+        if (context == null) {
+            Log.e(TAG, "DPC_REBOOT_CHECK reconcile: no context");
+            return false;
+        }
+
+        if (_bootForcedDpcKioskOn) {
+            return true;
+        }
+
+        final android.content.SharedPreferences prefs = dpcPrefs(context);
+        final String rebootReason = evaluateDeviceReboot(context, prefs);
+        Log.e(TAG, "DPC_REBOOT_CHECK reconcile reason=" + rebootReason);
+
+        if (!rebootReason.isEmpty()) {
+            forceDpcKioskOnAfterReboot(context, rebootReason);
+            updateBootMarkers(context, prefs);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void runStartupBootCheck(Context context) {
+        if (_startupBootCheckDone) {
+            return;
+        }
+        _startupBootCheckDone = true;
+
+        Log.e(TAG, "DPC_REBOOT_CHECK startup begin");
+        final android.content.SharedPreferences prefs = dpcPrefs(context);
+
+        if (isFreshInstall(prefs)) {
+            initializeFreshInstall(context, prefs);
+            return;
+        }
+
+        final String rebootReason = evaluateDeviceReboot(context, prefs);
+        if (!rebootReason.isEmpty()) {
+            forceDpcKioskOnAfterReboot(context, rebootReason);
+        } else {
+            _bootForcedDpcKioskOn = false;
+            loadDpcKioskStateFromPrefs(context);
+        }
+
+        updateBootMarkers(context, prefs);
+        Log.e(TAG, "DPC_REBOOT_CHECK startup done forced=" + _bootForcedDpcKioskOn
+                + " known=" + _hasKnownDpcKioskState
+                + " enabled=" + _knownDpcKioskEnabled);
+    }
+
+    private void applyStartupDpcKioskState() {
+        initDpcKioskBridge(getApplicationContext());
+    }
+
+    public static void applyDpcKioskStateFromIntent(Intent intent) {
+        applyDpcKioskStateFromIntent(null, intent);
+    }
+
+    public static void applyDpcKioskStateFromIntent(Context context, Intent intent) {
+        if (intent == null || intent.getAction() == null) {
+            return;
+        }
+        if (!ACTION_DPC_KIOSK_STATE_CHANGED.equals(intent.getAction())) {
+            return;
+        }
+
+        final Context saveContext = context != null
+                ? context.getApplicationContext()
+                : getAppContext();
+
+        final boolean reportedEnabled = intent.getBooleanExtra(EXTRA_DPC_ENABLED, false);
+        if (_bootForcedDpcKioskOn && !reportedEnabled) {
+            _hasKnownDpcKioskState = true;
+            _knownDpcKioskEnabled = true;
+            if (saveContext != null) {
+                saveDpcKioskStateToPrefs(saveContext);
+            }
+            Log.e(TAG, "Ignoring DPC OFF while reboot force ON is active");
+            return;
+        }
+
+        _knownDpcKioskEnabled = reportedEnabled;
+        _hasKnownDpcKioskState = true;
+        if (reportedEnabled) {
+            _bootForcedDpcKioskOn = false;
+        }
+        if (saveContext != null) {
+            saveDpcKioskStateToPrefs(saveContext);
+        }
+        Log.e(TAG, "Received DPC kiosk state update: enabled=" + _knownDpcKioskEnabled);
+    }
+
+    public static boolean isBootForcedDpcKioskOn() {
+        return _bootForcedDpcKioskOn;
+    }
+
+    public static void refreshDpcKioskStateFromStorage() {
+        final Context context = getAppContext();
+        if (context == null) {
+            return;
+        }
+        if (!_startupBootCheckDone) {
+            runStartupBootCheck(context);
+            return;
+        }
+
+        if (reconcilePostRebootKioskState()) {
+            return;
+        }
+
+        if (!_bootForcedDpcKioskOn) {
+            loadDpcKioskStateFromPrefs(context);
+        }
+    }
+
+    private static boolean isDpcPackageInstalled(Context context) {
+        if (context == null) {
+            return false;
+        }
+        try {
+            context.getPackageManager().getPackageInfo(DPC_PACKAGE, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static String getDpcKioskDiagnostics() {
+        final Context context = getAppContext();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("activity=").append(_instance != null);
+        sb.append(" appCtx=").append(context != null);
+        sb.append(" dpcPkg=").append(isDpcPackageInstalled(context));
+        sb.append(" receiver=").append(_dpcReceiverRegistered);
+        sb.append(" bootForced=").append(_bootForcedDpcKioskOn);
+        sb.append(" known=").append(_hasKnownDpcKioskState);
+        sb.append(" enabled=").append(_knownDpcKioskEnabled);
+        sb.append(" uptimeMs=").append(SystemClock.elapsedRealtime());
+        if (context != null) {
+            final android.content.SharedPreferences prefs = dpcPrefs(context);
+            sb.append(" pending=").append(prefs.getBoolean(KEY_PENDING_REBOOT_FORCE_ON, false));
+            sb.append(" lastShutdown=").append(prefs.getLong(KEY_LAST_SHUTDOWN_ELAPSED_RT, -1L));
+            sb.append(" fresh=").append(isFreshInstall(prefs));
+        }
+        return sb.toString();
+    }
 
     // Native C++ functions which connect back to QSerialPort code
     private static native void nativeDeviceHasDisconnected(long userData);
@@ -228,6 +646,11 @@ public class QGCActivity extends QtActivity
             if (pin == null || pin.length() != 8) {
                 return "INVALID_PIN";
             }
+
+            _bootForcedDpcKioskOn = false;
+            _hasKnownDpcKioskState = true;
+            _knownDpcKioskEnabled = enabled;
+            saveDpcKioskStateToPrefs(_instance.getApplicationContext());
 
             Intent explicitIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
             explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
@@ -272,22 +695,56 @@ public class QGCActivity extends QtActivity
         }
     }
 
-    public static boolean requestDpcKioskState() {
-        if (_instance == null) {
-            return false;
+    private static void sendDpcRequestKioskStateBroadcast() {
+        final Context context = getAppContext();
+        if (context == null) {
+            Log.e(TAG, "DPC state request skipped: no context");
+            return;
         }
+
+        if (!isDpcPackageInstalled(context)) {
+            Log.e(TAG, "DPC state request skipped: DPC package not installed");
+            return;
+        }
+
         try {
             Intent explicitIntent = new Intent(ACTION_DPC_REQUEST_KIOSK_STATE);
             explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
-            _instance.sendBroadcast(explicitIntent);
+            explicitIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+            context.sendBroadcast(explicitIntent);
 
             Intent packageIntent = new Intent(ACTION_DPC_REQUEST_KIOSK_STATE);
             packageIntent.setPackage(DPC_PACKAGE);
-            _instance.sendBroadcast(packageIntent);
-            return true;
+            packageIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+            context.sendBroadcast(packageIntent);
+
+            Log.e(TAG, "DPC state request sent to " + DPC_PACKAGE);
         } catch (Throwable t) {
-            Log.w(TAG, "Failed to request DPC kiosk state", t);
+            Log.e(TAG, "Failed to request DPC kiosk state", t);
+        }
+    }
+
+    public static boolean requestDpcKioskState() {
+        if (getAppContext() == null) {
             return false;
+        }
+        sendDpcRequestKioskStateBroadcast();
+        return true;
+    }
+
+    private static void scheduleDpcStateRequests(Context context) {
+        if (context == null) {
+            return;
+        }
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final long[] delaysMs = new long[] { 0L, 500L, 1500L, 3000L, 5000L, 8000L, 12000L, 20000L };
+        for (final long delayMs : delaysMs) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendDpcRequestKioskStateBroadcast();
+                }
+            }, delayMs);
         }
     }
 
@@ -296,6 +753,9 @@ public class QGCActivity extends QtActivity
     }
 
     public static boolean getKnownDpcKioskStateEnabled() {
+        if (_bootForcedDpcKioskOn) {
+            return true;
+        }
         return _knownDpcKioskEnabled;
     }
 
@@ -312,6 +772,8 @@ public class QGCActivity extends QtActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        applyStartupDpcKioskState();
+
         nativeInit();
         PowerManager pm = (PowerManager)_instance.getSystemService(Context.POWER_SERVICE);
         _wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "QGroundControl");
@@ -332,10 +794,6 @@ public class QGCActivity extends QtActivity
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         _instance.registerReceiver(_instance._usbReceiver, filter);
-
-        IntentFilter dpcFilter = new IntentFilter();
-        dpcFilter.addAction(ACTION_DPC_KIOSK_STATE_CHANGED);
-        _instance.registerReceiver(_instance._dpcStateReceiver, dpcFilter);
 
         // Create intent for usb permission request
         _usbPermissionIntent = PendingIntent.getBroadcast(_instance, 0, new Intent(ACTION_USB_PERMISSION), 0);
@@ -389,7 +847,8 @@ public class QGCActivity extends QtActivity
     @Override
     public void onPause() {
         super.onPause();
-        
+        saveLastShutdownElapsed();
+
         // Session Management: App goes to background - lock immediately
         nativeOnActivityPause();
     }
@@ -397,15 +856,12 @@ public class QGCActivity extends QtActivity
     @Override
     protected void onDestroy()
     {
+        saveLastShutdownElapsed();
+
         if (probeAccessoriesTimer != null) {
             probeAccessoriesTimer.cancel();
         }
         unregisterReceiver(mOpenAccessoryReceiver);
-        try {
-            unregisterReceiver(_dpcStateReceiver);
-        } catch (Throwable t) {
-            Log.w(TAG, "Exception unregistering DPC receiver", t);
-        }
         try {
             if (_wifiMulticastLock != null) {
                 _wifiMulticastLock.release();

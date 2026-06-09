@@ -107,7 +107,7 @@
     "name":             "dpcKioskEnabled",
     "shortDesc":        "Enable DPC kiosk enforcement",
     "type":             "bool",
-    "default":          true
+    "default":          false
 }
 ]
 }

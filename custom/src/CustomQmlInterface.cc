@@ -15,6 +15,63 @@
 #include <QtAndroidExtras/QtAndroid>
 #include <QtAndroidExtras/QAndroidJniEnvironment>
 #include <QtAndroidExtras/QAndroidJniObject>
+
+namespace {
+constexpr const char* kQgcActivityClass = "org/mavlink/qgroundcontrol/QGCActivity";
+
+jclass findQgcActivityClass(QAndroidJniEnvironment& env)
+{
+    jclass clazz = env->FindClass(kQgcActivityClass);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return clazz;
+}
+
+jmethodID findStaticMethod(QAndroidJniEnvironment& env, jclass clazz, const char* name, const char* signature)
+{
+    if (clazz == nullptr) {
+        return nullptr;
+    }
+    jmethodID method = env->GetStaticMethodID(clazz, name, signature);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return method;
+}
+
+bool callStaticBooleanIfPresent(const char* methodName, const char* signature, bool defaultValue)
+{
+    QAndroidJniEnvironment env;
+    jclass clazz = findQgcActivityClass(env);
+    jmethodID method = findStaticMethod(env, clazz, methodName, signature);
+    if (method == nullptr) {
+        return defaultValue;
+    }
+    const jboolean value = env->CallStaticBooleanMethod(clazz, method);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return defaultValue;
+    }
+    return value;
+}
+
+void callStaticVoidIfPresent(const char* methodName, const char* signature)
+{
+    QAndroidJniEnvironment env;
+    jclass clazz = findQgcActivityClass(env);
+    jmethodID method = findStaticMethod(env, clazz, methodName, signature);
+    if (method == nullptr) {
+        return;
+    }
+    env->CallStaticVoidMethod(clazz, method);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
+}
+} // namespace
 #endif
 
 #define CHAR_NUMBER_EACH_ROW 30
@@ -98,6 +155,11 @@ void CustomQmlInterface::setToolbox(QGCToolbox* toolbox)
     connect(qgcApp(), &QGCApplication::teamModeConnectionChanged, _teamModeRouter, &TeamModeRouter::p2pConnectStateChanged);
     connect(qgcApp(), &QGCApplication::teamModeDeviceListChanged, _teamModeRouter, &TeamModeRouter::newP2PDevices);
     connect(qgcApp(), &QGCApplication::teamModeConnectionChanged, this, &CustomQmlInterface::_p2pConnectionStateChanged);
+#endif
+
+#if defined(Q_OS_ANDROID)
+    refreshDpcKioskStateFromStorage();
+    requestDpcKioskState();
 #endif
 
 }
@@ -354,36 +416,125 @@ bool CustomQmlInterface::isDpcControlSupported() const
 bool CustomQmlInterface::requestDpcKioskState()
 {
 #if defined(Q_OS_ANDROID)
-    const jboolean requested = QAndroidJniObject::callStaticMethod<jboolean>(
-        "org/mavlink/qgroundcontrol/QGCActivity",
-        "requestDpcKioskState",
-        "()Z");
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (activity.isValid()) {
+        const QAndroidJniObject action =
+            QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.action.REQUEST_KIOSK_STATE"));
+        const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
+        const QAndroidJniObject dpcReceiver =
+            QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.DpcControlReceiver"));
 
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        env->ExceptionClear();
-        return false;
+        QAndroidJniObject component(
+            "android/content/ComponentName",
+            "(Ljava/lang/String;Ljava/lang/String;)V",
+            dpcPackage.object<jstring>(),
+            dpcReceiver.object<jstring>());
+
+        QAndroidJniObject explicitIntent(
+            "android/content/Intent",
+            "(Ljava/lang/String;)V",
+            action.object<jstring>());
+        explicitIntent.callObjectMethod(
+            "setComponent",
+            "(Landroid/content/ComponentName;)Landroid/content/Intent;",
+            component.object());
+        activity.callMethod<void>(
+            "sendBroadcast",
+            "(Landroid/content/Intent;)V",
+            explicitIntent.object());
+
+        QAndroidJniObject packageIntent(
+            "android/content/Intent",
+            "(Ljava/lang/String;)V",
+            action.object<jstring>());
+        packageIntent.callObjectMethod(
+            "setPackage",
+            "(Ljava/lang/String;)Landroid/content/Intent;",
+            dpcPackage.object<jstring>());
+        activity.callMethod<void>(
+            "sendBroadcast",
+            "(Landroid/content/Intent;)V",
+            packageIntent.object());
     }
-    return requested;
+
+    return callStaticBooleanIfPresent("requestDpcKioskState", "()Z", false);
 #else
     return false;
+#endif
+}
+
+bool CustomQmlInterface::isBootForcedDpcKioskOn() const
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("isBootForcedDpcKioskOn", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+void CustomQmlInterface::refreshDpcKioskStateFromStorage()
+{
+#if defined(Q_OS_ANDROID)
+    callStaticVoidIfPresent("refreshDpcKioskStateFromStorage", "()V");
+#endif
+}
+
+bool CustomQmlInterface::reconcilePostRebootKioskState()
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("reconcilePostRebootKioskState", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+QString CustomQmlInterface::getDpcKioskDiagnostics() const
+{
+#if defined(Q_OS_ANDROID)
+    QStringList parts;
+    parts << QStringLiteral("cppBuild=%1 %2").arg(QStringLiteral(__DATE__), QStringLiteral(__TIME__));
+
+    QAndroidJniEnvironment env;
+    jclass activityClass = env->FindClass("org/mavlink/qgroundcontrol/QGCActivity");
+    if (activityClass == nullptr || env->ExceptionCheck()) {
+        env->ExceptionClear();
+        parts << QStringLiteral("QGCActivity=MISSING");
+        parts << QStringLiteral("action=Clean+Rebuild+Deploy Android APK");
+        return parts.join(QStringLiteral(" | "));
+    }
+    parts << QStringLiteral("QGCActivity=ok");
+
+    const jmethodID diagMethod = env->GetStaticMethodID(
+        activityClass, "getDpcKioskDiagnostics", "()Ljava/lang/String;");
+    if (diagMethod != nullptr && !env->ExceptionCheck()) {
+        const jstring jdiag = static_cast<jstring>(env->CallStaticObjectMethod(activityClass, diagMethod));
+        if (jdiag != nullptr && !env->ExceptionCheck()) {
+            return QAndroidJniObject(jdiag).toString();
+        }
+        env->ExceptionClear();
+    } else {
+        env->ExceptionClear();
+        parts << QStringLiteral("javaDiag=OLD_APK");
+    }
+
+    const jmethodID bootForcedMethod = findStaticMethod(env, activityClass, "isBootForcedDpcKioskOn", "()Z");
+    const jmethodID initBridgeMethod = findStaticMethod(env, activityClass, "initDpcKioskBridge", "(Landroid/content/Context;)V");
+    parts << QStringLiteral("bootForcedMethod=%1").arg(bootForcedMethod != nullptr ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("initBridgeMethod=%1").arg(initBridgeMethod != nullptr ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("dpcSupported=%1").arg(isDpcControlSupported() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("hasKnown=%1").arg(hasKnownDpcKioskState() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("knownEnabled=%1").arg(getKnownDpcKioskStateEnabled() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("action=Clean+Rebuild+Deploy Android APK");
+    return parts.join(QStringLiteral(" | "));
+#else
+    return QStringLiteral("not android");
 #endif
 }
 
 bool CustomQmlInterface::hasKnownDpcKioskState() const
 {
 #if defined(Q_OS_ANDROID)
-    const jboolean known = QAndroidJniObject::callStaticMethod<jboolean>(
-        "org/mavlink/qgroundcontrol/QGCActivity",
-        "hasKnownDpcKioskState",
-        "()Z");
-
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        env->ExceptionClear();
-        return false;
-    }
-    return known;
+    return callStaticBooleanIfPresent("hasKnownDpcKioskState", "()Z", false);
 #else
     return false;
 #endif
@@ -392,17 +543,7 @@ bool CustomQmlInterface::hasKnownDpcKioskState() const
 bool CustomQmlInterface::getKnownDpcKioskStateEnabled() const
 {
 #if defined(Q_OS_ANDROID)
-    const jboolean enabled = QAndroidJniObject::callStaticMethod<jboolean>(
-        "org/mavlink/qgroundcontrol/QGCActivity",
-        "getKnownDpcKioskStateEnabled",
-        "()Z");
-
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        env->ExceptionClear();
-        return false;
-    }
-    return enabled;
+    return callStaticBooleanIfPresent("getKnownDpcKioskStateEnabled", "()Z", false);
 #else
     return false;
 #endif

@@ -20,29 +20,50 @@ Rectangle {
     property Fact _dpcEnabled:      _customSettings.dpcKioskEnabled
     property bool _dpcSupported:    CustomQmlInterface.isDpcControlSupported()
     property bool _dpcStateKnown:   false
-    property bool _dpcStateEnabled: _dpcEnabled.rawValue
+    property bool _dpcStateEnabled: false
     property bool _dpcStateFallback: false
-    property bool _isSyncing:       false
+    property bool _isSyncing:       true
+    property bool _syncFailed:      false
+    property string _diagText:      ""
     property bool _pinDialogVisible: false
-    property bool _pendingDpcState: _dpcEnabled.rawValue
+    property bool _pendingDpcState: false
 
     QGCPalette { id: qgcPal }
 
-    function _updateKnownStateFromBridge() {
-        var bridgeKnown = CustomQmlInterface.hasKnownDpcKioskState()
-        if (bridgeKnown) {
-            _dpcStateEnabled = CustomQmlInterface.getKnownDpcKioskStateEnabled()
-            _dpcEnabled.rawValue = _dpcStateEnabled
-            _dpcStateKnown = true
-            dpcCheckbox.checked = _dpcStateEnabled
-            _dpcStateFallback = false
-            _isSyncing = false
+    function _setKnownState(enabled, isFallback) {
+        _dpcStateEnabled = enabled
+        _dpcStateKnown = true
+        _dpcStateFallback = isFallback
+        _dpcEnabled.rawValue = enabled
+        dpcCheckbox.checked = enabled
+        _isSyncing = false
+        _syncFailed = false
+    }
+
+    function _refreshUiState() {
+        CustomQmlInterface.reconcilePostRebootKioskState()
+        CustomQmlInterface.refreshDpcKioskStateFromStorage()
+
+        if (CustomQmlInterface.isBootForcedDpcKioskOn()) {
+            _setKnownState(true, false)
+            return true
         }
+
+        if (CustomQmlInterface.hasKnownDpcKioskState()) {
+            _setKnownState(CustomQmlInterface.getKnownDpcKioskStateEnabled(), false)
+            return true
+        }
+
+        _dpcStateKnown = false
+        _isSyncing = true
+        _syncFailed = false
+        return false
     }
 
     function _requestStateRefresh() {
         CustomQmlInterface.requestDpcKioskState()
         _isSyncing = true
+        _syncFailed = false
         dpcStateRefreshTimer.restart()
     }
 
@@ -55,17 +76,12 @@ Rectangle {
     function _applyDpcStateWithPin(enabled, pin) {
         var ok = CustomQmlInterface.setDpcKioskEnabledWithPin(enabled, pin)
         if (ok) {
-            // Apply optimistic state immediately so UI does not stay in "Syncing..."
-            _dpcEnabled.rawValue = enabled
-            _dpcStateEnabled = enabled
-            _dpcStateKnown = true
-            _dpcStateFallback = true
-            dpcCheckbox.checked = enabled
+            _setKnownState(enabled, true)
             CustomQmlInterface.logSecurityEvent("DPC kiosk " + (enabled ? "enabled" : "disabled") + " from QGC settings")
             _pinDialogVisible = false
             _requestStateRefresh()
         } else {
-            dpcCheckbox.checked = _dpcEnabled.rawValue
+            dpcCheckbox.checked = _dpcStateEnabled
             CustomQmlInterface.showMessage(qsTr("Failed to control DPC app (invalid PIN or receiver error)"), 1) // Error
         }
     }
@@ -119,14 +135,27 @@ Rectangle {
                         width: parent.width
                         color: _isSyncing
                                ? qgcPal.colorOrange
-                               : (_dpcStateEnabled ? qgcPal.colorGreen : qgcPal.warningText)
+                               : (_syncFailed
+                                  ? qgcPal.warningText
+                                  : (_dpcStateEnabled ? qgcPal.colorGreen : qgcPal.warningText))
                         text: _isSyncing
                             ? qsTr("Current DPC mode: Syncing...")
-                            : (_dpcStateKnown
-                            ? (_dpcStateFallback
-                                ? qsTr("Current DPC mode (local): %1").arg(_dpcStateEnabled ? qsTr("ON") : qsTr("OFF"))
-                                : qsTr("Current DPC mode: %1").arg(_dpcStateEnabled ? qsTr("ON") : qsTr("OFF")))
-                            : qsTr("Current DPC mode (local): %1").arg(_dpcEnabled.rawValue ? qsTr("ON") : qsTr("OFF")))
+                            : (_syncFailed
+                                ? (_diagText.indexOf("javaDiag=OLD_APK") >= 0 || _diagText.indexOf("initBridgeMethod=no") >= 0
+                                    ? qsTr("Current DPC mode: QGC Android rebuild required")
+                                    : qsTr("Current DPC mode: Unable to read DPC state"))
+                                : (_dpcStateFallback
+                                    ? qsTr("Current DPC mode (local): %1").arg(_dpcStateEnabled ? qsTr("ON") : qsTr("OFF"))
+                                    : qsTr("Current DPC mode: %1").arg(_dpcStateEnabled ? qsTr("ON") : qsTr("OFF"))))
+                        wrapMode: Text.WordWrap
+                    }
+
+                    QGCLabel {
+                        width: parent.width
+                        visible: _syncFailed && _diagText.length > 0
+                        color: qgcPal.warningText
+                        font.pointSize: ScreenTools.smallFontPointSize
+                        text: _diagText
                         wrapMode: Text.WordWrap
                     }
 
@@ -141,11 +170,11 @@ Rectangle {
 
                         QGCCheckBox {
                             id: dpcCheckbox
-                            checked: _dpcEnabled.rawValue
-                            enabled: true
+                            checked: _dpcStateEnabled
+                            enabled: _dpcStateKnown || !_isSyncing
                             onClicked: {
                                 var requested = checked
-                                checked = _dpcEnabled.rawValue
+                                checked = _dpcStateEnabled
                                 _root._requestDpcStateChange(requested)
                             }
                         }
@@ -162,17 +191,31 @@ Rectangle {
         repeat: true
         property int _ticks: 0
         onTriggered: {
-            _root._updateKnownStateFromBridge()
+            if (_root._refreshUiState()) {
+                stop()
+                _ticks = 0
+                return
+            }
+
             _ticks = _ticks + 1
-            if (_root._dpcStateKnown || _ticks >= 6) {
-                if (!_root._dpcStateKnown) {
-                    // Bridge not available on this build. Fallback to local setting state.
-                    _root._dpcStateKnown = true
-                    _root._dpcStateEnabled = _root._dpcEnabled.rawValue
-                    _root._dpcStateFallback = true
-                    dpcCheckbox.checked = _root._dpcStateEnabled
+            if (_ticks % 2 === 0) {
+                CustomQmlInterface.requestDpcKioskState()
+            }
+
+            if (_ticks >= 16) {
+                CustomQmlInterface.reconcilePostRebootKioskState()
+                CustomQmlInterface.refreshDpcKioskStateFromStorage()
+                if (CustomQmlInterface.isBootForcedDpcKioskOn()) {
+                    _root._setKnownState(true, false)
+                } else if (CustomQmlInterface.hasKnownDpcKioskState()) {
+                    _root._setKnownState(CustomQmlInterface.getKnownDpcKioskStateEnabled(), false)
+                } else {
+                    _root._isSyncing = false
+                    _root._syncFailed = true
+                    _root._dpcStateKnown = false
+                    _root._diagText = CustomQmlInterface.getDpcKioskDiagnostics()
+                    _root.dpcCheckbox.checked = false
                 }
-                _root._isSyncing = false
                 stop()
                 _ticks = 0
             }
@@ -181,10 +224,10 @@ Rectangle {
 
     Timer {
         id: dpcStateSyncTimer
-        interval: 1500
+        interval: 2000
         repeat: true
-        running: true
-        onTriggered: _root._updateKnownStateFromBridge()
+        running: _dpcStateKnown
+        onTriggered: _root._refreshUiState()
     }
 
     Rectangle {
@@ -238,7 +281,7 @@ Rectangle {
                         text: qsTr("Cancel")
                         onClicked: {
                             _pinDialogVisible = false
-                            dpcCheckbox.checked = _dpcEnabled.rawValue
+                            dpcCheckbox.checked = _dpcStateEnabled
                         }
                     }
 
@@ -258,6 +301,8 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        _requestStateRefresh()
+        if (!_refreshUiState()) {
+            _requestStateRefresh()
+        }
     }
 }
