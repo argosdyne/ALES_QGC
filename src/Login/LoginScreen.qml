@@ -10,6 +10,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
+import Qt.labs.settings 1.0
 
 import QGroundControl.ScreenTools 1.0
 
@@ -33,6 +34,12 @@ Page {
     property bool   _rememberedLoginPinEdited: false
     property bool   _updatingPinFromCode: false
     readonly property string _lockoutScope: "login"
+
+    Settings {
+        id: rememberUiSettings
+        category: "LoginFlow"
+        property bool rememberMeChecked: false
+    }
 
     background: Rectangle {
         color: "#222222"
@@ -115,7 +122,7 @@ Page {
             _rememberedLogin = false
         }
 
-        rememberBox.checked = _rememberedLogin
+        rememberBox.checked = _rememberedLogin || rememberUiSettings.rememberMeChecked
 
         if (_rememberedLogin) {
             _setPinValue("000000")
@@ -327,6 +334,7 @@ Page {
                     anchors.fill: parent
                     onClicked: {
                         rememberBox.checked = !rememberBox.checked
+                        rememberUiSettings.rememberMeChecked = rememberBox.checked
 
                         if (!rememberBox.checked) {
                             loginPage._rememberedLogin = false
@@ -350,6 +358,7 @@ Page {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         rememberBox.checked = !rememberBox.checked
+                        rememberUiSettings.rememberMeChecked = rememberBox.checked
 
                         if (!rememberBox.checked) {
                             loginPage._rememberedLogin = false
@@ -423,6 +432,7 @@ Page {
                 try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
                 if (ok) {
                     try { securityManager.setRememberMeEnabled(rememberBox.checked) } catch(e) {}
+                    rememberUiSettings.rememberMeChecked = rememberBox.checked
                     loginPage._rememberedLogin = rememberBox.checked
                     unlockError.text  = "PIN verified. Loading..."
                     unlockError.color = "#0fa18f"
@@ -430,6 +440,11 @@ Page {
                     unlockTriggerTimer.action = "unlock"
                     unlockTriggerTimer.start()
                 } else {
+                    if (remembered && loginPage._rememberedLoginPinEdited) {
+                        try { securityManager.setRememberMeEnabled(false) } catch(e) {}
+                        loginPage._rememberedLogin = false
+                        loginPage._rememberedLoginPinEdited = false
+                    }
                     // Clear entered PIN on failure so user can re-enter without manual delete
                     _setPinValue("")
                     unlockError.text    = "Invalid PIN"
