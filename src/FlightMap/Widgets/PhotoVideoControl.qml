@@ -100,7 +100,7 @@ Item {
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
-    property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+    property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
     // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
     // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
