@@ -439,6 +439,7 @@ INCLUDEPATH += \
     src/Terrain \
     src/Vehicle \
     src/Audio \
+    src/OpticalFlow \
     src/comm \
     src/input \
     src/lib/qmapcontrol \
@@ -614,6 +615,7 @@ HEADERS += \
     src/AnalyzeView/MavlinkConsoleController.h \
     src/Audio/AudioOutput.h \
     src/Audio/AudioControl.h \
+    src/OpticalFlow/OpticalFlowController.h \
     src/Vehicle/Autotune.h \
     src/Camera/QGCCameraControl.h \
     src/Camera/QGCCameraIO.h \
@@ -890,6 +892,7 @@ SOURCES += \
     src/AnalyzeView/MavlinkConsoleController.cc \
     src/Audio/AudioOutput.cc \
     src/Audio/AudioControl.cc \
+    src/OpticalFlow/OpticalFlowController.cc \
     src/Vehicle/Autotune.cpp \
     src/Camera/QGCCameraControl.cc \
     src/Camera/QGCCameraIO.cc \

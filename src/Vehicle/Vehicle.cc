@@ -66,6 +66,7 @@
 #include "RemoteIDManager.h"
 
 #include "AudioControl.h"
+#include "OpticalFlowController.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
@@ -338,6 +339,9 @@ Vehicle::Vehicle(LinkInterface*             link,
     //Create Audio Control
     _audioControl = _firmwarePlugin->createAudioControl(this);
     emit audioControlChanged();
+
+    //Create Optical Flow Controller
+    _opticalFlowController = new OpticalFlowController(this);
 }
 
 // Disconnected Vehicle for offline editing

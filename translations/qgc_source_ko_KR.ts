@@ -7822,6 +7822,11 @@ Click Ok to start the auto-tuning process.
         <translation>오디오 활성화</translation>
     </message>
 <message>
+        <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
+        <source>Enable Optical Flow Sensor</source>
+        <translation>옵티컬 플로우 센서 활성화</translation>
+    </message>
+<message>
         <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
         <source>Save application data to SD Card</source>
         <translation>애플리케이션 데이터를 SD 카드에 저장</translation>
@@ -14145,6 +14150,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <translation>비전 라이다</translation>
     </message>
     <message>
+      <location filename="../src/PlanView/PlanView.qml" line="1047"/>
+      <source>Current Distance</source>
+      <translation>현재 거리</translation>
+    </message>
+    <message>
       <location filename="../src/PlanView/PlanView.qml" line="685"/>
       <source>Pattern</source>
       <translation>패턴</translation>
@@ -20170,6 +20180,40 @@ Confirm change?</source>
         <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="134"/>
         <source>Stop</source>
         <translation>정지</translation>
+    </message>
+</context>
+<context>
+
+    <name>OpticalFlowControl</name>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="52"/>
+        <source>Optical Flow Sensor</source>
+        <translation>옵티컬 플로우 센서</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="76"/>
+        <source>GPS</source>
+        <translation>GPS</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="100"/>
+        <source>Optical</source>
+        <translation>옵티컬</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="124"/>
+        <source>Auto</source>
+        <translation>자동</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="148"/>
+        <source>Calib Start</source>
+        <translation>보정 시작</translation>
+    </message>
+<message>
+        <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="180"/>
+        <source>Calib Stop</source>
+        <translation>보정 정지</translation>
     </message>
 </context>
 <context>
