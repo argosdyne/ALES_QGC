@@ -32,28 +32,42 @@ SetupPage {
 
             QGCPalette { id: palette; colorGroupEnabled: true }
 
-            property Fact _mountRetractX:       controller.getParameterFact(-1, "MNT_RETRACT_X")
-            property Fact _mountRetractY:       controller.getParameterFact(-1, "MNT_RETRACT_Y")
-            property Fact _mountRetractZ:       controller.getParameterFact(-1, "MNT_RETRACT_Z")
+            function _mountParamFact(suffix) {
+                if (controller.parameterExists(-1, "MNT1_" + suffix)) {
+                    return controller.getParameterFact(-1, "MNT1_" + suffix, false)
+                }
+                if (controller.parameterExists(-1, "MNT_" + suffix)) {
+                    return controller.getParameterFact(-1, "MNT_" + suffix, false)
+                }
+                return null
+            }
 
-            property Fact _mountNeutralX:       controller.getParameterFact(-1, "MNT_NEUTRAL_X")
-            property Fact _mountNeutralY:       controller.getParameterFact(-1, "MNT_NEUTRAL_Y")
-            property Fact _mountNeutralZ:       controller.getParameterFact(-1, "MNT_NEUTRAL_Z")
+            function _mountParamExists(suffix) {
+                return controller.parameterExists(-1, "MNT1_" + suffix) || controller.parameterExists(-1, "MNT_" + suffix)
+            }
 
-            property Fact _mountRCInTilt:       controller.getParameterFact(-1, "MNT_RC_IN_TILT")
-            property Fact _mountStabTilt:       controller.getParameterFact(-1, "MNT_STAB_TILT")
-            property Fact _mountAngMinTilt:     controller.getParameterFact(-1, "MNT_ANGMIN_TIL")
-            property Fact _mountAngMaxTilt:     controller.getParameterFact(-1, "MNT_ANGMAX_TIL")
+            property Fact _mountRetractX:       _mountParamFact("RETRACT_X")
+            property Fact _mountRetractY:       _mountParamFact("RETRACT_Y")
+            property Fact _mountRetractZ:       _mountParamFact("RETRACT_Z")
 
-            property Fact _mountRCInRoll:       controller.getParameterFact(-1, "MNT_RC_IN_ROLL")
-            property Fact _mountStabRoll:       controller.getParameterFact(-1, "MNT_STAB_ROLL")
-            property Fact _mountAngMinRoll:     controller.getParameterFact(-1, "MNT_ANGMIN_ROL")
-            property Fact _mountAngMaxRoll:     controller.getParameterFact(-1, "MNT_ANGMAX_ROL")
+            property Fact _mountNeutralX:       _mountParamFact("NEUTRAL_X")
+            property Fact _mountNeutralY:       _mountParamFact("NEUTRAL_Y")
+            property Fact _mountNeutralZ:       _mountParamFact("NEUTRAL_Z")
 
-            property Fact _mountRCInPan:        controller.getParameterFact(-1, "MNT_RC_IN_PAN")
-            property Fact _mountStabPan:        controller.getParameterFact(-1, "MNT_STAB_PAN")
-            property Fact _mountAngMinPan:      controller.getParameterFact(-1, "MNT_ANGMIN_PAN")
-            property Fact _mountAngMaxPan:      controller.getParameterFact(-1, "MNT_ANGMAX_PAN")
+            property Fact _mountRCInTilt:       _mountParamFact("RC_IN_TILT")
+            property Fact _mountStabTilt:       _mountParamFact("STAB_TILT")
+            property Fact _mountAngMinTilt:     _mountParamFact("ANGMIN_TIL")
+            property Fact _mountAngMaxTilt:     _mountParamFact("ANGMAX_TIL")
+
+            property Fact _mountRCInRoll:       _mountParamFact("RC_IN_ROLL")
+            property Fact _mountStabRoll:       _mountParamFact("STAB_ROLL")
+            property Fact _mountAngMinRoll:     _mountParamFact("ANGMIN_ROL")
+            property Fact _mountAngMaxRoll:     _mountParamFact("ANGMAX_ROL")
+
+            property Fact _mountRCInPan:        _mountParamFact("RC_IN_PAN")
+            property Fact _mountStabPan:        _mountParamFact("STAB_PAN")
+            property Fact _mountAngMinPan:      _mountParamFact("ANGMIN_PAN")
+            property Fact _mountAngMaxPan:      _mountParamFact("ANGMAX_PAN")
 
             property Fact _rc5Function:         controller.getParameterFact(-1, "SERVO5_FUNCTION")
             property Fact _rc6Function:         controller.getParameterFact(-1, "SERVO6_FUNCTION")
@@ -73,7 +87,7 @@ SetupPage {
             property bool _servoReverseIsBool:  controller.parameterExists(-1, "RC5_REVERSED")
 
             // Gimbal Settings not available on older firmware
-            property bool _showGimbaLSettings:  controller.parameterExists(-1, "MNT_DEFLT_MODE")
+            property bool _showGimbaLSettings:  _mountParamExists("DEFLT_MODE")
 
             readonly property real  _margins:                       ScreenTools.defaultFontPixelHeight
             readonly property int   _rcFunctionDisabled:            0
@@ -190,7 +204,7 @@ SetupPage {
                     var baseValue = 8
                     // Extra outputs
                     // http://ardupilot.org/copter/docs/parameters.html#brd-pwm-count-auxiliary-pin-config
-                    var brd_pwm_count_value = controller.getParameterFact(-1, "BRD_PWM_COUNT").value
+                    var brd_pwm_count_value = controller.parameterExists(-1, "BRD_PWM_COUNT") ? controller.getParameterFact(-1, "BRD_PWM_COUNT", false).value : 0
                     update(8 + (brd_pwm_count_value == 7 ? 3 : brd_pwm_count_value))
                 }
             }
@@ -398,8 +412,8 @@ SetupPage {
                     width:  rectangle.x + rectangle.width
                     height: rectangle.y + rectangle.height
 
-                    property Fact _mountDefaultMode:    controller.getParameterFact(-1, "MNT_DEFLT_MODE")
-                    property Fact _mountType:           controller.getParameterFact(-1, "MNT_TYPE")
+                    property Fact _mountDefaultMode:    _mountParamFact("DEFLT_MODE")
+                    property Fact _mountType:           _mountParamFact("TYPE")
 
                     QGCLabel {
                         id:             settingsLabel
