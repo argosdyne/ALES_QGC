@@ -685,7 +685,9 @@ Item {
         width:               _rightPanelWidth
         height:              lifeVestColumn.implicitHeight
         color:               "transparent"
-        visible:             mainWindow.lifeVestPanelVisible && QGroundControl.corePlugin.settings.lifeJacketEnable.value
+        // Hide on PX4 vehicles regardless of the setting value
+        visible:             mainWindow.lifeVestPanelVisible && QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
+                             !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
         z:                   QGroundControl.zOrderWidgets + 1
 
         onVisibleChanged: {

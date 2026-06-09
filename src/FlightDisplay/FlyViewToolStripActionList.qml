@@ -62,7 +62,9 @@ ToolStripActionList {
         ToolStripAction {
             text:           qsTr("Life Jacket")
             iconSource:     "/qmlimages/LifeVestButton.svg"
-            visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value
+            // Hide on PX4 vehicles regardless of the setting value
+            visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
+                            !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
             onTriggered:    mainWindow.lifeVestPanelVisible = true
         }
     ]
