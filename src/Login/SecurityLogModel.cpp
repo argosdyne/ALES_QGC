@@ -14,11 +14,16 @@
 
 #include <QStringListModel>
 #include <QtConcurrent>
+#include <QDebug>
 #include <QTextStream>
 #include <QDateTime>
 #include <QThread>
 #include <QDir>
 #include <QStandardPaths>
+
+#ifdef __ANDROID__
+#include <jni.h>
+#endif
 
 Q_GLOBAL_STATIC(SecurityLogModel, s_seclogModel)
 
@@ -40,6 +45,7 @@ void SecurityLogModel::log(const QString message)
 
 void SecurityLogModel::threadsafeLog(const QString message)
 {
+    qInfo().noquote() << "QGC_SecurityLog: threadsafeLog received:" << message;
     if (!_persistentInitDone) {
         _initPersistentLog();
     }
@@ -52,6 +58,9 @@ void SecurityLogModel::threadsafeLog(const QString message)
         QTextStream out(&_logFile);
         out << message << "\n";
         _logFile.flush();
+        qInfo().noquote() << "QGC_SecurityLog: wrote persistent log:" << _logFile.fileName();
+    } else {
+        qWarning().noquote() << "QGC_SecurityLog: persistent log file is not open";
     }
 }
 
@@ -64,17 +73,18 @@ void SecurityLogModel::_initPersistentLog()
 
     const QString baseDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (baseDir.isEmpty()) {
-        qWarning() << "SecurityLogModel: AppDataLocation is empty, persistence disabled";
+        qWarning() << "QGC_SecurityLog: AppDataLocation is empty, persistence disabled";
         return;
     }
 
     QDir dir(baseDir);
     if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
-        qWarning() << "SecurityLogModel: Failed to create log directory:" << dir.absolutePath();
+        qWarning() << "QGC_SecurityLog: Failed to create log directory:" << dir.absolutePath();
         return;
     }
 
     const QString logPath = dir.absoluteFilePath(QStringLiteral("QGCSecurity.log"));
+    qInfo().noquote() << "QGC_SecurityLog: init persistent log:" << logPath;
 
     QFile readFile(logPath);
     if (readFile.exists() && readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -92,7 +102,7 @@ void SecurityLogModel::_initPersistentLog()
 
     _logFile.setFileName(logPath);
     if (!_logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        qWarning() << "SecurityLogModel: Failed to open log file:" << _logFile.fileName() << _logFile.errorString();
+        qWarning() << "QGC_SecurityLog: Failed to open log file:" << _logFile.fileName() << _logFile.errorString();
     }
 }
 
@@ -164,5 +174,39 @@ void SecurityLog::logEvent(const QString& message)
 {
     const QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
     const QString fullMsg = QStringLiteral("[%1] %2").arg(timestamp, message);
+    qInfo().noquote() << "QGC_SecurityLog: logEvent:" << fullMsg;
     SecurityLogModel::log(fullMsg);
 }
+
+#ifdef __ANDROID__
+extern "C" JNIEXPORT void JNICALL
+Java_org_mavlink_qgroundcontrol_QGCActivity_nativeLogSecurityEvent(
+        JNIEnv* env, jclass, jstring message)
+{
+    if (!env || !message) {
+        qWarning() << "QGC_SecurityLog: JNI nativeLogSecurityEvent missing env/message";
+        return;
+    }
+
+    const char* string = env->GetStringUTFChars(message, nullptr);
+    if (!string) {
+        qWarning() << "QGC_SecurityLog: JNI GetStringUTFChars returned null";
+        return;
+    }
+
+    const QString logMessage = QString::fromUtf8(string).trimmed();
+    env->ReleaseStringUTFChars(message, string);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
+
+    if (logMessage.isEmpty()) {
+        qWarning() << "QGC_SecurityLog: JNI received empty security event";
+        return;
+    }
+
+    qInfo().noquote() << "QGC_SecurityLog: JNI received USB security event:" << logMessage;
+    SecurityLog::logEvent(logMessage);
+    qInfo().noquote() << "SECURITY:" << logMessage;
+}
+#endif
