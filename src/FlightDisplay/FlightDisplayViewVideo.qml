@@ -239,8 +239,42 @@ Item {
             anchors.fill: parent
             enabled: pipState.state === pipState.fullState
 
+            // Manual double-tap detection (Android touch primary). 500ms
+            // window + 60px position tolerance so a slightly-shifted
+            // second finger tap still counts. Qt's onDoubleClicked kept
+            // as a mouse-double-click safety net.
+            property int _tapCount: 0
+            property real _tapTime: 0
+            property real _tapX: 0
+            property real _tapY: 0
+            property bool _justDoubleTapped: false
+
+            onPressed: {
+                var now = Date.now()
+                var dx = mouseX - _tapX
+                var dy = mouseY - _tapY
+                var samePlace = (dx * dx + dy * dy) < (60 * 60)
+                if (now - _tapTime < 500 && samePlace) {
+                    _tapCount++
+                } else {
+                    _tapCount = 1
+                }
+                _tapTime = now
+                _tapX = mouseX
+                _tapY = mouseY
+                if (_tapCount >= 2) {
+                    _tapCount = 0
+                    _justDoubleTapped = true
+                    QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+                }
+            }
+
             onDoubleClicked: {
-                QGroundControl.videoManager.fullScreen = false
+                if (_justDoubleTapped) {
+                    _justDoubleTapped = false
+                    return
+                }
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
             }
         }
 
