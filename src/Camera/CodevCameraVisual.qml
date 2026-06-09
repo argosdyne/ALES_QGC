@@ -298,7 +298,16 @@ Item {
 
         TouchSelectArea {
             anchors.fill: parent
-            enabled: parent.visible && (_thermometry && _thermometry.value || trackRadioButton.checked && aiInThermal)
+            // Stay enabled whenever the thermal overlay is visible so the
+            // double-click fullscreen toggle always reaches us. The point/
+            // rectangle gestures themselves are gated by enablePoint /
+            // enableRectangle so they only act when thermometry or AI-in-
+            // thermal tracking is on. Without this, the DeadMouseArea below
+            // swallowed every click in the thermal region whenever those
+            // modes were off, which made the double-click feel intermittent.
+            enabled: parent.visible
+            enablePoint: (_thermometry && _thermometry.value) || (trackRadioButton.checked && aiInThermal)
+            enableRectangle: (_thermometry && _thermometry.value) || (trackRadioButton.checked && aiInThermal)
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
