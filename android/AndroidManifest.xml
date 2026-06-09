@@ -16,6 +16,12 @@
         <intent>
             <action android:name="com.easygripper.dpc.action.KIOSK_STATE_CHANGED" />
         </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.INSTALL_QGC_UPDATE" />
+        </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.QGC_UPDATE_RESULT" />
+        </intent>
     </queries>
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
@@ -106,6 +112,21 @@
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name="org.mavlink.qgroundcontrol.update.USBUpdateReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_MOUNTED"/>
+                <data android:scheme="file"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.easygripper.dpc.action.QGC_UPDATE_RESULT"/>
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="org.mavlink.qgroundcontrol.update.USBUpdateFileProvider"
+            android:authorities="org.Agosdyne.alesqgc.updatefile"
+            android:exported="false"
+            android:grantUriPermissions="true" />
         <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
     </application>
 
@@ -129,8 +150,10 @@
     <uses-feature android:name="android.hardware.usb.accessory"/>
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
