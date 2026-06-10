@@ -81,11 +81,11 @@ SetupPage {
             property Fact _fenceRadius:         controller.getParameterFact(-1, "GF_MAX_HOR_DIST")
             property Fact _fenceMaxAlt:         controller.getParameterFact(-1, "GF_MAX_VER_DIST")
             //Add new geofence param
-            property Fact _fenceInside:         controller.getParameterFact(-1, "GF_ALT_INSIDE")
-            property Fact _fenceMinAlt:         controller.getParameterFact(-1, "GF_MIN_VER_DIST")
-            property Fact _fenceStartTime:      controller.getParameterFact(-1, "GF_ST_CLK_TIM")
-            property Fact _fenceDurationTime:   controller.getParameterFact(-1, "GF_SUSTAIN_HOR_T")
-            property Fact _fenceTimeZone:       controller.getParameterFact(-1, "GF_OFF_ZONE_TIM")
+            property Fact _fenceInside:         controller.getParameterFact(-1, "GF_ALT_INSIDE", false)
+            property Fact _fenceMinAlt:         controller.getParameterFact(-1, "GF_MIN_VER_DIST", false)
+            property Fact _fenceStartTime:      controller.getParameterFact(-1, "GF_ST_CLK_TIM", false)
+            property Fact _fenceDurationTime:   controller.getParameterFact(-1, "GF_SUSTAIN_HOR_T", false)
+            property Fact _fenceTimeZone:       controller.getParameterFact(-1, "GF_OFF_ZONE_TIM", false)
 
 
             property Fact _rtlLandDelay:        controller.getParameterFact(-1, "RTL_LAND_DELAY")
@@ -93,8 +93,13 @@ SetupPage {
             property Fact _rcLossAction:        controller.getParameterFact(-1, "NAV_RCL_ACT")
             property Fact _dlLossAction:        controller.getParameterFact(-1, "NAV_DLL_ACT")
             property Fact _disarmLandDelay:     controller.getParameterFact(-1, "COM_DISARM_LAND")
-            property Fact _collisionPrevention: controller.getParameterFact(-1, "CP_DIST")
-            property Fact _objectAvoidance:     controller.getParameterFact(-1, "COM_OBS_AVOID")
+            property Fact _collisionPrevention: controller.getParameterFact(-1, "CP_DIST", false)
+            property Fact _objectAvoidance:     controller.getParameterFact(-1, "COM_OBS_AVOID", false)
+            property Fact _batteryWarnLevel:    controller.parameterExists(-1, "BAT_LOW_THR") ? controller.getParameterFact(-1, "BAT_LOW_THR") : null
+            property Fact _batteryFailsafeLevel: controller.parameterExists(-1, "BAT_CRIT_THR") ? controller.getParameterFact(-1, "BAT_CRIT_THR") : null
+            property Fact _batteryEmergencyLevel: controller.parameterExists(-1, "BAT_EMERGEN_THR") ? controller.getParameterFact(-1, "BAT_EMERGEN_THR") : null
+            property Fact _rcLossTimeout:       controller.parameterExists(-1, "COM_RC_LOSS_T") ? controller.getParameterFact(-1, "COM_RC_LOSS_T") : null
+            property Fact _dlLossTimeout:       controller.parameterExists(-1, "COM_DL_LOSS_T") ? controller.getParameterFact(-1, "COM_DL_LOSS_T") : null
             property Fact _landSpeedMC:         controller.getParameterFact(-1, "MPC_LAND_SPEED", false)
             property bool _hitlAvailable:       controller.parameterExists(-1, hitlParam)
             property Fact _hitlEnabled:         controller.getParameterFact(-1, hitlParam, false)
@@ -158,7 +163,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               controller.getParameterFact(-1, "BAT_LOW_THR")
+                                fact:               _batteryWarnLevel
                                 Layout.fillWidth:   true
                             }
 
@@ -167,7 +172,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               controller.getParameterFact(-1, "BAT_CRIT_THR")
+                                fact:               _batteryFailsafeLevel
                                 Layout.fillWidth:   true
                             }
 
@@ -176,7 +181,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               controller.getParameterFact(-1, "BAT_EMERGEN_THR")
+                                fact:               _batteryEmergencyLevel
                                 Layout.fillWidth:   true
                             }
                         }
@@ -349,7 +354,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               controller.getParameterFact(-1, "COM_RC_LOSS_T")
+                                fact:               _rcLossTimeout
                                 Layout.fillWidth:   true
                             }
                         }
@@ -410,7 +415,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               controller.getParameterFact(-1, "COM_DL_LOSS_T")
+                                fact:               _dlLossTimeout
                                 Layout.fillWidth:   true
                             }
                         }
