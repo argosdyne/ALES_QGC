@@ -68,16 +68,23 @@ LinuxBuild {
         QMAKE_POST_LINK += $$escape_expand(\\n) xcopy \"$$GST_ROOT_WIN\\lib\\gstreamer-1.0\\*.dll\" \"$$DESTDIR_WIN\\gstreamer-plugins\\\" /Y $$escape_expand(\\n)
     }
 } else:AndroidBuild {
-    #- gstreamer assumed to be installed in $$PWD/../../gstreamer-1.0-android-universal-1.18.6/***
+    GST_BASE = $$PWD/../../gstreamer-1.0-android-universal-1.22.12
+    !exists($$GST_BASE) {
+        GST_CANDIDATES = $$files($$PWD/../../gstreamer-1.0-android-universal-1.*)
+        for (CANDIDATE, GST_CANDIDATES) {
+            GST_BASE = $$CANDIDATE
+        }
+    }
+
     contains(ANDROID_TARGET_ARCH, armeabi-v7a) {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.6/armv7
+        GST_ROOT = $$GST_BASE/armv7
     } else:contains(ANDROID_TARGET_ARCH, arm64-v8a) {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.6/arm64
+        GST_ROOT = $$GST_BASE/arm64
     } else:contains(ANDROID_TARGET_ARCH, x86_64) {
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.6/x86_64
+        GST_ROOT = $$GST_BASE/x86_64
     } else {
         message(Unknown ANDROID_TARGET_ARCH $$ANDROID_TARGET_ARCH)
-        GST_ROOT = $$PWD/../../gstreamer-1.0-android-universal-1.18.6/x86
+        GST_ROOT = $$GST_BASE/x86
     }
     exists($$GST_ROOT) {
         QMAKE_CXXFLAGS  += -pthread
@@ -112,7 +119,7 @@ LinuxBuild {
             -lgstvideo-1.0 \
             -lgstriff-1.0 -lgstcontroller-1.0 -lgstapp-1.0 \
             -lgstsdp-1.0 -lbz2 -lgobject-2.0 -lgstmpegts-1.0 \
-            -Wl,--export-dynamic -lgmodule-2.0 -pthread -lglib-2.0 -lorc-0.4 -liconv -lffi -lintl \
+            -Wl,--export-dynamic -lgmodule-2.0 -pthread -lglib-2.0 -lorc-0.4 -lpcre2-8 -liconv -lffi -lintl \
 
         INCLUDEPATH += \
             $$GST_ROOT/include/gstreamer-1.0 \
