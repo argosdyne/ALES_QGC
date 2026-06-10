@@ -60,6 +60,10 @@ import android.os.PowerManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.app.PendingIntent;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.os.Build;
 import android.os.Handler;
@@ -564,6 +568,68 @@ public class QGCActivity extends QtActivity
             saveDpcKioskStateToPrefs(saveContext);
         }
         Log.e(TAG, "Received DPC kiosk state update: enabled=" + _knownDpcKioskEnabled);
+        if (_instance != null) {
+            _instance.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    _instance.updateKioskBackBlockPolicy();
+                }
+            });
+        }
+    }
+
+    private static boolean isDpcKioskBackBlocked() {
+        return _bootForcedDpcKioskOn || (_hasKnownDpcKioskState && _knownDpcKioskEnabled);
+    }
+
+    private void updateKioskBackBlockPolicy() {
+        if (isDpcKioskBackBlocked()) {
+            hideNavigationBarForKiosk();
+        }
+    }
+
+    /** Hide nav bar back button on OEM builds that still show it under Lock Task. */
+    private void hideNavigationBarForKiosk() {
+        final View decorView = getWindow().getDecorView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+            final WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.navigationBars());
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        } else {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (isDpcKioskBackBlocked() && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onBackPressed() {
+        if (isDpcKioskBackBlocked()) {
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            updateKioskBackBlockPolicy();
+        }
     }
 
     public static boolean isBootForcedDpcKioskOn() {
@@ -830,6 +896,7 @@ public class QGCActivity extends QtActivity
         }
 
         requestDpcKioskState();
+        updateKioskBackBlockPolicy();
     }
 
     @Override
@@ -842,6 +909,7 @@ public class QGCActivity extends QtActivity
         
         // Session Management: App comes to foreground
         nativeOnActivityResume();
+        updateKioskBackBlockPolicy();
     }
 
     @Override
