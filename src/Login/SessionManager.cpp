@@ -33,13 +33,9 @@ SessionManager::SessionManager(QObject *parent)
 
     connect(&m_sessionTimer, &QTimer::timeout,
             this, &SessionManager::_onSessionTimeout);
-    connect(&m_backgroundLockTimer, &QTimer::timeout,
-            this, &SessionManager::_onBackgroundLockTimeout);
 
     m_sessionTimer.setInterval(SESSION_TIMEOUT_MS);
     m_sessionTimer.setSingleShot(true);
-    m_backgroundLockTimer.setInterval(BACKGROUND_LOCK_GRACE_MS);
-    m_backgroundLockTimer.setSingleShot(true);
 
     if (qApp) {
         qApp->installEventFilter(this);
@@ -72,7 +68,6 @@ SessionManager::~SessionManager() {
         qApp->removeEventFilter(this);
     }
     m_sessionTimer.stop();
-    m_backgroundLockTimer.stop();
     if (s_instance == this) {
         s_instance = nullptr;
     }
@@ -140,16 +135,13 @@ void SessionManager::onAppBackground() {
     }
 
     m_isAppInBackground = true;
-    m_backgroundLockTimer.start();
+    m_sessionActive = false;
+    m_sessionTimer.stop();
+    emit sessionLocked();
 }
 
 void SessionManager::onAppForeground() {
     m_isAppInBackground = false;
-    m_backgroundLockTimer.stop();
-    if (m_sessionManagementEnabled && !m_sessionActive) {
-        m_sessionActive = true;
-        _restartInactivityTimer();
-    }
 }
 
 bool SessionManager::eventFilter(QObject *watched, QEvent *event) {
@@ -188,18 +180,6 @@ void SessionManager::_restartInactivityTimer() {
 
     m_sessionTimer.stop();
     m_sessionTimer.start();
-}
-
-void SessionManager::_onBackgroundLockTimeout()
-{
-    if (!m_sessionManagementEnabled || !m_isAppInBackground) {
-        return;
-    }
-
-    SecurityLog::logEvent(QStringLiteral("Session locked after background grace timeout"));
-    m_sessionActive = false;
-    m_sessionTimer.stop();
-    emit sessionLocked();
 }
 
 #ifdef Q_OS_ANDROID
