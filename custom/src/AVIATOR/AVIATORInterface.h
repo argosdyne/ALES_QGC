@@ -4,6 +4,8 @@
 #include <QLoggingCategory>
 #include <mavlink.h>
 #include <QVariant>
+#include <QTimer>
+#include <QElapsedTimer>
 #include "FactGroup.h"
 
 Q_DECLARE_LOGGING_CATEGORY(AVIATORInterfaceLog)
@@ -67,6 +69,10 @@ private:
     void _init();
     void _handle_mavlink_rc_channels(const mavlink_message_t& message);
     void _handle_mavlink_param_value(const mavlink_message_t& message);
+    void _updateEmergencyStopCombo(uint16_t chan7, uint16_t chan15);
+    void _onEmergencyHoldTimeout();
+    void _resetEmergencyStopComboState();
+    static bool _rcSwitchActive(uint16_t rawValue);
 
     Fact _batteryVoltageFact;
     Fact _batteryRemainingFact;
@@ -102,6 +108,17 @@ private:
     bool _f3Pressed{false};
     bool _capturePressed{false};
     bool _recordPressed{false};
+    bool _emergencyStopComboActive{false};
+    bool _comboPaired{false};
+    bool _rc7WasActive{false};
+    bool _rc15WasActive{false};
+    qint64 _rc7EdgeMs{-1};
+    qint64 _rc15EdgeMs{-1};
+    QTimer _emergencyHoldTimer;
+    QElapsedTimer _comboClock;
+
+    uint16_t _lastRc7Raw{0};
+    uint16_t _lastRc15Raw{0};
 
     bool _cn1Pressed{false};
     bool _cn2Pressed{false};
