@@ -147,6 +147,16 @@ public:
     Q_INVOKABLE void logSecurityEvent(const QString& message);
     Q_INVOKABLE void clearUserLogs();
     Q_INVOKABLE void notifyFactoryResetCompleted();
+    Q_INVOKABLE bool setDpcKioskEnabled(bool enabled);
+    Q_INVOKABLE bool setDpcKioskEnabledWithPin(bool enabled, const QString& pin);
+    Q_INVOKABLE bool isDpcControlSupported() const;
+    Q_INVOKABLE bool requestDpcKioskState();
+    Q_INVOKABLE bool hasKnownDpcKioskState() const;
+    Q_INVOKABLE bool getKnownDpcKioskStateEnabled() const;
+    Q_INVOKABLE bool isBootForcedDpcKioskOn() const;
+    Q_INVOKABLE void refreshDpcKioskStateFromStorage();
+    Q_INVOKABLE bool reconcilePostRebootKioskState();
+    Q_INVOKABLE QString getDpcKioskDiagnostics() const;
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;

@@ -25,4 +25,5 @@ public:
     DEFINE_SETTINGFACT(securityAllowlistVehicleIds)
     DEFINE_SETTINGFACT(securityWizardCompleted)
     DEFINE_SETTINGFACT(securityRememberChoice)
+    DEFINE_SETTINGFACT(dpcKioskEnabled)
 };

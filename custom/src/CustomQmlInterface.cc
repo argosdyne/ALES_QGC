@@ -10,6 +10,69 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QTextStream>
+#include <QRegularExpression>
+#if defined(Q_OS_ANDROID)
+#include <QtAndroidExtras/QtAndroid>
+#include <QtAndroidExtras/QAndroidJniEnvironment>
+#include <QtAndroidExtras/QAndroidJniObject>
+
+namespace {
+constexpr const char* kQgcActivityClass = "org/mavlink/qgroundcontrol/QGCActivity";
+
+jclass findQgcActivityClass(QAndroidJniEnvironment& env)
+{
+    jclass clazz = env->FindClass(kQgcActivityClass);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return clazz;
+}
+
+jmethodID findStaticMethod(QAndroidJniEnvironment& env, jclass clazz, const char* name, const char* signature)
+{
+    if (clazz == nullptr) {
+        return nullptr;
+    }
+    jmethodID method = env->GetStaticMethodID(clazz, name, signature);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return nullptr;
+    }
+    return method;
+}
+
+bool callStaticBooleanIfPresent(const char* methodName, const char* signature, bool defaultValue)
+{
+    QAndroidJniEnvironment env;
+    jclass clazz = findQgcActivityClass(env);
+    jmethodID method = findStaticMethod(env, clazz, methodName, signature);
+    if (method == nullptr) {
+        return defaultValue;
+    }
+    const jboolean value = env->CallStaticBooleanMethod(clazz, method);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return defaultValue;
+    }
+    return value;
+}
+
+void callStaticVoidIfPresent(const char* methodName, const char* signature)
+{
+    QAndroidJniEnvironment env;
+    jclass clazz = findQgcActivityClass(env);
+    jmethodID method = findStaticMethod(env, clazz, methodName, signature);
+    if (method == nullptr) {
+        return;
+    }
+    env->CallStaticVoidMethod(clazz, method);
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+    }
+}
+} // namespace
+#endif
 
 #define CHAR_NUMBER_EACH_ROW 30
 
@@ -92,6 +155,11 @@ void CustomQmlInterface::setToolbox(QGCToolbox* toolbox)
     connect(qgcApp(), &QGCApplication::teamModeConnectionChanged, _teamModeRouter, &TeamModeRouter::p2pConnectStateChanged);
     connect(qgcApp(), &QGCApplication::teamModeDeviceListChanged, _teamModeRouter, &TeamModeRouter::newP2PDevices);
     connect(qgcApp(), &QGCApplication::teamModeConnectionChanged, this, &CustomQmlInterface::_p2pConnectionStateChanged);
+#endif
+
+#if defined(Q_OS_ANDROID)
+    refreshDpcKioskStateFromStorage();
+    requestDpcKioskState();
 #endif
 
 }
@@ -206,6 +274,279 @@ void CustomQmlInterface::clearUserLogs()
 void CustomQmlInterface::notifyFactoryResetCompleted()
 {
     emit factoryResetCompleted();
+}
+
+bool CustomQmlInterface::setDpcKioskEnabled(bool enabled)
+{
+    return setDpcKioskEnabledWithPin(enabled, QString());
+}
+
+bool CustomQmlInterface::setDpcKioskEnabledWithPin(bool enabled, const QString& pin)
+{
+#if defined(Q_OS_ANDROID)
+    if (pin.length() != 8) {
+        logSecurityEvent(QStringLiteral("DPC kiosk request denied: invalid PIN length"));
+        return false;
+    }
+
+    qInfo() << "CustomQmlInterface setDPC " << enabled << pin;
+    const QRegularExpression pinRegex(QStringLiteral("^\\d{8}$"));
+    if (!pinRegex.match(pin).hasMatch()) {
+        logSecurityEvent(QStringLiteral("DPC kiosk request denied: PIN must be 8 digits"));
+        return false;
+    }
+
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (!activity.isValid()) {
+        logSecurityEvent(QStringLiteral("DPC kiosk request failed: no Android activity"));
+        return false;
+    }
+
+    const QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.action.SET_KIOSK_ENABLED"));
+    const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
+    const QAndroidJniObject dpcReceiver = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.DpcControlReceiver"));
+    const QAndroidJniObject enabledKey = QAndroidJniObject::fromString(QStringLiteral("enabled"));
+    const QAndroidJniObject pinKey = QAndroidJniObject::fromString(QStringLiteral("pin"));
+    const QAndroidJniObject jpin = QAndroidJniObject::fromString(pin);
+
+    QAndroidJniObject component(
+        "android/content/ComponentName",
+        "(Ljava/lang/String;Ljava/lang/String;)V",
+        dpcPackage.object<jstring>(),
+        dpcReceiver.object<jstring>());
+
+    QAndroidJniObject explicitIntent(
+        "android/content/Intent",
+        "(Ljava/lang/String;)V",
+        action.object<jstring>());
+    explicitIntent.callObjectMethod(
+        "setComponent",
+        "(Landroid/content/ComponentName;)Landroid/content/Intent;",
+        component.object());
+    explicitIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Z)Landroid/content/Intent;",
+        enabledKey.object<jstring>(),
+        static_cast<jboolean>(enabled));
+    explicitIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+        pinKey.object<jstring>(),
+        jpin.object<jstring>());
+    activity.callMethod<void>(
+        "sendBroadcast",
+        "(Landroid/content/Intent;)V",
+        explicitIntent.object());
+
+    QAndroidJniObject packageIntent(
+        "android/content/Intent",
+        "(Ljava/lang/String;)V",
+        action.object<jstring>());
+    packageIntent.callObjectMethod(
+        "setPackage",
+        "(Ljava/lang/String;)Landroid/content/Intent;",
+        dpcPackage.object<jstring>());
+    packageIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Z)Landroid/content/Intent;",
+        enabledKey.object<jstring>(),
+        static_cast<jboolean>(enabled));
+    packageIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+        pinKey.object<jstring>(),
+        jpin.object<jstring>());
+    activity.callMethod<void>(
+        "sendBroadcast",
+        "(Landroid/content/Intent;)V",
+        packageIntent.object());
+
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+        logSecurityEvent(QStringLiteral("DPC kiosk request JNI exception while sending broadcast"));
+        return false;
+    }
+
+    logSecurityEvent(QStringLiteral("DPC kiosk %1 request broadcast sent")
+                         .arg(enabled ? QStringLiteral("enabled") : QStringLiteral("disabled")));
+    return true;
+#else
+    Q_UNUSED(enabled)
+    return false;
+#endif
+}
+
+bool CustomQmlInterface::isDpcControlSupported() const
+{
+#if defined(Q_OS_ANDROID)
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (!activity.isValid()) {
+        return false;
+    }
+
+    QAndroidJniObject packageManager = activity.callObjectMethod(
+        "getPackageManager",
+        "()Landroid/content/pm/PackageManager;");
+    if (!packageManager.isValid()) {
+        return false;
+    }
+
+    const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
+    const jint flags = 0;
+
+    packageManager.callObjectMethod(
+        "getPackageInfo",
+        "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;",
+        dpcPackage.object<jstring>(),
+        flags);
+
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {
+        env->ExceptionClear();
+        return false;
+    }
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool CustomQmlInterface::requestDpcKioskState()
+{
+#if defined(Q_OS_ANDROID)
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (activity.isValid()) {
+        const QAndroidJniObject action =
+            QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.action.REQUEST_KIOSK_STATE"));
+        const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
+        const QAndroidJniObject dpcReceiver =
+            QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.DpcControlReceiver"));
+
+        QAndroidJniObject component(
+            "android/content/ComponentName",
+            "(Ljava/lang/String;Ljava/lang/String;)V",
+            dpcPackage.object<jstring>(),
+            dpcReceiver.object<jstring>());
+
+        QAndroidJniObject explicitIntent(
+            "android/content/Intent",
+            "(Ljava/lang/String;)V",
+            action.object<jstring>());
+        explicitIntent.callObjectMethod(
+            "setComponent",
+            "(Landroid/content/ComponentName;)Landroid/content/Intent;",
+            component.object());
+        activity.callMethod<void>(
+            "sendBroadcast",
+            "(Landroid/content/Intent;)V",
+            explicitIntent.object());
+
+        QAndroidJniObject packageIntent(
+            "android/content/Intent",
+            "(Ljava/lang/String;)V",
+            action.object<jstring>());
+        packageIntent.callObjectMethod(
+            "setPackage",
+            "(Ljava/lang/String;)Landroid/content/Intent;",
+            dpcPackage.object<jstring>());
+        activity.callMethod<void>(
+            "sendBroadcast",
+            "(Landroid/content/Intent;)V",
+            packageIntent.object());
+    }
+
+    return callStaticBooleanIfPresent("requestDpcKioskState", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+bool CustomQmlInterface::isBootForcedDpcKioskOn() const
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("isBootForcedDpcKioskOn", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+void CustomQmlInterface::refreshDpcKioskStateFromStorage()
+{
+#if defined(Q_OS_ANDROID)
+    callStaticVoidIfPresent("refreshDpcKioskStateFromStorage", "()V");
+#endif
+}
+
+bool CustomQmlInterface::reconcilePostRebootKioskState()
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("reconcilePostRebootKioskState", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+QString CustomQmlInterface::getDpcKioskDiagnostics() const
+{
+#if defined(Q_OS_ANDROID)
+    QStringList parts;
+    parts << QStringLiteral("cppBuild=%1 %2").arg(QStringLiteral(__DATE__), QStringLiteral(__TIME__));
+
+    QAndroidJniEnvironment env;
+    jclass activityClass = env->FindClass("org/mavlink/qgroundcontrol/QGCActivity");
+    if (activityClass == nullptr || env->ExceptionCheck()) {
+        env->ExceptionClear();
+        parts << QStringLiteral("QGCActivity=MISSING");
+        parts << QStringLiteral("action=Clean+Rebuild+Deploy Android APK");
+        return parts.join(QStringLiteral(" | "));
+    }
+    parts << QStringLiteral("QGCActivity=ok");
+
+    const jmethodID diagMethod = env->GetStaticMethodID(
+        activityClass, "getDpcKioskDiagnostics", "()Ljava/lang/String;");
+    if (diagMethod != nullptr && !env->ExceptionCheck()) {
+        const jstring jdiag = static_cast<jstring>(env->CallStaticObjectMethod(activityClass, diagMethod));
+        if (jdiag != nullptr && !env->ExceptionCheck()) {
+            return QAndroidJniObject(jdiag).toString();
+        }
+        env->ExceptionClear();
+    } else {
+        env->ExceptionClear();
+        parts << QStringLiteral("javaDiag=OLD_APK");
+    }
+
+    const jmethodID bootForcedMethod = findStaticMethod(env, activityClass, "isBootForcedDpcKioskOn", "()Z");
+    const jmethodID initBridgeMethod = findStaticMethod(env, activityClass, "initDpcKioskBridge", "(Landroid/content/Context;)V");
+    parts << QStringLiteral("bootForcedMethod=%1").arg(bootForcedMethod != nullptr ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("initBridgeMethod=%1").arg(initBridgeMethod != nullptr ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("dpcSupported=%1").arg(isDpcControlSupported() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("hasKnown=%1").arg(hasKnownDpcKioskState() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("knownEnabled=%1").arg(getKnownDpcKioskStateEnabled() ? QStringLiteral("yes") : QStringLiteral("no"));
+    parts << QStringLiteral("action=Clean+Rebuild+Deploy Android APK");
+    return parts.join(QStringLiteral(" | "));
+#else
+    return QStringLiteral("not android");
+#endif
+}
+
+bool CustomQmlInterface::hasKnownDpcKioskState() const
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("hasKnownDpcKioskState", "()Z", false);
+#else
+    return false;
+#endif
+}
+
+bool CustomQmlInterface::getKnownDpcKioskStateEnabled() const
+{
+#if defined(Q_OS_ANDROID)
+    return callStaticBooleanIfPresent("getKnownDpcKioskStateEnabled", "()Z", false);
+#else
+    return false;
+#endif
 }
 
 void CustomQmlInterface::_slaveModeChanged(bool slaveMode)

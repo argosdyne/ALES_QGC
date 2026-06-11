@@ -14,17 +14,18 @@ ANDROID_PACKAGE_UPDATE_JAVA_FILES    = $$files($$PWD/android/src/org/mavlink/qgr
 
 
 
+ANDROID_PACKAGE_SYNC_SENTINEL = $$ANDROID_PACKAGE_SOURCE_DIR/src/org/mavlink/qgroundcontrol/QGCActivity.java
+
 contains(QMAKE_HOST.os, Windows){
     message("Win32: Prepairing android build folder")
     COPY_DIR_WIN = xcopy /E /I /Y
-    android_source_dir_target.target = $$system_path($$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml)
-    DIR_EXISTS_CMD = if not exist %1 echo Initializing package source...
+    # Use copied QGCActivity.java as make target so Java edits always trigger resync.
+    android_source_dir_target.target = $$system_path($$ANDROID_PACKAGE_SYNC_SENTINEL)
     manifest_path = $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml
     manifest_tmp_path = $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml.sed
 
     android_source_dir_target.commands = \
-        $$sprintf($$DIR_EXISTS_CMD, $$system_path($$ANDROID_PACKAGE_SOURCE_DIR)) && \
-        $$QMAKE_MKDIR $$system_path($$ANDROID_PACKAGE_SOURCE_DIR) && \
+        if not exist \"$$system_path($$ANDROID_PACKAGE_SOURCE_DIR)\\\" mkdir \"$$system_path($$ANDROID_PACKAGE_SOURCE_DIR)\\\" && \
         $$COPY_DIR_WIN \"$$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR\\*)\" \"$$system_path($$ANDROID_PACKAGE_SOURCE_DIR)\\\"
 
     PRE_TARGETDEPS += $$android_source_dir_target.target
@@ -33,7 +34,7 @@ contains(QMAKE_HOST.os, Windows){
     message("Unix: Prepairing android build folder")
     manifest_path = $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml
     manifest_tmp_path = $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml.sed
-    android_source_dir_target.target = $$system_path($$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml)
+    android_source_dir_target.target = $$system_path($$ANDROID_PACKAGE_SYNC_SENTINEL)
     android_source_dir_target.commands = \
         $$QMAKE_MKDIR $$system_path($$ANDROID_PACKAGE_SOURCE_DIR) && \
         $$QMAKE_COPY_DIR $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/*) $$system_path($$ANDROID_PACKAGE_SOURCE_DIR)
@@ -54,7 +55,11 @@ exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR/AndroidManifest.xml) {
         $$ANDROID_PACKAGE_UPDATE_JAVA_FILES
 }
 android_source_dir_target.depends += \
-    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/SecurityHelper.java)
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/SecurityHelper.java) \
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/DpcKioskStateReceiver.java) \
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/QgcBootReceiver.java) \
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/QGCActivity.java) \
+    $$system_path($$ANDROID_PACKAGE_QGC_SOURCE_DIR/src/org/mavlink/qgroundcontrol/QGCApplication.java)
 
 # Custom builds can override android package file
 exists($$ANDROID_PACKAGE_CUSTOM_SOURCE_DIR) {
@@ -106,6 +111,9 @@ OTHER_FILES += \
     $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialProber.java \
     $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialRuntimeException.java \
     $$PWD/android/src/org/mavlink/qgroundcontrol/QGCActivity.java \
+    $$PWD/android/src/org/mavlink/qgroundcontrol/QGCApplication.java \
+    $$PWD/android/src/org/mavlink/qgroundcontrol/DpcKioskStateReceiver.java \
+    $$PWD/android/src/org/mavlink/qgroundcontrol/QgcBootReceiver.java \
     $$ANDROID_PACKAGE_UPDATE_JAVA_FILES \
     $$PWD/android/src/org/mavlink/qgroundcontrol/UsbIoManager.java \
     $$PWD/android/src/org/mavlink/qgroundcontrol/TaiSync.java \

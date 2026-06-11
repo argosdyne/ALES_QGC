@@ -21,6 +21,7 @@ DECLARE_SETTINGSFACT(CustomSettings, securityStrictMavlinkValidation)
 DECLARE_SETTINGSFACT(CustomSettings, securityAllowlistVehicleIds)
 DECLARE_SETTINGSFACT(CustomSettings, securityWizardCompleted)
 DECLARE_SETTINGSFACT(CustomSettings, securityRememberChoice)
+DECLARE_SETTINGSFACT(CustomSettings, dpcKioskEnabled)
 
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)
 {

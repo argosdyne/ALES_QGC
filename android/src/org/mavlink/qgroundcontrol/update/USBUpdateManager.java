@@ -3,12 +3,14 @@ package org.mavlink.qgroundcontrol.update;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,6 +33,26 @@ public final class USBUpdateManager {
     public static final String EXTRA_INSTALL_TO_VERSION = "install_to_version";
     public static final String APK_NAME_PREFIX = "ALES_QGC";
     public static final String SIGNER_DISPLAY_NAME = "EasyGripper Production Key";
+    public static final String ACTION_DPC_UPDATE_RESULT =
+            "com.easygripper.dpc.action.QGC_UPDATE_RESULT";
+    public static final String EXTRA_DPC_RESULT_STATUS = "status";
+    public static final String EXTRA_DPC_RESULT_MESSAGE = "message";
+    public static final String EXTRA_DPC_RESULT_PACKAGE_NAME = "package_name";
+    public static final String EXTRA_DPC_RESULT_VERSION_NAME = "version_name";
+    public static final String EXTRA_DPC_RESULT_VERSION_CODE = "version_code";
+    public static final String EXTRA_DPC_RESULT_APK_SHA256 = "apk_sha256";
+    private static final String DPC_PACKAGE = "com.easygripper.dpc";
+    private static final String DPC_CONTROL_RECEIVER = "com.easygripper.dpc.DpcControlReceiver";
+    private static final String ACTION_DPC_INSTALL_QGC_UPDATE =
+            "com.easygripper.dpc.action.INSTALL_QGC_UPDATE";
+    private static final String EXTRA_DPC_APK_PATH = "apk_path";
+    private static final String EXTRA_DPC_APK_URI = "apk_uri";
+    private static final String EXTRA_DPC_SHA256_URI = "sha256_uri";
+    private static final String EXTRA_DPC_APK_SHA256 = "apk_sha256";
+    private static final String EXTRA_DPC_PACKAGE_NAME = "package_name";
+    private static final String EXTRA_DPC_VERSION_NAME = "version_name";
+    private static final String EXTRA_DPC_VERSION_CODE = "version_code";
+    private static final String EXTRA_DPC_SIGNER_SHA256 = "signer_sha256";
 
     // EG-SEC-UPD-002 says "no APK found" should be silent in production.
     // Keep this enabled while field-testing the USB detection flow.
@@ -39,10 +61,10 @@ public final class USBUpdateManager {
     // Set this to the SHA-256 fingerprint of the production signing certificate.
     // Debug/test keys intentionally fail until this is configured for that build.
     public static final String PINNED_CERT_SHA256 =
-            "d7282edbe297a892b4c9e57ed8db946dc8724a430ab8b4c3b439f22c4ba0ee";
+            "d7282edbe297a892b4c9e57ed8db946dc8724a430ab8b4c3b439f22c4ba0ee52";
 
     private static final String TAG = LOG_TAG;
-    private static final InstallGateway INSTALL_GATEWAY = new PackageInstallerGateway();
+    private static final InstallGateway INSTALL_GATEWAY = new DpcInstallGateway();
 
     private USBUpdateManager() { }
 
@@ -155,6 +177,40 @@ public final class USBUpdateManager {
         } else {
             UpdateAuditLogger.log(context, "INSTALL_FAILED", candidate,
                     message != null ? message : "PackageInstaller failed with status " + status);
+        }
+    }
+
+    public static void handleDpcUpdateResult(Context context, Intent intent, Activity activity) {
+        String status = intent.getStringExtra(EXTRA_DPC_RESULT_STATUS);
+        String message = intent.getStringExtra(EXTRA_DPC_RESULT_MESSAGE);
+        String packageName = intent.getStringExtra(EXTRA_DPC_RESULT_PACKAGE_NAME);
+        String versionName = intent.getStringExtra(EXTRA_DPC_RESULT_VERSION_NAME);
+        long versionCode = intent.getLongExtra(EXTRA_DPC_RESULT_VERSION_CODE, -1);
+        String apkSha256 = intent.getStringExtra(EXTRA_DPC_RESULT_APK_SHA256);
+
+        UpdateCandidate candidate = new UpdateCandidate();
+        candidate.packageName = packageName;
+        candidate.versionName = versionName;
+        candidate.versionCode = versionCode;
+        candidate.apkSha256 = apkSha256;
+
+        String safeStatus = status != null ? status : "UNKNOWN";
+        String safeMessage = message != null ? message : "";
+        Log.i(TAG, "DPC_RESULT: status=" + safeStatus
+                + " message=" + safeMessage
+                + " package=" + packageName
+                + " version=" + versionName
+                + " versionCode=" + versionCode);
+
+        UpdateAuditLogger.log(context, "DPC_UPDATE_" + safeStatus, candidate, safeMessage);
+        if ("SUCCESS".equals(safeStatus)) {
+            showInfo(activity, "QGC Update Installed",
+                    safeMessage.length() > 0 ? safeMessage : "DPC installed the QGC update.");
+        } else if ("REQUESTED".equals(safeStatus)) {
+            Log.i(TAG, "DPC_RESULT: request accepted by DPC");
+        } else {
+            showError(activity,
+                    safeMessage.length() > 0 ? safeMessage : "DPC could not install the QGC update.");
         }
     }
 
@@ -417,6 +473,82 @@ public final class USBUpdateManager {
 
     private interface InstallGateway {
         UpdateResult requestInstall(Context context, UpdateCandidate candidate);
+    }
+
+    private static final class DpcInstallGateway implements InstallGateway {
+        @Override
+        public UpdateResult requestInstall(Context context, UpdateCandidate candidate) {
+            if (context == null || candidate == null || candidate.apkFile == null) {
+                return UpdateResult.failure("INSTALL_FAILED",
+                        "Install request is missing context or APK file", candidate);
+            }
+
+            if (!isDpcInstalled(context)) {
+                Log.w(TAG, "INSTALL: EasyGripper DPC package is not installed");
+                return UpdateResult.failure("INSTALL_FAILED",
+                        "EasyGripper DPC is not installed", candidate);
+            }
+
+            Intent intent = new Intent(ACTION_DPC_INSTALL_QGC_UPDATE);
+            Uri apkUri = USBUpdateFileProvider.uriForFile(candidate.apkFile);
+            Uri sha256Uri = candidate.sha256File != null
+                    ? USBUpdateFileProvider.uriForFile(candidate.sha256File)
+                    : null;
+            intent.setClassName(DPC_PACKAGE, DPC_CONTROL_RECEIVER);
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND
+                    | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setData(apkUri);
+            ClipData clipData = ClipData.newUri(context.getContentResolver(),
+                    "QGC update APK", apkUri);
+            if (sha256Uri != null) {
+                clipData.addItem(new ClipData.Item(sha256Uri));
+            }
+            intent.setClipData(clipData);
+            context.grantUriPermission(DPC_PACKAGE, apkUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (sha256Uri != null) {
+                context.grantUriPermission(DPC_PACKAGE, sha256Uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            intent.putExtra(EXTRA_DPC_APK_PATH, candidate.apkFile.getAbsolutePath());
+            intent.putExtra(EXTRA_DPC_APK_URI, apkUri.toString());
+            if (sha256Uri != null) {
+                intent.putExtra(EXTRA_DPC_SHA256_URI, sha256Uri.toString());
+            }
+            intent.putExtra(EXTRA_DPC_APK_SHA256, candidate.apkSha256);
+            intent.putExtra(EXTRA_DPC_PACKAGE_NAME, candidate.packageName);
+            intent.putExtra(EXTRA_DPC_VERSION_NAME, candidate.versionName);
+            intent.putExtra(EXTRA_DPC_VERSION_CODE, candidate.versionCode);
+            intent.putExtra(EXTRA_DPC_SIGNER_SHA256, candidate.signerSha256);
+
+            try {
+                context.sendBroadcast(intent);
+                Log.i(TAG, "INSTALL: sent DPC install request apk="
+                        + candidate.apkFile.getAbsolutePath()
+                        + " package=" + candidate.packageName
+                        + " version=" + candidate.versionName
+                        + " versionCode=" + candidate.versionCode
+                        + " uri=" + apkUri
+                        + " uriGrant=true"
+                        + " sha256=" + shortHash(candidate.apkSha256)
+                        + " signer=" + shortHash(candidate.signerSha256));
+                return UpdateResult.success("INSTALL_REQUESTED",
+                        "Install request sent to EasyGripper DPC", candidate);
+            } catch (Exception e) {
+                Log.e(TAG, "INSTALL: failed to send DPC install request", e);
+                return UpdateResult.failure("INSTALL_FAILED",
+                        "DPC install request failed: " + e.getMessage(), candidate);
+            }
+        }
+
+        private boolean isDpcInstalled(Context context) {
+            try {
+                context.getPackageManager().getPackageInfo(DPC_PACKAGE, 0);
+                return true;
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
     }
 
     private static final class PackageInstallerGateway implements InstallGateway {

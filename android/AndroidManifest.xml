@@ -8,8 +8,24 @@
          Remove the comment if you do not require these default features. -->
     <!-- %%INSERT_FEATURES -->
 
+    <queries>
+        <package android:name="com.easygripper.dpc" />
+        <intent>
+            <action android:name="com.easygripper.dpc.action.REQUEST_KIOSK_STATE" />
+        </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.KIOSK_STATE_CHANGED" />
+        </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.INSTALL_QGC_UPDATE" />
+        </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.QGC_UPDATE_RESULT" />
+        </intent>
+    </queries>
+
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="-- %%INSERT_APP_NAME%% --" android:extractNativeLibs="true" android:icon="@drawable/icon">
+    <application android:hardwareAccelerated="true" android:name="org.mavlink.qgroundcontrol.QGCApplication" android:label="-- %%INSERT_APP_NAME%% --" android:extractNativeLibs="true" android:icon="@drawable/icon">
         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.mavlink.qgroundcontrol.QGCActivity" android:label="-- %%INSERT_APP_NAME%% --" android:screenOrientation="sensorLandscape" android:launchMode="singleTask" android:keepScreenOn="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -77,17 +93,46 @@
             <meta-data android:name="android.app.extract_android_style" android:value="default"/>
             <!-- extract android style -->
         </activity>
-        <receiver android:name="org.mavlink.qgroundcontrol.update.USBUpdateReceiver" android:exported="false">
+
+        <receiver
+            android:name="org.mavlink.qgroundcontrol.DpcKioskStateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.easygripper.dpc.action.KIOSK_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="org.mavlink.qgroundcontrol.QgcBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="org.mavlink.qgroundcontrol.update.USBUpdateReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_MOUNTED"/>
                 <data android:scheme="file"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.easygripper.dpc.action.QGC_UPDATE_RESULT"/>
+            </intent-filter>
         </receiver>
+        <provider
+            android:name="org.mavlink.qgroundcontrol.update.USBUpdateFileProvider"
+            android:authorities="org.Agosdyne.alesqgc.updatefile"
+            android:exported="false"
+            android:grantUriPermissions="true" />
         <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
     </application>
 
     <!-- Needed to keep working while 'asleep' -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Need MulticastLock to receive broadcast UDP packets  -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>

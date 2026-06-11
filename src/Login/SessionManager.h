@@ -45,7 +45,7 @@ private:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void _restartInactivityTimer();
 
-    QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout
+    QTimer m_sessionTimer;           // Timer for 15-minute inactivity timeout    
     static constexpr int SESSION_TIMEOUT_MS = 15 * 60 * 1000;   // 15 minutes = 900000 ms
     bool m_sessionManagementEnabled = true;
     bool m_isAppInBackground = false;

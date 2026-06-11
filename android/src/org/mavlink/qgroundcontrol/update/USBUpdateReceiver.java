@@ -28,6 +28,11 @@ public final class USBUpdateReceiver extends BroadcastReceiver {
         if (USBUpdateManager.ACTION_INSTALL_COMMIT_RESULT.equals(action)) {
             USBUpdateManager.handleInstallCommitResult(context.getApplicationContext(), intent);
             return;
+        } else if (USBUpdateManager.ACTION_DPC_UPDATE_RESULT.equals(action)) {
+            Activity activity = QGCActivity.getInstance();
+            Log.i(TAG, "RECEIVER: DPC update result foregroundActivityAvailable=" + (activity != null));
+            USBUpdateManager.handleDpcUpdateResult(context.getApplicationContext(), intent, activity);
+            return;
         } else if (Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
             Uri data = intent.getData();
             if (data != null) {
