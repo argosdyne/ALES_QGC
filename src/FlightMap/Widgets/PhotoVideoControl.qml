@@ -94,8 +94,8 @@ Item {
     property bool   _showModeIndicator:                         _mavlinkCamera ? _mavlinkCameraHasModes : _videoStreamManager.hasVideo
     property bool   _modeIndicatorPhotoMode:                    _mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
-    property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
+    property bool   _switchToPhotoModeAllowed:                  !_modeSwitchPending && !_modeIndicatorPhotoMode && (_mavlinkCamera ? (_mavlinkCameraPhotoCaptureIsIdle && !_mavlinkCameraVideoIsRecording) : !_mavlinkCameraIsShooting)
+    property bool   _switchToVideoModeAllowed:                  !_modeSwitchPending && _modeIndicatorPhotoMode && (_mavlinkCamera ? (_mavlinkCameraPhotoCaptureIsIdle && !_mavlinkCameraVideoIsRecording) : !_mavlinkCameraIsShooting)
     property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
@@ -120,18 +120,32 @@ Item {
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
     property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
 
+    // Block rapid mode-switch taps while the camera (e.g. Sony) completes the transition.
+    property bool _modeSwitchPending: false
+
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
+        if (_modeSwitchPending) {
+            return
+        }
+
         _videoStreamInPhotoMode = photoMode
 
-        if (_mavlinkCamera){
-            if (_mavlinkCameraInPhotoMode) {
+        if (_mavlinkCamera) {
+            if (photoMode) {
+                if (!_mavlinkCameraInPhotoMode) {
+                    _pendingPhotoModeTarget = true
+                    _modeSwitchPending = true
+                    modeSwitchTimer.restart()
+                    _mavlinkCamera.setPhotoMode()
+                }
+            } else if (!_mavlinkCameraInVideoMode) {
+                _pendingPhotoModeTarget = false
+                _modeSwitchPending = true
+                modeSwitchTimer.restart()
                 _mavlinkCamera.setVideoMode()
-            } else {
-                _mavlinkCamera.setPhotoMode()
             }
-            return
         }
     }
     function toggleShooting() {
@@ -195,6 +209,29 @@ Item {
         interval:       500
         onTriggered:    _simplePhotoCaptureIsIdle = true
     }
+
+    Timer {
+        id:             modeSwitchTimer
+        interval:       2000
+        onTriggered:    _modeSwitchPending = false
+    }
+
+    Connections {
+        target: _mavlinkCamera
+        ignoreUnknownSignals: true
+        function onCameraModeChanged() {
+            if (!_modeSwitchPending || !_mavlinkCamera) {
+                return
+            }
+            if ((_pendingPhotoModeTarget && _mavlinkCameraInPhotoMode)
+                    || (!_pendingPhotoModeTarget && _mavlinkCameraInVideoMode)) {
+                _modeSwitchPending = false
+                modeSwitchTimer.stop()
+            }
+        }
+    }
+
+    property bool _pendingPhotoModeTarget: false
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
