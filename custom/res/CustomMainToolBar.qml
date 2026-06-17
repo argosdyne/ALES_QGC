@@ -35,6 +35,9 @@ Rectangle {
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property color  _mainStatusBGColor: qgcPal.brandingPurple
+    property bool   _microhardEnabled:  QGroundControl.settingsManager.appSettings.enableMicrohard.rawValue
+    property real   _rightLinkIndicatorWidth: Math.max(arLinkIndicator.item ? arLinkIndicator.item.width : 0,
+                                                       microhardLinkIndicator.item ? microhardLinkIndicator.item.width : 0)
 
     // SiYi
     property  var siyi: QGroundControl.corePlugin.siyiManager
@@ -173,7 +176,7 @@ Rectangle {
     //-------------------------------------------------------------------------
     //-- Branding Logo
     Image {
-        anchors.rightMargin:    arLinkIndicator.item.width + ScreenTools.defaultFontPixelHeight
+        anchors.rightMargin:    _rightLinkIndicatorWidth + ScreenTools.defaultFontPixelHeight
         id: brandingLogo
         anchors.right:          parent.right
         anchors.top:            parent.top
@@ -233,7 +236,19 @@ Rectangle {
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
-        source:             QGroundControl.m2Manager ? "qrc:/toolbar/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
+        visible:            !_microhardEnabled
+        source:             visible ? (QGroundControl.m2Manager ? "qrc:/toolbar/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml") : ""
+    }
+
+    //Add Microhard Indicator
+    Loader {
+        id:                 microhardLinkIndicator
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        visible:            _microhardEnabled
+        source:             visible ? "qrc:/toolbar/MicrohardLinkIndicator.qml" : ""
     }
 
 

@@ -24,9 +24,10 @@ QMAKE_CXXFLAGS += /utf-8
 # Ensure .cc files are compiled as C++ across toolchains
 QMAKE_EXT_CPP += .cc
 
-# These are disabled until proven correct
+# Taisync stays opt-in. Microhard is enabled so its Settings page and toolbar
+# indicator are available from the app.
 DEFINES += QGC_GST_TAISYNC_DISABLED
-DEFINES += QGC_GST_MICROHARD_DISABLED
+DEFINES += QGC_GST_MICROHARD_ENABLED
 
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")
@@ -1401,7 +1402,6 @@ contains (DEFINES, QGC_GST_TAISYNC_DISABLED) {
 
 #-------------------------------------------------------------------------------------
 # Microhard
-QGC_GST_MICROHARD_DISABLED
 contains (DEFINES, QGC_GST_MICROHARD_DISABLED) {
     DEFINES -= QGC_GST_MICROHARD_ENABLED
     message("Microhard disabled")

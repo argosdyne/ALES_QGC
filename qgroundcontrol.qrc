@@ -20,6 +20,7 @@
         <file alias="APMSupportForwardingIndicator.qml">src/ui/toolbar/APMSupportForwardingIndicator.qml</file>
         <file alias="GimbalIndicator.qml">src/ui/toolbar/GimbalIndicator.qml</file>
         <file alias="M2LinkIndicator.qml">src/M2Link/M2LinkIndicator.qml</file>
+        <file alias="MicrohardLinkIndicator.qml">src/Microhard/MicrohardLinkIndicator.qml</file>
 		<file alias="RajantLinkIndicator.qml">src/RajantLink/RajantLinkIndicator.qml</file>
 		<file alias="MainToolBar.qml">src/ui/toolbar/MainToolBar.qml</file>
     </qresource>
@@ -83,6 +84,7 @@
         <file alias="MAVLinkInspectorPage.qml">src/AnalyzeView/MAVLinkInspectorPage.qml</file>
         <file alias="MavlinkSettings.qml">src/ui/preferences/MavlinkSettings.qml</file>
         <file alias="MicrohardSettings.qml">src/Microhard/MicrohardSettings.qml</file>
+        <file alias="MicrohardLinkIndicator.qml">src/Microhard/MicrohardLinkIndicator.qml</file>
         <file alias="MissionCommandTreeEditorTestWindow.qml">src/MissionManager/MissionCommandTreeEditorTestWindow.qml</file>
         <file alias="MissionSettingsEditor.qml">src/PlanView/MissionSettingsEditor.qml</file>
         <file alias="MockLink.qml">src/ui/preferences/MockLink.qml</file>

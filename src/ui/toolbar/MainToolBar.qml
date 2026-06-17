@@ -32,6 +32,10 @@ Rectangle {
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property color  _mainStatusBGColor: qgcPal.brandingPurple
+    property bool   _microhardEnabled:  QGroundControl.settingsManager.appSettings.enableMicrohard.rawValue
+    property real   _rightLinkIndicatorWidth: Math.max(arLinkIndicator.item ? arLinkIndicator.item.width : 0,
+                                                       microhardLinkIndicator.item ? microhardLinkIndicator.item.width : 0,
+                                                       rajantLinkIndicator.item ? rajantLinkIndicator.item.width : 0)
 
     function dropMessageIndicatorTool() {
         if (currentToolbar === flyViewToolbar) {
@@ -116,7 +120,7 @@ Rectangle {
     //-------------------------------------------------------------------------
     //-- Branding Logo
     Image {
-        anchors.rightMargin:    arLinkIndicator.item.width + ScreenTools.defaultFontPixelHeight
+        anchors.rightMargin:    _rightLinkIndicatorWidth + ScreenTools.defaultFontPixelHeight
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
@@ -175,8 +179,19 @@ Rectangle {
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
-        visible:            !QGroundControl.corePlugin.rajantManager
-        source:             QGroundControl.corePlugin.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
+        visible:            !QGroundControl.corePlugin.rajantManager && !_microhardEnabled
+        source:             visible ? (QGroundControl.corePlugin.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml") : ""
+    }
+
+    // Microhard Link Indicator
+    Loader {
+        id:                 microhardLinkIndicator
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        visible:            !QGroundControl.corePlugin.rajantManager && _microhardEnabled
+        source:             visible ? "qrc:/toolbar/MicrohardLinkIndicator.qml" : ""
     }
     
     // Rajant BCAPI Link Indicator (shown when Rajant is connected, replaces ARLink/M2)

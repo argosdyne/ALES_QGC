@@ -38,6 +38,7 @@ Rectangle {
     property real _panelWidth:                  _root.width * _internalWidthRatio
     property Fact _microhardEnabledFact:        QGroundControl.settingsManager.appSettings.enableMicrohard
     property bool _microhardEnabled:            _microhardEnabledFact ? _microhardEnabledFact.rawValue : false
+    property bool _showAdvancedTcpSettings:     false
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -121,59 +122,150 @@ Rectangle {
                                 Layout.minimumWidth: _labelWidth
                             }
                             QGCLabel {
-                                function getStatus(status) {
-                                    if (status === 1)
-                                        return qsTr("Connected");
-                                    else if (status === -1)
-                                        return qsTr("Login Error")
-                                    else
-                                        return qsTr("Not Connected")
-                                }
-                                text:           getStatus(QGroundControl.microhardManager.connected)
-                                color:          QGroundControl.microhardManager.connected === 1 ? qgcPal.colorGreen : qgcPal.colorRed
+                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
+                                color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
                                 Layout.minimumWidth: _valueWidth
                             }
                             QGCLabel {
                                 text:           qsTr("Air Unit:")
                             }
                             QGCLabel {
-                                function getStatus(status) {
-                                    if (status === 1)
-                                        return qsTr("Connected");
-                                    else if (status === -1)
-                                        return qsTr("Login Error")
-                                    else
-                                        return qsTr("Not Connected")
-                                }
-                                text:           getStatus(QGroundControl.microhardManager.linkConnected)
-                                color:          QGroundControl.microhardManager.linkConnected === 1 ? qgcPal.colorGreen : qgcPal.colorRed
+                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
+                                color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
                             }
                             QGCLabel {
-                                text:           qsTr("Uplink RSSI:")
+                                text:           qsTr("Stats Stream:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.linkConnected && QGroundControl.microhardManager.uplinkRSSI < 0 ? QGroundControl.microhardManager.uplinkRSSI : ""
+                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Receiving UDP 20202") : qsTr("No UDP packets on 20202")
+                                color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
                             }
                             QGCLabel {
-                                text:           qsTr("Downlink RSSI:")
+                                text:           qsTr("Packets:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.linkConnected && QGroundControl.microhardManager.downlinkRSSI < 0 ? QGroundControl.microhardManager.downlinkRSSI : ""
+                                text:           QGroundControl.microhardManager.statsPacketCount
+                            }
+                            QGCLabel {
+                                text:           qsTr("Master Packets:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.masterStatsPacketCount
+                            }
+                            QGCLabel {
+                                text:           qsTr("Slave Packets:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.slaveStatsPacketCount
+                            }
+                            QGCLabel {
+                                text:           qsTr("Last Source:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsLastSource
+                            }
+                            QGCLabel {
+                                text:           qsTr("Last Mode:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsLastMode
+                            }
+                            QGCLabel {
+                                text:           qsTr("Ground RSSI:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.groundRSSI !== "--" ? QGroundControl.microhardManager.groundRSSI + " dBm" : qsTr("N/A")
+                            }
+                            QGCLabel {
+                                text:           qsTr("Sky RSSI:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.skyRSSI !== "--" ? QGroundControl.microhardManager.skyRSSI + " dBm" : qsTr("N/A")
+                            }
+                            QGCLabel {
+                                text:           qsTr("SNR:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.snr !== "--" ? QGroundControl.microhardManager.snr + " dB" : qsTr("N/A")
+                            }
+                            QGCLabel {
+                                text:           qsTr("TX Rate:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.txRate
+                            }
+                            QGCLabel {
+                                text:           qsTr("RX Rate:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.rxRate
+                            }
+                            QGCLabel {
+                                text:           qsTr("TX/RX Throughput:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.txThroughput + " / " + QGroundControl.microhardManager.rxThroughput
+                            }
+                            QGCLabel {
+                                text:           qsTr("TX/RX Bytes:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.txBytes + " / " + QGroundControl.microhardManager.rxBytes
+                            }
+                            QGCLabel {
+                                text:           qsTr("Queue Length:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.queueLength
+                            }
+                            QGCLabel {
+                                text:           qsTr("Frequency:")
+                                visible:        QGroundControl.microhardManager.frequency !== "--"
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.frequency
+                                visible:        QGroundControl.microhardManager.frequency !== "--"
+                            }
+                            QGCLabel {
+                                text:           qsTr("Temperature:")
+                                visible:        QGroundControl.microhardManager.temperature !== "--"
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.temperature
+                                visible:        QGroundControl.microhardManager.temperature !== "--"
+                            }
+                            QGCLabel {
+                                text:           qsTr("Version:")
+                                visible:        QGroundControl.microhardManager.version !== "--"
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.version
+                                visible:        QGroundControl.microhardManager.version !== "--"
+                            }
+                            QGCLabel {
+                                text:           qsTr("Raw Stats:")
+                                visible:        QGroundControl.microhardManager.statsRawText !== ""
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsRawText
+                                visible:        QGroundControl.microhardManager.statsRawText !== ""
+                                wrapMode:       Text.WordWrap
+                                Layout.maximumWidth: _valueWidth * 2
                             }
                         }
                     }
                 }
                 //-----------------------------------------------------------------
-                //-- IP Settings
+                //-- Legacy TCP Settings
                 Item {
                     width:                      _panelWidth
                     height:                     ipSettingsLabel.height
                     anchors.margins:            ScreenTools.defaultFontPixelWidth
                     anchors.horizontalCenter:   parent.horizontalCenter
-                    visible:                    _microhardEnabled
+                    visible:                    _microhardEnabled && _showAdvancedTcpSettings
                     QGCLabel {
                         id:                     ipSettingsLabel
-                        text:                   qsTr("Network Settings")
+                        text:                   qsTr("Legacy TCP Settings")
                         font.family:            ScreenTools.demiboldFontFamily
                     }
                 }
@@ -181,7 +273,7 @@ Rectangle {
                     height:                     ipSettingsCol.height + (ScreenTools.defaultFontPixelHeight * 2)
                     width:                      _panelWidth
                     color:                      qgcPal.windowShade
-                    visible:                    _microhardEnabled
+                    visible:                    _microhardEnabled && _showAdvancedTcpSettings
                     anchors.margins:            ScreenTools.defaultFontPixelWidth
                     anchors.horizontalCenter:   parent.horizontalCenter
                     Column {

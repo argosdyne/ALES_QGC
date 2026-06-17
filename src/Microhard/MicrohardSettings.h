@@ -28,8 +28,8 @@ signals:
     void    updateRSSI                  (int rssi);
 
 private:
-    bool    _loggedIn;
-    int     _rssiVal;
+    bool    _loggedIn = false;
+    int     _rssiVal = 0;
     QString _address;
-    bool    _setEncryptionKey;
+    bool    _setEncryptionKey = false;
 };

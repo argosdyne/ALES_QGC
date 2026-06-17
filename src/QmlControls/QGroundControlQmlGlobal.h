@@ -188,7 +188,7 @@ public:
 #endif
 
     MicrohardManager*       microhardManager    () { return _microhardManager; }
-#if defined(QGC_GST_TAISYNC_ENABLED)
+#if defined(QGC_GST_MICROHARD_ENABLED)
     bool                    microhardSupported  () { return true; }
 #else
     bool                    microhardSupported  () { return false; }
