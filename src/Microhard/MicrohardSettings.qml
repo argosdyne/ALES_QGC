@@ -39,6 +39,7 @@ Rectangle {
     property Fact _microhardEnabledFact:        QGroundControl.settingsManager.appSettings.enableMicrohard
     property bool _microhardEnabled:            _microhardEnabledFact ? _microhardEnabledFact.rawValue : false
     property bool _showAdvancedTcpSettings:     false
+    property bool _showRawStats:                false
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -109,29 +110,35 @@ Rectangle {
                     anchors.horizontalCenter:   parent.horizontalCenter
                     Column {
                         id:                     statusCol
-                        spacing:                ScreenTools.defaultFontPixelHeight * 0.5
-                        width:                  parent.width
+                        spacing:                ScreenTools.defaultFontPixelHeight
+                        width:                  parent.width - (ScreenTools.defaultFontPixelWidth * 8)
                         anchors.centerIn:       parent
+                        QGCLabel {
+                            text:               qsTr("Connection")
+                            font.family:        ScreenTools.demiboldFontFamily
+                        }
                         GridLayout {
-                            anchors.margins:    ScreenTools.defaultFontPixelHeight
+                            width:              parent.width
                             columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            columns: 2
+                            rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
+                            columns:            4
                             QGCLabel {
                                 text:           qsTr("Ground Unit:")
-                                Layout.minimumWidth: _labelWidth
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
-                                Layout.minimumWidth: _valueWidth
+                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("Air Unit:")
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
+                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("Stats Stream:")
@@ -146,47 +153,51 @@ Rectangle {
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsPacketCount
                             }
-                            QGCLabel {
-                                text:           qsTr("Master Packets:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.masterStatsPacketCount
-                            }
-                            QGCLabel {
-                                text:           qsTr("Slave Packets:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.slaveStatsPacketCount
-                            }
-                            QGCLabel {
-                                text:           qsTr("Last Source:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.statsLastSource
-                            }
-                            QGCLabel {
-                                text:           qsTr("Last Mode:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.statsLastMode
-                            }
+                        }
+
+                        Rectangle {
+                            width:              parent.width
+                            height:             1
+                            color:              qgcPal.text
+                            opacity:            0.25
+                        }
+
+                        QGCLabel {
+                            text:               qsTr("Radio Metrics")
+                            font.family:        ScreenTools.demiboldFontFamily
+                        }
+                        GridLayout {
+                            width:              parent.width
+                            columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
+                            rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
+                            columns:            4
                             QGCLabel {
                                 text:           qsTr("Ground RSSI:")
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.groundRSSI !== "--" ? QGroundControl.microhardManager.groundRSSI + " dBm" : qsTr("N/A")
+                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("Sky RSSI:")
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.skyRSSI !== "--" ? QGroundControl.microhardManager.skyRSSI + " dBm" : qsTr("N/A")
+                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("SNR:")
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.snr !== "--" ? QGroundControl.microhardManager.snr + " dB" : qsTr("N/A")
+                            }
+                            QGCLabel {
+                                text:           qsTr("Frequency:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.frequency !== "--" ? QGroundControl.microhardManager.frequency : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("TX Rate:")
@@ -219,39 +230,79 @@ Rectangle {
                                 text:           QGroundControl.microhardManager.queueLength
                             }
                             QGCLabel {
-                                text:           qsTr("Frequency:")
-                                visible:        QGroundControl.microhardManager.frequency !== "--"
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.frequency
-                                visible:        QGroundControl.microhardManager.frequency !== "--"
-                            }
-                            QGCLabel {
                                 text:           qsTr("Temperature:")
-                                visible:        QGroundControl.microhardManager.temperature !== "--"
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.temperature
-                                visible:        QGroundControl.microhardManager.temperature !== "--"
+                                text:           QGroundControl.microhardManager.temperature !== "--" ? QGroundControl.microhardManager.temperature : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("Version:")
-                                visible:        QGroundControl.microhardManager.version !== "--"
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.version
-                                visible:        QGroundControl.microhardManager.version !== "--"
+                                text:           QGroundControl.microhardManager.version !== "--" ? QGroundControl.microhardManager.version : qsTr("N/A")
+                            }
+                            Item { width: 1; height: 1 }
+                            Item { width: 1; height: 1 }
+                        }
+
+                        Rectangle {
+                            width:              parent.width
+                            height:             1
+                            color:              qgcPal.text
+                            opacity:            0.25
+                        }
+
+                        QGCLabel {
+                            text:               qsTr("Diagnostics")
+                            font.family:        ScreenTools.demiboldFontFamily
+                        }
+                        GridLayout {
+                            width:              parent.width
+                            columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
+                            rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
+                            columns:            4
+                            QGCLabel {
+                                text:           qsTr("Master Packets:")
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
-                                text:           qsTr("Raw Stats:")
-                                visible:        QGroundControl.microhardManager.statsRawText !== ""
+                                text:           QGroundControl.microhardManager.masterStatsPacketCount
+                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.statsRawText
-                                visible:        QGroundControl.microhardManager.statsRawText !== ""
-                                wrapMode:       Text.WordWrap
-                                Layout.maximumWidth: _valueWidth * 2
+                                text:           qsTr("Slave Packets:")
+                                Layout.minimumWidth: _labelWidth * 0.75
                             }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.slaveStatsPacketCount
+                                Layout.minimumWidth: _valueWidth * 0.85
+                            }
+                            QGCLabel {
+                                text:           qsTr("Last Source:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsLastSource
+                            }
+                            QGCLabel {
+                                text:           qsTr("Last Mode:")
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsLastMode
+                            }
+                        }
+
+                        QGCButton {
+                            text:               _showRawStats ? qsTr("Hide Raw Stats") : qsTr("Show Raw Stats")
+                            visible:            QGroundControl.microhardManager.statsRawText !== ""
+                            width:              ScreenTools.defaultFontPixelWidth * 18
+                            onClicked:          _showRawStats = !_showRawStats
+                        }
+
+                        QGCLabel {
+                            text:               QGroundControl.microhardManager.statsRawText
+                            visible:            _showRawStats && QGroundControl.microhardManager.statsRawText !== ""
+                            wrapMode:           Text.WordWrap
+                            width:              parent.width
                         }
                     }
                 }
