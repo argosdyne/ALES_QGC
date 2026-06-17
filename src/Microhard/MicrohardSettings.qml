@@ -121,24 +121,22 @@ Rectangle {
                             width:              parent.width
                             columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
                             rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
-                            columns:            4
+                            columns:            2
                             QGCLabel {
                                 text:           qsTr("Ground Unit:")
-                                Layout.minimumWidth: _labelWidth * 0.75
+                                Layout.minimumWidth: _labelWidth
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
-                                Layout.minimumWidth: _valueWidth * 0.85
+                                Layout.minimumWidth: _valueWidth
                             }
                             QGCLabel {
                                 text:           qsTr("Air Unit:")
-                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
-                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("Stats Stream:")
@@ -170,22 +168,20 @@ Rectangle {
                             width:              parent.width
                             columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
                             rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
-                            columns:            4
+                            columns:            2
                             QGCLabel {
                                 text:           qsTr("Ground RSSI:")
-                                Layout.minimumWidth: _labelWidth * 0.75
+                                Layout.minimumWidth: _labelWidth
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.groundRSSI !== "--" ? QGroundControl.microhardManager.groundRSSI + " dBm" : qsTr("N/A")
-                                Layout.minimumWidth: _valueWidth * 0.85
+                                Layout.minimumWidth: _valueWidth
                             }
                             QGCLabel {
                                 text:           qsTr("Sky RSSI:")
-                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.skyRSSI !== "--" ? QGroundControl.microhardManager.skyRSSI + " dBm" : qsTr("N/A")
-                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("SNR:")
@@ -241,8 +237,6 @@ Rectangle {
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.version !== "--" ? QGroundControl.microhardManager.version : qsTr("N/A")
                             }
-                            Item { width: 1; height: 1 }
-                            Item { width: 1; height: 1 }
                         }
 
                         Rectangle {
@@ -260,22 +254,20 @@ Rectangle {
                             width:              parent.width
                             columnSpacing:      ScreenTools.defaultFontPixelWidth * 2
                             rowSpacing:         ScreenTools.defaultFontPixelHeight * 0.5
-                            columns:            4
+                            columns:            2
                             QGCLabel {
                                 text:           qsTr("Master Packets:")
-                                Layout.minimumWidth: _labelWidth * 0.75
+                                Layout.minimumWidth: _labelWidth
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.masterStatsPacketCount
-                                Layout.minimumWidth: _valueWidth * 0.85
+                                Layout.minimumWidth: _valueWidth
                             }
                             QGCLabel {
                                 text:           qsTr("Slave Packets:")
-                                Layout.minimumWidth: _labelWidth * 0.75
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.slaveStatsPacketCount
-                                Layout.minimumWidth: _valueWidth * 0.85
                             }
                             QGCLabel {
                                 text:           qsTr("Last Source:")
