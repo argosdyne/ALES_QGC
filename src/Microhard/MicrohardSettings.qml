@@ -142,7 +142,7 @@ Rectangle {
                                 text:           qsTr("Stats Stream:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Receiving UDP 20202") : qsTr("No UDP packets on 20202")
+                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Receiving UDP 20202/20203") : qsTr("No UDP packets on 20202/20203")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
                             }
                             QGCLabel {

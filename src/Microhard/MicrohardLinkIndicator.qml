@@ -155,7 +155,7 @@ Item {
 
                 QGCLabel {
                     visible:                    !_connected
-                    text:                       qsTr("Waiting for Microhard stats on UDP 20202")
+                    text:                       qsTr("Waiting for Microhard stats on UDP 20202/20203")
                     color:                      qgcPal.text
                     anchors.horizontalCenter:   parent.horizontalCenter
                 }

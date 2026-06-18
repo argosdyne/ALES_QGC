@@ -402,17 +402,21 @@ MicrohardManager::refreshStats()
 void
 MicrohardManager::_startStatsSocket()
 {
-    if (_statsSocket) {
+    if (!_statsSockets.isEmpty()) {
         return;
     }
 
-    _statsSocket = new QUdpSocket(this);
-    connect(_statsSocket, &QUdpSocket::readyRead, this, &MicrohardManager::_statsReadyRead);
-    const bool bound = _statsSocket->bind(QHostAddress::AnyIPv4, _statsPort, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
-    if (!bound) {
-        qCWarning(MicrohardLog) << "Could not bind Microhard stats UDP port" << _statsPort << _statsSocket->errorString();
-        _statsSocket->deleteLater();
-        _statsSocket = nullptr;
+    const QList<quint16> ports = QList<quint16>() << _statsPort << _statsPortSecondary;
+    for (quint16 port : ports) {
+        QUdpSocket* socket = new QUdpSocket(this);
+        connect(socket, &QUdpSocket::readyRead, this, &MicrohardManager::_statsReadyRead);
+        const bool bound = socket->bind(QHostAddress::AnyIPv4, port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+        if (!bound) {
+            qCWarning(MicrohardLog) << "Could not bind Microhard stats UDP port" << port << socket->errorString();
+            socket->deleteLater();
+            continue;
+        }
+        _statsSockets.append(socket);
     }
 }
 
@@ -421,27 +425,28 @@ void
 MicrohardManager::_stopStatsSocket()
 {
     _statsTimer.stop();
-    if (_statsSocket) {
-        _statsSocket->close();
-        _statsSocket->deleteLater();
-        _statsSocket = nullptr;
+    for (QUdpSocket* socket : _statsSockets) {
+        socket->close();
+        socket->deleteLater();
     }
+    _statsSockets.clear();
 }
 
 //-----------------------------------------------------------------------------
 void
 MicrohardManager::_statsReadyRead()
 {
-    if (!_statsSocket) {
+    QUdpSocket* socket = qobject_cast<QUdpSocket*>(sender());
+    if (!socket) {
         return;
     }
 
-    while (_statsSocket->hasPendingDatagrams()) {
+    while (socket->hasPendingDatagrams()) {
         QByteArray datagram;
-        datagram.resize(static_cast<int>(_statsSocket->pendingDatagramSize()));
+        datagram.resize(static_cast<int>(socket->pendingDatagramSize()));
         QHostAddress sender;
-        _statsSocket->readDatagram(datagram.data(), datagram.size(), &sender);
-        _parseStatsDatagram(datagram, sender);
+        socket->readDatagram(datagram.data(), datagram.size(), &sender);
+        _parseStatsDatagram(datagram, sender, socket->localPort());
     }
 }
 
@@ -467,7 +472,7 @@ MicrohardManager::_setStatsValue(QString& field, const QString& value, bool& cha
 
 //-----------------------------------------------------------------------------
 void
-MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddress& sender)
+MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddress& sender, quint16 localPort)
 {
     QMap<QString, QString> jsonValues;
     QJsonParseError parseError;
@@ -480,8 +485,9 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     bool changed = false;
     _statsPacketCount++;
     const QString senderText = sender.toString();
-    if (!senderText.isEmpty() && _statsLastSource != senderText) {
-        _statsLastSource = senderText;
+    const QString sourceText = senderText + QStringLiteral(":%1").arg(localPort);
+    if (!senderText.isEmpty() && _statsLastSource != sourceText) {
+        _statsLastSource = sourceText;
         changed = true;
     }
     const QString rawText = QString::fromUtf8(bytes.left(512)).trimmed();
@@ -550,7 +556,7 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     const quint64 txBytes = _integerFromString(_txBytes);
     const quint64 rxBytes = _integerFromString(_rxBytes);
-    const QString counterKey = senderText + QLatin1Char(':') + (operationMode.isEmpty() ? QStringLiteral("unknown") : operationMode);
+    const QString counterKey = senderText + QStringLiteral(":%1:").arg(localPort) + (operationMode.isEmpty() ? QStringLiteral("unknown") : operationMode);
     ByteCounterState& counterState = _byteCounterStateMap[counterKey];
     if (counterState.valid && counterState.lastRxMs > 0 && nowMs > counterState.lastRxMs) {
         const double elapsedSec = static_cast<double>(nowMs - counterState.lastRxMs) / 1000.0;

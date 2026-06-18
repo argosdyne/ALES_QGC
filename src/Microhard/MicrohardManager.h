@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QTime>
 #include <QMap>
+#include <QList>
 #include <QUdpSocket>
 #include <QtGlobal>
 
@@ -140,7 +141,7 @@ private:
     void    _reset                          ();
     void    _startStatsSocket               ();
     void    _stopStatsSocket                ();
-    void    _parseStatsDatagram             (const QByteArray& bytes, const QHostAddress& sender);
+    void    _parseStatsDatagram             (const QByteArray& bytes, const QHostAddress& sender, quint16 localPort);
     void    _setStatsValue                  (QString& field, const QString& value, bool& changed);
     FactMetaData *_createMetadata           (const char *name, QStringList enums);
 
@@ -154,6 +155,7 @@ private:
 
     enum {
         _statsPort = 20202,
+        _statsPortSecondary = 20203,
         _statsTimeoutMs = 15000
     };
 
@@ -161,7 +163,7 @@ private:
     AppSettings*       _appSettings = nullptr;
     MicrohardSettings* _mhSettingsLoc = nullptr;
     MicrohardSettings* _mhSettingsRem = nullptr;
-    QUdpSocket*        _statsSocket = nullptr;
+    QList<QUdpSocket*> _statsSockets;
     bool               _enabled  = true;
     int                _linkConnectedStatus = 0;
     QTimer             _workTimer;
