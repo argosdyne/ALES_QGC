@@ -193,6 +193,20 @@ static quint64 _integerFromString(const QString& value)
     return match.hasMatch() ? match.captured(1).toULongLong() : 0;
 }
 
+static QString _formatByteCount(quint64 bytes)
+{
+    if (bytes >= 1024ULL * 1024ULL * 1024ULL) {
+        return QString::number(static_cast<double>(bytes) / (1024.0 * 1024.0 * 1024.0), 'f', 2) + QStringLiteral(" GB");
+    }
+    if (bytes >= 1024ULL * 1024ULL) {
+        return QString::number(static_cast<double>(bytes) / (1024.0 * 1024.0), 'f', 2) + QStringLiteral(" MB");
+    }
+    if (bytes >= 1024ULL) {
+        return QString::number(static_cast<double>(bytes) / 1024.0, 'f', 1) + QStringLiteral(" KB");
+    }
+    return QString::number(bytes) + QStringLiteral(" B");
+}
+
 static QString _formatBitRate(double bitsPerSecond)
 {
     if (bitsPerSecond >= 1000000.0) {
@@ -538,10 +552,18 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     _setStatsValue(_txThroughput, _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*throughput") << QStringLiteral("transmit[\\w\\s/_-]*throughput")), changed);
     _setStatsValue(_rxThroughput, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("throughput")), changed);
     _setStatsValue(_rxThroughput, _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*throughput") << QStringLiteral("receive[\\w\\s/_-]*throughput")), changed);
-    _setStatsValue(_txBytes, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("bytes")), changed);
-    _setStatsValue(_txBytes, _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*bytes") << QStringLiteral("transmit[\\w\\s/_-]*bytes")), changed);
-    _setStatsValue(_rxBytes, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("bytes")), changed);
-    _setStatsValue(_rxBytes, _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*bytes") << QStringLiteral("receive[\\w\\s/_-]*bytes")), changed);
+    const QString txBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("bytes"));
+    const QString rxBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("bytes"));
+    const QString txBytesText = txBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*bytes") << QStringLiteral("transmit[\\w\\s/_-]*bytes")) : txBytesRaw;
+    const QString rxBytesText = rxBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*bytes") << QStringLiteral("receive[\\w\\s/_-]*bytes")) : rxBytesRaw;
+    const quint64 txBytesCounter = _integerFromString(txBytesText);
+    const quint64 rxBytesCounter = _integerFromString(rxBytesText);
+    if (txBytesCounter > 0) {
+        _setStatsValue(_txBytes, _formatByteCount(txBytesCounter), changed);
+    }
+    if (rxBytesCounter > 0) {
+        _setStatsValue(_rxBytes, _formatByteCount(rxBytesCounter), changed);
+    }
     _setStatsValue(_queueLength, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("queue") << QStringLiteral("length")), changed);
     _setStatsValue(_queueLength, _matchStatValue(text, QStringList() << QStringLiteral("queue[\\w\\s/_-]*(?:length|len)") << QStringLiteral("queue")), changed);
     _setStatsValue(_frequency, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("frequency")), changed);
@@ -554,8 +576,8 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     _setStatsValue(_version, _matchStatValue(text, QStringList() << QStringLiteral("version") << QStringLiteral("firmware")), changed);
 
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-    const quint64 txBytes = _integerFromString(_txBytes);
-    const quint64 rxBytes = _integerFromString(_rxBytes);
+    const quint64 txBytes = txBytesCounter;
+    const quint64 rxBytes = rxBytesCounter;
     const QString counterKey = senderText + QStringLiteral(":%1:").arg(localPort) + (operationMode.isEmpty() ? QStringLiteral("unknown") : operationMode);
     ByteCounterState& counterState = _byteCounterStateMap[counterKey];
     if (counterState.valid && counterState.lastRxMs > 0 && nowMs > counterState.lastRxMs) {
