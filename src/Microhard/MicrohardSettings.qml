@@ -199,31 +199,35 @@ Rectangle {
                                 text:           qsTr("TX Rate:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.txRate
+                                text:           QGroundControl.microhardManager.txRate !== "--" ? QGroundControl.microhardManager.txRate : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("RX Rate:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.rxRate
+                                text:           QGroundControl.microhardManager.rxRate !== "--" ? QGroundControl.microhardManager.rxRate : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("TX/RX Throughput:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.txThroughput + " / " + QGroundControl.microhardManager.rxThroughput
+                                text:           (QGroundControl.microhardManager.txThroughput !== "--" || QGroundControl.microhardManager.rxThroughput !== "--")
+                                                    ? QGroundControl.microhardManager.txThroughput + " / " + QGroundControl.microhardManager.rxThroughput
+                                                    : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("TX/RX Bytes:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.txBytes + " / " + QGroundControl.microhardManager.rxBytes
+                                text:           (QGroundControl.microhardManager.txBytes !== "--" || QGroundControl.microhardManager.rxBytes !== "--")
+                                                    ? QGroundControl.microhardManager.txBytes + " / " + QGroundControl.microhardManager.rxBytes
+                                                    : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("Queue Length:")
                             }
                             QGCLabel {
-                                text:           QGroundControl.microhardManager.queueLength
+                                text:           QGroundControl.microhardManager.queueLength !== "--" ? QGroundControl.microhardManager.queueLength : qsTr("N/A")
                             }
                             QGCLabel {
                                 text:           qsTr("Temperature:")
@@ -274,6 +278,15 @@ Rectangle {
                             }
                             QGCLabel {
                                 text:           QGroundControl.microhardManager.statsLastSource
+                            }
+                            QGCLabel {
+                                text:           qsTr("Sources:")
+                                Layout.alignment: Qt.AlignTop
+                            }
+                            QGCLabel {
+                                text:           QGroundControl.microhardManager.statsSources
+                                Layout.fillWidth: true
+                                wrapMode:       Text.WordWrap
                             }
                             QGCLabel {
                                 text:           qsTr("Last Mode:")

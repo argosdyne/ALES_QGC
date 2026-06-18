@@ -18,7 +18,6 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QMap>
-#include <QDateTime>
 #include <QRegularExpression>
 #include <QSettings>
 
@@ -164,6 +163,8 @@ static void _collectJsonValues(const QJsonValue& value, const QString& path, QMa
 
 static QString _matchJsonValue(const QMap<QString, QString>& values, const QStringList& requiredTokens, const QStringList& rejectedTokens = QStringList())
 {
+    QString bestValue;
+    int     bestLength = -1;
     for (auto it = values.constBegin(); it != values.constEnd(); ++it) {
         const QString path = _normalizeJsonPath(it.key());
         bool matches = true;
@@ -173,17 +174,25 @@ static QString _matchJsonValue(const QMap<QString, QString>& values, const QStri
                 break;
             }
         }
-        for (const QString& token : rejectedTokens) {
-            if (path.contains(_normalizeJsonPath(token))) {
-                matches = false;
-                break;
+        if (matches) {
+            for (const QString& token : rejectedTokens) {
+                if (path.contains(_normalizeJsonPath(token))) {
+                    matches = false;
+                    break;
+                }
             }
         }
         if (matches && !it.value().isEmpty()) {
-            return it.value();
+            //-- Prefer the most specific (shortest) matching path so an aggregate
+            //   field like "tx bytes" wins over nested per-endpoint duplicates and
+            //   the chosen counter stays stable between datagrams.
+            if (bestLength < 0 || path.length() < bestLength) {
+                bestValue  = it.value();
+                bestLength = path.length();
+            }
         }
     }
-    return QString();
+    return bestValue;
 }
 
 static quint64 _integerFromString(const QString& value)
@@ -216,6 +225,18 @@ static QString _formatBitRate(double bitsPerSecond)
         return QString::number(bitsPerSecond / 1000.0, 'f', 1) + QStringLiteral(" kbps");
     }
     return QString::number(bitsPerSecond, 'f', 0) + QStringLiteral(" bps");
+}
+
+//-- The radio reports throughput as a raw bits/second counter; turn it into a
+//   human-readable rate. Non-numeric strings are passed through untouched.
+static QString _formatThroughput(const QString& value)
+{
+    if (value.isEmpty()) {
+        return QString();
+    }
+    bool ok = false;
+    const double bitsPerSecond = value.toDouble(&ok);
+    return ok ? _formatBitRate(bitsPerSecond) : value;
 }
 
 //-----------------------------------------------------------------------------
@@ -470,8 +491,39 @@ MicrohardManager::_statsTimeout()
 {
     if (_statsConnected) {
         _statsConnected = false;
+        _resetStatsValues();
         emit statsChanged();
     }
+}
+
+//-----------------------------------------------------------------------------
+void
+MicrohardManager::_resetStatsValues()
+{
+    _groundRSSI   = QStringLiteral("--");
+    _skyRSSI      = QStringLiteral("--");
+    _snr          = QStringLiteral("--");
+    _txRate       = QStringLiteral("--");
+    _rxRate       = QStringLiteral("--");
+    _txThroughput = QStringLiteral("--");
+    _rxThroughput = QStringLiteral("--");
+    _txBytes      = QStringLiteral("--");
+    _rxBytes      = QStringLiteral("--");
+    _queueLength  = QStringLiteral("--");
+    _frequency    = QStringLiteral("--");
+    _temperature  = QStringLiteral("--");
+    _version      = QStringLiteral("--");
+}
+
+//-----------------------------------------------------------------------------
+QString
+MicrohardManager::statsSources() const
+{
+    QStringList parts;
+    for (auto it = _statsSourceCounts.constBegin(); it != _statsSourceCounts.constEnd(); ++it) {
+        parts << it.key() + QStringLiteral(" (%1)").arg(it.value());
+    }
+    return parts.isEmpty() ? QStringLiteral("--") : parts.join(QStringLiteral("\n"));
 }
 
 //-----------------------------------------------------------------------------
@@ -504,36 +556,49 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
         _statsLastSource = sourceText;
         changed = true;
     }
+    if (!senderText.isEmpty()) {
+        auto srcIt = _statsSourceCounts.find(sourceText);
+        if (srcIt == _statsSourceCounts.end()) {
+            _statsSourceCounts.insert(sourceText, 1);
+            changed = true;
+        } else {
+            ++srcIt.value();
+        }
+    }
     const QString rawText = QString::fromUtf8(bytes.left(512)).trimmed();
     if (_statsRawText != rawText) {
         _statsRawText = rawText;
         changed = true;
     }
 
-    _setStatsValue(_groundRSSI, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rf") << QStringLiteral("rssi"), QStringList() << QStringLiteral("endpoints")), changed);
-    const QString endpointRSSI = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("endpoints") << QStringLiteral("rssi"));
     const QString operationMode = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("operation") << QStringLiteral("mode")).toLower();
+    //-- Convention in this code: master = the ground unit, slave = the air unit.
+    //   Both radios stream stats (often from the same address), each reporting
+    //   figures from its OWN perspective, so a slave report is the far end and
+    //   must be mapped into the ground-station frame.
+    const bool isSlave = operationMode.contains(QStringLiteral("slave"));
     if (!operationMode.isEmpty()) {
-        const QString displayMode = operationMode.contains(QStringLiteral("slave")) ? QStringLiteral("Slave") :
+        const QString displayMode = isSlave ? QStringLiteral("Slave") :
                                     operationMode.contains(QStringLiteral("master")) ? QStringLiteral("Master") :
                                     operationMode;
         if (_statsLastMode != displayMode) {
             _statsLastMode = displayMode;
             changed = true;
         }
-        if (operationMode.contains(QStringLiteral("slave"))) {
+        if (isSlave) {
             _slaveStatsPacketCount++;
         } else if (operationMode.contains(QStringLiteral("master"))) {
             _masterStatsPacketCount++;
         }
     }
+
+    //-- rf.rssi is the reporting radio's own signal; endpoints.rssi is the far end.
+    const QString ownRSSI      = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rf") << QStringLiteral("rssi"), QStringList() << QStringLiteral("endpoints"));
+    const QString endpointRSSI = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("endpoints") << QStringLiteral("rssi"));
+    _setStatsValue(isSlave ? _skyRSSI : _groundRSSI, ownRSSI, changed);
     if (!endpointRSSI.isEmpty()) {
-        if (operationMode.contains(QStringLiteral("slave"))) {
-            _setStatsValue(_groundRSSI, endpointRSSI, changed);
-        } else {
-            _setStatsValue(_skyRSSI, endpointRSSI, changed);
-        }
-    } else {
+        _setStatsValue(isSlave ? _groundRSSI : _skyRSSI, endpointRSSI, changed);
+    } else if (ownRSSI.isEmpty()) {
         _setStatsValue(_groundRSSI, _matchPairValue(text, QStringList()
                        << QStringLiteral("(?:ground|local|gnd)[\\w\\s/_-]*rssi")
                        << QStringLiteral("rssi[\\w\\s/_-]*(?:ground|local|gnd)")
@@ -544,25 +609,43 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     }
     _setStatsValue(_snr, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("snr")), changed);
     _setStatsValue(_snr, _matchStatValue(text, QStringList() << QStringLiteral("snr")), changed);
-    _setStatsValue(_txRate, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("rate")), changed);
-    _setStatsValue(_txRate, _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*rate") << QStringLiteral("transmit[\\w\\s/_-]*rate")), changed);
-    _setStatsValue(_rxRate, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("rate")), changed);
-    _setStatsValue(_rxRate, _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*rate") << QStringLiteral("receive[\\w\\s/_-]*rate")), changed);
-    _setStatsValue(_txThroughput, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("throughput")), changed);
-    _setStatsValue(_txThroughput, _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*throughput") << QStringLiteral("transmit[\\w\\s/_-]*throughput")), changed);
-    _setStatsValue(_rxThroughput, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("throughput")), changed);
-    _setStatsValue(_rxThroughput, _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*throughput") << QStringLiteral("receive[\\w\\s/_-]*throughput")), changed);
-    const QString txBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("bytes"));
-    const QString rxBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("bytes"));
-    const QString txBytesText = txBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*bytes") << QStringLiteral("transmit[\\w\\s/_-]*bytes")) : txBytesRaw;
-    const QString rxBytesText = rxBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*bytes") << QStringLiteral("receive[\\w\\s/_-]*bytes")) : rxBytesRaw;
-    const quint64 txBytesCounter = _integerFromString(txBytesText);
-    const quint64 rxBytesCounter = _integerFromString(rxBytesText);
-    if (txBytesCounter > 0) {
-        _setStatsValue(_txBytes, _formatByteCount(txBytesCounter), changed);
-    }
-    if (rxBytesCounter > 0) {
-        _setStatsValue(_rxBytes, _formatByteCount(rxBytesCounter), changed);
+    //-- TX/RX are direction-dependent. A slave (air) report has them reversed from
+    //   the ground view and uses a different counter base, so anchor the display to
+    //   the ground (master) frame to stop the values from swapping back and forth.
+    //   Only fall back to a slave report (swapped into the ground frame) when no
+    //   master report has been seen at all.
+    const bool useGroundFrame = !isSlave || _masterStatsPacketCount == 0;
+    if (useGroundFrame) {
+        QString txRate = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("rate"));
+        if (txRate.isEmpty()) {
+            txRate = _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*rate") << QStringLiteral("transmit[\\w\\s/_-]*rate"));
+        }
+        QString rxRate = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("rate"));
+        if (rxRate.isEmpty()) {
+            rxRate = _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*rate") << QStringLiteral("receive[\\w\\s/_-]*rate"));
+        }
+        _setStatsValue(isSlave ? _rxRate : _txRate, txRate, changed);
+        _setStatsValue(isSlave ? _txRate : _rxRate, rxRate, changed);
+
+        const QString txThroughputRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("throughput"));
+        const QString rxThroughputRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("throughput"));
+        const QString txThroughputText = txThroughputRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*throughput") << QStringLiteral("transmit[\\w\\s/_-]*throughput")) : txThroughputRaw;
+        const QString rxThroughputText = rxThroughputRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*throughput") << QStringLiteral("receive[\\w\\s/_-]*throughput")) : rxThroughputRaw;
+        _setStatsValue(isSlave ? _rxThroughput : _txThroughput, _formatThroughput(txThroughputText), changed);
+        _setStatsValue(isSlave ? _txThroughput : _rxThroughput, _formatThroughput(rxThroughputText), changed);
+
+        const QString txBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("tx") << QStringLiteral("bytes"));
+        const QString rxBytesRaw = _matchJsonValue(jsonValues, QStringList() << QStringLiteral("rx") << QStringLiteral("bytes"));
+        const QString txBytesText = txBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("tx[\\w\\s/_-]*bytes") << QStringLiteral("transmit[\\w\\s/_-]*bytes")) : txBytesRaw;
+        const QString rxBytesText = rxBytesRaw.isEmpty() ? _matchStatValue(text, QStringList() << QStringLiteral("rx[\\w\\s/_-]*bytes") << QStringLiteral("receive[\\w\\s/_-]*bytes")) : rxBytesRaw;
+        const quint64 txBytesCounter = _integerFromString(txBytesText);
+        const quint64 rxBytesCounter = _integerFromString(rxBytesText);
+        if (txBytesCounter > 0) {
+            _setStatsValue(isSlave ? _rxBytes : _txBytes, _formatByteCount(txBytesCounter), changed);
+        }
+        if (rxBytesCounter > 0) {
+            _setStatsValue(isSlave ? _txBytes : _rxBytes, _formatByteCount(rxBytesCounter), changed);
+        }
     }
     _setStatsValue(_queueLength, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("queue") << QStringLiteral("length")), changed);
     _setStatsValue(_queueLength, _matchStatValue(text, QStringList() << QStringLiteral("queue[\\w\\s/_-]*(?:length|len)") << QStringLiteral("queue")), changed);
@@ -574,27 +657,6 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     _setStatsValue(_version, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("version")), changed);
     _setStatsValue(_version, _matchJsonValue(jsonValues, QStringList() << QStringLiteral("firmware")), changed);
     _setStatsValue(_version, _matchStatValue(text, QStringList() << QStringLiteral("version") << QStringLiteral("firmware")), changed);
-
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-    const quint64 txBytes = txBytesCounter;
-    const quint64 rxBytes = rxBytesCounter;
-    const QString counterKey = senderText + QStringLiteral(":%1:").arg(localPort) + (operationMode.isEmpty() ? QStringLiteral("unknown") : operationMode);
-    ByteCounterState& counterState = _byteCounterStateMap[counterKey];
-    if (counterState.valid && counterState.lastRxMs > 0 && nowMs > counterState.lastRxMs) {
-        const double elapsedSec = static_cast<double>(nowMs - counterState.lastRxMs) / 1000.0;
-        if (txBytes >= counterState.lastTxBytes && txBytes != counterState.lastTxBytes) {
-            _setStatsValue(_txRate, _formatBitRate(static_cast<double>(txBytes - counterState.lastTxBytes) * 8.0 / elapsedSec), changed);
-        }
-        if (rxBytes >= counterState.lastRxBytes && rxBytes != counterState.lastRxBytes) {
-            _setStatsValue(_rxRate, _formatBitRate(static_cast<double>(rxBytes - counterState.lastRxBytes) * 8.0 / elapsedSec), changed);
-        }
-    }
-    if (txBytes > 0 || rxBytes > 0) {
-        counterState.lastTxBytes = txBytes;
-        counterState.lastRxBytes = rxBytes;
-        counterState.lastRxMs = nowMs;
-        counterState.valid = true;
-    }
 
     if (!_statsConnected) {
         _statsConnected = true;

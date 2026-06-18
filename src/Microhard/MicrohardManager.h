@@ -53,6 +53,7 @@ public:
     Q_PROPERTY(uint         masterStatsPacketCount READ masterStatsPacketCount                   NOTIFY statsChanged)
     Q_PROPERTY(uint         slaveStatsPacketCount  READ slaveStatsPacketCount                    NOTIFY statsChanged)
     Q_PROPERTY(QString      statsLastSource     READ statsLastSource                            NOTIFY statsChanged)
+    Q_PROPERTY(QString      statsSources        READ statsSources                               NOTIFY statsChanged)
     Q_PROPERTY(QString      statsLastMode       READ statsLastMode                              NOTIFY statsChanged)
     Q_PROPERTY(QString      statsRawText        READ statsRawText                               NOTIFY statsChanged)
     Q_PROPERTY(QString      localIPAddr         READ localIPAddr      WRITE setLocalIPAddr      NOTIFY localIPAddrChanged)
@@ -72,8 +73,8 @@ public:
 
     int         connected                       () { return _connectedStatus; }
     int         linkConnected                   () { return _linkConnectedStatus; }
-    int         uplinkRSSI                      () { return _downlinkRSSI; }
-    int         downlinkRSSI                    () { return _uplinkRSSI; }
+    int         uplinkRSSI                      () { return _uplinkRSSI; }
+    int         downlinkRSSI                    () { return _downlinkRSSI; }
     bool        statsConnected                  () const { return _statsConnected; }
     QString     groundRSSI                      () const { return _groundRSSI; }
     QString     skyRSSI                         () const { return _skyRSSI; }
@@ -93,6 +94,7 @@ public:
     uint        masterStatsPacketCount          () const { return _masterStatsPacketCount; }
     uint        slaveStatsPacketCount           () const { return _slaveStatsPacketCount; }
     QString     statsLastSource                 () const { return _statsLastSource; }
+    QString     statsSources                    () const;
     QString     statsLastMode                   () const { return _statsLastMode; }
     QString     statsRawText                    () const { return _statsRawText; }
     QString     localIPAddr                     () { return _localIPAddr; }
@@ -143,16 +145,10 @@ private:
     void    _stopStatsSocket                ();
     void    _parseStatsDatagram             (const QByteArray& bytes, const QHostAddress& sender, quint16 localPort);
     void    _setStatsValue                  (QString& field, const QString& value, bool& changed);
+    void    _resetStatsValues               ();
     FactMetaData *_createMetadata           (const char *name, QStringList enums);
 
 private:
-    struct ByteCounterState {
-        qint64  lastRxMs = 0;
-        quint64 lastTxBytes = 0;
-        quint64 lastRxBytes = 0;
-        bool    valid = false;
-    };
-
     enum {
         _statsPort = 20202,
         _statsPortSecondary = 20203,
@@ -193,7 +189,7 @@ private:
     QString            _statsLastSource = QStringLiteral("--");
     QString            _statsLastMode = QStringLiteral("--");
     QString            _statsRawText;
-    QMap<QString, ByteCounterState> _byteCounterStateMap;
+    QMap<QString, uint> _statsSourceCounts;
     QString            _localIPAddr;
     QString            _remoteIPAddr;
     QString            _netMask;
