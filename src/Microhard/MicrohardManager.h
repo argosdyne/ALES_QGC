@@ -16,6 +16,7 @@
 
 #include <QTimer>
 #include <QTime>
+#include <QMap>
 #include <QUdpSocket>
 #include <QtGlobal>
 
@@ -144,6 +145,13 @@ private:
     FactMetaData *_createMetadata           (const char *name, QStringList enums);
 
 private:
+    struct ByteCounterState {
+        qint64  lastRxMs = 0;
+        quint64 lastTxBytes = 0;
+        quint64 lastRxBytes = 0;
+        bool    valid = false;
+    };
+
     enum {
         _statsPort = 20202,
         _statsTimeoutMs = 15000
@@ -183,10 +191,7 @@ private:
     QString            _statsLastSource = QStringLiteral("--");
     QString            _statsLastMode = QStringLiteral("--");
     QString            _statsRawText;
-    qint64             _lastStatsRxMs = 0;
-    quint64            _lastTxBytes = 0;
-    quint64            _lastRxBytes = 0;
-    bool               _lastByteCountersValid = false;
+    QMap<QString, ByteCounterState> _byteCounterStateMap;
     QString            _localIPAddr;
     QString            _remoteIPAddr;
     QString            _netMask;

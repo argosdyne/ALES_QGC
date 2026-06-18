@@ -550,20 +550,22 @@ MicrohardManager::_parseStatsDatagram(const QByteArray& bytes, const QHostAddres
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     const quint64 txBytes = _integerFromString(_txBytes);
     const quint64 rxBytes = _integerFromString(_rxBytes);
-    if (_lastByteCountersValid && _lastStatsRxMs > 0 && nowMs > _lastStatsRxMs) {
-        const double elapsedSec = static_cast<double>(nowMs - _lastStatsRxMs) / 1000.0;
-        if (txBytes >= _lastTxBytes && txBytes != _lastTxBytes) {
-            _setStatsValue(_txRate, _formatBitRate(static_cast<double>(txBytes - _lastTxBytes) * 8.0 / elapsedSec), changed);
+    const QString counterKey = senderText + QLatin1Char(':') + (operationMode.isEmpty() ? QStringLiteral("unknown") : operationMode);
+    ByteCounterState& counterState = _byteCounterStateMap[counterKey];
+    if (counterState.valid && counterState.lastRxMs > 0 && nowMs > counterState.lastRxMs) {
+        const double elapsedSec = static_cast<double>(nowMs - counterState.lastRxMs) / 1000.0;
+        if (txBytes >= counterState.lastTxBytes && txBytes != counterState.lastTxBytes) {
+            _setStatsValue(_txRate, _formatBitRate(static_cast<double>(txBytes - counterState.lastTxBytes) * 8.0 / elapsedSec), changed);
         }
-        if (rxBytes >= _lastRxBytes && rxBytes != _lastRxBytes) {
-            _setStatsValue(_rxRate, _formatBitRate(static_cast<double>(rxBytes - _lastRxBytes) * 8.0 / elapsedSec), changed);
+        if (rxBytes >= counterState.lastRxBytes && rxBytes != counterState.lastRxBytes) {
+            _setStatsValue(_rxRate, _formatBitRate(static_cast<double>(rxBytes - counterState.lastRxBytes) * 8.0 / elapsedSec), changed);
         }
     }
     if (txBytes > 0 || rxBytes > 0) {
-        _lastTxBytes = txBytes;
-        _lastRxBytes = rxBytes;
-        _lastStatsRxMs = nowMs;
-        _lastByteCountersValid = true;
+        counterState.lastTxBytes = txBytes;
+        counterState.lastRxBytes = rxBytes;
+        counterState.lastRxMs = nowMs;
+        counterState.valid = true;
     }
 
     if (!_statsConnected) {
