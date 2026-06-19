@@ -1052,6 +1052,7 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
     qCDebug(CameraManagerLog) << "Joystick changed";
     if(_activeJoystick) {
         disconnect(_activeJoystick, &Joystick::stepZoom,            this, &QGCCameraManager::_stepZoom);
+        disconnect(_activeJoystick, &Joystick::gimbalAxisControl,   this, &QGCCameraManager::_gimbalAxisControl);
         disconnect(_activeJoystick, &Joystick::startContinuousZoom, this, &QGCCameraManager::_startZoom);
         disconnect(_activeJoystick, &Joystick::stopContinuousZoom,  this, &QGCCameraManager::_stopZoom);
         disconnect(_activeJoystick, &Joystick::stepCamera,          this, &QGCCameraManager::_stepCamera);
@@ -1064,6 +1065,7 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
     _activeJoystick = joystick;
     if(_activeJoystick) {
         connect(_activeJoystick, &Joystick::stepZoom,               this, &QGCCameraManager::_stepZoom);
+        connect(_activeJoystick, &Joystick::gimbalAxisControl,      this, &QGCCameraManager::_gimbalAxisControl);
         connect(_activeJoystick, &Joystick::startContinuousZoom,    this, &QGCCameraManager::_startZoom);
         connect(_activeJoystick, &Joystick::stopContinuousZoom,     this, &QGCCameraManager::_stopZoom);
         connect(_activeJoystick, &Joystick::stepCamera,             this, &QGCCameraManager::_stepCamera);
@@ -1126,6 +1128,16 @@ QGCCameraManager::_stepZoom(int direction)
         if(pCamera) {
             pCamera->stepZoom(direction);
         }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraManager::_gimbalAxisControl(float pitch, float yaw)
+{
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if(pCamera) {
+        pCamera->gimbalAxisRateControl(pitch, yaw);
     }
 }
 

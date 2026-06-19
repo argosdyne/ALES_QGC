@@ -336,6 +336,76 @@ void Joystick::_loadSettings()
         _calibrated = false;
         settings.setValue(_calibratedSettingsKey, false);
     }
+
+    // Override the loaded mapping/calibration with a forced profile for specific devices
+    // whose noisy HID confuses the auto-calibration wizard (e.g. ARGOSDYNE DR-1000).
+    _applyHardcodedProfile();
+}
+
+// Forced axis mapping + calibration for specific devices, keyed by joystick name.
+// This bypasses the auto-calibration wizard, which a noisy controller can fool into
+// mapping the wrong axis or capturing a bad center. Returns true if a profile matched.
+bool Joystick::_applyHardcodedProfile()
+{
+    _gimbalOnlyJoystickProfile = false;
+
+    // Match the name shown in the "Active joystick" dropdown. Windows HID names can
+    // include/omit the USB vendor prefix depending on the driver.
+    if (!_name.contains(QStringLiteral("ARGOSDYNE DR-1000"), Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    // ======================= EDIT THIS TABLE FOR THE DR-1000 =======================
+    // axis  : raw axis index reported by the device (-1 = function unused)
+    // rev   : true to invert the direction if a control moves the wrong way
+    // Assumes RC Mode 2 (keep the RC Mode radio button on "2").
+    struct ForcedAxis { AxisFunction_t function; int axis; bool reversed; };
+    const ForcedAxis forced[] = {
+        { gimbalPitchFunction, 0,  false },  // axis 0 -> gimbal tilt  (user request)
+        { gimbalYawFunction,   3,  false },  // axis 3 -> gimbal pan   (user request)
+        // Flight axes kept on valid indices for legacy UI/settings paths. This hardcoded
+        // profile is marked gimbal-only below, so these axes do not send MANUAL_CONTROL.
+        { rollFunction,        1,  false },
+        { pitchFunction,       0,  false },
+        { yawFunction,         3,  false },
+        { throttleFunction,    2,  false },
+    };
+    // Raw-count deadband (full scale 32767) to kill jitter. Raise if still jittery at rest,
+    // lower if the controls feel like they have a large dead zone.
+    const int deadbandCounts = 2000;
+    // ===============================================================================
+
+    // Baseline calibration for every axis (centered, full range, with deadband)
+    for (int axis = 0; axis < _axisCount; axis++) {
+        Calibration_t cal;
+        cal.center   = 0;
+        cal.min      = -32767;
+        cal.max      = 32767;
+        cal.deadband = deadbandCounts;
+        cal.reversed = false;
+        _rgCalibration[axis] = cal;
+    }
+
+    // Apply the forced function->axis mapping and per-function reverse flag
+    for (const auto& f : forced) {
+        _rgFunctionAxis[f.function] = f.axis;
+        if (f.axis >= 0 && f.axis < _axisCount) {
+            _rgCalibration[f.axis].reversed = f.reversed;
+        }
+    }
+
+    _deadband   = true;   // ensure the deadband above is actually applied in _adjustRange
+    _calibrated = true;   // allow the joystick to be enabled without running the wizard
+    _gimbalOnlyJoystickProfile = true;
+
+    qCWarning(JoystickLog) << "Applied hardcoded joystick profile for" << _name
+                           << "roll" << _rgFunctionAxis[rollFunction]
+                           << "pitch" << _rgFunctionAxis[pitchFunction]
+                           << "yaw" << _rgFunctionAxis[yawFunction]
+                           << "throttle" << _rgFunctionAxis[throttleFunction]
+                           << "gimbalPitch" << _rgFunctionAxis[gimbalPitchFunction]
+                           << "gimbalYaw" << _rgFunctionAxis[gimbalYawFunction];
+    return true;
 }
 
 void Joystick::_saveButtonSettings()
@@ -630,7 +700,36 @@ void Joystick::_handleAxis()
             _rgAxisValues[axisIndex] = newAxisValue;
             emit rawAxisValueChanged(axisIndex, newAxisValue);
         }
-        if (_activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
+        float gimbalPitch = 0.0f;
+        float gimbalYaw   = 0.0f;
+        if (!_calibrationMode && _calibrated) {
+            // Analog USB joystick gimbal control is camera-specific and does not require
+            // vehicle joystick/manual-control to be enabled.
+            const int gimbalPitchAxis = _rgFunctionAxis[gimbalPitchFunction];
+            if (gimbalPitchAxis >= 0 && gimbalPitchAxis < _axisCount) {
+                gimbalPitch = _adjustRange(_rgAxisValues[gimbalPitchAxis], _rgCalibration[gimbalPitchAxis], _deadband);
+            }
+
+            const int gimbalYawAxis = _rgFunctionAxis[gimbalYawFunction];
+            if (gimbalYawAxis >= 0 && gimbalYawAxis < _axisCount) {
+                gimbalYaw = _adjustRange(_rgAxisValues[gimbalYawAxis], _rgCalibration[gimbalYawAxis], _deadband);
+            }
+
+            if (fabsf(gimbalPitch) > 0.01f || fabsf(gimbalYaw) > 0.01f) {
+                qCDebug(GimbalLog) << "[GimbalFlow]"
+                                   << "joystick axis gimbal input"
+                                   << "name" << name()
+                                   << "gimbalPitch" << gimbalPitch
+                                   << "gimbalYaw" << gimbalYaw;
+                emit gimbalAxisControl(gimbalPitch, gimbalYaw);
+                _gimbalAxisActive = true;
+            } else if (_gimbalAxisActive) {
+                emit gimbalAxisControl(0.0f, 0.0f);
+                _gimbalAxisActive = false;
+            }
+        }
+
+        if (_activeVehicle && _activeVehicle->joystickEnabled() && !_calibrationMode && _calibrated) {
             int     axis = _rgFunctionAxis[rollFunction];
             float   roll = _adjustRange(_rgAxisValues[axis],    _rgCalibration[axis], _deadband);
 
@@ -642,29 +741,6 @@ void Joystick::_handleAxis()
 
                     axis = _rgFunctionAxis[throttleFunction];
             float   throttle = _adjustRange(_rgAxisValues[axis],_rgCalibration[axis], _throttleMode==ThrottleModeDownZero?false:_deadband);
-
-            // These are only used for printing JoystickValuesLog
-            float   gimbalPitch = 0.0f;
-            float   gimbalYaw   = 0.0f;
-
-            if(_axisCount > 4) {
-                axis = _rgFunctionAxis[gimbalPitchFunction];
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
-            }
-
-            if(_axisCount > 5) {
-                axis = _rgFunctionAxis[gimbalYawFunction];
-                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
-            }
-
-            if (fabsf(gimbalPitch) > 0.01f || fabsf(gimbalYaw) > 0.01f) {
-                qCInfo(GimbalLog) << "[GimbalFlow]"
-                                  << "joystick axis gimbal input"
-                                  << "name" << name()
-                                  << "gimbalPitch" << gimbalPitch
-                                  << "gimbalYaw" << gimbalYaw
-                                  << "axisCount" << _axisCount;
-            }
 
             if (_accumulator) {
                 static float throttle_accu = 0.f;
@@ -716,8 +792,10 @@ void Joystick::_handleAxis()
             }
             emit axisValues(roll, pitch, yaw, throttle);
 
-            uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
-            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            if (!_gimbalOnlyJoystickProfile) {
+                uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
+                _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
+            }
         }
     }
 }

@@ -72,6 +72,7 @@ protected slots:
     virtual void    _stepZoom               (int direction);
     virtual void    _startZoom              (int direction);
     virtual void    _stopZoom               ();
+    virtual void    _gimbalAxisControl      (float pitch, float yaw);
     virtual void    _stepCamera             (int direction);
     virtual void    _stepStream             (int direction);
     virtual void    _cameraTimeout          ();

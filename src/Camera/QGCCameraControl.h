@@ -236,6 +236,9 @@ public:
     Q_INVOKABLE virtual void stepZoom       (int direction);
     Q_INVOKABLE virtual void startZoom      (int direction);
     Q_INVOKABLE virtual void stopZoom       ();
+    /// Analog gimbal control from a joystick axis. pitchInput/yawInput are stick deflections
+    /// in [-1..1]. Base implementation is a no-op; cameras with a gimbal override it.
+    Q_INVOKABLE virtual void gimbalAxisRateControl(float pitchInput, float yawInput) { Q_UNUSED(pitchInput); Q_UNUSED(yawInput); }
     Q_INVOKABLE virtual void stopStream     ();
     Q_INVOKABLE virtual void resumeStream   ();
     Q_INVOKABLE virtual void startTracking  (QRectF rec);

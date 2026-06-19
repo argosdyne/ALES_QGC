@@ -212,6 +212,7 @@ signals:
     void toggleVideoRecord          ();
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
+    void gimbalAxisControl          (float pitch, float yaw);
     void centerGimbal               ();
     void gimbalYawLock              (bool lock);
     void setArmed                   (bool arm);
@@ -227,6 +228,7 @@ protected:
     void    _saveSettings           ();
     void    _saveButtonSettings     ();
     void    _loadSettings           ();
+    bool    _applyHardcodedProfile  ();
     float   _adjustRange            (int value, Calibration_t calibration, bool withDeadbands);
     void    _executeButtonAction    (const QString& action, bool buttonDown);
     int     _findAssignableButtonAction(const QString& action);
@@ -280,6 +282,8 @@ protected:
     Vehicle* _activeVehicle         = nullptr;
 
     bool    _pollingStartedForCalibration = false;
+    bool    _gimbalAxisActive       = false;    ///< true while an analog gimbal axis is being deflected
+    bool    _gimbalOnlyJoystickProfile = false; ///< true for USB camera controllers that must not send flight MANUAL_CONTROL
 
     QString _name;
     bool    _calibrated;

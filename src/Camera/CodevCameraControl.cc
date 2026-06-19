@@ -115,7 +115,18 @@ static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
             : static_cast<float>(kRcGimbalCenter - kRcGimbalMinValid);
     return qBound(-maxRateDegS,
                   (static_cast<float>(delta) / signedRange) * maxRateDegS,
-                  maxRateDegS);
+                   maxRateDegS);
+}
+
+static uint16_t _joystickInputToRcGimbalPwm(float input)
+{
+    const float boundedInput = qBound(-1.0f, input, 1.0f);
+    const float range = boundedInput >= 0.0f
+            ? static_cast<float>(kRcGimbalMaxValid - kRcGimbalCenter)
+            : static_cast<float>(kRcGimbalCenter - kRcGimbalMinValid);
+    return static_cast<uint16_t>(qBound(static_cast<int>(kRcGimbalMinValid),
+                                        static_cast<int>(kRcGimbalCenter + (boundedInput * range)),
+                                        static_cast<int>(kRcGimbalMaxValid)));
 }
 
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
@@ -365,6 +376,53 @@ void CodevCameraControl::centerGimbal()
         MAV_CMD_DO_MOUNT_CONTROL,           // Command id
         MAV_COMP_ID_GIMBAL,                 // Target id
         0,0,0,0,0,0,1);
+}
+
+// Analog gimbal control from a USB joystick axis. R3 cameras are controlled through the
+// same RC channel path as the working radio RC flow; other cameras fall back to gimbal-manager.
+void CodevCameraControl::gimbalAxisRateControl(float pitchInput, float yawInput)
+{
+    const bool stop = qFuzzyIsNull(pitchInput) && qFuzzyIsNull(yawInput);
+
+    // Throttle held commands to the RC gimbal cadence; always let the stop command through.
+    if (!stop && _joystickGimbalTimer.isValid() && _joystickGimbalTimer.elapsed() < kRcGimbalCommandMinIntervalMs) {
+        return;
+    }
+    _joystickGimbalTimer.start();
+
+    if (_isR3CameraModel(modelName())) {
+        mavlink_rc_channels_t rc;
+        memset(&rc, 0, sizeof(rc));
+        rc.chancount = 18;
+        rc.chan9_raw = _joystickInputToRcGimbalPwm(pitchInput);
+        rc.chan10_raw = _joystickInputToRcGimbalPwm(yawInput);
+        rc.chan11_raw = kRcGimbalCenter;
+        rc.chan15_raw = kRcGimbalCenter;
+        rc.rssi = 255;
+
+        qCInfo(CodevCameraLog) << "[RCFlow]"
+                << "Codev USB joystick gimbal native R3 RC"
+                << "cameraCompId" << _compID
+                << "model" << modelName()
+                << "pitchInput" << pitchInput
+                << "yawInput" << yawInput
+                << "ch9Pitch" << rc.chan9_raw
+                << "ch10Yaw" << rc.chan10_raw
+                << "stop" << stop
+                << "queueSize" << _mavCommandQueue.count();
+
+        _sendR3RcChannels(rc, "usbJoystick-native");
+        return;
+    }
+
+    const float pitchRate = pitchInput * kRcGimbalMaxPitchRateDegS;
+    const float yawRate   = yawInput   * kRcGimbalMaxYawRateDegS;
+
+    const uint32_t gimbalManagerFlags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
+        | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
+        | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
+
+    _sendGimbalManagerPitchYawRate(pitchRate, yawRate, gimbalManagerFlags, "joystickAxis");
 }
 
 void CodevCameraControl::setSpotTempPoint(float x, float y)
