@@ -57,15 +57,14 @@ QGCPopupDialog {
             fact.enumIndex = factCombo.currentIndex
             valueChanged()
         } else {
-            var errorString = fact.validate(valueField.text, customValidationReplacesFactValidation ? true : forceSave.checked)
-            if (errorString !== "" && customValidateFunction && customValidationReplacesFactValidation) {
-                var customError = customValidateFunction(valueField.text)
-                if (customError !== "") {
-                    errorString = customError
+            var errorString = ""
+            if (customValidationReplacesFactValidation) {
+                errorString = customValidateFunction ? customValidateFunction(valueField.text) : ""
+            } else {
+                errorString = fact.validate(valueField.text, forceSave.checked)
+                if (errorString === "" && customValidateFunction) {
+                    errorString = customValidateFunction(valueField.text)
                 }
-            }
-            if (errorString === "" && customValidateFunction) {
-                errorString = customValidateFunction(valueField.text)
             }
             if (errorString === "") {
                 fact.value = valueField.text
@@ -110,16 +109,12 @@ QGCPopupDialog {
         if (validate) {
             if (validationErrorOverride !== "") {
                 validationError.text = validationErrorOverride
+            } else if (customValidationReplacesFactValidation) {
+                validationError.text = customValidateFunction ? customValidateFunction(validateValue) : ""
             } else {
-                validationError.text = fact.validate(validateValue, customValidationReplacesFactValidation ? true : false /* convertOnly */)
+                validationError.text = fact.validate(validateValue, false /* convertOnly */)
                 if (validationError.text === "" && customValidateFunction) {
                     validationError.text = customValidateFunction(validateValue)
-                }
-                if (validationError.text !== "" && customValidateFunction && customValidationReplacesFactValidation) {
-                    var customError = customValidateFunction(validateValue)
-                    if (customError !== "") {
-                        validationError.text = customError
-                    }
                 }
             }
             if (_allowForceSave && !customValidationReplacesFactValidation) {

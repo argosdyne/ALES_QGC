@@ -198,7 +198,9 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
 
                     MouseArea {
-                        anchors.fill: parent
+                        anchors.centerIn: parent
+                        width: parent.width + registerPage._s(32)
+                        height: parent.height + registerPage._s(28)
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             registerPage.showEnterPassword = !registerPage.showEnterPassword
@@ -291,7 +293,9 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
 
                     MouseArea {
-                        anchors.fill: parent
+                        anchors.centerIn: parent
+                        width: parent.width + registerPage._s(32)
+                        height: parent.height + registerPage._s(28)
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             registerPage.showConfirmPassword = !registerPage.showConfirmPassword

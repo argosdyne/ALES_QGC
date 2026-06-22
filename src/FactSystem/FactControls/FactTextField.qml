@@ -59,9 +59,14 @@ QGCTextField {
     }
 
     onEditingFinished: {
-        var errorString = fact.validate(text, customValidationReplacesFactValidation /* convertOnly */)
-        if (errorString === "") {
+        var errorString = ""
+        if (customValidationReplacesFactValidation) {
             errorString = _customValidationError(text)
+        } else {
+            errorString = fact.validate(text, false /* convertOnly */)
+            if (errorString === "") {
+                errorString = _customValidationError(text)
+            }
         }
 
         if (errorString === "") {

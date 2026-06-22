@@ -18,6 +18,7 @@ FactTextField {
     showHelp:                               true
     customValidateFunction:                 function(valueText) { return validateSpeed(valueText) }
     customValidationReplacesFactValidation: true
+    displayDecimalPlaces:                   1
 
     function _formatRangeValue(value, decimals) {
         var rounded = Number(value).toFixed(decimals)
@@ -43,6 +44,8 @@ FactTextField {
         if (!fact || isNaN(_speedMaxForUnits(fact.units))) {
             return ""
         }
+
+        valueText = String(valueText).trim()
 
         var units = fact.units
         var maxValue = _speedMaxForUnits(units)

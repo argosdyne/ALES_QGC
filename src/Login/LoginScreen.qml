@@ -33,7 +33,7 @@ Page {
     property bool   _rememberedLogin: false
     property bool   _rememberedLoginPinEdited: false
     property bool   _updatingPinFromCode: false
-    readonly property string _rememberedPasswordMask: "********"
+    readonly property int _defaultRememberedPasswordLength: 8
     readonly property int _passwordMaskVerticalOffset: ScreenTools.isAndroid ? _s(6) : 0
     readonly property bool _usingRememberedLogin: rememberBox.checked && _rememberedLogin && !_rememberedLoginPinEdited
     readonly property bool _showPasswordToggleEnabled: !locked && !_usingRememberedLogin
@@ -43,6 +43,7 @@ Page {
         id: rememberUiSettings
         category: "LoginFlow"
         property bool rememberMeChecked: false
+        property int rememberedPasswordLength: 0
     }
 
     background: Rectangle {
@@ -122,8 +123,22 @@ Page {
     function _showRememberedPasswordMask() {
         _updatingPinFromCode = true
         passwordText = ""
-        hiddenInput.text = _rememberedPasswordMask
+        hiddenInput.text = _passwordMask(rememberUiSettings.rememberedPasswordLength)
         _updatingPinFromCode = false
+    }
+
+    function _passwordMask(length) {
+        var maskLength = Number(length)
+        if (!maskLength || maskLength < 1) {
+            maskLength = _defaultRememberedPasswordLength
+        }
+        maskLength = Math.min(maskLength, hiddenInput.maximumLength)
+
+        var mask = ""
+        for (var i = 0; i < maskLength; i++) {
+            mask += "*"
+        }
+        return mask
     }
 
     function _clearRememberedLogin() {
@@ -132,6 +147,7 @@ Page {
         _rememberedLoginPinEdited = false
         showPassword = false
         rememberUiSettings.rememberMeChecked = false
+        rememberUiSettings.rememberedPasswordLength = 0
         try { securityManager.setRememberMeEnabled(false) } catch(e) {}
         _setPasswordValue("")
     }
@@ -327,7 +343,9 @@ Page {
                     opacity: loginPage._showPasswordToggleEnabled ? 1.0 : 0.6
 
                     MouseArea {
-                        anchors.fill: parent
+                        anchors.centerIn: parent
+                        width: parent.width + loginPage._s(32)
+                        height: parent.height + loginPage._s(28)
                         enabled: loginPage._showPasswordToggleEnabled
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
@@ -472,6 +490,7 @@ Page {
                 if (ok) {
                     try { securityManager.setRememberMeEnabled(rememberBox.checked) } catch(e) {}
                     rememberUiSettings.rememberMeChecked = rememberBox.checked
+                    rememberUiSettings.rememberedPasswordLength = rememberBox.checked ? password.length : 0
                     loginPage._rememberedLogin = rememberBox.checked
                     unlockError.text  = "Password verified. Loading..."
                     unlockError.color = "#0fa18f"
