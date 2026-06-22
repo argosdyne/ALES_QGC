@@ -23,6 +23,17 @@ Column {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
+    function validateNtripServerHost(hostText) {
+        return /^[a-zA-Z0-9.-]{1,253}$/.test(hostText) ? "" : qsTr("NTRIP Server Host must be a valid hostname or IP address.")
+    }
+
+    MessageDialog {
+        id:                 ntripHostErrorDialog
+        title:              qsTr("Invalid NTRIP Server Host")
+        text:               qsTr("NTRIP Server Host must be a valid hostname or IP address.")
+        standardButtons:    StandardButton.Ok
+    }
+
     GridLayout {
         id:     outerItem
         anchors.margins:    ScreenTools.defaultFontPixelHeight
@@ -34,8 +45,10 @@ Column {
             Layout.minimumWidth: _labelWidth
         }
         FactTextField {
+            id:             hostField
             fact:           _ntripSource.host
             Layout.minimumWidth: _valueWidth
+            customValidateFunction: validateNtripServerHost
         }
         QGCLabel {
             text:           qsTr("Port:")
@@ -46,6 +59,10 @@ Column {
             Layout.minimumWidth: _valueWidth
 
             onAccepted: {
+                if (validateNtripServerHost(hostField.text) !== "") {
+                    ntripHostErrorDialog.open()
+                    return
+                }
                 _ntripSource.onReadyRead()
             }
         }
@@ -95,14 +112,21 @@ Column {
             QGCButton {
                 text: _ntripSource.isLogIn ? qsTr("Log out") : qsTr("Log in")
                 Layout.fillWidth: true
-                enabled: _ntripSource.mountpoint.valueString !== "" &&
+                enabled: hostField.text !== "" &&
+                         _ntripSource.mountpoint.valueString !== "" &&
                          _ntripSource.user.valueString !== "" &&
                          _ntripSource.passwd.valueString !== "" &&
                          !_ntripSource.isLogIning
                 onClicked: {
-                    if(!_ntripSource.isLogIn)
+                    if(!_ntripSource.isLogIn) {
+                        if (validateNtripServerHost(hostField.text) !== "") {
+                            ntripHostErrorDialog.open()
+                            return
+                        }
                         _ntripSource.logIn()
-                    else _ntripSource.logOut()
+                    } else {
+                        _ntripSource.logOut()
+                    }
                 }
             }
             QGCColoredImage {
