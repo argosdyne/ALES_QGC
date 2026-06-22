@@ -33,9 +33,10 @@ Page {
     property bool   _rememberedLogin: false
     property bool   _rememberedLoginPinEdited: false
     property bool   _updatingPinFromCode: false
+    readonly property string _rememberedPasswordMask: "********"
+    readonly property int _passwordMaskVerticalOffset: ScreenTools.isAndroid ? _s(6) : 0
     readonly property bool _usingRememberedLogin: rememberBox.checked && _rememberedLogin && !_rememberedLoginPinEdited
     readonly property bool _showPasswordToggleEnabled: !locked && !_usingRememberedLogin
-    readonly property bool _showRememberedPasswordPlaceholder: _usingRememberedLogin && passwordText.length === 0
     readonly property string _lockoutScope: "login"
 
     Settings {
@@ -118,6 +119,32 @@ Page {
         _updatingPinFromCode = false
     }
 
+    function _showRememberedPasswordMask() {
+        _updatingPinFromCode = true
+        passwordText = ""
+        hiddenInput.text = _rememberedPasswordMask
+        _updatingPinFromCode = false
+    }
+
+    function _clearRememberedLogin() {
+        rememberBox.checked = false
+        _rememberedLogin = false
+        _rememberedLoginPinEdited = false
+        showPassword = false
+        rememberUiSettings.rememberMeChecked = false
+        try { securityManager.setRememberMeEnabled(false) } catch(e) {}
+        _setPasswordValue("")
+    }
+
+    function _toggleRememberMe() {
+        rememberBox.checked = !rememberBox.checked
+        rememberUiSettings.rememberMeChecked = rememberBox.checked
+
+        if (!rememberBox.checked) {
+            _clearRememberedLogin()
+        }
+    }
+
     function _syncRememberMeUI() {
         try {
             _rememberedLogin = securityManager.rememberMeEnabled()
@@ -129,7 +156,7 @@ Page {
 
         if (_rememberedLogin) {
             showPassword = false
-            _setPasswordValue("")
+            _showRememberedPasswordMask()
         } else {
             _setPasswordValue("")
         }
@@ -232,6 +259,7 @@ Page {
                 color: "#222222"
                 border.color: loginPage.pinBoxFocused ? "#00826F" : "#ffffff"
                 border.width: 2
+                opacity: loginPage._usingRememberedLogin ? 0.65 : 1.0
 
                 MouseArea {
                     id: pinBoxMouseArea
@@ -249,12 +277,11 @@ Page {
                     id: hiddenInput
                     anchors.left: parent.left
                     anchors.right: passwordToggle.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: loginPage.showPassword ? 0 : loginPage._passwordMaskVerticalOffset
                     anchors.leftMargin: _s(18)
                     anchors.rightMargin: _s(12)
-                    anchors.topMargin: _s(18)
-                    anchors.bottomMargin: _s(18)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
                     clip: true
                     color: loginPage.locked ? "#AEAEAE" : "#ffffff"
                     selectedTextColor: "#ffffff"
@@ -272,8 +299,11 @@ Page {
                     }
             
                     onTextChanged: {
+                        if (_updatingPinFromCode) {
+                            return
+                        }
                         passwordText = text
-                        if (!_updatingPinFromCode && _rememberedLogin && rememberBox.checked) {
+                        if (_rememberedLogin && rememberBox.checked) {
                             _rememberedLoginPinEdited = true
                         }
                     }
@@ -281,21 +311,6 @@ Page {
                     Keys.onPressed: {
                         if (locked) { event.accepted = true; return }
                     }
-                }
-
-                Text {
-                    text: "Saved password enabled"
-                    color: "#AEAEAE"
-                    font.family: "Roboto"
-                    font.pixelSize: _s(24)
-                    verticalAlignment: Text.AlignVCenter
-                    anchors.left: parent.left
-                    anchors.right: passwordToggle.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.leftMargin: _s(18)
-                    anchors.rightMargin: _s(12)
-                    visible: loginPage._showRememberedPasswordPlaceholder
                 }
 
                 Text {
@@ -373,16 +388,7 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        rememberBox.checked = !rememberBox.checked
-                        rememberUiSettings.rememberMeChecked = rememberBox.checked
-
-                        if (!rememberBox.checked) {
-                            loginPage._rememberedLogin = false
-                            loginPage._rememberedLoginPinEdited = false
-                            loginPage.showPassword = false
-                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            loginPage._setPasswordValue("")
-                        }
+                        loginPage._toggleRememberMe()
                     }
                 }
             }
@@ -398,16 +404,7 @@ Page {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        rememberBox.checked = !rememberBox.checked
-                        rememberUiSettings.rememberMeChecked = rememberBox.checked
-
-                        if (!rememberBox.checked) {
-                            loginPage._rememberedLogin = false
-                            loginPage._rememberedLoginPinEdited = false
-                            loginPage.showPassword = false
-                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            loginPage._setPasswordValue("")
-                        }
+                        loginPage._toggleRememberMe()
                     }
                 }
             }

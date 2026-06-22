@@ -27,6 +27,7 @@ Page {
     property string messageColor:   "#ff5c5c"
     property real _uiScale: ScreenTools.isMobile ? 1.20 : 0.65
     property int _contentBlockHeight: _s(687)
+    readonly property int _passwordMaskVerticalOffset: ScreenTools.isAndroid ? _s(6) : 0
     property string activePassword:        ""   // "enter" | "confirm" | ""
 
     background: Rectangle {
@@ -160,12 +161,11 @@ Page {
                     id: enterInput
                     anchors.left: parent.left
                     anchors.right: enterPasswordToggle.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: registerPage.showEnterPassword ? 0 : registerPage._passwordMaskVerticalOffset
                     anchors.leftMargin: _s(18)
                     anchors.rightMargin: _s(12)
-                    anchors.topMargin: _s(18)
-                    anchors.bottomMargin: _s(18)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
                     clip: true
                     color: "#ffffff"
                     selectedTextColor: "#ffffff"
@@ -254,12 +254,11 @@ Page {
                     id: confirmInput
                     anchors.left: parent.left
                     anchors.right: confirmPasswordToggle.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: registerPage.showConfirmPassword ? 0 : registerPage._passwordMaskVerticalOffset
                     anchors.leftMargin: _s(18)
                     anchors.rightMargin: _s(12)
-                    anchors.topMargin: _s(18)
-                    anchors.bottomMargin: _s(18)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
                     clip: true
                     color: "#ffffff"
                     selectedTextColor: "#ffffff"

@@ -172,7 +172,7 @@ Rectangle {
                     }
                 }
 
-                FactTextField {
+                AltitudeFactTextField {
                     id:                 altField
                     Layout.fillWidth:   true
                     fact:               missionItem.altitude
@@ -269,7 +269,7 @@ Rectangle {
                     }
                 }
 
-                FactTextField {
+                SpeedFactTextField {
                     fact:               missionItem.speedSection.flightSpeed
                     Layout.fillWidth:   true
                     enabled:            flightSpeedCheckbox.checked

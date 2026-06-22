@@ -11,6 +11,7 @@ add_custom_target(FactControlsQml
 		FactComboBox.qml
 		FactLabel.qml
 		FactSpinBox.qml
+		SpeedFactTextField.qml
 		FactTextFieldGrid.qml
 		FactTextField.qml
 		FactTextFieldRow.qml

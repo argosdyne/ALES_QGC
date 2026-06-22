@@ -103,7 +103,7 @@ Rectangle {
             text:           qsTr("Initial Waypoint Alt")
             font.pointSize: ScreenTools.smallFontPointSize
         }
-        FactTextField {
+        AltitudeFactTextField {
             fact:               QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude
             Layout.fillWidth:   true
         }
@@ -121,7 +121,7 @@ Rectangle {
                 checked:    missionItem.speedSection.specifyFlightSpeed
                 onClicked:   missionItem.speedSection.specifyFlightSpeed = checked
             }
-            FactTextField {
+            SpeedFactTextField {
                 Layout.fillWidth:   true
                 fact:               missionItem.speedSection.flightSpeed
                 visible:            _showFlightSpeed
@@ -214,7 +214,7 @@ Rectangle {
                     visible:            _showCruiseSpeed
                     Layout.fillWidth:   true
                 }
-                FactTextField {
+                SpeedFactTextField {
                     fact:                   QGroundControl.settingsManager.appSettings.offlineEditingCruiseSpeed
                     visible:                _showCruiseSpeed
                     Layout.preferredWidth:  _fieldWidth
@@ -225,7 +225,7 @@ Rectangle {
                     visible:            _showHoverSpeed
                     Layout.fillWidth:   true
                 }
-                FactTextField {
+                SpeedFactTextField {
                     fact:                   QGroundControl.settingsManager.appSettings.offlineEditingHoverSpeed
                     visible:                _showHoverSpeed
                     Layout.preferredWidth:  _fieldWidth
@@ -257,7 +257,7 @@ Rectangle {
                     QGCLabel {
                         text: qsTr("Altitude")
                     }
-                    FactTextField {
+                    AltitudeFactTextField {
                         fact:               missionItem.plannedHomePositionAltitude
                         Layout.fillWidth:   true
                     }
