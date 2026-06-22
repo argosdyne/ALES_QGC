@@ -385,6 +385,26 @@ VideoManager::stopVideo(int id)
     }
 }
 
+//-----------------------------------------------------------------------------
+void
+VideoManager::restartVideo(int id)
+{
+    if (qgcApp()->runningUnitTests()) {
+        return;
+    }
+
+#if defined(QGC_GST_STREAMING)
+    if (id < 0) {
+        _forceRestartVideo(0);
+        _forceRestartVideo(1);
+    } else if (static_cast<unsigned>(id) <= 2) {
+        _forceRestartVideo(static_cast<unsigned>(id));
+    }
+#else
+    Q_UNUSED(id);
+#endif
+}
+
 void
 VideoManager::startRecording(const QString& videoFile)
 {
@@ -1029,6 +1049,36 @@ VideoManager::_restartVideo(unsigned id)
     }
 
     qCDebug(VideoManagerLog) << "Restart video streaming"  << id;
+
+    if (_videoStarted[id]) {
+        _stopReceiver(id);
+    } else {
+        _startReceiver(id);
+    }
+#endif
+}
+
+//-----------------------------------------------------------------------------
+void
+VideoManager::_forceRestartVideo(unsigned id)
+{
+#if !defined(QGC_GST_STREAMING)
+    Q_UNUSED(id);
+    return;
+#else
+    if (qgcApp()->runningUnitTests()) {
+        return;
+    }
+
+    _updateSettings(id);
+    qCDebug(VideoManagerLog) << "[VideoManager]" << "forceRestartVideo"
+            << "id" << id
+            << "uri" << _videoUri[id]
+            << "started" << _videoStarted[id];
+
+    if (_videoUri[id].isEmpty()) {
+        return;
+    }
 
     if (_videoStarted[id]) {
         _stopReceiver(id);

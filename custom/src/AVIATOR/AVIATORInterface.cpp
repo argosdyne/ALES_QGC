@@ -327,8 +327,8 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f1 = channels.chan15_raw == 2000;
     bool f2 = channels.chan14_raw == 2000;
     bool f3 = channels.chan16_raw == 2000;
-    bool capture = channels.chan12_raw == 2000;
-    bool record = channels.chan13_raw == 2000;
+    bool capture = _rcSwitchActive(channels.chan12_raw);
+    bool record = _rcSwitchActive(channels.chan13_raw);
 
 
     // F1 

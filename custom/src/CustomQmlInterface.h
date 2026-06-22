@@ -130,7 +130,9 @@ public:
         CUSTOM_FUNCTION_IR_SWITCH,
         CUSTOM_FUNCTION_GIMBAL_RESET,
         CUSTOM_FUNCTION_AIRCRAFT_RTL,
-        CUSTOM_FUNCTION_START_MISSION
+        CUSTOM_FUNCTION_START_MISSION,
+        CUSTOM_FUNCTION_CAMERA_CAPTURE,
+        CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD
     } CUSTOM_FUNCTION;
     Q_PROPERTY(ARManager* arManager READ arManager CONSTANT)
     Q_PROPERTY(CodevRTCMManager* codevRTCMManager READ codevRTCMManager CONSTANT)
@@ -165,6 +167,8 @@ signals:
     void thermalZoomTigger(bool start);
     void irSwitchTigger(bool start);
     void gimbalResetTigger(bool start);
+    void cameraCapture(bool start);
+    void cameraToggleRecord(bool start);
 
     void defaultFontPixelChanged();    
 
@@ -177,6 +181,7 @@ public slots:
      */
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
     void handleCustomButtonFunction(int type, bool pressed);
+    void handleAviatorButton(int type, bool pressed);
     void showMapUpdateDate();
 
     //GeoAwareness Message Window

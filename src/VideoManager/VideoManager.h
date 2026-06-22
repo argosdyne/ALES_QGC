@@ -108,6 +108,7 @@ public:
 
     Q_INVOKABLE void startVideo     (int id = -1);
     Q_INVOKABLE void stopVideo      (int id = -1);
+    Q_INVOKABLE void restartVideo   (int id = 0);
 
     Q_INVOKABLE void startRecording (const QString& videoFile = QString());
     Q_INVOKABLE void stopRecording  ();
@@ -155,6 +156,7 @@ protected:
     void _cleanupOldVideos          ();
     void _restartAllVideos          ();
     void _restartVideo              (unsigned id);
+    void _forceRestartVideo         (unsigned id);
     void _startReceiver             (unsigned id);
     void _stopReceiver              (unsigned id);
     void _restartFPV                ();

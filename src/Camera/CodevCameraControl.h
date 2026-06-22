@@ -1,10 +1,63 @@
 #pragma once
 
 #include "QGCCameraControl.h"
+#include "QGCMapEngine.h"
 #include <QElapsedTimer>
+#include <QTime>
+#include <QTimer>
 
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraLog)
 Q_DECLARE_LOGGING_CATEGORY(CodevCameraVerboseLog)
+
+class CodevStorageInfo : public QObject
+{
+    Q_OBJECT
+public:
+    CodevStorageInfo(const mavlink_storage_information_t& st, QObject* parent = nullptr)
+        : QObject(parent)
+        , _type(st.type)
+        , _usage(st.storage_usage)
+        , _status(st.status)
+        , _availableCapacity(st.available_capacity)
+        , _name(st.name)
+        , _storageInfo(st)
+    {
+    }
+
+    int type() const { return _type; }
+    int usage() const { return _usage; }
+    int status() const { return _status; }
+    const mavlink_storage_information_t& storageInfo() const { return _storageInfo; }
+
+    QString availableCapacityStr(QGCCameraControl::CameraMode cameraMode) const
+    {
+        if (_type == STORAGE_TYPE_OTHER) {
+            if (cameraMode == QGCCameraControl::CAM_MODE_PHOTO) {
+                return QString("%1 No.").arg(static_cast<quint64>(_availableCapacity), 6, 10, QChar('0'));
+            }
+            return QTime(0, 0).addSecs(static_cast<int>(_availableCapacity)).toString("hh:mm:ss") + QStringLiteral(" Time.");
+        }
+        return QGCMapEngine::storageFreeSizeToString(static_cast<quint64>(_availableCapacity));
+    }
+
+    void update(const mavlink_storage_information_t& st)
+    {
+        _type = st.type;
+        _usage = st.storage_usage;
+        _status = st.status;
+        _availableCapacity = st.available_capacity;
+        _name = st.name;
+        _storageInfo = st;
+    }
+
+private:
+    int _type;
+    int _usage;
+    int _status;
+    float _availableCapacity;
+    QString _name;
+    mavlink_storage_information_t _storageInfo;
+};
 
 //-----------------------------------------------------------------------------
 class CodevCameraControl : public QGCCameraControl
@@ -136,9 +189,12 @@ public:
     }
     void handleTrackingImageStatus(const mavlink_camera_tracking_image_status_t *tis) final;
     void handleRCChannels(const mavlink_rc_channels_t& rc) final;
+    void handleSettings(const mavlink_camera_settings_t& settings) final;
     void handleCommandAck(const mavlink_command_ack_t& ack) final;
     void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
     void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;
+    void handleStorageInfo(const mavlink_storage_information_t& st) final;
+    QString storageFreeStr() override;
     void _localizeFactMetaData(Fact* fact);
 
     // sendMavCommander
@@ -170,8 +226,11 @@ protected slots:
 
 protected:
     void _clearCameraDefinitionState() override;
+    void _setCameraMode(CameraMode mode) override;
 
 private:
+    void _applyStorageForCurrentMode();
+    void _applyStorageInfoToDisplay(const mavlink_storage_information_t& st);
     void _handleThermometryData(QVariant data);
     void _handleNVStatus(QVariant data);
     void _handleDetectObjects(QVariant data);
@@ -201,6 +260,42 @@ protected:
     bool _consumeQueuedCommandAck(int ackCompId, const mavlink_command_ack_t& ack, const char* sourceTag);
     void _logControlState(const char* sourceTag) const;
     QString _factValueForLog(const char* factName) const;
+
+    enum class PendingRcAction {
+        None,
+        TakePhoto,
+        ToggleVideo,
+    };
+
+    void _beginModeSwitch(CameraMode targetMode);
+    void _sendModeSwitchToCamera(CameraMode targetMode);
+    void _forceModeSwitchToCamera(CameraMode targetMode);
+    void _scheduleCoalescedModeSwitch(CameraMode targetMode);
+    void _flushCoalescedModeSwitch();
+    void _armModeSwitchRecovery(CameraMode targetMode);
+    void _disarmModeSwitchRecovery();
+    void _retryModeSwitchRecovery(const char* reason);
+    void _executeModeSwitchNudge(const char* reason);
+    void _onModeSwitchNudgeReturn();
+    void _scheduleVideoPipelineRestart(const char* reason);
+    void _restartVideoPipeline();
+    void _checkModeSwitchRecovery();
+    void _onProactiveModeRetry();
+    void _onVideoDecodingChanged();
+    void _requestAllStoragePools();
+    void _refreshStorageAndCaptureStatus();
+    void _scheduleStorageRefreshAfterModeSwitch();
+    void _stopStorageRefreshAfterModeSwitch();
+    bool _isModeSwitchSettling() const;
+    bool _shouldRejectStaleModeReport(CameraMode reported) const;
+    bool _hasModeStoragePool(CameraMode mode);
+    bool _isCurrentModeStorageReady();
+    void _syncPhotoPoolFromCaptureStatus(float availableCapacity);
+    bool _hasKnownInsufficientPhotoStorage() const;
+    bool _hasKnownInsufficientVideoStorage() const;
+    void _startPendingRcAction(PendingRcAction action);
+    void _cancelPendingRcAction();
+    void _completePendingRcAction();
     MAVLinkProtocol* _pMavlink;
 
     bool _hasTrack{false};
@@ -228,6 +323,33 @@ protected:
     quint16 _lastRcGimbalZoomRaw{1500};
     quint16 _lastRcGimbalCenterRaw{1500};
     bool _lastRcGimbalWasCentered{true};
+
+    bool _modeSwitchPending{false};
+    CameraMode _pendingCameraMode{CAM_MODE_PHOTO};
+    QTimer _modeSwitchTimer;
+    QTimer _modeSwitchCommandTimer;
+    QElapsedTimer _modeSwitchDebounce;
+    QElapsedTimer _modeSwitchGraceTimer;
+    CameraMode _coalescedModeTarget{CAM_MODE_UNDEFINED};
+    CameraMode _userIntentMode{CAM_MODE_UNDEFINED};
+    QElapsedTimer _userIntentTimer;
+
+    PendingRcAction _pendingRcAction{PendingRcAction::None};
+    QTimer _rcActionFallbackTimer;
+    QTimer _storageRefreshTimer;
+    QTimer _modeSwitchRecoveryTimer;
+    QTimer _modeSwitchProactiveRetryTimer;
+    QTimer _modeSwitchNudgeReturnTimer;
+    QTimer _videoPipelineRestartTimer;
+    int _storageRefreshAttempts{0};
+    QmlObjectListModel _storageInfos;
+    CameraMode _modeSwitchRecoveryTarget{CAM_MODE_UNDEFINED};
+    bool _modeSwitchRecoveryActive{false};
+    bool _modeSwitchRecoveryRetried{false};
+    bool _decodingAtRecoveryArm{false};
+    bool _modeSwitchNudgeInProgress{false};
+    bool _decodingDroppedDuringRecovery{false};
+    CameraMode _lastReportedCameraMode{CAM_MODE_UNDEFINED};
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치

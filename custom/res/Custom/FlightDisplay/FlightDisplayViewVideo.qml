@@ -38,11 +38,49 @@ Item {
 
     property double _thermalHeightFactor: 0.85 //-- TODO
 
+    // Keep the GL video surface alive across brief decode gaps (e.g. camera mode switch).
+    property bool _hasDecodedOnce: false
+    property bool _showVideoFrame: false
+
+    Timer {
+        id:             decodingHoldTimer
+        interval:       2500
+        onTriggered: {
+            _showVideoFrame = QGroundControl.videoManager.decoding
+            if (!_showVideoFrame) {
+                _hasDecodedOnce = false
+            }
+        }
+    }
+
+    Connections {
+        target: QGroundControl.videoManager
+        function onDecodingChanged() {
+            if (QGroundControl.videoManager.decoding) {
+                _hasDecodedOnce = true
+                _showVideoFrame = true
+                decodingHoldTimer.stop()
+            } else if (_hasDecodedOnce) {
+                decodingHoldTimer.restart()
+            } else {
+                _showVideoFrame = false
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (QGroundControl.videoManager.decoding) {
+            _hasDecodedOnce = true
+            _showVideoFrame = true
+        }
+    }
+
     Rectangle {
         id:             noVideo
         anchors.fill:   parent
         color:          Qt.rgba(0,0,0,0.75)
-        visible:        !(QGroundControl.videoManager.decoding)
+        z:              2
+        visible:        !_showVideoFrame
         QGCLabel {
             text:               QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
             font.family:        ScreenTools.demiboldFontFamily
@@ -54,7 +92,7 @@ Item {
     Rectangle {
         anchors.fill:   parent
         color:          "black"
-        visible:        QGroundControl.videoManager.decoding
+        z:              1
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -131,7 +169,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            QGroundControl.videoManager.decoding
+            visible:            _showVideoFrame
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource

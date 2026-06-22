@@ -473,8 +473,8 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
     qmlEngine->rootContext()->setContextProperty("CustomQmlInterface", _qmlInterface);
 
     if(_aviatorInterface) {
-        qDebug() << "Connect with handleCustomButtonFunc";
-        //connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleCustomButtonFunction);
+        qDebug() << "Connect with handleAviatorButton";
+        connect(_aviatorInterface, &AVIATORInterface::buttonPressed, _qmlInterface, &CustomQmlInterface::handleAviatorButton);
     }
 
     // Initialize M2 broadcast socket
