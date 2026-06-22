@@ -962,9 +962,7 @@ public class QGCActivity extends QtActivity
     public void onPause() {
         super.onPause();
         saveLastShutdownElapsed();
-
-        // Session Management: App goes to background - lock immediately
-        nativeOnActivityPause();
+        Log.i(TAG, "onPause ignored for session lock; SessionManager locks on Hidden/Suspended");
     }
 
     @Override

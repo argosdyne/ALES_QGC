@@ -50,6 +50,8 @@ SessionManager::SessionManager(QObject *parent)
                 onAppForeground();
                 break;
             case Qt::ApplicationInactive:
+                qInfo() << "[SESSION_TRACE][CPP] ApplicationInactive ignored; waiting for Hidden/Suspended";
+                break;
             case Qt::ApplicationHidden:
             case Qt::ApplicationSuspended:
                 onAppBackground();
