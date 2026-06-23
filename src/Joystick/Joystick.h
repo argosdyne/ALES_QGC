@@ -21,6 +21,8 @@
 #include "MultiVehicleManager.h"
 #include "JoystickMavCommand.h"
 
+class QSettings;
+
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 Q_DECLARE_LOGGING_CATEGORY(JoystickValuesLog)
 Q_DECLARE_METATYPE(GRIPPER_ACTIONS)
@@ -124,6 +126,7 @@ public:
     // Property accessors
 
     QString     name                () { return _name; }
+    bool        calibrated          () const { return _calibrated; }
     int         totalButtonCount    () const{ return _totalButtonCount; }
     int         axisCount           () const{ return _axisCount; }
     QStringList buttonActions       ();
@@ -234,6 +237,9 @@ protected:
     void    _saveSettings           ();
     void    _saveButtonSettings     ();
     void    _loadSettings           ();
+    void    _backupSettingsToFile   ();
+    bool    _restoreSettingsFromFile(QSettings& settings);
+    QString _configBackupFilePath   () const;
     float   _adjustRange            (int value, Calibration_t calibration, bool withDeadbands);
     void    _executeButtonAction    (const QString& action, bool buttonDown);
     int     _findAssignableButtonAction(const QString& action);
@@ -294,6 +300,7 @@ protected:
 
     QString _name;
     bool    _calibrated;
+    bool    _suppressConfigBackup = false;   // Don't overwrite the persistent XML backup with auto-applied defaults
     int     _axisCount;
     int     _buttonCount;
     int     _hatCount;

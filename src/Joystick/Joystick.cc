@@ -16,9 +16,17 @@
 #include "VideoManager.h"
 #include "QGCCameraControl.h"
 #include "GimbalController.h"
+#include "QGCToolbox.h"
+#include "SettingsManager.h"
+#include "AppSettings.h"
 
 #include <QSettings>
 #include <QDateTime>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -209,7 +217,12 @@ void Joystick::_setDefaultCalibration(void) {
     _calibrated         = true;
     _circleCorrection   = false;
 
+    // These are auto-applied defaults (e.g. for recognized game controllers). Persist them
+    // to QSettings but do NOT overwrite the user's persistent XML backup with them, otherwise
+    // a restored configuration could be clobbered on the next startup.
+    _suppressConfigBackup = true;
     _saveSettings();
+    _suppressConfigBackup = false;
 }
 
 void Joystick::_updateTXModeSettingsKey(Vehicle* activeVehicle)
@@ -264,6 +277,20 @@ void Joystick::_loadSettings()
 {
     QSettings settings;
     settings.beginGroup(_settingsGroup);
+
+    // If this joystick has no stored settings on this install (e.g. fresh install or
+    // after the app was reinstalled) but a backup XML exists in the persistent save
+    // folder, restore it into QSettings before loading so the user does not lose
+    // calibration and button assignments. The restore writes through the SAME QSettings
+    // instance used below so the restored values are guaranteed to be visible.
+    settings.beginGroup(_name);
+    const bool hasStoredSettings = settings.contains(_calibratedSettingsKey);
+    settings.endGroup();
+    qCDebug(JoystickLog) << "_loadSettings" << _name << "hasStoredSettings" << hasStoredSettings;
+    if (!hasStoredSettings) {
+        _restoreSettingsFromFile(settings);
+    }
+
     Vehicle* activeVehicle = _multiVehicleManager->activeVehicle();
 
     if(_txModeSettingsKey && activeVehicle)
@@ -425,6 +452,144 @@ void Joystick::_saveSettings()
         qCDebug(JoystickLog) << "_saveSettings name:function:axis" << _name << function << _rgFunctionSettingsKey[function];
     }
     _saveButtonSettings();
+
+    // Mirror the full configuration to a persistent XML backup that survives app reinstall.
+    settings.sync();
+    _backupSettingsToFile();
+}
+
+QString Joystick::_configBackupFilePath() const
+{
+    SettingsManager* settingsManager = qgcApp()->toolbox()->settingsManager();
+    if (!settingsManager || !settingsManager->appSettings()) {
+        return QString();
+    }
+    // Use the same persistent folder the camera definition cache lives in. The user has
+    // verified this folder survives app reinstall (it is not removed with the app data).
+    const QString dir = settingsManager->appSettings()->parameterSavePath();
+    if (dir.isEmpty()) {
+        return QString();
+    }
+
+    QString safeName = _name;
+    for (QChar& ch : safeName) {
+        if (!ch.isLetterOrNumber() && ch != '_' && ch != '-' && ch != '.') {
+            ch = QLatin1Char('_');
+        }
+    }
+    return QDir(dir).filePath(QStringLiteral("Joystick_%1.xml").arg(safeName));
+}
+
+void Joystick::_backupSettingsToFile()
+{
+    if (_suppressConfigBackup) {
+        return;     // Auto-applied defaults must not overwrite a real user backup.
+    }
+
+    const QString filePath = _configBackupFilePath();
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QSettings settings;
+    settings.beginGroup(_settingsGroup);
+    const int txMode = _txModeSettingsKey ? settings.value(_txModeSettingsKey, _transmitterMode).toInt()
+                                          : _transmitterMode;
+    settings.beginGroup(_name);
+    const QStringList keys = settings.allKeys();
+    if (keys.isEmpty()) {
+        return;     // Nothing configured yet; don't create an empty backup.
+    }
+
+    QDir().mkpath(QFileInfo(filePath).absolutePath());
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qCWarning(JoystickLog) << "Joystick config backup: cannot write" << filePath << file.errorString();
+        return;
+    }
+
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    xml.writeStartDocument();
+    xml.writeStartElement(QStringLiteral("JoystickConfig"));
+    xml.writeAttribute(QStringLiteral("name"),        _name);
+    xml.writeAttribute(QStringLiteral("axisCount"),   QString::number(_axisCount));
+    xml.writeAttribute(QStringLiteral("buttonCount"), QString::number(_buttonCount));
+    xml.writeAttribute(QStringLiteral("txMode"),      QString::number(txMode));
+    for (const QString& key : keys) {
+        xml.writeStartElement(QStringLiteral("s"));
+        xml.writeAttribute(QStringLiteral("k"), key);
+        xml.writeAttribute(QStringLiteral("v"), settings.value(key).toString());
+        xml.writeEndElement();
+    }
+    xml.writeEndElement();
+    xml.writeEndDocument();
+    file.close();
+
+    qCDebug(JoystickLog) << "Joystick config backed up to" << filePath;
+}
+
+// Restores a previously backed-up configuration into `settings`, which must be positioned
+// at the top-level joystick settings group (_settingsGroup). Using the caller's QSettings
+// instance guarantees the restored values are immediately visible to the subsequent load.
+bool Joystick::_restoreSettingsFromFile(QSettings& settings)
+{
+    const QString filePath = _configBackupFilePath();
+    if (filePath.isEmpty()) {
+        qCWarning(JoystickLog) << "Joystick config restore: persistent save path not available";
+        return false;
+    }
+    if (!QFile::exists(filePath)) {
+        qCDebug(JoystickLog) << "Joystick config restore: no backup file at" << filePath;
+        return false;
+    }
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCWarning(JoystickLog) << "Joystick config restore: cannot read" << filePath << file.errorString();
+        return false;
+    }
+
+    QMap<QString, QString> values;
+    int  txMode      = -1;
+    bool nameMatched = false;
+
+    QXmlStreamReader xml(&file);
+    while (!xml.atEnd() && !xml.hasError()) {
+        if (xml.readNext() != QXmlStreamReader::StartElement) {
+            continue;
+        }
+        if (xml.name() == QLatin1String("JoystickConfig")) {
+            nameMatched = (xml.attributes().value(QStringLiteral("name")).toString() == _name);
+            txMode      = xml.attributes().value(QStringLiteral("txMode")).toInt();
+        } else if (xml.name() == QLatin1String("s")) {
+            const QString k = xml.attributes().value(QStringLiteral("k")).toString();
+            if (!k.isEmpty()) {
+                values.insert(k, xml.attributes().value(QStringLiteral("v")).toString());
+            }
+        }
+    }
+    file.close();
+
+    if (!nameMatched || values.isEmpty()) {
+        qCWarning(JoystickLog) << "Joystick config restore: backup not applicable" << filePath
+                               << "nameMatched" << nameMatched << "keyCount" << values.count();
+        return false;       // Backup is for a different joystick or is empty/corrupt.
+    }
+
+    // settings is positioned at _settingsGroup.
+    if (_txModeSettingsKey && txMode > 0) {
+        settings.setValue(_txModeSettingsKey, txMode);
+    }
+    settings.beginGroup(_name);
+    for (auto it = values.constBegin(); it != values.constEnd(); ++it) {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+    settings.sync();
+
+    qCDebug(JoystickLog) << "Joystick config restored from" << filePath << "keyCount" << values.count();
+    return true;
 }
 
 // Relative mappings of axis functions between different TX modes
@@ -1047,6 +1212,9 @@ void Joystick::setButtonAction(int button, const QString& action)
         settings.setValue(QString(_buttonActionNameKey).arg(button),   _buttonActionArray[button]->action);
         settings.setValue(QString(_buttonActionRepeatKey).arg(button), _buttonActionArray[button]->repeat);
     }
+    settings.sync();
+    // Mirror to persistent XML backup (button assignments are saved here directly).
+    _backupSettingsToFile();
     emit buttonActionsChanged();
 }
 

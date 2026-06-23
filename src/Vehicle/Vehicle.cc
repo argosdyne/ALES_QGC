@@ -2282,9 +2282,17 @@ void Vehicle::_loadJoystickSettings()
     QSettings settings;
     settings.beginGroup(QString(_settingsGroup).arg(_id));
 
-    if (_toolbox->joystickManager()->activeJoystick()) {
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << settings.value(_joystickEnabledSettingsKey, false).toBool();
-        setJoystickEnabled(settings.value(_joystickEnabledSettingsKey, false).toBool());
+    if (Joystick* activeJoystick = _toolbox->joystickManager()->activeJoystick()) {
+        bool enabled = settings.value(_joystickEnabledSettingsKey, false).toBool();
+        // If there is no stored preference yet (fresh install / after reinstall) but the
+        // active joystick already has a restored calibration, enable input automatically so
+        // the user does not have to re-check "Enable joystick input" after their config was
+        // restored. An explicit later choice (toggling the checkbox) is persisted and wins.
+        if (!settings.contains(_joystickEnabledSettingsKey) && activeJoystick->calibrated()) {
+            enabled = true;
+        }
+        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << enabled;
+        setJoystickEnabled(enabled);
     } else {
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified that there is no active joystick";
         setJoystickEnabled(false);
