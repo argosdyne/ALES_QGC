@@ -204,7 +204,6 @@ signals:
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
     void axisValues                 (float roll, float pitch, float yaw, float throttle);
-    void rcDialValues               (float rc9, float rc10);
     void rcDialAxisChanged          ();
 
     void axisFrequencyHzChanged     ();

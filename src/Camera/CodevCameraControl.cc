@@ -50,6 +50,18 @@ static constexpr uint16_t kRcGimbalDeadzone = 50;
 static constexpr uint16_t kRcGimbalMinValid = 900;
 static constexpr uint16_t kRcGimbalMaxValid = 2100;
 static constexpr uint16_t kRcGimbalChangeThreshold = 20;
+// Hold-to-move deflection from center while a gimbal direction button is held.
+// Larger = faster slew (max usable deflection is kRcGimbalMaxValid - kRcGimbalCenter == 600).
+static constexpr uint16_t kRcGimbalJoystickHoldOffset = 300;
+// Re-send interval for the held joystick gimbal command. Must match the camera's
+// expected refresh cadence so the rate command keeps being applied while held.
+static constexpr int kRcGimbalJoystickStreamIntervalMs = 50;
+// Number of extra "centered" frames sent after release to guarantee the camera stops.
+static constexpr int kRcGimbalJoystickStopFrames = 3;
+// Hold-to-zoom deflection on ch11 while a continuous-zoom button is held.
+static constexpr uint16_t kRcZoomJoystickHoldOffset = 300;
+// Duration a single "Step Zoom" press keeps ch11 deflected before auto-returning to center.
+static constexpr int kRcZoomJoystickStepDurationMs = 150;
 static constexpr qint64 kRcCameraSettingsRequestMinIntervalMs = 1000;
 static constexpr qint64 kRcGimbalCommandMinIntervalMs = 50;
 static constexpr float kRcGimbalMaxPitchRateDegS = 3.0f;
@@ -147,6 +159,15 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     });
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &CodevCameraControl::_handleVehicleMavlinkMessage);
 
+    _joystickRcStreamTimer.setInterval(kRcGimbalJoystickStreamIntervalMs);
+    connect(&_joystickRcStreamTimer, &QTimer::timeout, this, &CodevCameraControl::_streamJoystickRc);
+
+    _joystickZoomStepReturnTimer.setSingleShot(true);
+    _joystickZoomStepReturnTimer.setInterval(kRcZoomJoystickStepDurationMs);
+    connect(&_joystickZoomStepReturnTimer, &QTimer::timeout, this, [this]() {
+        _joystickRcZoomPwm = kRcGimbalCenter;
+        _updateJoystickRcStream();
+    });
 }
 
 bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
@@ -1486,6 +1507,79 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
     }
 }
 
+void CodevCameraControl::_sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15)
+{
+    mavlink_rc_channels_t rc{};
+    auto* rawChannels = reinterpret_cast<uint16_t*>(&rc.chan1_raw);
+    for (int i = 0; i < 18; ++i) {
+        rawChannels[i] = kRcGimbalCenter;
+    }
+    rc.chan9_raw = pitch;
+    rc.chan10_raw = yaw;
+    rc.chan11_raw = zoom;
+    rc.chan15_raw = centerCh15;
+    rc.chancount = 18;
+    rc.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    rc.rssi = 255;
+
+    _joystickRcPitchPwm = pitch;
+    _joystickRcYawPwm = yaw;
+    _joystickRcZoomPwm = zoom;
+
+    _sendR3RcChannels(rc, "joystickRC");
+    if (_isR3CameraModel(modelName())) {
+        _trackRcGimbalChannels(rc);
+    }
+}
+
+void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
+{
+    if (!_vehicle || !_vehicle->px4Firmware() || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    const uint16_t pitchRaw = rc.chan9_raw;
+    const uint16_t yawRaw = rc.chan10_raw;
+    const uint16_t zoomRaw = rc.chan11_raw;
+    const uint16_t centerRaw = rc.chan15_raw;
+    if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
+        return;
+    }
+
+    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
+    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
+    const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
+
+    const bool firstCommand = !_rcGimbalCommandTimer.isValid();
+    if (firstCommand) {
+        _rcGimbalCommandTimer.start();
+    }
+
+    const bool rawChanged =
+            qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
+    const bool centerTransition = centered != _lastRcGimbalWasCentered;
+    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
+    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
+
+    if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
+        return;
+    }
+
+    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
+        return;
+    }
+
+    _lastRcGimbalPitchRaw = pitchRaw;
+    _lastRcGimbalYawRaw = yawRaw;
+    _lastRcGimbalZoomRaw = zoomRaw;
+    _lastRcGimbalCenterRaw = centerRaw;
+    _lastRcGimbalWasCentered = centered;
+    _rcGimbalCommandTimer.restart();
+}
+
 void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
 {
     static uint16_t rc_zoom_value = 0;
@@ -1575,13 +1669,7 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
             << "queueSize" << _mavCommandQueue.count();
 
     _sendR3RcChannels(rc, "aviatorRC-native");
-    _lastRcGimbalPitchRaw = pitchRaw;
-    _lastRcGimbalYawRaw = yawRaw;
-    _lastRcGimbalZoomRaw = zoomRaw;
-    _lastRcGimbalCenterRaw = centerRaw;
-    _lastRcGimbalWasCentered = centered;
-    _rcGimbalCommandTimer.restart();
-
+    _trackRcGimbalChannels(rc);
 }
 
 void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
@@ -1914,6 +2002,136 @@ bool CodevCameraControl::_isTakingPhotoTimelapse()
         return true;
     }
     return false;
+}
+
+void CodevCameraControl::injectRcChannels(const quint16* channels, int count)
+{
+    if (!channels || count <= 0) {
+        return;
+    }
+
+    mavlink_rc_channels_t rc{};
+    const int copyCount = qMin(count, 18);
+    memcpy(&rc.chan1_raw, channels, static_cast<size_t>(copyCount) * sizeof(quint16));
+    auto* rawChannels = reinterpret_cast<uint16_t*>(&rc.chan1_raw);
+    for (int i = copyCount; i < 18; ++i) {
+        rawChannels[i] = kRcGimbalCenter;
+    }
+    rc.chancount = 18;
+    rc.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    rc.rssi = 255;
+
+    _joystickRcPitchPwm = rc.chan9_raw;
+    _joystickRcYawPwm = rc.chan10_raw;
+    _joystickRcZoomPwm = rc.chan11_raw;
+
+    _sendR3RcChannels(rc, "joystickRC");
+    if (_isR3CameraModel(modelName())) {
+        _trackRcGimbalChannels(rc);
+    }
+}
+
+static uint16_t _holdRcPwm(int direction, uint16_t offset = kRcGimbalJoystickHoldOffset)
+{
+    if (direction == 0) {
+        return kRcGimbalCenter;
+    }
+    const int next = static_cast<int>(kRcGimbalCenter)
+            + (direction > 0 ? static_cast<int>(offset) : -static_cast<int>(offset));
+    return static_cast<uint16_t>(qBound(static_cast<int>(kRcGimbalMinValid), next, static_cast<int>(kRcGimbalMaxValid)));
+}
+
+void CodevCameraControl::joystickGimbalPitchStep(int direction)
+{
+    // Hold-to-move: button down sets an absolute (non-accumulating) deflection from
+    // center, button up (direction == 0) returns to center. The deflection is held by
+    // the streaming timer so the camera keeps slewing until release.
+    _joystickRcPitchPwm = _holdRcPwm(direction);
+    _updateJoystickRcStream();
+}
+
+void CodevCameraControl::joystickGimbalYawStep(int direction)
+{
+    _joystickRcYawPwm = _holdRcPwm(direction);
+    _updateJoystickRcStream();
+}
+
+void CodevCameraControl::joystickGimbalCenter()
+{
+    _joystickRcPitchPwm = kRcGimbalCenter;
+    _joystickRcYawPwm = kRcGimbalCenter;
+    _joystickRcStreamTimer.stop();
+    centerGimbal();
+    _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, static_cast<uint16_t>(2000));
+    QTimer::singleShot(150, this, [this]() {
+        _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, kRcGimbalCenter);
+    });
+}
+
+// Continuous zoom (hold-to-zoom): mirrors the gimbal hold model on ch11. Button down
+// sets a fixed ch11 deflection that the streaming timer keeps refreshing, button up
+// returns ch11 to center. Unlike MAV_CMD_SET_CAMERA_ZOOM this is self-correcting: a
+// lost frame is fixed by the next one and release sends repeated center frames, so the
+// camera cannot run away to max zoom.
+void CodevCameraControl::joystickZoomStart(int direction)
+{
+    _joystickZoomStepReturnTimer.stop();
+    _joystickRcZoomPwm = _holdRcPwm(direction, kRcZoomJoystickHoldOffset);
+    _updateJoystickRcStream();
+}
+
+void CodevCameraControl::joystickZoomStop()
+{
+    _joystickZoomStepReturnTimer.stop();
+    _joystickRcZoomPwm = kRcGimbalCenter;
+    _updateJoystickRcStream();
+}
+
+bool CodevCameraControl::_joystickRcActive() const
+{
+    return _joystickRcPitchPwm != kRcGimbalCenter
+            || _joystickRcYawPwm != kRcGimbalCenter
+            || _joystickRcZoomPwm != kRcGimbalCenter;
+}
+
+void CodevCameraControl::_updateJoystickRcStream()
+{
+    // Send immediately for a responsive press/release, then let the timer hold it.
+    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
+
+    if (_joystickRcActive()) {
+        _joystickRcStopFrames = 0;
+    } else {
+        // Released: keep the timer alive for a few frames to guarantee the stop reaches the camera.
+        _joystickRcStopFrames = kRcGimbalJoystickStopFrames;
+    }
+    if (!_joystickRcStreamTimer.isActive()) {
+        _joystickRcStreamTimer.start();
+    }
+}
+
+void CodevCameraControl::_streamJoystickRc()
+{
+    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
+
+    if (_joystickRcActive()) {
+        _joystickRcStopFrames = 0;
+    } else if (--_joystickRcStopFrames <= 0) {
+        _joystickRcStreamTimer.stop();
+    }
+}
+
+void CodevCameraControl::joystickZoomRcStep(int direction)
+{
+    if (direction == 0) {
+        return;
+    }
+
+    // Step Zoom: a single press produces a fixed-duration ch11 pulse from center (non
+    // accumulating), then auto-returns to center so it never lingers in the stream.
+    _joystickRcZoomPwm = _holdRcPwm(direction, kRcZoomJoystickHoldOffset);
+    _updateJoystickRcStream();
+    _joystickZoomStepReturnTimer.start();
 }
 
 void CodevCameraControl::buttonTakePhoto()

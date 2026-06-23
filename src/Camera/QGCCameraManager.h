@@ -22,6 +22,7 @@
 Q_DECLARE_LOGGING_CATEGORY(CameraManagerLog)
 
 class Joystick;
+class CodevCameraControl;
 class QNetworkAccessManager;
 class QTcpServer;
 class QTcpSocket;
@@ -79,8 +80,11 @@ protected slots:
     virtual void    _startVideoRecording    ();
     virtual void    _stopVideoRecording     ();
     virtual void    _toggleVideoRecording   ();
+    virtual void    _joystickGimbalPitchStep(int direction);
+    virtual void    _joystickGimbalYawStep  (int direction);
+    virtual void    _joystickCenterGimbal   ();
 
-protected:
+    CodevCameraControl* _codevCameraInstance();
     virtual QGCCameraControl* _findCamera   (int id);
     virtual void    _requestCameraInfo      (int compID, int tryCount, LinkInterface* link);
     virtual void    _handleHeartbeat        (const mavlink_message_t& message, LinkInterface* link);

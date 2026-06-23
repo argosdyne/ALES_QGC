@@ -14,7 +14,6 @@
 #include "UAS.h"
 #include "QGCApplication.h"
 #include "VideoManager.h"
-#include "QGCCameraManager.h"
 #include "QGCCameraControl.h"
 #include "GimbalController.h"
 
@@ -830,20 +829,6 @@ void Joystick::_handleAxis()
             axis = _rgFunctionAxis[throttleFunction];
             float   throttle = _adjustRange(_rgAxisValues[axis],_rgCalibration[axis], _throttleMode==ThrottleModeDownZero?false:_deadband);
 
-            // Optional aux dials (mapped from gimbal pitch/yaw functions)
-            float   gimbalPitch = std::numeric_limits<float>::quiet_NaN();
-            float   gimbalYaw   = std::numeric_limits<float>::quiet_NaN();
-
-            axis = _rgFunctionAxis[gimbalPitchFunction];
-            if (_validAxis(axis)) {
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
-            }
-
-            axis = _rgFunctionAxis[gimbalYawFunction];
-            if (_validAxis(axis)) {
-                gimbalYaw = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis], _deadband);
-            }
-
             if (_accumulator) {
                 static float throttle_accu = 0.f;
                 throttle_accu += throttle * (40 / 1000.f); //for throttle to change from min to max it will take 1000ms (40ms is a loop time)
@@ -881,7 +866,7 @@ void Joystick::_handleAxis()
             } else {
                 throttle = (throttle + 1.0f) / 2.0f;
             }
-            qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
+            qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle" << name() << roll << -pitch << yaw << throttle;
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
@@ -894,10 +879,9 @@ void Joystick::_handleAxis()
                 }
             }
             emit axisValues(roll, pitch, yaw, throttle);
-            emit rcDialValues(gimbalPitch, gimbalYaw);
 
             uint16_t shortButtons = static_cast<uint16_t>(buttonPressedBits & 0xFFFF);
-            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons, gimbalPitch, gimbalYaw);
+            _activeVehicle->sendJoystickDataThreadSafe(roll, pitch, yaw, throttle, shortButtons);
         }
     }
 }
@@ -911,9 +895,6 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -937,9 +918,6 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             connect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             connect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            connect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            connect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            connect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -961,9 +939,6 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
@@ -1246,13 +1221,14 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionToggleVideoRecord) {
         if (buttonDown) emit toggleVideoRecord();
     } else if(action == _buttonActionGimbalUp) {
-        if (buttonDown) emit gimbalPitchStep(1);
+        // Hold-to-move: press starts the slew, release (direction 0) stops it.
+        emit gimbalPitchStep(buttonDown ? 1 : 0);
     } else if(action == _buttonActionGimbalDown) {
-        if (buttonDown) emit gimbalPitchStep(-1);
+        emit gimbalPitchStep(buttonDown ? -1 : 0);
     } else if(action == _buttonActionGimbalLeft) {
-        if (buttonDown) emit gimbalYawStep(-1);
+        emit gimbalYawStep(buttonDown ? -1 : 0);
     } else if(action == _buttonActionGimbalRight) {
-        if (buttonDown) emit gimbalYawStep(1);
+        emit gimbalYawStep(buttonDown ? 1 : 0);
     } else if(action == _buttonActionGimbalCenter) {
         if (buttonDown) emit centerGimbal();
     } else if(action == _buttonActionGimbalYawLock) {
@@ -1290,7 +1266,7 @@ bool Joystick::_validAxis(int axis) const
     if(axis >= 0 && axis < _axisCount) {
         return true;
     }
-    qCWarning(JoystickLog) << "Invalid axis index" << axis;
+    //qCWarning(JoystickLog) << "Invalid axis index" << axis;
     return false;
 }
 
