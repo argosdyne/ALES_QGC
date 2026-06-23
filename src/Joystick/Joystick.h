@@ -113,6 +113,8 @@ public:
     Q_PROPERTY(float    exponential             READ exponential            WRITE setExponential        NOTIFY exponentialChanged)
     Q_PROPERTY(bool     accumulator             READ accumulator            WRITE setAccumulator        NOTIFY accumulatorChanged)
     Q_PROPERTY(bool     circleCorrection        READ circleCorrection       WRITE setCircleCorrection   NOTIFY circleCorrectionChanged)
+    Q_PROPERTY(int      rc9DialAxis             READ rc9DialAxis            WRITE setRc9DialAxis        NOTIFY rcDialAxisChanged)
+    Q_PROPERTY(int      rc10DialAxis            READ rc10DialAxis           WRITE setRc10DialAxis       NOTIFY rcDialAxisChanged)
 
     Q_INVOKABLE void    setButtonRepeat     (int button, bool repeat);
     Q_INVOKABLE bool    getButtonRepeat     (int button);
@@ -129,6 +131,10 @@ public:
     QmlObjectListModel* assignableActions   () { return &_assignableButtonActions; }
     QStringList assignableActionTitles      () { return _availableActionTitles; }
     QString     disabledActionName          () { return _buttonActionNone; }
+    int rc9DialAxis() const { return _rgFunctionAxis[gimbalPitchFunction]; }
+    int rc10DialAxis() const { return _rgFunctionAxis[gimbalYawFunction]; }
+    void setRc9DialAxis(int axis) { setFunctionAxis(gimbalPitchFunction, axis); }
+    void setRc10DialAxis(int axis) { setFunctionAxis(gimbalYawFunction, axis); }
 
     /// Start the polling thread which will in turn emit joystick signals
     void startPolling(Vehicle* vehicle);
@@ -142,13 +148,13 @@ public:
 
     void stop();
 
-/*
+    /*
     // Joystick index used by sdl library
     // Settable because sdl library remaps indices after certain events
     virtual int index(void) = 0;
     virtual void setIndex(int index) = 0;
 */
-	virtual bool requiresCalibration(void) { return true; }
+    virtual bool requiresCalibration(void) { return true; }
 
     int   throttleMode      ();
     void  setThrottleMode   (int mode);
@@ -198,6 +204,8 @@ signals:
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
     void axisValues                 (float roll, float pitch, float yaw, float throttle);
+    void rcDialValues               (float rc9, float rc10);
+    void rcDialAxisChanged          ();
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
@@ -268,6 +276,10 @@ protected:
     std::atomic<bool> _exitThread{false};    ///< true: signal thread to exit
     bool    _calibrationMode        = false;
     int*    _rgAxisValues           = nullptr;
+    int*    _rgLastAxisValues       = nullptr;
+    int*    _rgAxisNeutralValues    = nullptr;
+    bool*   _rgAxisNeutralInited    = nullptr;
+    qint64* _rgVirtualButtonReleaseMSecs = nullptr;
     Calibration_t* _rgCalibration   = nullptr;
     ThrottleMode_t _throttleMode    = ThrottleModeDownZero;
     bool    _negativeThrust         = false;
@@ -287,6 +299,7 @@ protected:
     int     _buttonCount;
     int     _hatCount;
     int     _hatButtonCount;
+    int     _axisVirtualButtonCount;
     int     _totalButtonCount;
 
     static int          _transmitterMode;
@@ -306,6 +319,15 @@ protected:
     static const float  _maxButtonFrequencyHz;
 
 private:
+    static constexpr int   _axisVirtualButtonStartAxis = 0;   ///< All axes can be mapped as virtual buttons (dials included)
+    static constexpr float _axisVirtualButtonOnThreshold = 0.65f;
+    static constexpr float _axisVirtualButtonOffThreshold = 0.45f;   ///< Hysteresis to avoid chatter
+    static constexpr float _axisVirtualDialOnThreshold = 0.12f;      ///< Position threshold for dial-like axes (centered norm)
+    static constexpr float _axisVirtualDialOffThreshold = 0.06f;     ///< Release threshold for dial-like axes
+    // Lower threshold so short dial movement (without full-range travel) is still detected.
+    static constexpr float _axisVirtualMotionOnThreshold = 0.006f;   ///< Additional delta-based trigger for dial-like axes
+    static constexpr int   _axisVirtualButtonHoldMs = 120;   ///< Keep dial-derived button down long enough for UI/action reliability
+
     static const char*  _rgFunctionSettingsKey[maxFunction];
 
     static const char* _settingsGroup;

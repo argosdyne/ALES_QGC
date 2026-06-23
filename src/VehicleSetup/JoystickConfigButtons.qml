@@ -24,15 +24,37 @@ ColumnLayout {
     width:                  availableWidth
     height:                 (globals.activeVehicle.supportsJSButton ? buttonCol.height : flowColumn.height) + (ScreenTools.defaultFontPixelHeight * 2)
     spacing:                ScreenTools.defaultFontPixelHeight
-    
+    property var hiddenButtonIndices: [17, 18, 19, 20, 23, 24, 25, 26]
+    property var visibleButtonIndices: {
+        const indices = []
+        if (!_activeJoystick) {
+            return indices
+        }
+        const maxButtons = Math.min(_activeJoystick.totalButtonCount, _maxButtons)
+        for (let i = 0; i < maxButtons; i++) {
+            if (hiddenButtonIndices.indexOf(i) === -1) {
+                indices.push(i)
+            }
+        }
+        return indices
+    }
+
     Connections {
         target: _activeJoystick
         onRawButtonPressedChanged: (index, pressed) => {
-            if (buttonActionRepeater.itemAt(index)) {
-                buttonActionRepeater.itemAt(index).pressed = pressed
+            for (let i = 0; i < buttonActionRepeater.count; i++) {
+                const item = buttonActionRepeater.itemAt(i)
+                if (item && item.buttonIndex === index) {
+                    item.pressed = pressed
+                    break
+                }
             }
-            if (jsButtonActionRepeater.itemAt(index)) {
-                jsButtonActionRepeater.itemAt(index).pressed = pressed
+            for (let i = 0; i < jsButtonActionRepeater.count; i++) {
+                const item = jsButtonActionRepeater.itemAt(i)
+                if (item && item.buttonIndex === index) {
+                    item.pressed = pressed
+                    break
+                }
             }
         }
     }
@@ -48,7 +70,7 @@ ColumnLayout {
             wrapMode:               Text.WordWrap
             text:                   qsTr(" Multiple buttons that have the same action must be pressed simultaneously to invoke the action.")
         }
-        
+
         Flow {
             id:                     buttonFlow
             Layout.preferredWidth:  parent.width
@@ -56,9 +78,10 @@ ColumnLayout {
             visible:                !globals.activeVehicle.supportsJSButton
             Repeater {
                 id:             buttonActionRepeater
-                model:          _activeJoystick ? Math.min(_activeJoystick.totalButtonCount, _maxButtons) : []
+                model:          visibleButtonIndices
                 Row {
                     spacing:    ScreenTools.defaultFontPixelWidth
+                    property int buttonIndex: modelData
                     property bool pressed
                     property var  currentAssignableAction: _activeJoystick ? _activeJoystick.assignableActions.get(buttonActionCombo.currentIndex) : null
                     Rectangle {
@@ -140,13 +163,14 @@ ColumnLayout {
         }
         Repeater {
             id:     jsButtonActionRepeater
-            model:  _activeJoystick ? Math.min(_activeJoystick.totalButtonCount, _maxButtons) : 0
+            model:  visibleButtonIndices
 
             Row {
                 spacing: ScreenTools.defaultFontPixelWidth
                 visible: globals.activeVehicle.supportsJSButton
-                property var parameterName: `BTN${index}_FUNCTION`
-                property var parameterShiftName: `BTN${index}_SFUNCTION`
+                property int buttonIndex: modelData
+                property var parameterName: `BTN${modelData}_FUNCTION`
+                property var parameterShiftName: `BTN${modelData}_SFUNCTION`
                 property bool hasFirmwareSupport: controller.parameterExists(-1, parameterName)
 
                 property bool pressed
@@ -270,5 +294,4 @@ ColumnLayout {
         }
     }
 }
-
 
