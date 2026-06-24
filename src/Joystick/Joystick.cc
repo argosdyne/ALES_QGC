@@ -215,7 +215,7 @@ void Joystick::_setDefaultCalibration(void) {
     _buttonFrequencyHz  = _defaultButtonFrequencyHz;
     _throttleMode       = ThrottleModeDownZero;
     _calibrated         = true;
-    _circleCorrection   = false;
+    _circleCorrection   = true;
 
     // These are auto-applied defaults (e.g. for recognized game controllers). Persist them
     // to QSettings but do NOT overwrite the user's persistent XML backup with them, otherwise
