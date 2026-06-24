@@ -4777,11 +4777,28 @@ void Vehicle::_updateGeoFenceActiveState(void)
 void Vehicle::_updateGeoFenceParamsMissing(void)
 {
     bool missing = false;
-    if (_parameterManager) {
-        missing = _parameterManager->missingParameters();
-        if (_geoFenceManager && _geoFenceManager->supported()) {
-            if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-                missing = true;
+    if (_parameterManager && _geoFenceManager && _geoFenceManager->supported()) {
+        if (_parameterManager->parametersReady()) {
+            static const char* kRequiredApmFenceParams[] = {
+                "FENCE_ENABLE",
+                "FENCE_TYPE",
+            };
+            static const char* kRequiredPx4FenceParams[] = {
+                "GF_MAX_HOR_DIST",
+                "GF_MAX_VER_DIST",
+            };
+
+            const char* const* requiredParams = px4Firmware() ? kRequiredPx4FenceParams : kRequiredApmFenceParams;
+            const size_t requiredParamCount = px4Firmware()
+                ? (sizeof(kRequiredPx4FenceParams) / sizeof(kRequiredPx4FenceParams[0]))
+                : (sizeof(kRequiredApmFenceParams) / sizeof(kRequiredApmFenceParams[0]));
+
+            for (size_t i = 0; i < requiredParamCount; ++i) {
+                const char* paramName = requiredParams[i];
+                if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, paramName)) {
+                    missing = true;
+                    break;
+                }
             }
         }
     }
