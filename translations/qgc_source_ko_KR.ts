@@ -21235,6 +21235,11 @@ Confirm change?</source>
         <translation>마운트 포인트:</translation>
     </message>
 <message>
+        <location filename="../custom/src/RTCM/NTRIPClient.qml" line="135"/>
+        <source>Enter Mountpoint Manually</source>
+        <translation>마운트 포인트 수동 입력</translation>
+    </message>
+<message>
         <location filename="../custom/src/RTCM/NTRIPClient.qml" line="78"/>
         <source>User:</source>
         <translation>사용자:</translation>
