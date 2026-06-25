@@ -85,6 +85,9 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &QGCCameraManager::_mavlinkMessageReceived);
     connect(&_cameraTimer, &QTimer::timeout, this, &QGCCameraManager::_cameraTimeout);
     _cameraTimer.setSingleShot(false);
+    connect(&_gimbalHoldTimer, &QTimer::timeout, this, &QGCCameraManager::_gimbalHoldTimerTick);
+    _gimbalHoldTimer.setSingleShot(false);
+    _gimbalHoldTimer.setInterval(100);  // 10 Hz continuous gimbal stepping while a direction is held
     _lastZoomChange.start();
     _lastCameraChange.start();
     _cameraTimer.start(500);
@@ -1097,12 +1100,19 @@ QGCCameraManager::_joystickGimbalPitchStep(int direction)
         return;
     }
 
-    // GimbalController uses discrete position steps (no hold model); ignore the release event.
-    if (direction == 0) {
-        return;
-    }
-    if (GimbalController* gimbal = _vehicle->gimbalController()) {
-        gimbal->gimbalPitchStep(direction);
+    // GimbalController has no native hold model: emulate hold-to-move so the gimbal keeps
+    // moving while the button is held (direction != 0) and stops on release (direction == 0),
+    // without requiring the user to enable "Repeat".
+    _gimbalHoldPitchDir = direction;
+    if (direction != 0) {
+        if (GimbalController* gimbal = _vehicle->gimbalController()) {
+            gimbal->gimbalPitchStep(direction);     // immediate first step on press
+        }
+        if (!_gimbalHoldTimer.isActive()) {
+            _gimbalHoldTimer.start();
+        }
+    } else if (_gimbalHoldYawDir == 0) {
+        _gimbalHoldTimer.stop();
     }
 }
 
@@ -1114,18 +1124,44 @@ QGCCameraManager::_joystickGimbalYawStep(int direction)
         return;
     }
 
-    // GimbalController uses discrete position steps (no hold model); ignore the release event.
-    if (direction == 0) {
+    // See _joystickGimbalPitchStep: emulate hold-to-move for the GimbalController path.
+    _gimbalHoldYawDir = direction;
+    if (direction != 0) {
+        if (GimbalController* gimbal = _vehicle->gimbalController()) {
+            gimbal->gimbalYawStep(direction);       // immediate first step on press
+        }
+        if (!_gimbalHoldTimer.isActive()) {
+            _gimbalHoldTimer.start();
+        }
+    } else if (_gimbalHoldPitchDir == 0) {
+        _gimbalHoldTimer.stop();
+    }
+}
+
+void
+QGCCameraManager::_gimbalHoldTimerTick()
+{
+    GimbalController* gimbal = _vehicle ? _vehicle->gimbalController() : nullptr;
+    if (!gimbal || (_gimbalHoldPitchDir == 0 && _gimbalHoldYawDir == 0)) {
+        _gimbalHoldTimer.stop();
         return;
     }
-    if (GimbalController* gimbal = _vehicle->gimbalController()) {
-        gimbal->gimbalYawStep(direction);
+    if (_gimbalHoldPitchDir != 0) {
+        gimbal->gimbalPitchStep(_gimbalHoldPitchDir);
+    }
+    if (_gimbalHoldYawDir != 0) {
+        gimbal->gimbalYawStep(_gimbalHoldYawDir);
     }
 }
 
 void
 QGCCameraManager::_joystickCenterGimbal()
 {
+    // Cancel any in-progress hold-to-move before recentering.
+    _gimbalHoldPitchDir = 0;
+    _gimbalHoldYawDir   = 0;
+    _gimbalHoldTimer.stop();
+
     if (CodevCameraControl* codev = _codevCameraInstance()) {
         codev->joystickGimbalCenter();
         return;

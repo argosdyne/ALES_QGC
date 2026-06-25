@@ -24,7 +24,7 @@ ColumnLayout {
     width:                  availableWidth
     height:                 (globals.activeVehicle.supportsJSButton ? buttonCol.height : flowColumn.height) + (ScreenTools.defaultFontPixelHeight * 2)
     spacing:                ScreenTools.defaultFontPixelHeight
-    property var hiddenButtonIndices: [17, 18, 19, 20, 23, 24, 25, 26]
+    property var hiddenButtonIndices: []
     property var visibleButtonIndices: {
         const indices = []
         if (!_activeJoystick) {

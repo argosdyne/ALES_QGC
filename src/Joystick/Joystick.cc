@@ -516,7 +516,14 @@ void Joystick::_backupSettingsToFile()
     xml.writeAttribute(QStringLiteral("axisCount"),   QString::number(_axisCount));
     xml.writeAttribute(QStringLiteral("buttonCount"), QString::number(_buttonCount));
     xml.writeAttribute(QStringLiteral("txMode"),      QString::number(txMode));
+    // Back up calibration only. Button assignments (ButtonActionName%1 / ButtonActionRepeat%1)
+    // are intentionally NOT persisted, so a restore never carries over button mappings.
+    const QString buttonNamePrefix   = QString(_buttonActionNameKey).remove(QStringLiteral("%1"));
+    const QString buttonRepeatPrefix = QString(_buttonActionRepeatKey).remove(QStringLiteral("%1"));
     for (const QString& key : keys) {
+        if (key.startsWith(buttonNamePrefix) || key.startsWith(buttonRepeatPrefix)) {
+            continue;
+        }
         xml.writeStartElement(QStringLiteral("s"));
         xml.writeAttribute(QStringLiteral("k"), key);
         xml.writeAttribute(QStringLiteral("v"), settings.value(key).toString());
@@ -564,7 +571,11 @@ bool Joystick::_restoreSettingsFromFile(QSettings& settings)
             txMode      = xml.attributes().value(QStringLiteral("txMode")).toInt();
         } else if (xml.name() == QLatin1String("s")) {
             const QString k = xml.attributes().value(QStringLiteral("k")).toString();
-            if (!k.isEmpty()) {
+            // Ignore button assignments that may exist in older backup files — calibration only.
+            const bool isButtonAssignment =
+                k.startsWith(QString(_buttonActionNameKey).remove(QStringLiteral("%1"))) ||
+                k.startsWith(QString(_buttonActionRepeatKey).remove(QStringLiteral("%1")));
+            if (!k.isEmpty() && !isButtonAssignment) {
                 values.insert(k, xml.attributes().value(QStringLiteral("v")).toString());
             }
         }
@@ -907,6 +918,13 @@ void Joystick::_handleButtons()
     //-- Process button press/release
     for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
         if(_rgButtonValues[buttonIndex] == BUTTON_DOWN || _rgButtonValues[buttonIndex] == BUTTON_REPEAT) {
+            // TEMP DIAGNOSTIC (remove after): log once per press to diagnose buttons 0/1.
+            if (_rgButtonValues[buttonIndex] == BUTTON_DOWN) {
+                qWarning() << "JSBTN_DIAG down idx=" << buttonIndex
+                           << "hasAction=" << (_buttonActionArray[buttonIndex] != nullptr)
+                           << "action=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->action : QString())
+                           << "repeat=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->repeat : false);
+            }
             if(_buttonActionArray[buttonIndex]) {
                 QString buttonAction = _buttonActionArray[buttonIndex]->action;
                 if(buttonAction.isEmpty() || buttonAction == _buttonActionNone)
@@ -1353,6 +1371,10 @@ void Joystick::setCalibrationMode(bool calibrating)
 
 void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
 {
+    // TEMP DIAGNOSTIC (remove after): surfaces which action reached here and the gating state.
+    qWarning() << "JSBTN_DIAG execute action=" << action << "down=" << buttonDown
+               << "vehicle=" << (_activeVehicle != nullptr)
+               << "jsEnabled=" << (_activeVehicle ? _activeVehicle->joystickEnabled() : false);
     if (!_activeVehicle || !_activeVehicle->joystickEnabled() || action == _buttonActionNone) {
         return;
     }

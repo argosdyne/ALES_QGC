@@ -232,7 +232,7 @@ Item {
                     width:              ScreenTools.defaultFontPixelWidth * 30
                     spacing:            -1
                     anchors.centerIn:   parent
-                    property var hiddenButtonIndices: [17, 18, 19, 20, 23, 24, 25, 26]
+                    property var hiddenButtonIndices: []
                     function isHiddenButton(buttonIndex) {
                         return hiddenButtonIndices.indexOf(Number(buttonIndex)) !== -1
                     }

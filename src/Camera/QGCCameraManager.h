@@ -83,6 +83,7 @@ protected slots:
     virtual void    _joystickGimbalPitchStep(int direction);
     virtual void    _joystickGimbalYawStep  (int direction);
     virtual void    _joystickCenterGimbal   ();
+    virtual void    _gimbalHoldTimerTick    ();
 
     CodevCameraControl* _codevCameraInstance();
     virtual QGCCameraControl* _findCamera   (int id);
@@ -135,6 +136,11 @@ protected:
     QElapsedTimer       _lastZoomChange;
     QElapsedTimer       _lastCameraChange;
     QTimer              _cameraTimer;
+    // Emulates hold-to-move for the GimbalController fallback path (no native hold model):
+    // keep stepping while a direction is held, stop on release.
+    QTimer              _gimbalHoldTimer;
+    int                 _gimbalHoldPitchDir = 0;
+    int                 _gimbalHoldYawDir   = 0;
     QMap<QString, CameraStruct*> _cameraInfoRequest;
     QTcpServer*         _cameraDefinitionHttpServer = nullptr;
     QNetworkAccessManager* _cameraDefinitionNetworkManager = nullptr;
