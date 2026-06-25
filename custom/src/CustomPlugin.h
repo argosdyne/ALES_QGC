@@ -127,6 +127,7 @@ public slots:
 private slots:
     void _advancedChanged(bool advanced);
     void _handleRCChannelValues(const quint16* channels, int count);
+    void _microhardActiveChanged();
 
 
 private:
@@ -160,6 +161,7 @@ private:
 
     CustomOptions*  _options = nullptr;
     QVariantList    _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation
+    bool            _settingsMicrohardActive = false; // Hides the Enpulse/DoodleLab tab while Microhard is detected
 
     CustomQmlInterface* _qmlInterface{nullptr};
     AVIATORInterface* _aviatorInterface{nullptr};

@@ -10762,6 +10762,125 @@ Click Ok to start the auto-tuning process.
       <source>Apply</source>
       <translation>적용</translation>
     </message>
+    <message>
+      <source>Connection</source>
+      <translation>연결</translation>
+    </message>
+    <message>
+      <source>Radio Metrics</source>
+      <translation>무선 링크 정보</translation>
+    </message>
+    <message>
+      <source>Diagnostics</source>
+      <translation>진단</translation>
+    </message>
+    <message>
+      <source>Frequency:</source>
+      <translation>주파수:</translation>
+    </message>
+    <message>
+      <source>Ground RSSI:</source>
+      <translation>지상 RSSI:</translation>
+    </message>
+    <message>
+      <source>Sky RSSI:</source>
+      <translation>비행체 RSSI:</translation>
+    </message>
+    <message>
+      <source>SNR:</source>
+      <translation>SNR:</translation>
+    </message>
+    <message>
+      <source>TX/RX Throughput:</source>
+      <translation>TX/RX 처리량:</translation>
+    </message>
+    <message>
+      <source>TX/RX Bytes:</source>
+      <translation>TX/RX 바이트:</translation>
+    </message>
+    <message>
+      <source>Master Packets:</source>
+      <translation>마스터 패킷:</translation>
+    </message>
+    <message>
+      <source>Slave Packets:</source>
+      <translation>슬레이브 패킷:</translation>
+    </message>
+    <message>
+      <source>Last Source:</source>
+      <translation>최근 수신 소스:</translation>
+    </message>
+    <message>
+      <source>Sources:</source>
+      <translation>수신 소스:</translation>
+    </message>
+    <message>
+      <source>Hide Raw Stats</source>
+      <translation>원시 통계 숨기기</translation>
+    </message>
+    <message>
+      <source>N/A</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <source>Legacy TCP Settings</source>
+      <translation>기존 TCP 설정</translation>
+    </message>
+    <message>
+      <source>Temperature:</source>
+      <translation>온도:</translation>
+    </message>
+    <message>
+      <source>Version:</source>
+      <translation>버전:</translation>
+    </message>
+  </context>
+  <context>
+    <name>MicrohardLinkIndicator</name>
+    <message>
+      <source>Link RSSI Status</source>
+      <translation>링크 RSSI 상태</translation>
+    </message>
+    <message>
+      <source>No Microhard link detected</source>
+      <translation>Microhard 링크가 감지되지 않음</translation>
+    </message>
+    <message>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <source>Sky RSSI:</source>
+      <translation>비행체 RSSI:</translation>
+    </message>
+    <message>
+      <source>SNR:</source>
+      <translation>SNR:</translation>
+    </message>
+    <message>
+      <source>Frequency:</source>
+      <translation>주파수:</translation>
+    </message>
+    <message>
+      <source>Main Link:</source>
+      <translation>주 링크:</translation>
+    </message>
+    <message>
+      <source>Temperature:</source>
+      <translation>온도:</translation>
+    </message>
+    <message>
+      <source>Version:</source>
+      <translation>버전:</translation>
+    </message>
+    <message>
+      <source>N/A</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <source>Waiting for Microhard stats on UDP 20202/20203</source>
+      <translation>UDP 20202/20203에서 Microhard 통계 대기 중</translation>
+    </message>
   </context>
   <context>
     <name>MissionCommandDialog</name>

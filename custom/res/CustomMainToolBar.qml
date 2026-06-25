@@ -35,7 +35,7 @@ Rectangle {
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property color  _mainStatusBGColor: qgcPal.brandingPurple
-    property bool   _microhardEnabled:  QGroundControl.settingsManager.appSettings.enableMicrohard.rawValue
+    property bool   _microhardEnabled:  QGroundControl.microhardManager && QGroundControl.microhardManager.statsConnected
     property real   _rightLinkIndicatorWidth: Math.max(arLinkIndicator.item ? arLinkIndicator.item.width : 0,
                                                        microhardLinkIndicator.item ? microhardLinkIndicator.item.width : 0)
 

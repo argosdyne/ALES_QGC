@@ -37,7 +37,9 @@ Rectangle {
     property real _valueWidth:                  ScreenTools.defaultFontPixelWidth * 20
     property real _panelWidth:                  _root.width * _internalWidthRatio
     property Fact _microhardEnabledFact:        QGroundControl.settingsManager.appSettings.enableMicrohard
-    property bool _microhardEnabled:            _microhardEnabledFact ? _microhardEnabledFact.rawValue : false
+    //-- Auto-detect: the page populates whenever Microhard stats are arriving, no
+    //   manual "Enable Microhard" toggle required.
+    property bool _microhardEnabled:            QGroundControl.microhardManager.statsConnected
     property bool _showAdvancedTcpSettings:     false
     property bool _showRawStats:                false
 
@@ -54,37 +56,17 @@ Rectangle {
                 spacing:            ScreenTools.defaultFontPixelHeight * 0.5
                 anchors.margins:    ScreenTools.defaultFontPixelWidth
                 //-----------------------------------------------------------------
-                //-- General
+                //-- Placeholder when no Microhard link is detected
                 Item {
                     width:                      _panelWidth
-                    height:                     generalLabel.height
-                    anchors.margins:            ScreenTools.defaultFontPixelWidth
+                    height:                     noLinkLabel.height + (ScreenTools.defaultFontPixelHeight * 2)
+                    visible:                    !_microhardEnabled
                     anchors.horizontalCenter:   parent.horizontalCenter
                     QGCLabel {
-                        id:             generalLabel
-                        text:           qsTr("General")
-                        font.family:    ScreenTools.demiboldFontFamily
-                    }
-                }
-                Rectangle {
-                    height:                     generalRow.height + (ScreenTools.defaultFontPixelHeight * 2)
-                    width:                      _panelWidth
-                    color:                      qgcPal.windowShade
-                    anchors.margins:            ScreenTools.defaultFontPixelWidth
-                    anchors.horizontalCenter:   parent.horizontalCenter
-                    Row {
-                        id:                 generalRow
-                        spacing:            ScreenTools.defaultFontPixelWidth * 4
-                        anchors.centerIn:   parent
-                        Column {
-                            spacing:        ScreenTools.defaultFontPixelWidth
-                            FactCheckBox {
-                                text:       qsTr("Enable Microhard")
-                                fact:       _microhardEnabledFact
-                                enabled:    true
-                                visible:    _microhardEnabledFact ? _microhardEnabledFact.visible : false
-                            }
-                        }
+                        id:                     noLinkLabel
+                        anchors.centerIn:       parent
+                        text:                   qsTr("No Microhard link detected")
+                        color:                  qgcPal.text
                     }
                 }
                 //-----------------------------------------------------------------
@@ -138,19 +120,6 @@ Rectangle {
                                 text:           QGroundControl.microhardManager.statsConnected ? qsTr("Connected") : qsTr("Not Connected")
                                 color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
                             }
-                            QGCLabel {
-                                text:           qsTr("Stats Stream:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.statsConnected ? qsTr("Receiving UDP 20202/20203") : qsTr("No UDP packets on 20202/20203")
-                                color:          QGroundControl.microhardManager.statsConnected ? qgcPal.colorGreen : qgcPal.colorRed
-                            }
-                            QGCLabel {
-                                text:           qsTr("Packets:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.statsPacketCount
-                            }
                         }
 
                         Rectangle {
@@ -196,18 +165,6 @@ Rectangle {
                                 text:           QGroundControl.microhardManager.frequency !== "--" ? QGroundControl.microhardManager.frequency : qsTr("N/A")
                             }
                             QGCLabel {
-                                text:           qsTr("TX Rate:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.txRate !== "--" ? QGroundControl.microhardManager.txRate : qsTr("N/A")
-                            }
-                            QGCLabel {
-                                text:           qsTr("RX Rate:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.rxRate !== "--" ? QGroundControl.microhardManager.rxRate : qsTr("N/A")
-                            }
-                            QGCLabel {
                                 text:           qsTr("TX/RX Throughput:")
                             }
                             QGCLabel {
@@ -222,24 +179,6 @@ Rectangle {
                                 text:           (QGroundControl.microhardManager.txBytes !== "--" || QGroundControl.microhardManager.rxBytes !== "--")
                                                     ? QGroundControl.microhardManager.txBytes + " / " + QGroundControl.microhardManager.rxBytes
                                                     : qsTr("N/A")
-                            }
-                            QGCLabel {
-                                text:           qsTr("Queue Length:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.queueLength !== "--" ? QGroundControl.microhardManager.queueLength : qsTr("N/A")
-                            }
-                            QGCLabel {
-                                text:           qsTr("Temperature:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.temperature !== "--" ? QGroundControl.microhardManager.temperature : qsTr("N/A")
-                            }
-                            QGCLabel {
-                                text:           qsTr("Version:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.version !== "--" ? QGroundControl.microhardManager.version : qsTr("N/A")
                             }
                         }
 
@@ -287,12 +226,6 @@ Rectangle {
                                 text:           QGroundControl.microhardManager.statsSources
                                 Layout.fillWidth: true
                                 wrapMode:       Text.WordWrap
-                            }
-                            QGCLabel {
-                                text:           qsTr("Last Mode:")
-                            }
-                            QGCLabel {
-                                text:           QGroundControl.microhardManager.statsLastMode
                             }
                         }
 

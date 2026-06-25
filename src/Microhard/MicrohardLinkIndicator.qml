@@ -18,7 +18,8 @@ Item {
 
     property var  microhardManager:     QGroundControl.microhardManager
     property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
-    property bool _enabled:             QGroundControl.settingsManager.appSettings.enableMicrohard.rawValue
+    //-- Auto-detect: show whenever Microhard stats are arriving (no manual toggle).
+    property bool _enabled:             microhardManager.statsConnected
     property bool _connected:           _enabled && (microhardManager.statsConnected || microhardManager.connected === 1 || microhardManager.linkConnected === 1)
     property bool showIndicator:        _enabled
 
@@ -107,21 +108,6 @@ Item {
                     QGCLabel { text: qsTr("SNR:") }
                     QGCLabel { text: _formatValue(microhardManager.snr, " dB") }
 
-                    QGCLabel { text: qsTr("TX Rate:") }
-                    QGCLabel { text: _formatValue(microhardManager.txRate, "") }
-
-                    QGCLabel { text: qsTr("RX Rate:") }
-                    QGCLabel { text: _formatValue(microhardManager.rxRate, "") }
-
-                    QGCLabel { text: qsTr("TX/RX Throughput:") }
-                    QGCLabel { text: _formatValue(microhardManager.txThroughput, "") + " / " + _formatValue(microhardManager.rxThroughput, "") }
-
-                    QGCLabel { text: qsTr("TX/RX Bytes:") }
-                    QGCLabel { text: _formatValue(microhardManager.txBytes, "") + " / " + _formatValue(microhardManager.rxBytes, "") }
-
-                    QGCLabel { text: qsTr("Queue Length:") }
-                    QGCLabel { text: _formatValue(microhardManager.queueLength, "") }
-
                     QGCLabel {
                         text:       qsTr("Frequency:")
                         visible:    microhardManager.frequency !== "--"
@@ -160,16 +146,6 @@ Item {
                     anchors.horizontalCenter:   parent.horizontalCenter
                 }
 
-                QGCButton {
-                    text:                       qsTr("Start Pair")
-                    visible:                    QGroundControl.pairingManager && QGroundControl.pairingManager.microhardIndex >= 0
-                    width:                      ScreenTools.defaultFontPixelWidth * 15
-                    anchors.horizontalCenter:   parent.horizontalCenter
-                    onClicked: {
-                        mainWindow.hideIndicatorPopup()
-                        QGroundControl.pairingManager.startMicrohardPairing()
-                    }
-                }
             }
         }
     }

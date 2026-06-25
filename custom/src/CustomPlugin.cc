@@ -31,6 +31,7 @@
 
 #include "M2Manager.h"
 #include "RajantManager.h"
+#include "MicrohardManager.h"
 #include "QGroundControlQmlGlobal.h"
 #include <QFile>
 #include <QNetworkInterface>
@@ -142,6 +143,14 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
 
+#if defined(QGC_GST_MICROHARD_ENABLED)
+    // Refresh the settings tabs when a Microhard link is detected/lost so the
+    // Enpulse/DoodleLab tab is swapped out for Microhard automatically.
+    if (MicrohardManager* mhMgr = toolbox->microhardManager()) {
+        connect(mhMgr, &MicrohardManager::statsChanged, this, &CustomPlugin::_microhardActiveChanged);
+    }
+#endif
+
     _aviatorInterface = new AVIATORInterface();
     qInfo() << "_aviatorInterface = new AVIATORInterface();";
 #if defined (Q_OS_ANDROID)
@@ -162,6 +171,30 @@ void CustomPlugin::_advancedChanged(bool changed)
 {
     // Firmware Upgrade page is only show in Advanced mode
     emit _options->showFirmwareUpgradeChanged(changed);
+}
+
+//-----------------------------------------------------------------------------
+void CustomPlugin::_microhardActiveChanged()
+{
+#if defined(QGC_GST_MICROHARD_ENABLED)
+    MicrohardManager* mhMgr = qgcApp()->toolbox()->microhardManager();
+    const bool active = mhMgr && mhMgr->statsConnected();
+    if (active == _settingsMicrohardActive) {
+        return;
+    }
+    _settingsMicrohardActive = active;
+    //-- Rebuild the settings tabs so the Enpulse/DoodleLab tab is dropped while a
+    //   Microhard link is detected (and comes back when it drops).
+    if (!_customSettingsList.isEmpty()) {
+        for (QVariant& entry : _customSettingsList) {
+            if (QObject* obj = entry.value<QmlComponentInfo*>()) {
+                obj->deleteLater();
+            }
+        }
+        _customSettingsList.clear();
+        emit settingsPagesChanged();
+    }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +223,8 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
 #if defined(QGC_GST_MICROHARD_ENABLED)
         _addSettingsEntry(tr("Microhard"), "qrc:/qml/MicrohardSettings.qml");
+        MicrohardManager* mhMgr = qgcApp()->toolbox()->microhardManager();
+        _settingsMicrohardActive = mhMgr && mhMgr->statsConnected();
 #endif
 
         if(_m2Manager != nullptr) {
@@ -201,11 +236,12 @@ CustomPlugin::settingsPages()
                 && _qmlInterface->arManager()->usingDoodleApi();
 
             qInfo() << "M2Manager is null, isDoodle:" << isDoodle;
-            // Show Rajant settings if available, otherwise Enpulse/DoodleLab
+            // Show Rajant settings if available, otherwise Enpulse/DoodleLab.
+            // Hide Enpulse/DoodleLab while a Microhard link is detected.
             if (_rajantManager != nullptr) {
                 _addSettingsEntry(tr("Rajant"), "qrc:/qml/RajantSettings.qml");
             }
-            else {
+            else if (!_settingsMicrohardActive) {
                 _addSettingsEntry(isDoodle ? tr("DoodleLab") : tr("Enpulse"), "qrc:/qml/ARSettings.qml");
             }
         }

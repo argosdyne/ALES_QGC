@@ -400,8 +400,10 @@ void
 MicrohardManager::_setEnabled()
 {
     bool enable = _appSettings->enableMicrohard()->rawValue().toBool();
+    //-- Always listen on the stats UDP ports so a Microhard link is auto-detected
+    //   even before the user ticks "Enable Microhard".
+    _startStatsSocket();
     if(enable) {
-        _startStatsSocket();
         if(!_mhSettingsLoc) {
             _mhSettingsLoc = new MicrohardSettings(localIPAddr(), this, true);
             connect(_mhSettingsLoc, &MicrohardSettings::connected,      this, &MicrohardManager::_connectedLoc);
@@ -414,8 +416,29 @@ MicrohardManager::_setEnabled()
         }
         _workTimer.start(SHORT_TIMEOUT);
     } else {
-        //-- Stop everything
-        _close();
+        //-- Stop the active TCP probing but keep passively listening for stats so
+        //   the link can still be auto-detected.
+        _workTimer.stop();
+        _locTimer.stop();
+        _remTimer.stop();
+        if(_mhSettingsLoc) {
+            _mhSettingsLoc->close();
+            _mhSettingsLoc->deleteLater();
+            _mhSettingsLoc = nullptr;
+        }
+        if(_mhSettingsRem) {
+            _mhSettingsRem->close();
+            _mhSettingsRem->deleteLater();
+            _mhSettingsRem = nullptr;
+        }
+        if(_connectedStatus != 0) {
+            _connectedStatus = 0;
+            emit connectedChanged();
+        }
+        if(_linkConnectedStatus != 0) {
+            _linkConnectedStatus = 0;
+            emit linkConnectedChanged();
+        }
     }
     _enabled = enable;
 }

@@ -9955,95 +9955,214 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="63"/>
       <source>General</source>
-      <translation type="unfinished">General</translation>
+      <translation>일반</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="80"/>
       <source>Enable Microhard</source>
-      <translation type="unfinished">Enable Microhard</translation>
+      <translation>Microhard 사용</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="98"/>
       <source>Connection Status</source>
-      <translation type="unfinished">Connection Status</translation>
+      <translation>연결 상태</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="120"/>
       <source>Ground Unit:</source>
-      <translation type="unfinished">Ground Unit:</translation>
+      <translation>지상 유닛:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="126"/>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="142"/>
       <source>Connected</source>
-      <translation type="unfinished">Connected</translation>
+      <translation>연결됨</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="128"/>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="144"/>
       <source>Login Error</source>
-      <translation type="unfinished">Login Error</translation>
+      <translation>로그인 오류</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="130"/>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="146"/>
       <source>Not Connected</source>
-      <translation type="unfinished">Not Connected</translation>
+      <translation>연결되지 않음</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="137"/>
       <source>Air Unit:</source>
-      <translation type="unfinished">Air Unit:</translation>
+      <translation>비행 유닛:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="152"/>
       <source>Uplink RSSI:</source>
-      <translation type="unfinished">Uplink RSSI:</translation>
+      <translation>업링크 RSSI:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="158"/>
       <source>Downlink RSSI:</source>
-      <translation type="unfinished">Downlink RSSI:</translation>
+      <translation>다운링크 RSSI:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="176"/>
       <source>Network Settings</source>
-      <translation type="unfinished">Network Settings</translation>
+      <translation>네트워크 설정</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="198"/>
       <source>Local IP Address:</source>
-      <translation type="unfinished">Local IP Address:</translation>
+      <translation>로컬 IP 주소:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="209"/>
       <source>Remote IP Address:</source>
-      <translation type="unfinished">Remote IP Address:</translation>
+      <translation>원격 IP 주소:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="219"/>
       <source>Network Mask:</source>
-      <translation type="unfinished">Network Mask:</translation>
+      <translation>네트워크 마스크:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="229"/>
       <source>Configuration User Name:</source>
-      <translation type="unfinished">Configuration User Name:</translation>
+      <translation>설정 사용자 이름:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="238"/>
       <source>Configuration Password:</source>
-      <translation type="unfinished">Configuration Password:</translation>
+      <translation>설정 비밀번호:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="248"/>
       <source>Encryption key:</source>
-      <translation type="unfinished">Encryption key:</translation>
+      <translation>암호화 키:</translation>
     </message>
     <message>
       <location filename="../src/Microhard/MicrohardSettings.qml" line="282"/>
       <source>Apply</source>
-      <translation type="unfinished">Apply</translation>
+      <translation>적용</translation>
+    </message>
+    <message>
+      <source>Connection</source>
+      <translation>연결</translation>
+    </message>
+    <message>
+      <source>Radio Metrics</source>
+      <translation>무선 링크 정보</translation>
+    </message>
+    <message>
+      <source>Diagnostics</source>
+      <translation>진단</translation>
+    </message>
+    <message>
+      <source>Frequency:</source>
+      <translation>주파수:</translation>
+    </message>
+    <message>
+      <source>Ground RSSI:</source>
+      <translation>지상 RSSI:</translation>
+    </message>
+    <message>
+      <source>Sky RSSI:</source>
+      <translation>비행체 RSSI:</translation>
+    </message>
+    <message>
+      <source>SNR:</source>
+      <translation>SNR:</translation>
+    </message>
+    <message>
+      <source>TX/RX Throughput:</source>
+      <translation>TX/RX 처리량:</translation>
+    </message>
+    <message>
+      <source>TX/RX Bytes:</source>
+      <translation>TX/RX 바이트:</translation>
+    </message>
+    <message>
+      <source>Master Packets:</source>
+      <translation>마스터 패킷:</translation>
+    </message>
+    <message>
+      <source>Slave Packets:</source>
+      <translation>슬레이브 패킷:</translation>
+    </message>
+    <message>
+      <source>Last Source:</source>
+      <translation>최근 수신 소스:</translation>
+    </message>
+    <message>
+      <source>Sources:</source>
+      <translation>수신 소스:</translation>
+    </message>
+    <message>
+      <source>Hide Raw Stats</source>
+      <translation>원시 통계 숨기기</translation>
+    </message>
+    <message>
+      <source>N/A</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <source>Legacy TCP Settings</source>
+      <translation>기존 TCP 설정</translation>
+    </message>
+    <message>
+      <source>Temperature:</source>
+      <translation>온도:</translation>
+    </message>
+    <message>
+      <source>Version:</source>
+      <translation>버전:</translation>
+    </message>
+  </context>
+  <context>
+    <name>MicrohardLinkIndicator</name>
+    <message>
+      <source>Link RSSI Status</source>
+      <translation>링크 RSSI 상태</translation>
+    </message>
+    <message>
+      <source>No Microhard link detected</source>
+      <translation>Microhard 링크가 감지되지 않음</translation>
+    </message>
+    <message>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <source>Sky RSSI:</source>
+      <translation>비행체 RSSI:</translation>
+    </message>
+    <message>
+      <source>SNR:</source>
+      <translation>SNR:</translation>
+    </message>
+    <message>
+      <source>Frequency:</source>
+      <translation>주파수:</translation>
+    </message>
+    <message>
+      <source>Main Link:</source>
+      <translation>주 링크:</translation>
+    </message>
+    <message>
+      <source>Temperature:</source>
+      <translation>온도:</translation>
+    </message>
+    <message>
+      <source>Version:</source>
+      <translation>버전:</translation>
+    </message>
+    <message>
+      <source>N/A</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <source>Waiting for Microhard stats on UDP 20202/20203</source>
+      <translation>UDP 20202/20203에서 Microhard 통계 대기 중</translation>
     </message>
   </context>
   <context>
