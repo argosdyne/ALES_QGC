@@ -93,7 +93,7 @@ bool hasGstProperty(GstElement* element, const char* propertyName)
 
 void logMissingProperty(const QString& context, GstElement* element, const char* propertyName)
 {
-    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+    qCInfo(GStreamLog).noquote() << "[GstVideoReceiver]" << context
                                     << "name=" << (element != nullptr ? gstObjectName(GST_OBJECT(element)) : QStringLiteral("<null>"))
                                     << "factory=" << gstFactoryName(element)
                                     << "missing-property=" << QString::fromUtf8(propertyName);
@@ -131,7 +131,7 @@ void setGstIntegralProperty(const QString& context, GstElement* element, const c
         g_value_set_enum(&gvalue, static_cast<gint>(value));
         break;
     default:
-        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+        qCInfo(GStreamLog).noquote() << "[GstVideoReceiver]" << context
                                         << "name=" << gstObjectName(GST_OBJECT(element))
                                         << "factory=" << gstFactoryName(element)
                                         << "unsupported-property-type=" << QString::fromUtf8(propertyName)
@@ -143,7 +143,7 @@ void setGstIntegralProperty(const QString& context, GstElement* element, const c
     g_object_set_property(G_OBJECT(element), propertyName, &gvalue);
     g_value_unset(&gvalue);
 
-    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+    qCInfo(GStreamLog).noquote() << "[GstVideoReceiver]" << context
                                     << "name=" << gstObjectName(GST_OBJECT(element))
                                     << "factory=" << gstFactoryName(element)
                                     << QString::fromUtf8(propertyName) + "=" << value;
@@ -172,7 +172,7 @@ void setGstRtspTransportProperty(const QString& context, GstElement* element, Gs
     }
 
     g_object_set(G_OBJECT(element), "protocols", transport, nullptr);
-    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver]" << context
+    qCInfo(GStreamLog).noquote() << "[GstVideoReceiver]" << context
                                     << "name=" << gstObjectName(GST_OBJECT(element))
                                     << "factory=" << gstFactoryName(element)
                                     << "protocols=udp";
@@ -734,7 +734,7 @@ GstVideoReceiver::stop(void)
     }
 
     if (_uri.isEmpty()) {
-        qCWarning(VideoReceiverLog) << "Stop called on empty URI";
+        qCInfo(VideoReceiverLog) << "Stop called on empty URI";
         return;
     }
 
@@ -1973,14 +1973,14 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
         self->_logElementProperty("h264parse.runtime", element, "config-interval");
         self->_logElementProperty("h264parse.runtime", element, "disable-passthrough");
     } else if (factoryName == QStringLiteral("udpsrc")) {
-        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
+        qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
                                         << "uri=" << self->_uri
                                         << "transport=udp"
                                         << "element=" << elementName;
         self->_logElementProperty("udpsrc.runtime", element, "port");
         self->_logElementProperty("udpsrc.runtime", element, "caps");
     } else if (factoryName == QStringLiteral("tcpclientsrc")) {
-        qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
+        qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtsp-runtime-transport"
                                         << "uri=" << self->_uri
                                         << "transport=tcp"
                                         << "element=" << elementName;
@@ -1997,7 +1997,7 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
             factoryName != QStringLiteral("decodebin3") &&
             factoryName != QStringLiteral("parsebin") &&
             !factoryName.endsWith(QStringLiteral("queue"))) {
-            qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] decoder-selected"
+            qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] decoder-selected"
                                             << "uri=" << self->_uri
                                             << "factory=" << factoryName
                                             << "name=" << elementName;
@@ -2042,7 +2042,7 @@ GstVideoReceiver::_onRtspNewManager(GstElement* src, GstElement* manager, gpoint
         return;
     }
 
-    qCWarning(GStreamLog).noquote() << "[GstVideoReceiver] rtspsrc-new-manager"
+    qCInfo(GStreamLog).noquote() << "[GstVideoReceiver] rtspsrc-new-manager"
                                     << "uri=" << self->_uri
                                     << "source=" << gstObjectName(GST_OBJECT(src))
                                     << "manager=" << gstObjectName(GST_OBJECT(manager))
