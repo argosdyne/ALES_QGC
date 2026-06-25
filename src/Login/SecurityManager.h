@@ -26,6 +26,8 @@ public:
     // Expose core APIs to QML
     Q_INVOKABLE bool setPin(const QString &pin);
     Q_INVOKABLE bool verifyPin(const QString &pin);
+    Q_INVOKABLE bool setPassword(const QString &password);
+    Q_INVOKABLE bool verifyPassword(const QString &password);
     Q_INVOKABLE bool hasStoredPin() const;
     Q_INVOKABLE bool rememberMeEnabled() const;
     Q_INVOKABLE void setRememberMeEnabled(bool enabled);
@@ -53,12 +55,13 @@ public:
     // Clear stored data (for testing / reset)
     Q_INVOKABLE void clearStored();
 
-    // PIN strength validation
+    // Password/PIN strength validation
     Q_INVOKABLE bool hasRepeatingDigits(const QString &pin) const;
     Q_INVOKABLE bool hasSequentialDigits(const QString &pin) const;
     Q_INVOKABLE bool hasRepeatedNumericBlocks(const QString &pin) const;
     Q_INVOKABLE bool hasOnlyDigits(const QString &pin) const;
     Q_INVOKABLE QString validatePINStrength(const QString &pin) const;
+    Q_INVOKABLE QString validatePasswordStrength(const QString &password) const;
 
 signals:
     // Emitted when a lockout period starts; parameter is unix msecs until which lockout is active

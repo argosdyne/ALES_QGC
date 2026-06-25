@@ -163,13 +163,18 @@ bool SecurityManager::constantTimeCompare(const QByteArray &a, const QByteArray 
 
 bool SecurityManager::setPin(const QString &pin)
 {
-    if (pin.isEmpty()) return false;
+    return setPassword(pin);
+}
 
-    if (!validatePINStrength(pin).isEmpty()) {
+bool SecurityManager::setPassword(const QString &passwordValue)
+{
+    if (passwordValue.isEmpty()) return false;
+
+    if (!validatePasswordStrength(passwordValue).isEmpty()) {
         return false;
     }
     
-    QByteArray password = pin.toUtf8();
+    QByteArray password = passwordValue.toUtf8();
     
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
@@ -450,6 +455,11 @@ void SecurityManager::setRememberMeEnabled(bool enabled)
 
 bool SecurityManager::verifyPin(const QString &pin)
 {
+    return verifyPassword(pin);
+}
+
+bool SecurityManager::verifyPassword(const QString &passwordValue)
+{
     QSettings s;
     s.beginGroup("SecurityManager");
     if (!s.contains("derived") || !s.contains("salt") || !s.contains("iterations")) {
@@ -464,7 +474,7 @@ bool SecurityManager::verifyPin(const QString &pin)
 #endif
     s.endGroup();
 
-    QByteArray password = pin.toUtf8();
+    QByteArray password = passwordValue.toUtf8();
     
     // On Android: HMAC password using Keystore key (key never leaves Keystore)
     // On other platforms: use password as-is
@@ -501,7 +511,7 @@ bool SecurityManager::verifyPin(const QString &pin)
     bool ok = constantTimeCompare(candidate, dkStored);
     if (!ok) {
         recordFailedAttempt();
-        SecurityLog::logEvent(QStringLiteral("Invalid PIN attempt (count=%1)").arg(failedAttempts()));
+        SecurityLog::logEvent(QStringLiteral("Invalid password attempt (count=%1)").arg(failedAttempts()));
     } else {
         resetFailedAttempts();
         SecurityLog::logEvent(QStringLiteral("Login success"));
@@ -778,19 +788,34 @@ bool SecurityManager::hasRepeatedNumericBlocks(const QString &pin) const
 
 QString SecurityManager::validatePINStrength(const QString &pin) const
 {
-    // Check if PIN contains only digits
-    if (!hasOnlyDigits(pin)) {
-        return "PIN must contain only digits";
+    return validatePasswordStrength(pin);
+}
+
+QString SecurityManager::validatePasswordStrength(const QString &password) const
+{
+    if (password.length() < 8 || password.length() > 32) {
+        return "Password must be 8-32 characters";
     }
 
-    if (hasRepeatingDigits(pin)) {
-        return "PIN cannot be all same digits";
+    static const QString allowedSymbols = QStringLiteral("!@#$%^&*");
+    bool hasLetter = false;
+    bool hasNumber = false;
+    bool hasSymbol = false;
+
+    for (int i = 0; i < password.length(); ++i) {
+        const QChar ch = password.at(i);
+        const bool allowed = ch.isLetterOrNumber() || allowedSymbols.contains(ch);
+        if (!allowed || ch.unicode() > 0x7f) {
+            return "Password can contain only letters, numbers, and !@#$%^&*";
+        }
+
+        hasLetter = hasLetter || ch.isLetter();
+        hasNumber = hasNumber || ch.isDigit();
+        hasSymbol = hasSymbol || allowedSymbols.contains(ch);
     }
-    if (hasSequentialDigits(pin)) {
-        return "PIN cannot be sequential";
-    }
-    if (hasRepeatedNumericBlocks(pin)) {
-        return "PIN cannot contain repeated numeric patterns";
+
+    if (!hasLetter || !hasNumber || !hasSymbol) {
+        return "Password must include letters, numbers, and !@#$%^&*";
     }
     return ""; // empty string = valid
 }

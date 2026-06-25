@@ -29,6 +29,10 @@ QGCPopupDialog {
     property bool   showRCToParam:  false
     property bool   validate:       false
     property string validateValue
+    property string validationErrorOverride
+    property var    customValidateFunction: null
+    property bool   customValidationReplacesFactValidation: false
+    property int    displayDecimalPlaces: -1
     property bool   setFocus:       true    ///< true: focus is set to text field on display, false: focus not set (works around strange virtual keyboard bug with FactValueSlider
 
     signal valueChanged
@@ -53,14 +57,22 @@ QGCPopupDialog {
             fact.enumIndex = factCombo.currentIndex
             valueChanged()
         } else {
-            var errorString = fact.validate(valueField.text, forceSave.checked)
+            var errorString = ""
+            if (customValidationReplacesFactValidation) {
+                errorString = customValidateFunction ? customValidateFunction(valueField.text) : ""
+            } else {
+                errorString = fact.validate(valueField.text, forceSave.checked)
+                if (errorString === "" && customValidateFunction) {
+                    errorString = customValidateFunction(valueField.text)
+                }
+            }
             if (errorString === "") {
                 fact.value = valueField.text
                 fact.valueChanged(fact.value)
                 valueChanged()
             } else {
                 validationError.text = errorString
-                if (_allowForceSave) {
+                if (_allowForceSave && !customValidationReplacesFactValidation) {
                     forceSave.visible = true
                 }
                 preventClose = true
@@ -84,10 +96,28 @@ QGCPopupDialog {
         return value
     }
 
+    function factValueString() {
+        if (displayDecimalPlaces < 0 || fact.typeIsString || fact.typeIsBool) {
+            return fact.valueString
+        }
+
+        var value = Number(fact.value)
+        return isNaN(value) ? fact.valueString : value.toFixed(displayDecimalPlaces)
+    }
+
     Component.onCompleted: {
         if (validate) {
-            validationError.text = fact.validate(validateValue, false /* convertOnly */)
-            if (_allowForceSave) {
+            if (validationErrorOverride !== "") {
+                validationError.text = validationErrorOverride
+            } else if (customValidationReplacesFactValidation) {
+                validationError.text = customValidateFunction ? customValidateFunction(validateValue) : ""
+            } else {
+                validationError.text = fact.validate(validateValue, false /* convertOnly */)
+                if (validationError.text === "" && customValidateFunction) {
+                    validationError.text = customValidateFunction(validateValue)
+                }
+            }
+            if (_allowForceSave && !customValidationReplacesFactValidation) {
                 forceSave.visible = true
             }
         }
@@ -112,7 +142,7 @@ QGCPopupDialog {
             QGCTextField {
                 id:                 valueField
                 width:              _editFieldWidth
-                text:               validate ? validateValue : fact.valueString
+                text:               validate ? validateValue : factValueString()
                 unitsLabel:         fact.units
                 showUnits:          fact.units != ""
                 focus:              setFocus && visible

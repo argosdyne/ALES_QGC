@@ -127,19 +127,27 @@ SetupPage {
 
                 Switch {
                     id: safetySwitch
-                    onClicked: {
+
+                    function resetMotorSliders() {
+                        for (var sliderIndex=0; sliderIndex<sliderRepeater.count; sliderIndex++) {
+                            var sliderItem = sliderRepeater.itemAt(sliderIndex)
+                            if (sliderItem) {
+                                sliderItem.motorSlider.value = 0
+                            }
+                        }
+                        allSlider.value = 0
+                    }
+
+                    onCheckedChanged: {
                         if (checked && mainWindow.viewOnlyMode) {
                             checked = false
-                            allSlider.value = 0
+                            resetMotorSliders()
                             mainWindow.showControlBlockedDialog()
                             return
                         }
 
                         if (!checked) {
-                            for (var sliderIndex=0; sliderIndex<sliderRepeater.count; sliderIndex++) {
-                                sliderRepeater.itemAt(sliderIndex).motorSlider.value = 0
-                            }
-                            allSlider.value = 0
+                            resetMotorSliders()
                         }
                     }
                 }

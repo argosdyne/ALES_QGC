@@ -22,23 +22,28 @@ Page {
     signal forgotPINClicked()
     signal systemRestoreRequested()
 
-    property int pinLength: 6
     property bool locked: false
     property real _uiScale: ScreenTools.isMobile ? 1.20 : 0.65
     property int _contentBlockHeight: _s(687)
 
-    property string pinText: ""
+    property string passwordText: ""
+    property bool   showPassword: false
     property bool   pinBoxFocused: false
     property int    _logoTapCount: 0
     property bool   _rememberedLogin: false
     property bool   _rememberedLoginPinEdited: false
     property bool   _updatingPinFromCode: false
+    readonly property int _defaultRememberedPasswordLength: 8
+    readonly property int _passwordMaskVerticalOffset: ScreenTools.isAndroid ? _s(6) : 0
+    readonly property bool _usingRememberedLogin: rememberBox.checked && _rememberedLogin && !_rememberedLoginPinEdited
+    readonly property bool _showPasswordToggleEnabled: !locked && !_usingRememberedLogin
     readonly property string _lockoutScope: "login"
 
     Settings {
         id: rememberUiSettings
         category: "LoginFlow"
         property bool rememberMeChecked: false
+        property int rememberedPasswordLength: 0
     }
 
     background: Rectangle {
@@ -106,13 +111,54 @@ Page {
         }
     }
 
-    function getPINValue() { return pinText }
+    function getPasswordValue() { return passwordText }
 
-    function _setPinValue(value) {
+    function _setPasswordValue(value) {
         _updatingPinFromCode = true
-        pinText = value
+        passwordText = value
         hiddenInput.text = value
         _updatingPinFromCode = false
+    }
+
+    function _showRememberedPasswordMask() {
+        _updatingPinFromCode = true
+        passwordText = ""
+        hiddenInput.text = _passwordMask(rememberUiSettings.rememberedPasswordLength)
+        _updatingPinFromCode = false
+    }
+
+    function _passwordMask(length) {
+        var maskLength = Number(length)
+        if (!maskLength || maskLength < 1) {
+            maskLength = _defaultRememberedPasswordLength
+        }
+        maskLength = Math.min(maskLength, hiddenInput.maximumLength)
+
+        var mask = ""
+        for (var i = 0; i < maskLength; i++) {
+            mask += "*"
+        }
+        return mask
+    }
+
+    function _clearRememberedLogin() {
+        rememberBox.checked = false
+        _rememberedLogin = false
+        _rememberedLoginPinEdited = false
+        showPassword = false
+        rememberUiSettings.rememberMeChecked = false
+        rememberUiSettings.rememberedPasswordLength = 0
+        try { securityManager.setRememberMeEnabled(false) } catch(e) {}
+        _setPasswordValue("")
+    }
+
+    function _toggleRememberMe() {
+        rememberBox.checked = !rememberBox.checked
+        rememberUiSettings.rememberMeChecked = rememberBox.checked
+
+        if (!rememberBox.checked) {
+            _clearRememberedLogin()
+        }
     }
 
     function _syncRememberMeUI() {
@@ -125,11 +171,21 @@ Page {
         rememberBox.checked = _rememberedLogin || rememberUiSettings.rememberMeChecked
 
         if (_rememberedLogin) {
-            _setPinValue("000000")
+            showPassword = false
+            _showRememberedPasswordMask()
         } else {
-            _setPinValue("")
+            _setPasswordValue("")
         }
         _rememberedLoginPinEdited = false
+    }
+
+    function _useAnotherPassword() {
+        _rememberedLoginPinEdited = true
+        showPassword = false
+        _setPasswordValue("")
+        pinBoxFocused = true
+        hiddenInput.forceActiveFocus()
+        if (!Qt.inputMethod.visible) Qt.inputMethod.show()
     }
 
     function _s(px) { return Math.round(px * _uiScale) }
@@ -179,7 +235,7 @@ Page {
                 }
 
                 Text {
-                    text: "Enter your PIN to access admin functions"
+                    text: "Enter your password to access admin functions"
                     color: "#AEAEAE"
                     font.family: "Roboto"
                     font.pixelSize: _s(24)
@@ -191,7 +247,7 @@ Page {
         }
     }
 
-    // ===== PIN INPUT SECTION =====
+    // ===== PASSWORD INPUT SECTION =====
     Item {
         id: pinSection
         width: Math.min(_s(508), parent.width - _s(24))
@@ -204,15 +260,13 @@ Page {
             // anchors.horizontalCenter: parent.horizontalCenter
 
             Text {
-                text: "Admin PIN"
+                text: "Admin Password"
                 color: "#AEAEAE"
                 font.family: "Roboto"
                 font.pixelSize: _s(24)
                 anchors.left: parent.left
             }
 
-            // Single PIN input box, white bordered, dark fill
-            // All placeholder dots always visible; filled dots grow from center as user types
             Rectangle {
                 id: pinBox
                 width: parent.width
@@ -221,83 +275,102 @@ Page {
                 color: "#222222"
                 border.color: loginPage.pinBoxFocused ? "#00826F" : "#ffffff"
                 border.width: 2
-
-                // Dot settings
-                readonly property int dotD:      _s(18)
-                readonly property int dotGap:    _s(21)
-                readonly property int totalW:    pinLength * dotD + (pinLength - 1) * dotGap
-
-                // How many chars entered; fill starts from the left
-                readonly property int entered:   pinText.length
-                readonly property int startIdx:  0
+                opacity: loginPage._usingRememberedLogin ? 0.65 : 1.0
 
                 MouseArea {
                     id: pinBoxMouseArea
                     anchors.fill: parent
                     hoverEnabled: false
                     onClicked: {
-                        if (loginPage.locked) return
+                        if (loginPage.locked || loginPage._usingRememberedLogin) return
                         loginPage.pinBoxFocused = true
                         hiddenInput.forceActiveFocus()
                         if (!Qt.inputMethod.visible) Qt.inputMethod.show()
                     }
                 }
 
-                // Dots row — always pinLength dots, placeholder = hollow, filled = solid white
-                Row {
-                    anchors.centerIn: parent
-                    spacing: pinBox.dotGap
-
-                    Repeater {
-                        model: pinLength
-                        Rectangle {
-                            width:  pinBox.dotD
-                            height: pinBox.dotD
-                            radius: pinBox.dotD / 2
-                            // filled if this slot falls within the entered range (centered)
-                            readonly property bool isFilled: pinBox.entered > 0
-                                                             && index >= pinBox.startIdx
-                                                             && index < pinBox.startIdx + pinBox.entered
-                            color:        isFilled ? (loginPage.locked ? "#AEAEAE" : "#FFFFFF") : "transparent"
-                            border.width: isFilled ? 0         : 2
-                            border.color: loginPage.locked ? "#AEAEAE" : "#FFFFFF"
-                        }
-                    }
-                }
-
-                // Hidden TextInput — captures keyboard/IME input
                 TextInput {
                     id: hiddenInput
-                    width: 1; height: 1; opacity: 0
+                    anchors.left: parent.left
+                    anchors.right: passwordToggle.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: loginPage.showPassword ? 0 : loginPage._passwordMaskVerticalOffset
+                    anchors.leftMargin: _s(18)
+                    anchors.rightMargin: _s(12)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
+                    clip: true
+                    color: loginPage.locked ? "#AEAEAE" : "#ffffff"
+                    selectedTextColor: "#ffffff"
+                    selectionColor: "#00826F"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(24)
+                    verticalAlignment: TextInput.AlignVCenter
+                    echoMode: loginPage.showPassword ? TextInput.Normal : TextInput.Password
                     focus: false
-                    maximumLength: pinLength
-                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    maximumLength: 64
+                    enabled: !loginPage.locked && !loginPage._usingRememberedLogin
+                    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    onActiveFocusChanged: {
+                        loginPage.pinBoxFocused = activeFocus
+                    }
             
                     onTextChanged: {
-                        pinText = text
-                        if (!_updatingPinFromCode && _rememberedLogin && rememberBox.checked) {
+                        if (_updatingPinFromCode) {
+                            return
+                        }
+                        passwordText = text
+                        if (_rememberedLogin && rememberBox.checked) {
                             _rememberedLoginPinEdited = true
                         }
                     }
 
                     Keys.onPressed: {
                         if (locked) { event.accepted = true; return }
-                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
-                            if (pinText.length < pinLength) {
-                                pinText = pinText + event.text
-                                hiddenInput.text = pinText
-                            }
-                            event.accepted = true
-                        } else if (event.key === Qt.Key_Backspace) {
-                            if (pinText.length > 0) {
-                                pinText = pinText.slice(0, pinText.length - 1)
-                                hiddenInput.text = pinText
-                            }
-                            event.accepted = true
+                    }
+                }
+
+                Text {
+                    id: passwordToggle
+                    text: loginPage.showPassword ? "Hide" : "Show"
+                    color: loginPage._showPasswordToggleEnabled ? "#00826F" : "#AEAEAE"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(20)
+                    font.bold: true
+                    anchors.right: parent.right
+                    anchors.rightMargin: _s(18)
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: !loginPage._usingRememberedLogin
+                    opacity: loginPage._showPasswordToggleEnabled ? 1.0 : 0.6
+
+                    MouseArea {
+                        anchors.centerIn: parent
+                        width: parent.width + loginPage._s(32)
+                        height: parent.height + loginPage._s(28)
+                        enabled: loginPage._showPasswordToggleEnabled
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            loginPage.showPassword = !loginPage.showPassword
+                            hiddenInput.forceActiveFocus()
                         }
                     }
                 }
             }
+
+            // Text {
+            //     text: "Use another password"
+            //     color: "#00826F"
+            //     font.family: "Roboto"
+            //     font.pixelSize: _s(20)
+            //     font.bold: true
+            //     visible: loginPage._usingRememberedLogin
+            //     anchors.left: parent.left
+
+            //     MouseArea {
+            //         anchors.fill: parent
+            //         cursorShape: Qt.PointingHandCursor
+            //         onClicked: loginPage._useAnotherPassword()
+            //     }
+            // }
         }
     }
 
@@ -333,15 +406,7 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        rememberBox.checked = !rememberBox.checked
-                        rememberUiSettings.rememberMeChecked = rememberBox.checked
-
-                        if (!rememberBox.checked) {
-                            loginPage._rememberedLogin = false
-                            loginPage._rememberedLoginPinEdited = false
-                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            loginPage._setPinValue("")
-                        }
+                        loginPage._toggleRememberMe()
                     }
                 }
             }
@@ -357,15 +422,7 @@ Page {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        rememberBox.checked = !rememberBox.checked
-                        rememberUiSettings.rememberMeChecked = rememberBox.checked
-
-                        if (!rememberBox.checked) {
-                            loginPage._rememberedLogin = false
-                            loginPage._rememberedLoginPinEdited = false
-                            try { securityManager.setRememberMeEnabled(false) } catch(e) {}
-                            loginPage._setPinValue("")
-                        }
+                        loginPage._toggleRememberMe()
                     }
                 }
             }
@@ -427,14 +484,15 @@ Page {
                     return
                 }
 
-                var pin = getPINValue()
+                var password = getPasswordValue()
                 var ok = false
-                try { ok = securityManager.verifyPin(pin) } catch(e) { ok = false }
+                try { ok = securityManager.verifyPassword(password) } catch(e) { ok = false }
                 if (ok) {
                     try { securityManager.setRememberMeEnabled(rememberBox.checked) } catch(e) {}
                     rememberUiSettings.rememberMeChecked = rememberBox.checked
+                    rememberUiSettings.rememberedPasswordLength = rememberBox.checked ? password.length : 0
                     loginPage._rememberedLogin = rememberBox.checked
-                    unlockError.text  = "PIN verified. Loading..."
+                    unlockError.text  = "Password verified. Loading..."
                     unlockError.color = "#0fa18f"
                     unlockError.visible = true
                     unlockTriggerTimer.action = "unlock"
@@ -445,9 +503,9 @@ Page {
                         loginPage._rememberedLogin = false
                         loginPage._rememberedLoginPinEdited = false
                     }
-                    // Clear entered PIN on failure so user can re-enter without manual delete
-                    _setPinValue("")
-                    unlockError.text    = "Invalid PIN"
+                    // Clear entered password on failure so user can re-enter without manual delete
+                    _setPasswordValue("")
+                    unlockError.text    = "Invalid password"
                     unlockError.color   = "#ff5c5c"
                     unlockError.visible = true
                 }
@@ -486,10 +544,10 @@ Page {
         }
     }
 
-    // ===== FORGOT PIN LINK =====
+    // ===== FORGOT PASSWORD LINK =====
     Text {
         y: rememberRow.y + rememberRow.height + _s(236)
-        text: "Forgot PIN?"
+        text: "Forgot Password?"
         color: "#00826F"
         font.family: "Roboto"
         font.pixelSize: _s(24)

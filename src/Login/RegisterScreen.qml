@@ -9,6 +9,7 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.0
+import QtQuick.Dialogs 1.3
 
 import QGroundControl.ScreenTools 1.0
 
@@ -17,15 +18,17 @@ Page {
 
     signal pinRegistered()
 
-    property int    pinLength:      6
-    property string enterPinText:   ""
-    property string confirmPinText: ""
+    property string enterPasswordText:   ""
+    property string confirmPasswordText: ""
     property string errorMessage:   ""
     property bool   showError:      false
+    property bool   showEnterPassword: false
+    property bool   showConfirmPassword: false
     property string messageColor:   "#ff5c5c"
     property real _uiScale: ScreenTools.isMobile ? 1.20 : 0.65
     property int _contentBlockHeight: _s(687)
-    property string activePin:        ""   // "enter" | "confirm" | ""
+    readonly property int _passwordMaskVerticalOffset: ScreenTools.isAndroid ? _s(6) : 0
+    property string activePassword:        ""   // "enter" | "confirm" | ""
 
     background: Rectangle {
         color: "#222222"
@@ -34,29 +37,32 @@ Page {
     }
 
     // ─── helpers ──────────────────────────────────────────────────────────────
-    function validatePIN() {
-        var p1 = enterPinText
-        var p2 = confirmPinText
+    function showPasswordError(message) {
+        errorMessage = message
+        messageColor = "#ff5c5c"
+        showError = true
+        mainWindow.showMessageDialog("Invalid Password", message, StandardButton.Ok, function() {
+            enterInput.forceActiveFocus()
+        })
+    }
 
-        if (p1.length < 6 || p2.length < 6) {
-            errorMessage = "Enter 6 digits for your PIN"
-            messageColor = "#ff5c5c"
-            showError = true
+    function validatePassword() {
+        var p1 = enterPasswordText
+        var p2 = confirmPasswordText
+
+        if (p1.length === 0 || p2.length === 0) {
+            showPasswordError("Enter and confirm your admin password")
             return false
         }
 
-        var strengthError = securityManager.validatePINStrength(p1)
+        var strengthError = securityManager.validatePasswordStrength(p1)
         if (strengthError) {
-            errorMessage = strengthError
-            messageColor = "#ff5c5c"
-            showError = true
+            showPasswordError(strengthError)
             return false
         }
 
         if (p1 !== p2) {
-            errorMessage = "PINs do not match"
-            messageColor = "#ff5c5c"
-            showError = true
+            showPasswordError("Passwords do not match")
             return false
         }
 
@@ -89,7 +95,7 @@ Page {
             width: parent.width
             height: _s(84)
             Text {
-                text: "Set Your Admin PIN"
+                text: "Set Your Admin Password"
                 color: "#ffffff"
                 font.family:    "Roboto"
                 font.pixelSize: _s(40)
@@ -99,7 +105,7 @@ Page {
             }
 
             Text {
-                text: "Create a secure 6 digits PIN to protect your profile"
+                text: "Create a secure password to protect your profile"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
                 y: _s(57)
@@ -111,7 +117,7 @@ Page {
         }
     }
 
-    // ─── Enter PIN ────────────────────────────────────────────────────────────
+    // ─── Enter Password ───────────────────────────────────────────────────────
     Item {
         id: enterSection
         width:  Math.min(_s(508), parent.width - _s(24))
@@ -124,7 +130,7 @@ Page {
             width: parent.width
 
             Text {
-                text: "Enter PIN"
+                text: "Enter Password"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
                 font.pixelSize: _s(24)
@@ -138,67 +144,67 @@ Page {
                 radius: 4
                 color:  "#222222"
                 border.width: 2
-                border.color: registerPage.activePin === "enter" ? "#00826F" : "#ffffff"
-
-                property string pinValue: ""
+                border.color: registerPage.activePassword === "enter" ? "#00826F" : "#ffffff"
 
                 MouseArea {
                     id: enterHover
                     anchors.fill: parent
                     hoverEnabled: false
                     onClicked: {
-                        registerPage.activePin = "enter"
+                        registerPage.activePassword = "enter"
                         enterInput.forceActiveFocus()
                         if (!Qt.inputMethod.visible) Qt.inputMethod.show()
                     }
                 }
 
-                Row {
-                    anchors.centerIn: parent
-                    spacing: _s(20)
-                    Repeater {
-                        model: pinLength
-                        Rectangle {
-                            width: _s(18); height: _s(18); radius: _s(9)
-                            readonly property bool filled: index < enterBox.pinValue.length
-                            color:        filled ? "#ffffff" : "transparent"
-                            border.width: filled ? 0 : 2
-                            border.color: "#ffffff"
-                        }
+                TextInput {
+                    id: enterInput
+                    anchors.left: parent.left
+                    anchors.right: enterPasswordToggle.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: registerPage.showEnterPassword ? 0 : registerPage._passwordMaskVerticalOffset
+                    anchors.leftMargin: _s(18)
+                    anchors.rightMargin: _s(12)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
+                    clip: true
+                    color: "#ffffff"
+                    selectedTextColor: "#ffffff"
+                    selectionColor: "#00826F"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(24)
+                    verticalAlignment: TextInput.AlignVCenter
+                    echoMode: registerPage.showEnterPassword ? TextInput.Normal : TextInput.Password
+                    focus: false
+                    maximumLength: 64
+                    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    onActiveFocusChanged: {
+                        if (activeFocus) registerPage.activePassword = "enter"
+                    }
+                    onTextChanged: {
+                        enterPasswordText = text
+                        showError = false
                     }
                 }
 
-                TextInput {
-                    id: enterInput
-                    width: 1; height: 1; opacity: 0
-                    focus: false
-                    maximumLength: 8
-                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
-                    onTextChanged: {
-                        enterBox.pinValue = text
-                        enterPinText      = text
-                        var err = text.length >= 6 ? securityManager.validatePINStrength(text) : ""
-                        if (err) { errorMessage = err; messageColor = "#ff5c5c"; showError = true }
-                        else     { showError = false }
-                    }
-                    Keys.onPressed: {
-                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
-                            if (enterBox.pinValue.length < 6) {
-                                enterBox.pinValue = enterBox.pinValue + event.text
-                                enterInput.text   = enterBox.pinValue
-                                // Auto-jump to Confirm PIN when 6th digit is entered
-                                if (enterBox.pinValue.length === 6) {
-                                    registerPage.activePin = "confirm"
-                                    confirmInput.forceActiveFocus()
-                                }
-                            }
-                            event.accepted = true
-                        } else if (event.key === Qt.Key_Backspace) {
-                            if (enterBox.pinValue.length > 0) {
-                                enterBox.pinValue = enterBox.pinValue.slice(0, enterBox.pinValue.length - 1)
-                                enterInput.text   = enterBox.pinValue
-                            }
-                            event.accepted = true
+                Text {
+                    id: enterPasswordToggle
+                    text: registerPage.showEnterPassword ? "Hide" : "Show"
+                    color: "#00826F"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(20)
+                    font.bold: true
+                    anchors.right: parent.right
+                    anchors.rightMargin: _s(18)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    MouseArea {
+                        anchors.centerIn: parent
+                        width: parent.width + registerPage._s(32)
+                        height: parent.height + registerPage._s(28)
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            registerPage.showEnterPassword = !registerPage.showEnterPassword
+                            enterInput.forceActiveFocus()
                         }
                     }
                 }
@@ -206,7 +212,7 @@ Page {
         }
     }
 
-    // ─── Confirm PIN ──────────────────────────────────────────────────────────
+    // ─── Confirm Password ─────────────────────────────────────────────────────
     Item {
         id: confirmSection
         width:  Math.min(_s(508), parent.width - _s(24))
@@ -219,7 +225,7 @@ Page {
             width: parent.width
 
             Text {
-                text: "Confirm PIN"
+                text: "Confirm Password"
                 color: "#AEAEAE"
                 font.family:    "Roboto"
                 font.pixelSize: _s(24)
@@ -233,60 +239,67 @@ Page {
                 radius: 4
                 color:  "#222222"
                 border.width: 2
-                border.color: registerPage.activePin === "confirm" ? "#00826F" : "#ffffff"
-
-                property string pinValue: ""
+                border.color: registerPage.activePassword === "confirm" ? "#00826F" : "#ffffff"
 
                 MouseArea {
                     id: confirmHover
                     anchors.fill: parent
                     hoverEnabled: false
                     onClicked: {
-                        registerPage.activePin = "confirm"
+                        registerPage.activePassword = "confirm"
                         confirmInput.forceActiveFocus()
                         if (!Qt.inputMethod.visible) Qt.inputMethod.show()
                     }
                 }
 
-                Row {
-                    anchors.centerIn: parent
-                    spacing: _s(20)
-                    Repeater {
-                        model: pinLength
-                        Rectangle {
-                            width: _s(18); height: _s(18); radius: _s(9)
-                            readonly property bool filled: index < confirmBox.pinValue.length
-                            color:        filled ? "#ffffff" : "transparent"
-                            border.width: filled ? 0 : 2
-                            border.color: "#ffffff"
-                        }
+                TextInput {
+                    id: confirmInput
+                    anchors.left: parent.left
+                    anchors.right: confirmPasswordToggle.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: registerPage.showConfirmPassword ? 0 : registerPage._passwordMaskVerticalOffset
+                    anchors.leftMargin: _s(18)
+                    anchors.rightMargin: _s(12)
+                    height: Math.min(parent.height, Math.max(_s(36), implicitHeight))
+                    clip: true
+                    color: "#ffffff"
+                    selectedTextColor: "#ffffff"
+                    selectionColor: "#00826F"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(24)
+                    verticalAlignment: TextInput.AlignVCenter
+                    echoMode: registerPage.showConfirmPassword ? TextInput.Normal : TextInput.Password
+                    focus: false
+                    maximumLength: 64
+                    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    onActiveFocusChanged: {
+                        if (activeFocus) registerPage.activePassword = "confirm"
+                    }
+                    onTextChanged: {
+                        confirmPasswordText = text
+                        showError = false
                     }
                 }
 
-                TextInput {
-                    id: confirmInput
-                    width: 1; height: 1; opacity: 0
-                    anchors.bottom: parent.bottom
-                    focus: false
-                    maximumLength: 6
-                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
-                    onTextChanged: {
-                        confirmBox.pinValue = text
-                        confirmPinText      = text
-                    }
-                    Keys.onPressed: {
-                        if (event.text.length === 1 && event.text >= "0" && event.text <= "9") {
-                            if (confirmBox.pinValue.length < 6) {
-                                confirmBox.pinValue = confirmBox.pinValue + event.text
-                                confirmInput.text   = confirmBox.pinValue
-                            }
-                            event.accepted = true
-                        } else if (event.key === Qt.Key_Backspace) {
-                            if (confirmBox.pinValue.length > 0) {
-                                confirmBox.pinValue = confirmBox.pinValue.slice(0, confirmBox.pinValue.length - 1)
-                                confirmInput.text   = confirmBox.pinValue
-                            }
-                            event.accepted = true
+                Text {
+                    id: confirmPasswordToggle
+                    text: registerPage.showConfirmPassword ? "Hide" : "Show"
+                    color: "#00826F"
+                    font.family: "Roboto"
+                    font.pixelSize: _s(20)
+                    font.bold: true
+                    anchors.right: parent.right
+                    anchors.rightMargin: _s(18)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    MouseArea {
+                        anchors.centerIn: parent
+                        width: parent.width + registerPage._s(32)
+                        height: parent.height + registerPage._s(28)
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            registerPage.showConfirmPassword = !registerPage.showConfirmPassword
+                            confirmInput.forceActiveFocus()
                         }
                     }
                 }
@@ -300,8 +313,8 @@ Page {
         y:     confirmSection.y + confirmSection.height + _s(26)
         width: Math.min(_s(508), parent.width - _s(24))
         anchors.horizontalCenter: parent.horizontalCenter
-        text:  showError ? errorMessage : "Enter 6 digits for your PIN"
-        color: showError ? messageColor : "#AEAEAE"
+        text: "Use 8-32 chars with letters, numbers, and !@#$%^&*"
+        color: "#AEAEAE"
         font.family:    "Roboto"
         font.pixelSize: _s(22)
         horizontalAlignment: Text.AlignHCenter
@@ -330,18 +343,17 @@ Page {
             id: continueBtnArea
             anchors.fill: parent
             onClicked: {
-                if (validatePIN()) {
+                if (validatePassword()) {
                     var ok = false
-                    try { ok = securityManager.setPin(enterPinText) } catch(e) { ok = false }
+                    try { ok = securityManager.setPassword(enterPasswordText) } catch(e) { ok = false }
                     if (ok) {
                         registerPage.pinRegistered()
                     } else {
-                        errorMessage = "Failed to store PIN. Check PIN requirements."
-                        messageColor = "#ff5c5c"
-                        showError    = true
+                        showPasswordError("Failed to store password. Check password requirements.")
                     }
                 }
             }
         }
     }
+
 }

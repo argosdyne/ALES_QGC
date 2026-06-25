@@ -335,7 +335,7 @@ public final class USBUpdateManager {
                         + "\nAPK SHA-256: " + candidate.shortSha256()
                         + "\nSigned by: " + safe(candidate.signerDisplayName);
 
-                new AlertDialog.Builder(activity)
+                AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle("QGC Update Found")
                         .setMessage(message)
                         .setPositiveButton("INSTALL", new DialogInterface.OnClickListener() {
@@ -361,7 +361,9 @@ public final class USBUpdateManager {
                                         "User cancelled update installation");
                             }
                         })
+                        .setCancelable(false)
                         .show();
+                dialog.setCanceledOnTouchOutside(false);
             }
         });
     }
@@ -378,11 +380,13 @@ public final class USBUpdateManager {
             @Override
             public void run() {
                 Log.i(TAG, "UI: showing info dialog title=" + title + " message=" + message);
-                new AlertDialog.Builder(activity)
+                AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle(title)
                         .setMessage(message)
                         .setPositiveButton("OK", null)
+                        .setCancelable(false)
                         .show();
+                dialog.setCanceledOnTouchOutside(false);
             }
         });
     }
@@ -396,11 +400,13 @@ public final class USBUpdateManager {
             @Override
             public void run() {
                 Log.i(TAG, "UI: showing update rejection dialog message=" + message);
-                new AlertDialog.Builder(activity)
+                AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle("QGC Update Rejected")
                         .setMessage(message)
                         .setPositiveButton("OK", null)
+                        .setCancelable(false)
                         .show();
+                dialog.setCanceledOnTouchOutside(false);
             }
         });
     }

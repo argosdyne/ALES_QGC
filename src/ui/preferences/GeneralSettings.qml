@@ -265,7 +265,7 @@ Rectangle {
                                     text:       qsTr("Minimum Altitude")
                                     visible:    guidedMinAltField.visible
                                 }
-                                FactTextField {
+                                AltitudeFactTextField {
                                     id:                     guidedMinAltField
                                     Layout.preferredWidth:  _valueFieldWidth
                                     visible:                fact.visible
@@ -276,7 +276,7 @@ Rectangle {
                                     text:       qsTr("Maximum Altitude")
                                     visible:    guidedMaxAltField.visible
                                 }
-                                FactTextField {
+                                AltitudeFactTextField {
                                     id:                     guidedMaxAltField
                                     Layout.preferredWidth:  _valueFieldWidth
                                     visible:                fact.visible
@@ -459,7 +459,7 @@ Rectangle {
                                 visible:            QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude.visible
 
                                 QGCLabel { text: qsTr("Default Mission Altitude") }
-                                FactTextField {
+                                AltitudeFactTextField {
                                     Layout.preferredWidth:  _valueFieldWidth
                                     fact:                   QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude
                                 }
