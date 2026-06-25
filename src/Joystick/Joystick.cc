@@ -1160,9 +1160,6 @@ void Joystick::setFunctionAxis(AxisFunction_t function, int axis)
     _rgFunctionAxis[function] = axis;
     _saveSettings();
     emit calibratedChanged(_calibrated);
-    if (function == gimbalPitchFunction || function == gimbalYawFunction) {
-        emit rcDialAxisChanged();
-    }
 }
 
 int Joystick::getFunctionAxis(AxisFunction_t function)

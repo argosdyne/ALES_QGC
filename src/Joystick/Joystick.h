@@ -115,8 +115,6 @@ public:
     Q_PROPERTY(float    exponential             READ exponential            WRITE setExponential        NOTIFY exponentialChanged)
     Q_PROPERTY(bool     accumulator             READ accumulator            WRITE setAccumulator        NOTIFY accumulatorChanged)
     Q_PROPERTY(bool     circleCorrection        READ circleCorrection       WRITE setCircleCorrection   NOTIFY circleCorrectionChanged)
-    Q_PROPERTY(int      rc9DialAxis             READ rc9DialAxis            WRITE setRc9DialAxis        NOTIFY rcDialAxisChanged)
-    Q_PROPERTY(int      rc10DialAxis            READ rc10DialAxis           WRITE setRc10DialAxis       NOTIFY rcDialAxisChanged)
 
     Q_INVOKABLE void    setButtonRepeat     (int button, bool repeat);
     Q_INVOKABLE bool    getButtonRepeat     (int button);
@@ -134,10 +132,6 @@ public:
     QmlObjectListModel* assignableActions   () { return &_assignableButtonActions; }
     QStringList assignableActionTitles      () { return _availableActionTitles; }
     QString     disabledActionName          () { return _buttonActionNone; }
-    int rc9DialAxis() const { return _rgFunctionAxis[gimbalPitchFunction]; }
-    int rc10DialAxis() const { return _rgFunctionAxis[gimbalYawFunction]; }
-    void setRc9DialAxis(int axis) { setFunctionAxis(gimbalPitchFunction, axis); }
-    void setRc10DialAxis(int axis) { setFunctionAxis(gimbalYawFunction, axis); }
 
     /// Start the polling thread which will in turn emit joystick signals
     void startPolling(Vehicle* vehicle);
@@ -207,7 +201,6 @@ signals:
     void enabledChanged             (bool enabled);
     void circleCorrectionChanged    (bool circleCorrection);
     void axisValues                 (float roll, float pitch, float yaw, float throttle);
-    void rcDialAxisChanged          ();
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
