@@ -95,6 +95,9 @@ public class QGCActivity extends QtActivity
     private static final String                         ACTION_DPC_KIOSK_STATE_CHANGED = "com.easygripper.dpc.action.KIOSK_STATE_CHANGED";
     private static final String                         EXTRA_DPC_ENABLED = "enabled";
     private static final String                         EXTRA_DPC_PIN = "pin";
+    private static final String                         EXTRA_DPC_REASON = "reason";
+    private static final String                         EXTRA_DPC_ATTEMPTS_REMAINING = "attempts_remaining";
+    private static final String                         EXTRA_DPC_LOCKOUT_UNTIL = "lockout_until";
     private static final String                         QGC_DPC_PREFS = "qgc_dpc_prefs";
     private static final String                         KEY_PENDING_REBOOT_FORCE_ON = "pending_reboot_force_on";
     private static final String                         KEY_LAST_SHUTDOWN_ELAPSED_RT = "last_shutdown_elapsed_rt";
@@ -106,9 +109,14 @@ public class QGCActivity extends QtActivity
     private static final String                         KEY_BOOT_FORCED_KIOSK_ON = "boot_forced_kiosk_on";
     private static final String                         KEY_KNOWN_KIOSK_ENABLED = "known_kiosk_enabled";
     private static final String                         KEY_HAS_KNOWN_KIOSK_STATE = "has_known_kiosk_state";
+    private static final String                         KEY_DPC_LOCKOUT_UNTIL = "dpc_lockout_until";
+    private static final String                         KEY_DPC_ATTEMPTS_REMAINING = "dpc_attempts_remaining";
     private static volatile boolean                     _bootForcedDpcKioskOn = false;
     private static volatile boolean                     _hasKnownDpcKioskState = false;
     private static volatile boolean                     _knownDpcKioskEnabled = false;
+    private static volatile String                      _lastDpcReason = "";
+    private static volatile int                         _dpcAttemptsRemaining = -1;
+    private static volatile long                        _dpcLockoutUntil = 0L;
     private static volatile boolean                     _startupBootCheckDone = false;
     private static Context                              _appContext = null;
     private static volatile boolean                     _dpcReceiverRegistered = false;
@@ -308,6 +316,96 @@ public class QGCActivity extends QtActivity
         return "";
     }
 
+    private static void saveDpcPinGateStateToPrefs(Context context) {
+        dpcPrefs(context).edit()
+                .putLong(KEY_DPC_LOCKOUT_UNTIL, _dpcLockoutUntil)
+                .putInt(KEY_DPC_ATTEMPTS_REMAINING, _dpcAttemptsRemaining)
+                .commit();
+    }
+
+    private static void loadDpcPinGateStateFromPrefs(Context context) {
+        final android.content.SharedPreferences prefs = dpcPrefs(context);
+        final long prefsLockout = prefs.getLong(KEY_DPC_LOCKOUT_UNTIL, 0L);
+        final int prefsAttempts = prefs.getInt(KEY_DPC_ATTEMPTS_REMAINING, -1);
+        final long now = System.currentTimeMillis();
+        final long memoryLockout = _dpcLockoutUntil;
+        final int memoryAttempts = _dpcAttemptsRemaining;
+
+        if (memoryLockout > now && prefsLockout > now) {
+            _dpcLockoutUntil = Math.max(memoryLockout, prefsLockout);
+        } else if (memoryLockout > now) {
+            _dpcLockoutUntil = memoryLockout;
+        } else if (prefsLockout > now) {
+            _dpcLockoutUntil = prefsLockout;
+        } else {
+            _dpcLockoutUntil = 0L;
+        }
+
+        if (_dpcLockoutUntil > now) {
+            _dpcAttemptsRemaining = 0;
+            return;
+        }
+
+        if (memoryAttempts >= 0 && prefsAttempts >= 0) {
+            _dpcAttemptsRemaining = Math.min(memoryAttempts, prefsAttempts);
+        } else if (memoryAttempts >= 0) {
+            _dpcAttemptsRemaining = memoryAttempts;
+        } else if (prefsAttempts >= 0) {
+            _dpcAttemptsRemaining = prefsAttempts;
+        } else {
+            _dpcAttemptsRemaining = -1;
+        }
+    }
+
+    private static void notifyDpcPinGateChanged() {
+        try {
+            nativeNotifyDpcPinGateChanged();
+        } catch (UnsatisfiedLinkError e) {
+            Log.w(TAG, "nativeNotifyDpcPinGateChanged unavailable", e);
+        }
+    }
+
+    private static void applyPinGateFromIntent(Intent intent, String reportedReason) {
+        if ("set".equals(reportedReason)) {
+            _dpcLockoutUntil = 0L;
+            _dpcAttemptsRemaining = -1;
+            return;
+        }
+
+        // Any DPC broadcast may carry lockout_until (bootstrap, query, locked_out, …).
+        if (intent.hasExtra(EXTRA_DPC_LOCKOUT_UNTIL)) {
+            final long lockoutUntil = intent.getLongExtra(EXTRA_DPC_LOCKOUT_UNTIL, 0L);
+            if (lockoutUntil > System.currentTimeMillis()) {
+                _dpcLockoutUntil = lockoutUntil;
+                _dpcAttemptsRemaining = 0;
+                return;
+            }
+            if (lockoutUntil > 0L) {
+                _dpcLockoutUntil = 0L;
+            }
+        }
+
+        if (_dpcLockoutUntil > System.currentTimeMillis()) {
+            return;
+        }
+
+        if ("invalid_pin".equals(reportedReason)) {
+            if (intent.hasExtra(EXTRA_DPC_ATTEMPTS_REMAINING)) {
+                _dpcAttemptsRemaining = intent.getIntExtra(EXTRA_DPC_ATTEMPTS_REMAINING, -1);
+            }
+            _dpcLockoutUntil = 0L;
+            return;
+        }
+
+        if (intent.hasExtra(EXTRA_DPC_ATTEMPTS_REMAINING)) {
+            final int reportedAttempts = intent.getIntExtra(EXTRA_DPC_ATTEMPTS_REMAINING, -1);
+            if (reportedAttempts >= 0) {
+                _dpcAttemptsRemaining = reportedAttempts;
+            }
+            // Query/bootstrap with -1 must not clear a known remaining-attempts warning.
+        }
+    }
+
     private static void saveDpcKioskStateToPrefs(Context context) {
         final android.content.SharedPreferences.Editor editor = dpcPrefs(context).edit()
                 .putBoolean(KEY_BOOT_FORCED_KIOSK_ON, _bootForcedDpcKioskOn)
@@ -328,6 +426,7 @@ public class QGCActivity extends QtActivity
         }
 
         editor.commit();
+        saveDpcPinGateStateToPrefs(context);
     }
 
     private static void loadDpcKioskStateFromPrefs(Context context) {
@@ -335,6 +434,7 @@ public class QGCActivity extends QtActivity
         _bootForcedDpcKioskOn = prefs.getBoolean(KEY_BOOT_FORCED_KIOSK_ON, false);
         _knownDpcKioskEnabled = prefs.getBoolean(KEY_KNOWN_KIOSK_ENABLED, false);
         _hasKnownDpcKioskState = prefs.getBoolean(KEY_HAS_KNOWN_KIOSK_STATE, false);
+        loadDpcPinGateStateFromPrefs(context);
         Log.e(TAG, "Loaded DPC prefs: bootForced=" + _bootForcedDpcKioskOn
                 + " known=" + _hasKnownDpcKioskState
                 + " enabled=" + _knownDpcKioskEnabled);
@@ -552,6 +652,33 @@ public class QGCActivity extends QtActivity
                 : getAppContext();
 
         final boolean reportedEnabled = intent.getBooleanExtra(EXTRA_DPC_ENABLED, false);
+
+        // Capture PIN feedback (reason / attempts / lockout) FIRST, before any early return,
+        // so failed-PIN and lockout info is never dropped by the reboot-force-on path.
+        final String reportedReason = intent.getStringExtra(EXTRA_DPC_REASON);
+        if (reportedReason != null) {
+            _lastDpcReason = reportedReason;
+        }
+        // Only update lockout/attempt info for the reasons that carry it.
+        boolean pinGateUpdated = false;
+        if (reportedReason != null) {
+            final int attemptsBefore = _dpcAttemptsRemaining;
+            final long lockoutBefore = _dpcLockoutUntil;
+            applyPinGateFromIntent(intent, reportedReason);
+            pinGateUpdated = (_dpcAttemptsRemaining != attemptsBefore) || (_dpcLockoutUntil != lockoutBefore);
+            final Context pinGateContext = saveContext != null ? saveContext : getAppContext();
+            if (pinGateContext != null) {
+                saveDpcPinGateStateToPrefs(pinGateContext);
+            }
+            if (pinGateUpdated) {
+                notifyDpcPinGateChanged();
+            }
+        }
+        Log.e(TAG, "DPC_PIN_FEEDBACK reason=" + reportedReason
+                + " attemptsRemaining=" + _dpcAttemptsRemaining
+                + " lockoutUntil=" + _dpcLockoutUntil
+                + " pinGateUpdated=" + pinGateUpdated);
+
         if (_bootForcedDpcKioskOn && !reportedEnabled) {
             _hasKnownDpcKioskState = true;
             _knownDpcKioskEnabled = true;
@@ -658,6 +785,18 @@ public class QGCActivity extends QtActivity
         }
     }
 
+    /** Reload cached PIN gate (lockout / attempts) without touching kiosk ON/OFF prefs. */
+    public static void refreshDpcPinGateStateFromStorage() {
+        final Context context = getAppContext();
+        if (context != null) {
+            loadDpcPinGateStateFromPrefs(context);
+            final long now = System.currentTimeMillis();
+            if (_dpcLockoutUntil > now || _dpcAttemptsRemaining >= 0) {
+                notifyDpcPinGateChanged();
+            }
+        }
+    }
+
     private static boolean isDpcPackageInstalled(Context context) {
         if (context == null) {
             return false;
@@ -700,6 +839,7 @@ public class QGCActivity extends QtActivity
     public static native void qgcLogDebug(String message);
     public static native void qgcLogWarning(String message);
     public static native void nativeLogSecurityEvent(String message);
+    public static native void nativeNotifyDpcPinGateChanged();
 
     public static void safeQgcLogDebug(String message) {
         try {
@@ -763,17 +903,13 @@ public class QGCActivity extends QtActivity
             _knownDpcKioskEnabled = enabled;
             saveDpcKioskStateToPrefs(_instance.getApplicationContext());
 
+            // Single explicit broadcast — package-targeted duplicate would invoke
+            // DpcControlReceiver twice and double-count failed PIN attempts toward lockout.
             Intent explicitIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
             explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
             explicitIntent.putExtra(EXTRA_DPC_ENABLED, enabled);
             explicitIntent.putExtra(EXTRA_DPC_PIN, pin);
             _instance.sendBroadcast(explicitIntent);
-
-            Intent packageIntent = new Intent(ACTION_DPC_SET_KIOSK_ENABLED);
-            packageIntent.setPackage(DPC_PACKAGE);
-            packageIntent.putExtra(EXTRA_DPC_ENABLED, enabled);
-            packageIntent.putExtra(EXTRA_DPC_PIN, pin);
-            _instance.sendBroadcast(packageIntent);
             return "OK";
         } catch (Throwable t) {
             Log.e(TAG, "Failed to send DPC control broadcast", t);
@@ -824,11 +960,6 @@ public class QGCActivity extends QtActivity
             explicitIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
             context.sendBroadcast(explicitIntent);
 
-            Intent packageIntent = new Intent(ACTION_DPC_REQUEST_KIOSK_STATE);
-            packageIntent.setPackage(DPC_PACKAGE);
-            packageIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-            context.sendBroadcast(packageIntent);
-
             Log.e(TAG, "DPC state request sent to " + DPC_PACKAGE);
         } catch (Throwable t) {
             Log.e(TAG, "Failed to request DPC kiosk state", t);
@@ -861,6 +992,28 @@ public class QGCActivity extends QtActivity
 
     public static boolean hasKnownDpcKioskState() {
         return _hasKnownDpcKioskState;
+    }
+
+    // Reason string from the most recent DPC state broadcast (e.g. "set", "invalid_pin",
+    // "locked_out", "query"). Used by QGC UI to give the operator PIN/lockout feedback.
+    public static String getLastDpcReason() {
+        return _lastDpcReason == null ? "" : _lastDpcReason;
+    }
+
+    // Cleared by QGC right before sending a new SET command so the next non-empty reason
+    // reflects the result of that command.
+    public static void clearLastDpcReason() {
+        _lastDpcReason = "";
+    }
+
+    // Remaining wrong-PIN attempts before lockout reported by the DPC (-1 if not applicable).
+    public static int getDpcAttemptsRemaining() {
+        return _dpcAttemptsRemaining;
+    }
+
+    // Absolute epoch-millis when the current lockout ends, or 0 if not locked out.
+    public static long getDpcLockoutUntilMs() {
+        return _dpcLockoutUntil;
     }
 
     public static boolean getKnownDpcKioskStateEnabled() {
