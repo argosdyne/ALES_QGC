@@ -15,6 +15,7 @@
 #include "AppSettings.h"
 #include "JsonHelper.h"
 #include "MissionManager.h"
+#include "MissionFileValidator.h"
 #include "KMLPlanDomDocument.h"
 #include "SurveyPlanCreator.h"
 #include "StructureScanPlanCreator.h"
@@ -337,6 +338,17 @@ void PlanMasterController::loadFromFile(const QString& filename)
     QString errorMessage = tr("Error loading Plan file (%1). %2").arg(filename).arg("%1");
 
     if (filename.isEmpty()) {
+        return;
+    }
+
+    QString validationErrorString;
+    MissionFileValidator::ValidationResult validationResult = MissionFileValidator::validate(filename, qgcApp()->toolbox()->settingsManager()->appSettings()->missionSavePath(), validationErrorString);
+    if (validationResult != MissionFileValidator::Accepted) {
+        QString validationMessage = MissionFileValidator::validationResultToString(validationResult);
+        if (!validationErrorString.isEmpty()) {
+            validationMessage += QStringLiteral(": ") + validationErrorString;
+        }
+        qgcApp()->showAppMessage(errorMessage.arg(validationMessage));
         return;
     }
 

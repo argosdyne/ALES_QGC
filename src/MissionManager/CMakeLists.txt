@@ -84,6 +84,8 @@ add_library(MissionManager
 	MissionCommandUIInfo.h
 	MissionController.cc
 	MissionController.h
+	MissionFileValidator.cc
+	MissionFileValidator.h
 	MissionItem.cc
 	MissionItem.h
 	MissionManager.cc

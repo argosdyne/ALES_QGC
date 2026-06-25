@@ -652,6 +652,7 @@ HEADERS += \
     src/MissionManager/MissionCommandTree.h \
     src/MissionManager/MissionCommandUIInfo.h \
     src/MissionManager/MissionController.h \
+    src/MissionManager/MissionFileValidator.h \
     src/MissionManager/MissionItem.h \
     src/MissionManager/MissionManager.h \
     src/MissionManager/MissionSettingsItem.h \
@@ -925,6 +926,7 @@ SOURCES += \
     src/MissionManager/MissionCommandTree.cc \
     src/MissionManager/MissionCommandUIInfo.cc \
     src/MissionManager/MissionController.cc \
+    src/MissionManager/MissionFileValidator.cc \
     src/MissionManager/MissionItem.cc \
     src/MissionManager/MissionManager.cc \
     src/MissionManager/MissionSettingsItem.cc \
