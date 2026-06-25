@@ -38,6 +38,7 @@ private:
     virtual bool _getHat        (int hat,int i);
 
     int *btnCode;
+    QString *btnName;
     int *axisCode;
     bool *btnValue;
     int *axisValue;

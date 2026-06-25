@@ -112,6 +112,13 @@ public:
     Q_INVOKABLE void gimbalControlInImage(QPointF point);
     Q_INVOKABLE void buttonTakePhoto();
     Q_INVOKABLE void buttonToggleVideo();
+    void joystickGimbalPitchStep(int direction);
+    void joystickGimbalYawStep(int direction);
+    void joystickGimbalCenter();
+    void joystickZoomRcStep(int direction);
+    void joystickZoomStart(int direction);
+    void joystickZoomStop();
+    void injectRcChannels(const quint16* channels, int count);
 
     // Override from QGCCameraControl
     void setVideoMode() final;
@@ -195,6 +202,11 @@ protected:
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
     void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
     void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
+    void _sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15);
+    void _trackRcGimbalChannels(const mavlink_rc_channels_t& rc);
+    bool _joystickRcActive() const;
+    void _updateJoystickRcStream();
+    void _streamJoystickRc();
 
     bool _isTakingPhotoTimelapse();
     void _sendNextQueuedMavCommand();
@@ -228,6 +240,12 @@ protected:
     quint16 _lastRcGimbalZoomRaw{1500};
     quint16 _lastRcGimbalCenterRaw{1500};
     bool _lastRcGimbalWasCentered{true};
+    uint16_t _joystickRcPitchPwm{1500};
+    uint16_t _joystickRcYawPwm{1500};
+    uint16_t _joystickRcZoomPwm{1500};
+    QTimer _joystickRcStreamTimer;
+    int _joystickRcStopFrames{0};
+    QTimer _joystickZoomStepReturnTimer;
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치

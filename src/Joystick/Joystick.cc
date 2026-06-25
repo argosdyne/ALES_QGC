@@ -14,11 +14,22 @@
 #include "UAS.h"
 #include "QGCApplication.h"
 #include "VideoManager.h"
-#include "QGCCameraManager.h"
 #include "QGCCameraControl.h"
 #include "GimbalController.h"
+#include "QGCToolbox.h"
+#include "SettingsManager.h"
+#include "AppSettings.h"
 
 #include <QSettings>
+#include <QDateTime>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 QGC_LOGGING_CATEGORY(JoystickValuesLog, "JoystickValuesLog")
@@ -110,16 +121,27 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     , _buttonCount(buttonCount)
     , _hatCount(hatCount)
     , _hatButtonCount(4 * hatCount)
-    , _totalButtonCount(_buttonCount+_hatButtonCount)
+    , _axisVirtualButtonCount(qMax(0, _axisCount - _axisVirtualButtonStartAxis) * 2)
+    , _totalButtonCount(_buttonCount + _hatButtonCount + _axisVirtualButtonCount)
     , _multiVehicleManager(multiVehicleManager)
 {
     qRegisterMetaType<GRIPPER_ACTIONS>();
 
     _rgAxisValues   = new int[static_cast<size_t>(_axisCount)];
+    _rgLastAxisValues = new int[static_cast<size_t>(_axisCount)];
+    _rgAxisNeutralValues = new int[static_cast<size_t>(_axisCount)];
+    _rgAxisNeutralInited = new bool[static_cast<size_t>(_axisCount)];
     _rgCalibration  = new Calibration_t[static_cast<size_t>(_axisCount)];
     _rgButtonValues = new uint8_t[static_cast<size_t>(_totalButtonCount)];
+    _rgVirtualButtonReleaseMSecs = new qint64[static_cast<size_t>(_axisVirtualButtonCount)];
     for (int i = 0; i < _axisCount; i++) {
         _rgAxisValues[i] = 0;
+        _rgLastAxisValues[i] = 0;
+        _rgAxisNeutralValues[i] = 0;
+        _rgAxisNeutralInited[i] = false;
+    }
+    for (int i = 0; i < _axisVirtualButtonCount; i++) {
+        _rgVirtualButtonReleaseMSecs[i] = 0;
     }
     for (int i = 0; i < _totalButtonCount; i++) {
         _rgButtonValues[i] = BUTTON_UP;
@@ -146,6 +168,10 @@ Joystick::~Joystick()
         qWarning() << "Joystick thread still running!";
     }
     delete[] _rgAxisValues;
+    delete[] _rgLastAxisValues;
+    delete[] _rgAxisNeutralValues;
+    delete[] _rgAxisNeutralInited;
+    delete[] _rgVirtualButtonReleaseMSecs;
     delete[] _rgCalibration;
     delete[] _rgButtonValues;
     _assignableButtonActions.clearAndDeleteContents();
@@ -191,7 +217,12 @@ void Joystick::_setDefaultCalibration(void) {
     _calibrated         = true;
     _circleCorrection   = true;
 
+    // These are auto-applied defaults (e.g. for recognized game controllers). Persist them
+    // to QSettings but do NOT overwrite the user's persistent XML backup with them, otherwise
+    // a restored configuration could be clobbered on the next startup.
+    _suppressConfigBackup = true;
     _saveSettings();
+    _suppressConfigBackup = false;
 }
 
 void Joystick::_updateTXModeSettingsKey(Vehicle* activeVehicle)
@@ -246,6 +277,20 @@ void Joystick::_loadSettings()
 {
     QSettings settings;
     settings.beginGroup(_settingsGroup);
+
+    // If this joystick has no stored settings on this install (e.g. fresh install or
+    // after the app was reinstalled) but a backup XML exists in the persistent save
+    // folder, restore it into QSettings before loading so the user does not lose
+    // calibration and button assignments. The restore writes through the SAME QSettings
+    // instance used below so the restored values are guaranteed to be visible.
+    settings.beginGroup(_name);
+    const bool hasStoredSettings = settings.contains(_calibratedSettingsKey);
+    settings.endGroup();
+    qCDebug(JoystickLog) << "_loadSettings" << _name << "hasStoredSettings" << hasStoredSettings;
+    if (!hasStoredSettings) {
+        _restoreSettingsFromFile(settings);
+    }
+
     Vehicle* activeVehicle = _multiVehicleManager->activeVehicle();
 
     if(_txModeSettingsKey && activeVehicle)
@@ -264,7 +309,7 @@ void Joystick::_loadSettings()
     _deadband           = settings.value(_deadbandSettingsKey,          false).toBool();
     _axisFrequencyHz    = settings.value(_axisFrequencySettingsKey,     _defaultAxisFrequencyHz).toFloat();
     _buttonFrequencyHz  = settings.value(_buttonFrequencySettingsKey,   _defaultButtonFrequencyHz).toFloat();
-    _circleCorrection   = settings.value(_circleCorrectionSettingsKey,  true).toBool();
+    _circleCorrection   = settings.value(_circleCorrectionSettingsKey,  false).toBool();
     _negativeThrust     = settings.value(_negativeThrustSettingsKey,    false).toBool();
 
 
@@ -389,13 +434,13 @@ void Joystick::_saveSettings()
         settings.setValue(revTpl.arg(axis), calibration->reversed);
         settings.setValue(deadbndTpl.arg(axis), calibration->deadband);
         qCDebug(JoystickLog) << "_saveSettings name:axis:min:max:trim:reversed:deadband"
-                                << _name
-                                << axis
-                                << calibration->min
-                                << calibration->max
-                                << calibration->center
-                                << calibration->reversed
-                                << calibration->deadband;
+                             << _name
+                             << axis
+                             << calibration->min
+                             << calibration->max
+                             << calibration->center
+                             << calibration->reversed
+                             << calibration->deadband;
     }
 
     // Always save function Axis mappings in TX Mode 2
@@ -407,15 +452,164 @@ void Joystick::_saveSettings()
         qCDebug(JoystickLog) << "_saveSettings name:function:axis" << _name << function << _rgFunctionSettingsKey[function];
     }
     _saveButtonSettings();
+
+    // Mirror the full configuration to a persistent XML backup that survives app reinstall.
+    settings.sync();
+    _backupSettingsToFile();
+}
+
+QString Joystick::_configBackupFilePath() const
+{
+    SettingsManager* settingsManager = qgcApp()->toolbox()->settingsManager();
+    if (!settingsManager || !settingsManager->appSettings()) {
+        return QString();
+    }
+    // Use the same persistent folder the camera definition cache lives in. The user has
+    // verified this folder survives app reinstall (it is not removed with the app data).
+    const QString dir = settingsManager->appSettings()->parameterSavePath();
+    if (dir.isEmpty()) {
+        return QString();
+    }
+
+    QString safeName = _name;
+    for (QChar& ch : safeName) {
+        if (!ch.isLetterOrNumber() && ch != '_' && ch != '-' && ch != '.') {
+            ch = QLatin1Char('_');
+        }
+    }
+    return QDir(dir).filePath(QStringLiteral("Joystick_%1.xml").arg(safeName));
+}
+
+void Joystick::_backupSettingsToFile()
+{
+    if (_suppressConfigBackup) {
+        return;     // Auto-applied defaults must not overwrite a real user backup.
+    }
+
+    const QString filePath = _configBackupFilePath();
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QSettings settings;
+    settings.beginGroup(_settingsGroup);
+    const int txMode = _txModeSettingsKey ? settings.value(_txModeSettingsKey, _transmitterMode).toInt()
+                                          : _transmitterMode;
+    settings.beginGroup(_name);
+    const QStringList keys = settings.allKeys();
+    if (keys.isEmpty()) {
+        return;     // Nothing configured yet; don't create an empty backup.
+    }
+
+    QDir().mkpath(QFileInfo(filePath).absolutePath());
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qCWarning(JoystickLog) << "Joystick config backup: cannot write" << filePath << file.errorString();
+        return;
+    }
+
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    xml.writeStartDocument();
+    xml.writeStartElement(QStringLiteral("JoystickConfig"));
+    xml.writeAttribute(QStringLiteral("name"),        _name);
+    xml.writeAttribute(QStringLiteral("axisCount"),   QString::number(_axisCount));
+    xml.writeAttribute(QStringLiteral("buttonCount"), QString::number(_buttonCount));
+    xml.writeAttribute(QStringLiteral("txMode"),      QString::number(txMode));
+    // Back up calibration only. Button assignments (ButtonActionName%1 / ButtonActionRepeat%1)
+    // are intentionally NOT persisted, so a restore never carries over button mappings.
+    const QString buttonNamePrefix   = QString(_buttonActionNameKey).remove(QStringLiteral("%1"));
+    const QString buttonRepeatPrefix = QString(_buttonActionRepeatKey).remove(QStringLiteral("%1"));
+    for (const QString& key : keys) {
+        if (key.startsWith(buttonNamePrefix) || key.startsWith(buttonRepeatPrefix)) {
+            continue;
+        }
+        xml.writeStartElement(QStringLiteral("s"));
+        xml.writeAttribute(QStringLiteral("k"), key);
+        xml.writeAttribute(QStringLiteral("v"), settings.value(key).toString());
+        xml.writeEndElement();
+    }
+    xml.writeEndElement();
+    xml.writeEndDocument();
+    file.close();
+
+    qCDebug(JoystickLog) << "Joystick config backed up to" << filePath;
+}
+
+// Restores a previously backed-up configuration into `settings`, which must be positioned
+// at the top-level joystick settings group (_settingsGroup). Using the caller's QSettings
+// instance guarantees the restored values are immediately visible to the subsequent load.
+bool Joystick::_restoreSettingsFromFile(QSettings& settings)
+{
+    const QString filePath = _configBackupFilePath();
+    if (filePath.isEmpty()) {
+        qCWarning(JoystickLog) << "Joystick config restore: persistent save path not available";
+        return false;
+    }
+    if (!QFile::exists(filePath)) {
+        qCDebug(JoystickLog) << "Joystick config restore: no backup file at" << filePath;
+        return false;
+    }
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCWarning(JoystickLog) << "Joystick config restore: cannot read" << filePath << file.errorString();
+        return false;
+    }
+
+    QMap<QString, QString> values;
+    int  txMode      = -1;
+    bool nameMatched = false;
+
+    QXmlStreamReader xml(&file);
+    while (!xml.atEnd() && !xml.hasError()) {
+        if (xml.readNext() != QXmlStreamReader::StartElement) {
+            continue;
+        }
+        if (xml.name() == QLatin1String("JoystickConfig")) {
+            nameMatched = (xml.attributes().value(QStringLiteral("name")).toString() == _name);
+            txMode      = xml.attributes().value(QStringLiteral("txMode")).toInt();
+        } else if (xml.name() == QLatin1String("s")) {
+            const QString k = xml.attributes().value(QStringLiteral("k")).toString();
+            // Ignore button assignments that may exist in older backup files — calibration only.
+            const bool isButtonAssignment =
+                k.startsWith(QString(_buttonActionNameKey).remove(QStringLiteral("%1"))) ||
+                k.startsWith(QString(_buttonActionRepeatKey).remove(QStringLiteral("%1")));
+            if (!k.isEmpty() && !isButtonAssignment) {
+                values.insert(k, xml.attributes().value(QStringLiteral("v")).toString());
+            }
+        }
+    }
+    file.close();
+
+    if (!nameMatched || values.isEmpty()) {
+        qCWarning(JoystickLog) << "Joystick config restore: backup not applicable" << filePath
+                               << "nameMatched" << nameMatched << "keyCount" << values.count();
+        return false;       // Backup is for a different joystick or is empty/corrupt.
+    }
+
+    // settings is positioned at _settingsGroup.
+    if (_txModeSettingsKey && txMode > 0) {
+        settings.setValue(_txModeSettingsKey, txMode);
+    }
+    settings.beginGroup(_name);
+    for (auto it = values.constBegin(); it != values.constEnd(); ++it) {
+        settings.setValue(it.key(), it.value());
+    }
+    settings.endGroup();
+    settings.sync();
+
+    qCDebug(JoystickLog) << "Joystick config restored from" << filePath << "keyCount" << values.count();
+    return true;
 }
 
 // Relative mappings of axis functions between different TX modes
 int Joystick::_mapFunctionMode(int mode, int function) {
     static const int mapping[][6] = {
-        { yawFunction, pitchFunction, rollFunction, throttleFunction, gimbalPitchFunction, gimbalYawFunction },
-        { yawFunction, throttleFunction, rollFunction, pitchFunction, gimbalPitchFunction, gimbalYawFunction },
-        { rollFunction, pitchFunction, yawFunction, throttleFunction, gimbalPitchFunction, gimbalYawFunction },
-        { rollFunction, throttleFunction, yawFunction, pitchFunction, gimbalPitchFunction, gimbalYawFunction }};
+                                     { yawFunction, pitchFunction, rollFunction, throttleFunction, gimbalPitchFunction, gimbalYawFunction },
+                                     { yawFunction, throttleFunction, rollFunction, pitchFunction, gimbalPitchFunction, gimbalYawFunction },
+                                     { rollFunction, pitchFunction, yawFunction, throttleFunction, gimbalPitchFunction, gimbalYawFunction },
+                                     { rollFunction, throttleFunction, yawFunction, pitchFunction, gimbalPitchFunction, gimbalYawFunction }};
     return mapping[mode-1][function];
 }
 
@@ -521,6 +715,7 @@ void Joystick::run()
 void Joystick::_handleButtons()
 {
     int lastBbuttonValues[256];
+    std::fill_n(lastBbuttonValues, 256, static_cast<int>(BUTTON_UP));
     //-- Update button states
     for (int buttonIndex = 0; buttonIndex < _buttonCount; buttonIndex++) {
         bool newButtonValue = _getButton(buttonIndex);
@@ -553,9 +748,183 @@ void Joystick::_handleButtons()
             }
         }
     }
+    //-- Update virtual axis-buttons (for dial/extra axes): each axis contributes 2 virtual buttons.
+    //   virtualIndex+0: axis negative direction
+    //   virtualIndex+1: axis positive direction
+    const int axisVirtualStartIndex = _buttonCount + _hatButtonCount;
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    for (int axisIndex = _axisVirtualButtonStartAxis; axisIndex < _axisCount; axisIndex++) {
+        const int rgAxisButtonBaseIndex = axisVirtualStartIndex + (axisIndex - _axisVirtualButtonStartAxis) * 2;
+        if (rgAxisButtonBaseIndex + 1 >= _totalButtonCount) {
+            break;
+        }
+        const int virtualAxisOffset = (axisIndex - _axisVirtualButtonStartAxis) * 2;
+        if (virtualAxisOffset + 1 >= _axisVirtualButtonCount) {
+            break;
+        }
+
+        // Use calibrated/normalized value with deadband for stable triggering.
+        const float axisValue = _adjustRange(_rgAxisValues[axisIndex], _rgCalibration[axisIndex], _deadband);
+        const int axisRawValue = _rgAxisValues[axisIndex];
+        const int axisDeltaRaw = axisRawValue - _rgLastAxisValues[axisIndex];
+        _rgLastAxisValues[axisIndex] = axisRawValue;
+        if (!_rgAxisNeutralInited[axisIndex]) {
+            // First sample is usually at rest; use it as initial neutral guess.
+            _rgAxisNeutralValues[axisIndex] = axisRawValue;
+            _rgAxisNeutralInited[axisIndex] = true;
+        }
+
+        const int axisMinRaw = _rgCalibration[axisIndex].min;
+        const int axisMaxRaw = _rgCalibration[axisIndex].max;
+        const int axisCenterRaw = _rgCalibration[axisIndex].center;
+        int axisRangeRaw = axisMaxRaw - axisMinRaw;
+        if (axisRangeRaw <= 0) {
+            axisRangeRaw = 65535;
+        }
+        const float axisDeltaNorm = static_cast<float>(axisDeltaRaw) / static_cast<float>(axisRangeRaw);
+        const bool axisNearCenter = std::fabs(axisValue) < _axisVirtualButtonOnThreshold;
+        const float centerRatio = static_cast<float>(axisCenterRaw - axisMinRaw) / static_cast<float>(axisRangeRaw);
+        const bool dialLikeByCalibration = (centerRatio <= 0.2f || centerRatio >= 0.8f);
+        // Unsigned-like axis fallback: runtime neutral far from zero while calibration center is near zero.
+        const bool inferredUnsignedDial = (std::abs(axisCenterRaw) < static_cast<int>(axisRangeRaw * 0.05f))
+                                          && (_rgAxisNeutralValues[axisIndex] > static_cast<int>(axisRangeRaw * 0.02f));
+        const bool dialLikeAxis = dialLikeByCalibration || inferredUnsignedDial;
+        const float motionThreshold = dialLikeAxis ? (_axisVirtualMotionOnThreshold * 1.2f) : _axisVirtualMotionOnThreshold;
+        // For dial buttons with firmware-fixed center, keep neutral fixed during runtime.
+        // Unsigned-like axes still use first-sample neutral initialized above.
+        const int neutralRaw = dialLikeAxis ? (inferredUnsignedDial ? _rgAxisNeutralValues[axisIndex] : axisCenterRaw) : axisCenterRaw;
+        int centeredRaw = axisRawValue - neutralRaw;
+        int sideRangeRaw = qMax(axisMaxRaw - neutralRaw, neutralRaw - axisMinRaw);
+        if (sideRangeRaw <= 0) {
+            sideRangeRaw = axisRangeRaw / 2;
+        }
+        if (sideRangeRaw <= 0) {
+            sideRangeRaw = 32767;
+        }
+        float centeredNorm = std::max(-1.0f, std::min(1.0f,
+                                                      static_cast<float>(axisRawValue - neutralRaw) / static_cast<float>(sideRangeRaw)));
+        if (dialLikeAxis) {
+            // Suppress jitter around center to avoid false direction toggles.
+            const bool nearCenter = std::fabs(centeredNorm) <= (_axisVirtualDialOffThreshold * 0.8f);
+            const bool lowMotion = std::fabs(axisDeltaNorm) <= (motionThreshold * 0.6f);
+            if (nearCenter && lowMotion) {
+                centeredNorm = 0.0f;
+            }
+        }
+
+        // Negative direction button
+        bool negButtonDown = false;
+        const int rgAxisButtonPosIndex = rgAxisButtonBaseIndex + 1;
+        bool posButtonDown = false;
+        if (dialLikeAxis) {
+            // Dial-like axis: position-based hysteresis state machine.
+            // 1) immediate response when crossing ON threshold
+            // 2) stays active while held
+            // 3) releases when returning to center zone
+            const float dialOn  = _axisVirtualDialOnThreshold * 0.85f;
+            const float dialOff = _axisVirtualDialOffThreshold;
+            // Raw-count guard to reject center jitter seen on some dials.
+            const int rawOnThreshold  = qMax(8, static_cast<int>(axisRangeRaw * 0.004f));
+            const int rawOffThreshold = qMax(8,  rawOnThreshold / 2);
+            const bool negWasDown = _rgButtonValues[rgAxisButtonBaseIndex] != BUTTON_UP;
+            const bool posWasDown = _rgButtonValues[rgAxisButtonPosIndex] != BUTTON_UP;
+            // Treat a center RANGE as neutral (not a single value).
+            // Use hysteresis so neutral does not chatter around the boundary.
+            const int neutralBandRaw = qMax(rawOffThreshold, static_cast<int>(axisRangeRaw * 0.020f));
+            const int neutralBandReleaseRaw = qMax(neutralBandRaw + 4, static_cast<int>(axisRangeRaw * 0.035f));
+            const int activeNeutralBandRaw = (negWasDown || posWasDown) ? neutralBandReleaseRaw : neutralBandRaw;
+            const bool inNeutral = (std::abs(centeredRaw) <= activeNeutralBandRaw) || (std::fabs(centeredNorm) <= dialOff);
+            const int rawHoldThreshold = qMax(rawOffThreshold, neutralBandRaw);
+            const bool negOnCond = (centeredRaw <= -rawOnThreshold) && (centeredNorm <= -dialOn);
+            const bool posOnCond = (centeredRaw >=  rawOnThreshold) && (centeredNorm >=  dialOn);
+            const bool negHoldCond = (centeredRaw <= -rawHoldThreshold) && (centeredNorm <= -dialOff);
+            const bool posHoldCond = (centeredRaw >=  rawHoldThreshold) && (centeredNorm >=  dialOff);
+
+            if (inNeutral) {
+                // Requirement #3: no signal while stick/dial is released near center.
+                negButtonDown = false;
+                posButtonDown = false;
+            } else if (negWasDown) {
+                // Requirement #4: do not flip directly to opposite side without neutral.
+                negButtonDown = negHoldCond;
+                posButtonDown = false;
+            } else if (posWasDown) {
+                // Requirement #4: symmetric lockout for opposite direction.
+                negButtonDown = false;
+                posButtonDown = posHoldCond;
+            } else {
+                negButtonDown = negOnCond;
+                posButtonDown = posOnCond;
+            }
+        } else if (axisNearCenter && axisDeltaNorm <= -motionThreshold) {
+            // Relative-like behavior around center: trigger by movement direction.
+            negButtonDown = true;
+        } else if (_rgButtonValues[rgAxisButtonBaseIndex] == BUTTON_UP) {
+            negButtonDown = axisValue <= -_axisVirtualButtonOnThreshold;
+        } else {
+            negButtonDown = axisValue <= -_axisVirtualButtonOffThreshold;
+        }
+        if (rgAxisButtonBaseIndex < 256) {
+            lastBbuttonValues[rgAxisButtonBaseIndex] = _rgButtonValues[rgAxisButtonBaseIndex];
+        }
+        if (!dialLikeAxis) {
+            if (negButtonDown) {
+                _rgVirtualButtonReleaseMSecs[virtualAxisOffset] = nowMs + _axisVirtualButtonHoldMs;
+            }
+            if (!negButtonDown && nowMs < _rgVirtualButtonReleaseMSecs[virtualAxisOffset]) {
+                negButtonDown = true;
+            }
+        }
+        if (negButtonDown && _rgButtonValues[rgAxisButtonBaseIndex] == BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonBaseIndex] = BUTTON_DOWN;
+            emit rawButtonPressedChanged(rgAxisButtonBaseIndex, true);
+        } else if (!negButtonDown && _rgButtonValues[rgAxisButtonBaseIndex] != BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonBaseIndex] = BUTTON_UP;
+            emit rawButtonPressedChanged(rgAxisButtonBaseIndex, false);
+        }
+
+        // Positive direction button
+        if (!dialLikeAxis) {
+            // Dial-like axis: position-based hysteresis state machine.
+            if (axisNearCenter && axisDeltaNorm >= motionThreshold) {
+                // Relative-like behavior around center: trigger by movement direction.
+                posButtonDown = true;
+            } else if (_rgButtonValues[rgAxisButtonPosIndex] == BUTTON_UP) {
+                posButtonDown = axisValue >= _axisVirtualButtonOnThreshold;
+            } else {
+                posButtonDown = axisValue >= _axisVirtualButtonOffThreshold;
+            }
+        }
+        if (rgAxisButtonPosIndex < 256) {
+            lastBbuttonValues[rgAxisButtonPosIndex] = _rgButtonValues[rgAxisButtonPosIndex];
+        }
+
+        if (!dialLikeAxis) {
+            if (posButtonDown) {
+                _rgVirtualButtonReleaseMSecs[virtualAxisOffset + 1] = nowMs + _axisVirtualButtonHoldMs;
+            }
+            if (!posButtonDown && nowMs < _rgVirtualButtonReleaseMSecs[virtualAxisOffset + 1]) {
+                posButtonDown = true;
+            }
+        }
+        if (posButtonDown && _rgButtonValues[rgAxisButtonPosIndex] == BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonPosIndex] = BUTTON_DOWN;
+            emit rawButtonPressedChanged(rgAxisButtonPosIndex, true);
+        } else if (!posButtonDown && _rgButtonValues[rgAxisButtonPosIndex] != BUTTON_UP) {
+            _rgButtonValues[rgAxisButtonPosIndex] = BUTTON_UP;
+            emit rawButtonPressedChanged(rgAxisButtonPosIndex, false);
+        }
+    }
     //-- Process button press/release
     for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
         if(_rgButtonValues[buttonIndex] == BUTTON_DOWN || _rgButtonValues[buttonIndex] == BUTTON_REPEAT) {
+            // TEMP DIAGNOSTIC (remove after): log once per press to diagnose buttons 0/1.
+            if (_rgButtonValues[buttonIndex] == BUTTON_DOWN) {
+                qWarning() << "JSBTN_DIAG down idx=" << buttonIndex
+                           << "hasAction=" << (_buttonActionArray[buttonIndex] != nullptr)
+                           << "action=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->action : QString())
+                           << "repeat=" << (_buttonActionArray[buttonIndex] ? _buttonActionArray[buttonIndex]->repeat : false);
+            }
             if(_buttonActionArray[buttonIndex]) {
                 QString buttonAction = _buttonActionArray[buttonIndex]->action;
                 if(buttonAction.isEmpty() || buttonAction == _buttonActionNone)
@@ -634,37 +1003,14 @@ void Joystick::_handleAxis()
             int     axis = _rgFunctionAxis[rollFunction];
             float   roll = _adjustRange(_rgAxisValues[axis],    _rgCalibration[axis], _deadband);
 
-                    axis = _rgFunctionAxis[pitchFunction];
+            axis = _rgFunctionAxis[pitchFunction];
             float   pitch = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis], _deadband);
 
-                    axis = _rgFunctionAxis[yawFunction];
+            axis = _rgFunctionAxis[yawFunction];
             float   yaw = _adjustRange(_rgAxisValues[axis],     _rgCalibration[axis],_deadband);
 
-                    axis = _rgFunctionAxis[throttleFunction];
+            axis = _rgFunctionAxis[throttleFunction];
             float   throttle = _adjustRange(_rgAxisValues[axis],_rgCalibration[axis], _throttleMode==ThrottleModeDownZero?false:_deadband);
-
-            // These are only used for printing JoystickValuesLog
-            float   gimbalPitch = 0.0f;
-            float   gimbalYaw   = 0.0f;
-
-            if(_axisCount > 4) {
-                axis = _rgFunctionAxis[gimbalPitchFunction];
-                gimbalPitch = _adjustRange(_rgAxisValues[axis], _rgCalibration[axis],_deadband);
-            }
-
-            if(_axisCount > 5) {
-                axis = _rgFunctionAxis[gimbalYawFunction];
-                gimbalYaw = _adjustRange(_rgAxisValues[axis],   _rgCalibration[axis],_deadband);
-            }
-
-            if (fabsf(gimbalPitch) > 0.01f || fabsf(gimbalYaw) > 0.01f) {
-                qCInfo(GimbalLog) << "[GimbalFlow]"
-                                  << "joystick axis gimbal input"
-                                  << "name" << name()
-                                  << "gimbalPitch" << gimbalPitch
-                                  << "gimbalYaw" << gimbalYaw
-                                  << "axisCount" << _axisCount;
-            }
 
             if (_accumulator) {
                 static float throttle_accu = 0.f;
@@ -703,11 +1049,12 @@ void Joystick::_handleAxis()
             } else {
                 throttle = (throttle + 1.0f) / 2.0f;
             }
-            qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle:gimbalPitch:gimbalYaw" << name() << roll << -pitch << yaw << throttle << gimbalPitch << gimbalYaw;
+            qCDebug(JoystickValuesLog) << "name:roll:pitch:yaw:throttle" << name() << roll << -pitch << yaw << throttle;
             // NOTE: The buttonPressedBits going to MANUAL_CONTROL are currently used by ArduSub (and it only handles 16 bits)
             // Set up button bitmap
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
-            for (int buttonIndex = 0; buttonIndex < _totalButtonCount; buttonIndex++) {
+            const int maxButtonBits = qMin(_totalButtonCount, 64);
+            for (int buttonIndex = 0; buttonIndex < maxButtonBits; buttonIndex++) {
                 quint64 buttonBit = static_cast<quint64>(1LL << buttonIndex);
                 if (_rgButtonValues[buttonIndex] != BUTTON_UP) {
                     // Mark the button as pressed as long as its pressed
@@ -731,9 +1078,6 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -757,9 +1101,6 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             connect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             connect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            connect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            connect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            connect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -781,9 +1122,6 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::setVtolInFwdFlight, _activeVehicle, &Vehicle::setVtolInFwdFlight);
             disconnect(this, &Joystick::setFlightMode,      _activeVehicle, &Vehicle::setFlightMode);
             disconnect(this, &Joystick::gimbalYawLock,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawLock);
-            disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
-            disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
-            disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
@@ -889,6 +1227,9 @@ void Joystick::setButtonAction(int button, const QString& action)
         settings.setValue(QString(_buttonActionNameKey).arg(button),   _buttonActionArray[button]->action);
         settings.setValue(QString(_buttonActionRepeatKey).arg(button), _buttonActionArray[button]->repeat);
     }
+    settings.sync();
+    // Mirror to persistent XML backup (button assignments are saved here directly).
+    _backupSettingsToFile();
     emit buttonActionsChanged();
 }
 
@@ -1027,6 +1368,10 @@ void Joystick::setCalibrationMode(bool calibrating)
 
 void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
 {
+    // TEMP DIAGNOSTIC (remove after): surfaces which action reached here and the gating state.
+    qWarning() << "JSBTN_DIAG execute action=" << action << "down=" << buttonDown
+               << "vehicle=" << (_activeVehicle != nullptr)
+               << "jsEnabled=" << (_activeVehicle ? _activeVehicle->joystickEnabled() : false);
     if (!_activeVehicle || !_activeVehicle->joystickEnabled() || action == _buttonActionNone) {
         return;
     }
@@ -1063,40 +1408,20 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionToggleVideoRecord) {
         if (buttonDown) emit toggleVideoRecord();
     } else if(action == _buttonActionGimbalUp) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal up";
-            emit gimbalPitchStep(1);
-        }
+        // Hold-to-move: press starts the slew, release (direction 0) stops it.
+        emit gimbalPitchStep(buttonDown ? 1 : 0);
     } else if(action == _buttonActionGimbalDown) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal down";
-            emit gimbalPitchStep(-1);
-        }
+        emit gimbalPitchStep(buttonDown ? -1 : 0);
     } else if(action == _buttonActionGimbalLeft) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal left";
-            emit gimbalYawStep(-1);
-        }
+        emit gimbalYawStep(buttonDown ? -1 : 0);
     } else if(action == _buttonActionGimbalRight) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal right";
-            emit gimbalYawStep(1);
-        }
+        emit gimbalYawStep(buttonDown ? 1 : 0);
     } else if(action == _buttonActionGimbalCenter) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal center";
-            emit centerGimbal();
-        }
+        if (buttonDown) emit centerGimbal();
     } else if(action == _buttonActionGimbalYawLock) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal yaw lock";
-            emit gimbalYawLock(true);
-        }
+        if (buttonDown) emit gimbalYawLock(true);
     } else if(action == _buttonActionGimbalYawFollow) {
-        if (buttonDown) {
-            qCInfo(GimbalLog) << "[GimbalFlow]" << "joystick button gimbal yaw follow";
-            emit gimbalYawLock(false);
-        }
+        if (buttonDown) emit gimbalYawLock(false);
     } else if(action == _buttonActionEmergencyStop) {
         if (buttonDown) emit emergencyStop();
     } else if(action == _buttonActionGripperGrab) {
@@ -1128,7 +1453,7 @@ bool Joystick::_validAxis(int axis) const
     if(axis >= 0 && axis < _axisCount) {
         return true;
     }
-    qCWarning(JoystickLog) << "Invalid axis index" << axis;
+    //qCWarning(JoystickLog) << "Invalid axis index" << axis;
     return false;
 }
 

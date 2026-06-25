@@ -21,6 +21,8 @@
 #include "MultiVehicleManager.h"
 #include "JoystickMavCommand.h"
 
+class QSettings;
+
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 Q_DECLARE_LOGGING_CATEGORY(JoystickValuesLog)
 Q_DECLARE_METATYPE(GRIPPER_ACTIONS)
@@ -122,6 +124,7 @@ public:
     // Property accessors
 
     QString     name                () { return _name; }
+    bool        calibrated          () const { return _calibrated; }
     int         totalButtonCount    () const{ return _totalButtonCount; }
     int         axisCount           () const{ return _axisCount; }
     QStringList buttonActions       ();
@@ -142,13 +145,13 @@ public:
 
     void stop();
 
-/*
+    /*
     // Joystick index used by sdl library
     // Settable because sdl library remaps indices after certain events
     virtual int index(void) = 0;
     virtual void setIndex(int index) = 0;
 */
-	virtual bool requiresCalibration(void) { return true; }
+    virtual bool requiresCalibration(void) { return true; }
 
     int   throttleMode      ();
     void  setThrottleMode   (int mode);
@@ -227,6 +230,9 @@ protected:
     void    _saveSettings           ();
     void    _saveButtonSettings     ();
     void    _loadSettings           ();
+    void    _backupSettingsToFile   ();
+    bool    _restoreSettingsFromFile(QSettings& settings);
+    QString _configBackupFilePath   () const;
     float   _adjustRange            (int value, Calibration_t calibration, bool withDeadbands);
     void    _executeButtonAction    (const QString& action, bool buttonDown);
     int     _findAssignableButtonAction(const QString& action);
@@ -268,6 +274,10 @@ protected:
     std::atomic<bool> _exitThread{false};    ///< true: signal thread to exit
     bool    _calibrationMode        = false;
     int*    _rgAxisValues           = nullptr;
+    int*    _rgLastAxisValues       = nullptr;
+    int*    _rgAxisNeutralValues    = nullptr;
+    bool*   _rgAxisNeutralInited    = nullptr;
+    qint64* _rgVirtualButtonReleaseMSecs = nullptr;
     Calibration_t* _rgCalibration   = nullptr;
     ThrottleMode_t _throttleMode    = ThrottleModeDownZero;
     bool    _negativeThrust         = false;
@@ -283,10 +293,12 @@ protected:
 
     QString _name;
     bool    _calibrated;
+    bool    _suppressConfigBackup = false;   // Don't overwrite the persistent XML backup with auto-applied defaults
     int     _axisCount;
     int     _buttonCount;
     int     _hatCount;
     int     _hatButtonCount;
+    int     _axisVirtualButtonCount;
     int     _totalButtonCount;
 
     static int          _transmitterMode;
@@ -306,6 +318,15 @@ protected:
     static const float  _maxButtonFrequencyHz;
 
 private:
+    static constexpr int   _axisVirtualButtonStartAxis = 0;   ///< All axes can be mapped as virtual buttons (dials included)
+    static constexpr float _axisVirtualButtonOnThreshold = 0.65f;
+    static constexpr float _axisVirtualButtonOffThreshold = 0.45f;   ///< Hysteresis to avoid chatter
+    static constexpr float _axisVirtualDialOnThreshold = 0.12f;      ///< Position threshold for dial-like axes (centered norm)
+    static constexpr float _axisVirtualDialOffThreshold = 0.06f;     ///< Release threshold for dial-like axes
+    // Lower threshold so short dial movement (without full-range travel) is still detected.
+    static constexpr float _axisVirtualMotionOnThreshold = 0.006f;   ///< Additional delta-based trigger for dial-like axes
+    static constexpr int   _axisVirtualButtonHoldMs = 120;   ///< Keep dial-derived button down long enough for UI/action reliability
+
     static const char*  _rgFunctionSettingsKey[maxFunction];
 
     static const char* _settingsGroup;

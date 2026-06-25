@@ -2282,9 +2282,17 @@ void Vehicle::_loadJoystickSettings()
     QSettings settings;
     settings.beginGroup(QString(_settingsGroup).arg(_id));
 
-    if (_toolbox->joystickManager()->activeJoystick()) {
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << settings.value(_joystickEnabledSettingsKey, false).toBool();
-        setJoystickEnabled(settings.value(_joystickEnabledSettingsKey, false).toBool());
+    if (Joystick* activeJoystick = _toolbox->joystickManager()->activeJoystick()) {
+        bool enabled = settings.value(_joystickEnabledSettingsKey, false).toBool();
+        // If there is no stored preference yet (fresh install / after reinstall) but the
+        // active joystick already has a restored calibration, enable input automatically so
+        // the user does not have to re-check "Enable joystick input" after their config was
+        // restored. An explicit later choice (toggling the checkbox) is persisted and wins.
+        if (!settings.contains(_joystickEnabledSettingsKey) && activeJoystick->calibrated()) {
+            enabled = true;
+        }
+        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << enabled;
+        setJoystickEnabled(enabled);
     } else {
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified that there is no active joystick";
         setJoystickEnabled(false);
@@ -5250,7 +5258,7 @@ void Vehicle::clearAllParamMapRC(void)
     }
 }
 
-void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons)
+void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch, float auxRoll)
 {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
@@ -5271,6 +5279,18 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
     float newYawCommand    =    yaw * axesScaling;
     float newThrustCommand =    thrust * axesScaling;
 
+    int16_t auxPitchCommand =    0;
+    int16_t auxRollCommand  =    0;
+    uint8_t enabledExtensions =  0;
+    if (!qIsNaN(auxPitch)) {
+        auxPitchCommand = static_cast<int16_t>(auxPitch * axesScaling);
+        enabledExtensions |= 1 << 0;
+    }
+    if (!qIsNaN(auxRoll)) {
+        auxRollCommand = static_cast<int16_t>(auxRoll * axesScaling);
+        enabledExtensions |= 1 << 1;
+    }
+
     mavlink_msg_manual_control_pack_chan(
                 static_cast<uint8_t>(_mavlink->getSystemId()),
                 static_cast<uint8_t>(_mavlink->getComponentId()),
@@ -5282,8 +5302,50 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
                 static_cast<int16_t>(newThrustCommand),
                 static_cast<int16_t>(newYawCommand),
                 buttons,
-                0, 0, 0, 0);
+                0,
+                enabledExtensions,
+                auxPitchCommand,
+                auxRollCommand);
     sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+
+    if (!qIsNaN(auxPitch) || !qIsNaN(auxRoll)) {
+        constexpr uint16_t kIgnoreChannel = UINT16_MAX;
+        auto axisToPwm = [](float axis) -> uint16_t {
+            const float clamped = qBound(-1.0f, axis, 1.0f);
+            return static_cast<uint16_t>(1500 + (clamped * 500.0f));
+        };
+
+        const uint16_t chan9  = qIsNaN(auxPitch) ? kIgnoreChannel : axisToPwm(auxPitch);
+        const uint16_t chan10 = qIsNaN(auxRoll)  ? kIgnoreChannel : axisToPwm(auxRoll);
+        const uint8_t targetComponent = (_defaultComponentId > 0) ? static_cast<uint8_t>(_defaultComponentId) : static_cast<uint8_t>(MAV_COMP_ID_AUTOPILOT1);
+
+        mavlink_msg_rc_channels_override_pack_chan(
+                    static_cast<uint8_t>(_mavlink->getSystemId()),
+                    static_cast<uint8_t>(_mavlink->getComponentId()),
+                    sharedLink->mavlinkChannel(),
+                    &message,
+                    static_cast<uint8_t>(_id),
+                    targetComponent,
+                    kIgnoreChannel,  // chan1
+                    kIgnoreChannel,  // chan2
+                    kIgnoreChannel,  // chan3
+                    kIgnoreChannel,  // chan4
+                    kIgnoreChannel,  // chan5
+                    kIgnoreChannel,  // chan6
+                    kIgnoreChannel,  // chan7
+                    kIgnoreChannel,  // chan8
+                    chan9,
+                    chan10,
+                    kIgnoreChannel,  // chan11
+                    kIgnoreChannel,  // chan12
+                    kIgnoreChannel,  // chan13
+                    kIgnoreChannel,  // chan14
+                    kIgnoreChannel,  // chan15
+                    kIgnoreChannel,  // chan16
+                    kIgnoreChannel,  // chan17
+                    kIgnoreChannel); // chan18
+        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+    }
 }
 
 void Vehicle::triggerSimpleCamera()

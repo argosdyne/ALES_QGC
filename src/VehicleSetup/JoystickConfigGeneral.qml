@@ -228,9 +228,14 @@ Item {
                 width:              axisRect.width
                 height:             axisRect.height
                 Flow {
+                    id:                 buttonMonitorFlow
                     width:              ScreenTools.defaultFontPixelWidth * 30
                     spacing:            -1
                     anchors.centerIn:   parent
+                    property var hiddenButtonIndices: []
+                    function isHiddenButton(buttonIndex) {
+                        return hiddenButtonIndices.indexOf(Number(buttonIndex)) !== -1
+                    }
                     Connections {
                         target:     _activeJoystick
                         onRawButtonPressedChanged: {
@@ -245,6 +250,8 @@ Item {
                         Rectangle {
                             width:          ScreenTools.defaultFontPixelHeight * 1.5
                             height:         width
+                            property int buttonIndex: modelData
+                            visible:        !buttonMonitorFlow.isHiddenButton(buttonIndex)
                             border.width:   1
                             border.color:   qgcPal.text
                             color:          pressed ? qgcPal.buttonHighlight : qgcPal.windowShade
@@ -263,5 +270,4 @@ Item {
         }
     }
 }
-
 
