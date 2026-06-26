@@ -89,16 +89,6 @@ Item {
                 _camera.centerGimbal()
             }
         }
-        function buttonTakePhoto(start) {
-            if(start) {
-                _camera.buttonTakePhoto()
-            }
-        }
-        function buttonToggleVideo(start) {
-            if(start) {
-                _camera.buttonToggleVideo()
-            }
-        }
         function onButtonPressed(type, pressed) {
             if(type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM) {
                 thermalZoomTigger(pressed)
@@ -106,10 +96,6 @@ Item {
                 irSwitchTigger(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_GIMBAL_RESET) {
                 gimbalResetTigger(pressed)
-            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_CAPTURE) {
-                buttonTakePhoto(pressed)
-            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD) {
-                buttonToggleVideo(pressed)
             }
         }
     }
