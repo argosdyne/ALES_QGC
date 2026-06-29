@@ -91,6 +91,12 @@ Rectangle {
         }
     }
 
+    function isRadioOrFlightModesComponent(vehicleComponent) {
+        var setupSource = vehicleComponent.setupSource.toString()
+        return setupSource.indexOf("RadioComponent.qml") !== -1 ||
+               setupSource.indexOf("FlightModes") !== -1
+    }
+
     Component.onCompleted: _showSummaryPanel()
 
     Connections {
@@ -282,7 +288,8 @@ Rectangle {
                     setupComplete:      modelData.setupComplete
                     exclusiveGroup:     setupButtonGroup
                     text:               modelData.name
-                    visible:            modelData.setupSource.toString() !== ""
+                    visible:            modelData.setupSource.toString() !== "" &&
+                                        (!joystickButton.visible || !isRadioOrFlightModesComponent(modelData))
                     Layout.fillWidth:   true
                     onClicked:          showVehicleComponentPanel(modelData)
                 }
