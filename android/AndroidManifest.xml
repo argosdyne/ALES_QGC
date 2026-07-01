@@ -14,6 +14,18 @@
             <action android:name="com.easygripper.dpc.action.REQUEST_KIOSK_STATE" />
         </intent>
         <intent>
+            <action android:name="com.easygripper.dpc.action.ENABLE_WIFI" />
+        </intent>
+        <intent>
+            <action android:name="com.easygripper.dpc.action.OPEN_WIFI_PANEL" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.panel.action.WIFI" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.WIFI_SETTINGS" />
+        </intent>
+        <intent>
             <action android:name="com.easygripper.dpc.action.KIOSK_STATE_CHANGED" />
         </intent>
         <intent>
