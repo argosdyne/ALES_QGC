@@ -42,7 +42,7 @@ Item {
 
     property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
     property bool   _isFullWindowItemDark:  _mainWindowIsMap ? mapControl.isSatelliteMap : true
-    property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
+    property var    _activeVehicle:         globals.activeVehicle ? globals.activeVehicle : QGroundControl.multiVehicleManager.activeVehicle
     property var    _missionController:     _planController.missionController
     property var    _geoFenceController:    _planController.geoFenceController
     property var    _rallyPointController:  _planController.rallyPointController
@@ -66,6 +66,14 @@ Item {
     property int    _curCameraIndex:    _dynamicCameras ? _dynamicCameras.currentCamera : 0
     property bool   _isCamera:          _dynamicCameras ? _dynamicCameras.cameras.count > 0 : false
     property var    _camera:            _isCamera ? _dynamicCameras.cameras.get(_curCameraIndex) : null
+    property bool   _dragonEyePanelOpen: false
+    property string _cameraVendorModel: _camera ? (((_camera.vendor || "") + " " + (_camera.modelName || "")).toUpperCase()) : ""
+    property string _videoRtspUrlUpper: QGroundControl.settingsManager.videoSettings.rtspUrl.rawValue.toString().toUpperCase()
+    property bool   _isNextVisionCamera: _cameraVendorModel.indexOf("NEXTVISION") >= 0 || _cameraVendorModel.indexOf("DRAGONEYE") >= 0 || _cameraVendorModel.indexOf("DRAGON EYE") >= 0
+    property bool   _isGremsyCamera: _cameraVendorModel.indexOf("GREMSY") >= 0 || _cameraVendorModel.indexOf("LYNX") >= 0 || _videoRtspUrlUpper.indexOf("GREMSY") >= 0 || _videoRtspUrlUpper.indexOf("LYNX") >= 0 || _videoRtspUrlUpper.indexOf("192.168.2.240") >= 0
+    property bool   _showPayloadControl: _isNextVisionCamera || _isGremsyCamera
+    property string _payloadControlTitle: _isGremsyCamera ? qsTr("Gremsy") : qsTr("NextVision")
+    property string _payloadControlSource: _isGremsyCamera ? "qrc:/qml/QGroundControl/Payload/GremsyLynxControl.qml" : "qrc:/qml/QGroundControl/Payload/DragonEyeControl.qml"
 
     function _calcCenterViewPort() {
         var newToolInset = Qt.rect(0, 0, width, height)
@@ -175,6 +183,39 @@ Item {
         visible: !QGroundControl.settingsManager.videoSettings.disableFPVVideo.value &&
                  !QGroundControl.videoManager.fullScreen  &&
                  (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._isExpanded : true)
+    }
+
+    QGCButton {
+        id:                     dragonEyeButton
+        anchors.top:            parent.top
+        anchors.topMargin:      _toolsMargin
+        anchors.left:           parent.left
+        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * 11
+        text:                   _payloadControlTitle
+        visible:                !QGroundControl.videoManager.fullScreen && _showPayloadControl
+        enabled:                _activeVehicle
+        onClicked:              _dragonEyePanelOpen = !_dragonEyePanelOpen
+        z:                      QGroundControl.zOrderTopMost
+    }
+
+    Loader {
+        id:                     dragonEyePanel
+        anchors.top:            dragonEyeButton.bottom
+        anchors.topMargin:      _toolsMargin
+        anchors.left:           dragonEyeButton.left
+        visible:                dragonEyeButton.visible && _dragonEyePanelOpen
+        active:                 visible
+        source:                 _payloadControlSource
+        z:                      QGroundControl.zOrderTopMost
+
+        onStatusChanged: {
+            if (status === Loader.Ready && item) {
+                item.vehicle = _activeVehicle
+            }
+            if (status === Loader.Error) {
+                console.error("DragonEye panel failed to load:", source)
+            }
+        }
     }
 
     FPVOverlay {

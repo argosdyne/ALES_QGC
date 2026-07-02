@@ -82,6 +82,7 @@
 		<file alias="MAVLinkInspectorPage.qml">../src/AnalyzeView/MAVLinkInspectorPage.qml</file>
 		<file alias="MavlinkSettings.qml">../src/ui/preferences/MavlinkSettings.qml</file>
 		<file alias="MicrohardSettings.qml">../src/Microhard/MicrohardSettings.qml</file>
+		<file alias="PayloadSettings.qml">../src/Payload/PayloadSettings.qml</file>
 		<file alias="MicrohardLinkIndicator.qml">../src/Microhard/MicrohardLinkIndicator.qml</file>
 		<file alias="MissionCommandTreeEditorTestWindow.qml">../src/MissionManager/MissionCommandTreeEditorTestWindow.qml</file>
 		<file alias="MissionSettingsEditor.qml">../src/PlanView/MissionSettingsEditor.qml</file>
@@ -333,6 +334,10 @@
 		<file alias="QGroundControl/Controls/QGCColumnButton.qml">../src/QmlControls/QGCColumnButton.qml</file>
 		<!-- Custom FlyViewVideo is provided by custom/custom.qrc -->
 		<file alias="QGroundControl/FlightDisplay/OnScreenGimbalController.qml">../src/FlightDisplay/OnScreenGimbalController.qml</file>
+		<file alias="QGroundControl/NextVision/DragonEyeControl.qml">../src/NextVision/DragonEyeControl.qml</file>
+		<file alias="QGroundControl/NextVision/GremsyLynxControl.qml">../src/NextVision/GremsyLynxControl.qml</file>
+		<file alias="QGroundControl/Payload/DragonEyeControl.qml">../src/Payload/DragonEyeControl.qml</file>
+		<file alias="QGroundControl/Payload/GremsyLynxControl.qml">../src/Payload/GremsyLynxControl.qml</file>
 
 	</qresource>
 	<qresource prefix="/FirstRunPromptDialogs">
@@ -392,6 +397,7 @@
 		<file alias="Vehicle/VibrationFact.json">../src/Vehicle/VibrationFact.json</file>
 		<file alias="Vehicle/WindFact.json">../src/Vehicle/WindFact.json</file>
 		<file alias="Vehicle/HygrometerFact.json">../src/Vehicle/HygrometerFact.json</file>
+		<file alias="JoystickMavCommands.json">../src/Joystick/JoystickMavCommands.json</file>
 		<file alias="Video.SettingsGroup.json">../src/Settings/Video.SettingsGroup.json</file>
 		<file alias="VTOLLandingPattern.FactMetaData.json">../src/MissionManager/VTOLLandingPattern.FactMetaData.json</file>
 

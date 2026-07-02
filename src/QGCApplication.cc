@@ -108,6 +108,8 @@
 #include "CustomAction.h"
 #include "CustomActionManager.h"
 #include "GimbalController.h"
+#include "GremsyLynxPayloadController.h"
+#include "NextVisionPayloadController.h"
 #include "FlightZoneManager.h"
 
 #include "AudioControl.h"
@@ -481,6 +483,10 @@ void QGCApplication::_initCommon()
     qmlRegisterUncreatableType<Autotune>                (kQGCVehicle,                       1, 0, "Autotune",                   kRefOnly);
     qmlRegisterUncreatableType<RemoteIDManager>         (kQGCVehicle,                       1, 0, "RemoteIDManager",            kRefOnly);
     qmlRegisterUncreatableType<GimbalController>        (kQGCVehicle,                       1, 0, "GimbalController",           kRefOnly);
+
+    // Self-contained payload controllers (own their direct UDP/MAVLink link; independent of Vehicle)
+    qmlRegisterType<GremsyLynxPayloadController>        ("QGroundControl.Payload",          1, 0, "GremsyLynxPayloadController");
+    qmlRegisterType<NextVisionPayloadController>        ("QGroundControl.Payload",          1, 0, "NextVisionPayloadController");
 
     qmlRegisterUncreatableType<MissionController>       (kQGCControllers,                   1, 0, "MissionController",          kRefOnly);
     qmlRegisterUncreatableType<GeoFenceController>      (kQGCControllers,                   1, 0, "GeoFenceController",         kRefOnly);

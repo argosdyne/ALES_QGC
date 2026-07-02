@@ -188,6 +188,7 @@ CustomPlugin::settingsPages()
         _addSettingsEntry(tr("MAVLink"),     "qrc:/qml/MavlinkSettings.qml",     "qrc:/res/waves.svg");
         _addSettingsEntry(tr("Console"),     "qrc:/qml/QGroundControl/Controls/AppMessages.qml");
         _addSettingsEntry(tr("RTCM"), "qrc:/custom/RTCMSettings.qml");
+        _addSettingsEntry(tr("Payload"), "qrc:/qml/PayloadSettings.qml", "qrc:/res/cameraSetting.svg");
 #if defined(QGC_GST_MICROHARD_ENABLED)
         _addSettingsEntry(tr("Microhard"), "qrc:/qml/MicrohardSettings.qml");
 #endif

@@ -250,7 +250,7 @@ AndroidBuild {
     CONFIG -= qtquickcompiler
 }
 
-DebugBuild {
+AndroidBuild|DebugBuild {
     CONFIG -= qtquickcompiler
 } else {
     CONFIG += qtquickcompiler
@@ -428,6 +428,8 @@ INCLUDEPATH += \
     src/FollowMe \
     src/Geo \
     src/Gimbal \
+    src/NextVision \
+    src/Payload \
     src/GPS \
     src/Joystick \
     src/PlanView \
@@ -688,6 +690,10 @@ HEADERS += \
     src/Geo/TransverseMercator.hpp \
     src/Geo/PolarStereographic.hpp \
     src/Gimbal/GimbalController.h \
+    src/NextVision/NextVisionController.h \
+    src/Payload/PayloadController.h \
+    src/Payload/GremsyLynxPayloadController.h \
+    src/Payload/NextVisionPayloadController.h \
     src/QGC.h \
     src/QGCApplication.h \
     src/QGCCachedFileDownload.h \
@@ -962,6 +968,10 @@ SOURCES += \
     src/Geo/TransverseMercator.cpp \
     src/Geo/PolarStereographic.cpp \
     src/Gimbal/GimbalController.cc \
+    src/NextVision/NextVisionController.cc \
+    src/Payload/PayloadController.cc \
+    src/Payload/GremsyLynxPayloadController.cc \
+    src/Payload/NextVisionPayloadController.cc \
     src/QGC.cc \
     src/QGCApplication.cc \
     src/QGCCachedFileDownload.cc \

@@ -25,6 +25,8 @@ public:
 
     static QMap<QString, Joystick*> discover(MultiVehicleManager* _multiVehicleManager);
 
+    static void updateAxisValueFromJava(int deviceId, int axis, float value);
+
 private:
     bool handleKeyEvent(jobject event);
     bool handleGenericMotionEvent(jobject event);
@@ -44,6 +46,7 @@ private:
 
     static int * _androidBtnList; //list of all possible android buttons
     static int _androidBtnListCount;
+    static QMap<int, JoystickAndroid*> _joysticksByDeviceId;
 
     static int ACTION_DOWN, ACTION_UP;
     static QMutex m_mutex;

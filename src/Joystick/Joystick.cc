@@ -18,6 +18,7 @@
 #include "QGCCameraControl.h"
 #include "GimbalController.h"
 
+#include <QDateTime>
 #include <QSettings>
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
@@ -398,6 +399,10 @@ bool Joystick::_applyHardcodedProfile()
     _calibrated = true;   // allow the joystick to be enabled without running the wizard
     _gimbalOnlyJoystickProfile = true;
 
+    qWarning() << "[GremsyLynx]" << "applied DR-1000 gimbal-only profile"
+               << "name" << _name
+               << "gimbalPitchAxis" << _rgFunctionAxis[gimbalPitchFunction]
+               << "gimbalYawAxis" << _rgFunctionAxis[gimbalYawFunction];
     qCWarning(JoystickLog) << "Applied hardcoded joystick profile for" << _name
                            << "roll" << _rgFunctionAxis[rollFunction]
                            << "pitch" << _rgFunctionAxis[pitchFunction]
@@ -715,16 +720,38 @@ void Joystick::_handleAxis()
                 gimbalYaw = _adjustRange(_rgAxisValues[gimbalYawAxis], _rgCalibration[gimbalYawAxis], _deadband);
             }
 
+            if (_gimbalOnlyJoystickProfile) {
+                static qint64 lastAxisLogMSecs = 0;
+                const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
+                if (nowMSecs - lastAxisLogMSecs > 1000) {
+                    lastAxisLogMSecs = nowMSecs;
+                    qWarning() << "[GremsyLynx]" << "axis poll"
+                               << "pitchAxis" << gimbalPitchAxis
+                               << "pitch" << gimbalPitch
+                               << "yawAxis" << gimbalYawAxis
+                               << "yaw" << gimbalYaw
+                               << "activeVehicle" << (_activeVehicle != nullptr);
+                }
+            }
+
             if (fabsf(gimbalPitch) > 0.01f || fabsf(gimbalYaw) > 0.01f) {
                 qCDebug(GimbalLog) << "[GimbalFlow]"
                                    << "joystick axis gimbal input"
                                    << "name" << name()
                                    << "gimbalPitch" << gimbalPitch
                                    << "gimbalYaw" << gimbalYaw;
-                emit gimbalAxisControl(gimbalPitch, gimbalYaw);
+                if (_gimbalOnlyJoystickProfile && _activeVehicle) {
+                    _activeVehicle->sendGimbalRCOverrideThreadSafe(gimbalPitch, gimbalYaw);
+                } else {
+                    emit gimbalAxisControl(gimbalPitch, gimbalYaw);
+                }
                 _gimbalAxisActive = true;
             } else if (_gimbalAxisActive) {
-                emit gimbalAxisControl(0.0f, 0.0f);
+                if (_gimbalOnlyJoystickProfile && _activeVehicle) {
+                    _activeVehicle->sendGimbalRCOverrideThreadSafe(0.0f, 0.0f);
+                } else {
+                    emit gimbalAxisControl(0.0f, 0.0f);
+                }
                 _gimbalAxisActive = false;
             }
         }
@@ -803,6 +830,12 @@ void Joystick::_handleAxis()
 void Joystick::startPolling(Vehicle* vehicle)
 {
     if (vehicle) {
+        qWarning() << "[GremsyLynx]" << "joystick startPolling"
+                   << "name" << name()
+                   << "vehicle" << vehicle->id()
+                   << "joystickEnabled" << vehicle->joystickEnabled()
+                   << "calibrated" << _calibrated
+                   << "gimbalOnly" << _gimbalOnlyJoystickProfile;
         // If a vehicle is connected, disconnect it
         if (_activeVehicle) {
             disconnect(this, &Joystick::setArmed,           _activeVehicle, &Vehicle::setArmedShowError);
@@ -812,6 +845,7 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
             disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            disconnect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
             disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -838,6 +872,7 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
             connect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             connect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            connect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
             connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
@@ -862,6 +897,7 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::centerGimbal,       _activeVehicle->gimbalController(), &GimbalController::centerGimbal);
             disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
+            disconnect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);

@@ -84,6 +84,7 @@
         <file alias="MAVLinkInspectorPage.qml">src/AnalyzeView/MAVLinkInspectorPage.qml</file>
         <file alias="MavlinkSettings.qml">src/ui/preferences/MavlinkSettings.qml</file>
         <file alias="MicrohardSettings.qml">src/Microhard/MicrohardSettings.qml</file>
+        <file alias="PayloadSettings.qml">src/Payload/PayloadSettings.qml</file>
         <file alias="MicrohardLinkIndicator.qml">src/Microhard/MicrohardLinkIndicator.qml</file>
         <file alias="MissionCommandTreeEditorTestWindow.qml">src/MissionManager/MissionCommandTreeEditorTestWindow.qml</file>
         <file alias="MissionSettingsEditor.qml">src/PlanView/MissionSettingsEditor.qml</file>
@@ -248,6 +249,10 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewToolStripActionList.qml">src/FlightDisplay/FlyViewToolStripActionList.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">src/FlightDisplay/FlyViewVideo.qml</file>
         <file alias="QGroundControl/FlightDisplay/OnScreenGimbalController.qml">src/FlightDisplay/OnScreenGimbalController.qml</file>
+        <file alias="QGroundControl/NextVision/DragonEyeControl.qml">src/NextVision/DragonEyeControl.qml</file>
+        <file alias="QGroundControl/NextVision/GremsyLynxControl.qml">src/NextVision/GremsyLynxControl.qml</file>
+        <file alias="QGroundControl/Payload/DragonEyeControl.qml">src/Payload/DragonEyeControl.qml</file>
+        <file alias="QGroundControl/Payload/GremsyLynxControl.qml">src/Payload/GremsyLynxControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewWidgetLayer.qml">src/FlightDisplay/FlyViewWidgetLayer.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionActionList.qml">src/FlightDisplay/GuidedActionActionList.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionConfirm.qml">src/FlightDisplay/GuidedActionConfirm.qml</file>
@@ -386,6 +391,7 @@
         <file alias="Vehicle/GeneratorFact.json">src/Vehicle/GeneratorFact.json</file>
         <file alias="Vehicle/EFIFact.json">src/Vehicle/EFIFact.json</file>
         <file alias="Vehicle/GimbalFact.json">src/Gimbal/GimbalFact.json</file>
+        <file alias="JoystickMavCommands.json">src/Joystick/JoystickMavCommands.json</file>
         <file alias="Video.SettingsGroup.json">src/Settings/Video.SettingsGroup.json</file>
         <file alias="VTOLLandingPattern.FactMetaData.json">src/MissionManager/VTOLLandingPattern.FactMetaData.json</file>
 

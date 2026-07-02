@@ -79,6 +79,7 @@ class InitialConnectStateMachine;
 class Autotune;
 class RemoteIDManager;
 class GimbalController;
+class NextVisionController;
 class AudioControl;
 class OpticalFlowController;
 
@@ -269,6 +270,7 @@ public:
     Q_PROPERTY(qreal                gimbalYaw                   READ gimbalYaw                                                      NOTIFY gimbalYawChanged)
     Q_PROPERTY(bool                 gimbalData                  READ gimbalData                                                     NOTIFY gimbalDataChanged)
     Q_PROPERTY(GimbalController*    gimbalController            READ gimbalController                                               CONSTANT)
+    Q_PROPERTY(NextVisionController* nextVisionController        READ nextVisionController                                           CONSTANT)
     Q_PROPERTY(bool                 hasGripper                  READ hasGripper                                                     CONSTANT)
     Q_PROPERTY(bool                 isROIEnabled                READ isROIEnabled                                                   NOTIFY isROIEnabledChanged)
     Q_PROPERTY(CheckList            checkListState              READ checkListState             WRITE setCheckListState             NOTIFY checkListStateChanged)
@@ -519,6 +521,9 @@ public:
     bool joystickEnabled            () const;
     void setJoystickEnabled         (bool enabled);
     void sendJoystickDataThreadSafe (float roll, float pitch, float yaw, float thrust, quint16 buttons);
+    void sendGimbalRCOverrideThreadSafe(float pitch, float yaw);
+    Q_INVOKABLE void sendGremsyGimbalRate(float pitchRate, float yawRate);
+    Q_INVOKABLE void stopGremsyGimbal();
 
     // Property accesors
     int id() const{ return _id; }
@@ -958,6 +963,7 @@ public:
     bool        isROIEnabled            () const{ return _isROIEnabled; }
 
     GimbalController* gimbalController    () { return _gimbalController; }
+    NextVisionController* nextVisionController() { return _nextVisionController; }
 
     CheckList   checkListState          () { return _checkListState; }
     void        setCheckListState       (CheckList cl)  { _checkListState = cl; emit checkListStateChanged(); }
@@ -1310,6 +1316,7 @@ private:
     VehicleObjectAvoidance*         _objectAvoidance                = nullptr;
     Autotune*                       _autotune                       = nullptr;
     GimbalController*               _gimbalController               = nullptr;
+    NextVisionController*           _nextVisionController           = nullptr;
 
     bool    _armed = false;         ///< true: vehicle is armed
     uint8_t _base_mode = 0;     ///< base_mode from HEARTBEAT
