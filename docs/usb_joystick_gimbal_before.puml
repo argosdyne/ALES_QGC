@@ -1,0 +1,29 @@
+@startuml
+title Truoc khi sua: USB joystick khong dieu khien duoc gimbal
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+actor Operator
+component "USB joystick\nARGOSDYNE DR-1000" as USB
+component "Joystick::_handleAxis()" as Joystick
+component "Joystick log" as Log
+component "Vehicle::sendJoystickDataThreadSafe()" as ManualControl
+component "Flight controller" as FlightController
+component "R3 gimbal" as Gimbal
+
+Operator --> USB : Move pitch or yaw stick
+USB --> Joystick : Raw HID axes
+Joystick --> Log : Gimbal values used only for logging
+Joystick --> ManualControl : Roll, pitch, yaw, throttle
+ManualControl --> FlightController : MANUAL_CONTROL
+Joystick -[#red,dashed]-> Gimbal : No gimbal command
+
+note bottom of Joystick
+  Auto-calibration could map noisy axes incorrectly.
+  Gimbal values were not connected to camera control.
+  MANUAL_CONTROL controls the aircraft, not the R3 gimbal.
+end note
+
+@enduml

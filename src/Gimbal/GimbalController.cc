@@ -112,6 +112,8 @@ GimbalController::setActiveGimbal(Gimbal* gimbal)
                           << "othersHaveControl" << gimbal->gimbalOthersHaveControl();
         qCDebug(GimbalLog) << "Set active gimbal: " << gimbal;
         _activeGimbal = gimbal;
+        // Force the analog axis control to re-seed its target from the new gimbal's attitude
+        _gimbalAxisControlActive = false;
         emit activeGimbalChanged();
     }
 }
@@ -587,6 +589,64 @@ void GimbalController::centerGimbal()
         return;
     }
     sendPitchBodyYaw(0.0, 0.0);
+}
+
+// Analog gimbal control from a joystick axis. Called repeatedly (at the joystick axis
+// rate) while a stick is deflected. pitch/yaw are deflections in [-1..1]. We integrate an
+// internal angle target at CameraSlideSpeed (deg/s) and send angle targets, mirroring the
+// click-and-drag path - true MAVLink rate commands are unreliable on the AP side.
+void GimbalController::gimbalAxisControl(float pitch, float yaw)
+{
+    if (!_activeGimbal) {
+        _gimbalAxisControlActive = false;
+        return;
+    }
+
+    // A (0,0) call means the stick returned to center: end the move so the next
+    // deflection re-seeds the target from the gimbal's current attitude.
+    if (pitch == 0.0f && yaw == 0.0f) {
+        _gimbalAxisControlActive = false;
+        return;
+    }
+
+    if (!_gimbalAxisControlActive) {
+        _gimbalAxisPitchTarget = _activeGimbal->absolutePitch()->rawValue().toFloat();
+        _gimbalAxisYawTarget   = _activeGimbal->yawLock()
+                                     ? _activeGimbal->absoluteYaw()->rawValue().toFloat()
+                                     : _activeGimbal->bodyYaw()->rawValue().toFloat();
+        _gimbalAxisControlActive = true;
+        _gimbalAxisElapsed.start();
+    }
+
+    // Time since the previous update, so the slew speed is CameraSlideSpeed (deg/s)
+    // regardless of the joystick polling frequency.
+    float dt = static_cast<float>(_gimbalAxisElapsed.restart()) / 1000.0f;
+    if (dt <= 0.0f || dt > 0.5f) {
+        dt = 0.04f; // sane fallback (~25 Hz) for the first tick or after a long pause
+    }
+
+    const float maxSpeed = qgcApp()->toolbox()->settingsManager()->gimbalControllerSettings()->CameraSlideSpeed()->rawValue().toFloat();
+
+    _gimbalAxisPitchTarget += pitch * maxSpeed * dt;
+    _gimbalAxisYawTarget   += yaw   * maxSpeed * dt;
+
+    // Keep pitch within typical gimbal limits and yaw wrapped to [-180, 180].
+    _gimbalAxisPitchTarget = qBound(-90.0f, _gimbalAxisPitchTarget, 90.0f);
+    while (_gimbalAxisYawTarget > 180.0f)  { _gimbalAxisYawTarget -= 360.0f; }
+    while (_gimbalAxisYawTarget < -180.0f) { _gimbalAxisYawTarget += 360.0f; }
+
+    qCDebug(GimbalLog) << "[GimbalFlow]"
+                       << "gimbalAxisControl"
+                       << "pitch" << pitch << "yaw" << yaw
+                       << "pitchTarget" << _gimbalAxisPitchTarget
+                       << "yawTarget" << _gimbalAxisYawTarget
+                       << "yawLock" << _activeGimbal->yawLock();
+
+    if (_activeGimbal->yawLock()) {
+        sendPitchAbsoluteYaw(_gimbalAxisPitchTarget, _gimbalAxisYawTarget, false);
+    } else {
+        sendPitchBodyYaw(_gimbalAxisPitchTarget, _gimbalAxisYawTarget, false);
+    }
 }
 
 // Pan and tilt comes as +-(0-1)

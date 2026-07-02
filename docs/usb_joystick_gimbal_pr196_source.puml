@@ -1,0 +1,68 @@
+@startuml
+title PR #196 - Axis thanh virtual button, hold-to-move
+
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+legend top
+  |= Mau |= Y nghia |
+  |<#D5E8D4>| Giong code hien tai: gui RC_CHANNELS cho Codev R3 |
+  |<#FFE6CC>| Rieng PR #196: dieu khien theo nut/huong co dinh |
+  |<#F8CECC>| Mapping duoc khai bao nhung chua noi vao duong gui |
+endlegend
+
+actor Operator
+component "USB joystick\naxis hoac nut" as USB #FFE6CC
+component "Joystick::_handleButtons()\nvirtual axis-buttons" as VirtualButtons #FFE6CC
+component "Assigned action\nGimbal Up/Down/Left/Right" as Action #FFE6CC
+component "Joystick::_executeButtonAction()" as Execute #FFE6CC
+component "Signal\ngimbalPitchStep()/gimbalYawStep()" as Signal #FFE6CC
+component "QGCCameraManager\n_joystickGimbal*Step()" as Manager
+component "CodevCameraControl\njoystickGimbal*Step()" as Codev #D5E8D4
+component "QTimer 50 ms\n_streamJoystickRc()" as Timer #FFE6CC
+component "_sendR3RcChannels()" as SendRC #D5E8D4
+cloud "Vehicle link" as Link
+component "R3 camera/gimbal" as R3 #D5E8D4
+
+component "JoystickConfigAdvanced.qml\nrc9DialAxis / rc10DialAxis" as AxisConfig #F8CECC
+component "Joystick::_handleAxis()" as HandleAxis #F8CECC
+component "Vehicle::sendJoystickDataThreadSafe()\nauxPitch / auxRoll" as VehicleAux #F8CECC
+
+Operator --> USB : Di chuyen axis / nhan nut
+USB --> VirtualButtons : Raw input
+VirtualButtons --> Action : Nguong + hysteresis\nvirtual button down/up
+Action --> Execute : Action da map
+Execute --> Signal : Press: direction = -1 hoac +1\nRelease: direction = 0
+Signal --> Manager : Qt signal/slot
+Manager --> Codev : Neu camera hien tai la Codev
+Codev --> Codev : direction +/-1 -> PWM 1200/1800\ndirection 0 -> PWM 1500
+Codev --> Timer : Gui ngay, sau do lap 50 ms
+Timer --> SendRC : CH9 pitch, CH10 yaw
+SendRC --> Link : MAVLink RC_CHANNELS
+Link --> R3 : Quay toc do co dinh khi dang giu
+
+Operator -[#red,dashed]-> AxisConfig : Chon truc CH9/CH10
+AxisConfig -[#red,dashed]-> HandleAxis : Luu vao gimbalPitch/YawFunction
+HandleAxis -[#red,dashed]-> VehicleAux : Hien tai van goi 5 tham so\nauxPitch/auxRoll = NaN
+VehicleAux -[#red,dashed]-> R3 : RC override khong duoc kich hoat
+
+note bottom of Execute
+  _executeButtonAction() chi chay khi:
+  activeVehicle != null va joystickEnabled == true.
+end note
+
+note bottom of Timer
+  PR gui lien tuc khi giu nut.
+  Khi tha, gui them 3 frame center de dam bao stop.
+end note
+
+note bottom of HandleAxis
+  Khac biet quan trong:
+  gia tri analog cua rc9DialAxis/rc10DialAxis
+  chua duoc doc va truyen vao auxPitch/auxRoll.
+end note
+
+@enduml
