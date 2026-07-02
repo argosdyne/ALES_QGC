@@ -176,6 +176,18 @@ Rectangle {
                         text:       qsTr("Enable MAVLink forwarding")
                         fact:       QGroundControl.settingsManager.appSettings.forwardMavlink
                         visible:    QGroundControl.settingsManager.appSettings.forwardMavlink.visible
+                        // A checked forwarding link already owns one slot and
+                        // must remain enabled so the user can turn it off.
+                        enabled:    fact.rawValue || QGroundControl.linkManager.mavlinkUdpEndpointCount < QGroundControl.linkManager.mavlinkUdpEndpointLimit
+                    }
+
+                    QGCLabel {
+                        width:      parent.width
+                        wrapMode:   Text.WordWrap
+                        color:      qgcPal.colorOrange
+                        text:       qsTr("MAVLink forwarding is unavailable because all %1 UDP connections are in use.")
+                                        .arg(QGroundControl.linkManager.mavlinkUdpEndpointLimit)
+                        visible:    !mavlinkForwardingChecked.fact.rawValue && !mavlinkForwardingChecked.enabled
                     }
 
                     Row {

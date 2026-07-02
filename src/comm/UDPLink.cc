@@ -20,6 +20,7 @@
 #include <QHash>
 
 #include "UDPLink.h"
+#include "LinkManager.h"
 #include "QGC.h"
 #include "QGCApplication.h"
 #include "SettingsManager.h"
@@ -126,6 +127,11 @@ UDPLink::UDPLink(SharedLinkConfigurationPtr& config)
     if (!_udpConfig) {
         qWarning() << "Internal error";
     }
+    LinkManager* linkManager = qgcApp()->toolbox()->linkManager();
+    if (linkManager) {
+        connect(linkManager, &LinkManager::mavlinkUdpEndpointExpired,
+                this, &UDPLink::_mavlinkUdpEndpointExpired, Qt::QueuedConnection);
+    }
     auto allAddresses = QNetworkInterface::allAddresses();
     for (int i=0; i<allAddresses.count(); i++) {
         QHostAddress &address = allAddresses[i];
@@ -150,12 +156,18 @@ UDPLink::~UDPLink()
 
 void UDPLink::run()
 {
-    if (_hardwareConnect()) {
+    const bool hardwareConnected = _hardwareConnect();
+    if (hardwareConnected) {
         exec();
     }
     if (_socket) {
         _deregisterZeroconf();
         _socket->close();
+    }
+    if (!hardwareConnected) {
+        // LinkManager must release the MAVLink channel and any configured UDP
+        // endpoint reservations when the asynchronous bind fails.
+        emit disconnected();
     }
 }
 
@@ -234,31 +246,60 @@ void UDPLink::readBytes()
         if (slen == -1) {
             break;
         }
+
+        // Normalize same-host traffic to loopback, preserving the source port so
+        // separate SITL/local endpoints are counted independently.
+        QHostAddress asender = sender;
+        if(_isIpLocal(sender)) {
+            asender = QHostAddress(QString("127.0.0.1"));
+        }
+
+        LinkManager* linkManager = qgcApp()->toolbox()->linkManager();
+        if (!linkManager || !linkManager->registerMavlinkUdpEndpoints(this, {{asender, senderPort}}, false)) {
+            // Enforce the limit before bytes reach MAVLinkProtocol. Otherwise a
+            // rejected endpoint could still create/control a Vehicle.
+            continue;
+        }
+
+        bool knownSessionTarget = false;
+        {
+            QMutexLocker locker(&_sessionTargetsMutex);
+            knownSessionTarget = contains_target(_sessionTargets, asender, senderPort);
+        }
+
+        if (!knownSessionTarget) {
+            QMutexLocker locker(&_sessionTargetsMutex);
+            if (!contains_target(_sessionTargets, asender, senderPort)) {
+                _sessionTargets.append(new UDPCLient(asender, senderPort));
+            }
+        }
+
         databuffer.append(datagram);
         //-- Wait a bit before sending it over
         if (databuffer.size() > 10 * 1024) {
             emit bytesReceived(this, databuffer);
             databuffer.clear();
         }
-        // TODO: This doesn't validade the sender. Anything sending UDP packets to this port gets
-        // added to the list and will start receiving datagrams from here. Even a port scanner
-        // would trigger this.
-        // Add host to broadcast list if not yet present, or update its port
-        QHostAddress asender = sender;
-        if(_isIpLocal(sender)) {
-            asender = QHostAddress(QString("127.0.0.1"));
-        }
-        QMutexLocker locker(&_sessionTargetsMutex);
-        if (!contains_target(_sessionTargets, asender, senderPort)) {
-            //qDebug() << "Adding target" << asender << senderPort;
-            UDPCLient* target = new UDPCLient(asender, senderPort);
-            _sessionTargets.append(target);
-        }
-        locker.unlock();
     }
     //-- Send whatever is left
     if (databuffer.size()) {
         emit bytesReceived(this, databuffer);
+    }
+}
+
+void UDPLink::_mavlinkUdpEndpointExpired(LinkInterface* link, QHostAddress address, quint16 port)
+{
+    if (link != this) {
+        return;
+    }
+
+    QMutexLocker locker(&_sessionTargetsMutex);
+    for (int index = _sessionTargets.count() - 1; index >= 0; --index) {
+        UDPCLient* target = _sessionTargets[index];
+        if (target->address == address && target->port == port) {
+            _sessionTargets.removeAt(index);
+            delete target;
+        }
     }
 }
 

@@ -114,6 +114,7 @@ public slots:
 private slots:
     // LinkInterface overrides
     void _writeBytes(const QByteArray data) override;
+    void _mavlinkUdpEndpointExpired(LinkInterface* link, QHostAddress address, quint16 port);
 
 private:
 

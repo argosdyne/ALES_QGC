@@ -34,6 +34,21 @@ Rectangle {
         colorGroupEnabled:  enabled
     }
 
+    Column {
+        id:                 udpEndpointStatus
+        anchors.top:        parent.top
+        width:              parent.width
+        spacing:            ScreenTools.defaultFontPixelHeight / 4
+
+        QGCLabel {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: qsTr("MAVLink UDP connections: %1 / %2")
+                    .arg(QGroundControl.linkManager.mavlinkUdpEndpointCount)
+                    .arg(QGroundControl.linkManager.mavlinkUdpEndpointLimit)
+        }
+
+    }
+
     function openCommSettings(originalLinkConfig) {
         settingsLoader.originalLinkConfig = originalLinkConfig
         if (originalLinkConfig) {
@@ -55,9 +70,9 @@ Rectangle {
 
     QGCFlickable {
         clip:               true
-        anchors.top:        parent.top
+        anchors.top:        udpEndpointStatus.bottom
         width:              parent.width
-        height:             parent.height - buttonRow.height
+        height:             parent.height - buttonRow.height - udpEndpointStatus.height
         contentHeight:      settingsColumn.height
         contentWidth:       _linkRoot.width
         flickableDirection: Flickable.VerticalFlick

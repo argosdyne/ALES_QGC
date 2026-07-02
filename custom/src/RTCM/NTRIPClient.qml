@@ -20,6 +20,7 @@ Column {
 
     property real _margins: ScreenTools.defaultFontPixelHeight * 0.5
     property var  _ntripSource: CustomQmlInterface.codevRTCMManager.rtcmSource
+    readonly property bool _ntripConnectionActive: _ntripSource && (_ntripSource.isLogIn || _ntripSource.isLogIning)
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
@@ -49,6 +50,7 @@ Column {
             fact:           _ntripSource.host
             Layout.minimumWidth: _valueWidth
             customValidateFunction: validateNtripServerHost
+            enabled:        !root._ntripConnectionActive
         }
         QGCLabel {
             text:           qsTr("Port:")
@@ -57,6 +59,7 @@ Column {
         FactTextField {
             fact:           _ntripSource.port
             Layout.minimumWidth: _valueWidth
+            enabled:        !root._ntripConnectionActive
 
             onAccepted: {
                 if (validateNtripServerHost(hostField.text) !== "") {
@@ -80,6 +83,7 @@ Column {
             id: cbMountPoint
             Layout.minimumWidth: _labelWidth
             model : _ntripSource.contentList
+            enabled: !root._ntripConnectionActive
             //model: _ntripSource.mountPointList
 
             //When Selected Item changed call this function
@@ -98,6 +102,7 @@ Column {
         FactTextField {
             fact:           _ntripSource.user
             Layout.minimumWidth: _valueWidth
+            enabled:        !root._ntripConnectionActive
         }
         QGCLabel {
             text:           qsTr("Password:")
@@ -106,6 +111,7 @@ Column {
         FactTextField {
             fact:           _ntripSource.passwd
             Layout.minimumWidth: _valueWidth
+            enabled:        !root._ntripConnectionActive
         }
         RowLayout {
             Layout.columnSpan: 2
