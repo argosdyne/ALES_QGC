@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QSignalSpy>
+#include <QDateTime>
 #include <QSettings>
 
 #include <memory>
@@ -24,6 +25,7 @@
 #include "UDPLink.h"
 #include "TCPLink.h"
 #include "SettingsManager.h"
+#include "Fact.h"
 #include "LogReplayLink.h"
 #ifdef QGC_ENABLE_BLUETOOTH
 #include "BluetoothLink.h"
@@ -109,6 +111,233 @@ void LinkManager::setToolbox(QGCToolbox *toolbox)
     connect(&_portListTimer, &QTimer::timeout, this, &LinkManager::_updateAutoConnectLinks);
     _portListTimer.start(_autoconnectUpdateTimerMSecs); // timeout must be long enough to get past bootloader on second pass
 
+    connect(toolbox->settingsManager()->appSettings()->forwardMavlink(), &Fact::rawValueChanged,
+            this, [this](const QVariant&) { _addMAVLinkForwardingLink(); });
+
+    connect(&_mavlinkUdpEndpointCleanupTimer, &QTimer::timeout,
+            this, &LinkManager::_expireInactiveMavlinkUdpEndpoints);
+    _mavlinkUdpEndpointCleanupTimer.start(5000);
+
+}
+
+int LinkManager::mavlinkUdpEndpointCount(void)
+{
+    QMutexLocker locker(&_mavlinkUdpEndpointMutex);
+    return _mavlinkUdpEndpointCountLocked();
+}
+
+int LinkManager::_mavlinkUdpEndpointCountLocked(void) const
+{
+    QList<QPair<QHostAddress, quint16>> uniqueEndpoints;
+    for (const MavlinkUdpEndpoint& endpoint : _mavlinkUdpEndpoints) {
+        const QPair<QHostAddress, quint16> endpointKey(endpoint.address, endpoint.port);
+        if (!uniqueEndpoints.contains(endpointKey)) {
+            uniqueEndpoints.append(endpointKey);
+        }
+    }
+    return uniqueEndpoints.count();
+}
+
+QString LinkManager::mavlinkUdpEndpointLimitNotice(void)
+{
+    QMutexLocker locker(&_mavlinkUdpEndpointMutex);
+    return _mavlinkUdpEndpointLimitNotice;
+}
+
+bool LinkManager::registerMavlinkUdpEndpoints(LinkInterface* link,
+                                               const QList<QPair<QHostAddress, quint16>>& endpoints,
+                                               bool configured)
+{
+    if (!link || endpoints.isEmpty()) {
+        return false;
+    }
+
+    // Validate and deduplicate the complete batch before refreshing or adding
+    // any registry record. Invalid input therefore has no partial side effects.
+    QList<QPair<QHostAddress, quint16>> requestedEndpoints;
+    for (const QPair<QHostAddress, quint16>& endpoint : endpoints) {
+        if (endpoint.first.isNull() || endpoint.second == 0) {
+            return false;
+        }
+        if (!requestedEndpoints.contains(endpoint)) {
+            requestedEndpoints.append(endpoint);
+        }
+    }
+
+    int endpointsAdded = 0;
+    bool endpointCountChanged = false;
+    bool noticeChanged = false;
+    bool logRejection = false;
+    QString notice;
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+
+    {
+        QMutexLocker locker(&_mavlinkUdpEndpointMutex);
+
+        QList<QPair<QHostAddress, quint16>> newEndpoints;
+        for (const QPair<QHostAddress, quint16>& requestedEndpoint : qAsConst(requestedEndpoints)) {
+            bool endpointExists = false;
+            for (MavlinkUdpEndpoint& endpoint : _mavlinkUdpEndpoints) {
+                if (endpoint.link == link && endpoint.address == requestedEndpoint.first && endpoint.port == requestedEndpoint.second) {
+                    endpoint.lastActivityMs = now;
+                    endpoint.configured = endpoint.configured || configured;
+                    endpointExists = true;
+                    break;
+                }
+            }
+            if (!endpointExists) {
+                newEndpoints.append(requestedEndpoint);
+            }
+        }
+
+        if (newEndpoints.isEmpty()) {
+            return true;
+        }
+
+        QList<QPair<QHostAddress, quint16>> newGlobalEndpoints;
+        for (const QPair<QHostAddress, quint16>& newEndpoint : qAsConst(newEndpoints)) {
+            bool globallyRegistered = false;
+            for (const MavlinkUdpEndpoint& endpoint : qAsConst(_mavlinkUdpEndpoints)) {
+                if (endpoint.address == newEndpoint.first && endpoint.port == newEndpoint.second) {
+                    globallyRegistered = true;
+                    break;
+                }
+            }
+            if (!globallyRegistered) {
+                newGlobalEndpoints.append(newEndpoint);
+            }
+        }
+
+        const int activeEndpointCount = _mavlinkUdpEndpointCountLocked();
+        if (activeEndpointCount + newGlobalEndpoints.count() > _maxMavlinkUdpEndpoints) {
+            const int rejectedIndex = qMax(0, _maxMavlinkUdpEndpoints - activeEndpointCount);
+            const QPair<QHostAddress, quint16>& rejectedEndpoint = newGlobalEndpoints[qMin(rejectedIndex, newGlobalEndpoints.count() - 1)];
+            notice = tr("MAVLink UDP connection limit is %2 (active: %1). Rejected endpoint %3:%4.")
+                         .arg(activeEndpointCount)
+                         .arg(_maxMavlinkUdpEndpoints)
+                         .arg(rejectedEndpoint.first.toString())
+                         .arg(rejectedEndpoint.second);
+            // Keep the first rejection until capacity becomes available again.
+            // This produces one user notification per limit event instead of a
+            // dialog for every datagram/source port rejected while at capacity.
+            if (_mavlinkUdpEndpointLimitNotice.isEmpty()) {
+                _mavlinkUdpEndpointLimitNotice = notice;
+                noticeChanged = true;
+            }
+
+            if (now - _lastMavlinkUdpLimitLogMs >= 5000) {
+                _lastMavlinkUdpLimitLogMs = now;
+                logRejection = true;
+            }
+        } else {
+            endpointCountChanged = !newGlobalEndpoints.isEmpty();
+            for (const QPair<QHostAddress, quint16>& newEndpoint : qAsConst(newEndpoints)) {
+                MavlinkUdpEndpoint endpoint;
+                endpoint.link = link;
+                endpoint.address = newEndpoint.first;
+                endpoint.port = newEndpoint.second;
+                endpoint.lastActivityMs = now;
+                endpoint.configured = configured;
+                _mavlinkUdpEndpoints.append(endpoint);
+                endpointsAdded++;
+            }
+        }
+    }
+
+    if (endpointsAdded > 0) {
+        if (endpointCountChanged) {
+            emit mavlinkUdpEndpointCountChanged();
+        }
+        qCInfo(LinkManagerLog) << "Registered MAVLink UDP endpoints"
+                               << endpointsAdded
+                               << "active" << mavlinkUdpEndpointCount()
+                               << "limit" << _maxMavlinkUdpEndpoints;
+        return true;
+    }
+
+    if (noticeChanged) {
+        emit mavlinkUdpEndpointLimitNoticeChanged();
+    }
+    if (logRejection) {
+        qCWarning(LinkManagerLog).noquote() << notice;
+    }
+    return false;
+}
+
+void LinkManager::_expireInactiveMavlinkUdpEndpoints(void)
+{
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    QList<MavlinkUdpEndpoint> expiredEndpoints;
+    bool noticeChanged = false;
+
+    {
+        QMutexLocker locker(&_mavlinkUdpEndpointMutex);
+        for (int index = _mavlinkUdpEndpoints.count() - 1; index >= 0; --index) {
+            const MavlinkUdpEndpoint& endpoint = _mavlinkUdpEndpoints[index];
+            if (!endpoint.configured && now - endpoint.lastActivityMs >= _mavlinkUdpEndpointTimeoutMs) {
+                expiredEndpoints.append(endpoint);
+                _mavlinkUdpEndpoints.removeAt(index);
+            }
+        }
+
+        if (!expiredEndpoints.isEmpty() && !_mavlinkUdpEndpointLimitNotice.isEmpty()
+                && _mavlinkUdpEndpointCountLocked() < _maxMavlinkUdpEndpoints) {
+            _mavlinkUdpEndpointLimitNotice.clear();
+            noticeChanged = true;
+        }
+    }
+
+    if (expiredEndpoints.isEmpty()) {
+        return;
+    }
+
+    emit mavlinkUdpEndpointCountChanged();
+    if (noticeChanged) {
+        emit mavlinkUdpEndpointLimitNoticeChanged();
+    }
+    for (const MavlinkUdpEndpoint& endpoint : qAsConst(expiredEndpoints)) {
+        emit mavlinkUdpEndpointExpired(endpoint.link, endpoint.address, endpoint.port);
+    }
+
+    qCInfo(LinkManagerLog) << "Expired inactive MAVLink UDP endpoints"
+                           << expiredEndpoints.count()
+                           << "active" << mavlinkUdpEndpointCount()
+                           << "limit" << _maxMavlinkUdpEndpoints;
+}
+
+void LinkManager::releaseMavlinkUdpEndpoints(LinkInterface* link)
+{
+    if (!link) {
+        return;
+    }
+
+    int removedCount = 0;
+    bool noticeChanged = false;
+    {
+        QMutexLocker locker(&_mavlinkUdpEndpointMutex);
+        for (int index = _mavlinkUdpEndpoints.count() - 1; index >= 0; --index) {
+            if (_mavlinkUdpEndpoints[index].link == link) {
+                _mavlinkUdpEndpoints.removeAt(index);
+                removedCount++;
+            }
+        }
+        if (removedCount > 0 && !_mavlinkUdpEndpointLimitNotice.isEmpty()
+                && _mavlinkUdpEndpointCountLocked() < _maxMavlinkUdpEndpoints) {
+            _mavlinkUdpEndpointLimitNotice.clear();
+            noticeChanged = true;
+        }
+    }
+
+    if (removedCount > 0) {
+        emit mavlinkUdpEndpointCountChanged();
+        qCInfo(LinkManagerLog) << "Released MAVLink UDP endpoints"
+                               << removedCount
+                               << "active" << mavlinkUdpEndpointCount()
+                               << "limit" << _maxMavlinkUdpEndpoints;
+    }
+    if (noticeChanged) {
+        emit mavlinkUdpEndpointLimitNoticeChanged();
+    }
 }
 
 // This should only be used by Qml code
@@ -170,8 +399,26 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
 
     if (link) {
         const QString linkName = config ? config->name() : QStringLiteral("Unknown");
+
+        if (config->type() == LinkConfiguration::TypeUdp) {
+            UDPConfiguration* udpConfig = qobject_cast<UDPConfiguration*>(config.get());
+            if (udpConfig) {
+                QList<QPair<QHostAddress, quint16>> configuredEndpoints;
+                for (const UDPCLient* target : udpConfig->targetHosts()) {
+                    configuredEndpoints.append({target->address, target->port});
+                }
+                if (!configuredEndpoints.isEmpty()
+                        && !registerMavlinkUdpEndpoints(link.get(), configuredEndpoints, true)) {
+                    qCWarning(LinkManagerLog) << "UDP link rejected by MAVLink UDP connection limit"
+                                              << linkName;
+                    return false;
+                }
+            }
+        }
+
         if (false == link->_allocateMavlinkChannel() ) {
             qCWarning(LinkManagerLog) << "Link failed to setup mavlink channels";
+            releaseMavlinkUdpEndpoints(link.get());
             return false;
         }
 
@@ -199,6 +446,7 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
             link->_freeMavlinkChannel();
             _rgLinks.removeAt(_rgLinks.indexOf(link));
             config->setLink(nullptr);
+            releaseMavlinkUdpEndpoints(link.get());
             return false;
         }
 
@@ -370,6 +618,8 @@ void LinkManager::_linkDisconnected(void)
     if (!link || !containsLink(link)) {
         return;
     }
+
+    releaseMavlinkUdpEndpoints(link);
 
     disconnect(link, &LinkInterface::communicationError,  _app,                &QGCApplication::criticalMessageBoxOnMainThread);
     disconnect(link, &LinkInterface::bytesReceived,       _mavlinkProtocol,    &MAVLinkProtocol::receiveBytes);
@@ -584,11 +834,11 @@ void LinkManager::_addUDPAutoConnectLink(void)
 
 void LinkManager::_addMAVLinkForwardingLink(void)
 {
-    if (!_customNetworkServiceEnabled("networkUdpListenerEnabled")) {
-        return;
-    }
+    Fact* forwardMavlinkFact = _toolbox->settingsManager()->appSettings()->forwardMavlink();
+    const bool forwardingEnabled = _customNetworkServiceEnabled("networkUdpListenerEnabled")
+        && forwardMavlinkFact->rawValue().toBool();
 
-    if (_toolbox->settingsManager()->appSettings()->forwardMavlink()->rawValue().toBool()) {
+    if (forwardingEnabled) {
         bool foundMAVLinkForwardingLink = false;
 
         for (int i=0; i<_rgLinks.count(); i++) {
@@ -602,7 +852,30 @@ void LinkManager::_addMAVLinkForwardingLink(void)
 
         if (!foundMAVLinkForwardingLink) {
             QString hostName = _toolbox->settingsManager()->appSettings()->forwardMavlinkHostName()->rawValue().toString();
-            _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+            if (!_createDynamicForwardLink(_mavlinkForwardingLinkName, hostName)) {
+                // Keep the persisted setting and checkbox in sync with the
+                // actual link state when the UDP endpoint limit rejects it.
+                forwardMavlinkFact->setRawValue(false);
+            }
+        }
+    } else {
+        SharedLinkConfigurationPtr forwardingConfig;
+        LinkInterface* forwardingLink = nullptr;
+        for (const SharedLinkInterfacePtr& link : qAsConst(_rgLinks)) {
+            SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
+            if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == _mavlinkForwardingLinkName) {
+                forwardingConfig = linkConfig;
+                forwardingLink = link.get();
+                break;
+            }
+        }
+
+        if (forwardingLink) {
+            releaseMavlinkUdpEndpoints(forwardingLink);
+            forwardingLink->disconnect();
+            if (forwardingConfig) {
+                _removeConfiguration(forwardingConfig.get());
+            }
         }
     }
 }
@@ -666,7 +939,9 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
             link->setAutoConnect(true);
             link->setDynamic(true);
             SharedLinkConfigurationPtr config = addConfiguration(link);
-            createConnectedLink(config);
+            if (!createConnectedLink(config)) {
+                _removeConfiguration(link);
+            }
             return;
         }
 
@@ -1025,9 +1300,10 @@ void LinkManager::removeConfiguration(LinkConfiguration* config)
 void LinkManager::createMavlinkForwardingSupportLink(void)
 {
     QString hostName = _toolbox->settingsManager()->appSettings()->forwardMavlinkAPMSupportHostName()->rawValue().toString();
-    _createDynamicForwardLink(_mavlinkForwardingSupportLinkName, hostName);
-    _mavlinkSupportForwardingEnabled = true;
-    emit mavlinkSupportForwardingEnabledChanged();
+    if (_createDynamicForwardLink(_mavlinkForwardingSupportLinkName, hostName)) {
+        _mavlinkSupportForwardingEnabled = true;
+        emit mavlinkSupportForwardingEnabledChanged();
+    }
 }
 
 void LinkManager::_removeConfiguration(LinkConfiguration* config)
@@ -1154,7 +1430,7 @@ bool LinkManager::_isSerialPortConnected(void)
     return false;
 }
 
-void LinkManager::_createDynamicForwardLink(const char* linkName, QString hostName)
+bool LinkManager::_createDynamicForwardLink(const char* linkName, QString hostName)
 {
     UDPConfiguration* udpConfig = new UDPConfiguration(linkName);
     udpConfig->setDynamic(true);
@@ -1162,7 +1438,13 @@ void LinkManager::_createDynamicForwardLink(const char* linkName, QString hostNa
     udpConfig->addHost(hostName);
     
     SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
-    createConnectedLink(config);
+    if (!createConnectedLink(config)) {
+        _removeConfiguration(udpConfig);
+        qCWarning(LinkManagerLog) << "Unable to create dynamic MAVLink forwarding link:"
+                                  << linkName << hostName;
+        return false;
+    }
 
     qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding port added: " << linkName << " hostname: " << hostName;
+    return true;
 }

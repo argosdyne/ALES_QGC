@@ -53,6 +53,7 @@ SetupPage {
                 QGCButton {
                     text:    qsTr("Connect")
                     enabled: !QGroundControl.linkManager.mavlinkSupportForwardingEnabled
+                             && QGroundControl.linkManager.mavlinkUdpEndpointCount < QGroundControl.linkManager.mavlinkUdpEndpointLimit
 
                     onPressed: {
                         QGroundControl.linkManager.createMavlinkForwardingSupportLink()
@@ -61,6 +62,16 @@ SetupPage {
                 QGCLabel {
                     visible:            QGroundControl.linkManager.mavlinkSupportForwardingEnabled
                     text:               qsTr("Forwarding traffic: Mavlink traffic will keep being forwarded until application restarts")
+                }
+                QGCLabel {
+                    Layout.columnSpan:  2
+                    Layout.fillWidth:   true
+                    wrapMode:           Text.WordWrap
+                    color:              qgcPal.colorOrange
+                    visible:            !QGroundControl.linkManager.mavlinkSupportForwardingEnabled
+                                        && QGroundControl.linkManager.mavlinkUdpEndpointCount >= QGroundControl.linkManager.mavlinkUdpEndpointLimit
+                    text:               qsTr("Remote Support is unavailable because all %1 UDP connections are in use.")
+                                            .arg(QGroundControl.linkManager.mavlinkUdpEndpointLimit)
                 }
             }
         }

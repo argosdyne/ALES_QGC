@@ -12,6 +12,8 @@
 #include <QList>
 #include <QMultiMap>
 #include <QMutex>
+#include <QHostAddress>
+#include <QPair>
 
 #include <limits>
 
@@ -59,6 +61,9 @@ public:
     Q_PROPERTY(QStringList          serialPortStrings               READ serialPortStrings               NOTIFY commPortStringsChanged)
     Q_PROPERTY(QStringList          serialPorts                     READ serialPorts                     NOTIFY commPortsChanged)
     Q_PROPERTY(bool                 mavlinkSupportForwardingEnabled READ mavlinkSupportForwardingEnabled NOTIFY mavlinkSupportForwardingEnabledChanged)
+    Q_PROPERTY(int                  mavlinkUdpEndpointCount         READ mavlinkUdpEndpointCount         NOTIFY mavlinkUdpEndpointCountChanged)
+    Q_PROPERTY(int                  mavlinkUdpEndpointLimit         READ mavlinkUdpEndpointLimit         CONSTANT)
+    Q_PROPERTY(QString              mavlinkUdpEndpointLimitNotice   READ mavlinkUdpEndpointLimitNotice   NOTIFY mavlinkUdpEndpointLimitNoticeChanged)
 
     /// Create/Edit Link Configuration
     Q_INVOKABLE LinkConfiguration*  createConfiguration                (int type, const QString& name);
@@ -84,6 +89,9 @@ public:
     QStringList                     serialPortStrings               (void);
     QStringList                     serialPorts                     (void);
     bool                            mavlinkSupportForwardingEnabled (void) { return _mavlinkSupportForwardingEnabled; }
+    int                             mavlinkUdpEndpointCount         (void);
+    int                             mavlinkUdpEndpointLimit         (void) const { return _maxMavlinkUdpEndpoints; }
+    QString                         mavlinkUdpEndpointLimitNotice   (void);
 
     void loadLinkConfigurationList();
     void saveLinkConfigurationList();
@@ -137,6 +145,12 @@ public:
     bool containsLink(LinkInterface* link);
     void resetMavlinkSigning(void);
 
+    /// Registers MAVLink UDP endpoints against the global connection limit.
+    /// Each remote (IP, port) consumes one global slot. Per-link records are
+    /// retained separately so activity expiry and link cleanup remain correct.
+    bool registerMavlinkUdpEndpoints(LinkInterface* link, const QList<QPair<QHostAddress, quint16>>& endpoints, bool configured);
+    void releaseMavlinkUdpEndpoints(LinkInterface* link);
+
     SharedLinkConfigurationPtr addConfiguration(LinkConfiguration* config);
 
     void startAutoConnectedLinks(void);
@@ -147,12 +161,17 @@ signals:
     void commPortStringsChanged();
     void commPortsChanged();
     void mavlinkSupportForwardingEnabledChanged();
+    void mavlinkUdpEndpointCountChanged();
+    void mavlinkUdpEndpointLimitNoticeChanged();
+    void mavlinkUdpEndpointExpired(LinkInterface* link, QHostAddress address, quint16 port);
 
 private slots:
     void _linkConnected     (void);
     void _linkDisconnected  (void);
+    void _expireInactiveMavlinkUdpEndpoints(void);
 
 private:
+    int                 _mavlinkUdpEndpointCountLocked(void) const;
     void                _sendInitialMavlinkHeartbeat(const SharedLinkInterfacePtr& link);
     QmlObjectListModel* _qmlLinkConfigurations      (void) { return &_qmlConfigurations; }
     bool                _connectionsSuspendedMsg    (void);
@@ -163,7 +182,7 @@ private:
     void                _addZeroConfAutoConnectLink (void);
     void                _addMAVLinkForwardingLink   (void);
     bool                _isSerialPortConnected      (void);
-    void                _createDynamicForwardLink   (const char* linkName, QString hostName);
+    bool                _createDynamicForwardLink   (const char* linkName, QString hostName);
 
 #ifndef NO_SERIAL_LINK
     bool                _portAlreadyConnected       (const QString& portName);
@@ -208,6 +227,22 @@ private:
     static const int    _autoconnectUpdateTimerMSecs;
     static const int    _autoconnectConnectDelayMSecs;
     bool                _mavlinkSupportForwardingEnabled = false;
+
+    struct MavlinkUdpEndpoint {
+        LinkInterface* link = nullptr;
+        QHostAddress address;
+        quint16 port = 0;
+        qint64 lastActivityMs = 0;
+        bool configured = false;
+    };
+
+    static constexpr int               _maxMavlinkUdpEndpoints = 5;
+    static constexpr qint64            _mavlinkUdpEndpointTimeoutMs = 10000;
+    mutable QMutex                     _mavlinkUdpEndpointMutex;
+    QList<MavlinkUdpEndpoint>          _mavlinkUdpEndpoints;
+    QString                            _mavlinkUdpEndpointLimitNotice;
+    qint64                             _lastMavlinkUdpLimitLogMs = 0;
+    QTimer                             _mavlinkUdpEndpointCleanupTimer;
 
 };
 

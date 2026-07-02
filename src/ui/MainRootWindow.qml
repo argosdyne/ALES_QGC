@@ -322,6 +322,17 @@ ApplicationWindow {
         simpleMessageDialogComponent.createObject(mainWindow, { title: dialogTitle, text: dialogText, buttons: buttons, acceptFunction: acceptFunction }).open()
     }
 
+    Connections {
+        target: QGroundControl.linkManager
+
+        function onMavlinkUdpEndpointLimitNoticeChanged() {
+            var notice = QGroundControl.linkManager.mavlinkUdpEndpointLimitNotice
+            if (notice.length > 0) {
+                mainWindow.showMessageDialog(qsTr("MAVLink UDP Connection Limit"), notice)
+            }
+        }
+    }
+
     function showControlBlockedDialog() {
         if (controlBlockedDialogActive) {
             return
