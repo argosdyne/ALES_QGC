@@ -104,6 +104,26 @@ SurveyComplexItem::SurveyComplexItem(PlanMasterController* masterController, boo
     connect(&_surveyAreaPolygon,        &QGCMapPolygon::isValidChanged,             this, &SurveyComplexItem::_updateWizardMode);
     connect(&_surveyAreaPolygon,        &QGCMapPolygon::traceModeChanged,           this, &SurveyComplexItem::_updateWizardMode);
 
+    // Agrowing camera preset: overlap/altitude are set by CameraCalc; grid angle and turnaround
+    // distance are owned here, so apply them when the Agrowing camera is selected and restore the
+    // previous values when the user switches to another camera.
+    connect(&_cameraCalc, &CameraCalc::agrowingPresetSelected, this, [this]() {
+        if (!_agrowingSurveyPresetActive) {
+            _savedGridAngle          = _gridAngleFact.rawValue();
+            _savedTurnAroundDistance = _turnAroundDistanceFact.rawValue();
+            _agrowingSurveyPresetActive = true;
+        }
+        _gridAngleFact.setRawValue(0);              // Grid angle 0 deg
+        _turnAroundDistanceFact.setRawValue(200);   // Turnaround distance 200 m
+    });
+    connect(&_cameraCalc, &CameraCalc::agrowingPresetCleared, this, [this]() {
+        if (_agrowingSurveyPresetActive) {
+            _gridAngleFact.setRawValue(_savedGridAngle);
+            _turnAroundDistanceFact.setRawValue(_savedTurnAroundDistance);
+            _agrowingSurveyPresetActive = false;
+        }
+    });
+
     if (!kmlOrShpFile.isEmpty()) {
         _surveyAreaPolygon.loadKMLOrSHPFile(kmlOrShpFile);
         _surveyAreaPolygon.setDirty(false);
