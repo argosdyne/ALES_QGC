@@ -113,6 +113,10 @@ QGCPopupDialog {
         }
         privacySettings.privacyNoticeLanguage = languageCodes[languageCombo.currentIndex]
         privacySettings.privacyNtripConsent = optionalCheck.checked
+        if (optionalCheck.checked) {
+            // Custom.SettingsGroup.json: RTCM Source enum value 1 is NTRIP.
+            QGroundControl.corePlugin.settings.rtcmSource.rawValue = 1
+        }
         privacySettings.privacyNoticeAcceptedVersion = 1
         close()
     }

@@ -526,6 +526,7 @@ Rectangle {
                                         text: qsTr("Recorded only when user enables. Stored locally.")
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
+                                        font.pointSize: ScreenTools.defaultFontPointSize * 0.85
                                     }
                                 }
                             }
@@ -558,6 +559,7 @@ Rectangle {
                                         text: qsTr("Stored as flight logs on local system for analysis.")
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
+                                        font.pointSize: ScreenTools.defaultFontPointSize * 0.85
                                     }
                                 }
                             }
@@ -589,6 +591,7 @@ Rectangle {
                                         text: qsTr("No audio data is collected or recorded.")
                                         color: qgcPal.colorGrey
                                         wrapMode: Text.WordWrap
+                                        font.pointSize: ScreenTools.defaultFontPointSize * 0.85
                                     }
                                 }
                             }
@@ -629,7 +632,7 @@ Rectangle {
                                 text: qsTr("Securely delete all user information and data")
                                 color: qgcPal.colorGrey
                                 wrapMode: Text.WordWrap
-
+                                font.pointSize: ScreenTools.defaultFontPointSize * 0.85
                             }
                         }
 
@@ -639,7 +642,7 @@ Rectangle {
                             icon: StandardIcon.Warning
                             standardButtons: StandardButton.Yes | StandardButton.No
                             title: qsTr("Factory Reset")
-                            text: qsTr("This action will delete all your data and logs. A full initial setup will be required. Do you want to continue?")
+                            text: qsTr("This action will delete all your data, logs and application settings. ALES QGC will close, and a full initial setup will be required the next time it starts. Do you want to continue?")
 
                             onYes: {
                                 for (var i = 0; i < QGroundControl.mavlinkLogManager.logFiles.count; i++) {
@@ -648,8 +651,10 @@ Rectangle {
                                 QGroundControl.mavlinkLogManager.deleteLog()
                                 securityManager.clearStored()
                                 CustomQmlInterface.clearUserLogs()
+                                CustomQmlInterface.clearAllApplicationSettings()
+                                QGroundControl.deleteAllSettingsNextBoot()
                                 factoryResetDialog.visible = false
-                                CustomQmlInterface.notifyFactoryResetCompleted()
+                                mainWindow.finishCloseProcess()
                             }
                             onNo: factoryResetDialog.visible = false
                         }
@@ -790,6 +795,7 @@ Rectangle {
                                 text: qsTr("Review how vehicle and location data may be processed")
                                 color: qgcPal.colorGrey
                                 wrapMode: Text.WordWrap
+                                font.pointSize: ScreenTools.defaultFontPointSize * 0.85
                             }
                         }
                     }
