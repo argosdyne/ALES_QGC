@@ -331,6 +331,7 @@
 
 	</qresource>
 	<qresource prefix="/FirstRunPromptDialogs">
+		<file alias="PrivacyNoticeFirstRunPrompt.qml">../src/FirstRunPromptDialogs/PrivacyNoticeFirstRunPrompt.qml</file>
 		<file alias="UnitsFirstRunPrompt.qml">../src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
 		<file alias="OfflineVehicleFirstRunPrompt.qml">../src/FirstRunPromptDialogs/OfflineVehicleFirstRunPrompt.qml</file>
 		<file alias="SecureConnectionFirstRunPrompt.qml">../src/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml</file>

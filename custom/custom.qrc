@@ -131,6 +131,7 @@
         <file alias="DpcKioskSettings.qml">src/DpcKioskSettings.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
+        <file alias="PrivacyNoticeFirstRunPrompt.qml">../src/FirstRunPromptDialogs/PrivacyNoticeFirstRunPrompt.qml</file>
         <file alias="SecureConnectionFirstRunPrompt.qml">../src/FirstRunPromptDialogs/SecureConnectionFirstRunPrompt.qml</file>
     </qresource>
     <qresource prefix="/json">

@@ -53,8 +53,39 @@ ApplicationWindow {
         _recoveryKeyPageComponent = Qt.createComponent("qrc:/login/RecoveryKeyScreen.qml")
         _forgotPinPageComponent = Qt.createComponent("qrc:/login/ForgotPinScreen.qml")
         _systemRestorePageComponent = Qt.createComponent("qrc:/login/SystemRestoreScreen.qml")
+        _startInitialUi()
+    }
+
+    Settings {
+        id: privacyGateSettings
+        category: "Custom"
+        property int privacyNoticeAcceptedVersion: 0
+    }
+
+    function _showLoginAfterPrivacyNotice() {
         loadInitialLoginUI()
         loginOverlay.open()
+    }
+
+    function _startInitialUi() {
+        if (privacyGateSettings.privacyNoticeAcceptedVersion >= 1) {
+            _showLoginAfterPrivacyNotice()
+            return
+        }
+
+        var component = Qt.createComponent("qrc:/FirstRunPromptDialogs/PrivacyNoticeFirstRunPrompt.qml")
+        if (component.status !== Component.Ready) {
+            console.error("Privacy Notice could not be loaded:", component.errorString())
+            return
+        }
+
+        var dialog = component.createObject(mainWindow)
+        if (!dialog) {
+            console.error("Privacy Notice could not be created")
+            return
+        }
+        dialog.closed.connect(_showLoginAfterPrivacyNotice)
+        dialog.open()
     }
 
     QtObject {
@@ -1208,7 +1239,7 @@ ApplicationWindow {
         parent:      Overlay.overlay
         width:       mainWindow.width
         height:      mainWindow.height
-        visible:     true
+        visible:     false
         modal:       true
         closePolicy: Popup.NoAutoClose
         padding:     0

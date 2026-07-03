@@ -58,6 +58,7 @@ Popup {
     property var    dialogProperties
     property bool   destroyOnClose:         true
     property bool   preventClose:           false
+    property bool   showTitleBar:            true
 
     signal accepted
     signal rejected
@@ -226,6 +227,7 @@ Popup {
         width:  titleRowLayout.width
         height: titleRowLayout.height
         color:  qgcPal.windowShade
+        visible: _root.showTitleBar
     }
 
     ColumnLayout {
@@ -235,6 +237,7 @@ Popup {
         RowLayout {
             id:                 titleRowLayout
             Layout.fillWidth:   true
+            visible:            _root.showTitleBar
 
             QGCLabel {
                 Layout.leftMargin:  ScreenTools.defaultFontPixelWidth
