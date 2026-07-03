@@ -872,6 +872,23 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle*)
             this);                  // parent
         _cameraList.append(QVariant::fromValue(metaData));
 
+        metaData = new CameraMetaData(
+            //Sony ILX-IR Agrowing
+            "Sony ILX-IR Agrowing",
+            tr("Sony"),
+            tr("ILX-IR Agrowing"),
+            10.00,                  // sensorWitdh
+            10.50,                  // sensorHeight
+            2676,                   // imageWidth
+            2788,                   // imageHeight
+            21.8,                   // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR Agrowing"),
+            this);
+        _cameraList.append(QVariant::fromValue(metaData));
+
 
         metaData = new CameraMetaData(
                     "Yuneec CGOET",
