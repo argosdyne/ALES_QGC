@@ -45,6 +45,18 @@ Rectangle {
         return used ? "/custom/img/check_used.svg" : "/custom/img/png/check_used.png"
     }
 
+    function _openPrivacyNotice() {
+        var component = Qt.createComponent("qrc:/FirstRunPromptDialogs/PrivacyNoticeFirstRunPrompt.qml")
+        if (component.status !== Component.Ready) {
+            console.warn("Unable to load Privacy Notice:", component.errorString())
+            return
+        }
+        var dialog = component.createObject(mainWindow, { "reviewMode": true })
+        if (dialog) {
+            dialog.open()
+        }
+    }
+
     QGCFlickable {
         anchors.fill:   parent
         clip:           true
@@ -648,6 +660,8 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     height: controlTitle.implicitHeight + ScreenTools.defaultFontPixelHeight + controlFrame.height
+                            + ScreenTools.defaultFontPixelHeight + privacyNoticeTitle.implicitHeight
+                            + ScreenTools.defaultFontPixelHeight * 0.4 + privacyNoticeFrame.height
 
                     QGCLabel {
                         id: controlTitle
@@ -739,6 +753,43 @@ Rectangle {
                                         CustomQmlInterface.logSecurityEvent("Session management " + (checked ? "enabled" : "disabled"))
                                     }
                                 }
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        id: privacyNoticeTitle
+                        anchors.top: controlFrame.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight
+                        text: qsTr("Privacy Notice")
+                    }
+
+                    Rectangle {
+                        id: privacyNoticeFrame
+                        anchors.top: privacyNoticeTitle.bottom
+                        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.4
+                        width: controlFrame.width
+                        color: qgcPal.windowShade
+                        height: privacyNoticeColumn.height + ScreenTools.defaultFontPixelHeight * 2
+
+                        Column {
+                            id: privacyNoticeColumn
+                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.margins: _margins * 2.5
+
+                            QGCButton {
+                                text: qsTr("View Privacy Notice")
+                                onClicked: _root._openPrivacyNotice()
+                            }
+
+                            QGCLabel {
+                                width: parent.width
+                                text: qsTr("Review how vehicle and location data may be processed")
+                                color: qgcPal.colorGrey
+                                wrapMode: Text.WordWrap
                             }
                         }
                     }
