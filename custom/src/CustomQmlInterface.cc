@@ -12,6 +12,7 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QMetaObject>
+#include <QSettings>
 #if defined(Q_OS_ANDROID)
 #include <QtAndroidExtras/QtAndroid>
 #include <QtAndroidExtras/QAndroidJniEnvironment>
@@ -321,6 +322,13 @@ void CustomQmlInterface::clearUserLogs()
             QFile::remove(entry.absoluteFilePath());
         }
     }
+}
+
+void CustomQmlInterface::clearAllApplicationSettings()
+{
+    QSettings settings;
+    settings.clear();
+    settings.sync();
 }
 
 void CustomQmlInterface::notifyFactoryResetCompleted()

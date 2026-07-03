@@ -146,6 +146,7 @@ public:
     Q_INVOKABLE bool exportTextReportToPath(const QString& filePath, const QString& contents);
     Q_INVOKABLE void logSecurityEvent(const QString& message);
     Q_INVOKABLE void clearUserLogs();
+    Q_INVOKABLE void clearAllApplicationSettings();
     Q_INVOKABLE void notifyFactoryResetCompleted();
     Q_INVOKABLE bool setDpcKioskEnabled(bool enabled);
     Q_INVOKABLE bool setDpcKioskEnabledWithPin(bool enabled, const QString& pin);
