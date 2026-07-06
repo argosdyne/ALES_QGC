@@ -19,6 +19,7 @@ import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Controls          1.0
 import QGroundControl.Palette           1.0
+import QGroundControl.Payload           1.0
 import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
@@ -33,6 +34,16 @@ Item {
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel && !_isA30TRCamera
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+    property var    _gremsyPayload:                             PayloadManager.gremsy
+    property bool   _useGremsyPayload:                          _gremsyPayload && _gremsyPayload.connected
+
+    function _centerGimbal() {
+        if (_useGremsyPayload) {
+            _gremsyPayload.gimbalHome()
+        } else if (_mavlinkCamera) {
+            _mavlinkCamera.centerGimbal()
+        }
+    }
 
     // The following properties relate to a simple camera
     property var    _flyViewSettings:                           QGroundControl.settingsManager.flyViewSettings
@@ -228,7 +239,7 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
+                    onClicked: _centerGimbal()
                 }
             }
             //Camera Settings

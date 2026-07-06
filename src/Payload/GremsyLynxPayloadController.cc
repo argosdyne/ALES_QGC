@@ -27,6 +27,10 @@ GremsyLynxPayloadController::GremsyLynxPayloadController(QObject* parent)
     _controlTimer = new QTimer(this);
     _controlTimer->setInterval(100); // 10 Hz resend of the current speed setpoint
     connect(_controlTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_sendControl);
+
+    _zoomDisplayTimer = new QTimer(this);
+    _zoomDisplayTimer->setInterval(200);
+    connect(_zoomDisplayTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_updateZoomDisplay);
 }
 
 void GremsyLynxPayloadController::_onIpChanged()
@@ -82,6 +86,38 @@ void GremsyLynxPayloadController::gimbalHome()
     _setGimbalMode(4 /* PAYLOAD_CAMERA_GIMBAL_MODE_RESET */);
 }
 
+void GremsyLynxPayloadController::zoomIn()
+{
+    _sendCameraZoom(1.0f);
+}
+
+void GremsyLynxPayloadController::zoomOut()
+{
+    _sendCameraZoom(-1.0f);
+}
+
+void GremsyLynxPayloadController::stopZoom()
+{
+    _zoomDirection = 0.0f;
+    _zoomDisplayTimer->stop();
+}
+
+void GremsyLynxPayloadController::_updateZoomDisplay()
+{
+    if (qFuzzyIsNull(_zoomDirection)) {
+        _zoomDisplayTimer->stop();
+        return;
+    }
+
+    const double nextZoom = qBound(1.0, _zoomLevel + (_zoomDirection * 0.2), 30.0);
+    if (qFuzzyCompare(_zoomLevel, nextZoom)) {
+        return;
+    }
+
+    _zoomLevel = nextZoom;
+    emit zoomLevelChanged();
+}
+
 void GremsyLynxPayloadController::_sendHeartbeat()
 {
     mavlink_message_t message;
@@ -118,6 +154,36 @@ void GremsyLynxPayloadController::_sendGimbalSpeed(float pitchDegS, float rollDe
                                                 qDegreesToRadians(rollDegS),
                                                 qDegreesToRadians(pitchDegS),
                                                 qDegreesToRadians(yawDegS));
+    _sendMessage(message);
+}
+
+void GremsyLynxPayloadController::_sendCameraZoom(float direction)
+{
+    direction = qBound(-1.0f, direction, 1.0f);
+    _zoomDirection = direction;
+
+    if (qFuzzyIsNull(_zoomDirection)) {
+        _zoomDisplayTimer->stop();
+    } else {
+        _updateZoomDisplay();
+        _zoomDisplayTimer->start();
+    }
+
+    mavlink_message_t message;
+    mavlink_msg_command_long_pack(_senderSysId,
+                                  _senderCompId,
+                                  &message,
+                                  _gimbalSysId,
+                                  _cameraCompId,
+                                  MAV_CMD_SET_CAMERA_ZOOM,
+                                  0,
+                                  ZOOM_TYPE_CONTINUOUS,
+                                  direction,
+                                  0.0f,
+                                  0.0f,
+                                  0.0f,
+                                  0.0f,
+                                  0.0f);
     _sendMessage(message);
 }
 

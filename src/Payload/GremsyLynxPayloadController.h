@@ -19,6 +19,7 @@ class GremsyLynxPayloadController : public PayloadController
     Q_PROPERTY(double pitch READ pitch NOTIFY attitudeChanged)
     Q_PROPERTY(double roll  READ roll  NOTIFY attitudeChanged)
     Q_PROPERTY(double yaw   READ yaw   NOTIFY attitudeChanged)
+    Q_PROPERTY(double zoomLevel READ zoomLevel NOTIFY zoomLevelChanged)
     Q_PROPERTY(double speedDegPerSec READ speedDegPerSec WRITE setSpeedDegPerSec NOTIFY speedChanged)
 
 public:
@@ -29,6 +30,7 @@ public:
     double pitch() const { return _pitch; }
     double roll()  const { return _roll; }
     double yaw()   const { return _yaw; }
+    double zoomLevel() const { return _zoomLevel; }
     double speedDegPerSec() const { return _speedDegS; }
     void   setSpeedDegPerSec(double speed);
 
@@ -36,9 +38,13 @@ public:
     void gimbalMove(int pan, int tilt) override;
     void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
     void gimbalHome() override;
+    Q_INVOKABLE void zoomIn();
+    Q_INVOKABLE void zoomOut();
+    Q_INVOKABLE void stopZoom();
 
 signals:
     void attitudeChanged();
+    void zoomLevelChanged();
     void speedChanged();
 
 protected:
@@ -48,13 +54,16 @@ protected:
 private slots:
     void _sendHeartbeat();
     void _sendControl();
+    void _updateZoomDisplay();
 
 private:
     void _sendGimbalSpeed(float pitchDegS, float rollDegS, float yawDegS);
+    void _sendCameraZoom(float direction);
     void _setGimbalMode(uint32_t mode);
 
     QTimer* _heartbeatTimer = nullptr;
     QTimer* _controlTimer   = nullptr;
+    QTimer* _zoomDisplayTimer = nullptr;
 
     // Current commanded speed (deg/s) resent continuously for robustness.
     float _cmdPitchDegS = 0.0f;
@@ -70,6 +79,8 @@ private:
     double _pitch = 0.0;
     double _roll  = 0.0;
     double _yaw   = 0.0;
+    double _zoomLevel = 1.0;
+    float  _zoomDirection = 0.0f;
 
     static constexpr quint16 kTargetPort = 14566;
     static const char* kDefaultIp;
