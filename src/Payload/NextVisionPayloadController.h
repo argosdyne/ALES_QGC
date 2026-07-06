@@ -6,7 +6,8 @@
 ///   CH1 = pan/yaw, CH2 = tilt/pitch, 1500 center, 1500 +/- offset.
 ///
 /// Critical protocol details (from the working NextVisionGimbalMaui app):
-///  - Sender system id MUST be 1 (ArduPilot SYSID_MYGCS gate); 255 is silently ignored.
+///  - Sender system id MUST match the rig's ArduPilot SYSID_MYGCS. aq2apm45.param sets it to
+///    255 (the QGC default), so we send as 255; a mismatched id is silently ignored.
 ///  - The override must be streamed continuously (~25 Hz) or ArduPilot times it out.
 ///  - HEARTBEAT ~1 Hz and REQUEST_DATA_STREAM ~0.5 Hz keep the link/telemetry alive.
 
@@ -21,6 +22,8 @@ class NextVisionPayloadController : public PayloadController
     Q_OBJECT
 
     Q_PROPERTY(int speedOffset READ speedOffset WRITE setSpeedOffset NOTIFY speedChanged)
+    Q_PROPERTY(double pitch READ pitch NOTIFY attitudeChanged)
+    Q_PROPERTY(double yaw   READ yaw   NOTIFY attitudeChanged)
 
 public:
     explicit NextVisionPayloadController(QObject* parent = nullptr);
@@ -29,12 +32,16 @@ public:
 
     int  speedOffset() const { return _offset; }
     void setSpeedOffset(int offset);
+    double pitch() const { return _pitch; }
+    double yaw()   const { return _yaw; }
 
     void connectPayload() override;
     void gimbalMove(int pan, int tilt) override;
+    void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
 
 signals:
     void speedChanged();
+    void attitudeChanged();
 
 protected:
     void _handleMavlinkMessage(const mavlink_message_t& message) override;
@@ -61,6 +68,15 @@ private:
     // ArduPilot target; learned from HEARTBEAT, defaults to 1/1.
     uint8_t _targetSysId  = 1;
     uint8_t _targetCompId = 1;
+
+    // Idle-hold: after the sticks center, stream a brief neutral (1500) to halt residual
+    // slew, then stop overriding (0xFFFF) so the gimbal holds via its own stabilisation.
+    int _idleSettle = 0;
+    static constexpr int kIdleSettleTicks = 12;
+
+    // Live attitude decoded from the autopilot ATTITUDE(#30) message (degrees).
+    double _pitch = 0.0;
+    double _yaw   = 0.0;
 
     static constexpr quint16 kPort = 10038;
     static const char* kDefaultIp;

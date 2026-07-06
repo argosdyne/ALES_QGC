@@ -9,8 +9,8 @@ import QGroundControl.ScreenTools  1.0
 import QGroundControl.Payload      1.0
 
 // Application Settings > Payload tab. Add / configure / test a payload.
-// Payloads connect directly over their own network (independent of any vehicle),
-// so this page can drive them on the bench without an aircraft connected.
+// The controllers live in the PayloadManager singleton (app lifetime), so a connected
+// payload keeps streaming and the USB joystick keeps controlling it after you leave this page.
 Rectangle {
     id:                 _root
     color:              qgcPal.window
@@ -19,11 +19,7 @@ Rectangle {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
-    // The two registered payload controllers. Only the selected one is connected.
-    GremsyLynxPayloadController { id: gremsy }
-    NextVisionPayloadController { id: nextvision }
-
-    property var  payload: typeCombo.currentIndex === 0 ? gremsy : nextvision
+    property var  payload: PayloadManager.activeType === 0 ? PayloadManager.gremsy : PayloadManager.nextvision
     property real _fieldWidth: ScreenTools.defaultFontPixelWidth * 28
     property real _labelWidth: ScreenTools.defaultFontPixelWidth * 12
 
@@ -37,9 +33,12 @@ Rectangle {
                            (_up ? 1 : 0) - (_down ? 1 : 0))
     }
 
+    // Safety net: if the page is destroyed while a d-pad button is held, halt that motion
+    // (but keep the payload connected — the joystick keeps driving it from other screens).
     Component.onDestruction: {
-        gremsy.disconnectPayload()
-        nextvision.disconnectPayload()
+        if (payload && (_up || _down || _left || _right)) {
+            payload.gimbalStop()
+        }
     }
 
     QGCFlickable {
@@ -62,7 +61,7 @@ Rectangle {
                 width:      parent.width
                 wrapMode:   Text.WordWrap
                 color:      qgcPal.text
-                text:       qsTr("Select a payload type and its IP address, then Connect. The payload is reached directly over its own network — no vehicle connection is required.")
+                text:       qsTr("Select a payload type and its IP address, then Connect. The connection and joystick control stay active after you leave this page.")
             }
 
             RowLayout {
@@ -72,9 +71,9 @@ Rectangle {
                     id:                     typeCombo
                     Layout.preferredWidth:  _root._fieldWidth
                     model:                  [ qsTr("Gremsy Lynx"), qsTr("NextVision DragonEye2") ]
+                    currentIndex:           PayloadManager.activeType
                     onActivated: {
-                        gremsy.disconnectPayload()
-                        nextvision.disconnectPayload()
+                        PayloadManager.activeType = currentIndex
                         _root._up = _root._down = _root._left = _root._right = false
                     }
                 }
@@ -94,14 +93,20 @@ Rectangle {
             RowLayout {
                 spacing: ScreenTools.defaultFontPixelWidth
                 QGCButton {
-                    text:       _root.payload.connected ? qsTr("Disconnect") : qsTr("Connect")
-                    onClicked:  _root.payload.connected ? _root.payload.disconnectPayload()
-                                                        : _root.payload.connectPayload()
+                    property bool active: _root.payload.connected || _root.payload.connecting
+                    text:       active ? qsTr("Disconnect") : qsTr("Connect")
+                    onClicked:  active ? _root.payload.disconnectPayload()
+                                       : _root.payload.connectPayload()
                 }
                 QGCLabel {
                     anchors.verticalCenter: parent.verticalCenter
-                    text:  _root.payload.connected ? qsTr("Connected") : qsTr("Not connected")
-                    color: _root.payload.connected ? qgcPal.colorGreen : qgcPal.colorGrey
+                    text:  _root.payload.connected  ? qsTr("Connected")
+                         : _root.payload.connecting ? qsTr("Connecting…")
+                         : _root.payload.linkFailed ? qsTr("Cannot connect")
+                         :                            qsTr("Not connected")
+                    color: _root.payload.connected  ? qgcPal.colorGreen
+                         : _root.payload.linkFailed ? qgcPal.colorRed
+                         :                            qgcPal.colorGrey
                 }
             }
 
@@ -112,9 +117,17 @@ Rectangle {
                 text:       qsTr("RTSP: ") + _root.payload.rtspUrl
             }
 
+            QGCLabel {
+                visible: _root.payload.connected
+                color:   qgcPal.text
+                text:    qsTr("Attitude   Pitch %1°   Yaw %2°")
+                            .arg(_root.payload.pitch.toFixed(0))
+                            .arg(_root.payload.yaw.toFixed(0))
+            }
+
             Rectangle { width: parent.width; height: 1; color: qgcPal.text; opacity: 0.3 }
 
-            QGCLabel { text: qsTr("Gimbal control"); font.bold: true }
+            QGCLabel { text: qsTr("Gimbal control  (also controllable by USB joystick from any screen)"); font.bold: true }
 
             Grid {
                 id:         dpad

@@ -1109,18 +1109,13 @@ void Joystick::_handleAxis()
                                    << "name" << name()
                                    << "gimbalPitch" << gimbalPitch
                                    << "gimbalYaw" << gimbalYaw;
-                if (_gimbalOnlyJoystickProfile && _activeVehicle) {
-                    _activeVehicle->sendGimbalRCOverrideThreadSafe(gimbalPitch, gimbalYaw);
-                } else {
-                    emit gimbalAxisControl(gimbalPitch, gimbalYaw);
-                }
+                // Emit for whoever handles the gimbal axis (self-contained PayloadController /
+                // camera manager). Do NOT route to the aircraft RC override: for a NextVision /
+                // Gremsy payload the gimbal is a separate device, not the vehicle's own mount.
+                emit gimbalAxisControl(gimbalPitch, gimbalYaw);
                 _gimbalAxisActive = true;
             } else if (_gimbalAxisActive) {
-                if (_gimbalOnlyJoystickProfile && _activeVehicle) {
-                    _activeVehicle->sendGimbalRCOverrideThreadSafe(0.0f, 0.0f);
-                } else {
-                    emit gimbalAxisControl(0.0f, 0.0f);
-                }
+                emit gimbalAxisControl(0.0f, 0.0f);
                 _gimbalAxisActive = false;
             }
         }

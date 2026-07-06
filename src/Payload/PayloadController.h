@@ -19,6 +19,7 @@
 #include "QGCMAVLink.h"
 
 class QUdpSocket;
+class QTimer;
 
 class PayloadController : public QObject
 {
@@ -29,6 +30,7 @@ class PayloadController : public QObject
     Q_PROPERTY(QString rtspUrl     READ rtspUrl            NOTIFY rtspUrlChanged)
     Q_PROPERTY(bool    connected   READ connected          NOTIFY connectedChanged)
     Q_PROPERTY(bool    connecting  READ connecting         NOTIFY connectingChanged)
+    Q_PROPERTY(bool    linkFailed  READ linkFailed         NOTIFY linkFailedChanged)
 
 public:
     explicit PayloadController(QObject* parent = nullptr);
@@ -42,6 +44,7 @@ public:
     QString rtspUrl() const     { return _rtspUrl; }
     bool    connected() const   { return _connected; }
     bool    connecting() const  { return _connecting; }
+    bool    linkFailed() const  { return _linkFailed; }
 
     /// Open the link to the payload.
     Q_INVOKABLE virtual void connectPayload() = 0;
@@ -56,11 +59,19 @@ public:
     /// Optional recenter / home. No-op unless the device supports it.
     Q_INVOKABLE virtual void gimbalHome() {}
 
+    /// Continuous axis control (e.g. USB joystick), pan/tilt in [-1,+1]. Default: threshold to
+    /// the discrete gimbalMove; subclasses override for proportional (analog) speed.
+    Q_INVOKABLE virtual void gimbalAxis(double pan, double tilt) {
+        gimbalMove(pan  > 0.30 ? 1 : pan  < -0.30 ? -1 : 0,
+                   tilt > 0.30 ? 1 : tilt < -0.30 ? -1 : 0);
+    }
+
 signals:
     void ipChanged();
     void rtspUrlChanged();
     void connectedChanged();
     void connectingChanged();
+    void linkFailedChanged();
     void logMessage(const QString& message);
 
 protected:
@@ -74,6 +85,13 @@ protected:
     void setConnecting(bool connecting);
     void setRtspUrl(const QString& url);
 
+    /// Connect flow: call after opening the socket. Marks "connecting" and arms a watchdog;
+    /// the payload only becomes "connected" once we actually hear back from it (real 2-way link).
+    void _beginConnecting();
+    /// Call from _handleMavlinkMessage when a message arrives FROM the payload: marks connected
+    /// and refreshes the watchdog (rolling keep-alive).
+    void _noteLinkActivity();
+
     /// Called for every fully-framed inbound MAVLink message. Default: nothing.
     virtual void _handleMavlinkMessage(const mavlink_message_t& message) { Q_UNUSED(message) }
     /// Called after setIp() changes the address. Subclass may refresh rtspUrl.
@@ -83,6 +101,8 @@ protected:
     QString      _rtspUrl;
     bool         _connected  = false;
     bool         _connecting = false;
+    bool         _linkFailed = false;
+    int          _linkTimeoutMs = 3000; // no traffic within this window => not connected
 
     QUdpSocket*  _socket        = nullptr;
     QHostAddress _targetAddress;
@@ -95,8 +115,13 @@ protected:
 
 private slots:
     void _readPendingDatagrams();
+    void _onLinkTimeout();
 
 private:
+    void _setLinkFailed(bool failed);
+
+    QTimer* _linkTimer = nullptr;
+
     // Reentrant parser state (isolated from QGC's global MAVLink channels).
     mavlink_message_t _rxMsg;
     mavlink_status_t  _rxStatus;

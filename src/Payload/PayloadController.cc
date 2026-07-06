@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <QTimer>
 #include <QUdpSocket>
 
 PayloadController::PayloadController(QObject* parent)
@@ -29,9 +30,54 @@ void PayloadController::setIp(const QString& ip)
 
 void PayloadController::disconnectPayload()
 {
+    if (_linkTimer) {
+        _linkTimer->stop();
+    }
     _closeSocket();
     setConnected(false);
     setConnecting(false);
+    _setLinkFailed(false);
+}
+
+void PayloadController::_beginConnecting()
+{
+    if (!_linkTimer) {
+        _linkTimer = new QTimer(this);
+        _linkTimer->setSingleShot(true);
+        connect(_linkTimer, &QTimer::timeout, this, &PayloadController::_onLinkTimeout);
+    }
+    setConnected(false);
+    _setLinkFailed(false);
+    setConnecting(true);
+    _linkTimer->start(_linkTimeoutMs);
+}
+
+void PayloadController::_noteLinkActivity()
+{
+    setConnecting(false);
+    _setLinkFailed(false);
+    setConnected(true);
+    if (_linkTimer) {
+        _linkTimer->start(_linkTimeoutMs); // rolling keep-alive
+    }
+}
+
+void PayloadController::_onLinkTimeout()
+{
+    // No traffic came back from the payload within the window. The UDP socket + timers keep
+    // running (so it auto-recovers if the payload appears), but the status is honest: not linked.
+    setConnecting(false);
+    setConnected(false);
+    _setLinkFailed(true);
+}
+
+void PayloadController::_setLinkFailed(bool failed)
+{
+    if (_linkFailed == failed) {
+        return;
+    }
+    _linkFailed = failed;
+    emit linkFailedChanged();
 }
 
 bool PayloadController::_openSocket(quint16 localBindPort)

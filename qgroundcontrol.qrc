@@ -250,8 +250,6 @@
         <file alias="QGroundControl/FlightDisplay/OnScreenGimbalController.qml">src/FlightDisplay/OnScreenGimbalController.qml</file>
         <file alias="QGroundControl/NextVision/DragonEyeControl.qml">src/NextVision/DragonEyeControl.qml</file>
         <file alias="QGroundControl/NextVision/GremsyLynxControl.qml">src/NextVision/GremsyLynxControl.qml</file>
-        <file alias="QGroundControl/Payload/DragonEyeControl.qml">src/Payload/DragonEyeControl.qml</file>
-        <file alias="QGroundControl/Payload/GremsyLynxControl.qml">src/Payload/GremsyLynxControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewWidgetLayer.qml">src/FlightDisplay/FlyViewWidgetLayer.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionActionList.qml">src/FlightDisplay/GuidedActionActionList.qml</file>
         <file alias="QGroundControl/FlightDisplay/GuidedActionConfirm.qml">src/FlightDisplay/GuidedActionConfirm.qml</file>
