@@ -1,4 +1,4 @@
-﻿#include "NTRIPRTCMSource.h"
+#include "NTRIPRTCMSource.h"
 QGC_LOGGING_CATEGORY(NTRIPRTCMSourceLog, "NTRIPRTCMSourceLog")
 #include <iostream>
 #include <fstream>
@@ -59,12 +59,12 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
     _crcErrorLogPath = "ntrip_rtcm_crc_errors.log";
 #endif
 
-    // Auto‑reconnect timer: used only when user requested to stay logged in.
+    //reconnect timer: used only when user requested to stay logged in.
     _reconnectTimer.setSingleShot(true);
     _reconnectTimer.setInterval(5000);   // 5s backoff before reconnect
     connect(&_reconnectTimer, &QTimer::timeout, this, [this]() {
         if (_shouldReconnect) {
-            qCDebug(NTRIPRTCMSourceLog) << "NTRIP: attempting auto‑reconnect";
+            qCDebug(NTRIPRTCMSourceLog) << "NTRIP: attempting auto reconnect";
             _tcpSocket->abort();
             _tcpSocket->connectToHost(host()->rawValueString(),
                                       static_cast<quint16>(port()->rawValue().toInt()));
@@ -284,7 +284,7 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
     if (!(_tcpSocket->isOpen() && _tcpSocket->isValid() && _tcpSocket->isWritable())) {
         if (s_socketFailLogTimer.elapsed() >= 5000) {
             s_socketFailLogTimer.restart();
-            qCWarning(NTRIPRTCMSourceLog) << "GPGGA not sent: TCP not ready — open:"
+            qCWarning(NTRIPRTCMSourceLog) << "GPGGA not sent: TCP not ready open:"
                                           << _tcpSocket->isOpen() << "valid:" << _tcpSocket->isValid()
                                           << "writable:" << _tcpSocket->isWritable() << "state:" << _tcpSocket->state()
                                           << "error:" << _tcpSocket->errorString();
@@ -313,7 +313,7 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
         if (s_fakeGgaWarnTimer.elapsed() >= 30000) {
             s_fakeGgaWarnTimer.restart();
             qCWarning(NTRIPRTCMSourceLog)
-                << "GPGGA: no vehicle position yet — using built-in fallback coordinates. "
+                << "GPGGA: no vehicle position yet using built-in fallback coordinates. "
                    "Enable AutoUpdate GPGGA, connect vehicle, or use Get from Vehicle to avoid caster disconnects.";
         }
         // Lefebure-style fallback: valid ddmm.mmmm + whole-second UTC timestamp.
@@ -472,10 +472,16 @@ bool NTRIPRTCMSource::_isPremiumCaster()
         || hostName.contains(QStringLiteral("rtkpremium"), Qt::CaseInsensitive);
 }
 
+QString NTRIPRTCMSource::_activeMountPointName()
+{
+    const Fact* source = mountpointManual()->rawValue().toBool() ? mountpointManualValue() : mountpoint();
+    return source->rawValue().toString().split(':').value(0).trimmed();
+}
+
 void NTRIPRTCMSource::_onSocketConnected()
 {
-    QStringList parts = mountpoint()->rawValue().toString().split(':');
-    const QString mountPoint = parts[0];
+    const QString mountPoint = _activeMountPointName();
+    qInfo() << "_onSocketConnected Mountpoint = " << mountPoint;
 
     QString request;
     if (_isPremiumCaster()) {
@@ -751,7 +757,7 @@ void NTRIPRTCMSource::_onSocketError(QAbstractSocket::SocketError error)
 {
     _sendGPGGATimer.stop();
     qCWarning(NTRIPRTCMSourceLog) << "NTRIP TCP error:" << error << _tcpSocket->errorString()
-                                  << "— GPGGA/RTCM from caster will stop until reconnect";
+                                  << "GPGGA/RTCM from caster will stop until reconnect";
     qCDebug(NTRIPRTCMSourceLog) << QString("Socket Error:") << error;
     _tcpSocket->close();
     _ntripHandshakeBuffer.clear();
@@ -824,3 +830,5 @@ DECLARE_SETTINGSFACT(NTRIPRTCMSource, passwd)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, autoUpdateGPGGA)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, gpggamessageHz)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpoint)
+DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpointManual)
+DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpointManualValue)
