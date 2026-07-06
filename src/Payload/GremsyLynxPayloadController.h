@@ -34,6 +34,7 @@ public:
 
     void connectPayload() override;
     void gimbalMove(int pan, int tilt) override;
+    void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
     void gimbalHome() override;
 
 signals:
@@ -58,7 +59,7 @@ private:
     // Current commanded speed (deg/s) resent continuously for robustness.
     float _cmdPitchDegS = 0.0f;
     float _cmdYawDegS   = 0.0f;
-    double _speedDegS   = 20.0; // matches the reference app UP/DOWN/LEFT/RIGHT step
+    double _speedDegS   = 50.0; // deg/s at full deflection (d-pad step / joystick scale)
 
     // Learned targets (defaults per Gremsy PayloadSDK).
     uint8_t  _gimbalSysId  = 1;

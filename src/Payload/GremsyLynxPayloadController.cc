@@ -54,8 +54,7 @@ void GremsyLynxPayloadController::connectPayload()
     _sendHeartbeat();
     _heartbeatTimer->start();
     _controlTimer->start();
-    setConnecting(false);
-    setConnected(true);
+    _beginConnecting(); // "connected" only once the payload actually answers (see _handleMavlinkMessage)
 }
 
 void GremsyLynxPayloadController::gimbalMove(int pan, int tilt)
@@ -64,6 +63,15 @@ void GremsyLynxPayloadController::gimbalMove(int pan, int tilt)
     tilt = qBound(-1, tilt, 1);
     _cmdPitchDegS = static_cast<float>(tilt * _speedDegS); // UP = +pitch
     _cmdYawDegS   = static_cast<float>(pan  * _speedDegS); // RIGHT = +yaw
+    _sendControl();
+}
+
+void GremsyLynxPayloadController::gimbalAxis(double pan, double tilt)
+{
+    pan  = qBound(-1.0, pan,  1.0);
+    tilt = qBound(-1.0, tilt, 1.0);
+    _cmdPitchDegS = static_cast<float>(tilt * _speedDegS); // proportional pitch
+    _cmdYawDegS   = static_cast<float>(pan  * _speedDegS); // proportional yaw
     _sendControl();
 }
 
@@ -141,7 +149,7 @@ void GremsyLynxPayloadController::_handleMavlinkMessage(const mavlink_message_t&
         _cameraCompId = message.compid;
     }
     if (fromGimbal || fromCamera) {
-        setConnected(true);
+        _noteLinkActivity();
     }
 
     if (message.msgid == MAVLINK_MSG_ID_GIMBAL_DEVICE_ATTITUDE_STATUS) {

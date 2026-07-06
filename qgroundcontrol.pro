@@ -694,6 +694,7 @@ HEADERS += \
     src/Payload/PayloadController.h \
     src/Payload/GremsyLynxPayloadController.h \
     src/Payload/NextVisionPayloadController.h \
+    src/Payload/PayloadManager.h \
     src/QGC.h \
     src/QGCApplication.h \
     src/QGCCachedFileDownload.h \
@@ -972,6 +973,7 @@ SOURCES += \
     src/Payload/PayloadController.cc \
     src/Payload/GremsyLynxPayloadController.cc \
     src/Payload/NextVisionPayloadController.cc \
+    src/Payload/PayloadManager.cc \
     src/QGC.cc \
     src/QGCApplication.cc \
     src/QGCCachedFileDownload.cc \

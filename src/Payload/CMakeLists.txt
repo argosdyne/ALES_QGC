@@ -5,6 +5,8 @@ add_library(Payload
 	GremsyLynxPayloadController.h
 	NextVisionPayloadController.cc
 	NextVisionPayloadController.h
+	PayloadManager.cc
+	PayloadManager.h
 )
 
 target_link_libraries(Payload
