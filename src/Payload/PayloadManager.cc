@@ -6,6 +6,8 @@
 #include "QGCToolbox.h"
 #include "JoystickManager.h"
 #include "Joystick.h"
+#include "MultiVehicleManager.h"
+#include "Vehicle.h"
 #include "SettingsManager.h"
 #include "VideoSettings.h"
 #include "VideoManager.h"
@@ -34,6 +36,14 @@ PayloadManager::PayloadManager(QObject* parent)
     if (jm) {
         connect(jm, &JoystickManager::activeJoystickChanged, this, &PayloadManager::_onActiveJoystickChanged);
         _bindJoystick(jm->activeJoystick());
+    }
+
+    // Also drive the payload from the vehicle's RC radio channels (aviator radio: CH9/CH10),
+    // so a payload connected here is controllable whether the operator uses a USB joystick or the radio.
+    MultiVehicleManager* mvm = qgcApp()->toolbox()->multiVehicleManager();
+    if (mvm) {
+        connect(mvm, &MultiVehicleManager::activeVehicleChanged, this, &PayloadManager::_onActiveVehicleChanged);
+        _bindVehicle(mvm->activeVehicle());
     }
 }
 
@@ -101,6 +111,57 @@ void PayloadManager::_onGimbalAxis(float pitch, float yaw)
         // Joystick reports (pitch, yaw); payload gimbalAxis takes (pan = yaw, tilt = pitch).
         payload->gimbalAxis(yaw, pitch);
     }
+}
+
+void PayloadManager::_onActiveVehicleChanged(Vehicle* vehicle)
+{
+    _bindVehicle(vehicle);
+}
+
+void PayloadManager::_bindVehicle(Vehicle* vehicle)
+{
+    if (_vehicle == vehicle) {
+        return;
+    }
+    if (_vehicle) {
+        disconnect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
+    }
+    _vehicle = vehicle;
+    if (_vehicle) {
+        connect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
+    }
+}
+
+void PayloadManager::_onRcChannels(int channelCount, int pwmValues[18])
+{
+    PayloadController* payload = active();
+    if (!payload || !payload->connected()) {
+        _rcWasActive = false;
+        return;
+    }
+    if (channelCount < _rcPanChannel || channelCount < _rcTiltChannel) {
+        return; // radio doesn't provide those channels
+    }
+
+    // PWM [1000..2000] center 1500 -> axis [-1..+1] with a small deadzone; reverse on the radio if inverted.
+    auto toAxis = [](int pwm) -> double {
+        if (pwm < 900 || pwm > 2100) {
+            return 0.0; // unavailable / invalid channel value
+        }
+        const double axis = qBound(-1.0, (pwm - 1500.0) / 500.0, 1.0);
+        return (qAbs(axis) < 0.05) ? 0.0 : axis; // deadzone around center
+    };
+
+    const double pan  = toAxis(pwmValues[_rcPanChannel  - 1]); // CH9  -> pan / yaw
+    const double tilt = toAxis(pwmValues[_rcTiltChannel - 1]); // CH10 -> tilt / pitch
+
+    // Only drive while a stick is off-center; send one final (0,0) on release to stop, then stay
+    // quiet so the on-screen d-pad still works when the radio sticks are centered.
+    const bool activeNow = (pan != 0.0 || tilt != 0.0);
+    if (activeNow || _rcWasActive) {
+        payload->gimbalAxis(pan, tilt);
+    }
+    _rcWasActive = activeNow;
 }
 
 void PayloadManager::_applyRtspToVideoSettings(const QString& url)

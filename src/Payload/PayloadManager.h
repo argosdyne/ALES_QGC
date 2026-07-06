@@ -15,6 +15,7 @@
 class QQmlEngine;
 class QJSEngine;
 class Joystick;
+class Vehicle;
 
 class PayloadManager : public QObject
 {
@@ -44,9 +45,12 @@ signals:
 private slots:
     void _onActiveJoystickChanged(Joystick* joystick);
     void _onGimbalAxis(float pitch, float yaw);
+    void _onActiveVehicleChanged(Vehicle* vehicle);
+    void _onRcChannels(int channelCount, int pwmValues[18]);
 
 private:
     void _bindJoystick(Joystick* joystick);
+    void _bindVehicle(Vehicle* vehicle);
     // On connect, point QGC's video (General settings) at the payload's RTSP stream.
     void _applyRtspToVideoSettings(const QString& url);
 
@@ -54,4 +58,10 @@ private:
     NextVisionPayloadController* _nextvision = nullptr;
     int       _activeType = 0;
     Joystick* _joystick   = nullptr;
+    Vehicle*  _vehicle    = nullptr;
+
+    // RC (radio) gimbal control: which 1-based RC channels drive pan/tilt (aviator radio).
+    int  _rcPanChannel  = 10;  // pan / yaw
+    int  _rcTiltChannel = 9;   // tilt / pitch
+    bool _rcWasActive   = false; // was a stick off-center last frame (for one-shot stop on release)
 };
