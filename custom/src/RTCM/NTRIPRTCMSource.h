@@ -94,6 +94,8 @@ public:
     DEFINE_SETTINGFACT(autoUpdateGPGGA)
     DEFINE_SETTINGFACT(gpggamessageHz)
     DEFINE_SETTINGFACT(mountpoint)
+    DEFINE_SETTINGFACT(mountpointManual)
+    DEFINE_SETTINGFACT(mountpointManualValue)
 
 signals:
     void isLogInChanged(bool isLogIn);
@@ -114,6 +116,7 @@ private:
     void _clearRtcmQueue();
     void _resetRtcmStats();
     bool _isPremiumCaster();
+    QString _activeMountPointName();
 
     QTimer _sendGPGGATimer;
     QTcpSocket* _tcpSocket{nullptr};
