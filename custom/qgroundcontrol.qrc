@@ -82,7 +82,6 @@
 		<file alias="MavlinkSettings.qml">../src/ui/preferences/MavlinkSettings.qml</file>
 		<file alias="MicrohardSettings.qml">../src/Microhard/MicrohardSettings.qml</file>
 		<file alias="PayloadSettings.qml">../src/Payload/PayloadSettings.qml</file>
-		<file alias="MicrohardLinkIndicator.qml">../src/Microhard/MicrohardLinkIndicator.qml</file>
 		<file alias="MissionCommandTreeEditorTestWindow.qml">../src/MissionManager/MissionCommandTreeEditorTestWindow.qml</file>
 		<file alias="MissionSettingsEditor.qml">../src/PlanView/MissionSettingsEditor.qml</file>
 		<file alias="MockLink.qml">../src/ui/preferences/MockLink.qml</file>
