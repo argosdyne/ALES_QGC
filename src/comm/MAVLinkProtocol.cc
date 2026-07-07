@@ -13,12 +13,14 @@
 #include <QDebug>
 #include <QTime>
 #include <QApplication>
+#include <QDateTime>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtEndian>
 #include <QMetaType>
 #include <QDir>
 #include <QFileInfo>
+#include <QHash>
 
 #include "MAVLinkProtocol.h"
 #include "UASInterface.h"
@@ -35,6 +37,77 @@
 Q_DECLARE_METATYPE(mavlink_message_t)
 
 QGC_LOGGING_CATEGORY(MAVLinkProtocolLog, "MAVLinkProtocolLog")
+
+namespace {
+
+struct MavlinkParseLogState {
+    qint64 lastLogMs = 0;
+    int messageCount = 0;
+    int heartbeatCount = 0;
+};
+
+QString _mavlinkProtocolLogLinkName(LinkInterface* link)
+{
+    return link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("<null>");
+}
+
+QString _mavlinkProtocolLogLinkPtr(LinkInterface* link)
+{
+    return link ? QStringLiteral("0x%1").arg(reinterpret_cast<quintptr>(link), 0, 16) : QStringLiteral("0x0");
+}
+
+void _logMavlinkParsedMessageThrottled(LinkInterface* link, uint8_t mavlinkChannel, const mavlink_message_t& message)
+{
+    static constexpr qint64 kMavlinkParseLogWindowMs = 5000;
+    static QHash<QString, MavlinkParseLogState> s_mavlinkParseLogState;
+
+    const QString key = QStringLiteral("%1:%2:%3:%4")
+                            .arg(_mavlinkProtocolLogLinkName(link))
+                            .arg(_mavlinkProtocolLogLinkPtr(link))
+                            .arg(static_cast<int>(message.sysid))
+                            .arg(static_cast<int>(message.compid));
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    MavlinkParseLogState& state = s_mavlinkParseLogState[key];
+    if (state.lastLogMs == 0) {
+        state.lastLogMs = now;
+    }
+
+    state.messageCount++;
+    if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
+        state.heartbeatCount++;
+        mavlink_heartbeat_t heartbeat;
+        mavlink_msg_heartbeat_decode(&message, &heartbeat);
+        qCWarning(MAVLinkProtocolLog) << "MAVLink HEARTBEAT parsed"
+                                      << "link" << _mavlinkProtocolLogLinkName(link)
+                                      << _mavlinkProtocolLogLinkPtr(link)
+                                      << "channel" << static_cast<int>(mavlinkChannel)
+                                      << "sysid" << static_cast<int>(message.sysid)
+                                      << "compid" << static_cast<int>(message.compid)
+                                      << "seq" << static_cast<int>(message.seq)
+                                      << "type" << static_cast<int>(heartbeat.type)
+                                      << "autopilot" << static_cast<int>(heartbeat.autopilot)
+                                      << "baseMode" << static_cast<int>(heartbeat.base_mode)
+                                      << "customMode" << heartbeat.custom_mode;
+    }
+
+    if ((now - state.lastLogMs) >= kMavlinkParseLogWindowMs) {
+        qCWarning(MAVLinkProtocolLog) << "MAVLink parsed rate"
+                                      << "link" << _mavlinkProtocolLogLinkName(link)
+                                      << _mavlinkProtocolLogLinkPtr(link)
+                                      << "channel" << static_cast<int>(mavlinkChannel)
+                                      << "sysid" << static_cast<int>(message.sysid)
+                                      << "compid" << static_cast<int>(message.compid)
+                                      << "windowMs" << (now - state.lastLogMs)
+                                      << "messages" << state.messageCount
+                                      << "heartbeats" << state.heartbeatCount
+                                      << "lastMsgId" << static_cast<int>(message.msgid);
+        state.lastLogMs = now;
+        state.messageCount = 0;
+        state.heartbeatCount = 0;
+    }
+}
+
+}
 
 const char* MAVLinkProtocol::_tempLogFileTemplate   = "FlightDataXXXXXX";   ///< Template for temporary log file
 const char* MAVLinkProtocol::_logFileExtension      = "mavlink";            ///< Extension for log files
@@ -208,6 +281,7 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
     for (int position = 0; position < b.size(); position++) {
         if (mavlink_parse_char(mavlinkChannel, static_cast<uint8_t>(b[position]), &_message, &_status)) {
             // Got a valid message
+            _logMavlinkParsedMessageThrottled(link, mavlinkChannel, _message);
             if (!link->decodedFirstMavlinkPacket()) {
                 link->setDecodedFirstMavlinkPacket(true);
                 mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(mavlinkChannel);

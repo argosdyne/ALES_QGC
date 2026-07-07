@@ -26,6 +26,9 @@ Item {
     property var  _skyRssiB:    m2Manager.skyRssiB
     property var  _linkSpeed:   m2Manager.linkspeed
     property var  _skyLinkSpeed: m2Manager.skyLinkspeed
+    property var  _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property bool _vehicleCommunicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : true
+    property bool _vehicleLinkActive: _activeVehicle && !_vehicleCommunicationLost
     property bool _enableDelayTiggerWaiting: false
 
     Timer {
@@ -62,7 +65,8 @@ Item {
 
                 QGCLabel {
                     id:                         rssiLabel
-                    text:                       _connected ? qsTr("Link RSSI Status") : qsTr("Link Disconnected")
+                    text:                       _connected ? qsTr("Link RSSI Status") :
+                                                    (_vehicleLinkActive ? qsTr("Radio status unavailable. Vehicle link active.") : qsTr("Link Disconnected"))
                     font.family:                ScreenTools.demiboldFontFamily
                     anchors.horizontalCenter:   parent.horizontalCenter
                 }
@@ -250,7 +254,7 @@ Item {
         anchors.fill:                   parent
         anchors.margins:                -ScreenTools.defaultFontPixelHeight * 0.66
         onClicked: {
-            if (_connected) {
+            if (_connected || _vehicleLinkActive) {
                 mainWindow.showIndicatorPopup(_root, m2RssiInfo)
             } else {
                 mainWindow.hideIndicatorPopup()

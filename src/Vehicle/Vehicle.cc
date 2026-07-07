@@ -83,6 +83,16 @@ const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
 
 namespace {
 
+QString _vehicleLogLinkName(LinkInterface* link)
+{
+    return link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("<null>");
+}
+
+QString _vehicleLogLinkPtr(LinkInterface* link)
+{
+    return link ? QStringLiteral("0x%1").arg(reinterpret_cast<quintptr>(link), 0, 16) : QStringLiteral("0x0");
+}
+
 double _distancePointToSegmentMeters(const QPointF& point, const QPointF& segmentStart, const QPointF& segmentEnd)
 {
     const double dx = segmentEnd.x() - segmentStart.x();
@@ -723,6 +733,21 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     }
 
     if (message.sysid != _id && message.sysid != 0) {
+        if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
+            mavlink_heartbeat_t heartbeat;
+            mavlink_msg_heartbeat_decode(&message, &heartbeat);
+            qCWarning(VehicleLog) << "Vehicle rejected HEARTBEAT due to sysid mismatch"
+                                  << "vehicleId" << _id
+                                  << "messageSysid" << static_cast<int>(message.sysid)
+                                  << "compid" << static_cast<int>(message.compid)
+                                  << "seq" << static_cast<int>(message.seq)
+                                  << "type" << static_cast<int>(heartbeat.type)
+                                  << "autopilot" << static_cast<int>(heartbeat.autopilot)
+                                  << "baseMode" << static_cast<int>(heartbeat.base_mode)
+                                  << "customMode" << heartbeat.custom_mode
+                                  << "link" << _vehicleLogLinkName(link)
+                                  << _vehicleLogLinkPtr(link);
+        }
         // We allow RADIO_STATUS messages which come from a link the vehicle is using to pass through and be handled
         if (!(message.msgid == MAVLINK_MSG_ID_RADIO_STATUS && _vehicleLinkManager->containsLink(link))) {
             return;
