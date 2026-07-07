@@ -97,7 +97,7 @@ QGCCameraParamIO::setParamRequest()
 void
 QGCCameraParamIO::_factChanged(QVariant value)
 {
-    if(!_forceUIUpdate) {
+    if(!_forceUIUpdate && !_updatingFromVehicle) {
         Q_UNUSED(value);
         qInfo() << "[CameraIO]" << "UI Fact changed" << _fact->name() << "value" << value;
         _control->factChanged(_fact);
@@ -110,7 +110,8 @@ QGCCameraParamIO::_containerRawValueChanged(const QVariant value)
 {
     if(!_fact->readOnly()) {
         Q_UNUSED(value);
-        qInfo() << "[CameraIO]" << "Update Fact from camera" << _fact->name();
+        qCDebug(CameraIOLog) << "[CameraIO]" << "Update Fact from camera" << _fact->name();
+        _control->_noteUserParamWrite(_fact->name());
         _sentRetries = 0;
         _sendParameter();
     }
@@ -216,8 +217,16 @@ QGCCameraParamIO::handleParamAck(const mavlink_param_ext_ack_t& ack)
     _paramWriteTimer.stop();
     if(ack.param_result == PARAM_ACK_ACCEPTED) {
         QVariant val = _valueFromMessage(ack.param_value, ack.param_type);
-        if(_fact->rawValue() != val) {
+        if(_fact->rawValue() == val) {
+            _control->_clearUserParamIntent(_fact->name());
+        } else if(!_control->_shouldAcceptIncomingParam(_fact, val)) {
+            qCDebug(CameraIOLog) << "[CameraIO]" << "Ignoring stale param ack"
+                                 << _fact->name() << val << "ui" << _fact->rawValue();
+            return;
+        } else if(_control->incomingParameter(_fact, val)) {
+            _updatingFromVehicle = true;
             _fact->_containerSetRawValue(val);
+            _updatingFromVehicle = false;
             if(_updateOnSet) {
                 _updateOnSet = false;
                 _control->factChanged(_fact);
@@ -241,8 +250,13 @@ QGCCameraParamIO::handleParamAck(const mavlink_param_ext_ack_t& ack)
         //-- If UI changed and value was not set, restore UI
         QVariant val = _valueFromMessage(ack.param_value, ack.param_type);
         if(_fact->rawValue() != val) {
+            if(!_control->_shouldAcceptIncomingParam(_fact, val)) {
+                return;
+            }
             if(_control->validateParameter(_fact, val)) {
+                _updatingFromVehicle = true;
                 _fact->_containerSetRawValue(val);
+                _updatingFromVehicle = false;
             }
         }
     }
@@ -255,7 +269,9 @@ QGCCameraParamIO::handleParamValue(const mavlink_param_ext_value_t& value)
     _paramRequestTimer.stop();
     QVariant newValue = _valueFromMessage(value.param_value, value.param_type);
     if(_control->incomingParameter(_fact, newValue)) {
+        _updatingFromVehicle = true;
         _fact->_containerSetRawValue(newValue);
+        _updatingFromVehicle = false;
     }
     _paramRequestReceived = true;
     if(_forceUIUpdate) {

@@ -382,6 +382,17 @@ protected:
     virtual void    _setVideoStatus         (VideoStatus status);
     virtual void    _setPhotoStatus         (PhotoStatus status);
     virtual void    _setCameraMode          (CameraMode mode);
+    void            _syncCameraModeFact     (CameraMode targetMode, bool skipRangeRefreshIfFactMatches = false);
+    bool            _enumListContains       (const QVariantList& values, const QVariant& value) const;
+    void            _forceRestoreEnumOptions(const QString& paramName);
+    void            _sanitizeEnumParameter  (Fact* fact, bool useOriginalOptionList = false, bool refreshRangesFirst = true);
+    void            _noteUserParamWrite     (const QString& paramName);
+    void            _clearUserParamIntent   (const QString& paramName);
+    bool            _paramWriteInProgress   (const QString& paramName) const;
+    bool            _withinUserParamWriteGuard(const QString& paramName) const;
+    bool            _withinUserParamIntentLock(const QString& paramName) const;
+    bool            _shouldAcceptIncomingParam(Fact* fact, const QVariant& newValue) const;
+    void            _scheduleExpModeParamRefresh();
     virtual void    _requestStreamInfo      (uint8_t streamID);
     virtual void    _requestStreamStatus    (uint8_t streamID);
     virtual void    _requestTrackingStatus  ();
@@ -495,4 +506,15 @@ protected:
     QGeoCoordinate                                 _targetCoordinate;
     float                                          _targetDistance;
     int                                            _photoIndex = 0;
+    QElapsedTimer                                  _paramLoadTimer;
+    bool                                           _paramLoadInProgress = false;
+    QStringList                                    _expectedParamNames;
+    QStringList                                    _receivedParamNames;
+    QStringList                                    _timedOutParamNames;
+
+    static const int                               _kUserParamWriteGuardMs = 3000;
+    static const int                               _kUserParamIntentLockMs = 8000;
+    QMap<QString, QElapsedTimer>                   _userParamWriteGuard;
+    QMap<QString, QElapsedTimer>                   _userParamIntentLock;
+    QMap<QString, QVariant>                        _userParamIntentValue;
 };
