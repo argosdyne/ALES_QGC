@@ -1216,19 +1216,17 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 }
                 break;
             case CoordTypeYellowScanMaxSpeed:
-                itemCount++; // Speed change command
-                break;
-            case CoordTypeYellowScanTurnSpeed:
-                itemCount++; // Turn speed change command
+                itemCount++; // Max speed command
                 break;
             case CoordTypeYellowScan:
-                itemCount++; // Waypoint only
+            case CoordTypeYellowScanTurn:
+                itemCount++; // Waypoint
                 break;
             case CoordTypeYellowScanChangeYaw:
                 itemCount++; // Yaw command
                 break;
             case CoordTypeYellowScanPreviousSpeed:
-                itemCount++; // Speed restore command
+                itemCount++; // Restore previous speed command
                 break;
             case CoordTypeSurveyExit:
                 bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
@@ -1343,27 +1341,7 @@ void TransectStyleComplexItem::_appendYSInitPathMaxSpeed(QList<MissionItem*>& it
                                         MAV_CMD_DO_CHANGE_SPEED,
                                         MAV_FRAME_MISSION,
                                         _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
-                                        20,
-                                        -1,                                                                 // No throttle change
-                                        0,                                                                  // Absolute speed change
-                                        0, 0, 0,                                                            // param 5-7 not used
-                                        true,                                                               // autoContinue
-                                        false,                                                              // isCurrentItem
-                                        missionItemParent);
-    items.append(item);
-}
-
-void TransectStyleComplexItem::_appendYSInitPathTurnSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
-{
-    // Slow down to a fixed 3 m/s before entering the U-turn so the vehicle can
-    // stay tighter to the generated semicircle waypoints.
-    constexpr double turnSpeed = 5.0;
-
-    MissionItem* item = new MissionItem(seqNum++,
-                                        MAV_CMD_DO_CHANGE_SPEED,
-                                        MAV_FRAME_MISSION,
-                                        _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
-                                        turnSpeed,
+                                        10,
                                         -1,                                                                 // No throttle change
                                         0,                                                                  // Absolute speed change
                                         0, 0, 0,                                                            // param 5-7 not used
@@ -1376,11 +1354,17 @@ void TransectStyleComplexItem::_appendYSInitPathTurnSpeed(QList<MissionItem*>& i
 void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
 {
     // IMPORTANT NOTE: If anything changes here you must also change SpeedSection::scanForSettings
+    // ArduPilot WPNAV_SPEED is stored in cm/s. If it is unavailable (PX4,
+    // offline planning, or parameters not loaded), restore to a conservative
+    // fixed speed instead of relying on a possibly unrelated cruise setting.
+    const double restoreSpeed = qIsFinite(_previousVehicleSpeed) && _previousVehicleSpeed > 0.0
+            ? _previousVehicleSpeed / 100.0
+            : 5.0;
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_CHANGE_SPEED,
                                         MAV_FRAME_MISSION,
                                         _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
-                                        _previousVehicleSpeed / 100,
+                                        restoreSpeed,
                                         -1,                                                                 // No throttle change
                                         0,                                                                  // Absolute speed change
                                         0, 0, 0,                                                            // param 5-7 not used
@@ -1388,6 +1372,22 @@ void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*
                                         false,                                                              // isCurrentItem
                                         missionItemParent);
     items.append(item);
+}
+
+void TransectStyleComplexItem::_appendYSInitPathTurnWaypoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate)
+{
+    // Use only standard NAV_WAYPOINT commands for both PX4 and ArduPilot.
+    // Both multicopter controllers smooth a consecutive previous/current/next
+    // waypoint triplet. A zero hold time prevents an intentional stop, while
+    // the small radius keeps the generated trajectory close to the U-turn.
+    constexpr float turnAcceptanceRadius = 2.0f;
+    _appendWaypoint(items,
+                    missionItemParent,
+                    seqNum,
+                    mavFrame,
+                    0 /* holdTime */,
+                    coordinate,
+                    turnAcceptanceRadius);
 }
 
 void TransectStyleComplexItem::_appendYSInitPathYaw(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum){
@@ -1541,14 +1541,14 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         case CoordTypeYellowScanMaxSpeed:
             _appendYSInitPathMaxSpeed(items, missionItemParent, seqNum);
             break;
-        case CoordTypeYellowScanTurnSpeed:
-            _appendYSInitPathTurnSpeed(items, missionItemParent, seqNum);
-            break;
         case CoordTypeYellowScanPreviousSpeed:
             _appendYSInitPathPreviousSpeed(items, missionItemParent, seqNum);
             break;
         case CoordTypeYellowScan:            
             _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
+            break;
+        case CoordTypeYellowScanTurn:
+            _appendYSInitPathTurnWaypoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord);
             break;
         case CoordTypeYellowScanChangeYaw:
             _appendYSInitPathYaw(items, missionItemParent, seqNum);
