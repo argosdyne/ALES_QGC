@@ -135,6 +135,9 @@ public:
     }
     void handleTrackingImageStatus(const mavlink_camera_tracking_image_status_t *tis) final;
     void handleRCChannels(const mavlink_rc_channels_t& rc) final;
+    void factChanged(Fact* pFact) override;
+    void handleSettings(const mavlink_camera_settings_t& settings) final;
+    bool incomingParameter(Fact* pFact, QVariant& newValue) final;
     void handleCommandAck(const mavlink_command_ack_t& ack) final;
     void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
     void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;

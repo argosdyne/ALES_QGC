@@ -221,8 +221,16 @@ void CodevCameraControl::setVideoMode()
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_VIDEO) {
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_VIDEO;
                 pMode->setRawValue(CAM_MODE_VIDEO);
                 _setCameraMode(CAM_MODE_VIDEO);
+                _armModeSwitchRecovery(CAM_MODE_VIDEO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                _completePendingRcAction();
             }
         } else {
             //-- Use MAVLink Command
@@ -246,8 +254,22 @@ void CodevCameraControl::setPhotoMode()
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_PHOTO) {
+                if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_PHOTO;
                 pMode->setRawValue(CAM_MODE_PHOTO);
                 _setCameraMode(CAM_MODE_PHOTO);
+                _armModeSwitchRecovery(CAM_MODE_PHOTO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
+                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
+                    _scheduleStorageRefreshAfterModeSwitch();
+                }
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _completePendingRcAction();
+                }
             }
         } else {
             //-- Use MAVLink Command
@@ -258,9 +280,106 @@ void CodevCameraControl::setPhotoMode()
                     0,                                      // Reserved (Set to 0)
                     CAM_MODE_PHOTO);                        // Camera mode (0: photo, 1: video)
                 _setCameraMode(CAM_MODE_PHOTO);
+                _armModeSwitchRecovery(CAM_MODE_PHOTO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
+                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
+                    _scheduleStorageRefreshAfterModeSwitch();
+                }
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _completePendingRcAction();
+                }
             }
         }
     }
+}
+
+void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
+{
+    const CameraMode reportedMode = static_cast<CameraMode>(settings.mode_id);
+    _lastReportedCameraMode = reportedMode;
+    if (!_modeSwitchNudgeInProgress) {
+        if (reportedMode != _cameraMode) {
+            _setCameraMode(reportedMode);
+        } else if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
+            Fact* pModeFact = mode();
+            if (pModeFact && pModeFact->rawValue().toInt() != static_cast<int>(reportedMode)) {
+                _syncCameraModeFact(reportedMode);
+            }
+        }
+
+        if (reportedMode == CAM_MODE_PHOTO) {
+            if (photoStatus() != PHOTO_CAPTURE_IDLE) {
+                _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+            }
+            if (videoStatus() != VIDEO_CAPTURE_STATUS_STOPPED) {
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+            }
+        }
+
+        if ((reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO)
+                && _pendingRcAction != PendingRcAction::None
+                && reportedMode == _pendingCameraMode) {
+            _completePendingRcAction();
+        }
+
+        if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
+            _scheduleStorageRefreshAfterModeSwitch();
+        }
+    }
+
+    qreal z = static_cast<qreal>(settings.zoomLevel);
+    qreal f = static_cast<qreal>(settings.focusLevel);
+    if(std::isfinite(z) && z != _zoomLevel) {
+        _zoomLevel = z;
+        emit zoomLevelChanged();
+    }
+    if(std::isfinite(f) && f != _focusLevel) {
+        _focusLevel = f;
+        emit focusLevelChanged();
+    }
+}
+
+void CodevCameraControl::factChanged(Fact* pFact)
+{
+    QGCCameraControl::factChanged(pFact);
+    if (!pFact || !factExists(kCAM_EXPMODE)) {
+        return;
+    }
+    // Re-validate AE only after mode changes, not when the user adjusts AE from the UI.
+    if (pFact->name() == kCAM_MODE) {
+        _clearUserParamIntent(kCAM_EXPMODE);
+        if (Fact* expFact = getFact(kCAM_EXPMODE)) {
+            _sanitizeEnumParameter(expFact, false, false);
+        }
+    }
+}
+
+bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
+{
+    if (!QGCCameraControl::incomingParameter(pFact, newValue)) {
+        return false;
+    }
+
+    if (pFact && pFact->name() == kCAM_EXPMODE && pFact->metaData()) {
+        const QVariantList checkValues = pFact->metaData()->enumValues();
+        if (!checkValues.isEmpty() && !_enumListContains(checkValues, newValue)) {
+            if (_enumListContains(checkValues, pFact->rawValue())) {
+                qCDebug(CodevCameraLog) << "Ignoring invalid CAM_EXPMODE read" << newValue
+                                        << "keeping ui" << pFact->rawValue();
+                return false;
+            }
+            QVariant defaultVal = pFact->metaData()->rawDefaultValue();
+            if (!_enumListContains(checkValues, defaultVal)) {
+                defaultVal = checkValues.first();
+            }
+            qCWarning(CodevCameraLog) << "Rejecting invalid CAM_EXPMODE value" << newValue
+                                      << "cameraMode" << cameraMode() << "using" << defaultVal;
+            newValue = defaultVal;
+        }
+    }
+    return true;
 }
 
 bool CodevCameraControl::takePhoto()
@@ -745,6 +864,129 @@ void CodevCameraControl::_parametersReady()
     if(fact) {
         factChanged(fact);
         connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged);
+    }
+
+    for (const QString& factName : activeSettings()) {
+        _localizeFactMetaData(getFact(factName));
+    }
+    // Translate option range lists and original option names so dynamic enum updates stay localized.
+    for (auto it = _originalOptNames.begin(); it != _originalOptNames.end(); ++it) {
+        it.value() = _translateCameraSettingList(it.value());
+    }
+    for (QGCCameraOptionRange* range : _optionRanges) {
+        if (range) {
+            range->optNames = _translateCameraSettingList(range->optNames);
+        }
+    }
+
+    fact = getFact(kCAM_MODE);
+    if (fact) {
+        factChanged(fact);
+    }
+
+    QTimer::singleShot(3000, this, &CodevCameraControl::_requestAllStoragePools);
+}
+
+QString CodevCameraControl::_factValueForLog(const char* factName) const
+{
+    Fact* fact = const_cast<CodevCameraControl*>(this)->getFact(factName);
+    if (!fact) {
+        return QStringLiteral("<missing>");
+    }
+
+    QString value = fact->rawValueString().trimmed();
+    value.remove(QChar('\0'));
+    if (value.isEmpty()) {
+        value = fact->rawValue().toString();
+    }
+    return value;
+}
+
+void CodevCameraControl::_logControlState(const char* sourceTag) const
+{
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << sourceTag
+            << "state"
+            << "cameraCompId" << _compID
+            << "model" << _modelName
+            << "yawMode" << _factValueForLog("YAW_MODE")
+            << "gbSpeed" << _factValueForLog("GB_SPEED")
+            << "yawSmooth" << _factValueForLog("YAW_SMOOTH")
+            << "landingMode" << _factValueForLog("LANDING_MODE")
+            << "landModeSwitch" << _factValueForLog("LANDMODE_SWITCH")
+            << "aiSource" << _factValueForLog("AI_SOURCE")
+            << "eoDZoom" << _factValueForLog("EO_DZOOM")
+            << "eoZoomMode" << _factValueForLog("EO_ZOOM_MODE")
+            << "trackAlgorithm" << _factValueForLog("TRACK_ALGORITHM")
+            << "smartSelect" << _factValueForLog("SMART_SELECT");
+}
+
+bool CodevCameraControl::_consumeQueuedCommandAck(int ackCompId, const mavlink_command_ack_t& ack, const char* sourceTag)
+{
+    if (!_mavCommandQueue.count()) {
+        return false;
+    }
+
+    const MavCommandQueueEntry_t& queuedCommand = _mavCommandQueue[0];
+    if (queuedCommand.command != ack.command || queuedCommand.component != ackCompId) {
+        return false;
+    }
+
+    qCInfo(CodevCameraLog) << "[CameraFlow]"
+            << sourceTag
+            << "matched queued ack"
+            << "cameraCompId" << _compID
+            << "ackCompId" << ackCompId
+            << "command" << ack.command
+            << "result" << ack.result
+            << "queueSizeBefore" << _mavCommandQueue.count();
+
+    _mavCommandAckTimer.stop();
+    _mavCommandQueue.removeFirst();
+    _sendNextQueuedMavCommand();
+    return true;
+}
+
+void CodevCameraControl::_handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link)
+{
+    Q_UNUSED(link);
+
+    if (message.sysid != _vehicle->id() || message.msgid != MAVLINK_MSG_ID_COMMAND_ACK) {
+        return;
+    }
+
+    mavlink_command_ack_t ack;
+    mavlink_msg_command_ack_decode(&message, &ack);
+
+    if (_consumeQueuedCommandAck(message.compid, ack, "rawAck")) {
+        _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
+    }
+}
+
+void CodevCameraControl::_localizeFactMetaData(Fact* fact)
+{
+    if (!fact) {
+        return;
+    }
+
+    FactMetaData* meta = fact->metaData();
+    if (!meta) {
+        return;
+    }
+
+    const QString shortDescription = meta->shortDescription();
+    if (!shortDescription.isEmpty()) {
+        meta->setShortDescription(_translateCameraSettingText(shortDescription));
+    }
+
+    const QString longDescription = meta->longDescription();
+    if (!longDescription.isEmpty()) {
+        meta->setLongDescription(_translateCameraSettingText(longDescription));
+    }
+
+    const QStringList enumStrings = meta->enumStrings();
+    if (!enumStrings.isEmpty()) {
+        meta->setEnumInfo(_translateCameraSettingList(enumStrings), meta->enumValues());
     }
 }
 
