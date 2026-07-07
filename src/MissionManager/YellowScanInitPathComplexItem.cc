@@ -316,41 +316,41 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
     transect.append({end,   CoordTypeYellowScan});
     transect.append({end, CoordTypeYellowScanChangeYaw});
 
-    // 2회 왕복
-    transect.append({end,   CoordTypeYellowScan});
-    transect.append({end, CoordTypeYellowScanChangeYaw});
+    // Backward. Reassert the same heading at the reversal point without adding
+    // a duplicate navigation waypoint.
     transect.append({start, CoordTypeYellowScan});
     transect.append({start, CoordTypeYellowScanChangeYaw});
 
-    // 3회 왕복
-    transect.append({start, CoordTypeYellowScan});    
-    transect.append({end,   CoordTypeYellowScan});    
-   // Reduce speed before entering the U-turn so the drone tracks the semicircle
-    // more tightly instead of overshooting the turn.
-    transect.append({end,   CoordTypeYellowScanTurnSpeed});
+    // Final forward line. There must be no CONDITION/DO command between this
+    // waypoint and the U-turn or ArduCopter cannot create a continuous path.
+    transect.append({end,   CoordTypeYellowScan});
+
     // 반원 생성
     double rightAzimuth = bearing + 90.0;
     if (rightAzimuth >= 360.0) rightAzimuth -= 360.0;
 
     QGeoCoordinate semicircleCenter = end.atDistanceAndAzimuth(radius, rightAzimuth);
 
+    // Use approximately 5 m between arc control points. Fewer, well-spaced
+    // points give PX4 and ArduPilot more room to maintain a smooth trajectory,
+    // while the bounds keep small turns usable and mission size predictable.
+    const int turnSegments = qBound(6, qCeil((PI * radius) / 5.0), 18);
+
     vector<pair<double,double>> semicircle = generate_semicircle_from_origin(
         semicircleCenter.latitude(),
         semicircleCenter.longitude(),
         radius,
-        radius,
+        turnSegments,
         rightAzimuth - 90
         );
 
-    for (const auto& p : semicircle) {
+    // Index zero is exactly the final straight-line waypoint. Skipping it is
+    // essential: two identical NAV points make the vehicle stop before turning.
+    for (size_t i = 1; i < semicircle.size(); ++i) {
+        const auto& p = semicircle[i];
         TransectStyleComplexItem::CoordInfo_t coordInfo;
         coordInfo.coord = QGeoCoordinate(p.first, p.second);
-        coordInfo.coordType = CoordTypeYellowScan;
-
-        if (!transect.isEmpty() && transect.last().coord.isValid() && transect.last().coord.distanceTo(coordInfo.coord) < 0.05) {
-            continue;
-        }
-
+        coordInfo.coordType = CoordTypeYellowScanTurn;
         transect.append(coordInfo);
     }
 
