@@ -150,37 +150,6 @@ Item {
         function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
     }
 
-    function logCameraSettingsState(tag) {
-            console.log("[PhotoVideoControl]", tag,
-                        "visible=", visible,
-                        "activeVehicle=", _activeVehicle ? _activeVehicle.vehicleUID : "null",
-                        "cameraManager=", _mavlinkCameraManager ? "yes" : "no",
-                        "currentCameraIndex=", _mavlinkCameraManagerCurCameraIndex,
-                        "camera=", _mavlinkCamera ? _mavlinkCamera.modelName : "null",
-                        "paramComplete=", _mavlinkCamera ? _mavlinkCamera.paramComplete : false,
-                        "activeSettingsCount=", _mavlinkCamera ? _mavlinkCamera.activeSettings.length : -1,
-                        "activeSettings=", _mavlinkCamera ? _mavlinkCamera.activeSettings : [],
-                        "thermalMode=", _mavlinkCamera ? _mavlinkCamera.thermalMode : -1,
-                        "thermalOpacity=", _mavlinkCamera ? _mavlinkCamera.thermalOpacity : -1,
-                        "hasThermalVideoStream=", _mavlinkCameraHasThermalVideoStream,
-                        "streamLabels=", _mavlinkCamera ? _mavlinkCamera.streamLabels : [])
-        }
-
-        Component.onCompleted: logCameraSettingsState("completed")
-        onVisibleChanged: logCameraSettingsState("visibleChanged")
-        on_MavlinkCameraChanged: logCameraSettingsState("_mavlinkCameraChanged")
-        on_MavlinkCameraManagerCurCameraIndexChanged: logCameraSettingsState("currentCameraIndexChanged")
-        on_MavlinkCameraHasThermalVideoStreamChanged: logCameraSettingsState("hasThermalVideoStreamChanged")
-
-        Connections {
-            target: _mavlinkCamera
-            function onThermalModeChanged() { logCameraSettingsState("thermalModeChanged") }
-            function onThermalOpacityChanged() { logCameraSettingsState("thermalOpacityChanged") }
-            function onThermalStreamChanged() { logCameraSettingsState("thermalStreamChanged") }
-            function onCurrentStreamChanged() { logCameraSettingsState("currentStreamChanged") }
-            function onStreamLabelsChanged() { logCameraSettingsState("streamLabelsChanged") }
-        }
-
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
         console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
