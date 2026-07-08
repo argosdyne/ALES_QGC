@@ -22,7 +22,6 @@
 Q_DECLARE_LOGGING_CATEGORY(CameraManagerLog)
 
 class Joystick;
-class CodevCameraControl;
 class QNetworkAccessManager;
 class QTcpServer;
 class QTcpSocket;
@@ -63,6 +62,7 @@ signals:
 
 public slots:
     void    handleAviatorRCChannelValues(const quint16* channels, int count);
+    void    filterAviatorRcChannels(quint16* channels, int count);
 
 protected slots:
     virtual void    _vehicleReady           (bool ready);
@@ -80,12 +80,8 @@ protected slots:
     virtual void    _startVideoRecording    ();
     virtual void    _stopVideoRecording     ();
     virtual void    _toggleVideoRecording   ();
-    virtual void    _joystickGimbalPitchStep(int direction);
-    virtual void    _joystickGimbalYawStep  (int direction);
-    virtual void    _joystickCenterGimbal   ();
-    virtual void    _gimbalHoldTimerTick    ();
 
-    CodevCameraControl* _codevCameraInstance();
+protected:
     virtual QGCCameraControl* _findCamera   (int id);
     virtual void    _requestCameraInfo      (int compID, int tryCount, LinkInterface* link);
     virtual void    _handleHeartbeat        (const mavlink_message_t& message, LinkInterface* link);
@@ -136,11 +132,6 @@ protected:
     QElapsedTimer       _lastZoomChange;
     QElapsedTimer       _lastCameraChange;
     QTimer              _cameraTimer;
-    // Emulates hold-to-move for the GimbalController fallback path (no native hold model):
-    // keep stepping while a direction is held, stop on release.
-    QTimer              _gimbalHoldTimer;
-    int                 _gimbalHoldPitchDir = 0;
-    int                 _gimbalHoldYawDir   = 0;
     QMap<QString, CameraStruct*> _cameraInfoRequest;
     QTcpServer*         _cameraDefinitionHttpServer = nullptr;
     QNetworkAccessManager* _cameraDefinitionNetworkManager = nullptr;
