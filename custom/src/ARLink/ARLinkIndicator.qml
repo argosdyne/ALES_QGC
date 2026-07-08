@@ -25,6 +25,8 @@ Item {
     property var  _skyRssiA:    arManager.skyRssiA
     property var  _skyRssiB:    arManager.skyRssiB
     property var  _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property bool _vehicleCommunicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : true
+    property bool _vehicleLinkActive: _activeVehicle && !_vehicleCommunicationLost
     property bool _isDoodle: arManager.version == "DoodleLabs ubus"
 
     Component {
@@ -53,7 +55,8 @@ Item {
 
                 QGCLabel {
                     id:                         rssiLabel
-                    text:                       _connected ? qsTr("Link RSSI Status") : qsTr("Link Disconnected")
+                    text:                       _connected ? qsTr("Link RSSI Status") :
+                                                    (_vehicleLinkActive ? qsTr("Radio status unavailable. Vehicle link active.") : qsTr("Link Disconnected"))
                     font.family:                ScreenTools.demiboldFontFamily
                     anchors.horizontalCenter:   parent.horizontalCenter
                 }
@@ -293,7 +296,7 @@ function getSignalStrength(rssi) {
         anchors.fill:                   parent
         anchors.margins:                -ScreenTools.defaultFontPixelHeight * 0.66
         onClicked: {
-            if (_connected) {
+            if (_connected || _vehicleLinkActive) {
                 mainWindow.showIndicatorPopup(_root, arRssiInfo)
             } else if (!_isDoodle) {                
                 mainWindow.hideIndicatorPopup()

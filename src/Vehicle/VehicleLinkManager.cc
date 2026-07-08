@@ -15,6 +15,20 @@
 
 QGC_LOGGING_CATEGORY(VehicleLinkManagerLog, "VehicleLinkManagerLog")
 
+namespace {
+
+QString _vehicleLinkLogName(LinkInterface* link)
+{
+    return link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("<null>");
+}
+
+QString _vehicleLinkLogPtr(LinkInterface* link)
+{
+    return link ? QStringLiteral("0x%1").arg(reinterpret_cast<quintptr>(link), 0, 16) : QStringLiteral("0x0");
+}
+
+}
+
 VehicleLinkManager::VehicleLinkManager(Vehicle* vehicle)
     : QObject   (vehicle)
     , _vehicle  (vehicle)
@@ -34,12 +48,52 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
         int linkIndex = _containsLinkIndex(link);
         if (linkIndex == -1) {
             _addLink(link);
+            linkIndex = _containsLinkIndex(link);
+            qCWarning(VehicleLinkManagerLog) << "Vehicle accepted MAVLink message on new link"
+                                             << "vehicleId" << _vehicle->id()
+                                             << "msgid" << static_cast<int>(message.msgid)
+                                             << "sysid" << static_cast<int>(message.sysid)
+                                             << "compid" << static_cast<int>(message.compid)
+                                             << "link" << _vehicleLinkLogName(link)
+                                             << _vehicleLinkLogPtr(link)
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
         } else {
             LinkInfo_t& linkInfo = _rgLinkInfo[linkIndex];
             linkInfo.heartbeatElapsedTimer.restart();
+            if (!linkInfo.commLost) {
+                _totalCommLossElapsedTimer.invalidate();
+            }
             if (_rgLinkInfo[linkIndex].commLost) {
                 _commRegainedOnLink(link);
             }
+        }
+
+        if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
+            mavlink_heartbeat_t heartbeat;
+            mavlink_msg_heartbeat_decode(&message, &heartbeat);
+            qCWarning(VehicleLinkManagerLog) << "Vehicle accepted HEARTBEAT"
+                                             << "vehicleId" << _vehicle->id()
+                                             << "sysid" << static_cast<int>(message.sysid)
+                                             << "compid" << static_cast<int>(message.compid)
+                                             << "seq" << static_cast<int>(message.seq)
+                                             << "type" << static_cast<int>(heartbeat.type)
+                                             << "autopilot" << static_cast<int>(heartbeat.autopilot)
+                                             << "baseMode" << static_cast<int>(heartbeat.base_mode)
+                                             << "customMode" << heartbeat.custom_mode
+                                             << "link" << _vehicleLinkLogName(link)
+                                             << _vehicleLinkLogPtr(link)
+                                             << "linkIndex" << linkIndex
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
+        }
+
+        if (_communicationLost && linkIndex != -1 && !_rgLinkInfo[linkIndex].commLost) {
+            _communicationLost = false;
+            _totalCommLossElapsedTimer.invalidate();
+            qCWarning(VehicleLinkManagerLog) << "Total vehicle communication regained on active link"
+                                             << _vehicleLinkLogName(link)
+                                             << _vehicleLinkLogPtr(link)
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
+            emit communicationLostChanged(false);
         }
     }
 }
@@ -55,6 +109,11 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
     }
 
     _rgLinkInfo[linkIndex].commLost = false;
+    _totalCommLossElapsedTimer.invalidate();
+    qCWarning(VehicleLinkManagerLog) << "Communication regained on link"
+                                     << _vehicleLinkLogName(link)
+                                     << _vehicleLinkLogPtr(link)
+                                     << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
 
     // Notify the user of communication regained
     bool isPrimaryLink = link == _primaryLink.lock().get();
@@ -81,15 +140,18 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
 
     // Check recovery from total communication loss
     if (_communicationLost) {
-        bool noCommunicationLoss = true;
+        bool activeCommunicationAvailable = false;
         for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
-            if (linkInfo.commLost) {
-                noCommunicationLoss = false;
+            if (!linkInfo.commLost) {
+                activeCommunicationAvailable = true;
                 break;
             }
         }
-        if (noCommunicationLoss) {
+        if (activeCommunicationAvailable) {
             _communicationLost = false;
+            _totalCommLossElapsedTimer.invalidate();
+            qCWarning(VehicleLinkManagerLog) << "Total vehicle communication regained"
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
             emit communicationLostChanged(false);
         }
     }
@@ -108,6 +170,14 @@ void VehicleLinkManager::_commLostCheck(void)
         if (!linkInfo.commLost && !linkInfo.link->linkConfiguration()->isHighLatency() && linkInfo.heartbeatElapsedTimer.elapsed() > _heartbeatMaxElpasedMSecs) {
             linkInfo.commLost = true;
             linkStatusChange = true;
+            qCWarning(VehicleLinkManagerLog) << "Communication lost on link due to heartbeat timeout"
+                                             << _vehicleLinkLogName(linkInfo.link.get())
+                                             << _vehicleLinkLogPtr(linkInfo.link.get())
+                                             << "elapsedMs" << linkInfo.heartbeatElapsedTimer.elapsed()
+                                             << "thresholdMs" << _heartbeatMaxElpasedMSecs
+                                             << "isPrimary" << (linkInfo.link.get() == _primaryLink.lock().get())
+                                             << "autoDisconnect" << _autoDisconnect
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
 
             // Notify the user of individual link communication loss
             bool isPrimaryLink = linkInfo.link.get() == _primaryLink.lock().get();
@@ -138,15 +208,38 @@ void VehicleLinkManager::_commLostCheck(void)
             }
         }
         if (totalCommunicationLoss) {
+            if (_rgLinkInfo.count() > 1) {
+                if (!_totalCommLossElapsedTimer.isValid()) {
+                    _totalCommLossElapsedTimer.start();
+                    qCWarning(VehicleLinkManagerLog) << "Total vehicle communication loss pending during multi-link handover"
+                                                     << "graceMs" << _multiLinkTotalCommLossGraceMSecs
+                                                     << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
+                    return;
+                }
+                if (_totalCommLossElapsedTimer.elapsed() < _multiLinkTotalCommLossGraceMSecs) {
+                    qCWarning(VehicleLinkManagerLog) << "Total vehicle communication loss still within multi-link handover grace"
+                                                     << "elapsedMs" << _totalCommLossElapsedTimer.elapsed()
+                                                     << "graceMs" << _multiLinkTotalCommLossGraceMSecs
+                                                     << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
+                    return;
+                }
+            }
             if (_autoDisconnect) {
                 // There is only one link to the vehicle and we want to auto disconnect from it
+                qCWarning(VehicleLinkManagerLog) << "Closing vehicle after total communication loss because autoDisconnect is enabled"
+                                                 << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
                 closeVehicle();
                 return;
             }
+            qCWarning(VehicleLinkManagerLog) << "Total vehicle communication lost"
+                                             << "autoDisconnect" << _autoDisconnect
+                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
             _vehicle->_say(tr("%1Communication lost").arg(_vehicle->_vehicleIdSpeech()));
 
             _communicationLost = true;
             emit communicationLostChanged(true);
+        } else {
+            _totalCommLossElapsedTimer.invalidate();
         }
     }
 }
@@ -314,6 +407,10 @@ bool VehicleLinkManager::_updatePrimaryLink(void)
 
             _primaryLink = bestActivePrimaryLink;
             emit primaryLinkChanged();
+            qCWarning(VehicleLinkManagerLog) << "Primary link changed"
+                                             << "from" << _vehicleLinkLogName(primaryLink.get()) << _vehicleLinkLogPtr(primaryLink.get())
+                                             << "to" << _vehicleLinkLogName(bestActivePrimaryLink.get()) << _vehicleLinkLogPtr(bestActivePrimaryLink.get())
+                                             << "allLinks:" << _logLinkSummary(bestActivePrimaryLink.get());
 
             if (bestActivePrimaryLink && bestActivePrimaryLink->linkConfiguration()->isHighLatency()) {
                 _vehicle->sendMavCommand(MAV_COMP_ID_AUTOPILOT1,
@@ -353,6 +450,21 @@ void VehicleLinkManager::setCommunicationLostEnabled(bool communicationLostEnabl
 bool VehicleLinkManager::containsLink(LinkInterface* link)
 {
     return _containsLinkIndex(link) != -1;
+}
+
+QString VehicleLinkManager::_logLinkSummary(LinkInterface* primaryLink) const
+{
+    QStringList links;
+    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+        LinkInterface* link = linkInfo.link.get();
+        links << QStringLiteral("%1(%2, elapsed=%3ms, commLost=%4%5)")
+                     .arg(_vehicleLinkLogName(link))
+                     .arg(_vehicleLinkLogPtr(link))
+                     .arg(linkInfo.heartbeatElapsedTimer.isValid() ? linkInfo.heartbeatElapsedTimer.elapsed() : -1)
+                     .arg(linkInfo.commLost)
+                     .arg(link == primaryLink ? QStringLiteral(", primary") : QString());
+    }
+    return links.join(QStringLiteral("; "));
 }
 
 QString VehicleLinkManager::primaryLinkName() const
