@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-import QtQuick                  2.4
+import QtQuick                  2.11
 import QtPositioning            5.2
 import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.4
@@ -100,6 +100,24 @@ Item {
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
     property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+    // Debounce rapid zoom taps: the camera's stepZoom() computes its next
+    // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
+    // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
+    // commands +1 on top of it, producing a 2x overshoot.
+    property real _zoomLastMs: 0
+
+    // FlyDynamics3-style: button mode flips based on which territory the next
+    // step would be. In optical territory the button is press-to-zoom (firmware
+    // continuous zoom on press, stop on release - no timer). In digital
+    // territory the button is tap-only (each tap = one EO_DZOOM step via
+    // CodevCameraControl::stepZoom).
+    //   - zoom-in optical territory:  zoomLevel < 29.5
+    //   - zoom-out optical territory: digital fact at min (==1.0)
+    property real _opticalMaxThreshold: 29.5
+    property bool _zoomInActive: false
+    property bool _zoomOutActive: false
+    property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
+    property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
 
     function logCameraSettingsState(tag) {
         console.log("[PhotoVideoControl]", tag,
@@ -191,12 +209,12 @@ Item {
     }
 
     function getZoomValue() {
-        // 기본값
+        // Default value
         if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
             return "1";
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
+        var optical = _mavlinkCamera.zoomLevel;   // qreal to JS Number
         var digital = (_dZoom ? _dZoom.value : 1.0);
 
         var effective = optical * digital;
@@ -217,7 +235,7 @@ Item {
         id: content
         anchors.fill: parent
         spacing: ScreenTools.defaultFontPixelHeight * 0.5
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 1. Reset & Setting Button
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth * 6
@@ -273,7 +291,7 @@ Item {
                 }
             }
         }
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 2. Photo/Video Switch Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -336,7 +354,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 3. Photo & Recording Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -362,7 +380,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
@@ -372,7 +390,7 @@ Item {
             visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 5. Zoom in / Zoom Out Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -405,7 +423,30 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    onPressed: {
+                        if (Date.now() - _zoomLastMs >= 150) {
+                            _zoomLastMs = Date.now()
+                            _mavlinkCamera.stepZoom(1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_mavlinkCamera && _zoomInCanContinuous) {
+                            _mavlinkCamera.startZoom(1)
+                            _zoomInActive = true
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
+                    }
                 }
             }
 
@@ -451,12 +492,35 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    onPressed: {
+                        if (Date.now() - _zoomLastMs >= 150) {
+                            _zoomLastMs = Date.now()
+                            _mavlinkCamera.stepZoom(-1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_mavlinkCamera && _zoomOutCanContinuous) {
+                            _mavlinkCamera.startZoom(-1)
+                            _zoomOutActive = true
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
+                    }
                 }
             }
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 6. Separator Line
         Rectangle {
             color: "lightgray"
@@ -464,7 +528,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
             columns: 2
@@ -522,7 +586,7 @@ Item {
             }
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 8. Separator Line
         Rectangle {
             color: "lightgray"
@@ -530,7 +594,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ───────────────────────────────
+        // ------------------------------------------------------------
         // 9. SD card Storage
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth
@@ -560,6 +624,29 @@ Item {
             buttons:    StandardButton.Close
             Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
             onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
+
+            // Nano tracker can runaway on very close targets - warn the operator
+            // only when the tracking algorithm is actively switched to "Nano".
+            property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
+
+            Connections {
+                target: settingsDialog._trackAlgorithmFact
+                ignoreUnknownSignals: true
+                function onValueChanged() {
+                    if (settingsDialog._trackAlgorithmFact
+                            && settingsDialog._trackAlgorithmFact.value === "Nano") {
+                        nanoRunawayWarning.open()
+                    }
+                }
+            }
+
+            MessageDialog {
+                id:                 nanoRunawayWarning
+                title:              qsTr("Tracking Algorithm")
+                text:               qsTr("If the target is close, camera runaway may occur.")
+                standardButtons:    StandardButton.Ok
+                onAccepted:         nanoRunawayWarning.close()
+            }
 
             ColumnLayout {
                 spacing: _margins

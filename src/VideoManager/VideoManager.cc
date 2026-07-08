@@ -1241,6 +1241,7 @@ VideoManager::_communicationLostChanged(bool connectionLost)
 {
     if(connectionLost) {
         //-- Disable full screen video if connection is lost
+        emit hasThermalChanged();
         setfullScreen(false);
     }
 }

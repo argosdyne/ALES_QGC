@@ -1174,6 +1174,21 @@ GstVideoReceiver::_addVideoSink(GstPad* pad)
                    << "caps query returned null";
     }
 
+    if (caps != nullptr) {
+        gchar* capsStr = gst_caps_to_string(caps);
+        qInfo() << "[GstVideoReceiver]" << "_addVideoSink"
+                << "uri" << _uri
+                << "caps" << (capsStr ? capsStr : "<null>");
+        if (capsStr != nullptr) {
+            g_free(capsStr);
+            capsStr = nullptr;
+        }
+    } else {
+        qWarning() << "[GstVideoReceiver]" << "_addVideoSink"
+                   << "uri" << _uri
+                   << "caps query returned null";
+    }
+
     gst_object_ref(_videoSink); // gst_bin_add() will steal one reference
 
     gst_bin_add(GST_BIN(_pipeline), _videoSink);

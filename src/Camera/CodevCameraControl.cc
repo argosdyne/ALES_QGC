@@ -17,6 +17,7 @@
 #include "QGCCorePlugin.h"
 #include "VideoManager.h"
 #include "SettingsManager.h"
+#include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
 static const char *kIR_TEMP_RECT = "IR_TEMP_RECT";
@@ -582,6 +583,24 @@ QStringList CodevCameraControl::activeSettings()
     return settings;
 }
 
+void CodevCameraControl::_clearCameraDefinitionState()
+{
+    qCDebug(CodevCameraLog) << "[CodevCamera]"
+            << "clearing Codev camera definition state for compId" << compID();
+
+    disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
+    disconnect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
+    _dZoomFact    = nullptr;
+    _zoomModeFact = nullptr;
+    _aiSourceFact = nullptr;
+    _hasTrack     = false;
+    _hasDetect    = false;
+
+    QGCCameraControl::_clearCameraDefinitionState();
+
+    connect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady, Qt::UniqueConnection);
+}
+
 void CodevCameraControl::_parametersReady()
 {
 
@@ -943,9 +962,9 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             const float right = tracking_image_status.rec_bottom_x;
             const float bottom = tracking_image_status.rec_bottom_y;
             const bool outOfRange = left < 0.0f || left > 1.0f
-                || top < 0.0f || top > 1.0f
-                || right < 0.0f || right > 1.0f
-                || bottom < 0.0f || bottom > 1.0f;
+                                    || top < 0.0f || top > 1.0f
+                                    || right < 0.0f || right > 1.0f
+                                    || bottom < 0.0f || bottom > 1.0f;
             const bool invalidRect = right <= left || bottom <= top;
             const float width = right - left;
             const float height = bottom - top;
@@ -954,7 +973,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             const float centerY = (top + bottom) * 0.5f;
             const bool boxTooSmall = area < kTrackingSmallBoxArea;
             const bool outsideCenter30 = centerX < kTrackingCenterMargin || centerX > kTrackingCenterMax
-                || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
+                                         || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
             const bool shouldDelayStop = outOfRange || invalidRect || (boxTooSmall && outsideCenter30);
             if (shouldDelayStop) {
                 const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
@@ -1022,22 +1041,22 @@ void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
         _sendNextQueuedMavCommand();
     } else if(ack.result == MAV_RESULT_ACCEPTED) {
         switch(ack.command) {
-            case MAV_CMD_VIDEO_START_CAPTURE:
-                setVideoMode();
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_VIDEO_STOP_CAPTURE:
-                setVideoMode();
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_IMAGE_START_CAPTURE:
-                if(_video_status != VIDEO_CAPTURE_STATUS_RUNNING) {
-                    setPhotoMode();
-                }
-                _captureStatusTimer.start(200);
-                break;
+        case MAV_CMD_VIDEO_START_CAPTURE:
+            setVideoMode();
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_VIDEO_STOP_CAPTURE:
+            setVideoMode();
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_IMAGE_START_CAPTURE:
+            if(_video_status != VIDEO_CAPTURE_STATUS_RUNNING) {
+                setPhotoMode();
+            }
+            _captureStatusTimer.start(200);
+            break;
         }
     }
     _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
@@ -1159,38 +1178,38 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
         qCDebug(CodevCameraLog) << "In progress response for" << command;
     }else if(!noReponseFromVehicle && result == MAV_RESULT_ACCEPTED) {
         switch(command) {
-            case MAV_CMD_STORAGE_FORMAT:
-                _vehicle->cameraTriggerPoints()->clearAndDeleteContents();
-                break;
-            case MAV_CMD_RESET_CAMERA_SETTINGS:
-                _resetting = false;
-                if(isBasic()) {
-                    _requestCameraSettings();
-                } else {
-                    QTimer::singleShot(2000, this, &CodevCameraControl::_requestAllParameters);
-                    QTimer::singleShot(2500, this, &CodevCameraControl::_requestCameraSettings);
-                }
-                break;
-            case MAV_CMD_VIDEO_START_CAPTURE:
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_VIDEO_STOP_CAPTURE:
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-                _captureInfoRetries = 0;
-                break;
-            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-                _storageInfoRetries = 0;
-                break;
-            case MAV_CMD_IMAGE_START_CAPTURE:
-                _captureStatusTimer.start(200);
-                break;
-            case MAV_CMD_SET_CAMERA_ZOOM:
+        case MAV_CMD_STORAGE_FORMAT:
+            _vehicle->cameraTriggerPoints()->clearAndDeleteContents();
+            break;
+        case MAV_CMD_RESET_CAMERA_SETTINGS:
+            _resetting = false;
+            if(isBasic()) {
                 _requestCameraSettings();
-                break;
+            } else {
+                QTimer::singleShot(2000, this, &CodevCameraControl::_requestAllParameters);
+                QTimer::singleShot(2500, this, &CodevCameraControl::_requestCameraSettings);
+            }
+            break;
+        case MAV_CMD_VIDEO_START_CAPTURE:
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_VIDEO_STOP_CAPTURE:
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+            _captureInfoRetries = 0;
+            break;
+        case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+            _storageInfoRetries = 0;
+            break;
+        case MAV_CMD_IMAGE_START_CAPTURE:
+            _captureStatusTimer.start(200);
+            break;
+        case MAV_CMD_SET_CAMERA_ZOOM:
+            _requestCameraSettings();
+            break;
         }
     } else {
         if(noReponseFromVehicle || result == MAV_RESULT_TEMPORARILY_REJECTED || result == MAV_RESULT_FAILED) {
@@ -1202,30 +1221,30 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
                 qCDebug(CodevCameraLog) << "Command failed for" << command;
             }
             switch(command) {
-                case MAV_CMD_IMAGE_START_CAPTURE:
-                case MAV_CMD_IMAGE_STOP_CAPTURE:
-                    if(++_captureInfoRetries < 1) {
-                        _captureStatusTimer.start(1000);
-                    } else {
-                        qCDebug(CodevCameraLog) << "Giving up start/stop image capture";
-                        _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-                    }
-                    break;
-                case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-                    if(++_captureInfoRetries < 1) {
-                        _captureStatusTimer.start(200);
-                    } else {
-                        _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-                        qCDebug(CodevCameraLog) << "Giving up requesting capture status";
-                    }
-                    break;
-                case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-                    if(++_storageInfoRetries < 3) {
-                        QTimer::singleShot(500, this, &CodevCameraControl::_requestStorageInfo);
-                    } else {
-                        qCDebug(CodevCameraLog) << "Giving up requesting storage status";
-                    }
-                    break;
+            case MAV_CMD_IMAGE_START_CAPTURE:
+            case MAV_CMD_IMAGE_STOP_CAPTURE:
+                if(++_captureInfoRetries < 1) {
+                    _captureStatusTimer.start(1000);
+                } else {
+                    qCDebug(CodevCameraLog) << "Giving up start/stop image capture";
+                    _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+                }
+                break;
+            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+                if(++_captureInfoRetries < 1) {
+                    _captureStatusTimer.start(200);
+                } else {
+                    _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+                    qCDebug(CodevCameraLog) << "Giving up requesting capture status";
+                }
+                break;
+            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+                if(++_storageInfoRetries < 3) {
+                    QTimer::singleShot(500, this, &CodevCameraControl::_requestStorageInfo);
+                } else {
+                    qCDebug(CodevCameraLog) << "Giving up requesting storage status";
+                }
+                break;
             }
         } else {
             qCDebug(CodevCameraLog) << "Bad response for" << command << result;
@@ -1282,17 +1301,17 @@ void CodevCameraControl::_requestCameraSettings()
 {
     qCDebug(CodevCameraLog) << "_requestCameraSettings()";
     sendMavCommand(
-            MAV_CMD_REQUEST_CAMERA_SETTINGS,        // command id
-            1);                                     // Do Request
+        MAV_CMD_REQUEST_CAMERA_SETTINGS,        // command id
+        1);                                     // Do Request
 }
 
 void CodevCameraControl::_requestStorageInfo()
 {
     qCDebug(CodevCameraLog) << "_requestStorageInfo()";
     sendMavCommand(
-            MAV_CMD_REQUEST_STORAGE_INFORMATION,    // command id
-            0,                                      // Storage ID (0 for all, 1 for first, 2 for second, etc.)
-            1);                                     // Do Request
+        MAV_CMD_REQUEST_STORAGE_INFORMATION,    // command id
+        0,                                      // Storage ID (0 for all, 1 for first, 2 for second, etc.)
+        1);                                     // Do Request
 }
 
 bool CodevCameraControl::_isTakingPhotoTimelapse()
