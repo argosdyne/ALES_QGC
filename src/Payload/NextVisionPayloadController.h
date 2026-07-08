@@ -4,6 +4,7 @@
 /// The DragonEye2 gimbal sits behind an ArduPilot flight controller reached over
 /// UDP (default 192.168.2.28:10038). Pan/tilt are driven with RC_CHANNELS_OVERRIDE:
 ///   CH1 = pan/yaw, CH2 = tilt/pitch, 1500 center, 1500 +/- offset.
+///   CH3 = zoom, CH4 = home preset, CH5 = snapshot, CH6 = record.
 ///
 /// Critical protocol details (from the working NextVisionGimbalMaui app):
 ///  - Sender system id MUST match the rig's ArduPilot SYSID_MYGCS. aq2apm45.param sets it to
@@ -38,6 +39,13 @@ public:
     void connectPayload() override;
     void gimbalMove(int pan, int tilt) override;
     void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
+    void gimbalHome() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void stopZoom() override;
+    void captureImage() override;
+    void startRecording() override;
+    void stopRecording() override;
 
 signals:
     void speedChanged();
@@ -55,6 +63,7 @@ private:
     void _sendHeartbeat();
     void _sendRequestDataStream();
     uint16_t _clampPwm(int pwm) const;
+    void _pulseChannel(int channelIndex, uint16_t value, int durationMs, uint16_t restoreValue);
 
     QTimer* _txTimer = nullptr;
     quint32 _tickCount = 0;

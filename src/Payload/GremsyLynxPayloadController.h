@@ -38,9 +38,9 @@ public:
     void gimbalMove(int pan, int tilt) override;
     void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
     void gimbalHome() override;
-    Q_INVOKABLE void zoomIn();
-    Q_INVOKABLE void zoomOut();
-    Q_INVOKABLE void stopZoom();
+    void zoomIn() override;
+    void zoomOut() override;
+    void stopZoom() override;
 
 signals:
     void attitudeChanged();

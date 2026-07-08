@@ -1,6 +1,8 @@
 #include "PayloadManager.h"
 
 #include <QQmlEngine>
+#include <QTimer>
+#include <QUrl>
 
 #include "QGCApplication.h"
 #include "QGCToolbox.h"
@@ -11,6 +13,7 @@
 #include "SettingsManager.h"
 #include "VideoSettings.h"
 #include "VideoManager.h"
+#include "Fact.h"
 
 PayloadManager::PayloadManager(QObject* parent)
     : QObject(parent)
@@ -45,6 +48,14 @@ PayloadManager::PayloadManager(QObject* parent)
         connect(mvm, &MultiVehicleManager::activeVehicleChanged, this, &PayloadManager::_onActiveVehicleChanged);
         _bindVehicle(mvm->activeVehicle());
     }
+
+    VideoSettings* videoSettings = qgcApp()->toolbox()->settingsManager()->videoSettings();
+    if (videoSettings && videoSettings->rtspUrl()) {
+        connect(videoSettings->rtspUrl(), &Fact::rawValueChanged, this, [this]() {
+            _tryConnectPayloadFromVideoRtsp();
+        });
+    }
+    QTimer::singleShot(0, this, &PayloadManager::_tryConnectPayloadFromVideoRtsp);
 }
 
 PayloadManager* PayloadManager::instance()
@@ -162,6 +173,58 @@ void PayloadManager::_onRcChannels(int channelCount, int pwmValues[18])
         payload->gimbalAxis(pan, tilt);
     }
     _rcWasActive = activeNow;
+}
+
+int PayloadManager::_payloadTypeFromRtspUrl(const QString& urlString) const
+{
+    const QUrl url(urlString);
+    const QString host = url.host();
+    const QString path = url.path().toLower();
+
+    if (host.isEmpty() || url.scheme().toLower() != QStringLiteral("rtsp")) {
+        return -1;
+    }
+
+    if (host == QStringLiteral("192.168.2.28") ||
+            path.contains(QStringLiteral("video0"))) {
+        return 1; // NextVision DragonEye2
+    }
+
+    if (host == QStringLiteral("192.168.2.240") ||
+            path.contains(QStringLiteral("payload"))) {
+        return 0; // Gremsy Lynx
+    }
+
+    return -1;
+}
+
+void PayloadManager::_tryConnectPayloadFromVideoRtsp()
+{
+    VideoSettings* videoSettings = qgcApp()->toolbox()->settingsManager()->videoSettings();
+    if (!videoSettings || !videoSettings->rtspUrl()) {
+        return;
+    }
+
+    const QString rtspUrl = videoSettings->rtspUrl()->rawValue().toString().trimmed();
+    const int payloadType = _payloadTypeFromRtspUrl(rtspUrl);
+    if (payloadType < 0) {
+        return;
+    }
+
+    QUrl url(rtspUrl);
+    const QString host = url.host();
+    if (host.isEmpty()) {
+        return;
+    }
+
+    setActiveType(payloadType);
+    PayloadController* payload = active();
+    if (!payload || payload->connected() || payload->connecting()) {
+        return;
+    }
+
+    payload->setIp(host);
+    payload->connectPayload();
 }
 
 void PayloadManager::_applyRtspToVideoSettings(const QString& url)

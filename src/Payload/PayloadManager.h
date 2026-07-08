@@ -23,6 +23,7 @@ class PayloadManager : public QObject
 
     Q_PROPERTY(GremsyLynxPayloadController* gremsy     READ gremsy     CONSTANT)
     Q_PROPERTY(NextVisionPayloadController* nextvision READ nextvision CONSTANT)
+    Q_PROPERTY(PayloadController*           active     READ active     NOTIFY activeTypeChanged)
     // 0 = Gremsy Lynx, 1 = NextVision DragonEye2
     Q_PROPERTY(int activeType READ activeType WRITE setActiveType NOTIFY activeTypeChanged)
 
@@ -47,12 +48,14 @@ private slots:
     void _onGimbalAxis(float pitch, float yaw);
     void _onActiveVehicleChanged(Vehicle* vehicle);
     void _onRcChannels(int channelCount, int pwmValues[18]);
+    void _tryConnectPayloadFromVideoRtsp();
 
 private:
     void _bindJoystick(Joystick* joystick);
     void _bindVehicle(Vehicle* vehicle);
     // On connect, point QGC's video (General settings) at the payload's RTSP stream.
     void _applyRtspToVideoSettings(const QString& url);
+    int  _payloadTypeFromRtspUrl(const QString& url) const;
 
     GremsyLynxPayloadController* _gremsy     = nullptr;
     NextVisionPayloadController* _nextvision = nullptr;

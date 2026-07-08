@@ -62,9 +62,9 @@ Item {
     property bool   _cameraModeUndefined:   !_cameraPhotoMode && !_cameraVideoMode
     property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
     property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
-    property var    _gremsyPayload:         PayloadManager.gremsy
-    property bool   _useGremsyPayload:      _gremsyPayload && _gremsyPayload.connected
-    property bool   _hasZoom:               (_camera && _camera.hasZoom) || _useGremsyPayload
+    property var    _activePayload:         PayloadManager.active
+    property bool   _usePayload:            _activePayload && _activePayload.connected
+    property bool   _hasZoom:               (_camera && _camera.hasZoom) || _usePayload
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
     property bool   _isShortScreen:         mainWindow.height / ScreenTools.realPixelDensity < 120
     property real   _gimbalPitch:           activeVehicle ? -activeVehicle.gimbalPitch : 0
@@ -79,40 +79,40 @@ Item {
     }
 
     function _homeCameraOrPayload() {
-        if (_useGremsyPayload) {
-            _gremsyPayload.gimbalHome()
+        if (_usePayload) {
+            _activePayload.gimbalHome()
         } else if (_camera) {
             _camera.zoomLevel = 1
         }
     }
 
     function _gimbalHomeCameraOrPayload() {
-        if (_useGremsyPayload) {
-            _gremsyPayload.gimbalHome()
+        if (_usePayload) {
+            _activePayload.gimbalHome()
         } else if (_camera && typeof _camera.centerGimbal === "function") {
             _camera.centerGimbal()
         }
     }
 
     function _zoomCameraOrPayload(direction) {
-        if (_useGremsyPayload) {
-            direction > 0 ? _gremsyPayload.zoomIn() : _gremsyPayload.zoomOut()
+        if (_usePayload) {
+            direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
         } else if (_camera) {
             _camera.stepZoom(direction)
         }
     }
 
     function _startZoomCameraOrPayload(direction) {
-        if (_useGremsyPayload) {
-            direction > 0 ? _gremsyPayload.zoomIn() : _gremsyPayload.zoomOut()
+        if (_usePayload) {
+            direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
         } else if (_camera) {
             _camera.startZoom(direction)
         }
     }
 
     function _stopZoomCameraOrPayload() {
-        if (_useGremsyPayload) {
-            _gremsyPayload.stopZoom()
+        if (_usePayload) {
+            _activePayload.stopZoom()
         } else if (_camera) {
             _camera.stopZoom()
         }
@@ -205,7 +205,7 @@ Item {
             anchors.right:  parent.right
             QGCLabel {
                 anchors.centerIn: parent
-                text: _useGremsyPayload ? qsTr("Home") : qsTr("Reset Zoom")
+                text: _usePayload ? qsTr("Home") : qsTr("Reset Zoom")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: ScreenTools.mediumFontPointSize
@@ -225,7 +225,7 @@ Item {
             contentColor:   qgcPal.text
             fontPointSize:  ScreenTools.defaultFontPointSize * 1.75
             zoomLevelVisible: _hasZoom
-            zoomLevel:      _useGremsyPayload ? _gremsyPayload.zoomLevel : (_camera && _camera.hasZoom ? _camera.zoomLevel : NaN)
+            zoomLevel:      _usePayload ? 1 : (_camera && _camera.hasZoom ? _camera.zoomLevel : NaN)
             onlyContinousZoom: true
             anchors.right:  parent.right
             onZoomIn: {
@@ -592,7 +592,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     MouseArea {
                         anchors.fill:   parent
-                        enabled:        _useGremsyPayload || (_camera && typeof _camera.centerGimbal === "function")
+                        enabled:        _usePayload || (_camera && typeof _camera.centerGimbal === "function")
                         onClicked:      _root._gimbalHomeCameraOrPayload()
                     }
                 }

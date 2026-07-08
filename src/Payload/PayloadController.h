@@ -59,6 +59,14 @@ public:
     /// Optional recenter / home. No-op unless the device supports it.
     Q_INVOKABLE virtual void gimbalHome() {}
 
+    /// Optional camera controls. No-op unless the payload supports the action.
+    Q_INVOKABLE virtual void zoomIn() {}
+    Q_INVOKABLE virtual void zoomOut() {}
+    Q_INVOKABLE virtual void stopZoom() {}
+    Q_INVOKABLE virtual void captureImage() {}
+    Q_INVOKABLE virtual void startRecording() {}
+    Q_INVOKABLE virtual void stopRecording() {}
+
     /// Continuous axis control (e.g. USB joystick), pan/tilt in [-1,+1]. Default: threshold to
     /// the discrete gimbalMove; subclasses override for proportional (analog) speed.
     Q_INVOKABLE virtual void gimbalAxis(double pan, double tilt) {

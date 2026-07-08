@@ -61,7 +61,7 @@ Rectangle {
                 width:      parent.width
                 wrapMode:   Text.WordWrap
                 color:      qgcPal.text
-                text:       qsTr("Select a payload type and its IP address, then Connect. The connection and joystick control stay active after you leave this page.")
+                text:       qsTr("Select a payload type and its IP address, then Connect.")
             }
 
             RowLayout {
@@ -125,12 +125,13 @@ Rectangle {
                             .arg(_root.payload.yaw.toFixed(0))
             }
 
-            Rectangle { width: parent.width; height: 1; color: qgcPal.text; opacity: 0.3 }
+        Rectangle { visible: false; width: parent.width; height: 1; color: qgcPal.text; opacity: 0.3 }
 
-            QGCLabel { text: qsTr("Gimbal control  (also controllable by USB joystick from any screen)"); font.bold: true }
+            QGCLabel { text: qsTr("Gimbal control  (also controllable by USB joystick from any screen)"); font.bold: true; visible: false }
 
             Grid {
                 id:         dpad
+                visible:    false
                 columns:    3
                 spacing:    ScreenTools.defaultFontPixelWidth
                 enabled:    _root.payload.connected
@@ -164,6 +165,48 @@ Rectangle {
                     onPressedChanged: { _root._down = pressed; _root._apply() }
                 }
                 Item      { width: dpad.bw; height: dpad.bh }
+            }
+
+            Rectangle { width: parent.width; height: 1; color: qgcPal.text; opacity: 0.3; visible: false }
+
+            QGCLabel { text: qsTr("Camera control"); font.bold: true; visible: false }
+
+            RowLayout {
+                visible: false
+                spacing: ScreenTools.defaultFontPixelWidth
+                enabled: _root.payload.connected
+
+                QGCButton {
+                    text: qsTr("Home")
+                    onClicked: _root.payload.gimbalHome()
+                }
+                QGCButton {
+                    text: qsTr("Zoom In")
+                    onPressedChanged: pressed ? _root.payload.zoomIn() : _root.payload.stopZoom()
+                }
+                QGCButton {
+                    text: qsTr("Zoom Out")
+                    onPressedChanged: pressed ? _root.payload.zoomOut() : _root.payload.stopZoom()
+                }
+                QGCButton {
+                    text: qsTr("Snapshot")
+                    onClicked: _root.payload.captureImage()
+                }
+            }
+
+            RowLayout {
+                visible: false
+                spacing: ScreenTools.defaultFontPixelWidth
+                enabled: _root.payload.connected
+
+                QGCButton {
+                    text: qsTr("Record")
+                    onClicked: _root.payload.startRecording()
+                }
+                QGCButton {
+                    text: qsTr("Stop Record")
+                    onClicked: _root.payload.stopRecording()
+                }
             }
         }
     }
