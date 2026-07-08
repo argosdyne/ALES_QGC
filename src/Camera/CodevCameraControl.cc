@@ -362,20 +362,20 @@ bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
         return false;
     }
 
-    if (pFact && pFact->name() == kCAM_EXPMODE && pFact->metaData()) {
+    if (pFact && pFact->metaData()) {
         const QVariantList checkValues = pFact->metaData()->enumValues();
         if (!checkValues.isEmpty() && !_enumListContains(checkValues, newValue)) {
             if (_enumListContains(checkValues, pFact->rawValue())) {
-                qCDebug(CodevCameraLog) << "Ignoring invalid CAM_EXPMODE read" << newValue
-                                        << "keeping ui" << pFact->rawValue();
+                qCDebug(CodevCameraLog) << "Ignoring invalid enum read for" << pFact->name()
+                                        << newValue << "keeping ui" << pFact->rawValue();
                 return false;
             }
             QVariant defaultVal = pFact->metaData()->rawDefaultValue();
             if (!_enumListContains(checkValues, defaultVal)) {
                 defaultVal = checkValues.first();
             }
-            qCWarning(CodevCameraLog) << "Rejecting invalid CAM_EXPMODE value" << newValue
-                                      << "cameraMode" << cameraMode() << "using" << defaultVal;
+            qCWarning(CodevCameraLog) << "Rejecting invalid enum value for" << pFact->name()
+                                      << newValue << "using" << defaultVal;
             newValue = defaultVal;
         }
     }

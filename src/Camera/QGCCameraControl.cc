@@ -1841,6 +1841,18 @@ QGCCameraControl::_updateRanges(Fact* pFact)
             updates << f->name();
         }
     }
+    //-- After option lists change, clear stale values (e.g. Creative Look Unknown: 0 after AE change)
+    QStringList sanitizedTargets;
+    for (QGCCameraOptionRange* pRange : _optionRanges) {
+        if (pRange->param == pFact->name() || pRange->condition.contains(pFact->name())) {
+            if (!sanitizedTargets.contains(pRange->targetParam)) {
+                sanitizedTargets << pRange->targetParam;
+                if (Fact* targetFact = getFact(pRange->targetParam)) {
+                    _sanitizeEnumParameter(targetFact, false, false);
+                }
+            }
+        }
+    }
     //-- Parameter update requests
     if(_requestUpdates.contains(pFact->name())) {
         for(const QString& param: _requestUpdates[pFact->name()]) {
