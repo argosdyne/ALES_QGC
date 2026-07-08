@@ -103,12 +103,12 @@ Item {
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
     // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
     // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
-    // commands +1 on top of it, producing a 2??Ã— overshoot.
+    // commands +1 on top of it, producing a 2x overshoot.
     property real _zoomLastMs: 0
 
     // FlyDynamics3-style: button mode flips based on which territory the next
     // step would be. In optical territory the button is press-to-zoom (firmware
-    // continuous zoom on press, stop on release ??no timer). In digital
+    // continuous zoom on press, stop on release - no timer). In digital
     // territory the button is tap-only (each tap = one EO_DZOOM step via
     // CodevCameraControl::stepZoom).
     //   - zoom-in optical territory:  zoomLevel < 29.5
@@ -209,12 +209,12 @@ Item {
     }
 
     function getZoomValue() {
-        // ê¸°ë³¸ê°?
+        // Default value
         if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
             return "1";
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal ??JS Number
+        var optical = _mavlinkCamera.zoomLevel;   // qreal to JS Number
         var digital = (_dZoom ? _dZoom.value : 1.0);
 
         var effective = optical * digital;
@@ -235,7 +235,7 @@ Item {
         id: content
         anchors.fill: parent
         spacing: ScreenTools.defaultFontPixelHeight * 0.5
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 1. Reset & Setting Button
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth * 6
@@ -291,7 +291,7 @@ Item {
                 }
             }
         }
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 2. Photo/Video Switch Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -354,7 +354,7 @@ Item {
             }
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 3. Photo & Recording Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -380,7 +380,7 @@ Item {
             }
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
@@ -390,7 +390,7 @@ Item {
             visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 5. Zoom in / Zoom Out Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
@@ -520,7 +520,7 @@ Item {
             }
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 6. Separator Line
         Rectangle {
             color: "lightgray"
@@ -528,7 +528,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
             columns: 2
@@ -586,7 +586,7 @@ Item {
             }
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 8. Separator Line
         Rectangle {
             color: "lightgray"
@@ -594,7 +594,7 @@ Item {
             Layout.fillWidth: true
         }
 
-        // ?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€?€
+        // ------------------------------------------------------------
         // 9. SD card Storage
         RowLayout {
             spacing: ScreenTools.defaultFontPixelWidth
@@ -625,7 +625,7 @@ Item {
             Component.onCompleted: logCameraSettingsState("settingsDialogCreated")
             onVisibleChanged: logCameraSettingsState("settingsDialogVisibleChanged")
 
-            // Nano tracker can runaway on very close targets ??warn the operator
+            // Nano tracker can runaway on very close targets - warn the operator
             // only when the tracking algorithm is actively switched to "Nano".
             property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
 
