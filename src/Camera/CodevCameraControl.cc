@@ -102,6 +102,8 @@ static bool _isR3CameraModel(const QString& modelName)
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
 static constexpr float kZoomSyncMaxStep = 2.5f;
 static constexpr float kZoomSyncCatchUpMax = 12.0f;
+static constexpr int kAviatorRcZoomHoldThresholdMs = 450;
+static constexpr qint64 kAviatorRcZoomStepDebounceMs = 150;
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
@@ -1602,6 +1604,80 @@ static bool _isRcZoomOutPwm(uint16_t ch11)
     return ch11 < static_cast<uint16_t>(kRcGimbalCenter - kRcZoomJoystickStepOffset);
 }
 
+static int _rcZoomDirection(uint16_t ch11)
+{
+    if (_isRcZoomInPwm(ch11)) {
+        return 1;
+    }
+    if (_isRcZoomOutPwm(ch11)) {
+        return -1;
+    }
+    return 0;
+}
+
+void CodevCameraControl::_applyAviatorRcZoomStep(int direction)
+{
+    if (!hasZoom() || direction == 0) {
+        return;
+    }
+
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (_aviatorRcZoomLastStepMs > 0
+            && (nowMs - _aviatorRcZoomLastStepMs) < kAviatorRcZoomStepDebounceMs) {
+        return;
+    }
+
+    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
+    const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
+    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
+    const bool atOpticalMin = _opticalRange <= 1.0f;
+
+    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
+
+    if (direction > 0) {
+        // RC controls optical zoom only — no digital zoom via Aviator.
+        if (atOpticalMax) {
+            qCInfo(CodevCameraLog) << "[RCFlow] aviator rc block zoom-in at optical max"
+                                   << "opticalRange" << _opticalRange
+                                   << "dZoom" << dNow;
+            return;
+        }
+        const float next = qBound(1.0f, _opticalRange + 1.0f, _maxOpticalX);
+        _setTrustedOpticalRange(next);
+        if (qAbs(_zoomLevel - next) > 0.01) {
+            _zoomLevel = next;
+            emit zoomLevelChanged();
+        }
+        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc zoom step in"
+                               << "opticalRange" << _opticalRange;
+    } else {
+        // At optical max with leftover dZoom (e.g. from UI): clear once so optical zoom-out won't jump to 1x.
+        if (atOpticalMax && _dZoomFact && dNow > (dMin + 0.05)) {
+            _dZoomFact->setRawValue(static_cast<float>(dMin));
+            qCInfo(CodevCameraLog) << "[RCFlow] aviator rc clear dZoom at max before optical step"
+                                   << "opticalRange" << _opticalRange
+                                   << "dZoom" << dNow << "->" << dMin;
+            _aviatorRcZoomLastStepMs = nowMs;
+            return;
+        }
+        if (atOpticalMin) {
+            return;
+        }
+        const float next = qBound(1.0f, _opticalRange - 1.0f, _maxOpticalX);
+        _setTrustedOpticalRange(next);
+        if (qAbs(_zoomLevel - next) > 0.01) {
+            _zoomLevel = next;
+            emit zoomLevelChanged();
+        }
+        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc zoom step out"
+                               << "opticalRange" << _opticalRange;
+    }
+
+    _aviatorRcZoomLastStepMs = nowMs;
+}
+
 void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
 {
     if (!channels || count < 11 || _qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
@@ -1609,27 +1685,39 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     }
 
     uint16_t& ch11 = channels[10];
-    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
-    const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
+    const int direction = _rcZoomDirection(ch11);
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
 
-    if (atOpticalMax && _isRcZoomInPwm(ch11)) {
-        qCInfo(CodevCameraLog) << "[RCFlow] filterAviator block zoom-in at optical max"
-                               << "ch11" << ch11
-                               << "opticalRange" << _opticalRange
-                               << "dZoom" << dNow;
-        ch11 = kRcGimbalCenter;
+    if (direction == 0) {
+        _aviatorRcZoomState = 0;
+        _aviatorRcZoomHoldMode = false;
         return;
     }
 
-    if (atOpticalMax && dNow > (dMin + 0.05) && _isRcZoomOutPwm(ch11)) {
-        qCInfo(CodevCameraLog) << "[RCFlow] filterAviator clear dZoom at max before optical step"
-                               << "ch11" << ch11
-                               << "opticalRange" << _opticalRange
-                               << "dZoom" << dNow;
-        if (_dZoomFact) {
-            _dZoomFact->setRawValue(static_cast<float>(dMin));
-        }
+    if (_aviatorRcZoomState == 0) {
+        _applyAviatorRcZoomStep(direction);
+        _aviatorRcZoomState = direction;
+        _aviatorRcZoomDeflectStartMs = nowMs;
+        _aviatorRcZoomHoldMode = false;
+    } else if (direction != _aviatorRcZoomState) {
+        _applyAviatorRcZoomStep(direction);
+        _aviatorRcZoomState = direction;
+        _aviatorRcZoomDeflectStartMs = nowMs;
+        _aviatorRcZoomHoldMode = false;
+    }
+
+    if (!_aviatorRcZoomHoldMode
+            && (nowMs - _aviatorRcZoomDeflectStartMs) >= kAviatorRcZoomHoldThresholdMs) {
+        _aviatorRcZoomHoldMode = true;
+        qCInfo(CodevCameraLog) << "[RCFlow] filterAviator hold passthrough"
+                               << "direction" << direction
+                               << "ch11" << ch11;
+    }
+
+    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
+    // Tap: always neutralize ch11 — zoom is handled via MAVLink RANGE steps above.
+    // Hold: passthrough except block zoom-in at optical max (no RC digital zoom).
+    if (!_aviatorRcZoomHoldMode || (direction > 0 && atOpticalMax)) {
         ch11 = kRcGimbalCenter;
     }
 }
@@ -1644,6 +1732,12 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
             _requestCameraSettings();
             _rcCameraSettingsRequestTimer.restart();
         }
+    }
+
+    // Aviator RC is forwarded only by CustomVehicle::_sendRcChannelValues (with filterAviatorRcChannels).
+    // Re-sending here duplicates ch11 and can cause erratic zoom steps or jumps to min/max.
+    if (!_qgcJoystickControlsCamera()) {
+        return;
     }
 
     if (!_vehicle || !_vehicle->px4Firmware()) {
