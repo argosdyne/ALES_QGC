@@ -871,7 +871,7 @@ VideoManager::_updateSettings(unsigned id)
                     {
                         const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
                         const QString configuredVideoSource = _toolbox->settingsManager()->videoSettings()->videoSource()->rawValue().toString();
-                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP && !configuredRtspUrl.isEmpty()
+                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP
                                                     ? configuredRtspUrl
                                                     : pInfo->uri();
                         if ((settingsChanged |= _updateVideoUri(id, rtspUri))) {
