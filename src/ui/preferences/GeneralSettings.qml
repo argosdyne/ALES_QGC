@@ -56,6 +56,7 @@ Rectangle {
     property bool   _isTCP:                     _isGst && _videoSource === _videoSettings.tcpVideoSource
     property bool   _isMPEGTS:                  _isGst && _videoSource === _videoSettings.mpegtsVideoSource
     property bool   _videoAutoStreamConfig:     QGroundControl.videoManager.autoStreamConfigured
+    property bool   _showManualVideoConfig:     !_videoAutoStreamConfig || _isRTSP
     property bool   _showSaveVideoSettings:     _isGst || _videoAutoStreamConfig
     property bool   _disableAllDataPersistence: QGroundControl.settingsManager.appSettings.disableAllPersistence.rawValue
 
@@ -311,7 +312,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         videoSourceLabel
                                     text:       qsTr("Source")
-                                    visible:    !_videoAutoStreamConfig && _videoSettings.videoSource.visible
+                                    visible:    _showManualVideoConfig && _videoSettings.videoSource.visible
                                 }
                                 FactComboBox {
                                     id:                     videoSource
@@ -324,7 +325,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         udpPortLabel
                                     text:       qsTr("UDP Port")
-                                    visible:    !_videoAutoStreamConfig && (_isUDP264 || _isUDP265 || _isMPEGTS) && _videoSettings.udpPort.visible
+                                    visible:    _showManualVideoConfig && (_isUDP264 || _isUDP265 || _isMPEGTS) && _videoSettings.udpPort.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
@@ -335,7 +336,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         rtspUrlLabel
                                     text:       qsTr("RTSP URL")
-                                    visible:    !_videoAutoStreamConfig && _isRTSP && _videoSettings.rtspUrl.visible
+                                    visible:    _showManualVideoConfig && _isRTSP && _videoSettings.rtspUrl.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
@@ -346,7 +347,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         tcpUrlLabel
                                     text:       qsTr("TCP URL")
-                                    visible:    !_videoAutoStreamConfig && _isTCP && _videoSettings.tcpUrl.visible
+                                    visible:    _showManualVideoConfig && _isTCP && _videoSettings.tcpUrl.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
@@ -356,12 +357,12 @@ Rectangle {
 
                                 QGCLabel {
                                     text:                   qsTr("Aspect Ratio")
-                                    visible:                !_videoAutoStreamConfig && _isGst && _videoSettings.aspectRatio.visible
+                                    visible:                _showManualVideoConfig && _isGst && _videoSettings.aspectRatio.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _videoSettings.aspectRatio
-                                    visible:                !_videoAutoStreamConfig && _isGst && _videoSettings.aspectRatio.visible
+                                    visible:                _showManualVideoConfig && _isGst && _videoSettings.aspectRatio.visible
                                 }
 
                                 QGCLabel {
