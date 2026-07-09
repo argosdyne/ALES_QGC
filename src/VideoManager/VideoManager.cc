@@ -871,11 +871,15 @@ VideoManager::_updateSettings(unsigned id)
                     {
                         const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
                         const QString configuredVideoSource = _toolbox->settingsManager()->videoSettings()->videoSource()->rawValue().toString();
-                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP
+                        const bool rtspUrlUserSet = _toolbox->settingsManager()->videoSettings()->rtspUrlUserSet();
+                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP && rtspUrlUserSet
                                                     ? configuredRtspUrl
                                                     : pInfo->uri();
                         if ((settingsChanged |= _updateVideoUri(id, rtspUri))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+                        }
+                        if (!rtspUrlUserSet && !pInfo->uri().isEmpty() && configuredRtspUrl != pInfo->uri()) {
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
                         }
                         break;
                     }

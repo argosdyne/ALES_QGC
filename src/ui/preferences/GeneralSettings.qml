@@ -342,6 +342,7 @@ Rectangle {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _videoSettings.rtspUrl
                                     visible:                rtspUrlLabel.visible
+                                    onUpdated:              _videoSettings.setRtspUrlUserSet(true)
                                 }
 
                                 QGCLabel {
