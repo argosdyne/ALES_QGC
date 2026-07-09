@@ -1043,8 +1043,8 @@ void CodevCameraControl::setVideoMode()
                     _cancelPendingRcAction();
                 }
                 _pendingCameraMode = CAM_MODE_VIDEO;
-                _setCameraMode(CAM_MODE_VIDEO);
                 pMode->setRawValue(CAM_MODE_VIDEO);
+                _setCameraMode(CAM_MODE_VIDEO);
                 _armModeSwitchRecovery(CAM_MODE_VIDEO);
                 _scheduleVideoPipelineRestart("user_mode_switch");
             } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
@@ -1081,11 +1081,12 @@ void CodevCameraControl::setPhotoMode()
                     _cancelPendingRcAction();
                 }
                 _pendingCameraMode = CAM_MODE_PHOTO;
-                _setCameraMode(CAM_MODE_PHOTO);
                 pMode->setRawValue(CAM_MODE_PHOTO);
+                _setCameraMode(CAM_MODE_PHOTO);
                 _armModeSwitchRecovery(CAM_MODE_PHOTO);
                 _scheduleVideoPipelineRestart("user_mode_switch");
             } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
                 if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
                     _scheduleStorageRefreshAfterModeSwitch();
                 }
@@ -1107,6 +1108,7 @@ void CodevCameraControl::setPhotoMode()
                 _armModeSwitchRecovery(CAM_MODE_PHOTO);
                 _scheduleVideoPipelineRestart("user_mode_switch");
             } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
                 if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
                     _scheduleStorageRefreshAfterModeSwitch();
                 }
@@ -1125,6 +1127,11 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
     if (!_modeSwitchNudgeInProgress) {
         if (reportedMode != _cameraMode) {
             _setCameraMode(reportedMode);
+        } else if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
+            Fact* pModeFact = mode();
+            if (pModeFact && pModeFact->rawValue().toInt() != static_cast<int>(reportedMode)) {
+                _syncCameraModeFact(reportedMode);
+            }
         }
 
         if (reportedMode == CAM_MODE_PHOTO) {
@@ -1157,6 +1164,47 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
         _focusLevel = f;
         emit focusLevelChanged();
     }
+}
+
+void CodevCameraControl::factChanged(Fact* pFact)
+{
+    QGCCameraControl::factChanged(pFact);
+    if (!pFact || !factExists(kCAM_EXPMODE)) {
+        return;
+    }
+    // Re-validate AE only after mode changes, not when the user adjusts AE from the UI.
+    if (pFact->name() == kCAM_MODE) {
+        _clearUserParamIntent(kCAM_EXPMODE);
+        if (Fact* expFact = getFact(kCAM_EXPMODE)) {
+            _sanitizeEnumParameter(expFact, false, false);
+        }
+    }
+}
+
+bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
+{
+    if (!QGCCameraControl::incomingParameter(pFact, newValue)) {
+        return false;
+    }
+
+    if (pFact && pFact->metaData()) {
+        const QVariantList checkValues = pFact->metaData()->enumValues();
+        if (!checkValues.isEmpty() && !_enumListContains(checkValues, newValue)) {
+            if (_enumListContains(checkValues, pFact->rawValue())) {
+                qCDebug(CodevCameraLog) << "Ignoring invalid enum read for" << pFact->name()
+                                        << newValue << "keeping ui" << pFact->rawValue();
+                return false;
+            }
+            QVariant defaultVal = pFact->metaData()->rawDefaultValue();
+            if (!_enumListContains(checkValues, defaultVal)) {
+                defaultVal = checkValues.first();
+            }
+            qCWarning(CodevCameraLog) << "Rejecting invalid enum value for" << pFact->name()
+                                      << newValue << "using" << defaultVal;
+            newValue = defaultVal;
+        }
+    }
+    return true;
 }
 
 bool CodevCameraControl::takePhoto()
@@ -1730,6 +1778,11 @@ void CodevCameraControl::_parametersReady()
         if (range) {
             range->optNames = _translateCameraSettingList(range->optNames);
         }
+    }
+
+    fact = getFact(kCAM_MODE);
+    if (fact) {
+        factChanged(fact);
     }
 
     QTimer::singleShot(3000, this, &CodevCameraControl::_requestAllStoragePools);
