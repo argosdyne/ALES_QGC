@@ -239,7 +239,12 @@ private:
     float _maxOpticalX  = 30.0f;         // 광학 최대 배율(당신 케이스)
 
     void _setTrustedOpticalRange(float range);
+    void _applyAviatorRcZoomStep(int direction);
     bool _qgcJoystickControlsCamera() const;
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
+    int _aviatorRcZoomState{0};
+    qint64 _aviatorRcZoomDeflectStartMs{0};
+    qint64 _aviatorRcZoomLastStepMs{0};
+    bool _aviatorRcZoomHoldMode{false};
 
 };
