@@ -216,6 +216,11 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
     } else if(type == CUSTOM_FUNCTION_IR_SWITCH) {
         emit irSwitchTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_GIMBAL_RESET) {
+        if (pressed) {
+            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+                camera->syncZoomUiAfterReset();
+            }
+        }
         emit gimbalResetTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_AIRCRAFT_RTL) {
         if(pressed) {

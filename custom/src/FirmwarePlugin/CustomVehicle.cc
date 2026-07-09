@@ -102,6 +102,10 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
 
+    if (cameraManager()) {
+        cameraManager()->filterAviatorRcChannels(sendChannels, count);
+    }
+
     const bool neutralizeR3GimbalRC = false;
     bool isR3GimbalRC = false;
     bool px4MountManualMappingDisabled = false;
@@ -168,15 +172,7 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
                       << "cameraVendor" << rcCameraVendor
                       << "rawCh9-12"
                       << channels[8] << channels[9] << channels[10] << channels[11]
-                      << "ch1-4"
-                      << sendChannels[0] << sendChannels[1] << sendChannels[2] << sendChannels[3]
-                      << "ch5-8"
-                      << sendChannels[4] << sendChannels[5] << sendChannels[6] << sendChannels[7]
-                      << "ch9-12"
-                      << sendChannels[8] << sendChannels[9] << sendChannels[10] << sendChannels[11]
-                      << "ch13-18"
-                      << sendChannels[12] << sendChannels[13] << sendChannels[14]
-                      << sendChannels[15] << sendChannels[16] << sendChannels[17];
+                      << "outCh11" << sendChannels[10];
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
         mavlink_message_t msg;
