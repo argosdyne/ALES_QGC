@@ -9,6 +9,7 @@ int *JoystickAndroid::_androidBtnList;
 int JoystickAndroid::ACTION_DOWN;
 int JoystickAndroid::ACTION_UP;
 QMutex JoystickAndroid::m_mutex;
+QMap<int, JoystickAndroid*> JoystickAndroid::_joysticksByDeviceId;
 static int sKeycodeButton3 = 0;
 static int sKeycodeButton4 = 0;
 static int sKeycodeSysrq = 0;
@@ -124,11 +125,19 @@ JoystickAndroid::JoystickAndroid(const QString& name, int axisCount, int buttonC
     }
 
     qCDebug(JoystickLog) << "axis:" <<_axisCount << "buttons:" <<_buttonCount;
+    _joysticksByDeviceId[deviceId] = this;
     QtAndroidPrivate::registerGenericMotionEventListener(this);
     QtAndroidPrivate::registerKeyEventListener(this);
 }
 
 JoystickAndroid::~JoystickAndroid() {
+    {
+        QMutexLocker lock(&m_mutex);
+        if (_joysticksByDeviceId.value(deviceId) == this) {
+            _joysticksByDeviceId.remove(deviceId);
+        }
+    }
+
     delete[] btnCode;
     delete[] btnName;
     delete[] axisCode;
@@ -144,6 +153,7 @@ QMap<QString, Joystick*> JoystickAndroid::discover(MultiVehicleManager* _multiVe
     static QMap<QString, Joystick*> ret;
 
     QMutexLocker lock(&m_mutex);
+    qWarning() << "[GremsyLynx]" << "Android joystick discover";
 
     QAndroidJniEnvironment env;
     QAndroidJniObject o = QAndroidJniObject::callStaticObjectMethod<jintArray>("android/view/InputDevice", "getDeviceIds");
@@ -165,6 +175,10 @@ QMap<QString, Joystick*> JoystickAndroid::discover(MultiVehicleManager* _multiVe
         // get id and name
         QString id = inputDevice.callObjectMethod("getDescriptor", "()Ljava/lang/String;").toString();
         QString name = inputDevice.callObjectMethod("getName", "()Ljava/lang/String;").toString();
+        qWarning() << "[GremsyLynx]" << "input device candidate"
+                   << "name" << name
+                   << "id" << buff[i]
+                   << "sources" << sources;
 
         names.push_back(name);
 
@@ -241,6 +255,22 @@ bool JoystickAndroid::handleGenericMotionEvent(jobject event) {
         axisValue[i] = static_cast<int>((v*32767.f));
     }
     return true;
+}
+
+void JoystickAndroid::updateAxisValueFromJava(int deviceId, int axis, float value)
+{
+    QMutexLocker lock(&m_mutex);
+    JoystickAndroid* joystick = _joysticksByDeviceId.value(deviceId, nullptr);
+    if (!joystick) {
+        return;
+    }
+
+    for (int i = 0; i < joystick->_axisCount; i++) {
+        if (joystick->axisCode[i] == axis) {
+            joystick->axisValue[i] = static_cast<int>(value * 32767.f);
+            return;
+        }
+    }
 }
 
 bool JoystickAndroid::_open(void) {
@@ -334,13 +364,22 @@ static void jniUpdateAvailableJoysticks(JNIEnv *envA, jobject thizA)
     }
 }
 
+static void jniJoystickAxis(JNIEnv *envA, jobject thizA, jint deviceId, jint axis, jfloat value)
+{
+    Q_UNUSED(envA);
+    Q_UNUSED(thizA);
+
+    JoystickAndroid::updateAxisValueFromJava(deviceId, axis, value);
+}
+
 void JoystickAndroid::setNativeMethods()
 {
     qCDebug(JoystickLog) << "Registering Native Functions";
 
     //  REGISTER THE C++ FUNCTION WITH JNI
     JNINativeMethod javaMethods[] {
-        {"nativeUpdateAvailableJoysticks", "()V", reinterpret_cast<void *>(jniUpdateAvailableJoysticks)}
+        {"nativeUpdateAvailableJoysticks", "()V", reinterpret_cast<void *>(jniUpdateAvailableJoysticks)},
+        {"nativeJoystickAxis", "(IIF)V", reinterpret_cast<void *>(jniJoystickAxis)}
     };
 
     clear_jni_exception();

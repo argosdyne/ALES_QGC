@@ -42,7 +42,7 @@ Item {
 
     property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
     property bool   _isFullWindowItemDark:  _mainWindowIsMap ? mapControl.isSatelliteMap : true
-    property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
+    property var    _activeVehicle:         globals.activeVehicle ? globals.activeVehicle : QGroundControl.multiVehicleManager.activeVehicle
     property var    _missionController:     _planController.missionController
     property var    _geoFenceController:    _planController.geoFenceController
     property var    _rallyPointController:  _planController.rallyPointController
