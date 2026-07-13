@@ -101,6 +101,9 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
+    if (cameraManager()) {
+        cameraManager()->filterAviatorRcChannels(sendChannels, count);
+    }
 
     const bool neutralizeR3GimbalRC = false;
     bool isR3GimbalRC = false;

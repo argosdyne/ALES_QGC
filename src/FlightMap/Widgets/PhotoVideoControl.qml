@@ -138,10 +138,10 @@ Item {
         _videoStreamInPhotoMode = photoMode
 
         if (_mavlinkCamera){
-            if (photoMode) {
-                _mavlinkCamera.setPhotoMode()
-            } else {
+            if (_mavlinkCameraInPhotoMode) {
                 _mavlinkCamera.setVideoMode()
+            } else {
+                _mavlinkCamera.setPhotoMode()
             }
             return
         }

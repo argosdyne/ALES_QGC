@@ -9,9 +9,7 @@
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
 #include "CodevCameraControl.h"
-#include "GimbalController.h"
 #include "SettingsManager.h"
-#include <cmath>
 #include "VideoSettings.h"
 
 #include <QNetworkAccessManager>
@@ -85,9 +83,6 @@ QGCCameraManager::QGCCameraManager(Vehicle *vehicle)
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &QGCCameraManager::_mavlinkMessageReceived);
     connect(&_cameraTimer, &QTimer::timeout, this, &QGCCameraManager::_cameraTimeout);
     _cameraTimer.setSingleShot(false);
-    connect(&_gimbalHoldTimer, &QTimer::timeout, this, &QGCCameraManager::_gimbalHoldTimerTick);
-    _gimbalHoldTimer.setSingleShot(false);
-    _gimbalHoldTimer.setInterval(100);  // 10 Hz continuous gimbal stepping while a direction is held
     _lastZoomChange.start();
     _lastCameraChange.start();
     _cameraTimer.start(500);
@@ -994,6 +989,18 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
 }
 
 void
+QGCCameraManager::filterAviatorRcChannels(quint16* channels, int count)
+{
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if (!pCamera) {
+        return;
+    }
+    if (CodevCameraControl* codev = qobject_cast<CodevCameraControl*>(pCamera)) {
+        codev->filterAviatorRcChannels(channels, count);
+    }
+}
+
+void
 QGCCameraManager::_handleImageCaptured(const mavlink_message_t& message)
 {
     QGCCameraControl* pCamera = _findCamera(message.compid);
@@ -1065,9 +1072,6 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         disconnect(_activeJoystick, &Joystick::startVideoRecord,    this, &QGCCameraManager::_startVideoRecording);
         disconnect(_activeJoystick, &Joystick::stopVideoRecord,     this, &QGCCameraManager::_stopVideoRecording);
         disconnect(_activeJoystick, &Joystick::toggleVideoRecord,   this, &QGCCameraManager::_toggleVideoRecording);
-        disconnect(_activeJoystick, &Joystick::gimbalPitchStep,    this, &QGCCameraManager::_joystickGimbalPitchStep);
-        disconnect(_activeJoystick, &Joystick::gimbalYawStep,      this, &QGCCameraManager::_joystickGimbalYawStep);
-        disconnect(_activeJoystick, &Joystick::centerGimbal,       this, &QGCCameraManager::_joystickCenterGimbal);
     }
     _activeJoystick = joystick;
     if(_activeJoystick) {
@@ -1080,95 +1084,6 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         connect(_activeJoystick, &Joystick::startVideoRecord,       this, &QGCCameraManager::_startVideoRecording);
         connect(_activeJoystick, &Joystick::stopVideoRecord,        this, &QGCCameraManager::_stopVideoRecording);
         connect(_activeJoystick, &Joystick::toggleVideoRecord,      this, &QGCCameraManager::_toggleVideoRecording);
-        connect(_activeJoystick, &Joystick::gimbalPitchStep,        this, &QGCCameraManager::_joystickGimbalPitchStep);
-        connect(_activeJoystick, &Joystick::gimbalYawStep,          this, &QGCCameraManager::_joystickGimbalYawStep);
-        connect(_activeJoystick, &Joystick::centerGimbal,           this, &QGCCameraManager::_joystickCenterGimbal);
-    }
-}
-
-CodevCameraControl*
-QGCCameraManager::_codevCameraInstance()
-{
-    return qobject_cast<CodevCameraControl*>(currentCameraInstance());
-}
-
-void
-QGCCameraManager::_joystickGimbalPitchStep(int direction)
-{
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickGimbalPitchStep(direction);
-        return;
-    }
-
-    // GimbalController has no native hold model: emulate hold-to-move so the gimbal keeps
-    // moving while the button is held (direction != 0) and stops on release (direction == 0),
-    // without requiring the user to enable "Repeat".
-    _gimbalHoldPitchDir = direction;
-    if (direction != 0) {
-        if (GimbalController* gimbal = _vehicle->gimbalController()) {
-            gimbal->gimbalPitchStep(direction);     // immediate first step on press
-        }
-        if (!_gimbalHoldTimer.isActive()) {
-            _gimbalHoldTimer.start();
-        }
-    } else if (_gimbalHoldYawDir == 0) {
-        _gimbalHoldTimer.stop();
-    }
-}
-
-void
-QGCCameraManager::_joystickGimbalYawStep(int direction)
-{
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickGimbalYawStep(direction);
-        return;
-    }
-
-    // See _joystickGimbalPitchStep: emulate hold-to-move for the GimbalController path.
-    _gimbalHoldYawDir = direction;
-    if (direction != 0) {
-        if (GimbalController* gimbal = _vehicle->gimbalController()) {
-            gimbal->gimbalYawStep(direction);       // immediate first step on press
-        }
-        if (!_gimbalHoldTimer.isActive()) {
-            _gimbalHoldTimer.start();
-        }
-    } else if (_gimbalHoldPitchDir == 0) {
-        _gimbalHoldTimer.stop();
-    }
-}
-
-void
-QGCCameraManager::_gimbalHoldTimerTick()
-{
-    GimbalController* gimbal = _vehicle ? _vehicle->gimbalController() : nullptr;
-    if (!gimbal || (_gimbalHoldPitchDir == 0 && _gimbalHoldYawDir == 0)) {
-        _gimbalHoldTimer.stop();
-        return;
-    }
-    if (_gimbalHoldPitchDir != 0) {
-        gimbal->gimbalPitchStep(_gimbalHoldPitchDir);
-    }
-    if (_gimbalHoldYawDir != 0) {
-        gimbal->gimbalYawStep(_gimbalHoldYawDir);
-    }
-}
-
-void
-QGCCameraManager::_joystickCenterGimbal()
-{
-    // Cancel any in-progress hold-to-move before recentering.
-    _gimbalHoldPitchDir = 0;
-    _gimbalHoldYawDir   = 0;
-    _gimbalHoldTimer.stop();
-
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickGimbalCenter();
-        return;
-    }
-
-    if (GimbalController* gimbal = _vehicle->gimbalController()) {
-        gimbal->centerGimbal();
     }
 }
 
@@ -1176,11 +1091,6 @@ QGCCameraManager::_joystickCenterGimbal()
 void
 QGCCameraManager::_triggerCamera()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->buttonTakePhoto();
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->takePhoto();
@@ -1191,12 +1101,6 @@ QGCCameraManager::_triggerCamera()
 void
 QGCCameraManager::_startVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        if (codev->videoStatus() != QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
-            codev->buttonToggleVideo();
-        }
-        return;
-    }
 
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
@@ -1208,13 +1112,6 @@ QGCCameraManager::_startVideoRecording()
 void
 QGCCameraManager::_stopVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        if (codev->videoStatus() == QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
-            codev->stopVideo();
-        }
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->stopVideo();
@@ -1225,11 +1122,6 @@ QGCCameraManager::_stopVideoRecording()
 void
 QGCCameraManager::_toggleVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->buttonToggleVideo();
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->toggleVideo();
@@ -1243,10 +1135,6 @@ QGCCameraManager::_stepZoom(int direction)
     if(_lastZoomChange.elapsed() > 40) {
         _lastZoomChange.start();
         qCDebug(CameraManagerLog) << "Step Camera Zoom" << direction;
-        if (CodevCameraControl* codev = _codevCameraInstance()) {
-            codev->joystickZoomRcStep(direction);
-            return;
-        }
         QGCCameraControl* pCamera = currentCameraInstance();
         if(pCamera) {
             pCamera->stepZoom(direction);
@@ -1258,11 +1146,7 @@ QGCCameraManager::_stepZoom(int direction)
 void
 QGCCameraManager::_startZoom(int direction)
 {
-    qCDebug(CameraManagerLog) << "Start Camera Zoom" << direction;
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickZoomStart(direction);
-        return;
-    }
+    qCDebug(CameraManagerLog) << "Start Camera Zoom" << direction;    
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->startZoom(direction);
@@ -1274,10 +1158,6 @@ void
 QGCCameraManager::_stopZoom()
 {
     qCDebug(CameraManagerLog) << "Stop Camera Zoom";
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickZoomStop();
-        return;
-    }
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->stopZoom();
