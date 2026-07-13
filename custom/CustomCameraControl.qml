@@ -98,7 +98,7 @@ Item {
         if (_usePayload) {
             direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
         } else if (_camera) {
-            _camera.stepZoom(direction)
+            _camera.stepZoomFromUi(direction)
         }
     }
 
@@ -106,7 +106,7 @@ Item {
         if (_usePayload) {
             direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
         } else if (_camera) {
-            _camera.startZoom(direction)
+            _camera.startZoomFromUi(direction)
         }
     }
 

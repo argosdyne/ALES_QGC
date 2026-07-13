@@ -130,7 +130,10 @@ Item {
     property bool _zoomInActive: false
     property bool _zoomOutActive: false
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
-    property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
+    property bool _zoomOutCanContinuous: _mavlinkCamera
+            && (typeof _mavlinkCamera.displayZoomLevel !== "undefined"
+                ? _mavlinkCamera.displayZoomLevel > 1.01
+                : (_dZoom && _dZoom.value > 1.01) || _mavlinkCamera.zoomLevel > 1.01)
 
 
     //----------------------------------------------------------------------------------------------- Functions
@@ -205,17 +208,20 @@ Item {
     }
 
     function getZoomValue() {
-        // 기본값
-        if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
-            return "1";
+        if (!_hasZoom || !_mavlinkCamera) {
+            return "1"
+        }
+        if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
+            return String(_mavlinkCamera.displayZoomLevel)
+        }
+        if (isNaN(_mavlinkCamera.zoomLevel)) {
+            return "1"
         }
 
         var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
         var digital = (_dZoom ? _dZoom.value : 1.0);
 
-        var effective = optical * digital;
-        
-        return effective.toFixed(0);
+        return String(Math.round(optical * digital))
 
     }
 
@@ -422,7 +428,7 @@ Item {
                             _zoomInActive = true
                         } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoom(1)
+                            _mavlinkCamera.stepZoomFromUi(1)
                         }
                     }
                     onPressAndHold: {
@@ -500,12 +506,12 @@ Item {
                             _zoomOutActive = true
                         } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoom(-1)
+                            _mavlinkCamera.stepZoomFromUi(-1)
                         }
                     }
                     onPressAndHold: {
                         if (!_usePayload && _mavlinkCamera && _zoomOutCanContinuous) {
-                            _mavlinkCamera.startZoom(-1)
+                            _mavlinkCamera.startZoomFromUi(-1)
                             _zoomOutActive = true
                         }
                     }

@@ -104,7 +104,9 @@ public:
     QPointF spotFocusArea();
 
     Q_PROPERTY(bool dZoomInMax READ dZoomInMax NOTIFY dZoomInMaxChanged)
+    Q_PROPERTY(qreal displayZoomLevel READ displayZoomLevel NOTIFY displayZoomLevelChanged)
     bool dZoomInMax() { return _dZoomInMax; }
+    qreal displayZoomLevel() const;
 
     Q_INVOKABLE void setSpotMetering(float x, float y);
     Q_INVOKABLE void setSpotFocus(float x, float y);
@@ -113,6 +115,11 @@ public:
     Q_INVOKABLE void gimbalControlInImage(QPointF point);
     Q_INVOKABLE void buttonTakePhoto();
     Q_INVOKABLE void buttonToggleVideo();
+    Q_INVOKABLE void stepZoomFromUi(int direction);
+    Q_INVOKABLE void startZoomFromUi(int direction);
+    void joystickGimbalPitchStep(int direction);
+    void joystickGimbalYawStep(int direction);
+    void joystickGimbalCenter();
 
     // Override from QGCCameraControl
     void setVideoMode() final;
@@ -167,6 +174,7 @@ signals:
     void spotMeteringAreaChanged();
     void spotFocusAreaChanged();
     void dZoomInMaxChanged();
+    void displayZoomLevelChanged();
     void busyInSetupChanged();
 
 protected slots:
@@ -200,6 +208,11 @@ protected:
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
     void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
     void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
+    void _sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15);
+    void _trackRcGimbalChannels(const mavlink_rc_channels_t& rc);
+    bool _joystickRcActive() const;
+    void _updateJoystickRcStream();
+    void _streamJoystickRc();
 
     bool _isTakingPhotoTimelapse();
     void _sendNextQueuedMavCommand();
@@ -233,7 +246,13 @@ protected:
     quint16 _lastRcGimbalYawRaw{1500};
     quint16 _lastRcGimbalZoomRaw{1500};
     quint16 _lastRcGimbalCenterRaw{1500};
-    bool _lastRcGimbalWasCentered{true};   
+    bool _lastRcGimbalWasCentered{true};
+
+    uint16_t _joystickRcPitchPwm{1500};
+    uint16_t _joystickRcYawPwm{1500};
+    uint16_t _joystickRcZoomPwm{1500};
+    QTimer _joystickRcStreamTimer;
+    int _joystickRcStopFrames{0};
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치
@@ -242,8 +261,20 @@ private:
     float _maxOpticalX  = 30.0f;         // 광학 최대 배율(당신 케이스)
 
     void _setTrustedOpticalRange(float range);
+    bool _zoomStepDebounced(bool enforceDebounce = true);
+    void _applyOpticalZoomStep(int direction, const char* sourceTag);
+    void _applyZoomStep(int direction, bool allowDigital, const char* sourceTag, bool enforceDebounce = true);
+    void _applyAviatorRcZoomStep(int direction, bool enforceDebounce = true);
+    void _holdZoomStepTick();
     bool _qgcJoystickControlsCamera() const;
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
-    
+    int _aviatorRcZoomState{0};
+    qint64 _lastZoomStepMs{0};
+    bool _opticalRangeBootstrapped{false};
+    float _lastCameraReportedOptical{1.0f};
+    void _reconcileCameraAheadReport();
+    QTimer _holdZoomStepTimer;
+    int _holdZoomDirection{0};
+    bool _holdZoomAllowDigital{false};
 
 };
