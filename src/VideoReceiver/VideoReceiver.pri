@@ -68,9 +68,16 @@ LinuxBuild {
         QMAKE_POST_LINK += $$escape_expand(\\n) xcopy \"$$GST_ROOT_WIN\\lib\\gstreamer-1.0\\*.dll\" \"$$DESTDIR_WIN\\gstreamer-plugins\\\" /Y $$escape_expand(\\n)
     }
 } else:AndroidBuild {
-    GST_BASE = $$PWD/../../gstreamer-1.0-android-universal-1.22.12
+    GST_BASE = $$(GSTREAMER_ROOT_ANDROID)
+    isEmpty(GST_BASE) {
+        GST_BASE = $$PWD/../../../gstreamer-1.0-android-universal-1.22.12
+    }
     !exists($$GST_BASE) {
-        GST_CANDIDATES = $$files($$PWD/../../gstreamer-1.0-android-universal-1.*)
+        GST_BASE = $$PWD/../../gstreamer-1.0-android-universal-1.22.12
+    }
+    !exists($$GST_BASE) {
+        GST_CANDIDATES = $$files($$PWD/../../../gstreamer-1.0-android-universal-1.*)
+        GST_CANDIDATES += $$files($$PWD/../../gstreamer-1.0-android-universal-1.*)
         for (CANDIDATE, GST_CANDIDATES) {
             GST_BASE = $$CANDIDATE
         }
@@ -87,6 +94,8 @@ LinuxBuild {
         GST_ROOT = $$GST_BASE/x86
     }
     exists($$GST_ROOT) {
+        message("Using Android GStreamer from $$GST_BASE")
+
         QMAKE_CXXFLAGS  += -pthread
         CONFIG          += VideoEnabled
 

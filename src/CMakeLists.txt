@@ -140,6 +140,8 @@ if (${QGC_GST_MICROHARD_ENABLED})
   add_subdirectory(Microhard)
 endif ()
 add_subdirectory(MissionManager)
+add_subdirectory(NextVision)
+add_subdirectory(Payload)
 add_subdirectory(OpticalFlow)
 add_subdirectory(PlanView)
 add_subdirectory(PositionManager)
@@ -182,6 +184,8 @@ target_link_libraries(qgc
 		gps
 		Joystick
 		MissionManager
+		NextVision
+		Payload
 		OpticalFlow
 		PositionManager
 		QmlControls

@@ -108,6 +108,9 @@
 #include "CustomAction.h"
 #include "CustomActionManager.h"
 #include "GimbalController.h"
+#include "GremsyLynxPayloadController.h"
+#include "NextVisionPayloadController.h"
+#include "PayloadManager.h"
 #include "FlightZoneManager.h"
 
 #include "AudioControl.h"
@@ -481,6 +484,13 @@ void QGCApplication::_initCommon()
     qmlRegisterUncreatableType<Autotune>                (kQGCVehicle,                       1, 0, "Autotune",                   kRefOnly);
     qmlRegisterUncreatableType<RemoteIDManager>         (kQGCVehicle,                       1, 0, "RemoteIDManager",            kRefOnly);
     qmlRegisterUncreatableType<GimbalController>        (kQGCVehicle,                       1, 0, "GimbalController",           kRefOnly);
+
+    // Self-contained payload controllers (own their direct UDP/MAVLink link; independent of Vehicle).
+    // Owned by the app-lifetime PayloadManager singleton so a connected payload + joystick control
+    // survive leaving the settings page; QML gets them through PayloadManager, never instantiates them.
+    qmlRegisterUncreatableType<GremsyLynxPayloadController>("QGroundControl.Payload",       1, 0, "GremsyLynxPayloadController", kRefOnly);
+    qmlRegisterUncreatableType<NextVisionPayloadController>("QGroundControl.Payload",       1, 0, "NextVisionPayloadController", kRefOnly);
+    qmlRegisterSingletonType<PayloadManager>            ("QGroundControl.Payload",          1, 0, "PayloadManager", PayloadManager::qmlSingletonFactory);
 
     qmlRegisterUncreatableType<MissionController>       (kQGCControllers,                   1, 0, "MissionController",          kRefOnly);
     qmlRegisterUncreatableType<GeoFenceController>      (kQGCControllers,                   1, 0, "GeoFenceController",         kRefOnly);

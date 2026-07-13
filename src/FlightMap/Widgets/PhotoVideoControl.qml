@@ -19,6 +19,7 @@ import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Controls          1.0
 import QGroundControl.Palette           1.0
+import QGroundControl.Payload           1.0
 import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
@@ -33,6 +34,17 @@ Item {
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel && !_isA30TRCamera
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+    property var    _activePayload:                             PayloadManager.active
+    property bool   _usePayload:                                _activePayload && _activePayload.connected
+    property bool   _payloadRecording:                          false
+
+    function _centerGimbal() {
+        if (_usePayload) {
+            _activePayload.gimbalHome()
+        } else if (_mavlinkCamera) {
+            _mavlinkCamera.centerGimbal()
+        }
+    }
 
     // The following properties relate to a simple camera
     property var    _flyViewSettings:                           QGroundControl.settingsManager.flyViewSettings
@@ -57,7 +69,7 @@ Item {
     property real minZoom: 1.0
     property real zoomStep: 1.0    
 
-    property bool   _hasZoom:                                   _mavlinkCamera && _mavlinkCamera.hasZoom
+    property bool   _hasZoom:                                   (_mavlinkCamera && _mavlinkCamera.hasZoom) || _usePayload
     // The following properties relate to a mavlink protocol camera
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
     property int    _mavlinkCameraManagerCurCameraIndex:        _mavlinkCameraManager ? _mavlinkCameraManager.currentCamera : -1
@@ -133,6 +145,23 @@ Item {
         }
     }
     function toggleShooting() {
+        if (_usePayload) {
+            if (_videoStreamInPhotoMode) {
+                _activePayload.captureImage()
+                _simplePhotoCaptureIsIdle = false
+                simplePhotoCaptureTimer.start()
+            } else {
+                if (_payloadRecording) {
+                    _activePayload.stopRecording()
+                    _payloadRecording = false
+                } else {
+                    _activePayload.startRecording()
+                    _payloadRecording = true
+                }
+            }
+            return
+        }
+
         // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
         //    if (_mavlinkCamera && (_mavlinkCamera.capturesVideo || _mavlinkCamera.capturesPhotos) ) {
@@ -226,7 +255,7 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
+                    onClicked: _centerGimbal()
                 }
             }
             //Camera Settings
@@ -386,25 +415,34 @@ Item {
                     anchors.fill: parent
                     enabled: _hasZoom
                     onPressed: {
-                        if (Date.now() - _zoomLastMs >= 150) {
+                        if (_usePayload) {
+                            _activePayload.zoomIn()
+                            _zoomInActive = true
+                        } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
                             _mavlinkCamera.stepZoomFromUi(1)
                         }
                     }
                     onPressAndHold: {
-                        if (_mavlinkCamera && _zoomInCanContinuous) {
+                        if (!_usePayload && _mavlinkCamera && _zoomInCanContinuous) {
                             _mavlinkCamera.startZoom(1)
                             _zoomInActive = true
                         }
                     }
                     onReleased: {
-                        if (_zoomInActive && _mavlinkCamera) {
+                        if (_zoomInActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomInActive = false
+                        } else if (_zoomInActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomInActive = false
                         }
                     }
                     onCanceled: {
-                        if (_zoomInActive && _mavlinkCamera) {
+                        if (_zoomInActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomInActive = false
+                        } else if (_zoomInActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomInActive = false
                         }
@@ -455,25 +493,34 @@ Item {
                     anchors.fill: parent
                     enabled: _hasZoom
                     onPressed: {
-                        if (Date.now() - _zoomLastMs >= 150) {
+                        if (_usePayload) {
+                            _activePayload.zoomOut()
+                            _zoomOutActive = true
+                        } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
                             _mavlinkCamera.stepZoomFromUi(-1)
                         }
                     }
                     onPressAndHold: {
-                        if (_mavlinkCamera && _zoomOutCanContinuous) {
+                        if (!_usePayload && _mavlinkCamera && _zoomOutCanContinuous) {
                             _mavlinkCamera.startZoomFromUi(-1)
                             _zoomOutActive = true
                         }
                     }
                     onReleased: {
-                        if (_zoomOutActive && _mavlinkCamera) {
+                        if (_zoomOutActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomOutActive = false
+                        } else if (_zoomOutActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomOutActive = false
                         }
                     }
                     onCanceled: {
-                        if (_zoomOutActive && _mavlinkCamera) {
+                        if (_zoomOutActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomOutActive = false
+                        } else if (_zoomOutActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomOutActive = false
                         }

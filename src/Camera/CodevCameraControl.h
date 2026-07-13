@@ -143,8 +143,10 @@ public:
         return _trackingImageStatus.tracking_status != 2;
     }
     void handleTrackingImageStatus(const mavlink_camera_tracking_image_status_t *tis) final;
-    void handleSettings(const mavlink_camera_settings_t& settings) final;
     void handleRCChannels(const mavlink_rc_channels_t& rc) final;
+    void factChanged(Fact* pFact) override;
+    void handleSettings(const mavlink_camera_settings_t& settings) final;
+    bool incomingParameter(Fact* pFact, QVariant& newValue) final;
     void handleCommandAck(const mavlink_command_ack_t& ack) final;
     void filterAviatorRcChannels(quint16* channels, int count);
     void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;

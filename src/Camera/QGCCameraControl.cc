@@ -473,6 +473,203 @@ QGCCameraControl::_setCameraMode(CameraMode mode)
         emit cameraModeChanged();
         //-- Update stream status
         _streamStatusTimer.start(1000);
+        _syncCameraModeFact(mode, true);
+        _scheduleExpModeParamRefresh();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_syncCameraModeFact(CameraMode targetMode, bool skipRangeRefreshIfFactMatches)
+{
+    Fact* pModeFact = mode();
+    if (!pModeFact) {
+        return;
+    }
+
+    const bool factMatched = (pModeFact->rawValue().toInt() == static_cast<int>(targetMode));
+    if (!factMatched) {
+        pModeFact->setRawValue(targetMode);
+    } else if (!skipRangeRefreshIfFactMatches) {
+        // CAM_MODE fact already matches but mode-dependent option ranges may be stale
+        // (e.g. CAM_EXPMODE still limited to video options after returning to photo).
+        factChanged(pModeFact);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_scheduleExpModeParamRefresh()
+{
+    if (!_paramIO.contains(kCAM_EXPMODE) || !_paramIO[kCAM_EXPMODE]) {
+        return;
+    }
+
+    QTimer::singleShot(800, this, [this]() {
+        if (_paramWriteInProgress(kCAM_EXPMODE) || _withinUserParamWriteGuard(kCAM_EXPMODE)
+                || _withinUserParamIntentLock(kCAM_EXPMODE)) {
+            return;
+        }
+        if (_paramIO.contains(kCAM_EXPMODE) && _paramIO[kCAM_EXPMODE]) {
+            _paramIO[kCAM_EXPMODE]->paramRequest();
+        }
+    });
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_noteUserParamWrite(const QString& paramName)
+{
+    _userParamWriteGuard[paramName].restart();
+    _userParamIntentLock[paramName].restart();
+    if (Fact* fact = getFact(paramName)) {
+        _userParamIntentValue[paramName] = fact->rawValue();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_clearUserParamIntent(const QString& paramName)
+{
+    _userParamIntentLock.remove(paramName);
+    _userParamIntentValue.remove(paramName);
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::_paramWriteInProgress(const QString& paramName) const
+{
+    if (!_paramIO.contains(paramName) || !_paramIO[paramName]) {
+        return false;
+    }
+    return _paramIO[paramName]->paramWriteInProgress();
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::_withinUserParamWriteGuard(const QString& paramName) const
+{
+    const auto it = _userParamWriteGuard.constFind(paramName);
+    if (it == _userParamWriteGuard.constEnd() || !it->isValid()) {
+        return false;
+    }
+    return it->elapsed() < _kUserParamWriteGuardMs;
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::_withinUserParamIntentLock(const QString& paramName) const
+{
+    const auto it = _userParamIntentLock.constFind(paramName);
+    if (it == _userParamIntentLock.constEnd() || !it->isValid()) {
+        return false;
+    }
+    return it->elapsed() < _kUserParamIntentLockMs;
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::_shouldAcceptIncomingParam(Fact* fact, const QVariant& newValue) const
+{
+    if (!fact) {
+        return true;
+    }
+
+    const QString paramName = fact->name();
+    const QVariant uiValue = fact->rawValue();
+
+    if (newValue == uiValue) {
+        return true;
+    }
+
+    if (_paramWriteInProgress(paramName) || _withinUserParamWriteGuard(paramName)) {
+        return false;
+    }
+
+    if (_withinUserParamIntentLock(paramName)) {
+        const auto intentIt = _userParamIntentValue.constFind(paramName);
+        if (intentIt != _userParamIntentValue.constEnd() && newValue != intentIt.value()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::_enumListContains(const QVariantList& values, const QVariant& value) const
+{
+    for (const QVariant& enumValue : values) {
+        if (enumValue == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_forceRestoreEnumOptions(const QString& paramName)
+{
+    if (!_originalOptNames.contains(paramName) || !_originalOptValues.contains(paramName)) {
+        return;
+    }
+
+    Fact* fact = getFact(paramName);
+    if (!fact) {
+        return;
+    }
+
+    fact->setEnumInfo(_originalOptNames[paramName], _originalOptValues[paramName]);
+    if (_paramIO.contains(paramName)) {
+        _paramIO[paramName]->optNames = _originalOptNames[paramName];
+        _paramIO[paramName]->optVariants = _originalOptValues[paramName];
+    }
+    emit fact->enumsChanged();
+    qCDebug(CameraControlLog) << "[CameraControl] Force restored enum options for"
+                              << paramName << "count" << _originalOptNames[paramName].count();
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraControl::_sanitizeEnumParameter(Fact* fact, bool useOriginalOptionList, bool refreshRangesFirst)
+{
+    if (!fact || !fact->metaData()) {
+        return;
+    }
+
+    if (_paramWriteInProgress(fact->name()) || _withinUserParamWriteGuard(fact->name())) {
+        return;
+    }
+
+    if (refreshRangesFirst && fact->name() == kCAM_EXPMODE) {
+        if (Fact* pModeFact = mode()) {
+            QGCCameraControl::factChanged(pModeFact);
+        }
+    }
+
+    const QVariantList checkValues = (useOriginalOptionList && _originalOptValues.contains(fact->name()))
+            ? _originalOptValues[fact->name()]
+            : fact->metaData()->enumValues();
+    if (checkValues.isEmpty()) {
+        return;
+    }
+
+    if (_enumListContains(checkValues, fact->rawValue())) {
+        return;
+    }
+
+    QVariant defaultVal = fact->metaData()->rawDefaultValue();
+    if (!_enumListContains(checkValues, defaultVal)) {
+        defaultVal = checkValues.first();
+    }
+
+    qCWarning(CameraControlLog) << "[CameraControl] Invalid enum value for"
+                                << fact->name() << fact->rawValue() << "- resetting to" << defaultVal;
+    fact->_containerSetRawValue(defaultVal);
+    if (!fact->readOnly() && _paramIO.contains(fact->name()) && _paramIO[fact->name()]) {
+        _paramIO[fact->name()]->sendParameter(false);
     }
 }
 
@@ -1663,6 +1860,18 @@ QGCCameraControl::_updateRanges(Fact* pFact)
             updates << f->name();
         }
     }
+    //-- After option lists change, clear stale values (e.g. Creative Look Unknown: 0 after AE change)
+    QStringList sanitizedTargets;
+    for (QGCCameraOptionRange* pRange : _optionRanges) {
+        if (pRange->param == pFact->name() || pRange->condition.contains(pFact->name())) {
+            if (!sanitizedTargets.contains(pRange->targetParam)) {
+                sanitizedTargets << pRange->targetParam;
+                if (Fact* targetFact = getFact(pRange->targetParam)) {
+                    _sanitizeEnumParameter(targetFact, false, false);
+                }
+            }
+        }
+    }
     //-- Parameter update requests
     if(_requestUpdates.contains(pFact->name())) {
         for(const QString& param: _requestUpdates[pFact->name()]) {
@@ -1681,6 +1890,9 @@ void
 QGCCameraControl::_requestParamUpdates()
 {
     for(const QString& param: _updatesToRequest) {
+        if (_withinUserParamWriteGuard(param) || _withinUserParamIntentLock(param)) {
+            continue;
+        }
         _paramIO[param]->paramRequest();
     }
     _updatesToRequest.clear();
@@ -2806,7 +3018,13 @@ QGCCameraControl::_checkForVideoStreams()
 bool
 QGCCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
 {
-    Q_UNUSED(pFact);
+    if (!_shouldAcceptIncomingParam(pFact, newValue)) {
+        qCDebug(CameraControlVerboseLog) << "Ignoring stale incoming param"
+                                         << (pFact ? pFact->name() : QString())
+                                         << newValue
+                                         << "ui" << (pFact ? pFact->rawValue() : QVariant());
+        return false;
+    }
     Q_UNUSED(newValue);
     return true;
 }

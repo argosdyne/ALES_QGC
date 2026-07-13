@@ -56,6 +56,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.app.PendingIntent;
 import android.view.WindowManager;
+import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.os.Bundle;
 import android.bluetooth.BluetoothDevice;
 
@@ -180,6 +182,7 @@ public class QGCActivity extends QtActivity
     private static native void nativeDeviceException(long userData, String messageA);
     private static native void nativeDeviceNewData(long userData, byte[] dataA);
     private static native void nativeUpdateAvailableJoysticks();
+    private static native void nativeJoystickAxis(int deviceId, int axis, float value);
 
     // Native C++ functions called to log output
     public static native void qgcLogDebug(String message);
@@ -202,6 +205,20 @@ public class QGCActivity extends QtActivity
     }
 
     public native void nativeInit();
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK) {
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_X, event.getAxisValue(MotionEvent.AXIS_X));
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_Y, event.getAxisValue(MotionEvent.AXIS_Y));
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_Z, event.getAxisValue(MotionEvent.AXIS_Z));
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_RX, event.getAxisValue(MotionEvent.AXIS_RX));
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_RY, event.getAxisValue(MotionEvent.AXIS_RY));
+            nativeJoystickAxis(event.getDeviceId(), MotionEvent.AXIS_RZ, event.getAxisValue(MotionEvent.AXIS_RZ));
+        }
+
+        return super.dispatchGenericMotionEvent(event);
+    }
 
     // QGCActivity singleton
     public QGCActivity()

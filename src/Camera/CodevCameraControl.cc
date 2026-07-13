@@ -634,22 +634,35 @@ void CodevCameraControl::setVideoMode()
 {
     if(!_resetting && hasModes()) {
         qCDebug(CodevCameraLog) << "setVideoMode()";
-        //-- Does it have a mode parameter?
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_VIDEO) {
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_VIDEO;
                 pMode->setRawValue(CAM_MODE_VIDEO);
                 _setCameraMode(CAM_MODE_VIDEO);
+                _armModeSwitchRecovery(CAM_MODE_VIDEO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                _completePendingRcAction();
             }
         } else {
-            //-- Use MAVLink Command
             if(_cameraMode != CAM_MODE_VIDEO) {
-                //-- Use basic MAVLink message
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_VIDEO;
                 sendMavCommand(
-                    MAV_CMD_SET_CAMERA_MODE,                // Command id
-                    0,                                      // Reserved (Set to 0)
-                    CAM_MODE_VIDEO);                        // Camera mode (0: photo, 1: video)
+                    MAV_CMD_SET_CAMERA_MODE,
+                    0,
+                    CAM_MODE_VIDEO);
                 _setCameraMode(CAM_MODE_VIDEO);
+                _armModeSwitchRecovery(CAM_MODE_VIDEO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                _completePendingRcAction();
             }
         }
     }
@@ -659,25 +672,91 @@ void CodevCameraControl::setPhotoMode()
 {
     if(!_resetting && hasModes()) {
         qCDebug(CodevCameraLog) << "setPhotoMode()";
-        //-- Does it have a mode parameter?
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_PHOTO) {
+                if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_PHOTO;
                 pMode->setRawValue(CAM_MODE_PHOTO);
                 _setCameraMode(CAM_MODE_PHOTO);
+                _armModeSwitchRecovery(CAM_MODE_PHOTO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
+                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
+                    _scheduleStorageRefreshAfterModeSwitch();
+                }
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _completePendingRcAction();
+                }
             }
         } else {
-            //-- Use MAVLink Command
             if(_cameraMode != CAM_MODE_PHOTO) {
-                //-- Use basic MAVLink message
+                if (_pendingRcAction == PendingRcAction::ToggleVideo) {
+                    _cancelPendingRcAction();
+                }
+                _pendingCameraMode = CAM_MODE_PHOTO;
                 sendMavCommand(
-                    MAV_CMD_SET_CAMERA_MODE,                // Command id
-                    0,                                      // Reserved (Set to 0)
-                    CAM_MODE_PHOTO);                        // Camera mode (0: photo, 1: video)
+                    MAV_CMD_SET_CAMERA_MODE,
+                    0,
+                    CAM_MODE_PHOTO);
                 _setCameraMode(CAM_MODE_PHOTO);
+                _armModeSwitchRecovery(CAM_MODE_PHOTO);
+                _scheduleVideoPipelineRestart("user_mode_switch");
+            } else {
+                _syncCameraModeFact(CAM_MODE_PHOTO);
+                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
+                    _scheduleStorageRefreshAfterModeSwitch();
+                }
+                if (_pendingRcAction == PendingRcAction::TakePhoto) {
+                    _completePendingRcAction();
+                }
             }
         }
     }
+}
+
+void CodevCameraControl::factChanged(Fact* pFact)
+{
+    QGCCameraControl::factChanged(pFact);
+    if (!pFact || !factExists(kCAM_EXPMODE)) {
+        return;
+    }
+    // Re-validate AE only after mode changes, not when the user adjusts AE from the UI.
+    if (pFact->name() == kCAM_MODE) {
+        _clearUserParamIntent(kCAM_EXPMODE);
+        if (Fact* expFact = getFact(kCAM_EXPMODE)) {
+            _sanitizeEnumParameter(expFact, false, false);
+        }
+    }
+}
+
+bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
+{
+    if (!QGCCameraControl::incomingParameter(pFact, newValue)) {
+        return false;
+    }
+
+    if (pFact && pFact->metaData()) {
+        const QVariantList checkValues = pFact->metaData()->enumValues();
+        if (!checkValues.isEmpty() && !_enumListContains(checkValues, newValue)) {
+            if (_enumListContains(checkValues, pFact->rawValue())) {
+                qCDebug(CodevCameraLog) << "Ignoring invalid enum read for" << pFact->name()
+                                        << newValue << "keeping ui" << pFact->rawValue();
+                return false;
+            }
+            QVariant defaultVal = pFact->metaData()->rawDefaultValue();
+            if (!_enumListContains(checkValues, defaultVal)) {
+                defaultVal = checkValues.first();
+            }
+            qCWarning(CodevCameraLog) << "Rejecting invalid enum value for" << pFact->name()
+                                      << newValue << "using" << defaultVal;
+            newValue = defaultVal;
+        }
+    }
+    return true;
 }
 
 bool CodevCameraControl::takePhoto()
@@ -1230,6 +1309,13 @@ void CodevCameraControl::_parametersReady()
             range->optNames = _translateCameraSettingList(range->optNames);
         }
     }
+
+    fact = getFact(kCAM_MODE);
+    if (fact) {
+        factChanged(fact);
+    }
+
+    QTimer::singleShot(3000, this, &CodevCameraControl::_requestAllStoragePools);
 }
 
 QString CodevCameraControl::_factValueForLog(const char* factName) const
@@ -1636,7 +1722,37 @@ void CodevCameraControl::_reconcileCameraAheadReport()
 
 void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
 {
-    _setCameraMode(static_cast<CameraMode>(settings.mode_id));
+    const CameraMode reportedMode = static_cast<CameraMode>(settings.mode_id);
+    _lastReportedCameraMode = reportedMode;
+    if (!_modeSwitchNudgeInProgress) {
+        if (reportedMode != _cameraMode) {
+            _setCameraMode(reportedMode);
+        } else if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
+            Fact* pModeFact = mode();
+            if (pModeFact && pModeFact->rawValue().toInt() != static_cast<int>(reportedMode)) {
+                _syncCameraModeFact(reportedMode);
+            }
+        }
+
+        if (reportedMode == CAM_MODE_PHOTO) {
+            if (photoStatus() != PHOTO_CAPTURE_IDLE) {
+                _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+            }
+            if (videoStatus() != VIDEO_CAPTURE_STATUS_STOPPED) {
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+            }
+        }
+
+        if ((reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO)
+                && _pendingRcAction != PendingRcAction::None
+                && reportedMode == _pendingCameraMode) {
+            _completePendingRcAction();
+        }
+
+        if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
+            _scheduleStorageRefreshAfterModeSwitch();
+        }
+    }
 
     qreal z = static_cast<qreal>(settings.zoomLevel);
     qreal f = static_cast<qreal>(settings.focusLevel);
