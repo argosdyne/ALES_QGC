@@ -107,11 +107,9 @@ Item {
     // commands +1 on top of it, producing a 2–3× overshoot.
     property real _zoomLastMs: 0
 
-    // FlyDynamics3-style: button mode flips based on which territory the next
-    // step would be. In optical territory the button is press-to-zoom (firmware
-    // continuous zoom on press, stop on release — no timer). In digital
-    // territory the button is tap-only (each tap = one EO_DZOOM step via
-    // CodevCameraControl::stepZoom).
+    // FlyDynamics3-style: tap = one RANGE step; hold = repeated RANGE steps (no CONTINUOUS).
+    // In optical territory the button press-to-hold repeats stepZoom via a timer.
+    // In digital territory the button is tap-only (each tap = one EO_DZOOM step).
     //   - zoom-in optical territory:  zoomLevel < 29.5
     //   - zoom-out optical territory: digital fact at min (==1.0)
     property real _opticalMaxThreshold: 29.5
@@ -176,18 +174,18 @@ Item {
     }
 
     function getZoomValue() {
-        // 기본값
-        if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
-            return "1";
+        if (!_hasZoom || !_mavlinkCamera) {
+            return "1"
         }
-
-        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
-        var digital = (_dZoom ? _dZoom.value : 1.0);
-
-        var effective = optical * digital;
-        
-        return effective.toFixed(0);
-
+        if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
+            return String(_mavlinkCamera.displayZoomLevel)
+        }
+        if (isNaN(_mavlinkCamera.zoomLevel)) {
+            return "1"
+        }
+        var optical = _mavlinkCamera.zoomLevel
+        var digital = (_dZoom ? _dZoom.value : 1.0)
+        return String(Math.round(optical * digital))
     }
 
     Timer {
@@ -390,7 +388,7 @@ Item {
                     onPressed: {
                         if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoom(1)
+                            _mavlinkCamera.stepZoomFromUi(1)
                         }
                     }
                     onPressAndHold: {
@@ -459,7 +457,7 @@ Item {
                     onPressed: {
                         if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoom(-1)
+                            _mavlinkCamera.stepZoomFromUi(-1)
                         }
                     }
                     onPressAndHold: {

@@ -186,10 +186,10 @@ Item {
             onlyContinousZoom: true
             anchors.right:  parent.right
             onZoomIn: {
-                _camera.stepZoom(1)
+                _camera.stepZoomFromUi(1)
             }
             onZoomOut: {
-                _camera.stepZoom(-1)
+                _camera.stepZoomFromUi(-1)
             }
             onContinuousZoomStart: {
                 _camera.startZoom(zoomIn ? 1 : -1)

@@ -54,6 +54,9 @@ static constexpr qint64 kRcCameraSettingsRequestMinIntervalMs = 1000;
 static constexpr qint64 kRcGimbalCommandMinIntervalMs = 50;
 static constexpr float kRcGimbalMaxPitchRateDegS = 3.0f;
 static constexpr float kRcGimbalMaxYawRateDegS = 30.0f;
+static constexpr uint16_t kRcGimbalJoystickHoldOffset = 300;
+static constexpr int kRcGimbalJoystickStreamIntervalMs = 50;
+static constexpr int kRcGimbalJoystickStopFrames = 3;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -100,10 +103,9 @@ static bool _isR3CameraModel(const QString& modelName)
 }
 
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
-static constexpr float kZoomSyncMaxStep = 2.5f;
-static constexpr float kZoomSyncCatchUpMax = 12.0f;
 static constexpr int kAviatorRcZoomHoldThresholdMs = 450;
-static constexpr qint64 kAviatorRcZoomStepDebounceMs = 150;
+static constexpr qint64 kZoomStepDebounceMs = 150;
+static constexpr int kHoldZoomStepIntervalMs = 150;
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
@@ -114,6 +116,11 @@ static bool _isStaleZoomDropToMin(float reported, float beforeRange)
 static bool _isStaleZoomJumpToMax(float reported, float beforeRange)
 {
     return reported >= 28.0f && beforeRange <= 3.0f;
+}
+
+static float _snapOpticalZoomLevel(float value, float maxOptical)
+{
+    return qBound(1.0f, static_cast<float>(qRound(value)), maxOptical);
 }
 
 static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
@@ -164,6 +171,14 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     });
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &CodevCameraControl::_handleVehicleMavlinkMessage);
 
+    _joystickRcStreamTimer.setInterval(kRcGimbalJoystickStreamIntervalMs);
+    connect(&_joystickRcStreamTimer, &QTimer::timeout, this, &CodevCameraControl::_streamJoystickRc);
+
+    _holdZoomStepTimer.setSingleShot(false);
+    _holdZoomStepTimer.setInterval(kHoldZoomStepIntervalMs);
+    connect(&_holdZoomStepTimer, &QTimer::timeout, this, &CodevCameraControl::_holdZoomStepTick);
+
+    connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
 
 bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
@@ -327,6 +342,79 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
 }
 
+void CodevCameraControl::_sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15)
+{
+    mavlink_rc_channels_t rc{};
+    auto* rawChannels = reinterpret_cast<uint16_t*>(&rc.chan1_raw);
+    for (int i = 0; i < 18; ++i) {
+        rawChannels[i] = kRcGimbalCenter;
+    }
+    rc.chan9_raw = pitch;
+    rc.chan10_raw = yaw;
+    rc.chan11_raw = zoom;
+    rc.chan15_raw = centerCh15;
+    rc.chancount = 18;
+    rc.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
+    rc.rssi = 255;
+
+    _joystickRcPitchPwm = pitch;
+    _joystickRcYawPwm = yaw;
+    _joystickRcZoomPwm = zoom;
+
+    _sendR3RcChannels(rc, "joystickRC");
+    if (_isR3CameraModel(modelName())) {
+        _trackRcGimbalChannels(rc);
+    }
+}
+
+void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
+{
+    if (!_vehicle || !_vehicle->px4Firmware() || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    const uint16_t pitchRaw = rc.chan9_raw;
+    const uint16_t yawRaw = rc.chan10_raw;
+    const uint16_t zoomRaw = rc.chan11_raw;
+    const uint16_t centerRaw = rc.chan15_raw;
+    if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
+        return;
+    }
+
+    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
+    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
+    const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
+
+    const bool firstCommand = !_rcGimbalCommandTimer.isValid();
+    if (firstCommand) {
+        _rcGimbalCommandTimer.start();
+    }
+
+    const bool rawChanged =
+            qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
+            qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
+    const bool centerTransition = centered != _lastRcGimbalWasCentered;
+    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
+    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
+
+    if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
+        return;
+    }
+
+    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
+        return;
+    }
+
+    _lastRcGimbalPitchRaw = pitchRaw;
+    _lastRcGimbalYawRaw = yawRaw;
+    _lastRcGimbalZoomRaw = zoomRaw;
+    _lastRcGimbalCenterRaw = centerRaw;
+    _lastRcGimbalWasCentered = centered;
+    _rcGimbalCommandTimer.restart();
+}
+
 void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
 {
     qCInfo(CodevCameraLog) << "[RCFlow]"
@@ -395,9 +483,21 @@ void CodevCameraControl::syncZoomUiAfterReset()
         _zoomLevel = 1.0;
         emit zoomLevelChanged();
     }
+    _opticalRangeBootstrapped = true;
+    emit displayZoomLevelChanged();
     qCInfo(CodevCameraLog) << "syncZoomUiAfterReset"
                            << "opticalRange" << _opticalRange
                            << "zoomLevel" << _zoomLevel;
+}
+
+qreal CodevCameraControl::displayZoomLevel() const
+{
+    double optical = _opticalRange;
+    if (optical >= static_cast<double>(_maxOpticalX - 0.5f)) {
+        optical = _maxOpticalX;
+    }
+    const double digital = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
+    return static_cast<qreal>(qRound(optical * digital));
 }
 
 void CodevCameraControl::setSpotTempPoint(float x, float y)
@@ -702,23 +802,23 @@ void CodevCameraControl::formatCard(int id)
 void CodevCameraControl::startZoom(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoom()" << direction;
-    if(hasZoom()) {
-        sendMavCommand(
-            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
-            ZOOM_TYPE_CONTINUOUS,                   // Zoom type
-            direction);                             // Direction (-1 wide, 1 tele)
+    if (!hasZoom() || direction == 0) {
+        return;
+    }
+
+    _holdZoomDirection = direction;
+    // Hold repeats optical RANGE steps only; digital zoom is UI tap-only.
+    _applyZoomStep(direction, false, "holdZoom", false);
+    if (!_holdZoomStepTimer.isActive()) {
+        _holdZoomStepTimer.start();
     }
 }
 
 void CodevCameraControl::stopZoom()
 {
     qCDebug(CodevCameraLog) << "stopZoom()";
-    if(hasZoom()) {
-        sendMavCommand(
-            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
-            ZOOM_TYPE_CONTINUOUS,                   // Zoom type
-            0);                                     // Direction (-1 wide, 1 tele)
-    }
+    _holdZoomStepTimer.stop();
+    _holdZoomDirection = 0;
 }
 
 void CodevCameraControl::startTracking(QPointF point, double radius)
@@ -827,14 +927,24 @@ void CodevCameraControl::stopTracking()
 
 void CodevCameraControl::setZoomLevel(qreal level)
 {
-    if(hasZoom()) {
-        if(abs(level - 1.0) < 0.01) stepZoom(0);
-        level = std::min(std::max(level, 0.0), 100.0);
-        sendMavCommand(
-            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
-            ZOOM_TYPE_RANGE,                        // Zoom type
-            static_cast<float>(level));             // Level
+    if (!hasZoom()) {
+        return;
     }
+    if (qAbs(level - 1.0) < 0.01) {
+        stepZoom(0);
+        return;
+    }
+    const float snapped = _snapOpticalZoomLevel(static_cast<float>(level), _maxOpticalX);
+    _setTrustedOpticalRange(snapped);
+    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    if (qAbs(_zoomLevel - snapped) > 0.01) {
+        _zoomLevel = snapped;
+        emit zoomLevelChanged();
+    }
+    sendMavCommand(
+        MAV_CMD_SET_CAMERA_ZOOM,
+        ZOOM_TYPE_RANGE,
+        snapped);
 }
 
 // void CodevCameraControl::stepZoom(int direction)
@@ -880,62 +990,23 @@ void CodevCameraControl::setZoomLevel(qreal level)
 
 void CodevCameraControl::stepZoom(int direction)
 {
-    if (!_vehicle || !hasZoom() || direction == 0) {
+    // Joystick / non-UI callers: optical RANGE steps only.
+    _applyZoomStep(direction, false, "stepZoom");
+}
+
+void CodevCameraControl::stepZoomFromUi(int direction)
+{
+    // UI tap: optical RANGE + digital EO_DZOOM when at optical max.
+    _applyZoomStep(direction, true, "stepZoomUi");
+}
+
+void CodevCameraControl::_holdZoomStepTick()
+{
+    if (_holdZoomDirection == 0) {
+        _holdZoomStepTimer.stop();
         return;
     }
-
-    // 현재 디지털 줌 값
-    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
-    const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
-    const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
-    double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-
-    const bool atOpticalMax = ( _zoomLevel >= 29.5 );
-    float newLevel = _zoomLevel;
-    if (direction > 0) {
-        // 줌인
-        if (!atOpticalMax) {
-            // 1) 광학 줌 구간: RANGE 증가
-
-            if (_zoomLevel <= 1.1 && _opticalRange > 2.0f) {
-                _opticalRange = 1.0f;
-            }
-
-            qCDebug(CodevCameraLog) << "Zoom in optical Range = " << _opticalRange;
-            _opticalRange = std::min(100.0f, newLevel + direction);
-            _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-
-            sendMavCommand(
-                MAV_CMD_SET_CAMERA_ZOOM,
-                ZOOM_TYPE_RANGE,
-                _opticalRange);
-        } else {
-            // 2) 광학 최대 이후: 디지털 줌 증가
-            if (_dZoomFact) {
-                double next = std::min(dMax, dNow + dInc);
-                _dZoomFact->setRawValue(static_cast<float>(next));
-            } else {
-                qCWarning(CodevCameraLog) << "No kEO_DZOOM fact; cannot digital zoom";
-            }
-        }
-    } else {
-        // 줌아웃
-        if (_dZoomFact && dNow > (dMin + 1e-6)) {
-            // 1) 디지털이 남아 있으면 디지털부터 감소
-            double next = std::max(dMin, dNow - dInc);
-            _dZoomFact->setRawValue(static_cast<float>(next));
-        } else {
-            // 2) 디지털이 1.0이면 광학 RANGE 감소
-            qCDebug(CodevCameraLog) << "Zoom out optical Range = " << _opticalRange;
-            _opticalRange = std::max(0.0f, newLevel + direction); //Direction = -1
-            _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-
-            sendMavCommand(
-                MAV_CMD_SET_CAMERA_ZOOM,
-                ZOOM_TYPE_RANGE,
-                _opticalRange);
-        }
-    }
+    _applyZoomStep(_holdZoomDirection, false, "holdZoom");
 }
 
 QStringList CodevCameraControl::activeSettings()
@@ -1037,6 +1108,8 @@ void CodevCameraControl::_parametersReady()
         _dZoomFact = fact;
         _dZoomInMaxChange();
         connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
+        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::displayZoomLevelChanged);
+        connect(fact, &Fact::valueChanged, this, &CodevCameraControl::displayZoomLevelChanged);
     }
 
     // ai source
@@ -1333,7 +1406,7 @@ void CodevCameraControl::_dZoomInMaxChange()
     if(_zoomModeFact && _zoomModeFact->rawValue().toInt() == 2) {
         max_zoom = 239.5;
     }
-    if(_zoomLevel >= max_zoom) {
+    if(_opticalRange >= max_zoom) {
         if(!_dZoomInMax) {
             _dZoomInMax = true;
             emit dZoomInMaxChanged();
@@ -1521,6 +1594,30 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
     }
 }
 
+void CodevCameraControl::_reconcileCameraAheadReport()
+{
+    // Camera can report slightly ahead of our trusted range (UI 1x, camera 1.9 -> 2).
+    // Adopt at most one step upward so zoom-out remains usable; never adopt downward
+    // (prevents stale 6x -> 5x drops) or large upward jumps (prevents stale 1x -> 3x).
+    if (_lastCameraReportedOptical <= _opticalRange + 0.01f) {
+        return;
+    }
+
+    const float upwardDelta = _lastCameraReportedOptical - _opticalRange;
+    if (upwardDelta > 1.01f) {
+        return;
+    }
+
+    _setTrustedOpticalRange(_lastCameraReportedOptical);
+    if (qAbs(_zoomLevel - _lastCameraReportedOptical) > 0.01) {
+        _zoomLevel = _lastCameraReportedOptical;
+        emit zoomLevelChanged();
+    }
+    qCDebug(CodevCameraLog) << "reconcile camera ahead"
+                            << "trustedRange" << _opticalRange
+                            << "reported" << _lastCameraReportedOptical;
+}
+
 void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
 {
     _setCameraMode(static_cast<CameraMode>(settings.mode_id));
@@ -1528,50 +1625,43 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
     qreal z = static_cast<qreal>(settings.zoomLevel);
     qreal f = static_cast<qreal>(settings.focusLevel);
     if (std::isfinite(z)) {
-        const float reported = static_cast<float>(z);
-        const float beforeRange = _opticalRange;
-        const float delta = qAbs(reported - beforeRange);
+        const float reported = _snapOpticalZoomLevel(static_cast<float>(z), _maxOpticalX);
+        _lastCameraReportedOptical = reported;
+        const float trustedRange = _opticalRange;
         const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
         const bool suppressSync = _zoomSettingsSyncSuppressUntilMs > 0
                 && nowMs < _zoomSettingsSyncSuppressUntilMs;
-        bool acceptZoomLevel = true;
-        bool synced = false;
 
-        if (!suppressSync) {
-            if (_isStaleZoomDropToMin(reported, beforeRange)) {
-                acceptZoomLevel = false;
-                qCWarning(CodevCameraLog) << "handleSettings reject stale drop to min"
-                                          << "reported" << reported
-                                          << "keepOpticalRange" << beforeRange;
-            } else if (_isStaleZoomJumpToMax(reported, beforeRange)) {
-                acceptZoomLevel = false;
-                qCWarning(CodevCameraLog) << "handleSettings reject stale jump to max"
-                                          << "reported" << reported
-                                          << "keepOpticalRange" << beforeRange;
-            } else if (delta <= kZoomSyncMaxStep || (beforeRange <= 1.5f && reported <= 1.5f)) {
-                synced = true;
-            } else if (beforeRange <= 1.5f && reported > 1.5f) {
-                synced = true;
-            } else if (reported > beforeRange
-                       && (reported - beforeRange) <= kZoomSyncCatchUpMax) {
-                synced = true;
-            } else if (reported < beforeRange
-                       && (beforeRange - reported) <= kZoomSyncCatchUpMax) {
-                synced = true;
+        if (!_opticalRangeBootstrapped) {
+            _setTrustedOpticalRange(reported);
+            if (qAbs(_zoomLevel - reported) > 0.01) {
+                _zoomLevel = reported;
+                emit zoomLevelChanged();
+            }
+            _opticalRangeBootstrapped = true;
+            qCDebug(CodevCameraLog) << "handleSettings bootstrap optical range"
+                                    << "reported" << reported;
+        } else if (!suppressSync) {
+            if (_isStaleZoomDropToMin(reported, trustedRange)) {
+                qCDebug(CodevCameraLog) << "handleSettings ignore stale drop to min"
+                                        << "reported" << reported
+                                        << "trustedRange" << trustedRange;
+            } else if (_isStaleZoomJumpToMax(reported, trustedRange)) {
+                qCDebug(CodevCameraLog) << "handleSettings ignore stale jump to max"
+                                        << "reported" << reported
+                                        << "trustedRange" << trustedRange;
+            } else if (qAbs(reported - trustedRange) <= 0.01f) {
+                if (qAbs(_zoomLevel - reported) > 0.01) {
+                    _zoomLevel = reported;
+                    emit zoomLevelChanged();
+                }
+            } else if (reported > trustedRange + 0.01f) {
+                _reconcileCameraAheadReport();
             } else {
-                acceptZoomLevel = false;
-                qCWarning(CodevCameraLog) << "handleSettings reject stale zoom jump"
-                                          << "reported" << reported
-                                          << "keepOpticalRange" << beforeRange
-                                          << "delta" << delta;
+                qCDebug(CodevCameraLog) << "handleSettings ignore lagging camera zoom"
+                                        << "reported" << reported
+                                        << "trustedRange" << trustedRange;
             }
-            if (synced) {
-                _setTrustedOpticalRange(reported);
-            }
-        }
-        if (acceptZoomLevel && z != _zoomLevel) {
-            _zoomLevel = z;
-            emit zoomLevelChanged();
         }
     }
     if (std::isfinite(f) && f != _focusLevel) {
@@ -1587,11 +1677,13 @@ bool CodevCameraControl::_qgcJoystickControlsCamera() const
 
 void CodevCameraControl::_setTrustedOpticalRange(float range)
 {
-    const float clamped = qBound(1.0f, range, _maxOpticalX);
-    if (qAbs(_opticalRange - clamped) <= 0.01f) {
+    const float snapped = _snapOpticalZoomLevel(range, _maxOpticalX);
+    if (qAbs(_opticalRange - snapped) <= 0.01f) {
         return;
     }
-    _opticalRange = clamped;
+    _opticalRange = snapped;
+    emit displayZoomLevelChanged();
+    _dZoomInMaxChange();
 }
 
 static bool _isRcZoomInPwm(uint16_t ch11)
@@ -1615,67 +1707,208 @@ static int _rcZoomDirection(uint16_t ch11)
     return 0;
 }
 
-void CodevCameraControl::_applyAviatorRcZoomStep(int direction)
+bool CodevCameraControl::_zoomStepDebounced(bool enforceDebounce)
+{
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (enforceDebounce
+        && _lastZoomStepMs > 0
+        && (nowMs - _lastZoomStepMs) < kZoomStepDebounceMs) {
+        return true;
+    }
+    _lastZoomStepMs = nowMs;
+    return false;
+}
+
+void CodevCameraControl::_applyOpticalZoomStep(int direction, const char* sourceTag)
 {
     if (!hasZoom() || direction == 0) {
         return;
     }
 
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-    if (_aviatorRcZoomLastStepMs > 0
-        && (nowMs - _aviatorRcZoomLastStepMs) < kAviatorRcZoomStepDebounceMs) {
+    _reconcileCameraAheadReport();
+
+    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
+    bool atOpticalMin = _opticalRange <= 1.0f;
+
+    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+
+    if (direction > 0) {
+        if (atOpticalMax) {
+            qCInfo(CodevCameraLog) << sourceTag << "block zoom-in at optical max"
+                                   << "opticalRange" << _opticalRange;
+            return;
+        }
+        const int current = qRound(_opticalRange);
+        const float next = qBound(1.0f, static_cast<float>(current + 1), _maxOpticalX);
+        _setTrustedOpticalRange(next);
+        if (qAbs(_zoomLevel - next) > 0.01) {
+            _zoomLevel = next;
+            emit zoomLevelChanged();
+        }
+        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        qCInfo(CodevCameraLog) << sourceTag << "zoom step in"
+                               << "opticalRange" << _opticalRange;
+    } else {
+        if (atOpticalMin) {
+            if (_lastCameraReportedOptical > 1.01f) {
+                // UI is at 1x but camera is still zoomed in — force RANGE 1.
+                _setTrustedOpticalRange(1.0f);
+                if (qAbs(_zoomLevel - 1.0) > 0.01) {
+                    _zoomLevel = 1.0;
+                    emit zoomLevelChanged();
+                }
+                sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, 1.0f);
+                qCInfo(CodevCameraLog) << sourceTag << "zoom step out force min"
+                                       << "lastReported" << _lastCameraReportedOptical;
+            }
+            return;
+        }
+        const int current = qRound(_opticalRange);
+        const float next = qBound(1.0f, static_cast<float>(current - 1), _maxOpticalX);
+        _setTrustedOpticalRange(next);
+        if (qAbs(_zoomLevel - next) > 0.01) {
+            _zoomLevel = next;
+            emit zoomLevelChanged();
+        }
+        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        qCInfo(CodevCameraLog) << sourceTag << "zoom step out"
+                               << "opticalRange" << _opticalRange;
+    }
+}
+
+void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const char* sourceTag, bool enforceDebounce)
+{
+    if (!_vehicle || !hasZoom() || direction == 0) {
+        return;
+    }
+    if (_zoomStepDebounced(enforceDebounce)) {
+        return;
+    }
+
+    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
+    const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
+    const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
+    const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
+    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
+
+    if (direction > 0) {
+        if (!atOpticalMax) {
+            _applyOpticalZoomStep(direction, sourceTag);
+            return;
+        }
+        if (allowDigital && _dZoomFact) {
+            const double next = std::min(dMax, dNow + dInc);
+            if (next > dNow + 1e-6) {
+                _dZoomFact->setRawValue(static_cast<float>(next));
+                qCDebug(CodevCameraLog) << sourceTag << "zoom step in digital" << next;
+            }
+        }
+        return;
+    }
+
+    if (allowDigital && _dZoomFact && dNow > (dMin + 1e-6)) {
+        const double next = std::max(dMin, dNow - dInc);
+        _dZoomFact->setRawValue(static_cast<float>(next));
+        qCDebug(CodevCameraLog) << sourceTag << "zoom step out digital" << next;
+        return;
+    }
+
+    _applyOpticalZoomStep(direction, sourceTag);
+}
+
+void CodevCameraControl::_applyAviatorRcZoomStep(int direction)
+{
+    if (!hasZoom() || direction == 0) {
+        return;
+    }
+    if (_zoomStepDebounced()) {
         return;
     }
 
     const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
     const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
     const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
-    const bool atOpticalMin = _opticalRange <= 1.0f;
 
-    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
-
-    if (direction > 0) {
-        // RC controls optical zoom only — no digital zoom via Aviator.
-        if (atOpticalMax) {
-            qCInfo(CodevCameraLog) << "[RCFlow] aviator rc block zoom-in at optical max"
-                                   << "opticalRange" << _opticalRange
-                                   << "dZoom" << dNow;
-            return;
-        }
-        const float next = qBound(1.0f, _opticalRange + 1.0f, _maxOpticalX);
-        _setTrustedOpticalRange(next);
-        if (qAbs(_zoomLevel - next) > 0.01) {
-            _zoomLevel = next;
-            emit zoomLevelChanged();
-        }
-        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
-        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc zoom step in"
-                               << "opticalRange" << _opticalRange;
-    } else {
-        // At optical max with leftover dZoom (e.g. from UI): clear once so optical zoom-out won't jump to 1x.
-        if (atOpticalMax && _dZoomFact && dNow > (dMin + 0.05)) {
-            _dZoomFact->setRawValue(static_cast<float>(dMin));
-            qCInfo(CodevCameraLog) << "[RCFlow] aviator rc clear dZoom at max before optical step"
-                                   << "opticalRange" << _opticalRange
-                                   << "dZoom" << dNow << "->" << dMin;
-            _aviatorRcZoomLastStepMs = nowMs;
-            return;
-        }
-        if (atOpticalMin) {
-            return;
-        }
-        const float next = qBound(1.0f, _opticalRange - 1.0f, _maxOpticalX);
-        _setTrustedOpticalRange(next);
-        if (qAbs(_zoomLevel - next) > 0.01) {
-            _zoomLevel = next;
-            emit zoomLevelChanged();
-        }
-        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
-        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc zoom step out"
-                               << "opticalRange" << _opticalRange;
+    if (direction < 0 && atOpticalMax && _dZoomFact && dNow > (dMin + 0.05)) {
+        _dZoomFact->setRawValue(static_cast<float>(dMin));
+        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc clear dZoom at max before optical step"
+                               << "opticalRange" << _opticalRange
+                               << "dZoom" << dNow << "->" << dMin;
+        return;
     }
 
-    _aviatorRcZoomLastStepMs = nowMs;
+    _applyOpticalZoomStep(direction, "aviatorRC");
+}
+
+static uint16_t _holdRcPwm(int direction, uint16_t offset = kRcGimbalJoystickHoldOffset)
+{
+    if (direction == 0) {
+        return kRcGimbalCenter;
+    }
+    const int next = static_cast<int>(kRcGimbalCenter)
+            + (direction > 0 ? static_cast<int>(offset) : -static_cast<int>(offset));
+    return static_cast<uint16_t>(qBound(static_cast<int>(kRcGimbalMinValid), next, static_cast<int>(kRcGimbalMaxValid)));
+}
+
+void CodevCameraControl::joystickGimbalPitchStep(int direction)
+{
+    // Hold-to-move: button down sets an absolute (non-accumulating) deflection from
+    // center, button up (direction == 0) returns to center. The deflection is held by
+    // the streaming timer so the camera keeps slewing until release.
+    _joystickRcPitchPwm = _holdRcPwm(direction);
+    _updateJoystickRcStream();
+}
+
+void CodevCameraControl::joystickGimbalYawStep(int direction)
+{
+    _joystickRcYawPwm = _holdRcPwm(direction);
+    _updateJoystickRcStream();
+}
+
+void CodevCameraControl::joystickGimbalCenter()
+{
+    _joystickRcPitchPwm = kRcGimbalCenter;
+    _joystickRcYawPwm = kRcGimbalCenter;
+    _joystickRcStreamTimer.stop();
+    centerGimbal();
+    _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, static_cast<uint16_t>(2000));
+    QTimer::singleShot(150, this, [this]() {
+        _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, kRcGimbalCenter);
+    });
+}
+
+bool CodevCameraControl::_joystickRcActive() const
+{
+    return _joystickRcPitchPwm != kRcGimbalCenter
+            || _joystickRcYawPwm != kRcGimbalCenter
+            || _joystickRcZoomPwm != kRcGimbalCenter;
+}
+
+void CodevCameraControl::_updateJoystickRcStream()
+{
+    // Send immediately for a responsive press/release, then let the timer hold it.
+    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
+
+    if (_joystickRcActive()) {
+        _joystickRcStopFrames = 0;
+    } else {
+        // Released: keep the timer alive for a few frames to guarantee the stop reaches the camera.
+        _joystickRcStopFrames = kRcGimbalJoystickStopFrames;
+    }
+    if (!_joystickRcStreamTimer.isActive()) {
+        _joystickRcStreamTimer.start();
+    }
+}
+
+void CodevCameraControl::_streamJoystickRc()
+{
+    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
+
+    if (_joystickRcActive()) {
+        _joystickRcStopFrames = 0;
+    } else if (--_joystickRcStopFrames <= 0) {
+        _joystickRcStreamTimer.stop();
+    }
 }
 
 void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
