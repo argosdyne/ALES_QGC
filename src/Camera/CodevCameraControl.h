@@ -116,6 +116,7 @@ public:
     Q_INVOKABLE void buttonTakePhoto();
     Q_INVOKABLE void buttonToggleVideo();
     Q_INVOKABLE void stepZoomFromUi(int direction);
+    Q_INVOKABLE void startZoomFromUi(int direction);
     void joystickGimbalPitchStep(int direction);
     void joystickGimbalYawStep(int direction);
     void joystickGimbalCenter();
@@ -260,18 +261,17 @@ private:
     bool _zoomStepDebounced(bool enforceDebounce = true);
     void _applyOpticalZoomStep(int direction, const char* sourceTag);
     void _applyZoomStep(int direction, bool allowDigital, const char* sourceTag, bool enforceDebounce = true);
-    void _applyAviatorRcZoomStep(int direction);
+    void _applyAviatorRcZoomStep(int direction, bool enforceDebounce = true);
     void _holdZoomStepTick();
     bool _qgcJoystickControlsCamera() const;
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
-    qint64 _aviatorRcZoomDeflectStartMs{0};
     qint64 _lastZoomStepMs{0};
-    bool _aviatorRcZoomHoldMode{false};
     bool _opticalRangeBootstrapped{false};
     float _lastCameraReportedOptical{1.0f};
     void _reconcileCameraAheadReport();
     QTimer _holdZoomStepTimer;
     int _holdZoomDirection{0};
+    bool _holdZoomAllowDigital{false};
 
 };

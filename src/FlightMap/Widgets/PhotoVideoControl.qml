@@ -107,16 +107,16 @@ Item {
     // commands +1 on top of it, producing a 2–3× overshoot.
     property real _zoomLastMs: 0
 
-    // FlyDynamics3-style: tap = one RANGE step; hold = repeated RANGE steps (no CONTINUOUS).
-    // In optical territory the button press-to-hold repeats stepZoom via a timer.
-    // In digital territory the button is tap-only (each tap = one EO_DZOOM step).
-    //   - zoom-in optical territory:  zoomLevel < 29.5
-    //   - zoom-out optical territory: digital fact at min (==1.0)
+    // UI zoom-out: step EO_DZOOM down first when > 1, then optical RANGE.
+    // Joystick/RC zoom-out stays optical RANGE only.
     property real _opticalMaxThreshold: 29.5
     property bool _zoomInActive: false
     property bool _zoomOutActive: false
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
-    property bool _zoomOutCanContinuous: _mavlinkCamera && (!_dZoom || _dZoom.value <= 1.0 + 1e-3)
+    property bool _zoomOutCanContinuous: _mavlinkCamera
+        && (typeof _mavlinkCamera.displayZoomLevel !== "undefined"
+            ? _mavlinkCamera.displayZoomLevel > 1.01
+            : (_dZoom && _dZoom.value > 1.01) || _mavlinkCamera.zoomLevel > 1.01)
 
 
     //----------------------------------------------------------------------------------------------- Functions
@@ -462,7 +462,7 @@ Item {
                     }
                     onPressAndHold: {
                         if (_mavlinkCamera && _zoomOutCanContinuous) {
-                            _mavlinkCamera.startZoom(-1)
+                            _mavlinkCamera.startZoomFromUi(-1)
                             _zoomOutActive = true
                         }
                     }

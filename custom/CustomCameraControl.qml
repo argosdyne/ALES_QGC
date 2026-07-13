@@ -192,7 +192,7 @@ Item {
                 _camera.stepZoomFromUi(-1)
             }
             onContinuousZoomStart: {
-                _camera.startZoom(zoomIn ? 1 : -1)
+                _camera.startZoomFromUi(zoomIn ? 1 : -1)
             }
             onContinuousZoomStop: {
                 _camera.stopZoom()

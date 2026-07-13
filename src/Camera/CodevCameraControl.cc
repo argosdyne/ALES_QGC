@@ -103,7 +103,6 @@ static bool _isR3CameraModel(const QString& modelName)
 }
 
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
-static constexpr int kAviatorRcZoomHoldThresholdMs = 450;
 static constexpr qint64 kZoomStepDebounceMs = 150;
 static constexpr int kHoldZoomStepIntervalMs = 150;
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
@@ -806,9 +805,25 @@ void CodevCameraControl::startZoom(int direction)
         return;
     }
 
+    _holdZoomAllowDigital = false;
     _holdZoomDirection = direction;
-    // Hold repeats optical RANGE steps only; digital zoom is UI tap-only.
+    // Joystick hold: optical RANGE steps only.
     _applyZoomStep(direction, false, "holdZoom", false);
+    if (!_holdZoomStepTimer.isActive()) {
+        _holdZoomStepTimer.start();
+    }
+}
+
+void CodevCameraControl::startZoomFromUi(int direction)
+{
+    qCDebug(CodevCameraLog) << "startZoomFromUi()" << direction;
+    if (!hasZoom() || direction == 0) {
+        return;
+    }
+
+    _holdZoomAllowDigital = true;
+    _holdZoomDirection = direction;
+    _applyZoomStep(direction, true, "holdZoom", false);
     if (!_holdZoomStepTimer.isActive()) {
         _holdZoomStepTimer.start();
     }
@@ -819,6 +834,7 @@ void CodevCameraControl::stopZoom()
     qCDebug(CodevCameraLog) << "stopZoom()";
     _holdZoomStepTimer.stop();
     _holdZoomDirection = 0;
+    _holdZoomAllowDigital = false;
 }
 
 void CodevCameraControl::startTracking(QPointF point, double radius)
@@ -996,7 +1012,7 @@ void CodevCameraControl::stepZoom(int direction)
 
 void CodevCameraControl::stepZoomFromUi(int direction)
 {
-    // UI tap: optical RANGE + digital EO_DZOOM when at optical max.
+    // UI: zoom-in at optical max may step EO_DZOOM; zoom-out steps EO_DZOOM down first when > 1.
     _applyZoomStep(direction, true, "stepZoomUi");
 }
 
@@ -1006,7 +1022,7 @@ void CodevCameraControl::_holdZoomStepTick()
         _holdZoomStepTimer.stop();
         return;
     }
-    _applyZoomStep(_holdZoomDirection, false, "holdZoom");
+    _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
 }
 
 QStringList CodevCameraControl::activeSettings()
@@ -1725,14 +1741,15 @@ void CodevCameraControl::_applyOpticalZoomStep(int direction, const char* source
         return;
     }
 
-    _reconcileCameraAheadReport();
-
     const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
     bool atOpticalMin = _opticalRange <= 1.0f;
 
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
 
     if (direction > 0) {
+        // Adopt camera-ahead only before zoom-in so a step always advances the UI.
+        // Doing this before zoom-out can adopt +1 then step -1, leaving no visible change.
+        _reconcileCameraAheadReport();
         if (atOpticalMax) {
             qCInfo(CodevCameraLog) << sourceTag << "block zoom-in at optical max"
                                    << "opticalRange" << _opticalRange;
@@ -1806,6 +1823,7 @@ void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const 
         return;
     }
 
+    // UI zoom-out: step EO_DZOOM down first; Joystick/RC (allowDigital=false) skip to optical.
     if (allowDigital && _dZoomFact && dNow > (dMin + 1e-6)) {
         const double next = std::max(dMin, dNow - dInc);
         _dZoomFact->setRawValue(static_cast<float>(next));
@@ -1816,28 +1834,40 @@ void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const 
     _applyOpticalZoomStep(direction, sourceTag);
 }
 
-void CodevCameraControl::_applyAviatorRcZoomStep(int direction)
+void CodevCameraControl::_applyAviatorRcZoomStep(int direction, bool enforceDebounce)
 {
     if (!hasZoom() || direction == 0) {
         return;
     }
-    if (_zoomStepDebounced()) {
-        return;
-    }
-
-    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
-    const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
-
-    if (direction < 0 && atOpticalMax && _dZoomFact && dNow > (dMin + 0.05)) {
-        _dZoomFact->setRawValue(static_cast<float>(dMin));
-        qCInfo(CodevCameraLog) << "[RCFlow] aviator rc clear dZoom at max before optical step"
-                               << "opticalRange" << _opticalRange
-                               << "dZoom" << dNow << "->" << dMin;
+    if (_zoomStepDebounced(enforceDebounce)) {
         return;
     }
 
     _applyOpticalZoomStep(direction, "aviatorRC");
+}
+
+void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
+{
+    if (!channels || count < 11 || _qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    uint16_t& ch11 = channels[10];
+    const int direction = _rcZoomDirection(ch11);
+
+    if (direction == 0) {
+        _aviatorRcZoomState = 0;
+        return;
+    }
+
+    const bool newDeflection = direction != _aviatorRcZoomState;
+    _aviatorRcZoomState = direction;
+
+    // Hold-to-step: repeat MAVLink RANGE ±1 while ch11 is deflected (debounced ~150ms).
+    // First edge is immediate; never passthrough ch11 (avoids min/max jumps + UI desync).
+    _applyAviatorRcZoomStep(direction, !newDeflection);
+
+    ch11 = kRcGimbalCenter;
 }
 
 static uint16_t _holdRcPwm(int direction, uint16_t offset = kRcGimbalJoystickHoldOffset)
@@ -1908,50 +1938,6 @@ void CodevCameraControl::_streamJoystickRc()
         _joystickRcStopFrames = 0;
     } else if (--_joystickRcStopFrames <= 0) {
         _joystickRcStreamTimer.stop();
-    }
-}
-
-void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
-{
-    if (!channels || count < 11 || _qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    uint16_t& ch11 = channels[10];
-    const int direction = _rcZoomDirection(ch11);
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-
-    if (direction == 0) {
-        _aviatorRcZoomState = 0;
-        _aviatorRcZoomHoldMode = false;
-        return;
-    }
-
-    if (_aviatorRcZoomState == 0) {
-        _applyAviatorRcZoomStep(direction);
-        _aviatorRcZoomState = direction;
-        _aviatorRcZoomDeflectStartMs = nowMs;
-        _aviatorRcZoomHoldMode = false;
-    } else if (direction != _aviatorRcZoomState) {
-        _applyAviatorRcZoomStep(direction);
-        _aviatorRcZoomState = direction;
-        _aviatorRcZoomDeflectStartMs = nowMs;
-        _aviatorRcZoomHoldMode = false;
-    }
-
-    if (!_aviatorRcZoomHoldMode
-        && (nowMs - _aviatorRcZoomDeflectStartMs) >= kAviatorRcZoomHoldThresholdMs) {
-        _aviatorRcZoomHoldMode = true;
-        qCInfo(CodevCameraLog) << "[RCFlow] filterAviator hold passthrough"
-                               << "direction" << direction
-                               << "ch11" << ch11;
-    }
-
-    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
-    // Tap: always neutralize ch11 — zoom is handled via MAVLink RANGE steps above.
-    // Hold: passthrough except block zoom-in at optical max (no RC digital zoom).
-    if (!_aviatorRcZoomHoldMode || (direction > 0 && atOpticalMax)) {
-        ch11 = kRcGimbalCenter;
     }
 }
 
@@ -2105,7 +2091,19 @@ void CodevCameraControl::handleImageCaptured(const mavlink_camera_image_captured
 
 void CodevCameraControl::handleCaptureStatus(const mavlink_camera_capture_status_t& cap)
 {
-    QGCCameraControl::handleCaptureStatus(cap);
+    mavlink_camera_capture_status_t capCopy = cap;
+    // Zoom/settings traffic can make the camera return stale CAPTURE_STATUS timestamps.
+    // Resyncing to a smaller value makes the UI recording timer jump backwards.
+    if (capCopy.recording_time_ms
+        && videoStatus() == VIDEO_CAPTURE_STATUS_RUNNING
+        && recordTime() > 0
+        && capCopy.recording_time_ms < recordTime()) {
+        qCDebug(CodevCameraLog) << "handleCaptureStatus ignore stale recording_time_ms"
+                                << capCopy.recording_time_ms << "current" << recordTime();
+        capCopy.recording_time_ms = 0;
+    }
+
+    QGCCameraControl::handleCaptureStatus(capCopy);
     _photoIndex = cap.image_count;
     emit photoIndexChanged();
 }
