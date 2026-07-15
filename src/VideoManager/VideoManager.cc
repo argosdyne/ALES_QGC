@@ -868,14 +868,21 @@ VideoManager::_updateSettings(unsigned id)
                 qCDebug(VideoManagerLog) << "Configure primary stream:" << pInfo->uri();
                 switch(pInfo->type()) {
                     case VIDEO_STREAM_TYPE_RTSP:
-                        if ((settingsChanged |= _updateVideoUri(id, pInfo->uri()))) {
+                    {
+                        const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+                        const QString configuredVideoSource = _toolbox->settingsManager()->videoSettings()->videoSource()->rawValue().toString();
+                        const bool rtspUrlUserSet = _toolbox->settingsManager()->videoSettings()->rtspUrlUserSet();
+                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP && rtspUrlUserSet
+                                                    ? configuredRtspUrl
+                                                    : pInfo->uri();
+                        if ((settingsChanged |= _updateVideoUri(id, rtspUri))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!pInfo->uri().isEmpty() &&
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString() != pInfo->uri()) {
+                        if (!rtspUrlUserSet && !pInfo->uri().isEmpty() && configuredRtspUrl != pInfo->uri()) {
                             _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
                         }
                         break;
+                    }
                     case VIDEO_STREAM_TYPE_TCP_MPEG:
                         if ((settingsChanged |= _updateVideoUri(id, pInfo->uri()))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceTCP);
