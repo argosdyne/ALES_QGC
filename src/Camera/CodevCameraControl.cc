@@ -102,6 +102,30 @@ static bool _isR3CameraModel(const QString& modelName)
             || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
 }
 
+// Sony R1 / LR1 / IR1 (and similar) ride CodevCameraControl but have no optical zoom.
+// CAMERA_INFORMATION may still advertise HAS_BASIC_ZOOM; optimistic R3 zoom UI would
+// then raise displayZoomLevel with no real lens motion.
+static bool _isNonZoomCodevCamera(const QString& modelName, const QString& vendorName)
+{
+    const QString model = modelName.toUpper();
+    const QString vendor = vendorName.toUpper();
+    if (vendor.contains(QStringLiteral("SONY")) || model.contains(QStringLiteral("SONY"))) {
+        return true;
+    }
+    if (model.contains(QStringLiteral("IR1"))
+            || model.contains(QStringLiteral("IR-1"))
+            || model.contains(QStringLiteral("IR_1"))
+            || model.contains(QStringLiteral("IR 1"))) {
+        return true;
+    }
+    if (model.contains(QStringLiteral("LR1")) || model.contains(QStringLiteral("RLR1"))) {
+        return true;
+    }
+    return false;
+}
+
+static constexpr int kUserModeIntentLockMs = 5000;
+
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
 static constexpr qint64 kZoomStepDebounceMs = 150;
 static constexpr int kHoldZoomStepIntervalMs = 150;
@@ -639,6 +663,7 @@ void CodevCameraControl::setVideoMode()
             if(cameraMode() != CAM_MODE_VIDEO) {
                 pMode->setRawValue(CAM_MODE_VIDEO);
                 _setCameraMode(CAM_MODE_VIDEO);
+                _markUserModeIntent(CAM_MODE_VIDEO);
             }
         } else {
             //-- Use MAVLink Command
@@ -649,6 +674,7 @@ void CodevCameraControl::setVideoMode()
                     0,                                      // Reserved (Set to 0)
                     CAM_MODE_VIDEO);                        // Camera mode (0: photo, 1: video)
                 _setCameraMode(CAM_MODE_VIDEO);
+                _markUserModeIntent(CAM_MODE_VIDEO);
             }
         }
     }
@@ -664,6 +690,7 @@ void CodevCameraControl::setPhotoMode()
             if(cameraMode() != CAM_MODE_PHOTO) {
                 pMode->setRawValue(CAM_MODE_PHOTO);
                 _setCameraMode(CAM_MODE_PHOTO);
+                _markUserModeIntent(CAM_MODE_PHOTO);
             }
         } else {
             //-- Use MAVLink Command
@@ -674,9 +701,38 @@ void CodevCameraControl::setPhotoMode()
                     0,                                      // Reserved (Set to 0)
                     CAM_MODE_PHOTO);                        // Camera mode (0: photo, 1: video)
                 _setCameraMode(CAM_MODE_PHOTO);
+                _markUserModeIntent(CAM_MODE_PHOTO);
             }
         }
     }
+}
+
+bool CodevCameraControl::hasZoom()
+{
+    if (_isNonZoomCodevCamera(modelName(), vendor())) {
+        return false;
+    }
+    return QGCCameraControl::hasZoom();
+}
+
+void CodevCameraControl::_markUserModeIntent(CameraMode mode)
+{
+    _userModeIntent = mode;
+    _userModeIntentTimer.restart();
+}
+
+bool CodevCameraControl::_shouldIgnoreStaleModeReport(CameraMode reported) const
+{
+    if (_userModeIntent == CAM_MODE_UNDEFINED || !_userModeIntentTimer.isValid()) {
+        return false;
+    }
+    if (_userModeIntentTimer.elapsed() >= kUserModeIntentLockMs) {
+        return false;
+    }
+    if (reported != CAM_MODE_PHOTO && reported != CAM_MODE_VIDEO) {
+        return false;
+    }
+    return reported != _userModeIntent;
 }
 
 void CodevCameraControl::factChanged(Fact* pFact)
@@ -1683,7 +1739,20 @@ void CodevCameraControl::_reconcileCameraAheadReport()
 
 void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
 {
-    _setCameraMode(static_cast<CameraMode>(settings.mode_id));
+    const CameraMode reportedMode = static_cast<CameraMode>(settings.mode_id);
+    if (_shouldIgnoreStaleModeReport(reportedMode)) {
+        qCDebug(CodevCameraLog) << "handleSettings ignore stale mode report"
+                                << "reported" << reportedMode
+                                << "userIntent" << _userModeIntent
+                                << "elapsedMs" << _userModeIntentTimer.elapsed();
+    } else {
+        _setCameraMode(reportedMode);
+        if (_userModeIntent != CAM_MODE_UNDEFINED
+                && reportedMode == _userModeIntent) {
+            _userModeIntent = CAM_MODE_UNDEFINED;
+            _userModeIntentTimer.invalidate();
+        }
+    }
 
     qreal z = static_cast<qreal>(settings.zoomLevel);
     qreal f = static_cast<qreal>(settings.focusLevel);
@@ -2096,29 +2165,27 @@ void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
                            << "queuedTarget" << queuedTarget;
     if (_consumeQueuedCommandAck(compID(), ack, "cameraAck")) {
         // Queue handled by direct camera component ACK.
-    } else if(ack.result == MAV_RESULT_ACCEPTED) {
-        if(ack.result == MAV_RESULT_ACCEPTED) {
-            switch(ack.command) {
-            case MAV_CMD_VIDEO_START_CAPTURE:
-                setVideoMode();
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_VIDEO_STOP_CAPTURE:
-                setVideoMode();
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-                _captureStatusTimer.start(1000);
-                break;
-            case MAV_CMD_IMAGE_START_CAPTURE:
-                if(_video_status != VIDEO_CAPTURE_STATUS_RUNNING) {
-                    setPhotoMode();
-                }
-                _captureStatusTimer.start(200);
-                break;
-            }
-        }
+        // Do not force photo/video mode from capture ACKs — that reverts user mode
+        // switches (Sony R1 flicker/rollback) and can stall further UI/RC commands.
         _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
+        return;
     }
+    if(ack.result == MAV_RESULT_ACCEPTED) {
+        switch(ack.command) {
+        case MAV_CMD_VIDEO_START_CAPTURE:
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_VIDEO_STOP_CAPTURE:
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+            _captureStatusTimer.start(1000);
+            break;
+        case MAV_CMD_IMAGE_START_CAPTURE:
+            _captureStatusTimer.start(200);
+            break;
+        }
+    }
+    _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
 }
 
 void CodevCameraControl::handleImageCaptured(const mavlink_camera_image_captured_t& ic)

@@ -97,16 +97,24 @@ Item {
     function _zoomCameraOrPayload(direction) {
         if (_usePayload) {
             direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
-        } else if (_camera) {
-            _camera.stepZoomFromUi(direction)
+        } else if (_camera && _camera.hasZoom) {
+            if (typeof _camera.stepZoomFromUi === "function") {
+                _camera.stepZoomFromUi(direction)
+            } else if (typeof _camera.stepZoom === "function") {
+                _camera.stepZoom(direction)
+            }
         }
     }
 
     function _startZoomCameraOrPayload(direction) {
         if (_usePayload) {
             direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
-        } else if (_camera) {
-            _camera.startZoomFromUi(direction)
+        } else if (_camera && _camera.hasZoom) {
+            if (direction < 0 && typeof _camera.startZoomFromUi === "function") {
+                _camera.startZoomFromUi(direction)
+            } else if (typeof _camera.startZoom === "function") {
+                _camera.startZoom(direction)
+            }
         }
     }
 
