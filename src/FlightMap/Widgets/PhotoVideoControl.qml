@@ -129,11 +129,12 @@ Item {
     property real _opticalMaxThreshold: 29.5
     property bool _zoomInActive: false
     property bool _zoomOutActive: false
+    // Optical hold → CONTINUOUS (phase machine). Digital → tap step only.
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
+    property bool _digitalZoomActive:    _dZoom ? _dZoom.value > 1.01 : false
     property bool _zoomOutCanContinuous: _mavlinkCamera
-            && (typeof _mavlinkCamera.displayZoomLevel !== "undefined"
-                ? _mavlinkCamera.displayZoomLevel > 1.01
-                : (_dZoom && _dZoom.value > 1.01) || _mavlinkCamera.zoomLevel > 1.01)
+            && !_digitalZoomActive
+            && _mavlinkCamera.zoomLevel > 1.01
 
 
     //----------------------------------------------------------------------------------------------- Functions
@@ -168,7 +169,7 @@ Item {
         if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
             return
         }
-        if (direction < 0 && typeof _mavlinkCamera.startZoomFromUi === "function") {
+        if (typeof _mavlinkCamera.startZoomFromUi === "function") {
             _mavlinkCamera.startZoomFromUi(direction)
         } else if (typeof _mavlinkCamera.startZoom === "function") {
             _mavlinkCamera.startZoom(direction)
@@ -237,17 +238,15 @@ Item {
             return "1"
         }
         if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
-            return String(_mavlinkCamera.displayZoomLevel)
+            return String(Math.round(_mavlinkCamera.displayZoomLevel))
         }
         if (isNaN(_mavlinkCamera.zoomLevel)) {
             return "1"
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
-        var digital = (_dZoom ? _dZoom.value : 1.0);
-
+        var optical = _mavlinkCamera.zoomLevel
+        var digital = (_dZoom ? _dZoom.value : 1.0)
         return String(Math.round(optical * digital))
-
     }
 
     Timer {
@@ -447,19 +446,19 @@ Item {
                     id: zoomIn
                     anchors.fill: parent
                     enabled: _hasZoom
+                    preventStealing: true
                     onPressed: {
+                        // Optical: CONTINUOUS while held. Digital (at max): tap step.
                         if (_usePayload) {
                             _activePayload.zoomIn()
                             _zoomInActive = true
-                        } else if (Date.now() - _zoomLastMs >= 150) {
-                            _zoomLastMs = Date.now()
-                            _stepCameraZoom(1)
-                        }
-                    }
-                    onPressAndHold: {
-                        if (!_usePayload && _mavlinkCamera && _zoomInCanContinuous) {
-                            _startCameraZoom(1)
-                            _zoomInActive = true
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
+                            if (_zoomInCanContinuous) {
+                                _startCameraZoom(1)
+                                _zoomInActive = true
+                            } else {
+                                _stepCameraZoom(1)
+                            }
                         }
                     }
                     onReleased: {
@@ -525,19 +524,20 @@ Item {
                     id: zoomOut
                     anchors.fill: parent
                     enabled: _hasZoom
+                    preventStealing: true
                     onPressed: {
                         if (_usePayload) {
                             _activePayload.zoomOut()
                             _zoomOutActive = true
-                        } else if (Date.now() - _zoomLastMs >= 150) {
-                            _zoomLastMs = Date.now()
-                            _stepCameraZoom(-1)
-                        }
-                    }
-                    onPressAndHold: {
-                        if (!_usePayload && _mavlinkCamera && _zoomOutCanContinuous) {
-                            _startCameraZoom(-1)
-                            _zoomOutActive = true
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
+                            if (_digitalZoomActive) {
+                                _stepCameraZoom(-1)
+                            } else if (_zoomOutCanContinuous) {
+                                _startCameraZoom(-1)
+                                _zoomOutActive = true
+                            } else {
+                                _stepCameraZoom(-1)
+                            }
                         }
                     }
                     onReleased: {
