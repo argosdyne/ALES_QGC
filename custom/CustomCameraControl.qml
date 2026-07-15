@@ -110,7 +110,15 @@ Item {
         if (_usePayload) {
             direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
         } else if (_camera && _camera.hasZoom) {
-            if (direction < 0 && typeof _camera.startZoomFromUi === "function") {
+            // Digital is tap-only: at optical max (or dZoom>1) step instead of CONTINUOUS.
+            var atOpticalMax = _camera.zoomLevel >= 29.5
+            var dZoomFact = _camera.paramComplete ? _camera.getFact("EO_DZOOM") : null
+            var digitalActive = dZoomFact && dZoomFact.value > 1.01
+            if ((direction > 0 && atOpticalMax) || (direction < 0 && digitalActive)) {
+                _zoomCameraOrPayload(direction)
+                return
+            }
+            if (typeof _camera.startZoomFromUi === "function") {
                 _camera.startZoomFromUi(direction)
             } else if (typeof _camera.startZoom === "function") {
                 _camera.startZoom(direction)
@@ -233,8 +241,13 @@ Item {
             contentColor:   qgcPal.text
             fontPointSize:  ScreenTools.defaultFontPointSize * 1.75
             zoomLevelVisible: _hasZoom
-            zoomLevel:      _usePayload ? 1 : (_camera && _camera.hasZoom ? _camera.zoomLevel : NaN)
-            onlyContinousZoom: true
+            zoomLevel:      _usePayload ? 1 : (_camera && _camera.hasZoom
+                                ? (typeof _camera.displayZoomLevel !== "undefined"
+                                   ? _camera.displayZoomLevel
+                                   : _camera.zoomLevel)
+                                : NaN)
+            showZoomPrecision: false
+            onlyContinousZoom: false
             anchors.right:  parent.right
             onZoomIn: {
                 _root._zoomCameraOrPayload(1)
