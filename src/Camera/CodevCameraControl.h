@@ -124,6 +124,7 @@ public:
     // Override from QGCCameraControl
     void setVideoMode() final;
     void setPhotoMode() final;
+    bool hasZoom() final;
     bool takePhoto() final;
     bool stopTakePhoto() final;
     bool startVideo() final;
@@ -267,6 +268,8 @@ private:
     void _applyAviatorRcZoomStep(int direction, bool enforceDebounce = true);
     void _holdZoomStepTick();
     bool _qgcJoystickControlsCamera() const;
+    void _markUserModeIntent(CameraMode mode);
+    bool _shouldIgnoreStaleModeReport(CameraMode reported) const;
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
     qint64 _lastZoomStepMs{0};
@@ -276,5 +279,7 @@ private:
     QTimer _holdZoomStepTimer;
     int _holdZoomDirection{0};
     bool _holdZoomAllowDigital{false};
+    CameraMode _userModeIntent{CAM_MODE_UNDEFINED};
+    QElapsedTimer _userModeIntentTimer;
 
 };
