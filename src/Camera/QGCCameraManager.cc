@@ -11,7 +11,6 @@
 #include "CodevCameraControl.h"
 #include "GimbalController.h"
 #include "SettingsManager.h"
-#include <cmath>
 #include "VideoSettings.h"
 
 #include <QNetworkAccessManager>
@@ -994,6 +993,18 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
 }
 
 void
+QGCCameraManager::filterAviatorRcChannels(quint16* channels, int count)
+{
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if (!pCamera) {
+        return;
+    }
+    if (CodevCameraControl* codev = qobject_cast<CodevCameraControl*>(pCamera)) {
+        codev->filterAviatorRcChannels(channels, count);
+    }
+}
+
+void
 QGCCameraManager::_handleImageCaptured(const mavlink_message_t& message)
 {
     QGCCameraControl* pCamera = _findCamera(message.compid);
@@ -1176,11 +1187,6 @@ QGCCameraManager::_joystickCenterGimbal()
 void
 QGCCameraManager::_triggerCamera()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->buttonTakePhoto();
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->takePhoto();
@@ -1191,12 +1197,6 @@ QGCCameraManager::_triggerCamera()
 void
 QGCCameraManager::_startVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        if (codev->videoStatus() != QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
-            codev->buttonToggleVideo();
-        }
-        return;
-    }
 
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
@@ -1208,13 +1208,6 @@ QGCCameraManager::_startVideoRecording()
 void
 QGCCameraManager::_stopVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        if (codev->videoStatus() == QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
-            codev->stopVideo();
-        }
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->stopVideo();
@@ -1225,11 +1218,6 @@ QGCCameraManager::_stopVideoRecording()
 void
 QGCCameraManager::_toggleVideoRecording()
 {
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->buttonToggleVideo();
-        return;
-    }
-
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->toggleVideo();
@@ -1243,10 +1231,6 @@ QGCCameraManager::_stepZoom(int direction)
     if(_lastZoomChange.elapsed() > 40) {
         _lastZoomChange.start();
         qCDebug(CameraManagerLog) << "Step Camera Zoom" << direction;
-        if (CodevCameraControl* codev = _codevCameraInstance()) {
-            codev->joystickZoomRcStep(direction);
-            return;
-        }
         QGCCameraControl* pCamera = currentCameraInstance();
         if(pCamera) {
             pCamera->stepZoom(direction);
@@ -1258,11 +1242,7 @@ QGCCameraManager::_stepZoom(int direction)
 void
 QGCCameraManager::_startZoom(int direction)
 {
-    qCDebug(CameraManagerLog) << "Start Camera Zoom" << direction;
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickZoomStart(direction);
-        return;
-    }
+    qCDebug(CameraManagerLog) << "Start Camera Zoom" << direction;    
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->startZoom(direction);
@@ -1274,10 +1254,6 @@ void
 QGCCameraManager::_stopZoom()
 {
     qCDebug(CameraManagerLog) << "Stop Camera Zoom";
-    if (CodevCameraControl* codev = _codevCameraInstance()) {
-        codev->joystickZoomStop();
-        return;
-    }
     QGCCameraControl* pCamera = currentCameraInstance();
     if(pCamera) {
         pCamera->stopZoom();

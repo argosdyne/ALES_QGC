@@ -63,6 +63,7 @@ signals:
 
 public slots:
     void    handleAviatorRCChannelValues(const quint16* channels, int count);
+    void    filterAviatorRcChannels(quint16* channels, int count);
 
 protected slots:
     virtual void    _vehicleReady           (bool ready);
@@ -85,6 +86,8 @@ protected slots:
     virtual void    _joystickCenterGimbal   ();
     virtual void    _gimbalHoldTimerTick    ();
 
+
+protected:
     CodevCameraControl* _codevCameraInstance();
     virtual QGCCameraControl* _findCamera   (int id);
     virtual void    _requestCameraInfo      (int compID, int tryCount, LinkInterface* link);
