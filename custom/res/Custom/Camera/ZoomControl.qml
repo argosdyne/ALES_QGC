@@ -73,22 +73,26 @@ Item {
         height: _root.height
 
         property bool holding: false
+        property bool didHold: false
 
         onPressed: {
-            if(onlyContinousZoom) {
+            didHold = false
+            if (onlyContinousZoom) {
                 holding = true
-            }
-            else {
-                _root.zoomOut()
             }
         }
 
         onPressAndHold: {
+            didHold = true
             holding = true
         }
 
         onReleased: {
             holding = false
+            // Buttons are swapped: this control steps zoom-out on a short tap.
+            if (!onlyContinousZoom && !didHold) {
+                _root.zoomOut()
+            }
         }
 
         background: Rectangle {
@@ -141,22 +145,26 @@ Item {
         height: zoomInButton.height
 
         property bool holding: false
+        property bool didHold: false
 
         onPressed: {
-            if(onlyContinousZoom) {
+            didHold = false
+            if (onlyContinousZoom) {
                 holding = true
-            }
-            else {
-                _root.zoomIn()
             }
         }
 
         onPressAndHold: {
+            didHold = true
             holding = true
         }
 
         onReleased: {
             holding = false
+            // Buttons are swapped: this control steps zoom-in on a short tap.
+            if (!onlyContinousZoom && !didHold) {
+                _root.zoomIn()
+            }
         }
 
         background: Rectangle {
