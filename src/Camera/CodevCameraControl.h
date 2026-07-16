@@ -290,9 +290,12 @@ private:
     void _sendRangeZoomImmediate(float range);
     void _onSettlingTimeout();
     void _onRcZoomReleaseTimeout();
+    void _onRcZoomHoldTimeout();
+    void _lockOpticalEnd(int direction, const char* sourceTag);
 
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
+    int _rcZoomPendingDir{0};         // nonzero while waiting for hold→CONTINUOUS
     qint64 _lastZoomStepMs{0};
     qint64 _lastContinuousNonZeroMs{0};
     float _lastContinuousNonZeroDir{0.0f};
@@ -302,13 +305,17 @@ private:
     QTimer _holdZoomStepTimer;
     QTimer _settlingTimer;
     QTimer _rcZoomReleaseTimer;
+    QTimer _rcZoomHoldTimer;
     int _holdZoomDirection{0};
     bool _holdZoomAllowDigital{false};
     ZoomPhase _zoomPhase{ZoomPhase::Idle};
-    float _opticalEstimate{1.0f};     // UI estimate during SLEWING/SETTLING
+    float _opticalEstimate{1.0f};     // live optical during SLEWING/SETTLING (commit)
     float _slewStartOptical{1.0f};    // trusted snapshot when slew began (stale checks)
     float _settleCandidate{1.0f};
     int _settleStableCount{0};
+    int _settleHoldDirection{0};      // direction at release; commit must not yank UI backward
+    int _displayZoomInt{1};           // UI integer: tap ±1, CONTINUOUS hold ticks ±1
+    qint64 _slewEstimateStallSinceMs{0};
     CameraMode _userModeIntent{CAM_MODE_UNDEFINED};
     QElapsedTimer _userModeIntentTimer;
 

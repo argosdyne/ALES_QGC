@@ -9,6 +9,7 @@
 #include "CodevCameraControl.h"
 #include <QCoreApplication>
 #include <QLocale>
+#include <QTimer>
 
 namespace {
 
@@ -217,11 +218,17 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         emit irSwitchTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_GIMBAL_RESET) {
         if (pressed) {
+            // Center gimbal first, then wide-zoom shortly after so RANGE is not dropped
+            // in the same MAVLink burst as gimbal-home (symptom: gimbal OK, zoom needs 2 presses).
+            emit gimbalResetTigger(true);
             if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
-                camera->syncZoomUiAfterReset();
+                QTimer::singleShot(80, camera, [camera]() {
+                    camera->syncZoomUiAfterReset();
+                });
             }
+        } else {
+            emit gimbalResetTigger(false);
         }
-        emit gimbalResetTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_AIRCRAFT_RTL) {
         if(pressed) {
             Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();

@@ -129,7 +129,9 @@ Item {
     property real _opticalMaxThreshold: 29.5
     property bool _zoomInActive: false
     property bool _zoomOutActive: false
-    // Optical hold → CONTINUOUS (phase machine). Digital → tap step only.
+    property bool _zoomInHeld: false
+    property bool _zoomOutHeld: false
+    // Optical long-press → CONTINUOUS. Short tap → step ±1. Digital → tap only.
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
     property bool _digitalZoomActive:    _dZoom ? _dZoom.value > 1.01 : false
     property bool _zoomOutCanContinuous: _mavlinkCamera
@@ -447,18 +449,25 @@ Item {
                     anchors.fill: parent
                     enabled: _hasZoom
                     preventStealing: true
+                    pressAndHoldInterval: 350
                     onPressed: {
-                        // Optical: CONTINUOUS while held. Digital (at max): tap step.
+                        _zoomInHeld = false
                         if (_usePayload) {
                             _activePayload.zoomIn()
                             _zoomInActive = true
-                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
-                            if (_zoomInCanContinuous) {
-                                _startCameraZoom(1)
-                                _zoomInActive = true
-                            } else {
-                                _stepCameraZoom(1)
-                            }
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom && !_zoomInCanContinuous) {
+                            // Digital / at optical max: immediate step
+                            _stepCameraZoom(1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_usePayload || !_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+                            return
+                        }
+                        if (_zoomInCanContinuous) {
+                            _zoomInHeld = true
+                            _startCameraZoom(1)
+                            _zoomInActive = true
                         }
                     }
                     onReleased: {
@@ -468,7 +477,11 @@ Item {
                         } else if (_zoomInActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomInActive = false
+                        } else if (!_usePayload && _mavlinkCamera && _zoomInCanContinuous && !_zoomInHeld) {
+                            // Short tap in optical range: exactly ±1 step
+                            _stepCameraZoom(1)
                         }
+                        _zoomInHeld = false
                     }
                     onCanceled: {
                         if (_zoomInActive && _usePayload) {
@@ -478,6 +491,7 @@ Item {
                             _mavlinkCamera.stopZoom()
                             _zoomInActive = false
                         }
+                        _zoomInHeld = false
                     }
                 }
             }
@@ -525,19 +539,25 @@ Item {
                     anchors.fill: parent
                     enabled: _hasZoom
                     preventStealing: true
+                    pressAndHoldInterval: 350
                     onPressed: {
+                        _zoomOutHeld = false
                         if (_usePayload) {
                             _activePayload.zoomOut()
                             _zoomOutActive = true
-                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
-                            if (_digitalZoomActive) {
-                                _stepCameraZoom(-1)
-                            } else if (_zoomOutCanContinuous) {
-                                _startCameraZoom(-1)
-                                _zoomOutActive = true
-                            } else {
-                                _stepCameraZoom(-1)
-                            }
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom
+                                   && (_digitalZoomActive || !_zoomOutCanContinuous)) {
+                            _stepCameraZoom(-1)
+                        }
+                    }
+                    onPressAndHold: {
+                        if (_usePayload || !_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+                            return
+                        }
+                        if (_zoomOutCanContinuous) {
+                            _zoomOutHeld = true
+                            _startCameraZoom(-1)
+                            _zoomOutActive = true
                         }
                     }
                     onReleased: {
@@ -547,7 +567,10 @@ Item {
                         } else if (_zoomOutActive && _mavlinkCamera) {
                             _mavlinkCamera.stopZoom()
                             _zoomOutActive = false
+                        } else if (!_usePayload && _mavlinkCamera && _zoomOutCanContinuous && !_zoomOutHeld) {
+                            _stepCameraZoom(-1)
                         }
+                        _zoomOutHeld = false
                     }
                     onCanceled: {
                         if (_zoomOutActive && _usePayload) {
@@ -557,6 +580,7 @@ Item {
                             _mavlinkCamera.stopZoom()
                             _zoomOutActive = false
                         }
+                        _zoomOutHeld = false
                     }
                 }
             }
