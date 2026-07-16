@@ -132,6 +132,10 @@ public:
     void setZoomLevel(qreal level) final;
     QStringList activeSettings() final;
     void stepZoom(int direction) final;
+    // The Gremsy/Codev EO camera exposes zoom via the EO_DZOOM parameter rather than the MAVLink
+    // basic-zoom capability flag, so report hasZoom when that param is present. This lights up the
+    // on-screen zoom controls and lets stepZoom() run (it otherwise early-returns on !hasZoom()).
+    bool hasZoom() final { return (_info.flags & CAMERA_CAP_FLAGS_HAS_BASIC_ZOOM) || (_dZoomFact != nullptr); }
     bool trackingImageStatus() final {
         return _trackingImageStatus.tracking_status != 2;
     }

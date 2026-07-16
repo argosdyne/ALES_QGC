@@ -1060,6 +1060,7 @@ void CodevCameraControl::_parametersReady()
         _dZoomFact = fact;
         _dZoomInMaxChange();
         connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
+        emit infoChanged(); // hasZoom() now true (EO_DZOOM present) -> refresh zoom UI bindings
     }
 
     // ai source
