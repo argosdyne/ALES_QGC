@@ -2105,19 +2105,30 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
         &channels.chan18_raw,
     };
     int pwmValues[cMaxRcChannels];
+    int channelCount = channels.chancount;
+
+    if (channelCount == 0) {
+        for (int i=0; i<cMaxRcChannels; i++) {
+            const uint16_t channelValue = *_rgChannelvalues[i];
+
+            if (channelValue != 0 && channelValue != UINT16_MAX) {
+                channelCount = i + 1;
+            }
+        }
+    }
 
     for (int i=0; i<cMaxRcChannels; i++) {
         uint16_t channelValue = *_rgChannelvalues[i];
 
-        if (i < channels.chancount) {
-            pwmValues[i] = channelValue == UINT16_MAX ? -1 : channelValue;
+        if (i < channelCount) {
+            pwmValues[i] = (channelValue == 0 || channelValue == UINT16_MAX) ? -1 : channelValue;
         } else {
             pwmValues[i] = -1;
         }
     }
 
     emit remoteControlRSSIChanged(channels.rssi);
-    emit rcChannelsChanged(channels.chancount, pwmValues);
+    emit rcChannelsChanged(channelCount, pwmValues);
 }
 
 // Pop warnings ignoring for mavlink headers for both GCC/Clang and MSVC

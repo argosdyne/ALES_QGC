@@ -364,8 +364,8 @@ bool Joystick::_applyHardcodedProfile()
     const ForcedAxis forced[] = {
         { gimbalPitchFunction, 0,  false },  // axis 0 -> gimbal tilt  (user request)
         { gimbalYawFunction,   3,  false },  // axis 3 -> gimbal pan   (user request)
-        // Flight axes kept on valid indices for legacy UI/settings paths. This hardcoded
-        // profile is marked gimbal-only below, so these axes do not send MANUAL_CONTROL.
+        // Flight axes are also mapped so the controller can send MANUAL_CONTROL when
+        // vehicle joystick input is enabled.
         { rollFunction,        1,  false },
         { pitchFunction,       0,  false },
         { yawFunction,         3,  false },
@@ -397,9 +397,9 @@ bool Joystick::_applyHardcodedProfile()
 
     _deadband   = true;   // ensure the deadband above is actually applied in _adjustRange
     _calibrated = true;   // allow the joystick to be enabled without running the wizard
-    _gimbalOnlyJoystickProfile = true;
+    _gimbalOnlyJoystickProfile = false;
 
-    qWarning() << "[GremsyLynx]" << "applied DR-1000 gimbal-only profile"
+    qWarning() << "[GremsyLynx]" << "applied DR-1000 joystick profile"
                << "name" << _name
                << "gimbalPitchAxis" << _rgFunctionAxis[gimbalPitchFunction]
                << "gimbalYawAxis" << _rgFunctionAxis[gimbalYawFunction];
