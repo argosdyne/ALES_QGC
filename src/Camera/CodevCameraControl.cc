@@ -129,16 +129,17 @@ static constexpr int kUserModeIntentLockMs = 5000;
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
 static constexpr uint16_t kRcZoomHoldOffset = 40;
 static constexpr qint64 kZoomStepDebounceMs = 250;
-static constexpr int kHoldZoomStepIntervalMs = 150; // unused for CONTINUOUS hold; kept for legacy tick
+static constexpr int kHoldZoomStepIntervalMs = 200; // UI +1/-1 tick while CONTINUOUS held
+static constexpr int kSlewEstimateStallMs = 600;    // camera stopped moving → treat as optical end
+static constexpr int kRcZoomHoldBeforeContinuousMs = 300; // RC short tap = RANGE ±1; hold = CONTINUOUS
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 1000;
 static constexpr int kSettlingTimeoutMs = 400;
 static constexpr int kSettleStableReportsNeeded = 2;
 static constexpr float kSlewReportMaxJump = 3.0f;
 static constexpr float kSettleStableEpsilon = 0.75f;
-// RC button chatter / double-click: wait before CONTINUOUS stop, and never
-// re-fire CONTINUOUS ±1 too soon (firmware treats that as run-to min/max).
-static constexpr int kRcZoomReleaseDebounceMs = 180;
-static constexpr qint64 kContinuousRetriggerCooldownMs = 400;
+// Brief center glitch ignore only — intentional release stops immediately via filter path.
+static constexpr int kRcZoomReleaseDebounceMs = 80;
+static constexpr qint64 kContinuousRetriggerCooldownMs = 220;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
 {
@@ -270,6 +271,10 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _rcZoomReleaseTimer.setSingleShot(true);
     _rcZoomReleaseTimer.setInterval(kRcZoomReleaseDebounceMs);
     connect(&_rcZoomReleaseTimer, &QTimer::timeout, this, &CodevCameraControl::_onRcZoomReleaseTimeout);
+
+    _rcZoomHoldTimer.setSingleShot(true);
+    _rcZoomHoldTimer.setInterval(kRcZoomHoldBeforeContinuousMs);
+    connect(&_rcZoomHoldTimer, &QTimer::timeout, this, &CodevCameraControl::_onRcZoomHoldTimeout);
 
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
@@ -567,39 +572,116 @@ void CodevCameraControl::centerGimbal()
 
 void CodevCameraControl::syncZoomUiAfterReset()
 {
-    _settlingTimer.stop();
+    // Physical gimbal-reset often fires centerGimbal in the same edge. A single
+    // RANGE 1 can be dropped; also avoid sending CONTINUOUS-stop+RANGE back-to-back
+    // when already Idle (that pair was unreliable on first press).
+    _rcZoomHoldTimer.stop();
+    _rcZoomReleaseTimer.stop();
+    _rcZoomPendingDir = 0;
+    _aviatorRcZoomState = 0;
     _holdZoomStepTimer.stop();
+    _settlingTimer.stop();
+
+    const bool stopContinuous = (_zoomPhase == ZoomPhase::Slewing) || (_holdZoomDirection != 0);
     _holdZoomDirection = 0;
+    _settleHoldDirection = 0;
     _settleStableCount = 0;
-    _zoomPhase = ZoomPhase::Idle;
-    _setTrustedOpticalRange(1.0f);
-    _opticalEstimate = 1.0f;
-    _slewStartOptical = 1.0f;
-    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    if (_dZoomFact && _dZoomFact->rawValue().toDouble() > 1.01) {
+    _slewEstimateStallSinceMs = 0;
+
+    if (_dZoomFact) {
         _dZoomFact->setRawValue(1.0f);
     }
+
+    if (stopContinuous) {
+        _sendContinuousZoomImmediate(0.0f);
+    }
+
+    if (qAbs(_opticalRange - 1.0f) > 0.01f) {
+        _setTrustedOpticalRange(1.0f);
+    } else {
+        _displayZoomInt = 1;
+        emit displayZoomLevelChanged();
+    }
+    _opticalEstimate = 1.0f;
+    _lastCameraReportedOptical = 1.0f;
+    _slewStartOptical = 1.0f;
     if (qAbs(_zoomLevel - 1.0) > 0.01) {
         _zoomLevel = 1.0;
         emit zoomLevelChanged();
+    } else {
+        emit displayZoomLevelChanged();
     }
     _opticalRangeBootstrapped = true;
-    emit displayZoomLevelChanged();
+    _zoomPhase = ZoomPhase::Idle;
+    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+
+    auto sendWide = [this]() {
+        if (!hasZoom()) {
+            return;
+        }
+        _sendRangeZoomImmediate(1.0f);
+    };
+    sendWide();
+    // Retries: first RANGE is frequently lost behind gimbal-home traffic on the same RC edge.
+    QTimer::singleShot(150, this, sendWide);
+    QTimer::singleShot(400, this, sendWide);
+
     qCInfo(CodevCameraLog) << "syncZoomUiAfterReset"
                            << "opticalRange" << _opticalRange
-                           << "zoomLevel" << _zoomLevel;
+                           << "zoomLevel" << _zoomLevel
+                           << "stoppedContinuous" << stopContinuous;
+}
+
+void CodevCameraControl::_lockOpticalEnd(int direction, const char* sourceTag)
+{
+    // UI may only show 1 / max after the lens is commanded there. Claiming the end
+    // on the label alone left CONTINUOUS able to move further (and home zoom-out more).
+    const float target = (direction > 0) ? _maxOpticalX : 1.0f;
+    const bool stopContinuous = (_zoomPhase == ZoomPhase::Slewing) || (_holdZoomDirection != 0);
+    _holdZoomStepTimer.stop();
+    _settlingTimer.stop();
+    _holdZoomDirection = 0;
+    _settleHoldDirection = 0;
+    _settleStableCount = 0;
+    _slewEstimateStallSinceMs = 0;
+
+    // Only stop CONTINUOUS if we were actually slewing — Idle+stop+RANGE was flaky.
+    if (stopContinuous) {
+        _sendContinuousZoomImmediate(0.0f);
+    }
+    _setTrustedOpticalRange(target);
+    _opticalEstimate = target;
+    _lastCameraReportedOptical = target;
+    _displayZoomInt = qBound(1, qRound(target), static_cast<int>(_maxOpticalX));
+    if (qAbs(_zoomLevel - target) > 0.01) {
+        _zoomLevel = target;
+        emit zoomLevelChanged();
+    }
+    _sendRangeZoomImmediate(target);
+    if (direction < 0) {
+        // Wide reset is the flaky one on this camera — one delayed retry.
+        QTimer::singleShot(200, this, [this, target]() {
+            if (!hasZoom()) {
+                return;
+            }
+            _sendRangeZoomImmediate(target);
+        });
+    }
+    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    _setZoomPhase(ZoomPhase::Idle, sourceTag);
+    emit displayZoomLevelChanged();
+    qCInfo(CodevCameraLog) << sourceTag << "lock optical end" << target
+                           << "stoppedContinuous" << stopContinuous;
 }
 
 qreal CodevCameraControl::displayZoomLevel() const
 {
-    // SLEWING/SETTLING: live estimate. IDLE: trusted optical. Always integer for UI.
-    double optical = (_zoomPhase == ZoomPhase::Idle)
-            ? static_cast<double>(_opticalRange)
-            : static_cast<double>(_opticalEstimate);
+    // Single UI source: integer stops only (tap ±1, hold ticks ±1). Never float camera reports.
+    const double digital = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
+    double optical = static_cast<double>(_displayZoomInt);
     if (optical >= static_cast<double>(_maxOpticalX - 0.5f)) {
         optical = _maxOpticalX;
     }
-    const double digital = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
     return static_cast<qreal>(qRound(optical * digital));
 }
 
@@ -1091,12 +1173,14 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
     if (_zoomPhase == ZoomPhase::Idle) {
         _opticalEstimate = _opticalRange;
         _slewStartOptical = _opticalRange;
+        _displayZoomInt = qBound(1, qRound(_opticalRange), static_cast<int>(_maxOpticalX));
     } else if (_zoomPhase == ZoomPhase::Settling) {
         // Resume from current estimate; keep original slew-start for stale checks.
         _slewStartOptical = qMax(_slewStartOptical, 1.0f);
     }
 
     _settleStableCount = 0;
+    _slewEstimateStallSinceMs = 0;
 
     // Send first — if rapid CONTINUOUS is suppressed, do not fake Slewing.
     if (!_sendContinuousZoomImmediate(static_cast<float>(direction))) {
@@ -1107,6 +1191,9 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
 
     _holdZoomDirection = direction;
     _setZoomPhase(ZoomPhase::Slewing, sourceTag);
+    // UI counts ±1 on a timer while held (monotonic). Lens still uses CONTINUOUS.
+    _holdZoomStepTimer.start();
+    emit displayZoomLevelChanged();
     qCInfo(CodevCameraLog) << sourceTag << "CONTINUOUS slew start" << direction
                            << "trusted" << _opticalRange
                            << "estimate" << _opticalEstimate;
@@ -1121,6 +1208,7 @@ void CodevCameraControl::_beginSettle(const char* sourceTag)
 
     _holdZoomStepTimer.stop();
     const int prevDir = _holdZoomDirection;
+    _settleHoldDirection = prevDir;
     _holdZoomDirection = 0;
     _settleCandidate = _opticalEstimate;
     _settleStableCount = 0;
@@ -1128,6 +1216,7 @@ void CodevCameraControl::_beginSettle(const char* sourceTag)
 
     qCInfo(CodevCameraLog) << sourceTag << "CONTINUOUS stop → SETTLING"
                            << "prevDir" << prevDir
+                           << "displayInt" << _displayZoomInt
                            << "estimate" << _opticalEstimate
                            << "slewStart" << _slewStartOptical;
     _sendContinuousZoomImmediate(0.0f);
@@ -1142,16 +1231,50 @@ void CodevCameraControl::_forceIdleFromEstimate(const char* sourceTag)
     _holdZoomDirection = 0;
     _settleStableCount = 0;
 
-    const float snapped = _snapOpticalZoomLevel(_opticalEstimate, _maxOpticalX);
+    const float fromUi = qBound(1.0f, static_cast<float>(_displayZoomInt), _maxOpticalX);
+    float fromCam = _snapOpticalZoomLevel(_opticalEstimate, _maxOpticalX);
+    if (_settleHoldDirection > 0) {
+        fromCam = qMax(fromCam, _snapOpticalZoomLevel(_lastCameraReportedOptical, _maxOpticalX));
+    } else if (_settleHoldDirection < 0) {
+        fromCam = qMin(fromCam, _snapOpticalZoomLevel(_lastCameraReportedOptical, _maxOpticalX));
+    }
+
+    // Never reverse the lens on release: zoom-in keep the farther stop, zoom-out the nearer.
+    // Labeled optical ends are 1x / max even when the camera float tops out early (~26 / ~2).
+    float snapped = fromCam;
+    if (_settleHoldDirection > 0) {
+        snapped = qMax(fromUi, fromCam);
+        if (fromUi >= (_maxOpticalX - 0.5f)) {
+            snapped = _maxOpticalX;
+        }
+    } else if (_settleHoldDirection < 0) {
+        snapped = qMin(fromUi, fromCam);
+        if (fromUi <= 1.5f) {
+            snapped = 1.0f;
+        }
+    } else {
+        snapped = fromUi;
+    }
+
     _setTrustedOpticalRange(snapped);
     if (qAbs(_zoomLevel - snapped) > 0.01) {
         _zoomLevel = snapped;
         emit zoomLevelChanged();
     }
     _opticalEstimate = snapped;
+    // RANGE only to catch the lens up in the same direction — never command a reverse jump.
+    if ((_settleHoldDirection > 0 && snapped > fromCam + 0.45f)
+            || (_settleHoldDirection < 0 && snapped < fromCam - 0.45f)) {
+        _sendRangeZoomImmediate(snapped);
+    }
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    _settleHoldDirection = 0;
     _setZoomPhase(ZoomPhase::Idle, sourceTag);
-    qCInfo(CodevCameraLog) << sourceTag << "force IDLE from estimate" << snapped;
+    emit displayZoomLevelChanged();
+    qCInfo(CodevCameraLog) << sourceTag << "force IDLE"
+                           << "snapped" << snapped
+                           << "fromUi" << fromUi
+                           << "fromCam" << fromCam;
 }
 
 void CodevCameraControl::_commitSettledOptical(float reportedRaw, const char* sourceTag)
@@ -1160,19 +1283,49 @@ void CodevCameraControl::_commitSettledOptical(float reportedRaw, const char* so
     _holdZoomDirection = 0;
     _settleStableCount = 0;
 
-    const float snapped = _snapOpticalZoomLevel(reportedRaw, _maxOpticalX);
+    const float fromUi = qBound(1.0f, static_cast<float>(_displayZoomInt), _maxOpticalX);
+    float fromCam = _snapOpticalZoomLevel(reportedRaw, _maxOpticalX);
+    // Prefer the farthest plausible live position so a lagging settle sample
+    // cannot make us RANGE backward (looks like zoom-out on release).
+    if (_settleHoldDirection > 0) {
+        fromCam = qMax(fromCam, _snapOpticalZoomLevel(_opticalEstimate, _maxOpticalX));
+        fromCam = qMax(fromCam, _snapOpticalZoomLevel(_lastCameraReportedOptical, _maxOpticalX));
+    } else if (_settleHoldDirection < 0) {
+        fromCam = qMin(fromCam, _snapOpticalZoomLevel(_opticalEstimate, _maxOpticalX));
+        fromCam = qMin(fromCam, _snapOpticalZoomLevel(_lastCameraReportedOptical, _maxOpticalX));
+    }
+
+    float snapped = fromCam;
+    if (_settleHoldDirection > 0) {
+        snapped = qMax(fromUi, fromCam);
+        if (fromUi >= (_maxOpticalX - 0.5f)) {
+            snapped = _maxOpticalX;
+        }
+    } else if (_settleHoldDirection < 0) {
+        snapped = qMin(fromUi, fromCam);
+        if (fromUi <= 1.5f) {
+            snapped = 1.0f;
+        }
+    }
+
     _setTrustedOpticalRange(snapped);
     if (qAbs(_zoomLevel - snapped) > 0.01) {
         _zoomLevel = snapped;
         emit zoomLevelChanged();
     }
     _opticalEstimate = snapped;
-    // Do NOT send RANGE lock here — that reintroduced stale min/max jumps.
-    // Trusted is updated locally; next RANGE tap uses this discrete position.
+    if ((_settleHoldDirection > 0 && snapped > fromCam + 0.45f)
+            || (_settleHoldDirection < 0 && snapped < fromCam - 0.45f)) {
+        _sendRangeZoomImmediate(snapped);
+    }
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    _settleHoldDirection = 0;
     _setZoomPhase(ZoomPhase::Idle, sourceTag);
+    emit displayZoomLevelChanged();
     qCInfo(CodevCameraLog) << sourceTag << "SETTLING commit → IDLE"
                            << "snapped" << snapped
+                           << "fromUi" << fromUi
+                           << "fromCam" << fromCam
                            << "reported" << reportedRaw
                            << "slewStart" << _slewStartOptical;
 }
@@ -1237,21 +1390,40 @@ void CodevCameraControl::_handleOpticalZoomReport(float reportedRaw)
                                     << "slewStart" << _slewStartOptical;
             return;
         }
-        if (qAbs(_opticalEstimate - reportedRaw) > 0.01f) {
+        const float prevEstimate = _opticalEstimate;
+        if (qAbs(prevEstimate - reportedRaw) > 0.01f) {
             _opticalEstimate = reportedRaw;
-            emit displayZoomLevelChanged();
             if (qAbs(_zoomLevel - reportedRaw) > 0.01) {
                 _zoomLevel = reportedRaw;
                 emit zoomLevelChanged();
             }
         }
-        // Auto-stop at optical ends using plausible estimate only.
+        const bool progressed =
+                (_holdZoomDirection > 0 && reportedRaw > prevEstimate + 0.1f)
+                || (_holdZoomDirection < 0 && reportedRaw < prevEstimate - 0.1f);
+        if (progressed) {
+            _slewEstimateStallSinceMs = 0;
+        } else {
+            // Camera float often stalls near ~26 / ~2 — RANGE-lock labeled end (don't fake UI only).
+            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+            if (_slewEstimateStallSinceMs == 0) {
+                _slewEstimateStallSinceMs = nowMs;
+            } else if ((nowMs - _slewEstimateStallSinceMs) >= kSlewEstimateStallMs
+                       && qAbs(_opticalEstimate - _slewStartOptical) >= 1.0f) {
+                if (_holdZoomDirection > 0 && _opticalEstimate >= (_maxOpticalX - 10.0f)) {
+                    _lockOpticalEnd(1, "camStallMax");
+                    return;
+                }
+                if (_holdZoomDirection < 0 && _opticalEstimate <= 5.0f) {
+                    _lockOpticalEnd(-1, "camStallMin");
+                    return;
+                }
+            }
+        }
         if (_holdZoomDirection > 0 && reportedRaw >= (_maxOpticalX - 0.5f)) {
-            qCInfo(CodevCameraLog) << "SLEWING auto-stop at optical max";
-            _beginSettle("autoStopMax");
+            _lockOpticalEnd(1, "autoStopMax");
         } else if (_holdZoomDirection < 0 && reportedRaw <= 1.5f) {
-            qCInfo(CodevCameraLog) << "SLEWING auto-stop at optical min";
-            _beginSettle("autoStopMin");
+            _lockOpticalEnd(-1, "autoStopMin");
         }
         return;
     }
@@ -1274,9 +1446,14 @@ void CodevCameraControl::_handleOpticalZoomReport(float reportedRaw)
             _settleCandidate = reportedRaw;
             _settleStableCount = 1;
         }
-        if (qAbs(reportedRaw - _opticalEstimate) <= kSlewReportMaxJump) {
+        if (qAbs(reportedRaw - _opticalEstimate) > 0.01f
+                && qAbs(reportedRaw - _opticalEstimate) <= kSlewReportMaxJump) {
             _opticalEstimate = reportedRaw;
-            emit displayZoomLevelChanged();
+            if (qAbs(_zoomLevel - reportedRaw) > 0.01) {
+                _zoomLevel = reportedRaw;
+                emit zoomLevelChanged();
+            }
+            // Freeze UI during settle — prevents up/down flicker after release.
         }
         if (_settleStableCount >= kSettleStableReportsNeeded) {
             _commitSettledOptical(_settleCandidate, "settlingStable");
@@ -1538,20 +1715,22 @@ void CodevCameraControl::setZoomLevel(qreal level)
         return;
     }
     if (qAbs(level - 1.0) < 0.01) {
-        stepZoom(0);
+        if (_dZoomFact && _dZoomFact->rawValue().toDouble() > 1.01) {
+            _dZoomFact->setRawValue(1.0f);
+        }
+        _lockOpticalEnd(-1, "setZoomLevelMin");
         return;
     }
     const float snapped = _snapOpticalZoomLevel(static_cast<float>(level), _maxOpticalX);
     _setTrustedOpticalRange(snapped);
+    _opticalEstimate = snapped;
+    _displayZoomInt = qBound(1, qRound(snapped), static_cast<int>(_maxOpticalX));
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
     if (qAbs(_zoomLevel - snapped) > 0.01) {
         _zoomLevel = snapped;
         emit zoomLevelChanged();
     }
-    sendMavCommand(
-        MAV_CMD_SET_CAMERA_ZOOM,
-        ZOOM_TYPE_RANGE,
-        snapped);
+    _sendRangeZoomImmediate(snapped);
 }
 
 // void CodevCameraControl::stepZoom(int direction)
@@ -1609,11 +1788,34 @@ void CodevCameraControl::stepZoomFromUi(int direction)
 
 void CodevCameraControl::_holdZoomStepTick()
 {
+    // CONTINUOUS hold: UI follows camera estimate one integer at a time (never ahead of lens).
+    if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection != 0) {
+        const int maxInt = static_cast<int>(_maxOpticalX);
+        int next = _displayZoomInt;
+        if (_holdZoomDirection > 0) {
+            if (_displayZoomInt < maxInt
+                    && _opticalEstimate >= static_cast<float>(_displayZoomInt) + 0.5f) {
+                next = _displayZoomInt + 1;
+            }
+        } else if (_holdZoomDirection < 0) {
+            if (_displayZoomInt > 1
+                    && _opticalEstimate <= static_cast<float>(_displayZoomInt) - 0.5f) {
+                next = _displayZoomInt - 1;
+            }
+        }
+        if (next != _displayZoomInt) {
+            _displayZoomInt = next;
+            emit displayZoomLevelChanged();
+        }
+        return;
+    }
+
+    // Legacy RANGE hold path (not used for UI CONTINUOUS).
     if (_holdZoomDirection == 0) {
         _holdZoomStepTimer.stop();
         return;
     }
-     _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
+    _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
 }
 
 
@@ -2306,6 +2508,7 @@ void CodevCameraControl::_setTrustedOpticalRange(float range)
         return;
     }
     _opticalRange = snapped;
+    _displayZoomInt = qBound(1, qRound(snapped), static_cast<int>(_maxOpticalX));
     emit displayZoomLevelChanged();
     _dZoomInMaxChange();
 }
@@ -2346,16 +2549,30 @@ static int _rcZoomDirectionWithHysteresis(uint16_t ch11, int prevState)
 
 void CodevCameraControl::_onRcZoomReleaseTimeout()
 {
-    // Center held long enough — real release (not double-click chatter).
+    // Center held long enough — real release after a chatter glitch during CONTINUOUS.
     if (_aviatorRcZoomState == 0) {
         return;
     }
     qCInfo(CodevCameraLog) << "aviatorRC release debounce → stop"
                            << "prev" << _aviatorRcZoomState;
+    _rcZoomHoldTimer.stop();
+    _rcZoomPendingDir = 0;
     _aviatorRcZoomState = 0;
     if (_zoomPhase == ZoomPhase::Slewing) {
         stopZoom();
     }
+}
+
+void CodevCameraControl::_onRcZoomHoldTimeout()
+{
+    // Held long enough → CONTINUOUS (short taps never reach here).
+    if (_rcZoomPendingDir == 0 || _aviatorRcZoomState != _rcZoomPendingDir) {
+        return;
+    }
+    const int direction = _rcZoomPendingDir;
+    _rcZoomPendingDir = 0;
+    qCInfo(CodevCameraLog) << "aviatorRC hold → CONTINUOUS" << direction;
+    startZoom(direction);
 }
 
 void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
@@ -2365,8 +2582,10 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     }
 
     if (_qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
-        if (_aviatorRcZoomState != 0) {
+        if (_aviatorRcZoomState != 0 || _rcZoomPendingDir != 0) {
             _rcZoomReleaseTimer.stop();
+            _rcZoomHoldTimer.stop();
+            _rcZoomPendingDir = 0;
             _aviatorRcZoomState = 0;
             if (_zoomPhase == ZoomPhase::Slewing) {
                 stopZoom();
@@ -2382,10 +2601,29 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     ch11 = kRcGimbalCenter;
 
     if (direction == 0) {
-        // Debounce release: brief center between rapid RC clicks must NOT
-        // stop+restart CONTINUOUS (that re-sends ±1 and runs to min/max).
-        if (_aviatorRcZoomState != 0 && !_rcZoomReleaseTimer.isActive()) {
-            _rcZoomReleaseTimer.start();
+        if (_aviatorRcZoomState == 0 && _rcZoomPendingDir == 0) {
+            return;
+        }
+
+        // If CONTINUOUS is running, stop immediately on clear center (no long overshoot).
+        // Use a short debounce only when we were slewing and center might be chatter.
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            if (!_rcZoomReleaseTimer.isActive()) {
+                _rcZoomReleaseTimer.start();
+            }
+            return;
+        }
+
+        // Short tap: pressed but CONTINUOUS never started → exactly one RANGE step.
+        _rcZoomHoldTimer.stop();
+        _rcZoomReleaseTimer.stop();
+        const int tapDir = (_rcZoomPendingDir != 0) ? _rcZoomPendingDir : _aviatorRcZoomState;
+        _rcZoomPendingDir = 0;
+        _aviatorRcZoomState = 0;
+        if (tapDir != 0) {
+            qCInfo(CodevCameraLog) << "aviatorRC short tap → RANGE step" << tapDir;
+            // Interrupt any lingering settle, then one discrete optical step (same as UI tap).
+            _applyZoomStep(tapDir, false, "aviatorRCTap", true);
         }
         return;
     }
@@ -2394,22 +2632,38 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     _rcZoomReleaseTimer.stop();
 
     if (direction == _aviatorRcZoomState) {
-        // Same direction still/again. If we were only in release-debounce, keep
-        // slewing without re-sending CONTINUOUS.
+        // Same direction still held.
         if (_zoomPhase == ZoomPhase::Slewing) {
             return;
         }
-        // Stop already committed (Settling/Idle) — start again (cooldown may suppress).
-        startZoom(direction);
+        // Pending hold timer already running for this dir.
+        if (_rcZoomPendingDir == direction && _rcZoomHoldTimer.isActive()) {
+            return;
+        }
+        // Stop already committed — arm tap/hold again.
+        _rcZoomPendingDir = direction;
+        _rcZoomHoldTimer.start();
         return;
     }
 
-    // Edge or reverse — one CONTINUOUS command (same-dir hold never re-enters here).
-    qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS edge" << direction
-                           << "prev" << _aviatorRcZoomState
-                           << "phase" << static_cast<int>(_zoomPhase);
-    startZoom(direction);
+    // Edge or reverse.
+    if (_zoomPhase == ZoomPhase::Slewing) {
+        // Reverse while holding: switch CONTINUOUS direction immediately.
+        qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS reverse" << direction
+                               << "prev" << _aviatorRcZoomState;
+        _rcZoomHoldTimer.stop();
+        _rcZoomPendingDir = 0;
+        startZoom(direction);
+        _aviatorRcZoomState = direction;
+        return;
+    }
+
+    // Fresh press: wait briefly — short release = RANGE ±1, hold = CONTINUOUS.
+    qCInfo(CodevCameraLog) << "aviatorRC press edge" << direction
+                           << "prev" << _aviatorRcZoomState;
     _aviatorRcZoomState = direction;
+    _rcZoomPendingDir = direction;
+    _rcZoomHoldTimer.start();
 }
 
 void CodevCameraControl::_applyAviatorRcZoomStep(int direction, bool enforceDebounce)

@@ -324,9 +324,11 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     emit rcChannelValuesChanged(_rawChannels, channels.chancount);
 
 #if defined (Q_OS_ANDROID)
-    bool f1 = channels.chan15_raw == 2000;
-    bool f2 = channels.chan14_raw == 2000;
-    bool f3 = channels.chan16_raw == 2000;
+    // Use the same PWM threshold as capture/record (>=1900). Exact ==2000 missed
+    // many real presses and required a second click for gimbal reset / F-buttons.
+    bool f1 = _rcSwitchActive(channels.chan15_raw);
+    bool f2 = _rcSwitchActive(channels.chan14_raw);
+    bool f3 = _rcSwitchActive(channels.chan16_raw);
     bool capture = _rcSwitchActive(channels.chan12_raw);
     bool record = _rcSwitchActive(channels.chan13_raw);
 
