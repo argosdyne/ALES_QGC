@@ -72,6 +72,8 @@ const char* Joystick::_buttonActionTriggerCamera =      QT_TR_NOOP("Trigger Came
 const char* Joystick::_buttonActionStartVideoRecord =   QT_TR_NOOP("Start Recording Video");
 const char* Joystick::_buttonActionStopVideoRecord =    QT_TR_NOOP("Stop Recording Video");
 const char* Joystick::_buttonActionToggleVideoRecord =  QT_TR_NOOP("Toggle Recording Video");
+const char* Joystick::_buttonActionThermalMode =        QT_TR_NOOP("Thermal Mode");
+const char* Joystick::_buttonActionThermalZoom =        QT_TR_NOOP("Thermal Zoom");
 const char* Joystick::_buttonActionGimbalDown =         QT_TR_NOOP("Gimbal Down");
 const char* Joystick::_buttonActionGimbalUp =           QT_TR_NOOP("Gimbal Up");
 const char* Joystick::_buttonActionGimbalLeft =         QT_TR_NOOP("Gimbal Left");
@@ -1548,6 +1550,10 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
         if (buttonDown) emit stopVideoRecord();
     } else if(action == _buttonActionToggleVideoRecord) {
         if (buttonDown) emit toggleVideoRecord();
+    } else if(action == _buttonActionThermalMode) {
+        if (buttonDown) emit thermalMode();
+    } else if(action == _buttonActionThermalZoom) {
+        if (buttonDown) emit thermalZoom();
     } else if(action == _buttonActionGimbalUp) {
         // Hold-to-move: press starts the slew, release (direction 0) stops it.
         emit gimbalPitchStep(buttonDown ? 1 : 0);
@@ -1646,6 +1652,8 @@ void Joystick::_buildActionList(Vehicle* activeVehicle)
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionStartVideoRecord));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionStopVideoRecord));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionToggleVideoRecord));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionThermalMode));
+    _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionThermalZoom, true));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionGimbalDown,    true));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionGimbalUp,      true));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionGimbalLeft,    true));

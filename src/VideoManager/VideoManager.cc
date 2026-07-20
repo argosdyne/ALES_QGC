@@ -1275,9 +1275,7 @@ VideoManager::_thermalModeChanged()
             << "uri" << _videoUri[1]
             << "hasThermalStream" << (pCamera->thermalStreamInstance() != nullptr);
 
-    if (_videoStarted[1]) {
-        _stopReceiver(1);
-    } else {
+    if (!_videoStarted[1]) {
         _restartVideo(1);
     }
 #endif
