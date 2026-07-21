@@ -1094,6 +1094,7 @@ SOURCES += \
     src/RajantLink/RajantManager.cpp \
     src/Camera/TargetObject.cpp \
     src/Camera/CodevCameraControl.cc \
+    src/Camera/CodevCameraControlMode.cc \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
