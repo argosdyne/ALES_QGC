@@ -989,6 +989,12 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
             << "ch10" << rcChannels.chan10_raw
             << "ch11" << rcChannels.chan11_raw;
 
+    if (copyCount >= 11) {
+        if (CodevCameraControl* codev = qobject_cast<CodevCameraControl*>(pCamera)) {
+            codev->processAviatorRcZoom(channels[10]);
+        }
+    }
+
     pCamera->handleRCChannels(rcChannels);
 }
 

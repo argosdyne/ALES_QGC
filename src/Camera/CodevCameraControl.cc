@@ -1532,6 +1532,8 @@ bool CodevCameraControl::_sendContinuousZoomImmediate(float direction)
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     if (qFuzzyIsNull(direction)) {
         _lastContinuousNonZeroDir = 0.0f;
+        // Stop clears cooldown so RC chatter (stop→restart same dir) is not blocked.
+        _lastContinuousNonZeroMs = 0;
     } else {
         // Rapid CONTINUOUS ±1 re-triggers (RC double-click) run this camera to min/max.
         if (_lastContinuousNonZeroMs > 0
@@ -2513,6 +2515,28 @@ void CodevCameraControl::_setTrustedOpticalRange(float range)
     _dZoomInMaxChange();
 }
 
+// Brief center band — RC release matches UI stopZoom (stick returned to neutral).
+static constexpr int kRcZoomReleaseCenterBand = 15;
+
+static bool _rcZoomStickNearCenter(uint16_t ch11)
+{
+    return qAbs(static_cast<int>(ch11) - static_cast<int>(kRcGimbalCenter)) <= kRcZoomReleaseCenterBand;
+}
+
+// Stick clearly in hold deflection (not hysteresis dead-band) — start CONTINUOUS without 300ms wait.
+static bool _rcZoomInHoldZone(uint16_t ch11, int direction)
+{
+    const uint16_t holdIn  = static_cast<uint16_t>(kRcGimbalCenter + kRcZoomHoldOffset);
+    const uint16_t holdOut = static_cast<uint16_t>(kRcGimbalCenter - kRcZoomHoldOffset);
+    if (direction > 0) {
+        return ch11 >= holdIn;
+    }
+    if (direction < 0) {
+        return ch11 <= holdOut;
+    }
+    return false;
+}
+
 static int _rcZoomDirectionWithHysteresis(uint16_t ch11, int prevState)
 {
     const uint16_t startIn  = static_cast<uint16_t>(kRcGimbalCenter + kRcZoomJoystickStepOffset);
@@ -2549,11 +2573,11 @@ static int _rcZoomDirectionWithHysteresis(uint16_t ch11, int prevState)
 
 void CodevCameraControl::_onRcZoomReleaseTimeout()
 {
-    // Center held long enough — real release after a chatter glitch during CONTINUOUS.
+    // RC-owned CONTINUOUS only — neutral stick must not stop UI-driven slewing.
     if (_aviatorRcZoomState == 0) {
         return;
     }
-    qCInfo(CodevCameraLog) << "aviatorRC release debounce → stop"
+    qCInfo(CodevCameraLog) << "aviatorRC release debounce → stopZoom"
                            << "prev" << _aviatorRcZoomState;
     _rcZoomHoldTimer.stop();
     _rcZoomPendingDir = 0;
@@ -2565,14 +2589,24 @@ void CodevCameraControl::_onRcZoomReleaseTimeout()
 
 void CodevCameraControl::_onRcZoomHoldTimeout()
 {
-    // Held long enough → CONTINUOUS (short taps never reach here).
     if (_rcZoomPendingDir == 0 || _aviatorRcZoomState != _rcZoomPendingDir) {
+        return;
+    }
+    // UI can startZoomFromUi during SETTLING; block only if already slewing same leg.
+    if (_zoomPhase == ZoomPhase::Slewing) {
         return;
     }
     const int direction = _rcZoomPendingDir;
     _rcZoomPendingDir = 0;
-    qCInfo(CodevCameraLog) << "aviatorRC hold → CONTINUOUS" << direction;
-    startZoom(direction);
+    qCInfo(CodevCameraLog) << "aviatorRC hold → startZoomFromUi" << direction;
+    startZoomFromUi(direction);
+}
+
+bool CodevCameraControl::aviatorRcNeutralizesZoomChannel()
+{
+    return !_qgcJoystickControlsCamera()
+            && _isR3CameraModel(modelName())
+            && hasZoom();
 }
 
 void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
@@ -2580,8 +2614,25 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     if (!channels || count < 11) {
         return;
     }
+    if(!_vehicle->px4Firmware()){
+        if (aviatorRcNeutralizesZoomChannel()) {
+            // MAVLink-only zoom: FC always sees neutral ch11 (never 1000/2000 passthrough).
+            // Raw stick is read only in processAviatorRcZoom(); do not forward PWM to FC/camera.
+            channels[10] = kRcGimbalCenter;
+        }
+    }
+}
 
-    if (_qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
+void CodevCameraControl::processAviatorRcZoom(uint16_t rawCh11)
+{
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (nowMs == _aviatorRcZoomProcessedMs && rawCh11 == _lastAviatorRcCh11) {
+        return;
+    }
+    _aviatorRcZoomProcessedMs = nowMs;
+    _lastAviatorRcCh11 = rawCh11;
+
+    if (!aviatorRcNeutralizesZoomChannel()) {
         if (_aviatorRcZoomState != 0 || _rcZoomPendingDir != 0) {
             _rcZoomReleaseTimer.stop();
             _rcZoomHoldTimer.stop();
@@ -2594,76 +2645,94 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
         return;
     }
 
-    uint16_t& ch11 = channels[10];
-    const int direction = _rcZoomDirectionWithHysteresis(ch11, _aviatorRcZoomState);
+    // Same commands as UI: tap = stepZoomFromUi, hold = startZoomFromUi, release = stopZoom.
+    const bool atCenter = _rcZoomStickNearCenter(rawCh11);
+    const int direction = _rcZoomDirectionWithHysteresis(rawCh11, _aviatorRcZoomState);
+    const bool rcOwnsZoom = (_aviatorRcZoomState != 0 || _rcZoomPendingDir != 0);
 
-    // Never passthrough ch11 (avoids FC min/max jumps). Zoom is MAVLink only.
-    ch11 = kRcGimbalCenter;
+    // Neutral RC must never interrupt UI-driven slewing/settling (shared zoom state).
+    if (!rcOwnsZoom && direction == 0 && atCenter
+            && (_zoomPhase == ZoomPhase::Slewing || _zoomPhase == ZoomPhase::Settling)) {
+        return;
+    }
 
-    if (direction == 0) {
-        if (_aviatorRcZoomState == 0 && _rcZoomPendingDir == 0) {
+    if (_zoomPhase == ZoomPhase::Settling) {
+        if (atCenter && rcOwnsZoom) {
+            _rcZoomHoldTimer.stop();
+            _rcZoomPendingDir = 0;
+            _aviatorRcZoomState = 0;
+        }
+        // New stick input during settle — fall through (UI stepZoomFromUi interrupts settle too).
+        if (direction == 0 && atCenter && !rcOwnsZoom) {
             return;
         }
-
-        // If CONTINUOUS is running, stop immediately on clear center (no long overshoot).
-        // Use a short debounce only when we were slewing and center might be chatter.
-        if (_zoomPhase == ZoomPhase::Slewing) {
+    } else if (_zoomPhase == ZoomPhase::Slewing) {
+        if (atCenter && direction == 0 && rcOwnsZoom) {
+            // Genuine release to neutral only — not hysteresis dead-band flutter.
             if (!_rcZoomReleaseTimer.isActive()) {
                 _rcZoomReleaseTimer.start();
             }
             return;
         }
-
-        // Short tap: pressed but CONTINUOUS never started → exactly one RANGE step.
-        _rcZoomHoldTimer.stop();
-        _rcZoomReleaseTimer.stop();
-        const int tapDir = (_rcZoomPendingDir != 0) ? _rcZoomPendingDir : _aviatorRcZoomState;
-        _rcZoomPendingDir = 0;
-        _aviatorRcZoomState = 0;
-        if (tapDir != 0) {
-            qCInfo(CodevCameraLog) << "aviatorRC short tap → RANGE step" << tapDir;
-            // Interrupt any lingering settle, then one discrete optical step (same as UI tap).
-            _applyZoomStep(tapDir, false, "aviatorRCTap", true);
+        if (!atCenter || direction != 0) {
+            _rcZoomReleaseTimer.stop();
+        }
+        if (direction != 0 && direction != _holdZoomDirection && rcOwnsZoom) {
+            qCInfo(CodevCameraLog) << "aviatorRC reverse → startZoomFromUi" << direction;
+            _rcZoomReleaseTimer.stop();
+            _aviatorRcZoomState = direction;
+            startZoomFromUi(direction);
         }
         return;
     }
 
-    // Deflection (back) — cancel pending stop.
+    if (direction == 0) {
+        if (_aviatorRcZoomState == 0 && _rcZoomPendingDir == 0) {
+            return;
+        }
+        // Short tap = release to center before CONTINUOUS armed.
+        if (_rcZoomPendingDir != 0 && _rcZoomHoldTimer.isActive() && atCenter) {
+            _rcZoomHoldTimer.stop();
+            _rcZoomReleaseTimer.stop();
+            const int tapDir = _rcZoomPendingDir;
+            _rcZoomPendingDir = 0;
+            _aviatorRcZoomState = 0;
+            qCInfo(CodevCameraLog) << "aviatorRC tap → stepZoomFromUi" << tapDir;
+            stepZoomFromUi(tapDir);
+        } else if (atCenter && (_rcZoomPendingDir != 0 || _aviatorRcZoomState != 0)) {
+            // Released to neutral — do not treat hysteresis dead-band as release.
+            _rcZoomHoldTimer.stop();
+            _rcZoomReleaseTimer.stop();
+            _rcZoomPendingDir = 0;
+            _aviatorRcZoomState = 0;
+        }
+        // direction==0 && !atCenter: hysteresis dead-band while stick still deflected — hold pending.
+        return;
+    }
+
+    // Deflection — cancel pending RC release debounce.
     _rcZoomReleaseTimer.stop();
 
-    if (direction == _aviatorRcZoomState) {
-        // Same direction still held.
-        if (_zoomPhase == ZoomPhase::Slewing) {
-            return;
+    if (direction == _aviatorRcZoomState && _rcZoomPendingDir == direction && _rcZoomHoldTimer.isActive()) {
+        if (_rcZoomInHoldZone(rawCh11, direction) && _zoomPhase != ZoomPhase::Slewing) {
+            _rcZoomHoldTimer.stop();
+            _rcZoomPendingDir = 0;
+            qCInfo(CodevCameraLog) << "aviatorRC hold zone → startZoomFromUi" << direction;
+            startZoomFromUi(direction);
         }
-        // Pending hold timer already running for this dir.
-        if (_rcZoomPendingDir == direction && _rcZoomHoldTimer.isActive()) {
-            return;
-        }
-        // Stop already committed — arm tap/hold again.
-        _rcZoomPendingDir = direction;
-        _rcZoomHoldTimer.start();
         return;
     }
 
-    // Edge or reverse.
-    if (_zoomPhase == ZoomPhase::Slewing) {
-        // Reverse while holding: switch CONTINUOUS direction immediately.
-        qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS reverse" << direction
-                               << "prev" << _aviatorRcZoomState;
-        _rcZoomHoldTimer.stop();
-        _rcZoomPendingDir = 0;
-        startZoom(direction);
-        _aviatorRcZoomState = direction;
-        return;
-    }
-
-    // Fresh press: wait briefly — short release = RANGE ±1, hold = CONTINUOUS.
-    qCInfo(CodevCameraLog) << "aviatorRC press edge" << direction
-                           << "prev" << _aviatorRcZoomState;
+    qCInfo(CodevCameraLog) << "aviatorRC press" << direction << "ch11" << rawCh11;
     _aviatorRcZoomState = direction;
     _rcZoomPendingDir = direction;
     _rcZoomHoldTimer.start();
+    if (_rcZoomInHoldZone(rawCh11, direction) && _zoomPhase != ZoomPhase::Slewing) {
+        _rcZoomHoldTimer.stop();
+        _rcZoomPendingDir = 0;
+        qCInfo(CodevCameraLog) << "aviatorRC hold zone → startZoomFromUi" << direction;
+        startZoomFromUi(direction);
+    }
 }
 
 void CodevCameraControl::_applyAviatorRcZoomStep(int direction, bool enforceDebounce)
@@ -2879,8 +2948,14 @@ void CodevCameraControl::_streamJoystickRc()
 
 void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
 {
+    // Aviator R3 zoom uses MAVLink only (processAviatorRcZoom → same as UI). Do not
+    // forward native RC ch11 to the camera — that fights SET_CAMERA_ZOOM.
+    if (aviatorRcNeutralizesZoomChannel()) {
+        return;
+    }
+
     static uint16_t rc_zoom_value = 0;
-    if(rc_zoom_value != rc.chan11_raw) {
+    if (rc_zoom_value != rc.chan11_raw) {
         rc_zoom_value = rc.chan11_raw;
         if (!_rcCameraSettingsRequestTimer.isValid()
                 || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs) {
