@@ -135,12 +135,50 @@ Item {
         enabled: true
         pressAndHoldInterval: enableRectangle ? 200 : 800
         property bool isPressAndHold: false
+
+        // Manual double-tap detection tuned for Android touch (the primary
+        // platform). Qt's onDoubleClicked is unreliable on touch — the
+        // synthesized second click is frequently dropped. We count presses
+        // via onPressed (which is never suppressed) with a 500ms window
+        // and a 60px position tolerance, since a finger never lands on
+        // the exact same pixel twice. Single-tap features (spotAE /
+        // thermometry / AI tracking) still fire on the first tap as before;
+        // the second tap additionally emits touchDoubleClicked.
+        property int _tapCount: 0
+        property real _tapTime: 0
+        property real _tapX: 0
+        property real _tapY: 0
+        property bool _justDoubleTapped: false
+
         onClicked: {
+            if (_justDoubleTapped) {
+                _justDoubleTapped = false
+                return
+            }
             if (selectItem.busy) return
             if(!enablePoint) return
             touchPointTrack(mouseX, mouseY)
         }
         onPressed: {
+            var now = Date.now()
+            var dx = mouseX - _tapX
+            var dy = mouseY - _tapY
+            var samePlace = (dx * dx + dy * dy) < (60 * 60)
+            if (now - _tapTime < 500 && samePlace) {
+                _tapCount++
+            } else {
+                _tapCount = 1
+            }
+            _tapTime = now
+            _tapX = mouseX
+            _tapY = mouseY
+            if (_tapCount >= 2) {
+                _tapCount = 0
+                _justDoubleTapped = true
+                touchDoubleClicked(mouseX, mouseY)
+                return
+            }
+
             if (selectItem.busy) return
             if(!enableRectangle) return
             isPressAndHold = false
@@ -172,7 +210,14 @@ Item {
                 rangeRectTrack()
             }
         }
+        // Safety net for the rare case where Qt's own double-click fires
+        // before our onPressed counter resolved. Suppressed if the manual
+        // counter already emitted, so we don't toggle twice.
         onDoubleClicked: {
+            if (_justDoubleTapped) {
+                _justDoubleTapped = false
+                return
+            }
             touchDoubleClicked(mouseX, mouseY)
         }
     }
