@@ -222,10 +222,14 @@ Rectangle {
 
                                     onActivated: {
                                         if (index !== editingConfig.linkType) {
-                                            // Save current name
+                                            // Preserve common settings when switching link type.
                                             var name = nameField.text
-                                            // Create new link configuration
+                                            var autoConnect = editingConfig.autoConnect
+                                            var highLatency = editingConfig.highLatency
+
                                             editingConfig = QGroundControl.linkManager.createConfiguration(index, name)
+                                            editingConfig.autoConnect = autoConnect
+                                            editingConfig.highLatency = highLatency
                                         }
                                     }
                                 }
