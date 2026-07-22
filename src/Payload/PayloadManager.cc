@@ -150,6 +150,12 @@ void PayloadManager::_onRcChannels(int channelCount, int pwmValues[18])
         _rcWasActive = false;
         return;
     }
+    if (_activeType == 1) {
+        // NextVision output is mapped to CH9/CH10. Reading those same vehicle RC
+        // channels and feeding them back into the payload creates an override loop.
+        _rcWasActive = false;
+        return;
+    }
     if (channelCount < _rcPanChannel || channelCount < _rcTiltChannel) {
         return; // radio doesn't provide those channels
     }
@@ -163,8 +169,8 @@ void PayloadManager::_onRcChannels(int channelCount, int pwmValues[18])
         return (qAbs(axis) < 0.05) ? 0.0 : axis; // deadzone around center
     };
 
-    const double pan  = toAxis(pwmValues[_rcPanChannel  - 1]); // CH9  -> pan / yaw
-    const double tilt = toAxis(pwmValues[_rcTiltChannel - 1]); // CH10 -> tilt / pitch
+    const double pan  = toAxis(pwmValues[_rcPanChannel  - 1]); // CH10 -> pan / yaw
+    const double tilt = toAxis(pwmValues[_rcTiltChannel - 1]); // CH9  -> tilt / pitch
 
     // Only drive while a stick is off-center; send one final (0,0) on release to stop, then stay
     // quiet so the on-screen d-pad still works when the radio sticks are centered.

@@ -39,7 +39,7 @@ Item {
     property bool   _payloadRecording:                          false
 
     function _centerGimbal() {
-        if (_usePayload) {
+        if (_activePayload) {
             _activePayload.gimbalHome()
         } else if (_mavlinkCamera) {
             _mavlinkCamera.centerGimbal()
@@ -108,9 +108,9 @@ Item {
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
+    property bool   _videoIsRecording:                          _usePayload ? _payloadRecording : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording)
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
-    property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
+    property bool   _isShootingInCurrentMode:                   _usePayload ? (!_videoStreamInPhotoMode && _payloadRecording) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode)
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
