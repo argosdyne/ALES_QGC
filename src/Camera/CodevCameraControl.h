@@ -124,6 +124,7 @@ public:
     // Override from QGCCameraControl
     void setVideoMode() final;
     void setPhotoMode() final;
+    bool hasZoom() final;
     bool takePhoto() final;
     bool stopTakePhoto() final;
     bool startVideo() final;
