@@ -182,6 +182,7 @@ Item {
         }
     }
 
+
     function toggleShooting() {
         if (_usePayload) {
             if (_videoStreamInPhotoMode) {
