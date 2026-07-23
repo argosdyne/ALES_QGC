@@ -31,7 +31,7 @@ import QGroundControl.FlightMap         1.0
 
 Item {    
     implicitHeight: content.implicitHeight    
-    visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel && !_isA30TRCamera
+    visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
     property var    _activePayload:                             PayloadManager.active
@@ -39,7 +39,7 @@ Item {
     property bool   _payloadRecording:                          false
 
     function _centerGimbal() {
-        if (_usePayload) {
+        if (_activePayload) {
             _activePayload.gimbalHome()
         } else if (_mavlinkCamera) {
             _mavlinkCamera.centerGimbal()
@@ -77,10 +77,6 @@ Item {
     property var    _mavlinkCamera:                             _mavlinkCameraManager ? _mavlinkCameraManager.currentCameraInstance : null
     property bool   _multipleMavlinkCameras:                    _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count > 1 : false
     property string _mavlinkCameraName:                         _mavlinkCamera && _multipleMavlinkCameras ? _mavlinkCamera.modelName : ""
-    property bool   _isA30TRCamera:                             _videoStreamSettings &&
-                                                                _videoStreamSettings.rtspUrl &&
-                                                                _videoStreamSettings.rtspUrl.rawValue &&
-                                                                _videoStreamSettings.rtspUrl.rawValue.toString().indexOf("192.168.2.119:554") !== -1
     property bool   _noMavlinkCameraStreams:                    _mavlinkCamera ? _mavlinkCamera.streamLabels.length : true
     property bool   _multipleMavlinkCameraStreams:              _mavlinkCamera ? _mavlinkCamera.streamLabels.length > 1 : false
     property int    _mavlinCameraCurStreamIndex:                _mavlinkCamera ? _mavlinkCamera.currentStream : -1
@@ -108,9 +104,9 @@ Item {
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
+    property bool   _videoIsRecording:                          _usePayload ? _payloadRecording : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording)
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
-    property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
+    property bool   _isShootingInCurrentMode:                   _usePayload ? (!_videoStreamInPhotoMode && _payloadRecording) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode)
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
@@ -174,6 +170,18 @@ Item {
             _mavlinkCamera.startZoom(direction)
         }
     }
+
+    function _toggleMavlinkVideo() {
+        if (!_mavlinkCamera) {
+            return
+        }
+        if (typeof _mavlinkCamera.buttonToggleVideo === "function") {
+            _mavlinkCamera.buttonToggleVideo()
+        } else {
+            _mavlinkCamera.toggleVideo()
+        }
+    }
+
     function toggleShooting() {
         if (_usePayload) {
             if (_videoStreamInPhotoMode) {
@@ -205,7 +213,7 @@ Item {
 
         if (mavlinkCameraCaptureVideoOrPhotos) {
             if(_mavlinkCameraInVideoMode) {
-                _mavlinkCamera.toggleVideo()
+                _toggleMavlinkVideo()
             } else {
                 if(_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle && _mavlinkCameraElapsedMode) {
                     _mavlinkCamera.stopTakePhoto()

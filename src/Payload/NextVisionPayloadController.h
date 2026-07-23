@@ -3,8 +3,9 @@
 ///
 /// The DragonEye2 gimbal sits behind an ArduPilot flight controller reached over
 /// UDP (default 192.168.2.28:10038). Pan/tilt are driven with RC_CHANNELS_OVERRIDE:
-///   CH1 = pan/yaw, CH2 = tilt/pitch, 1500 center, 1500 +/- offset.
-///   CH3 = zoom, CH4 = home preset, CH5 = snapshot, CH6 = record.
+///   CH10 = roll/pan/yaw, CH9 = pitch/tilt, 1500 center, 1500 +/- offset.
+///   CH6 = stow/OBS/pilot reset, CH11 = zoom in/stop/out, CH12 = snapshot.
+///   CH13 record is left to the physical RC/camera assignment.
 ///
 /// Critical protocol details (from the working NextVisionGimbalMaui app):
 ///  - Sender system id MUST match the rig's ArduPilot SYSID_MYGCS. aq2apm45.param sets it to
@@ -64,6 +65,8 @@ private:
     void _sendRequestDataStream();
     uint16_t _clampPwm(int pwm) const;
     void _pulseChannel(int channelIndex, uint16_t value, int durationMs, uint16_t restoreValue);
+    void _clearAllChannels();
+    void _clearAuxiliaryChannels();
 
     QTimer* _txTimer = nullptr;
     quint32 _tickCount = 0;
@@ -73,6 +76,12 @@ private:
     static constexpr int  kCenter = 1500;
     static constexpr int  kPwmMin = 1000;
     static constexpr int  kPwmMax = 2000;
+    static constexpr uint16_t kIgnore = 0xFFFF;
+    static constexpr int  kPanChannelIndex      = 9;  // CH10 Roll / pan-yaw
+    static constexpr int  kTiltChannelIndex     = 8;  // CH9 Pitch / tilt
+    static constexpr int  kZoomControlChannelIndex = 10; // CH11 Zoom-In/Stop/Zoom-Out
+    static constexpr int  kSnapshotChannelIndex    = 11; // CH12 Snapshot
+    static constexpr int  kHomeModeChannelIndex    = 5;  // CH6 Stow/OBS/Pilot
 
     // ArduPilot target; learned from HEARTBEAT, defaults to 1/1.
     uint8_t _targetSysId  = 1;

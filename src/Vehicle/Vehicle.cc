@@ -1798,6 +1798,11 @@ void Vehicle::_updateArmed(bool armed)
             _clearCameraTriggerPoints();
             // Reset battery warning
             _lowestBatteryChargeStateAnnouncedMap.clear();
+
+            if (!_preflightChecklistAllowsArming()) {
+                qgcApp()->showAppMessage(tr("Preflight checklist incomplete. Disarming vehicle."));
+                setArmed(false, true);
+            }
         } else {
             _trajectoryPoints->stop();
             _flightTimerStop();
@@ -2479,6 +2484,11 @@ QGeoCoordinate Vehicle::homePosition()
 
 void Vehicle::setArmed(bool armed, bool showError)
 {
+    if (armed && !_preflightChecklistAllowsArming()) {
+        qgcApp()->showAppMessage(tr("Preflight checklist must pass before arming."));
+        return;
+    }
+
     // We specifically use COMMAND_LONG:MAV_CMD_COMPONENT_ARM_DISARM since it is supported by more flight stacks.
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
@@ -2488,11 +2498,32 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
+    if (!_preflightChecklistAllowsArming()) {
+        qgcApp()->showAppMessage(tr("Preflight checklist must pass before arming."));
+        return;
+    }
+
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
                    true,    // show error if fails
                    1.0f,    // arm
                    2989);   // force arm
+}
+
+bool Vehicle::_preflightChecklistAllowsArming() const
+{
+    AppSettings* appSettings = _settingsManager ? _settingsManager->appSettings() : nullptr;
+    QGCCorePlugin* corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
+    QGCOptions* options = corePlugin ? corePlugin->options() : nullptr;
+    const bool checklistAvailable = options && !options->preFlightChecklistUrl().toString().isEmpty();
+
+    if (!appSettings || !checklistAvailable) {
+        return true;
+    }
+
+    const bool useChecklist = appSettings->useChecklist()->rawValue().toBool();
+    const bool enforceChecklist = appSettings->enforceChecklist()->rawValue().toBool();
+    return !(useChecklist && enforceChecklist && _checkListState != CheckListPassed);
 }
 
 bool Vehicle::flightModeSetAvailable()
