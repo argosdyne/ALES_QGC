@@ -233,7 +233,6 @@ protected:
     void    _saveSettings           ();
     void    _saveButtonSettings     ();
     void    _loadSettings           ();
-    bool    _applyHardcodedProfile  ();
     void    _backupSettingsToFile   ();
     bool    _restoreSettingsFromFile(QSettings& settings);
     QString _configBackupFilePath   () const;
@@ -295,7 +294,6 @@ protected:
 
     bool    _pollingStartedForCalibration = false;
     bool    _gimbalAxisActive       = false;    ///< true while an analog gimbal axis is being deflected
-    bool    _gimbalOnlyJoystickProfile = false; ///< true for USB camera controllers that must not send flight MANUAL_CONTROL
 
     QString _name;
     bool    _calibrated;
