@@ -72,7 +72,6 @@ Item {
                 } else {
                     _irZoom.value = v
                 }
-                irZoomChangedAnimator.restart()
             }
         }
         function irSwitchTigger(start) {
@@ -203,6 +202,12 @@ Item {
             text: _irZoom ? "x" + _irZoom.value.toFixed(1) : "x1.0"
             font.bold: true
             font.pointSize: ScreenTools.mediumFontPointSize
+        }
+        Connections {
+            target: _irZoom
+            function onValueChanged() {
+                irZoomChangedAnimator.restart()
+            }
         }
         OpacityAnimator {
             id: irZoomChangedAnimator
