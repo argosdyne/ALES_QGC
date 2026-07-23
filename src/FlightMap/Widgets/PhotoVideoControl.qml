@@ -146,6 +146,29 @@ Item {
         }
     }
 
+
+    function _stepCameraZoom(direction) {
+        if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+            return
+        }
+        if (typeof _mavlinkCamera.stepZoomFromUi === "function") {
+            _mavlinkCamera.stepZoomFromUi(direction)
+        } else if (typeof _mavlinkCamera.stepZoom === "function") {
+            _mavlinkCamera.stepZoom(direction)
+        }
+    }
+
+    function _startCameraZoom(direction) {
+        if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+            return
+        }
+        if (direction < 0 && typeof _mavlinkCamera.startZoomFromUi === "function") {
+            _mavlinkCamera.startZoomFromUi(direction)
+        } else if (typeof _mavlinkCamera.startZoom === "function") {
+            _mavlinkCamera.startZoom(direction)
+        }
+    }
+
     function _toggleMavlinkVideo() {
         if (!_mavlinkCamera) {
             return
@@ -156,6 +179,7 @@ Item {
             _mavlinkCamera.toggleVideo()
         }
     }
+
 
     function toggleShooting() {
         if (_usePayload) {
@@ -405,7 +429,7 @@ Item {
             height: width / 3
             color: qgcPal.windowShadeLight
             radius: height * 0.5
-            visible: _showModeIndicator
+            visible: _hasZoom
 
             //Zoom in
             Rectangle {
@@ -436,12 +460,12 @@ Item {
                             _zoomInActive = true
                         } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoomFromUi(1)
+                            _stepCameraZoom(1)
                         }
                     }
                     onPressAndHold: {
                         if (!_usePayload && _mavlinkCamera && _zoomInCanContinuous) {
-                            _mavlinkCamera.startZoom(1)
+                            _startCameraZoom(1)
                             _zoomInActive = true
                         }
                     }
@@ -514,12 +538,12 @@ Item {
                             _zoomOutActive = true
                         } else if (Date.now() - _zoomLastMs >= 150) {
                             _zoomLastMs = Date.now()
-                            _mavlinkCamera.stepZoomFromUi(-1)
+                            _stepCameraZoom(-1)
                         }
                     }
                     onPressAndHold: {
                         if (!_usePayload && _mavlinkCamera && _zoomOutCanContinuous) {
-                            _mavlinkCamera.startZoomFromUi(-1)
+                            _startCameraZoom(-1)
                             _zoomOutActive = true
                         }
                     }

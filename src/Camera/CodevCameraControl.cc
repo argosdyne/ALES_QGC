@@ -106,6 +106,28 @@ static bool _isR3CameraModel(const QString& modelName)
             || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
 }
 
+// Sony R1 / LR1 / IR1 (and similar) ride CodevCameraControl but have no optical zoom.
+// CAMERA_INFORMATION may still advertise HAS_BASIC_ZOOM; optimistic R3 zoom UI would
+// then raise displayZoomLevel with no real lens motion.
+static bool _isNonZoomCodevCamera(const QString& modelName, const QString& vendorName)
+{
+    const QString model = modelName.toUpper();
+    const QString vendor = vendorName.toUpper();
+    if (vendor.contains(QStringLiteral("SONY")) || model.contains(QStringLiteral("SONY"))) {
+        return true;
+    }
+    if (model.contains(QStringLiteral("IR1"))
+            || model.contains(QStringLiteral("IR-1"))
+            || model.contains(QStringLiteral("IR_1"))
+            || model.contains(QStringLiteral("IR 1"))) {
+        return true;
+    }
+    if (model.contains(QStringLiteral("LR1")) || model.contains(QStringLiteral("RLR1"))) {
+        return true;
+    }
+    return false;
+}
+
 static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
 static constexpr qint64 kZoomStepDebounceMs = 150;
 static constexpr int kHoldZoomStepIntervalMs = 150;
@@ -756,6 +778,14 @@ void CodevCameraControl::setPhotoMode()
             }
         }
     }
+}
+
+bool CodevCameraControl::hasZoom()
+{
+    if (_isNonZoomCodevCamera(modelName(), vendor())) {
+        return false;
+    }
+    return QGCCameraControl::hasZoom();
 }
 
 void CodevCameraControl::factChanged(Fact* pFact)
