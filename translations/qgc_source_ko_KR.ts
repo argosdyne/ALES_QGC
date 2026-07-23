@@ -19218,6 +19218,17 @@ Confirm change?</source>
       <translation>경고</translation>
     </message>
     <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="1803"/>
+      <source>Preflight checklist incomplete. Disarming vehicle.</source>
+      <translation>비행 전 점검 목록이 완료되지 않았습니다. 기체 시동을 해제합니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2488"/>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2502"/>
+      <source>Preflight checklist must pass before arming.</source>
+      <translation>비행 전 점검 목록을 완료해야 시동할 수 있습니다.</translation>
+    </message>
+    <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2391"/>
       <source>Generic micro air vehicle</source>
       <translation>일반 초소형 기체</translation>

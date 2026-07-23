@@ -57,6 +57,10 @@ static constexpr float kRcGimbalMaxYawRateDegS = 30.0f;
 static constexpr uint16_t kRcGimbalJoystickHoldOffset = 300;
 static constexpr int kRcGimbalJoystickStreamIntervalMs = 50;
 static constexpr int kRcGimbalJoystickStopFrames = 3;
+static constexpr int kR3TimeSyncIntervalMs = 1000;
+static constexpr int kR3TimeSyncDurationMs = 30000;
+static constexpr uint8_t kR3TimeSyncSourceSystem = 1;
+static constexpr uint8_t kR3TimeSyncSourceComponent = 1;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -260,6 +264,10 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _joystickRcStreamTimer.setInterval(kRcGimbalJoystickStreamIntervalMs);
     connect(&_joystickRcStreamTimer, &QTimer::timeout, this, &CodevCameraControl::_streamJoystickRc);
 
+    _r3TimeSyncTimer.setInterval(kR3TimeSyncIntervalMs);
+    connect(&_r3TimeSyncTimer, &QTimer::timeout, this, &CodevCameraControl::_sendR3TimeSync);
+    QTimer::singleShot(250, this, &CodevCameraControl::_startR3TimeSync);
+
     _holdZoomStepTimer.setSingleShot(false);
     _holdZoomStepTimer.setInterval(kHoldZoomStepIntervalMs);
     connect(&_holdZoomStepTimer, &QTimer::timeout, this, &CodevCameraControl::_holdZoomStepTick);
@@ -438,6 +446,77 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
                                    &msg,
                                    &outbound);
     _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+}
+
+void CodevCameraControl::_startR3TimeSync()
+{
+    if (!_vehicle || !_link || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    qCInfo(CodevCameraLog) << "[R3TimeSync]"
+            << "start SYSTEM_TIME sync"
+            << "cameraCompId" << _compID
+            << "sourceSysId" << kR3TimeSyncSourceSystem
+            << "sourceCompId" << kR3TimeSyncSourceComponent
+            << "intervalMs" << kR3TimeSyncIntervalMs
+            << "durationMs" << kR3TimeSyncDurationMs;
+
+    _r3TimeSyncSendCount = 0;
+    _sendR3TimeSync();
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs < kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.start();
+    }
+}
+
+void CodevCameraControl::_sendR3TimeSync()
+{
+    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
+        _r3TimeSyncTimer.stop();
+        return;
+    }
+
+    mavlink_message_t heartbeatMsg;
+    mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
+                                    kR3TimeSyncSourceComponent,
+                                    _link->mavlinkChannel(),
+                                    &heartbeatMsg,
+                                    MAV_TYPE_GCS,
+                                    MAV_AUTOPILOT_INVALID,
+                                    0,
+                                    0,
+                                    MAV_STATE_ACTIVE);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, heartbeatMsg);
+
+    mavlink_message_t timeMsg;
+    mavlink_system_time_t systemTime;
+    memset(&systemTime, 0, sizeof(systemTime));
+    systemTime.time_unix_usec = static_cast<uint64_t>(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()) * 1000ULL;
+    systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
+    mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
+                                        kR3TimeSyncSourceComponent,
+                                        _link->mavlinkChannel(),
+                                        &timeMsg,
+                                        &systemTime);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, timeMsg);
+
+    qCDebug(CodevCameraVerboseLog) << "[R3TimeSync]"
+            << "sent HEARTBEAT + SYSTEM_TIME"
+            << "cameraCompId" << _compID
+            << "message" << MAVLINK_MSG_ID_SYSTEM_TIME
+            << "timeUnixUsec" << systemTime.time_unix_usec
+            << "timeBootMs" << systemTime.time_boot_ms
+            << "sendCount" << (_r3TimeSyncSendCount + 1);
+
+    ++_r3TimeSyncSendCount;
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs >= kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.stop();
+        qCInfo(CodevCameraLog) << "[R3TimeSync]"
+                << "finished SYSTEM_TIME sync"
+                << "cameraCompId" << _compID
+                << "sendCount" << _r3TimeSyncSendCount
+                << "durationMs" << kR3TimeSyncDurationMs;
+    }
 }
 
 void CodevCameraControl::_sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15)

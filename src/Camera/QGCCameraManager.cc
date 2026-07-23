@@ -9,6 +9,7 @@
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
 #include "CodevCameraControl.h"
+#include "Fact.h"
 #include "GimbalController.h"
 #include "SettingsManager.h"
 #include "VideoSettings.h"
@@ -1082,9 +1083,11 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         disconnect(_activeJoystick, &Joystick::startVideoRecord,    this, &QGCCameraManager::_startVideoRecording);
         disconnect(_activeJoystick, &Joystick::stopVideoRecord,     this, &QGCCameraManager::_stopVideoRecording);
         disconnect(_activeJoystick, &Joystick::toggleVideoRecord,   this, &QGCCameraManager::_toggleVideoRecording);
-        disconnect(_activeJoystick, &Joystick::gimbalPitchStep,    this, &QGCCameraManager::_joystickGimbalPitchStep);
-        disconnect(_activeJoystick, &Joystick::gimbalYawStep,      this, &QGCCameraManager::_joystickGimbalYawStep);
-        disconnect(_activeJoystick, &Joystick::centerGimbal,       this, &QGCCameraManager::_joystickCenterGimbal);
+        disconnect(_activeJoystick, &Joystick::thermalMode,         this, &QGCCameraManager::_thermalMode);
+        disconnect(_activeJoystick, &Joystick::thermalZoom,         this, &QGCCameraManager::_thermalZoom);
+        disconnect(_activeJoystick, &Joystick::gimbalPitchStep,     this, &QGCCameraManager::_joystickGimbalPitchStep);
+        disconnect(_activeJoystick, &Joystick::gimbalYawStep,       this, &QGCCameraManager::_joystickGimbalYawStep);
+        disconnect(_activeJoystick, &Joystick::centerGimbal,        this, &QGCCameraManager::_joystickCenterGimbal);
     }
     _activeJoystick = joystick;
     if(_activeJoystick) {
@@ -1097,6 +1100,8 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         connect(_activeJoystick, &Joystick::startVideoRecord,       this, &QGCCameraManager::_startVideoRecording);
         connect(_activeJoystick, &Joystick::stopVideoRecord,        this, &QGCCameraManager::_stopVideoRecording);
         connect(_activeJoystick, &Joystick::toggleVideoRecord,      this, &QGCCameraManager::_toggleVideoRecording);
+        connect(_activeJoystick, &Joystick::thermalMode,            this, &QGCCameraManager::_thermalMode);
+        connect(_activeJoystick, &Joystick::thermalZoom,            this, &QGCCameraManager::_thermalZoom);
         connect(_activeJoystick, &Joystick::gimbalPitchStep,        this, &QGCCameraManager::_joystickGimbalPitchStep);
         connect(_activeJoystick, &Joystick::gimbalYawStep,          this, &QGCCameraManager::_joystickGimbalYawStep);
         connect(_activeJoystick, &Joystick::centerGimbal,           this, &QGCCameraManager::_joystickCenterGimbal);
@@ -1228,6 +1233,53 @@ QGCCameraManager::_toggleVideoRecording()
     if(pCamera) {
         pCamera->toggleVideo();
     }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraManager::_thermalMode()
+{
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if (!pCamera) {
+        return;
+    }
+
+    int nextMode = pCamera->thermalMode() + 1;
+    if (nextMode > QGCCameraControl::THERMAL_PIP) {
+        nextMode = QGCCameraControl::THERMAL_OFF;
+    }
+    pCamera->setThermalMode(static_cast<QGCCameraControl::ThermalViewMode>(nextMode));
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCameraManager::_thermalZoom()
+{
+    QGCCameraControl* pCamera = currentCameraInstance();
+    if (!pCamera || !pCamera->factExists(QStringLiteral("IR_ZOOM"))) {
+        return;
+    }
+
+    Fact* irZoom = pCamera->getFact(QStringLiteral("IR_ZOOM"));
+    if (!irZoom || irZoom->readOnly()) {
+        return;
+    }
+
+    const double minValue = irZoom->cookedMin().toDouble();
+    const double maxValue = irZoom->cookedMax().toDouble();
+    double increment = irZoom->cookedIncrement();
+    if (!std::isfinite(increment) || increment <= 0.0) {
+        increment = 1.0;
+    }
+
+    double nextValue = irZoom->cookedValue().toDouble() + increment;
+    if (nextValue > maxValue + 0.01) {
+        nextValue = minValue;
+    } else if (nextValue > maxValue) {
+        nextValue = maxValue;
+    }
+
+    irZoom->setCookedValue(nextValue);
 }
 
 //-----------------------------------------------------------------------------

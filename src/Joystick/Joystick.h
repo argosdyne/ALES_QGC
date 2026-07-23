@@ -213,6 +213,8 @@ signals:
     void startVideoRecord           ();
     void stopVideoRecord            ();
     void toggleVideoRecord          ();
+    void thermalMode                ();
+    void thermalZoom                ();
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
     void gimbalAxisControl          (float pitch, float yaw);
@@ -370,6 +372,8 @@ private:
     static const char* _buttonActionStartVideoRecord;
     static const char* _buttonActionStopVideoRecord;
     static const char* _buttonActionToggleVideoRecord;
+    static const char* _buttonActionThermalMode;
+    static const char* _buttonActionThermalZoom;
     static const char* _buttonActionGimbalDown;
     static const char* _buttonActionGimbalUp;
     static const char* _buttonActionGimbalLeft;

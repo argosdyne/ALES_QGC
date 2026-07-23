@@ -81,6 +81,8 @@ protected slots:
     virtual void    _startVideoRecording    ();
     virtual void    _stopVideoRecording     ();
     virtual void    _toggleVideoRecording   ();
+    virtual void    _thermalMode            ();
+    virtual void    _thermalZoom            ();
     virtual void    _joystickGimbalPitchStep(int direction);
     virtual void    _joystickGimbalYawStep  (int direction);
     virtual void    _joystickCenterGimbal   ();
