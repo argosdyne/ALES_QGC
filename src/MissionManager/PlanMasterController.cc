@@ -24,9 +24,41 @@
 
 #include <QDomDocument>
 #include <QJsonDocument>
+#include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QMetaObject>
+#include <QPointer>
+
+#ifdef __android__
+#include <jni.h>
+#endif
 
 QGC_LOGGING_CATEGORY(PlanMasterControllerLog, "PlanMasterControllerLog")
+
+namespace {
+QPointer<PlanMasterController> sPlanViewController;
+
+QString uniqueMissionImportPath(const QString& missionDirectory, const QFileInfo& sourceFileInfo)
+{
+    QDir missionDir(missionDirectory);
+    const QString suffix = sourceFileInfo.suffix();
+    const QString baseName = sourceFileInfo.completeBaseName().isEmpty() ? QStringLiteral("mission") : sourceFileInfo.completeBaseName();
+    QString candidateName = suffix.isEmpty() ? baseName : QStringLiteral("%1.%2").arg(baseName, suffix);
+    QString candidatePath = missionDir.filePath(candidateName);
+
+    int index = 1;
+    while (QFileInfo::exists(candidatePath)) {
+        candidateName = suffix.isEmpty()
+                ? QStringLiteral("%1 (%2)").arg(baseName).arg(index)
+                : QStringLiteral("%1 (%2).%3").arg(baseName).arg(index).arg(suffix);
+        candidatePath = missionDir.filePath(candidateName);
+        index++;
+    }
+
+    return candidatePath;
+}
+}
 
 const int   PlanMasterController::kPlanFileVersion =            1;
 const char* PlanMasterController::kPlanFileType =               "Plan";
@@ -81,11 +113,17 @@ void PlanMasterController::_commonInit(void)
 
 PlanMasterController::~PlanMasterController()
 {
-
+    if (sPlanViewController == this) {
+        sPlanViewController.clear();
+    }
 }
 
 void PlanMasterController::start(void)
 {
+    if (!_flyView) {
+        sPlanViewController = this;
+    }
+
     _missionController.start    (_flyView);
     _geoFenceController.start   (_flyView);
     _rallyPointController.start (_flyView);
@@ -334,15 +372,19 @@ void PlanMasterController::sendToVehicle(void)
 
 void PlanMasterController::loadFromFile(const QString& filename)
 {
-    QString errorString;
-    QString errorMessage = tr("Error loading Plan file (%1). %2").arg(filename).arg("%1");
+    _loadFromFile(filename, qgcApp()->toolbox()->settingsManager()->appSettings()->missionSavePath());
+}
+
+void PlanMasterController::loadFromUsbFile(const QString& filename, const QString& usbRootPath)
+{
+    QString errorMessage = tr("Error importing Plan file (%1). %2").arg(filename).arg("%1");
 
     if (filename.isEmpty()) {
         return;
     }
 
     QString validationErrorString;
-    MissionFileValidator::ValidationResult validationResult = MissionFileValidator::validate(filename, qgcApp()->toolbox()->settingsManager()->appSettings()->missionSavePath(), validationErrorString);
+    MissionFileValidator::ValidationResult validationResult = MissionFileValidator::validate(filename, usbRootPath, validationErrorString);
     if (validationResult != MissionFileValidator::Accepted) {
         QString validationMessage = MissionFileValidator::validationResultToString(validationResult);
         if (!validationErrorString.isEmpty()) {
@@ -352,13 +394,58 @@ void PlanMasterController::loadFromFile(const QString& filename)
         return;
     }
 
+    AppSettings* appSettings = qgcApp()->toolbox()->settingsManager()->appSettings();
+    const QString missionSavePath = appSettings->missionSavePath();
+    if (missionSavePath.isEmpty()) {
+        qgcApp()->showAppMessage(errorMessage.arg(tr("default mission folder is not configured")));
+        return;
+    }
+
+    QDir missionDir(missionSavePath);
+    if (!missionDir.exists() && !QDir().mkpath(missionSavePath)) {
+        qgcApp()->showAppMessage(errorMessage.arg(tr("could not create default mission folder")));
+        return;
+    }
+
+    const QFileInfo sourceFileInfo(filename);
+    const QString importedFilename = uniqueMissionImportPath(missionSavePath, sourceFileInfo);
+    if (!QFile::copy(filename, importedFilename)) {
+        qgcApp()->showAppMessage(errorMessage.arg(tr("could not copy mission file to default mission folder")));
+        return;
+    }
+
+    if (_loadFromFile(importedFilename, missionSavePath)) {
+        qgcApp()->showAppMessage(tr("Mission plan imported successfully: %1").arg(QFileInfo(importedFilename).fileName()));
+    }
+}
+
+bool PlanMasterController::_loadFromFile(const QString& filename, const QString& validationBasePath)
+{
+    QString errorString;
+    QString errorMessage = tr("Error loading Plan file (%1). %2").arg(filename).arg("%1");
+
+    if (filename.isEmpty()) {
+        return false;
+    }
+
+    QString validationErrorString;
+    MissionFileValidator::ValidationResult validationResult = MissionFileValidator::validate(filename, validationBasePath, validationErrorString);
+    if (validationResult != MissionFileValidator::Accepted) {
+        QString validationMessage = MissionFileValidator::validationResultToString(validationResult);
+        if (!validationErrorString.isEmpty()) {
+            validationMessage += QStringLiteral(": ") + validationErrorString;
+        }
+        qgcApp()->showAppMessage(errorMessage.arg(validationMessage));
+        return false;
+    }
+
     QFileInfo fileInfo(filename);
     QFile file(filename);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         errorString = file.errorString() + QStringLiteral(" ") + filename;
         qgcApp()->showAppMessage(errorMessage.arg(errorString));
-        return;
+        return false;
     }
 
     bool success = false;
@@ -380,7 +467,7 @@ void PlanMasterController::loadFromFile(const QString& filename)
 
         if (!JsonHelper::isJsonFile(bytes, jsonDoc, errorString)) {
             qgcApp()->showAppMessage(errorMessage.arg(errorString));
-            return;
+            return false;
         }
 
         QJsonObject json = jsonDoc.object();
@@ -390,7 +477,7 @@ void PlanMasterController::loadFromFile(const QString& filename)
         int version;
         if (!JsonHelper::validateExternalQGCJsonFile(json, kPlanFileType, kPlanFileVersion, kPlanFileVersion, version, errorString)) {
             qgcApp()->showAppMessage(errorMessage.arg(errorString));
-            return;
+            return false;
         }
 
         QList<JsonHelper::KeyValidateInfo> rgKeyInfo = {
@@ -400,7 +487,7 @@ void PlanMasterController::loadFromFile(const QString& filename)
         };
         if (!JsonHelper::validateKeys(json, rgKeyInfo, errorString)) {
             qgcApp()->showAppMessage(errorMessage.arg(errorString));
-            return;
+            return false;
         }
 
         if (!_missionController.load(json[kJsonMissionObjectKey].toObject(), errorString) ||
@@ -424,7 +511,51 @@ void PlanMasterController::loadFromFile(const QString& filename)
     if (!offline()) {
         setDirty(true);
     }
+
+    return success;
 }
+
+#ifdef __android__
+extern "C" JNIEXPORT void JNICALL
+Java_org_mavlink_qgroundcontrol_update_USBUpdateManager_nativeImportMissionPlanFromUsb(JNIEnv* env, jclass, jstring missionPlanPath, jstring usbRootPath)
+{
+    if (!env || !missionPlanPath || !usbRootPath) {
+        qWarning() << "USB mission import ignored because JNI arguments are missing";
+        return;
+    }
+
+    const char* missionPlanChars = env->GetStringUTFChars(missionPlanPath, nullptr);
+    const char* usbRootChars = env->GetStringUTFChars(usbRootPath, nullptr);
+    if (!missionPlanChars || !usbRootChars) {
+        if (missionPlanChars) {
+            env->ReleaseStringUTFChars(missionPlanPath, missionPlanChars);
+        }
+        if (usbRootChars) {
+            env->ReleaseStringUTFChars(usbRootPath, usbRootChars);
+        }
+        qWarning() << "USB mission import ignored because JNI string conversion failed";
+        return;
+    }
+
+    const QString missionPlanFilename = QString::fromUtf8(missionPlanChars);
+    const QString usbRootDirectory = QString::fromUtf8(usbRootChars);
+    env->ReleaseStringUTFChars(missionPlanPath, missionPlanChars);
+    env->ReleaseStringUTFChars(usbRootPath, usbRootChars);
+
+    PlanMasterController* controller = sPlanViewController.data();
+    if (!controller) {
+        qWarning() << "USB mission import failed because Plan View controller is not available";
+        QMetaObject::invokeMethod(qgcApp(), [missionPlanFilename]() {
+            qgcApp()->showAppMessage(QObject::tr("Error loading Plan file (%1). Plan View is not available.").arg(missionPlanFilename));
+        }, Qt::QueuedConnection);
+        return;
+    }
+
+    QMetaObject::invokeMethod(controller, [controller, missionPlanFilename, usbRootDirectory]() {
+        controller->loadFromUsbFile(missionPlanFilename, usbRootDirectory);
+    }, Qt::QueuedConnection);
+}
+#endif
 
 QJsonDocument PlanMasterController::saveToJson()
 {
