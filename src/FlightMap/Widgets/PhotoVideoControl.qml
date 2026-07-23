@@ -136,16 +136,18 @@ Item {
     function setCameraMode(photoMode) {
         _videoStreamInPhotoMode = photoMode
 
-        if (_mavlinkCamera){
-            if (_mavlinkCameraInPhotoMode) {
-                _mavlinkCamera.setVideoMode()
-            } else {
+        // Use the requested mode — do NOT toggle from current state.
+        // Toggle-from-current (regressed in R3 zoom patch) causes flicker,
+        // rollback, and eventually stuck photo/video controls on Sony/Codev.
+        if (_mavlinkCamera) {
+            if (photoMode) {
                 _mavlinkCamera.setPhotoMode()
+            } else {
+                _mavlinkCamera.setVideoMode()
             }
             return
         }
     }
-
 
     function _stepCameraZoom(direction) {
         if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
