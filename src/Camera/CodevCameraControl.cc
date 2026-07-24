@@ -142,6 +142,7 @@ static constexpr float kSettleStableEpsilon = 0.75f;
 // RC button chatter / double-click: wait before CONTINUOUS stop, and never
 // re-fire CONTINUOUS ±1 too soon (firmware treats that as run-to min/max).
 static constexpr int kRcZoomReleaseDebounceMs = 180;
+// Same-direction CONTINUOUS re-fire cooldown (opposite direction is always allowed).
 static constexpr qint64 kContinuousRetriggerCooldownMs = 400;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
@@ -1150,16 +1151,33 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
 
     if (direction > 0 && _opticalRange >= (_maxOpticalX - 0.5f)) {
         qCInfo(CodevCameraLog) << sourceTag << "block slew at optical max" << _opticalRange;
+        // Don't leave a previous opposite CONTINUOUS running.
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            _beginSettle(sourceTag);
+        }
         return;
     }
     if (direction < 0 && _opticalRange <= 1.0f) {
         qCInfo(CodevCameraLog) << sourceTag << "block slew at optical min" << _opticalRange;
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            _beginSettle(sourceTag);
+        }
         return;
     }
 
     // Same direction already slewing — never re-send CONTINUOUS (lens restart stutter).
     if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection == direction) {
         return;
+    }
+
+    // Reverse while slewing: stop first so the camera accepts the new direction.
+    if (_zoomPhase == ZoomPhase::Slewing
+            && _holdZoomDirection != 0
+            && _holdZoomDirection != direction) {
+        qCInfo(CodevCameraLog) << sourceTag << "CONTINUOUS reverse"
+                               << "from" << _holdZoomDirection
+                               << "to" << direction;
+        _sendContinuousZoomImmediate(0.0f);
     }
 
     // Leaving SETTLING / reversing: cancel settle timer; estimate carries forward.
@@ -1181,6 +1199,10 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
     if (!_sendContinuousZoomImmediate(static_cast<float>(direction))) {
         qCInfo(CodevCameraLog) << sourceTag << "CONTINUOUS slew start suppressed"
                                << direction;
+        // Reverse path may have already sent CONTINUOUS 0; align local state.
+        if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection != direction) {
+            _beginSettle(sourceTag);
+        }
         return;
     }
 
@@ -1434,9 +1456,16 @@ bool CodevCameraControl::_sendContinuousZoomImmediate(float direction)
     const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
     if (qFuzzyIsNull(direction)) {
         _lastContinuousNonZeroDir = 0.0f;
+        // Stop clears cooldown so a quick reverse (±1) is not blocked.
+        _lastContinuousNonZeroMs = 0;
     } else {
-        // Rapid CONTINUOUS ±1 re-triggers (RC double-click) run this camera to min/max.
-        if (_lastContinuousNonZeroMs > 0
+        // Only suppress same-direction re-triggers (RC/button chatter → min/max).
+        // Opposite direction must always be allowed so in/out can be switched freely.
+        const bool sameDirectionRetrigger =
+                (_lastContinuousNonZeroDir > 0.0f && direction > 0.0f)
+                || (_lastContinuousNonZeroDir < 0.0f && direction < 0.0f);
+        if (sameDirectionRetrigger
+                && _lastContinuousNonZeroMs > 0
                 && (nowMs - _lastContinuousNonZeroMs) < kContinuousRetriggerCooldownMs) {
             qCInfo(CodevCameraLog) << "[CameraFlow] suppress rapid CONTINUOUS re-trigger"
                                    << "direction" << direction
@@ -2443,7 +2472,7 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
         return;
     }
 
-    if (_qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
+    if (!_isR3CameraModel(modelName())) {
         if (_aviatorRcZoomState != 0) {
             _rcZoomReleaseTimer.stop();
             _aviatorRcZoomState = 0;
@@ -2454,11 +2483,11 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
         return;
     }
 
-    uint16_t& ch11 = channels[10];
-    const int direction = _rcZoomDirectionWithHysteresis(ch11, _aviatorRcZoomState);
+    const uint16_t ch11Raw = channels[10];
+    const int direction = _rcZoomDirectionWithHysteresis(ch11Raw, _aviatorRcZoomState);
 
     // Never passthrough ch11 (avoids FC min/max jumps). Zoom is MAVLink only.
-    ch11 = kRcGimbalCenter;
+    channels[10] = kRcGimbalCenter;
 
     if (direction == 0) {
         // Debounce release: brief center between rapid RC clicks must NOT
@@ -2472,23 +2501,34 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     // Deflection (back) — cancel pending stop.
     _rcZoomReleaseTimer.stop();
 
-    if (direction == _aviatorRcZoomState) {
-        // Same direction still/again. If we were only in release-debounce, keep
-        // slewing without re-sending CONTINUOUS.
-        if (_zoomPhase == ZoomPhase::Slewing) {
-            return;
-        }
-        // Stop already committed (Settling/Idle) — start again (cooldown may suppress).
-        startZoom(direction);
+    // Keep going only when RC state and actual CONTINUOUS slew already match.
+    if (direction == _aviatorRcZoomState
+            && _zoomPhase == ZoomPhase::Slewing
+            && _holdZoomDirection == direction) {
         return;
     }
 
-    // Edge or reverse — one CONTINUOUS command (same-dir hold never re-enters here).
-    qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS edge" << direction
-                           << "prev" << _aviatorRcZoomState
-                           << "phase" << static_cast<int>(_zoomPhase);
-    startZoom(direction);
-    _aviatorRcZoomState = direction;
+    // Edge, reverse, restart after settle, or recover from state/slew desync.
+    // Example bug we fix: state flipped to Out after a failed reverse while
+    // slew was still In → same-dir early-return left CONTINUOUS +1 running.
+    qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS"
+                           << "dir" << direction
+                           << "prevState" << _aviatorRcZoomState
+                           << "slewDir" << _holdZoomDirection
+                           << "phase" << static_cast<int>(_zoomPhase)
+                           << "ch11" << ch11Raw;
+    _beginSlew(direction, "aviatorRC");
+
+    if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection == direction) {
+        _aviatorRcZoomState = direction;
+    } else {
+        // Slew did not take the new direction — do not pretend RC state changed.
+        // Next RC frame will retry while stick/button still deflected.
+        qCInfo(CodevCameraLog) << "aviatorRC CONTINUOUS not committed"
+                               << "want" << direction
+                               << "phase" << static_cast<int>(_zoomPhase)
+                               << "slewDir" << _holdZoomDirection;
+    }
 }
 
 void CodevCameraControl::_applyAviatorRcZoomStep(int direction, bool enforceDebounce)
