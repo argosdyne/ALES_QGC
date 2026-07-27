@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.CountDownLatch;
@@ -1028,6 +1030,14 @@ public class QGCActivity extends QtActivity
         return _instance;
     }
 
+    public static void setSessionLockSuppressed(boolean suppressed, String reason) {
+        try {
+            nativeSetSessionLockSuppressed(suppressed, reason != null ? reason : "");
+        } catch (UnsatisfiedLinkError e) {
+            Log.w(TAG, "nativeSetSessionLockSuppressed unavailable", e);
+        }
+    }
+
     public static void testUsbUpdateScan(String rootPath) {
         if (_instance == null || rootPath == null) {
             Log.w(TAG, "USB update test scan ignored because activity or path is not available");
@@ -1969,5 +1979,6 @@ public class QGCActivity extends QtActivity
     // Session Management JNI callbacks
     private native void nativeOnActivityPause();
     private native void nativeOnActivityResume();
+    private static native void nativeSetSessionLockSuppressed(boolean suppressed, String reason);
 }
 

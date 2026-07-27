@@ -15,6 +15,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.mavlink.qgroundcontrol.QGCActivity;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -70,12 +72,14 @@ public final class USBUpdateManager {
 
     private static final String TAG = LOG_TAG;
     private static final InstallGateway INSTALL_GATEWAY = new DpcInstallGateway();
+    private static final String USB_SESSION_SUPPRESSION_REASON = "usb_update_flow";
 
     private USBUpdateManager() { }
 
     private static native void nativeImportMissionPlanFromUsb(String missionPlanPath, String usbRootPath);
 
     public static void scanAndValidate(final Context context, File rootDir, Activity activity) {
+        beginUsbSessionLockSuppression();
         Log.i(TAG, "FLOW: scanAndValidate started rootPath="
                 + (rootDir != null ? rootDir.getAbsolutePath() : "null")
                 + " activityAvailable=" + (activity != null));
@@ -98,7 +102,7 @@ public final class USBUpdateManager {
             @Override
             public void run() {
                 Log.i(TAG, "UI: showing USB action selection dialog");
-                AlertDialog dialog = new AlertDialog.Builder(activity)
+                final AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle("USB Detected")
                         .setMessage("Choose how QGC should handle this USB device.")
                         .setNeutralButton("UPDATE QGC", new DialogInterface.OnClickListener() {
@@ -123,6 +127,14 @@ public final class USBUpdateManager {
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new android.view.View.OnClickListener() {
+                    @Override
+                    public void onClick(android.view.View view) {
+                        Log.i(TAG, "UI: user cancelled USB action selection");
+                        endUsbSessionLockSuppression();
+                        dialog.dismiss();
+                    }
+                });
             }
         });
     }
@@ -144,6 +156,8 @@ public final class USBUpdateManager {
                             "No QGC Update Found",
                             "USB was detected, but no matching update APK was found.\n\nExpected file name:\n"
                                     + APK_NAME_PREFIX + "*.apk");
+                } else {
+                    endUsbSessionLockSuppression();
                 }
             }
             return;
@@ -199,6 +213,8 @@ public final class USBUpdateManager {
                         "No QGC Update Or Mission Plan Found",
                         "USB was detected, but no matching QGC update APK or mission .plan file was found.\n\nExpected update file name:\n"
                                 + APK_NAME_PREFIX + "*.apk");
+            } else {
+                endUsbSessionLockSuppression();
             }
             return;
         }
@@ -255,6 +271,7 @@ public final class USBUpdateManager {
                                                  final File rootDir) {
         if (activity == null) {
             Log.w(TAG, "MISSION_IMPORT: cannot show selection dialog because activity is null");
+            endUsbSessionLockSuppression();
             return;
         }
 
@@ -277,7 +294,13 @@ public final class USBUpdateManager {
                                 }
                             }
                         })
-                        .setNegativeButton("CANCEL", null)
+                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.i(TAG, "MISSION_IMPORT: user cancelled mission selection");
+                                endUsbSessionLockSuppression();
+                            }
+                        })
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
@@ -302,6 +325,8 @@ public final class USBUpdateManager {
         } catch (Throwable t) {
             Log.e(TAG, "MISSION_IMPORT: native import failed", t);
             showError(activity, "Mission plan import failed: " + t.getMessage());
+        } finally {
+            endUsbSessionLockSuppression();
         }
     }
 
@@ -510,6 +535,7 @@ public final class USBUpdateManager {
             UpdateAuditLogger.log(context, "INSTALL_WAITING_FOR_UI", candidate,
                     "No foreground QGC activity available to show confirmation dialog");
             Log.w(TAG, "No foreground activity available for update confirmation");
+            endUsbSessionLockSuppression();
             return;
         }
 
@@ -538,6 +564,7 @@ public final class USBUpdateManager {
                                         candidate, installResult.message);
                                 Toast.makeText(activity, installResult.message,
                                         Toast.LENGTH_LONG).show();
+                                endUsbSessionLockSuppression();
                             }
                         })
                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -546,6 +573,7 @@ public final class USBUpdateManager {
                                 Log.i(TAG, "UI: user tapped CANCEL");
                                 UpdateAuditLogger.log(context, "CANCELLED", candidate,
                                         "User cancelled update installation");
+                                endUsbSessionLockSuppression();
                             }
                         })
                         .setCancelable(false)
@@ -561,6 +589,7 @@ public final class USBUpdateManager {
         if (activity == null) {
             Log.i(TAG, "UI: info dialog skipped because activity is null title=" + title
                     + " message=" + message);
+            endUsbSessionLockSuppression();
             return;
         }
         activity.runOnUiThread(new Runnable() {
@@ -570,7 +599,12 @@ public final class USBUpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle(title)
                         .setMessage(message)
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
@@ -581,6 +615,7 @@ public final class USBUpdateManager {
     private static void showError(final Activity activity, final String message) {
         if (activity == null) {
             Log.w(TAG, message);
+            endUsbSessionLockSuppression();
             return;
         }
         activity.runOnUiThread(new Runnable() {
@@ -590,7 +625,12 @@ public final class USBUpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle("QGC Update Rejected")
                         .setMessage(message)
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
@@ -613,6 +653,14 @@ public final class USBUpdateManager {
 
     private static String safe(String value) {
         return value != null ? value : "";
+    }
+
+    private static void beginUsbSessionLockSuppression() {
+        QGCActivity.setSessionLockSuppressed(true, USB_SESSION_SUPPRESSION_REASON);
+    }
+
+    private static void endUsbSessionLockSuppression() {
+        QGCActivity.setSessionLockSuppressed(false, USB_SESSION_SUPPRESSION_REASON);
     }
 
     private static String shortHash(String hash) {
