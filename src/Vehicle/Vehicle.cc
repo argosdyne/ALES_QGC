@@ -772,6 +772,24 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
                    << "result" << ack.param_result;
         break;
     }
+    case MAVLINK_MSG_ID_STATUSTEXT: {
+        mavlink_statustext_t statusText;
+        mavlink_msg_statustext_decode(&message, &statusText);
+        const QString text = QString::fromLatin1(statusText.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN).trimmed();
+        if (text.contains(QStringLiteral("ap_message"), Qt::CaseInsensitive) || text.contains(QStringLiteral("141"))) {
+            qWarning() << "[Mavlink141]" << "STATUSTEXT RX"
+                       << "vehicleId" << _id
+                       << "sysid" << static_cast<int>(message.sysid)
+                       << "compid" << static_cast<int>(message.compid)
+                       << "seq" << static_cast<int>(message.seq)
+                       << "len" << static_cast<int>(message.len)
+                       << "severity" << static_cast<int>(statusText.severity)
+                       << "link" << _vehicleLogLinkName(link)
+                       << _vehicleLogLinkPtr(link)
+                       << "text" << text;
+        }
+        break;
+    }
     case MAVLINK_MSG_ID_GIMBAL_MANAGER_INFORMATION:
         logMavlinkEndpoint("GIMBAL_MANAGER_INFORMATION");
         break;
@@ -790,6 +808,36 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CAMERA_SETTINGS:
         logMavlinkEndpoint("CAMERA_SETTINGS");
         break;
+    case MAVLINK_MSG_ID_ALTITUDE: {
+        static QMap<QString, qint64> lastAltitude141LogByEndpoint;
+        const QString key = QStringLiteral("%1:%2:%3")
+                .arg(_vehicleLogLinkPtr(link))
+                .arg(message.sysid)
+                .arg(message.compid);
+        const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
+        if (nowMSecs - lastAltitude141LogByEndpoint.value(key, 0) >= 2000) {
+            lastAltitude141LogByEndpoint[key] = nowMSecs;
+
+            mavlink_altitude_t altitude;
+            mavlink_msg_altitude_decode(&message, &altitude);
+            qWarning() << "[Mavlink141]" << "ALTITUDE RX"
+                       << "vehicleId" << _id
+                       << "sysid" << static_cast<int>(message.sysid)
+                       << "compid" << static_cast<int>(message.compid)
+                       << "seq" << static_cast<int>(message.seq)
+                       << "len" << static_cast<int>(message.len)
+                       << "link" << _vehicleLogLinkName(link)
+                       << _vehicleLogLinkPtr(link)
+                       << "time_usec" << altitude.time_usec
+                       << "monotonic" << altitude.altitude_monotonic
+                       << "amsl" << altitude.altitude_amsl
+                       << "local" << altitude.altitude_local
+                       << "relative" << altitude.altitude_relative
+                       << "terrain" << altitude.altitude_terrain
+                       << "bottom_clearance" << altitude.bottom_clearance;
+        }
+        break;
+    }
     default:
         break;
     }
@@ -1158,6 +1206,16 @@ void Vehicle::_chunkedStatusTextCompleted(uint8_t compId)
     }
 
     _chunkedStatusTextInfoMap.remove(compId);
+
+    // ArduPilot does not provide a schedulable ALTITUDE (141) stream. Some
+    // OpenDroneID transmitters request it repeatedly and trigger this cosmetic
+    // warning even when their other required telemetry streams are available.
+    if (apmFirmware() &&
+        compId == MAV_COMP_ID_AUTOPILOT1 &&
+        messageText.trimmed() == QStringLiteral("No ap_message for mavlink id (141)")) {
+        qCDebug(VehicleLog) << "Suppressing unsupported ALTITUDE (141) stream warning";
+        return;
+    }
 
     // PX4 backwards compatibility: messages sent out ending with a tab are also sent as event
     if (messageText.endsWith('\t') && px4Firmware()) {
@@ -2168,8 +2226,81 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
         return false;
     }
 
+    const auto logSetMessageIntervalTx = [this, link](const mavlink_message_t& mavlinkMessage, const char* stage) {
+        if (mavlinkMessage.msgid != MAVLINK_MSG_ID_COMMAND_LONG) {
+            return;
+        }
+
+        mavlink_command_long_t commandLong;
+        mavlink_msg_command_long_decode(&mavlinkMessage, &commandLong);
+        if (commandLong.command != MAV_CMD_SET_MESSAGE_INTERVAL) {
+            return;
+        }
+
+        qWarning() << "[Cmd511TX]"
+                   << stage
+                   << "vehicleId" << _id
+                   << "sysid" << static_cast<int>(mavlinkMessage.sysid)
+                   << "compid" << static_cast<int>(mavlinkMessage.compid)
+                   << "seq" << static_cast<int>(mavlinkMessage.seq)
+                   << "len" << static_cast<int>(mavlinkMessage.len)
+                   << "target" << QStringLiteral("%1/%2").arg(commandLong.target_system).arg(commandLong.target_component)
+                   << "p1" << commandLong.param1
+                   << "p2" << commandLong.param2
+                   << "p3" << commandLong.param3
+                   << "p4" << commandLong.param4
+                   << "p5" << commandLong.param5
+                   << "p6" << commandLong.param6
+                   << "p7" << commandLong.param7
+                   << "link" << _vehicleLogLinkName(link)
+                   << _vehicleLogLinkPtr(link);
+    };
+
+    if (message.msgid == MAVLINK_MSG_ID_ALTITUDE) {
+        mavlink_altitude_t altitude;
+        mavlink_msg_altitude_decode(&message, &altitude);
+        qWarning() << "[Mavlink141]" << "ALTITUDE TX"
+                   << "vehicleId" << _id
+                   << "sysid" << static_cast<int>(message.sysid)
+                   << "compid" << static_cast<int>(message.compid)
+                   << "seq" << static_cast<int>(message.seq)
+                   << "len" << static_cast<int>(message.len)
+                   << "link" << _vehicleLogLinkName(link)
+                   << _vehicleLogLinkPtr(link)
+                   << "time_usec" << altitude.time_usec
+                   << "monotonic" << altitude.altitude_monotonic
+                   << "amsl" << altitude.altitude_amsl
+                   << "local" << altitude.altitude_local
+                   << "relative" << altitude.altitude_relative
+                   << "terrain" << altitude.altitude_terrain
+                   << "bottom_clearance" << altitude.bottom_clearance;
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_COMMAND_LONG) {
+        mavlink_command_long_t commandLong;
+        mavlink_msg_command_long_decode(&message, &commandLong);
+        if (commandLong.command == MAV_CMD_SET_MESSAGE_INTERVAL && static_cast<int>(commandLong.param1) == MAVLINK_MSG_ID_ALTITUDE) {
+            qWarning() << "[Mavlink141]" << "SET_MESSAGE_INTERVAL TX"
+                       << "vehicleId" << _id
+                       << "sysid" << static_cast<int>(message.sysid)
+                       << "compid" << static_cast<int>(message.compid)
+                       << "seq" << static_cast<int>(message.seq)
+                       << "len" << static_cast<int>(message.len)
+                       << "targetSystem" << static_cast<int>(commandLong.target_system)
+                       << "targetComponent" << static_cast<int>(commandLong.target_component)
+                       << "requestedMsgId" << static_cast<int>(commandLong.param1)
+                       << "intervalUsec" << commandLong.param2
+                       << "link" << _vehicleLogLinkName(link)
+                       << _vehicleLogLinkPtr(link);
+        }
+    }
+
+    logSetMessageIntervalTx(message, "preAdjust");
+
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
+
+    logSetMessageIntervalTx(message, "postAdjust");
 
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
