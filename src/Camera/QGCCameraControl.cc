@@ -779,6 +779,7 @@ QGCCameraControl::startVideo()
                 false,                                      // Don't Show Error (handle locally)
                 0,                                          // Reserved (Set to 0)
                 0);                                         // CAMERA_CAPTURE_STATUS Frequency
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
             return true;
         }
     }
@@ -797,6 +798,7 @@ QGCCameraControl::stopVideo()
                 MAV_CMD_VIDEO_STOP_CAPTURE,                 // Command id
                 false,                                      // Don't Show Error (handle locally)
                 0);                                         // Reserved (Set to 0)
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
             return true;
         }
     }

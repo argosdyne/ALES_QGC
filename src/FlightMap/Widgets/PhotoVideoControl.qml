@@ -67,7 +67,9 @@ Item {
     property real zoomLevel: 1.0  // Start at 1x
     property real maxZoom: 30.0
     property real minZoom: 1.0
-    property real zoomStep: 1.0    
+    property real zoomStep: 1.0
+    property bool _zoomUiOverride: false
+    property int _zoomUiPressedDirection: 0
 
     property bool   _hasZoom:                                   (_mavlinkCamera && _mavlinkCamera.hasZoom) || _usePayload
     // The following properties relate to a mavlink protocol camera
@@ -94,6 +96,9 @@ Item {
     property bool   _mavlinkCameraAllowsPhotoWhileRecording:    false
     property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
+    property bool   _isNextVisionPayload:                       PayloadManager.activeType === 1 && PayloadManager.nextvision
+    property bool   _vehicleVideoCaptureRunning:                _activeVehicle && _activeVehicle.videoCaptureRunning
+    property bool   _vehicleVideoCaptureAvailable:              _activeVehicle && !_modeIndicatorPhotoMode
 
     // The following settings and functions unify between a mavlink camera and a simple video stream for simple access
 
@@ -104,9 +109,9 @@ Item {
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _videoIsRecording:                          _usePayload ? _payloadRecording : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording)
-    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
-    property bool   _isShootingInCurrentMode:                   _usePayload ? (!_videoStreamInPhotoMode && _payloadRecording) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode)
+    property bool   _videoIsRecording:                          _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecording : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
+    property bool   _canShootInCurrentMode:                     _vehicleVideoCaptureAvailable || (_mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable)
+    property bool   _isShootingInCurrentMode:                   _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecording) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
@@ -172,6 +177,43 @@ Item {
         }
     }
 
+    function _updateUiZoomLevel(direction) {
+        var current = Number(getZoomValue())
+        if (isNaN(current)) {
+            current = zoomLevel
+        }
+        zoomLevel = Math.max(minZoom, Math.min(maxZoom, current + (direction * zoomStep)))
+        _zoomUiOverride = true
+    }
+
+    function _beginNextVisionZoom(zoomIn) {
+        var direction = zoomIn ? 1 : -1
+        _updateUiZoomLevel(direction)
+        _zoomUiPressedDirection = direction
+
+        if (PayloadManager.nextvision) {
+            if (zoomIn) {
+                PayloadManager.nextvision.zoomIn()
+            } else {
+                PayloadManager.nextvision.zoomOut()
+            }
+        }
+        zoomUiMinPulseTimer.restart()
+    }
+
+    function _endNextVisionZoom(zoomIn) {
+        var direction = zoomIn ? 1 : -1
+        if (_zoomUiPressedDirection !== direction) {
+            return
+        }
+        _zoomUiPressedDirection = 0
+        if (!zoomUiMinPulseTimer.running) {
+            if (PayloadManager.nextvision) {
+                PayloadManager.nextvision.stopZoom()
+            }
+        }
+    }
+
     function _toggleMavlinkVideo() {
         if (!_mavlinkCamera) {
             return
@@ -185,6 +227,11 @@ Item {
 
 
     function toggleShooting() {
+        if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+            _activeVehicle.toggleVideoCapture()
+            return
+        }
+
         if (_usePayload) {
             if (_videoStreamInPhotoMode) {
                 _activePayload.captureImage()
@@ -243,6 +290,9 @@ Item {
     }
 
     function getZoomValue() {
+        if (_isNextVisionPayload && _usePayload && _zoomUiOverride) {
+            return String(Math.round(zoomLevel))
+        }
         if (!_hasZoom || !_mavlinkCamera) {
             return "1"
         }
@@ -262,6 +312,33 @@ Item {
         id:             simplePhotoCaptureTimer
         interval:       500
         onTriggered:    _simplePhotoCaptureIsIdle = true
+    }
+
+    Timer {
+        id:             zoomUiMinPulseTimer
+        interval:       800
+        repeat:         false
+        onTriggered: {
+            if (_zoomUiPressedDirection === 0) {
+                if (PayloadManager.nextvision) {
+                    PayloadManager.nextvision.stopZoom()
+                }
+            }
+        }
+    }
+
+    Connections {
+        target: PayloadManager
+        onActiveTypeChanged: {
+            if (PayloadManager.activeType !== 1) {
+                zoomUiMinPulseTimer.stop()
+                _zoomUiPressedDirection = 0
+                _zoomUiOverride = false
+                if (PayloadManager.nextvision) {
+                    PayloadManager.nextvision.stopZoom()
+                }
+            }
+        }
     }
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
@@ -437,7 +514,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.height * 0.8
                 height: parent.height * 0.8
-                color: zoomIn.pressed ? "black" : "gray"
+                color: (zoomInNextVision.pressed || zoomInStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.left: parent.left
                 anchors.margins: ScreenTools.defaultFontPixelWidth
@@ -452,12 +529,23 @@ Item {
                     color: "white"
                 }
                 MouseArea {
-                    id: zoomIn
+                    id: zoomInNextVision
                     anchors.fill: parent
-                    enabled: _hasZoom
+                    visible: _isNextVisionPayload && _usePayload
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: _beginNextVisionZoom(true)
+                    onReleased: _endNextVisionZoom(true)
+                    onCanceled: _endNextVisionZoom(true)
+                }
+                MouseArea {
+                    id: zoomInStandard
+                    anchors.fill: parent
+                    visible: !(_isNextVisionPayload && _usePayload)
+                    enabled: visible && _hasZoom
                     preventStealing: true
                     onPressed: {
-                        // Optical: CONTINUOUS while held. Digital (at max): tap step.
+                        // Preserve the original behavior for every non-NextVision camera.
                         if (_usePayload) {
                             _activePayload.zoomIn()
                             _zoomInActive = true
@@ -515,7 +603,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.height * 0.8
                 height: parent.height * 0.8
-                color: zoomOut.pressed ? "black" : "gray"
+                color: (zoomOutNextVision.pressed || zoomOutStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.right: parent.right
                 anchors.margins: ScreenTools.defaultFontPixelWidth
@@ -530,11 +618,23 @@ Item {
                     color: "white"
                 }
                 MouseArea {
-                    id: zoomOut
+                    id: zoomOutNextVision
                     anchors.fill: parent
-                    enabled: _hasZoom
+                    visible: _isNextVisionPayload && _usePayload
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: _beginNextVisionZoom(false)
+                    onReleased: _endNextVisionZoom(false)
+                    onCanceled: _endNextVisionZoom(false)
+                }
+                MouseArea {
+                    id: zoomOutStandard
+                    anchors.fill: parent
+                    visible: !(_isNextVisionPayload && _usePayload)
+                    enabled: visible && _hasZoom
                     preventStealing: true
                     onPressed: {
+                        // Preserve the original behavior for every non-NextVision camera.
                         if (_usePayload) {
                             _activePayload.zoomOut()
                             _zoomOutActive = true

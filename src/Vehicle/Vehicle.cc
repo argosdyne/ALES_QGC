@@ -84,6 +84,9 @@ const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
 
 namespace {
 
+constexpr int kVideoRcOverrideIntervalMSecs = 40;
+constexpr uint16_t kVideoRcOverridePwmMax = 2000;
+
 QString _vehicleLogLinkName(LinkInterface* link)
 {
     return link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("<null>");
@@ -461,6 +464,10 @@ void Vehicle::_commonInit()
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
 
+    _videoRcOverrideTimer.setInterval(kVideoRcOverrideIntervalMSecs);
+    _videoRcOverrideTimer.setSingleShot(false);
+    connect(&_videoRcOverrideTimer, &QTimer::timeout, this, &Vehicle::_sendVideoRcOverride);
+
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateDistanceToGCS);
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateHomepoint);
 
@@ -605,6 +612,8 @@ void Vehicle::_commonInit()
 Vehicle::~Vehicle()
 {
     qCDebug(VehicleLog) << "~Vehicle" << this;
+
+    stopVideoCapture();
 
     delete _missionManager;
     _missionManager = nullptr;
@@ -2170,6 +2179,30 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
 
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
+
+    // While recording, keep regular RC_CHANNELS traffic from replacing the
+    // dedicated CH13=PWM_MAX override sent by _videoRcOverrideTimer.
+    if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t channels;
+        mavlink_msg_rc_channels_decode(&message, &channels);
+        channels.chan13_raw = UINT16_MAX;
+        mavlink_msg_rc_channels_encode_chan(message.sysid,
+                                            message.compid,
+                                            link->mavlinkChannel(),
+                                            &message,
+                                            &channels);
+    } else if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE) {
+        mavlink_rc_channels_override_t channels;
+        mavlink_msg_rc_channels_override_decode(&message, &channels);
+        if (channels.chan13_raw != kVideoRcOverridePwmMax) {
+            channels.chan13_raw = UINT16_MAX;
+            mavlink_msg_rc_channels_override_encode_chan(message.sysid,
+                                                         message.compid,
+                                                         link->mavlinkChannel(),
+                                                         &message,
+                                                         &channels);
+        }
+    }
 
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
@@ -4070,6 +4103,77 @@ void Vehicle::startMavlinkLog()
 void Vehicle::stopMavlinkLog()
 {
     sendMavCommand(_defaultComponentId, MAV_CMD_LOGGING_STOP, false /* showError */);
+}
+
+void Vehicle::startVideoCapture()
+{
+    if (_videoCaptureRunning.exchange(true)) {
+        return;
+    }
+
+    emit videoCaptureRunningChanged();
+    _sendVideoRcOverride();
+    _videoRcOverrideTimer.start();
+}
+
+void Vehicle::stopVideoCapture()
+{
+    if (!_videoCaptureRunning.exchange(false)) {
+        return;
+    }
+
+    _videoRcOverrideTimer.stop();
+    emit videoCaptureRunningChanged();
+}
+
+void Vehicle::toggleVideoCapture()
+{
+    if (_videoCaptureRunning.load()) {
+        stopVideoCapture();
+    } else {
+        startVideoCapture();
+    }
+}
+
+void Vehicle::_sendVideoRcOverride()
+{
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "_sendVideoRcOverride: primary link gone!";
+        return;
+    }
+
+    if (sharedLink->linkConfiguration()->isHighLatency()) {
+        return;
+    }
+
+    mavlink_message_t message;
+    mavlink_msg_rc_channels_override_pack_chan(
+                static_cast<uint8_t>(_mavlink->getSystemId()),
+                static_cast<uint8_t>(_mavlink->getComponentId()),
+                sharedLink->mavlinkChannel(),
+                &message,
+                static_cast<uint8_t>(_id),
+                MAV_COMP_ID_AUTOPILOT1,
+                UINT16_MAX,                 // CH1 ignore
+                UINT16_MAX,                 // CH2 ignore
+                UINT16_MAX,                 // CH3 ignore
+                UINT16_MAX,                 // CH4 ignore
+                UINT16_MAX,                 // CH5 ignore
+                UINT16_MAX,                 // CH6 ignore
+                UINT16_MAX,                 // CH7 ignore
+                UINT16_MAX,                 // CH8 ignore
+                UINT16_MAX,                 // CH9 ignore
+                UINT16_MAX,                 // CH10 ignore
+                UINT16_MAX,                 // CH11 ignore
+                UINT16_MAX,                 // CH12 ignore
+                kVideoRcOverridePwmMax,     // CH13 record
+                UINT16_MAX,                 // CH14 ignore
+                UINT16_MAX,                 // CH15 ignore
+                UINT16_MAX,                 // CH16 ignore
+                UINT16_MAX,                 // CH17 ignore
+                UINT16_MAX);                // CH18 ignore
+    sendMessageOnLinkThreadSafe(sharedLink.get(), message);
 }
 
 void Vehicle::_ackMavlinkLogData(uint16_t sequence)

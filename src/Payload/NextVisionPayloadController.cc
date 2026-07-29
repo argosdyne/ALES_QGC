@@ -92,13 +92,13 @@ void NextVisionPayloadController::gimbalHome()
 void NextVisionPayloadController::zoomIn()
 {
     _clearAllChannels();
-    _channels[kZoomControlChannelIndex] = kPwmMin; // CH11 low = zoom-in
+    _channels[kZoomControlChannelIndex] = kZoomPwmMax; // CH11 high = zoom-in
 }
 
 void NextVisionPayloadController::zoomOut()
 {
     _clearAllChannels();
-    _channels[kZoomControlChannelIndex] = kPwmMax; // CH11 high = zoom-out
+    _channels[kZoomControlChannelIndex] = kZoomPwmMin; // CH11 low = zoom-out
 }
 
 void NextVisionPayloadController::stopZoom()
