@@ -76,7 +76,59 @@ public final class USBUpdateManager {
 
     private USBUpdateManager() { }
 
-    private static native void nativeImportMissionPlanFromUsb(String missionPlanPath, String usbRootPath);
+    private static native String nativeImportMissionPlanFromUsb(String missionPlanPath, String usbRootPath);
+
+    public static void showMissionPlanImportResult(final String title,
+                                                   final String message,
+                                                   final String usbRootPath) {
+        showMissionPlanImportResult(QGCActivity.getInstance(), title, message, usbRootPath);
+    }
+
+    private static void showMissionPlanImportResult(final Activity activity,
+                                                    final String title,
+                                                    final String message,
+                                                    final String usbRootPath) {
+        if (activity == null) {
+            Log.i(TAG, "MISSION_IMPORT: result dialog skipped because activity is unavailable message="
+                    + message);
+            endUsbSessionLockSuppression();
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "MISSION_IMPORT: showing result dialog title=" + title
+                        + " message=" + message);
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setNegativeButton("BACK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                File rootDir = usbRootPath != null ? new File(usbRootPath) : null;
+                                ArrayList<File> planFiles = findPlanFiles(rootDir);
+                                if (planFiles.isEmpty()) {
+                                    showInfo(activity,
+                                            "No Mission Plan Found",
+                                            "USB was detected, but no mission .plan file was found.");
+                                } else {
+                                    showMissionPlanSelection(activity, planFiles, rootDir);
+                                }
+                            }
+                        })
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+                dialog.setCanceledOnTouchOutside(false);
+            }
+        });
+    }
 
     public static void scanAndValidate(final Context context, File rootDir, Activity activity) {
         beginUsbSessionLockSuppression();
@@ -311,23 +363,44 @@ public final class USBUpdateManager {
     private static void importMissionPlan(Activity activity, File planFile, File rootDir) {
         if (planFile == null || rootDir == null) {
             Log.w(TAG, "MISSION_IMPORT: missing planFile or rootDir");
-            showError(activity, "Mission plan import failed: USB mission file is not available.");
+            showMissionPlanImportResult(activity,
+                    "Ales QGC Daily",
+                    "Mission plan import failed: USB mission file is not available.",
+                    rootDir != null ? rootDir.getAbsolutePath() : null);
             return;
         }
 
         Log.i(TAG, "MISSION_IMPORT: importing plan=" + planFile.getAbsolutePath()
                 + " root=" + rootDir.getAbsolutePath());
-        try {
-            nativeImportMissionPlanFromUsb(planFile.getAbsolutePath(), rootDir.getAbsolutePath());
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "MISSION_IMPORT: native import method unavailable", e);
-            showError(activity, "Mission plan import failed: QGC native import is not available.");
-        } catch (Throwable t) {
-            Log.e(TAG, "MISSION_IMPORT: native import failed", t);
-            showError(activity, "Mission plan import failed: " + t.getMessage());
-        } finally {
-            endUsbSessionLockSuppression();
-        }
+        final Activity importActivity = activity;
+        final File importPlanFile = planFile;
+        final File importRootDir = rootDir;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultMessage;
+                try {
+                    resultMessage = nativeImportMissionPlanFromUsb(
+                            importPlanFile.getAbsolutePath(),
+                            importRootDir.getAbsolutePath());
+                    if (resultMessage == null || resultMessage.length() == 0) {
+                        resultMessage = "Mission plan import failed: no result was returned.";
+                    }
+                } catch (UnsatisfiedLinkError e) {
+                    Log.w(TAG, "MISSION_IMPORT: native import method unavailable", e);
+                    resultMessage = "Mission plan import failed: QGC native import is not available.";
+                } catch (Throwable t) {
+                    Log.e(TAG, "MISSION_IMPORT: native import failed", t);
+                    resultMessage = "Mission plan import failed: " + t.getMessage();
+                }
+
+                showMissionPlanImportResult(
+                        importActivity,
+                        "Ales QGC Daily",
+                        resultMessage,
+                        importRootDir.getAbsolutePath());
+            }
+        }, "QGC-MissionImport").start();
     }
 
     private static String displayPath(File rootDir, File file) {
