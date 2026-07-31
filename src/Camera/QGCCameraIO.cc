@@ -7,6 +7,8 @@
 
 #include "QGCCameraControl.h"
 #include "QGCCameraIO.h"
+#include "Vehicle.h"
+#include "VehicleLinkManager.h"
 
 QGC_LOGGING_CATEGORY(CameraIOLog, "CameraIOLog")
 QGC_LOGGING_CATEGORY(CameraIOLogVerbose, "CameraIOLogVerbose")
@@ -131,6 +133,19 @@ QGCCameraParamIO::sendParameter(bool updateUI)
 void
 QGCCameraParamIO::_sendParameter()
 {
+    if (!_vehicle || !_control || !_pMavlink) {
+        qWarning() << "[CameraIO] skip param set without camera vehicle/control/mavlink" << (_fact ? _fact->name() : QStringLiteral("<null>"));
+        _paramWriteTimer.stop();
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "[CameraIO] skip param set without active primary link" << _fact->name();
+        _paramWriteTimer.stop();
+        return;
+    }
+
     mavlink_param_ext_set_t p;
     memset(&p, 0, sizeof(mavlink_param_ext_set_t));
     param_ext_union_t   union_value;
@@ -188,11 +203,15 @@ QGCCameraParamIO::_sendParameter()
     mavlink_msg_param_ext_set_encode_chan(
                 static_cast<uint8_t>(_pMavlink->getSystemId()),
                 static_cast<uint8_t>(_pMavlink->getComponentId()),
-                _control->_link->mavlinkChannel(),
+                sharedLink->mavlinkChannel(),
                 &msg,
                 &p);
-    _vehicle->sendMessageOnLinkThreadSafe(_control->_link, msg);
-    _paramWriteTimer.start();
+    if (_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
+        _paramWriteTimer.start();
+    } else {
+        qWarning() << "[CameraIO] failed param set send" << _fact->name();
+        _paramWriteTimer.stop();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -383,6 +402,30 @@ QGCCameraParamIO::paramRequest(bool reset)
         _requestRetries = 0;
         _forceUIUpdate  = true;
     }
+
+    if (!_vehicle || !_control || !_pMavlink) {
+        qWarning() << "[CameraIO] skip param request without camera vehicle/control/mavlink" << (_fact ? _fact->name() : QStringLiteral("<null>"));
+        _paramRequestTimer.stop();
+        if(!_done) {
+            _done = true;
+            if (_control) {
+                _control->_paramDone();
+            }
+        }
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "[CameraIO] skip param request without active primary link" << _fact->name();
+        _paramRequestTimer.stop();
+        if(!_done) {
+            _done = true;
+            _control->_paramDone();
+        }
+        return;
+    }
+
     qCDebug(CameraIOLog) << "[CameraIO]" << "Request parameter" << _fact->name();
     char param_id[MAVLINK_MSG_PARAM_EXT_REQUEST_READ_FIELD_PARAM_ID_LEN + 1];
     memset(param_id, 0, sizeof(param_id));
@@ -391,7 +434,7 @@ QGCCameraParamIO::paramRequest(bool reset)
     mavlink_msg_param_ext_request_read_pack_chan(
                 static_cast<uint8_t>(_pMavlink->getSystemId()),
                 static_cast<uint8_t>(_pMavlink->getComponentId()),
-                _control->_link->mavlinkChannel(),
+                sharedLink->mavlinkChannel(),
                 &msg,
                 static_cast<uint8_t>(_vehicle->id()),
                 static_cast<uint8_t>(_control->compID()),
@@ -407,6 +450,10 @@ QGCCameraParamIO::paramRequest(bool reset)
     //    << "mavlink compid:" << _pMavlink->getComponentId()
     //    << "channel:" << _control->_link->mavlinkChannel()
     //    << "link:" << _control->_link;
-    _vehicle->sendMessageOnLinkThreadSafe(_control->_link, msg);
-    _paramRequestTimer.start();
+    if (_vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg)) {
+        _paramRequestTimer.start();
+    } else {
+        qWarning() << "[CameraIO] failed param request send" << _fact->name();
+        _paramRequestTimer.stop();
+    }
 }

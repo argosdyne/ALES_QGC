@@ -225,8 +225,8 @@ void configureRtspUdpRobustness(GstElement* element, const QString& context, Gst
 
 GstRTSPLowerTrans rtspTransportForUri(const QString& uri)
 {
-    const QUrl url(uri);
-    return isPrivateRtspHost(url.host()) ? GST_RTSP_LOWER_TRANS_UDP : GST_RTSP_LOWER_TRANS_TCP;
+    Q_UNUSED(uri);
+    return GST_RTSP_LOWER_TRANS_TCP;
 }
 
 const char* rtspTransportName(GstRTSPLowerTrans transport)

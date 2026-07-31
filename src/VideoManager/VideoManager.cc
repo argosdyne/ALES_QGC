@@ -965,31 +965,35 @@ VideoManager::_updateSettings(unsigned id)
                             << "type" << pTinfo->type()
                             << "uri" << pTinfo->uri()
                             << "started" << _videoStarted[id];
-                    switch(pTinfo->type()) {
-                        case VIDEO_STREAM_TYPE_RTSP:
-                        {
-                            const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
-                            const QString rtspUri = rtspUriWithConfiguredEndpoint(pTinfo->uri(), configuredRtspUrl);
-                            qWarning().noquote() << "[VideoManager][RTSP] select-thermal-uri"
-                                                 << "id=" << id
-                                                 << "autoUri=" << pTinfo->uri()
-                                                 << "configuredRtsp=" << configuredRtspUrl
-                                                 << "selectedUri=" << rtspUri;
-                            settingsChanged |= _updateVideoUri(id, rtspUri);
-                            break;
+                    const QUrl thermalUrl(pTinfo->uri());
+                    if (thermalUrl.scheme() == QStringLiteral("rtsp")) {
+                        const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+                        const QString rtspUri = rtspUriWithConfiguredEndpoint(pTinfo->uri(), configuredRtspUrl);
+                        qWarning().noquote() << "[VideoManager][RTSP] select-thermal-uri"
+                                             << "id=" << id
+                                             << "type=" << pTinfo->type()
+                                             << "autoUri=" << pTinfo->uri()
+                                             << "configuredRtsp=" << configuredRtspUrl
+                                             << "selectedUri=" << rtspUri;
+                        settingsChanged |= _updateVideoUri(id, rtspUri);
+                    } else {
+                        switch(pTinfo->type()) {
+                            case VIDEO_STREAM_TYPE_RTSP:
+                                settingsChanged |= _updateVideoUri(id, pTinfo->uri());
+                                break;
+                            case VIDEO_STREAM_TYPE_TCP_MPEG:
+                                settingsChanged |= _updateVideoUri(id, pTinfo->uri());
+                                break;
+                            case VIDEO_STREAM_TYPE_RTPUDP:
+                                settingsChanged |= _updateVideoUri(id, QStringLiteral("udp://0.0.0.0:%1").arg(pTinfo->uri()));
+                                break;
+                            case VIDEO_STREAM_TYPE_MPEG_TS_H264:
+                                settingsChanged |= _updateVideoUri(id, QStringLiteral("mpegts://0.0.0.0:%1").arg(pTinfo->uri()));
+                                break;
+                            default:
+                                settingsChanged |= _updateVideoUri(id, pTinfo->uri());
+                                break;
                         }
-                        case VIDEO_STREAM_TYPE_TCP_MPEG:
-                            settingsChanged |= _updateVideoUri(id, pTinfo->uri());
-                            break;
-                        case VIDEO_STREAM_TYPE_RTPUDP:
-                            settingsChanged |= _updateVideoUri(id, QStringLiteral("udp://0.0.0.0:%1").arg(pTinfo->uri()));
-                            break;
-                        case VIDEO_STREAM_TYPE_MPEG_TS_H264:
-                            settingsChanged |= _updateVideoUri(id, QStringLiteral("mpegts://0.0.0.0:%1").arg(pTinfo->uri()));
-                            break;
-                        default:
-                            settingsChanged |= _updateVideoUri(id, pTinfo->uri());
-                            break;
                     }
                 } else if (id == 1) {
                     qCDebug(VideoManagerLog) << "THERMAL_TRACE"
