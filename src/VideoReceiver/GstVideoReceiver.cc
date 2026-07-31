@@ -20,6 +20,8 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QSysInfo>
+#include <QHostAddress>
+#include <QAbstractSocket>
 
 #include <gst/rtsp/gstrtsptransport.h>
 
@@ -172,19 +174,40 @@ void setGstRtspTransportProperty(const QString& context, GstElement* element, Gs
     }
 
     g_object_set(G_OBJECT(element), "protocols", transport, nullptr);
+    const char* transportName = transport == GST_RTSP_LOWER_TRANS_TCP ? "tcp" : "udp";
+    qWarning().noquote() << "[GstVideoReceiver][RTSP] set-protocol"
+                         << "context=" << context
+                         << "element=" << gstObjectName(GST_OBJECT(element))
+                         << "factory=" << gstFactoryName(element)
+                         << QStringLiteral("protocols=%1").arg(transportName);
     qCInfo(GStreamLog).noquote() << "[GstVideoReceiver]" << context
                                     << "name=" << gstObjectName(GST_OBJECT(element))
                                     << "factory=" << gstFactoryName(element)
-                                    << "protocols=udp";
+                                    << QStringLiteral("protocols=%1").arg(transportName);
 }
 
-void configureRtspUdpRobustness(GstElement* element, const QString& context)
+bool isPrivateRtspHost(const QString& host)
+{
+    QHostAddress address(host);
+    if (address.protocol() != QAbstractSocket::IPv4Protocol) {
+        return false;
+    }
+
+    const quint32 ipv4 = address.toIPv4Address();
+    return (ipv4 >> 24) == 10 ||
+            (ipv4 >> 24) == 127 ||
+            (ipv4 >> 16) == ((169u << 8) | 254u) ||
+            (ipv4 >> 16) == ((192u << 8) | 168u) ||
+            ((ipv4 >> 20) == ((172u << 4) | 1u));
+}
+
+void configureRtspUdpRobustness(GstElement* element, const QString& context, GstRTSPLowerTrans transport = GST_RTSP_LOWER_TRANS_UDP)
 {
     const QString factoryName = gstFactoryName(element);
     if (factoryName == QStringLiteral("rtspsrc")) {
         setGstUIntProperty(context, element, "latency", kRtspUdpLatencyMs);
         setGstBoolProperty(context, element, "drop-on-latency", kRtspDropOnLatency);
-        setGstRtspTransportProperty(context, element, GST_RTSP_LOWER_TRANS_UDP);
+        setGstRtspTransportProperty(context, element, transport);
         setGstBoolProperty(context, element, "udp-reconnect", TRUE);
         setGstUIntProperty(context, element, "timeout", kRtspUdpReconnectTimeoutUs);
         setGstUIntProperty(context, element, "udp-buffer-size", kUdpSocketBufferBytes);
@@ -198,6 +221,17 @@ void configureRtspUdpRobustness(GstElement* element, const QString& context)
     } else if (factoryName == QStringLiteral("udpsrc")) {
         setGstIntProperty(context, element, "buffer-size", kUdpSocketBufferBytes);
     }
+}
+
+GstRTSPLowerTrans rtspTransportForUri(const QString& uri)
+{
+    const QUrl url(uri);
+    return isPrivateRtspHost(url.host()) ? GST_RTSP_LOWER_TRANS_UDP : GST_RTSP_LOWER_TRANS_TCP;
+}
+
+const char* rtspTransportName(GstRTSPLowerTrans transport)
+{
+    return transport == GST_RTSP_LOWER_TRANS_TCP ? "tcp" : "udp";
 }
 
 void configureQueueProfile(GstElement* element, const QString& context)
@@ -1238,7 +1272,13 @@ GstVideoReceiver::_makeSource(const QString& uri)
         } else if (isRtsp) {
             if ((source = gst_element_factory_make("rtspsrc", "source")) != nullptr) {
                 g_object_set(static_cast<gpointer>(source), "location", qPrintable(uri), NULL);
-                configureRtspUdpRobustness(source, QStringLiteral("rtspsrc.configured"));
+                const GstRTSPLowerTrans rtspTransport = rtspTransportForUri(uri);
+                qWarning().noquote() << "[GstVideoReceiver][RTSP] make-source"
+                                     << "uri=" << uri
+                                     << "host=" << url.host()
+                                     << "privateHost=" << isPrivateRtspHost(url.host())
+                                     << "transport=" << rtspTransportName(rtspTransport);
+                configureRtspUdpRobustness(source, QStringLiteral("rtspsrc.configured"), rtspTransport);
                 g_signal_connect(source, "new-manager", G_CALLBACK(_onRtspNewManager), this);
                 if (GST_IS_CHILD_PROXY(source)) {
                     g_signal_connect(source, "child-added", G_CALLBACK(_onChildAdded), this);
@@ -1861,12 +1901,18 @@ GstVideoReceiver::_onBusMessage(GstBus* bus, GstMessage* msg, gpointer data)
             gst_message_parse_error(msg, &error, &debug);
 
             if (debug != nullptr) {
+                qWarning().noquote() << "[GstVideoReceiver][ERROR] debug"
+                                     << "uri=" << pThis->_uri
+                                     << QString::fromUtf8(debug);
                 qCDebug(VideoReceiverLog) << "GStreamer debug: " << debug;
                 g_free(debug);
                 debug = nullptr;
             }
 
             if (error != nullptr) {
+                qWarning().noquote() << "[GstVideoReceiver][ERROR] message"
+                                     << "uri=" << pThis->_uri
+                                     << QString::fromUtf8(error->message);
                 qCCritical(VideoReceiverLog) << "GStreamer error:" << error->message;
                 g_error_free(error);
                 error = nullptr;
@@ -1959,7 +2005,7 @@ GstVideoReceiver::_onDeepElementAdded(GstBin* bin, GstBin* subBin, GstElement* e
 
     self->_logElementSummary("runtime-element-added", element);
     configureStartupParserHints(element);
-    configureRtspUdpRobustness(element, QStringLiteral("runtime-config"));
+    configureRtspUdpRobustness(element, QStringLiteral("runtime-config"), rtspTransportForUri(self->_uri));
     configureQueueProfile(element, QStringLiteral("runtime-config"));
     configureVideoSinkProfile(element, QStringLiteral("runtime-config"));
     self->_logReceiverChecklistProperties("runtime-checklist", element);
@@ -2023,7 +2069,7 @@ GstVideoReceiver::_onChildAdded(GstChildProxy* childProxy, GObject* object, gcha
                                  << "factory=" << gstFactoryName(element);
 
     configureStartupParserHints(element);
-    configureRtspUdpRobustness(element, QStringLiteral("child-config"));
+    configureRtspUdpRobustness(element, QStringLiteral("child-config"), rtspTransportForUri(self->_uri));
     configureQueueProfile(element, QStringLiteral("child-config"));
     configureVideoSinkProfile(element, QStringLiteral("child-config"));
     self->_logElementSummary("child-added", element);

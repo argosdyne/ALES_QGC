@@ -251,6 +251,7 @@ private:
     void _downloadJSONFinished();
     void _paramSlefChanged();
     void _handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link);
+    SharedLinkInterfacePtr _activeCommandLink() const;
     // sendMavCommander
     void _sendMavCommandAgain();
     void _mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle) override;

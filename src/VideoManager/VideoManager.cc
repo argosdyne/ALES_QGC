@@ -14,6 +14,8 @@
 #include <QUrl>
 #include <QDir>
 #include <QQuickWindow>
+#include <QHostAddress>
+#include <QAbstractSocket>
 
 #ifndef QGC_DISABLE_UVC
 #include <QCameraInfo>
@@ -48,6 +50,40 @@ static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver
     "mov",
     "mp4"
 };
+
+static bool isPrivateRtspHost(const QString& host)
+{
+    QHostAddress address(host);
+    if (address.protocol() != QAbstractSocket::IPv4Protocol) {
+        return false;
+    }
+
+    const quint32 ipv4 = address.toIPv4Address();
+    return (ipv4 >> 24) == 10 ||
+            (ipv4 >> 24) == 127 ||
+            (ipv4 >> 16) == ((169u << 8) | 254u) ||
+            (ipv4 >> 16) == ((192u << 8) | 168u) ||
+            ((ipv4 >> 20) == ((172u << 4) | 1u));
+}
+
+static QString rtspUriWithConfiguredEndpoint(const QString& autoUri, const QString& configuredRtspUrl)
+{
+    QUrl autoUrl(autoUri);
+    QUrl configuredUrl(configuredRtspUrl);
+    if (!autoUrl.isValid() || !configuredUrl.isValid() ||
+            autoUrl.scheme() != QStringLiteral("rtsp") ||
+            configuredUrl.scheme() != QStringLiteral("rtsp") ||
+            configuredUrl.host().isEmpty() ||
+            !isPrivateRtspHost(autoUrl.host())) {
+        return autoUri;
+    }
+
+    autoUrl.setHost(configuredUrl.host());
+    if (configuredUrl.port() > 0) {
+        autoUrl.setPort(configuredUrl.port());
+    }
+    return autoUrl.toString();
+}
 #endif
 
 //-----------------------------------------------------------------------------
@@ -872,13 +908,25 @@ VideoManager::_updateSettings(unsigned id)
                         const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
                         const QString configuredVideoSource = _toolbox->settingsManager()->videoSettings()->videoSource()->rawValue().toString();
                         const bool rtspUrlUserSet = _toolbox->settingsManager()->videoSettings()->rtspUrlUserSet();
-                        const QString rtspUri = configuredVideoSource == VideoSettings::videoSourceRTSP && rtspUrlUserSet
+                        const bool rtspSourceSelected = configuredVideoSource == VideoSettings::videoSourceRTSP;
+                        const bool rtspUrlOverridesAuto = rtspSourceSelected && !configuredRtspUrl.isEmpty() && configuredRtspUrl != pInfo->uri();
+                        const bool useConfiguredRtsp = rtspSourceSelected && (rtspUrlUserSet || rtspUrlOverridesAuto);
+                        const QString rtspUri = useConfiguredRtsp
                                                     ? configuredRtspUrl
                                                     : pInfo->uri();
+                        qWarning().noquote() << "[VideoManager][RTSP] select-uri"
+                                             << "id=" << id
+                                             << "autoUri=" << pInfo->uri()
+                                             << "configuredRtsp=" << configuredRtspUrl
+                                             << "source=" << configuredVideoSource
+                                             << "rtspUrlUserSet=" << rtspUrlUserSet
+                                             << "overridesAuto=" << rtspUrlOverridesAuto
+                                             << "useConfigured=" << useConfiguredRtsp
+                                             << "selectedUri=" << rtspUri;
                         if ((settingsChanged |= _updateVideoUri(id, rtspUri))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!rtspUrlUserSet && !pInfo->uri().isEmpty() && configuredRtspUrl != pInfo->uri()) {
+                        if (!useConfiguredRtsp && !pInfo->uri().isEmpty() && configuredRtspUrl != pInfo->uri()) {
                             _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
                         }
                         break;
@@ -919,6 +967,17 @@ VideoManager::_updateSettings(unsigned id)
                             << "started" << _videoStarted[id];
                     switch(pTinfo->type()) {
                         case VIDEO_STREAM_TYPE_RTSP:
+                        {
+                            const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+                            const QString rtspUri = rtspUriWithConfiguredEndpoint(pTinfo->uri(), configuredRtspUrl);
+                            qWarning().noquote() << "[VideoManager][RTSP] select-thermal-uri"
+                                                 << "id=" << id
+                                                 << "autoUri=" << pTinfo->uri()
+                                                 << "configuredRtsp=" << configuredRtspUrl
+                                                 << "selectedUri=" << rtspUri;
+                            settingsChanged |= _updateVideoUri(id, rtspUri);
+                            break;
+                        }
                         case VIDEO_STREAM_TYPE_TCP_MPEG:
                             settingsChanged |= _updateVideoUri(id, pTinfo->uri());
                             break;
@@ -1005,9 +1064,16 @@ VideoManager::_updateVideoUri(unsigned id, const QString& uri)
 //     }
 // #endif
     if (uri == _videoUri[id]) {
+        qWarning().noquote() << "[VideoManager][RTSP] update-uri skipped"
+                             << "id=" << id
+                             << "uri=" << uri;
         return false;
     }
 
+    qWarning().noquote() << "[VideoManager][RTSP] update-uri"
+                         << "id=" << id
+                         << "oldUri=" << _videoUri[id]
+                         << "newUri=" << uri;
     _videoUri[id] = uri;
 
     return true;
@@ -1161,6 +1227,15 @@ VideoManager::_startReceiver(unsigned id)
             << "uri" << _videoUri[id]
             << "timeout" << timeout
             << "lowLatency" << _lowLatencyStreaming[id];
+    qWarning().noquote() << "[VideoManager][RTSP] start-receiver"
+                         << "id=" << id
+                         << "source=" << source
+                         << "rtspSetting=" << _videoSettings->rtspUrl()->rawValue().toString()
+                         << "uri=" << _videoUri[id]
+                         << "timeout=" << timeout
+                         << "streamEnabled=" << _videoSettings->streamEnabled()->rawValue().toBool()
+                         << "sinkReady=" << (_videoSink[id] != nullptr)
+                         << "started=" << _videoStarted[id];
     if (id > 2) {
         qCDebug(VideoManagerLog) << "Unsupported receiver id" << id;
     } else if (_videoReceiver[id] != nullptr/* && _videoSink[id] != nullptr*/) {
