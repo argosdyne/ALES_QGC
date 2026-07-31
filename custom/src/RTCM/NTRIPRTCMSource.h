@@ -109,7 +109,6 @@ private slots:
     void _onSocketDisconnected();
 
 private:
-    static quint32 _crc24q(const char* data, int length);
     void _logRtcmCrcError(const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc);
     void _clearRtcmQueue();
     void _resetRtcmStats();
