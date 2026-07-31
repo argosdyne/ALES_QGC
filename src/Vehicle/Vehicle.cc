@@ -1069,7 +1069,7 @@ void Vehicle::_handleCameraFeedback(const mavlink_message_t& message)
 
     QGeoCoordinate imageCoordinate((double)feedback.lat / qPow(10.0, 7.0), (double)feedback.lng / qPow(10.0, 7.0), feedback.alt_msl);
     qCDebug(VehicleLog) << "_handleCameraFeedback coord:index" << imageCoordinate << feedback.img_idx;
-    _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
+    _addCameraTriggerPoint(imageCoordinate, feedback.cam_idx, feedback.img_idx);
 }
 
 void Vehicle::_handleRangefinder(mavlink_message_t& message)
@@ -1126,8 +1126,20 @@ void Vehicle::_handleCameraImageCaptured(const mavlink_message_t& message)
     QGeoCoordinate imageCoordinate((double)feedback.lat / qPow(10.0, 7.0), (double)feedback.lon / qPow(10.0, 7.0), feedback.alt);
     qCDebug(VehicleLog) << "_handleCameraFeedback coord:index" << imageCoordinate << feedback.image_index << feedback.capture_result;
     if (feedback.capture_result == 1) {
-        _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
+        _addCameraTriggerPoint(imageCoordinate, feedback.camera_id, static_cast<quint32>(feedback.image_index));
     }
+}
+
+void Vehicle::_addCameraTriggerPoint(const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex)
+{
+    const quint64 captureKey = (static_cast<quint64>(cameraId) << 32) | imageIndex;
+    if (_cameraCaptureIndices.contains(captureKey)) {
+        qCDebug(VehicleLog) << "Ignoring duplicate camera capture" << "cameraId" << cameraId << "imageIndex" << imageIndex;
+        return;
+    }
+
+    _cameraCaptureIndices.insert(captureKey);
+    _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
 }
 
 void Vehicle::_chunkedStatusTextTimeout(void)
@@ -2699,6 +2711,12 @@ void Vehicle::_rallyPointManagerError(int errorCode, const QString& errorMsg)
 
 void Vehicle::_clearCameraTriggerPoints()
 {
+    clearCameraTriggerPoints();
+}
+
+void Vehicle::clearCameraTriggerPoints()
+{
+    _cameraCaptureIndices.clear();
     _cameraTriggerPoints.clearAndDeleteContents();
 }
 
