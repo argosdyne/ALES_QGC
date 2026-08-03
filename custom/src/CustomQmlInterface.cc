@@ -5,6 +5,11 @@
 #include "Login/SecurityLogModel.h"
 #include "SettingsManager.h"
 #include "AppSettings.h"
+#include "AVIATORInterface.h"
+#include "Vehicle.h"
+#include "MultiVehicleManager.h"
+#include "QGCCameraManager.h"
+#include "CodevCameraControl.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -13,6 +18,8 @@
 #include <QRegularExpression>
 #include <QMetaObject>
 #include <QSettings>
+#include <QCoreApplication>
+#include <QLocale>
 #if defined(Q_OS_ANDROID)
 #include <QtAndroidExtras/QtAndroid>
 #include <QtAndroidExtras/QAndroidJniEnvironment>
@@ -271,6 +278,22 @@ bool requestDpcOpenWifiPanelCpp()
 }
 } // namespace
 #endif
+
+namespace {
+
+CodevCameraControl* _activeCodevCamera(QGCToolbox* toolbox)
+{
+    if (!toolbox || !toolbox->multiVehicleManager()) {
+        return nullptr;
+    }
+    Vehicle* vehicle = toolbox->multiVehicleManager()->activeVehicle();
+    if (!vehicle || !vehicle->cameraManager()) {
+        return nullptr;
+    }
+    return qobject_cast<CodevCameraControl*>(vehicle->cameraManager()->currentCameraInstance());
+}
+
+} // namespace
 
 #define CHAR_NUMBER_EACH_ROW 30
 
@@ -868,6 +891,45 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
                 vehicle->startMission();
             }
         }
+    } else if(type == CUSTOM_FUNCTION_CAMERA_CAPTURE) {
+        if(pressed) {
+            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+                camera->buttonTakePhoto();
+            } else {
+                emit cameraCapture(true);
+            }
+        }
+    } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
+        if(pressed) {
+            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+                camera->buttonToggleVideo();
+            } else {
+                emit cameraToggleRecord(true);
+            }
+        }
+    }
+}
+
+void CustomQmlInterface::handleAviatorButton(int type, bool pressed)
+{
+    switch (type) {
+    case AVIATORInterface::AVIATOR_FUNCTION_THERMAL_ZOOM:
+        handleCustomButtonFunction(CUSTOM_FUNCTION_THERMAL_ZOOM, pressed);
+        break;
+    case AVIATORInterface::AVIATOR_FUNCTION_IR_SWITCH:
+        handleCustomButtonFunction(CUSTOM_FUNCTION_IR_SWITCH, pressed);
+        break;
+    case AVIATORInterface::AVIATOR_FUNCTION_GIMBAL_RESET:
+        handleCustomButtonFunction(CUSTOM_FUNCTION_GIMBAL_RESET, pressed);
+        break;
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_CAPTURE:
+        handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_CAPTURE, pressed);
+        break;
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD:
+        handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD, pressed);
+        break;
+    default:
+        break;
     }
 }
 
