@@ -115,14 +115,26 @@ void GeoFenceManager::sendToVehicle(const QGeoCoordinate&   breachReturn,
     if(manager){
         if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
             qInfo() << "This is PX4";
-            Fact* min = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_MIN_VER_DIST");
-            min->setRawValue(0);
-            Fact* start = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ST_CLK_TIM");
-            start->setRawValue(0);
-            Fact* duration = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_SUSTAIN_HOR_T");
-            duration->setRawValue(23);
-            Fact* utc = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_OFF_ZONE_TIM");
-            utc->setRawValue(9);
+
+            ParameterManager* pm = _vehicle->parameterManager();
+
+            //Check Geofence parameters are exist
+
+            if(pm->parameterExists(-1, "GF_MIN_VER_DIST")){
+                pm->getParameter(-1, "GF_MIN_VER_DIST")->setRawValue(0);
+            }
+
+            if(pm->parameterExists(-1, "GF_ST_CLK_TIM")) {
+                pm->getParameter(-1, "GF_ST_CLK_TIM")->setRawValue(0);
+            }
+
+            if(pm->parameterExists(-1, "GF_SUSTAIN_HOR_T")){
+                pm->getParameter(-1, "GF_SUSTAIN_HOR_T")->setRawValue(23);
+            }
+
+            if(pm->parameterExists(-1, "GF_OFF_ZONE_TIM")){
+                pm->getParameter(-1, "GF_OFF_ZONE_TIM")->setRawValue(9);
+            }
         }
     }
 
