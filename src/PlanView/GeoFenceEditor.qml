@@ -20,6 +20,22 @@ QGCFlickable {
     readonly property real  _editFieldWidth:    Math.min(width - _margin * 2, ScreenTools.defaultFontPixelWidth * 15)
     readonly property real  _margin:            ScreenTools.defaultFontPixelWidth / 2
     readonly property real  _radius:            ScreenTools.defaultFontPixelWidth / 2
+    readonly property real  _compactCheckBoxSize: 2 * Math.floor(ScreenTools.checkBoxIndicatorSize * 0.75 / 2) + 1
+    readonly property real  _compactTextFieldHeight: ScreenTools.implicitTextFieldHeight * 0.8
+    property var _altitudeFrameModel: [
+        { text: qsTr("Relative Home"), value: 3 },
+        { text: qsTr("AMSL"),          value: 0 },
+        { text: qsTr("Above Terrain"), value: 10 }
+    ]
+
+    function _altitudeFrameIndex(frame) {
+        for (var i = 0; i < _altitudeFrameModel.length; i++) {
+            if (_altitudeFrameModel[i].value === frame) {
+                return i
+            }
+        }
+        return 0
+    }
 
     Rectangle {
         id:     geoFenceEditorRect
@@ -71,6 +87,148 @@ QGCFlickable {
                     anchors.right:      parent.right
                     spacing:            _margin
                     visible:            myGeoFenceController.supported
+
+                    RowLayout {
+                        width:      parent.width
+                        spacing:    _margin
+
+                        QGCCheckBox {
+                            text:               qsTr("Operational")
+                            textFontPointSize:  ScreenTools.smallFontPointSize
+                            indicatorSize:      _compactCheckBoxSize
+                            checked:            globals.geoFenceShowOperational
+                            onClicked:          globals.geoFenceShowOperational = checked
+                        }
+
+                        QGCCheckBox {
+                            text:               qsTr("Buffer")
+                            textFontPointSize:  ScreenTools.smallFontPointSize
+                            indicatorSize:      _compactCheckBoxSize
+                            checked:            globals.geoFenceShowBuffer
+                            onClicked:          globals.geoFenceShowBuffer = checked
+                        }
+
+                        QGCCheckBox {
+                            text:               qsTr("Contingency")
+                            textFontPointSize:  ScreenTools.smallFontPointSize
+                            indicatorSize:      _compactCheckBoxSize
+                            checked:            globals.geoFenceShowContingency
+                            onClicked:          globals.geoFenceShowContingency = checked
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            var loaded = myGeoFenceController.fenceLoaded ? qsTr("Loaded") : qsTr("Not Loaded")
+                            var active = myGeoFenceController.fenceActive ? qsTr("Active") : qsTr("Inactive")
+                            var missing = myGeoFenceController.fenceParamsMissing ? qsTr("Missing Params") : qsTr("Params OK")
+                            return qsTr("Fence Status: %1 | %2 | %3").arg(loaded).arg(active).arg(missing)
+                        }
+                        color: myGeoFenceController.fenceParamsMissing ? "orange" : qgcPal.text
+                    }
+
+                    SectionHeader {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        text:           qsTr("Contingency Volume")
+                    }
+
+                    GridLayout {
+                        width:          parent.width
+                        columns:        2
+                        rowSpacing:     _margin / 2
+                        columnSpacing:  _margin
+
+                        QGCLabel { text: qsTr("Vmax (m/s)") }
+                        QGCTextField {
+                            Layout.fillWidth: true
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvMaxSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvMaxSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Latency (s)") }
+                        QGCTextField {
+                            Layout.fillWidth: true
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvLatency = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvLatency.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Maneuver (s)") }
+                        QGCTextField {
+                            Layout.fillWidth: true
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvManeuverTime = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvManeuverTime.toFixed(2) : "0.00" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Wind (m/s)") }
+                        QGCTextField {
+                            Layout.fillWidth: true
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvWindSpeed = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvWindSpeed.toFixed(1) : "0.0" })
+                            }
+                        }
+
+                        QGCLabel { text: qsTr("Position Error (m)") }
+                        QGCTextField {
+                            Layout.fillWidth: true
+                            text: Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onEditingFinished: {
+                                var v = parseFloat(text)
+                                if (!isNaN(v) && myGeoFenceController) {
+                                    myGeoFenceController.cvPositionError = v
+                                }
+                                text = Qt.binding(function(){ return myGeoFenceController ? myGeoFenceController.cvPositionError.toFixed(1) : "0.0" })
+                            }
+                        }
+                    }
+
+                    QGCLabel {
+                        anchors.left:   parent.left
+                        anchors.right:  parent.right
+                        wrapMode:       Text.WordWrap
+                        text: {
+                            if (!myGeoFenceController) {
+                                return ""
+                            }
+                            return qsTr("CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)")
+                                .arg(myGeoFenceController.cvWidthMeters.toFixed(1))
+                                .arg(myGeoFenceController.cvReactionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvCorrectionDistance.toFixed(1))
+                                .arg(myGeoFenceController.cvPositionError.toFixed(1))
+                        }
+                        color: qgcPal.text
+                    }
 
                     Repeater {
                         model: myGeoFenceController.params
@@ -152,68 +310,147 @@ QGCFlickable {
                         visible:    polygonSection.checked && myGeoFenceController.polygons.count === 0
                     }
 
-                    GridLayout {
-                        Layout.fillWidth:   true
-                        columns:            3
-                        flow:               GridLayout.TopToBottom
+                    ColumnLayout {
+                        id:                 polygonFenceList
+                        width:              parent.width
+                        spacing:            _margin
                         visible:            polygonSection.checked && myGeoFenceController.polygons.count > 0
 
-                        QGCLabel {
-                            text:               qsTr("Inclusion")
-                            Layout.column:      0
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
-
                         Repeater {
                             model: myGeoFenceController.polygons
 
-                            QGCCheckBox {
-                                checked:            object.inclusion
-                                onClicked:          object.inclusion = checked
-                                Layout.alignment:   Qt.AlignHCenter
-                            }
-                        }
+                            ColumnLayout {
+                                Layout.fillWidth:   true
+                                spacing:            _margin / 2
 
-                        QGCLabel {
-                            text:               qsTr("Edit")
-                            Layout.column:      1
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
+                                RowLayout {
+                                    Layout.fillWidth:   true
+                                    Layout.maximumWidth: polygonFenceList.width
+                                    spacing:            _margin
 
-                        Repeater {
-                            model: myGeoFenceController.polygons
+                                    QGCCheckBox {
+                                        text:           qsTr("Inclusion")
+                                        indicatorSize:  _compactCheckBoxSize
+                                        checked:        object.inclusion
+                                        onClicked:      object.inclusion = checked
+                                    }
 
-                            QGCRadioButton {
-                                checked:            _interactive
-                                Layout.alignment:   Qt.AlignHCenter
+                                    QGCRadioButton {
+                                        text:       qsTr("Edit")
+                                        checked:    _interactive
 
-                                property bool _interactive: object.interactive
+                                        property bool _interactive: object.interactive
 
-                                on_InteractiveChanged: checked = _interactive
+                                        on_InteractiveChanged: checked = _interactive
 
-                                onClicked: {
-                                    myGeoFenceController.clearAllInteractive()
-                                    object.interactive = checked
+                                        onClicked: {
+                                            myGeoFenceController.clearAllInteractive()
+                                            object.interactive = checked
+                                        }
+                                    }
+
+                                    Item {
+                                        Layout.fillWidth: true
+                                    }
+
+                                    QGCButton {
+                                        text:       qsTr("Delete")
+                                        onClicked:  myGeoFenceController.deletePolygon(index)
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:   true
+                                    Layout.maximumWidth: polygonFenceList.width
+                                    spacing:            _margin
+
+                                    QGCCheckBox {
+                                        text:               qsTr("3D")
+                                        textFontPointSize:  ScreenTools.smallFontPointSize
+                                        indicatorSize:      _compactCheckBoxSize
+                                        checked:            object.altitudeBandEnabled
+                                        onClicked:          object.altitudeBandEnabled = checked
+                                    }
+
+                                    QGCLabel {
+                                        text:           qsTr("Min(m)")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        visible:        object.altitudeBandEnabled
+                                    }
+
+                                    QGCTextField {
+                                        Layout.fillWidth:       true
+                                        Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        visible:                object.altitudeBandEnabled
+                                        text:                   object.altitudeMin.toFixed(1)
+                                        textFontPointSize:      ScreenTools.smallFontPointSize
+                                        inputMethodHints:       Qt.ImhFormattedNumbersOnly
+
+                                        onEditingFinished: {
+                                            var v = parseFloat(text)
+                                            if (!isNaN(v)) {
+                                                object.altitudeMin = v
+                                            }
+                                            text = Qt.binding(function(){ return object.altitudeMin.toFixed(1) })
+                                        }
+                                    }
+
+                                    QGCLabel {
+                                        text:           qsTr("Max(m)")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        visible:        object.altitudeBandEnabled
+                                    }
+
+                                    QGCTextField {
+                                        Layout.fillWidth:       true
+                                        Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        visible:                object.altitudeBandEnabled
+                                        text:                   object.altitudeMax.toFixed(1)
+                                        textFontPointSize:      ScreenTools.smallFontPointSize
+                                        inputMethodHints:       Qt.ImhFormattedNumbersOnly
+
+                                        onEditingFinished: {
+                                            var v = parseFloat(text)
+                                            if (!isNaN(v)) {
+                                                object.altitudeMax = v
+                                            }
+                                            text = Qt.binding(function(){ return object.altitudeMax.toFixed(1) })
+                                        }
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:       true
+                                    Layout.maximumWidth:    polygonFenceList.width
+                                    spacing:                _margin
+                                    visible:                object.altitudeBandEnabled
+
+                                    QGCLabel {
+                                        text:           qsTr("Altitude frame")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                    }
+
+                                    QGCComboBox {
+                                        Layout.fillWidth:       true
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        model:                  _altitudeFrameModel
+                                        textRole:               "text"
+                                        currentIndex:           _altitudeFrameIndex(object.altitudeFrame)
+                                        onActivated:            object.altitudeFrame = _altitudeFrameModel[index].value
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.fillWidth:   true
+                                    height:             1
+                                    color:              qgcPal.text
+                                    opacity:            0.2
                                 }
                             }
                         }
-
-                        QGCLabel {
-                            text:               qsTr("Delete")
-                            Layout.column:      2
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
-
-                        Repeater {
-                            model: myGeoFenceController.polygons
-
-                            QGCButton {
-                                text:               qsTr("Del")
-                                Layout.alignment:   Qt.AlignHCenter
-                                onClicked:          myGeoFenceController.deletePolygon(index)
-                            }
-                        }
-                    } // GridLayout
+                    }
 
                     SectionHeader {
                         id:             circleSection
@@ -383,85 +620,166 @@ QGCFlickable {
                     // }
 
 
-                    GridLayout {
-                        anchors.left:       parent.left
-                        anchors.right:      parent.right
-                        columns:            4
-                        flow:               GridLayout.TopToBottom
-                        visible:            polygonSection.checked && myGeoFenceController.circles.count > 0
-
-                        QGCLabel {
-                            text:               qsTr("Inclusion")
-                            Layout.column:      0
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
+                    ColumnLayout {
+                        id:         circleFenceList
+                        width:      parent.width
+                        spacing:    _margin
+                        visible:    circleSection.checked && myGeoFenceController.circles.count > 0
 
                         Repeater {
                             model: myGeoFenceController.circles
 
-                            QGCCheckBox {
-                                checked:            object.inclusion
-                                onClicked:          object.inclusion = checked
-                                Layout.alignment:   Qt.AlignHCenter
-                            }
-                        }
+                            ColumnLayout {
+                                Layout.fillWidth:   true
+                                spacing:            _margin / 2
 
-                        QGCLabel {
-                            text:               qsTr("Edit")
-                            Layout.column:      1
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
+                                RowLayout {
+                                    Layout.fillWidth:       true
+                                    Layout.maximumWidth:    circleFenceList.width
+                                    spacing:                _margin
 
-                        Repeater {
-                            model: myGeoFenceController.circles
+                                    QGCCheckBox {
+                                        text:           qsTr("Inclusion")
+                                        indicatorSize:  _compactCheckBoxSize
+                                        checked:        object.inclusion
+                                        onClicked:      object.inclusion = checked
+                                    }
 
-                            QGCRadioButton {
-                                checked:            _interactive
-                                Layout.alignment:   Qt.AlignHCenter
+                                    QGCRadioButton {
+                                        text:       qsTr("Edit")
+                                        checked:    _interactive
 
-                                property bool _interactive: object.interactive
+                                        property bool _interactive: object.interactive
 
-                                on_InteractiveChanged: checked = _interactive
+                                        on_InteractiveChanged: checked = _interactive
 
-                                onClicked: {
-                                    myGeoFenceController.clearAllInteractive()
-                                    object.interactive = checked
+                                        onClicked: {
+                                            myGeoFenceController.clearAllInteractive()
+                                            object.interactive = checked
+                                        }
+                                    }
+
+                                    Item {
+                                        Layout.fillWidth: true
+                                    }
+
+                                    QGCButton {
+                                        text:       qsTr("Delete")
+                                        onClicked:  myGeoFenceController.deleteCircle(index)
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:       true
+                                    Layout.maximumWidth:    circleFenceList.width
+                                    spacing:                _margin
+
+                                    QGCLabel {
+                                        text:           qsTr("Radius(m)")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                    }
+
+                                    FactTextField {
+                                        Layout.fillWidth:       true
+                                        Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        textFontPointSize:      ScreenTools.smallFontPointSize
+                                        fact:                   object.radius
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:       true
+                                    Layout.maximumWidth:    circleFenceList.width
+                                    spacing:                _margin
+
+                                    QGCCheckBox {
+                                        text:               qsTr("3D")
+                                        textFontPointSize:  ScreenTools.smallFontPointSize
+                                        indicatorSize:      _compactCheckBoxSize
+                                        checked:            object.altitudeBandEnabled
+                                        onClicked:          object.altitudeBandEnabled = checked
+                                    }
+
+                                    QGCLabel {
+                                        text:           qsTr("Min(m)")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        visible:        object.altitudeBandEnabled
+                                    }
+
+                                    QGCTextField {
+                                        Layout.fillWidth:       true
+                                        Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        visible:                object.altitudeBandEnabled
+                                        text:                   object.altitudeMin.toFixed(1)
+                                        textFontPointSize:      ScreenTools.smallFontPointSize
+                                        inputMethodHints:       Qt.ImhFormattedNumbersOnly
+
+                                        onEditingFinished: {
+                                            var v = parseFloat(text)
+                                            if (!isNaN(v)) {
+                                                object.altitudeMin = v
+                                            }
+                                            text = Qt.binding(function(){ return object.altitudeMin.toFixed(1) })
+                                        }
+                                    }
+
+                                    QGCLabel {
+                                        text:           qsTr("Max(m)")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                        visible:        object.altitudeBandEnabled
+                                    }
+
+                                    QGCTextField {
+                                        Layout.fillWidth:       true
+                                        Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        visible:                object.altitudeBandEnabled
+                                        text:                   object.altitudeMax.toFixed(1)
+                                        textFontPointSize:      ScreenTools.smallFontPointSize
+                                        inputMethodHints:       Qt.ImhFormattedNumbersOnly
+
+                                        onEditingFinished: {
+                                            var v = parseFloat(text)
+                                            if (!isNaN(v)) {
+                                                object.altitudeMax = v
+                                            }
+                                            text = Qt.binding(function(){ return object.altitudeMax.toFixed(1) })
+                                        }
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth:       true
+                                    Layout.maximumWidth:    circleFenceList.width
+                                    spacing:                _margin
+                                    visible:                object.altitudeBandEnabled
+
+                                    QGCLabel {
+                                        text:           qsTr("Altitude frame")
+                                        font.pointSize: ScreenTools.smallFontPointSize
+                                    }
+
+                                    QGCComboBox {
+                                        Layout.fillWidth:       true
+                                        Layout.preferredHeight: _compactTextFieldHeight
+                                        model:                  _altitudeFrameModel
+                                        textRole:               "text"
+                                        currentIndex:           _altitudeFrameIndex(object.altitudeFrame)
+                                        onActivated:            object.altitudeFrame = _altitudeFrameModel[index].value
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.fillWidth:   true
+                                    height:             1
+                                    color:              qgcPal.text
+                                    opacity:            0.2
                                 }
                             }
                         }
-
-                        QGCLabel {
-                            text:               qsTr("Radius")
-                            Layout.column:      2
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
-
-                        Repeater {
-                            model: myGeoFenceController.circles
-
-                            FactTextField {
-                                fact:               object.radius
-                                Layout.fillWidth:   true
-                                Layout.alignment:   Qt.AlignHCenter
-                            }
-                        }
-
-                        QGCLabel {
-                            text:               qsTr("Delete")
-                            Layout.column:      3
-                            Layout.alignment:   Qt.AlignHCenter
-                        }
-
-                        Repeater {
-                            model: myGeoFenceController.circles
-
-                            QGCButton {
-                                text:               qsTr("Del")
-                                Layout.alignment:   Qt.AlignHCenter
-                                onClicked:          myGeoFenceController.deleteCircle(index)
-                            }
-                        }
-                    } // GridLayout
+                    }
 
                     // ────────────────────────────────
                     // GridLayout {

@@ -442,10 +442,11 @@ void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordin
     polygon->setInteractive(true);
 
     MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
-    if(manager){
-        if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
-            qInfo() << "This is PX4";
-            Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
+    Vehicle* activeVehicle = manager ? manager->activeVehicle() : nullptr;
+    if (activeVehicle && activeVehicle->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+        ParameterManager* parameterManager = activeVehicle->parameterManager();
+        if (parameterManager && parameterManager->parameterExists(-1, "GF_ALT_INSIDE")) {
+            Fact* inclusion = parameterManager->getParameter(-1, "GF_ALT_INSIDE");
             inclusion->setRawValue(true);
         }
     }
@@ -472,10 +473,11 @@ void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordina
     circle->setInteractive(true);
 
     MultiVehicleManager* manager = qgcApp()->toolbox()->multiVehicleManager();
-    if(manager){
-        if(manager->activeVehicle()->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
-            qInfo() << "This is PX4";
-            Fact* inclusion = manager->activeVehicle()->parameterManager()->getParameter(-1, "GF_ALT_INSIDE");
+    Vehicle* activeVehicle = manager ? manager->activeVehicle() : nullptr;
+    if (activeVehicle && activeVehicle->firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA) {
+        ParameterManager* parameterManager = activeVehicle->parameterManager();
+        if (parameterManager && parameterManager->parameterExists(-1, "GF_ALT_INSIDE")) {
+            Fact* inclusion = parameterManager->getParameter(-1, "GF_ALT_INSIDE");
             inclusion->setRawValue(true);
         }
     }
