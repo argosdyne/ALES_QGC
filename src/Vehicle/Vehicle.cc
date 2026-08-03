@@ -1159,6 +1159,16 @@ void Vehicle::_chunkedStatusTextCompleted(uint8_t compId)
 
     _chunkedStatusTextInfoMap.remove(compId);
 
+    // ArduPilot does not provide a schedulable ALTITUDE (141) stream. Some
+    // OpenDroneID transmitters request it repeatedly and trigger this cosmetic
+    // warning even when their other required telemetry streams are available.
+    if (apmFirmware() &&
+        compId == MAV_COMP_ID_AUTOPILOT1 &&
+        messageText.trimmed() == QStringLiteral("No ap_message for mavlink id (141)")) {
+        qCDebug(VehicleLog) << "Suppressing unsupported ALTITUDE (141) stream warning";
+        return;
+    }
+
     // PX4 backwards compatibility: messages sent out ending with a tab are also sent as event
     if (messageText.endsWith('\t') && px4Firmware()) {
         qCDebug(VehicleLog) << "Dropping message (expected as event):" << messageText;
