@@ -94,6 +94,8 @@ public:
     DEFINE_SETTINGFACT(autoUpdateGPGGA)
     DEFINE_SETTINGFACT(gpggamessageHz)
     DEFINE_SETTINGFACT(mountpoint)
+    DEFINE_SETTINGFACT(mountpointManual)
+    DEFINE_SETTINGFACT(mountpointManualValue)
 
 signals:
     void isLogInChanged(bool isLogIn);
@@ -109,16 +111,20 @@ private slots:
     void _onSocketDisconnected();
 
 private:
+    static quint32 _crc24q(const char* data, int length);
     void _logRtcmCrcError(const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc);
     void _clearRtcmQueue();
     void _resetRtcmStats();
     bool _isPremiumCaster();
+    QString _activeMountPointName();
 
     QTimer _sendGPGGATimer;
     QTcpSocket* _tcpSocket{nullptr};
     Fact _gpggamessageFact;
     bool _isLogIn{false};
     bool _isLogIning{false};
+    QTimer _reconnectTimer;
+    bool   _shouldReconnect{false};
     QStringList contentList;
     QByteArray _ntripHandshakeBuffer;
     bool _ntripResponseHeaderParsed{false};
@@ -144,8 +150,6 @@ private:
     QString _lastRawChunkHexPreview;
     QString _lastRtcmFrameHexPreview;
     int _lastRtcmMessageType{-1};
-    QTimer _reconnectTimer;
-    bool _shouldReconnect{ false };
 };
 
 #endif // NTRIPRTCMSOURCE_H

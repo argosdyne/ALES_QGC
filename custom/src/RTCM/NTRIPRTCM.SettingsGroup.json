@@ -44,6 +44,18 @@
     "shortDesc": "Mountpoint"
 },
 {
+    "name": "mountpointManual",
+    "type": "bool",
+    "default": true,
+    "shortDesc": "Manual mountpoint"
+},
+{
+    "name": "mountpointManualValue",
+    "type": "string",
+    "default": "",
+    "shortDesc": "Manual mountpoint value"
+},
+{
     "name": "autoUpdateGPGGA",
     "type": "bool",
     "default": true,

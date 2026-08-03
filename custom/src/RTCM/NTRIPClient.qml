@@ -22,11 +22,61 @@ Column {
     property var  _ntripSource: CustomQmlInterface.codevRTCMManager.rtcmSource
     readonly property bool _ntripConnectionActive: _ntripSource && (_ntripSource.isLogIn || _ntripSource.isLogIning)
 
+    property bool _ntripDebugging: false // Only for debugging. Default = false
+
+    Component.onCompleted: {
+        if (_ntripSource &&
+                _ntripSource.mountpointManual.rawValue &&
+                _ntripSource.mountpointManualValue.valueString === "" &&
+                _ntripSource.mountpoint.valueString !== "") {
+            _ntripSource.mountpointManualValue.rawValue = _ntripSource.mountpoint.rawValue
+        }
+    }
+
     Connections {
         target: _ntripSource
         onContentListChanged: {
-            root._syncSavedMountPointSelection()
+            if (!_ntripSource.mountpointManual.rawValue) {
+                root._applyComboMountPointSelection()
+            }
         }
+    }
+
+    Connections {
+        target: _ntripSource ? _ntripSource.mountpointManual : null
+        onRawValueChanged: {
+            if (_ntripSource.mountpointManual.rawValue) {
+                if (_ntripSource.mountpointManualValue.valueString === "") {
+                    _ntripSource.mountpointManualValue.rawValue = _ntripSource.mountpoint.rawValue
+                }
+            } else {
+                root._applyComboMountPointSelection()
+            }
+        }
+    }
+
+    function _mountPointNameFromItem(item) {
+        return String(item).split(":")[0]
+    }
+
+    function _findMountPointIndex(name) {
+        if (!_ntripSource || !_ntripSource.contentList || name === "") {
+            return -1
+        }
+        for (var i = 0; i < _ntripSource.contentList.length; i++) {
+            var item = _ntripSource.contentList[i]
+            if (item === name || _mountPointNameFromItem(item) === name) {
+                return i
+            }
+        }
+        return -1
+    }
+
+    function _applyComboMountPointSelection() {
+        if (!_ntripSource || !_ntripSource.contentList || _ntripSource.contentList.length === 0) {
+            return
+        }
+        _syncSavedMountPointSelection()
     }
 
     function _syncSavedMountPointSelection() {
@@ -34,29 +84,14 @@ Column {
             return
         }
 
-        var savedMountPoint = _ntripSource.mountpoint.rawValue
-        if (savedMountPoint === undefined || savedMountPoint === null) {
-            return
-        }
-        savedMountPoint = String(savedMountPoint)
-        if (savedMountPoint === "") {
-            return
+        var savedName = _mountPointNameFromItem(_ntripSource.mountpoint.rawValue)
+        var index = _findMountPointIndex(savedName)
+        if (index < 0) {
+            index = cbMountPoint.currentIndex >= 0 ? cbMountPoint.currentIndex : 0
         }
 
-        var savedName = savedMountPoint.split(":")[0]
-        var index = -1
-
-        for (var i = 0; i < _ntripSource.contentList.length; i++) {
-            var item = _ntripSource.contentList[i]
-            if (item === savedMountPoint || item.split(":")[0] === savedName) {
-                index = i
-                break
-            }
-        }
-
-        if (index >= 0) {
-            cbMountPoint.currentIndex = index
-        }
+        cbMountPoint.currentIndex = index
+        _saveMountPointFromIndex(index)
     }
 
     function _saveMountPointFromIndex(index) {
@@ -115,28 +150,54 @@ Column {
                 _ntripSource.onReadyRead()
             }
         }
+
+        QGCLabel {
+            text: qsTr("Enter Mountpoint Manually")
+            Layout.minimumWidth: _labelWidth
+        }
+
+        FactCheckBox {
+            fact: _ntripSource.mountpointManual
+            Layout.minimumWidth: _valueWidth
+            enabled:        !root._ntripConnectionActive
+        }
+
         QGCLabel {
             text:           qsTr("Mountpoint:")
             Layout.minimumWidth: _labelWidth
         }
-        //FactTextField {
-        //    fact:           _ntripSource.mountpoint
-        //    Layout.minimumWidth: _valueWidth
-        //}
+
+        FactTextField {
+           fact:           _ntripSource.mountpointManualValue
+           Layout.minimumWidth: _valueWidth
+           visible: _ntripSource.mountpointManual.rawValue
+           enabled:        !root._ntripConnectionActive
+        }
 
         //QGCCombobox
-         QGCComboBox {
+        QGCComboBox {
+            visible: !_ntripSource.mountpointManual.rawValue
             id: cbMountPoint
             Layout.minimumWidth: _labelWidth
             model : _ntripSource.contentList
             enabled: !root._ntripConnectionActive
-            //model: _ntripSource.mountPointList
-            onModelChanged: root._syncSavedMountPointSelection()
-            Component.onCompleted: root._syncSavedMountPointSelection()
+            onModelChanged: {
+                if (!_ntripSource.mountpointManual.rawValue) {
+                    root._applyComboMountPointSelection()
+                }
+            }
+            Component.onCompleted: {
+                if (!_ntripSource.mountpointManual.rawValue) {
+                    root._applyComboMountPointSelection()
+                }
+            }
+            onVisibleChanged: {
+                if (visible) {
+                    root._applyComboMountPointSelection()
+                }
+            }
 
-            // Save only mountpoint name (without ":format") for stable persistence.
             onActivated: root._saveMountPointFromIndex(index)
-            onCurrentIndexChanged: root._saveMountPointFromIndex(currentIndex)
         }
         QGCLabel {
             text:           qsTr("User:")
@@ -161,16 +222,20 @@ Column {
             QGCButton {
                 text: _ntripSource.isLogIn ? qsTr("Log out") : qsTr("Log in")
                 Layout.fillWidth: true
-                enabled: hostField.text !== "" &&
-                         _ntripSource.mountpoint.valueString !== "" &&
+                enabled: hostField.text !== "" && (_ntripSource.mountpointManual.rawValue
+                          ? _ntripSource.mountpointManualValue.valueString !== ""
+                          : _ntripSource.mountpoint.valueString !== "") &&
                          _ntripSource.user.valueString !== "" &&
                          _ntripSource.passwd.valueString !== "" &&
                          !_ntripSource.isLogIning
                 onClicked: {
-                    if(!_ntripSource.isLogIn) {
+                    if (!_ntripSource.isLogIn) {
                         if (validateNtripServerHost(hostField.text) !== "") {
                             ntripHostErrorDialog.open()
                             return
+                        }
+                        if (!_ntripSource.mountpointManual.rawValue) {
+                            root._saveMountPointFromIndex(cbMountPoint.currentIndex)
                         }
                         _ntripSource.logIn()
                     } else {
@@ -208,7 +273,7 @@ Column {
             }
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("RTCM: %1 fps | total %2 frames | %3 KB")
@@ -218,7 +283,7 @@ Column {
             color: (_ntripSource.isLogIn && _ntripSource.rtcmFramesPerSecond > 0) ? qgcPal.colorGreen : qgcPal.text
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("Raw %1 B/s | Dropped %2 B/s | MAVLink sent %3/s | Last RTCM %4")
@@ -229,7 +294,7 @@ Column {
             color: (_ntripSource.isLogIn && _ntripSource.rawBytesPerSecond > 0) ? qgcPal.text : qgcPal.colorOrange
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("CRC errors %1/s | total %2 | last %3")
@@ -239,7 +304,7 @@ Column {
             color: _ntripSource.crcErrorsPerSecond > 0 ? qgcPal.colorRed : qgcPal.text
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("CRC log file: %1").arg(_ntripSource.crcErrorLogPath)
@@ -247,7 +312,7 @@ Column {
             wrapMode: Text.WrapAnywhere
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("Caster raw HEX (latest): %1")
@@ -256,7 +321,7 @@ Column {
             wrapMode: Text.WrapAnywhere
         }
         QGCLabel {
-            visible: false
+            visible: _ntripDebugging
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: qsTr("Last RTCM type: %1 | frame HEX: %2")
@@ -268,7 +333,7 @@ Column {
         QGCLabel {
             Layout.columnSpan: 2
             Layout.fillWidth: true
-            visible:false // _ntripSource.isLogIn
+            visible:_ntripDebugging // _ntripSource.isLogIn
             color: (_ntripSource.droppedBytesPerSecond > 1024 || _ntripSource.lastRtcmReceivedSec > 5) ? qgcPal.colorRed : qgcPal.colorOrange
             text: {
                 if (_ntripSource.lastRtcmReceivedSec < 0) {

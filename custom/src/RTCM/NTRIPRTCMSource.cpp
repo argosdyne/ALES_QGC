@@ -10,6 +10,14 @@ QGC_LOGGING_CATEGORY(NTRIPRTCMSourceLog, "NTRIPRTCMSourceLog")
 #include <QFile>
 #include <QTextStream>
 
+namespace {
+bool isValidNtripServerHost(const QString& host)
+{
+    static const QRegularExpression hostRegex(QStringLiteral("^[a-zA-Z0-9.-]{1,253}$"));
+    return hostRegex.match(host).hasMatch();
+}
+}
+
 NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
     : RTCMBase ("NTRIPRTCM", parent)
     , _tcpSocket(new QTcpSocket(this))
@@ -60,12 +68,12 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
     _crcErrorLogPath = "ntrip_rtcm_crc_errors.log";
 #endif
 
-    // Auto‑reconnect timer: used only when user requested to stay logged in.
+    //reconnect timer: used only when user requested to stay logged in.
     _reconnectTimer.setSingleShot(true);
     _reconnectTimer.setInterval(5000);   // 5s backoff before reconnect
     connect(&_reconnectTimer, &QTimer::timeout, this, [this]() {
         if (_shouldReconnect) {
-            qCDebug(NTRIPRTCMSourceLog) << "NTRIP: attempting auto‑reconnect";
+            qCDebug(NTRIPRTCMSourceLog) << "NTRIP: attempting auto reconnect";
             _tcpSocket->abort();
             _tcpSocket->connectToHost(host()->rawValueString(),
                                       static_cast<quint16>(port()->rawValue().toInt()));
@@ -97,7 +105,7 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
         _mavlinkRtcmSentCurrentSecond++;
     });
 
-    if(host()->rawValue().toString() != "" && port()->rawValue().toString() != ""){ //�̹� ���� ä���� �ִٸ�
+    if(host()->rawValue().toString() != "" && port()->rawValue().toString() != ""){
         onReadyRead();
     }
 }
@@ -285,7 +293,7 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
     if (!(_tcpSocket->isOpen() && _tcpSocket->isValid() && _tcpSocket->isWritable())) {
         if (s_socketFailLogTimer.elapsed() >= 5000) {
             s_socketFailLogTimer.restart();
-            qCWarning(NTRIPRTCMSourceLog) << "GPGGA not sent: TCP not ready — open:"
+            qCWarning(NTRIPRTCMSourceLog) << "GPGGA not sent: TCP not ready open:"
                                           << _tcpSocket->isOpen() << "valid:" << _tcpSocket->isValid()
                                           << "writable:" << _tcpSocket->isWritable() << "state:" << _tcpSocket->state()
                                           << "error:" << _tcpSocket->errorString();
@@ -314,7 +322,7 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
         if (s_fakeGgaWarnTimer.elapsed() >= 30000) {
             s_fakeGgaWarnTimer.restart();
             qCWarning(NTRIPRTCMSourceLog)
-                << "GPGGA: no vehicle position yet — using built-in fallback coordinates. "
+                << "GPGGA: no vehicle position yet using built-in fallback coordinates. "
                    "Enable AutoUpdate GPGGA, connect vehicle, or use Get from Vehicle to avoid caster disconnects.";
         }
         // Lefebure-style fallback: valid ddmm.mmmm + whole-second UTC timestamp.
@@ -473,10 +481,16 @@ bool NTRIPRTCMSource::_isPremiumCaster()
         || hostName.contains(QStringLiteral("rtkpremium"), Qt::CaseInsensitive);
 }
 
+QString NTRIPRTCMSource::_activeMountPointName()
+{
+    const Fact* source = mountpointManual()->rawValue().toBool() ? mountpointManualValue() : mountpoint();
+    return source->rawValue().toString().split(':').value(0).trimmed();
+}
+
 void NTRIPRTCMSource::_onSocketConnected()
 {
-    QStringList parts = mountpoint()->rawValue().toString().split(':');
-    const QString mountPoint = parts[0];
+    const QString mountPoint = _activeMountPointName();
+    qInfo() << "_onSocketConnected Mountpoint = " << mountPoint;
 
     QString request;
     if (_isPremiumCaster()) {
@@ -619,25 +633,69 @@ void NTRIPRTCMSource::_onSocketReplied()
     // Keep a short preview of the latest raw bytes from caster for troubleshooting.
     _lastRawChunkHexPreview = QString::fromLatin1(data.left(32).toHex(' ')).toUpper();
 
-    int droppedBytes = 0;
-    bool overflowGuardTriggered = false;
-    const QList<QByteArray> validatedFrames = RtcmStreamValidator::appendAndExtractValidatedFrames(
-        _rtcmStreamBuffer,
-        data,
-        &droppedBytes,
-        &overflowGuardTriggered,
-        [this](const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc) {
-            _crcErrorsCurrentSecond++;
-            _crcErrorsTotal++;
-            _lastCrcErrorAt = QDateTime::currentDateTime().toString(Qt::ISODate);
-            _logRtcmCrcError(frame, expectedCrc, actualCrc);
-        });
-    if (overflowGuardTriggered) {
+    _rtcmStreamBuffer.append(data);
+    if (_rtcmStreamBuffer.size() > 65536) {
+        int removed = 0;
+        const int lastPreamble = _rtcmStreamBuffer.lastIndexOf(static_cast<char>(0xD3));
+        if (lastPreamble >= 0) {
+            removed = lastPreamble;
+            _rtcmStreamBuffer.remove(0, lastPreamble);
+        } else {
+            removed = _rtcmStreamBuffer.size();
+            _rtcmStreamBuffer.clear();
+        }
+        _droppedBytesCurrentSecond += removed;
         qCWarning(NTRIPRTCMSourceLog) << "RTCM stream buffer overflow guard triggered";
     }
 
     int parsedFrames = 0;
-    for (const QByteArray& frame : validatedFrames) {
+    int droppedBytes = 0;
+    while (_rtcmStreamBuffer.size() >= 6) {
+        const int preambleIndex = _rtcmStreamBuffer.indexOf(static_cast<char>(0xD3));
+        if (preambleIndex < 0) {
+            droppedBytes += _rtcmStreamBuffer.size();
+            _rtcmStreamBuffer.clear();
+            break;
+        }
+        if (preambleIndex > 0) {
+            droppedBytes += preambleIndex;
+            _rtcmStreamBuffer.remove(0, preambleIndex);
+        }
+        if (_rtcmStreamBuffer.size() < 3) {
+            break;
+        }
+
+        const uint8_t b1 = static_cast<uint8_t>(_rtcmStreamBuffer.at(1));
+        const uint8_t b2 = static_cast<uint8_t>(_rtcmStreamBuffer.at(2));
+        const int payloadLen = ((b1 & 0x03) << 8) | b2;
+        if (payloadLen <= 0 || payloadLen > 1023) {
+            droppedBytes += 1;
+            _rtcmStreamBuffer.remove(0, 1);
+            continue;
+        }
+
+        const int frameLen = 3 + payloadLen + 3;
+        if (_rtcmStreamBuffer.size() < frameLen) {
+            break;
+        }
+
+        const QByteArray frame = _rtcmStreamBuffer.left(frameLen);
+        const quint32 expectedCrc =
+            (static_cast<quint32>(static_cast<uint8_t>(frame.at(frameLen - 3))) << 16) |
+            (static_cast<quint32>(static_cast<uint8_t>(frame.at(frameLen - 2))) << 8) |
+            static_cast<quint32>(static_cast<uint8_t>(frame.at(frameLen - 1)));
+        const quint32 actualCrc = _crc24q(frame.constData(), frameLen - 3);
+        if (expectedCrc != actualCrc) {
+            _crcErrorsCurrentSecond++;
+            _crcErrorsTotal++;
+            _lastCrcErrorAt = QDateTime::currentDateTime().toString(Qt::ISODate);
+            _logRtcmCrcError(frame, expectedCrc, actualCrc);
+            droppedBytes += 1;
+            _rtcmStreamBuffer.remove(0, 1);
+            continue;
+        }
+
+        _rtcmStreamBuffer.remove(0, frameLen);
         _lastRtcmFrameHexPreview = QString::fromLatin1(frame.left(32).toHex(' ')).toUpper();
         if (frame.size() >= 5) {
             const uint8_t payload0 = static_cast<uint8_t>(frame.at(3));
@@ -671,6 +729,21 @@ void NTRIPRTCMSource::_onSocketReplied()
     }
 }
 
+quint32 NTRIPRTCMSource::_crc24q(const char* data, int length)
+{
+    quint32 crc = 0;
+    for (int i = 0; i < length; ++i) {
+        crc ^= static_cast<quint32>(static_cast<uint8_t>(data[i])) << 16;
+        for (int bit = 0; bit < 8; ++bit) {
+            crc <<= 1;
+            if (crc & 0x1000000) {
+                crc ^= 0x1864CFB;
+            }
+        }
+    }
+    return crc & 0xFFFFFF;
+}
+
 void NTRIPRTCMSource::_logRtcmCrcError(const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc)
 {
     QFile file(_crcErrorLogPath);
@@ -693,7 +766,7 @@ void NTRIPRTCMSource::_onSocketError(QAbstractSocket::SocketError error)
 {
     _sendGPGGATimer.stop();
     qCWarning(NTRIPRTCMSourceLog) << "NTRIP TCP error:" << error << _tcpSocket->errorString()
-                                  << "— GPGGA/RTCM from caster will stop until reconnect";
+                                  << "GPGGA/RTCM from caster will stop until reconnect";
     qCDebug(NTRIPRTCMSourceLog) << QString("Socket Error:") << error;
     _tcpSocket->close();
     _ntripHandshakeBuffer.clear();
@@ -766,3 +839,5 @@ DECLARE_SETTINGSFACT(NTRIPRTCMSource, passwd)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, autoUpdateGPGGA)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, gpggamessageHz)
 DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpoint)
+DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpointManual)
+DECLARE_SETTINGSFACT(NTRIPRTCMSource, mountpointManualValue)
