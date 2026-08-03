@@ -240,6 +240,10 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
     // and I expect that it will be changed during multiple video stream activity
     if (_videoReceiver[1] != nullptr) {        
         connect(_videoReceiver[1], &VideoReceiver::streamingChanged, this, [this](bool active){
+            qWarning().noquote() << "[VideoManager][THERMAL] streamingChanged"
+                                 << "active=" << active
+                                 << "uri=" << _videoUri[1]
+                                 << "sinkReady=" << (_videoSink[1] != nullptr);
             qCDebug(VideoManagerLog) << "THERMAL_TRACE"
                     << "video1.streamingChanged"
                     << "active" << active
@@ -247,6 +251,10 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
                     << "sinkReady" << (_videoSink[1] != nullptr);
         });
         connect(_videoReceiver[1], &VideoReceiver::onStartComplete, this, [this](VideoReceiver::STATUS status) {
+            qWarning().noquote() << "[VideoManager][THERMAL] onStartComplete"
+                                 << "status=" << static_cast<int>(status)
+                                 << "uri=" << _videoUri[1]
+                                 << "sinkReady=" << (_videoSink[1] != nullptr);
             qCDebug(VideoManagerLog) << "THERMAL_TRACE"
                     << "video1.onStartComplete"
                     << "status" << static_cast<int>(status)
@@ -267,6 +275,8 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
         });
 
         connect(_videoReceiver[1], &VideoReceiver::onStopComplete, this, [this](VideoReceiver::STATUS) {
+            qWarning().noquote() << "[VideoManager][THERMAL] onStopComplete"
+                                 << "uri=" << _videoUri[1];
             qCDebug(VideoManagerLog) << "THERMAL_TRACE"
                     << "video1.onStopComplete"
                     << "uri" << _videoUri[1];
@@ -274,6 +284,10 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
             _startReceiver(1);
         });
         connect(_videoReceiver[1], &VideoReceiver::decodingChanged, this, [this](bool active){
+            qWarning().noquote() << "[VideoManager][THERMAL] decodingChanged"
+                                 << "active=" << active
+                                 << "uri=" << _videoUri[1]
+                                 << "sinkReady=" << (_videoSink[1] != nullptr);
             qCDebug(VideoManagerLog) << "THERMAL_TRACE"
                     << "video1.decodingChanged"
                     << "active" << active
@@ -1208,6 +1222,8 @@ VideoManager::_restartAllVideos()
     qCDebug(VideoManagerLog) << "THERMAL_TRACE"
             << "hasThermalChanged"
             << "value" << hasThermal();
+    qWarning().noquote() << "[VideoManager][THERMAL] hasThermalChanged"
+                         << "value=" << hasThermal();
     emit hasThermalChanged();
     emit aspectRatioChanged();
 }
@@ -1223,6 +1239,23 @@ VideoManager::_startReceiver(unsigned id)
     /* The gstreamer rtsp source will switch to tcp if udp is not available after 5 seconds.
        So we should allow for some negotiation time for rtsp */
     const unsigned timeout = (source == VideoSettings::videoSourceRTSP ? rtsptimeout : 10 );
+
+    if (id == 1) {
+        const QUrl thermalUrl(_videoUri[id]);
+        if (thermalUrl.scheme() == QStringLiteral("rtsp")) {
+            const QString configuredRtspUrl = _videoSettings->rtspUrl()->rawValue().toString();
+            const QString rtspUri = rtspUriWithConfiguredEndpoint(_videoUri[id], configuredRtspUrl);
+            if (rtspUri != _videoUri[id]) {
+                qWarning().noquote() << "[VideoManager][RTSP] select-thermal-uri"
+                                     << "id=" << id
+                                     << "context=" << "start-receiver"
+                                     << "autoUri=" << _videoUri[id]
+                                     << "configuredRtsp=" << configuredRtspUrl
+                                     << "selectedUri=" << rtspUri;
+                _updateVideoUri(id, rtspUri);
+            }
+        }
+    }
 
     qCDebug(VideoManagerLog) << "[VideoManager]" << "_startReceiver"
             << "id" << id
@@ -1309,6 +1342,13 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
                         << "hasThermalStream" << (pCamera->thermalStreamInstance() != nullptr)
                         << "currentStream" << (pCamera->currentStreamInstance() ? pCamera->currentStreamInstance()->streamID() : -1)
                         << "thermalStream" << (pCamera->thermalStreamInstance() ? pCamera->thermalStreamInstance()->streamID() : -1);
+                qWarning().noquote() << "[VideoManager][THERMAL] setActiveVehicle"
+                                     << "camera=" << pCamera->modelName()
+                                     << "thermalMode=" << static_cast<int>(pCamera->thermalMode())
+                                     << "thermalOpacity=" << pCamera->thermalOpacity()
+                                     << "hasThermalStream=" << (pCamera->thermalStreamInstance() != nullptr)
+                                     << "currentStream=" << (pCamera->currentStreamInstance() ? pCamera->currentStreamInstance()->streamID() : -1)
+                                     << "thermalStream=" << (pCamera->thermalStreamInstance() ? pCamera->thermalStreamInstance()->streamID() : -1);
                 connect(pCamera, &QGCCameraControl::thermalModeChanged, this, &VideoManager::_thermalModeChanged);
                 pCamera->resumeStream();
             }
@@ -1321,6 +1361,8 @@ VideoManager::_setActiveVehicle(Vehicle* vehicle)
     qCDebug(VideoManagerLog) << "THERMAL_TRACE"
             << "hasThermalChanged"
             << "value" << hasThermal();
+    qWarning().noquote() << "[VideoManager][THERMAL] hasThermalChanged"
+                         << "value=" << hasThermal();
     emit hasThermalChanged();
     _restartAllVideos();
 }
@@ -1360,6 +1402,11 @@ VideoManager::_thermalModeChanged()
             << "started" << _videoStarted[1]
             << "uri" << _videoUri[1]
             << "hasThermalStream" << (pCamera->thermalStreamInstance() != nullptr);
+    qWarning().noquote() << "[VideoManager][THERMAL] thermalModeChanged"
+                         << "mode=" << static_cast<int>(pCamera->thermalMode())
+                         << "started=" << _videoStarted[1]
+                         << "uri=" << _videoUri[1]
+                         << "hasThermalStream=" << (pCamera->thermalStreamInstance() != nullptr);
 
     if (!_videoStarted[1]) {
         _restartVideo(1);

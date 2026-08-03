@@ -1141,6 +1141,12 @@ GstVideoReceiver::_watchdog(void)
         }
 
         if (now - _lastSourceFrameTime > _timeout) {
+            qWarning().noquote() << "[GstVideoReceiver][TIMEOUT] source"
+                                 << "uri=" << _uri
+                                 << "secondsWithoutFrames=" << (now - _lastSourceFrameTime)
+                                 << "timeout=" << _timeout
+                                 << "streaming=" << _streaming
+                                 << "decoding=" << _decoding;
             qCDebug(VideoReceiverLog) << "Stream timeout, no frames for " << now - _lastSourceFrameTime << "" << _uri;
             _dispatchSignal([this](){
                 emit timeout();
@@ -1154,6 +1160,12 @@ GstVideoReceiver::_watchdog(void)
             }
 
             if (now - _lastVideoFrameTime > _timeout * 2) {
+                qWarning().noquote() << "[GstVideoReceiver][TIMEOUT] decoder"
+                                     << "uri=" << _uri
+                                     << "secondsWithoutFrames=" << (now - _lastVideoFrameTime)
+                                     << "timeout=" << _timeout
+                                     << "streaming=" << _streaming
+                                     << "decoding=" << _decoding;
                 qCDebug(VideoReceiverLog) << "Video decoder timeout, no frames for " << now - _lastVideoFrameTime << " " << _uri;
                 _dispatchSignal([this](){
                     emit timeout();
@@ -1545,6 +1557,8 @@ GstVideoReceiver::_onNewSourcePad(GstPad* pad)
 
     if (!_streaming) {
         _streaming = true;
+        qWarning().noquote() << "[GstVideoReceiver][STREAMING] source-pad"
+                             << "uri=" << _uri;
         qCDebug(VideoReceiverLog) << "Streaming started" << _uri;
         _dispatchSignal([this](){
             emit streamingChanged(_streaming);
