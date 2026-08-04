@@ -1270,6 +1270,24 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: sessionManager
+        onSessionLocked: {
+            if (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) {
+                sessionManager.startSession()
+                return
+            }
+            showLoginOverlay()
+        }
+    }
+
+    Connections {
+        target: CustomQmlInterface
+        function onFactoryResetCompleted() {
+            showRegisterAfterFactoryReset()
+        }
+    }
+
     Rectangle {
         id:         geoFenceBreachOverlay
         anchors.fill: parent
