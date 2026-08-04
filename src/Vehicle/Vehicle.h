@@ -165,6 +165,7 @@ public:
     enum GeoFenceAlertTier {
         GeoFenceAlertTierNone = 0,
         GeoFenceAlertTierMargin,
+        GeoFenceAlertTierAltitudeWarning,
         GeoFenceAlertTierBreach,
         GeoFenceAlertTierContingency,
     };
