@@ -67,6 +67,7 @@ private:
     void _init();
     void _handle_mavlink_rc_channels(const mavlink_message_t& message);
     void _handle_mavlink_param_value(const mavlink_message_t& message);
+    static bool _rcSwitchActive(uint16_t rawValue);
 
     Fact _batteryVoltageFact;
     Fact _batteryRemainingFact;

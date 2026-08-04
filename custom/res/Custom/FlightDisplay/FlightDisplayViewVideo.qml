@@ -38,11 +38,50 @@ Item {
     property bool   _videoStreamingAllowed: QGroundControl.corePlugin.settings.networkVideoStreamingEnabled.rawValue
     property double _thermalHeightFactor: 0.85 //-- TODO
 
+
+    // Keep the GL video surface alive across brief decode gaps (e.g. camera mode switch).
+    property bool _hasDecodedOnce: false
+    property bool _showVideoFrame: false
+
+    Timer {
+        id:             decodingHoldTimer
+        interval:       2500
+        onTriggered: {
+            _showVideoFrame = QGroundControl.videoManager.decoding
+            if (!_showVideoFrame) {
+                _hasDecodedOnce = false
+            }
+        }
+    }
+
+    Connections {
+        target: QGroundControl.videoManager
+        function onDecodingChanged() {
+            if (QGroundControl.videoManager.decoding) {
+                _hasDecodedOnce = true
+                _showVideoFrame = true
+                decodingHoldTimer.stop()
+            } else if (_hasDecodedOnce) {
+                decodingHoldTimer.restart()
+            } else {
+                _showVideoFrame = false
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (QGroundControl.videoManager.decoding) {
+            _hasDecodedOnce = true
+            _showVideoFrame = true
+        }
+    }
+
+
     Rectangle {
         id:             noVideo
         anchors.fill:   parent
         color:          Qt.rgba(0,0,0,0.75)
-        visible:        !(_videoStreamingAllowed && QGroundControl.videoManager.decoding)
+        visible:        !(_videoStreamingAllowed && _showVideoFrame)
         QGCLabel {
             text:               (_videoStreamingAllowed && QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue) ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
             font.family:        ScreenTools.demiboldFontFamily
@@ -54,7 +93,7 @@ Item {
     Rectangle {
         anchors.fill:   parent
         color:          "black"
-        visible:        _videoStreamingAllowed && QGroundControl.videoManager.decoding
+        visible:        _videoStreamingAllowed && _showVideoFrame
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -131,7 +170,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            _videoStreamingAllowed && QGroundControl.videoManager.decoding
+            visible:            _videoStreamingAllowed && _showVideoFrame
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource

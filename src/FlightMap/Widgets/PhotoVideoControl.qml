@@ -156,10 +156,10 @@ Item {
         _videoStreamInPhotoMode = photoMode
 
         if (_mavlinkCamera){
-            if (_mavlinkCameraInPhotoMode) {
-                _mavlinkCamera.setVideoMode()
-            } else {
+            if (photoMode) {
                 _mavlinkCamera.setPhotoMode()
+            } else {
+                _mavlinkCamera.setVideoMode()
             }
         }
         console.warn("No camera available to switch mode!")

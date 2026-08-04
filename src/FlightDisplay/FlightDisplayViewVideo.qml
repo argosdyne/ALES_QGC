@@ -46,12 +46,52 @@ Item {
 
     property double _thermalHeightFactor: 0.85 //-- TODO
 
+
+    // Keep the GL video surface alive across brief decode gaps (e.g. camera mode switch).
+    property bool _hasDecodedOnce: false
+    property bool _showVideoFrame: false
+
+    Timer {
+        id:             decodingHoldTimer
+        interval:       2500
+        onTriggered: {
+            _showVideoFrame = QGroundControl.videoManager.decoding
+            if (!_showVideoFrame) {
+                _hasDecodedOnce = false
+            }
+        }
+    }
+
+    Connections {
+        target: QGroundControl.videoManager
+        function onDecodingChanged() {
+            if (QGroundControl.videoManager.decoding) {
+                _hasDecodedOnce = true
+                _showVideoFrame = true
+                decodingHoldTimer.stop()
+            } else if (_hasDecodedOnce) {
+                decodingHoldTimer.restart()
+            } else {
+                _showVideoFrame = false
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (QGroundControl.videoManager.decoding) {
+            _hasDecodedOnce = true
+            _showVideoFrame = true
+        }
+    }
+
+
         Image {
             id:             noVideo
             anchors.fill:   parent
             source:         "/res/NoVideoBackground.jpg"
             fillMode:       Image.PreserveAspectCrop
-            visible:        !(_videoStreamingAllowed && QGroundControl.videoManager.decoding)
+            z:              2
+            visible:        !(_videoStreamingAllowed && _showVideoFrame)
 
             Rectangle {
                 anchors.centerIn:   parent
@@ -76,7 +116,8 @@ Item {
         id:             videoBackground
         anchors.fill:   parent
         color:          "black"
-        visible:        _videoStreamingAllowed && QGroundControl.videoManager.decoding
+        z:              1
+        visible:        _videoStreamingAllowed && _showVideoFrame
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -148,7 +189,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            _videoStreamingAllowed && QGroundControl.videoManager.decoding
+            visible:            _videoStreamingAllowed && _showVideoFrame
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource

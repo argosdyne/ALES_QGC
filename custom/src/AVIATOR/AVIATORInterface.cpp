@@ -1,4 +1,4 @@
-﻿#include "AVIATORInterface.h"
+#include "AVIATORInterface.h"
 #include "QGCLoggingCategory.h"
 #include <QQmlEngine>
 #include <QString>
@@ -303,8 +303,8 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f1 = channels.chan15_raw == 2000;
     bool f2 = channels.chan14_raw == 2000;
     bool f3 = channels.chan16_raw == 2000;
-    bool capture = channels.chan12_raw == 2000;
-    bool record = channels.chan13_raw == 2000;
+    bool capture = _rcSwitchActive(channels.chan12_raw);
+    bool record = _rcSwitchActive(channels.chan13_raw);
 
 
     // F1 
@@ -423,6 +423,11 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 #endif
 
 }
+bool AVIATORInterface::_rcSwitchActive(uint16_t rawValue)
+{
+    return rawValue >= 1900;
+}
+
 void AVIATORInterface::_handle_mavlink_param_value(const mavlink_message_t& message)
 {
     mavlink_param_value_t param_value;
