@@ -24,12 +24,9 @@
 #include <QtAndroidExtras/QtAndroid>
 #include <QtAndroidExtras/QAndroidJniEnvironment>
 #include <QtAndroidExtras/QAndroidJniObject>
-#include <QThread>
-#include <atomic>
 
 namespace {
 constexpr const char* kQgcActivityClass = "org/mavlink/qgroundcontrol/QGCActivity";
-constexpr jint kFlagReceiverForeground = 0x01000000;
 
 jclass findQgcActivityClass(QAndroidJniEnvironment& env)
 {
@@ -133,148 +130,6 @@ qint64 callStaticLongIfPresent(const char* methodName, const char* signature, qi
         return defaultValue;
     }
     return static_cast<qint64>(value);
-}
-
-bool sendDpcWifiBroadcastCpp(const QString& action)
-{
-    QAndroidJniObject activity = QtAndroid::androidActivity();
-    if (!activity.isValid()) {
-        qWarning() << "sendDpcWifiBroadcastCpp: no activity";
-        return false;
-    }
-
-    const QAndroidJniObject jAction = QAndroidJniObject::fromString(action);
-    const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
-    const QAndroidJniObject dpcReceiver = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.DpcControlReceiver"));
-    QAndroidJniObject component(
-        "android/content/ComponentName",
-        "(Ljava/lang/String;Ljava/lang/String;)V",
-        dpcPackage.object<jstring>(),
-        dpcReceiver.object<jstring>());
-
-    QAndroidJniObject explicitIntent(
-        "android/content/Intent",
-        "(Ljava/lang/String;)V",
-        jAction.object<jstring>());
-    explicitIntent = explicitIntent.callObjectMethod(
-        "setComponent",
-        "(Landroid/content/ComponentName;)Landroid/content/Intent;",
-        component.object());
-    explicitIntent = explicitIntent.callObjectMethod(
-        "addFlags",
-        "(I)Landroid/content/Intent;",
-        kFlagReceiverForeground);
-
-    activity.callMethod<void>(
-        "sendBroadcast",
-        "(Landroid/content/Intent;)V",
-        explicitIntent.object());
-
-    QAndroidJniEnvironment env;
-    if (env->ExceptionCheck()) {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-        return false;
-    }
-
-    qInfo() << "DPC WiFi broadcast sent action=" << action;
-    return true;
-}
-
-bool tryStartWifiIntentOnUiThread(const QString& action, const QString& packageName)
-{
-    std::atomic<bool> opened{false};
-    QAndroidJniObject latch("java/util/concurrent/CountDownLatch", "(I)V", 1);
-    const QAndroidJniObject secondsUnit = QAndroidJniObject::callStaticObjectMethod(
-        "java/util/concurrent/TimeUnit",
-        "SECONDS",
-        "Ljava/util/concurrent/TimeUnit;");
-
-    QtAndroid::runOnAndroidThread([action, packageName, &opened, latch]() {
-        const QAndroidJniObject activity = QtAndroid::androidActivity();
-        if (!activity.isValid()) {
-            latch.callMethod<void>("countDown", "()V");
-            return;
-        }
-
-        QAndroidJniObject intent(
-            "android/content/Intent",
-            "(Ljava/lang/String;)V",
-            QAndroidJniObject::fromString(action).object<jstring>());
-        if (!packageName.isEmpty()) {
-            intent = intent.callObjectMethod(
-                "setPackage",
-                "(Ljava/lang/String;)Landroid/content/Intent;",
-                QAndroidJniObject::fromString(packageName).object<jstring>());
-        }
-
-        activity.callMethod<void>(
-            "startActivity",
-            "(Landroid/content/Intent;)V",
-            intent.object());
-
-        QAndroidJniEnvironment env;
-        if (env->ExceptionCheck()) {
-            env->ExceptionDescribe();
-            env->ExceptionClear();
-        } else {
-            qInfo() << "WiFi panel opened from C++ action=" << action
-                    << "package=" << (packageName.isEmpty() ? QStringLiteral("default") : packageName);
-            opened.store(true);
-        }
-
-        latch.callMethod<void>("countDown", "()V");
-    });
-
-    latch.callMethod<jboolean>(
-        "await",
-        "(JLjava/util/concurrent/TimeUnit;)Z",
-        static_cast<jlong>(5),
-        secondsUnit.object());
-    return opened.load();
-}
-
-bool openWifiSettingsPanelCpp()
-{
-    const jint sdkInt = QAndroidJniObject::callStaticMethod<jint>(
-        "android/os/Build$VERSION",
-        "SDK_INT",
-        "()I");
-
-    QStringList actions;
-    if (sdkInt >= 29) {
-        actions << QStringLiteral("android.settings.panel.action.WIFI");
-    }
-    actions << QStringLiteral("android.settings.WIFI_SETTINGS")
-            << QStringLiteral("android.settings.WIRELESS_SETTINGS");
-
-    for (const QString& action : actions) {
-        if (tryStartWifiIntentOnUiThread(action, QStringLiteral("com.android.settings"))) {
-            return true;
-        }
-        if (tryStartWifiIntentOnUiThread(action, QString())) {
-            return true;
-        }
-    }
-
-    qWarning() << "openWifiSettingsPanelCpp: all WiFi panel attempts failed";
-    return false;
-}
-
-bool requestDpcOpenWifiPanelCpp()
-{
-    sendDpcWifiBroadcastCpp(QStringLiteral("com.easygripper.dpc.action.OPEN_WIFI_PANEL"));
-    if (callStaticBooleanIfPresent("getKnownDpcKioskStateEnabled", "()Z", false)) {
-        qInfo() << "WiFi panel delegated to DPC (kiosk ON)";
-        return true;
-    }
-    sendDpcWifiBroadcastCpp(QStringLiteral("com.easygripper.dpc.action.ENABLE_WIFI"));
-    QThread::msleep(400);
-    const bool opened = openWifiSettingsPanelCpp();
-    if (opened) {
-        callStaticVoidIfPresent("scheduleForegroundReturnAfterWifiPanel", "()V");
-    }
-    return opened;
 }
 } // namespace
 #endif
@@ -524,18 +379,54 @@ bool CustomQmlInterface::setDpcKioskEnabledWithPin(bool enabled, const QString& 
         return false;
     }
 
-    // Delegate to QGCActivity so boot-forced kiosk state is cleared before the broadcast.
-    QAndroidJniEnvironment env;
-    jclass clazz = findQgcActivityClass(env);
-    jmethodID method = findStaticMethod(env, clazz, "setDpcKioskEnabledWithPin", "(ZLjava/lang/String;)Ljava/lang/String;");
-    if (method == nullptr) {
-        logSecurityEvent(QStringLiteral("DPC kiosk request failed: Java bridge unavailable"));
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (!activity.isValid()) {
+        logSecurityEvent(QStringLiteral("DPC kiosk request failed: no Android activity"));
         return false;
     }
 
+    // Clear the previous reason so the next non-empty reason reflects THIS command's result.
+    callStaticVoidIfPresent("clearLastDpcReason", "()V");
+
+    const QAndroidJniObject action = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.action.SET_KIOSK_ENABLED"));
+    const QAndroidJniObject dpcPackage = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc"));
+    const QAndroidJniObject dpcReceiver = QAndroidJniObject::fromString(QStringLiteral("com.easygripper.dpc.DpcControlReceiver"));
+    const QAndroidJniObject enabledKey = QAndroidJniObject::fromString(QStringLiteral("enabled"));
+    const QAndroidJniObject pinKey = QAndroidJniObject::fromString(QStringLiteral("pin"));
     const QAndroidJniObject jpin = QAndroidJniObject::fromString(pin);
-    const jstring result = static_cast<jstring>(
-        env->CallStaticObjectMethod(clazz, method, static_cast<jboolean>(enabled), jpin.object<jstring>()));
+
+    QAndroidJniObject component(
+        "android/content/ComponentName",
+        "(Ljava/lang/String;Ljava/lang/String;)V",
+        dpcPackage.object<jstring>(),
+        dpcReceiver.object<jstring>());
+
+    QAndroidJniObject explicitIntent(
+        "android/content/Intent",
+        "(Ljava/lang/String;)V",
+        action.object<jstring>());
+    explicitIntent.callObjectMethod(
+        "setComponent",
+        "(Landroid/content/ComponentName;)Landroid/content/Intent;",
+        component.object());
+    explicitIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Z)Landroid/content/Intent;",
+        enabledKey.object<jstring>(),
+        static_cast<jboolean>(enabled));
+    explicitIntent.callObjectMethod(
+        "putExtra",
+        "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+        pinKey.object<jstring>(),
+        jpin.object<jstring>());
+    // Single explicit broadcast — package-targeted duplicate would invoke DpcControlReceiver
+    // twice and double-count failed PIN attempts toward lockout.
+    activity.callMethod<void>(
+        "sendBroadcast",
+        "(Landroid/content/Intent;)V",
+        explicitIntent.object());
+
+    QAndroidJniEnvironment env;
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
@@ -543,18 +434,11 @@ bool CustomQmlInterface::setDpcKioskEnabledWithPin(bool enabled, const QString& 
         return false;
     }
 
-    const QString status = result != nullptr ? QAndroidJniObject(result).toString() : QStringLiteral("ERROR");
-    if (status == QLatin1String("OK")) {
-        logSecurityEvent(QStringLiteral("DPC kiosk %1 request broadcast sent")
-                             .arg(enabled ? QStringLiteral("enabled") : QStringLiteral("disabled")));
-        return true;
-    }
-
-    logSecurityEvent(QStringLiteral("DPC kiosk request rejected by Java bridge: %1").arg(status));
-    return false;
+    logSecurityEvent(QStringLiteral("DPC kiosk %1 request broadcast sent")
+                         .arg(enabled ? QStringLiteral("enabled") : QStringLiteral("disabled")));
+    return true;
 #else
     Q_UNUSED(enabled)
-    Q_UNUSED(pin)
     return false;
 #endif
 }
@@ -598,63 +482,6 @@ bool CustomQmlInterface::requestDpcKioskState()
 {
 #if defined(Q_OS_ANDROID)
     return callStaticBooleanIfPresent("requestDpcKioskState", "()Z", false);
-#else
-    return false;
-#endif
-}
-
-bool CustomQmlInterface::requestDpcEnableWifi()
-{
-#if defined(Q_OS_ANDROID)
-    const bool sent = callStaticBooleanIfPresent("requestDpcEnableWifi", "()Z", false);
-    if (sent) {
-        logSecurityEvent(QStringLiteral("DPC WiFi enable requested via hidden gesture"));
-    }
-    return sent;
-#else
-    return false;
-#endif
-}
-
-bool CustomQmlInterface::requestDpcOpenWifiPanel()
-{
-#if defined(Q_OS_ANDROID)
-    QAndroidJniEnvironment env;
-    jclass clazz = findQgcActivityClass(env);
-    if (clazz != nullptr) {
-        jmethodID openPanelMethod = findStaticMethod(env, clazz, "requestDpcOpenWifiPanel", "()Z");
-        if (openPanelMethod != nullptr) {
-            const jboolean value = env->CallStaticBooleanMethod(clazz, openPanelMethod);
-            if (!env->ExceptionCheck() && value) {
-                logSecurityEvent(QStringLiteral("WiFi panel opened via requestDpcOpenWifiPanel"));
-                return true;
-            }
-            if (env->ExceptionCheck()) {
-                env->ExceptionClear();
-            }
-            qWarning() << "requestDpcOpenWifiPanel: Java bridge returned false, trying C++ path";
-        }
-    }
-
-    const bool opened = requestDpcOpenWifiPanelCpp();
-    if (opened) {
-        logSecurityEvent(QStringLiteral("WiFi panel opened via C++ bridge"));
-    } else {
-        qWarning() << "requestDpcOpenWifiPanel: C++ bridge failed";
-    }
-    return opened;
-#else
-    return false;
-#endif
-}
-
-bool CustomQmlInterface::openWifiSettingsPanel()
-{
-#if defined(Q_OS_ANDROID)
-    if (callStaticBooleanIfPresent("openWifiSettingsPanel", "()Z", false)) {
-        return true;
-    }
-    return openWifiSettingsPanelCpp();
 #else
     return false;
 #endif

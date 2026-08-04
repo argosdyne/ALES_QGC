@@ -37,14 +37,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -95,10 +94,6 @@ public class QGCActivity extends QtActivity
     private static final String                         DPC_CONTROL_RECEIVER = "com.easygripper.dpc.DpcControlReceiver";
     private static final String                         ACTION_DPC_SET_KIOSK_ENABLED = "com.easygripper.dpc.action.SET_KIOSK_ENABLED";
     private static final String                         ACTION_DPC_REQUEST_KIOSK_STATE = "com.easygripper.dpc.action.REQUEST_KIOSK_STATE";
-    private static final String                         ACTION_DPC_ENABLE_WIFI = "com.easygripper.dpc.action.ENABLE_WIFI";
-    private static final String                         ACTION_DPC_OPEN_WIFI_PANEL = "com.easygripper.dpc.action.OPEN_WIFI_PANEL";
-    private static final String                         ACTION_DPC_WIFI_PANEL_CLOSED = "com.easygripper.dpc.action.WIFI_PANEL_CLOSED";
-    private static final String                         ACTION_DPC_WIFI_PANEL_SHOWN = "com.easygripper.dpc.action.WIFI_PANEL_SHOWN";
     private static final String                         ACTION_DPC_KIOSK_STATE_CHANGED = "com.easygripper.dpc.action.KIOSK_STATE_CHANGED";
     private static final String                         EXTRA_DPC_ENABLED = "enabled";
     private static final String                         EXTRA_DPC_PIN = "pin";
@@ -133,106 +128,8 @@ public class QGCActivity extends QtActivity
     private TaiSync                                     taiSync = null;
     private Timer                                       probeAccessoriesTimer = null;
     private static WifiManager.MulticastLock            _wifiMulticastLock;
-    private static final Handler                        _wifiReturnHandler = new Handler(Looper.getMainLooper());
-    private static volatile boolean                     _wifiPanelReturnActive = false;
-    private static int                                  _wifiPanelReturnAttempt = 0;
-    private static final long                           WIFI_PANEL_RETURN_FIRST_DELAY_MS = 2500L;
-    private static final long                           WIFI_PANEL_RETURN_RETRY_DELAY_MS = 4000L;
-    private static final int                            WIFI_PANEL_RETURN_MAX_ATTEMPTS = 3;
-    private boolean                                     _activityResumed = false;
-    private boolean                                     _wifiPanelSessionActive = false;
-    private boolean                                     _wifiPanelWasBackgrounded = false;
-
+    
     public static Context m_context;
-
-    private static void stopWifiPanelReturn(String reason) {
-        _wifiPanelReturnActive = false;
-        _wifiPanelReturnAttempt = 0;
-        _wifiReturnHandler.removeCallbacksAndMessages(null);
-        if (_instance != null) {
-            _instance._wifiPanelSessionActive = false;
-            _instance._wifiPanelWasBackgrounded = false;
-        }
-        Log.i(TAG, "WiFi panel return: stopped (" + reason + ")");
-    }
-
-    private static void scheduleWifiPanelReturnAttempt(long delayMs) {
-        _wifiReturnHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                tryWifiPanelReturnOnce();
-            }
-        }, delayMs);
-    }
-
-    private static void tryWifiPanelReturnOnce() {
-        if (!_wifiPanelReturnActive) {
-            return;
-        }
-        if (_instance != null && _instance._activityResumed) {
-            stopWifiPanelReturn("already resumed");
-            return;
-        }
-        if (_knownDpcKioskEnabled) {
-            // Kiosk ON: DPC handles relaunch after OPEN_WIFI_PANEL.
-            stopWifiPanelReturn("deferred to DPC");
-            return;
-        }
-        if (_wifiPanelReturnAttempt >= WIFI_PANEL_RETURN_MAX_ATTEMPTS) {
-            stopWifiPanelReturn("max attempts");
-            return;
-        }
-        _wifiPanelReturnAttempt++;
-        bringSelfToForeground();
-        if (_wifiPanelReturnActive && _wifiPanelReturnAttempt < WIFI_PANEL_RETURN_MAX_ATTEMPTS) {
-            scheduleWifiPanelReturnAttempt(WIFI_PANEL_RETURN_RETRY_DELAY_MS);
-        }
-    }
-
-    /** After WiFi settings close, try to restore QGC (non-kiosk fallback only). */
-    public static void scheduleForegroundReturnAfterWifiPanel() {
-        if (_knownDpcKioskEnabled) {
-            Log.i(TAG, "WiFi panel return: deferred to DPC (kiosk ON)");
-            return;
-        }
-        _wifiPanelReturnActive = true;
-        _wifiPanelReturnAttempt = 0;
-        if (_instance != null) {
-            _instance._wifiPanelSessionActive = true;
-            _instance._wifiPanelWasBackgrounded = false;
-        }
-        _wifiReturnHandler.removeCallbacksAndMessages(null);
-        scheduleWifiPanelReturnAttempt(WIFI_PANEL_RETURN_FIRST_DELAY_MS);
-        Log.i(TAG, "WiFi panel return: scheduled (QGC fallback)");
-    }
-
-    private static void bringSelfToForeground() {
-        if (_instance == null) {
-            return;
-        }
-        try {
-            final ActivityManager am = (ActivityManager) _instance.getSystemService(Context.ACTIVITY_SERVICE);
-            final int taskId = _instance.getTaskId();
-            if (am != null && taskId > 0) {
-                am.moveTaskToFront(taskId, 0);
-                Log.i(TAG, "WiFi panel return: moveTaskToFront taskId=" + taskId);
-                return;
-            }
-        } catch (Throwable t) {
-            Log.w(TAG, "WiFi panel return: moveTaskToFront failed", t);
-        }
-        try {
-            Intent intent = new Intent(_instance, QGCActivity.class);
-            intent.addFlags(
-                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            _instance.startActivity(intent);
-            Log.i(TAG, "WiFi panel return: startActivity fallback");
-        } catch (Throwable t) {
-            Log.w(TAG, "WiFi panel return: startActivity failed", t);
-        }
-    }
 
     private final static ExecutorService m_Executor = Executors.newSingleThreadExecutor();
 
@@ -660,16 +557,7 @@ public class QGCActivity extends QtActivity
         }
 
         if (lastShutdownElapsedRt >= 0L && currentElapsedRt + 5000L < lastShutdownElapsedRt) {
-            final boolean bootIdChanged = !currentBootId.isEmpty()
-                    && !lastBootId.isEmpty()
-                    && !currentBootId.equals(lastBootId);
-            final boolean bootCountChanged = currentBootCount >= 0
-                    && lastBootCount >= 0
-                    && currentBootCount > lastBootCount;
-            if (bootIdChanged || bootCountChanged) {
-                return "elapsed_realtime_reset";
-            }
-            Log.w(TAG, "DPC_REBOOT_CHECK ignore stale elapsed marker (boot unchanged)");
+            return "elapsed_realtime_reset";
         }
 
         if (!currentBootId.isEmpty() && !lastBootId.isEmpty() && !currentBootId.equals(lastBootId)) {
@@ -681,16 +569,7 @@ public class QGCActivity extends QtActivity
         }
 
         if (kioskOffElapsedRt >= 0L && currentElapsedRt + 5000L < kioskOffElapsedRt) {
-            final boolean bootIdChanged = !currentBootId.isEmpty()
-                    && !kioskOffBootId.isEmpty()
-                    && !currentBootId.equals(kioskOffBootId);
-            final boolean bootCountChanged = currentBootCount >= 0
-                    && lastBootCount >= 0
-                    && currentBootCount > lastBootCount;
-            if (bootIdChanged || bootCountChanged) {
-                return "off_elapsed_reset";
-            }
-            Log.w(TAG, "DPC_REBOOT_CHECK ignore stale off-elapsed marker (boot unchanged)");
+            return "off_elapsed_reset";
         }
 
         if (!currentBootId.isEmpty()
@@ -802,29 +681,20 @@ public class QGCActivity extends QtActivity
                 + " lockoutUntil=" + _dpcLockoutUntil
                 + " pinGateUpdated=" + pinGateUpdated);
 
-        // After reboot QGC may force kiosk ON locally until DPC confirms state. Ignore stale
-        // query/bootstrap OFF broadcasts, but accept an explicit user-verified disable from DPC.
         if (_bootForcedDpcKioskOn && !reportedEnabled) {
-            if (!isAuthoritativeDpcOffReason(reportedReason)) {
-                _hasKnownDpcKioskState = true;
-                _knownDpcKioskEnabled = true;
-                if (saveContext != null) {
-                    saveDpcKioskStateToPrefs(saveContext);
-                }
-                Log.e(TAG, "Ignoring DPC OFF while reboot force ON is active reason=" + reportedReason);
-                return;
+            _hasKnownDpcKioskState = true;
+            _knownDpcKioskEnabled = true;
+            if (saveContext != null) {
+                saveDpcKioskStateToPrefs(saveContext);
             }
-            _bootForcedDpcKioskOn = false;
-            Log.e(TAG, "Accepting user-verified DPC OFF; clearing reboot force ON reason=" + reportedReason);
+            Log.e(TAG, "Ignoring DPC OFF while reboot force ON is active");
+            return;
         }
 
         _knownDpcKioskEnabled = reportedEnabled;
         _hasKnownDpcKioskState = true;
         if (reportedEnabled) {
             _bootForcedDpcKioskOn = false;
-        } else if (_instance != null) {
-            _instance._wifiPanelSessionActive = false;
-            _instance._wifiPanelWasBackgrounded = false;
         }
         if (saveContext != null) {
             saveDpcKioskStateToPrefs(saveContext);
@@ -840,15 +710,6 @@ public class QGCActivity extends QtActivity
         }
     }
 
-    private static boolean isAuthoritativeDpcOffReason(String reason) {
-        if (reason == null || reason.isEmpty()) {
-            return false;
-        }
-        return "qgc_broadcast_pin_verified".equals(reason)
-                || "set".equals(reason)
-                || "user_toggle_off".equals(reason);
-    }
-
     private static boolean isDpcKioskBackBlocked() {
         return _bootForcedDpcKioskOn || (_hasKnownDpcKioskState && _knownDpcKioskEnabled);
     }
@@ -856,8 +717,6 @@ public class QGCActivity extends QtActivity
     private void updateKioskBackBlockPolicy() {
         if (isDpcKioskBackBlocked()) {
             hideNavigationBarForKiosk();
-        } else {
-            restoreNavigationBarForNormalMode();
         }
     }
 
@@ -877,20 +736,6 @@ public class QGCActivity extends QtActivity
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        }
-    }
-
-    /** Restore system navigation after kiosk mode ends so Settings/home remain reachable. */
-    private void restoreNavigationBarForNormalMode() {
-        final View decorView = getWindow().getDecorView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(true);
-            final WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.show(WindowInsets.Type.navigationBars());
-            }
-        } else {
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
     }
 
@@ -1139,170 +984,6 @@ public class QGCActivity extends QtActivity
         return true;
     }
 
-    public static boolean requestDpcEnableWifi() {
-        return sendDpcWifiBroadcast(ACTION_DPC_ENABLE_WIFI);
-    }
-
-    /** Enables WiFi via DPC when available; kiosk mode launches WiFi panel from DPC. */
-    public static boolean requestDpcOpenWifiPanel() {
-        sendDpcWifiBroadcast(ACTION_DPC_OPEN_WIFI_PANEL);
-        if (getKnownDpcKioskStateEnabled()) {
-            Log.e(TAG, "WiFi panel delegated to DPC (kiosk ON)");
-            if (_instance != null) {
-                _instance._wifiPanelSessionActive = true;
-                _instance._wifiPanelWasBackgrounded = false;
-            }
-            return true;
-        }
-        sendDpcWifiBroadcast(ACTION_DPC_ENABLE_WIFI);
-        if (_instance == null) {
-            Log.e(TAG, "WiFi panel skipped: no QGCActivity instance");
-            return false;
-        }
-        // Give DPC time to unhide Settings and expand lock-task allowlist.
-        final CountDownLatch latch = new CountDownLatch(1);
-        final boolean[] opened = {false};
-        _instance.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _instance.getWindow().getDecorView().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        opened[0] = launchWifiSettingsPanel();
-                        latch.countDown();
-                    }
-                }, 600L);
-            }
-        });
-        try {
-            latch.await(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        return opened[0];
-    }
-
-    /** Opens the system WiFi panel from the foreground QGC activity (no DPC required). */
-    public static boolean openWifiSettingsPanel() {
-        if (_instance == null) {
-            Log.e(TAG, "WiFi panel skipped: no QGCActivity instance");
-            return false;
-        }
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            return launchWifiSettingsPanel();
-        }
-        final CountDownLatch latch = new CountDownLatch(1);
-        final boolean[] opened = {false};
-        _instance.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                opened[0] = launchWifiSettingsPanel();
-                latch.countDown();
-            }
-        });
-        try {
-            latch.await(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        return opened[0];
-    }
-
-    private static boolean launchWifiSettingsPanel() {
-        if (_instance == null) {
-            return false;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (tryStartWifiIntent(new Intent(Settings.Panel.ACTION_WIFI), null)) {
-                return true;
-            }
-        }
-        final Intent[] candidates = new Intent[] {
-            new Intent(Settings.ACTION_WIFI_SETTINGS),
-            new Intent(Settings.ACTION_WIRELESS_SETTINGS)
-        };
-        for (Intent intent : candidates) {
-            if (tryStartWifiIntent(intent, "com.android.settings")) {
-                return true;
-            }
-            if (tryStartWifiIntent(intent, null)) {
-                return true;
-            }
-        }
-        Log.e(TAG, "Failed to open WiFi settings panel from QGC after all fallbacks");
-        return false;
-    }
-
-    private static boolean tryStartWifiIntent(Intent baseIntent, String packageName) {
-        if (_instance == null) {
-            return false;
-        }
-        try {
-            final Intent intent = new Intent(baseIntent);
-            if (packageName != null) {
-                intent.setPackage(packageName);
-            }
-            final boolean isPanelIntent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                    && Settings.Panel.ACTION_WIFI.equals(baseIntent.getAction());
-            if (!isPanelIntent) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            }
-            if (getKnownDpcKioskStateEnabled() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                final android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
-                options.setLockTaskEnabled(true);
-                _instance.startActivity(intent, options.toBundle());
-            } else {
-                _instance.startActivity(intent);
-            }
-            Log.e(TAG, "WiFi settings opened action=" + intent.getAction()
-                    + " package=" + (packageName == null ? "default" : packageName));
-            _instance._wifiPanelSessionActive = true;
-            _instance._wifiPanelWasBackgrounded = false;
-            if (_knownDpcKioskEnabled) {
-                notifyDpcWifiPanelShown();
-            } else {
-                scheduleForegroundReturnAfterWifiPanel();
-            }
-            return true;
-        } catch (Throwable t) {
-            Log.e(TAG, "WiFi panel attempt failed action=" + baseIntent.getAction()
-                    + " package=" + (packageName == null ? "default" : packageName), t);
-            return false;
-        }
-    }
-
-    private static void notifyDpcWifiPanelClosed() {
-        sendDpcWifiBroadcast(ACTION_DPC_WIFI_PANEL_CLOSED);
-    }
-
-    private static void notifyDpcWifiPanelShown() {
-        sendDpcWifiBroadcast(ACTION_DPC_WIFI_PANEL_SHOWN);
-    }
-
-    private static boolean sendDpcWifiBroadcast(String action) {
-        final Context context = getAppContext();
-        if (context == null) {
-            Log.e(TAG, "DPC WiFi request skipped: no context");
-            return false;
-        }
-
-        if (!isDpcPackageInstalled(context)) {
-            Log.w(TAG, "DPC package not visible; attempting WiFi broadcast anyway action=" + action);
-        }
-
-        try {
-            Intent explicitIntent = new Intent(action);
-            explicitIntent.setComponent(new ComponentName(DPC_PACKAGE, DPC_CONTROL_RECEIVER));
-            explicitIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-            context.sendBroadcast(explicitIntent);
-            Log.e(TAG, "DPC WiFi request sent action=" + action);
-            return true;
-        } catch (Throwable t) {
-            Log.e(TAG, "Failed to send DPC WiFi request action=" + action, t);
-            return false;
-        }
-    }
-
     private static void scheduleDpcStateRequests(Context context) {
         if (context == null) {
             return;
@@ -1430,16 +1111,6 @@ public class QGCActivity extends QtActivity
     @Override
     public void onResume() {
         super.onResume();
-        _activityResumed = true;
-        if (_wifiPanelSessionActive && _wifiPanelWasBackgrounded) {
-            _wifiPanelSessionActive = false;
-            _wifiPanelWasBackgrounded = false;
-            notifyDpcWifiPanelClosed();
-            Log.e(TAG, "WiFi panel session ended; notified DPC");
-        }
-        if (_wifiPanelReturnActive) {
-            stopWifiPanelReturn("onResume");
-        }
 
         // Plug in of USB ACCESSORY triggers only onResume event.
         // Then we scan if there is actually anything new
@@ -1453,10 +1124,6 @@ public class QGCActivity extends QtActivity
     @Override
     public void onPause() {
         super.onPause();
-        _activityResumed = false;
-        if (_wifiPanelSessionActive) {
-            _wifiPanelWasBackgrounded = true;
-        }
         saveLastShutdownElapsed();
         Log.i(TAG, "onPause ignored for session lock; SessionManager locks on Hidden/Suspended");
     }
