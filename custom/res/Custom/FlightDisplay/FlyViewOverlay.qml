@@ -267,7 +267,7 @@ Item {
                 id:             systemMessageText
                 anchors.left:   parent.left
                 anchors.right:  parent.right
-                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 2 + dumyPrefix.width
+                anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 3 + dumyPrefix.width
                 anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 2
                 anchors.verticalCenter: systemMessageArea.verticalCenter
                 readOnly:       true

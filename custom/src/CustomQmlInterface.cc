@@ -317,6 +317,16 @@ void CustomQmlInterface::showMessage(const QString& message, SystemMessage::Syst
     _refreshSystemMessageUI(true);
 }
 
+void CustomQmlInterface::dismissGeoFenceAltitudeWarnings()
+{
+    for (int i = _systemMessages.count() - 1; i >= 0; --i) {
+        SystemMessage* message = _systemMessages.value<SystemMessage*>(i);
+        if (message && message->context().contains(QStringLiteral("Entering 3D GeoFence area"), Qt::CaseInsensitive)) {
+            message->closeItstyle();
+        }
+    }
+}
+
 void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
 {
     qDebug() << "handleCustomButtonFunction : type = " << type;

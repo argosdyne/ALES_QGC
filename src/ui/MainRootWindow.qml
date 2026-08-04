@@ -1270,21 +1270,35 @@ ApplicationWindow {
         }
     }
 
-    Connections {
-        target: sessionManager
-        onSessionLocked: {
-            if (globals.activeVehicle && (globals.activeVehicle.armed || globals.activeVehicle.flying || globals.activeVehicle.landing)) {
-                sessionManager.startSession()
-                return
-            }
-            showLoginOverlay()
+    Rectangle {
+        id:         geoFenceBreachOverlay
+        anchors.fill: parent
+        color:      "#ff6a00"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 3
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceBreachOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.55; duration: 160; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.55; to: 0.0; duration: 160; easing.type: Easing.InOutQuad }
         }
     }
 
-    Connections {
-        target: CustomQmlInterface
-        function onFactoryResetCompleted() {
-            showRegisterAfterFactoryReset()
+    Rectangle {
+        id:         geoFenceContingencyOverlay
+        anchors.fill: parent
+        color:      "#ff2b2b"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier >= 4
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceContingencyOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.7; duration: 140; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.7; to: 0.0; duration: 140; easing.type: Easing.InOutQuad }
         }
     }
 

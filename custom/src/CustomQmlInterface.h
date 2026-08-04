@@ -177,6 +177,7 @@ public slots:
      * @see ::SystemMessage::SystemMessageType
      */
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
+    void dismissGeoFenceAltitudeWarnings();
     void handleCustomButtonFunction(int type, bool pressed);
     void handleAviatorButton(int type, bool pressed);
     void showMapUpdateDate();

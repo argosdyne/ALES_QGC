@@ -304,7 +304,27 @@ void CustomVehicle::_handletextMessageReceivedCustom(UASMessage* message)
 {
     if (message && _plugin) {
         SystemMessage::SystemMessageType type = SystemMessage::Info;
-        if(message->severityIsError()) {
+        const QString messageText = message->getText();
+        const bool is3DAltitudeWarning = geoFenceAlertTier() == GeoFenceAlertTierAltitudeWarning;
+        const bool isFenceBreachedMessage =
+            messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+            (messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive) ||
+             messageText.contains(QStringLiteral("breached"), Qt::CaseInsensitive));
+        const bool isGeoFenceCriticalMessage =
+            isFenceBreachedMessage ||
+            (messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+             messageText.contains(QStringLiteral("contingency"), Qt::CaseInsensitive));
+        const bool isGeoFenceBoundaryMessage =
+            messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+            messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive) &&
+            (messageText.contains(QStringLiteral("exclusion"), Qt::CaseInsensitive) ||
+             messageText.contains(QStringLiteral("boundary"), Qt::CaseInsensitive));
+
+        if (isFenceBreachedMessage) {
+            type = SystemMessage::Error;
+        } else if (message->severityIsError() && is3DAltitudeWarning && isGeoFenceBoundaryMessage) {
+            type = SystemMessage::Warning;
+        } else if(message->severityIsError()) {
             type = SystemMessage::Error;
         } else if(message->getSeverity() == MAV_SEVERITY_WARNING) {
             type = SystemMessage::Warning;
@@ -312,7 +332,10 @@ void CustomVehicle::_handletextMessageReceivedCustom(UASMessage* message)
             type = SystemMessage::Success;
         }
         if(type != SystemMessage::Info) {
-            _plugin->showMessage(message->getText(), type);
+            if (type == SystemMessage::Error && isGeoFenceCriticalMessage && CustomQmlInterface::instance()) {
+                CustomQmlInterface::instance()->dismissGeoFenceAltitudeWarnings();
+            }
+            _plugin->showMessage(messageText, type);
         }
     }
 }

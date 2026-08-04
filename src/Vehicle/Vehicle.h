@@ -159,6 +159,15 @@ public:
     };
     Q_ENUM(CheckList)
 
+    enum GeoFenceAlertTier {
+        GeoFenceAlertTierNone = 0,
+        GeoFenceAlertTierMargin,
+        GeoFenceAlertTierAltitudeWarning,
+        GeoFenceAlertTierBreach,
+        GeoFenceAlertTierContingency,
+    };
+    Q_ENUM(GeoFenceAlertTier)
+
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
