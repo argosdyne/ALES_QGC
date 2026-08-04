@@ -539,7 +539,12 @@ QGCFlickable {
                                         text:           qsTr("Inclusion")
                                         indicatorSize:  _compactCheckBoxSize
                                         checked:        object.inclusion
-                                        onClicked:      object.inclusion = checked
+                                        onClicked: {
+                                            object.inclusion = checked
+                                            if (checked) {
+                                                object.altitudeBandEnabled = false
+                                            }
+                                        }
                                     }
 
                                     QGCRadioButton {
@@ -575,6 +580,7 @@ QGCFlickable {
                                         text:               qsTr("3D")
                                         textFontPointSize:  ScreenTools.smallFontPointSize
                                         indicatorSize:      _compactCheckBoxSize
+                                        visible:            !object.inclusion
                                         checked:            object.altitudeBandEnabled
                                         onClicked:          object.altitudeBandEnabled = checked
                                     }
@@ -582,14 +588,14 @@ QGCFlickable {
                                     QGCLabel {
                                         text:           qsTr("Min(m)")
                                         font.pointSize: ScreenTools.smallFontPointSize
-                                        visible:        object.altitudeBandEnabled
+                                        visible:        object.altitudeBandEnabled && !object.inclusion
                                     }
 
                                     QGCTextField {
                                         Layout.fillWidth:       true
                                         Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
                                         Layout.preferredHeight: _compactTextFieldHeight
-                                        visible:                object.altitudeBandEnabled
+                                        visible:                object.altitudeBandEnabled && !object.inclusion
                                         text:                   object.altitudeMin.toFixed(1)
                                         textFontPointSize:      ScreenTools.smallFontPointSize
                                         inputMethodHints:       Qt.ImhFormattedNumbersOnly
@@ -606,14 +612,14 @@ QGCFlickable {
                                     QGCLabel {
                                         text:           qsTr("Max(m)")
                                         font.pointSize: ScreenTools.smallFontPointSize
-                                        visible:        object.altitudeBandEnabled
+                                        visible:        object.altitudeBandEnabled && !object.inclusion
                                     }
 
                                     QGCTextField {
                                         Layout.fillWidth:       true
                                         Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
                                         Layout.preferredHeight: _compactTextFieldHeight
-                                        visible:                object.altitudeBandEnabled
+                                        visible:                object.altitudeBandEnabled && !object.inclusion
                                         text:                   object.altitudeMax.toFixed(1)
                                         textFontPointSize:      ScreenTools.smallFontPointSize
                                         inputMethodHints:       Qt.ImhFormattedNumbersOnly
@@ -632,7 +638,7 @@ QGCFlickable {
                                     Layout.fillWidth:       true
                                     Layout.maximumWidth:    polygonFenceList.width
                                     spacing:                _margin
-                                    visible:                object.altitudeBandEnabled
+                                    visible:                object.altitudeBandEnabled && !object.inclusion
 
                                     QGCLabel {
                                         text:           qsTr("Altitude frame")
@@ -849,7 +855,12 @@ QGCFlickable {
                                         text:           qsTr("Inclusion")
                                         indicatorSize:  _compactCheckBoxSize
                                         checked:        object.inclusion
-                                        onClicked:      object.inclusion = checked
+                                        onClicked: {
+                                            object.inclusion = checked
+                                            if (checked) {
+                                                object.altitudeBandEnabled = false
+                                            }
+                                        }
                                     }
 
                                     QGCRadioButton {
@@ -904,6 +915,7 @@ QGCFlickable {
                                         text:               qsTr("3D")
                                         textFontPointSize:  ScreenTools.smallFontPointSize
                                         indicatorSize:      _compactCheckBoxSize
+                                        visible:            !object.inclusion
                                         checked:            object.altitudeBandEnabled
                                         onClicked:          object.altitudeBandEnabled = checked
                                     }
@@ -911,14 +923,14 @@ QGCFlickable {
                                     QGCLabel {
                                         text:           qsTr("Min(m)")
                                         font.pointSize: ScreenTools.smallFontPointSize
-                                        visible:        object.altitudeBandEnabled
+                                        visible:        object.altitudeBandEnabled && !object.inclusion
                                     }
 
                                     QGCTextField {
                                         Layout.fillWidth:       true
                                         Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
                                         Layout.preferredHeight: _compactTextFieldHeight
-                                        visible:                object.altitudeBandEnabled
+                                        visible:                object.altitudeBandEnabled && !object.inclusion
                                         text:                   object.altitudeMin.toFixed(1)
                                         textFontPointSize:      ScreenTools.smallFontPointSize
                                         inputMethodHints:       Qt.ImhFormattedNumbersOnly
@@ -935,14 +947,14 @@ QGCFlickable {
                                     QGCLabel {
                                         text:           qsTr("Max(m)")
                                         font.pointSize: ScreenTools.smallFontPointSize
-                                        visible:        object.altitudeBandEnabled
+                                        visible:        object.altitudeBandEnabled && !object.inclusion
                                     }
 
                                     QGCTextField {
                                         Layout.fillWidth:       true
                                         Layout.minimumWidth:    ScreenTools.defaultFontPixelWidth * 4
                                         Layout.preferredHeight: _compactTextFieldHeight
-                                        visible:                object.altitudeBandEnabled
+                                        visible:                object.altitudeBandEnabled && !object.inclusion
                                         text:                   object.altitudeMax.toFixed(1)
                                         textFontPointSize:      ScreenTools.smallFontPointSize
                                         inputMethodHints:       Qt.ImhFormattedNumbersOnly
@@ -961,7 +973,7 @@ QGCFlickable {
                                     Layout.fillWidth:       true
                                     Layout.maximumWidth:    circleFenceList.width
                                     spacing:                _margin
-                                    visible:                object.altitudeBandEnabled
+                                    visible:                object.altitudeBandEnabled && !object.inclusion
 
                                     QGCLabel {
                                         text:           qsTr("Altitude frame")
