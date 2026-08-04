@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 #include <QTimer>
 
 class QEvent;
@@ -33,6 +34,7 @@ public:
     // Android lifecycle callbacks
     Q_INVOKABLE void onAppBackground();  // App goes to background → lock immediately
     Q_INVOKABLE void onAppForeground();  // App comes to foreground → restore
+    Q_INVOKABLE void setSessionLockSuppressed(bool suppressed, const QString& reason);
     
 signals:
     void sessionLocked();  // Emitted after 15 minutes of inactivity
@@ -50,6 +52,9 @@ private:
     bool m_sessionManagementEnabled = true;
     bool m_isAppInBackground = false;
     bool m_sessionActive = false;
+    int m_sessionLockSuppressionCount = 0;
+    bool m_backgroundEventSuppressed = false;
+    QString m_sessionLockSuppressionReason;
     static SessionManager* s_instance;
 };
 

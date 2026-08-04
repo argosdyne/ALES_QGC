@@ -15,11 +15,18 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.mavlink.qgroundcontrol.QGCActivity;
+
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 public final class USBUpdateManager {
     public static final String LOG_TAG = "QGC_USBUpdate";
@@ -65,17 +72,127 @@ public final class USBUpdateManager {
 
     private static final String TAG = LOG_TAG;
     private static final InstallGateway INSTALL_GATEWAY = new DpcInstallGateway();
+    private static final String USB_SESSION_SUPPRESSION_REASON = "usb_update_flow";
 
     private USBUpdateManager() { }
 
+    private static native String nativeImportMissionPlanFromUsb(String missionPlanPath, String usbRootPath);
+
+    public static void showMissionPlanImportResult(final String title,
+                                                   final String message,
+                                                   final String usbRootPath) {
+        showMissionPlanImportResult(QGCActivity.getInstance(), title, message, usbRootPath);
+    }
+
+    private static void showMissionPlanImportResult(final Activity activity,
+                                                    final String title,
+                                                    final String message,
+                                                    final String usbRootPath) {
+        if (activity == null) {
+            Log.i(TAG, "MISSION_IMPORT: result dialog skipped because activity is unavailable message="
+                    + message);
+            endUsbSessionLockSuppression();
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "MISSION_IMPORT: showing result dialog title=" + title
+                        + " message=" + message);
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setNegativeButton("BACK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                File rootDir = usbRootPath != null ? new File(usbRootPath) : null;
+                                ArrayList<File> planFiles = findPlanFiles(rootDir);
+                                if (planFiles.isEmpty()) {
+                                    showInfo(activity,
+                                            "No Mission Plan Found",
+                                            "USB was detected, but no mission .plan file was found.");
+                                } else {
+                                    showMissionPlanSelection(activity, planFiles, rootDir);
+                                }
+                            }
+                        })
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+                dialog.setCanceledOnTouchOutside(false);
+            }
+        });
+    }
+
     public static void scanAndValidate(final Context context, File rootDir, Activity activity) {
+        beginUsbSessionLockSuppression();
         Log.i(TAG, "FLOW: scanAndValidate started rootPath="
                 + (rootDir != null ? rootDir.getAbsolutePath() : "null")
                 + " activityAvailable=" + (activity != null));
-        showToast(activity, "USB detected. Scanning for QGC update...");
         UpdateAuditLogger.log(context, "SCAN_STARTED", null,
                 rootDir != null ? rootDir.getAbsolutePath() : "null root path");
 
+        if (activity == null) {
+            Log.w(TAG, "FLOW: no activity available for USB action selection; defaulting to update scan");
+            scanAndValidateUpdate(context, rootDir, null);
+            return;
+        }
+
+        showUsbActionSelection(context, rootDir, activity);
+    }
+
+    private static void showUsbActionSelection(final Context context,
+                                               final File rootDir,
+                                               final Activity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "UI: showing USB action selection dialog");
+                final AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setTitle("USB Detected")
+                        .setMessage("Choose how QGC should handle this USB device.")
+                        .setNeutralButton("UPDATE QGC", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.i(TAG, "UI: user selected UPDATE QGC");
+                                UpdateAuditLogger.log(context, "USB_ACTION_UPDATE_SELECTED", null,
+                                        rootDir != null ? rootDir.getAbsolutePath() : "null root path");
+                                scanAndValidateUpdate(context, rootDir, activity);
+                            }
+                        })
+                        .setNegativeButton("IMPORT MISSION", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.i(TAG, "UI: user selected IMPORT MISSION");
+                                UpdateAuditLogger.log(context, "USB_ACTION_MISSION_IMPORT_SELECTED", null,
+                                        rootDir != null ? rootDir.getAbsolutePath() : "null root path");
+                                scanAndImportMissionPlan(context, rootDir, activity);
+                            }
+                        })
+                        .setPositiveButton("CANCEL", null)
+                        .setCancelable(false)
+                        .show();
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new android.view.View.OnClickListener() {
+                    @Override
+                    public void onClick(android.view.View view) {
+                        Log.i(TAG, "UI: user cancelled USB action selection");
+                        endUsbSessionLockSuppression();
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
+    }
+
+    private static void scanAndValidateUpdate(final Context context, File rootDir, Activity activity) {
+        showToast(activity, "Scanning USB for QGC update...");
         UpdateResult scanResult = APKScanner.scan(rootDir);
         Log.i(TAG, "FLOW: scan result event=" + scanResult.event
                 + " success=" + scanResult.success
@@ -91,6 +208,8 @@ public final class USBUpdateManager {
                             "No QGC Update Found",
                             "USB was detected, but no matching update APK was found.\n\nExpected file name:\n"
                                     + APK_NAME_PREFIX + "*.apk");
+                } else {
+                    endUsbSessionLockSuppression();
                 }
             }
             return;
@@ -133,6 +252,172 @@ public final class USBUpdateManager {
                 + " hash=" + candidate.shortSha256());
         UpdateAuditLogger.log(context, "VALIDATION_PASSED", candidate, "APK ready for confirmation");
         showConfirmation(context, activity, candidate);
+    }
+
+    private static void scanAndImportMissionPlan(Context context, File rootDir, Activity activity) {
+        Log.i(TAG, "MISSION_IMPORT: scanning rootPath="
+                + (rootDir != null ? rootDir.getAbsolutePath() : "null"));
+        ArrayList<File> planFiles = findPlanFiles(rootDir);
+        if (planFiles.isEmpty()) {
+            Log.i(TAG, "MISSION_IMPORT: no .plan files found");
+            if (SHOW_NO_APK_FOUND_DIALOG) {
+                showInfo(activity,
+                        "No QGC Update Or Mission Plan Found",
+                        "USB was detected, but no matching QGC update APK or mission .plan file was found.\n\nExpected update file name:\n"
+                                + APK_NAME_PREFIX + "*.apk");
+            } else {
+                endUsbSessionLockSuppression();
+            }
+            return;
+        }
+
+        UpdateAuditLogger.log(context, "MISSION_PLAN_SCAN_FOUND", null,
+                "Found " + planFiles.size() + " mission .plan file(s)");
+        if (planFiles.size() == 1) {
+            importMissionPlan(activity, planFiles.get(0), rootDir);
+        } else {
+            showMissionPlanSelection(activity, planFiles, rootDir);
+        }
+    }
+
+    private static ArrayList<File> findPlanFiles(File rootDir) {
+        ArrayList<File> planFiles = new ArrayList<File>();
+        collectPlanFiles(rootDir, planFiles);
+        Collections.sort(planFiles, new Comparator<File>() {
+            @Override
+            public int compare(File left, File right) {
+                return left.getAbsolutePath().compareToIgnoreCase(right.getAbsolutePath());
+            }
+        });
+        return planFiles;
+    }
+
+    private static void collectPlanFiles(File dir, ArrayList<File> planFiles) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) {
+            return;
+        }
+
+        File[] files = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isDirectory()
+                        || (file.isFile()
+                        && file.getName().toLowerCase(Locale.US).endsWith(".plan"));
+            }
+        });
+        if (files == null) {
+            return;
+        }
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                collectPlanFiles(file, planFiles);
+            } else {
+                planFiles.add(file);
+            }
+        }
+    }
+
+    private static void showMissionPlanSelection(final Activity activity,
+                                                 final ArrayList<File> planFiles,
+                                                 final File rootDir) {
+        if (activity == null) {
+            Log.w(TAG, "MISSION_IMPORT: cannot show selection dialog because activity is null");
+            endUsbSessionLockSuppression();
+            return;
+        }
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final String[] labels = new String[planFiles.size()];
+                for (int i = 0; i < planFiles.size(); i++) {
+                    labels[i] = displayPath(rootDir, planFiles.get(i));
+                }
+
+                Log.i(TAG, "MISSION_IMPORT: showing selection dialog count=" + planFiles.size());
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                        .setTitle("Select Mission Plan")
+                        .setItems(labels, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which >= 0 && which < planFiles.size()) {
+                                    importMissionPlan(activity, planFiles.get(which), rootDir);
+                                }
+                            }
+                        })
+                        .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.i(TAG, "MISSION_IMPORT: user cancelled mission selection");
+                                endUsbSessionLockSuppression();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+                dialog.setCanceledOnTouchOutside(false);
+            }
+        });
+    }
+
+    private static void importMissionPlan(Activity activity, File planFile, File rootDir) {
+        if (planFile == null || rootDir == null) {
+            Log.w(TAG, "MISSION_IMPORT: missing planFile or rootDir");
+            showMissionPlanImportResult(activity,
+                    "Ales QGC Daily",
+                    "Mission plan import failed: USB mission file is not available.",
+                    rootDir != null ? rootDir.getAbsolutePath() : null);
+            return;
+        }
+
+        Log.i(TAG, "MISSION_IMPORT: importing plan=" + planFile.getAbsolutePath()
+                + " root=" + rootDir.getAbsolutePath());
+        final Activity importActivity = activity;
+        final File importPlanFile = planFile;
+        final File importRootDir = rootDir;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String resultMessage;
+                try {
+                    resultMessage = nativeImportMissionPlanFromUsb(
+                            importPlanFile.getAbsolutePath(),
+                            importRootDir.getAbsolutePath());
+                    if (resultMessage == null || resultMessage.length() == 0) {
+                        resultMessage = "Mission plan import failed: no result was returned.";
+                    }
+                } catch (UnsatisfiedLinkError e) {
+                    Log.w(TAG, "MISSION_IMPORT: native import method unavailable", e);
+                    resultMessage = "Mission plan import failed: QGC native import is not available.";
+                } catch (Throwable t) {
+                    Log.e(TAG, "MISSION_IMPORT: native import failed", t);
+                    resultMessage = "Mission plan import failed: " + t.getMessage();
+                }
+
+                showMissionPlanImportResult(
+                        importActivity,
+                        "Ales QGC Daily",
+                        resultMessage,
+                        importRootDir.getAbsolutePath());
+            }
+        }, "QGC-MissionImport").start();
+    }
+
+    private static String displayPath(File rootDir, File file) {
+        if (rootDir == null || file == null) {
+            return "";
+        }
+
+        String rootPath = rootDir.getAbsolutePath();
+        String filePath = file.getAbsolutePath();
+        if (filePath.startsWith(rootPath)) {
+            String relative = filePath.substring(rootPath.length());
+            while (relative.startsWith(File.separator)) {
+                relative = relative.substring(1);
+            }
+            return relative.length() > 0 ? relative : file.getName();
+        }
+        return file.getName();
     }
 
     public static boolean isPinnedCertificateConfigured() {
@@ -323,6 +608,7 @@ public final class USBUpdateManager {
             UpdateAuditLogger.log(context, "INSTALL_WAITING_FOR_UI", candidate,
                     "No foreground QGC activity available to show confirmation dialog");
             Log.w(TAG, "No foreground activity available for update confirmation");
+            endUsbSessionLockSuppression();
             return;
         }
 
@@ -351,6 +637,7 @@ public final class USBUpdateManager {
                                         candidate, installResult.message);
                                 Toast.makeText(activity, installResult.message,
                                         Toast.LENGTH_LONG).show();
+                                endUsbSessionLockSuppression();
                             }
                         })
                         .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -359,6 +646,7 @@ public final class USBUpdateManager {
                                 Log.i(TAG, "UI: user tapped CANCEL");
                                 UpdateAuditLogger.log(context, "CANCELLED", candidate,
                                         "User cancelled update installation");
+                                endUsbSessionLockSuppression();
                             }
                         })
                         .setCancelable(false)
@@ -374,6 +662,7 @@ public final class USBUpdateManager {
         if (activity == null) {
             Log.i(TAG, "UI: info dialog skipped because activity is null title=" + title
                     + " message=" + message);
+            endUsbSessionLockSuppression();
             return;
         }
         activity.runOnUiThread(new Runnable() {
@@ -383,7 +672,12 @@ public final class USBUpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle(title)
                         .setMessage(message)
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
@@ -394,6 +688,7 @@ public final class USBUpdateManager {
     private static void showError(final Activity activity, final String message) {
         if (activity == null) {
             Log.w(TAG, message);
+            endUsbSessionLockSuppression();
             return;
         }
         activity.runOnUiThread(new Runnable() {
@@ -403,7 +698,12 @@ public final class USBUpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                         .setTitle("QGC Update Rejected")
                         .setMessage(message)
-                        .setPositiveButton("OK", null)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                endUsbSessionLockSuppression();
+                            }
+                        })
                         .setCancelable(false)
                         .show();
                 dialog.setCanceledOnTouchOutside(false);
@@ -426,6 +726,14 @@ public final class USBUpdateManager {
 
     private static String safe(String value) {
         return value != null ? value : "";
+    }
+
+    private static void beginUsbSessionLockSuppression() {
+        QGCActivity.setSessionLockSuppressed(true, USB_SESSION_SUPPRESSION_REASON);
+    }
+
+    private static void endUsbSessionLockSuppression() {
+        QGCActivity.setSessionLockSuppressed(false, USB_SESSION_SUPPRESSION_REASON);
     }
 
     private static String shortHash(String hash) {

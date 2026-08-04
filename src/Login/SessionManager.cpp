@@ -136,6 +136,14 @@ void SessionManager::onAppBackground() {
         return;
     }
 
+    if (m_sessionLockSuppressionCount > 0) {
+        m_backgroundEventSuppressed = true;
+        qInfo() << "[SESSION_TRACE][CPP] App background ignored while session lock is suppressed; reason="
+                << m_sessionLockSuppressionReason
+                << "count=" << m_sessionLockSuppressionCount;
+        return;
+    }
+
     m_isAppInBackground = true;
     m_sessionActive = false;
     m_sessionTimer.stop();
@@ -144,6 +152,36 @@ void SessionManager::onAppBackground() {
 
 void SessionManager::onAppForeground() {
     m_isAppInBackground = false;
+    m_backgroundEventSuppressed = false;
+}
+
+void SessionManager::setSessionLockSuppressed(bool suppressed, const QString& reason)
+{
+    if (suppressed) {
+        ++m_sessionLockSuppressionCount;
+        m_sessionLockSuppressionReason = reason;
+    } else if (m_sessionLockSuppressionCount > 0) {
+        --m_sessionLockSuppressionCount;
+        if (m_sessionLockSuppressionCount == 0) {
+            m_sessionLockSuppressionReason.clear();
+            if (m_backgroundEventSuppressed) {
+                m_backgroundEventSuppressed = false;
+                if (auto* guiApp = qobject_cast<QGuiApplication*>(qApp)) {
+                    const Qt::ApplicationState state = guiApp->applicationState();
+                    if (state == Qt::ApplicationHidden || state == Qt::ApplicationSuspended) {
+                        qInfo() << "[SESSION_TRACE][CPP] Applying deferred background lock after suppression ended; state="
+                                << state;
+                        onAppBackground();
+                    }
+                }
+            }
+        }
+    }
+
+    qInfo() << "[SESSION_TRACE][CPP] session lock suppression"
+            << (suppressed ? "enabled" : "disabled")
+            << "reason=" << reason
+            << "count=" << m_sessionLockSuppressionCount;
 }
 
 bool SessionManager::eventFilter(QObject *watched, QEvent *event) {
@@ -201,5 +239,29 @@ Java_org_mavlink_qgroundcontrol_QGCActivity_nativeOnActivityResume(JNIEnv*, jobj
     if (sessionManager) {
         QMetaObject::invokeMethod(sessionManager, "onAppForeground", Qt::QueuedConnection);
     }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_org_mavlink_qgroundcontrol_QGCActivity_nativeSetSessionLockSuppressed(JNIEnv* env, jclass, jboolean suppressed, jstring reason)
+{
+    SessionManager* sessionManager = SessionManager::instance();
+    if (!sessionManager) {
+        return;
+    }
+
+    QString reasonString;
+    if (reason) {
+        const char* chars = env->GetStringUTFChars(reason, nullptr);
+        if (chars) {
+            reasonString = QString::fromUtf8(chars);
+            env->ReleaseStringUTFChars(reason, chars);
+        }
+    }
+
+    QMetaObject::invokeMethod(sessionManager,
+                              "setSessionLockSuppressed",
+                              Qt::QueuedConnection,
+                              Q_ARG(bool, suppressed == JNI_TRUE),
+                              Q_ARG(QString, reasonString));
 }
 #endif
