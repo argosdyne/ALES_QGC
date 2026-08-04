@@ -158,13 +158,8 @@ public:
     Q_INVOKABLE bool getKnownDpcKioskStateEnabled() const;
     Q_INVOKABLE bool isBootForcedDpcKioskOn() const;
     Q_INVOKABLE void refreshDpcKioskStateFromStorage();
-    Q_INVOKABLE void refreshDpcPinGateStateFromStorage();
     Q_INVOKABLE bool reconcilePostRebootKioskState();
     Q_INVOKABLE QString getDpcKioskDiagnostics() const;
-    Q_INVOKABLE QString lastDpcReason() const;
-    Q_INVOKABLE void clearDpcReason();
-    Q_INVOKABLE int dpcAttemptsRemaining() const;
-    Q_INVOKABLE qint64 dpcLockoutUntilMs() const;
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;
@@ -183,7 +178,6 @@ signals:
 
     void defaultFontPixelChanged();    
     void factoryResetCompleted();
-    void dpcPinGateStateChanged();
 
 public slots:
     /**
