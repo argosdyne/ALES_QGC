@@ -13,6 +13,8 @@
 #include "QGCMapEngine.h"
 #include "QGCCameraManager.h"
 #include "FTPManager.h"
+#include "Vehicle.h"
+#include "VehicleLinkManager.h"
 #include "QGCLZMA.h"
 #include "QGCCorePlugin.h"
 
@@ -1620,15 +1622,24 @@ QGCCameraControl::_requestAllParameters()
         }
     }
     MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+    if (!_vehicle || !mavlink) {
+        qWarning() << "[CameraControl] skip request all parameters without vehicle/mavlink" << _compID;
+        return;
+    }
+    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "[CameraControl] skip request all parameters without active primary link" << _compID;
+        return;
+    }
     mavlink_message_t msg;
     mavlink_msg_param_ext_request_list_pack_chan(
         static_cast<uint8_t>(mavlink->getSystemId()),
         static_cast<uint8_t>(mavlink->getComponentId()),
-        _link->mavlinkChannel(),
+        sharedLink->mavlinkChannel(),
         &msg,
         static_cast<uint8_t>(_vehicle->id()),
         static_cast<uint8_t>(compID()));
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
     qCDebug(CameraControlLog) << "[CameraControl]" << "Request all parameters compId" << _compID << "count" << _paramIO.keys().count();
     _logParameterLoadProgress(QStringLiteral("request-start"));
 }

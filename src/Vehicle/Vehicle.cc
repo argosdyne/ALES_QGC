@@ -2158,6 +2158,10 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
 
 bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t message)
 {
+    if (link == nullptr) {
+        qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe null link!";
+        return false;
+    }
     if (!link->isConnected()) {
         qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe" << link << "not connected!";
         return false;

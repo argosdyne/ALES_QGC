@@ -243,6 +243,7 @@ void PayloadManager::_applyRtspToVideoSettings(const QString& url)
         return;
     }
     videoSettings->videoSource()->setRawValue(videoSettings->rtspVideoSource());
+    videoSettings->setRtspUrlUserSet(true);
     videoSettings->rtspUrl()->setRawValue(url);
     videoSettings->streamEnabled()->setRawValue(true);
     qgcApp()->toolbox()->videoManager()->startVideo();
