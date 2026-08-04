@@ -152,9 +152,6 @@ public:
     Q_INVOKABLE bool setDpcKioskEnabledWithPin(bool enabled, const QString& pin);
     Q_INVOKABLE bool isDpcControlSupported() const;
     Q_INVOKABLE bool requestDpcKioskState();
-    Q_INVOKABLE bool requestDpcEnableWifi();
-    Q_INVOKABLE bool requestDpcOpenWifiPanel();
-    Q_INVOKABLE bool openWifiSettingsPanel();
     Q_INVOKABLE bool hasKnownDpcKioskState() const;
     Q_INVOKABLE bool getKnownDpcKioskStateEnabled() const;
     Q_INVOKABLE bool isBootForcedDpcKioskOn() const;
