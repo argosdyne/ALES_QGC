@@ -1101,7 +1101,7 @@ ApplicationWindow {
         anchors.fill: parent
         color:      "#ff6a00"
         opacity:    0
-        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 2
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 3
         z:          QGroundControl.zOrderTopMost
 
         SequentialAnimation on opacity {
@@ -1117,7 +1117,7 @@ ApplicationWindow {
         anchors.fill: parent
         color:      "#ff2b2b"
         opacity:    0
-        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier >= 3
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier >= 4
         z:          QGroundControl.zOrderTopMost
 
         SequentialAnimation on opacity {
