@@ -374,6 +374,11 @@ void Joystick::_loadSettings()
             }
             AssignedButtonAction* ap = new AssignedButtonAction(this, a);
             ap->repeat = settings.value(QString(_buttonActionRepeatKey).arg(button), false).toBool();
+            if (a == _buttonActionStartVideoRecord ||
+                    a == _buttonActionStopVideoRecord ||
+                    a == _buttonActionToggleVideoRecord) {
+                ap->repeat = false;
+            }
             _buttonActionArray[button] = ap;
             _buttonActionArray[button]->buttonTime.start();
             qCDebug(JoystickLog) << "_loadSettings button:action" << button << _buttonActionArray[button]->action << _buttonActionArray[button]->repeat;
@@ -933,7 +938,11 @@ void Joystick::_handleButtons()
                 QString buttonAction = _buttonActionArray[buttonIndex]->action;
                 if(buttonAction.isEmpty() || buttonAction == _buttonActionNone)
                     continue;
-                if(!_buttonActionArray[buttonIndex]->repeat) {
+                const bool videoRecordAction =
+                        buttonAction == _buttonActionStartVideoRecord ||
+                        buttonAction == _buttonActionStopVideoRecord ||
+                        buttonAction == _buttonActionToggleVideoRecord;
+                if(!_buttonActionArray[buttonIndex]->repeat || videoRecordAction) {
                     //-- This button just went down
                     if(_rgButtonValues[buttonIndex] == BUTTON_DOWN) {
                         // Check for a multi-button action
@@ -1091,6 +1100,17 @@ void Joystick::_handleAxis()
             quint64 buttonPressedBits = 0;  // Buttons pressed for manualControl signal
             const int maxButtonBits = qMin(_totalButtonCount, 64);
             for (int buttonIndex = 0; buttonIndex < maxButtonBits; buttonIndex++) {
+                const AssignedButtonAction* assignedAction = _buttonActionArray.value(buttonIndex, nullptr);
+                const bool videoRecordButton = assignedAction &&
+                        (assignedAction->action == _buttonActionStartVideoRecord ||
+                         assignedAction->action == _buttonActionStopVideoRecord ||
+                         assignedAction->action == _buttonActionToggleVideoRecord);
+                if (videoRecordButton) {
+                    // This action is handled through Vehicle::toggleVideoCapture(). Do not
+                    // also expose the physical key through MANUAL_CONTROL.buttons, since
+                    // the FC can map that raw bit back to RC13 and cancel the held override.
+                    continue;
+                }
                 quint64 buttonBit = static_cast<quint64>(1LL << buttonIndex);
                 if (_rgButtonValues[buttonIndex] != BUTTON_UP) {
                     // Mark the button as pressed as long as its pressed
@@ -1455,11 +1475,17 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if(action == _buttonActionTriggerCamera) {
         if (buttonDown) emit triggerCamera();
     } else if(action == _buttonActionStartVideoRecord) {
-        if (buttonDown) emit startVideoRecord();
+        if (buttonDown) {
+            QMetaObject::invokeMethod(_activeVehicle, "toggleVideoCapture", Qt::QueuedConnection);
+        }
     } else if(action == _buttonActionStopVideoRecord) {
-        if (buttonDown) emit stopVideoRecord();
+        if (buttonDown) {
+            QMetaObject::invokeMethod(_activeVehicle, "stopVideoCapture", Qt::QueuedConnection);
+        }
     } else if(action == _buttonActionToggleVideoRecord) {
-        if (buttonDown) emit toggleVideoRecord();
+        if (buttonDown) {
+            QMetaObject::invokeMethod(_activeVehicle, "toggleVideoCapture", Qt::QueuedConnection);
+        }
     } else if(action == _buttonActionThermalMode) {
         if (buttonDown) emit thermalMode();
     } else if(action == _buttonActionThermalZoom) {

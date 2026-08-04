@@ -249,10 +249,9 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         }
     } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
         if(pressed) {
-            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
-                camera->buttonToggleVideo();
-            } else {
-                emit cameraToggleRecord(true);
+            Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
+            if (vehicle) {
+                vehicle->toggleVideoCapture();
             }
         }
     }

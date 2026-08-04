@@ -101,6 +101,13 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
+
+    if (count >= 13 && videoCaptureRunning()) {
+        // CH13 is owned by Vehicle's video-record timer. Do not forward the
+        // hardware PWM until the next press toggles recording off.
+        sendChannels[12] = UINT16_MAX;
+    }
+
     if (cameraManager()) {
         cameraManager()->filterAviatorRcChannels(sendChannels, count);
     }

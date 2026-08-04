@@ -1074,9 +1074,6 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         disconnect(_activeJoystick, &Joystick::stepCamera,          this, &QGCCameraManager::_stepCamera);
         disconnect(_activeJoystick, &Joystick::stepStream,          this, &QGCCameraManager::_stepStream);
         disconnect(_activeJoystick, &Joystick::triggerCamera,       this, &QGCCameraManager::_triggerCamera);
-        disconnect(_activeJoystick, &Joystick::startVideoRecord,    this, &QGCCameraManager::_startVideoRecording);
-        disconnect(_activeJoystick, &Joystick::stopVideoRecord,     this, &QGCCameraManager::_stopVideoRecording);
-        disconnect(_activeJoystick, &Joystick::toggleVideoRecord,   this, &QGCCameraManager::_toggleVideoRecording);
         disconnect(_activeJoystick, &Joystick::thermalMode,         this, &QGCCameraManager::_thermalMode);
         disconnect(_activeJoystick, &Joystick::thermalZoom,         this, &QGCCameraManager::_thermalZoom);
         disconnect(_activeJoystick, &Joystick::gimbalPitchStep,     this, &QGCCameraManager::_joystickGimbalPitchStep);
@@ -1091,9 +1088,6 @@ QGCCameraManager::_activeJoystickChanged(Joystick* joystick)
         connect(_activeJoystick, &Joystick::stepCamera,             this, &QGCCameraManager::_stepCamera);
         connect(_activeJoystick, &Joystick::stepStream,             this, &QGCCameraManager::_stepStream);
         connect(_activeJoystick, &Joystick::triggerCamera,          this, &QGCCameraManager::_triggerCamera);
-        connect(_activeJoystick, &Joystick::startVideoRecord,       this, &QGCCameraManager::_startVideoRecording);
-        connect(_activeJoystick, &Joystick::stopVideoRecord,        this, &QGCCameraManager::_stopVideoRecording);
-        connect(_activeJoystick, &Joystick::toggleVideoRecord,      this, &QGCCameraManager::_toggleVideoRecording);
         connect(_activeJoystick, &Joystick::thermalMode,            this, &QGCCameraManager::_thermalMode);
         connect(_activeJoystick, &Joystick::thermalZoom,            this, &QGCCameraManager::_thermalZoom);
         connect(_activeJoystick, &Joystick::gimbalPitchStep,        this, &QGCCameraManager::_joystickGimbalPitchStep);
