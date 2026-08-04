@@ -30,8 +30,7 @@ ColumnLayout {
 
         QGCLabel {
             textFormat:         Text.RichText
-            text:               qsTr("Airmode (disable during tuning) <b><a href=\"https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation\">?</a></b>:")
-            onLinkActivated:    Qt.openUrlExternally(link)
+            text:               qsTr("Airmode (disable during tuning):")
             visible:            _airmode
         }
         FactComboBox {
@@ -42,8 +41,7 @@ ColumnLayout {
 
         QGCLabel {
             textFormat:         Text.RichText
-            text:               qsTr("Thrust curve <b><a href=\"https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve\">?</a></b>:")
-            onLinkActivated:    Qt.openUrlExternally(link)
+            text:               qsTr("Thrust curve:")
             visible:            _thrustModelFactor
         }
         FactTextField {

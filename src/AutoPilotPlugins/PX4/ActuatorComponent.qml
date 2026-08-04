@@ -39,15 +39,6 @@ SetupPage {
                         font.pointSize:         ScreenTools.mediumFontPointSize
                         Layout.fillWidth:       true
                     }
-                    QGCLabel {
-                        text:                   "<a href='"+actuators.mixer.helpUrl+"'>?</a>"
-                        font.pointSize:         ScreenTools.mediumFontPointSize
-                        visible:                actuators.mixer.helpUrl
-                        textFormat:             Text.RichText
-                        onLinkActivated: {
-                            Qt.openUrlExternally(link);
-                        }
-                    }
                 }
 
                 Rectangle {
