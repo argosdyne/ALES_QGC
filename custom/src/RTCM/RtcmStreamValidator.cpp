@@ -34,46 +34,56 @@ QList<QByteArray> RtcmStreamValidator::appendAndExtractValidatedFrames(
         }
         int removed = 0;
         const int lastPreamble = streamBuffer.lastIndexOf(static_cast<char>(0xD3));
-        if (lastPreamble >= 0) {
+        if (lastPreamble > 0) {
             removed = lastPreamble;
             streamBuffer.remove(0, lastPreamble);
-        } else {
+        } else if (lastPreamble < 0) {
             removed = streamBuffer.size();
             streamBuffer.clear();
         }
+
+        if (streamBuffer.size() > 65536) {
+            const int excess = streamBuffer.size() - 65536;
+            streamBuffer.remove(0, excess);
+            removed += excess;
+        }
+
         droppedBytes += removed;
     }
 
-    while (streamBuffer.size() >= 6) {
-        const int preambleIndex = streamBuffer.indexOf(static_cast<char>(0xD3));
+    int offset = 0;
+    const int bufferSize = streamBuffer.size();
+
+    while (bufferSize - offset >= 6) {
+        const int preambleIndex = streamBuffer.indexOf(static_cast<char>(0xD3), offset);
         if (preambleIndex < 0) {
-            droppedBytes += streamBuffer.size();
-            streamBuffer.clear();
+            droppedBytes += bufferSize - offset;
+            offset = bufferSize;
             break;
         }
-        if (preambleIndex > 0) {
-            droppedBytes += preambleIndex;
-            streamBuffer.remove(0, preambleIndex);
+        if (preambleIndex > offset) {
+            droppedBytes += preambleIndex - offset;
+            offset = preambleIndex;
         }
-        if (streamBuffer.size() < 3) {
+        if (bufferSize - offset < 3) {
             break;
         }
 
-        const uint8_t b1 = static_cast<uint8_t>(streamBuffer.at(1));
-        const uint8_t b2 = static_cast<uint8_t>(streamBuffer.at(2));
+        const uint8_t b1 = static_cast<uint8_t>(streamBuffer.at(offset + 1));
+        const uint8_t b2 = static_cast<uint8_t>(streamBuffer.at(offset + 2));
         const int payloadLen = ((b1 & 0x03) << 8) | b2;
         if (payloadLen <= 0 || payloadLen > 1023) {
             droppedBytes += 1;
-            streamBuffer.remove(0, 1);
+            offset += 1;
             continue;
         }
 
         const int frameLen = 3 + payloadLen + 3;
-        if (streamBuffer.size() < frameLen) {
+        if (bufferSize - offset < frameLen) {
             break;
         }
 
-        const QByteArray frame = streamBuffer.left(frameLen);
+        const QByteArray frame = streamBuffer.mid(offset, frameLen);
         const quint32 expectedCrc =
             (static_cast<quint32>(static_cast<uint8_t>(frame.at(frameLen - 3))) << 16) |
             (static_cast<quint32>(static_cast<uint8_t>(frame.at(frameLen - 2))) << 8) |
@@ -84,12 +94,16 @@ QList<QByteArray> RtcmStreamValidator::appendAndExtractValidatedFrames(
                 onCrcError(frame, expectedCrc, actualCrc);
             }
             droppedBytes += 1;
-            streamBuffer.remove(0, 1);
+            offset += 1;
             continue;
         }
 
-        streamBuffer.remove(0, frameLen);
         validatedFrames.append(frame);
+        offset += frameLen;
+    }
+
+    if (offset > 0) {
+        streamBuffer.remove(0, offset);
     }
 
     if (droppedBytesOut) {
