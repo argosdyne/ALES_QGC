@@ -132,12 +132,12 @@ void AudioControl::_sendPX4AudioCommand(int playMode, int audioIndex)
         command = QByteArrayLiteral("SP\n");
     }
 
-    // Send ad broadcast → No need to know IP
-    const QHostAddress broadcastAddr(QStringLiteral("192.168.2.255"));
+    // Send drone IP
+    const QHostAddress targetIP(QStringLiteral("192.168.2.110"));
     //PX4 speaker default port
     const quint16 dronePort = 14540;
 
-    qint64 sent = _udpSocket->writeDatagram(command, broadcastAddr, dronePort);
+    qint64 sent = _udpSocket->writeDatagram(command, targetIP, dronePort);
 
     qInfo() << "TX PX4 Audio UDP"
             << "command:" << command.trimmed()
