@@ -1,5 +1,4 @@
 #include "SerialPortRTCMSource.h"
-#include "RtcmStreamValidator.h"
 QGC_LOGGING_CATEGORY(SerialPortRTCMSourceLog, "SerialPortRTCMSourceLog")
 
 SerialPortRTCMSource::SerialPortRTCMSource(QObject* parent)
@@ -38,34 +37,11 @@ void SerialPortRTCMSource::_updateSerialPortConnection()
 
 void SerialPortRTCMSource::_onSerialPortReplied()
 {
-    const QByteArray data = _serial->readAll();
-    if (data.isEmpty()) {
-        return;
-    }
-
-    int droppedBytes = 0;
-    bool overflowGuardTriggered = false;
-    const QList<QByteArray> validatedFrames = RtcmStreamValidator::appendAndExtractValidatedFrames(
-        _rtcmStreamBuffer,
-        data,
-        &droppedBytes,
-        &overflowGuardTriggered,
-        [](const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc) {
-            qCWarning(SerialPortRTCMSourceLog)
-                << "RTCM CRC mismatch"
-                << "expected=0x" << QString::number(expectedCrc, 16).toUpper().rightJustified(6, '0')
-                << "actual=0x" << QString::number(actualCrc, 16).toUpper().rightJustified(6, '0')
-                << "frameLen=" << frame.size();
-        });
-    if (overflowGuardTriggered) {
-        qCWarning(SerialPortRTCMSourceLog) << "RTCM stream buffer overflow guard triggered";
-    } else if (droppedBytes > 0 && validatedFrames.isEmpty()) {
-        qCDebug(SerialPortRTCMSourceLog) << "RTCM parser dropped bytes:" << droppedBytes
-                                         << "buffer remain:" << _rtcmStreamBuffer.size();
-    }
-
-    for (const QByteArray& frame : validatedFrames) {
-        send_rtcm_package(frame.constData(), static_cast<unsigned>(frame.size()));
+    QByteArray data = _serial->readAll();
+    if(_work_queue.size() == 0) {
+        send_rtcm_package(data.data(), static_cast<unsigned>(data.size()));
+    } else {
+        qCWarning(SerialPortRTCMSourceLog) << "Send RTCM: Busy. You can improve RTCM transmission rate.";
     }
 }
 
@@ -74,7 +50,6 @@ void SerialPortRTCMSource::_openSerial(QString port, int baud)
     if(_serial->isOpen()) {
         _serial->close();
     }
-    _rtcmStreamBuffer.clear();
     _serial->setPortName(port);
     _serial->setBaudRate(baud);
     _serial->open(QIODevice::ReadWrite);

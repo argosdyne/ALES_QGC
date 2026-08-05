@@ -78,7 +78,6 @@ SOURCES += \
     $$PWD/src/CustomPlugin.cc \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
-    $$PWD/src/RTCM/RtcmStreamValidator.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
     $$PWD/src/RTCM/SerialPortRTCMSource.cpp \
     $$PWD/src/SiYi/SiYiCamera.cc \
@@ -99,7 +98,6 @@ HEADERS += \
     $$PWD/src/CustomPlugin.h \
     $$PWD/src/RTCM/CodevRTCMManager.h \
     $$PWD/src/RTCM/NTRIPRTCMSource.h \
-    $$PWD/src/RTCM/RtcmStreamValidator.h \
     $$PWD/src/RTCM/RTCMBase.h \
     $$PWD/src/RTCM/SerialPortRTCMSource.h \
     $$PWD/src/SiYi/SiYiCamera.h \
