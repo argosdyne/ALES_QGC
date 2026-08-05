@@ -1,9 +1,9 @@
 #include "NTRIPRTCMSource.h"
+#include "RtcmStreamValidator.h"
 QGC_LOGGING_CATEGORY(NTRIPRTCMSourceLog, "NTRIPRTCMSourceLog")
 #include <iostream>
 #include <fstream>
 #include <QtNetwork>
-#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QElapsedTimer>
 #include <QDir>
@@ -139,11 +139,6 @@ QTcpSocket* tcpSocket = new QTcpSocket;
 
 int NTRIPRTCMSource::onReadyRead()
 {
-    if (!isValidNtripServerHost(host()->rawValueString())) {
-        qCWarning(NTRIPRTCMSourceLog) << "Blocked NTRIP mount point request: invalid host" << host()->rawValueString();
-        return -1;
-    }
-
 #ifdef Q_OS_ANDROID
 
     QString filePath = getExternalStoragePaths() + "/rtk_data.xml";
@@ -371,11 +366,6 @@ void NTRIPRTCMSource::_handle_send_gpgga_time_out()
 
 void NTRIPRTCMSource::refreshMountPoint()
 {
-    if (!isValidNtripServerHost(host()->rawValueString())) {
-        qCWarning(NTRIPRTCMSourceLog) << "Blocked NTRIP refreshMountPoint: invalid host" << host()->rawValueString();
-        return;
-    }
-
     QTcpSocket* _socket = new QTcpSocket();
     connect(_socket, &QTcpSocket::connected, this, [_socket](){
         static QString request = QString("GET / HTTP/1.0\r\n"
@@ -431,12 +421,6 @@ void NTRIPRTCMSource::getFromVehicle()
 
 void NTRIPRTCMSource::logIn()
 {
-    if (!isValidNtripServerHost(host()->rawValueString())) {
-        qCWarning(NTRIPRTCMSourceLog) << "Blocked NTRIP login: invalid host" << host()->rawValueString();
-        setIsLogIning(false);
-        return;
-    }
-
     qCDebug(NTRIPRTCMSourceLog) << "Log In...";
     _shouldReconnect = true;
     _ntripHandshakeBuffer.clear();
