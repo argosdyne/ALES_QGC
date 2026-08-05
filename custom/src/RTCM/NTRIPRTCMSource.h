@@ -110,8 +110,7 @@ private slots:
     void _onSocketError(QAbstractSocket::SocketError error);
     void _onSocketDisconnected();
 
-private:
-    static quint32 _crc24q(const char* data, int length);
+private:    
     void _logRtcmCrcError(const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc);
     void _clearRtcmQueue();
     void _resetRtcmStats();

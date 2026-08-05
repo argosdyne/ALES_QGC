@@ -1,5 +1,6 @@
 #ifndef SERIALPORTRTCMSOURCE_H
 #define SERIALPORTRTCMSOURCE_H
+#include <QByteArray>
 #include "RTCMBase.h"
 #ifdef __android__
 #include "qserialport.h"
@@ -34,6 +35,7 @@ private slots:
 private:
     QTimer _timer;
     QSerialPort* _serial{nullptr};
+    QByteArray _rtcmStreamBuffer;
 };
 
 #endif // SERIALPORTRTCMSOURCE_H
