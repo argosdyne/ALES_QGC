@@ -281,6 +281,10 @@ public final class USBUpdateManager {
             Log.w(TAG, "STAGE: failed: " + e.getMessage());
             return UpdateResult.failure("REJECTED_PACKAGE",
                     "Could not copy update from USB: " + e.getMessage(), candidate);
+        } catch (Exception e) {
+            Log.w(TAG, "STAGE: failed: " + e.getMessage());
+            return UpdateResult.failure("REJECTED_PACKAGE",
+                    "Something went wrong: " + e.getMessage(), candidate);
         }
     }
 
