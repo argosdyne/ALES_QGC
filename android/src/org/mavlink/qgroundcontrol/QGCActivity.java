@@ -32,13 +32,10 @@ package org.mavlink.qgroundcontrol;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.io.IOException;
 
 import android.app.Activity;
@@ -56,9 +53,7 @@ import android.util.Log;
 import android.os.PowerManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.app.PendingIntent;
 import android.view.WindowManager;
-import android.os.Bundle;
 import android.bluetooth.BluetoothDevice;
 
 import com.hoho.android.usbserial.driver.*;
@@ -328,9 +323,10 @@ public class QGCActivity extends QtActivity
     @Override
     public void onPause() {
         super.onPause();
-        
-        // Session Management: App goes to background - lock immediately
-        nativeOnActivityPause();
+
+        // Android may pause QGC for transient system UI such as USB permission/mount flows.
+        // SessionManager locks on Qt Hidden/Suspended instead, which represents real backgrounding.
+        Log.i(TAG, "onPause ignored for session lock; SessionManager locks on Hidden/Suspended");
     }
 
     @Override
@@ -847,7 +843,6 @@ public class QGCActivity extends QtActivity
     }
 
     // Session Management JNI callbacks
-    private native void nativeOnActivityPause();
     private native void nativeOnActivityResume();
     private static native void nativeSetSessionLockSuppressed(boolean suppressed, String reason);
 }

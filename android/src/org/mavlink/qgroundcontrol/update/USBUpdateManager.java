@@ -18,6 +18,7 @@ import org.mavlink.qgroundcontrol.QGCActivity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +47,7 @@ public final class USBUpdateManager {
     // Set this to the SHA-256 fingerprint of the production signing certificate.
     // Debug/test keys intentionally fail until this is configured for that build.
     public static final String PINNED_CERT_SHA256 =
-            "d7282edbe297a892b4c9e57ed8db946dc8724a430ab8b4c3b439f22c4ba0ee";
+            "d7282edbe297a892b4c9e57ed8db946dc8724a430ab8b4c3b439f22c4ba0ee52";
 
     private static final String TAG = LOG_TAG;
     private static final String USB_SESSION_SUPPRESSION_REASON = "usb_update_flow";
@@ -198,6 +199,15 @@ public final class USBUpdateManager {
                 + (candidate.apkFile != null ? candidate.apkFile.getAbsolutePath() : "null")
                 + " sha256File="
                 + (candidate.sha256File != null ? candidate.sha256File.getAbsolutePath() : "null"));
+        UpdateResult stagingResult = stageCandidateForInstall(context, candidate);
+        Log.i(TAG, "FLOW: staging result event=" + stagingResult.event
+                + " success=" + stagingResult.success
+                + " message=" + stagingResult.message);
+        if (!stagingResult.success) {
+            reject(context, activity, stagingResult);
+            return;
+        }
+
         UpdateResult metadataResult = populateAndValidateMetadata(context, candidate);
         Log.i(TAG, "FLOW: metadata result event=" + metadataResult.event
                 + " success=" + metadataResult.success
@@ -230,6 +240,91 @@ public final class USBUpdateManager {
                 + " hash=" + candidate.shortSha256());
         UpdateAuditLogger.log(context, "VALIDATION_PASSED", candidate, "APK ready for confirmation");
         showConfirmation(context, activity, candidate);
+    }
+
+    private static UpdateResult stageCandidateForInstall(Context context, UpdateCandidate candidate) {
+        if (context == null || candidate == null || candidate.apkFile == null || candidate.sha256File == null) {
+            return UpdateResult.failure("REJECTED_PACKAGE",
+                    "APK candidate is not available for staging", candidate);
+        }
+
+        File sourceApk = candidate.apkFile;
+        File sourceHash = candidate.sha256File;
+        File cacheDir = context.getCacheDir();
+        if (cacheDir == null) {
+            return UpdateResult.failure("REJECTED_PACKAGE",
+                    "App cache directory is not available", candidate);
+        }
+        File stagingDir = new File(cacheDir, "qgc_usb_update");
+        File stagedApk = new File(stagingDir, sourceApk.getName());
+        File stagedHash = new File(stagingDir, sourceApk.getName() + ".sha256");
+
+        try {
+            clearDirectory(stagingDir);
+            if (!stagingDir.exists() && !stagingDir.mkdirs()) {
+                return UpdateResult.failure("REJECTED_PACKAGE",
+                        "Could not create update staging directory", candidate);
+            }
+
+            Log.i(TAG, "STAGE: copying APK from " + sourceApk.getAbsolutePath()
+                    + " to " + stagedApk.getAbsolutePath());
+            copyFile(sourceApk, stagedApk);
+            Log.i(TAG, "STAGE: copying hash from " + sourceHash.getAbsolutePath()
+                    + " to " + stagedHash.getAbsolutePath());
+            copyFile(sourceHash, stagedHash);
+
+            candidate.apkFile = stagedApk;
+            candidate.sha256File = stagedHash;
+            return UpdateResult.success("STAGED_TO_CACHE",
+                    "APK copied to internal cache for validation", candidate);
+        } catch (IOException e) {
+            Log.w(TAG, "STAGE: failed: " + e.getMessage());
+            return UpdateResult.failure("REJECTED_PACKAGE",
+                    "Could not copy update from USB: " + e.getMessage(), candidate);
+        } catch (Exception e) {
+            Log.w(TAG, "STAGE: failed: " + e.getMessage());
+            return UpdateResult.failure("REJECTED_PACKAGE",
+                    "Something went wrong: " + e.getMessage(), candidate);
+        }
+    }
+
+    private static void copyFile(File source, File destination) throws IOException {
+        InputStream input = null;
+        OutputStream output = null;
+        try {
+            input = new FileInputStream(source);
+            output = new FileOutputStream(destination);
+            byte[] buffer = new byte[65536];
+            int count;
+            while ((count = input.read(buffer)) >= 0) {
+                output.write(buffer, 0, count);
+            }
+        } finally {
+            if (output != null) {
+                output.close();
+            }
+            if (input != null) {
+                input.close();
+            }
+        }
+    }
+
+    private static void clearDirectory(File directory) throws IOException {
+        if (!directory.exists()) {
+            return;
+        }
+        File[] files = directory.listFiles();
+        if (files == null) {
+            throw new IOException("Could not list staging directory");
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                clearDirectory(file);
+            }
+            if (!file.delete()) {
+                throw new IOException("Could not delete stale staged file: " + file.getName());
+            }
+        }
     }
 
     private static void scanAndImportMissionPlan(Context context, File rootDir, Activity activity) {

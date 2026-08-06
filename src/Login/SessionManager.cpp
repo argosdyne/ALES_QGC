@@ -224,15 +224,6 @@ void SessionManager::_restartInactivityTimer() {
 
 #ifdef Q_OS_ANDROID
 extern "C" JNIEXPORT void JNICALL
-Java_org_mavlink_qgroundcontrol_QGCActivity_nativeOnActivityPause(JNIEnv*, jobject)
-{
-    SessionManager* sessionManager = SessionManager::instance();
-    if (sessionManager) {
-        QMetaObject::invokeMethod(sessionManager, "onAppBackground", Qt::QueuedConnection);
-    }
-}
-
-extern "C" JNIEXPORT void JNICALL
 Java_org_mavlink_qgroundcontrol_QGCActivity_nativeOnActivityResume(JNIEnv*, jobject)
 {
     SessionManager* sessionManager = SessionManager::instance();
