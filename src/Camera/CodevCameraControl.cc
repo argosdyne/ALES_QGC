@@ -139,9 +139,10 @@ static constexpr int kSettlingTimeoutMs = 400;
 static constexpr int kSettleStableReportsNeeded = 2;
 static constexpr float kSlewReportMaxJump = 3.0f;
 static constexpr float kSettleStableEpsilon = 0.75f;
-// RC button chatter / double-click: wait before CONTINUOUS stop, and never
+// Brief release / touch chatter: wait before CONTINUOUS stop, and never
 // re-fire CONTINUOUS ±1 too soon (firmware treats that as run-to min/max).
-static constexpr int kRcZoomReleaseDebounceMs = 180;
+// Shared by RC, UI, and joystick Continuous zoom paths.
+static constexpr int kContinuousZoomReleaseDebounceMs = 180;
 // Same-direction CONTINUOUS re-fire cooldown (opposite direction is always allowed).
 static constexpr qint64 kContinuousRetriggerCooldownMs = 400;
 
@@ -276,9 +277,9 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _settlingTimer.setInterval(kSettlingTimeoutMs);
     connect(&_settlingTimer, &QTimer::timeout, this, &CodevCameraControl::_onSettlingTimeout);
 
-    _rcZoomReleaseTimer.setSingleShot(true);
-    _rcZoomReleaseTimer.setInterval(kRcZoomReleaseDebounceMs);
-    connect(&_rcZoomReleaseTimer, &QTimer::timeout, this, &CodevCameraControl::_onRcZoomReleaseTimeout);
+    _zoomReleaseTimer.setSingleShot(true);
+    _zoomReleaseTimer.setInterval(kContinuousZoomReleaseDebounceMs);
+    connect(&_zoomReleaseTimer, &QTimer::timeout, this, &CodevCameraControl::_onZoomReleaseTimeout);
 
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
@@ -1102,6 +1103,8 @@ void CodevCameraControl::formatCard(int id)
 void CodevCameraControl::startZoom(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoom()" << direction;
+    // Press again during release debounce: keep current CONTINUOUS, do not pulse 0/+1.
+    _zoomReleaseTimer.stop();
     _beginSlew(direction, "startZoom");
 }
 
@@ -1109,6 +1112,7 @@ void CodevCameraControl::startZoomFromUi(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoomFromUi()" << direction;
     // UI hold = optical CONTINUOUS only. Digital remains tap-only via stepZoomFromUi.
+    _zoomReleaseTimer.stop();
     _beginSlew(direction, "startZoomFromUi");
 }
 
@@ -1118,13 +1122,20 @@ void CodevCameraControl::stopZoom()
     _holdZoomStepTimer.stop();
     _holdZoomAllowDigital = false;
 
-    if (_zoomPhase == ZoomPhase::Slewing) {
-        _beginSettle("stopZoom");
+    if (_zoomPhase != ZoomPhase::Slewing) {
+        _zoomReleaseTimer.stop();
+        _holdZoomDirection = 0;
         return;
     }
 
-    // Not slewing: just clear any legacy hold-timer state.
-    _holdZoomDirection = 0;
+    // Debounce CONTINUOUS stop (UI / joystick / RC): a brief release must not
+    // emit 0 then allow an immediate re-+1 (camera runs to optical min/max).
+    if (!_zoomReleaseTimer.isActive()) {
+        qCInfo(CodevCameraLog) << "stopZoom debounce armed"
+                               << "dir" << _holdZoomDirection
+                               << "ms" << kContinuousZoomReleaseDebounceMs;
+        _zoomReleaseTimer.start();
+    }
 }
 
 void CodevCameraControl::_setZoomPhase(ZoomPhase phase, const char* sourceTag)
@@ -1149,6 +1160,9 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
         return;
     }
 
+    // Any new slew request cancels a pending debounced stop.
+    _zoomReleaseTimer.stop();
+
     if (direction > 0 && _opticalRange >= (_maxOpticalX - 0.5f)) {
         qCInfo(CodevCameraLog) << sourceTag << "block slew at optical max" << _opticalRange;
         // Don't leave a previous opposite CONTINUOUS running.
@@ -1166,7 +1180,9 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
     }
 
     // Same direction already slewing — never re-send CONTINUOUS (lens restart stutter).
+    // Covers UI/joystick re-press during release debounce and RC held deflection.
     if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection == direction) {
+        qCDebug(CodevCameraLog) << sourceTag << "skip re-send same-dir already slewing" << direction;
         return;
     }
 
@@ -1215,6 +1231,8 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
 
 void CodevCameraControl::_beginSettle(const char* sourceTag)
 {
+    _zoomReleaseTimer.stop();
+
     if (_zoomPhase != ZoomPhase::Slewing && _zoomPhase != ZoomPhase::Settling) {
         _holdZoomDirection = 0;
         return;
@@ -2452,17 +2470,14 @@ static int _rcZoomDirectionWithHysteresis(uint16_t ch11, int prevState)
     return 0;
 }
 
-void CodevCameraControl::_onRcZoomReleaseTimeout()
+void CodevCameraControl::_onZoomReleaseTimeout()
 {
-    // Center held long enough — real release (not double-click chatter).
-    if (_aviatorRcZoomState == 0) {
-        return;
-    }
-    qCInfo(CodevCameraLog) << "aviatorRC release debounce → stop"
-                           << "prev" << _aviatorRcZoomState;
+    // Release held long enough — real stop for UI / joystick / RC Continuous zoom.
     _aviatorRcZoomState = 0;
     if (_zoomPhase == ZoomPhase::Slewing) {
-        stopZoom();
+        qCInfo(CodevCameraLog) << "zoom release debounce -> stop"
+                               << "dir" << _holdZoomDirection;
+        _beginSettle("releaseDebounce");
     }
 }
 
@@ -2474,10 +2489,10 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
 
     if (!_isR3CameraModel(modelName())) {
         if (_aviatorRcZoomState != 0) {
-            _rcZoomReleaseTimer.stop();
+            _zoomReleaseTimer.stop();
             _aviatorRcZoomState = 0;
             if (_zoomPhase == ZoomPhase::Slewing) {
-                stopZoom();
+                _beginSettle("aviatorRC-disable");
             }
         }
         return;
@@ -2490,16 +2505,15 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     channels[10] = kRcGimbalCenter;
 
     if (direction == 0) {
-        // Debounce release: brief center between rapid RC clicks must NOT
-        // stop+restart CONTINUOUS (that re-sends ±1 and runs to min/max).
-        if (_aviatorRcZoomState != 0 && !_rcZoomReleaseTimer.isActive()) {
-            _rcZoomReleaseTimer.start();
+        // Shared Continuous release debounce (same path as UI/joystick stopZoom).
+        if (_aviatorRcZoomState != 0) {
+            stopZoom();
         }
         return;
     }
 
     // Deflection (back) — cancel pending stop.
-    _rcZoomReleaseTimer.stop();
+    _zoomReleaseTimer.stop();
 
     // Keep going only when RC state and actual CONTINUOUS slew already match.
     if (direction == _aviatorRcZoomState
