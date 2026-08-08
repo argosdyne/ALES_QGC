@@ -145,6 +145,11 @@ static constexpr float kSettleStableEpsilon = 0.75f;
 static constexpr int kContinuousZoomReleaseDebounceMs = 180;
 // Same-direction CONTINUOUS re-fire cooldown (opposite direction is always allowed).
 static constexpr qint64 kContinuousRetriggerCooldownMs = 400;
+// UI/joystick: press shorter than this = RANGE tap; longer = CONTINUOUS hold.
+// RC keeps immediate CONTINUOUS via _beginSlew (no hold-arm).
+static constexpr int kZoomHoldArmMs = 220;
+// Stop CONTINUOUS before hard optical ends so lens is less likely to latch.
+static constexpr float kContinuousSoftStopMargin = 2.0f;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
 {
@@ -280,6 +285,10 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _zoomReleaseTimer.setSingleShot(true);
     _zoomReleaseTimer.setInterval(kContinuousZoomReleaseDebounceMs);
     connect(&_zoomReleaseTimer, &QTimer::timeout, this, &CodevCameraControl::_onZoomReleaseTimeout);
+
+    _zoomHoldArmTimer.setSingleShot(true);
+    _zoomHoldArmTimer.setInterval(kZoomHoldArmMs);
+    connect(&_zoomHoldArmTimer, &QTimer::timeout, this, &CodevCameraControl::_onZoomHoldArmTimeout);
 
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
@@ -1103,17 +1112,17 @@ void CodevCameraControl::formatCard(int id)
 void CodevCameraControl::startZoom(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoom()" << direction;
-    // Press again during release debounce: keep current CONTINUOUS, do not pulse 0/+1.
+    // Joystick: tap = RANGE step, hold = CONTINUOUS (RC uses _beginSlew directly).
     _zoomReleaseTimer.stop();
-    _beginSlew(direction, "startZoom");
+    _requestHoldZoom(direction, false, "startZoom");
 }
 
 void CodevCameraControl::startZoomFromUi(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoomFromUi()" << direction;
-    // UI hold = optical CONTINUOUS only. Digital remains tap-only via stepZoomFromUi.
+    // UI: tap = RANGE (+ digital at max via step path), hold = optical CONTINUOUS.
     _zoomReleaseTimer.stop();
-    _beginSlew(direction, "startZoomFromUi");
+    _requestHoldZoom(direction, true, "startZoomFromUi");
 }
 
 void CodevCameraControl::stopZoom()
@@ -1121,6 +1130,20 @@ void CodevCameraControl::stopZoom()
     qCDebug(CodevCameraLog) << "stopZoom()";
     _holdZoomStepTimer.stop();
     _holdZoomAllowDigital = false;
+
+    // Released before hold-arm elapsed => discrete RANGE tap (no CONTINUOUS).
+    if (_zoomHoldArmTimer.isActive()) {
+        const int dir = _holdArmDirection;
+        const bool allowDigital = _holdArmAllowDigital;
+        _cancelZoomHoldArm();
+        if (dir != 0) {
+            qCInfo(CodevCameraLog) << "tap -> RANGE step"
+                                   << "dir" << dir
+                                   << "allowDigital" << allowDigital;
+            _applyZoomStep(dir, allowDigital, allowDigital ? "tapStepUi" : "tapStep");
+        }
+        return;
+    }
 
     if (_zoomPhase != ZoomPhase::Slewing) {
         _zoomReleaseTimer.stop();
@@ -1136,6 +1159,94 @@ void CodevCameraControl::stopZoom()
                                << "ms" << kContinuousZoomReleaseDebounceMs;
         _zoomReleaseTimer.start();
     }
+}
+
+
+bool CodevCameraControl::_digitalZoomActive() const
+{
+    return _dZoomFact && _dZoomFact->cookedValue().toDouble() > 1.01;
+}
+
+void CodevCameraControl::_forceDigitalZoomToOne(const char* reasonTag)
+{
+    if (!_dZoomFact) {
+        return;
+    }
+    const double dNow = _dZoomFact->cookedValue().toDouble();
+    if (dNow <= 1.01) {
+        return;
+    }
+    _dZoomFact->setRawValue(1.0f);
+    emit displayZoomLevelChanged();
+    qCInfo(CodevCameraLog) << "force EO_DZOOM -> 1.0"
+                           << "reason" << (reasonTag ? reasonTag : "-")
+                           << "was" << dNow;
+}
+
+void CodevCameraControl::_cancelZoomHoldArm()
+{
+    _zoomHoldArmTimer.stop();
+    _holdArmDirection = 0;
+    _holdArmAllowDigital = false;
+}
+
+void CodevCameraControl::_requestHoldZoom(int direction, bool allowDigital, const char* sourceTag)
+{
+    if (!hasZoom() || direction == 0) {
+        return;
+    }
+
+    // Already slewing same direction: keep CONTINUOUS, do not re-arm / re-send.
+    if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection == direction) {
+        qCDebug(CodevCameraLog) << sourceTag << "hold keep same-dir CONTINUOUS" << direction;
+        return;
+    }
+
+    // Reverse while slewing: switch CONTINUOUS immediately (no tap-arm delay).
+    if (_zoomPhase == ZoomPhase::Slewing
+            && _holdZoomDirection != 0
+            && _holdZoomDirection != direction) {
+        _cancelZoomHoldArm();
+        _beginSlew(direction, sourceTag);
+        return;
+    }
+
+    // Digital zoom-out must be step-only. Continuous zoom-out with dZoom>1 is a lock risk.
+    if (direction < 0 && _digitalZoomActive()) {
+        _cancelZoomHoldArm();
+        qCInfo(CodevCameraLog) << sourceTag
+                               << "digital active — Continuous zoom-out armed as step-only";
+        _holdArmDirection = direction;
+        _holdArmAllowDigital = true; // allow digital step on short release
+        _zoomHoldArmTimer.start();
+        // On hold-arm timeout we still refuse Continuous while digital>1.
+        return;
+    }
+
+    _holdArmDirection = direction;
+    _holdArmAllowDigital = allowDigital;
+    _zoomHoldArmTimer.start();
+    qCInfo(CodevCameraLog) << sourceTag << "hold arm armed"
+                           << "dir" << direction
+                           << "ms" << kZoomHoldArmMs
+                           << "allowDigital" << allowDigital;
+}
+
+void CodevCameraControl::_onZoomHoldArmTimeout()
+{
+    const int dir = _holdArmDirection;
+    if (dir == 0) {
+        return;
+    }
+    _holdArmDirection = 0;
+    if (dir < 0 && _digitalZoomActive()) {
+        // Still in digital territory — never Continuous; step digital down instead.
+        qCInfo(CodevCameraLog) << "hold arm skip CONTINUOUS (digital still active) -> digital step";
+        _applyZoomStep(dir, true, "holdArmDigitalStep", false);
+        return;
+    }
+    qCInfo(CodevCameraLog) << "hold arm -> CONTINUOUS" << dir;
+    _beginSlew(dir, "holdArm");
 }
 
 void CodevCameraControl::_setZoomPhase(ZoomPhase phase, const char* sourceTag)
@@ -1163,28 +1274,59 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
     // Any new slew request cancels a pending debounced stop.
     _zoomReleaseTimer.stop();
 
-    if (direction > 0 && _opticalRange >= (_maxOpticalX - 0.5f)) {
-        qCInfo(CodevCameraLog) << sourceTag << "block slew at optical max" << _opticalRange;
-        // Don't leave a previous opposite CONTINUOUS running.
-        if (_zoomPhase == ZoomPhase::Slewing) {
-            _beginSettle(sourceTag);
-        }
-        return;
-    }
-    if (direction < 0 && _opticalRange <= 1.0f) {
-        qCInfo(CodevCameraLog) << sourceTag << "block slew at optical min" << _opticalRange;
-        if (_zoomPhase == ZoomPhase::Slewing) {
-            _beginSettle(sourceTag);
-        }
-        return;
-    }
-
     // Same direction already slewing — never re-send CONTINUOUS (lens restart stutter).
     // Covers UI/joystick re-press during release debounce and RC held deflection.
     if (_zoomPhase == ZoomPhase::Slewing && _holdZoomDirection == direction) {
         qCDebug(CodevCameraLog) << sourceTag << "skip re-send same-dir already slewing" << direction;
         return;
     }
+
+    // Continuous zoom-out with digital>1 is a lock risk (240x path). Clear digital first
+    // and skip Continuous on this request; next zoom-out may start optical Continuous.
+    if (direction < 0 && _digitalZoomActive()) {
+        qCInfo(CodevCameraLog) << sourceTag
+                               << "block CONTINUOUS zoom-out while digital active"
+                               << "dZoom" << (_dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0);
+        _forceDigitalZoomToOne("beginSlewZoomOut");
+        return;
+    }
+
+    // Refuse Continuous zoom-in near optical end (soft margin). Tap/RANGE may finish.
+    const float nearMax = _maxOpticalX - kContinuousSoftStopMargin;
+    if (direction > 0
+            && qMax(_opticalRange, _opticalEstimate) >= nearMax) {
+        qCInfo(CodevCameraLog) << sourceTag << "block CONTINUOUS near optical max"
+                               << "trusted" << _opticalRange
+                               << "estimate" << _opticalEstimate;
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            _beginSettle(sourceTag);
+        }
+        return;
+    }
+
+    if (direction > 0 && _opticalRange >= (_maxOpticalX - 0.5f)) {
+        qCInfo(CodevCameraLog) << sourceTag << "block slew at optical max" << _opticalRange;
+        // Ensure state is Idle so next command succeeds (even if already at max).
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            _beginSettle(sourceTag);
+        } else if (_zoomPhase != ZoomPhase::Idle) {
+            _forceIdleFromEstimate(sourceTag);
+        }
+        return;
+    }
+    if (direction < 0 && _opticalRange <= 1.0f) {
+        qCInfo(CodevCameraLog) << sourceTag << "block slew at optical min" << _opticalRange;
+        // Ensure state is Idle so next command succeeds (even if already at min).
+        if (_zoomPhase == ZoomPhase::Slewing) {
+            _beginSettle(sourceTag);
+        } else if (_zoomPhase != ZoomPhase::Idle) {
+            _forceIdleFromEstimate(sourceTag);
+        }
+        return;
+    }
+
+    // Continuous is optical-only: drop residual digital before sending ±1.
+    _forceDigitalZoomToOne("beginSlew");
 
     // Reverse while slewing: stop first so the camera accepts the new direction.
     if (_zoomPhase == ZoomPhase::Slewing
@@ -1223,6 +1365,7 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
     }
 
     _holdZoomDirection = direction;
+    _cancelZoomHoldArm();
     _setZoomPhase(ZoomPhase::Slewing, sourceTag);
     qCInfo(CodevCameraLog) << sourceTag << "CONTINUOUS slew start" << direction
                            << "trusted" << _opticalRange
@@ -1232,6 +1375,7 @@ void CodevCameraControl::_beginSlew(int direction, const char* sourceTag)
 void CodevCameraControl::_beginSettle(const char* sourceTag)
 {
     _zoomReleaseTimer.stop();
+    _cancelZoomHoldArm();
 
     if (_zoomPhase != ZoomPhase::Slewing && _zoomPhase != ZoomPhase::Settling) {
         _holdZoomDirection = 0;
@@ -1364,8 +1508,28 @@ void CodevCameraControl::_handleOpticalZoomReport(float reportedRaw)
                 emit zoomLevelChanged();
             }
         }
-        // Auto-stop at optical ends using plausible estimate only.
-        if (_holdZoomDirection > 0 && reportedRaw >= (_maxOpticalX - 0.5f)) {
+        // If camera auto-enters digital during Continuous, pull it back and stop zoom-in.
+        if (_digitalZoomActive()) {
+            _forceDigitalZoomToOne("slewDigitalIntrusion");
+            if (_holdZoomDirection > 0) {
+                qCInfo(CodevCameraLog) << "SLEWING stop — digital intrusion during Continuous";
+                _beginSettle("digitalIntrusionStop");
+                return;
+            }
+        }
+
+        // Soft-stop before hard ends (CONTINUOUS only). Tap/RANGE can still finish to 1x/max.
+        if (_holdZoomDirection > 0
+                && _opticalEstimate >= (_maxOpticalX - kContinuousSoftStopMargin)) {
+            qCInfo(CodevCameraLog) << "SLEWING soft-stop near optical max"
+                                   << "estimate" << _opticalEstimate;
+            _beginSettle("softStopMax");
+        } else if (_holdZoomDirection < 0
+                   && _opticalEstimate <= (1.0f + kContinuousSoftStopMargin)) {
+            qCInfo(CodevCameraLog) << "SLEWING soft-stop near optical min"
+                                   << "estimate" << _opticalEstimate;
+            _beginSettle("softStopMin");
+        } else if (_holdZoomDirection > 0 && reportedRaw >= (_maxOpticalX - 0.5f)) {
             qCInfo(CodevCameraLog) << "SLEWING auto-stop at optical max";
             _beginSettle("autoStopMax");
         } else if (_holdZoomDirection < 0 && reportedRaw <= 1.5f) {
@@ -2478,6 +2642,8 @@ void CodevCameraControl::_onZoomReleaseTimeout()
         qCInfo(CodevCameraLog) << "zoom release debounce -> stop"
                                << "dir" << _holdZoomDirection;
         _beginSettle("releaseDebounce");
+    } else {
+        _holdZoomDirection = 0;
     }
 }
 
@@ -2665,11 +2831,12 @@ void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const 
             _applyOpticalZoomStep(direction, sourceTag);
             return;
         }
+        // UI tap only (allowDigital): optical max → EO_DZOOM step. Continuous stays optical-only.
         if (allowDigital && _dZoomFact) {
             const double next = std::min(dMax, dNow + dInc);
             if (next > dNow + 1e-6) {
                 _dZoomFact->setRawValue(static_cast<float>(next));
-                qCDebug(CodevCameraLog) << sourceTag << "zoom step in digital" << next;
+                qCInfo(CodevCameraLog) << sourceTag << "zoom step in digital" << next;
             }
         }
         return;

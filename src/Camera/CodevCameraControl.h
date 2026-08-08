@@ -387,6 +387,11 @@ private:
     void _sendRangeZoomImmediate(float range);
     void _onSettlingTimeout();
     void _onZoomReleaseTimeout();
+    void _onZoomHoldArmTimeout();
+    void _requestHoldZoom(int direction, bool allowDigital, const char* sourceTag);
+    void _cancelZoomHoldArm();
+    bool _digitalZoomActive() const;
+    void _forceDigitalZoomToOne(const char* reasonTag);
 
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
@@ -399,7 +404,10 @@ private:
     QTimer _holdZoomStepTimer;
     QTimer _settlingTimer;
     QTimer _zoomReleaseTimer;
+    QTimer _zoomHoldArmTimer;
     int _holdZoomDirection{0};
+    int _holdArmDirection{0};
+    bool _holdArmAllowDigital{false};
     bool _holdZoomAllowDigital{false};
     ZoomPhase _zoomPhase{ZoomPhase::Idle};
     float _opticalEstimate{1.0f};     // UI estimate during SLEWING/SETTLING
