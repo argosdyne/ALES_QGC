@@ -387,7 +387,7 @@ private:
     bool _sendContinuousZoomImmediate(float direction);
     void _sendRangeZoomImmediate(float range);
     void _onSettlingTimeout();
-    void _onRcZoomReleaseTimeout();
+    void _onZoomReleaseTimeout();
 
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
@@ -399,7 +399,7 @@ private:
     void _reconcileCameraAheadReport();
     QTimer _holdZoomStepTimer;
     QTimer _settlingTimer;
-    QTimer _rcZoomReleaseTimer;
+    QTimer _zoomReleaseTimer;
     int _holdZoomDirection{0};
     bool _holdZoomAllowDigital{false};
     ZoomPhase _zoomPhase{ZoomPhase::Idle};
