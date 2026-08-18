@@ -7856,6 +7856,16 @@ Click Ok to start the auto-tuning process.
         <source>Serial &lt;none available&gt;</source>
         <translation>시리얼 &lt;사용 가능 항목 없음&gt;</translation>
     </message>
+    <message>
+        <location filename="../src/ui/preferences/GeneralSettings.qml" line="819"/>
+        <source>Life Jacket Param Value</source>
+        <translation>구명조끼 파라미터 값</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/GeneralSettings.qml" line="828"/>
+        <source>Send</source>
+        <translation>전송</translation>
+    </message>
 </context>
   <context>
     <name>GeoFenceController</name>
