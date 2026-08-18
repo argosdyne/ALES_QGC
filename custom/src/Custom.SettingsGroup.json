@@ -42,6 +42,12 @@
     "shortDesc":        "Enable Life Jacket",
     "type":             "bool",
     "default":          false
+},
+{
+    "name":             "lifeJacketParamValue",
+    "shortDesc":        "Life Jacket Parameter Value",
+    "type":             "int32",
+    "default":          0
 }
 ]
 }

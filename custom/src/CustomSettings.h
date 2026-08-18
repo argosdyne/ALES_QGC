@@ -15,4 +15,5 @@ public:
     DEFINE_SETTINGFACT(doodleLabsIP)
     DEFINE_SETTINGFACT(doodleLabsIPEnable)
     DEFINE_SETTINGFACT(lifeJacketEnable)
+    DEFINE_SETTINGFACT(lifeJacketParamValue)
 };

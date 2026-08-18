@@ -21,6 +21,7 @@
 
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
+#include "MAVLinkProtocol.h"
 #include "SettingsManager.h"
 #include "AppMessages.h"
 #include "QmlComponentInfo.h"
@@ -1195,6 +1196,46 @@ void CustomPlugin::_onRajantProbeError(QAbstractSocket::SocketError error)
     QString address = _rajantProbeSocket->property("address").toString();
     qCInfo(ARManagerLog) << "RajantDiscovery: probe failed on" << address << "-" << _rajantProbeSocket->errorString();
     _tryNextRajantCandidate();
+}
+
+void CustomPlugin::sendLifeJacketParam()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "sendLifeJacketParam: no active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "sendLifeJacketParam: no primary link";
+        return;
+    }
+
+    int value = _settings->lifeJacketParamValue()->rawValue().toInt();
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = vehicle->defaultComponentId();
+    param.param_type       = MAV_PARAM_TYPE_INT32;
+
+    union { int32_t i; float f; } conv;
+    conv.i = static_cast<int32_t>(value);
+    param.param_value = conv.f;
+
+    strncpy(param.param_id, "LJ_VALUE", sizeof(param.param_id));
+
+    MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
+    if (!mavlink) {
+        qWarning() << "sendLifeJacketParam: MAVLinkProtocol not available";
+        return;
+    }
+    mavlink_msg_param_set_encode(mavlink->getSystemId(), mavlink->getComponentId(), &msg, &param);
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qDebug() << "sendLifeJacketParam: LJ_VALUE =" << value;
 }
 
 void CustomPlugin::showMessage(const QString& message, SystemMessage::SystemMessageType type)

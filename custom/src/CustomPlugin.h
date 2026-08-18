@@ -109,6 +109,8 @@ public:
     // Overrides from QGCTool
     void                    setToolbox                      (QGCToolbox* toolbox);
 
+    Q_INVOKABLE void sendLifeJacketParam();
+
     Q_PROPERTY(M2Manager*           m2Manager               READ m2Manager              NOTIFY m2ManagerChanged)
     M2Manager*              m2Manager           ()  { return _m2Manager; }
 

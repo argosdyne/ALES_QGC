@@ -810,6 +810,26 @@ Rectangle {
                                     // Hide for PX4 vehicles; show for APM or when no vehicle is connected
                                     visible:    !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
                                 }
+
+                                RowLayout {
+                                    spacing: _margins
+                                    visible: QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
+                                             !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
+                                    QGCLabel {
+                                        text: qsTr("Life Jacket Param Value")
+                                    }
+                                    FactTextField {
+                                        id:                     lifeJacketParamField
+                                        Layout.preferredWidth:  _comboFieldWidth
+                                        fact:                   QGroundControl.corePlugin.settings.lifeJacketParamValue
+                                        inputMethodHints:       Qt.ImhFormattedNumbersOnly
+                                    }
+                                    QGCButton {
+                                        text:       qsTr("Send")
+                                        enabled:    QGroundControl.multiVehicleManager.activeVehicle !== null
+                                        onClicked:  QGroundControl.corePlugin.sendLifeJacketParam()
+                                    }
+                                }
                             }
                         }
 
