@@ -18,6 +18,7 @@
 #include "VideoManager.h"
 #include "SettingsManager.h"
 #include "GimbalController.h"
+#include "VehicleLinkManager.h"
 #include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
@@ -403,7 +404,11 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
                                     _pMavlink->getComponentId(),
                                     &msg,
                                     &cmd);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!commandLink) {
+        return false;
+    }
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
     return true;
 }
 
@@ -441,12 +446,16 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
                                    MAV_COMP_ID_AUTOPILOT1,
                                    &msg,
                                    &outbound);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!commandLink) {
+        return;
+    }
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
 }
 
 void CodevCameraControl::_startR3TimeSync()
 {
-    if (!_vehicle || !_link || !_isR3CameraModel(modelName())) {
+    if (!_vehicle || !_isR3CameraModel(modelName()) || !_activeCommandLink()) {
         return;
     }
 
@@ -467,7 +476,8 @@ void CodevCameraControl::_startR3TimeSync()
 
 void CodevCameraControl::_sendR3TimeSync()
 {
-    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!_vehicle || !commandLink || !_isR3CameraModel(modelName())) {
         _r3TimeSyncTimer.stop();
         return;
     }
@@ -475,14 +485,14 @@ void CodevCameraControl::_sendR3TimeSync()
     mavlink_message_t heartbeatMsg;
     mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
                                     kR3TimeSyncSourceComponent,
-                                    _link->mavlinkChannel(),
+                                    commandLink->mavlinkChannel(),
                                     &heartbeatMsg,
                                     MAV_TYPE_GCS,
                                     MAV_AUTOPILOT_INVALID,
                                     0,
                                     0,
                                     MAV_STATE_ACTIVE);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, heartbeatMsg);
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), heartbeatMsg);
 
     mavlink_message_t timeMsg;
     mavlink_system_time_t systemTime;
@@ -491,10 +501,10 @@ void CodevCameraControl::_sendR3TimeSync()
     systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
     mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
                                         kR3TimeSyncSourceComponent,
-                                        _link->mavlinkChannel(),
+                                        commandLink->mavlinkChannel(),
                                         &timeMsg,
                                         &systemTime);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, timeMsg);
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), timeMsg);
 
     qCDebug(CodevCameraVerboseLog) << "[R3TimeSync]"
             << "sent HEARTBEAT + SYSTEM_TIME"
@@ -619,7 +629,11 @@ void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const c
                                     _pMavlink->getComponentId(),
                                     &msg,
                                     &cmd);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!commandLink) {
+        return;
+    }
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
 }
 
 void CodevCameraControl::centerGimbal()
@@ -1049,6 +1063,7 @@ bool CodevCameraControl::startVideo()
                 MAV_CMD_VIDEO_START_CAPTURE,                // Command id
                 0,                                          // Reserved (Set to 0)
                 0);                                         // CAMERA_CAPTURE_STATUS Frequency
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
             return true;
         }
     }
@@ -1063,6 +1078,7 @@ bool CodevCameraControl::stopVideo()
             sendMavCommand(
                 MAV_CMD_VIDEO_STOP_CAPTURE,                 // Command id
                 0);                                         // Reserved (Set to 0)
+            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
             return true;
         }
     }
@@ -1449,7 +1465,7 @@ void CodevCameraControl::_purgeQueuedCameraZoomCommands()
 
 bool CodevCameraControl::_sendContinuousZoomImmediate(float direction)
 {
-    if (!_vehicle || !_pMavlink || !_link || !hasZoom()) {
+    if (!_vehicle || !_pMavlink || !_activeCommandLink() || !hasZoom()) {
         return false;
     }
 
@@ -1500,13 +1516,18 @@ bool CodevCameraControl::_sendContinuousZoomImmediate(float direction)
                            << "direction" << direction
                            << "phase" << static_cast<int>(_zoomPhase)
                            << "cameraCompId" << _compID;
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!commandLink) {
+        return false;
+    }
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
     return true;
 }
 
 void CodevCameraControl::_sendRangeZoomImmediate(float range)
 {
-    if (!_vehicle || !_pMavlink || !_link || !hasZoom()) {
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!_vehicle || !_pMavlink || !commandLink || !hasZoom()) {
         return;
     }
 
@@ -1533,7 +1554,7 @@ void CodevCameraControl::_sendRangeZoomImmediate(float range)
                            << "range zoom fire-and-forget"
                            << "range" << range
                            << "cameraCompId" << _compID;
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
 }
 
 void CodevCameraControl::startTracking(QPointF point, double radius)
@@ -2986,11 +3007,36 @@ void CodevCameraControl::sendMavCommandWithTarget(MAV_CMD command, int target_co
     }
 }
 
+SharedLinkInterfacePtr CodevCameraControl::_activeCommandLink() const
+{
+    if (!_vehicle || !_vehicle->vehicleLinkManager()) {
+        return SharedLinkInterfacePtr();
+    }
+
+    SharedLinkInterfacePtr primaryLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (primaryLink && primaryLink->isConnected()) {
+        return primaryLink;
+    }
+
+    return SharedLinkInterfacePtr();
+}
+
 void CodevCameraControl::_sendMavCommandAgain()
 {
     if(!_mavCommandQueue.size()) {
         qWarning(CodevCameraLog) << "Command resend with no commands in queue";
         _mavCommandAckTimer.stop();
+        return;
+    }
+
+    SharedLinkInterfacePtr commandLink = _activeCommandLink();
+    if (!commandLink) {
+        qCWarning(CodevCameraLog) << "[CameraFlow]"
+                                  << "_sendMavCommandAgain skipped: no active link"
+                                  << "cameraCompId" << _compID
+                                  << "queueSize" << _mavCommandQueue.count();
+        _mavCommandAckTimer.stop();
+        _mavCommandQueue.clear();
         return;
     }
 
@@ -3035,7 +3081,14 @@ void CodevCameraControl::_sendMavCommandAgain()
                                     &msg,
                                     &cmd);
 
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    if (!_vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg)) {
+        qCWarning(CodevCameraLog) << "[CameraFlow]"
+                                  << "_sendMavCommandAgain send failed"
+                                  << "cameraCompId" << _compID
+                                  << "command" << queuedCommand.command;
+        _mavCommandAckTimer.stop();
+        _mavCommandQueue.clear();
+    }
 }
 
 void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle)

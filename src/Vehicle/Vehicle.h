@@ -17,6 +17,9 @@
 #include <QQueue>
 #include <QSharedPointer>
 #include <QSet>
+#include <QTimer>
+
+#include <atomic>
 
 #include "FactGroup.h"
 #include "QGCMAVLink.h"
@@ -166,6 +169,7 @@ public:
     enum GeoFenceAlertTier {
         GeoFenceAlertTierNone = 0,
         GeoFenceAlertTierMargin,
+        GeoFenceAlertTierAltitudeWarning,
         GeoFenceAlertTierBreach,
         GeoFenceAlertTierContingency,
     };
@@ -203,6 +207,7 @@ public:
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
     Q_PROPERTY(bool                 joystickEnabled             READ joystickEnabled            WRITE setJoystickEnabled            NOTIFY joystickEnabledChanged)
+    Q_PROPERTY(bool                 videoCaptureRunning         READ videoCaptureRunning                                            NOTIFY videoCaptureRunningChanged)
     Q_PROPERTY(int                  flowImageIndex              READ flowImageIndex                                                 NOTIFY flowImageIndexChanged)
     Q_PROPERTY(int                  rcRSSI                      READ rcRSSI                                                         NOTIFY rcRSSIChanged)
     Q_PROPERTY(bool                 px4Firmware                 READ px4Firmware                                                    NOTIFY firmwareTypeChanged)
@@ -491,6 +496,9 @@ public:
 
     /// Trigger camera using MAV_CMD_DO_DIGICAM_CONTROL command
     Q_INVOKABLE void triggerSimpleCamera(void);
+    Q_INVOKABLE void startVideoCapture(void);
+    Q_INVOKABLE void stopVideoCapture(void);
+    Q_INVOKABLE void toggleVideoCapture(void);
 
 #if !defined(NO_ARDUPILOT_DIALECT)
     Q_INVOKABLE void flashBootloader();
@@ -521,6 +529,7 @@ public:
 
     bool joystickEnabled            () const;
     void setJoystickEnabled         (bool enabled);
+    bool videoCaptureRunning        () const { return _videoCaptureRunning.load(); }
     void sendJoystickDataThreadSafe (float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch = qQNaN(), float auxRoll = qQNaN());
     void sendGimbalRCOverrideThreadSafe(float pitch, float yaw);
     Q_INVOKABLE void sendGremsyGimbalRate(float pitchRate, float yawRate);
@@ -1106,6 +1115,7 @@ signals:
     void vlValueChanged                 (int value); //Vision Lidar
     void vlOBAValueChanged              (int value);
     void slStatusChanged                (int value); //Searchlight ON/OFF
+    void videoCaptureRunningChanged     ();
 
 private slots:
     void _mavlinkMessageReceived            (LinkInterface* link, mavlink_message_t message);
@@ -1124,6 +1134,7 @@ private slots:
     void _firstGeoFenceLoadComplete         ();
     void _firstRallyPointLoadComplete       ();
     void _sendMavCommandResponseTimeoutCheck();
+    void _sendVideoRcOverride              ();
     void _clearCameraTriggerPoints          ();
     void _updateDistanceHeadingToHome       ();
     void _updateMissionItemIndex            ();
@@ -1354,6 +1365,8 @@ private:
     int                         _flowImageIndex = 0;
 
     bool _allLinksRemovedSent = false; ///< true: allLinkRemoved signal already sent one time
+    std::atomic_bool _videoCaptureRunning{false};
+    QTimer _videoRcOverrideTimer;
 
     uint                _messagesReceived = 0;
     uint                _messagesSent = 0;

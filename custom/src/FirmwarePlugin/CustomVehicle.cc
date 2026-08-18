@@ -101,6 +101,13 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
+
+    if (count >= 13 && videoCaptureRunning()) {
+        // CH13 is owned by Vehicle's video-record timer. Do not forward the
+        // hardware PWM until the next press toggles recording off.
+        sendChannels[12] = UINT16_MAX;
+    }
+
     if (cameraManager()) {
         cameraManager()->filterAviatorRcChannels(sendChannels, count);
     }
@@ -356,7 +363,27 @@ void CustomVehicle::_handletextMessageReceivedCustom(UASMessage* message)
 {
     if (message && _plugin) {
         SystemMessage::SystemMessageType type = SystemMessage::Info;
-        if(message->severityIsError()) {
+        const QString messageText = message->getText();
+        const bool is3DAltitudeWarning = geoFenceAlertTier() == GeoFenceAlertTierAltitudeWarning;
+        const bool isFenceBreachedMessage =
+            messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+            (messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive) ||
+             messageText.contains(QStringLiteral("breached"), Qt::CaseInsensitive));
+        const bool isGeoFenceCriticalMessage =
+            isFenceBreachedMessage ||
+            (messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+             messageText.contains(QStringLiteral("contingency"), Qt::CaseInsensitive));
+        const bool isGeoFenceBoundaryMessage =
+            messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
+            messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive) &&
+            (messageText.contains(QStringLiteral("exclusion"), Qt::CaseInsensitive) ||
+             messageText.contains(QStringLiteral("boundary"), Qt::CaseInsensitive));
+
+        if (isFenceBreachedMessage) {
+            type = SystemMessage::Error;
+        } else if (message->severityIsError() && is3DAltitudeWarning && isGeoFenceBoundaryMessage) {
+            type = SystemMessage::Warning;
+        } else if(message->severityIsError()) {
             type = SystemMessage::Error;
         } else if(message->getSeverity() == MAV_SEVERITY_WARNING) {
             type = SystemMessage::Warning;
@@ -364,7 +391,10 @@ void CustomVehicle::_handletextMessageReceivedCustom(UASMessage* message)
             type = SystemMessage::Warning;
         }
         if(type != SystemMessage::Info) {
-            _plugin->showMessage(message->getText(), type);
+            if (type == SystemMessage::Error && isGeoFenceCriticalMessage && CustomQmlInterface::instance()) {
+                CustomQmlInterface::instance()->dismissGeoFenceAltitudeWarnings();
+            }
+            _plugin->showMessage(messageText, type);
         }
     }
 }

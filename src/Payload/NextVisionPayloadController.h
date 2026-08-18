@@ -76,6 +76,8 @@ private:
     static constexpr int  kCenter = 1500;
     static constexpr int  kPwmMin = 1000;
     static constexpr int  kPwmMax = 2000;
+    static constexpr int  kZoomPwmMin = 1050;
+    static constexpr int  kZoomPwmMax = 1950;
     static constexpr uint16_t kIgnore = 0xFFFF;
     static constexpr int  kPanChannelIndex      = 9;  // CH10 Roll / pan-yaw
     static constexpr int  kTiltChannelIndex     = 8;  // CH9 Pitch / tilt

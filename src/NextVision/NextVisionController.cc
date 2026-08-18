@@ -51,6 +51,7 @@ void NextVisionController::configureVideoStream()
 {
     VideoSettings* videoSettings = qgcApp()->toolbox()->settingsManager()->videoSettings();
     videoSettings->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
+    videoSettings->setRtspUrlUserSet(true);
     videoSettings->rtspUrl()->setRawValue(rtspUrl());
     videoSettings->streamEnabled()->setRawValue(true);
     qgcApp()->toolbox()->videoManager()->startVideo(0);

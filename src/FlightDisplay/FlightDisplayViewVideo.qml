@@ -217,9 +217,35 @@ Item {
             }
             Connections {
                 target:                 _camera
-                onThermalModeChanged:   thermalItem.pipOrNot()
+                onThermalModeChanged: {
+                    thermalItem.pipOrNot()
+                    thermalItem.logState("thermalModeChanged")
+                }
+                onThermalOpacityChanged: {
+                    thermalItem.logState("thermalOpacityChanged")
+                }
             }
-            onVisibleChanged: thermalItem.pipOrNot()
+            onVisibleChanged: {
+                thermalItem.pipOrNot()
+                thermalItem.logState("visibleChanged")
+            }
+            onWidthChanged: {
+                thermalItem.logState("widthChanged")
+            }
+            onHeightChanged: {
+                thermalItem.logState("heightChanged")
+            }
+            function logState(reason) {
+                console.warn("[FlightDisplay][THERMAL]",
+                             reason,
+                             "visible=", visible,
+                             "hasThermal=", QGroundControl.videoManager.hasThermal,
+                             "mode=", _camera ? _camera.thermalMode : -1,
+                             "opacity=", _camera ? _camera.thermalOpacity : -1,
+                             "width=", width,
+                             "height=", height,
+                             "aspect=", QGroundControl.videoManager.thermalAspectRatio)
+            }
             QGCVideoBackground {
                 id:             thermalVideo
                 objectName:     "thermalVideo"
