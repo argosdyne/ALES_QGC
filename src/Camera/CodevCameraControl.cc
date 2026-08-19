@@ -1,7 +1,6 @@
 #include "CodevCameraControl.h"
 #include "QGCCameraIO.h"
 #include "QGCCameraManager.h"
-#include <QTimeZone>
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
@@ -497,7 +496,13 @@ void CodevCameraControl::_sendR3TimeSync()
     mavlink_message_t timeMsg;
     mavlink_system_time_t systemTime;
     memset(&systemTime, 0, sizeof(systemTime));
-    systemTime.time_unix_usec = static_cast<uint64_t>(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()) * 1000ULL;
+    // R3 renders time_unix_usec directly as its OSD wall clock and does not
+    // apply its accepted TIME_ZONE parameter. Send an R3-specific wall-clock
+    // epoch so the OSD matches the controller's displayed local time.
+    const QDateTime localNow = QDateTime::currentDateTime();
+    const qint64 r3WallClockMs = localNow.toMSecsSinceEpoch()
+            + static_cast<qint64>(localNow.offsetFromUtc()) * 1000LL;
+    systemTime.time_unix_usec = static_cast<uint64_t>(r3WallClockMs) * 1000ULL;
     systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
     mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
                                         kR3TimeSyncSourceComponent,
@@ -1826,11 +1831,29 @@ void CodevCameraControl::_parametersReady()
     // time zones
     fact = getFact(kTIME_ZONE);
     if(fact) {
-        QByteArray value = QTimeZone::systemTimeZone().id();
-        if (value.size() < 128) {
-            value.append(128 - value.size(), 0);
+        const int offsetSeconds = QDateTime::currentDateTime().offsetFromUtc();
+        const int absoluteOffsetMinutes = qAbs(offsetSeconds) / 60;
+        const QString timeZoneOffset = QStringLiteral("GMT%1%2:%3")
+                .arg(offsetSeconds >= 0 ? QLatin1Char('+') : QLatin1Char('-'))
+                .arg(absoluteOffsetMinutes / 60, 2, 10, QLatin1Char('0'))
+                .arg(absoluteOffsetMinutes % 60, 2, 10, QLatin1Char('0'));
+        const QByteArray timeZoneId = timeZoneOffset.toLatin1();
+
+        qCInfo(CodevCameraLog) << "[R3TimeSync]"
+                << "setting camera timezone"
+                << timeZoneId;
+
+        // QGCCameraParamIO zero-fills the PARAM_EXT_SET payload. Force the
+        // write so a cached value cannot prevent the timezone from reaching
+        // a camera which has just rebooted.
+        fact->forceSetRawValue(QVariant(timeZoneId));
+
+        if (_isR3CameraModel(modelName())) {
+            // SYSTEM_TIME starts early in the constructor to catch the R3
+            // boot window. Restart it after TIME_ZONE has been sent so the
+            // camera can apply local time to its OSD as well.
+            QTimer::singleShot(1000, this, &CodevCameraControl::_startR3TimeSync);
         }
-        fact->setRawValue(QVariant(value));
     }
 
     // zoom mode
