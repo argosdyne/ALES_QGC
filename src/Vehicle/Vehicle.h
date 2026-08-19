@@ -1133,6 +1133,8 @@ private slots:
     void _firstRallyPointLoadComplete       ();
     void _sendMavCommandResponseTimeoutCheck();
     void _sendVideoRcOverride              ();
+    bool _shouldUseRcChannelVideoCapture   () const;
+    bool _toggleMavlinkCameraVideoCapture  ();
     void _clearCameraTriggerPoints          ();
     void _updateDistanceHeadingToHome       ();
     void _updateMissionItemIndex            ();

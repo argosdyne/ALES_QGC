@@ -43,6 +43,8 @@
 #include "QGCOptions.h"
 #include "ADSBVehicleManager.h"
 #include "QGCCameraManager.h"
+#include "QGCCameraControl.h"
+#include "PayloadManager.h"
 #include "VideoReceiver.h"
 #include "VideoManager.h"
 #include "VideoSettings.h"
@@ -4124,6 +4126,20 @@ void Vehicle::stopMavlinkLog()
 
 void Vehicle::startVideoCapture()
 {
+    // CH13 RC override is NextVision-oriented. R3/Codev must use MAVLink camera video.
+    if (!_shouldUseRcChannelVideoCapture()) {
+        if (_cameraManager) {
+            if (QGCCameraControl* camera = _cameraManager->currentCameraInstance()) {
+                if (camera->videoStatus() != QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
+                    if (!QMetaObject::invokeMethod(camera, "buttonToggleVideo", Qt::DirectConnection)) {
+                        camera->startVideo();
+                    }
+                }
+            }
+        }
+        return;
+    }
+
     if (_videoCaptureRunning.exchange(true)) {
         return;
     }
@@ -4135,6 +4151,24 @@ void Vehicle::startVideoCapture()
 
 void Vehicle::stopVideoCapture()
 {
+    if (!_shouldUseRcChannelVideoCapture()) {
+        // Clear any leftover CH13 override state from a previous NextVision session.
+        if (_videoCaptureRunning.exchange(false)) {
+            _videoRcOverrideTimer.stop();
+            emit videoCaptureRunningChanged();
+        }
+        if (_cameraManager) {
+            if (QGCCameraControl* camera = _cameraManager->currentCameraInstance()) {
+                if (camera->videoStatus() == QGCCameraControl::VIDEO_CAPTURE_STATUS_RUNNING) {
+                    if (!QMetaObject::invokeMethod(camera, "buttonToggleVideo", Qt::DirectConnection)) {
+                        camera->stopVideo();
+                    }
+                }
+            }
+        }
+        return;
+    }
+
     if (!_videoCaptureRunning.exchange(false)) {
         return;
     }
@@ -4145,11 +4179,58 @@ void Vehicle::stopVideoCapture()
 
 void Vehicle::toggleVideoCapture()
 {
+    if (!_shouldUseRcChannelVideoCapture()) {
+        if (_videoCaptureRunning.exchange(false)) {
+            _videoRcOverrideTimer.stop();
+            emit videoCaptureRunningChanged();
+        }
+        _toggleMavlinkCameraVideoCapture();
+        return;
+    }
+
     if (_videoCaptureRunning.load()) {
         stopVideoCapture();
     } else {
         startVideoCapture();
     }
+}
+
+bool Vehicle::_shouldUseRcChannelVideoCapture() const
+{
+    // Match PhotoVideoControl: CH13 path only for connected NextVision payload.
+    PayloadManager* payloadManager = PayloadManager::instance();
+    if (!payloadManager) {
+        return false;
+    }
+    return payloadManager->activeType() == 1
+            && payloadManager->nextvision()
+            && payloadManager->nextvision()->connected();
+}
+
+bool Vehicle::_toggleMavlinkCameraVideoCapture()
+{
+    if (!_cameraManager) {
+        qCDebug(VehicleLog) << "toggle mavlink video: no camera manager";
+        return false;
+    }
+    QGCCameraControl* camera = _cameraManager->currentCameraInstance();
+    if (!camera) {
+        qCDebug(VehicleLog) << "toggle mavlink video: no current camera";
+        return false;
+    }
+
+    // Codev/R3 prefers buttonToggleVideo (mode switch + storage guards).
+    if (QMetaObject::invokeMethod(camera, "buttonToggleVideo", Qt::DirectConnection)) {
+        qCInfo(VehicleLog) << "toggle mavlink video via buttonToggleVideo"
+                           << "compId" << camera->compID();
+        return true;
+    }
+
+    const bool ok = camera->toggleVideo();
+    qCInfo(VehicleLog) << "toggle mavlink video via toggleVideo"
+                       << "compId" << camera->compID()
+                       << "ok" << ok;
+    return ok;
 }
 
 void Vehicle::_sendVideoRcOverride()

@@ -227,11 +227,12 @@ Item {
 
 
     function toggleShooting() {
-        if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
-            _activeVehicle.toggleVideoCapture()
-            return
+        if (_isNextVisionPayload && _usePayload){
+            if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+                _activeVehicle.toggleVideoCapture()
+                return
+            }
         }
-
         if (_usePayload) {
             if (_videoStreamInPhotoMode) {
                 _activePayload.captureImage()
