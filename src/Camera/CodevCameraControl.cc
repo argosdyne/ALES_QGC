@@ -160,7 +160,9 @@ static bool _isStaleZoomJumpToMax(float reported, float beforeRange)
 
 static float _snapOpticalZoomLevel(float value, float maxOptical)
 {
-    return qBound(1.0f, static_cast<float>(qRound(value)), maxOptical);
+    // Camera zoom reports are typically 0.1 precision; keep that for Continuous UI.
+    const float snapped = qRound(value * 10.0f) / 10.0f;
+    return qBound(1.0f, snapped, maxOptical);
 }
 
 static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
@@ -686,15 +688,16 @@ void CodevCameraControl::syncZoomUiAfterReset()
 
 qreal CodevCameraControl::displayZoomLevel() const
 {
-    // SLEWING/SETTLING: live estimate. IDLE: trusted optical. Always integer for UI.
+    // SLEWING/SETTLING: live estimate. IDLE: trusted optical. One decimal for Continuous UI.
     double optical = (_zoomPhase == ZoomPhase::Idle)
             ? static_cast<double>(_opticalRange)
             : static_cast<double>(_opticalEstimate);
-    if (optical >= static_cast<double>(_maxOpticalX - 0.5f)) {
+    if (optical >= static_cast<double>(_maxOpticalX - 0.05f)) {
         optical = _maxOpticalX;
     }
     const double digital = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-    return static_cast<qreal>(qRound(optical * digital));
+    const double product = optical * digital;
+    return static_cast<qreal>(qRound(product * 10.0) / 10.0);
 }
 
 void CodevCameraControl::setSpotTempPoint(float x, float y)

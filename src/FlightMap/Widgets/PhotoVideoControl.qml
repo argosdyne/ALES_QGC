@@ -289,23 +289,31 @@ Item {
         }
     }
 
+    function _formatZoomDisplay(value) {
+        var n = Number(value)
+        if (isNaN(n)) {
+            return "1.0"
+        }
+        return n.toFixed(1)
+    }
+
     function getZoomValue() {
         if (_isNextVisionPayload && _usePayload && _zoomUiOverride) {
-            return String(Math.round(zoomLevel))
+            return _formatZoomDisplay(zoomLevel)
         }
         if (!_hasZoom || !_mavlinkCamera) {
-            return "1"
+            return "1.0"
         }
         if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
-            return String(Math.round(_mavlinkCamera.displayZoomLevel))
+            return _formatZoomDisplay(_mavlinkCamera.displayZoomLevel)
         }
         if (isNaN(_mavlinkCamera.zoomLevel)) {
-            return "1"
+            return "1.0"
         }
 
         var optical = _mavlinkCamera.zoomLevel
         var digital = (_dZoom ? _dZoom.value : 1.0)
-        return String(Math.round(optical * digital))
+        return _formatZoomDisplay(optical * digital)
     }
 
     Timer {
