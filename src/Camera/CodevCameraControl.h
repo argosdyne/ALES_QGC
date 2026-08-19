@@ -433,5 +433,7 @@ private:
     bool _modeSwitchNudgeInProgress{false};
     bool _decodingDroppedDuringRecovery{false};
     CameraMode _lastReportedCameraMode{CAM_MODE_UNDEFINED};
+    QTimer _r3TimeSyncTimer;
+    int _r3TimeSyncSendCount{0};
 
 };
