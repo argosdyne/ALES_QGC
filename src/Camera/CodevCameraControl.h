@@ -255,6 +255,8 @@ protected:
     bool _sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag);
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
     void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
+    void _startR3TimeSync();
+    void _sendR3TimeSync();
     void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
 
     bool _isTakingPhotoTimelapse();
@@ -352,6 +354,8 @@ protected:
     bool _modeSwitchNudgeInProgress{false};
     bool _decodingDroppedDuringRecovery{false};
     CameraMode _lastReportedCameraMode{CAM_MODE_UNDEFINED};
+    QTimer _r3TimeSyncTimer;
+    int _r3TimeSyncSendCount{0};
 
 private:
     float _opticalRange = 1.0f;          // 0..100, 우리가 제어하는 광학 줌 위치
