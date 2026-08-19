@@ -135,6 +135,8 @@ Item {
         enabled: true
         pressAndHoldInterval: enableRectangle ? 200 : 800
         property bool isPressAndHold: false
+        property real pressX: 0
+        property real pressY: 0
 
         // Manual double-tap detection tuned for Android touch (the primary
         // platform). Qt's onDoubleClicked is unreliable on touch — the
@@ -192,6 +194,8 @@ Item {
                 return
             }
             isPressAndHold = true
+            pressX = mouseX
+            pressY = mouseY
             rangeRect.width = rangeRect.height = 0
             rangeRect.opacity = 1
         }
@@ -199,8 +203,10 @@ Item {
             if (selectItem.busy) return
             if(!enableRectangle || !isPressAndHold) return
             if(rangeRect.opacity == 1 && !hightlightGroup.running && !animationGroup.running) {
-                rangeRect.width = Math.abs(mouseX - rangeRect.x)
-                rangeRect.height = Math.abs(mouseY - rangeRect.y)
+                rangeRect.x = Math.min(mouseX, pressX)
+                rangeRect.y = Math.min(mouseY, pressY)
+                rangeRect.width = Math.abs(mouseX - pressX)
+                rangeRect.height = Math.abs(mouseY - pressY)
             }
         }
         onReleased: {
