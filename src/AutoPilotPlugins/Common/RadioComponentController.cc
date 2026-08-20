@@ -1002,7 +1002,14 @@ bool RadioComponentController::rollChannelReversed(void)
 bool RadioComponentController::pitchChannelReversed(void)
 {
     if (_rgFunctionChannelMapping[rcCalFunctionPitch] != _chanMax) {
-        return _rgChannelInfo[_rgFunctionChannelMapping[rcCalFunctionPitch]].reversed;
+        const bool reversed = _rgChannelInfo[_rgFunctionChannelMapping[rcCalFunctionPitch]].reversed;
+
+        // Convert ArduPilot multi-rotor Pitch reverse for post-calibration display.
+        if (_currentStep == -1 && !_px4Vehicle() && _vehicle->multiRotor()) {
+            return !reversed;
+        }
+
+        return reversed;
     } else {
         return false;
     }
