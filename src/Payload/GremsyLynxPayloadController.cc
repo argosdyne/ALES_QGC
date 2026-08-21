@@ -5,9 +5,12 @@
 #include <limits>
 
 #include <QTimer>
+#include <QDebug>
 #include <QtMath>
 
 const char* GremsyLynxPayloadController::kDefaultIp = "192.168.2.240";
+constexpr double GremsyLynxPayloadController::kMinZoomLevel;
+constexpr double GremsyLynxPayloadController::kMaxZoomLevel;
 
 GremsyLynxPayloadController::GremsyLynxPayloadController(QObject* parent)
     : PayloadController(parent)
@@ -29,8 +32,12 @@ GremsyLynxPayloadController::GremsyLynxPayloadController(QObject* parent)
     connect(_controlTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_sendControl);
 
     _zoomDisplayTimer = new QTimer(this);
-    _zoomDisplayTimer->setInterval(200);
+    _zoomDisplayTimer->setInterval(1000);
     connect(_zoomDisplayTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_updateZoomDisplay);
+
+    _photoAfterStopTimer = new QTimer(this);
+    _photoAfterStopTimer->setInterval(kPhotoStopRetryMs);
+    connect(_photoAfterStopTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_retryStopRecordingForPhoto);
 }
 
 void GremsyLynxPayloadController::_onIpChanged()
@@ -51,6 +58,17 @@ void GremsyLynxPayloadController::setSpeedDegPerSec(double speed)
 
 void GremsyLynxPayloadController::connectPayload()
 {
+    ++_recordingCommandGeneration;
+    _recordingCommandBlocked = false;
+    _recordingStatusSettling = false;
+    _cameraReportsRecording = false;
+    _photoCapturePending = false;
+    _photoStopRetryCount = 0;
+    _photoAfterStopTimer->stop();
+    if (_recording) {
+        _recording = false;
+        emit recordingChanged();
+    }
     setConnecting(true);
     _targetAddress = QHostAddress(_ip);
     _targetPort    = kTargetPort;
@@ -98,8 +116,135 @@ void GremsyLynxPayloadController::zoomOut()
 
 void GremsyLynxPayloadController::stopZoom()
 {
-    _zoomDirection = 0.0f;
-    _zoomDisplayTimer->stop();
+    _sendCameraZoom(0.0f);
+}
+
+void GremsyLynxPayloadController::stepZoom(int direction)
+{
+    direction = qBound(-1, direction, 1);
+    if (direction == 0) {
+        return;
+    }
+
+    const double nextZoom = qBound(kMinZoomLevel,
+                                   _zoomLevel + static_cast<double>(direction),
+                                   kMaxZoomLevel);
+    if (qFuzzyCompare(_zoomLevel, nextZoom)) {
+        return;
+    }
+
+    // MB1/Lynx defines C_V_ZOOM as an absolute discrete EO zoom index:
+    // 0=x1, 1=x2, ... 9=x10. Unlike MAV_CMD RANGE/STEP, this maps the UI label
+    // directly to the camera's real digital zoom level without timing drift.
+    _sendCameraParamUInt32("C_V_ZOOM", static_cast<uint32_t>(nextZoom - 1.0));
+    _zoomLevel = nextZoom;
+    emit zoomLevelChanged();
+}
+
+void GremsyLynxPayloadController::captureImage()
+{
+    // This is UI feedback for both touch and physical-button capture paths.
+    // It also selects Photo mode before a queued capture is sent.
+    emit photoCaptureTriggered();
+
+    if (_recording || _cameraReportsRecording) {
+        _photoCapturePending = true;
+        _photoStopRetryCount = 0;
+        _startRecordingCommandGuard(false);
+        _sendCameraCommand(MAV_CMD_VIDEO_STOP_CAPTURE, 0.0f);
+        if (_recording) {
+            _recording = false;
+            emit recordingChanged();
+        }
+        _photoAfterStopTimer->start();
+        return;
+    }
+
+    // Match Gremsy PayloadSDK: all capture parameters are zero.
+    _sendCameraCommand(MAV_CMD_IMAGE_START_CAPTURE);
+}
+
+void GremsyLynxPayloadController::startRecording()
+{
+    if (_recording || _recordingCommandBlocked) {
+        return;
+    }
+    _photoCapturePending = false;
+    _photoAfterStopTimer->stop();
+    _startRecordingCommandGuard(true);
+    // Stream id 0, status reporting frequency 0 (camera default).
+    _sendCameraCommand(MAV_CMD_VIDEO_START_CAPTURE, 0.0f, 0.0f);
+    _recording = true;
+    emit recordingChanged();
+}
+
+void GremsyLynxPayloadController::stopRecording()
+{
+    if (!_recording || _recordingCommandBlocked) {
+        return;
+    }
+    _startRecordingCommandGuard(false);
+    _sendCameraCommand(MAV_CMD_VIDEO_STOP_CAPTURE, 0.0f);
+    _recording = false;
+    emit recordingChanged();
+}
+
+void GremsyLynxPayloadController::toggleRecording()
+{
+    if (_recordingCommandBlocked) {
+        return;
+    }
+    if (_recording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+void GremsyLynxPayloadController::_startRecordingCommandGuard(bool targetRecording)
+{
+    const quint32 generation = ++_recordingCommandGeneration;
+    _recordingCommandTarget = targetRecording;
+    _recordingCommandBlocked = true;
+    _recordingStatusSettling = true;
+    QTimer::singleShot(kRecordingCommandGuardMs, this, [this, generation]() {
+        if (_recordingCommandGeneration == generation) {
+            _recordingCommandBlocked = false;
+        }
+    });
+    QTimer::singleShot(kRecordingStatusSettleMs, this, [this, generation]() {
+        if (_recordingCommandGeneration == generation) {
+            _recordingStatusSettling = false;
+        }
+    });
+}
+
+void GremsyLynxPayloadController::_retryStopRecordingForPhoto()
+{
+    if (!_photoCapturePending) {
+        _photoAfterStopTimer->stop();
+        return;
+    }
+
+    if (!_cameraReportsRecording || _photoStopRetryCount >= kPhotoStopMaxRetries) {
+        _sendPendingPhotoCapture();
+        return;
+    }
+
+    ++_photoStopRetryCount;
+    _sendCameraCommand(MAV_CMD_VIDEO_STOP_CAPTURE, 0.0f);
+}
+
+void GremsyLynxPayloadController::_sendPendingPhotoCapture()
+{
+    if (!_photoCapturePending) {
+        return;
+    }
+
+    _photoCapturePending = false;
+    _photoStopRetryCount = 0;
+    _photoAfterStopTimer->stop();
+    _sendCameraCommand(MAV_CMD_IMAGE_START_CAPTURE);
 }
 
 void GremsyLynxPayloadController::_updateZoomDisplay()
@@ -109,7 +254,7 @@ void GremsyLynxPayloadController::_updateZoomDisplay()
         return;
     }
 
-    const double nextZoom = qBound(1.0, _zoomLevel + (_zoomDirection * 0.2), 30.0);
+    const double nextZoom = qBound(kMinZoomLevel, _zoomLevel + _zoomDirection, kMaxZoomLevel);
     if (qFuzzyCompare(_zoomLevel, nextZoom)) {
         return;
     }
@@ -169,32 +314,47 @@ void GremsyLynxPayloadController::_sendCameraZoom(float direction)
         _zoomDisplayTimer->start();
     }
 
+    _sendCameraCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_CONTINUOUS, direction);
+}
+
+void GremsyLynxPayloadController::_sendCameraCommand(MAV_CMD command,
+                                                     float param1, float param2, float param3,
+                                                     float param4, float param5, float param6,
+                                                     float param7)
+{
     mavlink_message_t message;
     mavlink_msg_command_long_pack(_senderSysId,
                                   _senderCompId,
                                   &message,
                                   _gimbalSysId,
                                   _cameraCompId,
-                                  MAV_CMD_SET_CAMERA_ZOOM,
-                                  0,
-                                  ZOOM_TYPE_CONTINUOUS,
-                                  direction,
-                                  0.0f,
-                                  0.0f,
-                                  0.0f,
-                                  0.0f,
-                                  0.0f);
+                                  command,
+                                  1, // Gremsy PayloadSDK requires confirmation=1 for camera COMMAND_LONG
+                                  param1,
+                                  param2,
+                                  param3,
+                                  param4,
+                                  param5,
+                                  param6,
+                                  param7);
+    qInfo() << "[GremsyCamera] send command" << command
+            << "target" << _gimbalSysId << _cameraCompId;
     _sendMessage(message);
 }
 
 void GremsyLynxPayloadController::_setGimbalMode(uint32_t mode)
 {
+    _sendCameraParamUInt32("GB_MODE", mode);
+}
+
+void GremsyLynxPayloadController::_sendCameraParamUInt32(const char* paramId, uint32_t value)
+{
     mavlink_param_ext_set_t param;
     memset(&param, 0, sizeof(param));
     param.target_system    = _gimbalSysId;
     param.target_component = _cameraCompId;
-    strncpy(param.param_id, "GB_MODE", sizeof(param.param_id));
-    memcpy(param.param_value, &mode, sizeof(mode));
+    strncpy(param.param_id, paramId, sizeof(param.param_id));
+    memcpy(param.param_value, &value, sizeof(value));
     param.param_type = MAV_PARAM_EXT_TYPE_UINT32;
 
     mavlink_message_t message;
@@ -216,6 +376,53 @@ void GremsyLynxPayloadController::_handleMavlinkMessage(const mavlink_message_t&
     }
     if (fromGimbal || fromCamera) {
         _noteLinkActivity();
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
+        mavlink_command_ack_t ack;
+        mavlink_msg_command_ack_decode(&message, &ack);
+        if (ack.command == MAV_CMD_IMAGE_START_CAPTURE ||
+                ack.command == MAV_CMD_VIDEO_START_CAPTURE ||
+                ack.command == MAV_CMD_VIDEO_STOP_CAPTURE ||
+                ack.command == MAV_CMD_SET_CAMERA_ZOOM) {
+            qInfo() << "[GremsyCamera] command ack" << ack.command
+                    << "result" << ack.result
+                    << "from" << message.sysid << message.compid;
+
+            const bool accepted = ack.result == MAV_RESULT_ACCEPTED ||
+                                  ack.result == MAV_RESULT_IN_PROGRESS;
+            if (!accepted && ack.command == MAV_CMD_VIDEO_START_CAPTURE && _recording) {
+                _recording = false;
+                emit recordingChanged();
+            } else if (!accepted && ack.command == MAV_CMD_VIDEO_STOP_CAPTURE && !_recording) {
+                _recording = true;
+                emit recordingChanged();
+            }
+        }
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS) {
+        mavlink_camera_capture_status_t status;
+        mavlink_msg_camera_capture_status_decode(&message, &status);
+        const bool recording = status.video_status == 1;
+        _cameraReportsRecording = recording;
+
+        if (!recording && _photoCapturePending) {
+            _sendPendingPhotoCapture();
+        }
+
+        // Gremsy can keep publishing the previous capture status for roughly
+        // two seconds after acknowledging Start/Stop. Do not let that stale
+        // status undo the requested UI state while the command settles.
+        if (_recordingStatusSettling && recording != _recordingCommandTarget) {
+            return;
+        }
+        if (_recording != recording) {
+            _recording = recording;
+            emit recordingChanged();
+        }
+        qInfo() << "[GremsyCamera] capture status image" << status.image_status
+                << "video" << status.video_status;
     }
 
     if (message.msgid == MAVLINK_MSG_ID_GIMBAL_DEVICE_ATTITUDE_STATUS) {

@@ -75,19 +75,6 @@ void _logMavlinkParsedMessageThrottled(LinkInterface* link, uint8_t mavlinkChann
     state.messageCount++;
     if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
         state.heartbeatCount++;
-        mavlink_heartbeat_t heartbeat;
-        mavlink_msg_heartbeat_decode(&message, &heartbeat);
-        qCWarning(MAVLinkProtocolLog) << "MAVLink HEARTBEAT parsed"
-                                      << "link" << _mavlinkProtocolLogLinkName(link)
-                                      << _mavlinkProtocolLogLinkPtr(link)
-                                      << "channel" << static_cast<int>(mavlinkChannel)
-                                      << "sysid" << static_cast<int>(message.sysid)
-                                      << "compid" << static_cast<int>(message.compid)
-                                      << "seq" << static_cast<int>(message.seq)
-                                      << "type" << static_cast<int>(heartbeat.type)
-                                      << "autopilot" << static_cast<int>(heartbeat.autopilot)
-                                      << "baseMode" << static_cast<int>(heartbeat.base_mode)
-                                      << "customMode" << heartbeat.custom_mode;
     }
 
     if ((now - state.lastLogMs) >= kMavlinkParseLogWindowMs) {

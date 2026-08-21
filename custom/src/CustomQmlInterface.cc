@@ -7,6 +7,7 @@
 #include "MultiVehicleManager.h"
 #include "QGCCameraManager.h"
 #include "CodevCameraControl.h"
+#include "PayloadManager.h"
 #include <QCoreApplication>
 #include <QLocale>
 
@@ -251,7 +252,11 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         }
     } else if(type == CUSTOM_FUNCTION_CAMERA_CAPTURE) {
         if(pressed) {
-            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+            PayloadManager* payloadManager = PayloadManager::instance();
+            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
+                gremsy->captureImage();
+            } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
                 camera->buttonTakePhoto();
             } else {
                 emit cameraCapture(true);
@@ -259,9 +264,15 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         }
     } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
         if(pressed) {
-            Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
-            if (vehicle) {
-                vehicle->toggleVideoCapture();
+            PayloadManager* payloadManager = PayloadManager::instance();
+            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
+                gremsy->toggleRecording();
+            } else {
+                Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
+                if (vehicle) {
+                    vehicle->toggleVideoCapture();
+                }
             }
         }
     }
@@ -285,6 +296,16 @@ void CustomQmlInterface::handleAviatorButton(int type, bool pressed)
     case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD:
         handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD, pressed);
         break;
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN:
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_OUT: {
+        PayloadManager* payloadManager = PayloadManager::instance();
+        GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+        if (pressed && payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
+            const int direction = type == AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN ? 1 : -1;
+            gremsy->stepZoom(direction);
+        }
+        break;
+    }
     default:
         break;
     }

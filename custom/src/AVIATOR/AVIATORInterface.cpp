@@ -329,6 +329,10 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f3 = channels.chan16_raw == 2000;
     bool capture = _rcSwitchActive(channels.chan12_raw);
     bool record = _rcSwitchActive(channels.chan13_raw);
+    const uint16_t zoomRaw = channels.chan11_raw;
+    const int cameraZoomState = (zoomRaw >= 1700 && zoomRaw <= 2200) ? 1
+                              : (zoomRaw >= 800 && zoomRaw <= 1300) ? -1
+                              : 0;
 
 
     // F1 
@@ -406,14 +410,29 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 
     if(capture != _capturePressed) {
         _capturePressed = capture;
-        qInfo() << "Capture Btn Click";
+        qInfo() << "[GremsyPhysical] capture CH12" << channels.chan12_raw
+                << "pressed" << _capturePressed;
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_CAPTURE, _capturePressed);
     }
 
     if(record != _recordPressed) {
         _recordPressed = record;
-        qInfo() <<" Record Btn Click";
+        qInfo() << "[GremsyPhysical] record CH13" << channels.chan13_raw
+                << "pressed" << _recordPressed;
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD, _recordPressed);
+    }
+
+    // C1/C2 share CH11. Emit one Gremsy zoom-level step whenever CH11 moves
+    // away from center; UI and physical input use the same absolute target.
+    if (cameraZoomState != _cameraZoomState) {
+        _cameraZoomState = cameraZoomState;
+        qInfo() << "[GremsyPhysical] zoom CH11" << zoomRaw
+                << "state" << _cameraZoomState;
+        if (_cameraZoomState > 0) {
+            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_IN, true);
+        } else if (_cameraZoomState < 0) {
+            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_OUT, true);
+        }
     }
 
     if (cn9 != _cn9Pressed) {

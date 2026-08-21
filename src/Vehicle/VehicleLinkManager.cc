@@ -68,24 +68,6 @@ void VehicleLinkManager::mavlinkMessageReceived(LinkInterface* link, mavlink_mes
             }
         }
 
-        if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
-            mavlink_heartbeat_t heartbeat;
-            mavlink_msg_heartbeat_decode(&message, &heartbeat);
-            qCWarning(VehicleLinkManagerLog) << "Vehicle accepted HEARTBEAT"
-                                             << "vehicleId" << _vehicle->id()
-                                             << "sysid" << static_cast<int>(message.sysid)
-                                             << "compid" << static_cast<int>(message.compid)
-                                             << "seq" << static_cast<int>(message.seq)
-                                             << "type" << static_cast<int>(heartbeat.type)
-                                             << "autopilot" << static_cast<int>(heartbeat.autopilot)
-                                             << "baseMode" << static_cast<int>(heartbeat.base_mode)
-                                             << "customMode" << heartbeat.custom_mode
-                                             << "link" << _vehicleLinkLogName(link)
-                                             << _vehicleLinkLogPtr(link)
-                                             << "linkIndex" << linkIndex
-                                             << "allLinks:" << _logLinkSummary(_primaryLink.lock().get());
-        }
-
         if (_communicationLost && linkIndex != -1 && !_rgLinkInfo[linkIndex].commLost) {
             _communicationLost = false;
             _totalCommLossElapsedTimer.invalidate();
