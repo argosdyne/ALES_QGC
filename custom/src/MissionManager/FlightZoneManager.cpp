@@ -1,4 +1,4 @@
-﻿#include "FlightZoneManager.h"
+#include "FlightZoneManager.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
@@ -27,6 +27,8 @@
 #include "FlyViewSettings.h"
 #include "QGCApplication.h"
 #include "QGroundControlQmlGlobal.h"
+#include "Vehicle.h"
+#include "MultiVehicleManager.h"
 #include "QGCMapEngine.h"
 #include "QmlObjectListModel.h"
 #include <QQuickWindow>

@@ -1,4 +1,4 @@
-﻿#include "AVIATORInterface.h"
+#include "AVIATORInterface.h"
 #include "QGCLoggingCategory.h"
 #include <QQmlEngine>
 #include <QString>
@@ -6,6 +6,7 @@
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
 #include "Vehicle.h"
+#include "MultiVehicleManager.h"
 
 #if defined(Q_OS_ANDROID)
 #include <QSocketNotifier>
