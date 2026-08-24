@@ -422,11 +422,11 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD, _recordPressed);
     }
 
-    // C1/C2 share CH11. Emit one Gremsy zoom-level step whenever CH11 moves
-    // away from center; UI and physical input use the same absolute target.
+    // C1/C2 share CH11. Emit one camera zoom step whenever CH11 moves away
+    // from center; the active payload decides how that step is implemented.
     if (cameraZoomState != _cameraZoomState) {
         _cameraZoomState = cameraZoomState;
-        qInfo() << "[GremsyPhysical] zoom CH11" << zoomRaw
+        qInfo() << "[CameraPhysical] zoom CH11" << zoomRaw
                 << "state" << _cameraZoomState;
         if (_cameraZoomState > 0) {
             emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_IN, true);

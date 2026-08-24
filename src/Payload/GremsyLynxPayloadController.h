@@ -44,6 +44,7 @@ public:
     void zoomOut() override;
     void stopZoom() override;
     Q_INVOKABLE void stepZoom(int direction);
+    Q_INVOKABLE void stepThermalZoom();
     void captureImage() override;
     void startRecording() override;
     void stopRecording() override;
@@ -86,19 +87,22 @@ private:
     // Current commanded speed (deg/s) resent continuously for robustness.
     float _cmdPitchDegS = 0.0f;
     float _cmdYawDegS   = 0.0f;
-    double _speedDegS   = 50.0; // deg/s at full deflection (d-pad step / joystick scale)
+    double _speedDegS   = 70.0; // deg/s at full deflection (Gremsy only)
 
     // Learned targets (defaults per Gremsy PayloadSDK).
     uint8_t  _gimbalSysId  = 1;
     uint8_t  _gimbalCompId = MAV_COMP_ID_GIMBAL;   // 154
     uint8_t  _cameraCompId = MAV_COMP_ID_CAMERA;   // 100 (Camera 1 in Gremsy settings)
     uint16_t _deviceFlags  = GIMBAL_DEVICE_FLAGS_ROLL_LOCK | GIMBAL_DEVICE_FLAGS_PITCH_LOCK;
+    uint32_t _gimbalMode   = 2; // PAYLOAD_CAMERA_GIMBAL_MODE_FOLLOW
+    quint32  _gimbalHomeGeneration = 0;
 
     double _pitch = 0.0;
     double _roll  = 0.0;
     double _yaw   = 0.0;
     double _zoomLevel = 1.0;
     float  _zoomDirection = 0.0f;
+    uint32_t _thermalZoomValue = 0;
     bool   _recording = false;
     bool   _recordingCommandBlocked = false;
     bool   _recordingStatusSettling = false;

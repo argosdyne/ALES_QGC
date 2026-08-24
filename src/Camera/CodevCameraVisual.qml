@@ -12,11 +12,13 @@ import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
+import QGroundControl.Payload           1.0
 
 import CustomQmlInterface 1.0
 
 Item {
     clip: true
+    property bool _gremsyPayloadActive: PayloadManager.activeType === 0
     property Fact _pseudocolor: _camera ? _camera.getFact("IR_PALETTE") : null
     property Fact _thermometry: _camera ? _camera.getFact("IR_THERMOMETRY") : null
     property Fact _irZoom: _camera ? _camera.getFact("IR_ZOOM") : null
@@ -89,6 +91,14 @@ Item {
             }
         }
         function onButtonPressed(type, pressed) {
+            // Gremsy Fn1/Fn2 are handled centrally by CustomQmlInterface so
+            // they still work when this camera-specific visual is not loaded.
+            // Do not execute them a second time here.
+            if (_gremsyPayloadActive &&
+                    (type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM ||
+                     type === AVIATORInterface.AVIATOR_FUNCTION_GIMBAL_RESET)) {
+                return
+            }
             if(type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM) {
                 thermalZoomTigger(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_IR_SWITCH) {

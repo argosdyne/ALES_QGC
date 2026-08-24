@@ -44,6 +44,7 @@ public:
     void zoomIn() override;
     void zoomOut() override;
     void stopZoom() override;
+    void stepZoom(int direction);
     void captureImage() override;
     void startRecording() override;
     void stopRecording() override;
@@ -51,6 +52,7 @@ public:
 signals:
     void speedChanged();
     void attitudeChanged();
+    void zoomStepTriggered(int direction);
 
 protected:
     void _handleMavlinkMessage(const mavlink_message_t& message) override;
@@ -69,6 +71,7 @@ private:
     void _clearAuxiliaryChannels();
 
     QTimer* _txTimer = nullptr;
+    QTimer* _zoomStepTimer = nullptr;
     quint32 _tickCount = 0;
 
     uint16_t _channels[18];

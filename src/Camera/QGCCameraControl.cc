@@ -2068,8 +2068,48 @@ QGCCameraControl::handleCaptureStatus(const mavlink_camera_capture_status_t& cap
 void
 QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
 {
+    // MB1 firmware reports its IR stream as a normal running stream and, in
+    // RTSP mode, advertises the hidden per-stream port (5554) instead of the
+    // active general RTSP port. Normalize only this known Gremsy stream so QGC
+    // can expose Thermal View Mode without changing any other camera profile.
+    mavlink_video_stream_information_t normalizedInfo = *vi;
+    const QString reportedName = _mavlinkFixedString(vi->name, sizeof(vi->name));
+    QUrl reportedUri(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
+    const bool isGremsyCamera = _vendor.compare(QStringLiteral("Gremsy"), Qt::CaseInsensitive) == 0
+            || _modelName.compare(QStringLiteral("Lynx"), Qt::CaseInsensitive) == 0
+            || reportedUri.host() == QStringLiteral("192.168.2.240");
+    const bool isGremsyIrStream = isGremsyCamera
+            && (vi->stream_id == 2 || reportedName.contains(QStringLiteral("MB1 IR"), Qt::CaseInsensitive));
+
+    if (isGremsyIrStream) {
+        normalizedInfo.flags |= VIDEO_STREAM_STATUS_FLAGS_THERMAL;
+
+        if (reportedUri.scheme().compare(QStringLiteral("rtsp"), Qt::CaseInsensitive) == 0
+                && reportedUri.port() == 5554) {
+            int activeRtspPort = 8554;
+            VideoSettings* videoSettings = qgcApp()->toolbox()->settingsManager()->videoSettings();
+            if (videoSettings && videoSettings->rtspUrl()) {
+                const QUrl configuredUri(videoSettings->rtspUrl()->rawValue().toString());
+                if (configuredUri.host() == reportedUri.host() && configuredUri.port() > 0) {
+                    activeRtspPort = configuredUri.port();
+                }
+            }
+            reportedUri.setPort(activeRtspPort);
+            const QByteArray correctedUri = reportedUri.toEncoded();
+            memset(normalizedInfo.uri, 0, sizeof(normalizedInfo.uri));
+            memcpy(normalizedInfo.uri, correctedUri.constData(),
+                   qMin(static_cast<int>(sizeof(normalizedInfo.uri)) - 1, correctedUri.size()));
+        }
+
+        vi = &normalizedInfo;
+    }
+
     qCDebug(CameraControlLog) << "handleVideoInfo:" << vi->stream_id << vi->uri;
-    _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
+    // The camera definition belongs to the primary EO stream. Alternating EO
+    // and IR metadata must not invalidate/reload it on every response.
+    if (!isGremsyIrStream) {
+        _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
+    }
     _expectedCount = vi->count;
     qCDebug(CameraControlLog) << "THERMAL_TRACE"
             << "handleVideoInfo"

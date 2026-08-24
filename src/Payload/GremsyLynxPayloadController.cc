@@ -83,6 +83,11 @@ void GremsyLynxPayloadController::gimbalMove(int pan, int tilt)
 {
     pan  = qBound(-1, pan, 1);
     tilt = qBound(-1, tilt, 1);
+    if (_gimbalMode == 4 && (pan != 0 || tilt != 0)) {
+        ++_gimbalHomeGeneration;
+        _gimbalMode = 2; // Resume FOLLOW when the operator moves after HOME.
+        _setGimbalMode(_gimbalMode);
+    }
     _cmdPitchDegS = static_cast<float>(tilt * _speedDegS); // UP = +pitch
     _cmdYawDegS   = static_cast<float>(pan  * _speedDegS); // RIGHT = +yaw
     _sendControl();
@@ -92,6 +97,11 @@ void GremsyLynxPayloadController::gimbalAxis(double pan, double tilt)
 {
     pan  = qBound(-1.0, pan,  1.0);
     tilt = qBound(-1.0, tilt, 1.0);
+    if (_gimbalMode == 4 && (!qFuzzyIsNull(pan) || !qFuzzyIsNull(tilt))) {
+        ++_gimbalHomeGeneration;
+        _gimbalMode = 2; // Resume FOLLOW when the operator moves after HOME.
+        _setGimbalMode(_gimbalMode);
+    }
     _cmdPitchDegS = static_cast<float>(tilt * _speedDegS); // proportional pitch
     _cmdYawDegS   = static_cast<float>(pan  * _speedDegS); // proportional yaw
     _sendControl();
@@ -101,7 +111,21 @@ void GremsyLynxPayloadController::gimbalHome()
 {
     _cmdPitchDegS = 0.0f;
     _cmdYawDegS   = 0.0f;
-    _setGimbalMode(4 /* PAYLOAD_CAMERA_GIMBAL_MODE_RESET */);
+    _gimbalMode = 4; // PAYLOAD_CAMERA_GIMBAL_MODE_RESET
+    _setGimbalMode(_gimbalMode);
+    _sendControl();
+
+    // HOME is an action, not a mode to hold forever. Keeping NEUTRAL active
+    // continuously fights the original APM/RC control path and makes motion slow.
+    const quint32 generation = ++_gimbalHomeGeneration;
+    QTimer::singleShot(1000, this, [this, generation]() {
+        if (_gimbalHomeGeneration != generation || _gimbalMode != 4) {
+            return;
+        }
+        _gimbalMode = 2; // PAYLOAD_CAMERA_GIMBAL_MODE_FOLLOW
+        _setGimbalMode(_gimbalMode);
+        _sendControl();
+    });
 }
 
 void GremsyLynxPayloadController::zoomIn()
@@ -139,6 +163,14 @@ void GremsyLynxPayloadController::stepZoom(int direction)
     _sendCameraParamUInt32("C_V_ZOOM", static_cast<uint32_t>(nextZoom - 1.0));
     _zoomLevel = nextZoom;
     emit zoomLevelChanged();
+}
+
+void GremsyLynxPayloadController::stepThermalZoom()
+{
+    // Lynx/MB1 uses eight discrete levels: 0=x1, ... 7=x8.
+    // This is intentionally independent of the gimbal control timer.
+    _thermalZoomValue = (_thermalZoomValue + 1U) % 8U;
+    _sendCameraParamUInt32("C_T_ZOOM", _thermalZoomValue);
 }
 
 void GremsyLynxPayloadController::captureImage()
@@ -277,31 +309,6 @@ void GremsyLynxPayloadController::_sendHeartbeat()
     _sendMessage(message);
 }
 
-void GremsyLynxPayloadController::_sendControl()
-{
-    _sendGimbalSpeed(_cmdPitchDegS, 0.0f, _cmdYawDegS);
-}
-
-void GremsyLynxPayloadController::_sendGimbalSpeed(float pitchDegS, float rollDegS, float yawDegS)
-{
-    const float nan = std::numeric_limits<float>::quiet_NaN();
-    const float q[4] = { nan, nan, nan, nan };
-
-    mavlink_message_t message;
-    // angular_velocity axis order per Gremsy PayloadSDK: x=roll, y=pitch, z=yaw (rad/s).
-    mavlink_msg_gimbal_device_set_attitude_pack(_senderSysId,
-                                                _senderCompId,
-                                                &message,
-                                                _gimbalSysId,
-                                                _gimbalCompId,
-                                                _deviceFlags,
-                                                q,
-                                                qDegreesToRadians(rollDegS),
-                                                qDegreesToRadians(pitchDegS),
-                                                qDegreesToRadians(yawDegS));
-    _sendMessage(message);
-}
-
 void GremsyLynxPayloadController::_sendCameraZoom(float direction)
 {
     direction = qBound(-1.0f, direction, 1.0f);
@@ -342,6 +349,41 @@ void GremsyLynxPayloadController::_sendCameraCommand(MAV_CMD command,
     _sendMessage(message);
 }
 
+void GremsyLynxPayloadController::_sendControl()
+{
+    _sendGimbalSpeed(_cmdPitchDegS, 0.0f, _cmdYawDegS);
+}
+
+void GremsyLynxPayloadController::_sendGimbalSpeed(float pitchDegS, float rollDegS, float yawDegS)
+{
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    const float q[4] = { nan, nan, nan, nan };
+
+    uint16_t flags = _deviceFlags;
+    if (_gimbalMode == 4) {
+        flags |= GIMBAL_DEVICE_FLAGS_NEUTRAL;
+    } else {
+        flags &= static_cast<uint16_t>(~(GIMBAL_DEVICE_FLAGS_NEUTRAL | GIMBAL_DEVICE_FLAGS_RETRACT));
+        if (_gimbalMode == 2) {
+            flags &= static_cast<uint16_t>(~GIMBAL_DEVICE_FLAGS_YAW_LOCK);
+        }
+    }
+
+    mavlink_message_t message;
+    // angular_velocity axis order per Gremsy PayloadSDK: x=roll, y=pitch, z=yaw (rad/s).
+    mavlink_msg_gimbal_device_set_attitude_pack(_senderSysId,
+                                                _senderCompId,
+                                                &message,
+                                                _gimbalSysId,
+                                                _gimbalCompId,
+                                                flags,
+                                                q,
+                                                qDegreesToRadians(rollDegS),
+                                                qDegreesToRadians(pitchDegS),
+                                                qDegreesToRadians(yawDegS));
+    _sendMessage(message);
+}
+
 void GremsyLynxPayloadController::_setGimbalMode(uint32_t mode)
 {
     _sendCameraParamUInt32("GB_MODE", mode);
@@ -376,6 +418,33 @@ void GremsyLynxPayloadController::_handleMavlinkMessage(const mavlink_message_t&
     }
     if (fromGimbal || fromCamera) {
         _noteLinkActivity();
+    }
+
+    if (fromCamera && message.msgid == MAVLINK_MSG_ID_PARAM_EXT_VALUE) {
+        mavlink_param_ext_value_t value;
+        mavlink_msg_param_ext_value_decode(&message, &value);
+        const QByteArray paramId(value.param_id,
+                                 static_cast<int>(strnlen(value.param_id, sizeof(value.param_id))));
+        if (paramId == QByteArrayLiteral("C_T_ZOOM") &&
+                value.param_type == MAV_PARAM_EXT_TYPE_UINT32) {
+            uint32_t thermalZoom = 0;
+            memcpy(&thermalZoom, value.param_value, sizeof(thermalZoom));
+            _thermalZoomValue = qMin(thermalZoom, 7U);
+        }
+    }
+
+    if (fromCamera && message.msgid == MAVLINK_MSG_ID_PARAM_EXT_ACK) {
+        mavlink_param_ext_ack_t ack;
+        mavlink_msg_param_ext_ack_decode(&message, &ack);
+        const QByteArray paramId(ack.param_id,
+                                 static_cast<int>(strnlen(ack.param_id, sizeof(ack.param_id))));
+        if (ack.param_result == PARAM_ACK_ACCEPTED &&
+                paramId == QByteArrayLiteral("C_T_ZOOM") &&
+                ack.param_type == MAV_PARAM_EXT_TYPE_UINT32) {
+            uint32_t thermalZoom = 0;
+            memcpy(&thermalZoom, ack.param_value, sizeof(thermalZoom));
+            _thermalZoomValue = qMin(thermalZoom, 7U);
+        }
     }
 
     if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {

@@ -27,6 +27,14 @@ NextVisionPayloadController::NextVisionPayloadController(QObject* parent)
     _txTimer = new QTimer(this);
     _txTimer->setInterval(40); // ~25 Hz base tick
     connect(_txTimer, &QTimer::timeout, this, &NextVisionPayloadController::_tick);
+
+    // A physical C1/C2 click must produce the same minimum zoom pulse as one
+    // tap on the NextVision UI. Restarting a single timer also prevents an
+    // older click from stopping a newer zoom command prematurely.
+    _zoomStepTimer = new QTimer(this);
+    _zoomStepTimer->setSingleShot(true);
+    _zoomStepTimer->setInterval(800);
+    connect(_zoomStepTimer, &QTimer::timeout, this, &NextVisionPayloadController::stopZoom);
 }
 
 void NextVisionPayloadController::_onIpChanged()
@@ -91,20 +99,39 @@ void NextVisionPayloadController::gimbalHome()
 
 void NextVisionPayloadController::zoomIn()
 {
+    _zoomStepTimer->stop();
     _clearAllChannels();
     _channels[kZoomControlChannelIndex] = kZoomPwmMax; // CH11 high = zoom-in
 }
 
 void NextVisionPayloadController::zoomOut()
 {
+    _zoomStepTimer->stop();
     _clearAllChannels();
     _channels[kZoomControlChannelIndex] = kZoomPwmMin; // CH11 low = zoom-out
 }
 
 void NextVisionPayloadController::stopZoom()
 {
+    _zoomStepTimer->stop();
     _clearAllChannels();
     _pulseChannel(kZoomControlChannelIndex, kCenter, 300, kIgnore); // CH11 center = zoom-stop
+}
+
+void NextVisionPayloadController::stepZoom(int direction)
+{
+    if (direction == 0) {
+        return;
+    }
+
+    direction = direction > 0 ? 1 : -1;
+    if (direction > 0) {
+        zoomIn();
+    } else {
+        zoomOut();
+    }
+    _zoomStepTimer->start();
+    emit zoomStepTriggered(direction);
 }
 
 void NextVisionPayloadController::captureImage()

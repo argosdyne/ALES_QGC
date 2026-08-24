@@ -409,6 +409,19 @@ Item {
     }
 
     Connections {
+        target: PayloadManager.nextvision
+        ignoreUnknownSignals: true
+
+        onZoomStepTriggered: {
+            if (_isNextVisionPayload) {
+                // Physical C1/C2 uses the controller's calibrated 800 ms pulse.
+                // Mirror the same one-level UI change as a tap on +/-.
+                _updateUiZoomLevel(direction)
+            }
+        }
+    }
+
+    Connections {
         target: PayloadManager.gremsy
         ignoreUnknownSignals: true
 
