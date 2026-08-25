@@ -32,6 +32,7 @@ Item {
     property Fact _aiSource: _camera ? _camera.getFact("AI_SOURCE") : null
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
+    property bool lifeboatDropEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
 
@@ -136,6 +137,17 @@ Item {
             color:              qgcPal.colorGreen
             source:             "qrc:/qmlimages/cross_hair.svg"
             visible:            _tofEN && _tofEN.value
+        }
+
+        QGCColoredImage {
+            anchors.centerIn: parent
+            width:              ScreenTools.defaultFontPixelWidth * 6
+            height:             width
+            sourceSize.height:  width
+            fillMode:           Image.PreserveAspectFit
+            color:              qgcPal.colorRed
+            source:             "qrc:/qmlimages/cross_hair.svg"
+            visible:            lifeboatDropEnable
         }
 
         AreaFrame {
@@ -411,6 +423,17 @@ Item {
             source: "qrc:/qmlimages/rangefinder.svg"
             onClicked: {
                 _tofEN.value = !_tofEN.value
+            }
+        }
+
+        ToolRadioButton {
+            id: lifeboatDropRadioButton
+            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
+            checked: lifeboatDropEnable
+            color: checked ? qgcPal.colorRed : "transparent"
+            source: "qrc:/qmlimages/cross_hair.svg"
+            onClicked: {
+                lifeboatDropEnable = !lifeboatDropEnable
             }
         }
 
