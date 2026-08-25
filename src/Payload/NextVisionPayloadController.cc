@@ -28,12 +28,10 @@ NextVisionPayloadController::NextVisionPayloadController(QObject* parent)
     _txTimer->setInterval(40); // ~25 Hz base tick
     connect(_txTimer, &QTimer::timeout, this, &NextVisionPayloadController::_tick);
 
-    // A physical C1/C2 click must produce the same minimum zoom pulse as one
-    // tap on the NextVision UI. Restarting a single timer also prevents an
-    // older click from stopping a newer zoom command prematurely.
+    // UI taps can arrive faster than one calibrated zoom pulse. Additional
+    // same-direction taps extend the active pulse instead of being delayed.
     _zoomStepTimer = new QTimer(this);
     _zoomStepTimer->setSingleShot(true);
-    _zoomStepTimer->setInterval(800);
     connect(_zoomStepTimer, &QTimer::timeout, this, &NextVisionPayloadController::stopZoom);
 }
 
@@ -100,6 +98,7 @@ void NextVisionPayloadController::gimbalHome()
 void NextVisionPayloadController::zoomIn()
 {
     _zoomStepTimer->stop();
+    _zoomStepDirection = 0;
     _clearAllChannels();
     _channels[kZoomControlChannelIndex] = kZoomPwmMax; // CH11 high = zoom-in
 }
@@ -107,6 +106,7 @@ void NextVisionPayloadController::zoomIn()
 void NextVisionPayloadController::zoomOut()
 {
     _zoomStepTimer->stop();
+    _zoomStepDirection = 0;
     _clearAllChannels();
     _channels[kZoomControlChannelIndex] = kZoomPwmMin; // CH11 low = zoom-out
 }
@@ -114,6 +114,7 @@ void NextVisionPayloadController::zoomOut()
 void NextVisionPayloadController::stopZoom()
 {
     _zoomStepTimer->stop();
+    _zoomStepDirection = 0;
     _clearAllChannels();
     _pulseChannel(kZoomControlChannelIndex, kCenter, 300, kIgnore); // CH11 center = zoom-stop
 }
@@ -125,17 +126,27 @@ void NextVisionPayloadController::stepZoom(int direction)
     }
 
     direction = direction > 0 ? 1 : -1;
-    if (direction > 0) {
-        zoomIn();
-    } else {
-        zoomOut();
+    const int stepDuration = direction > 0 ? kZoomInStepDurationMs : kZoomOutStepDurationMs;
+    int commandDuration = stepDuration;
+    if (_zoomStepTimer->isActive() && _zoomStepDirection == direction) {
+        commandDuration += qMax(0, _zoomStepTimer->remainingTime());
     }
-    _zoomStepTimer->start();
+
+    _zoomStepTimer->stop();
+    _clearAllChannels();
+    _channels[kZoomControlChannelIndex] = direction > 0 ? kZoomPwmMax : kZoomPwmMin;
+    _sendRcOverride();
+    _zoomStepDirection = direction;
+    _zoomStepTimer->start(commandDuration);
     emit zoomStepTriggered(direction);
 }
 
 void NextVisionPayloadController::captureImage()
 {
+    // DragonEye does not report a capture state. Notify QML immediately so
+    // touch and physical-button captures still get the standard short square
+    // shutter feedback.
+    emit photoCaptureTriggered();
     _clearAllChannels();
     _pulseChannel(kSnapshotChannelIndex, kPwmMax, 500, kIgnore); // CH12 snapshot pulse
 }
@@ -183,7 +194,11 @@ void NextVisionPayloadController::_clearAllChannels()
 
 void NextVisionPayloadController::_clearAuxiliaryChannels()
 {
-    _channels[kZoomControlChannelIndex] = kIgnore;
+    // Joystick/gimbal updates may arrive while a queued zoom step is being
+    // transmitted. Do not cut CH11 halfway through that calibrated pulse.
+    if (!_zoomStepTimer->isActive()) {
+        _channels[kZoomControlChannelIndex] = kIgnore;
+    }
     _channels[kSnapshotChannelIndex] = kIgnore;
 }
 
@@ -284,10 +299,15 @@ void NextVisionPayloadController::_sendRequestDataStream()
 
 void NextVisionPayloadController::_handleMavlinkMessage(const mavlink_message_t& message)
 {
-    // Latch the autopilot target from its heartbeat (ignore our own echoes).
-    if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT && message.compid != _senderCompId) {
+    // Port 10038 carries heartbeats from several MAVLink components. Only the
+    // autopilot component accepts RC_CHANNELS_OVERRIDE; following every
+    // heartbeat makes target_component oscillate (for example, 1 <-> 236) and
+    // causes otherwise valid zoom/gimbal packets to be intermittently ignored.
+    if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT &&
+            message.sysid != _senderSysId &&
+            message.compid == MAV_COMP_ID_AUTOPILOT1) {
         _targetSysId  = message.sysid;
-        _targetCompId = message.compid;
+        _targetCompId = MAV_COMP_ID_AUTOPILOT1;
         _noteLinkActivity();
     } else if (message.msgid == MAVLINK_MSG_ID_ATTITUDE) {
         // ATTITUDE(#30): yaw tracks the gimbal LOS azimuth, pitch the elevation.

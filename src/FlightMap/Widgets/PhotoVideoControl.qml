@@ -42,10 +42,11 @@ Item {
                                                                     ? PayloadManager.gremsy.recording
                                                                     : _payloadRecording
     property bool   _gremsyPhotoFeedback:                       false
+    property bool   _nextVisionPhotoFeedback:                   false
     property int    _gremsyRecordingSeconds:                    0
     property double _gremsyRecordingStartedMs:                  0
     property bool   _gremsyCaptureButtonActive:                 _isGremsyPayload && (_gremsyPhotoFeedback || _payloadRecordingEffective)
-    property bool   _captureButtonActive:                       _isShootingInCurrentMode || _gremsyCaptureButtonActive
+    property bool   _captureButtonActive:                       _isShootingInCurrentMode || _gremsyCaptureButtonActive || (_isNextVisionPayload && _nextVisionPhotoFeedback)
 
     function _centerGimbal() {
         if (_activePayload) {
@@ -222,8 +223,10 @@ Item {
 
     function _beginNextVisionZoom(zoomIn) {
         var direction = zoomIn ? 1 : -1
-        _updateUiZoomLevel(direction)
+        nextVisionZoomUiTimer.stop()
+        nextVisionZoomMinPulseTimer.stop()
         _zoomUiPressedDirection = direction
+        _updateUiZoomLevel(direction)
 
         if (PayloadManager.nextvision) {
             if (zoomIn) {
@@ -232,7 +235,9 @@ Item {
                 PayloadManager.nextvision.zoomOut()
             }
         }
-        zoomUiMinPulseTimer.restart()
+        // A short tap still produces one complete zoom step. Holding the
+        // button keeps the RC zoom command active until release.
+        nextVisionZoomMinPulseTimer.restart()
     }
 
     function _endNextVisionZoom(zoomIn) {
@@ -241,10 +246,9 @@ Item {
             return
         }
         _zoomUiPressedDirection = 0
-        if (!zoomUiMinPulseTimer.running) {
-            if (PayloadManager.nextvision) {
-                PayloadManager.nextvision.stopZoom()
-            }
+        nextVisionZoomUiTimer.stop()
+        if (!nextVisionZoomMinPulseTimer.running && PayloadManager.nextvision) {
+            PayloadManager.nextvision.stopZoom()
         }
     }
 
@@ -363,10 +367,43 @@ Item {
     }
 
     Timer {
+        id:             nextVisionZoomMinPulseTimer
+        interval:       800
+        repeat:         false
+        onTriggered: {
+            if (_zoomUiPressedDirection === 0) {
+                if (PayloadManager.nextvision) {
+                    PayloadManager.nextvision.stopZoom()
+                }
+            } else {
+                nextVisionZoomUiTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id:             nextVisionZoomUiTimer
+        interval:       800
+        repeat:         true
+        onTriggered: {
+            if (_zoomUiPressedDirection !== 0) {
+                _updateUiZoomLevel(_zoomUiPressedDirection)
+            }
+        }
+    }
+
+    Timer {
         id:             gremsyPhotoFeedbackTimer
         interval:       650
         repeat:         false
         onTriggered:    _gremsyPhotoFeedback = false
+    }
+
+    Timer {
+        id:             nextVisionPhotoFeedbackTimer
+        interval:       650
+        repeat:         false
+        onTriggered:    _nextVisionPhotoFeedback = false
     }
 
     Timer {
@@ -380,24 +417,14 @@ Item {
         }
     }
 
-    Timer {
-        id:             zoomUiMinPulseTimer
-        interval:       800
-        repeat:         false
-        onTriggered: {
-            if (_zoomUiPressedDirection === 0) {
-                if (PayloadManager.nextvision) {
-                    PayloadManager.nextvision.stopZoom()
-                }
-            }
-        }
-    }
-
     Connections {
         target: PayloadManager
         onActiveTypeChanged: {
             if (PayloadManager.activeType !== 1) {
-                zoomUiMinPulseTimer.stop()
+                nextVisionZoomMinPulseTimer.stop()
+                nextVisionZoomUiTimer.stop()
+                nextVisionPhotoFeedbackTimer.stop()
+                _nextVisionPhotoFeedback = false
                 _zoomUiPressedDirection = 0
                 _zoomUiOverride = false
                 if (PayloadManager.nextvision) {
@@ -414,9 +441,30 @@ Item {
 
         onZoomStepTriggered: {
             if (_isNextVisionPayload) {
-                // Physical C1/C2 uses the controller's calibrated 800 ms pulse.
+                // Physical C1/C2 uses the controller's direction-calibrated pulse.
                 // Mirror the same one-level UI change as a tap on +/-.
                 _updateUiZoomLevel(direction)
+            }
+        }
+
+        onPhotoCaptureTriggered: {
+            if (_isNextVisionPayload) {
+                setCameraMode(true)
+                _nextVisionPhotoFeedback = true
+                nextVisionPhotoFeedbackTimer.restart()
+            }
+        }
+    }
+
+    Connections {
+        target: CustomQmlInterface
+        ignoreUnknownSignals: true
+
+        onCameraToggleRecord: {
+            if (start && _isNextVisionPayload) {
+                // A physical Record key must select the same Video mode/icon
+                // as tapping the Video side of the camera panel.
+                setCameraMode(false)
             }
         }
     }

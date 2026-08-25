@@ -321,6 +321,9 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
             GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
             if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
                 gremsy->captureImage();
+            } else if (payloadManager->activeType() == 1 &&
+                       payloadManager->nextvision() && payloadManager->nextvision()->connected()) {
+                payloadManager->nextvision()->captureImage();
             } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
                 camera->buttonTakePhoto();
             } else {
@@ -334,6 +337,10 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
             if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
                 gremsy->toggleRecording();
             } else {
+                // Notify the camera panel as well. Recording is toggled by the
+                // vehicle below, but that state alone does not select the
+                // Video icon when a physical key is pressed in Photo mode.
+                emit cameraToggleRecord(true);
                 Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
                 if (vehicle) {
                     vehicle->toggleVideoCapture();
