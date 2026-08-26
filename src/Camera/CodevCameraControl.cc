@@ -1965,9 +1965,6 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
             _completePendingRcAction();
         }
 
-        if (reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO) {
-            _scheduleStorageRefreshAfterModeSwitch();
-        }
     }
 
     qreal z = static_cast<qreal>(settings.zoomLevel);
