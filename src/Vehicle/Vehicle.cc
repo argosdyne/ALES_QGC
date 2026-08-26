@@ -732,80 +732,6 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-    auto logMavlinkEndpoint = [&](const char* label) {
-        static QMap<QString, qint64> lastLogByEndpoint;
-        const QString key = QStringLiteral("%1:%2:%3").arg(label).arg(message.sysid).arg(message.compid);
-        const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-        if (nowMSecs - lastLogByEndpoint.value(key, 0) < 5000) {
-            return;
-        }
-        lastLogByEndpoint[key] = nowMSecs;
-        qWarning() << "[GremsyLynx]" << label
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "msgid" << message.msgid;
-    };
-
-    switch (message.msgid) {
-    case MAVLINK_MSG_ID_HEARTBEAT: {
-        mavlink_heartbeat_t heartbeat;
-        mavlink_msg_heartbeat_decode(&message, &heartbeat);
-        static QMap<QString, qint64> lastHeartbeatLogByEndpoint;
-        const QString key = QStringLiteral("%1:%2").arg(message.sysid).arg(message.compid);
-        const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-        if (nowMSecs - lastHeartbeatLogByEndpoint.value(key, 0) >= 5000) {
-            lastHeartbeatLogByEndpoint[key] = nowMSecs;
-            qWarning() << "[GremsyLynx]" << "HEARTBEAT"
-                       << "sysid" << message.sysid
-                       << "compid" << message.compid
-                       << "type" << heartbeat.type
-                       << "autopilot" << heartbeat.autopilot;
-        }
-        break;
-    }
-    case MAVLINK_MSG_ID_COMMAND_ACK: {
-        mavlink_command_ack_t ack;
-        mavlink_msg_command_ack_decode(&message, &ack);
-        qWarning() << "[GremsyLynx]" << "COMMAND_ACK"
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "command" << ack.command
-                   << "result" << ack.result;
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_EXT_ACK: {
-        mavlink_param_ext_ack_t ack;
-        mavlink_msg_param_ext_ack_decode(&message, &ack);
-        qWarning() << "[GremsyLynx]" << "PARAM_EXT_ACK"
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "param" << QString::fromLatin1(ack.param_id, MAVLINK_MSG_PARAM_EXT_ACK_FIELD_PARAM_ID_LEN).trimmed()
-                   << "value" << QString::fromLatin1(ack.param_value, MAVLINK_MSG_PARAM_EXT_ACK_FIELD_PARAM_VALUE_LEN).trimmed()
-                   << "result" << ack.param_result;
-        break;
-    }
-    case MAVLINK_MSG_ID_GIMBAL_MANAGER_INFORMATION:
-        logMavlinkEndpoint("GIMBAL_MANAGER_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_MANAGER_STATUS:
-        logMavlinkEndpoint("GIMBAL_MANAGER_STATUS");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_DEVICE_INFORMATION:
-        logMavlinkEndpoint("GIMBAL_DEVICE_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_DEVICE_ATTITUDE_STATUS:
-        logMavlinkEndpoint("GIMBAL_DEVICE_ATTITUDE_STATUS");
-        break;
-    case MAVLINK_MSG_ID_CAMERA_INFORMATION:
-        logMavlinkEndpoint("CAMERA_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_CAMERA_SETTINGS:
-        logMavlinkEndpoint("CAMERA_SETTINGS");
-        break;
-    default:
-        break;
-    }
-
     if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION) {
         qCInfo(VehicleLog) << "[Vehicle]"
                 << "CAMERA_INFORMATION received"
@@ -5750,15 +5676,6 @@ void Vehicle::sendGimbalRCOverrideThreadSafe(float pitch, float yaw)
 
     const uint16_t channel6 = axisToPwm(yaw);
     const uint16_t channel8 = axisToPwm(pitch);
-    static qint64 lastLogMSecs = 0;
-    const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-    if (nowMSecs - lastLogMSecs > 1000) {
-        lastLogMSecs = nowMSecs;
-        qWarning() << "[GremsyLynx]" << "RC override"
-                   << "CH6 pan" << channel6
-                   << "CH8 tilt" << channel8;
-    }
-
     mavlink_message_t message;
     mavlink_msg_rc_channels_override_pack_chan(
                 static_cast<uint8_t>(_mavlink->getSystemId()),

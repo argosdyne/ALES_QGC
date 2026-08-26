@@ -890,6 +890,9 @@ Item {
         // ───────────────────────────────
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
+            // DragonEye's ATTITUDE packets describe the intermediary
+            // autopilot, not a reliable gimbal line-of-sight angle.
+            visible: !_isNextVisionPayload
             columns: 2
             columnSpacing: ScreenTools.defaultFontPixelWidth
             rowSpacing: ScreenTools.defaultFontPixelHeight / 2
@@ -948,6 +951,7 @@ Item {
         // ───────────────────────────────
         // 8. Separator Line
         Rectangle {
+            visible: !_isNextVisionPayload
             color: "lightgray"
             height: 1
             Layout.fillWidth: true

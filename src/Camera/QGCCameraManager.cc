@@ -1005,10 +1005,6 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
 
     QGCCameraControl* pCamera = currentCameraInstance();
     if (!pCamera) {
-        qCInfo(CameraManagerLog) << "[RCFlow]"
-                << "camera manager aviator rc ignored"
-                << "reason" << "no current camera"
-                << "count" << count;
         return;
     }
 
@@ -1019,14 +1015,6 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
     rcChannels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
     rcChannels.chancount = static_cast<uint8_t>(copyCount);
     rcChannels.rssi = 255;
-
-    qCInfo(CameraManagerLog) << "[RCFlow]"
-            << "camera manager aviator rc dispatch"
-            << "cameraCompId" << pCamera->compID()
-            << "count" << copyCount
-            << "ch9" << rcChannels.chan9_raw
-            << "ch10" << rcChannels.chan10_raw
-            << "ch11" << rcChannels.chan11_raw;
 
     pCamera->handleRCChannels(rcChannels);
 }

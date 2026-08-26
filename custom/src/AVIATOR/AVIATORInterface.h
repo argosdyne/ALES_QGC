@@ -138,5 +138,4 @@ private:
     bool _cn13Pressed{false};
     bool _cn17Pressed{false};
     bool _cn18Pressed{false};
-    QVector<uint16_t> _prevChannelValues = QVector<uint16_t>(18, 0);
 };
