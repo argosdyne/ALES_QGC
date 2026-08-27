@@ -1,7 +1,6 @@
 #include "CodevCameraControl.h"
 #include "QGCCameraIO.h"
 #include "QGCCameraManager.h"
-#include <QTimeZone>
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
@@ -566,6 +565,59 @@ void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
     _lastRcGimbalCenterRaw = centerRaw;
     _lastRcGimbalWasCentered = centered;
     _rcGimbalCommandTimer.restart();
+}
+
+void CodevCameraControl::_startR3TimeSync()
+{
+    if (!_vehicle || !_link || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    _r3TimeSyncSendCount = 0;
+    _sendR3TimeSync();
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs < kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.start();
+    }
+}
+
+void CodevCameraControl::_sendR3TimeSync()
+{
+    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
+        _r3TimeSyncTimer.stop();
+        return;
+    }
+
+    mavlink_message_t heartbeatMsg;
+    mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
+                                    kR3TimeSyncSourceComponent,
+                                    _link->mavlinkChannel(),
+                                    &heartbeatMsg,
+                                    MAV_TYPE_GCS,
+                                    MAV_AUTOPILOT_INVALID,
+                                    0,
+                                    0,
+                                    MAV_STATE_ACTIVE);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, heartbeatMsg);
+
+    mavlink_system_time_t systemTime{};
+    const QDateTime localNow = QDateTime::currentDateTime();
+    const qint64 r3WallClockMs = localNow.toMSecsSinceEpoch()
+            + static_cast<qint64>(localNow.offsetFromUtc()) * 1000LL;
+    systemTime.time_unix_usec = static_cast<uint64_t>(r3WallClockMs) * 1000ULL;
+    systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
+
+    mavlink_message_t timeMsg;
+    mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
+                                        kR3TimeSyncSourceComponent,
+                                        _link->mavlinkChannel(),
+                                        &timeMsg,
+                                        &systemTime);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, timeMsg);
+
+    ++_r3TimeSyncSendCount;
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs >= kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.stop();
+    }
 }
 
 void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
@@ -1787,11 +1839,19 @@ void CodevCameraControl::_parametersReady()
     // time zones
     fact = getFact(kTIME_ZONE);
     if(fact) {
-        QByteArray value = QTimeZone::systemTimeZone().id();
-        if (value.size() < 128) {
-            value.append(128 - value.size(), 0);
+        const int offsetSeconds = QDateTime::currentDateTime().offsetFromUtc();
+        const int absoluteOffsetMinutes = qAbs(offsetSeconds) / 60;
+        const QString timeZoneOffset = QStringLiteral("GMT%1%2:%3")
+                .arg(offsetSeconds >= 0 ? QLatin1Char('+') : QLatin1Char('-'))
+                .arg(absoluteOffsetMinutes / 60, 2, 10, QLatin1Char('0'))
+                .arg(absoluteOffsetMinutes % 60, 2, 10, QLatin1Char('0'));
+        const QByteArray timeZoneId = timeZoneOffset.toLatin1();
+
+        fact->forceSetRawValue(QVariant(timeZoneId));
+
+        if (_isR3CameraModel(modelName())) {
+            QTimer::singleShot(1000, this, &CodevCameraControl::_startR3TimeSync);
         }
-        fact->setRawValue(QVariant(value));
     }
 
     // zoom mode
