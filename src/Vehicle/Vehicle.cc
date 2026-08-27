@@ -732,80 +732,6 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-    auto logMavlinkEndpoint = [&](const char* label) {
-        static QMap<QString, qint64> lastLogByEndpoint;
-        const QString key = QStringLiteral("%1:%2:%3").arg(label).arg(message.sysid).arg(message.compid);
-        const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-        if (nowMSecs - lastLogByEndpoint.value(key, 0) < 5000) {
-            return;
-        }
-        lastLogByEndpoint[key] = nowMSecs;
-        qWarning() << "[GremsyLynx]" << label
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "msgid" << message.msgid;
-    };
-
-    switch (message.msgid) {
-    case MAVLINK_MSG_ID_HEARTBEAT: {
-        mavlink_heartbeat_t heartbeat;
-        mavlink_msg_heartbeat_decode(&message, &heartbeat);
-        static QMap<QString, qint64> lastHeartbeatLogByEndpoint;
-        const QString key = QStringLiteral("%1:%2").arg(message.sysid).arg(message.compid);
-        const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-        if (nowMSecs - lastHeartbeatLogByEndpoint.value(key, 0) >= 5000) {
-            lastHeartbeatLogByEndpoint[key] = nowMSecs;
-            qWarning() << "[GremsyLynx]" << "HEARTBEAT"
-                       << "sysid" << message.sysid
-                       << "compid" << message.compid
-                       << "type" << heartbeat.type
-                       << "autopilot" << heartbeat.autopilot;
-        }
-        break;
-    }
-    case MAVLINK_MSG_ID_COMMAND_ACK: {
-        mavlink_command_ack_t ack;
-        mavlink_msg_command_ack_decode(&message, &ack);
-        qWarning() << "[GremsyLynx]" << "COMMAND_ACK"
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "command" << ack.command
-                   << "result" << ack.result;
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_EXT_ACK: {
-        mavlink_param_ext_ack_t ack;
-        mavlink_msg_param_ext_ack_decode(&message, &ack);
-        qWarning() << "[GremsyLynx]" << "PARAM_EXT_ACK"
-                   << "sysid" << message.sysid
-                   << "compid" << message.compid
-                   << "param" << QString::fromLatin1(ack.param_id, MAVLINK_MSG_PARAM_EXT_ACK_FIELD_PARAM_ID_LEN).trimmed()
-                   << "value" << QString::fromLatin1(ack.param_value, MAVLINK_MSG_PARAM_EXT_ACK_FIELD_PARAM_VALUE_LEN).trimmed()
-                   << "result" << ack.param_result;
-        break;
-    }
-    case MAVLINK_MSG_ID_GIMBAL_MANAGER_INFORMATION:
-        logMavlinkEndpoint("GIMBAL_MANAGER_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_MANAGER_STATUS:
-        logMavlinkEndpoint("GIMBAL_MANAGER_STATUS");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_DEVICE_INFORMATION:
-        logMavlinkEndpoint("GIMBAL_DEVICE_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_GIMBAL_DEVICE_ATTITUDE_STATUS:
-        logMavlinkEndpoint("GIMBAL_DEVICE_ATTITUDE_STATUS");
-        break;
-    case MAVLINK_MSG_ID_CAMERA_INFORMATION:
-        logMavlinkEndpoint("CAMERA_INFORMATION");
-        break;
-    case MAVLINK_MSG_ID_CAMERA_SETTINGS:
-        logMavlinkEndpoint("CAMERA_SETTINGS");
-        break;
-    default:
-        break;
-    }
-
     if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION) {
         qCInfo(VehicleLog) << "[Vehicle]"
                 << "CAMERA_INFORMATION received"
@@ -5768,15 +5694,6 @@ void Vehicle::sendGimbalRCOverrideThreadSafe(float pitch, float yaw)
 
     const uint16_t channel6 = axisToPwm(yaw);
     const uint16_t channel8 = axisToPwm(pitch);
-    static qint64 lastLogMSecs = 0;
-    const qint64 nowMSecs = QDateTime::currentMSecsSinceEpoch();
-    if (nowMSecs - lastLogMSecs > 1000) {
-        lastLogMSecs = nowMSecs;
-        qWarning() << "[GremsyLynx]" << "RC override"
-                   << "CH6 pan" << channel6
-                   << "CH8 tilt" << channel8;
-    }
-
     mavlink_message_t message;
     mavlink_msg_rc_channels_override_pack_chan(
                 static_cast<uint8_t>(_mavlink->getSystemId()),
@@ -5801,67 +5718,10 @@ void Vehicle::sendGimbalRCOverrideThreadSafe(float pitch, float yaw)
 
 void Vehicle::sendGremsyGimbalRate(float pitchRate, float yawRate)
 {
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "sendGremsyGimbalRate: primary link gone!";
-        return;
-    }
-
-    if (sharedLink->linkConfiguration()->isHighLatency()) {
-        return;
-    }
-
-    // Use the codebase's PROVEN gimbal command: MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
-    // (COMMAND_LONG, command 1000) addressed to the gimbal component 154 with
-    // gimbal_device_id=1. This is exactly CodevCameraControl's fallback for gimbals with
-    // no discovered v2 manager (our case). We previously only tried the MESSAGE forms
-    // (GIMBAL_MANAGER_SET_PITCHYAW 287 / GIMBAL_DEVICE_SET_ATTITUDE 284); the Gremsy may
-    // only honour the COMMAND form. (The earlier 1000-reject came from sending it to the
-    // autopilot compid 1, not the gimbal.) Rates in deg/s; pitch/yaw angles NaN.
-    const float  clampedPitchRate = qBound(-1.0f, pitchRate, 1.0f);
-    const float  clampedYawRate   = qBound(-1.0f, yawRate, 1.0f);
-    const float  pitchRateDegS    = clampedPitchRate * 30.0f;
-    const float  yawRateDegS      = clampedYawRate   * 30.0f;
-    const float  nanValue         = static_cast<float>(qQNaN());
-    const qint64 nowMSecs         = QDateTime::currentMSecsSinceEpoch();
-
-    const uint32_t flags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
-                         | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
-
-    static qint64 lastLogMSecs = 0;
-    if (nowMSecs - lastLogMSecs > 1000) {
-        lastLogMSecs = nowMSecs;
-        qWarning() << "[GremsyLynx]" << "DO_GIMBAL_MANAGER_PITCHYAW->154"
-                   << "pitchRateDegS" << pitchRateDegS
-                   << "yawRateDegS" << yawRateDegS;
-    }
-
-    auto sendPitchYawCmd = [&](uint8_t targetComponent, float deviceId) {
-        mavlink_message_t message;
-        mavlink_command_long_t cmd;
-        memset(&cmd, 0, sizeof(cmd));
-        cmd.target_system    = static_cast<uint8_t>(_id);
-        cmd.target_component = targetComponent;
-        cmd.command          = MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW;
-        cmd.confirmation     = 0;
-        cmd.param1           = nanValue;                    // pitch angle (unused for rate)
-        cmd.param2           = nanValue;                    // yaw angle (unused for rate)
-        cmd.param3           = pitchRateDegS;               // pitch rate deg/s
-        cmd.param4           = yawRateDegS;                 // yaw rate deg/s
-        cmd.param5           = static_cast<float>(flags);   // gimbal manager flags
-        cmd.param6           = 0.0f;
-        cmd.param7           = deviceId;                    // gimbal device id
-        mavlink_msg_command_long_encode_chan(
-                    static_cast<uint8_t>(_mavlink->getSystemId()),
-                    static_cast<uint8_t>(_mavlink->getComponentId()),
-                    sharedLink->mavlinkChannel(),
-                    &message,
-                    &cmd);
-        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-    };
-
-    // Gimbal component 154 with device id 1 (CodevCameraControl's proven fallback target).
-    sendPitchYawCmd(MAV_COMP_ID_GIMBAL, 1.0f);
+    // This MB1/APM combination rejects MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
+    // with MAV_RESULT_UNSUPPORTED. Preserve the original working APM mount
+    // path by expressing the requested rates as the configured RC channels.
+    sendGimbalRCOverrideThreadSafe(pitchRate, yawRate);
 }
 
 void Vehicle::stopGremsyGimbal()

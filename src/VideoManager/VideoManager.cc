@@ -1082,9 +1082,6 @@ VideoManager::_updateVideoUri(unsigned id, const QString& uri)
 //     }
 // #endif
     if (uri == _videoUri[id]) {
-        qWarning().noquote() << "[VideoManager][RTSP] update-uri skipped"
-                             << "id=" << id
-                             << "uri=" << uri;
         return false;
     }
 

@@ -37,6 +37,16 @@ Item {
     property var    _activePayload:                             PayloadManager.active
     property bool   _usePayload:                                _activePayload && _activePayload.connected
     property bool   _payloadRecording:                          false
+    property bool   _isGremsyPayload:                           _usePayload && PayloadManager.activeType === 0 && PayloadManager.gremsy
+    property bool   _payloadRecordingEffective:                 _isGremsyPayload
+                                                                    ? PayloadManager.gremsy.recording
+                                                                    : _payloadRecording
+    property bool   _gremsyPhotoFeedback:                       false
+    property bool   _nextVisionPhotoFeedback:                   false
+    property int    _gremsyRecordingSeconds:                    0
+    property double _gremsyRecordingStartedMs:                  0
+    property bool   _gremsyCaptureButtonActive:                 _isGremsyPayload && (_gremsyPhotoFeedback || _payloadRecordingEffective)
+    property bool   _captureButtonActive:                       _isShootingInCurrentMode || _gremsyCaptureButtonActive || (_isNextVisionPayload && _nextVisionPhotoFeedback)
 
     function _centerGimbal() {
         if (_activePayload) {
@@ -44,6 +54,29 @@ Item {
         } else if (_mavlinkCamera) {
             _mavlinkCamera.centerGimbal()
         }
+    }
+
+    function _formatElapsedTime(totalSeconds) {
+        var hours = Math.floor(totalSeconds / 3600)
+        var minutes = Math.floor((totalSeconds % 3600) / 60)
+        var seconds = totalSeconds % 60
+        function pad(value) { return value < 10 ? "0" + value : String(value) }
+        return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds)
+    }
+
+    function _syncGremsyRecordingUi() {
+        if (!_isGremsyPayload || !PayloadManager.gremsy.recording) {
+            gremsyRecordingTimer.stop()
+            _gremsyRecordingStartedMs = 0
+            _gremsyRecordingSeconds = 0
+            return
+        }
+
+        if (_gremsyRecordingStartedMs === 0) {
+            _gremsyRecordingStartedMs = Date.now()
+        }
+        _gremsyRecordingSeconds = Math.floor((Date.now() - _gremsyRecordingStartedMs) / 1000)
+        gremsyRecordingTimer.start()
     }
 
     // The following properties relate to a simple camera
@@ -105,13 +138,15 @@ Item {
     property bool   _anyVideoStreamAvailable:                   _videoStreamManager.hasVideo
     property string _cameraName:                                _mavlinkCamera ? _mavlinkCameraName : ""
     property bool   _showModeIndicator:                         _mavlinkCamera ? _mavlinkCameraHasModes : _videoStreamManager.hasVideo
-    property bool   _modeIndicatorPhotoMode:                    _mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable
+    property bool   _modeIndicatorPhotoMode:                    _isGremsyPayload
+                                                                    ? _videoStreamInPhotoMode
+                                                                    : (_mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable)
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
-    property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _videoIsRecording:                          _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecording : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
+    property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
+    property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
+    property bool   _videoIsRecording:                          _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecordingEffective : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
     property bool   _canShootInCurrentMode:                     _vehicleVideoCaptureAvailable || (_mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable)
-    property bool   _isShootingInCurrentMode:                   _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecording) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
+    property bool   _isShootingInCurrentMode:                   _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecordingEffective) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
@@ -188,8 +223,10 @@ Item {
 
     function _beginNextVisionZoom(zoomIn) {
         var direction = zoomIn ? 1 : -1
-        _updateUiZoomLevel(direction)
+        nextVisionZoomUiTimer.stop()
+        nextVisionZoomMinPulseTimer.stop()
         _zoomUiPressedDirection = direction
+        _updateUiZoomLevel(direction)
 
         if (PayloadManager.nextvision) {
             if (zoomIn) {
@@ -198,7 +235,9 @@ Item {
                 PayloadManager.nextvision.zoomOut()
             }
         }
-        zoomUiMinPulseTimer.restart()
+        // A short tap still produces one complete zoom step. Holding the
+        // button keeps the RC zoom command active until release.
+        nextVisionZoomMinPulseTimer.restart()
     }
 
     function _endNextVisionZoom(zoomIn) {
@@ -207,10 +246,9 @@ Item {
             return
         }
         _zoomUiPressedDirection = 0
-        if (!zoomUiMinPulseTimer.running) {
-            if (PayloadManager.nextvision) {
-                PayloadManager.nextvision.stopZoom()
-            }
+        nextVisionZoomUiTimer.stop()
+        if (!nextVisionZoomMinPulseTimer.running && PayloadManager.nextvision) {
+            PayloadManager.nextvision.stopZoom()
         }
     }
 
@@ -227,6 +265,17 @@ Item {
 
 
     function toggleShooting() {
+        // Gremsy is controlled directly over its payload MAVLink socket. Keep
+        // it out of Vehicle/QGCCameraManager so one action sends one command.
+        if (_usePayload && PayloadManager.activeType === 0 && !_videoStreamInPhotoMode) {
+            if (PayloadManager.gremsy.recording) {
+                PayloadManager.gremsy.stopRecording()
+            } else {
+                PayloadManager.gremsy.startRecording()
+            }
+            return
+        }
+
         if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
             _activeVehicle.toggleVideoCapture()
             return
@@ -293,6 +342,9 @@ Item {
         if (_isNextVisionPayload && _usePayload && _zoomUiOverride) {
             return String(Math.round(zoomLevel))
         }
+        if (_usePayload && PayloadManager.activeType === 0 && PayloadManager.gremsy) {
+            return String(Math.round(PayloadManager.gremsy.zoomLevel))
+        }
         if (!_hasZoom || !_mavlinkCamera) {
             return "1"
         }
@@ -315,7 +367,7 @@ Item {
     }
 
     Timer {
-        id:             zoomUiMinPulseTimer
+        id:             nextVisionZoomMinPulseTimer
         interval:       800
         repeat:         false
         onTriggered: {
@@ -323,6 +375,44 @@ Item {
                 if (PayloadManager.nextvision) {
                     PayloadManager.nextvision.stopZoom()
                 }
+            } else {
+                nextVisionZoomUiTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id:             nextVisionZoomUiTimer
+        interval:       800
+        repeat:         true
+        onTriggered: {
+            if (_zoomUiPressedDirection !== 0) {
+                _updateUiZoomLevel(_zoomUiPressedDirection)
+            }
+        }
+    }
+
+    Timer {
+        id:             gremsyPhotoFeedbackTimer
+        interval:       650
+        repeat:         false
+        onTriggered:    _gremsyPhotoFeedback = false
+    }
+
+    Timer {
+        id:             nextVisionPhotoFeedbackTimer
+        interval:       650
+        repeat:         false
+        onTriggered:    _nextVisionPhotoFeedback = false
+    }
+
+    Timer {
+        id:             gremsyRecordingTimer
+        interval:       1000
+        repeat:         true
+        onTriggered: {
+            if (_gremsyRecordingStartedMs > 0) {
+                _gremsyRecordingSeconds = Math.floor((Date.now() - _gremsyRecordingStartedMs) / 1000)
             }
         }
     }
@@ -331,15 +421,82 @@ Item {
         target: PayloadManager
         onActiveTypeChanged: {
             if (PayloadManager.activeType !== 1) {
-                zoomUiMinPulseTimer.stop()
+                nextVisionZoomMinPulseTimer.stop()
+                nextVisionZoomUiTimer.stop()
+                nextVisionPhotoFeedbackTimer.stop()
+                _nextVisionPhotoFeedback = false
                 _zoomUiPressedDirection = 0
                 _zoomUiOverride = false
                 if (PayloadManager.nextvision) {
                     PayloadManager.nextvision.stopZoom()
                 }
             }
+            _syncGremsyRecordingUi()
         }
     }
+
+    Connections {
+        target: PayloadManager.nextvision
+        ignoreUnknownSignals: true
+
+        onZoomStepTriggered: {
+            if (_isNextVisionPayload) {
+                // Physical C1/C2 uses the controller's direction-calibrated pulse.
+                // Mirror the same one-level UI change as a tap on +/-.
+                _updateUiZoomLevel(direction)
+            }
+        }
+
+        onPhotoCaptureTriggered: {
+            if (_isNextVisionPayload) {
+                setCameraMode(true)
+                _nextVisionPhotoFeedback = true
+                nextVisionPhotoFeedbackTimer.restart()
+            }
+        }
+    }
+
+    Connections {
+        target: CustomQmlInterface
+        ignoreUnknownSignals: true
+
+        onCameraToggleRecord: {
+            if (start && _isNextVisionPayload) {
+                // A physical Record key must select the same Video mode/icon
+                // as tapping the Video side of the camera panel.
+                setCameraMode(false)
+            }
+        }
+    }
+
+    Connections {
+        target: PayloadManager.gremsy
+        ignoreUnknownSignals: true
+
+        onPhotoCaptureTriggered: {
+            if (_isGremsyPayload) {
+                // A physical photo button must select the same UI mode as
+                // tapping Photo in the panel. The capture command has already
+                // been sent directly to Gremsy by the controller.
+                _videoStreamInPhotoMode = true
+                _gremsyPhotoFeedback = true
+                gremsyPhotoFeedbackTimer.restart()
+            }
+        }
+
+        onRecordingChanged: {
+            if (_isGremsyPayload && PayloadManager.gremsy.recording && _modeIndicatorPhotoMode) {
+                // A physical record button can start Gremsy recording while
+                // the panel is still showing Photo mode. Keep the UI mode in
+                // sync with that recording action.
+                setCameraMode(false)
+            }
+            _syncGremsyRecordingUi()
+        }
+        onConnectedChanged: _syncGremsyRecordingUi()
+    }
+
+    Component.onCompleted: _syncGremsyRecordingUi()
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
@@ -359,6 +516,10 @@ Item {
                 width: height
                 radius: width
                 color: "gray"
+                // QGCMouseArea enlarges its hit box on Android. For Gremsy the
+                // enlarged area overlapped the Photo/Video switch below and a
+                // Video tap could therefore send GB_MODE=4 (gimbal reset).
+                clip: _isGremsyPayload
 
                 QGCColoredImage {
                     anchors.centerIn: parent
@@ -431,7 +592,7 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToVideoModeAllowed
+                    enabled: !_isGremsyPayload && _switchToVideoModeAllowed
                     onClicked: setCameraMode(false)
                 }
             }
@@ -457,15 +618,41 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToPhotoModeAllowed
+                    enabled: !_isGremsyPayload && _switchToPhotoModeAllowed
                     onClicked: setCameraMode(true)
                 }
+            }
+
+            // Gremsy: make each complete half of the switch touchable. The
+            // original hit target was only the small circular icon, which is
+            // difficult to operate on the Android controller display.
+            MouseArea {
+                z: 10
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width * 0.5
+                enabled: _isGremsyPayload && _switchToVideoModeAllowed
+                preventStealing: true
+                onClicked: setCameraMode(false)
+            }
+
+            MouseArea {
+                z: 10
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width * 0.5
+                enabled: _isGremsyPayload && _switchToPhotoModeAllowed
+                preventStealing: true
+                onClicked: setCameraMode(true)
             }
         }
 
         // ───────────────────────────────
         // 3. Photo & Recording Button
         Rectangle {
+            id: captureButton
             Layout.alignment: Qt.AlignHCenter
             color: Qt.rgba(0,0,0,0)
             width: ScreenTools.defaultFontPixelWidth * 10
@@ -476,10 +663,14 @@ Item {
 
             Rectangle {
                 anchors.centerIn: parent
-                width: parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
+                width: parent.width * (_captureButtonActive ? 0.5 : 0.75)
                 height: width
-                radius: _isShootingInCurrentMode ? 0 : width * 0.5
+                radius: _captureButtonActive ? 0 : width * 0.5
                 color: _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
+
+                Behavior on width { NumberAnimation { duration: 100 } }
+                Behavior on radius { NumberAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: 100 } }
             }
 
             MouseArea {
@@ -493,10 +684,19 @@ Item {
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
-            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
+            text:               _isGremsyPayload
+                                    ? (_payloadRecordingEffective
+                                       ? _formatElapsedTime(_gremsyRecordingSeconds)
+                                       : "00:00:00")
+                                    : ((_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING)
+                                       ? _mavlinkCamera.recordTimeStr
+                                       : "00:00:00")
+            color:              (_isGremsyPayload && _payloadRecordingEffective) ? qgcPal.colorRed : qgcPal.text
             font.pointSize:     ScreenTools.largeFontPointSize
             font.bold:          true
-            visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
+            visible:            _isGremsyPayload
+                                    ? !_modeIndicatorPhotoMode
+                                    : (_mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo)
         }
 
         // ───────────────────────────────
@@ -547,8 +747,12 @@ Item {
                     onPressed: {
                         // Preserve the original behavior for every non-NextVision camera.
                         if (_usePayload) {
-                            _activePayload.zoomIn()
-                            _zoomInActive = true
+                            if (_isGremsyPayload) {
+                                PayloadManager.gremsy.stepZoom(1)
+                            } else {
+                                _activePayload.zoomIn()
+                                _zoomInActive = true
+                            }
                         } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
                             if (_zoomInCanContinuous) {
                                 _startCameraZoom(1)
@@ -636,8 +840,12 @@ Item {
                     onPressed: {
                         // Preserve the original behavior for every non-NextVision camera.
                         if (_usePayload) {
-                            _activePayload.zoomOut()
-                            _zoomOutActive = true
+                            if (_isGremsyPayload) {
+                                PayloadManager.gremsy.stepZoom(-1)
+                            } else {
+                                _activePayload.zoomOut()
+                                _zoomOutActive = true
+                            }
                         } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
                             if (_digitalZoomActive) {
                                 _stepCameraZoom(-1)
@@ -682,6 +890,9 @@ Item {
         // ───────────────────────────────
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
+            // DragonEye's ATTITUDE packets describe the intermediary
+            // autopilot, not a reliable gimbal line-of-sight angle.
+            visible: !_isNextVisionPayload
             columns: 2
             columnSpacing: ScreenTools.defaultFontPixelWidth
             rowSpacing: ScreenTools.defaultFontPixelHeight / 2
@@ -740,6 +951,7 @@ Item {
         // ───────────────────────────────
         // 8. Separator Line
         Rectangle {
+            visible: !_isNextVisionPayload
             color: "lightgray"
             height: 1
             Layout.fillWidth: true

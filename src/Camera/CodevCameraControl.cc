@@ -337,6 +337,8 @@ bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint
 
 bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag)
 {
+    Q_UNUSED(sourceTag)
+
     if (!_vehicle->px4Firmware()) {
         return false;
     }
@@ -362,29 +364,9 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
     }
 
     if (managerCompId == 0 || deviceId == 0) {
-        qCInfo(CodevCameraLog) << "[RCFlow]"
-                << sourceTag
-                << "px4 gimbal manager unavailable, fallback to gimbal component"
-                << "cameraCompId" << _compID
-                << "managerCompId" << managerCompId
-                << "deviceId" << deviceId;
         managerCompId = MAV_COMP_ID_GIMBAL;
         deviceId = 1;
     }
-
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "send gimbal manager rc command"
-            << "cameraCompId" << _compID
-            << "targetCompId" << managerCompId
-            << "deviceId" << deviceId
-            << "command" << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
-            << "pitch" << pitchParam
-            << "yaw" << yawParam
-            << "pitchRate" << pitchRate
-            << "yawRate" << yawRate
-            << "flags" << flags
-            << "queueSize" << _mavCommandQueue.count();
 
     mavlink_message_t msg;
     mavlink_command_long_t cmd;
@@ -414,6 +396,8 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
 
 void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag)
 {
+    Q_UNUSED(sourceTag)
+
     mavlink_rc_channels_t outbound = rc;
     outbound.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
     if (outbound.chancount < 18) {
@@ -426,20 +410,6 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
         outbound.chan15_raw = kRcGimbalCenter;
     }
     outbound.rssi = rc.rssi == 0 ? 255 : rc.rssi;
-
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "forward rc channels to R3"
-            << "cameraCompId" << _compID
-            << "sourceSysId" << _vehicle->id()
-            << "sourceCompId" << MAV_COMP_ID_AUTOPILOT1
-            << "message" << MAVLINK_MSG_ID_RC_CHANNELS
-            << "ch9Pitch" << outbound.chan9_raw
-            << "ch10Yaw" << outbound.chan10_raw
-            << "ch11Zoom" << outbound.chan11_raw
-            << "ch15Center" << outbound.chan15_raw
-            << "chancount" << outbound.chancount
-            << "queueSize" << _mavCommandQueue.count();
 
     mavlink_message_t msg;
     mavlink_msg_rc_channels_encode(static_cast<uint8_t>(_vehicle->id()),
@@ -600,16 +570,7 @@ void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
 
 void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
 {
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "send legacy mount control"
-            << "cameraCompId" << _compID
-            << "targetCompId" << MAV_COMP_ID_GIMBAL
-            << "command" << MAV_CMD_DO_MOUNT_CONTROL
-            << "pitch" << pitch
-            << "roll" << 0.0f
-            << "yaw" << yaw
-            << "mode" << MAV_MOUNT_MODE_MAVLINK_TARGETING;
+    Q_UNUSED(sourceTag)
 
     mavlink_message_t msg;
     mavlink_command_long_t cmd;
@@ -2776,29 +2737,10 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     }
 
     if (!_vehicle || !_vehicle->px4Firmware()) {
-        static QElapsedTimer skipDirectControlLogTimer;
-        if (!skipDirectControlLogTimer.isValid() || skipDirectControlLogTimer.elapsed() >= 1000) {
-            qCInfo(CodevCameraLog) << "[RCFlow]"
-                    << "skip Codev direct rc gimbal control"
-                    << "reason" << "non_px4_vehicle"
-                    << "cameraCompId" << _compID
-                    << "vehicleId" << (_vehicle ? _vehicle->id() : -1);
-            skipDirectControlLogTimer.restart();
-        }
         return;
     }
 
     if (!_isR3CameraModel(modelName())) {
-        static QElapsedTimer skipNonR3LogTimer;
-        if (!skipNonR3LogTimer.isValid() || skipNonR3LogTimer.elapsed() >= 1000) {
-            qCInfo(CodevCameraLog) << "[RCFlow]"
-                    << "skip native R3 rc forwarding"
-                    << "reason" << "non_r3_camera"
-                    << "cameraCompId" << _compID
-                    << "model" << modelName()
-                    << "vendor" << vendor();
-            skipNonR3LogTimer.restart();
-        }
         return;
     }
 
@@ -2835,21 +2777,6 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
         return;
     }
-
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << "Codev aviator rc gimbal native R3 RC"
-            << "cameraCompId" << _compID
-            << "ch9Pitch" << pitchRaw
-            << "ch10Yaw" << yawRaw
-            << "ch11Zoom" << zoomRaw
-            << "ch15Center" << centerRaw
-            << "pitchRate" << pitchRate
-            << "yawRate" << yawRate
-            << "elapsedMs" << elapsedMs
-            << "rawChanged" << rawChanged
-            << "centerTransition" << centerTransition
-            << "centered" << centered
-            << "queueSize" << _mavCommandQueue.count();
 
     _sendR3RcChannels(rc, "aviatorRC-native");
     _lastRcGimbalPitchRaw = pitchRaw;
