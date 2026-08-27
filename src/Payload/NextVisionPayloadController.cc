@@ -153,12 +153,26 @@ void NextVisionPayloadController::captureImage()
 
 void NextVisionPayloadController::startRecording()
 {
-    // Record is controlled by the physical RC/camera assignment. Do not override CH13 here.
+    if (_recording) {
+        return;
+    }
+
+    _recording = true;
+    _channels[kRecordChannelIndex] = kPwmMax;
+    _sendRcOverride();
+    emit recordingChanged();
 }
 
 void NextVisionPayloadController::stopRecording()
 {
-    // Record is controlled by the physical RC/camera assignment. Do not override CH13 here.
+    if (!_recording) {
+        return;
+    }
+
+    _recording = false;
+    _channels[kRecordChannelIndex] = kIgnore;
+    _sendRcOverride();
+    emit recordingChanged();
 }
 
 uint16_t NextVisionPayloadController::_clampPwm(int pwm) const
@@ -189,6 +203,9 @@ void NextVisionPayloadController::_clearAllChannels()
     }
     if (keepObsMode) {
         _channels[kHomeModeChannelIndex] = kCenter;
+    }
+    if (_recording) {
+        _channels[kRecordChannelIndex] = kPwmMax;
     }
 }
 
@@ -241,8 +258,8 @@ void NextVisionPayloadController::_sendRcOverride()
     mavlink_message_t message;
     // DragonEye2 mapping:
     // CH10 = roll/pan-yaw, CH9 = pitch/tilt, CH11 = zoom in/stop/out,
-    // CH6 = stow/OBS/pilot reset, CH12 = snapshot. CH13/CH14/CH15
-    // stay ignored because they are assigned externally on the DragonEye2/RC side.
+    // CH6 = stow/OBS/pilot reset, CH12 = snapshot and CH13 = record.
+    // CH14/CH15 stay ignored because they are assigned externally.
     mavlink_msg_rc_channels_override_pack(_senderSysId,
                                           _senderCompId,
                                           &message,
