@@ -158,7 +158,8 @@ Item {
             }
         ]
 
-        property bool _verticalCenter: !QGroundControl.settingsManager.flyViewSettings.alternateInstrumentPanel.rawValue
+        property bool _verticalCenter: !QGroundControl.corePlugin.options.flyView.showInstrumentPanel ||
+                                       !QGroundControl.settingsManager.flyViewSettings.alternateInstrumentPanel.rawValue
     }
 
     TelemetryValuesBar {
