@@ -3118,7 +3118,7 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
     }else if(!noReponseFromVehicle && result == MAV_RESULT_ACCEPTED) {
         switch(command) {
         case MAV_CMD_STORAGE_FORMAT:
-            _vehicle->cameraTriggerPoints()->clearAndDeleteContents();
+            _vehicle->clearCameraTriggerPoints();
             break;
         case MAV_CMD_RESET_CAMERA_SETTINGS:
             _resetting = false;

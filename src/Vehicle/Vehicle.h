@@ -16,6 +16,7 @@
 #include <QTime>
 #include <QQueue>
 #include <QSharedPointer>
+#include <QSet>
 #include <QTimer>
 
 #include <atomic>
@@ -609,6 +610,7 @@ public:
     void setPrearmError(const QString& prearmError);
 
     QmlObjectListModel* cameraTriggerPoints () { return &_cameraTriggerPoints; }
+    void clearCameraTriggerPoints();
 
     int  flowImageIndex() const{ return _flowImageIndex; }
 
@@ -1198,6 +1200,7 @@ private:
     void _handleRangefinder             (mavlink_message_t& message);
 #endif
     void _handleCameraImageCaptured     (const mavlink_message_t& message);
+    void _addCameraTriggerPoint          (const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex);
     void _handleADSBVehicle             (const mavlink_message_t& message);
     void _handleRawImuTemp              (mavlink_message_t& message);
     void _missionManagerError           (int errorCode, const QString& errorMsg);
@@ -1354,6 +1357,7 @@ private:
     QTimer                          _flightTimeUpdater;
     TrajectoryPoints*               _trajectoryPoints = nullptr;
     QmlObjectListModel              _cameraTriggerPoints;
+    QSet<quint64>                   _cameraCaptureIndices;
     //QMap<QString, ADSBVehicle*>     _trafficVehicleMap;
 
     // Toolbox references
