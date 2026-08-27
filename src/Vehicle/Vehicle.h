@@ -1486,9 +1486,9 @@ private:
 
     QList<MavCommandListEntry_t>    _mavCommandList;
     QTimer                          _mavCommandResponseCheckTimer;
-    static const int                _mavCommandMaxRetryCount                = 3;
+    static const int                _mavCommandMaxRetryCount                = 6;
     static const int                _mavCommandResponseCheckTimeoutMSecs    = 500;
-    static const int                _mavCommandAckTimeoutMSecs              = 3000;
+    static const int                _mavCommandAckTimeoutMSecs              = 5000;
     static const int                _mavCommandAckTimeoutMSecsHighLatency   = 120000;
 
     void _sendMavCommandWorker  (
