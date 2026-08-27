@@ -18,6 +18,7 @@
 #include "VideoManager.h"
 #include "SettingsManager.h"
 #include "GimbalController.h"
+#include "LinkManager.h"
 #include "VehicleLinkManager.h"
 #include <QCoreApplication>
 
@@ -2515,7 +2516,21 @@ void CodevCameraControl::sendMavCommandWithTarget(MAV_CMD command, int target_co
 
 SharedLinkInterfacePtr CodevCameraControl::_activeCommandLink() const
 {
-    if (!_vehicle || !_vehicle->vehicleLinkManager()) {
+    if (!_vehicle) {
+        return SharedLinkInterfacePtr();
+    }
+
+    // The camera may arrive over a different link from the vehicle's current
+    // primary telemetry link. Commands that discover its video streams must
+    // go back through the link that delivered the camera messages first.
+    if (_vehicle->px4Firmware() && _link) {
+        SharedLinkInterfacePtr cameraLink = qgcApp()->toolbox()->linkManager()->sharedLinkInterfacePointerForLink(_link, true);
+        if (cameraLink && cameraLink->isConnected()) {
+            return cameraLink;
+        }
+    }
+
+    if (!_vehicle->vehicleLinkManager()) {
         return SharedLinkInterfacePtr();
     }
 

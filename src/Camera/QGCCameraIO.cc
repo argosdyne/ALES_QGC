@@ -7,6 +7,8 @@
 
 #include "QGCCameraControl.h"
 #include "QGCCameraIO.h"
+#include "QGCApplication.h"
+#include "LinkManager.h"
 #include "Vehicle.h"
 #include "VehicleLinkManager.h"
 
@@ -139,9 +141,15 @@ QGCCameraParamIO::_sendParameter()
         return;
     }
 
-    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    SharedLinkInterfacePtr sharedLink;
+    if (_vehicle->px4Firmware() && _control->_link) {
+        sharedLink = qgcApp()->toolbox()->linkManager()->sharedLinkInterfacePointerForLink(_control->_link, true);
+    }
     if (!sharedLink) {
-        qWarning() << "[CameraIO] skip param set without active primary link" << _fact->name();
+        sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    }
+    if (!sharedLink) {
+        qWarning() << "[CameraIO] skip param set without active command link" << _fact->name();
         _paramWriteTimer.stop();
         return;
     }
@@ -415,9 +423,15 @@ QGCCameraParamIO::paramRequest(bool reset)
         return;
     }
 
-    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    SharedLinkInterfacePtr sharedLink;
+    if (_vehicle->px4Firmware() && _control->_link) {
+        sharedLink = qgcApp()->toolbox()->linkManager()->sharedLinkInterfacePointerForLink(_control->_link, true);
+    }
     if (!sharedLink) {
-        qWarning() << "[CameraIO] skip param request without active primary link" << _fact->name();
+        sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    }
+    if (!sharedLink) {
+        qWarning() << "[CameraIO] skip param request without active command link" << _fact->name();
         _paramRequestTimer.stop();
         if(!_done) {
             _done = true;
