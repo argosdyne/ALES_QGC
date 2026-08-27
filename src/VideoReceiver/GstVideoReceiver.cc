@@ -166,6 +166,17 @@ void setGstBoolProperty(const QString& context, GstElement* element, const char*
     setGstIntegralProperty(context, element, propertyName, value ? 1 : 0);
 }
 
+const char* rtspTransportName(GstRTSPLowerTrans transport)
+{
+    const bool udpEnabled = (transport & GST_RTSP_LOWER_TRANS_UDP) != 0;
+    const bool tcpEnabled = (transport & GST_RTSP_LOWER_TRANS_TCP) != 0;
+
+    if (udpEnabled && tcpEnabled) {
+        return "udp+tcp";
+    }
+    return tcpEnabled ? "tcp" : "udp";
+}
+
 void setGstRtspTransportProperty(const QString& context, GstElement* element, GstRTSPLowerTrans transport)
 {
     if (!hasGstProperty(element, "protocols")) {
@@ -174,7 +185,7 @@ void setGstRtspTransportProperty(const QString& context, GstElement* element, Gs
     }
 
     g_object_set(G_OBJECT(element), "protocols", transport, nullptr);
-    const char* transportName = transport == GST_RTSP_LOWER_TRANS_TCP ? "tcp" : "udp";
+    const char* transportName = rtspTransportName(transport);
     qWarning().noquote() << "[GstVideoReceiver][RTSP] set-protocol"
                          << "context=" << context
                          << "element=" << gstObjectName(GST_OBJECT(element))
@@ -225,13 +236,16 @@ void configureRtspUdpRobustness(GstElement* element, const QString& context, Gst
 
 GstRTSPLowerTrans rtspTransportForUri(const QString& uri)
 {
-    Q_UNUSED(uri);
-    return GST_RTSP_LOWER_TRANS_TCP;
-}
+    const QUrl url(uri);
+    if (isPrivateRtspHost(url.host())) {
+        // Prefer UDP for cameras on the local vehicle network. Keeping TCP in
+        // the mask lets rtspsrc fall back after its UDP timeout when needed.
+        return static_cast<GstRTSPLowerTrans>(GST_RTSP_LOWER_TRANS_UDP | GST_RTSP_LOWER_TRANS_TCP);
+    }
 
-const char* rtspTransportName(GstRTSPLowerTrans transport)
-{
-    return transport == GST_RTSP_LOWER_TRANS_TCP ? "tcp" : "udp";
+    // Public/LTE streams are normally routed through NAT and work more
+    // reliably with interleaved RTP over the RTSP TCP connection.
+    return GST_RTSP_LOWER_TRANS_TCP;
 }
 
 void configureQueueProfile(GstElement* element, const QString& context)

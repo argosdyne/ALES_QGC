@@ -46,6 +46,7 @@ public:
     void zoomIn() override;
     void zoomOut() override;
     void stopZoom() override;
+    Q_INVOKABLE void stepZoom(int direction);
     void captureImage() override;
     void startRecording() override;
     void stopRecording() override;
@@ -53,6 +54,8 @@ public:
 signals:
     void speedChanged();
     void attitudeChanged();
+    void zoomStepTriggered(int direction);
+    void photoCaptureTriggered();
     void recordingChanged();
 
 protected:
@@ -72,6 +75,8 @@ private:
     void _clearAuxiliaryChannels();
 
     QTimer* _txTimer = nullptr;
+    QTimer* _zoomStepTimer = nullptr;
+    int      _zoomStepDirection = 0;
     bool     _recording = false;
     quint32 _tickCount = 0;
 
@@ -82,6 +87,11 @@ private:
     static constexpr int  kPwmMax = 2000;
     static constexpr int  kZoomPwmMin = 1050;
     static constexpr int  kZoomPwmMax = 1950;
+    // Keep both directions symmetric. The earlier shorter zoom-out pulse was
+    // calibrated while RC overrides were intermittently sent to the wrong
+    // MAVLink component, so xN -> x1 did not return the lens to the same FOV.
+    static constexpr int  kZoomInStepDurationMs  = 800;
+    static constexpr int  kZoomOutStepDurationMs = 800;
     static constexpr uint16_t kIgnore = 0xFFFF;
     static constexpr int  kPanChannelIndex      = 9;  // CH10 Roll / pan-yaw
     static constexpr int  kTiltChannelIndex     = 8;  // CH9 Pitch / tilt

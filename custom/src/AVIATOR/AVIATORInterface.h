@@ -26,7 +26,9 @@ public:
         AVIATOR_FUNCTION_IR_SWITCH,
         AVIATOR_FUNCTION_GIMBAL_RESET,
         AVIATOR_FUNCTION_CAMERA_CAPTURE,
-        AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD
+        AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD,
+        AVIATOR_FUNCTION_CAMERA_ZOOM_IN,
+        AVIATOR_FUNCTION_CAMERA_ZOOM_OUT
     } AVIATOR_FUNCTION;
     Q_ENUM(AVIATOR_FUNCTION)
 
@@ -108,6 +110,7 @@ private:
     bool _f3Pressed{false};
     bool _capturePressed{false};
     bool _recordPressed{false};
+    int _cameraZoomState{0};
     bool _emergencyStopComboActive{false};
     bool _comboPaired{false};
     bool _rc7WasActive{false};
@@ -135,5 +138,4 @@ private:
     bool _cn13Pressed{false};
     bool _cn17Pressed{false};
     bool _cn18Pressed{false};
-    QVector<uint16_t> _prevChannelValues = QVector<uint16_t>(18, 0);
 };

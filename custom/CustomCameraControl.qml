@@ -96,7 +96,11 @@ Item {
 
     function _zoomCameraOrPayload(direction) {
         if (_usePayload) {
-            direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
+            if (PayloadManager.activeType === 0) {
+                PayloadManager.gremsy.stepZoom(direction)
+            } else {
+                direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
+            }
         } else if (_camera && _camera.hasZoom) {
             if (typeof _camera.stepZoomFromUi === "function") {
                 _camera.stepZoomFromUi(direction)
@@ -241,7 +245,9 @@ Item {
             contentColor:   qgcPal.text
             fontPointSize:  ScreenTools.defaultFontPointSize * 1.75
             zoomLevelVisible: _hasZoom
-            zoomLevel:      _usePayload ? 1 : (_camera && _camera.hasZoom
+            zoomLevel:      _usePayload
+                                ? (PayloadManager.activeType === 0 ? PayloadManager.gremsy.zoomLevel : 1)
+                                : (_camera && _camera.hasZoom
                                 ? (typeof _camera.displayZoomLevel !== "undefined"
                                    ? _camera.displayZoomLevel
                                    : _camera.zoomLevel)

@@ -1,7 +1,6 @@
 #include "CodevCameraControl.h"
 #include "QGCCameraIO.h"
 #include "QGCCameraManager.h"
-#include <QTimeZone>
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
@@ -337,6 +336,8 @@ bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint
 
 bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag)
 {
+    Q_UNUSED(sourceTag)
+
     if (!_vehicle->px4Firmware()) {
         return false;
     }
@@ -362,29 +363,9 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
     }
 
     if (managerCompId == 0 || deviceId == 0) {
-        qCInfo(CodevCameraLog) << "[RCFlow]"
-                << sourceTag
-                << "px4 gimbal manager unavailable, fallback to gimbal component"
-                << "cameraCompId" << _compID
-                << "managerCompId" << managerCompId
-                << "deviceId" << deviceId;
         managerCompId = MAV_COMP_ID_GIMBAL;
         deviceId = 1;
     }
-
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "send gimbal manager rc command"
-            << "cameraCompId" << _compID
-            << "targetCompId" << managerCompId
-            << "deviceId" << deviceId
-            << "command" << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
-            << "pitch" << pitchParam
-            << "yaw" << yawParam
-            << "pitchRate" << pitchRate
-            << "yawRate" << yawRate
-            << "flags" << flags
-            << "queueSize" << _mavCommandQueue.count();
 
     mavlink_message_t msg;
     mavlink_command_long_t cmd;
@@ -414,6 +395,8 @@ bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float y
 
 void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag)
 {
+    Q_UNUSED(sourceTag)
+
     mavlink_rc_channels_t outbound = rc;
     outbound.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
     if (outbound.chancount < 18) {
@@ -427,20 +410,6 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
     }
     outbound.rssi = rc.rssi == 0 ? 255 : rc.rssi;
 
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "forward rc channels to R3"
-            << "cameraCompId" << _compID
-            << "sourceSysId" << _vehicle->id()
-            << "sourceCompId" << MAV_COMP_ID_AUTOPILOT1
-            << "message" << MAVLINK_MSG_ID_RC_CHANNELS
-            << "ch9Pitch" << outbound.chan9_raw
-            << "ch10Yaw" << outbound.chan10_raw
-            << "ch11Zoom" << outbound.chan11_raw
-            << "ch15Center" << outbound.chan15_raw
-            << "chancount" << outbound.chancount
-            << "queueSize" << _mavCommandQueue.count();
-
     mavlink_message_t msg;
     mavlink_msg_rc_channels_encode(static_cast<uint8_t>(_vehicle->id()),
                                    MAV_COMP_ID_AUTOPILOT1,
@@ -451,78 +420,6 @@ void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, cons
         return;
     }
     _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
-}
-
-void CodevCameraControl::_startR3TimeSync()
-{
-    if (!_vehicle || !_isR3CameraModel(modelName()) || !_activeCommandLink()) {
-        return;
-    }
-
-    qCInfo(CodevCameraLog) << "[R3TimeSync]"
-            << "start SYSTEM_TIME sync"
-            << "cameraCompId" << _compID
-            << "sourceSysId" << kR3TimeSyncSourceSystem
-            << "sourceCompId" << kR3TimeSyncSourceComponent
-            << "intervalMs" << kR3TimeSyncIntervalMs
-            << "durationMs" << kR3TimeSyncDurationMs;
-
-    _r3TimeSyncSendCount = 0;
-    _sendR3TimeSync();
-    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs < kR3TimeSyncDurationMs) {
-        _r3TimeSyncTimer.start();
-    }
-}
-
-void CodevCameraControl::_sendR3TimeSync()
-{
-    SharedLinkInterfacePtr commandLink = _activeCommandLink();
-    if (!_vehicle || !commandLink || !_isR3CameraModel(modelName())) {
-        _r3TimeSyncTimer.stop();
-        return;
-    }
-
-    mavlink_message_t heartbeatMsg;
-    mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
-                                    kR3TimeSyncSourceComponent,
-                                    commandLink->mavlinkChannel(),
-                                    &heartbeatMsg,
-                                    MAV_TYPE_GCS,
-                                    MAV_AUTOPILOT_INVALID,
-                                    0,
-                                    0,
-                                    MAV_STATE_ACTIVE);
-    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), heartbeatMsg);
-
-    mavlink_message_t timeMsg;
-    mavlink_system_time_t systemTime;
-    memset(&systemTime, 0, sizeof(systemTime));
-    systemTime.time_unix_usec = static_cast<uint64_t>(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()) * 1000ULL;
-    systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
-    mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
-                                        kR3TimeSyncSourceComponent,
-                                        commandLink->mavlinkChannel(),
-                                        &timeMsg,
-                                        &systemTime);
-    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), timeMsg);
-
-    qCDebug(CodevCameraVerboseLog) << "[R3TimeSync]"
-            << "sent HEARTBEAT + SYSTEM_TIME"
-            << "cameraCompId" << _compID
-            << "message" << MAVLINK_MSG_ID_SYSTEM_TIME
-            << "timeUnixUsec" << systemTime.time_unix_usec
-            << "timeBootMs" << systemTime.time_boot_ms
-            << "sendCount" << (_r3TimeSyncSendCount + 1);
-
-    ++_r3TimeSyncSendCount;
-    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs >= kR3TimeSyncDurationMs) {
-        _r3TimeSyncTimer.stop();
-        qCInfo(CodevCameraLog) << "[R3TimeSync]"
-                << "finished SYSTEM_TIME sync"
-                << "cameraCompId" << _compID
-                << "sendCount" << _r3TimeSyncSendCount
-                << "durationMs" << kR3TimeSyncDurationMs;
-    }
 }
 
 void CodevCameraControl::_sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15)
@@ -598,18 +495,62 @@ void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
     _rcGimbalCommandTimer.restart();
 }
 
+void CodevCameraControl::_startR3TimeSync()
+{
+    if (!_vehicle || !_link || !_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    _r3TimeSyncSendCount = 0;
+    _sendR3TimeSync();
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs < kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.start();
+    }
+}
+
+void CodevCameraControl::_sendR3TimeSync()
+{
+    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
+        _r3TimeSyncTimer.stop();
+        return;
+    }
+
+    mavlink_message_t heartbeatMsg;
+    mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
+                                    kR3TimeSyncSourceComponent,
+                                    _link->mavlinkChannel(),
+                                    &heartbeatMsg,
+                                    MAV_TYPE_GCS,
+                                    MAV_AUTOPILOT_INVALID,
+                                    0,
+                                    0,
+                                    MAV_STATE_ACTIVE);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, heartbeatMsg);
+
+    mavlink_system_time_t systemTime{};
+    const QDateTime localNow = QDateTime::currentDateTime();
+    const qint64 r3WallClockMs = localNow.toMSecsSinceEpoch()
+            + static_cast<qint64>(localNow.offsetFromUtc()) * 1000LL;
+    systemTime.time_unix_usec = static_cast<uint64_t>(r3WallClockMs) * 1000ULL;
+    systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
+
+    mavlink_message_t timeMsg;
+    mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
+                                        kR3TimeSyncSourceComponent,
+                                        _link->mavlinkChannel(),
+                                        &timeMsg,
+                                        &systemTime);
+    _vehicle->sendMessageOnLinkThreadSafe(_link, timeMsg);
+
+    ++_r3TimeSyncSendCount;
+    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs >= kR3TimeSyncDurationMs) {
+        _r3TimeSyncTimer.stop();
+    }
+}
+
 void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
 {
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << sourceTag
-            << "send legacy mount control"
-            << "cameraCompId" << _compID
-            << "targetCompId" << MAV_COMP_ID_GIMBAL
-            << "command" << MAV_CMD_DO_MOUNT_CONTROL
-            << "pitch" << pitch
-            << "roll" << 0.0f
-            << "yaw" << yaw
-            << "mode" << MAV_MOUNT_MODE_MAVLINK_TARGETING;
+    Q_UNUSED(sourceTag)
 
     mavlink_message_t msg;
     mavlink_command_long_t cmd;
@@ -1826,11 +1767,19 @@ void CodevCameraControl::_parametersReady()
     // time zones
     fact = getFact(kTIME_ZONE);
     if(fact) {
-        QByteArray value = QTimeZone::systemTimeZone().id();
-        if (value.size() < 128) {
-            value.append(128 - value.size(), 0);
+        const int offsetSeconds = QDateTime::currentDateTime().offsetFromUtc();
+        const int absoluteOffsetMinutes = qAbs(offsetSeconds) / 60;
+        const QString timeZoneOffset = QStringLiteral("GMT%1%2:%3")
+                .arg(offsetSeconds >= 0 ? QLatin1Char('+') : QLatin1Char('-'))
+                .arg(absoluteOffsetMinutes / 60, 2, 10, QLatin1Char('0'))
+                .arg(absoluteOffsetMinutes % 60, 2, 10, QLatin1Char('0'));
+        const QByteArray timeZoneId = timeZoneOffset.toLatin1();
+
+        fact->forceSetRawValue(QVariant(timeZoneId));
+
+        if (_isR3CameraModel(modelName())) {
+            QTimer::singleShot(1000, this, &CodevCameraControl::_startR3TimeSync);
         }
-        fact->setRawValue(QVariant(value));
     }
 
     // zoom mode
@@ -2776,29 +2725,10 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     }
 
     if (!_vehicle || !_vehicle->px4Firmware()) {
-        static QElapsedTimer skipDirectControlLogTimer;
-        if (!skipDirectControlLogTimer.isValid() || skipDirectControlLogTimer.elapsed() >= 1000) {
-            qCInfo(CodevCameraLog) << "[RCFlow]"
-                    << "skip Codev direct rc gimbal control"
-                    << "reason" << "non_px4_vehicle"
-                    << "cameraCompId" << _compID
-                    << "vehicleId" << (_vehicle ? _vehicle->id() : -1);
-            skipDirectControlLogTimer.restart();
-        }
         return;
     }
 
     if (!_isR3CameraModel(modelName())) {
-        static QElapsedTimer skipNonR3LogTimer;
-        if (!skipNonR3LogTimer.isValid() || skipNonR3LogTimer.elapsed() >= 1000) {
-            qCInfo(CodevCameraLog) << "[RCFlow]"
-                    << "skip native R3 rc forwarding"
-                    << "reason" << "non_r3_camera"
-                    << "cameraCompId" << _compID
-                    << "model" << modelName()
-                    << "vendor" << vendor();
-            skipNonR3LogTimer.restart();
-        }
         return;
     }
 
@@ -2835,21 +2765,6 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
         return;
     }
-
-    qCInfo(CodevCameraLog) << "[RCFlow]"
-            << "Codev aviator rc gimbal native R3 RC"
-            << "cameraCompId" << _compID
-            << "ch9Pitch" << pitchRaw
-            << "ch10Yaw" << yawRaw
-            << "ch11Zoom" << zoomRaw
-            << "ch15Center" << centerRaw
-            << "pitchRate" << pitchRate
-            << "yawRate" << yawRate
-            << "elapsedMs" << elapsedMs
-            << "rawChanged" << rawChanged
-            << "centerTransition" << centerTransition
-            << "centered" << centered
-            << "queueSize" << _mavCommandQueue.count();
 
     _sendR3RcChannels(rc, "aviatorRC-native");
     _lastRcGimbalPitchRaw = pitchRaw;
@@ -3118,7 +3033,7 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
     }else if(!noReponseFromVehicle && result == MAV_RESULT_ACCEPTED) {
         switch(command) {
         case MAV_CMD_STORAGE_FORMAT:
-            _vehicle->cameraTriggerPoints()->clearAndDeleteContents();
+            _vehicle->clearCameraTriggerPoints();
             break;
         case MAV_CMD_RESET_CAMERA_SETTINGS:
             _resetting = false;

@@ -10,6 +10,7 @@
 #include "PayloadManager.h"
 #include <QCoreApplication>
 #include <QLocale>
+#include <cmath>
 
 namespace {
 
@@ -23,6 +24,52 @@ CodevCameraControl* _activeCodevCamera(QGCToolbox* toolbox)
         return nullptr;
     }
     return qobject_cast<CodevCameraControl*>(vehicle->cameraManager()->currentCameraInstance());
+}
+
+bool _gremsyPayloadActive()
+{
+    PayloadManager* payloadManager = PayloadManager::instance();
+    return payloadManager && payloadManager->activeType() == 0;
+}
+
+bool _stepActiveCameraThermalZoom(QGCToolbox* toolbox)
+{
+    CodevCameraControl* camera = _activeCodevCamera(toolbox);
+    if (!camera) {
+        return false;
+    }
+
+    // Gremsy exposes C_T_ZOOM; Codev/R3 cameras expose IR_ZOOM.
+    // Prefer the payload-specific Fact without changing the path for other cameras.
+    const bool hasGremsyThermalZoom = camera->factExists(QStringLiteral("C_T_ZOOM"));
+    Fact* irZoom = hasGremsyThermalZoom
+            ? camera->getFact(QStringLiteral("C_T_ZOOM"))
+            : (camera->factExists(QStringLiteral("IR_ZOOM"))
+               ? camera->getFact(QStringLiteral("IR_ZOOM")) : nullptr);
+    if (!irZoom || irZoom->readOnly()) {
+        return false;
+    }
+
+    if (hasGremsyThermalZoom) {
+        irZoom->setCookedValue((irZoom->cookedValue().toUInt() + 1U) % 8U);
+        return true;
+    }
+
+    const double minValue = irZoom->cookedMin().toDouble();
+    const double maxValue = irZoom->cookedMax().toDouble();
+    double increment = irZoom->cookedIncrement();
+    if (!std::isfinite(increment) || increment <= 0.0) {
+        increment = 1.0;
+    }
+
+    double nextValue = irZoom->cookedValue().toDouble() + increment;
+    if (nextValue > maxValue + 0.01) {
+        nextValue = minValue;
+    } else if (nextValue > maxValue) {
+        nextValue = maxValue;
+    }
+    irZoom->setCookedValue(nextValue);
+    return true;
 }
 
 } // namespace
@@ -223,13 +270,31 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
     if(type == CUSTOM_FUNCTION_COACH_WAYPOINT) {
         if(_plugin->coachMode()) emit coachWaypointTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_THERMAL_ZOOM) {
+        if (pressed && _gremsyPayloadActive()) {
+            if (!_stepActiveCameraThermalZoom(_toolbox)) {
+                PayloadManager* payloadManager = PayloadManager::instance();
+                if (payloadManager && payloadManager->gremsy()) {
+                    payloadManager->gremsy()->stepThermalZoom();
+                }
+            }
+            return;
+        }
         emit thermalZoomTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_IR_SWITCH) {
         emit irSwitchTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_GIMBAL_RESET) {
         if (pressed) {
+            if (_gremsyPayloadActive()) {
+                PayloadManager* payloadManager = PayloadManager::instance();
+                if (payloadManager && payloadManager->gremsy()) {
+                    payloadManager->gremsy()->gimbalHome();
+                }
+            }
             if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
                 camera->syncZoomUiAfterReset();
+            }
+            if (_gremsyPayloadActive()) {
+                return;
             }
         }
         emit gimbalResetTigger(pressed);
@@ -252,7 +317,14 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         }
     } else if(type == CUSTOM_FUNCTION_CAMERA_CAPTURE) {
         if(pressed) {
-            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+            PayloadManager* payloadManager = PayloadManager::instance();
+            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
+                gremsy->captureImage();
+            } else if (payloadManager->activeType() == 1 &&
+                       payloadManager->nextvision() && payloadManager->nextvision()->connected()) {
+                payloadManager->nextvision()->captureImage();
+            } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
                 camera->buttonTakePhoto();
             } else {
                 emit cameraCapture(true);
@@ -261,7 +333,10 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
     } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
         if(pressed) {
             PayloadManager* payloadManager = PayloadManager::instance();
-            if (payloadManager->activeType() == 1 && payloadManager->nextvision()) {
+            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
+                gremsy->toggleRecording();
+            } else if (payloadManager->activeType() == 1 && payloadManager->nextvision()) {
                 NextVisionPayloadController* nextvision = payloadManager->nextvision();
                 emit cameraToggleRecord(true);
                 if (nextvision->recording()) {
@@ -274,6 +349,10 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
                 // command path. Do not create a global RC override for record.
                 camera->buttonToggleVideo();
             } else {
+                // Notify the camera panel as well. Recording is toggled by the
+                // vehicle below, but that state alone does not select the
+                // Video icon when a physical key is pressed in Photo mode.
+                emit cameraToggleRecord(true);
                 Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
                 if (vehicle) {
                     vehicle->toggleVideoCapture();
@@ -301,6 +380,27 @@ void CustomQmlInterface::handleAviatorButton(int type, bool pressed)
     case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD:
         handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD, pressed);
         break;
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN:
+    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_OUT: {
+        PayloadManager* payloadManager = PayloadManager::instance();
+        if (pressed) {
+            const int direction = type == AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN ? 1 : -1;
+            if (payloadManager->activeType() == 0) {
+                GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
+                if (gremsy && gremsy->connected()) {
+                    gremsy->stepZoom(direction);
+                }
+            } else {
+                NextVisionPayloadController* nextvision = payloadManager->nextvision();
+                // Match the NextVision UI path: its RC override can be sent while
+                // the controller is still waiting for the first heartbeat.
+                if (nextvision) {
+                    nextvision->stepZoom(direction);
+                }
+            }
+        }
+        break;
+    }
     default:
         break;
     }

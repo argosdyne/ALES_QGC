@@ -8,7 +8,7 @@
     "shortDesc": "Video source",
     "longDesc":  "Source for video. UDP, TCP, RTSP and UVC Cameras may be supported depending on Vehicle and ground station version.",
     "type":             "string",
-    "default":     "RTSP Video Stream"
+    "default":     ""
 },
 {
     "name":             "udpPort",
@@ -23,7 +23,7 @@
     "shortDesc": "Video RTSP Url",
     "longDesc":  "RTSP url address and port to bind to for video stream. Example: rtsp://192.168.42.1:554/live",
     "type":             "string",
-    "default":     "rtsp://192.168.2.28:8554/live0"
+    "default":     ""
 },
 {
     "name":             "tcpUrl",
