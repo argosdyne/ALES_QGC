@@ -7,6 +7,7 @@
 #include "MultiVehicleManager.h"
 #include "QGCCameraManager.h"
 #include "CodevCameraControl.h"
+#include "PayloadManager.h"
 #include <QCoreApplication>
 #include <QLocale>
 
@@ -259,9 +260,24 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
         }
     } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
         if(pressed) {
-            Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
-            if (vehicle) {
-                vehicle->toggleVideoCapture();
+            PayloadManager* payloadManager = PayloadManager::instance();
+            if (payloadManager->activeType() == 1 && payloadManager->nextvision()) {
+                NextVisionPayloadController* nextvision = payloadManager->nextvision();
+                emit cameraToggleRecord(true);
+                if (nextvision->recording()) {
+                    nextvision->stopRecording();
+                } else {
+                    nextvision->startRecording();
+                }
+            } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
+                // R3 and other MAVLink cameras must stay on their direct camera
+                // command path. Do not create a global RC override for record.
+                camera->buttonToggleVideo();
+            } else {
+                Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
+                if (vehicle) {
+                    vehicle->toggleVideoCapture();
+                }
             }
         }
     }
