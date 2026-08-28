@@ -7,70 +7,99 @@
  *
  ****************************************************************************/
 
-// Allows QGlobalStatic to work on this translation unit
-#define _SECLOG_CTOR_ACCESS_ public
-
 #include "SecurityLogModel.h"
+#include "QGCApplication.h"
 
-#include <QStringListModel>
-#include <QtConcurrent>
-#include <QDebug>
-#include <QTextStream>
+#include <QCoreApplication>
 #include <QDateTime>
-#include <QThread>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QFutureWatcher>
+#include <QMetaObject>
 #include <QStandardPaths>
+#include <QTextStream>
+#include <QThread>
+#include <QtConcurrent>
 
 #ifdef __ANDROID__
 #include <jni.h>
 #endif
 
-Q_GLOBAL_STATIC(SecurityLogModel, s_seclogModel)
+namespace {
+// Accessed only on the QGC application/QML thread. Worker and JNI callers post
+// messages to that thread through SecurityLog::logEvent.
+SecurityLogModel* s_securityLogModel = nullptr;
+}
 
-SecurityLogModel::SecurityLogModel()
-    : QStringListModel()
+constexpr int SecurityLogModel::_maxModelMessages;
+constexpr int SecurityLogModel::_maxPendingMessages;
+constexpr qint64 SecurityLogModel::_recentLogReadBytes;
+
+SecurityLogModel::SecurityLogModel(QObject* parent)
+    : QStringListModel(parent)
 {
-    connect(this, &SecurityLogModel::emitLog, this, &SecurityLogModel::threadsafeLog, Qt::AutoConnection);
+    // Serialising file work preserves append, clear and export order while
+    // keeping every file operation off the QML/UI thread.
+    _fileWorker.setMaxThreadCount(1);
+
+    // The timer runs on the model's UI thread, but only schedules a worker
+    // task. It never performs file I/O on that thread.
+    _flushTimer.setSingleShot(true);
+    _flushTimer.setInterval(250);
+    connect(&_flushTimer, &QTimer::timeout, this, &SecurityLogModel::_flushPendingMessages);
+
     _initPersistentLog();
 }
 
-void SecurityLogModel::log(const QString message)
+void SecurityLogModel::appendMessage(const QString& message)
 {
-    // Guard against calls after Q_GLOBAL_STATIC has been destroyed during app shutdown
-    if (s_seclogModel.isDestroyed()) {
+    Q_ASSERT(QThread::currentThread() == thread());
+
+    QStringList messages;
+    messages.append(message);
+    _appendMessagesToModel(messages);
+
+    if (_logFilePath.isEmpty()) {
         return;
     }
-    emit s_seclogModel->emitLog(message);
-}
 
-void SecurityLogModel::threadsafeLog(const QString message)
-{
-    qInfo().noquote() << "QGC_SecurityLog: threadsafeLog received:" << message;
-    if (!_persistentInitDone) {
-        _initPersistentLog();
+    // Bound memory during a log flood. UI display remains independently
+    // capped by _maxModelMessages.
+    if (_pendingMessages.count() >= _maxPendingMessages) {
+        if (!_pendingOverflowReported) {
+            qWarning() << "QGC_SecurityLog: pending log queue is full; dropping messages";
+            _pendingOverflowReported = true;
+        }
+        return;
     }
 
-    const int line = rowCount();
-    insertRows(line, 1);
-    setData(index(line), message, Qt::DisplayRole);
+    _pendingMessages.append(message);
+    if (!_flushTimer.isActive()) {
+        _flushTimer.start();
+    }
+}
 
-    if (_logFile.isOpen()) {
-        QTextStream out(&_logFile);
-        out << message << "\n";
-        _logFile.flush();
-        qInfo().noquote() << "QGC_SecurityLog: wrote persistent log:" << _logFile.fileName();
-    } else {
-        qWarning().noquote() << "QGC_SecurityLog: persistent log file is not open";
+void SecurityLogModel::_appendMessagesToModel(const QStringList& messages)
+{
+    for (const QString& message : messages) {
+        if (message.isEmpty()) {
+            continue;
+        }
+        const int row = rowCount();
+        insertRows(row, 1);
+        setData(index(row), message, Qt::DisplayRole);
+    }
+
+    const int excess = rowCount() - _maxModelMessages;
+    if (excess > 0) {
+        removeRows(0, excess);
     }
 }
 
 void SecurityLogModel::_initPersistentLog()
 {
-    if (_persistentInitDone) {
-        return;
-    }
-    _persistentInitDone = true;
-
     const QString baseDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (baseDir.isEmpty()) {
         qWarning() << "QGC_SecurityLog: AppDataLocation is empty, persistence disabled";
@@ -83,99 +112,198 @@ void SecurityLogModel::_initPersistentLog()
         return;
     }
 
-    const QString logPath = dir.absoluteFilePath(QStringLiteral("QGCSecurity.log"));
-    qInfo().noquote() << "QGC_SecurityLog: init persistent log:" << logPath;
+    _logFilePath = dir.absoluteFilePath(QStringLiteral("QGCSecurity.log"));
+    auto* watcher = new QFutureWatcher<QStringList>(this);
+    connect(watcher, &QFutureWatcher<QStringList>::finished, this, [this, watcher] {
+        const QStringList persistentMessages = watcher->result();
+        watcher->deleteLater();
 
-    QFile readFile(logPath);
-    if (readFile.exists() && readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&readFile);
-        while (!in.atEnd()) {
-            const QString lineText = in.readLine();
-            if (lineText.isEmpty()) {
-                continue;
+        if (!_clearRequested) {
+            QStringList combined = persistentMessages;
+            combined.append(stringList());
+            while (combined.count() > _maxModelMessages) {
+                combined.removeFirst();
             }
-            const int line = rowCount();
-            insertRows(line, 1);
-            setData(index(line), lineText, Qt::DisplayRole);
+            setStringList(combined);
+        }
+    });
+    watcher->setFuture(QtConcurrent::run(&_fileWorker, &SecurityLogModel::_loadRecentMessages, _logFilePath));
+}
+
+QStringList SecurityLogModel::_loadRecentMessages(const QString& logPath)
+{
+    QFile file(logPath);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return {};
+    }
+
+    const qint64 startOffset = qMax<qint64>(0, file.size() - _recentLogReadBytes);
+    if (startOffset > 0 && file.seek(startOffset)) {
+        // Discard the possibly incomplete first line after seeking near EOF.
+        file.readLine();
+    }
+
+    QTextStream stream(&file);
+    QStringList messages;
+    while (!stream.atEnd()) {
+        const QString message = stream.readLine();
+        if (message.isEmpty()) {
+            continue;
+        }
+        messages.append(message);
+        if (messages.count() > _maxModelMessages) {
+            messages.removeFirst();
         }
     }
+    return messages;
+}
 
-    _logFile.setFileName(logPath);
-    if (!_logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        qWarning() << "QGC_SecurityLog: Failed to open log file:" << _logFile.fileName() << _logFile.errorString();
+void SecurityLogModel::_flushPendingMessages()
+{
+    Q_ASSERT(QThread::currentThread() == thread());
+
+    if (_pendingMessages.isEmpty()) {
+        return;
     }
+
+    const QStringList messages = _pendingMessages;
+    _pendingMessages.clear();
+    _pendingOverflowReported = false;
+    const QString logFilePath = _logFilePath;
+    QtConcurrent::run(&_fileWorker, [logFilePath, messages] {
+        if (!_appendPersistentMessages(logFilePath, messages)) {
+            qWarning() << "QGC_SecurityLog: failed to append persistent log";
+        }
+    });
+}
+
+bool SecurityLogModel::_appendPersistentMessages(const QString& logPath, const QStringList& messages)
+{
+    QFile file(logPath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        return false;
+    }
+
+    QTextStream stream(&file);
+    for (const QString& message : messages) {
+        stream << message << '\n';
+    }
+    return stream.status() == QTextStream::Ok && file.flush();
+}
+
+bool SecurityLogModel::_clearPersistentLog(const QString& logPath)
+{
+    QFile file(logPath);
+    return file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+}
+
+bool SecurityLogModel::_exportPersistentLog(const QString& logPath, const QString& destFile)
+{
+    if (QFileInfo(logPath).absoluteFilePath() == QFileInfo(destFile).absoluteFilePath()) {
+        return false;
+    }
+
+    QFile source(logPath);
+    QFile destination(destFile);
+    if (!source.open(QIODevice::ReadOnly) || !destination.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        return false;
+    }
+
+    QByteArray buffer;
+    while (!(buffer = source.read(64 * 1024)).isEmpty()) {
+        if (destination.write(buffer) != buffer.size()) {
+            return false;
+        }
+    }
+    return source.atEnd() && destination.flush();
 }
 
 void SecurityLogModel::writeMessages(const QString destFile)
 {
-    const QString writebuffer(stringList().join('\n').append('\n'));
-    QtConcurrent::run([destFile, writebuffer] {
-        if (s_seclogModel.isDestroyed()) return;
-        emit s_seclogModel->writeStarted();
-        bool success = false;
-        QFile file(destFile);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream out(&file);
-            out << writebuffer;
-            success = out.status() == QTextStream::Ok;
-        } else {
-            qWarning() << "SecurityLogModel::writeMessages failed:" << file.errorString();
-        }
-        if (!s_seclogModel.isDestroyed())
-            emit s_seclogModel->writeFinished(success);
+    if (destFile.isEmpty() || _logFilePath.isEmpty()) {
+        emit writeFinished(false);
+        return;
+    }
+
+    // Enqueue pending records before export so the resulting file includes
+    // every event accepted before this request.
+    _flushTimer.stop();
+    _flushPendingMessages();
+
+    const QString logFilePath = _logFilePath;
+    auto* watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher] {
+        const bool success = watcher->result();
+        watcher->deleteLater();
+        emit writeFinished(success);
     });
+
+    emit writeStarted();
+    watcher->setFuture(QtConcurrent::run(&_fileWorker, &SecurityLogModel::_exportPersistentLog, logFilePath, destFile));
 }
 
 void SecurityLogModel::clearLog()
 {
-    if (!_persistentInitDone) {
-        _initPersistentLog();
-    }
-
-    if (rowCount() > 0) {
-        removeRows(0, rowCount());
-    }
-
-    const QString logPath = _logFile.fileName();
-    if (logPath.isEmpty()) {
+    _clearRequested = true;
+    _flushTimer.stop();
+    _pendingMessages.clear();
+    _pendingOverflowReported = false;
+    setStringList(QStringList());
+    if (_logFilePath.isEmpty()) {
         return;
     }
 
-    if (_logFile.isOpen()) {
-        _logFile.close();
-    }
-
-    QFile clearFile(logPath);
-    if (!clearFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-        qWarning() << "SecurityLogModel: Failed to clear log file:" << logPath << clearFile.errorString();
-        return;
-    }
-    clearFile.close();
-
-    if (!_logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        qWarning() << "SecurityLogModel: Failed to reopen log file after clear:" << _logFile.fileName() << _logFile.errorString();
-    }
+    const QString logFilePath = _logFilePath;
+    QtConcurrent::run(&_fileWorker, [logFilePath] {
+        if (!_clearPersistentLog(logFilePath)) {
+            qWarning() << "QGC_SecurityLog: failed to clear persistent log";
+        }
+    });
 }
 
-// SecurityLog static helpers
-
-void SecurityLog::installModel()
+void SecurityLog::installModel(QObject* owner)
 {
-    // Force creation of the model on the calling (main) thread
-    Q_UNUSED(*s_seclogModel);
+    Q_ASSERT(owner);
+    Q_ASSERT(QThread::currentThread() == owner->thread());
+
+    if (s_securityLogModel) {
+        if (s_securityLogModel->thread() != owner->thread()) {
+            qCritical() << "QGC_SecurityLog: refusing to share a model across QML threads";
+        }
+        return;
+    }
+
+    s_securityLogModel = new SecurityLogModel(owner);
+    QObject::connect(s_securityLogModel, &QObject::destroyed, [](QObject*) {
+        s_securityLogModel = nullptr;
+    });
 }
 
 SecurityLogModel* SecurityLog::getModel()
 {
-    return s_seclogModel;
+    return s_securityLogModel;
 }
 
 void SecurityLog::logEvent(const QString& message)
 {
     const QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
     const QString fullMsg = QStringLiteral("[%1] %2").arg(timestamp, message);
-    qInfo().noquote() << "QGC_SecurityLog: logEvent:" << fullMsg;
-    SecurityLogModel::log(fullMsg);
+
+    QGCApplication* const app = qgcApp();
+    if (!app || QCoreApplication::closingDown()) {
+        return;
+    }
+
+    QMetaObject::invokeMethod(app, [fullMsg] {
+        if (!s_securityLogModel) {
+            return;
+        }
+        if (s_securityLogModel->thread() != QThread::currentThread()) {
+            qCritical() << "QGC_SecurityLog: application and model threads differ; dropping log event";
+            return;
+        }
+        s_securityLogModel->appendMessage(fullMsg);
+    }, Qt::QueuedConnection);
 }
 
 #ifdef __ANDROID__
@@ -205,8 +333,6 @@ Java_org_mavlink_qgroundcontrol_QGCActivity_nativeLogSecurityEvent(
         return;
     }
 
-    qInfo().noquote() << "QGC_SecurityLog: JNI received USB security event:" << logMessage;
     SecurityLog::logEvent(logMessage);
-    qInfo().noquote() << "SECURITY:" << logMessage;
 }
 #endif

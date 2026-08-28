@@ -389,8 +389,14 @@ QQmlApplicationEngine* QGCCorePlugin::createQmlApplicationEngine(QObject* parent
     qmlEngine->addImportPath("qrc:/qml");
     qmlEngine->rootContext()->setContextProperty("joystickManager", qgcApp()->toolbox()->joystickManager());
     qmlEngine->rootContext()->setContextProperty("debugMessageModel", AppMessages::getModel());
-    SecurityLog::installModel();
-    qmlEngine->rootContext()->setContextProperty("securityLogModel", SecurityLog::getModel());
+    SecurityLog::installModel(qmlEngine);
+    SecurityLogModel* const securityLogModel = SecurityLog::getModel();
+    if (securityLogModel && securityLogModel->thread() == qmlEngine->thread()) {
+        qmlEngine->rootContext()->setContextProperty("securityLogModel", securityLogModel);
+    } else {
+        qCritical() << "QGC_SecurityLog: security log model is not available on the QML engine thread";
+        qmlEngine->rootContext()->setContextProperty("securityLogModel", static_cast<QObject*>(nullptr));
+    }
     SecurityManager* securityManager = new SecurityManager(qmlEngine);
     qmlEngine->rootContext()->setContextProperty("securityManager", securityManager);
     SessionManager* sessionManager = new SessionManager(qmlEngine);
