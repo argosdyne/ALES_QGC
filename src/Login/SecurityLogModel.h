@@ -11,42 +11,49 @@
 
 #include <QObject>
 #include <QStringListModel>
-#include <QFile>
-
-// Hackish way to force only this translation unit to have public ctor access
-#ifndef _SECLOG_CTOR_ACCESS_
-#define _SECLOG_CTOR_ACCESS_ private
-#endif
+#include <QThreadPool>
+#include <QTimer>
 
 class SecurityLogModel : public QStringListModel
 {
     Q_OBJECT
 public:
+    explicit SecurityLogModel(QObject* parent = nullptr);
+
     Q_INVOKABLE void writeMessages(const QString destFile);
     Q_INVOKABLE void clearLog();
-    static void log(const QString message);
+    void appendMessage(const QString& message);
 
 signals:
-    void emitLog(const QString message);
     void writeStarted();
     void writeFinished(bool success);
 
-private slots:
-    void threadsafeLog(const QString message);
-
 private:
-    void _initPersistentLog();
-    QFile _logFile;
-    bool _persistentInitDone = false;
+    static constexpr int    _maxModelMessages = 5000;
+    static constexpr int    _maxPendingMessages = 5000;
+    static constexpr qint64 _recentLogReadBytes = 1024 * 1024;
 
-_SECLOG_CTOR_ACCESS_:
-    SecurityLogModel();
+    void _initPersistentLog();
+    void _appendMessagesToModel(const QStringList& messages);
+    void _flushPendingMessages();
+
+    static QStringList _loadRecentMessages(const QString& logPath);
+    static bool _appendPersistentMessages(const QString& logPath, const QStringList& messages);
+    static bool _clearPersistentLog(const QString& logPath);
+    static bool _exportPersistentLog(const QString& logPath, const QString& destFile);
+
+    QString     _logFilePath;
+    QThreadPool _fileWorker;
+    QTimer      _flushTimer;
+    QStringList _pendingMessages;
+    bool        _pendingOverflowReported = false;
+    bool        _clearRequested = false;
 };
 
 class SecurityLog
 {
 public:
-    static void installModel();
+    static void installModel(QObject* owner);
     static SecurityLogModel* getModel();
     static void logEvent(const QString& message);
 };
