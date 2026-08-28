@@ -1511,6 +1511,12 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             bool lastExitTurnaround     = coordIndex == _rgFlightPathCoordInfo.count() - 1;
             if (buildState.addTriggerAtFirstAndLastPoint && (firstEntryTurnaround || lastExitTurnaround)) {
                 _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, firstEntryTurnaround ? triggerDistance() : 0);
+            } else if (hoverAndCaptureEnabled() && triggerCamera()) {
+                // Hover-and-capture: photograph turnaround corners so the drone takes a
+                // photo at every waypoint it stops at. Without this the turnaround coord
+                // falls through to a fly-through NAV_WAYPOINT with no capture command.
+                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
+                _appendSinglePhotoCapture(items, missionItemParent, seqNum);
             } else {
                 _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
             }
