@@ -2608,7 +2608,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="107" />
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="692" />
       <source>Sensor Settings</source>
-      <translation>Sensor-Einstellungen</translation>
+      <translation>Sensoroptionen</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="155" />
@@ -2866,7 +2866,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="632" />
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="632" />
       <source>Accelerometer</source>
-      <translation>Beschleunigungssensor</translation>
+      <translation>Accelerometer</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="640" />
@@ -3107,7 +3107,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="46" />
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="46" />
       <source>Accelerometer(s)</source>
-      <translation>Beschleunigungssensor(en)</translation>
+      <translation>Accelerometer(en)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47" />
@@ -4222,7 +4222,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/ui/toolbar/ArmedIndicator.qml" line="24" />
       <source>Armed</source>
-      <translation>Scharfgeschaltet</translation>
+      <translation>Armed</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/ArmedIndicator.qml" line="24" />
@@ -4232,7 +4232,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/ui/toolbar/ArmedIndicator.qml" line="25" />
       <source>Arm</source>
-      <translation>Scharfschalten</translation>
+      <translation>Arm</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/ArmedIndicator.qml" line="25" />
@@ -8297,7 +8297,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="37" />
       <source>Arm</source>
-      <translation>Scharfschalten</translation>
+      <translation>Arm</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="39" />
@@ -8750,7 +8750,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/Joystick/Joystick.cc" line="45" />
       <source>Arm</source>
-      <translation>Scharfschalten</translation>
+      <translation>Arm</translation>
     </message>
     <message>
       <location filename="../src/Joystick/Joystick.cc" line="46" />
@@ -9639,7 +9639,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="196" />
       <source>Accelerometer</source>
-      <translation>Beschleunigungssensor</translation>
+      <translation>Accelerometer</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="197" />
@@ -9724,7 +9724,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="213" />
       <source>Accelerometer 2</source>
-      <translation>Beschleunigungssensor 2</translation>
+      <translation>Accelerometer 2</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="214" />
@@ -10030,6 +10030,53 @@ Click Ok to start the auto-tuning process.
       <source>Back</source>
       <translation>Zurück</translation>
     </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="238" />
+      <location filename="../src/ui/MainRootWindow.qml" line="502" />
+      <source>About</source>
+      <translation>Über</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="255" />
+      <source>AlesQGC Smart Controller v1.0</source>
+      <translation>AlesQGC Smart Controller v1.0</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="263" />
+      <source>Copyright © 2024 %1. All rights reserved.</source>
+      <translation>Copyright © 2024 %1. Alle Rechte vorbehalten.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="284" />
+      <source>This product includes software developed by the QGroundControl project &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</source>
+      <translation>Dieses Produkt enthält Software, die vom QGroundControl-Projekt entwickelt wurde &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="290" />
+      <source>QGroundControl is licensed under the Apache License, Version 2.0.</source>
+      <translation>QGroundControl ist unter der Apache-Lizenz, Version 2.0 lizenziert.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="301" />
+      <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
+      <translation>Eine Kopie der Apache-Lizenz erhalten Sie unter:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310" />
+      <source>Android %1</source>
+      <translation>Android %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310" />
+      <location filename="../src/ui/MainRootWindow.qml" line="315" />
+      <source>Unknown</source>
+      <translation>Unbekannt</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="324" />
+      <source>Develope under: %1 - Security patch %2</source>
+      <translation>Entwickelt unter: %1 - Sicherheitspatch %2</translation>
+    </message>
   
 <message>
         <location filename="../src/ui/MainRootWindow.qml" line="230" />
@@ -10087,7 +10134,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="39" />
       <source>Armed</source>
-      <translation>Scharfgeschaltet</translation>
+      <translation>Armed</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="40" />
@@ -10160,7 +10207,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="173" />
       <source>Arm</source>
-      <translation>Scharfschalten</translation>
+      <translation>Arm</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="241" />
@@ -11238,7 +11285,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="130" />
       <source>Armed</source>
-      <translation>Scharfgeschaltet</translation>
+      <translation>Armed</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="130" />
@@ -11261,7 +11308,7 @@ Click Ok to start the auto-tuning process.
 <message>
         <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="151" />
         <source>Arm</source>
-        <translation>Scharfschalten</translation>
+        <translation>Arm</translation>
     </message>
 <message>
         <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="169" />
@@ -13672,7 +13719,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
 <message>
         <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="439" />
         <source>Gimbal Pitch</source>
-        <translation>Gimbal-Neigung</translation>
+        <translation>Gimbal-Nick</translation>
     </message>
 <message>
         <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="448" />
@@ -13913,7 +13960,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="143" />
       <source>Alt diff:</source>
-      <translation>Höhendiff.:</translation>
+      <translation>Alt diff:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="152" />
@@ -13944,7 +13991,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="206" />
       <source>Max telem dist:</source>
-      <translation>Max. Telemetrie-Distanz:</translation>
+      <translation>Max telem dist:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="213" />
@@ -14001,7 +14048,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
 <message>
         <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="161" />
         <source>Dist prev WP:</source>
-        <translation>Distanz vorh. WP:</translation>
+        <translation>Dist prev WP:</translation>
     </message>
 </context>
   <context>
@@ -16765,7 +16812,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don't 
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummary.qml" line="51" />
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummary.qml" line="51" />
       <source>Accelerometer</source>
-      <translation>Beschleunigungssensor</translation>
+      <translation>Accelerometer</translation>
     </message>
   </context>
   <context>
@@ -16810,7 +16857,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don't 
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="42" />
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="42" />
       <source>Accelerometer:</source>
-      <translation>Beschleunigungssensor:</translation>
+      <translation>Accelerometer:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="47" />
@@ -16995,13 +17042,13 @@ ROTATION_NONE indicates component points in direction of flight.</source>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="431" />
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="431" />
       <source>Accelerometer</source>
-      <translation>Beschleunigungssensor</translation>
+      <translation>Accelerometer</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="438" />
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="438" />
       <source>Calibrate Accelerometer</source>
-      <translation>Beschleunigungssensor kalibrieren</translation>
+      <translation>Accelerometer kalibrieren</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="445" />
@@ -17197,7 +17244,7 @@ ROTATION_NONE indicates component points in direction of flight.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/SetupPage.qml" line="42" />
       <source>armed</source>
-      <translation>scharfgeschaltet</translation>
+      <translation>Armed</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/SetupPage.qml" line="42" />
@@ -19188,12 +19235,12 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2441" />
       <source>armed</source>
-      <translation>scharfgeschaltet</translation>
+      <translation>armed</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2441" />
       <source>disarmed</source>
-      <translation>entschärft</translation>
+      <translation>disarmed</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2835" />
@@ -21749,7 +21796,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="76" />
       <source>Accelerometer(s):</source>
-      <translation>Beschleunigungssensor(en):</translation>
+      <translation>Accelerometer(en):</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="89" />
