@@ -165,12 +165,11 @@ Item {
     property real _opticalMaxThreshold: 29.5
     property bool _zoomInActive: false
     property bool _zoomOutActive: false
-    // Optical hold → CONTINUOUS (phase machine). Digital → tap step only.
     property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
-    property bool _digitalZoomActive:    _dZoom ? _dZoom.value > 1.01 : false
     property bool _zoomOutCanContinuous: _mavlinkCamera
-            && !_digitalZoomActive
-            && _mavlinkCamera.zoomLevel > 1.01
+            && (typeof _mavlinkCamera.displayZoomLevel !== "undefined"
+                ? _mavlinkCamera.displayZoomLevel > 1.01
+                : (_dZoom && _dZoom.value > 1.01) || _mavlinkCamera.zoomLevel > 1.01)
 
 
     //----------------------------------------------------------------------------------------------- Functions
@@ -205,7 +204,7 @@ Item {
         if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
             return
         }
-        if (typeof _mavlinkCamera.startZoomFromUi === "function") {
+        if (direction < 0 && typeof _mavlinkCamera.startZoomFromUi === "function") {
             _mavlinkCamera.startZoomFromUi(direction)
         } else if (typeof _mavlinkCamera.startZoom === "function") {
             _mavlinkCamera.startZoom(direction)
@@ -349,15 +348,17 @@ Item {
             return "1"
         }
         if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
-            return String(Math.round(_mavlinkCamera.displayZoomLevel))
+            return String(_mavlinkCamera.displayZoomLevel)
         }
         if (isNaN(_mavlinkCamera.zoomLevel)) {
             return "1"
         }
 
-        var optical = _mavlinkCamera.zoomLevel
-        var digital = (_dZoom ? _dZoom.value : 1.0)
+        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
+        var digital = (_dZoom ? _dZoom.value : 1.0);
+
         return String(Math.round(optical * digital))
+
     }
 
     Timer {

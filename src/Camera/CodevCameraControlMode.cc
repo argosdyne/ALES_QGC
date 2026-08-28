@@ -50,12 +50,7 @@ void CodevCameraControl::_scheduleStorageRefreshAfterModeSwitch()
 {
     _storageRefreshAttempts = 0;
     _storageRefreshTimer.stop();
-    QTimer::singleShot(kStorageRefreshInitialDelayMs, this, [this]() {
-        _requestAllStoragePools();
-        if (!_isCurrentModeStorageReady() && !_storageRefreshTimer.isActive()) {
-            _storageRefreshTimer.start();
-        }
-    });
+    _storageRefreshTimer.start(kStorageRefreshInitialDelayMs);
 }
 
 void CodevCameraControl::_stopStorageRefreshAfterModeSwitch()
@@ -445,7 +440,7 @@ void CodevCameraControl::_setCameraMode(CameraMode mode)
         _applyStorageForCurrentMode();
         emit storageFreeChanged();
         emit storageTotalChanged();
-        if (mode == CAM_MODE_PHOTO) {
+        if (mode == CAM_MODE_PHOTO || mode == CAM_MODE_VIDEO) {
             _scheduleStorageRefreshAfterModeSwitch();
         }
     }

@@ -342,7 +342,10 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f3Pressed = (f3Count > 250); // 5s
     if(f3Pressed != _f3Pressed) {
         _f3Pressed = f3Pressed;
-        qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
+        // qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
+        // qCInfo(AVIATORInterfaceLog) << "[ThermalRC] F3 long-press state"
+        //                             << "active" << _f3Pressed
+        //                             << "thresholdMs" << kF3LongPressMs;
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, _f3Pressed);
         qCDebug(AVIATORInterfaceLog) << "START MISSION 명령 전송: " << _f3Pressed;
     }
@@ -494,6 +497,40 @@ void AVIATORInterface::_handle_mavlink_param_value(const mavlink_message_t& mess
         }
 
         fact->setRawValue(parameterValue);
+    }
+}
+
+void AVIATORInterface::handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels)
+{
+    static constexpr qint64 shortPressMaxMs = 1000;
+    static constexpr qint64 longPressMs = 5000;
+
+    const bool f2 = _rcSwitchActive(channels.chan14_raw);
+    const bool f3 = _rcSwitchActive(channels.chan16_raw);
+
+    if (f2 != _f2Pressed) {
+        _f2Pressed = f2;
+        emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
+    }
+
+    static QElapsedTimer f3PressTimer;
+    if (f3) {
+        if (!f3PressTimer.isValid()) {
+            f3PressTimer.start();
+        }
+    } else if (f3PressTimer.isValid()) {
+        const qint64 pressDurationMs = f3PressTimer.elapsed();
+        if (pressDurationMs < shortPressMaxMs) {
+            emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
+        }
+        f3PressTimer.invalidate();
+    }
+
+    const bool f3LongPressed = f3 && f3PressTimer.isValid()
+            && f3PressTimer.elapsed() >= longPressMs;
+    if (f3LongPressed != _f3Pressed) {
+        _f3Pressed = f3LongPressed;
+        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, _f3Pressed);
     }
 }
 

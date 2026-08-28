@@ -8,6 +8,7 @@
 #include "QGCApplication.h"
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
+#include "CustomPlugin.h"
 #include "CodevCameraControl.h"
 #include "Fact.h"
 #include "GimbalController.h"
@@ -370,6 +371,17 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
                 << "compMatch" << compMatch;
     }
 
+    if (sysMatch && _vehicle->px4Firmware() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t rcChannels;
+        mavlink_msg_rc_channels_decode(&message, &rcChannels);
+
+        if (message.compid == MAV_COMP_ID_AUTOPILOT1) {
+            auto* customPlugin = qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin());
+            if (customPlugin && customPlugin->aviatorInterface()) {
+                customPlugin->aviatorInterface()->handlePx4ThermalRCChannels(rcChannels);
+            }
+        }
+    }
     //-- Only pay attention to camera components, as identified by their compId
     if(sysMatch && compMatch) {
         switch (message.msgid) {

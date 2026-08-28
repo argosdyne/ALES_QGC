@@ -67,6 +67,7 @@ private slots:
 
 public slots:
 
+    void handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels);
 private:
     void _init();
     void _handle_mavlink_rc_channels(const mavlink_message_t& message);

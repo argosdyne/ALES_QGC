@@ -369,44 +369,15 @@ private:
     void _cancelPendingRcAction();
     void _completePendingRcAction();
 
-    // Zoom ownership: IDLE owns trusted RANGE; SLEWING is CONTINUOUS estimate-only;
-    // SETTLING commits trusted only from plausible settled reports (never stale min/max).
-    enum class ZoomPhase {
-        Idle = 0,
-        Slewing,
-        Settling,
-    };
-    void _setZoomPhase(ZoomPhase phase, const char* sourceTag);
-    void _beginSlew(int direction, const char* sourceTag);
-    void _beginSettle(const char* sourceTag);
-    void _forceIdleFromEstimate(const char* sourceTag);
-    void _commitSettledOptical(float reportedRaw, const char* sourceTag);
-    void _handleOpticalZoomReport(float reportedRaw);
-    bool _isPlausibleSlewReport(float reported, float reference) const;
-    void _purgeQueuedCameraZoomCommands();
-    bool _sendContinuousZoomImmediate(float direction);
-    void _sendRangeZoomImmediate(float range);
-    void _onSettlingTimeout();
-    void _onRcZoomReleaseTimeout();
-
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     int _aviatorRcZoomState{0};
     qint64 _lastZoomStepMs{0};
-    qint64 _lastContinuousNonZeroMs{0};
-    float _lastContinuousNonZeroDir{0.0f};
     bool _opticalRangeBootstrapped{false};
     float _lastCameraReportedOptical{1.0f};
     void _reconcileCameraAheadReport();
     QTimer _holdZoomStepTimer;
-    QTimer _settlingTimer;
-    QTimer _rcZoomReleaseTimer;
     int _holdZoomDirection{0};
     bool _holdZoomAllowDigital{false};
-    ZoomPhase _zoomPhase{ZoomPhase::Idle};
-    float _opticalEstimate{1.0f};     // UI estimate during SLEWING/SETTLING
-    float _slewStartOptical{1.0f};    // trusted snapshot when slew began (stale checks)
-    float _settleCandidate{1.0f};
-    int _settleStableCount{0};
     CameraMode _userModeIntent{CAM_MODE_UNDEFINED};
     QElapsedTimer _userModeIntentTimer;
 
