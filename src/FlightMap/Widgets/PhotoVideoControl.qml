@@ -130,6 +130,7 @@ Item {
     property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
     property bool   _isNextVisionPayload:                       PayloadManager.activeType === 1 && PayloadManager.nextvision
+    property bool   _nextVisionRecording:                       _isNextVisionPayload && PayloadManager.nextvision.recording
     property bool   _vehicleVideoCaptureRunning:                _activeVehicle && _activeVehicle.videoCaptureRunning
     property bool   _vehicleVideoCaptureAvailable:              _activeVehicle && !_modeIndicatorPhotoMode
 
@@ -144,9 +145,9 @@ Item {
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
-    property bool   _videoIsRecording:                          _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecordingEffective : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
+    property bool   _videoIsRecording:                          _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecordingEffective : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
     property bool   _canShootInCurrentMode:                     _vehicleVideoCaptureAvailable || (_mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable)
-    property bool   _isShootingInCurrentMode:                   _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecordingEffective) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
+    property bool   _isShootingInCurrentMode:                   _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecordingEffective) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
     // Debounce rapid zoom taps: the camera's stepZoom() computes its next
@@ -275,6 +276,14 @@ Item {
             return
         }
 
+        if (_usePayload && PayloadManager.activeType === 1 && !_videoStreamInPhotoMode) {
+            if (PayloadManager.nextvision.recording) {
+                PayloadManager.nextvision.stopRecording()
+            } else {
+                PayloadManager.nextvision.startRecording()
+            }
+            return
+        }
         if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
             _activeVehicle.toggleVideoCapture()
             return

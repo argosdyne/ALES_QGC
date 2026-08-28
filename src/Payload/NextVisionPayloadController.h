@@ -4,8 +4,8 @@
 /// The DragonEye2 gimbal sits behind an ArduPilot flight controller reached over
 /// UDP (default 192.168.2.28:10038). Pan/tilt are driven with RC_CHANNELS_OVERRIDE:
 ///   CH10 = roll/pan/yaw, CH9 = pitch/tilt, 1500 center, 1500 +/- offset.
-///   CH6 = stow/OBS/pilot reset, CH11 = zoom in/stop/out, CH12 = snapshot.
-///   CH13 record is left to the physical RC/camera assignment.
+///   CH6 = stow/OBS/pilot reset, CH11 = zoom in/stop/out, CH12 = snapshot,
+///   CH13 = record.
 ///
 /// Critical protocol details (from the working NextVisionGimbalMaui app):
 ///  - Sender system id MUST match the rig's ArduPilot SYSID_MYGCS. aq2apm45.param sets it to
@@ -26,6 +26,7 @@ class NextVisionPayloadController : public PayloadController
     Q_PROPERTY(int speedOffset READ speedOffset WRITE setSpeedOffset NOTIFY speedChanged)
     Q_PROPERTY(double pitch READ pitch NOTIFY attitudeChanged)
     Q_PROPERTY(double yaw   READ yaw   NOTIFY attitudeChanged)
+    Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
 
 public:
     explicit NextVisionPayloadController(QObject* parent = nullptr);
@@ -36,6 +37,7 @@ public:
     void setSpeedOffset(int offset);
     double pitch() const { return _pitch; }
     double yaw()   const { return _yaw; }
+    bool recording() const { return _recording; }
 
     void connectPayload() override;
     void gimbalMove(int pan, int tilt) override;
@@ -54,6 +56,7 @@ signals:
     void attitudeChanged();
     void zoomStepTriggered(int direction);
     void photoCaptureTriggered();
+    void recordingChanged();
 
 protected:
     void _handleMavlinkMessage(const mavlink_message_t& message) override;
@@ -74,6 +77,7 @@ private:
     QTimer* _txTimer = nullptr;
     QTimer* _zoomStepTimer = nullptr;
     int      _zoomStepDirection = 0;
+    bool     _recording = false;
     quint32 _tickCount = 0;
 
     uint16_t _channels[18];
@@ -93,6 +97,7 @@ private:
     static constexpr int  kTiltChannelIndex     = 8;  // CH9 Pitch / tilt
     static constexpr int  kZoomControlChannelIndex = 10; // CH11 Zoom-In/Stop/Zoom-Out
     static constexpr int  kSnapshotChannelIndex    = 11; // CH12 Snapshot
+    static constexpr int  kRecordChannelIndex      = 12; // CH13 Record
     static constexpr int  kHomeModeChannelIndex    = 5;  // CH6 Stow/OBS/Pilot
 
     // ArduPilot target; learned from HEARTBEAT, defaults to 1/1.
