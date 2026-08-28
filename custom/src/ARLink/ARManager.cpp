@@ -478,16 +478,9 @@ void ARManager::_requestDoodleRadioInfo()   // batched info request
 void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
 {
     const QString operation = reply->property("doodleOp").toString();
-    const QByteArray payload = reply->readAll();
     _doodleRequestInFlight = false;
 
-    //if (!payload.isEmpty()) {
-    //    qInfo().noquote() << QStringLiteral("[Doodle API][%1] %2")
-    //        .arg(operation, QString::fromUtf8(payload));
-    //}
-
     if (reply->error() != QNetworkReply::NoError) {
-        qCWarning(ARManagerLog) << "[Doodle API]" << operation << "failed:" << reply->errorString();
         if (operation == "login" || operation == "info") {
             _rpcSession.clear();
             _setMountedFromDoodle(false);
@@ -498,6 +491,8 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
         reply->deleteLater();
         return;
     }
+
+    const QByteArray payload = reply->readAll();
 
     if (operation == "login") {
         QJsonParseError parseError;

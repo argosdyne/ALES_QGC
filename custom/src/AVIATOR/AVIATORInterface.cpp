@@ -289,31 +289,6 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     _updateEmergencyStopCombo(channels.chan7_raw, channels.chan15_raw);
 
 
-    for (int i = 0; i < newChannelValues.size(); ++i) {
-        if (_prevChannelValues[i] != newChannelValues[i]) {
-            qCDebug(AVIATORInterfaceLog) << "Channel" << (i + 1) << "Changed: Previous Value =" << _prevChannelValues[i] << ", New Value1 =" << newChannelValues[i];
-        }
-    }
-
-    if (_prevChannelValues != newChannelValues) {
-        qCInfo(AVIATORInterfaceLog) << "[RCFlow]"
-                                    << "aviator rc input"
-                                    << "count" << channels.chancount
-                                    << "rssi" << channels.rssi
-                                    << "ch1-4"
-                                    << newChannelValues.value(0) << newChannelValues.value(1) << newChannelValues.value(2) << newChannelValues.value(3)
-                                    << "ch5-8"
-                                    << newChannelValues.value(4) << newChannelValues.value(5) << newChannelValues.value(6) << newChannelValues.value(7)
-                                    << "ch9-12"
-                                    << newChannelValues.value(8) << newChannelValues.value(9) << newChannelValues.value(10) << newChannelValues.value(11)
-                                    << "ch13-18"
-                                    << newChannelValues.value(12) << newChannelValues.value(13) << newChannelValues.value(14)
-                                    << newChannelValues.value(15) << newChannelValues.value(16) << newChannelValues.value(17);
-    }
-
-    _prevChannelValues = newChannelValues;
-
-
     for (uint16_t value : newChannelValues) {
         _rcChannelValues.append(QVariant::fromValue(value));
     }
@@ -330,6 +305,10 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f3 = channels.chan16_raw == 2000;
     bool capture = _rcSwitchActive(channels.chan12_raw);
     bool record = _rcSwitchActive(channels.chan13_raw);
+    const uint16_t zoomRaw = channels.chan11_raw;
+    const int cameraZoomState = (zoomRaw >= 1700 && zoomRaw <= 2200) ? 1
+                              : (zoomRaw >= 800 && zoomRaw <= 1300) ? -1
+                              : 0;
 
 
     // F1 
@@ -410,14 +389,29 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 
     if(capture != _capturePressed) {
         _capturePressed = capture;
-        qInfo() << "Capture Btn Click";
+        qInfo() << "[GremsyPhysical] capture CH12" << channels.chan12_raw
+                << "pressed" << _capturePressed;
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_CAPTURE, _capturePressed);
     }
 
     if(record != _recordPressed) {
         _recordPressed = record;
-        qInfo() <<" Record Btn Click";
+        qInfo() << "[GremsyPhysical] record CH13" << channels.chan13_raw
+                << "pressed" << _recordPressed;
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD, _recordPressed);
+    }
+
+    // C1/C2 share CH11. Emit one camera zoom step whenever CH11 moves away
+    // from center; the active payload decides how that step is implemented.
+    if (cameraZoomState != _cameraZoomState) {
+        _cameraZoomState = cameraZoomState;
+        qInfo() << "[CameraPhysical] zoom CH11" << zoomRaw
+                << "state" << _cameraZoomState;
+        if (_cameraZoomState > 0) {
+            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_IN, true);
+        } else if (_cameraZoomState < 0) {
+            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_OUT, true);
+        }
     }
 
     if (cn9 != _cn9Pressed) {

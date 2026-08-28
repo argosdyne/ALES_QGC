@@ -118,7 +118,9 @@ Rectangle {
             }
 
             QGCLabel {
-                visible: _root.payload.connected
+                // NextVision currently exposes autopilot ATTITUDE, not a
+                // trustworthy DragonEye gimbal attitude.
+                visible: _root.payload.connected && PayloadManager.activeType !== 1
                 color:   qgcPal.text
                 text:    qsTr("Attitude   Pitch %1°   Yaw %2°")
                             .arg(_root.payload.pitch.toFixed(0))

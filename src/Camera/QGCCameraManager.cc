@@ -33,9 +33,17 @@ static constexpr quint16 kCameraDefinitionLocalPort = 38081;
 static const char* kCameraDefinitionPathFormat = "/camera/%1/%2";
 static constexpr uint8_t kCodevFallbackDefinitionVersion = 23;
 
+static bool _isGremsyPayloadVideoUrl()
+{
+    const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
+    const QUrl url(rtspUrl);
+    return url.host() == QStringLiteral("192.168.2.240")
+            || url.path().contains(QStringLiteral("payload"), Qt::CaseInsensitive);
+}
+
 static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& definitionUri, mavlink_camera_information_t& info)
 {
-    if (compID != MAV_COMP_ID_CAMERA) {
+    if (compID != MAV_COMP_ID_CAMERA || _isGremsyPayloadVideoUrl()) {
         return false;
     }
 
@@ -55,10 +63,30 @@ static bool _populateCodevFallbackCameraInfo(int compID, const QByteArray& defin
     return true;
 }
 
+static bool _populateGremsyFallbackCameraInfo(int compID, mavlink_camera_information_t& info)
+{
+    if (compID != MAV_COMP_ID_CAMERA || !_isGremsyPayloadVideoUrl()) {
+        return false;
+    }
+
+    const QByteArray vendor = QByteArrayLiteral("Gremsy");
+    const QByteArray modelName = QByteArrayLiteral("Lynx");
+    memset(&info, 0, sizeof(info));
+    memcpy(info.vendor_name, vendor.constData(), qMin(static_cast<int>(sizeof(info.vendor_name)) - 1, vendor.size()));
+    memcpy(info.model_name, modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, modelName.size()));
+    info.flags = CAMERA_CAP_FLAGS_CAPTURE_IMAGE |
+                 CAMERA_CAP_FLAGS_CAPTURE_VIDEO |
+                 CAMERA_CAP_FLAGS_HAS_MODES |
+                 CAMERA_CAP_FLAGS_HAS_BASIC_ZOOM |
+                 CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM;
+    return true;
+}
+
 static bool _packSynthesizedCameraInformationMessage(Vehicle* vehicle, int compID, const QByteArray& definitionUri, mavlink_message_t& message)
 {
     mavlink_camera_information_t info{};
-    if (!_populateCodevFallbackCameraInfo(compID, definitionUri, info)) {
+    if (!_populateGremsyFallbackCameraInfo(compID, info) &&
+            !_populateCodevFallbackCameraInfo(compID, definitionUri, info)) {
         return false;
     }
 
@@ -480,26 +508,33 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
     }
 
     mavlink_message_t synthesizedMessage{};
-    if (!_ensureCameraDefinitionHttpServer()) {
-        qCWarning(CameraManagerLog) << "[CameraManager]"
-                   << "_injectSynthesizedCameraInformation failed"
-                   << "compId" << compID
-                   << "reason" << reason
-                   << "error" << "local_http_server_unavailable";
-        return false;
+    QByteArray definitionUri;
+    // Gremsy is configured as "Camera Definition: Offline" and is a basic
+    // MAVLink camera, so it must not depend on the local XML HTTP server.
+    // Keep the existing XML-backed path unchanged for Codev cameras.
+    if (!_isGremsyPayloadVideoUrl()) {
+        if (!_ensureCameraDefinitionHttpServer()) {
+            qCWarning(CameraManagerLog) << "[CameraManager]"
+                       << "_injectSynthesizedCameraInformation failed"
+                       << "compId" << compID
+                       << "reason" << reason
+                       << "error" << "local_http_server_unavailable";
+            return false;
+        }
+
+        const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
+        if (definitionUrl.isEmpty()) {
+            qCWarning(CameraManagerLog) << "[CameraManager]"
+                       << "_injectSynthesizedCameraInformation failed"
+                       << "compId" << compID
+                       << "reason" << reason
+                       << "error" << "definition_url_empty";
+            return false;
+        }
+        definitionUri = definitionUrl.toLatin1();
     }
 
-    const QString definitionUrl = _cameraDefinitionLocalUrl(compID);
-    if (definitionUrl.isEmpty()) {
-        qCWarning(CameraManagerLog) << "[CameraManager]"
-                   << "_injectSynthesizedCameraInformation failed"
-                   << "compId" << compID
-                   << "reason" << reason
-                   << "error" << "definition_url_empty";
-        return false;
-    }
-
-    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUrl.toLatin1(), synthesizedMessage)) {
+    if (!_packSynthesizedCameraInformationMessage(_vehicle, compID, definitionUri, synthesizedMessage)) {
         qCDebug(CameraManagerLog) << "[CameraManager]"
                 << "_injectSynthesizedCameraInformation no synth profile"
                 << "compId" << compID
@@ -511,7 +546,7 @@ QGCCameraManager::_injectSynthesizedCameraInformation(int compID, LinkInterface*
             << "_injectSynthesizedCameraInformation"
             << "compId" << compID
             << "reason" << reason
-            << "definitionUrl" << definitionUrl
+            << "definitionUri" << definitionUri
             << "msgid" << synthesizedMessage.msgid
             << "link" << link;
 
@@ -641,8 +676,11 @@ QGCCameraManager::_createCameraControlFromSettingsFallback(int compID, LinkInter
     const bool useCodevProfile = !definitionUrl.isEmpty() &&
                                  _populateCodevFallbackCameraInfo(compID, definitionUrl.toLatin1(), info);
     if (!useCodevProfile) {
-        const QByteArray vendor = QByteArrayLiteral("Unknown");
-        const QByteArray modelName = QStringLiteral("Camera %1").arg(compID).toLatin1();
+        const bool gremsyProfile = compID == MAV_COMP_ID_CAMERA && _isGremsyPayloadVideoUrl();
+        const QByteArray vendor = gremsyProfile ? QByteArrayLiteral("Gremsy")
+                                                : QByteArrayLiteral("Unknown");
+        const QByteArray modelName = gremsyProfile ? QByteArrayLiteral("Lynx")
+                                                   : QStringLiteral("Camera %1").arg(compID).toLatin1();
 
         memcpy(info.vendor_name, vendor.constData(), qMin(static_cast<int>(sizeof(info.vendor_name)) - 1, vendor.size()));
         memcpy(info.model_name, modelName.constData(), qMin(static_cast<int>(sizeof(info.model_name)) - 1, modelName.size()));
@@ -979,10 +1017,6 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
 
     QGCCameraControl* pCamera = currentCameraInstance();
     if (!pCamera) {
-        qCInfo(CameraManagerLog) << "[RCFlow]"
-                << "camera manager aviator rc ignored"
-                << "reason" << "no current camera"
-                << "count" << count;
         return;
     }
 
@@ -993,14 +1027,6 @@ QGCCameraManager::handleAviatorRCChannelValues(const quint16* channels, int coun
     rcChannels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
     rcChannels.chancount = static_cast<uint8_t>(copyCount);
     rcChannels.rssi = 255;
-
-    qCInfo(CameraManagerLog) << "[RCFlow]"
-            << "camera manager aviator rc dispatch"
-            << "cameraCompId" << pCamera->compID()
-            << "count" << copyCount
-            << "ch9" << rcChannels.chan9_raw
-            << "ch10" << rcChannels.chan10_raw
-            << "ch11" << rcChannels.chan11_raw;
 
     pCamera->handleRCChannels(rcChannels);
 }
