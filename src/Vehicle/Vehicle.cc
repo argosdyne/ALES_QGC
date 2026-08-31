@@ -61,6 +61,7 @@
 #include "Actuators/Actuators.h"
 #include "GimbalController.h"
 #include "NextVisionController.h"
+#include "PayloadManager.h"
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
@@ -84,6 +85,11 @@ const char* Vehicle::_settingsGroup =               "Vehicle%1";        // %1 re
 const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
 
 namespace {
+
+constexpr int kVideoRcOverrideIntervalMSecs = 40;
+constexpr int kVideoRcStopPulseCount = 5;
+constexpr uint16_t kVideoRcOverridePwmMin = 1000;
+constexpr uint16_t kVideoRcOverridePwmMax = 2000;
 
 QString _vehicleLogLinkName(LinkInterface* link)
 {
@@ -465,6 +471,10 @@ void Vehicle::_commonInit()
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
 
+    _videoRcOverrideTimer.setInterval(kVideoRcOverrideIntervalMSecs);
+    _videoRcOverrideTimer.setSingleShot(false);
+    connect(&_videoRcOverrideTimer, &QTimer::timeout, this, &Vehicle::_sendVideoRcOverride);
+
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateDistanceToGCS);
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateHomepoint);
 
@@ -609,6 +619,9 @@ void Vehicle::_commonInit()
 Vehicle::~Vehicle()
 {
     qCDebug(VehicleLog) << "~Vehicle" << this;
+
+    _videoCaptureRunning.store(false);
+    _videoRcOverrideTimer.stop();
 
     delete _missionManager;
     _missionManager = nullptr;
@@ -2126,6 +2139,30 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
 
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
+
+    // The state is entered only by the dedicated NextVision path. Keep other
+    // RC traffic from replacing its CH13 record override while it is active.
+    if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t channels;
+        mavlink_msg_rc_channels_decode(&message, &channels);
+        channels.chan13_raw = UINT16_MAX;
+        mavlink_msg_rc_channels_encode_chan(message.sysid,
+                                            message.compid,
+                                            link->mavlinkChannel(),
+                                            &message,
+                                            &channels);
+    } else if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE) {
+        mavlink_rc_channels_override_t channels;
+        mavlink_msg_rc_channels_override_decode(&message, &channels);
+        if (channels.chan13_raw != kVideoRcOverridePwmMax) {
+            channels.chan13_raw = UINT16_MAX;
+            mavlink_msg_rc_channels_override_encode_chan(message.sysid,
+                                                         message.compid,
+                                                         link->mavlinkChannel(),
+                                                         &message,
+                                                         &channels);
+        }
+    }
 
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
@@ -4036,22 +4073,114 @@ void Vehicle::stopMavlinkLog()
 
 void Vehicle::startVideoCapture()
 {
-    if (_cameraManager && _cameraManager->currentCameraInstance()) {
-        _cameraManager->currentCameraInstance()->startVideo();
+    PayloadManager* payloadManager = PayloadManager::instance();
+    const bool nextVisionActive = payloadManager->activeType() == 1
+            && payloadManager->nextvision()
+            && payloadManager->nextvision()->connected();
+    if (!nextVisionActive) {
+        if (_cameraManager && _cameraManager->currentCameraInstance()) {
+            _cameraManager->currentCameraInstance()->startVideo();
+        }
+        return;
     }
+
+    if (_videoCaptureRunning.exchange(true)) {
+        return;
+    }
+
+    _videoRcStopPulsesRemaining = 0;
+    emit videoCaptureRunningChanged();
+    _sendVideoRcOverride();
+    _videoRcOverrideTimer.start();
 }
 
 void Vehicle::stopVideoCapture()
 {
-    if (_cameraManager && _cameraManager->currentCameraInstance()) {
-        _cameraManager->currentCameraInstance()->stopVideo();
+    if (!_videoCaptureRunning.load()) {
+        if (_cameraManager && _cameraManager->currentCameraInstance()) {
+            _cameraManager->currentCameraInstance()->stopVideo();
+        }
+        return;
+    }
+
+    if (!_videoCaptureRunning.exchange(false)) {
+        return;
+    }
+
+    _videoRcOverrideTimer.stop();
+    emit videoCaptureRunningChanged();
+    // Do not wait for the ArduPilot RC override timeout. Drive CH13 low for a
+    // few packets so the NextVision recorder stops immediately, then release
+    // the timer and let the regular RC stream own the channel again.
+    _videoRcStopPulsesRemaining = kVideoRcStopPulseCount;
+    _sendVideoRcOverride();
+    if (_videoRcStopPulsesRemaining > 0) {
+        _videoRcOverrideTimer.start();
     }
 }
 
 void Vehicle::toggleVideoCapture()
 {
-    if (_cameraManager && _cameraManager->currentCameraInstance()) {
-        _cameraManager->currentCameraInstance()->toggleVideo();
+    if (_videoCaptureRunning.load()) {
+        stopVideoCapture();
+    } else {
+        PayloadManager* payloadManager = PayloadManager::instance();
+        const bool nextVisionActive = payloadManager->activeType() == 1
+                && payloadManager->nextvision()
+                && payloadManager->nextvision()->connected();
+        if (nextVisionActive) {
+            startVideoCapture();
+        } else if (_cameraManager && _cameraManager->currentCameraInstance()) {
+            _cameraManager->currentCameraInstance()->toggleVideo();
+        }
+    }
+}
+
+void Vehicle::_sendVideoRcOverride()
+{
+    const bool recording = _videoCaptureRunning.load();
+    if (!recording && _videoRcStopPulsesRemaining <= 0) {
+        _videoRcOverrideTimer.stop();
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "_sendVideoRcOverride: primary link gone!";
+        if (!recording) {
+            _videoRcStopPulsesRemaining = 0;
+            _videoRcOverrideTimer.stop();
+        }
+        return;
+    }
+
+    if (sharedLink->linkConfiguration()->isHighLatency()) {
+        if (!recording) {
+            _videoRcStopPulsesRemaining = 0;
+            _videoRcOverrideTimer.stop();
+        }
+        return;
+    }
+
+    const uint16_t recordPwm = recording ? kVideoRcOverridePwmMax : kVideoRcOverridePwmMin;
+    mavlink_message_t message;
+    mavlink_msg_rc_channels_override_pack_chan(
+                static_cast<uint8_t>(_mavlink->getSystemId()),
+                static_cast<uint8_t>(_mavlink->getComponentId()),
+                sharedLink->mavlinkChannel(),
+                &message,
+                static_cast<uint8_t>(_id),
+                MAV_COMP_ID_AUTOPILOT1,
+                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                recordPwm,                  // CH13 high = record, low = stop
+                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX);
+    sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+
+    if (!recording && --_videoRcStopPulsesRemaining <= 0) {
+        _videoRcStopPulsesRemaining = 0;
+        _videoRcOverrideTimer.stop();
     }
 }
 

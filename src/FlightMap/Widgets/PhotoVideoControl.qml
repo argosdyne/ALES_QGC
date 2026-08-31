@@ -277,10 +277,8 @@ Item {
         }
 
         if (_usePayload && PayloadManager.activeType === 1 && !_videoStreamInPhotoMode) {
-            if (PayloadManager.nextvision.recording) {
-                PayloadManager.nextvision.stopRecording()
-            } else {
-                PayloadManager.nextvision.startRecording()
+            if (_activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+                _activeVehicle.toggleVideoCapture()
             }
             return
         }

@@ -19,6 +19,8 @@
 #include <QSet>
 #include <QTimer>
 
+#include <atomic>
+
 #include "FactGroup.h"
 #include "QGCMAVLink.h"
 #include "QmlObjectListModel.h"
@@ -527,7 +529,7 @@ public:
 
     bool joystickEnabled            () const;
     void setJoystickEnabled         (bool enabled);
-    bool videoCaptureRunning        () const { return false; }
+    bool videoCaptureRunning        () const { return _videoCaptureRunning.load(); }
     void sendJoystickDataThreadSafe (float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch = qQNaN(), float auxRoll = qQNaN());
     void sendGimbalRCOverrideThreadSafe(float pitch, float yaw);
     Q_INVOKABLE void sendGremsyGimbalRate(float pitchRate, float yawRate);
@@ -1132,6 +1134,7 @@ private slots:
     void _firstGeoFenceLoadComplete         ();
     void _firstRallyPointLoadComplete       ();
     void _sendMavCommandResponseTimeoutCheck();
+    void _sendVideoRcOverride              ();
     void _clearCameraTriggerPoints          ();
     void _updateDistanceHeadingToHome       ();
     void _updateMissionItemIndex            ();
@@ -1362,6 +1365,9 @@ private:
     int                         _flowImageIndex = 0;
 
     bool _allLinksRemovedSent = false; ///< true: allLinkRemoved signal already sent one time
+    std::atomic_bool _videoCaptureRunning{false};
+    QTimer _videoRcOverrideTimer;
+    int _videoRcStopPulsesRemaining = 0;
     uint                _messagesReceived = 0;
     uint                _messagesSent = 0;
     uint                _messagesLost = 0;
