@@ -4,6 +4,10 @@
 
 #include <QTimer>
 
+#include "LinkInterface.h"
+#include "Vehicle.h"
+#include "VehicleLinkManager.h"
+
 const char* NextVisionPayloadController::kDefaultIp = "192.168.2.28";
 
 NextVisionPayloadController::NextVisionPayloadController(QObject* parent)
@@ -33,6 +37,77 @@ NextVisionPayloadController::NextVisionPayloadController(QObject* parent)
     _zoomStepTimer = new QTimer(this);
     _zoomStepTimer->setSingleShot(true);
     connect(_zoomStepTimer, &QTimer::timeout, this, &NextVisionPayloadController::stopZoom);
+
+    connect(this, &PayloadController::connectedChanged,
+            this, &NextVisionPayloadController::_updateTransport);
+}
+
+void NextVisionPayloadController::setVehicle(Vehicle* vehicle)
+{
+    if (_vehicle == vehicle) {
+        return;
+    }
+
+    if (_vehicle) {
+        disconnect(_vehicle, SIGNAL(onLTEChanged()), this, SLOT(_updateTransport()));
+        disconnect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                   this, &NextVisionPayloadController::_updateTransport);
+    }
+    _vehicle = vehicle;
+    if (_vehicle) {
+        // onLTE belongs to CustomVehicle. Use the meta-object connection here so
+        // the generic payload layer does not depend on the custom firmware class.
+        connect(_vehicle, SIGNAL(onLTEChanged()), this, SLOT(_updateTransport()));
+        connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                this, &NextVisionPayloadController::_updateTransport);
+        connect(_vehicle, &QObject::destroyed, this, &NextVisionPayloadController::_updateTransport);
+    }
+    _updateTransport();
+}
+
+void NextVisionPayloadController::setVehicleControlEnabled(bool enabled)
+{
+    if (_vehicleControlEnabled == enabled) {
+        return;
+    }
+    _vehicleControlEnabled = enabled;
+    _updateTransport();
+}
+
+bool NextVisionPayloadController::_useVehicleTransport() const
+{
+    if (!_vehicleControlEnabled || !_vehicle) {
+        return false;
+    }
+
+    const SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink || !sharedLink->linkConfiguration()) {
+        return false;
+    }
+
+    // CustomVehicle::onLTE describes the Aviator RF/LTE channel selection,
+    // while the actual LTE MAVLink connection used by this build is the UDP
+    // link named "Lte" on port 14530. Accept either indication.
+    return _vehicle->property("onLTE").toBool()
+            || sharedLink->linkConfiguration()->name().compare(
+                QStringLiteral("Lte"), Qt::CaseInsensitive) == 0;
+}
+
+void NextVisionPayloadController::_updateTransport()
+{
+    const bool available = _useVehicleTransport();
+    if (_vehicleControlAvailable != available) {
+        _vehicleControlAvailable = available;
+        emit vehicleControlAvailableChanged();
+    }
+
+    if (_directTransportStarted || available) {
+        if (!_txTimer->isActive()) {
+            _txTimer->start();
+        }
+    } else {
+        _txTimer->stop();
+    }
 }
 
 void NextVisionPayloadController::_onIpChanged()
@@ -59,8 +134,16 @@ void NextVisionPayloadController::connectPayload()
     _openSocket(kPort); // bind local port == remote port (telemetry symmetry)
     _tickCount = 0;
     _channels[kHomeModeChannelIndex] = kCenter; // CH6 OBS idle on app start/reconnect
-    _txTimer->start();
+    _directTransportStarted = true;
+    _updateTransport();
     _beginConnecting(); // "connected" only once the autopilot actually answers (see _handleMavlinkMessage)
+}
+
+void NextVisionPayloadController::disconnectPayload()
+{
+    _directTransportStarted = false;
+    PayloadController::disconnectPayload();
+    _updateTransport();
 }
 
 void NextVisionPayloadController::gimbalMove(int pan, int tilt)
@@ -221,11 +304,16 @@ void NextVisionPayloadController::_clearAuxiliaryChannels()
 
 void NextVisionPayloadController::_tick()
 {
-    if (_tickCount % 25 == 0) {          // ~1 Hz
-        _sendHeartbeat();
-    }
-    if (_tickCount % 50 == 0) {          // ~0.5 Hz
-        _sendRequestDataStream();
+    // Heartbeat/data-stream negotiation belongs to the direct payload socket.
+    // LTE already carries the aircraft MAVLink session, so only forward the RC
+    // override commands there.
+    if (!_useVehicleTransport()) {
+        if (_tickCount % 25 == 0) {          // ~1 Hz
+            _sendHeartbeat();
+        }
+        if (_tickCount % 50 == 0) {          // ~0.5 Hz
+            _sendRequestDataStream();
+        }
     }
     _sendRcOverride();                   // every tick (~25 Hz)
     ++_tickCount;
@@ -260,11 +348,26 @@ void NextVisionPayloadController::_sendRcOverride()
     // CH10 = roll/pan-yaw, CH9 = pitch/tilt, CH11 = zoom in/stop/out,
     // CH6 = stow/OBS/pilot reset, CH12 = snapshot and CH13 = record.
     // CH14/CH15 stay ignored because they are assigned externally.
-    mavlink_msg_rc_channels_override_pack(_senderSysId,
+    SharedLinkInterfacePtr sharedLink;
+    const bool useVehicleTransport = _useVehicleTransport();
+    if (useVehicleTransport) {
+        sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+        if (!sharedLink) {
+            _updateTransport();
+            return;
+        }
+    }
+
+    const uint8_t targetSystem = useVehicleTransport
+            ? static_cast<uint8_t>(_vehicle->id()) : _targetSysId;
+    const uint8_t targetComponent = useVehicleTransport
+            ? static_cast<uint8_t>(MAV_COMP_ID_AUTOPILOT1) : _targetCompId;
+    mavlink_msg_rc_channels_override_pack_chan(_senderSysId,
                                           _senderCompId,
+                                          useVehicleTransport ? sharedLink->mavlinkChannel() : MAVLINK_COMM_0,
                                           &message,
-                                          _targetSysId,
-                                          _targetCompId,
+                                          targetSystem,
+                                          targetComponent,
                                           overrideChannels[0],
                                           overrideChannels[1],
                                           overrideChannels[2],
@@ -283,7 +386,11 @@ void NextVisionPayloadController::_sendRcOverride()
                                           overrideChannels[15],
                                           overrideChannels[16],
                                           overrideChannels[17]);
-    _sendMessage(message);
+    if (useVehicleTransport) {
+        _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+    } else {
+        _sendMessage(message);
+    }
 }
 
 void NextVisionPayloadController::_sendHeartbeat()

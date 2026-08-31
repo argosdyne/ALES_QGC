@@ -4076,13 +4076,17 @@ void Vehicle::startVideoCapture()
     PayloadManager* payloadManager = PayloadManager::instance();
     const bool nextVisionActive = payloadManager->activeType() == 1
             && payloadManager->nextvision()
-            && payloadManager->nextvision()->connected();
+            && (payloadManager->nextvision()->connected()
+                || payloadManager->nextvision()->vehicleControlAvailable());
     if (!nextVisionActive) {
         if (_cameraManager && _cameraManager->currentCameraInstance()) {
             _cameraManager->currentCameraInstance()->startVideo();
         }
         return;
     }
+
+    qInfo() << "[NextVision][Record] start requested"
+            << "vehicleTransport" << payloadManager->nextvision()->vehicleControlAvailable();
 
     if (_videoCaptureRunning.exchange(true)) {
         return;
@@ -4107,6 +4111,8 @@ void Vehicle::stopVideoCapture()
         return;
     }
 
+    qInfo() << "[NextVision][Record] stop requested";
+
     _videoRcOverrideTimer.stop();
     emit videoCaptureRunningChanged();
     // Do not wait for the ArduPilot RC override timeout. Drive CH13 low for a
@@ -4127,7 +4133,8 @@ void Vehicle::toggleVideoCapture()
         PayloadManager* payloadManager = PayloadManager::instance();
         const bool nextVisionActive = payloadManager->activeType() == 1
                 && payloadManager->nextvision()
-                && payloadManager->nextvision()->connected();
+                && (payloadManager->nextvision()->connected()
+                    || payloadManager->nextvision()->vehicleControlAvailable());
         if (nextVisionActive) {
             startVideoCapture();
         } else if (_cameraManager && _cameraManager->currentCameraInstance()) {
@@ -4154,7 +4161,10 @@ void Vehicle::_sendVideoRcOverride()
         return;
     }
 
-    if (sharedLink->linkConfiguration()->isHighLatency()) {
+    const bool lteTransport = property("onLTE").toBool()
+            || sharedLink->linkConfiguration()->name().compare(
+                QStringLiteral("Lte"), Qt::CaseInsensitive) == 0;
+    if (sharedLink->linkConfiguration()->isHighLatency() && !lteTransport) {
         if (!recording) {
             _videoRcStopPulsesRemaining = 0;
             _videoRcOverrideTimer.stop();

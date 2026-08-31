@@ -322,7 +322,10 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
             if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
                 gremsy->captureImage();
             } else if (payloadManager->activeType() == 1 &&
-                       payloadManager->nextvision() && payloadManager->nextvision()->connected()) {
+                       payloadManager->nextvision() &&
+                       (payloadManager->nextvision()->connected() ||
+                        payloadManager->nextvision()->vehicleControlAvailable())) {
+                qInfo() << "[NextVision][Physical] snapshot requested";
                 payloadManager->nextvision()->captureImage();
             } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
                 camera->buttonTakePhoto();
@@ -337,7 +340,9 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
             if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
                 gremsy->toggleRecording();
             } else if (payloadManager->activeType() == 1 && payloadManager->nextvision()
-                       && payloadManager->nextvision()->connected()) {
+                       && (payloadManager->nextvision()->connected()
+                           || payloadManager->nextvision()->vehicleControlAvailable())) {
+                qInfo() << "[NextVision][Physical] record toggle requested";
                 emit cameraToggleRecord(true);
                 Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
                 if (vehicle) {
