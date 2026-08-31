@@ -229,6 +229,8 @@ void NextVisionPayloadController::captureImage()
     // DragonEye does not report a capture state. Notify QML immediately so
     // touch and physical-button captures still get the standard short square
     // shutter feedback.
+    qInfo() << "[NextVision][Snapshot] requested"
+            << "vehicleTransport" << _vehicleControlAvailable;
     emit photoCaptureTriggered();
     _clearAllChannels();
     _pulseChannel(kSnapshotChannelIndex, kPwmMax, 500, kIgnore); // CH12 snapshot pulse
