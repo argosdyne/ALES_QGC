@@ -52,6 +52,8 @@ void NextVisionPayloadController::setVehicle(Vehicle* vehicle)
         disconnect(_vehicle, SIGNAL(onLTEChanged()), this, SLOT(_updateTransport()));
         disconnect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
                    this, &NextVisionPayloadController::_updateTransport);
+        disconnect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::linkNamesChanged,
+                   this, &NextVisionPayloadController::_updateTransport);
     }
     _vehicle = vehicle;
     if (_vehicle) {
@@ -59,6 +61,8 @@ void NextVisionPayloadController::setVehicle(Vehicle* vehicle)
         // the generic payload layer does not depend on the custom firmware class.
         connect(_vehicle, SIGNAL(onLTEChanged()), this, SLOT(_updateTransport()));
         connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                this, &NextVisionPayloadController::_updateTransport);
+        connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::linkNamesChanged,
                 this, &NextVisionPayloadController::_updateTransport);
         connect(_vehicle, &QObject::destroyed, this, &NextVisionPayloadController::_updateTransport);
     }
@@ -74,23 +78,32 @@ void NextVisionPayloadController::setVehicleControlEnabled(bool enabled)
     _updateTransport();
 }
 
-bool NextVisionPayloadController::_useVehicleTransport() const
+SharedLinkInterfacePtr NextVisionPayloadController::_vehicleControlLink() const
 {
     if (!_vehicleControlEnabled || !_vehicle) {
-        return false;
+        return {};
     }
 
-    const SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink || !sharedLink->linkConfiguration()) {
-        return false;
+    VehicleLinkManager* linkManager = _vehicle->vehicleLinkManager();
+
+    // Port 14530 is the configured NextVision LTE MAVLink transport. Do not
+    // depend on the user-editable link name or on Enpulse being disconnected.
+    SharedLinkInterfacePtr sharedLink = linkManager->linkByUdpPort(kLteMavlinkPort).lock();
+    if (sharedLink && sharedLink->isConnected()) {
+        return sharedLink;
     }
 
-    // CustomVehicle::onLTE describes the Aviator RF/LTE channel selection,
-    // while the actual LTE MAVLink connection used by this build is the UDP
-    // link named "Lte" on port 14530. Accept either indication.
-    return _vehicle->property("onLTE").toBool()
-            || sharedLink->linkConfiguration()->name().compare(
-                QStringLiteral("Lte"), Qt::CaseInsensitive) == 0;
+    sharedLink = linkManager->primaryLink().lock();
+    if (_vehicle->property("onLTE").toBool() && sharedLink && sharedLink->isConnected()) {
+        return sharedLink;
+    }
+
+    return {};
+}
+
+bool NextVisionPayloadController::_useVehicleTransport() const
+{
+    return static_cast<bool>(_vehicleControlLink());
 }
 
 void NextVisionPayloadController::_updateTransport()
@@ -353,7 +366,7 @@ void NextVisionPayloadController::_sendRcOverride()
     SharedLinkInterfacePtr sharedLink;
     const bool useVehicleTransport = _useVehicleTransport();
     if (useVehicleTransport) {
-        sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+        sharedLink = _vehicleControlLink();
         if (!sharedLink) {
             _updateTransport();
             return;

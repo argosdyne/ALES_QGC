@@ -4151,7 +4151,15 @@ void Vehicle::_sendVideoRcOverride()
         return;
     }
 
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    SharedLinkInterfacePtr sharedLink;
+    PayloadManager* payloadManager = PayloadManager::instance();
+    if (payloadManager->activeType() == 1 && payloadManager->nextvision()
+            && payloadManager->nextvision()->vehicleControlAvailable()) {
+        sharedLink = vehicleLinkManager()->linkByUdpPort(NextVisionPayloadController::kLteMavlinkPort).lock();
+    }
+    if (!sharedLink) {
+        sharedLink = vehicleLinkManager()->primaryLink().lock();
+    }
     if (!sharedLink) {
         qCDebug(VehicleLog) << "_sendVideoRcOverride: primary link gone!";
         if (!recording) {
@@ -4161,9 +4169,9 @@ void Vehicle::_sendVideoRcOverride()
         return;
     }
 
+    const SharedLinkInterfacePtr lteLink = vehicleLinkManager()->linkByUdpPort(NextVisionPayloadController::kLteMavlinkPort).lock();
     const bool lteTransport = property("onLTE").toBool()
-            || sharedLink->linkConfiguration()->name().compare(
-                QStringLiteral("Lte"), Qt::CaseInsensitive) == 0;
+            || (lteLink && lteLink.get() == sharedLink.get());
     if (sharedLink->linkConfiguration()->isHighLatency() && !lteTransport) {
         if (!recording) {
             _videoRcStopPulsesRemaining = 0;

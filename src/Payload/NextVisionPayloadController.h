@@ -16,6 +16,7 @@
 #pragma once
 
 #include "PayloadController.h"
+#include "LinkInterface.h"
 
 #include <QPointer>
 
@@ -34,6 +35,8 @@ class NextVisionPayloadController : public PayloadController
 
 public:
     explicit NextVisionPayloadController(QObject* parent = nullptr);
+
+    static constexpr quint16 kLteMavlinkPort = 14530;
 
     QString displayName() const override { return QStringLiteral("NextVision"); }
 
@@ -84,6 +87,7 @@ private:
     void _pulseChannel(int channelIndex, uint16_t value, int durationMs, uint16_t restoreValue);
     void _clearAllChannels();
     void _clearAuxiliaryChannels();
+    SharedLinkInterfacePtr _vehicleControlLink() const;
     bool _useVehicleTransport() const;
 
     QTimer* _txTimer = nullptr;
