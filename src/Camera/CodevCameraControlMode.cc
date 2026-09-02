@@ -83,27 +83,36 @@ bool CodevCameraControl::_isCurrentModeStorageReady()
     return _storageFree >= 50;
 }
 
-void CodevCameraControl::_syncPhotoPoolFromCaptureStatus(float availableCapacity)
+bool CodevCameraControl::_syncCurrentModePoolFromCaptureStatus(float availableCapacity)
 {
     if (availableCapacity <= 0) {
-        return;
+        return false;
     }
+
+    const uint8_t usageFlag = (cameraMode() == CAM_MODE_PHOTO) ? STORAGE_USAGE_FLAG_PHOTO
+                            : (cameraMode() == CAM_MODE_VIDEO) ? STORAGE_USAGE_FLAG_VIDEO
+                            : 0;
+    if (!usageFlag) {
+        return false;
+    }
+
     for (int i = 0; i < _storageInfos.count(); i++) {
         auto* storage = _storageInfos.value<CodevStorageInfo*>(i);
-        if (!storage || !(storage->usage() & STORAGE_USAGE_FLAG_PHOTO)) {
+        if (!storage || !(storage->usage() & usageFlag)) {
             continue;
         }
         mavlink_storage_information_t st = storage->storageInfo();
+        if (st.available_capacity == availableCapacity) {
+            return false;
+        }
         st.available_capacity = availableCapacity;
         if (st.status != STORAGE_STATUS_READY) {
             st.status = STORAGE_STATUS_READY;
         }
         storage->update(st);
-        if (cameraMode() == CAM_MODE_PHOTO) {
-            _applyStorageInfoToDisplay(st);
-        }
-        return;
+        return true;
     }
+    return false;
 }
 
 bool CodevCameraControl::_hasKnownInsufficientPhotoStorage() const

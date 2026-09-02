@@ -362,7 +362,7 @@ private:
     bool _isModeSwitchSettling() const;
     bool _hasModeStoragePool(CameraMode mode);
     bool _isCurrentModeStorageReady();
-    void _syncPhotoPoolFromCaptureStatus(float availableCapacity);
+    bool _syncCurrentModePoolFromCaptureStatus(float availableCapacity);
     bool _hasKnownInsufficientPhotoStorage() const;
     bool _hasKnownInsufficientVideoStorage() const;
     void _startPendingRcAction(PendingRcAction action);

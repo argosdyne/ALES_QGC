@@ -2351,14 +2351,18 @@ void CodevCameraControl::handleCaptureStatus(const mavlink_camera_capture_status
         }
     }
 
+    const uint32_t previousStorageFree = storageFree();
     QGCCameraControl::handleCaptureStatus(capCopy);
 
-    if (cameraMode() == CAM_MODE_PHOTO) {
-        if (cap.available_capacity > 0) {
-            _syncPhotoPoolFromCaptureStatus(cap.available_capacity);
-        } else if (_hasModeStoragePool(CAM_MODE_PHOTO)) {
-            _applyStorageForCurrentMode();
+    if (_syncCurrentModePoolFromCaptureStatus(cap.available_capacity)) {
+        // The base handler normally emitted this signal. If only the per-mode
+        // cache changed, notify QML so storageFreeStr is re-evaluated.
+        if (storageFree() == previousStorageFree) {
+            emit storageFreeChanged();
         }
+    } else if ((cameraMode() == CAM_MODE_PHOTO || cameraMode() == CAM_MODE_VIDEO)
+               && _hasModeStoragePool(cameraMode())) {
+        _applyStorageForCurrentMode();
     }
 
     if (cap.available_capacity > 0) {
