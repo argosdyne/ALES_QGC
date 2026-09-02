@@ -23,6 +23,9 @@
 
 QGC_LOGGING_CATEGORY(MAVLinkLogManagerLog, "MAVLinkLogManagerLog")
 
+// Set to true only when the legacy MAVLink log-upload settings feature is restored.
+static constexpr bool kPersistMavlinkLogSettings = false;
+
 static const char* kMAVLinkLogGroup         = "MAVLinkLogGroup";
 static const char* kEmailAddressKey         = "Email";
 static const char* kDescriptionsKey         = "Description";
@@ -311,19 +314,27 @@ MAVLinkLogManager::MAVLinkLogManager(QGCApplication* app, QGCToolbox* toolbox)
     , _publicLog(false)
     , _logginDenied(false)
 {
-    //-- Get saved settings
     QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    setEmailAddress(settings.value(kEmailAddressKey, QString()).toString());
-    setDescription(settings.value(kDescriptionsKey, QString(kDefaultDescr)).toString());
-    setUploadURL(settings.value(kPx4URLKey, QString(kDefaultPx4URL)).toString());
-    setVideoURL(settings.value(kVideoURLKey, QString()).toString());
-    setEnableAutoUpload(settings.value(kEnableAutoUploadKey, true).toBool());
-    setEnableAutoStart(settings.value(kEnableAutoStartKey, false).toBool());
-    setDeleteAfterUpload(settings.value(kEnableDeletetKey, false).toBool());
-    setWindSpeed(settings.value(kWindSpeedKey, -1).toInt());
-    setRating(settings.value(kRateKey, "notset").toString());
-    setPublicLog(settings.value(kPublicLogKey, true).toBool());
+    settings.remove(kMAVLinkLogGroup);
+    settings.sync();
+
+    if (kPersistMavlinkLogSettings) {
+        settings.beginGroup(kMAVLinkLogGroup);
+        setEmailAddress(settings.value(kEmailAddressKey, QString()).toString());
+        setDescription(settings.value(kDescriptionsKey, QString(kDefaultDescr)).toString());
+        setUploadURL(settings.value(kPx4URLKey, QString(kDefaultPx4URL)).toString());
+        setVideoURL(settings.value(kVideoURLKey, QString()).toString());
+        setEnableAutoUpload(settings.value(kEnableAutoUploadKey, true).toBool());
+        setEnableAutoStart(settings.value(kEnableAutoStartKey, false).toBool());
+        setDeleteAfterUpload(settings.value(kEnableDeletetKey, false).toBool());
+        setWindSpeed(settings.value(kWindSpeedKey, -1).toInt());
+        setRating(settings.value(kRateKey, "notset").toString());
+        setPublicLog(settings.value(kPublicLogKey, true).toBool());
+    } else {
+        _description = QString::fromLatin1(kDefaultDescr);
+        _uploadURL = QString::fromLatin1(kDefaultPx4URL);
+        _rating = QStringLiteral("notset");
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -367,9 +378,11 @@ void
 MAVLinkLogManager::setEmailAddress(QString email)
 {
     _emailAddress = email;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kEmailAddressKey, email);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kEmailAddressKey, email);
+    }
     emit emailAddressChanged();
 }
 
@@ -378,9 +391,11 @@ void
 MAVLinkLogManager::setDescription(QString description)
 {
     _description = description;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kDescriptionsKey, description);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kDescriptionsKey, description);
+    }
     emit descriptionChanged();
 }
 
@@ -392,9 +407,11 @@ MAVLinkLogManager::setUploadURL(QString url)
     if(_uploadURL.isEmpty()) {
         _uploadURL = kDefaultPx4URL;
     }
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kPx4URLKey, _uploadURL);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kPx4URLKey, _uploadURL);
+    }
     emit uploadURLChanged();
 }
 
@@ -411,9 +428,11 @@ void
 MAVLinkLogManager::setVideoURL(QString url)
 {
     _videoURL = url;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kVideoURLKey, url);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kVideoURLKey, url);
+    }
     emit videoURLChanged();
 }
 
@@ -422,9 +441,11 @@ void
 MAVLinkLogManager::setEnableAutoUpload(bool enable)
 {
     _enableAutoUpload = enable;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kEnableAutoUploadKey, enable);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kEnableAutoUploadKey, enable);
+    }
     emit enableAutoUploadChanged();
 }
 
@@ -433,9 +454,11 @@ void
 MAVLinkLogManager::setEnableAutoStart(bool enable)
 {
     _enableAutoStart = enable;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kEnableAutoStartKey, enable);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kEnableAutoStartKey, enable);
+    }
     emit enableAutoStartChanged();
 }
 
@@ -444,9 +467,11 @@ void
 MAVLinkLogManager::setDeleteAfterUpload(bool enable)
 {
     _deleteAfterUpload = enable;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kEnableDeletetKey, enable);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kEnableDeletetKey, enable);
+    }
     emit deleteAfterUploadChanged();
 }
 
@@ -455,9 +480,11 @@ void
 MAVLinkLogManager::setWindSpeed(int speed)
 {
     _windSpeed = speed;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kWindSpeedKey, speed);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kWindSpeedKey, speed);
+    }
     emit windSpeedChanged();
 }
 
@@ -466,9 +493,11 @@ void
 MAVLinkLogManager::setRating(QString rate)
 {
     _rating = rate;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kRateKey, rate);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kRateKey, rate);
+    }
     emit ratingChanged();
 }
 
@@ -477,9 +506,11 @@ void
 MAVLinkLogManager::setPublicLog(bool pub)
 {
     _publicLog = pub;
-    QSettings settings;
-    settings.beginGroup(kMAVLinkLogGroup);
-    settings.setValue(kPublicLogKey, pub);
+    if (kPersistMavlinkLogSettings) {
+        QSettings settings;
+        settings.beginGroup(kMAVLinkLogGroup);
+        settings.setValue(kPublicLogKey, pub);
+    }
     emit publicLogChanged();
 }
 
