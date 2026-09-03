@@ -84,21 +84,31 @@ SharedLinkInterfacePtr NextVisionPayloadController::_vehicleControlLink() const
         return {};
     }
 
+    // A live direct DragonEye endpoint is authoritative. In particular, the
+    // bridge can report channel > 1 while a VPN is present; that must not pull
+    // control away from a responding 192.168.2.x camera.
+    if (connected()) {
+        return {};
+    }
+
+    // A UDP socket can remain connected after a reboot although the bridge has
+    // not selected LTE yet. Until its PING explicitly says LTE, keep DragonEye
+    // on the direct camera socket.
+    if (!_vehicle->property("onLTE").toBool()) {
+        return {};
+    }
+
     VehicleLinkManager* linkManager = _vehicle->vehicleLinkManager();
 
-    // Port 14530 is the configured NextVision LTE MAVLink transport. Do not
-    // depend on the user-editable link name or on Enpulse being disconnected.
-    SharedLinkInterfacePtr sharedLink = linkManager->linkByUdpPort(kLteMavlinkPort).lock();
-    if (sharedLink && sharedLink->isConnected()) {
-        return sharedLink;
+    SharedLinkInterfacePtr lteLink = linkManager->linkByUdpPort(kLteMavlinkPort).lock();
+    if (lteLink && lteLink->isConnected()) {
+        return lteLink;
     }
 
-    sharedLink = linkManager->primaryLink().lock();
-    if (_vehicle->property("onLTE").toBool() && sharedLink && sharedLink->isConnected()) {
-        return sharedLink;
-    }
-
-    return {};
+    // The bridge has selected LTE but the dedicated 14530 link may still be
+    // reconnecting; use the heartbeat-selected primary link in that case.
+    SharedLinkInterfacePtr primaryLink = linkManager->primaryLink().lock();
+    return (primaryLink && primaryLink->isConnected()) ? primaryLink : SharedLinkInterfacePtr{};
 }
 
 bool NextVisionPayloadController::_useVehicleTransport() const
@@ -319,10 +329,10 @@ void NextVisionPayloadController::_clearAuxiliaryChannels()
 
 void NextVisionPayloadController::_tick()
 {
-    // Heartbeat/data-stream negotiation belongs to the direct payload socket.
-    // LTE already carries the aircraft MAVLink session, so only forward the RC
-    // override commands there.
-    if (!_useVehicleTransport()) {
+    // Continue probing a user-requested direct payload connection even when
+    // the bridge currently reports LTE. Without this, direct control can never
+    // become connected while a VPN/LTE vehicle link already exists.
+    if (_directTransportStarted) {
         if (_tickCount % 25 == 0) {          // ~1 Hz
             _sendHeartbeat();
         }
