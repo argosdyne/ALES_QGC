@@ -7,6 +7,7 @@
 #include "LinkInterface.h"
 #include "Vehicle.h"
 #include "VehicleLinkManager.h"
+#include "UDPLink.h"
 
 const char* NextVisionPayloadController::kDefaultIp = "192.168.2.28";
 
@@ -91,14 +92,21 @@ SharedLinkInterfacePtr NextVisionPayloadController::_vehicleControlLink() const
         return {};
     }
 
-    // A UDP socket can remain connected after a reboot although the bridge has
-    // not selected LTE yet. Until its PING explicitly says LTE, keep DragonEye
-    // on the direct camera socket.
-    if (!_vehicle->property("onLTE").toBool()) {
-        return {};
-    }
-
     VehicleLinkManager* linkManager = _vehicle->vehicleLinkManager();
+
+    // VPN-only operation does not produce the bridge LTE PING. It is safe to
+    // use it only when the heartbeat-selected primary link itself is the
+    // DragonEye MAVLink UDP port; this rejects a stale 14530 socket while an
+    // Enpulse or AutoConnect link is actually primary.
+    SharedLinkInterfacePtr primaryLink = linkManager->primaryLink().lock();
+    const auto* primaryUdp = primaryLink
+            ? qobject_cast<UDPConfiguration*>(primaryLink->linkConfiguration().get())
+            : nullptr;
+    if (!_vehicle->property("onLTE").toBool()) {
+        return (primaryLink && primaryLink->isConnected() && primaryUdp
+                && primaryUdp->localPort() == kLteMavlinkPort)
+                ? primaryLink : SharedLinkInterfacePtr{};
+    }
 
     SharedLinkInterfacePtr lteLink = linkManager->linkByUdpPort(kLteMavlinkPort).lock();
     if (lteLink && lteLink->isConnected()) {
@@ -107,7 +115,6 @@ SharedLinkInterfacePtr NextVisionPayloadController::_vehicleControlLink() const
 
     // The bridge has selected LTE but the dedicated 14530 link may still be
     // reconnecting; use the heartbeat-selected primary link in that case.
-    SharedLinkInterfacePtr primaryLink = linkManager->primaryLink().lock();
     return (primaryLink && primaryLink->isConnected()) ? primaryLink : SharedLinkInterfacePtr{};
 }
 
