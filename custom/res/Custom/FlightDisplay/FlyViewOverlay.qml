@@ -73,8 +73,7 @@ Item {
 //        rightEdgeBottomInset:   parent.width - compassBackground.x
         bottomEdgeCenterInset:  parent.height
     }
-    // NavSight status-panel prototype. It is intentionally driven by the local
-    // preview properties above until the MAVLink backend is implemented.
+    // NavSight status panel, bound to the NavSightManager QML contract.
     Rectangle {
         id:                         navSightStatusPanel
         anchors.top:                parent.top
@@ -102,7 +101,7 @@ Item {
                     { label: "VIS", active: (_navSightManager && _navSightManager.navSightVisualNavigationActive), color: "#5F6A7D" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
                     { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "--"), active: true, color: "#111111" },
-                    { label: (_navSightManager ? _navSightManager.navSightStatusText : ""), active: true, color: "#B04A4A" }
+                    { label: (_navSightManager ? _navSightManager.navSightStatusText : ""), active: true, visible: (_navSightManager && _navSightManager.navSightStatusText.length > 0), color: "#B04A4A" }
                 ]
 
                 Rectangle {
@@ -111,6 +110,7 @@ Item {
                     height:                     navSightStatusBadgeLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
                     radius:                     ScreenTools.defaultFontPixelWidth * 0.25
                     color:                      modelData.active ? modelData.color : Qt.rgba(0.35, 0.38, 0.43, 0.85)
+                    visible:                    modelData.visible === undefined || modelData.visible
                     opacity:                    modelData.active ? 1.0 : 0.62
                     border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.20)
                     border.width:               1

@@ -1,6 +1,10 @@
 #pragma once
 
+#include "QGCMAVLink.h"
 #include "QGCToolbox.h"
+
+#include <QElapsedTimer>
+#include <QTimer>
 
 class Vehicle;
 
@@ -12,6 +16,8 @@ class NavSightManager : public QGCTool
 public:
     static constexpr int kDefaultSystemId = 10;
     static constexpr int kDefaultComponentId = 192;
+    // Temporary UI-only mode. Set false before using NavSight traffic.
+    static constexpr bool kUiPreviewEnabled = true;
 
     explicit NavSightManager(QGCApplication* app, QGCToolbox* toolbox);
 
@@ -54,22 +60,28 @@ signals:
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
+    void _mavlinkMessageReceived(const mavlink_message_t& message);
+    void _checkHeartbeatTimeout();
 
 private:
+    void _setOffline();
     void _setUpdateLocationResult(const QString& result);
+    static QString _mavlinkString(const char* text, int textLength);
 
-    // Temporary UI values for Task-3/4 review. Heartbeat/status decoding will
-    // replace them and make NavSight offline until a heartbeat is received.
-    bool    _navSightOnline{true};
-    double  _navSightConfidence{0.0};
-    bool    _navSightConfidenceValid{true};
-    QString _navSightStatusText{QStringLiteral("WAITING_FOR_START_MISSION")};
+    bool    _navSightOnline{kUiPreviewEnabled};
+    double  _navSightConfidence{kUiPreviewEnabled ? 3.2 : 0.0};
+    bool    _navSightConfidenceValid{kUiPreviewEnabled};
+    QString _navSightStatusText{kUiPreviewEnabled ? QStringLiteral("WAITING_FOR_START_MISSION") : QString()};
     quint32 _navSightStatusBitmask{0};
     bool    _navSightDeadReckoningActive{false};
-    bool    _navSightGpsActive{true};
-    bool    _navSightVisualNavigationActive{true};
-    QString _navSightLocationSource{QStringLiteral("N/A")};
+    bool    _navSightGpsActive{kUiPreviewEnabled};
+    bool    _navSightVisualNavigationActive{kUiPreviewEnabled};
+    QString _navSightLocationSource{kUiPreviewEnabled ? QStringLiteral("GPS") : QStringLiteral("N/A")};
     bool    _updateLocationInProgress{false};
     QString _lastUpdateLocationResult;
     Vehicle* _vehicle{nullptr};
+    QElapsedTimer _lastHeartbeatTimer;
+    QTimer _heartbeatWatchdog;
+
+    static constexpr int kHeartbeatTimeoutMs = 3000;
 };
