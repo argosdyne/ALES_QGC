@@ -49,6 +49,7 @@ Item {
     property string _messageText:           ""
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     property bool   _showTelemetryPanel:    false
+    property var    _navSightManager:        QGroundControl.corePlugin.navSightManager
 
     function secondsToHHMMSS(timeS) {
         var sec_num = parseInt(timeS, 10);
@@ -71,6 +72,70 @@ Item {
 //        topEdgeCenterInset:     compassArrowIndicator.y + compassArrowIndicator.height
 //        rightEdgeBottomInset:   parent.width - compassBackground.x
         bottomEdgeCenterInset:  parent.height
+    }
+    // NavSight status-panel prototype. It is intentionally driven by the local
+    // preview properties above until the MAVLink backend is implemented.
+    Rectangle {
+        id:                         navSightStatusPanel
+        anchors.top:                parent.top
+        anchors.topMargin:          _toolsMargin
+        anchors.horizontalCenter:   parent.horizontalCenter
+        width:                      navSightStatusRow.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.5
+        height:                     navSightStatusRow.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.55
+        radius:                     ScreenTools.defaultFontPixelWidth * 0.35
+        color:                      Qt.rgba(0.0, 0.0, 0.0, 0.72)
+        border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.24)
+        border.width:               1
+        visible:                    (_navSightManager && _navSightManager.navSightOnline)
+        // Keep status below every transient alert/popup in this overlay.
+        z:                          -1
+
+        Row {
+            id:                     navSightStatusRow
+            anchors.centerIn:       parent
+            spacing:                ScreenTools.defaultFontPixelWidth * 2
+
+            Repeater {
+                model: [
+                    { label: "DR", active: (_navSightManager && _navSightManager.navSightDeadReckoningActive), color: "#5F6A7D" },
+                    { label: "GPS", active: (_navSightManager && _navSightManager.navSightGpsActive), color: "#2fad16" },
+                    { label: "VIS", active: (_navSightManager && _navSightManager.navSightVisualNavigationActive), color: "#5F6A7D" },
+                    { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
+                    { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "--"), active: true, color: "#111111" },
+                    { label: (_navSightManager ? _navSightManager.navSightStatusText : ""), active: true, color: "#B04A4A" }
+                ]
+
+                Rectangle {
+                    id:                         navSightStatusBadge
+                    width:                      navSightStatusBadgeLabel.implicitWidth + ScreenTools.defaultFontPixelWidth
+                    height:                     navSightStatusBadgeLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
+                    radius:                     ScreenTools.defaultFontPixelWidth * 0.25
+                    color:                      modelData.active ? modelData.color : Qt.rgba(0.35, 0.38, 0.43, 0.85)
+                    opacity:                    modelData.active ? 1.0 : 0.62
+                    border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.20)
+                    border.width:               1
+
+                    QGCLabel {
+                        id:                     navSightStatusBadgeLabel
+                        anchors.centerIn:       parent
+                        text:                   modelData.label
+                        color:                  "white"
+                        font.bold:              true
+                        font.pointSize:          ScreenTools.mediumFontPointSize *0.7
+                    }
+
+                    // DR, GPS and VIS are UI controls. Task 6 will replace this
+                    // placeholder with MAVLink command dispatch and ACK handling.
+                    QGCMouseArea {
+                        anchors.fill:            parent
+                        enabled:                 index < 3
+                        hoverEnabled:            enabled
+                        cursorShape:             enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked:               console.log("NavSight control requested:", modelData.label)
+                    }
+                }
+            }
+        }
     }
 
     // Item {

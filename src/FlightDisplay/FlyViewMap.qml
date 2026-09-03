@@ -58,6 +58,7 @@ FlightMap {
     property bool   _disableVehicleTracking:    false
     property bool   _keepVehicleCentered:       pipMode ? true : false
     property bool   _saveZoomLevelSetting:      true
+    property var    _navSightManager:           QGroundControl.corePlugin.navSightManager
 
     function _adjustMapZoomForPipMode() {
         _saveZoomLevelSetting = false
@@ -579,7 +580,7 @@ FlightMap {
         
         onClicked: {
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
-                (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
+                (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin || (_navSightManager && _navSightManager.navSightOnline))) {
                 orbitMapCircle.hide()
                 gotoLocationItem.hide()
                 var clickCoord = _root.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
@@ -686,6 +687,95 @@ FlightMap {
                         popup.close()
                     }
                     globals.guidedControllerFlyView.confirmAction(globals.guidedControllerFlyView.actionSetHome, mapClickCoord)
+                }
+            }
+            QGCButton {
+                Layout.fillWidth:   true
+                text:               qsTr("Set NavSight Location")
+                visible:            _navSightManager && _navSightManager.navSightOnline
+                onClicked: {
+                    popup.close()
+                    if (_activeVehicle && _activeVehicle.flying) {
+                        navSightLocationConfirmComponent.createObject(_root, { coordinate: mapClickCoord }).open()
+                    } else {
+                        _navSightManager.sendUpdateLocation(mapClickCoord.latitude, mapClickCoord.longitude)
+                    }
+                }
+            }
+
+            QGCLabel {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: qsTr("Lat: %1\nLon: %2").arg(mapClickCoord.latitude.toFixed(7)).arg(mapClickCoord.longitude.toFixed(7))
+            }
+        }
+    }
+
+
+    // UI-only confirmation. Task 5 will call NavSightManager to send
+    // COMMAND_LONG (UPDATE_LOCATION) after the user confirms.
+    Component {
+        id: navSightLocationConfirmComponent
+
+        Popup {
+            id: navSightLocationConfirmPopup
+            property var coordinate
+            modal: true
+            focus: true
+            x: Math.round((_root.width - width) / 2)
+            y: ScreenTools.defaultFontPixelHeight * 2
+            width: Math.min(_root.width * 0.55, ScreenTools.defaultFontPixelWidth * 52)
+            padding: ScreenTools.defaultFontPixelWidth
+
+            background: Rectangle {
+                radius: ScreenTools.defaultFontPixelHeight * 0.5
+                color: qgcPal.window
+                border.color: qgcPal.alertBorder
+                border.width: 1
+            }
+
+            contentItem: ColumnLayout {
+                spacing: ScreenTools.defaultFontPixelHeight * 0.5
+
+                QGCLabel {
+                    Layout.fillWidth: true
+                    text: qsTr("Set NavSight Location")
+                    font.bold: true
+                    font.pointSize: ScreenTools.mediumFontPointSize
+                }
+
+                QGCLabel {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    text: qsTr("Set NavSight's estimated position to the selected map location?")
+                }
+
+                QGCLabel {
+                    Layout.fillWidth: true
+                    text: coordinate ? qsTr("Latitude: %1\nLongitude: %2").arg(coordinate.latitude.toFixed(7)).arg(coordinate.longitude.toFixed(7)) : ""
+                }
+
+                QGCLabel {
+                    Layout.fillWidth: true
+                    visible: _activeVehicle && _activeVehicle.flying
+                    wrapMode: Text.WordWrap
+                    color: qgcPal.warningText
+                    text: qsTr("Warning: resetting NavSight location during flight may cause a position jump.")
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignRight
+                    QGCButton {
+                        text: qsTr("Cancel")
+                        onClicked: navSightLocationConfirmPopup.close()
+                    }
+                    QGCButton {
+                        text: qsTr("Confirm")
+                        onClicked: {
+                            _navSightManager.sendUpdateLocation(coordinate.latitude, coordinate.longitude)
+                            navSightLocationConfirmPopup.close()
+                        }
+                    }
                 }
             }
         }

@@ -85,6 +85,7 @@ SOURCES += \
     $$PWD/src/SiYi/SiYiManager.cc \
     $$PWD/src/SiYi/SiYiTcpClient.cc \
     $$PWD/src/YS/YSManager.cpp \
+    $$PWD/src/NavSight/NavSightManager.cpp \
     $$PWD/src/SiYi/SiYiTransmitter.cc \
     $$PWD/src/codevsettings.cpp \
     $$PWD/src/CustomSettings.cc \
@@ -105,6 +106,7 @@ HEADERS += \
     $$PWD/src/SiYi/SiYiManager.h \
     $$PWD/src/SiYi/SiYiTcpClient.h \
     $$PWD/src/YS/YSManager.h \
+    $$PWD/src/NavSight/NavSightManager.h \
     $$PWD/src/SiYi/SiYiTransmitter.h \
     $$PWD/src/codevsettings.h \
     $$PWD/src/CustomSettings.h \

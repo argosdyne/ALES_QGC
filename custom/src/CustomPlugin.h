@@ -34,6 +34,7 @@ class CustomSettings;
 class SiYiManager;
 class CodevRTCMManager;
 class YSManager;
+class NavSightManager;
 
 Q_DECLARE_LOGGING_CATEGORY(CustomLog)
 
@@ -70,6 +71,7 @@ public:
     Q_PROPERTY(CodevRTCMManager* codevRTCMManager READ codevRTCMManager CONSTANT)
     Q_PROPERTY(SiYiManager* siyiManager READ siyiManager CONSTANT)
     Q_PROPERTY(YSManager* ysManager READ ysManager CONSTANT)
+    Q_PROPERTY(NavSightManager* navSightManager READ navSightManager CONSTANT)
 
 
     bool coachMode() { return _coachMode; }
@@ -105,6 +107,7 @@ public:
     CodevSettings* codevSettings() { return _codevSettings; }
     CodevRTCMManager* codevRTCMManager() { return _codevRTCMManager; }
     YSManager* ysManager() { return _ysManager; }
+    NavSightManager* navSightManager() { return _navSightManager; }
 
     AVIATORInterface* aviatorInterface() const { return _aviatorInterface; }
     // Overrides from QGCTool
@@ -158,6 +161,7 @@ private:
     CustomSettings* _settings{nullptr};
     CodevRTCMManager*   _codevRTCMManager = nullptr;
     YSManager* _ysManager = nullptr;
+    NavSightManager* _navSightManager = nullptr;
 
     CustomOptions*  _options = nullptr;
     QVariantList    _customSettingsList; // Not to be mixed up with QGCCorePlugin implementation

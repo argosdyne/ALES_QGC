@@ -28,6 +28,7 @@
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
 #include "YS/YSManager.h"
+#include "NavSight/NavSightManager.h"
 
 #include "M2Manager.h"
 #include "RajantManager.h"
@@ -109,6 +110,7 @@ CustomPlugin::CustomPlugin(QGCApplication *app, QGCToolbox* toolbox)
     _siyiManager = new SiYiManager(app,toolbox);
     _codevRTCMManager = new CodevRTCMManager(app, toolbox);
     _ysManager = new YSManager(app, toolbox);
+    _navSightManager = new NavSightManager(app, toolbox);
     _showAdvancedUI = false;
 }
 
@@ -132,6 +134,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 
     _siyiManager->setToolbox(toolbox);
     _ysManager->setToolbox(toolbox);
+    _navSightManager->setToolbox(toolbox);
     if(_codevSettings == nullptr) {
         _codevSettings = new CodevSettings(this);
     }
