@@ -7,6 +7,7 @@
 #include <QTimer>
 
 class Vehicle;
+class LinkInterface;
 
 /// QGC-side backend contract for NavSight GCS control and status UI.
 class NavSightManager : public QGCTool
@@ -16,8 +17,6 @@ class NavSightManager : public QGCTool
 public:
     static constexpr int kDefaultSystemId = 10;
     static constexpr int kDefaultComponentId = 192;
-    // Set true only for UI-only preview without a NavSight device.
-    static constexpr bool kUiPreviewEnabled = true;
 
     explicit NavSightManager(QGCApplication* app, QGCToolbox* toolbox);
 
@@ -33,6 +32,8 @@ public:
     Q_PROPERTY(bool     initialLocationAccepted      READ initialLocationAccepted      NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     updateLocationInProgress       READ updateLocationInProgress       NOTIFY updateLocationStateChanged)
     Q_PROPERTY(QString  lastUpdateLocationResult       READ lastUpdateLocationResult       NOTIFY updateLocationStateChanged)
+    Q_PROPERTY(int      activeEkfSourceSet             READ activeEkfSourceSet             NOTIFY ekfSourceStateChanged)
+    Q_PROPERTY(bool     ekfSourceChangeInProgress      READ ekfSourceChangeInProgress      NOTIFY ekfSourceStateChanged)
     Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 CONSTANT)
     Q_PROPERTY(int      targetComponentId              READ targetComponentId              CONSTANT)
 
@@ -48,55 +49,69 @@ public:
     bool initialLocationAccepted() const { return _initialLocationAccepted; }
     bool updateLocationInProgress() const { return _updateLocationInProgress; }
     QString lastUpdateLocationResult() const { return _lastUpdateLocationResult; }
+    int activeEkfSourceSet() const { return _activeEkfSourceSet; }
+    bool ekfSourceChangeInProgress() const { return _ekfSourceChangeInProgress; }
     int targetSystemId() const { return kDefaultSystemId; }
     int targetComponentId() const { return kDefaultComponentId; }
 
     Q_INVOKABLE bool sendUpdateLocation(double latitude, double longitude);
+    Q_INVOKABLE bool setEkfSourceSet(int sourceSet);
 
     void setToolbox(QGCToolbox* toolbox) override;
 
 signals:
     void navSightStatusChanged();
     void updateLocationStateChanged();
+    void ekfSourceStateChanged();
     void updateLocationSent(double latitude, double longitude);
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
     void _mavlinkMessageReceived(const mavlink_message_t& message);
+    void _rawMavlinkMessageReceived(LinkInterface* link, mavlink_message_t message);
     void _checkHeartbeatTimeout();
     void _updateLocationAckTimeout();
+    void _ekfSourceAckTimeout();
 
 private:
     void _setOffline();
     void _setUpdateLocationResult(const QString& result);
     bool _queuePendingUpdateLocation();
     void _finishUpdateLocation(const QString& result);
+    void _finishEkfSourceSet();
+    void _handleNavSightMessage(const mavlink_message_t& message);
+    static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
 
-    bool    _navSightOnline{kUiPreviewEnabled};
-    double  _navSightConfidence{kUiPreviewEnabled ? 3.2 : 0.0};
-    bool    _navSightConfidenceValid{kUiPreviewEnabled};
-    QString _navSightStatusText{kUiPreviewEnabled ? QStringLiteral("WAITING_FOR_START_MISSION") : QString()};
+    bool    _navSightOnline{false};
+    double  _navSightConfidence{0.0};
+    bool    _navSightConfidenceValid{false};
+    QString _navSightStatusText;
     quint32 _navSightStatusBitmask{0};
     bool    _navSightDeadReckoningActive{false};
-    bool    _navSightGpsActive{kUiPreviewEnabled};
-    bool    _navSightVisualNavigationActive{kUiPreviewEnabled};
-    QString _navSightLocationSource{kUiPreviewEnabled ? QStringLiteral("GPS") : QStringLiteral("N/A")};
+    bool    _navSightGpsActive{false};
+    bool    _navSightVisualNavigationActive{false};
+    QString _navSightLocationSource{QStringLiteral("N/A")};
     bool    _initialLocationAccepted{false};
     bool    _updateLocationInProgress{false};
     QString _lastUpdateLocationResult;
     double  _pendingLatitude{0.0};
     double  _pendingLongitude{0.0};
     int     _updateLocationRetryCount{0};
+    int     _activeEkfSourceSet{0};
+    int     _pendingEkfSourceSet{0};
+    bool    _ekfSourceChangeInProgress{false};
     Vehicle* _vehicle{nullptr};
     QElapsedTimer _lastHeartbeatTimer;
     QTimer _heartbeatWatchdog;
     QTimer _updateLocationAckTimer;
+    QTimer _ekfSourceAckTimer;
 
     static constexpr int kHeartbeatTimeoutMs = 3000;
     static constexpr quint32 kWaitingForStartMissionMask = 0x00001000u;
     static constexpr int kUpdateLocationAckTimeoutMs = 3000;
     static constexpr int kMaxUpdateLocationRetries = 2;
+    static constexpr int kEkfSourceAckTimeoutMs = 3000;
     // NavSight ICD/sequence uses 5; standard MAVLink uses 1 for this result.
     static constexpr uint8_t kNavSightTemporaryRejectedResult = 5;
 };

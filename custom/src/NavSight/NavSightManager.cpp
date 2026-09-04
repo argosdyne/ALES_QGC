@@ -25,6 +25,11 @@ NavSightManager::NavSightManager(QGCApplication* app, QGCToolbox* toolbox)
     _updateLocationAckTimer.setSingleShot(true);
     connect(&_updateLocationAckTimer, &QTimer::timeout,
             this, &NavSightManager::_updateLocationAckTimeout);
+
+    _ekfSourceAckTimer.setInterval(kEkfSourceAckTimeoutMs);
+    _ekfSourceAckTimer.setSingleShot(true);
+    connect(&_ekfSourceAckTimer, &QTimer::timeout,
+            this, &NavSightManager::_ekfSourceAckTimeout);
 }
 
 void NavSightManager::setToolbox(QGCToolbox* toolbox)
@@ -36,6 +41,8 @@ void NavSightManager::setToolbox(QGCToolbox* toolbox)
                                                  "NavSightManager", "Reference only");
 
     MultiVehicleManager* vehicleManager = _toolbox->multiVehicleManager();
+    connect(_toolbox->mavlinkProtocol(), &MAVLinkProtocol::messageReceived,
+            this, &NavSightManager::_rawMavlinkMessageReceived);
     _setActiveVehicle(vehicleManager->activeVehicle());
     connect(vehicleManager, &MultiVehicleManager::activeVehicleChanged,
             this, &NavSightManager::_setActiveVehicle);
@@ -49,6 +56,10 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
     if (_updateLocationInProgress) {
         _finishUpdateLocation(QStringLiteral("NavSight location request cancelled: active vehicle changed"));
     }
+    if (_ekfSourceChangeInProgress) {
+        qCWarning(NavSightManagerLog) << "EKF source selection cancelled: active vehicle changed";
+        _finishEkfSourceSet();
+    }
 
     if (_vehicle) {
         disconnect(_vehicle, &Vehicle::mavlinkMessageReceived,
@@ -56,6 +67,11 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
     }
 
     _vehicle = vehicle;
+    _activeEkfSourceSet = 0;
+    _pendingEkfSourceSet = 0;
+    _ekfSourceChangeInProgress = false;
+    _navSightLocationSource = QStringLiteral("N/A");
+    emit ekfSourceStateChanged();
     _setOffline();
 
     if (_vehicle) {
@@ -76,10 +92,52 @@ QString NavSightManager::_mavlinkString(const char* text, int textLength)
 
 void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 {
-    if (message.sysid != kDefaultSystemId || message.compid != kDefaultComponentId) {
+    // EKF source selection is a command to the Flight Controller, not NavSight.
+    if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK && _vehicle &&
+        message.sysid == _vehicle->id() && message.compid == MAV_COMP_ID_AUTOPILOT1) {
+        mavlink_command_ack_t ack{};
+        mavlink_msg_command_ack_decode(&message, &ack);
+
+        if (ack.command == MAV_CMD_SET_EKF_SOURCE_SET) {
+            if (!_ekfSourceChangeInProgress) {
+                qCDebug(NavSightManagerLog) << "Ignoring FC EKF source ACK with no pending request"
+                                            << "result=" << ack.result;
+                return;
+            }
+
+            const int requestedSourceSet = _pendingEkfSourceSet;
+            if (ack.result == MAV_RESULT_ACCEPTED) {
+                _activeEkfSourceSet = requestedSourceSet;
+                _navSightLocationSource = _ekfSourceSetName(requestedSourceSet);
+                _navSightDeadReckoningActive = requestedSourceSet == 3;
+                _navSightGpsActive = requestedSourceSet == 1;
+                _navSightVisualNavigationActive = requestedSourceSet == 2;
+                emit navSightStatusChanged();
+                qCInfo(NavSightManagerLog) << "FC EKF source set accepted: sourceSet="
+                                           << requestedSourceSet << "source=" << _navSightLocationSource;
+            } else {
+                qCWarning(NavSightManagerLog) << "FC rejected EKF source set: sourceSet="
+                                              << requestedSourceSet << "result=" << ack.result;
+            }
+            _finishEkfSourceSet();
+            return;
+        }
+    }
+
+}
+
+void NavSightManager::_rawMavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
+{
+    if (message.sysid != kDefaultSystemId || message.compid != kDefaultComponentId ||
+        !_vehicle || !_vehicle->vehicleLinkManager()->containsLink(link)) {
         return;
     }
 
+    _handleNavSightMessage(message);
+}
+
+void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
+{
     if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
         mavlink_command_ack_t ack{};
         mavlink_msg_command_ack_decode(&message, &ack);
@@ -156,12 +214,8 @@ void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
         qCInfo(NavSightManagerLog) << "NavSight STATUSTEXT:" << _navSightStatusText;
     }
 }
-
 void NavSightManager::_checkHeartbeatTimeout()
 {
-    if (kUiPreviewEnabled) {
-        return;
-    }
     if (_navSightOnline && _lastHeartbeatTimer.isValid() &&
         _lastHeartbeatTimer.elapsed() > kHeartbeatTimeoutMs) {
         qCWarning(NavSightManagerLog) << "NavSight HEARTBEAT timeout after" << kHeartbeatTimeoutMs << "ms";
@@ -172,25 +226,6 @@ void NavSightManager::_checkHeartbeatTimeout()
 void NavSightManager::_setOffline()
 {
     _lastHeartbeatTimer.invalidate();
-
-    // Keep the UI test fixture visible while the temporary preview mode is
-    // enabled. _setActiveVehicle calls this when QGC creates/replaces the
-    // active Vehicle, which otherwise overwrites the preview values.
-    if (kUiPreviewEnabled) {
-        _navSightOnline = true;
-        _navSightConfidence = 3.2;
-        _navSightConfidenceValid = true;
-        _navSightStatusText = QStringLiteral("WAITING_FOR_START_MISSION");
-        _navSightStatusBitmask = 0;
-        _navSightDeadReckoningActive = false;
-        _navSightGpsActive = true;
-        _navSightVisualNavigationActive = true;
-        _navSightLocationSource = QStringLiteral("GPS");
-        _initialLocationAccepted = false;
-        emit navSightStatusChanged();
-        return;
-    }
-
     _navSightOnline = false;
     _navSightConfidence = 0.0;
     _navSightConfidenceValid = false;
@@ -199,11 +234,9 @@ void NavSightManager::_setOffline()
     _navSightDeadReckoningActive = false;
     _navSightGpsActive = false;
     _navSightVisualNavigationActive = false;
-    _navSightLocationSource = QStringLiteral("N/A");
     _initialLocationAccepted = false;
     emit navSightStatusChanged();
 }
-
 void NavSightManager::_setUpdateLocationResult(const QString& result)
 {
     _lastUpdateLocationResult = result;
@@ -287,6 +320,85 @@ void NavSightManager::_updateLocationAckTimeout()
     _finishUpdateLocation(QStringLiteral("No NavSight response"));
 }
 
+QString NavSightManager::_ekfSourceSetName(int sourceSet)
+{
+    switch (sourceSet) {
+    case 1:
+        return QStringLiteral("GPS");
+    case 2:
+        return QStringLiteral("VIS");
+    case 3:
+        return QStringLiteral("DR");
+    default:
+        return QStringLiteral("N/A");
+    }
+}
+
+void NavSightManager::_finishEkfSourceSet()
+{
+    _ekfSourceAckTimer.stop();
+    _pendingEkfSourceSet = 0;
+    _ekfSourceChangeInProgress = false;
+    emit ekfSourceStateChanged();
+}
+
+void NavSightManager::_ekfSourceAckTimeout()
+{
+    if (!_ekfSourceChangeInProgress) {
+        return;
+    }
+
+    qCWarning(NavSightManagerLog) << "FC EKF source set timed out: sourceSet=" << _pendingEkfSourceSet;
+    _finishEkfSourceSet();
+}
+
+bool NavSightManager::setEkfSourceSet(int sourceSet)
+{
+    if (sourceSet < 1 || sourceSet > 3) {
+        qCWarning(NavSightManagerLog) << "EKF source set rejected locally: invalid sourceSet=" << sourceSet;
+        return false;
+    }
+    if (_ekfSourceChangeInProgress) {
+        qCWarning(NavSightManagerLog) << "EKF source set rejected locally: request already pending";
+        return false;
+    }
+    if (!_vehicle) {
+        qCWarning(NavSightManagerLog) << "EKF source set rejected locally: no active vehicle";
+        return false;
+    }
+
+    SharedLinkInterfacePtr link = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!link) {
+        qCWarning(NavSightManagerLog) << "EKF source set rejected locally: no primary telemetry link";
+        return false;
+    }
+
+    mavlink_command_long_t command{};
+    command.target_system = static_cast<uint8_t>(_vehicle->id());
+    command.target_component = MAV_COMP_ID_AUTOPILOT1;
+    command.command = MAV_CMD_SET_EKF_SOURCE_SET;
+    command.confirmation = 0;
+    command.param1 = static_cast<float>(sourceSet);
+
+    mavlink_message_t message{};
+    MAVLinkProtocol* mavlinkProtocol = _toolbox->mavlinkProtocol();
+    mavlink_msg_command_long_encode(mavlinkProtocol->getSystemId(), mavlinkProtocol->getComponentId(),
+                                    &message, &command);
+
+    _pendingEkfSourceSet = sourceSet;
+    _ekfSourceChangeInProgress = true;
+    emit ekfSourceStateChanged();
+    _vehicle->sendMessageOnLinkThreadSafe(link.get(), message);
+    _ekfSourceAckTimer.start();
+
+    qCInfo(NavSightManagerLog).nospace()
+        << "FC EKF source set queued: msgid=" << message.msgid
+        << " source=" << mavlinkProtocol->getSystemId() << '/' << mavlinkProtocol->getComponentId()
+        << " target=" << static_cast<int>(command.target_system) << '/' << static_cast<int>(command.target_component)
+        << " command=" << command.command << " sourceSet=" << sourceSet
+        << " primaryLink=\"" << _vehicle->vehicleLinkManager()->primaryLinkName() << '\"';
+    return true;
+}
 bool NavSightManager::sendUpdateLocation(double latitude, double longitude)
 {
     if (_updateLocationInProgress) {

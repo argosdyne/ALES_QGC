@@ -456,6 +456,12 @@ Rectangle {
                                     text: qsTr("Enable Optical Flow Sensor")
                                     fact: QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController
                                 }
+                                Item { width: 1; height: 1 }
+                                FactCheckBox {
+                                    id: enableNavSightCheck
+                                    text: qsTr("Enable NavSight")
+                                    fact: QGroundControl.settingsManager.flyViewSettings.enableNavSight
+                                }
                             }
                         }
                     }

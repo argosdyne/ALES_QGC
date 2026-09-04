@@ -50,6 +50,7 @@ Item {
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     property bool   _showTelemetryPanel:    false
     property var    _navSightManager:        QGroundControl.corePlugin.navSightManager
+    property bool   _navSightFeatureEnabled: QGroundControl.settingsManager.flyViewSettings.enableNavSight.rawValue
 
     function secondsToHHMMSS(timeS) {
         var sec_num = parseInt(timeS, 10);
@@ -85,22 +86,34 @@ Item {
         color:                      Qt.rgba(0.0, 0.0, 0.0, 0.72)
         border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.24)
         border.width:               1
-        visible:                    (_navSightManager && _navSightManager.navSightOnline)
+        visible:                    (_navSightManager && _navSightFeatureEnabled)
         // Keep status below every transient alert/popup in this overlay.
         z:                          -1
+
+        // Consume pointer events over status text so map actions cannot be
+        // triggered through the panel. The Row remains above this catcher.
+        MouseArea {
+            anchors.fill:            parent
+            acceptedButtons:         Qt.AllButtons
+            propagateComposedEvents: false
+            preventStealing:         true
+            onPressed:               (mouse) => mouse.accepted = true
+            onClicked:               (mouse) => mouse.accepted = true
+        }
 
         Row {
             id:                     navSightStatusRow
             anchors.centerIn:       parent
             spacing:                ScreenTools.defaultFontPixelWidth * 2
+            z:                      1
 
             Repeater {
                 model: [
-                    { label: "DR", active: (_navSightManager && _navSightManager.navSightDeadReckoningActive), color: "#5F6A7D" },
-                    { label: "GPS", active: (_navSightManager && _navSightManager.navSightGpsActive), color: "#2fad16" },
-                    { label: "VIS", active: (_navSightManager && _navSightManager.navSightVisualNavigationActive), color: "#5F6A7D" },
+                    { label: "DR", sourceSet: 3, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 3), color: "#2fad16" },
+                    { label: "GPS", sourceSet: 1, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 1), color: "#2fad16" },
+                    { label: "VIS", sourceSet: 2, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 2), color: "#2fad16" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
-                    { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "--"), active: true, color: "#111111" },
+                    { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "N/A"), active: true, color: "#111111" },
                     { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? _navSightManager.lastUpdateLocationResult : (_navSightManager ? _navSightManager.navSightStatusText : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.lastUpdateLocationResult.length > 0 || _navSightManager.navSightStatusText.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? "#B57B20" : "#B04A4A")) }
                 ]
 
@@ -121,17 +134,15 @@ Item {
                         text:                   modelData.label
                         color:                  "white"
                         font.bold:              true
-                        font.pointSize:          ScreenTools.mediumFontPointSize *0.7
+                        font.pointSize:          ScreenTools.mediumFontPointSize *0.8
                     }
 
-                    // DR, GPS and VIS are UI controls. Task 6 will replace this
-                    // placeholder with MAVLink command dispatch and ACK handling.
                     QGCMouseArea {
                         anchors.fill:            parent
-                        enabled:                 index < 3
+                        enabled:                 index < 3 && _navSightManager && !_navSightManager.ekfSourceChangeInProgress
                         hoverEnabled:            enabled
                         cursorShape:             enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked:               console.log("NavSight control requested:", modelData.label)
+                        onClicked:               _navSightManager.setEkfSourceSet(modelData.sourceSet)
                     }
                 }
             }

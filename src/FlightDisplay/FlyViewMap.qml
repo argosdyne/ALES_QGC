@@ -59,6 +59,7 @@ FlightMap {
     property bool   _keepVehicleCentered:       pipMode ? true : false
     property bool   _saveZoomLevelSetting:      true
     property var    _navSightManager:           QGroundControl.corePlugin.navSightManager
+    property bool   _navSightFeatureEnabled:    QGroundControl.settingsManager.flyViewSettings.enableNavSight.rawValue
 
     function _adjustMapZoomForPipMode() {
         _saveZoomLevelSetting = false
@@ -580,7 +581,7 @@ FlightMap {
         
         onClicked: {
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
-                (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin || (_navSightManager && _navSightManager.navSightOnline))) {
+                (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin || _navSightFeatureEnabled)) {
                 orbitMapCircle.hide()
                 gotoLocationItem.hide()
                 var clickCoord = _root.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
@@ -684,7 +685,7 @@ FlightMap {
                 // Keep the native Set Home action discoverable alongside NavSight.
                 // Its availability remains controlled by QGC guided-action policy
                 // (for example, an RC-RSSI requirement), so this does not bypass it.
-                visible:            globals.guidedControllerFlyView.showSetHome || (_navSightManager && _navSightManager.navSightOnline)
+                visible:            globals.guidedControllerFlyView.showSetHome || _navSightFeatureEnabled
                 enabled:            globals.guidedControllerFlyView.showSetHome
                 onClicked: {
                     if (popup.opened) {
@@ -696,7 +697,7 @@ FlightMap {
             QGCButton {
                 Layout.fillWidth:   true
                 text:               _navSightManager && _navSightManager.updateLocationInProgress ? qsTr("Sending NavSight location...") : qsTr("Set NavSight Location")
-                visible:            _navSightManager && _navSightManager.navSightOnline
+                visible:            _navSightManager && _navSightFeatureEnabled
                 enabled:            _navSightManager && !_navSightManager.updateLocationInProgress && (!_activeVehicle || !_activeVehicle.flying || _navSightManager.initialLocationAccepted)
                 onClicked: {
                     popup.close()

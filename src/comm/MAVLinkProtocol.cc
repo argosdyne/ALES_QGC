@@ -47,7 +47,8 @@ namespace {
 
 // This observes LinkInterface::bytesSent, not the earlier queue request. It
 // therefore traces the final serialized frame accepted by the QGC transport.
-bool _isNavSightUpdateLocationFrame(const QByteArray& frame)
+bool _isTracedControlCommandFrame(const QByteArray& frame, quint16* commandOut,
+                                  quint8* targetSystemOut, quint8* targetComponentOut)
 {
     if (frame.isEmpty()) {
         return false;
@@ -85,9 +86,18 @@ bool _isNavSightUpdateLocationFrame(const QByteArray& frame)
 
     const quint16 command = byteAt(payloadOffset + kCommandOffset) |
                             (byteAt(payloadOffset + kCommandOffset + 1) << 8);
-    return command == 44444 &&
-           byteAt(payloadOffset + kTargetSystemOffset) == 10 &&
-           byteAt(payloadOffset + kTargetComponentOffset) == 192;
+    const quint8 targetSystem = byteAt(payloadOffset + kTargetSystemOffset);
+    const quint8 targetComponent = byteAt(payloadOffset + kTargetComponentOffset);
+    const bool isNavSightUpdateLocation = command == 44444 && targetSystem == 10 && targetComponent == 192;
+    const bool isEkfSourceSet = command == MAV_CMD_SET_EKF_SOURCE_SET && targetComponent == MAV_COMP_ID_AUTOPILOT1;
+    if (!isNavSightUpdateLocation && !isEkfSourceSet) {
+        return false;
+    }
+
+    *commandOut = command;
+    *targetSystemOut = targetSystem;
+    *targetComponentOut = targetComponent;
+    return true;
 }
 
 }
@@ -213,12 +223,16 @@ void MAVLinkProtocol::resetMetadataForLink(LinkInterface *link)
 
 void MAVLinkProtocol::logSentBytes(LinkInterface* link, QByteArray b){
 
-    if (_isNavSightUpdateLocationFrame(b)) {
+    quint16 command = 0;
+    quint8 targetSystem = 0;
+    quint8 targetComponent = 0;
+    if (_isTracedControlCommandFrame(b, &command, &targetSystem, &targetComponent)) {
         const QString linkName = link && link->linkConfiguration()
             ? link->linkConfiguration()->name() : QStringLiteral("<null>");
         qCInfo(NavSightTransportLog).nospace()
-            << "NavSight TX transport bytesSent: link=\"" << linkName
-            << "\" length=" << b.size() << " msgid=76 command=44444 target=10/192 raw="
+            << "NavSight/FC TX transport bytesSent: link=\"" << linkName
+            << "\" length=" << b.size() << " msgid=76 command=" << command
+            << " target=" << targetSystem << '/' << targetComponent << " raw="
             << b.toHex(' ');
     }
 

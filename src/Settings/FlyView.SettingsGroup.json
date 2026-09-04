@@ -131,6 +131,12 @@
     "shortDesc": "Enable Optical Flow Controller",
     "type":      "bool",
     "default":   false
+},
+{
+    "name":      "enableNavSight",
+    "shortDesc": "Enable NavSight",
+    "type":      "bool",
+    "default":   false
 }
 ]
 }
