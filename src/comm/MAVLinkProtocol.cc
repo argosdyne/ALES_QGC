@@ -22,6 +22,8 @@
 #include <QFileInfo>
 
 #include "MAVLinkProtocol.h"
+#include "LinkInterface.h"
+#include "LinkConfiguration.h"
 #include "UASInterface.h"
 #include "UASInterface.h"
 #include "UAS.h"
@@ -36,9 +38,59 @@
 Q_DECLARE_METATYPE(mavlink_message_t)
 
 QGC_LOGGING_CATEGORY(MAVLinkProtocolLog, "MAVLinkProtocolLog")
+QGC_LOGGING_CATEGORY(NavSightTransportLog, "qgc.navsight.transport")
 
 const char* MAVLinkProtocol::_tempLogFileTemplate   = "FlightDataXXXXXX";   ///< Template for temporary log file
 const char* MAVLinkProtocol::_logFileExtension      = "mavlink";            ///< Extension for log files
+
+namespace {
+
+// This observes LinkInterface::bytesSent, not the earlier queue request. It
+// therefore traces the final serialized frame accepted by the QGC transport.
+bool _isNavSightUpdateLocationFrame(const QByteArray& frame)
+{
+    if (frame.isEmpty()) {
+        return false;
+    }
+
+    const auto byteAt = [&frame](int index) { return static_cast<quint8>(frame.at(index)); };
+    const quint8 magic = byteAt(0);
+    int payloadOffset = 0;
+    quint32 messageId = 0;
+
+    if (magic == MAVLINK_STX) { // MAVLink 2
+        if (frame.size() < 10) {
+            return false;
+        }
+        payloadOffset = 10;
+        messageId = byteAt(7) | (byteAt(8) << 8) | (byteAt(9) << 16);
+    } else if (magic == 0xFE) { // MAVLink 1
+        if (frame.size() < 6) {
+            return false;
+        }
+        payloadOffset = 6;
+        messageId = byteAt(5);
+    } else {
+        return false;
+    }
+
+    constexpr int kCommandLongPayloadLength = 33;
+    constexpr int kCommandOffset = 28;
+    constexpr int kTargetSystemOffset = 30;
+    constexpr int kTargetComponentOffset = 31;
+    if (messageId != MAVLINK_MSG_ID_COMMAND_LONG ||
+        frame.size() < payloadOffset + kCommandLongPayloadLength) {
+        return false;
+    }
+
+    const quint16 command = byteAt(payloadOffset + kCommandOffset) |
+                            (byteAt(payloadOffset + kCommandOffset + 1) << 8);
+    return command == 44444 &&
+           byteAt(payloadOffset + kTargetSystemOffset) == 10 &&
+           byteAt(payloadOffset + kTargetComponentOffset) == 192;
+}
+
+}
 
 /**
  * The default constructor will create a new MAVLink object sending heartbeats at
@@ -160,6 +212,15 @@ void MAVLinkProtocol::resetMetadataForLink(LinkInterface *link)
  **/
 
 void MAVLinkProtocol::logSentBytes(LinkInterface* link, QByteArray b){
+
+    if (_isNavSightUpdateLocationFrame(b)) {
+        const QString linkName = link && link->linkConfiguration()
+            ? link->linkConfiguration()->name() : QStringLiteral("<null>");
+        qCInfo(NavSightTransportLog).nospace()
+            << "NavSight TX transport bytesSent: link=\"" << linkName
+            << "\" length=" << b.size() << " msgid=76 command=44444 target=10/192 raw="
+            << b.toHex(' ');
+    }
 
     uint8_t bytes_time[sizeof(quint64)];
 

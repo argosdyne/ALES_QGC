@@ -101,7 +101,7 @@ Item {
                     { label: "VIS", active: (_navSightManager && _navSightManager.navSightVisualNavigationActive), color: "#5F6A7D" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
                     { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "--"), active: true, color: "#111111" },
-                    { label: (_navSightManager ? _navSightManager.navSightStatusText : ""), active: true, visible: (_navSightManager && _navSightManager.navSightStatusText.length > 0), color: "#B04A4A" }
+                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? _navSightManager.lastUpdateLocationResult : (_navSightManager ? _navSightManager.navSightStatusText : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.lastUpdateLocationResult.length > 0 || _navSightManager.navSightStatusText.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? "#B57B20" : "#B04A4A")) }
                 ]
 
                 Rectangle {

@@ -16,7 +16,7 @@ class NavSightManager : public QGCTool
 public:
     static constexpr int kDefaultSystemId = 10;
     static constexpr int kDefaultComponentId = 192;
-    // Temporary UI-only mode. Set false before using NavSight traffic.
+    // Set true only for UI-only preview without a NavSight device.
     static constexpr bool kUiPreviewEnabled = true;
 
     explicit NavSightManager(QGCApplication* app, QGCToolbox* toolbox);
@@ -30,6 +30,7 @@ public:
     Q_PROPERTY(bool     navSightGpsActive              READ navSightGpsActive              NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightVisualNavigationActive READ navSightVisualNavigationActive NOTIFY navSightStatusChanged)
     Q_PROPERTY(QString  navSightLocationSource         READ navSightLocationSource         NOTIFY navSightStatusChanged)
+    Q_PROPERTY(bool     initialLocationAccepted      READ initialLocationAccepted      NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     updateLocationInProgress       READ updateLocationInProgress       NOTIFY updateLocationStateChanged)
     Q_PROPERTY(QString  lastUpdateLocationResult       READ lastUpdateLocationResult       NOTIFY updateLocationStateChanged)
     Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 CONSTANT)
@@ -44,6 +45,7 @@ public:
     bool navSightGpsActive() const { return _navSightGpsActive; }
     bool navSightVisualNavigationActive() const { return _navSightVisualNavigationActive; }
     QString navSightLocationSource() const { return _navSightLocationSource; }
+    bool initialLocationAccepted() const { return _initialLocationAccepted; }
     bool updateLocationInProgress() const { return _updateLocationInProgress; }
     QString lastUpdateLocationResult() const { return _lastUpdateLocationResult; }
     int targetSystemId() const { return kDefaultSystemId; }
@@ -62,10 +64,13 @@ private slots:
     void _setActiveVehicle(Vehicle* vehicle);
     void _mavlinkMessageReceived(const mavlink_message_t& message);
     void _checkHeartbeatTimeout();
+    void _updateLocationAckTimeout();
 
 private:
     void _setOffline();
     void _setUpdateLocationResult(const QString& result);
+    bool _queuePendingUpdateLocation();
+    void _finishUpdateLocation(const QString& result);
     static QString _mavlinkString(const char* text, int textLength);
 
     bool    _navSightOnline{kUiPreviewEnabled};
@@ -77,11 +82,21 @@ private:
     bool    _navSightGpsActive{kUiPreviewEnabled};
     bool    _navSightVisualNavigationActive{kUiPreviewEnabled};
     QString _navSightLocationSource{kUiPreviewEnabled ? QStringLiteral("GPS") : QStringLiteral("N/A")};
+    bool    _initialLocationAccepted{false};
     bool    _updateLocationInProgress{false};
     QString _lastUpdateLocationResult;
+    double  _pendingLatitude{0.0};
+    double  _pendingLongitude{0.0};
+    int     _updateLocationRetryCount{0};
     Vehicle* _vehicle{nullptr};
     QElapsedTimer _lastHeartbeatTimer;
     QTimer _heartbeatWatchdog;
+    QTimer _updateLocationAckTimer;
 
     static constexpr int kHeartbeatTimeoutMs = 3000;
+    static constexpr quint32 kWaitingForStartMissionMask = 0x00001000u;
+    static constexpr int kUpdateLocationAckTimeoutMs = 3000;
+    static constexpr int kMaxUpdateLocationRetries = 2;
+    // NavSight ICD/sequence uses 5; standard MAVLink uses 1 for this result.
+    static constexpr uint8_t kNavSightTemporaryRejectedResult = 5;
 };

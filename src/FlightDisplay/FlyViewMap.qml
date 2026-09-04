@@ -681,7 +681,11 @@ FlightMap {
             QGCButton {
                 Layout.fillWidth:   true
                 text:               qsTr("Set home here")
-                visible:            globals.guidedControllerFlyView.showSetHome
+                // Keep the native Set Home action discoverable alongside NavSight.
+                // Its availability remains controlled by QGC guided-action policy
+                // (for example, an RC-RSSI requirement), so this does not bypass it.
+                visible:            globals.guidedControllerFlyView.showSetHome || (_navSightManager && _navSightManager.navSightOnline)
+                enabled:            globals.guidedControllerFlyView.showSetHome
                 onClicked: {
                     if (popup.opened) {
                         popup.close()
@@ -691,8 +695,9 @@ FlightMap {
             }
             QGCButton {
                 Layout.fillWidth:   true
-                text:               qsTr("Set NavSight Location")
+                text:               _navSightManager && _navSightManager.updateLocationInProgress ? qsTr("Sending NavSight location...") : qsTr("Set NavSight Location")
                 visible:            _navSightManager && _navSightManager.navSightOnline
+                enabled:            _navSightManager && !_navSightManager.updateLocationInProgress && (!_activeVehicle || !_activeVehicle.flying || _navSightManager.initialLocationAccepted)
                 onClicked: {
                     popup.close()
                     if (_activeVehicle && _activeVehicle.flying) {
@@ -707,6 +712,14 @@ FlightMap {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: qsTr("Lat: %1\nLon: %2").arg(mapClickCoord.latitude.toFixed(7)).arg(mapClickCoord.longitude.toFixed(7))
+            }
+
+            QGCLabel {
+                Layout.fillWidth: true
+                visible: _navSightManager && _activeVehicle && _activeVehicle.flying && !_navSightManager.initialLocationAccepted
+                wrapMode: Text.WordWrap
+                color: qgcPal.warningText
+                text: qsTr("Initial NavSight location must be set on the ground before takeoff.")
             }
         }
     }
