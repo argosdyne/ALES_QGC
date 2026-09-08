@@ -49,7 +49,7 @@ Item {
     property bool   _captureButtonActive:                       _isShootingInCurrentMode || _gremsyCaptureButtonActive || (_isNextVisionPayload && _nextVisionPhotoFeedback)
 
     function _centerGimbal() {
-        if (_activePayload) {
+        if (_usePayload) {
             _activePayload.gimbalHome()
         } else if (_mavlinkCamera) {
             _mavlinkCamera.centerGimbal()
