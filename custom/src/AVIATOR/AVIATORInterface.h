@@ -54,6 +54,8 @@ public:
     Fact* batteryCurrent() { return &_batteryCurrentFact; }
     Fact* batteryCharging() { return &_batteryChargingFact; }
 
+    void handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels);
+
 signals:
     void write(const QByteArray data);
     void bytesReceived(const mavlink_message_t& message);
@@ -65,9 +67,6 @@ private slots:
     void _readBytes(void);
     void _handlebytesReceived(const mavlink_message_t& message);
 
-public slots:
-
-    void handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels);
 private:
     void _init();
     void _handle_mavlink_rc_channels(const mavlink_message_t& message);
@@ -76,6 +75,7 @@ private:
     void _onEmergencyHoldTimeout();
     void _resetEmergencyStopComboState();
     static bool _rcSwitchActive(uint16_t rawValue);
+    bool _px4ThermalRcIsActive() const;
 
     Fact _batteryVoltageFact;
     Fact _batteryRemainingFact;
@@ -123,6 +123,8 @@ private:
 
     uint16_t _lastRc7Raw{0};
     uint16_t _lastRc15Raw{0};
+    QElapsedTimer _lastPx4ThermalRcFrameTimer;
+    int _serialF3PressCount{0};
 
     bool _cn1Pressed{false};
     bool _cn2Pressed{false};

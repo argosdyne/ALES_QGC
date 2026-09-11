@@ -324,22 +324,23 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     }
 
     // F2 
+    // PX4 RC is primary for FN2/FN3; serial is used only while PX4 RC is unavailable.
+    if (!_px4ThermalRcIsActive()) {
     if(f2 != _f2Pressed) {
         _f2Pressed = f2;
         emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
     }
 
     // F3 
-    static int f3Count = 0;
-    if(f3) f3Count++;
+    if(f3) _serialF3PressCount++;
     else {
-        if(f3Count > 0 && f3Count < 50) { // 1s
+        if(_serialF3PressCount > 0 && _serialF3PressCount < 50) { // 1s
             emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
         }
-        f3Count = 0;
+        _serialF3PressCount = 0;
     }
 
-    bool f3Pressed = (f3Count > 250); // 5s
+    bool f3Pressed = (_serialF3PressCount > 250); // 5s
     if(f3Pressed != _f3Pressed) {
         _f3Pressed = f3Pressed;
         // qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
@@ -350,6 +351,9 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         qCDebug(AVIATORInterfaceLog) << "START MISSION 명령 전송: " << _f3Pressed;
     }
 
+    } else {
+        _serialF3PressCount = 0;
+    }
     //해당 조건에 있을 경우 true를 반환함. 따라서 cn에 맞는 값들을 넣어줘야함
     bool cn1 = channels.chan1_raw ;//== 2000;
     bool cn2 = channels.chan2_raw ;//== 2000;
@@ -505,6 +509,8 @@ void AVIATORInterface::handlePx4ThermalRCChannels(const mavlink_rc_channels_t& c
     static constexpr qint64 shortPressMaxMs = 1000;
     static constexpr qint64 longPressMs = 5000;
 
+    _lastPx4ThermalRcFrameTimer.restart();
+
     const bool f2 = _rcSwitchActive(channels.chan14_raw);
     const bool f3 = _rcSwitchActive(channels.chan16_raw);
 
@@ -534,6 +540,13 @@ void AVIATORInterface::handlePx4ThermalRCChannels(const mavlink_rc_channels_t& c
     }
 }
 
+bool AVIATORInterface::_px4ThermalRcIsActive() const
+{
+    static constexpr qint64 kPx4RcTimeoutMs = 1500;
+    return _lastPx4ThermalRcFrameTimer.isValid()
+            && _lastPx4ThermalRcFrameTimer.elapsed() < kPx4RcTimeoutMs;
+
+}
 bool AVIATORInterface::_rcSwitchActive(uint16_t rawValue)
 {
     return rawValue >= 1900;
