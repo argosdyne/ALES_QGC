@@ -135,6 +135,11 @@ static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
 static constexpr qint64 kZoomStepDebounceMs = 150;
 static constexpr int kHoldZoomStepIntervalMs = 150;
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
+static constexpr int kPostZoomSettingsSyncDelayMs = 1000;
+static constexpr qint64 kFreshCameraReportMaxAgeMs = 5000;
+static constexpr int kMaxZoomStepsInFlight = 2;
+static constexpr int kMaxZoomCatchUpAttempts = 3;
+static constexpr int kZoomSettleResendDelayMs = 400;
 
 static bool _isStaleZoomDropToMin(float reported, float beforeRange)
 {
@@ -262,6 +267,14 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _holdZoomStepTimer.setSingleShot(false);
     _holdZoomStepTimer.setInterval(kHoldZoomStepIntervalMs);
     connect(&_holdZoomStepTimer, &QTimer::timeout, this, &CodevCameraControl::_holdZoomStepTick);
+  
+    _postZoomSettingsSyncTimer.setSingleShot(true);
+    _postZoomSettingsSyncTimer.setInterval(kPostZoomSettingsSyncDelayMs);
+    connect(&_postZoomSettingsSyncTimer, &QTimer::timeout, this, &CodevCameraControl::_requestCameraSettings);
+
+    _zoomSettleTimer.setSingleShot(true);
+    _zoomSettleTimer.setInterval(kZoomSettleResendDelayMs);
+    connect(&_zoomSettleTimer, &QTimer::timeout, this, &CodevCameraControl::_sendZoomSettle);
 
     connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
 }
@@ -586,6 +599,8 @@ void CodevCameraControl::centerGimbal()
 void CodevCameraControl::syncZoomUiAfterReset()
 {
     _setTrustedOpticalRange(1.0f);
+    _lastAckedOpticalRange = 1.0f;
+    _commandedRange = 1.0f;
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
     if (_dZoomFact && _dZoomFact->rawValue().toDouble() > 1.01) {
         _dZoomFact->setRawValue(1.0f);
@@ -602,8 +617,8 @@ void CodevCameraControl::syncZoomUiAfterReset()
 }
 
 qreal CodevCameraControl::displayZoomLevel() const
-{
-    double optical = _opticalRange;
+{    
+    double optical = static_cast<double>(_opticalRange);
     if (optical >= static_cast<double>(_maxOpticalX - 0.05f)) {
         optical = _maxOpticalX;
     }
@@ -1067,6 +1082,70 @@ void CodevCameraControl::stopZoom()
     _holdZoomStepTimer.stop();
     _holdZoomDirection = 0;
     _holdZoomAllowDigital = false;
+    _onZoomHoldReleased();
+}
+
+void CodevCameraControl::_onZoomHoldReleased()
+{
+    if (!hasZoom()) {
+        return;
+    }
+    _zoomSettleTimer.start();
+    _schedulePostZoomSettingsSync();
+}
+
+void CodevCameraControl::_sendZoomSettle()
+{
+    if (_isZoomHoldActive() || !hasZoom()) {
+        return;
+    }    
+    const float target = _commandedRange;
+    qCInfo(CodevCameraLog) << "zoom settle resend" << "target" << target
+                           << "confirmed" << _opticalRange;
+    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    _queueZoomRange(target, "settle");
+    _schedulePostZoomSettingsSync();
+}
+
+bool CodevCameraControl::_hasPendingZoomCommand() const
+{
+    for (const MavCommandQueueEntry_t& entry : _mavCommandQueue) {
+        if (entry.command == MAV_CMD_SET_CAMERA_ZOOM) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CodevCameraControl::_isZoomHoldActive() const
+{
+    return _holdZoomDirection != 0 || _aviatorRcZoomState != 0;
+}
+
+void CodevCameraControl::_schedulePostZoomSettingsSync()
+{
+    if (!hasZoom()) {
+        return;
+    }
+    _postZoomSettingsSyncTimer.start();
+}
+
+void CodevCameraControl::_adoptCameraReportedOptical(float reported, const char* reason)
+{
+    const float before = _opticalRange;
+    _setTrustedOpticalRange(reported);
+    _lastAckedOpticalRange = _opticalRange;
+    _commandedRange = _opticalRange;
+    if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
+        _zoomLevel = _opticalRange;
+        emit zoomLevelChanged();
+    }
+    if (qAbs(before - _opticalRange) > 0.01f) {
+        qCInfo(CodevCameraLog) << "adopt camera zoom" << reason
+                               << "reported" << reported
+                               << "before" << before
+                               << "after" << _opticalRange;
+    }
 }
 
 void CodevCameraControl::startTracking(QPointF point, double radius)
@@ -1182,17 +1261,12 @@ void CodevCameraControl::setZoomLevel(qreal level)
         stepZoom(0);
         return;
     }
-    const float snapped = _snapOpticalZoomLevel(static_cast<float>(level), _maxOpticalX);
-    _setTrustedOpticalRange(snapped);
+    const float snapped = static_cast<float>(qBound(1, qRound(level), qRound(_maxOpticalX)));
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    if (qAbs(_zoomLevel - snapped) > 0.01) {
-        _zoomLevel = snapped;
-        emit zoomLevelChanged();
-    }
-    sendMavCommand(
-        MAV_CMD_SET_CAMERA_ZOOM,
-        ZOOM_TYPE_RANGE,
-        snapped);
+    // UI (_opticalRange) follows on ACK, like every other RANGE command.
+    _commandedRange = snapped;
+    _queueZoomRange(snapped, "setZoomLevel");
+    _schedulePostZoomSettingsSync();
 }
 
 // void CodevCameraControl::stepZoom(int direction)
@@ -1254,7 +1328,7 @@ void CodevCameraControl::_holdZoomStepTick()
         _holdZoomStepTimer.stop();
         return;
     }
-     _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
+    _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
 }
 
 
@@ -1534,10 +1608,85 @@ bool CodevCameraControl::_consumeQueuedCommandAck(int ackCompId, const mavlink_c
             << "result" << ack.result
             << "queueSizeBefore" << _mavCommandQueue.count();
 
+    if (queuedCommand.command == MAV_CMD_SET_CAMERA_ZOOM
+            && static_cast<int>(queuedCommand.rgParam[0]) == ZOOM_TYPE_RANGE) {
+        _onZoomRangeAck(static_cast<float>(queuedCommand.rgParam[1]), ack.result);
+    }
+
     _mavCommandAckTimer.stop();
     _mavCommandQueue.removeFirst();
     _sendNextQueuedMavCommand();
     return true;
+}
+
+void CodevCameraControl::_onZoomRangeAck(float value, uint8_t result)
+{
+    if (result == MAV_RESULT_ACCEPTED || result == MAV_RESULT_IN_PROGRESS) {
+        // The camera accepted this target: this is the moment the UI advances.
+        _lastAckedOpticalRange = value;
+        _setTrustedOpticalRange(value);
+        if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
+            _zoomLevel = _opticalRange;
+            emit zoomLevelChanged();
+        }
+        return;
+    }
+    qCWarning(CodevCameraLog) << "zoom RANGE rejected" << "value" << value << "result" << result;
+    _onZoomRangeFailed(value);
+}
+
+void CodevCameraControl::_onZoomRangeFailed(float value)
+{
+    if (_hasPendingZoomCommand()) {
+        return;
+    }
+    qCInfo(CodevCameraLog) << "zoom RANGE failed"
+                           << "failed" << value
+                           << "confirmed" << _opticalRange
+                           << "commandedBefore" << _commandedRange;
+    _commandedRange = _opticalRange;
+    _schedulePostZoomSettingsSync();
+}
+
+void CodevCameraControl::_queueZoomRange(float value, const char* sourceTag)
+{
+    _lastZoomCommandMs = QDateTime::currentMSecsSinceEpoch();
+    _pendingDownwardReport = -1;
+
+    for (int i = 1; i < _mavCommandQueue.count(); ++i) {
+        MavCommandQueueEntry_t& entry = _mavCommandQueue[i];
+        if (entry.command == MAV_CMD_SET_CAMERA_ZOOM
+                && static_cast<int>(entry.rgParam[0]) == ZOOM_TYPE_RANGE) {
+            qCDebug(CodevCameraLog) << sourceTag << "coalesce queued RANGE"
+                                    << "old" << entry.rgParam[1] << "new" << value;
+            entry.rgParam[1] = static_cast<double>(value);
+            return;
+        }
+    }
+    sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, value);
+}
+
+void CodevCameraControl::_rebaseOnFreshCameraReport(const char* sourceTag)
+{
+    if (_hasPendingZoomCommand() || _lastCameraReportMs <= 0) {
+        return;
+    }
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    if (nowMs - _lastCameraReportMs > kFreshCameraReportMaxAgeMs) {
+        return;
+    }
+    if (_lastZoomCommandMs > 0
+            && _lastCameraReportMs < _lastZoomCommandMs + kZoomSettingsSyncSuppressMs) {
+        return;
+    }
+    if (_isStaleZoomDropToMin(_lastCameraReportedOptical, _opticalRange)
+            || _isStaleZoomJumpToMax(_lastCameraReportedOptical, _opticalRange)) {
+        return;
+    }
+    if (qRound(_lastCameraReportedOptical) <= qRound(_opticalRange)) {
+        return;
+    }
+    _adoptCameraReportedOptical(_lastCameraReportedOptical, sourceTag);
 }
 
 void CodevCameraControl::_handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link)
@@ -1871,10 +2020,14 @@ void CodevCameraControl::_reconcileCameraAheadReport()
     if (upwardDelta > 1.01f) {
         return;
     }
-
-    _setTrustedOpticalRange(_lastCameraReportedOptical);
-    if (qAbs(_zoomLevel - _lastCameraReportedOptical) > 0.01) {
-        _zoomLevel = _lastCameraReportedOptical;
+    
+    _setTrustedOpticalRange(static_cast<float>(qRound(_lastCameraReportedOptical)));
+    _lastAckedOpticalRange = _opticalRange;
+    if (_commandedRange < _opticalRange) {
+        _commandedRange = _opticalRange;
+    }
+    if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
+        _zoomLevel = _opticalRange;
         emit zoomLevelChanged();
     }
     qCDebug(CodevCameraLog) << "reconcile camera ahead"
@@ -1927,13 +2080,16 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
         _lastCameraReportedOptical = reported;
         const float trustedRange = _opticalRange;
         const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+        _lastCameraReportMs = nowMs;
         const bool suppressSync = _zoomSettingsSyncSuppressUntilMs > 0
                                   && nowMs < _zoomSettingsSyncSuppressUntilMs;
 
         if (!_opticalRangeBootstrapped) {
             _setTrustedOpticalRange(reported);
-            if (qAbs(_zoomLevel - reported) > 0.01) {
-                _zoomLevel = reported;
+            _lastAckedOpticalRange = _opticalRange;
+            _commandedRange = _opticalRange;
+            if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
+                _zoomLevel = _opticalRange;
                 emit zoomLevelChanged();
             }
             _opticalRangeBootstrapped = true;
@@ -1948,10 +2104,34 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
                 qCDebug(CodevCameraLog) << "handleSettings ignore stale jump to max"
                                         << "reported" << reported
                                         << "trustedRange" << trustedRange;
-            } else if (qAbs(reported - trustedRange) <= 0.01f) {
-                if (qAbs(_zoomLevel - reported) > 0.01) {
-                    _zoomLevel = reported;
-                    emit zoomLevelChanged();
+            } else if (!_isZoomHoldActive() && !_hasPendingZoomCommand()) {
+                const int reportedStep = qRound(reported);
+                const int confirmedStep = qRound(trustedRange);
+                if (reportedStep >= confirmedStep) {
+                    _pendingDownwardReport = -1;
+                    _zoomCatchUpAttempts = 0;
+                    _adoptCameraReportedOptical(reported, "idle");
+                } else if (_zoomCatchUpAttempts < kMaxZoomCatchUpAttempts) {
+                    ++_zoomCatchUpAttempts;
+                    _pendingDownwardReport = -1;
+                    qCInfo(CodevCameraLog) << "handleSettings lens short of confirmed, catch-up"
+                                           << "reported" << reported
+                                           << "confirmed" << trustedRange
+                                           << "attempt" << _zoomCatchUpAttempts;
+                    _commandedRange = _opticalRange;
+                    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
+                    _queueZoomRange(_opticalRange, "catchUp");
+                    _schedulePostZoomSettingsSync();
+                } else if (_pendingDownwardReport == reportedStep) {
+                    _pendingDownwardReport = -1;
+                    _zoomCatchUpAttempts = 0;
+                    _adoptCameraReportedOptical(reported, "idle-stable");
+                } else {
+                    qCInfo(CodevCameraLog) << "handleSettings camera below confirmed after catch-up, re-check"
+                                           << "reported" << reported
+                                           << "confirmed" << trustedRange;
+                    _pendingDownwardReport = reportedStep;
+                    _schedulePostZoomSettingsSync();
                 }
             } else if (reported > trustedRange + 0.01f) {
                 _reconcileCameraAheadReport();
@@ -1974,7 +2154,7 @@ bool CodevCameraControl::_qgcJoystickControlsCamera() const
 
 void CodevCameraControl::_setTrustedOpticalRange(float range)
 {
-    const float snapped = _snapOpticalZoomLevel(range, _maxOpticalX);
+    const float snapped = qBound(1.0f, static_cast<float>(qRound(range)), _maxOpticalX);
     if (qAbs(_opticalRange - snapped) <= 0.01f) {
         return;
     }
@@ -2021,57 +2201,71 @@ void CodevCameraControl::_applyOpticalZoomStep(int direction, const char* source
     if (!hasZoom() || direction == 0) {
         return;
     }
-
-
-
-    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
-    bool atOpticalMin = _opticalRange <= 1.0f;
+    
+    _rebaseOnFreshCameraReport(sourceTag);
+    _zoomCatchUpAttempts = 0;
+    _zoomSettleTimer.stop();
 
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    // Single-shot; every step restarts it so it fires once, after the last step.
+    _schedulePostZoomSettingsSync();
 
-    if (direction > 0) {
+    const int confirmed = qRound(_opticalRange);
+    int commanded = qRound(_commandedRange);
 
-        _reconcileCameraAheadReport();
-        if (atOpticalMax) {
-            qCInfo(CodevCameraLog) << sourceTag << "block zoom-in at optical max"
-                                   << "opticalRange" << _opticalRange;
+    if (qAbs(commanded - confirmed) >= kMaxZoomStepsInFlight) {
+        if (_hasPendingZoomCommand()) {
+            qCDebug(CodevCameraLog) << sourceTag << "wait for zoom ack"
+                                    << "confirmed" << confirmed
+                                    << "commanded" << commanded;
             return;
         }
-        const int current = qRound(_opticalRange);
-        const float next = qBound(1.0f, static_cast<float>(current + 1), _maxOpticalX);
-        _setTrustedOpticalRange(next);
-        if (qAbs(_zoomLevel - next) > 0.01) {
-            _zoomLevel = next;
-            emit zoomLevelChanged();
+        // Queue was cleared underneath us (link change etc): resync and continue.
+        qCInfo(CodevCameraLog) << sourceTag << "zoom queue empty, resync commanded"
+                               << "confirmed" << confirmed
+                               << "commandedBefore" << commanded;
+        _commandedRange = _opticalRange;
+        commanded = confirmed;
+    }
+
+    const int maxOptical = qRound(_maxOpticalX);
+
+    if (direction > 0) {
+        if (commanded >= maxOptical) {            
+            if ((_holdZoomDirection > 0 || _aviatorRcZoomState > 0)
+                    && _lastCameraReportedOptical < (_maxOpticalX - 0.5f)) {
+                _queueZoomRange(_maxOpticalX, sourceTag);
+                qCDebug(CodevCameraLog) << sourceTag << "resend optical max while held"
+                                        << "confirmed" << confirmed;
+            } else {
+                qCDebug(CodevCameraLog) << sourceTag << "block zoom-in at optical max"
+                                        << "confirmed" << confirmed;
+            }
+            return;
         }
-        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        const float next = static_cast<float>(qBound(1, commanded + 1, maxOptical));
+        _commandedRange = next;
+        _queueZoomRange(next, sourceTag);
         qCInfo(CodevCameraLog) << sourceTag << "zoom step in"
-                               << "opticalRange" << _opticalRange;
+                               << "target" << next
+                               << "confirmed" << confirmed;
     } else {
-        if (atOpticalMin) {
+        if (commanded <= 1) {
             if (_lastCameraReportedOptical > 1.01f) {
-                // UI is at 1x but camera is still zoomed in — force RANGE 1.
-                _setTrustedOpticalRange(1.0f);
-                if (qAbs(_zoomLevel - 1.0) > 0.01) {
-                    _zoomLevel = 1.0;
-                    emit zoomLevelChanged();
-                }
-                sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, 1.0f);
+                // Confirmed says 1x but the camera reports otherwise: force RANGE 1.
+                _commandedRange = 1.0f;
+                _queueZoomRange(1.0f, sourceTag);
                 qCInfo(CodevCameraLog) << sourceTag << "zoom step out force min"
                                        << "lastReported" << _lastCameraReportedOptical;
             }
             return;
         }
-        const int current = qRound(_opticalRange);
-        const float next = qBound(1.0f, static_cast<float>(current - 1), _maxOpticalX);
-        _setTrustedOpticalRange(next);
-        if (qAbs(_zoomLevel - next) > 0.01) {
-            _zoomLevel = next;
-            emit zoomLevelChanged();
-        }
-        sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, _opticalRange);
+        const float next = static_cast<float>(qBound(1, commanded - 1, maxOptical));
+        _commandedRange = next;
+        _queueZoomRange(next, sourceTag);
         qCInfo(CodevCameraLog) << sourceTag << "zoom step out"
-                               << "opticalRange" << _opticalRange;
+                               << "target" << next
+                               << "confirmed" << confirmed;
     }
 }
 
@@ -2137,7 +2331,10 @@ void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
     const int direction = _rcZoomDirection(ch11);
 
     if (direction == 0) {
-        _aviatorRcZoomState = 0;
+        if (_aviatorRcZoomState != 0) {
+            _aviatorRcZoomState = 0;
+            _onZoomHoldReleased();
+        }
         return;
     }
 
@@ -2227,8 +2424,11 @@ void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
     static uint16_t rc_zoom_value = 0;
     if(rc_zoom_value != rc.chan11_raw) {
         rc_zoom_value = rc.chan11_raw;
-        if (!_rcCameraSettingsRequestTimer.isValid()
-                || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs) {
+        // Do not request CAMERA_SETTINGS while ch11 is held. That command shares
+        // the camera ACK queue with RANGE zoom and will stall mid-travel.
+        if (_rcZoomDirection(rc.chan11_raw) == 0
+                && (!_rcCameraSettingsRequestTimer.isValid()
+                    || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs)) {
             _requestCameraSettings();
             _rcCameraSettingsRequestTimer.restart();
         }
@@ -2483,8 +2683,14 @@ void CodevCameraControl::_sendMavCommandAgain()
 
     if (_mavCommandRetryCount++ > _mavCommandMaxRetryCount) {
         const MAV_CMD failedCommand = queuedCommand.command;
+        const bool failedZoomRange = failedCommand == MAV_CMD_SET_CAMERA_ZOOM
+                && static_cast<int>(queuedCommand.rgParam[0]) == ZOOM_TYPE_RANGE;
+        const float failedZoomValue = static_cast<float>(queuedCommand.rgParam[1]);
         qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending failed" << failedCommand;
         _mavCommandQueue.removeFirst();
+        if (failedZoomRange) {
+            _onZoomRangeFailed(failedZoomValue);
+        }
         _sendNextQueuedMavCommand();
         _mavCommandResult(_vehicle->id(), compID(), failedCommand, MAV_RESULT_CANCELLED, true);
         return;

@@ -370,6 +370,24 @@ private:
     void _completePendingRcAction();
 
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
+    QTimer _postZoomSettingsSyncTimer;
+    QTimer _zoomSettleTimer;
+    void _onZoomHoldReleased();
+    void _sendZoomSettle();
+    bool _hasPendingZoomCommand() const;
+    bool _isZoomHoldActive() const;
+    void _schedulePostZoomSettingsSync();
+    void _adoptCameraReportedOptical(float reported, const char* reason);
+    void _queueZoomRange(float value, const char* sourceTag);
+    void _rebaseOnFreshCameraReport(const char* sourceTag);
+    void _onZoomRangeAck(float value, uint8_t result);
+    void _onZoomRangeFailed(float value);
+    float _lastAckedOpticalRange{1.0f};    
+    float _commandedRange{1.0f};    
+    int _pendingDownwardReport{-1};
+    int _zoomCatchUpAttempts{0};
+    qint64 _lastZoomCommandMs{0};
+    qint64 _lastCameraReportMs{0};
     int _aviatorRcZoomState{0};
     qint64 _lastZoomStepMs{0};
     bool _opticalRangeBootstrapped{false};
