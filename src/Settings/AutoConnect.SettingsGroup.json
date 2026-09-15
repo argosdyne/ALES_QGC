@@ -77,7 +77,7 @@
     "name":             "udpListenPort",
     "shortDesc": "UDP port for autoconnect",
     "type":             "string",
-    "default":     "14550,14520"
+    "default":     "14550,14520,14530"
 },
 {
     "name":             "udpTargetHostIP",
