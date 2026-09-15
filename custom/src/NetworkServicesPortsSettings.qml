@@ -28,6 +28,12 @@ Rectangle {
     property Fact _videoUrl:        _customSettings.networkVideoUrl
     property Fact _strictValidation:_customSettings.securityStrictMavlinkValidation
     property Fact _allowlistIds:    _customSettings.securityAllowlistVehicleIds
+    property var  _activeVehicle:   QGroundControl.multiVehicleManager.activeVehicle
+    readonly property string _displayUdpPort: {
+        var linkManager = _activeVehicle ? _activeVehicle.vehicleLinkManager : null
+        var match = linkManager ? linkManager.primaryLinkName.match(/^UDP Link \(AutoConnect\) (\d+)$/) : null
+        return match ? match[1] : _udpPort.rawValue.toString()
+    }
 
     property int _openPortCount: (_udpEnabled.rawValue ? 1 : 0) + (_tcpEnabled.rawValue ? 1 : 0) + (_videoEnabled.rawValue ? 1 : 0)
 
@@ -37,7 +43,7 @@ Rectangle {
         return "ALES QGC Network Services Audit Report\n"
                 + "Generated: " + new Date().toISOString() + "\n\n"
                 + "UDP Listener Enabled: " + _udpEnabled.rawValue + "\n"
-                + "UDP Port: " + _udpPort.rawValue + "\n"
+                + "UDP Port: " + _displayUdpPort + "\n"
                 + "UDP Bind: " + _udpBind.rawValue + "\n\n"
                 + "TCP Connection Enabled: " + _tcpEnabled.rawValue + "\n"
                 + "TCP Port: " + _tcpPort.rawValue + "\n"
@@ -145,7 +151,7 @@ Rectangle {
                                 spacing:                ScreenTools.defaultFontPixelHeight * 0.35
 
                                 QGCLabel { text: qsTr("MAVLink UDP Listener"); font.family: ScreenTools.demiboldFontFamily }
-                                QGCLabel { text: qsTr("Protocol: UDP             Default Port : %1             Bind : %2").arg(_udpPort.rawValue).arg(_udpBind.rawValue) }
+                                QGCLabel { text: qsTr("Protocol: UDP             Active Port : %1             Bind : %2").arg(_displayUdpPort).arg(_udpBind.rawValue) }
                                 QGCLabel { text: qsTr("Disable capability : Yes (Instant)") }
                             }
                         }
