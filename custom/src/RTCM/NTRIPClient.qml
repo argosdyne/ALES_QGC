@@ -138,6 +138,7 @@ Column {
             Layout.minimumWidth: _labelWidth
         }
         FactTextField {
+            id:             portField
             fact:           _ntripSource.port
             Layout.minimumWidth: _valueWidth
             enabled:        !root._ntripConnectionActive
@@ -150,16 +151,19 @@ Column {
                 _ntripSource.onReadyRead()
             }
         }
-
         QGCLabel {
             text: qsTr("Enter Mountpoint Manually")
             Layout.minimumWidth: _labelWidth
         }
 
-        FactCheckBox {
-            fact: _ntripSource.mountpointManual
+        RowLayout {
             Layout.minimumWidth: _valueWidth
-            enabled:        !root._ntripConnectionActive
+
+            FactCheckBox {
+                id: mountpointManualCheckBox
+                fact: _ntripSource.mountpointManual
+                enabled: !root._ntripConnectionActive
+            }
         }
 
         QGCLabel {
@@ -198,6 +202,20 @@ Column {
             }
 
             onActivated: root._saveMountPointFromIndex(index)
+        }
+        Item { Layout.minimumWidth: _labelWidth }
+        QGCButton {
+            text: qsTr("Refresh Mountpoints")
+            Layout.minimumWidth: _valueWidth
+            Layout.preferredHeight: mountpointManualCheckBox.implicitHeight
+            enabled: !root._ntripConnectionActive && hostField.text !== "" && portField.text !== ""
+            onClicked: {
+                if (validateNtripServerHost(hostField.text) !== "") {
+                    ntripHostErrorDialog.open()
+                    return
+                }
+                _ntripSource.onReadyRead()
+            }
         }
         QGCLabel {
             text:           qsTr("User:")

@@ -106,9 +106,7 @@ NTRIPRTCMSource::NTRIPRTCMSource(QObject* parent)
         _mavlinkRtcmSentCurrentSecond++;
     });
 
-    if(host()->rawValue().toString() != "" && port()->rawValue().toString() != ""){
-        onReadyRead();
-    }
+    // Source-table loading is user initiated from the NTRIP settings page.
 }
 
 NTRIPRTCMSource::~NTRIPRTCMSource()

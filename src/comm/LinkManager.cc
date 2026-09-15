@@ -795,6 +795,10 @@ void LinkManager::_addUDPAutoConnectLink(void)
 
 {
 
+    if (!_customNetworkServiceEnabled("networkUdpListenerEnabled")) {
+        return;
+    }
+
     if (_autoConnectSettings->autoConnectUDP()->rawValue().toBool()) {
 
         //support multiple auto-connect UDP listen ports.
