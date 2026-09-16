@@ -114,6 +114,7 @@ public:
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode globalAltitudeModeDefault  READ globalAltitudeModeDefault  NOTIFY globalAltitudeModeChanged)                               ///< Default to use for newly created items
 
     Q_PROPERTY(int                  vlValue                         MEMBER _vlValue                     NOTIFY vlValueChanged)
+    Q_PROPERTY(int                  visionLidarEnabled              MEMBER _visionLidarEnabled          NOTIFY visionLidarEnabledChanged)
     Q_PROPERTY(int                  vlOBAValue                      MEMBER _vlOBAValue                  NOTIFY vlOBAValueChanged)
     Q_PROPERTY(int                  slStatus                        MEMBER _slStatus                    NOTIFY slStatusChanged)
 
@@ -193,6 +194,8 @@ public:
     Q_INVOKABLE void setVisionLidarOBAMode(int param);
 
     Q_INVOKABLE void getVisionLidarOBAMode();
+    /// Request the Vision LiDAR states that are rendered when its panel opens.
+    Q_INVOKABLE void getVisionLidarState();
 
     /// Send LifeVest commands to the vehicle via MAVLink COMMAND_LONG.
     // Drops the life vest (CMD_USER_DEPLOY_LIFE_VEST = 42700, param1 = 1)
@@ -208,6 +211,7 @@ public:
     void _sendParamInt(const QString& paramId, int value);
 
     void _requestOBAValue();
+    void _requestVisionLidarParam(const QString& paramId);
     void _requestSlStatus();
 
 
@@ -336,6 +340,7 @@ signals:
     void _recalcFlightPathSegmentsSignal    (void);
     void globalAltitudeModeChanged          (void);
     void vlValueChanged();
+    void visionLidarEnabledChanged();
     void vlOBAValueChanged();
     void slStatusChanged();
 
@@ -357,6 +362,7 @@ private slots:
     void _managerVehicleChanged                 (Vehicle* managerVehicle);
     void _takeoffItemNotRequiredChanged         (void);
     void _onVlValueChanged(int value);
+    void _onVisionLidarEnabledChanged(int value);
     void _onvlOBAValueChanged(int value);
     void _onSlStatusChanged(int value);
 
@@ -403,6 +409,7 @@ private:
     static double           _normalizeLon                       (double lon);
     static bool             _convertToMissionItems              (QmlObjectListModel* visualMissionItems, QList<MissionItem*>& rgMissionItems, QObject* missionItemParent);
     int _vlValue = 0;
+    int _visionLidarEnabled = 0;
     int _vlOBAValue = 1;
     int _slStatus = 0;
 

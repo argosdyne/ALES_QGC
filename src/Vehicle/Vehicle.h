@@ -1111,6 +1111,7 @@ signals:
 
     void sensorsParametersResetAck      (bool success);
     void vlValueChanged                 (int value); //Vision Lidar
+    void visionLidarEnabledChanged      (int value);
     void vlOBAValueChanged              (int value);
     void slStatusChanged                (int value); //Searchlight ON/OFF
     void videoCaptureRunningChanged     ();
