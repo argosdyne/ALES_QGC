@@ -94,8 +94,8 @@ Rectangle {
     function _openNetworkServicesPage() {
         var item = _root
         while (item) {
-            if (item.hasOwnProperty("source")) {
-                item.source = "qrc:/custom/NetworkServicesPortsSettings.qml"
+            if (item.hasOwnProperty("_isSettingsPageHost") && item._isSettingsPageHost) {
+                item.requestSettingsPage("qrc:/custom/NetworkServicesPortsSettings.qml")
                 return
             }
             item = item.parent

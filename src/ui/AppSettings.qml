@@ -60,12 +60,44 @@ Rectangle {
     }
 
     function _isPrivacySelection() {
-        return _isPrivacyChild(String(__rightPanel.source))
+        return _isPrivacyChild(_selectedSettingsUrl)
+    }
+
+    property string _pendingSettingsUrl: ""
+    readonly property string _selectedSettingsUrl: _pendingSettingsUrl !== "" ? _pendingSettingsUrl : String(__rightPanel.source)
+
+    function _requestSettingsPage(url) {
+        url = String(url)
+        if (url === String(__rightPanel.source)) {
+            _pendingSettingsUrl = ""
+            settingsPageSwitchTimer.stop()
+            return
+        }
+
+        _pendingSettingsUrl = url
+        settingsPageSwitchTimer.restart()
+    }
+
+    Timer {
+        id:       settingsPageSwitchTimer
+        interval: 200
+        repeat:   false
+
+        onTriggered: {
+            if (_pendingSettingsUrl !== "" &&
+                    _pendingSettingsUrl !== String(__rightPanel.source)) {
+                __rightPanel.source = _pendingSettingsUrl
+            }
+            _pendingSettingsUrl = ""
+        }
     }
 
     Connections {
         target: mainWindow
         onViewOnlyModeChanged: {
+            settingsPageSwitchTimer.stop()
+            _pendingSettingsUrl = ""
+
             if (mainWindow.viewOnlyMode) {
                 var currentSrc = String(__rightPanel.source)
                 var isRestricted = false
@@ -139,7 +171,7 @@ Rectangle {
                             })
                         } else if (!_isPrivacyChild) {
                             mainButton.checked = Qt.binding(function() {
-                                return String(__rightPanel.source) === settingsEntry._pageUrl
+                                return settingsView._selectedSettingsUrl === settingsEntry._pageUrl
                             })
                         }
                     }
@@ -160,7 +192,7 @@ Rectangle {
 
                             _privacyExpanded = !_privacyExpanded
                             if (_privacyExpanded && !settingsView._isPrivacySelection()) {
-                                __rightPanel.source = _privacyMainUrl
+                                settingsView._requestSettingsPage(_privacyMainUrl)
                             }
                         }
                     }
@@ -172,7 +204,7 @@ Rectangle {
                         autoExclusive:      true
                         Layout.fillWidth:   true
                         visible:            !settingsEntry._isPrivacyMain
-                        checked:            String(__rightPanel.source) === settingsEntry._pageUrl
+                        checked:            settingsView._selectedSettingsUrl === settingsEntry._pageUrl
 
                         onClicked: {
                             if (mainWindow.preventViewSwitch()) {
@@ -193,7 +225,7 @@ Rectangle {
                             }
 
                             if (String(__rightPanel.source) !== settingsEntry._pageUrl) {
-                                __rightPanel.source = settingsEntry._pageUrl
+                                settingsView._requestSettingsPage(settingsEntry._pageUrl)
                             }
                         }
                     }
@@ -208,14 +240,14 @@ Rectangle {
                             Layout.fillWidth:   true
                             Layout.leftMargin:  _horizontalMargin * 1.5
                             Layout.rightMargin: _horizontalMargin * 1.5
-                            checked:            String(__rightPanel.source) === modelData.url
+                            checked:            settingsView._selectedSettingsUrl === modelData.url
 
                             onClicked: {
                                 if (mainWindow.preventViewSwitch()) {
                                     return
                                 }
                                 if (String(__rightPanel.source) !== modelData.url) {
-                                    __rightPanel.source = modelData.url
+                                    settingsView._requestSettingsPage(modelData.url)
                                 }
                             }
                         }
@@ -277,7 +309,7 @@ Rectangle {
     }
 
     //-- Panel Contents
-    Loader {
+    Item {
         id:                     __rightPanel
         anchors.leftMargin:     _horizontalMargin
         anchors.rightMargin:    _horizontalMargin
@@ -287,5 +319,38 @@ Rectangle {
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
+
+        property url  source
+        readonly property bool _isSettingsPageHost: true
+
+        function requestSettingsPage(url) {
+            settingsView._requestSettingsPage(url)
+        }
+
+        Repeater {
+            model: QGroundControl.corePlugin.settingsPages
+
+            Loader {
+                id: cachedSettingsPage
+                anchors.fill: parent
+
+                readonly property string _pageUrl: modelData.url.toString()
+                readonly property bool _isCurrentPage: String(__rightPanel.source) === _pageUrl
+                property bool _wasActivated: false
+
+                source:  modelData.url
+                active:  _wasActivated
+                visible: _isCurrentPage
+
+                function _activateIfCurrent() {
+                    if (_isCurrentPage) {
+                        _wasActivated = true
+                    }
+                }
+
+                onVisibleChanged: _activateIfCurrent()
+                Component.onCompleted: _activateIfCurrent()
+            }
+        }
     }
 }
