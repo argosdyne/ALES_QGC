@@ -41,7 +41,10 @@ ApplicationWindow {
     property var _controlBlockedDialog: null
     property bool controlBlockedDialogActive: false
 
+    onDroneControlBlockedChanged: QGroundControl.corePlugin.droneControlBlocked = droneControlBlocked
+
     Component.onCompleted: {
+        QGroundControl.corePlugin.droneControlBlocked = droneControlBlocked
         if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
             mainWindow.showFullScreen()
         } else {
@@ -354,6 +357,14 @@ ApplicationWindow {
             _controlBlockedDialog.open()
         } else {
             controlBlockedDialogActive = false
+        }
+    }
+
+    Connections {
+        target: QGroundControl.corePlugin
+
+        function onControlBlockedActionDetected() {
+            mainWindow.showControlBlockedDialog()
         }
     }
 

@@ -2400,10 +2400,12 @@ QGeoCoordinate Vehicle::homePosition()
 
 void Vehicle::setArmed(bool armed, bool showError)
 {
-    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
-    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    QGCCorePlugin* const corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
+    const bool droneControlBlocked = corePlugin && corePlugin->droneControlBlocked();
     if (droneControlBlocked) {
-        qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
+        if (armed) {
+            corePlugin->notifyControlBlockedAction();
+        }
         return;
     }
 
@@ -2421,10 +2423,10 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
-    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
-    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    QGCCorePlugin* const corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
+    const bool droneControlBlocked = corePlugin && corePlugin->droneControlBlocked();
     if (droneControlBlocked) {
-        qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
+        corePlugin->notifyControlBlockedAction();
         return;
     }
     if (!_preflightChecklistAllowsArming()) {
@@ -2894,6 +2896,12 @@ void Vehicle::_announceArmedChanged(bool armed)
 {
     _say(QString("%1 %2").arg(_vehicleIdSpeech()).arg(armed ? tr("armed") : tr("disarmed")));
     if(armed) {
+        QGCCorePlugin* const corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
+        if (corePlugin && corePlugin->droneControlBlocked()) {
+            qCWarning(VehicleLog) << "Vehicle armed while control is blocked; sending disarm command";
+            sendMavCommand(_defaultComponentId, MAV_CMD_COMPONENT_ARM_DISARM, true, 0.0f);
+            corePlugin->notifyControlBlockedAction();
+        }
         //-- Keep track of armed coordinates
         _armedPosition = _coordinate;
         emit armedPositionChanged();
@@ -4755,6 +4763,27 @@ void Vehicle::sendSetupSigning(void)
 
 void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch, float auxRoll)
 {
+    static bool previousBlockedInput = false;
+    QGCCorePlugin* const corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
+    if (corePlugin && corePlugin->droneControlBlocked()) {
+        constexpr float kJoystickInputThreshold = 0.1f;
+        const bool joystickInput = buttons != 0
+            || qAbs(roll) > kJoystickInputThreshold
+            || qAbs(pitch) > kJoystickInputThreshold
+            || qAbs(yaw) > kJoystickInputThreshold
+            || (!qIsNaN(auxPitch) && qAbs(auxPitch) > kJoystickInputThreshold)
+            || (!qIsNaN(auxRoll) && qAbs(auxRoll) > kJoystickInputThreshold);
+
+        if (joystickInput && !previousBlockedInput) {
+            corePlugin->notifyControlBlockedAction();
+        }
+        previousBlockedInput = joystickInput;
+
+        // This blocks MANUAL_CONTROL and the RC overrides below.
+        return;
+    }
+    previousBlockedInput = false;
+
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
         qCDebug(VehicleLog)<< "sendJoystickDataThreadSafe: primary link gone!";

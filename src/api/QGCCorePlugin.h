@@ -10,6 +10,7 @@
 #pragma once
 
 #include "QGCToolbox.h"
+#include <QAtomicInteger>
 #include "QGCPalette.h"
 #include "QGCMAVLink.h"
 #include "QmlObjectListModel.h"
@@ -53,6 +54,7 @@ public:
     Q_PROPERTY(QGCOptions*          options                         READ options                                        CONSTANT)
     Q_PROPERTY(bool                 showTouchAreas                  READ showTouchAreas         WRITE setShowTouchAreas NOTIFY showTouchAreasChanged)
     Q_PROPERTY(bool                 showAdvancedUI                  READ showAdvancedUI         WRITE setShowAdvancedUI NOTIFY showAdvancedUIChanged)
+    Q_PROPERTY(bool                 droneControlBlocked             READ droneControlBlocked    WRITE setDroneControlBlocked NOTIFY droneControlBlockedChanged)
     Q_PROPERTY(QString              showAdvancedUIMessage           READ showAdvancedUIMessage                          CONSTANT)
     Q_PROPERTY(QString              brandImageIndoor                READ brandImageIndoor                               CONSTANT)
     Q_PROPERTY(QString              brandImageOutdoor               READ brandImageOutdoor                              CONSTANT)
@@ -188,8 +190,11 @@ public:
 
     bool showTouchAreas() const { return _showTouchAreas; }
     bool showAdvancedUI() const { return _showAdvancedUI; }
+    bool droneControlBlocked() const { return _droneControlBlocked.loadAcquire() != 0; }
     void setShowTouchAreas(bool show);
     void setShowAdvancedUI(bool show);
+    void setDroneControlBlocked(bool blocked);
+    void notifyControlBlockedAction();
 
     // Override from QGCTool
     void                            setToolbox              (QGCToolbox* toolbox);
@@ -206,11 +211,14 @@ signals:
     void analyzePagesChanged        ();
     void showTouchAreasChanged      (bool showTouchAreas);
     void showAdvancedUIChanged      (bool showAdvancedUI);
+    void droneControlBlockedChanged (bool droneControlBlocked);
+    void controlBlockedActionDetected();
     void toolBarIndicatorsChanged   ();
 
 protected:
     bool                _showTouchAreas;
     bool                _showAdvancedUI;
+    QAtomicInteger<int> _droneControlBlocked = 0;
     Vehicle*            _activeVehicle  = nullptr;
     QGCCameraManager*   _cameraManager  = nullptr;
     QGCCameraControl*   _currentCamera  = nullptr;
