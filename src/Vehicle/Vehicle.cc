@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QQuaternion>
+#include <QQuickWindow>
 
 #include <Eigen/Eigen>
 
@@ -2400,9 +2401,12 @@ QGeoCoordinate Vehicle::homePosition()
 
 void Vehicle::setArmed(bool armed, bool showError)
 {
-    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
-    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    QQuickWindow* const mainWindow = qgcApp()->mainRootWindow();
+    const bool droneControlBlocked = mainWindow && mainWindow->property("droneControlBlocked").toBool();
     if (droneControlBlocked) {
+        if (armed && mainWindow->isActive() && !mainWindow->property("controlBlockedDialogActive").toBool()) {
+            QMetaObject::invokeMethod(mainWindow, "showControlBlockedDialog", Qt::QueuedConnection);
+        }
         qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
         return;
     }
@@ -2421,9 +2425,12 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
-    auto* corePlugin = qgcApp()->toolbox()->corePlugin();
-    const bool droneControlBlocked = corePlugin && corePlugin->property("droneControlBlocked").toBool();
+    QQuickWindow* const mainWindow = qgcApp()->mainRootWindow();
+    const bool droneControlBlocked = mainWindow && mainWindow->property("droneControlBlocked").toBool();
     if (droneControlBlocked) {
+        if (mainWindow->isActive() && !mainWindow->property("controlBlockedDialogActive").toBool()) {
+            QMetaObject::invokeMethod(mainWindow, "showControlBlockedDialog", Qt::QueuedConnection);
+        }
         qgcApp()->showAppMessage(tr("Cannot arm/disarm while in View-Only mode or on the login screen."));
         return;
     }
@@ -2894,6 +2901,14 @@ void Vehicle::_announceArmedChanged(bool armed)
 {
     _say(QString("%1 %2").arg(_vehicleIdSpeech()).arg(armed ? tr("armed") : tr("disarmed")));
     if(armed) {
+        QQuickWindow* const mainWindow = qgcApp()->mainRootWindow();
+        if (mainWindow && mainWindow->property("droneControlBlocked").toBool()) {
+            qCWarning(VehicleLog) << "Vehicle armed while control is blocked; sending disarm command";
+            sendMavCommand(_defaultComponentId, MAV_CMD_COMPONENT_ARM_DISARM, true, 0.0f);
+            if (mainWindow->isActive() && !mainWindow->property("controlBlockedDialogActive").toBool()) {
+                QMetaObject::invokeMethod(mainWindow, "showControlBlockedDialog", Qt::QueuedConnection);
+            }
+        }
         //-- Keep track of armed coordinates
         _armedPosition = _coordinate;
         emit armedPositionChanged();
@@ -4755,6 +4770,28 @@ void Vehicle::sendSetupSigning(void)
 
 void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch, float auxRoll)
 {
+    QQuickWindow* const mainWindow = qgcApp()->mainRootWindow();
+    static bool previousBlockedInput = false;
+    if (mainWindow && mainWindow->property("droneControlBlocked").toBool()) {
+        constexpr float kJoystickInputThreshold = 0.1f;
+        const bool joystickInput = buttons != 0
+            || qAbs(roll) > kJoystickInputThreshold
+            || qAbs(pitch) > kJoystickInputThreshold
+            || qAbs(yaw) > kJoystickInputThreshold
+            || (!qIsNaN(auxPitch) && qAbs(auxPitch) > kJoystickInputThreshold)
+            || (!qIsNaN(auxRoll) && qAbs(auxRoll) > kJoystickInputThreshold);
+
+        if (joystickInput && !previousBlockedInput && mainWindow->isActive()
+            && !mainWindow->property("controlBlockedDialogActive").toBool()) {
+            QMetaObject::invokeMethod(mainWindow, "showControlBlockedDialog", Qt::QueuedConnection);
+        }
+        previousBlockedInput = joystickInput;
+
+        // This blocks MANUAL_CONTROL and the RC overrides below.
+        return;
+    }
+    previousBlockedInput = false;
+
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
         qCDebug(VehicleLog)<< "sendJoystickDataThreadSafe: primary link gone!";
