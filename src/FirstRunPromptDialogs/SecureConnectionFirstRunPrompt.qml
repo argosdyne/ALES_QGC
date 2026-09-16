@@ -28,7 +28,7 @@ FirstRunPrompt {
     readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 28
     // readonly property real _labelColumnWidth: ScreenTools.defaultFontPixelWidth * 21
     // readonly property real _videoLabelColumnWidth: ScreenTools.defaultFontPixelWidth * 24
-    readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 10
+    readonly property real _portFieldWidth: ScreenTools.defaultFontPixelWidth * 12
     readonly property real _bindFieldWidth: ScreenTools.defaultFontPixelWidth * 12
     readonly property var _customSettings:   QGroundControl.corePlugin.settings
     readonly property var _appSettings:      QGroundControl.settingsManager.appSettings
@@ -82,6 +82,23 @@ FirstRunPrompt {
         return isNaN(value) ? -1 : value
     }
 
+    function _parseUdpPorts(text) {
+        var ports = []
+        var entries = text.split(",")
+        for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i].trim()
+            if (!/^\d+$/.test(entry)) {
+                return []
+            }
+            var port = parseInt(entry, 10)
+            if (port < 1 || port > 65535 || ports.indexOf(port) !== -1) {
+                return []
+            }
+            ports.push(port)
+        }
+        return ports
+    }
+
     function _refreshSigningKeyField() {
         if (signingKeyField.text !== _pendingSigningKey) {
             signingKeyField.text = _pendingSigningKey
@@ -113,13 +130,14 @@ FirstRunPrompt {
     }
 
     function _saveConfiguration(enableSelectedServices) {
-        var udpPortValue = _parsePort(udpPortField.text)
+        var udpPorts = _parseUdpPorts(udpPortField.text)
+        var udpPortValue = udpPorts.length ? udpPorts[0] : -1
         var tcpPortValue = _parsePort(tcpPortField.text)
         var videoUriValue = videoUriField.text.trim()
 
         if (enableSelectedServices) {
-            if (udpCheckbox.checked && (udpPortValue < 1 || udpPortValue > 65535)) {
-                validationDialog.text = qsTr("UDP port must be between 1 and 65535.")
+            if (udpCheckbox.checked && !udpPorts.length) {
+                validationDialog.text = qsTr("Enter one or more UDP ports between 1 and 65535, separated by commas.")
                 validationDialog.open()
                 return
             }
@@ -141,7 +159,7 @@ FirstRunPrompt {
 
         _udpPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpPort.rawValue
         _tcpPort.rawValue = tcpPortValue > 0 ? tcpPortValue : _tcpPort.rawValue
-        _udpListenPort.rawValue = udpPortValue > 0 ? udpPortValue : _udpListenPort.rawValue
+        _udpListenPort.rawValue = udpPorts.length ? udpPorts.join(",") : _udpListenPort.rawValue
         _udpBind.rawValue = _bindForComboIndex(udpBindCombo.currentIndex)
         _tcpBind.rawValue = _bindForComboIndex(tcpBindCombo.currentIndex)
         _videoUrl.rawValue = videoUriValue.length ? videoUriValue : _videoUrl.rawValue
@@ -267,11 +285,10 @@ FirstRunPrompt {
                             RowLayout {
                                 Layout.fillWidth: true
                                 spacing: ScreenTools.defaultFontPixelWidth * 0.8
-                                QGCLabel { text: qsTr("Port:") }
+                                QGCLabel { text: qsTr("Ports:") }
                                 QGCTextField {
                                     id: udpPortField
-                                    text: _udpPort.rawValue.toString()
-                                    validator: IntValidator { bottom: 1; top: 65535 }
+                                    text: _udpListenPort.rawValue.toString()
                                     Layout.preferredWidth: _portFieldWidth
                                 }
                                 QGCLabel { text: qsTr("Bind:") }

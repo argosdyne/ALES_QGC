@@ -25,6 +25,12 @@ Rectangle {
     property Fact _tcpPort:         _customSettings.networkTcpPort
     property Fact _videoUrl:        _customSettings.networkVideoUrl
     property var  _videoSettings:   QGroundControl.settingsManager.videoSettings
+    property var  _activeVehicle:   QGroundControl.multiVehicleManager.activeVehicle
+    readonly property string _displayUdpPort: {
+        var linkManager = _activeVehicle ? _activeVehicle.vehicleLinkManager : null
+        var match = linkManager ? linkManager.primaryLinkName.match(/^UDP Link \(AutoConnect\) (\d+)$/) : null
+        return match ? match[1] : _udpPort.rawValue.toString()
+    }
 
     QGCPalette { id: qgcPal }
 
@@ -145,7 +151,7 @@ Rectangle {
 
                             QGCLabel {
                                 Layout.fillWidth:   true
-                                text:               qsTr("MAVLink UDP Listener (%1)").arg(_udpPort.rawValue)
+                                text:               qsTr("MAVLink UDP Listener (%1)").arg(_displayUdpPort)
                             }
                             QGCComboBox {
                                 model:          ["OFF", "ON"]
