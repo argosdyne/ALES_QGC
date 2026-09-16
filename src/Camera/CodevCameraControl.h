@@ -268,6 +268,7 @@ protected:
     bool _sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag);
     void _sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag);
     void _startR3TimeSync();
+    void _sendR3TimeZone();
     void _sendR3TimeSync();
     void _sendLegacyMountControl(float pitch, float yaw, const char* sourceTag);
     void _sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15);
@@ -316,6 +317,7 @@ protected:
     QTimer _joystickRcStreamTimer;
     int _joystickRcStopFrames{0};
     QTimer _r3TimeSyncTimer;
+    QTimer _r3PeriodicTimeSyncTimer;
     int _r3TimeSyncSendCount{0};
 
 private:
