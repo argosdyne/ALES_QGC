@@ -12,6 +12,7 @@
 #include "QGCLoggingCategory.h"
 #include "LinkManager.h"
 #include "QGCApplication.h"
+#include "UDPLink.h"
 
 QGC_LOGGING_CATEGORY(VehicleLinkManagerLog, "VehicleLinkManagerLog")
 
@@ -457,6 +458,25 @@ QString VehicleLinkManager::primaryLinkName() const
 
     return QString();
 }
+
+WeakLinkInterfacePtr VehicleLinkManager::linkByUdpPort(quint16 localPort) const
+{
+    for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+        const SharedLinkInterfacePtr& link = linkInfo.link;
+        if (!link || !link->linkConfiguration()
+                || link->linkConfiguration()->type() != LinkConfiguration::TypeUdp) {
+            continue;
+        }
+
+        UDPConfiguration* udpConfig = qobject_cast<UDPConfiguration*>(link->linkConfiguration().get());
+        if (udpConfig && udpConfig->localPort() == localPort) {
+            return link;
+        }
+    }
+
+    return {};
+}
+
 void VehicleLinkManager::setPrimaryLinkByName(const QString& name)
 {
     for (const LinkInfo_t& linkInfo: _rgLinkInfo) {

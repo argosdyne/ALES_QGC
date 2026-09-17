@@ -1,6 +1,7 @@
 #include "PayloadManager.h"
 
 #include <QQmlEngine>
+#include <QSettings>
 #include <QTimer>
 #include <QUrl>
 
@@ -15,11 +16,19 @@
 #include "VideoManager.h"
 #include "Fact.h"
 
+namespace {
+const char* kPayloadActiveTypeSettingsKey = "Payload/ActiveType";
+}
+
 PayloadManager::PayloadManager(QObject* parent)
     : QObject(parent)
 {
+    QSettings settings;
+    _activeType = settings.value(QString::fromLatin1(kPayloadActiveTypeSettingsKey), 0).toInt() == 1 ? 1 : 0;
+
     _gremsy     = new GremsyLynxPayloadController(this);
     _nextvision = new NextVisionPayloadController(this);
+    _nextvision->setVehicleControlEnabled(_activeType == 1);
 
     // When a payload connects, auto-fill QGC's video RTSP URL (General settings) to match it.
     connect(_gremsy, &PayloadController::connectedChanged, this, [this]() {
@@ -87,6 +96,9 @@ void PayloadManager::setActiveType(int type)
         return;
     }
     _activeType = type;
+    QSettings settings;
+    settings.setValue(QString::fromLatin1(kPayloadActiveTypeSettingsKey), _activeType);
+    _nextvision->setVehicleControlEnabled(type == 1);
     // Only one payload should stream at a time.
     if (type == 0) {
         _nextvision->disconnectPayload();
@@ -118,7 +130,9 @@ void PayloadManager::_bindJoystick(Joystick* joystick)
 void PayloadManager::_onGimbalAxis(float pitch, float yaw)
 {
     PayloadController* payload = active();
-    if (payload && payload->connected()) {
+    const bool controlAvailable = payload && (payload->connected()
+            || (_activeType == 1 && _nextvision->vehicleControlAvailable()));
+    if (controlAvailable) {
         // Joystick reports (pitch, yaw); payload gimbalAxis takes (pan = yaw, tilt = pitch).
         payload->gimbalAxis(yaw, pitch);
     }
@@ -138,6 +152,7 @@ void PayloadManager::_bindVehicle(Vehicle* vehicle)
         disconnect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
     }
     _vehicle = vehicle;
+    _nextvision->setVehicle(vehicle);
     if (_vehicle) {
         connect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
     }
@@ -226,6 +241,13 @@ void PayloadManager::_tryConnectPayloadFromVideoRtsp()
     setActiveType(payloadType);
     PayloadController* payload = active();
     if (!payload || payload->connected() || payload->connecting()) {
+        return;
+    }
+
+    // An LTE RTSP relay may preserve DragonEye's /video0 path while replacing
+    // its host. Control must stay on the vehicle MAVLink link in that case;
+    // do not overwrite the direct-LAN payload address with the relay address.
+    if (payloadType == 1 && _nextvision->vehicleControlAvailable()) {
         return;
     }
 

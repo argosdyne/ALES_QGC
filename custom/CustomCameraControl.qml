@@ -63,7 +63,10 @@ Item {
     property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
     property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
     property var    _activePayload:         PayloadManager.active
-    property bool   _usePayload:            _activePayload && _activePayload.connected
+    property bool   _usePayload:            _activePayload && (_activePayload.connected
+                                                   || (PayloadManager.activeType === 1
+                                                       && PayloadManager.nextvision
+                                                       && PayloadManager.nextvision.vehicleControlAvailable))
     property bool   _hasZoom:               (_camera && _camera.hasZoom) || _usePayload
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
     property bool   _isShortScreen:         mainWindow.height / ScreenTools.realPixelDensity < 120

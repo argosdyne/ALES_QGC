@@ -16,8 +16,12 @@
 #pragma once
 
 #include "PayloadController.h"
+#include "LinkInterface.h"
+
+#include <QPointer>
 
 class QTimer;
+class Vehicle;
 
 class NextVisionPayloadController : public PayloadController
 {
@@ -27,9 +31,12 @@ class NextVisionPayloadController : public PayloadController
     Q_PROPERTY(double pitch READ pitch NOTIFY attitudeChanged)
     Q_PROPERTY(double yaw   READ yaw   NOTIFY attitudeChanged)
     Q_PROPERTY(bool recording READ recording NOTIFY recordingChanged)
+    Q_PROPERTY(bool vehicleControlAvailable READ vehicleControlAvailable NOTIFY vehicleControlAvailableChanged)
 
 public:
     explicit NextVisionPayloadController(QObject* parent = nullptr);
+
+    static constexpr quint16 kLteMavlinkPort = 14530;
 
     QString displayName() const override { return QStringLiteral("NextVision"); }
 
@@ -38,8 +45,13 @@ public:
     double pitch() const { return _pitch; }
     double yaw()   const { return _yaw; }
     bool recording() const { return _recording; }
+    bool vehicleControlAvailable() const { return _vehicleControlAvailable; }
+
+    void setVehicle(Vehicle* vehicle);
+    void setVehicleControlEnabled(bool enabled);
 
     void connectPayload() override;
+    void disconnectPayload() override;
     void gimbalMove(int pan, int tilt) override;
     void gimbalAxis(double pan, double tilt) override;   // proportional (joystick)
     void gimbalHome() override;
@@ -57,6 +69,7 @@ signals:
     void zoomStepTriggered(int direction);
     void photoCaptureTriggered();
     void recordingChanged();
+    void vehicleControlAvailableChanged();
 
 protected:
     void _handleMavlinkMessage(const mavlink_message_t& message) override;
@@ -64,6 +77,7 @@ protected:
 
 private slots:
     void _tick();
+    void _updateTransport();
 
 private:
     void _sendRcOverride();
@@ -73,12 +87,18 @@ private:
     void _pulseChannel(int channelIndex, uint16_t value, int durationMs, uint16_t restoreValue);
     void _clearAllChannels();
     void _clearAuxiliaryChannels();
+    SharedLinkInterfacePtr _vehicleControlLink() const;
+    bool _useVehicleTransport() const;
 
     QTimer* _txTimer = nullptr;
     QTimer* _zoomStepTimer = nullptr;
     int      _zoomStepDirection = 0;
     bool     _recording = false;
     quint32 _tickCount = 0;
+    QPointer<Vehicle> _vehicle;
+    bool _vehicleControlEnabled = false;
+    bool _vehicleControlAvailable = false;
+    bool _directTransportStarted = false;
 
     uint16_t _channels[18];
     int      _offset = 400;              // PWM deflection from center (50..500)

@@ -3,6 +3,7 @@
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
 #include "QGCCameraManager.h"
+#include "PayloadManager.h"
 
 const char* CustomVehicle::_escFactGroupName = "esc";
 static const char* kGPSPrimeParam = "SENS_GPS_PRIME";
@@ -101,6 +102,15 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 {
     quint16 sendChannels[18];
     memcpy(sendChannels, channels, sizeof(sendChannels));
+
+    PayloadManager* payloadManager = PayloadManager::instance();
+    const bool nextVisionVideoCaptureActive = videoCaptureRunning()
+            && payloadManager->activeType() == 1
+            && payloadManager->nextvision();
+    if (count >= 13 && nextVisionVideoCaptureActive) {
+        // CH13 is temporarily owned by the NextVision recording timer.
+        sendChannels[12] = UINT16_MAX;
+    }
 
     if (cameraManager()) {
         cameraManager()->filterAviatorRcChannels(sendChannels, count);

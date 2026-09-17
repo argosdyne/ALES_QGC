@@ -46,6 +46,7 @@ public:
     void                    mavlinkMessageReceived      (LinkInterface* link, mavlink_message_t message);
     bool                    containsLink                (LinkInterface* link);
     WeakLinkInterfacePtr    primaryLink                 (void) { return _primaryLink; }
+    WeakLinkInterfacePtr    linkByUdpPort               (quint16 localPort) const;
     QString                 primaryLinkName             (void) const;
     QStringList             linkNames                   (void) const;
     QStringList             linkStatuses                (void) const;

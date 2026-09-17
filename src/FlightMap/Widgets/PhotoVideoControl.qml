@@ -35,7 +35,10 @@ Item {
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
     property var    _activePayload:                             PayloadManager.active
-    property bool   _usePayload:                                _activePayload && _activePayload.connected
+    property bool   _usePayload:                                _activePayload && (_activePayload.connected
+                                                                    || (PayloadManager.activeType === 1
+                                                                        && PayloadManager.nextvision
+                                                                        && PayloadManager.nextvision.vehicleControlAvailable))
     property bool   _payloadRecording:                          false
     property bool   _isGremsyPayload:                           _usePayload && PayloadManager.activeType === 0 && PayloadManager.gremsy
     property bool   _payloadRecordingEffective:                 _isGremsyPayload
@@ -278,10 +281,8 @@ Item {
         }
 
         if (_usePayload && PayloadManager.activeType === 1 && !_videoStreamInPhotoMode) {
-            if (PayloadManager.nextvision.recording) {
-                PayloadManager.nextvision.stopRecording()
-            } else {
-                PayloadManager.nextvision.startRecording()
+            if (_activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+                _activeVehicle.toggleVideoCapture()
             }
             return
         }
@@ -328,7 +329,7 @@ Item {
                     _mavlinkCamera.takePhoto()
                 }
             }
-        } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode && !videoGrabRadio.checked)) {
+        } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode)) {
             _simplePhotoCaptureIsIdle = false
             _activeVehicle.triggerSimpleCamera()
             simplePhotoCaptureTimer.start()
