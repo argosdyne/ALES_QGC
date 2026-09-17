@@ -9,9 +9,12 @@
 #pragma once
 
 #include "PayloadController.h"
+#include "LinkInterface.h"
 #include <QRectF>
+#include <QPointer>
 
 class QTimer;
+class Vehicle;
 
 class GremsyLynxPayloadController : public PayloadController
 {
@@ -26,6 +29,7 @@ class GremsyLynxPayloadController : public PayloadController
     Q_PROPERTY(QRectF trackingImageRect READ trackingImageRect NOTIFY trackingChanged)
     Q_PROPERTY(bool objectDetectionEnabled READ objectDetectionEnabled NOTIFY objectDetectionChanged)
     Q_PROPERTY(double speedDegPerSec READ speedDegPerSec WRITE setSpeedDegPerSec NOTIFY speedChanged)
+    Q_PROPERTY(bool vehicleControlAvailable READ vehicleControlAvailable NOTIFY vehicleControlAvailableChanged)
 
 public:
     explicit GremsyLynxPayloadController(QObject* parent = nullptr);
@@ -41,7 +45,14 @@ public:
     QRectF trackingImageRect() const { return _trackingImageRect; }
     bool objectDetectionEnabled() const { return _objectDetectionEnabled; }
     double speedDegPerSec() const { return _speedDegS; }
+    bool vehicleControlAvailable() const { return _vehicleControlAvailable; }
     void   setSpeedDegPerSec(double speed);
+
+    void setVehicle(Vehicle* vehicle);
+    void setVehicleControlEnabled(bool enabled);
+    /// Preserve a user-entered RTSP endpoint when its host is used as the
+    /// direct payload-control address.
+    void setUserRtspUrl(const QString& url);
 
     void connectPayload() override;
     void gimbalMove(int pan, int tilt) override;
@@ -70,6 +81,8 @@ signals:
     void trackingChanged();
     void objectDetectionChanged();
     void speedChanged();
+    void vehicleControlAvailableChanged();
+    void gremsyDetected();
 
 protected:
     void _handleMavlinkMessage(const mavlink_message_t& message) override;
@@ -80,6 +93,7 @@ private slots:
     void _sendControl();
     void _updateZoomDisplay();
     void _retryStopRecordingForPhoto();
+    void _updateTransport();
 
 private:
     void _sendGimbalSpeed(float pitchDegS, float rollDegS, float yawDegS);
@@ -102,6 +116,11 @@ private:
     void _sendTrackingPosition(float x, float y, float width, float height);
     void _updateTrackingParam(int index, float value);
     void _updateTrackingRect();
+    void _sendPayloadMessage(const mavlink_message_t& message);
+    void _handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link);
+    bool _isGremsyCameraInformation(const mavlink_message_t& message) const;
+    void _requestGremsyCameraInformation();
+    SharedLinkInterfacePtr _vehicleControlLink() const;
 
     QTimer* _heartbeatTimer = nullptr;
     QTimer* _controlTimer   = nullptr;
@@ -146,6 +165,11 @@ private:
     float _trackingWidth = 0.0f;
     float _trackingHeight = 0.0f;
     bool _objectDetectionEnabled = false;
+    QPointer<Vehicle> _vehicle;
+    bool _vehicleControlEnabled = false;
+    bool _vehicleControlAvailable = false;
+    bool _gremsyDetected = false;
+    qint64 _lastCameraProbeMs = 0;
 
     static constexpr quint16 kTargetPort = 14566;
     static constexpr int kRecordingCommandGuardMs = 500;

@@ -29,6 +29,12 @@ PayloadManager::PayloadManager(QObject* parent)
     _gremsy     = new GremsyLynxPayloadController(this);
     _nextvision = new NextVisionPayloadController(this);
     _nextvision->setVehicleControlEnabled(_activeType == 1);
+    _gremsy->setVehicleControlEnabled(_activeType == 0);
+    connect(_gremsy, &GremsyLynxPayloadController::gremsyDetected, this, [this]() {
+        // Identity is verified from CAMERA_INFORMATION, so LTE/Enpulse relay
+        // addresses are not mistaken for a camera type.
+        setActiveType(0);
+    });
 
     // When a payload connects, auto-fill QGC's video RTSP URL (General settings) to match it.
     connect(_gremsy, &PayloadController::connectedChanged, this, [this]() {
@@ -99,6 +105,7 @@ void PayloadManager::setActiveType(int type)
     QSettings settings;
     settings.setValue(QString::fromLatin1(kPayloadActiveTypeSettingsKey), _activeType);
     _nextvision->setVehicleControlEnabled(type == 1);
+    _gremsy->setVehicleControlEnabled(type == 0);
     // Only one payload should stream at a time.
     if (type == 0) {
         _nextvision->disconnectPayload();
@@ -106,6 +113,9 @@ void PayloadManager::setActiveType(int type)
         _gremsy->disconnectPayload();
     }
     emit activeTypeChanged();
+    // A user may select Gremsy after entering its RTSP URL. Re-evaluate that
+    // URL on the next event-loop turn so no second edit is required.
+    QTimer::singleShot(0, this, &PayloadManager::_tryConnectPayloadFromVideoRtsp);
 }
 
 void PayloadManager::_onActiveJoystickChanged(Joystick* joystick)
@@ -131,6 +141,7 @@ void PayloadManager::_onGimbalAxis(float pitch, float yaw)
 {
     PayloadController* payload = active();
     const bool controlAvailable = payload && (payload->connected()
+            || (_activeType == 0 && _gremsy->vehicleControlAvailable())
             || (_activeType == 1 && _nextvision->vehicleControlAvailable()));
     if (controlAvailable) {
         // Joystick reports (pitch, yaw); payload gimbalAxis takes (pan = yaw, tilt = pitch).
@@ -152,6 +163,7 @@ void PayloadManager::_bindVehicle(Vehicle* vehicle)
         disconnect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
     }
     _vehicle = vehicle;
+    _gremsy->setVehicle(vehicle);
     _nextvision->setVehicle(vehicle);
     if (_vehicle) {
         connect(_vehicle, &Vehicle::rcChannelsChanged, this, &PayloadManager::_onRcChannels);
@@ -161,7 +173,8 @@ void PayloadManager::_bindVehicle(Vehicle* vehicle)
 void PayloadManager::_onRcChannels(int channelCount, int pwmValues[18])
 {
     PayloadController* payload = active();
-    if (!payload || !payload->connected()) {
+    if (!payload || (!payload->connected() &&
+            !(_activeType == 0 && _gremsy->vehicleControlAvailable()))) {
         _rcWasActive = false;
         return;
     }
@@ -227,15 +240,23 @@ void PayloadManager::_tryConnectPayloadFromVideoRtsp()
     }
 
     const QString rtspUrl = videoSettings->rtspUrl()->rawValue().toString().trimmed();
-    const int payloadType = _payloadTypeFromRtspUrl(rtspUrl);
-    if (payloadType < 0) {
-        return;
-    }
-
     QUrl url(rtspUrl);
     const QString host = url.host();
     if (host.isEmpty()) {
         return;
+    }
+
+    int payloadType = _payloadTypeFromRtspUrl(rtspUrl);
+    if (payloadType < 0) {
+        // MAVLink discovery is preferred because an LTE relay address is not
+        // necessarily the payload address. When it is unavailable, the user
+        // can explicitly select Gremsy and enter the camera's RTSP URL; use
+        // that URL host as the direct Gremsy endpoint. Do not make this guess
+        // for another selected payload type (for example R3/NextVision).
+        if (_activeType != 0 || _gremsy->vehicleControlAvailable()) {
+            return;
+        }
+        payloadType = 0;
     }
 
     setActiveType(payloadType);
@@ -247,11 +268,17 @@ void PayloadManager::_tryConnectPayloadFromVideoRtsp()
     // An LTE RTSP relay may preserve DragonEye's /video0 path while replacing
     // its host. Control must stay on the vehicle MAVLink link in that case;
     // do not overwrite the direct-LAN payload address with the relay address.
-    if (payloadType == 1 && _nextvision->vehicleControlAvailable()) {
+    if ((payloadType == 1 && _nextvision->vehicleControlAvailable()) ||
+            (payloadType == 0 && _gremsy->vehicleControlAvailable())) {
         return;
     }
 
     payload->setIp(host);
+    if (payloadType == 0) {
+        // setIp supplies the control endpoint and normally creates Gremsy's
+        // default /payload URL. Restore exactly what the user entered.
+        _gremsy->setUserRtspUrl(rtspUrl);
+    }
     payload->connectPayload();
 }
 
