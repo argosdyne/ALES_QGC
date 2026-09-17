@@ -108,6 +108,18 @@ Item {
                 color:                  getBatteryColor()
                 anchors.verticalCenter: parent.verticalCenter
             }
+
+            Item {
+                width:  ScreenTools.defaultFontPixelWidth
+                height: 1
+            }
+
+            QGCLabel {
+                anchors.verticalCenter: parent.verticalCenter
+                text:                   isNaN(battery.voltage.rawValue) ? "--.-- V" : battery.voltage.rawValue.toFixed(2) + " V"
+                font.pointSize:         ScreenTools.mediumFontPointSize
+                color:                  getBatteryColor()
+            }
         }
     }
 

@@ -26,6 +26,7 @@ SetupPage {
     readonly property string _modeChannelParam: controller.modeChannelParam
     readonly property string _modeParamPrefix:  controller.modeParamPrefix
     readonly property var    _pwmStrings:       [ "PWM 0 - 1230", "PWM 1231 - 1360", "PWM 1361 - 1490", "PWM 1491 - 1620", "PWM 1621 - 1749", "PWM 1750 +"]
+    readonly property int    _maxModeChannel:   16
 
     property real   _margins:                   ScreenTools.defaultFontPixelHeight
     property Fact   _nullFact
@@ -85,9 +86,13 @@ SetupPage {
                             QGCComboBox {
                                 id:             modeChannelCombo
                                 width:          ScreenTools.defaultFontPixelWidth * 15
-                                model:          [ qsTr("Not assigned"), qsTr("Channel 1"), qsTr("Channel 2"),
-                                    qsTr("Channel 3"),    qsTr("Channel 4"), qsTr("Channel 5"),
-                                    qsTr("Channel 6"),    qsTr("Channel 7"), qsTr("Channel 8") ]
+                                model: {
+                                    var channels = [ qsTr("Not assigned") ]
+                                    for (var i = 1; i <= _maxModeChannel; i++) {
+                                        channels.push(qsTr("Channel %1").arg(i))
+                                    }
+                                    return channels
+                                }
 
                                 currentIndex:   _fltmodeCh.value
                                 onActivated:    _fltmodeCh.value = index

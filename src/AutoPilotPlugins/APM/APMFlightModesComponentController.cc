@@ -83,7 +83,12 @@ void APMFlightModesComponentController::_rcChannelsChanged(int channelCount, int
         flightModeChannel = getParameterFact(FactSystem::defaultComponentId, _modeChannelParam)->rawValue().toInt() - 1;
     }
 
-    if (flightModeChannel >= channelCount) {
+    // Not assigned (0) or channel not reported by the RC input
+    if (flightModeChannel < 0 || flightModeChannel >= channelCount || flightModeChannel >= Vehicle::cMaxRcChannels) {
+        if (_activeFlightMode != 0) {
+            _activeFlightMode = 0;
+            emit activeFlightModeChanged(_activeFlightMode);
+        }
         return;
     }
 

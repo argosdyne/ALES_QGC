@@ -2088,10 +2088,24 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
     };
     int pwmValues[cMaxRcChannels];
 
+    // Some fixed wing firmware under-reports chancount (0, or fewer channels than it actually
+    // sends), which leaves those channels impossible to monitor. For fixed wing only, derive the
+    // count from the values themselves and keep whichever is larger. UINT16_MAX means "not
+    // available" per the mavlink spec.
+    int channelCount = channels.chancount;
+    if (fixedWing()) {
+        for (int i=0; i<cMaxRcChannels; i++) {
+            uint16_t channelValue = *_rgChannelvalues[i];
+            if (channelValue != UINT16_MAX && channelValue != 0) {
+                channelCount = qMax(channelCount, i + 1);
+            }
+        }
+    }
+
     for (int i=0; i<cMaxRcChannels; i++) {
         uint16_t channelValue = *_rgChannelvalues[i];
 
-        if (i < channels.chancount) {
+        if (i < channelCount) {
             pwmValues[i] = channelValue == UINT16_MAX ? -1 : channelValue;
         } else {
             pwmValues[i] = -1;
@@ -2099,7 +2113,7 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
     }
 
     emit remoteControlRSSIChanged(channels.rssi);
-    emit rcChannelsChanged(channels.chancount, pwmValues);
+    emit rcChannelsChanged(channelCount, pwmValues);
 }
 
 // Pop warnings ignoring for mavlink headers for both GCC/Clang and MSVC
