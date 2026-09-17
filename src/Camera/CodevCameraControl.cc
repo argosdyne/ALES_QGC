@@ -2669,7 +2669,7 @@ SharedLinkInterfacePtr CodevCameraControl::_activeCommandLink() const
     // vehicle: its CAMERA_INFORMATION can arrive directly at UDP 14550 while
     // LTE is primary. Return R3 commands through that camera link, otherwise
     // the gimbal command is sent to Birdcom/FC instead of 192.168.2.119.
-    if ((_vehicle->px4Firmware() || _isR3CameraModel(modelName())) && _link) {
+    if ((_vehicle->px4Firmware() || _isR3CameraModel(_modelName)) && _link) {
         SharedLinkInterfacePtr cameraLink = qgcApp()->toolbox()->linkManager()->sharedLinkInterfacePointerForLink(_link, true);
         if (cameraLink && cameraLink->isConnected()) {
             return cameraLink;
