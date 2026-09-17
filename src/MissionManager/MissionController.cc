@@ -2744,6 +2744,12 @@ void MissionController::getVisionLidarOBAMode(){
     QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
 }
 
+void MissionController::getVisionLidarState()
+{
+    _requestVisionLidarParam("EN_VISIONLIDAR");
+    _requestVisionLidarParam("VL_OBA_MODE");
+}
+
 // LifeVest deployment 
 
 // LifeVest commands (MAVLink COMMAND_LONG, QGC -> BirdCom)
@@ -2793,15 +2799,21 @@ void MissionController::deployLifeVest()
 
 void MissionController::_requestOBAValue()
 {
+    _requestVisionLidarParam("VL_OBA_MODE");
+}
+
+void MissionController::_requestVisionLidarParam(const QString& paramId)
+{
+    static constexpr uint8_t visionLidarComponentId = 111;
     Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
     if (!vehicle) {
-        qWarning() << "requestVisionLidarOBAMode: No active vehicle";
+        qWarning() << "requestVisionLidarParam: No active vehicle";
         return;
     }
 
     SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
-        qWarning() << "requestVisionLidarOBAMode: No primary link";
+        qWarning() << "requestVisionLidarParam: No primary link";
         return;
     }
 
@@ -2810,12 +2822,9 @@ void MissionController::_requestOBAValue()
 
     memset(&request, 0, sizeof(request));
     request.target_system    = vehicle->id();
-    request.target_component = vehicle->defaultComponentId();
+    request.target_component = visionLidarComponentId;
     request.param_index      = -1;
-    strncpy(request.param_id, "VL_OBA_MODE", sizeof(request.param_id));
-
-    qInfo() << "Param id : " << request.param_id;
-    qInfo() << "param size : " << sizeof(request.param_id);
+    strncpy(request.param_id, paramId.toLatin1().constData(), sizeof(request.param_id));
 
     mavlink_msg_param_request_read_encode(
         qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
@@ -2825,7 +2834,6 @@ void MissionController::_requestOBAValue()
         );
 
     vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-    qDebug() << "PARAM_REQUEST_READ sent: VL_OBA_MODE";
 }
 
 // Searchlight controls (PARAM_SET / PARAM_REQUEST_READ on "SL_STATUS")
@@ -2898,14 +2906,26 @@ void MissionController::_sendParamInt(const QString& paramId, int value)
     mavlink_message_t   msg;
     mavlink_param_set_t param;
 
+    static constexpr uint8_t visionLidarComponentId = 111;
+    const bool isVisionLidarParam = paramId == QStringLiteral("EN_VISIONLIDAR") ||
+                                    paramId == QStringLiteral("EN_VL_VALUE") ||
+                                    paramId == QStringLiteral("VL_DIST") ||
+                                    paramId == QStringLiteral("VL_OBA_MODE");
+
     memset(&param, 0, sizeof(param));
     param.target_system    = vehicle->id();
-    param.target_component = vehicle->defaultComponentId();
-    param.param_type       = MAV_PARAM_TYPE_INT32;
+    param.target_component = isVisionLidarParam ? visionLidarComponentId : vehicle->defaultComponentId();
 
-    union { int32_t i; float f; } conv;
-    conv.i = static_cast<int32_t>(value);
-    param.param_value = conv.f;
+    if (isVisionLidarParam) {
+        // BirdCom Vision LiDAR uses numeric/c-cast PARAM_SET values and reports INT16.
+        param.param_type  = MAV_PARAM_TYPE_INT16;
+        param.param_value = static_cast<float>(value);
+    } else {
+        param.param_type = MAV_PARAM_TYPE_INT32;
+        union { int32_t i; float f; } conv;
+        conv.i = static_cast<int32_t>(value);
+        param.param_value = conv.f;
+    }
 
     strncpy(param.param_id, paramId.toLatin1().constData(), sizeof(param.param_id));
 
@@ -2917,9 +2937,6 @@ void MissionController::_sendParamInt(const QString& paramId, int value)
         );
 
     vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-
-    qDebug() << "_sendParamInt:" << paramId << "=" << value
-             << "| bits = 0x" + QString::number(conv.i, 16).toUpper();
 }
 
 void MissionController::_connectToVehicle(Vehicle* vehicle)
@@ -2927,6 +2944,7 @@ void MissionController::_connectToVehicle(Vehicle* vehicle)
     if (!vehicle) return;
 
     connect(vehicle, &Vehicle::vlValueChanged, this,    &MissionController::_onVlValueChanged);
+    connect(vehicle, &Vehicle::visionLidarEnabledChanged, this, &MissionController::_onVisionLidarEnabledChanged);
     connect(vehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
     connect(vehicle, &Vehicle::slStatusChanged, this,   &MissionController::_onSlStatusChanged);
 }
@@ -2939,10 +2957,18 @@ void MissionController::_onVlValueChanged(int value)
     qDebug() << "MissionController: vlValue updated to" << _vlValue;
 }
 
+void MissionController::_onVisionLidarEnabledChanged(int value)
+{
+    // Reapply every reply: the UI may have been toggled since the last read.
+    _visionLidarEnabled = value;
+    emit visionLidarEnabledChanged();
+}
+
 void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
 {
     if (_activeVehicle) {
         disconnect(_activeVehicle, &Vehicle::vlValueChanged, this, &MissionController::_onVlValueChanged);
+        disconnect(_activeVehicle, &Vehicle::visionLidarEnabledChanged, this, &MissionController::_onVisionLidarEnabledChanged);
         disconnect(_activeVehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
         disconnect(_activeVehicle, &Vehicle::slStatusChanged, this, &MissionController::_onSlStatusChanged);
     }
@@ -2951,7 +2977,7 @@ void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
 }
 
 void MissionController::_onvlOBAValueChanged(int value) {
-    if(_vlOBAValue == value) return;
+    // Reapply every reply even when the device value has not changed.
     _vlOBAValue = value;
     emit vlOBAValueChanged();
     qDebug() << "MissionController: vlOBAValue updated to : " << _vlOBAValue;

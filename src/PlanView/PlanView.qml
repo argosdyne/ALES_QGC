@@ -681,6 +681,7 @@ Item {
                         visible :           true
                         onTriggered: {
                             visionLidarPanel.visible = true
+                            _missionController.getVisionLidarState()
                             rightPanel.visible = false
                             rightControls.visible = false
                             missionItemEditor.visible = false
@@ -842,8 +843,12 @@ Item {
 
                         Connections {
                             target: _missionController
+                            onVisionLidarEnabledChanged: {
+                                root.useObstacleDetection = _missionController.visionLidarEnabled === 1
+                            }
                             onVlOBAValueChanged: {
                                 root.avoidMode = _missionController.vlOBAValue === 1
+                                root.stopChecked = _missionController.vlOBAValue === 0
                             }
                         }
 
@@ -939,6 +944,9 @@ Item {
                                     if (root.stopChecked) {
                                         root.avoidMode = false
                                         _missionController.setVisionLidarOBAMode(0)
+                                    } else {
+                                        root.avoidMode = true
+                                        _missionController.setVisionLidarOBAMode(1)
                                     }
                                 }
                             }

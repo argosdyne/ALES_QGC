@@ -938,7 +938,11 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
 
         QString paramId = QString::fromLatin1(param.param_id, strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
 
-        if (paramId == "VL_VALUE") {
+        if (paramId == "EN_VISIONLIDAR") {
+            const int val = static_cast<int>(param.param_value);
+            emit visionLidarEnabledChanged(val);
+        }
+        else if (paramId == "VL_VALUE") {
             int val = static_cast<int>(param.param_value);
             qDebug() << "VL_VALUE received:" << val;
             emit vlValueChanged(static_cast<int>(val));
