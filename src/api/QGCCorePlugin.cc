@@ -30,6 +30,7 @@
 
 #include <QtQml>
 #include <QQmlEngine>
+#include <QThread>
 
 /// @file
 ///     @brief Core Plugin Interface for QGroundControl - Default Implementation
@@ -289,6 +290,25 @@ void QGCCorePlugin::setShowAdvancedUI(bool show)
     if (show != _showAdvancedUI) {
         _showAdvancedUI = show;
         emit showAdvancedUIChanged(show);
+    }
+}
+
+void QGCCorePlugin::setDroneControlBlocked(bool blocked)
+{
+    const int blockedValue = blocked ? 1 : 0;
+    if (_droneControlBlocked.fetchAndStoreOrdered(blockedValue) != blockedValue) {
+        emit droneControlBlockedChanged(blocked);
+    }
+}
+
+void QGCCorePlugin::notifyControlBlockedAction()
+{
+    if (QThread::currentThread() == thread()) {
+        emit controlBlockedActionDetected();
+    } else {
+        QMetaObject::invokeMethod(this, [this]() {
+            emit controlBlockedActionDetected();
+        }, Qt::QueuedConnection);
     }
 }
 
