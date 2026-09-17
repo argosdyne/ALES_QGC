@@ -13,6 +13,8 @@
 #include <QSettings>
 #include <QDebug>
 
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <openssl/rand.h>
 #include <openssl/evp.h>
 #include <openssl/crypto.h>
@@ -101,6 +103,159 @@ static bool androidDeleteKeystore()
 
 #endif
 
+namespace {
+
+#ifdef Q_OS_ANDROID
+static QByteArray encryptSecurityRecord(const QByteArray& plainText)
+{
+    QByteArray key = androidHmacPassword(QByteArrayLiteral("ALES-QGC-SecuritySettings-v1"));
+    QByteArray nonce(12, '\0');
+    QByteArray cipherText(plainText.size(), '\0');
+    QByteArray tag(16, '\0');
+    int written = 0;
+    int finalized = 0;
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    const bool ok = key.size() == 32
+        && RAND_bytes(reinterpret_cast<unsigned char*>(nonce.data()), nonce.size()) == 1
+        && ctx
+        && EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr,
+                              reinterpret_cast<const unsigned char*>(key.constData()),
+                              reinterpret_cast<const unsigned char*>(nonce.constData())) == 1
+        && EVP_EncryptUpdate(ctx, reinterpret_cast<unsigned char*>(cipherText.data()), &written,
+                             reinterpret_cast<const unsigned char*>(plainText.constData()), plainText.size()) == 1
+        && EVP_EncryptFinal_ex(ctx, reinterpret_cast<unsigned char*>(cipherText.data()) + written, &finalized) == 1
+        && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, tag.size(), tag.data()) == 1;
+    EVP_CIPHER_CTX_free(ctx);
+    OPENSSL_cleanse(key.data(), key.size());
+    if (!ok) {
+        OPENSSL_cleanse(cipherText.data(), cipherText.size());
+        return QByteArray();
+    }
+    cipherText.resize(written + finalized);
+    return QByteArrayLiteral("QGCS1") + nonce + cipherText + tag;
+}
+
+static QByteArray decryptSecurityRecord(const QByteArray& encrypted)
+{
+    constexpr int headerLength = 5;
+    constexpr int nonceLength = 12;
+    constexpr int tagLength = 16;
+    if (!encrypted.startsWith("QGCS1") || encrypted.size() < headerLength + nonceLength + tagLength) {
+        return QByteArray();
+    }
+
+    QByteArray key = androidHmacPassword(QByteArrayLiteral("ALES-QGC-SecuritySettings-v1"));
+    const QByteArray nonce = encrypted.mid(headerLength, nonceLength);
+    const QByteArray tag = encrypted.right(tagLength);
+    const QByteArray cipherText = encrypted.mid(headerLength + nonceLength,
+                                                 encrypted.size() - headerLength - nonceLength - tagLength);
+    QByteArray plainText(cipherText.size(), '\0');
+    int written = 0;
+    int finalized = 0;
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    const bool ok = key.size() == 32
+        && ctx
+        && EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr,
+                              reinterpret_cast<const unsigned char*>(key.constData()),
+                              reinterpret_cast<const unsigned char*>(nonce.constData())) == 1
+        && EVP_DecryptUpdate(ctx, reinterpret_cast<unsigned char*>(plainText.data()), &written,
+                             reinterpret_cast<const unsigned char*>(cipherText.constData()), cipherText.size()) == 1
+        && EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, tag.size(), const_cast<char*>(tag.constData())) == 1
+        && EVP_DecryptFinal_ex(ctx, reinterpret_cast<unsigned char*>(plainText.data()) + written, &finalized) == 1;
+    EVP_CIPHER_CTX_free(ctx);
+    OPENSSL_cleanse(key.data(), key.size());
+    if (!ok) {
+        OPENSSL_cleanse(plainText.data(), plainText.size());
+        return QByteArray();
+    }
+    plainText.resize(written + finalized);
+    return plainText;
+}
+#endif
+
+class SecuritySettings
+{
+public:
+    void beginGroup(const QString& group)
+    {
+        Q_ASSERT(group == QStringLiteral("SecurityManager"));
+        if (_loaded) {
+            return;
+        }
+        _loaded = true;
+#ifdef Q_OS_ANDROID
+        const QByteArray encrypted = _settings.value(QStringLiteral("SecurityManager/secureRecordV1")).toByteArray();
+        if (!encrypted.isEmpty()) {
+            QByteArray plainText = decryptSecurityRecord(encrypted);
+            const QJsonDocument document = QJsonDocument::fromJson(plainText);
+            OPENSSL_cleanse(plainText.data(), plainText.size());
+            if (!document.isObject()) {
+                qWarning() << "[SecurityManager] Secure settings record could not be authenticated";
+                return;
+            }
+            _values = document.object().toVariantMap();
+            return;
+        }
+#endif
+        _settings.beginGroup(QStringLiteral("SecurityManager"));
+        for (const QString& key : _settings.allKeys()) {
+            _values.insert(key, _settings.value(key));
+        }
+        _settings.endGroup();
+    }
+
+    void endGroup() {}
+    bool contains(const QString& key) const { return _values.contains(key); }
+    QVariant value(const QString& key, const QVariant& fallback = QVariant()) const { return _values.value(key, fallback); }
+    void setValue(const QString& key, const QVariant& value) { _values.insert(key, value); }
+    void remove(const QString& key)
+    {
+        if (key.isEmpty()) {
+            _values.clear();
+            _clearAll = true;
+        } else {
+            _values.remove(key);
+        }
+    }
+
+    void sync()
+    {
+#ifdef Q_OS_ANDROID
+        QByteArray encrypted;
+        if (!_clearAll) {
+            QByteArray plainText = QJsonDocument::fromVariant(_values).toJson(QJsonDocument::Compact);
+            encrypted = encryptSecurityRecord(plainText);
+            OPENSSL_cleanse(plainText.data(), plainText.size());
+            if (encrypted.isEmpty()) {
+                qWarning() << "[SecurityManager] Secure settings write failed";
+                return;
+            }
+        }
+        _settings.remove(QStringLiteral("SecurityManager"));
+        if (!_clearAll) {
+            _settings.setValue(QStringLiteral("SecurityManager/secureRecordV1"), encrypted);
+        }
+#else
+        _settings.beginGroup(QStringLiteral("SecurityManager"));
+        _settings.remove(QString());
+        if (!_clearAll) {
+            for (auto it = _values.cbegin(); it != _values.cend(); ++it) {
+                _settings.setValue(it.key(), it.value());
+            }
+        }
+        _settings.endGroup();
+#endif
+        _settings.sync();
+    }
+
+private:
+    QSettings _settings;
+    QVariantMap _values;
+    bool _loaded = false;
+    bool _clearAll = false;
+};
+
+} // namespace
 SecurityManager::SecurityManager(QObject *parent)
     : QObject(parent), m_keystoreInitialized(false)
 {
@@ -212,7 +367,7 @@ bool SecurityManager::setPassword(const QString &passwordValue)
         return false;
     }
 
-    QSettings s; // platform default locations
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     s.setValue("kdf", "PBKDF2-HMAC-SHA256");
     s.setValue("iterations", it);
@@ -295,7 +450,7 @@ QString SecurityManager::generateAndStoreRecoveryKey()
         return QString();
     }
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     s.setValue("recoveryKdf", "PBKDF2-HMAC-SHA256");
     s.setValue("recoveryIterations", it);
@@ -326,7 +481,7 @@ QString SecurityManager::generateAndStoreRecoveryKey()
 
 bool SecurityManager::verifyRecoveryKey(const QString &recoveryKey)
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     if (!s.contains("recoveryDerived") || !s.contains("recoverySalt") || !s.contains("recoveryIterations")) {
         s.endGroup();
@@ -392,7 +547,7 @@ bool SecurityManager::verifyRecoveryKey(const QString &recoveryKey)
 
 bool SecurityManager::hasStoredRecoveryKey() const
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const bool ok = s.contains("recoveryDerived");
     s.endGroup();
@@ -428,7 +583,7 @@ bool SecurityManager::verifyRestorePhrase(const QString &input) const
 
 bool SecurityManager::hasStoredPin() const
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     bool ok = s.contains("derived");
     s.endGroup();
@@ -437,7 +592,7 @@ bool SecurityManager::hasStoredPin() const
 
 bool SecurityManager::rememberMeEnabled() const
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const bool enabled = s.value("rememberMeEnabled", false).toBool();
     s.endGroup();
@@ -446,7 +601,7 @@ bool SecurityManager::rememberMeEnabled() const
 
 void SecurityManager::setRememberMeEnabled(bool enabled)
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     s.setValue("rememberMeEnabled", enabled);
     s.endGroup();
@@ -460,7 +615,7 @@ bool SecurityManager::verifyPin(const QString &pin)
 
 bool SecurityManager::verifyPassword(const QString &passwordValue)
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     if (!s.contains("derived") || !s.contains("salt") || !s.contains("iterations")) {
         s.endGroup();
@@ -552,7 +707,7 @@ void SecurityManager::recordFailedAttemptForScope(const QString &scope)
 {
     const QString normalizedScope = normalizedLockoutScope(scope);
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const QString attemptsKey = failedAttemptsKey(normalizedScope);
     const QString untilKey = lockoutUntilKey(normalizedScope);
@@ -595,7 +750,7 @@ void SecurityManager::resetFailedAttemptsForScope(const QString &scope)
 {
     const QString normalizedScope = normalizedLockoutScope(scope);
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const QString attemptsKey = failedAttemptsKey(normalizedScope);
     const QString untilKey = lockoutUntilKey(normalizedScope);
@@ -626,7 +781,7 @@ int SecurityManager::failedAttemptsForScope(const QString &scope) const
 {
     const QString normalizedScope = normalizedLockoutScope(scope);
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const int attempts = s.value(failedAttemptsKey(normalizedScope), 0).toInt();
     s.endGroup();
@@ -642,7 +797,7 @@ qint64 SecurityManager::lockoutUntilForScope(const QString &scope) const
 {
     const QString normalizedScope = normalizedLockoutScope(scope);
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     const qint64 until = s.value(lockoutUntilKey(normalizedScope), 0).toLongLong();
     s.endGroup();
@@ -664,7 +819,7 @@ bool SecurityManager::isLockedForScope(const QString &scope) const
 void SecurityManager::setIterations(int it)
 {
     if (it <= 0) return;
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     s.setValue("iterations", it);
     s.endGroup();
@@ -673,7 +828,7 @@ void SecurityManager::setIterations(int it)
 
 int SecurityManager::iterations() const
 {
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     int it = s.value("iterations", DEFAULT_ITERATIONS).toInt();
     s.endGroup();
@@ -684,7 +839,7 @@ void SecurityManager::clearStored()
 {
     SecurityLog::logEvent(QStringLiteral("Security restore executed: cleared all stored security credentials"));
 
-    QSettings s;
+    SecuritySettings s;
     s.beginGroup("SecurityManager");
     s.remove("");
     s.endGroup();
