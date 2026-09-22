@@ -140,6 +140,9 @@ Item {
                     QGCMouseArea {
                         anchors.fill:            parent
                         enabled:                 index < 3 && _navSightManager && !_navSightManager.ekfSourceChangeInProgress
+                                                 && (modelData.sourceSet === 1
+                                                     || (modelData.sourceSet === 2 && _navSightManager.visualNavigationSourceConfigured)
+                                                     || (modelData.sourceSet === 3 && _navSightManager.deadReckoningSourceConfigured))
                         hoverEnabled:            enabled
                         cursorShape:             enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked:               _navSightManager.setEkfSourceSet(modelData.sourceSet)

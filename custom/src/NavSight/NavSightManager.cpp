@@ -3,6 +3,8 @@
 #include "MAVLinkProtocol.h"
 #include "MultiVehicleManager.h"
 #include "Vehicle.h"
+#include "ParameterManager.h"
+#include "Fact.h"
 #include "VehicleLinkManager.h"
 
 #include <QQmlEngine>
@@ -66,6 +68,8 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
                    this, &NavSightManager::_mavlinkMessageReceived);
     }
 
+    disconnect(_externalNavParametersReadyConnection);
+    _disconnectExternalNavFactSignals();
     _vehicle = vehicle;
     _activeEkfSourceSet = 0;
     _pendingEkfSourceSet = 0;
@@ -77,6 +81,59 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
     if (_vehicle) {
         connect(_vehicle, &Vehicle::mavlinkMessageReceived,
                 this, &NavSightManager::_mavlinkMessageReceived);
+
+        ParameterManager* parameterManager = _vehicle->parameterManager();
+        _externalNavParametersReadyConnection = connect(parameterManager, &ParameterManager::parametersReadyChanged,
+                                                         this, [this]() {
+            _refreshExternalNavPositionSourceConfigured();
+        });
+    }
+
+    _refreshExternalNavPositionSourceConfigured();
+}
+
+void NavSightManager::_disconnectExternalNavFactSignals()
+{
+    for (const QMetaObject::Connection& connection : _externalNavFactConnections) {
+        disconnect(connection);
+    }
+    _externalNavFactConnections.clear();
+}
+
+void NavSightManager::_refreshExternalNavPositionSourceConfigured()
+{
+    _disconnectExternalNavFactSignals();
+
+    bool visualNavigationConfigured = false;
+    bool deadReckoningConfigured = false;
+    if (_vehicle) {
+        ParameterManager* parameterManager = _vehicle->parameterManager();
+        if (parameterManager->parametersReady()) {
+            for (int sourceSet = 2; sourceSet <= 3; ++sourceSet) {
+                const QString parameterName = QStringLiteral("EK3_SRC%1_POSXY").arg(sourceSet);
+                if (!parameterManager->parameterExists(MAV_COMP_ID_AUTOPILOT1, parameterName)) {
+                    continue;
+                }
+
+                Fact* fact = parameterManager->getParameter(MAV_COMP_ID_AUTOPILOT1, parameterName);
+                _externalNavFactConnections.append(connect(fact, &Fact::rawValueChanged,
+                                                          this, [this]() {
+                    _refreshExternalNavPositionSourceConfigured();
+                }));
+                if (sourceSet == 2) {
+                    visualNavigationConfigured = fact->rawValue().toInt() == 6;
+                } else {
+                    deadReckoningConfigured = fact->rawValue().toInt() == 6;
+                }
+            }
+        }
+    }
+
+    if (_visualNavigationSourceConfigured != visualNavigationConfigured ||
+        _deadReckoningSourceConfigured != deadReckoningConfigured) {
+        _visualNavigationSourceConfigured = visualNavigationConfigured;
+        _deadReckoningSourceConfigured = deadReckoningConfigured;
+        emit externalNavConfigurationChanged();
     }
 }
 
@@ -360,6 +417,11 @@ bool NavSightManager::setEkfSourceSet(int sourceSet)
     }
     if (_ekfSourceChangeInProgress) {
         qCWarning(NavSightManagerLog) << "EKF source set rejected locally: request already pending";
+        return false;
+    }
+    if ((sourceSet == 2 && !_visualNavigationSourceConfigured) ||
+        (sourceSet == 3 && !_deadReckoningSourceConfigured)) {
+        qCWarning(NavSightManagerLog) << "EKF source set rejected locally: VIS/DR requires an EK3_SRCx_POSXY configured for ExternalNav";
         return false;
     }
     if (!_vehicle) {

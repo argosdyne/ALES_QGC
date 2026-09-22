@@ -5,6 +5,8 @@
 
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QMetaObject>
+#include <QVector>
 
 class Vehicle;
 class LinkInterface;
@@ -35,6 +37,8 @@ public:
     Q_PROPERTY(int      activeEkfSourceSet             READ activeEkfSourceSet             NOTIFY ekfSourceStateChanged)
     Q_PROPERTY(bool     ekfSourceChangeInProgress      READ ekfSourceChangeInProgress      NOTIFY ekfSourceStateChanged)
     Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 CONSTANT)
+    Q_PROPERTY(bool     visualNavigationSourceConfigured READ visualNavigationSourceConfigured NOTIFY externalNavConfigurationChanged)
+    Q_PROPERTY(bool     deadReckoningSourceConfigured     READ deadReckoningSourceConfigured     NOTIFY externalNavConfigurationChanged)
     Q_PROPERTY(int      targetComponentId              READ targetComponentId              CONSTANT)
 
     bool navSightOnline() const { return _navSightOnline; }
@@ -52,6 +56,8 @@ public:
     int activeEkfSourceSet() const { return _activeEkfSourceSet; }
     bool ekfSourceChangeInProgress() const { return _ekfSourceChangeInProgress; }
     int targetSystemId() const { return kDefaultSystemId; }
+    bool visualNavigationSourceConfigured() const { return _visualNavigationSourceConfigured; }
+    bool deadReckoningSourceConfigured() const { return _deadReckoningSourceConfigured; }
     int targetComponentId() const { return kDefaultComponentId; }
 
     Q_INVOKABLE bool sendUpdateLocation(double latitude, double longitude);
@@ -64,6 +70,7 @@ signals:
     void updateLocationStateChanged();
     void ekfSourceStateChanged();
     void updateLocationSent(double latitude, double longitude);
+    void externalNavConfigurationChanged();
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
@@ -80,6 +87,8 @@ private:
     void _finishUpdateLocation(const QString& result);
     void _finishEkfSourceSet();
     void _handleNavSightMessage(const mavlink_message_t& message);
+    void _refreshExternalNavPositionSourceConfigured();
+    void _disconnectExternalNavFactSignals();
     static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
 
@@ -101,6 +110,10 @@ private:
     int     _activeEkfSourceSet{0};
     int     _pendingEkfSourceSet{0};
     bool    _ekfSourceChangeInProgress{false};
+    bool    _visualNavigationSourceConfigured{false};
+    bool    _deadReckoningSourceConfigured{false};
+    QMetaObject::Connection _externalNavParametersReadyConnection;
+    QVector<QMetaObject::Connection> _externalNavFactConnections;
     Vehicle* _vehicle{nullptr};
     QElapsedTimer _lastHeartbeatTimer;
     QTimer _heartbeatWatchdog;
