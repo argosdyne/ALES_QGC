@@ -107,6 +107,7 @@ public:
     Q_PROPERTY(bool                 isROIActive                     MEMBER _isROIActive                 NOTIFY isROIActiveChanged)
     Q_PROPERTY(bool                 isROIBeginCurrentItem           MEMBER _isROIBeginCurrentItem       NOTIFY isROIBeginCurrentItemChanged)
     Q_PROPERTY(bool                 flyThroughCommandsAllowed       MEMBER _flyThroughCommandsAllowed   NOTIFY flyThroughCommandsAllowedChanged)
+    Q_PROPERTY(bool                 vehicleMissionConfirmed         READ vehicleMissionConfirmed        NOTIFY vehicleMissionConfirmedChanged)
     Q_PROPERTY(double               minAMSLAltitude                 MEMBER _minAMSLAltitude             NOTIFY minAMSLAltitudeChanged)          ///< Minimum altitude associated with this mission. Used to calculate percentages for terrain status.
     Q_PROPERTY(double               maxAMSLAltitude                 MEMBER _maxAMSLAltitude             NOTIFY maxAMSLAltitudeChanged)          ///< Maximum altitude associated with this mission. Used to calculate percentages for terrain status.
 
@@ -252,6 +253,7 @@ public:
     bool dirty                      (void) const final;
     void setDirty                   (bool dirty) final;
     bool containsItems              (void) const final;
+    bool vehicleMissionConfirmed    (void) const;
     bool showPlanFromManagerVehicle (void) final;
 
     // Create KML file
@@ -332,6 +334,7 @@ signals:
     void isROIActiveChanged                 (void);
     void isROIBeginCurrentItemChanged       (void);
     void flyThroughCommandsAllowedChanged   (void);
+    void vehicleMissionConfirmedChanged     (void);
     void previousCoordinateChanged          (void);
     void minAMSLAltitudeChanged             (double minAMSLAltitude);
     void maxAMSLAltitudeChanged             (double maxAMSLAltitude);
@@ -360,6 +363,7 @@ private slots:
     void _complexBoundingBoxChanged             (void);
     void _recalcAll                             (void);
     void _managerVehicleChanged                 (Vehicle* managerVehicle);
+    void _linkCommunicationLostChanged          (bool lost);
     void _takeoffItemNotRequiredChanged         (void);
     void _onVlValueChanged(int value);
     void _onVisionLidarEnabledChanged(int value);
@@ -368,6 +372,7 @@ private slots:
 
 private:
     void                    _init                               (void);
+    bool                    _vehicleHasFlyableMission           (void) const;
     void                    _recalcSequence                     (void);
     void                    _recalcChildItems                   (void);
     void                    _recalcAllWithCoordinate            (const QGeoCoordinate& coordinate);
