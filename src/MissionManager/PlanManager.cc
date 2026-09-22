@@ -38,7 +38,7 @@ PlanManager::PlanManager(Vehicle* vehicle, MAV_MISSION_TYPE planType)
 
 PlanManager::~PlanManager()
 {
-
+    _discardMissionSnapshot();
 }
 
 void PlanManager::_writeMissionItemsWorker(void)
@@ -135,6 +135,7 @@ void PlanManager::loadFromVehicle(void)
     }
 
     _retryCount = 0;
+    _saveMissionSnapshot();
     _setTransactionInProgress(TransactionRead);
     _connectToMavlink();
     _requestList();
@@ -482,6 +483,38 @@ void PlanManager::_clearMissionItems(void)
     _clearAndDeleteMissionItems();
 }
 
+void PlanManager::_saveMissionSnapshot(void)
+{
+    if (_planType != MAV_MISSION_TYPE_MISSION) {
+        return;
+    }
+    _discardMissionSnapshot();
+    _missionSnapshot = _missionItems;
+    _missionItems.clear();
+    _haveMissionSnapshot = true;
+}
+
+void PlanManager::_discardMissionSnapshot(void)
+{
+    for (MissionItem* item : _missionSnapshot) {
+        item->deleteLater();
+    }
+    _missionSnapshot.clear();
+    _haveMissionSnapshot = false;
+}
+
+void PlanManager::_restoreMissionSnapshot(void)
+{
+    if (!_haveMissionSnapshot) {
+        _clearAndDeleteMissionItems();
+        return;
+    }
+    _clearAndDeleteMissionItems();
+    _missionItems = _missionSnapshot;
+    _missionSnapshot.clear();
+    _haveMissionSnapshot = false;
+}
+
 void PlanManager::_handleMissionRequest(const mavlink_message_t& message)
 {
     MAV_MISSION_TYPE    missionRequestMissionType;
@@ -815,8 +848,15 @@ void PlanManager::_finishTransaction(bool success, bool apmGuidedItemWrite)
 
     switch (currentTransactionType) {
     case TransactionRead:
-        if (!success) {
-            // Read from vehicle failed, clear partial list
+        if (_planType == MAV_MISSION_TYPE_MISSION) {
+            _lastMissionReadSucceeded = success;
+            if (success) {
+                _discardMissionSnapshot();
+            } else {
+                // Keep the last complete list. A failed read is not an empty mission.
+                _restoreMissionSnapshot();
+            }
+        } else if (!success) {
             _clearAndDeleteMissionItems();
         }
         emit newMissionItemsAvailable(false);
@@ -825,6 +865,10 @@ void PlanManager::_finishTransaction(bool success, bool apmGuidedItemWrite)
         // No need to do anything for ArduPilot guided go to waypoint write
         if (!apmGuidedItemWrite) {
             if (success) {
+                if (_planType == MAV_MISSION_TYPE_MISSION) {
+                    // Upload succeeded, so the vehicle list matches what we sent.
+                    _lastMissionReadSucceeded = true;
+                }
                 // Write succeeded, update internal list to be current
                 if (_planType == MAV_MISSION_TYPE_MISSION) {
                     _currentMissionIndex = -1;

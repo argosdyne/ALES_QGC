@@ -159,10 +159,28 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
 {
     qCDebug(MissionControllerLog) << "_newMissionItemsAvailableFromVehicle flyView:count" << _flyView << _missionManager->missionItems().count();
 
-    // Fly view always reloads on _loadComplete
-    // Plan view only reloads if:
-    //  - Load was specifically requested
-    //  - There is no current Plan
+    // A failed read does not mean the vehicle mission is empty. Keep both Plan and Fly
+    // displays, and do not treat the stale screen as a mission the vehicle can start.
+    if (!_missionManager->lastMissionReadSucceeded()) {
+        qCInfo(MissionControllerLog) << "mission read failed, keeping current mission display";
+        _itemsRequested = false;
+        emit vehicleMissionConfirmedChanged();
+        return;
+    }
+
+    // While armed or flying, an empty report is not used to wipe the fly-view path.
+    if (_flyView && !_vehicleHasFlyableMission()
+            && _managerVehicle && (_managerVehicle->armed() || _managerVehicle->flying())) {
+        qCInfo(MissionControllerLog) << "empty vehicle mission while airborne, keeping fly view";
+        _itemsRequested = false;
+        emit vehicleMissionConfirmedChanged();
+        return;
+    }
+
+    // Fly view always reloads on a successful read.
+    // Plan view reloads only when a load was requested or the editor is empty.
+    // A successful empty read therefore clears Fly view on the ground, and leaves
+    // an existing Plan editor draft in place.
     if (_flyView || removeAllRequested || _itemsRequested || isEmpty()) {
         // Fly Mode (accept if):
         //      - Always accepts new items from the vehicle so Fly view is kept up to date
@@ -220,6 +238,7 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         emit newItemsFromVehicle();
     }
     _itemsRequested = false;
+    emit vehicleMissionConfirmedChanged();
 }
 
 void MissionController::loadFromVehicle(void)
@@ -2014,6 +2033,9 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     if (_managerVehicle) {
         _missionManager->disconnect(this);
         _managerVehicle->disconnect(this);
+        if (_managerVehicle->vehicleLinkManager()) {
+            _managerVehicle->vehicleLinkManager()->disconnect(this);
+        }
         _managerVehicle = nullptr;
         _missionManager = nullptr;
     }
@@ -2021,6 +2043,7 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     _managerVehicle = managerVehicle;
     if (!_managerVehicle) {
         qWarning() << "MissionController::managerVehicleChanged managerVehicle=NULL";
+        emit vehicleMissionConfirmedChanged();
         return;
     }
 
@@ -2037,6 +2060,13 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     connect(_managerVehicle, &Vehicle::defaultCruiseSpeedChanged,       this, &MissionController::_recalcMissionFlightStatusSignal, Qt::QueuedConnection);
     connect(_managerVehicle, &Vehicle::defaultHoverSpeedChanged,        this, &MissionController::_recalcMissionFlightStatusSignal, Qt::QueuedConnection);
     connect(_managerVehicle, &Vehicle::vehicleTypeChanged,              this, &MissionController::complexMissionItemNamesChanged);
+    connect(_managerVehicle, &Vehicle::initialPlanRequestCompleteChanged, this, [this](bool) {
+        emit vehicleMissionConfirmedChanged();
+    });
+    if (_managerVehicle->vehicleLinkManager()) {
+        connect(_managerVehicle->vehicleLinkManager(), &VehicleLinkManager::communicationLostChanged,
+                this, &MissionController::_linkCommunicationLostChanged);
+    }
 
     emit complexMissionItemNamesChanged();
     emit resumeMissionIndexChanged();
@@ -2045,6 +2075,7 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
 void MissionController::_inProgressChanged(bool inProgress)
 {
     emit syncInProgressChanged(inProgress);
+    emit vehicleMissionConfirmedChanged();
 }
 
 bool MissionController::_findPreviousAltitude(int newIndex, double* prevAltitude, QGroundControlQmlGlobal::AltMode* prevAltitudeMode)
@@ -2251,6 +2282,46 @@ void MissionController::_updateContainsItems(void)
 bool MissionController::containsItems(void) const
 {
     return _visualItems ? _visualItems->count() > 1 : false;
+}
+
+bool MissionController::_vehicleHasFlyableMission(void) const
+{
+    if (!_missionManager || !_managerVehicle) {
+        return false;
+    }
+    const int itemCount = _missionManager->missionItems().count();
+    // APM stores home in item 0. Home alone is not a flyable mission.
+    const int homeSlots = _managerVehicle->firmwarePlugin()->sendHomePositionToVehicle() ? 1 : 0;
+    return itemCount > homeSlots;
+}
+
+bool MissionController::vehicleMissionConfirmed(void) const
+{
+    if (!_flyView || !_managerVehicle || !_missionManager) {
+        return false;
+    }
+    if (!_managerVehicle->initialPlanRequestComplete() || _missionManager->inProgress()) {
+        return false;
+    }
+    if (!_missionManager->lastMissionReadSucceeded()) {
+        return false;
+    }
+    return _vehicleHasFlyableMission();
+}
+
+void MissionController::_linkCommunicationLostChanged(bool lost)
+{
+    // Re-read only after the link returns, and only on the ground. A short dropout
+    // keeps the mission when the vehicle still has one. Power-off clears it, and
+    // that empty list is what removes the fly-view path.
+    if (lost || !_flyView || !_managerVehicle || !_missionManager) {
+        return;
+    }
+    if (_managerVehicle->armed() || _managerVehicle->flying() || _missionManager->inProgress()) {
+        return;
+    }
+    qCInfo(MissionControllerLog) << "link restored on ground, re-reading vehicle mission";
+    _missionManager->loadFromVehicle();
 }
 
 void MissionController::removeAllFromVehicle(void)
