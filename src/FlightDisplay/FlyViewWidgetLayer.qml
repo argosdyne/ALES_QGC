@@ -205,7 +205,8 @@ Item {
         anchors.right: parent.right
         width: _rightPanelWidth
         anchors.top: parent.top
-        visible: _mainWindowIsMap && QGroundControl.settingsManager.flyViewSettings.enableAudioController.value
+        visible: QGroundControl.settingsManager.flyViewSettings.enableAudioController.value &&
+                 !QGroundControl.videoManager.fullScreen
     }
 
     //-- Optical Flow Control
