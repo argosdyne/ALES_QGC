@@ -74,7 +74,7 @@ Item {
                         color:                  qgcPal.text
                     }
                     QGCLabel {
-                        text:                   _connected ? _rssiA * -1 + " / " + _rssiA * -1 + " dB" : qsTr("N/A")
+                        text:                   _connected ? _rssiA * -1 + " / " + _rssiB * -1 + " dB" : qsTr("N/A")
                         color:                  qgcPal.text
                     }
 
