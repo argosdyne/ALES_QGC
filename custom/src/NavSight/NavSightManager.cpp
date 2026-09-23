@@ -147,6 +147,55 @@ QString NavSightManager::_mavlinkString(const char* text, int textLength)
     return QString::fromLatin1(bytes).trimmed();
 }
 
+QStringList NavSightManager::_decodeStatusBitmask(quint32 statusBitmask)
+{
+    // NavSight MAVLink API v1.2.4p, statusBitVec bits 0 through 26.
+    static const char* const statusNames[] = {
+        "NAVIGATION_OK",
+        "NO_CAMERA_LINK",
+        "NO_CAMERA_IMAGE",
+        "NO_CAMERA_CALIB",
+        "CALCULATED_LOCATION_IS_OUT_OF_ORTHO",
+        "NO_TELEMTRY_MESSAGE",
+        "MAVLINK_RATES_LOW",
+        "WARN_LOW_ALT",
+        "WARNING_CAMERA_HIGH_TEMPRATURE",
+        "WARNING_HARD_DISK_80_PERCENTS_FULL",
+        "WARNING_INTERNAL_JETSON_ERROR",
+        "NO_RELEVANT_ORTHOPHOTO_FOUND",
+        "WAITING_FOR_START_MISSION",
+        "REPLACE_CAMERA_USB_PORT",
+        "NO_ORIGIN",
+        "WARN_NO_START",
+        "FILTERING_ACTIVE",
+        "USER_DISABLED_OUTPUT",
+        "GIMBAL_ANGLE_ERROR",
+        "SLAM_FPS_SLOW",
+        "NO_ANCHORS_FOR_TOO_LONG",
+        "RECORDER_IMAGES_NOT_SAVED_TO_DISK",
+        "VIEWER_TOO_SLOW",
+        "CAMERA_FPS_JITTERS",
+        "CAMERA_FPS_SLOW",
+        "SLAM_FPS_JITTERS",
+        "BAD_MAVLINK_BAUDRATE",
+    };
+
+    QStringList activeStatuses;
+    for (quint32 bit = 0; bit < sizeof(statusNames) / sizeof(statusNames[0]); ++bit) {
+        if ((statusBitmask & (quint32{1} << bit)) != 0) {
+            activeStatuses.append(QString::fromLatin1(statusNames[bit]));
+        }
+    }
+
+    const quint32 unknownBits = statusBitmask & ~kKnownStatusBitsMask;
+    if (unknownBits != 0) {
+        activeStatuses.append(QStringLiteral("UNKNOWN_STATUS_BITS_0x%1")
+                                  .arg(unknownBits, 8, 16, QLatin1Char('0')).toUpper());
+    }
+
+    return activeStatuses;
+}
+
 void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 {
     // EKF source selection is a command to the Flight Controller, not NavSight.
@@ -228,6 +277,8 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
 
         _navSightOnline = true;
         _navSightStatusBitmask = heartbeat.custom_mode;
+        _navSightActiveStatuses = _decodeStatusBitmask(_navSightStatusBitmask);
+        _navSightStatusText = _navSightActiveStatuses.join(QLatin1Char('-'));
         _initialLocationAccepted = (heartbeat.custom_mode & kWaitingForStartMissionMask) == 0;
         _lastHeartbeatTimer.restart();
         emit navSightStatusChanged();
@@ -237,6 +288,7 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
             << " base_mode=0x" << Qt::hex << heartbeat.base_mode
             << " custom_mode=0x" << heartbeat.custom_mode << Qt::dec
             << " system_status=" << heartbeat.system_status
+            << " status=" << _navSightStatusText
             << " initialLocationAccepted=" << _initialLocationAccepted;
         return;
     }
@@ -262,13 +314,11 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
     if (message.msgid == MAVLINK_MSG_ID_STATUSTEXT) {
         mavlink_statustext_t statusText{};
         mavlink_msg_statustext_decode(&message, &statusText);
-        _navSightStatusText = _mavlinkString(statusText.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
-        if (!_lastUpdateLocationResult.isEmpty()) {
-            _lastUpdateLocationResult.clear();
-            emit updateLocationStateChanged();
-        }
+        // HEARTBEAT.custom_mode is the authoritative public status API. STATUSTEXT
+        // can also carry private diagnostics, so keep it separate from UI status.
+        _navSightDiagnosticText = _mavlinkString(statusText.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
         emit navSightStatusChanged();
-        qCInfo(NavSightManagerLog) << "NavSight STATUSTEXT:" << _navSightStatusText;
+        qCInfo(NavSightManagerLog) << "NavSight diagnostic STATUSTEXT:" << _navSightDiagnosticText;
     }
 }
 void NavSightManager::_checkHeartbeatTimeout()
@@ -287,6 +337,8 @@ void NavSightManager::_setOffline()
     _navSightConfidence = 0.0;
     _navSightConfidenceValid = false;
     _navSightStatusText.clear();
+    _navSightActiveStatuses.clear();
+    _navSightDiagnosticText.clear();
     _navSightStatusBitmask = 0;
     _navSightDeadReckoningActive = false;
     _navSightGpsActive = false;

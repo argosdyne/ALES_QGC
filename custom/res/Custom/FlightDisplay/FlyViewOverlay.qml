@@ -114,17 +114,28 @@ Item {
                     { label: "VIS", sourceSet: 2, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 2), color: "#2fad16" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
                     { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "N/A"), active: true, color: "#111111" },
-                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? _navSightManager.lastUpdateLocationResult : (_navSightManager ? _navSightManager.navSightStatusText : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.lastUpdateLocationResult.length > 0 || _navSightManager.navSightStatusText.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : (_navSightManager && _navSightManager.lastUpdateLocationResult.length > 0 ? "#B57B20" : "#B04A4A")) }
+                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? _navSightManager.navSightStatusText : (_navSightManager ? _navSightManager.lastUpdateLocationResult : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.navSightStatusText.length > 0 || _navSightManager.lastUpdateLocationResult.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.navSightStatusBitmask === 1 ? "#2fad16" : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? "#B04A4A" : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : "#B57B20"))) }
                 ]
 
                 Rectangle {
                     id:                         navSightStatusBadge
+                    readonly property bool sourceButton: index < 3
+                    readonly property bool sourceSelectionEnabled: sourceButton && _navSightManager
+                                                                   && !_navSightManager.ekfSourceChangeInProgress
+                                                                   && (modelData.sourceSet === 1
+                                                                       || (modelData.sourceSet === 2 && _navSightManager.visualNavigationSourceConfigured)
+                                                                       || (modelData.sourceSet === 3 && _navSightManager.deadReckoningSourceConfigured))
+
                     width:                      navSightStatusBadgeLabel.implicitWidth + ScreenTools.defaultFontPixelWidth
                     height:                     navSightStatusBadgeLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
                     radius:                     ScreenTools.defaultFontPixelWidth * 0.25
-                    color:                      modelData.active ? modelData.color : Qt.rgba(0.35, 0.38, 0.43, 0.85)
+                    color:                      modelData.active
+                                                ? modelData.color
+                                                : (sourceSelectionEnabled
+                                                   ? "#111111"
+                                                   : Qt.rgba(0.35, 0.38, 0.43, 0.85))
                     visible:                    modelData.visible === undefined || modelData.visible
-                    opacity:                    modelData.active ? 1.0 : 0.62
+                    opacity:                    sourceButton && !sourceSelectionEnabled && !modelData.active ? 0.48 : 1.0
                     border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.20)
                     border.width:               1
 
@@ -133,16 +144,18 @@ Item {
                         anchors.centerIn:       parent
                         text:                   modelData.label
                         color:                  "white"
-                        font.bold:              true
+                        font.bold:              false
                         font.pointSize:          ScreenTools.mediumFontPointSize *0.8
                     }
 
                     QGCMouseArea {
+                        id:                      navSightButtonMouseArea
                         anchors.fill:            parent
-                        enabled:                 index < 3 && _navSightManager && !_navSightManager.ekfSourceChangeInProgress
-                                                 && (modelData.sourceSet === 1
-                                                     || (modelData.sourceSet === 2 && _navSightManager.visualNavigationSourceConfigured)
-                                                     || (modelData.sourceSet === 3 && _navSightManager.deadReckoningSourceConfigured))
+                        anchors.leftMargin:      sourceButton ? -ScreenTools.defaultFontPixelWidth * 0.5 : 0
+                        anchors.rightMargin:     sourceButton ? -ScreenTools.defaultFontPixelWidth * 0.5 : 0
+                        anchors.topMargin:       sourceButton ? -ScreenTools.defaultFontPixelHeight * 0.35 : 0
+                        anchors.bottomMargin:    sourceButton ? -ScreenTools.defaultFontPixelHeight * 0.35 : 0
+                        enabled:                 navSightStatusBadge.sourceSelectionEnabled
                         hoverEnabled:            enabled
                         cursorShape:             enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked:               _navSightManager.setEkfSourceSet(modelData.sourceSet)

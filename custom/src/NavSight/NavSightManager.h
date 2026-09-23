@@ -6,6 +6,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QMetaObject>
+#include <QStringList>
 #include <QVector>
 
 class Vehicle;
@@ -26,6 +27,8 @@ public:
     Q_PROPERTY(double   navSightConfidence             READ navSightConfidence             NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightConfidenceValid        READ navSightConfidenceValid        NOTIFY navSightStatusChanged)
     Q_PROPERTY(QString  navSightStatusText             READ navSightStatusText             NOTIFY navSightStatusChanged)
+    Q_PROPERTY(QStringList navSightActiveStatuses      READ navSightActiveStatuses         NOTIFY navSightStatusChanged)
+    Q_PROPERTY(QString  navSightDiagnosticText         READ navSightDiagnosticText         NOTIFY navSightStatusChanged)
     Q_PROPERTY(quint32  navSightStatusBitmask          READ navSightStatusBitmask          NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightDeadReckoningActive    READ navSightDeadReckoningActive    NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightGpsActive              READ navSightGpsActive              NOTIFY navSightStatusChanged)
@@ -45,6 +48,8 @@ public:
     double navSightConfidence() const { return _navSightConfidence; }
     bool navSightConfidenceValid() const { return _navSightConfidenceValid; }
     QString navSightStatusText() const { return _navSightStatusText; }
+    QStringList navSightActiveStatuses() const { return _navSightActiveStatuses; }
+    QString navSightDiagnosticText() const { return _navSightDiagnosticText; }
     quint32 navSightStatusBitmask() const { return _navSightStatusBitmask; }
     bool navSightDeadReckoningActive() const { return _navSightDeadReckoningActive; }
     bool navSightGpsActive() const { return _navSightGpsActive; }
@@ -91,11 +96,14 @@ private:
     void _disconnectExternalNavFactSignals();
     static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
+    static QStringList _decodeStatusBitmask(quint32 statusBitmask);
 
     bool    _navSightOnline{false};
     double  _navSightConfidence{0.0};
     bool    _navSightConfidenceValid{false};
     QString _navSightStatusText;
+    QStringList _navSightActiveStatuses;
+    QString _navSightDiagnosticText;
     quint32 _navSightStatusBitmask{0};
     bool    _navSightDeadReckoningActive{false};
     bool    _navSightGpsActive{false};
@@ -122,6 +130,7 @@ private:
 
     static constexpr int kHeartbeatTimeoutMs = 3000;
     static constexpr quint32 kWaitingForStartMissionMask = 0x00001000u;
+    static constexpr quint32 kKnownStatusBitsMask = 0x07ffffffu;
     static constexpr int kUpdateLocationAckTimeoutMs = 3000;
     static constexpr int kMaxUpdateLocationRetries = 2;
     static constexpr int kEkfSourceAckTimeoutMs = 3000;
