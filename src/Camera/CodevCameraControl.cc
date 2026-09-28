@@ -1071,7 +1071,13 @@ void CodevCameraControl::resetSettings()
 void CodevCameraControl::formatCard(int id)
 {
     if(!_resetting) {
-        qCDebug(CodevCameraLog) << "formatCard()";
+        qCWarning(CodevCameraLog) << "[SonyStorageDiag]"
+                << "format requested"
+                << "cameraComponentId" << _compID
+                << "cameraVendor" << vendor()
+                << "cameraModel" << modelName()
+                << "storageId" << id
+                << "doFormat" << 1;
         sendMavCommand(
             MAV_CMD_STORAGE_FORMAT,                 // Command id
             id,                                     // Storage ID (1 for first, 2 for second, etc.)
@@ -2521,6 +2527,18 @@ void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
                            << "result" << ack.result
                            << "queueSize" << _mavCommandQueue.count()
                            << "queuedTarget" << queuedTarget;
+    if (ack.command == MAV_CMD_STORAGE_FORMAT) {
+        const int requestedStorageId = _mavCommandQueue.count()
+                ? static_cast<int>(_mavCommandQueue[0].rgParam[0])
+                : -1;
+        qCWarning(CodevCameraLog) << "[SonyStorageDiag]"
+                               << "MAV_CMD_STORAGE_FORMAT ACK delivered to controller"
+                               << "cameraComponentId" << _compID
+                               << "queuedTargetComponentId" << queuedTarget
+                               << "requestedStorageId" << requestedStorageId
+                               << "result" << ack.result
+                               << "progress" << ack.progress;
+    }
     if (_consumeQueuedCommandAck(compID(), ack, "cameraAck")) {
         // Queue handled by direct camera component ACK.
         // Do not force photo/video mode from capture ACKs — that reverts user mode
@@ -2790,6 +2808,7 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
         switch(command) {
         case MAV_CMD_STORAGE_FORMAT:
             _vehicle->clearCameraTriggerPoints();
+            QTimer::singleShot(1500, this, &CodevCameraControl::_requestAllStoragePools);
             break;
         case MAV_CMD_RESET_CAMERA_SETTINGS:
             _resetting = false;

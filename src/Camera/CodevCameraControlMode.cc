@@ -490,6 +490,36 @@ QString CodevCameraControl::storageFreeStr()
     return QGCCameraControl::storageFreeStr();
 }
 
+void CodevCameraControl::formatAllStorageCards()
+{
+    QList<int> storageIds;
+    QStringList storageLogEntries;
+    for (int i = 0; i < _storageInfos.count(); i++) {
+        const auto* storage = _storageInfos.value<CodevStorageInfo*>(i);
+        if (!storage) {
+            continue;
+        }
+
+        const mavlink_storage_information_t& info = storage->storageInfo();
+        if (info.storage_id == 0
+                || !(info.storage_usage & STORAGE_USAGE_FLAG_SET)) {
+            continue;
+        }
+
+        storageIds.append(info.storage_id);
+        storageLogEntries.append(QStringLiteral("%1(status=%2)").arg(info.storage_id).arg(info.status));
+    }
+
+    qCWarning(CodevCameraLog) << "[SonyStorageDiag]"
+                              << "format all requested"
+                              << "cameraComponentId" << _compID
+                              << "storageIds" << storageLogEntries.join(QLatin1Char(','));
+
+    for (int storageId : storageIds) {
+        formatCard(storageId);
+    }
+}
+
 void CodevCameraControl::handleStorageInfo(const mavlink_storage_information_t& st)
 {
     qCDebug(CodevCameraLog) << "handleStorageInfo:"

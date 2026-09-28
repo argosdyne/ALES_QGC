@@ -1007,7 +1007,6 @@ Item {
             // Nano tracker can runaway on very close targets — warn the operator
             // only when the tracking algorithm is actively switched to "Nano".
             property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
-
             Connections {
                 target: settingsDialog._trackAlgorithmFact
                 ignoreUnknownSignals: true
@@ -1256,6 +1255,28 @@ Item {
 
                     QGCButton {
                         Layout.fillWidth:   true
+                        text:               qsTr("Format")
+                        visible:            _mavlinkCameraStorageSupported
+                        onClicked:          formatPrompt.open()
+                        MessageDialog {
+                            id:                 formatPrompt
+                            title:              qsTr("Format Camera Storage")
+                            text:               qsTr("Confirm erasing all files on all camera storage?")
+                            standardButtons:    StandardButton.Yes | StandardButton.No
+                            onNo: formatPrompt.close()
+                            onYes: {
+                                if (typeof _mavlinkCamera.formatAllStorageCards !== "undefined") {
+                                    _mavlinkCamera.formatAllStorageCards()
+                                } else {
+                                    _mavlinkCamera.formatCard()
+                                }
+                                formatPrompt.close()
+                            }
+                        }
+                    }
+
+                    QGCButton {
+                        Layout.fillWidth:   true
                         text:               qsTr("Reset")
                         visible:            _mavlinkCamera
                         onClicked:          resetPrompt.open()
@@ -1271,24 +1292,6 @@ Item {
                             }
                         }
                     }
-
-                    QGCButton {
-                        Layout.fillWidth:   true
-                        text:               qsTr("Format")
-                        visible:            _mavlinkCameraStorageSupported
-                        onClicked:          formatPrompt.open()
-                        MessageDialog {
-                            id:                 formatPrompt
-                            title:              qsTr("Format Camera Storage")
-                            text:               qsTr("Confirm erasing all files?")
-                            standardButtons:    StandardButton.Yes | StandardButton.No
-                            onNo: formatPrompt.close()
-                            onYes: {
-                                _mavlinkCamera.formatCard()
-                                formatPrompt.close()
-                            }
-                        }
-                    }    
                   }
             }
         }

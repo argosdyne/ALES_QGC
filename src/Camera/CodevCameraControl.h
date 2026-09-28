@@ -203,6 +203,7 @@ public:
     bool incomingParameter(Fact* pFact, QVariant& newValue) final;
     void handleCommandAck(const mavlink_command_ack_t& ack) final;
     void filterAviatorRcChannels(quint16* channels, int count);
+    Q_INVOKABLE void formatAllStorageCards();
     void handleImageCaptured(const mavlink_camera_image_captured_t& ic) final;
     void handleCaptureStatus(const mavlink_camera_capture_status_t& capStatus) final;
     void handleStorageInfo(const mavlink_storage_information_t& st) final;

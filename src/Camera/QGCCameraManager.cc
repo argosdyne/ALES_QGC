@@ -733,8 +733,9 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
     if(_cameraInfoRequest.contains(sCompID)) {
         mavlink_camera_information_t info;
         mavlink_msg_camera_information_decode(&message, &info);
-        qCInfo(CameraManagerLog) << "[CameraManager]"
+        qCWarning(CameraManagerLog) << "[SonyStorageDiag]"
                 << "CAMERA_INFORMATION handled"
+                << "sourceSystemId" << message.sysid
                 << reinterpret_cast<const char*>(info.model_name)
                 << reinterpret_cast<const char*>(info.vendor_name)
                 << "compId" << message.compid
@@ -858,7 +859,33 @@ QGCCameraManager::_handleStorageInfo(const mavlink_message_t& message)
     if(pCamera) {
         mavlink_storage_information_t st;
         mavlink_msg_storage_information_decode(&message, &st);
+        QString storageName = QString::fromLatin1(st.name, sizeof(st.name));
+        const int nullIndex = storageName.indexOf(QChar::Null);
+        if (nullIndex >= 0) {
+            storageName.truncate(nullIndex);
+        }
+        qCWarning(CameraManagerLog) << "[SonyStorageDiag]"
+                << "STORAGE_INFORMATION"
+                << "sourceSystemId" << message.sysid
+                << "sourceComponentId" << message.compid
+                << "cameraComponentId" << pCamera->compID()
+                << "cameraVendor" << pCamera->vendor()
+                << "cameraModel" << pCamera->modelName()
+                << "storageId" << st.storage_id
+                << "storageCount" << st.storage_count
+                << "storageUsage" << Qt::hex << st.storage_usage << Qt::dec
+                << "storageType" << st.type
+                << "storageStatus" << st.status
+                << "storageName" << storageName
+                << "totalMiB" << st.total_capacity
+                << "usedMiB" << st.used_capacity
+                << "availableMiB" << st.available_capacity;
         pCamera->handleStorageInfo(st);
+    } else {
+        qCWarning(CameraManagerLog) << "[SonyStorageDiag]"
+                << "STORAGE_INFORMATION ignored: no matching camera control"
+                << "sourceSystemId" << message.sysid
+                << "sourceComponentId" << message.compid;
     }
 }
 
@@ -989,6 +1016,14 @@ QGCCameraManager::_handleCommandAck(const mavlink_message_t& message)
             << "compid" << message.compid
             << "command" << ack.command
             << "result" << ack.result;
+    if (ack.command == MAV_CMD_STORAGE_FORMAT) {
+        qCWarning(CameraManagerLog) << "[SonyStorageDiag]"
+                << "MAV_CMD_STORAGE_FORMAT ACK"
+                << "sourceSystemId" << message.sysid
+                << "sourceComponentId" << message.compid
+                << "result" << ack.result
+                << "progress" << ack.progress;
+    }
     for(int i = 0; i < _cameras.count(); i++) {
         QGCCameraControl* pCamera = qobject_cast<QGCCameraControl*>(_cameras[i]);
         if(pCamera) {
