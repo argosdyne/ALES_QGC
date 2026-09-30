@@ -892,6 +892,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
         _handleCameraImageCaptured(message);
         break;
+    case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
         _handleMissionItemReachedApmCamera(message);
         break;
     case MAVLINK_MSG_ID_ADSB_VEHICLE:
