@@ -1201,6 +1201,7 @@ private:
     void _handleRangefinder             (mavlink_message_t& message);
 #endif
     void _handleCameraImageCaptured     (const mavlink_message_t& message);
+    void _handleMissionItemReachedApmCamera(const mavlink_message_t& message);
     void _addCameraTriggerPoint          (const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex);
     void _handleADSBVehicle             (const mavlink_message_t& message);
     void _handleRawImuTemp              (mavlink_message_t& message);

@@ -892,6 +892,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
         _handleCameraImageCaptured(message);
         break;
+    case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
+        _handleMissionItemReachedApmCamera(message);
+        break;
     case MAVLINK_MSG_ID_ADSB_VEHICLE:
         _handleADSBVehicle(message);
         break;
@@ -1075,6 +1078,47 @@ void Vehicle::_handleCameraImageCaptured(const mavlink_message_t& message)
     if (feedback.capture_result == 1) {
         _addCameraTriggerPoint(imageCoordinate, feedback.camera_id, static_cast<quint32>(feedback.image_index));
     }
+}
+
+// APM survey hover-and-capture bridge: ArduPilot's mission executor runs
+// MAV_CMD_IMAGE_START_CAPTURE but only forwards to the MAVLink camera when
+// CAM1_TYPE is configured for it. On stock APM setups it silently no-ops.
+// APM emits MISSION_ITEM_REACHED only for NAV waypoints, not for the inline
+// IMAGE_START_CAPTURE items that follow them. So when a NAV is reached and
+// the very next mission item is IMAGE_START_CAPTURE, we rebroadcast the
+// shutter to the camera compid ourselves. PX4 rebroadcasts on-vehicle, so
+// we guard on apmFirmware() to avoid double-triggering.
+void Vehicle::_handleMissionItemReachedApmCamera(const mavlink_message_t& message)
+{
+    if (!apmFirmware() || !_missionManager || !_cameraManager) {
+        return;
+    }
+
+    mavlink_mission_item_reached_t reached;
+    mavlink_msg_mission_item_reached_decode(&message, &reached);
+
+    const QList<MissionItem*>& items = _missionManager->missionItems();
+    MissionItem* nextItem = nullptr;
+    for (MissionItem* item : items) {
+        if (item && item->sequenceNumber() == reached.seq + 1) {
+            nextItem = item;
+            break;
+        }
+    }
+    if (!nextItem || nextItem->command() != MAV_CMD_IMAGE_START_CAPTURE) {
+        return;
+    }
+
+    QGCCameraControl* cam = _cameraManager->currentCameraInstance();
+    if (!cam) {
+        qCWarning(VehicleLog) << "APM survey shutter: no camera instance for capture seq" << (reached.seq + 1);
+        return;
+    }
+
+    qCInfo(VehicleLog) << "APM survey shutter → NAV seq" << reached.seq
+                       << "reached, firing IMAGE_START_CAPTURE for next seq" << (reached.seq + 1)
+                       << "cameraClass" << cam->metaObject()->className();
+    cam->takePhoto();
 }
 
 void Vehicle::_addCameraTriggerPoint(const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex)
