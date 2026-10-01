@@ -115,7 +115,6 @@ private:
     void _logRtcmCrcError(const QByteArray& frame, quint32 expectedCrc, quint32 actualCrc);
     void _clearRtcmQueue();
     void _resetRtcmStats();
-    bool _isPremiumCaster();
     QString _activeMountPointName();
 
     QTimer _sendGPGGATimer;

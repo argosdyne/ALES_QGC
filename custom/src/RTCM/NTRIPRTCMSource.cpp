@@ -465,13 +465,6 @@ void NTRIPRTCMSource::logOut()
     }
 }
 
-bool NTRIPRTCMSource::_isPremiumCaster()
-{
-    const QString hostName = host()->rawValueString().trimmed();
-    return hostName.compare(QStringLiteral("rtkpremium.xyz"), Qt::CaseInsensitive) == 0
-        || hostName.contains(QStringLiteral("rtkpremium"), Qt::CaseInsensitive);
-}
-
 QString NTRIPRTCMSource::_activeMountPointName()
 {
     const Fact* source = mountpointManual()->rawValue().toBool() ? mountpointManualValue() : mountpoint();
@@ -483,39 +476,19 @@ void NTRIPRTCMSource::_onSocketConnected()
     const QString mountPoint = _activeMountPointName();
     qInfo() << "_onSocketConnected Mountpoint = " << mountPoint;
 
-    QString request;
-    if (_isPremiumCaster()) {
-        QString username = user()->rawValueString().trimmed();
-        QString password = passwd()->rawValueString().trimmed();
-        if (password.isEmpty() && !username.isEmpty()) {
-            password = username;
-        }
-
-        request = QString("GET /%1 HTTP/1.0\r\n"
-                          "User-Agent: NTRIP PremiumPositioning/1.0\r\n")
-                      .arg(mountPoint);
-        if (!username.isEmpty()) {
-            const QString userinfoRaw = QString("%1:%2").arg(username).arg(password);
-            const QString userinfo = QString(userinfoRaw.toLatin1().toBase64());
-            request += QString("Authorization: Basic %1\r\n").arg(userinfo);
-        }
-        request += QString("Connection: close\r\n\r\n");
-        qCInfo(NTRIPRTCMSourceLog) << "Premium Positioning login, mount:" << mountPoint;
-    } else {
-        const QString username = user()->rawValueString();
-        const QString password = passwd()->rawValueString();
-        const QString userinfoRaw = QString("%1:%2").arg(username).arg(password);
-        const QString userinfo = QString(userinfoRaw.toLatin1().toBase64());
-        request = QString("GET /%1 HTTP/1.0\r\n"
-                          "User-Agent: NTRIP Source/v1.0\r\n"
-                          "Accept: */*\r\n"
-                          "Connection: close\r\n")
-                      .arg(mountPoint);
-        if (!username.isEmpty()) {
-            request += QString("Authorization: Basic %1\r\n").arg(userinfo);
-        }
-        request += QString("\r\n");
+    const QString username = user()->rawValueString();
+    const QString password = passwd()->rawValueString();
+    const QString userinfoRaw = QString("%1:%2").arg(username).arg(password);
+    const QString userinfo = QString(userinfoRaw.toLatin1().toBase64());
+    QString request = QString("GET /%1 HTTP/1.0\r\n"
+                              "User-Agent: NTRIP Source/v1.0\r\n"
+                              "Accept: */*\r\n"
+                              "Connection: close\r\n")
+                          .arg(mountPoint);
+    if (!username.isEmpty()) {
+        request += QString("Authorization: Basic %1\r\n").arg(userinfo);
     }
+    request += QString("\r\n");
 
     _tcpSocket->write(request.toUtf8());
     qCDebug(NTRIPRTCMSourceLog) << "Authorization...\n\r" << request;
