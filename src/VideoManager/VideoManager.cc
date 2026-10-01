@@ -1321,9 +1321,9 @@ VideoManager::_thermalModeChanged()
             << "uri" << _videoUri[1]
             << "hasThermalStream" << (pCamera->thermalStreamInstance() != nullptr);
 
-    if (_videoStarted[1]) {
-        _stopReceiver(1);
-    } else {
+    // Changing EO/IR/PIP only affects QML layout. The thermal URI is unchanged,
+    // so restarting an already running receiver causes a visible black-frame flicker.
+    if (!_videoStarted[1]) {
         _restartVideo(1);
     }
 #endif

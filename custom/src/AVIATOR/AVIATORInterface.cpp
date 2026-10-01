@@ -319,11 +319,30 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
     }
 
-    // F3 
+    // F3
     static int f3Count = 0;
-    if(f3) f3Count++;
-    else {
-        if(f3Count > 0 && f3Count < 50) { // 1s
+    static bool lastF3Active = false;
+    if (f3 != lastF3Active) {
+        qCInfo(AVIATORInterfaceLog) << "[FN3_TRACE][SERIAL]"
+                                   << "ch16" << channels.chan16_raw
+                                   << "active" << f3
+                                   << "previousActive" << lastF3Active;
+        lastF3Active = f3;
+    }
+
+    if (f3) {
+        f3Count++;
+    } else {
+        const int pressSampleCount = f3Count;
+        const bool isShortPress = pressSampleCount > 0 && pressSampleCount < 50;
+        if (pressSampleCount > 0) {
+            qCInfo(AVIATORInterfaceLog) << "[FN3_TRACE][SERIAL]"
+                                       << "released"
+                                       << "samples" << pressSampleCount
+                                       << "shortPress" << isShortPress
+                                       << "action" << (isShortPress ? "emit_ir_switch" : "none");
+        }
+        if (isShortPress) { // 1s
             emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
         }
         f3Count = 0;
@@ -423,6 +442,46 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 #endif
 
 }
+void AVIATORInterface::handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels)
+{
+    static constexpr qint64 kShortPressMaxMs = 1000;
+    static constexpr qint64 kLongPressMs = 5000;
+
+    const bool f2Active = _rcSwitchActive(channels.chan14_raw);
+    const bool f3Active = _rcSwitchActive(channels.chan16_raw);
+
+    if (f2Active != _f2Pressed) {
+        _f2Pressed = f2Active;
+        emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, f2Active);
+    }
+
+    if (f3Active) {
+        if (!_px4F3PressTimer.isValid()) {
+            _px4F3PressTimer.start();
+            qCInfo(AVIATORInterfaceLog) << "[FN3_TRACE][PX4]" << "pressed";
+        }
+    } else if (_px4F3PressTimer.isValid()) {
+        const qint64 pressDurationMs = _px4F3PressTimer.elapsed();
+        const bool isShortPress = pressDurationMs < kShortPressMaxMs;
+        qCInfo(AVIATORInterfaceLog) << "[FN3_TRACE][PX4]"
+                                    << "released"
+                                    << "durationMs" << pressDurationMs
+                                    << "shortPress" << isShortPress
+                                    << "action" << (isShortPress ? "emit_ir_switch" : "none");
+        if (isShortPress) {
+            emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
+        }
+        _px4F3PressTimer.invalidate();
+    }
+
+    const bool f3LongPressed = f3Active && _px4F3PressTimer.isValid()
+            && _px4F3PressTimer.elapsed() >= kLongPressMs;
+    if (f3LongPressed != _f3Pressed) {
+        _f3Pressed = f3LongPressed;
+        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, f3LongPressed);
+    }
+}
+
 bool AVIATORInterface::_rcSwitchActive(uint16_t rawValue)
 {
     return rawValue >= 1900;

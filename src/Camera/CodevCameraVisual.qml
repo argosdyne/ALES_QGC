@@ -87,11 +87,15 @@ Item {
             }
         }
         function irSwitchTigger(start) {
+            console.log("[FN3_TRACE][QML]", "irSwitch", "pressed=", start,
+                        "hasThermal=", QGroundControl.videoManager.hasThermal,
+                        "currentMode=", _camera ? _camera.thermalMode : "no_camera")
             if(start && QGroundControl.videoManager.hasThermal) {
                 var v = _camera.thermalMode + 1
                 if(v > QGCCameraControl.THERMAL_PIP) {
                     v = 0
                 }
+                console.log("[FN3_TRACE][QML]", "setThermalMode", "nextMode=", v)
                 _camera.thermalMode = v
             }
         }

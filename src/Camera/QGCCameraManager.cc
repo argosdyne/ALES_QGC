@@ -8,6 +8,7 @@
 #include "QGCApplication.h"
 #include "QGCCameraManager.h"
 #include "JoystickManager.h"
+#include "CustomPlugin.h"
 #include "CodevCameraControl.h"
 #include "SettingsManager.h"
 #include "VideoSettings.h"
@@ -342,6 +343,38 @@ QGCCameraManager::_mavlinkMessageReceived(const mavlink_message_t& message, Link
                 << "compMatch" << compMatch;
     }
 
+    // RC_CHANNELS for the physical FN buttons is emitted by PX4 (autopilot),
+    // not by the camera component. Route it before the camera-component filter.
+    const bool isPx4ThermalRcMessage = sysMatch
+            && _vehicle->px4Firmware()
+            && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS
+            && message.compid == MAV_COMP_ID_AUTOPILOT1;
+    if (sysMatch && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
+        mavlink_rc_channels_t rcChannels;
+        mavlink_msg_rc_channels_decode(&message, &rcChannels);
+
+        static uint16_t lastFn3ChannelValue = 0;
+        if (rcChannels.chan16_raw != lastFn3ChannelValue) {
+            qCInfo(CameraManagerLog) << "[FN3_TRACE][PX4]"
+                                    << "sourceComponent" << message.compid
+                                    << "isAutopilot" << (message.compid == MAV_COMP_ID_AUTOPILOT1)
+                                    << "ch14" << rcChannels.chan14_raw
+                                    << "ch16" << rcChannels.chan16_raw
+                                    << "cameraComponentMatch" << compMatch
+                                    << "currentRouting" << (isPx4ThermalRcMessage ? "px4_fn3_handler"
+                                                                                : (compMatch ? "camera_handler" : "ignored_by_camera_manager"));
+            lastFn3ChannelValue = rcChannels.chan16_raw;
+        }
+
+        if (isPx4ThermalRcMessage) {
+            auto* const customPlugin = qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin());
+            if (customPlugin && customPlugin->aviatorInterface()) {
+                customPlugin->aviatorInterface()->handlePx4ThermalRCChannels(rcChannels);
+            } else {
+                qCWarning(CameraManagerLog) << "[FN3_TRACE][PX4] AVIATORInterface is unavailable";
+            }
+        }
+    }
     //-- Only pay attention to camera components, as identified by their compId
     if(sysMatch && compMatch) {
         switch (message.msgid) {

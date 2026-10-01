@@ -2,6 +2,7 @@
 #include <QSerialPort>
 #include <QObject>
 #include <QLoggingCategory>
+#include <QElapsedTimer>
 #include <mavlink.h>
 #include <QVariant>
 #include "FactGroup.h"
@@ -49,6 +50,10 @@ public:
     Fact* usbOut() { return &_usbOutFact; }
     Fact* batteryCurrent() { return &_batteryCurrentFact; }
     Fact* batteryCharging() { return &_batteryChargingFact; }
+
+    // RC_CHANNELS from PX4 is received by QGCCameraManager, rather than by the
+    // AVIATOR serial port. Route its thermal button channels through this API.
+    void handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels);
 
 signals:
     void write(const QByteArray data);
@@ -103,6 +108,8 @@ private:
     bool _f3Pressed{false};
     bool _capturePressed{false};
     bool _recordPressed{false};
+
+    QElapsedTimer _px4F3PressTimer;
 
     bool _cn1Pressed{false};
     bool _cn2Pressed{false};

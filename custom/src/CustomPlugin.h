@@ -105,6 +105,7 @@ public:
     CodevSettings* codevSettings() { return _codevSettings; }
     CodevRTCMManager* codevRTCMManager() { return _codevRTCMManager; }
     YSManager* ysManager() { return _ysManager; }
+    AVIATORInterface* aviatorInterface() const { return _aviatorInterface; }
 
     // Overrides from QGCTool
     void                    setToolbox                      (QGCToolbox* toolbox);
