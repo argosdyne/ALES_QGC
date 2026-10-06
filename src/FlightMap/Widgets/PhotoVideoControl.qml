@@ -127,10 +127,11 @@ Item {
     property bool   _mavlinkCameraVideoIsRecording:             _mavlinkCamera && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
     property bool   _mavlinkCameraPhotoCaptureIsIdle:           _mavlinkCamera && (_mavlinkCamera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE || _mavlinkCamera.photoStatus >= QGCCameraControl.PHOTO_CAPTURE_LAST)
     property bool   _mavlinkCameraStorageReady:                 _mavlinkCamera && _mavlinkCamera.storageStatus === QGCCameraControl.STORAGE_READY
+    property bool   _mavlinkCameraSdCardMissing:                _mavlinkCamera && _mavlinkCamera.storageStatus === QGCCameraControl.STORAGE_EMPTY
     property bool   _mavlinkCameraBatteryReady:                 _mavlinkCamera && _mavlinkCamera.batteryRemaining >= 0
     property bool   _mavlinkCameraStorageSupported:             _mavlinkCamera && _mavlinkCamera.storageStatus !== QGCCameraControl.STORAGE_NOT_SUPPORTED
     property bool   _mavlinkCameraAllowsPhotoWhileRecording:    false
-    property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
+    property bool   _mavlinkCameraCanShoot:                     !_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
     property bool   _isNextVisionPayload:                       PayloadManager.activeType === 1 && PayloadManager.nextvision
     property bool   _nextVisionRecording:                       _isNextVisionPayload && PayloadManager.nextvision.recording
@@ -149,7 +150,7 @@ Item {
     property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
     property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
     property bool   _videoIsRecording:                          _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecordingEffective : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
-    property bool   _canShootInCurrentMode:                     _vehicleVideoCaptureAvailable || (_mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable)
+    property bool   _canShootInCurrentMode:                     (!_modeIndicatorPhotoMode && _videoIsRecording) || (_mavlinkCamera ? _mavlinkCameraCanShoot : _vehicleVideoCaptureAvailable || _videoStreamCanShoot || _simpleCameraAvailable)
     property bool   _isShootingInCurrentMode:                   _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecordingEffective) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
 
     property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
@@ -984,13 +985,13 @@ Item {
                 source: "/res/SDCard.svg"
                 width: ScreenTools.defaultFontPixelWidth * 2
                 height: ScreenTools.defaultFontPixelWidth * 2
-                visible:            _mavlinkCameraStorageReady
+                visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
             }
 
             QGCLabel {
-                text:_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : ""
+                text:               _mavlinkCameraSdCardMissing ? qsTr("SD Card Missing") : (_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : "")
                 font.pointSize:     ScreenTools.defaultFontPointSize * 1.2
-                visible:            _mavlinkCameraStorageReady
+                visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
                 Layout.alignment: Qt.AlignVCenter
             }
         }
