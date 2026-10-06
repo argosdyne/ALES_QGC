@@ -9,6 +9,10 @@
 #include <QDateTime>
 #include <QtMath>
 
+#include "LinkInterface.h"
+#include "Vehicle.h"
+#include "VehicleLinkManager.h"
+
 const char* GremsyLynxPayloadController::kDefaultIp = "192.168.2.240";
 constexpr double GremsyLynxPayloadController::kMinZoomLevel;
 constexpr double GremsyLynxPayloadController::kMaxZoomLevel;
@@ -39,6 +43,136 @@ GremsyLynxPayloadController::GremsyLynxPayloadController(QObject* parent)
     _photoAfterStopTimer = new QTimer(this);
     _photoAfterStopTimer->setInterval(kPhotoStopRetryMs);
     connect(_photoAfterStopTimer, &QTimer::timeout, this, &GremsyLynxPayloadController::_retryStopRecordingForPhoto);
+}
+
+void GremsyLynxPayloadController::setVehicle(Vehicle* vehicle)
+{
+    if (_vehicle == vehicle) {
+        return;
+    }
+    if (_vehicle) {
+        disconnect(_vehicle, &Vehicle::mavlinkMessageReceived,
+                   this, &GremsyLynxPayloadController::_handleVehicleMavlinkMessage);
+        disconnect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                   this, &GremsyLynxPayloadController::_updateTransport);
+        disconnect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::linkNamesChanged,
+                   this, &GremsyLynxPayloadController::_updateTransport);
+    }
+    _vehicle = vehicle;
+    _gremsyDetected = false;
+    _lastCameraProbeMs = 0;
+    if (_vehicle) {
+        connect(_vehicle, &Vehicle::mavlinkMessageReceived,
+                this, &GremsyLynxPayloadController::_handleVehicleMavlinkMessage);
+        connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::primaryLinkChanged,
+                this, &GremsyLynxPayloadController::_updateTransport);
+        connect(_vehicle->vehicleLinkManager(), &VehicleLinkManager::linkNamesChanged,
+                this, &GremsyLynxPayloadController::_updateTransport);
+    }
+    _requestGremsyCameraInformation();
+    _updateTransport();
+}
+
+void GremsyLynxPayloadController::setVehicleControlEnabled(bool enabled)
+{
+    if (_vehicleControlEnabled == enabled) {
+        return;
+    }
+    _vehicleControlEnabled = enabled;
+    _updateTransport();
+}
+
+void GremsyLynxPayloadController::setUserRtspUrl(const QString& url)
+{
+    setRtspUrl(url);
+}
+
+SharedLinkInterfacePtr GremsyLynxPayloadController::_vehicleControlLink() const
+{
+    if (!_vehicleControlEnabled || !_gremsyDetected || !_vehicle) {
+        return {};
+    }
+
+    // The payload identity came from this Vehicle's MAVLink stream. Commands
+    // must return through that same active route (LTE or Enpulse); never guess
+    // a private camera address from a public RTSP relay URL.
+    SharedLinkInterfacePtr primaryLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    return primaryLink && primaryLink->isConnected() ? primaryLink : SharedLinkInterfacePtr{};
+}
+
+bool GremsyLynxPayloadController::_isGremsyCameraInformation(const mavlink_message_t& message) const
+{
+    if (message.msgid != MAVLINK_MSG_ID_CAMERA_INFORMATION || !_vehicle ||
+            message.sysid != _vehicle->id()) {
+        return false;
+    }
+    mavlink_camera_information_t info{};
+    mavlink_msg_camera_information_decode(&message, &info);
+    const QString vendor = QString::fromLatin1(
+                reinterpret_cast<const char*>(info.vendor_name), sizeof(info.vendor_name));
+    const QString model = QString::fromLatin1(
+                reinterpret_cast<const char*>(info.model_name), sizeof(info.model_name));
+    return vendor.contains(QStringLiteral("Gremsy"), Qt::CaseInsensitive)
+            && model.contains(QStringLiteral("Lynx"), Qt::CaseInsensitive);
+}
+
+void GremsyLynxPayloadController::_handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link)
+{
+    Q_UNUSED(link)
+    if (!_gremsyDetected && _isGremsyCameraInformation(message)) {
+        _gremsyDetected = true;
+        _cameraCompId = message.compid;
+        _gimbalSysId = message.sysid;
+        _payloadSysId = message.sysid;
+        qInfo() << "[Gremsy] Lynx discovered through vehicle MAVLink"
+                << "sysid" << message.sysid << "cameraCompId" << message.compid;
+        emit gremsyDetected();
+        _updateTransport();
+    }
+    if (_gremsyDetected && message.sysid == _vehicle->id()) {
+        _handleMavlinkMessage(message);
+    }
+}
+
+void GremsyLynxPayloadController::_requestGremsyCameraInformation()
+{
+    if (!_vehicle || _gremsyDetected) {
+        return;
+    }
+
+    // This is a MAVLink component discovery probe, not an IP scan. It works
+    // through Enpulse/LTE only when Enpulse forwards MAVLink both directions.
+    // The small cooldown also prevents a primary-link transition from flooding
+    // the payload with duplicate requests.
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (now - _lastCameraProbeMs < 5000) {
+        return;
+    }
+    _lastCameraProbeMs = now;
+    for (int compId = MAV_COMP_ID_CAMERA; compId <= MAV_COMP_ID_CAMERA6; ++compId) {
+        _vehicle->sendMavCommand(compId,
+                                 MAV_CMD_REQUEST_CAMERA_INFORMATION,
+                                 false /* showError */,
+                                 1.0f /* request */);
+    }
+}
+
+void GremsyLynxPayloadController::_updateTransport()
+{
+    _requestGremsyCameraInformation();
+    const bool available = static_cast<bool>(_vehicleControlLink());
+    if (_vehicleControlAvailable != available) {
+        _vehicleControlAvailable = available;
+        emit vehicleControlAvailableChanged();
+    }
+    if (available) {
+        if (!_heartbeatTimer->isActive()) {
+            _heartbeatTimer->start();
+        }
+        if (!_controlTimer->isActive()) {
+            _controlTimer->start();
+        }
+    }
 }
 
 void GremsyLynxPayloadController::_onIpChanged()
@@ -75,9 +209,11 @@ void GremsyLynxPayloadController::connectPayload()
         emit recordingChanged();
     }
     setConnecting(true);
-    _targetAddress = QHostAddress(_ip);
-    _targetPort    = kTargetPort;
-    _openSocket();
+    if (!vehicleControlAvailable()) {
+        _targetAddress = QHostAddress(_ip);
+        _targetPort    = kTargetPort;
+        _openSocket();
+    }
     _sendHeartbeat();
     _heartbeatTimer->start();
     _controlTimer->start();
@@ -506,7 +642,7 @@ void GremsyLynxPayloadController::_sendHeartbeat()
                                0,
                                0,
                                MAV_STATE_ACTIVE);
-    _sendMessage(message);
+    _sendPayloadMessage(message);
 }
 
 void GremsyLynxPayloadController::_sendCameraZoom(float direction)
@@ -544,7 +680,7 @@ void GremsyLynxPayloadController::_sendCameraCommand(MAV_CMD command,
                                   param5,
                                   param6,
                                   param7);
-    _sendMessage(message);
+    _sendPayloadMessage(message);
 }
 
 void GremsyLynxPayloadController::_sendPayloadCommand(MAV_CMD command,
@@ -567,7 +703,7 @@ void GremsyLynxPayloadController::_sendPayloadCommand(MAV_CMD command,
                                   param5,
                                   param6,
                                   param7);
-    _sendMessage(message);
+    _sendPayloadMessage(message);
 }
 
 void GremsyLynxPayloadController::_sendControl()
@@ -607,7 +743,7 @@ void GremsyLynxPayloadController::_sendGimbalSpeed(float pitchDegS, float rollDe
                                                 qDegreesToRadians(rollDegS),
                                                 qDegreesToRadians(pitchDegS),
                                                 qDegreesToRadians(yawDegS));
-    _sendMessage(message);
+    _sendPayloadMessage(message);
 }
 
 void GremsyLynxPayloadController::_setGimbalMode(uint32_t mode)
@@ -627,7 +763,17 @@ void GremsyLynxPayloadController::_sendCameraParamUInt32(const char* paramId, ui
 
     mavlink_message_t message;
     mavlink_msg_param_ext_set_encode(_senderSysId, _senderCompId, &message, &param);
-    _sendMessage(message);
+    _sendPayloadMessage(message);
+}
+
+void GremsyLynxPayloadController::_sendPayloadMessage(const mavlink_message_t& message)
+{
+    SharedLinkInterfacePtr vehicleLink = _vehicleControlLink();
+    if (vehicleLink) {
+        _vehicle->sendMessageOnLinkThreadSafe(vehicleLink.get(), message);
+    } else {
+        _sendMessage(message);
+    }
 }
 
 void GremsyLynxPayloadController::_handleMavlinkMessage(const mavlink_message_t& message)
