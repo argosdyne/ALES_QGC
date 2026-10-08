@@ -168,26 +168,26 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         return;
     }
 
-    // While armed or flying, an empty report is not used to wipe the fly-view path.
-    if (_flyView && !_vehicleHasFlyableMission()
+    // While armed or flying, an empty report is not used to wipe the displayed path.
+    if (!_vehicleHasFlyableMission()
             && _managerVehicle && (_managerVehicle->armed() || _managerVehicle->flying())) {
-        qCInfo(MissionControllerLog) << "empty vehicle mission while airborne, keeping fly view";
+        qCInfo(MissionControllerLog) << "empty vehicle mission while airborne, keeping current display";
         _itemsRequested = false;
         emit vehicleMissionConfirmedChanged();
         return;
     }
 
     // Fly view always reloads on a successful read.
-    // Plan view reloads only when a load was requested or the editor is empty.
-    // A successful empty read therefore clears Fly view on the ground, and leaves
-    // an existing Plan editor draft in place.
-    if (_flyView || removeAllRequested || _itemsRequested || isEmpty()) {
+    // Plan view reloads when a load was requested, the editor is already empty,
+    // or the vehicle has no flyable mission, so the plan list is cleared too.
+    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || !_vehicleHasFlyableMission()) {
         // Fly Mode (accept if):
         //      - Always accepts new items from the vehicle so Fly view is kept up to date
         // Edit Mode (accept if):
         //      - Remove all was requested from Fly view (clear mission on flight end)
         //      - A load from vehicle was manually requested
         //      - The initial automatic load from a vehicle completed and the current editor is empty
+        //      - The vehicle has no flyable mission, so the plan list is cleared
 
         _deinitAllVisualItems();
         _visualItems->deleteLater();
