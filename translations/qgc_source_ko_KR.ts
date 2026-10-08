@@ -13642,6 +13642,11 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
   <context>
     <name>PhotoVideoControl</name>
     <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="991"/>
+      <source>SD Card Missing</source>
+      <translation>SD 카드 없음</translation>
+    </message>
+    <message>
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="239"/>
       <source>Video Grab</source>
       <translation>Video Grab</translation>
