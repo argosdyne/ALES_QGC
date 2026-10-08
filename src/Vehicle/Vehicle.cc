@@ -342,6 +342,10 @@ Vehicle::Vehicle(LinkInterface*             link,
     connect(&_sendMultipleTimer, &QTimer::timeout, this, &Vehicle::_sendMessageMultipleNext);
 
     connect(&_orbitTelemetryTimer, &QTimer::timeout, this, &Vehicle::_orbitTelemetryTimeout);
+    _missionImageCountFinalizationTimer.setSingleShot(true);
+    connect(&_missionImageCountFinalizationTimer, &QTimer::timeout, this, [this]() {
+        _missionImageCountTracking = false;
+    });
 
     // Create camera manager instance
     _cameraManager = _firmwarePlugin->createCameraManager(this);
@@ -892,6 +896,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
         _handleCameraImageCaptured(message);
         break;
+    case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
+        _handleCameraCaptureStatus(message);
+        break;
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
         _handleMissionItemReachedApmCamera(message);
         break;
@@ -1077,6 +1084,113 @@ void Vehicle::_handleCameraImageCaptured(const mavlink_message_t& message)
     qCDebug(VehicleLog) << "_handleCameraFeedback coord:index" << imageCoordinate << feedback.image_index << feedback.capture_result;
     if (feedback.capture_result == 1) {
         _addCameraTriggerPoint(imageCoordinate, feedback.camera_id, static_cast<quint32>(feedback.image_index));
+    }
+}
+
+void Vehicle::_handleCameraCaptureStatus(const mavlink_message_t& message)
+{
+    mavlink_camera_capture_status_t status;
+    mavlink_msg_camera_capture_status_decode(&message, &status);
+
+    if (status.image_count < 0) {
+        return;
+    }
+
+    const uint8_t componentId = message.compid;
+    const quint32 imageCount = static_cast<quint32>(status.image_count);
+    _cameraImageCounts[componentId] = imageCount;
+
+    if (!_missionImageCountTracking) {
+        return;
+    }
+
+    auto countIt = _missionCameraImageCounts.find(componentId);
+    if (countIt == _missionCameraImageCounts.end()) {
+        // Without a pre-mission baseline, a later status may already include
+        // captured images. Keep the result unavailable and use event fallback.
+        return;
+    }
+
+    MissionCameraImageCountInfo& countInfo = countIt.value();
+    if (imageCount >= countInfo.lastImageCount) {
+        const quint32 increment = imageCount - countInfo.lastImageCount;
+        if (increment != 0) {
+            countInfo.capturedImageCount += increment;
+        }
+        countInfo.lastImageCount = imageCount;
+    } else {
+        // Once the camera counter resets there is no reliable way to derive a
+        // mission delta. Do not publish a misleading value.
+        _missionImageCountValid = false;
+        countInfo.lastImageCount = imageCount;
+    }
+
+    _updateMissionImageCount();
+}
+
+void Vehicle::_startMissionImageCountTracking()
+{
+    if (_missionImageCountTracking) {
+        return;
+    }
+
+    _missionImageCountFinalizationTimer.stop();
+    _missionImageCountTracking = true;
+    _missionCameraImageCounts.clear();
+
+    for (auto it = _cameraImageCounts.cbegin(); it != _cameraImageCounts.cend(); ++it) {
+        MissionCameraImageCountInfo countInfo;
+        countInfo.lastImageCount = it.value();
+        countInfo.baselineAvailable = true;
+        _missionCameraImageCounts.insert(it.key(), countInfo);
+    }
+
+    _missionImageCountValid = !_missionCameraImageCounts.isEmpty();
+    _requestCameraCaptureStatus();
+    _updateMissionImageCount();
+}
+
+void Vehicle::_finishMissionImageCountTracking()
+{
+    if (!_missionImageCountTracking) {
+        return;
+    }
+
+    // The final image may still be writing when the vehicle disarms. Request a
+    // fresh camera status and keep accepting updates for a short settling period.
+    _requestCameraCaptureStatus();
+    _missionImageCountFinalizationTimer.start(3000);
+}
+
+void Vehicle::_requestCameraCaptureStatus()
+{
+    if (!_cameraManager) {
+        return;
+    }
+
+    for (QObject* object : *_cameraManager->cameras()->objectList()) {
+        QGCCameraControl* camera = qobject_cast<QGCCameraControl*>(object);
+        if (camera) {
+            sendMavCommand(camera->compID(), MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS, false, 1.0f);
+        }
+    }
+}
+
+void Vehicle::_updateMissionImageCount()
+{
+    int imageCount = -1;
+    if (_missionImageCountValid && !_missionCameraImageCounts.isEmpty()) {
+        imageCount = 0;
+        for (auto it = _missionCameraImageCounts.cbegin(); it != _missionCameraImageCounts.cend(); ++it) {
+            if (it.value().baselineAvailable) {
+                imageCount += static_cast<int>(it.value().capturedImageCount);
+            }
+        }
+    }
+
+    if (_missionImageCount != imageCount) {
+        _missionImageCount = imageCount;
+        emit missionImageCountChanged(_missionImageCount);
     }
 }
 
@@ -1809,6 +1923,18 @@ void Vehicle::_updateArmed(bool armed)
             _trajectoryPoints->start();
             _flightTimerStart();
             _clearCameraTriggerPoints();
+            _missionImageCountFinalizationTimer.stop();
+            _missionImageCountTracking = false;
+            _missionCameraImageCounts.clear();
+            _missionImageCountValid = false;
+            if (_missionImageCount != -1) {
+                _missionImageCount = -1;
+                emit missionImageCountChanged(_missionImageCount);
+            }
+            _requestCameraCaptureStatus();
+            if (flightMode() == missionFlightMode()) {
+                _startMissionImageCountTracking();
+            }
             // Reset battery warning
             _lowestBatteryChargeStateAnnouncedMap.clear();
 
@@ -1817,6 +1943,7 @@ void Vehicle::_updateArmed(bool armed)
                 setArmed(false, true);
             }
         } else {
+            _finishMissionImageCountTracking();
             _trajectoryPoints->stop();
             _flightTimerStop();
             // Also handle Video Streaming
@@ -3027,6 +3154,9 @@ void Vehicle::_handleFlightModeChanged(const QString& flightMode)
 {
     _say(tr("%1 %2 flight mode").arg(_vehicleIdSpeech()).arg(flightMode));
     qCInfo(VehicleLog) << "_handleFlightModeChanged : " << flightMode;
+    if (_armed && flightMode == missionFlightMode()) {
+        _startMissionImageCountTracking();
+    }
     emit guidedModeChanged(_firmwarePlugin->isGuidedMode(this));
 }
 

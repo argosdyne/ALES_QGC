@@ -75,9 +75,11 @@ Item {
 
                 QGCLabel {
                     Layout.fillWidth:       true
-                    text:                   qsTr("%1 Images Taken").arg(_activeVehicle.cameraTriggerPoints.count)
+                    text:                   _activeVehicle.missionImageCount >= 0
+                                                ? qsTr("%1 Images Taken").arg(_activeVehicle.missionImageCount)
+                                                : qsTr("%1 Images Taken").arg(_activeVehicle.cameraTriggerPoints.count)
                     horizontalAlignment:    Text.AlignHCenter
-                    visible:                _activeVehicle.cameraTriggerPoints.count !== 0
+                    visible:                _activeVehicle.missionImageCount >= 0 || _activeVehicle.cameraTriggerPoints.count !== 0
                 }
 
                 QGCButton {
