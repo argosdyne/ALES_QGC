@@ -46,6 +46,10 @@ public:
     ///     Signals newMissionItemsAvailable when done
     void loadFromVehicle(void);
 
+    /// True after the vehicle successfully returned its mission list.
+    /// False after a failed read, and before the first successful read or upload.
+    bool lastMissionReadSucceeded(void) const { return _lastMissionReadSucceeded; }
+
     /// Writes the specified set of mission items to the vehicle
     /// IMPORTANT NOTE: PlanManager will take control of the MissionItem objects with the missionItems list. It will free them when done.
     ///     @param missionItems Items to send to vehicle
@@ -156,4 +160,11 @@ protected:
 
 private:
     void _setTransactionInProgress(TransactionType_t type);
+    void _saveMissionSnapshot(void);
+    void _discardMissionSnapshot(void);
+    void _restoreMissionSnapshot(void);
+
+    bool                _lastMissionReadSucceeded = false;
+    bool                _haveMissionSnapshot = false;
+    QList<MissionItem*> _missionSnapshot;
 };
