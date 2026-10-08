@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QVariantList>
 #include <QGeoCoordinate>
+#include <QHash>
 #include <QTime>
 #include <QQueue>
 #include <QSharedPointer>
@@ -187,6 +188,7 @@ public:
     Q_PROPERTY(QString              flightMode                  READ flightMode                 WRITE setFlightMode                 NOTIFY flightModeChanged)
     Q_PROPERTY(TrajectoryPoints*    trajectoryPoints            MEMBER _trajectoryPoints                                            CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  cameraTriggerPoints         READ cameraTriggerPoints                                            CONSTANT)
+    Q_PROPERTY(int                  missionImageCount           READ missionImageCount                                              NOTIFY missionImageCountChanged)
     Q_PROPERTY(float                latitude                    READ latitude                                                       NOTIFY coordinateChanged)
     Q_PROPERTY(float                longitude                   READ longitude                                                      NOTIFY coordinateChanged)
     Q_PROPERTY(bool                 messageTypeNone             READ messageTypeNone                                                NOTIFY messageTypeChanged)
@@ -611,6 +613,7 @@ public:
 
     QmlObjectListModel* cameraTriggerPoints () { return &_cameraTriggerPoints; }
     void clearCameraTriggerPoints();
+    int missionImageCount() const { return _missionImageCount; }
 
     int  flowImageIndex() const{ return _flowImageIndex; }
 
@@ -1000,6 +1003,7 @@ signals:
     void armedPositionChanged();
     void armedChanged                   (bool armed);
     void flightModeChanged              (const QString& flightMode);
+    void missionImageCountChanged       (int imageCount);
     void flyingChanged                  (bool flying);
     void landingChanged                 (bool landing);
     void guidedModeChanged              (bool guidedMode);
@@ -1201,8 +1205,13 @@ private:
     void _handleRangefinder             (mavlink_message_t& message);
 #endif
     void _handleCameraImageCaptured     (const mavlink_message_t& message);
+    void _handleCameraCaptureStatus     (const mavlink_message_t& message);
     void _handleMissionItemReachedApmCamera(const mavlink_message_t& message);
     void _addCameraTriggerPoint          (const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex);
+    void _startMissionImageCountTracking ();
+    void _finishMissionImageCountTracking();
+    void _requestCameraCaptureStatus     ();
+    void _updateMissionImageCount        ();
     void _handleADSBVehicle             (const mavlink_message_t& message);
     void _handleRawImuTemp              (mavlink_message_t& message);
     void _missionManagerError           (int errorCode, const QString& errorMsg);
@@ -1360,6 +1369,17 @@ private:
     TrajectoryPoints*               _trajectoryPoints = nullptr;
     QmlObjectListModel              _cameraTriggerPoints;
     QSet<quint64>                   _cameraCaptureIndices;
+    struct MissionCameraImageCountInfo {
+        quint32 lastImageCount = 0;
+        quint32 capturedImageCount = 0;
+        bool baselineAvailable = false;
+    };
+    QHash<uint8_t, quint32>                     _cameraImageCounts;
+    QHash<uint8_t, MissionCameraImageCountInfo> _missionCameraImageCounts;
+    QTimer                                      _missionImageCountFinalizationTimer;
+    bool                                        _missionImageCountTracking = false;
+    bool                                        _missionImageCountValid = false;
+    int                                         _missionImageCount = -1;
     //QMap<QString, ADSBVehicle*>     _trafficVehicleMap;
 
     // Toolbox references

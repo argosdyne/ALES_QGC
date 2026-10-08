@@ -1374,16 +1374,36 @@ void SurveyComplexItem::_recalcCameraShots(void)
                 }
             } else {
                 // We have transects available, calc from those
-                for (const QList<TransectStyleComplexItem::CoordInfo_t>& transect: _transects) {
-                    QGeoCoordinate firstCameraCoord, lastCameraCoord;
-                    if (_hasTurnaround() && !hoverAndCaptureEnabled()) {
-                        firstCameraCoord = transect[1].coord;
-                        lastCameraCoord = transect[transect.count() - 2].coord;
-                    } else {
-                        firstCameraCoord = transect.first().coord;
-                        lastCameraCoord = transect.last().coord;
+                if (hoverAndCaptureEnabled()) {
+                    // Hover-and-capture adds an IMAGE_START_CAPTURE mission item at every
+                    // survey entry, interior hover trigger and survey exit. Count those
+                    // exact coordinates instead of estimating from the transect length.
+                    // The latter misses the explicit capture at the end of a transect.
+                    for (int coordIndex = 0; coordIndex < _rgFlightPathCoordInfo.count(); coordIndex++) {
+                        const CoordInfo_t& coordInfo = _rgFlightPathCoordInfo[coordIndex];
+                        switch (coordInfo.coordType) {
+                        case CoordTypeTurnaround:
+                        case CoordTypeSurveyEntry:
+                        case CoordTypeInteriorHoverTrigger:
+                        case CoordTypeSurveyExit:
+                            _cameraShots++;
+                            break;
+                        default:
+                            break;
+                        }
                     }
-                    _cameraShots += qCeil(firstCameraCoord.distanceTo(lastCameraCoord) / triggerDistance);
+                } else {
+                    for (const QList<TransectStyleComplexItem::CoordInfo_t>& transect: _transects) {
+                        QGeoCoordinate firstCameraCoord, lastCameraCoord;
+                        if (_hasTurnaround()) {
+                            firstCameraCoord = transect[1].coord;
+                            lastCameraCoord = transect[transect.count() - 2].coord;
+                        } else {
+                            firstCameraCoord = transect.first().coord;
+                            lastCameraCoord = transect.last().coord;
+                        }
+                        _cameraShots += qCeil(firstCameraCoord.distanceTo(lastCameraCoord) / triggerDistance);
+                    }
                 }
             }
         }
