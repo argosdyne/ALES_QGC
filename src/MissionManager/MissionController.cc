@@ -37,6 +37,7 @@
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
 QGC_LOGGING_CATEGORY(MissionControllerLog, "MissionControllerLog")
+QGC_LOGGING_CATEGORY(LifeVestLog,         "LifeVestLog")
 
 const char* MissionController::_settingsGroup =                 "MissionController";
 const char* MissionController::_jsonFileTypeValue =             "Mission";
@@ -137,6 +138,13 @@ void MissionController::start(bool flyView)
 
     PlanElementController::start(flyView);
     _init();
+
+    MultiVehicleManager* multiVehicleManager = qgcApp()->toolbox()->multiVehicleManager();
+
+    connect(multiVehicleManager, &MultiVehicleManager::activeVehicleChanged,
+            this, &MissionController::_activeVehicleChanged);
+
+    _connectToVehicle(multiVehicleManager->activeVehicle());
 }
 
 void MissionController::_init(void)
@@ -151,17 +159,35 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
 {
     qCDebug(MissionControllerLog) << "_newMissionItemsAvailableFromVehicle flyView:count" << _flyView << _missionManager->missionItems().count();
 
-    // Fly view always reloads on _loadComplete
-    // Plan view only reloads if:
-    //  - Load was specifically requested
-    //  - There is no current Plan
-    if (_flyView || removeAllRequested || _itemsRequested || isEmpty()) {
+    // A failed read does not mean the vehicle mission is empty. Keep both Plan and Fly
+    // displays, and do not treat the stale screen as a mission the vehicle can start.
+    if (!_missionManager->lastMissionReadSucceeded()) {
+        qCInfo(MissionControllerLog) << "mission read failed, keeping current mission display";
+        _itemsRequested = false;
+        emit vehicleMissionConfirmedChanged();
+        return;
+    }
+
+    // While armed or flying, an empty report is not used to wipe the displayed path.
+    if (!_vehicleHasFlyableMission()
+            && _managerVehicle && (_managerVehicle->armed() || _managerVehicle->flying())) {
+        qCInfo(MissionControllerLog) << "empty vehicle mission while airborne, keeping current display";
+        _itemsRequested = false;
+        emit vehicleMissionConfirmedChanged();
+        return;
+    }
+
+    // Fly view always reloads on a successful read.
+    // Plan view reloads when a load was requested, the editor is already empty,
+    // or the vehicle has no flyable mission, so the plan list is cleared too.
+    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || !_vehicleHasFlyableMission()) {
         // Fly Mode (accept if):
         //      - Always accepts new items from the vehicle so Fly view is kept up to date
         // Edit Mode (accept if):
         //      - Remove all was requested from Fly view (clear mission on flight end)
         //      - A load from vehicle was manually requested
         //      - The initial automatic load from a vehicle completed and the current editor is empty
+        //      - The vehicle has no flyable mission, so the plan list is cleared
 
         _deinitAllVisualItems();
         _visualItems->deleteLater();
@@ -212,6 +238,7 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         emit newItemsFromVehicle();
     }
     _itemsRequested = false;
+    emit vehicleMissionConfirmedChanged();
 }
 
 void MissionController::loadFromVehicle(void)
@@ -489,8 +516,8 @@ void MissionController::_insertComplexMissionItemWorker(const QGeoCoordinate& ma
 {
     int sequenceNumber = _nextSequenceNumber();
     bool surveyStyleItem = qobject_cast<SurveyComplexItem*>(complexItem) ||
-            qobject_cast<CorridorScanComplexItem*>(complexItem) ||
-            qobject_cast<StructureScanComplexItem*>(complexItem);
+                           qobject_cast<CorridorScanComplexItem*>(complexItem) ||
+                           qobject_cast<StructureScanComplexItem*>(complexItem);
 
     if (surveyStyleItem) {
         bool rollSupported  = false;
@@ -625,11 +652,11 @@ bool MissionController::_loadJsonMissionFileV1(const QJsonObject& json, QmlObjec
 {
     // Validate root object keys
     QList<JsonHelper::KeyValidateInfo> rootKeyInfoList = {
-        { _jsonPlannedHomePositionKey,      QJsonValue::Object, true },
-        { _jsonItemsKey,                    QJsonValue::Array,  true },
-        { _jsonMavAutopilotKey,             QJsonValue::Double, true },
-        { _jsonComplexItemsKey,             QJsonValue::Array,  true },
-    };
+                                                          { _jsonPlannedHomePositionKey,      QJsonValue::Object, true },
+                                                          { _jsonItemsKey,                    QJsonValue::Array,  true },
+                                                          { _jsonMavAutopilotKey,             QJsonValue::Double, true },
+                                                          { _jsonComplexItemsKey,             QJsonValue::Array,  true },
+                                                          };
     if (!JsonHelper::validateKeys(json, rootKeyInfoList, errorString)) {
         return false;
     }
@@ -727,14 +754,14 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
 {
     // Validate root object keys
     QList<JsonHelper::KeyValidateInfo> rootKeyInfoList = {
-        { _jsonPlannedHomePositionKey,      QJsonValue::Array,  true },
-        { _jsonItemsKey,                    QJsonValue::Array,  true },
-        { _jsonFirmwareTypeKey,             QJsonValue::Double, true },
-        { _jsonVehicleTypeKey,              QJsonValue::Double, false },
-        { _jsonCruiseSpeedKey,              QJsonValue::Double, false },
-        { _jsonHoverSpeedKey,               QJsonValue::Double, false },
-        { _jsonGlobalPlanAltitudeModeKey,   QJsonValue::Double, false },
-    };
+                                                          { _jsonPlannedHomePositionKey,      QJsonValue::Array,  true },
+                                                          { _jsonItemsKey,                    QJsonValue::Array,  true },
+                                                          { _jsonFirmwareTypeKey,             QJsonValue::Double, true },
+                                                          { _jsonVehicleTypeKey,              QJsonValue::Double, false },
+                                                          { _jsonCruiseSpeedKey,              QJsonValue::Double, false },
+                                                          { _jsonHoverSpeedKey,               QJsonValue::Double, false },
+                                                          { _jsonGlobalPlanAltitudeModeKey,   QJsonValue::Double, false },
+                                                          };
     if (!JsonHelper::validateKeys(json, rootKeyInfoList, errorString)) {
         return false;
     }
@@ -800,8 +827,8 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
         // Load item based on type
 
         QList<JsonHelper::KeyValidateInfo> itemKeyInfoList = {
-            { VisualMissionItem::jsonTypeKey,  QJsonValue::String, true },
-        };
+                                                              { VisualMissionItem::jsonTypeKey,  QJsonValue::String, true },
+                                                              };
         if (!JsonHelper::validateKeys(itemObject, itemKeyInfoList, errorString)) {
             return false;
         }
@@ -825,8 +852,8 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
             }
         } else if (itemType == VisualMissionItem::jsonTypeComplexItemValue) {
             QList<JsonHelper::KeyValidateInfo> complexItemKeyInfoList = {
-                { ComplexMissionItem::jsonComplexItemTypeKey,  QJsonValue::String, true },
-            };
+                                                                         { ComplexMissionItem::jsonComplexItemTypeKey,  QJsonValue::String, true },
+                                                                         };
             if (!JsonHelper::validateKeys(itemObject, complexItemKeyInfoList, errorString)) {
                 return false;
             }
@@ -1430,13 +1457,13 @@ void MissionController::_recalcFlightPathSegments(void)
         } else {
             // Create a new segment. Since this is the fly view there is no need to wire change signals or worry about correct SegmentType
             coordVector = new FlightPathSegment(
-                        FlightPathSegment::SegmentTypeGeneric,
-                        lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->coordinate() : lastSegmentVisualItemPair.first->exitCoordinate(),
-                        lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->amslEntryAlt() : lastSegmentVisualItemPair.first->amslExitAlt(),
-                        lastSegmentVisualItemPair.second->coordinate(),
-                        lastSegmentVisualItemPair.second->amslEntryAlt(),
-                        !_flyView /* queryTerrainData */,
-                        this);
+                FlightPathSegment::SegmentTypeGeneric,
+                lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->coordinate() : lastSegmentVisualItemPair.first->exitCoordinate(),
+                lastSegmentVisualItemPair.first->isSimpleItem() ? lastSegmentVisualItemPair.first->amslEntryAlt() : lastSegmentVisualItemPair.first->amslExitAlt(),
+                lastSegmentVisualItemPair.second->coordinate(),
+                lastSegmentVisualItemPair.second->amslEntryAlt(),
+                !_flyView /* queryTerrainData */,
+                this);
             _flightPathSegmentHashTable[lastSegmentVisualItemPair] = coordVector;
         }
 
@@ -1730,7 +1757,7 @@ void MissionController::_recalcMissionFlightStatus()
                     _missionFlightStatus.vtolMode = QGCMAVLink::VehicleClassFixedWing;
                 }
             }
-                break;
+            break;
             default:
                 break;
             }
@@ -1747,7 +1774,7 @@ void MissionController::_recalcMissionFlightStatus()
         double hoverTime = distance / _missionFlightStatus.hoverSpeed;
         double cruiseTime = distance / _missionFlightStatus.cruiseSpeed;
         double landTime = qAbs(altDifference) / _appSettings->offlineEditingDescentSpeed()->rawValue().toDouble();
-        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, distance, landTime, -1);
+        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, landTime, distance, -1);
     }
 
     if (_missionFlightStatus.mAhBattery != 0 && _missionFlightStatus.batteryChangePoint == -1) {
@@ -2006,6 +2033,9 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     if (_managerVehicle) {
         _missionManager->disconnect(this);
         _managerVehicle->disconnect(this);
+        if (_managerVehicle->vehicleLinkManager()) {
+            _managerVehicle->vehicleLinkManager()->disconnect(this);
+        }
         _managerVehicle = nullptr;
         _missionManager = nullptr;
     }
@@ -2013,6 +2043,7 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     _managerVehicle = managerVehicle;
     if (!_managerVehicle) {
         qWarning() << "MissionController::managerVehicleChanged managerVehicle=NULL";
+        emit vehicleMissionConfirmedChanged();
         return;
     }
 
@@ -2029,6 +2060,13 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
     connect(_managerVehicle, &Vehicle::defaultCruiseSpeedChanged,       this, &MissionController::_recalcMissionFlightStatusSignal, Qt::QueuedConnection);
     connect(_managerVehicle, &Vehicle::defaultHoverSpeedChanged,        this, &MissionController::_recalcMissionFlightStatusSignal, Qt::QueuedConnection);
     connect(_managerVehicle, &Vehicle::vehicleTypeChanged,              this, &MissionController::complexMissionItemNamesChanged);
+    connect(_managerVehicle, &Vehicle::initialPlanRequestCompleteChanged, this, [this](bool) {
+        emit vehicleMissionConfirmedChanged();
+    });
+    if (_managerVehicle->vehicleLinkManager()) {
+        connect(_managerVehicle->vehicleLinkManager(), &VehicleLinkManager::communicationLostChanged,
+                this, &MissionController::_linkCommunicationLostChanged);
+    }
 
     emit complexMissionItemNamesChanged();
     emit resumeMissionIndexChanged();
@@ -2037,6 +2075,7 @@ void MissionController::_managerVehicleChanged(Vehicle* managerVehicle)
 void MissionController::_inProgressChanged(bool inProgress)
 {
     emit syncInProgressChanged(inProgress);
+    emit vehicleMissionConfirmedChanged();
 }
 
 bool MissionController::_findPreviousAltitude(int newIndex, double* prevAltitude, QGroundControlQmlGlobal::AltMode* prevAltitudeMode)
@@ -2245,6 +2284,46 @@ bool MissionController::containsItems(void) const
     return _visualItems ? _visualItems->count() > 1 : false;
 }
 
+bool MissionController::_vehicleHasFlyableMission(void) const
+{
+    if (!_missionManager || !_managerVehicle) {
+        return false;
+    }
+    const int itemCount = _missionManager->missionItems().count();
+    // APM stores home in item 0. Home alone is not a flyable mission.
+    const int homeSlots = _managerVehicle->firmwarePlugin()->sendHomePositionToVehicle() ? 1 : 0;
+    return itemCount > homeSlots;
+}
+
+bool MissionController::vehicleMissionConfirmed(void) const
+{
+    if (!_flyView || !_managerVehicle || !_missionManager) {
+        return false;
+    }
+    if (!_managerVehicle->initialPlanRequestComplete() || _missionManager->inProgress()) {
+        return false;
+    }
+    if (!_missionManager->lastMissionReadSucceeded()) {
+        return false;
+    }
+    return _vehicleHasFlyableMission();
+}
+
+void MissionController::_linkCommunicationLostChanged(bool lost)
+{
+    // Re-read only after the link returns, and only on the ground. A short dropout
+    // keeps the mission when the vehicle still has one. Power-off clears it, and
+    // that empty list is what removes the fly-view path.
+    if (lost || !_flyView || !_managerVehicle || !_missionManager) {
+        return;
+    }
+    if (_managerVehicle->armed() || _managerVehicle->flying() || _missionManager->inProgress()) {
+        return;
+    }
+    qCInfo(MissionControllerLog) << "link restored on ground, re-reading vehicle mission";
+    _missionManager->loadFromVehicle();
+}
+
 void MissionController::removeAllFromVehicle(void)
 {
     if (_masterController->offline()) {
@@ -2357,16 +2436,16 @@ void MissionController::_managerRemoveAllComplete(bool error)
 bool MissionController::_isROIBeginItem(SimpleMissionItem* simpleItem)
 {
     return simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_LOCATION ||
-            simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_WPNEXT_OFFSET ||
-            (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
-             static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_LOCATION);
+           simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_WPNEXT_OFFSET ||
+           (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
+            static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_LOCATION);
 }
 
 bool MissionController::_isROICancelItem(SimpleMissionItem* simpleItem)
 {
     return simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI_NONE ||
-            (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
-             static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_NONE);
+           (simpleItem->mavCommand() == MAV_CMD_DO_SET_ROI &&
+            static_cast<int>(simpleItem->missionItem().param1()) == MAV_ROI_NONE);
 }
 
 void MissionController::setCurrentPlanViewSeqNum(int sequenceNumber, bool force)
@@ -2614,8 +2693,8 @@ void MissionController::_updateTimeout()
     }
     //-- Build bounding "cube"
     boundingCube = QGCGeoBoundingCube(
-                QGeoCoordinate(north - 90.0, west - 180.0, minAlt),
-                QGeoCoordinate(south - 90.0, east - 180.0, maxAlt));
+        QGeoCoordinate(north - 90.0, west - 180.0, minAlt),
+        QGeoCoordinate(south - 90.0, east - 180.0, maxAlt));
     if(_travelBoundingCube != boundingCube || _takeoffCoordinate != takeoffCoordinate) {
         _takeoffCoordinate  = takeoffCoordinate;
         _travelBoundingCube = boundingCube;
@@ -2703,4 +2782,282 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode a
         _globalAltMode = altMode;
         emit globalAltitudeModeChanged();
     }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────────────────
+// Vision LiDAR
+
+void MissionController::setVisionLidar(int value) {
+    qInfo() << "setVisionLidar:" << value;
+    _sendParamInt("EN_VISIONLIDAR", value);
+}
+
+void MissionController::setVisionLidarDistance(int value) {
+    qInfo() << "setVisionLidarDistance:" << value;
+    _sendParamInt("VL_DIST", value);
+}
+
+void MissionController::setVisionLidarValue(int value) {
+    qInfo() << "setVisionLidarValue:" << value;
+    _sendParamInt("EN_VL_VALUE", value);
+}
+
+void MissionController::setVisionLidarOBAMode(int value) {
+    qInfo() << "setVisionLidarOBAMode:" << value;
+    _sendParamInt("VL_OBA_MODE", value);
+
+    //Request OBA Value delay 1s
+    QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
+}
+
+void MissionController::getVisionLidarOBAMode(){
+    qInfo() << "getVisionLidarOBAMode";
+    QTimer::singleShot(1000, this, &MissionController::_requestOBAValue);
+}
+
+void MissionController::getVisionLidarState()
+{
+    _requestVisionLidarParam("EN_VISIONLIDAR");
+    _requestVisionLidarParam("VL_OBA_MODE");
+}
+
+// LifeVest deployment 
+
+// LifeVest commands (MAVLink COMMAND_LONG, QGC -> BirdCom)
+// CMD_USER_DEPLOY_LIFE_VEST (id 42675) is a vendor-specific command used by
+// the custom BirdCom / AB120 firmware. Not part of the standard MAVLink dialect.
+// Pattern mirrors AudioControl::sendCommand for CMD_PLAY_AUDIO (id 6000).
+void MissionController::deployLifeVest()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qCWarning(LifeVestLog) << "deployLifeVest: No active vehicle";
+        return;
+    }
+
+    qCInfo(LifeVestLog) << "Sending CMD_USER_DEPLOY_LIFE_VEST"
+                        << "param1:" << 1;
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCWarning(LifeVestLog) << "deployLifeVest: No primary link";
+        return;
+    }
+
+    mavlink_message_t      msg;
+    mavlink_command_long_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
+
+    cmd.target_system    = vehicle->id();
+    cmd.target_component = MAV_COMP_ID_AUTOPILOT1;
+    cmd.command          = 42675; // CMD_USER_DEPLOY_LIFE_VEST
+    cmd.confirmation     = 0;
+
+    cmd.param1 = 1; // 1 = deploy
+
+    mavlink_msg_command_long_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),     // QGC system id
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),  // QGC component id
+        &msg,
+        &cmd
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+
+    qCInfo(LifeVestLog) << "TX CMD_USER_DEPLOY_LIFE_VEST"
+                        << "param1:" << 1;
+}
+
+void MissionController::_requestOBAValue()
+{
+    _requestVisionLidarParam("VL_OBA_MODE");
+}
+
+void MissionController::_requestVisionLidarParam(const QString& paramId)
+{
+    static constexpr uint8_t visionLidarComponentId = 111;
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "requestVisionLidarParam: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "requestVisionLidarParam: No primary link";
+        return;
+    }
+
+    mavlink_message_t            msg;
+    mavlink_param_request_read_t request;
+
+    memset(&request, 0, sizeof(request));
+    request.target_system    = vehicle->id();
+    request.target_component = visionLidarComponentId;
+    request.param_index      = -1;
+    strncpy(request.param_id, paramId.toLatin1().constData(), sizeof(request.param_id));
+
+    mavlink_msg_param_request_read_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &request
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+// Searchlight controls (PARAM_SET / PARAM_REQUEST_READ on "SL_STATUS")
+// BirdCom searchlight component id (per spec). Outgoing PARAM_REQUEST_READ
+// targets this compid; incoming PARAM_VALUE from BirdCom arrives with
+// message.compid == BIRDCOM_SL_COMPONENT_ID.
+static constexpr int BIRDCOM_SL_COMPONENT_ID = 162;
+
+void MissionController::setSearchlight(int value)
+{
+    qCInfo(LifeVestLog) << "setSearchlight:" << value;
+    _sendParamInt("SL_STATUS", value);
+}
+
+void MissionController::getSearchlight()
+{
+    qCInfo(LifeVestLog) << "getSearchlight";
+    _requestSlStatus();
+}
+
+void MissionController::_requestSlStatus()
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qCWarning(LifeVestLog) << "_requestSlStatus: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCWarning(LifeVestLog) << "_requestSlStatus: No primary link";
+        return;
+    }
+
+    mavlink_message_t            msg;
+    mavlink_param_request_read_t request;
+
+    memset(&request, 0, sizeof(request));
+    request.target_system    = vehicle->id();
+    request.target_component = BIRDCOM_SL_COMPONENT_ID; // BirdCom searchlight component
+    request.param_index      = -1;
+    strncpy(request.param_id, "SL_STATUS", sizeof(request.param_id));
+
+    mavlink_msg_param_request_read_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &request
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    qCInfo(LifeVestLog) << "PARAM_REQUEST_READ sent: SL_STATUS to compid" << BIRDCOM_SL_COMPONENT_ID;
+}
+
+// Send Method
+void MissionController::_sendParamInt(const QString& paramId, int value)
+{
+    Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    if (!vehicle) {
+        qWarning() << "_sendParamInt: No active vehicle";
+        return;
+    }
+
+    SharedLinkInterfacePtr sharedLink = vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qWarning() << "_sendParamInt: No primary link";
+        return;
+    }
+
+    mavlink_message_t   msg;
+    mavlink_param_set_t param;
+
+    static constexpr uint8_t visionLidarComponentId = 111;
+    const bool isVisionLidarParam = paramId == QStringLiteral("EN_VISIONLIDAR") ||
+                                    paramId == QStringLiteral("EN_VL_VALUE") ||
+                                    paramId == QStringLiteral("VL_DIST") ||
+                                    paramId == QStringLiteral("VL_OBA_MODE");
+
+    memset(&param, 0, sizeof(param));
+    param.target_system    = vehicle->id();
+    param.target_component = isVisionLidarParam ? visionLidarComponentId : vehicle->defaultComponentId();
+
+    if (isVisionLidarParam) {
+        // BirdCom Vision LiDAR uses numeric/c-cast PARAM_SET values and reports INT16.
+        param.param_type  = MAV_PARAM_TYPE_INT16;
+        param.param_value = static_cast<float>(value);
+    } else {
+        param.param_type = MAV_PARAM_TYPE_INT32;
+        union { int32_t i; float f; } conv;
+        conv.i = static_cast<int32_t>(value);
+        param.param_value = conv.f;
+    }
+
+    strncpy(param.param_id, paramId.toLatin1().constData(), sizeof(param.param_id));
+
+    mavlink_msg_param_set_encode(
+        qgcApp()->toolbox()->mavlinkProtocol()->getSystemId(),
+        qgcApp()->toolbox()->mavlinkProtocol()->getComponentId(),
+        &msg,
+        &param
+        );
+
+    vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+}
+
+void MissionController::_connectToVehicle(Vehicle* vehicle)
+{
+    if (!vehicle) return;
+
+    connect(vehicle, &Vehicle::vlValueChanged, this,    &MissionController::_onVlValueChanged);
+    connect(vehicle, &Vehicle::visionLidarEnabledChanged, this, &MissionController::_onVisionLidarEnabledChanged);
+    connect(vehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
+    connect(vehicle, &Vehicle::slStatusChanged, this,   &MissionController::_onSlStatusChanged);
+}
+
+void MissionController::_onVlValueChanged(int value)
+{
+    if (_vlValue == value) return;
+    _vlValue = value;
+    emit vlValueChanged();
+    qDebug() << "MissionController: vlValue updated to" << _vlValue;
+}
+
+void MissionController::_onVisionLidarEnabledChanged(int value)
+{
+    // Reapply every reply: the UI may have been toggled since the last read.
+    _visionLidarEnabled = value;
+    emit visionLidarEnabledChanged();
+}
+
+void MissionController::_activeVehicleChanged(Vehicle* activeVehicle)
+{
+    if (_activeVehicle) {
+        disconnect(_activeVehicle, &Vehicle::vlValueChanged, this, &MissionController::_onVlValueChanged);
+        disconnect(_activeVehicle, &Vehicle::visionLidarEnabledChanged, this, &MissionController::_onVisionLidarEnabledChanged);
+        disconnect(_activeVehicle, &Vehicle::vlOBAValueChanged, this, &MissionController::_onvlOBAValueChanged);
+        disconnect(_activeVehicle, &Vehicle::slStatusChanged, this, &MissionController::_onSlStatusChanged);
+    }
+    _activeVehicle = activeVehicle;
+    _connectToVehicle(activeVehicle);
+}
+
+void MissionController::_onvlOBAValueChanged(int value) {
+    // Reapply every reply even when the device value has not changed.
+    _vlOBAValue = value;
+    emit vlOBAValueChanged();
+    qDebug() << "MissionController: vlOBAValue updated to : " << _vlOBAValue;
+}
+
+void MissionController::_onSlStatusChanged(int value)
+{
+    if (_slStatus == value) return;
+    _slStatus = value;
+    emit slStatusChanged();
+    qCInfo(LifeVestLog) << "MissionController: slStatus updated to :" << _slStatus;
 }

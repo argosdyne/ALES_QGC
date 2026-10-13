@@ -25,6 +25,36 @@ ColumnLayout {
     property Fact _thrustModelFactor: controller.getParameterFact(-1, "THR_MDL_FAC", false)
     property alias autotuningEnabled: pidTuning.autotuningEnabled
 
+    function _localizedEnumText(enumText) {
+        if (!enumText || enumText.length === 0) {
+            return enumText
+        }
+
+        const fromMetaDataJson = qsTranslate("Parameter.MetaData.json", enumText)
+        if (fromMetaDataJson !== enumText) {
+            return fromMetaDataJson
+        }
+
+        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
+        if (fromMetaData !== enumText) {
+            return fromMetaData
+        }
+
+        return enumText
+    }
+
+    function _localizedEnumStrings(enumStrings) {
+        if (!enumStrings) {
+            return enumStrings
+        }
+
+        var localized = []
+        for (var i = 0; i < enumStrings.length; i++) {
+            localized.push(_localizedEnumText(enumStrings[i]))
+        }
+        return localized
+    }
+
     GridLayout {
         columns: 2
 
@@ -36,6 +66,7 @@ ColumnLayout {
         }
         FactComboBox {
             fact:               _airmode
+            model:              _localizedEnumStrings(_airmode.enumStrings)
             indexModel:         false
             visible:            _airmode
         }
@@ -58,8 +89,8 @@ ColumnLayout {
         property var roll: QtObject {
             property string name: qsTr("Roll")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.rollRate.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.rollRate.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.rollRate.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.rollRate.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -91,8 +122,8 @@ ColumnLayout {
         property var pitch: QtObject {
             property string name: qsTr("Pitch")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.pitchRate.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.pitchRate.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.pitchRate.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.pitchRate.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -124,8 +155,8 @@ ColumnLayout {
         property var yaw: QtObject {
             property string name: qsTr("Yaw")
             property var plot: [
-                { name: "Response", value: globals.activeVehicle.yawRate.value },
-                { name: "Setpoint", value: globals.activeVehicle.setpoint.yawRate.value }
+                { name: qsTr("Response"), value: globals.activeVehicle.yawRate.value },
+                { name: qsTr("Setpoint"), value: globals.activeVehicle.setpoint.yawRate.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -146,7 +177,7 @@ ColumnLayout {
                 }
             }
         }
-        title: "Rate"
+        title: qsTr("Rate")
         tuningMode: Vehicle.ModeRateAndAttitude
         unit: "deg/s"
         axis: [ roll, pitch, yaw ]
@@ -155,4 +186,3 @@ ColumnLayout {
         showAutoTuning:     true
     }
 }
-

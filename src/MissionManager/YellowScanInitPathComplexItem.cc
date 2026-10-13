@@ -297,11 +297,13 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
     QGeoCoordinate end = start.atDistanceAndAzimuth(lineLength, bearing);
 
     double actualDistance = start.distanceTo(end);
-    qInfo() << "=== YellowScan Path Info ===";
-    qInfo() << "Target distance:" << lineLength << "m";
-    qInfo() << "Actual distance:" << actualDistance << "m";
-    qInfo() << "Bearing:" << bearing << "degrees";
-    qInfo() << "Turn radius:" << radius << "m";
+     qInfo() << "=== YellowScan Path Info ===";
+     qInfo() << "Target distance:" << lineLength << "m";
+     qInfo() << "Actual distance:" << actualDistance << "m";
+     qInfo() << "Bearing:" << bearing << "degrees";
+     qInfo() << "Turn radius:" << radius << "m";
+
+    setFixedYawDeg(bearing); // Save Current WP angle
 
     QList<TransectStyleComplexItem::CoordInfo_t> transect;
 
@@ -310,14 +312,17 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
 
     // 1회 왕복
     transect.append({start, CoordTypeYellowScan});
+    transect.append({start, CoordTypeYellowScanChangeYaw});
     transect.append({end,   CoordTypeYellowScan});
+    transect.append({end, CoordTypeYellowScanChangeYaw});
 
-    // 2회 왕복
-    transect.append({end,   CoordTypeYellowScan});
+    // Backward. Reassert the same heading at the reversal point without adding
+    // a duplicate navigation waypoint.
     transect.append({start, CoordTypeYellowScan});
+    transect.append({start, CoordTypeYellowScanChangeYaw});
 
-    // 3회 왕복
-    transect.append({start, CoordTypeYellowScan});
+    // Final forward line. There must be no CONDITION/DO command between this
+    // waypoint and the U-turn or ArduCopter cannot create a continuous path.
     transect.append({end,   CoordTypeYellowScan});
 
     // 반원 생성
@@ -326,18 +331,26 @@ void YellowScanInitPathComplexItem::_rebuildTransectsPhase1(void)
 
     QGeoCoordinate semicircleCenter = end.atDistanceAndAzimuth(radius, rightAzimuth);
 
+    // Use approximately 5 m between arc control points. Fewer, well-spaced
+    // points give PX4 and ArduPilot more room to maintain a smooth trajectory,
+    // while the bounds keep small turns usable and mission size predictable.
+    const int turnSegments = qBound(6, qCeil((PI * radius) / 5.0), 18);
+
     vector<pair<double,double>> semicircle = generate_semicircle_from_origin(
         semicircleCenter.latitude(),
         semicircleCenter.longitude(),
         radius,
-        radius,
+        turnSegments,
         rightAzimuth - 90
         );
 
-    for (const auto& p : semicircle) {
+    // Index zero is exactly the final straight-line waypoint. Skipping it is
+    // essential: two identical NAV points make the vehicle stop before turning.
+    for (size_t i = 1; i < semicircle.size(); ++i) {
+        const auto& p = semicircle[i];
         TransectStyleComplexItem::CoordInfo_t coordInfo;
         coordInfo.coord = QGeoCoordinate(p.first, p.second);
-        coordInfo.coordType = CoordTypeYellowScan;
+        coordInfo.coordType = CoordTypeYellowScanTurn;
         transect.append(coordInfo);
     }
 

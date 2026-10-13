@@ -6,6 +6,9 @@
 #include "CustomPlugin.h"
 #include "codevsettings.h"
 #include "CustomSettings.h"
+#include "QGCLoggingCategory.h"
+
+QGC_LOGGING_CATEGORY(CodevRTCMManagerLog, "CodevRTCMManagerLog")
 
 CodevRTCMManager::CodevRTCMManager(QGCApplication *app, QGCToolbox *toolbox)
     : QGCTool(app, toolbox)
@@ -40,6 +43,9 @@ void CodevRTCMManager::_setActiveVehicle(Vehicle* vehicle)
 
     if (_vehicle) {
         connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &CodevRTCMManager::_mavlinkReceived);
+        qInfo(CodevRTCMManagerLog) << "RTCM: active vehicle set for GPS_RTCM send, sysid" << _vehicle->id();
+    } else {
+        qWarning(CodevRTCMManagerLog) << "RTCM: active vehicle cleared — GPS_RTCM will not be sent until a vehicle is active";
     }
 }
 
@@ -53,18 +59,26 @@ void CodevRTCMManager::_mavlinkReceived(const mavlink_message_t &message)
 void CodevRTCMManager::_sendMavlinkRTCM(mavlink_gps_rtcm_data_t message)
 {
     MAVLinkProtocol* mavlinkProtocol = _toolbox->mavlinkProtocol();
-    if(_vehicle && mavlinkProtocol) {
-        WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();
-        if(!weakLink.expired()) {
-            mavlink_message_t msg;
-            SharedLinkInterfacePtr sharedLink = weakLink.lock();
-            mavlink_msg_gps_rtcm_data_encode(mavlinkProtocol->getSystemId(),
-                                             mavlinkProtocol->getComponentId(),
-                                             &msg,
-                                             &message);
-            _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-        }
+    if (!mavlinkProtocol) {
+        qWarning() << "RTCM: drop GPS_RTCM chunk — MAVLinkProtocol is null";
+        return;
     }
+    if (!_vehicle) {
+        qWarning() << "RTCM: drop GPS_RTCM chunk — no active vehicle (len" << message.len << ")";
+        return;
+    }
+    WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();
+    if (weakLink.expired()) {
+        qWarning() << "RTCM: drop GPS_RTCM chunk — primary link expired (len" << message.len << ")";
+        return;
+    }
+    mavlink_message_t msg;
+    SharedLinkInterfacePtr sharedLink = weakLink.lock();
+    mavlink_msg_gps_rtcm_data_encode(mavlinkProtocol->getSystemId(),
+                                     mavlinkProtocol->getComponentId(),
+                                     &msg,
+                                     &message);
+    _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 }
 
 void CodevRTCMManager::_setRTCMSource(QVariant value)

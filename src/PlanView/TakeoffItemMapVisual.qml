@@ -83,7 +83,17 @@ Item {
 
             onItemCoordinateChanged: {
                 if (_missionItem.specifiesCoordinate) {
-                    _missionItem.coordinate = itemCoordinate
+                    if (_missionItem.launchTakeoffAtSameLocation) {
+                        // A SimpleMissionItem coordinate only carries lat/lon.
+                        // Preserve launch altitude while dragging a PX4 takeoff
+                        // which is tied to the launch position.
+                        _missionItem.coordinate = QtPositioning.coordinate(
+                                    itemCoordinate.latitude,
+                                    itemCoordinate.longitude,
+                                    _missionItem.launchCoordinate.altitude)
+                    } else {
+                        _missionItem.coordinate = itemCoordinate
+                    }
                 } else {
                     _missionItem.launchCoordinate = itemCoordinate
                 }

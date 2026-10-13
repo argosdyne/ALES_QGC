@@ -31,6 +31,9 @@ Item {
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property bool   _isMessageImportant:    _activeVehicle ? !_activeVehicle.messageTypeNormal && !_activeVehicle.messageTypeNone : false
+    property bool   _linkWarning:          _activeVehicle && (_activeVehicle.linkQualityWarning || _activeVehicle.linkQualityCritical)
+    property bool   _blinkWarning:          _activeVehicle && (_activeVehicle.messageTypeWarning || _activeVehicle.messageTypeError || _linkWarning)
+    property bool   _blinkOn:               true
 
     function dropMessageIndicator() {
         mainWindow.showIndicatorPopup(_root, vehicleMessagesPopup);
@@ -38,12 +41,18 @@ Item {
 
     function getMessageColor() {
         if (_activeVehicle) {
+            if (_activeVehicle.linkQualityCritical) {
+                return qgcPal.colorRed
+            }
+            if (_activeVehicle.linkQualityWarning) {
+                return qgcPal.warningText
+            }
             if (_activeVehicle.messageTypeNone)
                 return qgcPal.colorGrey
             if (_activeVehicle.messageTypeNormal)
                 return qgcPal.colorBlue;
             if (_activeVehicle.messageTypeWarning)
-                return qgcPal.colorOrange;
+                return qgcPal.colorRed;
             if (_activeVehicle.messageTypeError)
                 return qgcPal.colorRed;
             // Cannot be so make make it obnoxious to show error
@@ -54,6 +63,13 @@ Item {
         return qgcPal.colorGrey
     }
 
+    Timer {
+        interval:   450
+        repeat:     true
+        running:    _blinkWarning
+        onTriggered: _blinkOn = !_blinkOn
+    }
+
     Image {
         id:                 criticalMessageIcon
         anchors.fill:       parent
@@ -61,6 +77,7 @@ Item {
         sourceSize.height:  height
         fillMode:           Image.PreserveAspectFit
         cache:              false
+        opacity:            _blinkWarning ? (_blinkOn ? 1.0 : 0.2) : 1.0
         visible:            _activeVehicle && _activeVehicle.messageCount > 0 && _isMessageImportant
     }
 
@@ -70,6 +87,7 @@ Item {
         sourceSize.height:  height
         fillMode:           Image.PreserveAspectFit
         color:              getMessageColor()
+        opacity:            _blinkWarning ? (_blinkOn ? 1.0 : 0.2) : 1.0
         visible:            !criticalMessageIcon.visible
     }
 

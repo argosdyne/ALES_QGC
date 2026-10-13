@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QTime>
 #include <QApplication>
+#include <QDateTime>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtEndian>

@@ -261,8 +261,9 @@ QStringList JsonHelper::_addDefaultLocKeys(QJsonObject& jsonObject)
             if (jsonObject.contains(_translateKeysKey)) {
                 translateKeys = jsonObject[_translateKeysKey].toString();
             } else {
-                translateKeys = "shortDescription,longDescription,enumStrings";
-                jsonObject[_translateKeysKey] = "shortDescription,longDescription,enumStrings";
+                // Support both legacy and current Fact metadata field names.
+                translateKeys = "shortDesc,longDesc,shortDescription,longDescription,enumStrings";
+                jsonObject[_translateKeysKey] = "shortDesc,longDesc,shortDescription,longDescription,enumStrings";
             }
             if (!jsonObject.contains(_arrayIDKeysKey)) {
                 jsonObject[_arrayIDKeysKey] = "name";

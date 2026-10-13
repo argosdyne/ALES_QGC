@@ -315,6 +315,17 @@ void CameraCalc::_cameraNameChanged(void)
 
     QString cameraName = _cameraNameFact.rawValue().toString();
 
+    // Leaving the Agrowing preset (switched to any other camera): restore the saved values.
+    // Placed before the branch below so it applies for manual/custom and known cameras alike.
+    if (_agrowingPresetActive && !cameraName.contains("Agrowing")) {
+        valueSetIsDistance()->setRawValue(_savedValueSetIsDistance);
+        distanceToSurface()->setRawValue(_savedDistanceToSurface);
+        frontalOverlap()->setRawValue(_savedFrontalOverlap);
+        sideOverlap()->setRawValue(_savedSideOverlap);
+        _agrowingPresetActive = false;
+        emit agrowingPresetCleared();
+    }
+
     if (isManualCamera() || isCustomCamera()) {
         fixedOrientation()->setRawValue(false);
         minTriggerInterval()->setRawValue(0);
@@ -385,6 +396,24 @@ void CameraCalc::_cameraNameChanged(void)
         minTriggerInterval()->setRawValue   (knownCameraMetaData->minTriggerInterval);
 
         _disableRecalc = false;
+
+        // Agrowing preset: auto-fill survey overlap + altitude when this camera is selected.
+        // Grid angle and turnaround distance live on SurveyComplexItem, applied via the signal.
+        if (cameraName.contains("Agrowing")) {
+            if (!_agrowingPresetActive) {
+                // Remember the pre-preset values so they can be restored on switch-away.
+                _savedValueSetIsDistance = valueSetIsDistance()->rawValue();
+                _savedDistanceToSurface  = distanceToSurface()->rawValue();
+                _savedFrontalOverlap     = frontalOverlap()->rawValue();
+                _savedSideOverlap        = sideOverlap()->rawValue();
+                _agrowingPresetActive    = true;
+            }
+            valueSetIsDistance()->setRawValue(true);    // altitude-driven (so the fixed altitude sticks)
+            distanceToSurface()->setRawValue(100.0);    // Altitude 100 m
+            frontalOverlap()->setRawValue(70);          // Frontal overlap 70%
+            sideOverlap()->setRawValue(70);             // Side overlap 70%
+            emit agrowingPresetSelected();
+        }
     }
 
     _recalcTriggerDistance();

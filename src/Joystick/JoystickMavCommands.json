@@ -12,6 +12,48 @@
             "id":                   31011,
             "name":                 "MAV_CMD_USER_2",
             "param1":               0.0
+        },
+        {
+            "id":                   2000,
+            "name":                 "Gremsy Lynx: Take Photo",
+            "showError":            true,
+            "param1":               0.0,
+            "param2":               0.0,
+            "param3":               1.0
+        },
+        {
+            "id":                   2500,
+            "name":                 "Gremsy Lynx: Start Video",
+            "showError":            true,
+            "param1":               0.0,
+            "param2":               0.0
+        },
+        {
+            "id":                   2501,
+            "name":                 "Gremsy Lynx: Stop Video",
+            "showError":            true,
+            "param1":               0.0
+        },
+        {
+            "id":                   531,
+            "name":                 "Gremsy Lynx: Zoom In",
+            "showError":            true,
+            "param1":               1.0,
+            "param2":               1.0
+        },
+        {
+            "id":                   531,
+            "name":                 "Gremsy Lynx: Zoom Out",
+            "showError":            true,
+            "param1":               1.0,
+            "param2":               -1.0
+        },
+        {
+            "id":                   531,
+            "name":                 "Gremsy Lynx: Zoom Stop",
+            "showError":            true,
+            "param1":               1.0,
+            "param2":               0.0
         }
     ]
 }

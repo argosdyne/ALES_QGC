@@ -32,6 +32,7 @@ class QDomDocument;
 class PlanViewSettings;
 
 Q_DECLARE_LOGGING_CATEGORY(MissionControllerLog)
+Q_DECLARE_LOGGING_CATEGORY(LifeVestLog)
 
 typedef QPair<VisualMissionItem*,VisualMissionItem*> VisualItemPair;
 typedef QHash<VisualItemPair, FlightPathSegment*> FlightPathSegmentHashTable;
@@ -106,11 +107,17 @@ public:
     Q_PROPERTY(bool                 isROIActive                     MEMBER _isROIActive                 NOTIFY isROIActiveChanged)
     Q_PROPERTY(bool                 isROIBeginCurrentItem           MEMBER _isROIBeginCurrentItem       NOTIFY isROIBeginCurrentItemChanged)
     Q_PROPERTY(bool                 flyThroughCommandsAllowed       MEMBER _flyThroughCommandsAllowed   NOTIFY flyThroughCommandsAllowedChanged)
+    Q_PROPERTY(bool                 vehicleMissionConfirmed         READ vehicleMissionConfirmed        NOTIFY vehicleMissionConfirmedChanged)
     Q_PROPERTY(double               minAMSLAltitude                 MEMBER _minAMSLAltitude             NOTIFY minAMSLAltitudeChanged)          ///< Minimum altitude associated with this mission. Used to calculate percentages for terrain status.
     Q_PROPERTY(double               maxAMSLAltitude                 MEMBER _maxAMSLAltitude             NOTIFY maxAMSLAltitudeChanged)          ///< Maximum altitude associated with this mission. Used to calculate percentages for terrain status.
 
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode globalAltitudeMode         READ globalAltitudeMode         WRITE setGlobalAltitudeMode NOTIFY globalAltitudeModeChanged)
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode globalAltitudeModeDefault  READ globalAltitudeModeDefault  NOTIFY globalAltitudeModeChanged)                               ///< Default to use for newly created items
+
+    Q_PROPERTY(int                  vlValue                         MEMBER _vlValue                     NOTIFY vlValueChanged)
+    Q_PROPERTY(int                  visionLidarEnabled              MEMBER _visionLidarEnabled          NOTIFY visionLidarEnabledChanged)
+    Q_PROPERTY(int                  vlOBAValue                      MEMBER _vlOBAValue                  NOTIFY vlOBAValueChanged)
+    Q_PROPERTY(int                  slStatus                        MEMBER _slStatus                    NOTIFY slStatusChanged)
 
     Q_INVOKABLE void removeVisualItem(int viIndex);
 
@@ -174,6 +181,41 @@ public:
     ///     @param sequenceNumber - index for new item, -1 to clear current item
     Q_INVOKABLE void setCurrentPlanViewSeqNum(int sequenceNumber, bool force);
 
+    /// Control vision lidar
+    // Enable/Disable vision lidar
+    Q_INVOKABLE void setVisionLidar(int param);
+
+    //set detection distance of vision lidar
+    Q_INVOKABLE void setVisionLidarDistance(int param);
+
+    //set vision lidar value
+    Q_INVOKABLE void setVisionLidarValue(int param);
+
+    //set obstacleAviodance enable/disable
+    Q_INVOKABLE void setVisionLidarOBAMode(int param);
+
+    Q_INVOKABLE void getVisionLidarOBAMode();
+    /// Request the Vision LiDAR states that are rendered when its panel opens.
+    Q_INVOKABLE void getVisionLidarState();
+
+    /// Send LifeVest commands to the vehicle via MAVLink COMMAND_LONG.
+    // Drops the life vest (CMD_USER_DEPLOY_LIFE_VEST = 42700, param1 = 1)
+    Q_INVOKABLE void deployLifeVest();
+
+    /// Searchlight controls (PARAM_SET / PARAM_REQUEST_READ on "SL_STATUS").
+    // value: 1 = ON, 0 = OFF
+    Q_INVOKABLE void setSearchlight(int value);
+
+    // Request current SL_STATUS from BirdCom; reply arrives as PARAM_VALUE
+    Q_INVOKABLE void getSearchlight();
+
+    void _sendParamInt(const QString& paramId, int value);
+
+    void _requestOBAValue();
+    void _requestVisionLidarParam(const QString& paramId);
+    void _requestSlStatus();
+
+
     enum SendToVehiclePreCheckState {
         SendToVehiclePreCheckStateOk,                       // Ok to send plan to vehicle
         SendToVehiclePreCheckStateNoActiveVehicle,          // There is no active vehicle
@@ -211,6 +253,7 @@ public:
     bool dirty                      (void) const final;
     void setDirty                   (bool dirty) final;
     bool containsItems              (void) const final;
+    bool vehicleMissionConfirmed    (void) const;
     bool showPlanFromManagerVehicle (void) final;
 
     // Create KML file
@@ -291,6 +334,7 @@ signals:
     void isROIActiveChanged                 (void);
     void isROIBeginCurrentItemChanged       (void);
     void flyThroughCommandsAllowedChanged   (void);
+    void vehicleMissionConfirmedChanged     (void);
     void previousCoordinateChanged          (void);
     void minAMSLAltitudeChanged             (double minAMSLAltitude);
     void maxAMSLAltitudeChanged             (double maxAMSLAltitude);
@@ -298,6 +342,10 @@ signals:
     void _recalcMissionFlightStatusSignal   (void);
     void _recalcFlightPathSegmentsSignal    (void);
     void globalAltitudeModeChanged          (void);
+    void vlValueChanged();
+    void visionLidarEnabledChanged();
+    void vlOBAValueChanged();
+    void slStatusChanged();
 
 private slots:
     void _newMissionItemsAvailableFromVehicle   (bool removeAllRequested);
@@ -315,10 +363,16 @@ private slots:
     void _complexBoundingBoxChanged             (void);
     void _recalcAll                             (void);
     void _managerVehicleChanged                 (Vehicle* managerVehicle);
+    void _linkCommunicationLostChanged          (bool lost);
     void _takeoffItemNotRequiredChanged         (void);
+    void _onVlValueChanged(int value);
+    void _onVisionLidarEnabledChanged(int value);
+    void _onvlOBAValueChanged(int value);
+    void _onSlStatusChanged(int value);
 
 private:
     void                    _init                               (void);
+    bool                    _vehicleHasFlyableMission           (void) const;
     void                    _recalcSequence                     (void);
     void                    _recalcChildItems                   (void);
     void                    _recalcAllWithCoordinate            (const QGeoCoordinate& coordinate);
@@ -359,6 +413,13 @@ private:
     static double           _normalizeLat                       (double lat);
     static double           _normalizeLon                       (double lon);
     static bool             _convertToMissionItems              (QmlObjectListModel* visualMissionItems, QList<MissionItem*>& rgMissionItems, QObject* missionItemParent);
+    int _vlValue = 0;
+    int _visionLidarEnabled = 0;
+    int _vlOBAValue = 1;
+    int _slStatus = 0;
+
+    void _connectToVehicle(Vehicle* vehicle);
+    void _activeVehicleChanged(Vehicle* vehicle);
 
 private:
     Vehicle*                    _controllerVehicle =            nullptr;
@@ -419,4 +480,6 @@ private:
     static const char*  _jsonComplexItemsKey;
 
     static const int    _missionFileVersion;
+
+    Vehicle* _activeVehicle = nullptr;
 };

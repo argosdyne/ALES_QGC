@@ -1,4 +1,7 @@
 #include "RTCMBase.h"
+#include "QGCLoggingCategory.h"
+
+QGC_LOGGING_CATEGORY(RTCMBaseLog, "RTCMBaseLog")
 
 using namespace std;
 
@@ -74,6 +77,21 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
     lon = deg2dms(gps_raw_int.lon * 1e-7);
 
     std::string time = QDateTime::fromMSecsSinceEpoch(gps_raw_int.time_usec / 1000, Qt::UTC).toString("hhmmss.zzz").toStdString();
+    // Map MAVLink GPS fix type to NMEA GGA fix quality.
+    // MAVLink: 5=float RTK, 6=fixed RTK. NMEA GGA uses 4=fixed RTK, 5=float RTK.
+    int gga_fix_quality = 0;
+    if (gps_raw_int.fix_type >= 2 && gps_raw_int.fix_type <= 3) {
+        gga_fix_quality = 1;      // GPS fix (2D/3D)
+    } else if (gps_raw_int.fix_type == 4) {
+        gga_fix_quality = 2;      // DGPS
+    } else if (gps_raw_int.fix_type == 5) {
+        gga_fix_quality = 5;      // RTK float
+    } else if (gps_raw_int.fix_type == 6) {
+        gga_fix_quality = 4;      // RTK fixed
+    } else if (gps_raw_int.fix_type >= 7) {
+        gga_fix_quality = 1;      // Static/PPP -> valid fix fallback
+    }
+
     snprintf(str, sizeof(str),
              "$GPGGA,%s,%09.04f,%c,%010.04f,%c,%d,%02d,%.1f,%.1f,M,0.0,M,5,0*",
              time.c_str(),
@@ -81,7 +99,7 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
              lat_uint,
              lon,
              lon_uint,
-             gps_raw_int.fix_type,
+             gga_fix_quality,
              gps_raw_int.satellites_visible,
              gps_eph,
              gps_raw_int.alt / 1000.0);
@@ -98,67 +116,62 @@ void RTCMBase::handle_gps_raw_int_status(const mavlink_message_t &message)
              "%s%02X",str,result);
 
     _gpggaFromVehicle = QString::fromStdString(str_reslut);
+    //qInfo(RTCMBaseLog) << "gpggaFromVehicle: " << _gpggaFromVehicle;
     emit pgggaMessageChanged(_gpggaFromVehicle);
 }
 
 void RTCMBase::handle_send_rtcm_time_out()
 {
     LockedQueue<rtcm_data_t>::Guard work_queue_guard(_work_queue);
-    auto work = work_queue_guard.get_front();
 
-    if (!work) {
-        return;
+    // One RTCM frame per tick. Fragments of that frame share a sequence and must
+    // leave together or the flight controller cannot reassemble them.
+    while (auto work = work_queue_guard.get_front()) {
+        const bool endOfMessage = work->endOfMessage;
+        send_rtcm_data(work);
+        work_queue_guard.pop_front();
+        if (endOfMessage) {
+            break;
+        }
     }
-
-    send_rtcm_data(work);
-
-    work_queue_guard.pop_front();
 }
 
 void RTCMBase::streamTimeout()
 {
+    qWarning(RTCMBaseLog) << "RTCM: no MAVLink GPS_RTCM_DATA sent for 2s — streaming flag cleared (vehicle RTK may drop if corrections stopped)";
     setStreaming(false);
 }
 
 void RTCMBase::send_rtcm_package(const char* buffer, unsigned length)
 {
-    if(length < 180) {
+    if (buffer == nullptr || length == 0) {
+        return;
+    }
+
+    // ArduPilot and PX4 reassemble GPS_RTCM_DATA only when every fragment of one
+    // RTCM frame carries the same sequence. Mission Planner increments once per frame.
+    const uint8_t messageSequence = sequence & 0x1F;
+    sequence++;
+
+    const unsigned fragmentCount = (length + 179) / 180;
+    for (unsigned fragmentIndex = 0; fragmentIndex < fragmentCount; fragmentIndex++) {
+        const unsigned offset = fragmentIndex * 180;
+        const unsigned remaining = length - offset;
+        const unsigned fragLen = remaining > 180 ? 180 : remaining;
+
         rtcm_data_t rtcm_data;
         memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-        rtcm_data.flags.flags_bit.fragmented = 0;
-        rtcm_data.flags.flags_bit.id = 0;
-        rtcm_data.flags.flags_bit.sequence = sequence++;
-        rtcm_data.len = static_cast<uint8_t>(length);
-        memcpy(rtcm_data.data, buffer, length);
-        if(!_sendRTCMTimer.isActive()) {
+        rtcm_data.flags.flags_bit.fragmented = fragmentCount > 1 ? 1 : 0;
+        rtcm_data.flags.flags_bit.id = fragmentIndex & 0x3;
+        rtcm_data.flags.flags_bit.sequence = messageSequence;
+        rtcm_data.len = static_cast<uint8_t>(fragLen);
+        rtcm_data.endOfMessage = (fragmentIndex + 1) == fragmentCount;
+        memcpy(rtcm_data.data, buffer + offset, fragLen);
+
+        if (!_sendRTCMTimer.isActive()) {
             send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-        } else _work_queue.push_back(rtcm_data);
-    } else {
-        unsigned i;
-        for(i = 0; (i + 1) * 180 < length; i++) {
-            rtcm_data_t rtcm_data;
-            memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-            rtcm_data.flags.flags_bit.fragmented = 1;
-            rtcm_data.flags.flags_bit.id = i;
-            rtcm_data.flags.flags_bit.sequence = sequence++;
-            rtcm_data.len = 180;
-            memcpy(rtcm_data.data, buffer + i * 180, 180);
-            if(!_sendRTCMTimer.isActive()) {
-                send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-            } else _work_queue.push_back(rtcm_data);
-        }
-        unsigned len = length - i * 180;
-        if(len > 0) {
-            rtcm_data_t rtcm_data;
-            memset(&rtcm_data, 0, sizeof(rtcm_data_t));
-            rtcm_data.flags.flags_bit.fragmented = 1;
-            rtcm_data.flags.flags_bit.id = i;
-            rtcm_data.flags.flags_bit.sequence = sequence++;
-            rtcm_data.len = static_cast<uint8_t>(len);
-            memcpy(rtcm_data.data, buffer + i * 180, len);
-            if(!_sendRTCMTimer.isActive()) {
-                send_rtcm_data(std::make_shared<rtcm_data_t>(rtcm_data));
-            } else _work_queue.push_back(rtcm_data);
+        } else {
+            _work_queue.push_back(rtcm_data);
         }
     }
 }
@@ -172,6 +185,7 @@ void RTCMBase::send_rtcm_data(std::shared_ptr<rtcm_data_t> work)
     mavlink_gps_rtcm_data.len = work->len;
     memcpy(mavlink_gps_rtcm_data.data, work->data, 180);
 
+    emit rtcmChunkSent();
     emit sendMavlinkRTCM(mavlink_gps_rtcm_data);
 }
 

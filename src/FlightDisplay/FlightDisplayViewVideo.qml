@@ -45,12 +45,50 @@ Item {
 
     property double _thermalHeightFactor: 0.85 //-- TODO
 
+    // Keep the GL video surface alive across brief decode gaps (e.g. camera mode switch).
+    property bool _hasDecodedOnce: false
+    property bool _showVideoFrame: false
+
+    Timer {
+        id:             decodingHoldTimer
+        interval:       2500
+        onTriggered: {
+            _showVideoFrame = QGroundControl.videoManager.decoding
+            if (!_showVideoFrame) {
+                _hasDecodedOnce = false
+            }
+        }
+    }
+
+    Connections {
+        target: QGroundControl.videoManager
+        function onDecodingChanged() {
+            if (QGroundControl.videoManager.decoding) {
+                _hasDecodedOnce = true
+                _showVideoFrame = true
+                decodingHoldTimer.stop()
+            } else if (_hasDecodedOnce) {
+                decodingHoldTimer.restart()
+            } else {
+                _showVideoFrame = false
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (QGroundControl.videoManager.decoding) {
+            _hasDecodedOnce = true
+            _showVideoFrame = true
+        }
+    }
+
         Image {
             id:             noVideo
             anchors.fill:   parent
             source:         "/res/NoVideoBackground.jpg"
             fillMode:       Image.PreserveAspectCrop
-            visible:        !(QGroundControl.videoManager.decoding)
+            z:              2
+            visible:        !_showVideoFrame
 
             Rectangle {
                 anchors.centerIn:   parent
@@ -75,7 +113,7 @@ Item {
         id:             videoBackground
         anchors.fill:   parent
         color:          "black"
-        visible:        QGroundControl.videoManager.decoding
+        z:              1
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -147,7 +185,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            QGroundControl.videoManager.decoding
+            visible:            _showVideoFrame
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource
@@ -179,10 +217,34 @@ Item {
             }
             Connections {
                 target:                 _camera
-                onThermalModeChanged:   thermalItem.pipOrNot()
+                onThermalModeChanged: {
+                    thermalItem.pipOrNot()
+                    thermalItem.logState("thermalModeChanged")
+                }
+                onThermalOpacityChanged: {
+                    thermalItem.logState("thermalOpacityChanged")
+                }
             }
             onVisibleChanged: {
                 thermalItem.pipOrNot()
+                thermalItem.logState("visibleChanged")
+            }
+            onWidthChanged: {
+                thermalItem.logState("widthChanged")
+            }
+            onHeightChanged: {
+                thermalItem.logState("heightChanged")
+            }
+            function logState(reason) {
+                console.warn("[FlightDisplay][THERMAL]",
+                             reason,
+                             "visible=", visible,
+                             "hasThermal=", QGroundControl.videoManager.hasThermal,
+                             "mode=", _camera ? _camera.thermalMode : -1,
+                             "opacity=", _camera ? _camera.thermalOpacity : -1,
+                             "width=", width,
+                             "height=", height,
+                             "aspect=", QGroundControl.videoManager.thermalAspectRatio)
             }
             QGCVideoBackground {
                 id:             thermalVideo
@@ -241,7 +303,41 @@ Item {
             anchors.fill: parent
             enabled: pipState.state === pipState.fullState
 
+            // Manual double-tap detection (Android touch primary). 500ms
+            // window + 60px position tolerance so a slightly-shifted
+            // second finger tap still counts. Qt's onDoubleClicked kept
+            // as a mouse-double-click safety net.
+            property int _tapCount: 0
+            property real _tapTime: 0
+            property real _tapX: 0
+            property real _tapY: 0
+            property bool _justDoubleTapped: false
+
+            onPressed: {
+                var now = Date.now()
+                var dx = mouseX - _tapX
+                var dy = mouseY - _tapY
+                var samePlace = (dx * dx + dy * dy) < (60 * 60)
+                if (now - _tapTime < 500 && samePlace) {
+                    _tapCount++
+                } else {
+                    _tapCount = 1
+                }
+                _tapTime = now
+                _tapX = mouseX
+                _tapY = mouseY
+                if (_tapCount >= 2) {
+                    _tapCount = 0
+                    _justDoubleTapped = true
+                    QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+                }
+            }
+
             onDoubleClicked: {
+                if (_justDoubleTapped) {
+                    _justDoubleTapped = false
+                    return
+                }
                 QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
             }
         }

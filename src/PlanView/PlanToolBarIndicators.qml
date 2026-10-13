@@ -243,11 +243,12 @@ Item {
 
         QGCButton {
             id:          uploadButton
-            text:        _controllerDirty ? qsTr("Upload Required") : qsTr("Upload")
+            text:        _controllerDirty ? qsTr("Req. Upload") : qsTr("Upload")
             enabled:     !_controllerSyncInProgress
             visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
             primary:     _controllerDirty
             onClicked:   _planMasterController.upload()
+            _horizontalPadding: 0
 
             PropertyAnimation on opacity {
                 easing.type:    Easing.OutQuart

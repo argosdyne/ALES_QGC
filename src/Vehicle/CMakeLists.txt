@@ -114,6 +114,7 @@ target_link_libraries(Vehicle
 	PRIVATE
 		Actuators
 		Gimbal
+		NextVision
 		ui
 		compression
 		libevents_generated

@@ -68,6 +68,8 @@ add_library(MissionManager
 	CorridorScanPlanCreator.h
 	FixedWingLandingComplexItem.cc
 	FixedWingLandingComplexItem.h
+	GeoCageController.cc
+	GeoCageController.h
 	GeoFenceController.cc
 	GeoFenceController.h
 	GeoFenceManager.cc

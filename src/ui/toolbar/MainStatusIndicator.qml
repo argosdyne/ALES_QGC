@@ -149,6 +149,59 @@ RowLayout {
         }
     }
 
+    Item {
+        Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
+        height:                 1
+        visible:                parachuteLabel.visible
+    }
+
+    QGCLabel {
+        id:                     parachuteLabel
+        Layout.preferredHeight: _root.height
+        verticalAlignment:      Text.AlignVCenter
+        text:                   _activeVehicle && _activeVehicle.parachuteEnabled ? qsTr("PARA ARMED") : qsTr("PARA OFF")
+        font.pointSize:         ScreenTools.defaultFontPointSize
+        color:                  _activeVehicle && _activeVehicle.parachuteEnabled ? "green" : "red"
+        visible:                _activeVehicle ? _activeVehicle.parachuteAvailable : false
+
+        QGCMouseArea {
+            anchors.fill:   parent
+            onClicked: {
+                if (!_activeVehicle || !_activeVehicle.parachuteAvailable) {
+                    return
+                }
+                mainWindow.showMessageDialog(qsTr("Parachute"), qsTr("Deploy parachute now?"),
+                                             StandardButton.Yes | StandardButton.No,
+                                             function() { _activeVehicle.deployParachute() })
+            }
+        }
+    }
+
+    Item {
+        Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
+        height:                 1
+        visible:                fenceStatusLabel.visible
+    }
+
+    QGCLabel {
+        id:                     fenceStatusLabel
+        Layout.preferredHeight: _root.height
+        verticalAlignment:      Text.AlignVCenter
+        text: {
+            if (!_activeVehicle) {
+                return ""
+            }
+            if (_activeVehicle.geoFenceParamsMissing) {
+                return qsTr("FENCE PARAMS MISSING")
+            }
+            return _activeVehicle.geoFenceActive ? qsTr("FENCE ON") : qsTr("FENCE OFF")
+        }
+        font.pointSize:         ScreenTools.defaultFontPointSize
+        color:                  _activeVehicle && _activeVehicle.geoFenceParamsMissing ? "orange" :
+                                _activeVehicle && _activeVehicle.geoFenceActive ? "green" : "yellow"
+        visible:                _activeVehicle ? _activeVehicle.geoFenceLoaded : false
+    }
+
     Component {
         id: sensorStatusInfoComponent
 

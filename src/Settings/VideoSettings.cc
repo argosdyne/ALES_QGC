@@ -13,6 +13,7 @@
 
 #include <QQmlEngine>
 #include <QtQml>
+#include <QSettings>
 #include <QVariantList>
 
 #ifndef QGC_DISABLE_UVC
@@ -31,10 +32,15 @@ const char* VideoSettings::videoSourceParrotDiscovery   = QT_TRANSLATE_NOOP("Vid
 const char* VideoSettings::videoSourceYuneecMantisG     = QT_TRANSLATE_NOOP("VideoSettings", "Yuneec Mantis G");
 const char* VideoSettings::videoSourceHerelinkAirUnit   = QT_TRANSLATE_NOOP("VideoSettings", "Herelink AirUnit");
 const char* VideoSettings::videoSourceHerelinkHotspot   = QT_TRANSLATE_NOOP("VideoSettings", "Herelink Hotspot");
+static const char* kRtspUrlUserSetKey                    = "rtspUrlUserSet";
 
 DECLARE_SETTINGGROUP(Video, "Video")
 {
     qmlRegisterUncreatableType<VideoSettings>("QGroundControl.SettingsManager", 1, 0, "VideoSettings", "Reference only");
+
+    QSettings settings;
+    settings.beginGroup(settingsGroup);
+    _rtspUrlUserSet = settings.value(kRtspUrlUserSetKey, false).toBool();
 
     // Setup enum values for videoSource settings into meta data
     QVariantList videoSourceList;
@@ -112,7 +118,7 @@ void VideoSettings::_setDefaults()
     if (_noVideo) {
         _nameToMetaDataMap[videoSourceName]->setRawDefaultValue(videoSourceNoVideo);
     } else {
-        _nameToMetaDataMap[videoSourceName]->setRawDefaultValue(videoDisabled);
+        _nameToMetaDataMap[videoSourceName]->setRawDefaultValue(videoSourceRTSP);
     }
 }
 
@@ -199,6 +205,9 @@ bool VideoSettings::streamConfigured(void)
 #endif
     //-- First, check if it's autoconfigured
     if(qgcApp()->toolbox()->videoManager()->autoStreamConfigured()) {
+        if (videoSource()->rawValue().toString() == videoSourceRTSP && _rtspUrlUserSet) {
+            return !rtspUrl()->rawValue().toString().isEmpty();
+        }
         qCDebug(VideoManagerLog) << "Stream auto configured";
         return true;
     }
@@ -214,8 +223,9 @@ bool VideoSettings::streamConfigured(void)
     }
     //-- If RTSP, check for URL
     if(vSource == videoSourceRTSP) {
-        qCDebug(VideoManagerLog) << "Testing configuration for RTSP Stream:" << rtspUrl()->rawValue().toString();
-        return !rtspUrl()->rawValue().toString().isEmpty();
+        const QString url = rtspUrl()->rawValue().toString();
+        qInfo() << "[VideoSettings]" << "streamConfigured RTSP source" << vSource << "url" << url << "configured" << !url.isEmpty();
+        return !url.isEmpty();
     }
     //-- If TCP, check for URL
     if(vSource == videoSourceTCP) {
@@ -243,4 +253,17 @@ bool VideoSettings::streamConfigured(void)
 void VideoSettings::_configChanged(QVariant)
 {
     emit streamConfiguredChanged(streamConfigured());
+}
+
+void VideoSettings::setRtspUrlUserSet(bool userSet)
+{
+    if (_rtspUrlUserSet != userSet) {
+        _rtspUrlUserSet = userSet;
+
+        QSettings settings;
+        settings.beginGroup(settingsGroup);
+        settings.setValue(kRtspUrlUserSetKey, _rtspUrlUserSet);
+
+        emit rtspUrlUserSetChanged(_rtspUrlUserSet);
+    }
 }

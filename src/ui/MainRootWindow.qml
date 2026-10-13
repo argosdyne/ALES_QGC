@@ -71,6 +71,9 @@ ApplicationWindow {
 
     property var                _rgPreventViewSwitch:       [ false ]
 
+    // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
+    property bool               lifeVestPanelVisible:       false
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------
@@ -90,6 +93,24 @@ ApplicationWindow {
 
         // Property to manage RemoteID quick acces to settings page
         property bool               commingFromRIDIndicator:        false
+
+        // GeoFence 3D visuals (session only)
+        property bool               geoFenceShow3D:                 false
+        property int                geoFenceBreachStyle:            Qt.SolidLine
+        property real               geoFenceFenceOpacity:           0.9
+        property color              geoFenceBoundaryColor:          "#ffb300"
+        property bool               geoFenceFillTopFace:            true
+        property bool               geoFenceFillSideFaces:          false
+        property bool               geoFenceHideOccludedEdges:      true
+        property bool               geoFenceShowOccludedEdgesDashed:false
+        property real               geoFenceExtrudeScale:           1.0
+        property real               geoFenceMinExtrudeScale:        0.6
+        property real               geoFenceMaxExtrudeScale:        1.6
+        property bool               geoFenceShowMinMaxAltitude:     false
+        property int                geoFenceCircleSegments:         40
+        property bool               geoFenceShowOperational:        true
+        property bool               geoFenceShowBuffer:             true
+        property bool               geoFenceShowContingency:        true
     }
 
     /// Default color palette used throughout the UI
@@ -175,6 +196,10 @@ ApplicationWindow {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
     }
 
+    function showAboutTool() {
+        aboutDialogComponent.createObject(mainWindow).open()
+    }
+
     //-------------------------------------------------------------------------
     //-- Global simple message dialog
 
@@ -202,6 +227,113 @@ ApplicationWindow {
         id: simpleMessageDialogComponent
 
         QGCSimpleMessageDialog {
+        }
+    }
+
+    Component {
+        id: aboutDialogComponent
+
+        QGCPopupDialog {
+            id:         aboutDialog
+            title:      qsTr("About")
+            buttons:    StandardButton.Close
+
+            property string _companyName:           "Argosdyne"
+            property string _productDisplayName:    QGroundControl.appName
+            property string _productVersion:        QGroundControl.qgcVersion
+
+            ColumnLayout {
+                width:                   Math.min(ScreenTools.defaultFontPixelWidth * 60, aboutDialog._maxContentWidth)
+                spacing:                 ScreenTools.defaultFontPixelHeight * 0.7
+
+                    ColumnLayout {
+                        Layout.fillWidth:   true
+                        spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("AlesQGC Smart Controller v1.0")
+                            font.pointSize:     ScreenTools.largeFontPointSize
+                            font.family:        ScreenTools.demiboldFontFamily
+                            wrapMode:           Text.WordWrap
+                        }
+
+                        QGCLabel {
+                            Layout.fillWidth:   true
+                            text:               qsTr("Copyright © 2024 %1. All rights reserved.").arg(aboutDialog._companyName)
+                            color:              qgcPal.text
+                            opacity:            0.75
+                            wrapMode:           Text.WordWrap
+                        }
+                }
+
+                Rectangle {
+                    Layout.fillWidth:   true
+                    Layout.preferredHeight: 1
+                    color:              qgcPal.text
+                    opacity:            0.15
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("This product includes software developed by the QGroundControl project <br/> (<a href=\"https://qgroundcontrol.com\" style=\"color:%1;text-decoration:underline;\">https://qgroundcontrol.com</a>).").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                QGCLabel {
+                    Layout.fillWidth:   true
+                    text:               qsTr("QGroundControl is licensed under the Apache License, Version 2.0.")
+                    wrapMode:           Text.WordWrap
+                }
+
+                Text {
+                    Layout.fillWidth:   true
+                    color:              qgcPal.text
+                    wrapMode:           Text.WordWrap
+                    textFormat:         Text.RichText
+                    font.pointSize:     ScreenTools.defaultFontPointSize
+                    font.family:        ScreenTools.normalFontFamily
+                    text:               qsTr("You may obtain a copy of the Apache License at:<br><a href=\"https://www.apache.org/licenses/LICENSE-2.0\" style=\"color:%1;text-decoration:underline;\">https://www.apache.org/licenses/LICENSE-2.0</a>").arg(qgcPal.text)
+                    onLinkActivated:    Qt.openUrlExternally(link)
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth:   true
+                    visible:            ScreenTools.isAndroid
+                    spacing:            ScreenTools.defaultFontPixelHeight * 0.25
+
+                    property string _androidVersionText: ScreenTools.androidVersion === "" ? qsTr("Unknown") : qsTr("Android %1").arg(ScreenTools.androidVersion)
+                    property string _androidSecurityPatchText: _formattedAndroidSecurityPatch()
+
+                    function _formattedAndroidSecurityPatch() {
+                        if (ScreenTools.androidSecurityPatch === "") {
+                            return qsTr("Unknown")
+                        }
+
+                        var patchDate = Date.fromLocaleString(Qt.locale(), ScreenTools.androidSecurityPatch, "yyyy-MM-dd")
+                        return isNaN(patchDate.getTime()) ? ScreenTools.androidSecurityPatch : Qt.formatDate(patchDate, "yyyy/MM/dd")
+                    }
+
+                    QGCLabel {
+                        Layout.fillWidth:   true
+                        text:               qsTr("Develope under: %1 - Security patch %2").arg(parent._androidVersionText).arg(parent._androidSecurityPatchText)
+                        color:              qgcPal.text
+                        opacity:            0.75
+                        wrapMode:           Text.WordWrap
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth:       true
+                    Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.7
+                }
+
+            }
         }
     }
 
@@ -363,6 +495,19 @@ ApplicationWindow {
                         }
                     }
 
+                    SubMenuButton {
+                        id:                 aboutButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("About")
+                        imageResource:      "/custom/img/about.svg"
+                        imageColor:         "transparent"
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showAboutTool()
+                        }
+                    }
+
                     ColumnLayout {
                         width:                  innerLayout.width
                         spacing:                0
@@ -422,25 +567,39 @@ ApplicationWindow {
                                     standardButtons:    StandardButton.Ok
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOnConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               QGroundControl.corePlugin.showAdvancedUIMessage
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               QGroundControl.corePlugin.showAdvancedUIMessage
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = true
-                                        advancedModeOnConfirmation.close()
                                     }
                                 }
 
-                                MessageDialog {
+                                QGCPopupDialog {
                                     id:                 advancedModeOffConfirmation
                                     title:              qsTr("Advanced Mode")
-                                    text:               qsTr("Turn off Advanced Mode?")
-                                    standardButtons:    StandardButton.Yes | StandardButton.No
-                                    onYes: {
+                                    buttons:            StandardButton.Yes | StandardButton.No
+
+                                    ColumnLayout {
+                                        QGCLabel {
+                                            text:               qsTr("Turn off Advanced Mode?")
+                                            Layout.maximumWidth: mainWindow.width / (ScreenTools.isMobile ? 2 : 3)
+                                            wrapMode:           Text.WordWrap
+                                        }
+                                    }
+
+                                    onAccepted: {
                                         QGroundControl.corePlugin.showAdvancedUI = false
-                                        advancedModeOffConfirmation.close()
                                     }
                                 }
                             }
@@ -918,6 +1077,54 @@ ApplicationWindow {
                 visible = false
                 source = ""
             }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceWarningOverlay
+        anchors.fill: parent
+        color:      "#ffcc00"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 1
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceWarningOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.35; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.35; to: 0.0; duration: 180; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceBreachOverlay
+        anchors.fill: parent
+        color:      "#ff6a00"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier === 3
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceBreachOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.55; duration: 160; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.55; to: 0.0; duration: 160; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Rectangle {
+        id:         geoFenceContingencyOverlay
+        anchors.fill: parent
+        color:      "#ff2b2b"
+        opacity:    0
+        visible:    globals.activeVehicle && globals.activeVehicle.geoFenceAlertTier >= 4
+        z:          QGroundControl.zOrderTopMost
+
+        SequentialAnimation on opacity {
+            running:    geoFenceContingencyOverlay.visible
+            loops:      Animation.Infinite
+            NumberAnimation { from: 0.0; to: 0.7; duration: 140; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.7; to: 0.0; duration: 140; easing.type: Easing.InOutQuad }
         }
     }
 }

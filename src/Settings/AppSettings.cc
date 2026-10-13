@@ -135,7 +135,6 @@ DECLARE_SETTINGGROUP(App, "")
 
     connect(savePathFact, &Fact::rawValueChanged, this, &AppSettings::savePathsChanged);
     connect(savePathFact, &Fact::rawValueChanged, this, &AppSettings::_checkSavePathDirectories);
-
     _checkSavePathDirectories();
 
     createGeoZoneDirectories();
@@ -262,7 +261,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
 
 void AppSettings::_qLocaleLanguageChanged()
 {
-    qgcApp()->setLanguage();
+    emit languageChangeRequiresRestart();
 }
 
 void AppSettings::_checkSavePathDirectories(void)

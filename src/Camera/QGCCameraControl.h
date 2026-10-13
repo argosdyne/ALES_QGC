@@ -14,6 +14,7 @@
 #include "QGCApplication.h"
 #include "LinkInterface.h"
 #include <QLoggingCategory>
+#include <QElapsedTimer>
 
 class QDomNode;
 class QDomNodeList;
@@ -382,6 +383,17 @@ protected:
     virtual void    _setVideoStatus         (VideoStatus status);
     virtual void    _setPhotoStatus         (PhotoStatus status);
     virtual void    _setCameraMode          (CameraMode mode);
+    void            _syncCameraModeFact     (CameraMode targetMode, bool skipRangeRefreshIfFactMatches = false);
+    bool            _enumListContains       (const QVariantList& values, const QVariant& value) const;
+    void            _forceRestoreEnumOptions(const QString& paramName);
+    void            _sanitizeEnumParameter  (Fact* fact, bool useOriginalOptionList = false, bool refreshRangesFirst = true);
+    void            _noteUserParamWrite     (const QString& paramName);
+    void            _clearUserParamIntent   (const QString& paramName);
+    bool            _paramWriteInProgress   (const QString& paramName) const;
+    bool            _withinUserParamWriteGuard(const QString& paramName) const;
+    bool            _withinUserParamIntentLock(const QString& paramName) const;
+    bool            _shouldAcceptIncomingParam(Fact* fact, const QVariant& newValue) const;
+    void            _scheduleExpModeParamRefresh();
     virtual void    _requestStreamInfo      (uint8_t streamID);
     virtual void    _requestStreamStatus    (uint8_t streamID);
     virtual void    _requestTrackingStatus  ();
@@ -398,6 +410,8 @@ protected slots:
     virtual void    _downloadFinished       ();
     virtual void    _mavCommandResult       (int vehicleId, int component, int command, int result, bool noReponseFromVehicle);
     virtual void    _dataReady              (QByteArray data);
+
+    virtual void    _clearCameraDefinitionState();
     virtual void    _paramDone              ();
     virtual void    _streamInfoTimeout      ();
     virtual void    _streamStatusTimeout    ();
@@ -405,6 +419,9 @@ protected slots:
     virtual void    _checkForVideoStreams   ();
 
 private:
+    QString _cameraRtspSettingsKey          () const;
+    void    _checkRtspChangeAndInvalidateCache(const QString& streamUri);
+    void    _purgeCameraDefinitionCache     ();
     bool    _handleLocalization             (QByteArray& bytes);
     bool    _replaceLocaleStrings           (const QDomNode node, QByteArray& bytes);
     bool    _loadCameraDefinitionFile       (QByteArray& bytes);
@@ -420,6 +437,7 @@ private:
     void    _httpRequest                    (const QString& url);
     void    _handleDefinitionFile           (const QString& url);
     void    _ftpDownloadComplete            (const QString& fileName, const QString& errorMsg);
+    void    _logParameterLoadProgress       (const QString& event, const QString& paramName = QString()) const;
 
     QStringList     _loadExclusions         (QDomNode option);
     QStringList     _loadUpdates            (QDomNode option);
@@ -442,6 +460,9 @@ protected:
     QString                             _modelName;
     QString                             _vendor;
     QString                             _cacheFile;
+
+    bool                                _definitionFetchDeferred = false;
+    QString                             _deferredDefinitionUri;
     CameraMode                          _cameraMode         = CAM_MODE_UNDEFINED;
     StorageStatus                       _storageStatus      = STORAGE_NOT_SUPPORTED;
     PhotoMode                           _photoMode          = PHOTO_CAPTURE_SINGLE;
@@ -487,4 +508,15 @@ protected:
     QGeoCoordinate                                 _targetCoordinate;
     float                                          _targetDistance;
     int                                            _photoIndex = 0;
+    QElapsedTimer                                  _paramLoadTimer;
+    bool                                           _paramLoadInProgress = false;
+    QStringList                                    _expectedParamNames;
+    QStringList                                    _receivedParamNames;
+    QStringList                                    _timedOutParamNames;
+
+    static const int                               _kUserParamWriteGuardMs = 3000;
+    static const int                               _kUserParamIntentLockMs = 8000;
+    QMap<QString, QElapsedTimer>                   _userParamWriteGuard;
+    QMap<QString, QElapsedTimer>                   _userParamIntentLock;
+    QMap<QString, QVariant>                        _userParamIntentValue;
 };

@@ -210,7 +210,7 @@ void RadioComponentController::_setupCurrentState(void)
         instructions = msgBeginAPMRover;
         helpImage = _imageCenter;
     }
-    _statusText->setProperty("text", instructions);
+    _statusText->setProperty("text", tr(instructions));
     _setHelpImage(helpImage);
 
     _stickDetectChannel = _chanMax;

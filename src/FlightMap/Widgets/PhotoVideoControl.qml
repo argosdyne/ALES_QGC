@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-import QtQuick                  2.4
+import QtQuick                  2.11
 import QtPositioning            5.2
 import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.4
@@ -19,6 +19,7 @@ import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Controls          1.0
 import QGroundControl.Palette           1.0
+import QGroundControl.Payload           1.0
 import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
@@ -33,6 +34,53 @@ Item {
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+    property var    _activePayload:                             PayloadManager.active
+    property bool   _usePayload:                                _activePayload && (_activePayload.connected
+                                                                    || (PayloadManager.activeType === 1
+                                                                        && PayloadManager.nextvision
+                                                                        && PayloadManager.nextvision.vehicleControlAvailable))
+    property bool   _payloadRecording:                          false
+    property bool   _isGremsyPayload:                           _usePayload && PayloadManager.activeType === 0 && PayloadManager.gremsy
+    property bool   _payloadRecordingEffective:                 _isGremsyPayload
+                                                                    ? PayloadManager.gremsy.recording
+                                                                    : _payloadRecording
+    property bool   _gremsyPhotoFeedback:                       false
+    property bool   _nextVisionPhotoFeedback:                   false
+    property int    _gremsyRecordingSeconds:                    0
+    property double _gremsyRecordingStartedMs:                  0
+    property bool   _gremsyCaptureButtonActive:                 _isGremsyPayload && (_gremsyPhotoFeedback || _payloadRecordingEffective)
+    property bool   _captureButtonActive:                       _isShootingInCurrentMode || _gremsyCaptureButtonActive || (_isNextVisionPayload && _nextVisionPhotoFeedback)
+
+    function _centerGimbal() {
+        if (_usePayload) {
+            _activePayload.gimbalHome()
+        } else if (_mavlinkCamera) {
+            _mavlinkCamera.centerGimbal()
+        }
+    }
+
+    function _formatElapsedTime(totalSeconds) {
+        var hours = Math.floor(totalSeconds / 3600)
+        var minutes = Math.floor((totalSeconds % 3600) / 60)
+        var seconds = totalSeconds % 60
+        function pad(value) { return value < 10 ? "0" + value : String(value) }
+        return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds)
+    }
+
+    function _syncGremsyRecordingUi() {
+        if (!_isGremsyPayload || !PayloadManager.gremsy.recording) {
+            gremsyRecordingTimer.stop()
+            _gremsyRecordingStartedMs = 0
+            _gremsyRecordingSeconds = 0
+            return
+        }
+
+        if (_gremsyRecordingStartedMs === 0) {
+            _gremsyRecordingStartedMs = Date.now()
+        }
+        _gremsyRecordingSeconds = Math.floor((Date.now() - _gremsyRecordingStartedMs) / 1000)
+        gremsyRecordingTimer.start()
+    }
 
     // The following properties relate to a simple camera
     property var    _flyViewSettings:                           QGroundControl.settingsManager.flyViewSettings
@@ -55,14 +103,16 @@ Item {
     property real zoomLevel: 1.0  // Start at 1x
     property real maxZoom: 30.0
     property real minZoom: 1.0
-    property real zoomStep: 1.0    
+    property real zoomStep: 1.0
+    property bool _zoomUiOverride: false
+    property int _zoomUiPressedDirection: 0
 
-    property bool   _hasZoom:                                   _mavlinkCamera && _mavlinkCamera.hasZoom
+    property bool   _hasZoom:                                   (_mavlinkCamera && _mavlinkCamera.hasZoom) || _usePayload
     // The following properties relate to a mavlink protocol camera
     property var    _mavlinkCameraManager:                      _activeVehicle ? _activeVehicle.cameraManager : null
     property int    _mavlinkCameraManagerCurCameraIndex:        _mavlinkCameraManager ? _mavlinkCameraManager.currentCamera : -1
     property bool   _noMavlinkCameras:                          _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count === 0 : true
-    property var    _mavlinkCamera:                             !_noMavlinkCameras ? (_mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex) && _mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex).paramComplete ? _mavlinkCameraManager.cameras.get(_mavlinkCameraManagerCurCameraIndex) : null) : null
+    property var    _mavlinkCamera:                             _mavlinkCameraManager ? _mavlinkCameraManager.currentCameraInstance : null
     property bool   _multipleMavlinkCameras:                    _mavlinkCameraManager ? _mavlinkCameraManager.cameras.count > 1 : false
     property string _mavlinkCameraName:                         _mavlinkCamera && _multipleMavlinkCameras ? _mavlinkCamera.modelName : ""
     property bool   _noMavlinkCameraStreams:                    _mavlinkCamera ? _mavlinkCamera.streamLabels.length : true
@@ -77,44 +127,187 @@ Item {
     property bool   _mavlinkCameraVideoIsRecording:             _mavlinkCamera && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
     property bool   _mavlinkCameraPhotoCaptureIsIdle:           _mavlinkCamera && (_mavlinkCamera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE || _mavlinkCamera.photoStatus >= QGCCameraControl.PHOTO_CAPTURE_LAST)
     property bool   _mavlinkCameraStorageReady:                 _mavlinkCamera && _mavlinkCamera.storageStatus === QGCCameraControl.STORAGE_READY
+    property bool   _mavlinkCameraSdCardMissing:                _mavlinkCamera && _mavlinkCamera.storageStatus === QGCCameraControl.STORAGE_EMPTY
     property bool   _mavlinkCameraBatteryReady:                 _mavlinkCamera && _mavlinkCamera.batteryRemaining >= 0
     property bool   _mavlinkCameraStorageSupported:             _mavlinkCamera && _mavlinkCamera.storageStatus !== QGCCameraControl.STORAGE_NOT_SUPPORTED
     property bool   _mavlinkCameraAllowsPhotoWhileRecording:    false
-    property bool   _mavlinkCameraCanShoot:                     (!_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)) || _videoStreamManager.streaming
+    property bool   _mavlinkCameraCanShoot:                     !_mavlinkCameraModeUndefined && ((_mavlinkCameraStorageReady && _mavlinkCamera.storageFree > 0) || !_mavlinkCameraStorageSupported)
     property bool   _mavlinkCameraIsShooting:                   ((_mavlinkCameraInVideoMode && _mavlinkCameraVideoIsRecording) || (_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle)) || _videoStreamManager.recording
+    property bool   _isNextVisionPayload:                       PayloadManager.activeType === 1 && PayloadManager.nextvision
+    property bool   _nextVisionRecording:                       _isNextVisionPayload && PayloadManager.nextvision.recording
+    property bool   _vehicleVideoCaptureRunning:                _activeVehicle && _activeVehicle.videoCaptureRunning
+    property bool   _vehicleVideoCaptureAvailable:              _activeVehicle && !_modeIndicatorPhotoMode
 
     // The following settings and functions unify between a mavlink camera and a simple video stream for simple access
 
     property bool   _anyVideoStreamAvailable:                   _videoStreamManager.hasVideo
     property string _cameraName:                                _mavlinkCamera ? _mavlinkCameraName : ""
     property bool   _showModeIndicator:                         _mavlinkCamera ? _mavlinkCameraHasModes : _videoStreamManager.hasVideo
-    property bool   _modeIndicatorPhotoMode:                    _mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable
+    property bool   _modeIndicatorPhotoMode:                    _isGremsyPayload
+                                                                    ? _videoStreamInPhotoMode
+                                                                    : (_mavlinkCamera ? _mavlinkCameraInPhotoMode : _videoStreamInPhotoMode || _onlySimpleCameraAvailable)
     property bool   _allowsPhotoWhileRecording:                  _mavlinkCamera ? _mavlinkCameraAllowsPhotoWhileRecording : _videoStreamAllowsPhotoWhileRecording
-    property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_mavlinkCamera ? !_mavlinkCameraIsShooting : true)
-    property bool   _videoIsRecording:                          _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording
-    property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
-    property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
+    property bool   _switchToPhotoModeAllowed:                  !_modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
+    property bool   _switchToVideoModeAllowed:                  _modeIndicatorPhotoMode && (_isGremsyPayload ? true : (_mavlinkCamera ? !_mavlinkCameraIsShooting : true))
+    property bool   _videoIsRecording:                          _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? _payloadRecordingEffective : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamRecording))
+    property bool   _canShootInCurrentMode:                     (!_modeIndicatorPhotoMode && _videoIsRecording) || (_mavlinkCamera ? _mavlinkCameraCanShoot : _vehicleVideoCaptureAvailable || _videoStreamCanShoot || _simpleCameraAvailable)
+    property bool   _isShootingInCurrentMode:                   _nextVisionRecording || _vehicleVideoCaptureRunning || (_usePayload ? (!_videoStreamInPhotoMode && _payloadRecordingEffective) : (_mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode))
 
-    property Fact _dZoom: _mavlinkCamera ? _mavlinkCamera.getFact("EO_DZOOM") : null
+    property Fact _dZoom: (_mavlinkCamera && _mavlinkCamera.paramComplete) ? _mavlinkCamera.getFact("EO_DZOOM") : null
+    // Debounce rapid zoom taps: the camera's stepZoom() computes its next
+    // absolute target from _zoomLevel, which only updates after a CAMERA_SETTINGS
+    // round-trip. A tap arriving mid-roundtrip reads an intermediate value and
+    // commands +1 on top of it, producing a 2–3× overshoot.
+    property real _zoomLastMs: 0
+
+    // FlyDynamics3-style: button mode flips based on which territory the next
+    // step would be. In optical territory the button is press-to-zoom (firmware
+    // continuous zoom on press, stop on release — no timer). In digital
+    // territory the button is tap-only (each tap = one EO_DZOOM step via
+    // CodevCameraControl::stepZoom).
+    //   - zoom-in optical territory:  zoomLevel < 29.5
+    //   - zoom-out optical territory: digital fact at min (==1.0)
+    property real _opticalMaxThreshold: 29.5
+    property bool _zoomInActive: false
+    property bool _zoomOutActive: false
+    property bool _zoomInCanContinuous:  _mavlinkCamera ? _mavlinkCamera.zoomLevel < _opticalMaxThreshold : false
+    property bool _digitalZoomActive:    _dZoom ? _dZoom.value > 1.01 : false
+    property bool _zoomOutCanContinuous: _mavlinkCamera
+            && (typeof _mavlinkCamera.displayZoomLevel !== "undefined"
+                ? _mavlinkCamera.displayZoomLevel > 1.01
+                : (_dZoom && _dZoom.value > 1.01) || _mavlinkCamera.zoomLevel > 1.01)
+
 
     //----------------------------------------------------------------------------------------------- Functions
     function setCameraMode(photoMode) {
-        console.log("Switching Camera Mode: ", photoMode ? "Photo" : "Video")
         _videoStreamInPhotoMode = photoMode
 
-        if (_mavlinkCamera){
-            if (_mavlinkCameraInPhotoMode) {
-                _mavlinkCamera.setVideoMode()
-            } else {
+        // Use the requested mode — do NOT toggle from current state.
+        // Toggle-from-current (regressed in R3 zoom patch) causes flicker,
+        // rollback, and eventually stuck photo/video controls on Sony/Codev.
+        if (_mavlinkCamera) {
+            if (photoMode) {
                 _mavlinkCamera.setPhotoMode()
+            } else {
+                _mavlinkCamera.setVideoMode()
+            }
+            return
+        }
+    }
+
+    function _stepCameraZoom(direction) {
+        if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+            return
+        }
+        if (typeof _mavlinkCamera.stepZoomFromUi === "function") {
+            _mavlinkCamera.stepZoomFromUi(direction)
+        } else if (typeof _mavlinkCamera.stepZoom === "function") {
+            _mavlinkCamera.stepZoom(direction)
+        }
+    }
+
+    function _startCameraZoom(direction) {
+        if (!_mavlinkCamera || !_mavlinkCamera.hasZoom) {
+            return
+        }
+        if (direction < 0 && typeof _mavlinkCamera.startZoomFromUi === "function") {
+            _mavlinkCamera.startZoomFromUi(direction)
+        } else if (typeof _mavlinkCamera.startZoom === "function") {
+            _mavlinkCamera.startZoom(direction)
+        }
+    }
+
+    function _updateUiZoomLevel(direction) {
+        var current = Number(getZoomValue())
+        if (isNaN(current)) {
+            current = zoomLevel
+        }
+        zoomLevel = Math.max(minZoom, Math.min(maxZoom, current + (direction * zoomStep)))
+        _zoomUiOverride = true
+    }
+
+    function _beginNextVisionZoom(zoomIn) {
+        var direction = zoomIn ? 1 : -1
+        nextVisionZoomUiTimer.stop()
+        nextVisionZoomMinPulseTimer.stop()
+        _zoomUiPressedDirection = direction
+        _updateUiZoomLevel(direction)
+
+        if (PayloadManager.nextvision) {
+            if (zoomIn) {
+                PayloadManager.nextvision.zoomIn()
+            } else {
+                PayloadManager.nextvision.zoomOut()
             }
         }
-        console.warn("No camera available to switch mode!")
-
+        // A short tap still produces one complete zoom step. Holding the
+        // button keeps the RC zoom command active until release.
+        nextVisionZoomMinPulseTimer.restart()
     }
+
+    function _endNextVisionZoom(zoomIn) {
+        var direction = zoomIn ? 1 : -1
+        if (_zoomUiPressedDirection !== direction) {
+            return
+        }
+        _zoomUiPressedDirection = 0
+        nextVisionZoomUiTimer.stop()
+        if (!nextVisionZoomMinPulseTimer.running && PayloadManager.nextvision) {
+            PayloadManager.nextvision.stopZoom()
+        }
+    }
+
+    function _toggleMavlinkVideo() {
+        if (!_mavlinkCamera) {
+            return
+        }
+        if (typeof _mavlinkCamera.buttonToggleVideo === "function") {
+            _mavlinkCamera.buttonToggleVideo()
+        } else {
+            _mavlinkCamera.toggleVideo()
+        }
+    }
+
+
     function toggleShooting() {
-        console.log("toggleShooting", _anyVideoStreamAvailable)        
+        // Gremsy is controlled directly over its payload MAVLink socket. Keep
+        // it out of Vehicle/QGCCameraManager so one action sends one command.
+        if (_usePayload && PayloadManager.activeType === 0 && !_videoStreamInPhotoMode) {
+            if (PayloadManager.gremsy.recording) {
+                PayloadManager.gremsy.stopRecording()
+            } else {
+                PayloadManager.gremsy.startRecording()
+            }
+            return
+        }
+
+        if (_usePayload && PayloadManager.activeType === 1 && !_videoStreamInPhotoMode) {
+            if (_activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+                _activeVehicle.toggleVideoCapture()
+            }
+            return
+        }
+        if (!_modeIndicatorPhotoMode && _activeVehicle && typeof _activeVehicle.toggleVideoCapture === "function") {
+            _activeVehicle.toggleVideoCapture()
+            return
+        }
+
+        if (_usePayload) {
+            if (_videoStreamInPhotoMode) {
+                _activePayload.captureImage()
+                _simplePhotoCaptureIsIdle = false
+                simplePhotoCaptureTimer.start()
+            } else {
+                if (_payloadRecording) {
+                    _activePayload.stopRecording()
+                    _payloadRecording = false
+                } else {
+                    _activePayload.startRecording()
+                    _payloadRecording = true
+                }
+            }
+            return
+        }
 
         // // This whole mavlinkCameraCaptureVideoOrPhotos stuff is to work around some strange qml boolean testing
         // behavior which wasn't working correctly. This should work:
@@ -129,7 +322,7 @@ Item {
 
         if (mavlinkCameraCaptureVideoOrPhotos) {
             if(_mavlinkCameraInVideoMode) {
-                _mavlinkCamera.toggleVideo()
+                _toggleMavlinkVideo()
             } else {
                 if(_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle && _mavlinkCameraElapsedMode) {
                     _mavlinkCamera.stopTakePhoto()
@@ -137,7 +330,7 @@ Item {
                     _mavlinkCamera.takePhoto()
                 }
             }
-        } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode && !videoGrabRadio.checked)) {
+        } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode)) {
             _simplePhotoCaptureIsIdle = false
             _activeVehicle.triggerSimpleCamera()
             simplePhotoCaptureTimer.start()
@@ -156,19 +349,34 @@ Item {
         }
     }
 
+    function _formatZoomDisplay(value) {
+        var n = Number(value)
+        if (isNaN(n)) {
+            return "1.0"
+        }
+        return n.toFixed(1)
+    }
+
     function getZoomValue() {
-        // 기본값
-        if (!_hasZoom || !_mavlinkCamera || isNaN(_mavlinkCamera.zoomLevel)) {
-            return "1";
+        if (_isNextVisionPayload && _usePayload && _zoomUiOverride) {
+            return _formatZoomDisplay(zoomLevel)
+        }
+        if (_usePayload && PayloadManager.activeType === 0 && PayloadManager.gremsy) {
+            return String(Math.round(PayloadManager.gremsy.zoomLevel))
+        }
+        if (!_hasZoom || !_mavlinkCamera) {
+            return "1.0"
+        }
+        if (typeof _mavlinkCamera.displayZoomLevel !== "undefined") {
+            return _formatZoomDisplay(_mavlinkCamera.displayZoomLevel)
+        }
+        if (isNaN(_mavlinkCamera.zoomLevel)) {
+            return "1.0"
         }
 
-        var optical = _mavlinkCamera.zoomLevel;   // qreal → JS Number
-        var digital = (_dZoom ? _dZoom.value : 1.0);
-
-        var effective = optical * digital;
-        
-        return effective.toFixed(0);
-
+        var optical = _mavlinkCamera.zoomLevel
+        var digital = (_dZoom ? _dZoom.value : 1.0)
+        return _formatZoomDisplay(optical * digital)
     }
 
     Timer {
@@ -176,6 +384,138 @@ Item {
         interval:       500
         onTriggered:    _simplePhotoCaptureIsIdle = true
     }
+
+    Timer {
+        id:             nextVisionZoomMinPulseTimer
+        interval:       800
+        repeat:         false
+        onTriggered: {
+            if (_zoomUiPressedDirection === 0) {
+                if (PayloadManager.nextvision) {
+                    PayloadManager.nextvision.stopZoom()
+                }
+            } else {
+                nextVisionZoomUiTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id:             nextVisionZoomUiTimer
+        interval:       800
+        repeat:         true
+        onTriggered: {
+            if (_zoomUiPressedDirection !== 0) {
+                _updateUiZoomLevel(_zoomUiPressedDirection)
+            }
+        }
+    }
+
+    Timer {
+        id:             gremsyPhotoFeedbackTimer
+        interval:       650
+        repeat:         false
+        onTriggered:    _gremsyPhotoFeedback = false
+    }
+
+    Timer {
+        id:             nextVisionPhotoFeedbackTimer
+        interval:       650
+        repeat:         false
+        onTriggered:    _nextVisionPhotoFeedback = false
+    }
+
+    Timer {
+        id:             gremsyRecordingTimer
+        interval:       1000
+        repeat:         true
+        onTriggered: {
+            if (_gremsyRecordingStartedMs > 0) {
+                _gremsyRecordingSeconds = Math.floor((Date.now() - _gremsyRecordingStartedMs) / 1000)
+            }
+        }
+    }
+
+    Connections {
+        target: PayloadManager
+        onActiveTypeChanged: {
+            if (PayloadManager.activeType !== 1) {
+                nextVisionZoomMinPulseTimer.stop()
+                nextVisionZoomUiTimer.stop()
+                nextVisionPhotoFeedbackTimer.stop()
+                _nextVisionPhotoFeedback = false
+                _zoomUiPressedDirection = 0
+                _zoomUiOverride = false
+                if (PayloadManager.nextvision) {
+                    PayloadManager.nextvision.stopZoom()
+                }
+            }
+            _syncGremsyRecordingUi()
+        }
+    }
+
+    Connections {
+        target: PayloadManager.nextvision
+        ignoreUnknownSignals: true
+
+        onZoomStepTriggered: {
+            if (_isNextVisionPayload) {
+                // Physical C1/C2 uses the controller's direction-calibrated pulse.
+                // Mirror the same one-level UI change as a tap on +/-.
+                _updateUiZoomLevel(direction)
+            }
+        }
+
+        onPhotoCaptureTriggered: {
+            if (_isNextVisionPayload) {
+                setCameraMode(true)
+                _nextVisionPhotoFeedback = true
+                nextVisionPhotoFeedbackTimer.restart()
+            }
+        }
+    }
+
+    Connections {
+        target: CustomQmlInterface
+        ignoreUnknownSignals: true
+
+        onCameraToggleRecord: {
+            if (start && _isNextVisionPayload) {
+                // A physical Record key must select the same Video mode/icon
+                // as tapping the Video side of the camera panel.
+                setCameraMode(false)
+            }
+        }
+    }
+
+    Connections {
+        target: PayloadManager.gremsy
+        ignoreUnknownSignals: true
+
+        onPhotoCaptureTriggered: {
+            if (_isGremsyPayload) {
+                // A physical photo button must select the same UI mode as
+                // tapping Photo in the panel. The capture command has already
+                // been sent directly to Gremsy by the controller.
+                _videoStreamInPhotoMode = true
+                _gremsyPhotoFeedback = true
+                gremsyPhotoFeedbackTimer.restart()
+            }
+        }
+
+        onRecordingChanged: {
+            if (_isGremsyPayload && PayloadManager.gremsy.recording && _modeIndicatorPhotoMode) {
+                // A physical record button can start Gremsy recording while
+                // the panel is still showing Photo mode. Keep the UI mode in
+                // sync with that recording action.
+                setCameraMode(false)
+            }
+            _syncGremsyRecordingUi()
+        }
+        onConnectedChanged: _syncGremsyRecordingUi()
+    }
+
+    Component.onCompleted: _syncGremsyRecordingUi()
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
@@ -195,6 +535,10 @@ Item {
                 width: height
                 radius: width
                 color: "gray"
+                // QGCMouseArea enlarges its hit box on Android. For Gremsy the
+                // enlarged area overlapped the Photo/Video switch below and a
+                // Video tap could therefore send GB_MODE=4 (gimbal reset).
+                clip: _isGremsyPayload
 
                 QGCColoredImage {
                     anchors.centerIn: parent
@@ -209,7 +553,7 @@ Item {
                 }
                 QGCMouseArea {
                     fillItem: parent
-                    onClicked: _mavlinkCamera ? _mavlinkCamera.centerGimbal() : null
+                    onClicked: _centerGimbal()
                 }
             }
             //Camera Settings
@@ -267,7 +611,7 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToVideoModeAllowed
+                    enabled: !_isGremsyPayload && _switchToVideoModeAllowed
                     onClicked: setCameraMode(false)
                 }
             }
@@ -293,15 +637,41 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: _switchToPhotoModeAllowed
+                    enabled: !_isGremsyPayload && _switchToPhotoModeAllowed
                     onClicked: setCameraMode(true)
                 }
+            }
+
+            // Gremsy: make each complete half of the switch touchable. The
+            // original hit target was only the small circular icon, which is
+            // difficult to operate on the Android controller display.
+            MouseArea {
+                z: 10
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width * 0.5
+                enabled: _isGremsyPayload && _switchToVideoModeAllowed
+                preventStealing: true
+                onClicked: setCameraMode(false)
+            }
+
+            MouseArea {
+                z: 10
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: parent.width * 0.5
+                enabled: _isGremsyPayload && _switchToPhotoModeAllowed
+                preventStealing: true
+                onClicked: setCameraMode(true)
             }
         }
 
         // ───────────────────────────────
         // 3. Photo & Recording Button
         Rectangle {
+            id: captureButton
             Layout.alignment: Qt.AlignHCenter
             color: Qt.rgba(0,0,0,0)
             width: ScreenTools.defaultFontPixelWidth * 10
@@ -312,10 +682,14 @@ Item {
 
             Rectangle {
                 anchors.centerIn: parent
-                width: parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
+                width: parent.width * (_captureButtonActive ? 0.5 : 0.75)
                 height: width
-                radius: _isShootingInCurrentMode ? 0 : width * 0.5
+                radius: _captureButtonActive ? 0 : width * 0.5
                 color: _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
+
+                Behavior on width { NumberAnimation { duration: 100 } }
+                Behavior on radius { NumberAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: 100 } }
             }
 
             MouseArea {
@@ -329,10 +703,19 @@ Item {
         // 4. Recording Time(only for recording)
         QGCLabel {
             Layout.alignment:   Qt.AlignHCenter
-            text:               (_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING) ? _mavlinkCamera.recordTimeStr : "00:00:00"
+            text:               _isGremsyPayload
+                                    ? (_payloadRecordingEffective
+                                       ? _formatElapsedTime(_gremsyRecordingSeconds)
+                                       : "00:00:00")
+                                    : ((_mavlinkCameraInVideoMode && _mavlinkCamera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING)
+                                       ? _mavlinkCamera.recordTimeStr
+                                       : "00:00:00")
+            color:              (_isGremsyPayload && _payloadRecordingEffective) ? qgcPal.colorRed : qgcPal.text
             font.pointSize:     ScreenTools.largeFontPointSize
             font.bold:          true
-            visible:            _mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo
+            visible:            _isGremsyPayload
+                                    ? !_modeIndicatorPhotoMode
+                                    : (_mavlinkCameraInVideoMode && _mavlinkCamera.capturesVideo)
         }
 
         // ───────────────────────────────
@@ -343,14 +726,14 @@ Item {
             height: width / 3
             color: qgcPal.windowShadeLight
             radius: height * 0.5
-            visible: _showModeIndicator
+            visible: _hasZoom
 
             //Zoom in
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.height * 0.8
                 height: parent.height * 0.8
-                color: zoomIn.pressed ? "black" : "gray"
+                color: (zoomInNextVision.pressed || zoomInStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.left: parent.left
                 anchors.margins: ScreenTools.defaultFontPixelWidth
@@ -365,10 +748,57 @@ Item {
                     color: "white"
                 }
                 MouseArea {
-                    id: zoomIn
+                    id: zoomInNextVision
                     anchors.fill: parent
-                    enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(1)
+                    visible: _isNextVisionPayload && _usePayload
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: _beginNextVisionZoom(true)
+                    onReleased: _endNextVisionZoom(true)
+                    onCanceled: _endNextVisionZoom(true)
+                }
+                MouseArea {
+                    id: zoomInStandard
+                    anchors.fill: parent
+                    visible: !(_isNextVisionPayload && _usePayload)
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: {
+                        // Preserve the original behavior for every non-NextVision camera.
+                        if (_usePayload) {
+                            if (_isGremsyPayload) {
+                                PayloadManager.gremsy.stepZoom(1)
+                            } else {
+                                _activePayload.zoomIn()
+                                _zoomInActive = true
+                            }
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
+                            if (_zoomInCanContinuous) {
+                                _startCameraZoom(1)
+                                _zoomInActive = true
+                            } else {
+                                _stepCameraZoom(1)
+                            }
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomInActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomInActive = false
+                        } else if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomInActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomInActive = false
+                        } else if (_zoomInActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomInActive = false
+                        }
+                    }
                 }
             }
 
@@ -396,7 +826,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.height * 0.8
                 height: parent.height * 0.8
-                color: zoomOut.pressed ? "black" : "gray"
+                color: (zoomOutNextVision.pressed || zoomOutStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.right: parent.right
                 anchors.margins: ScreenTools.defaultFontPixelWidth
@@ -411,10 +841,59 @@ Item {
                     color: "white"
                 }
                 MouseArea {
-                    id: zoomOut
+                    id: zoomOutNextVision
                     anchors.fill: parent
-                    enabled: _hasZoom
-                    onClicked: _mavlinkCamera.stepZoom(-1)
+                    visible: _isNextVisionPayload && _usePayload
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: _beginNextVisionZoom(false)
+                    onReleased: _endNextVisionZoom(false)
+                    onCanceled: _endNextVisionZoom(false)
+                }
+                MouseArea {
+                    id: zoomOutStandard
+                    anchors.fill: parent
+                    visible: !(_isNextVisionPayload && _usePayload)
+                    enabled: visible && _hasZoom
+                    preventStealing: true
+                    onPressed: {
+                        // Preserve the original behavior for every non-NextVision camera.
+                        if (_usePayload) {
+                            if (_isGremsyPayload) {
+                                PayloadManager.gremsy.stepZoom(-1)
+                            } else {
+                                _activePayload.zoomOut()
+                                _zoomOutActive = true
+                            }
+                        } else if (_mavlinkCamera && _mavlinkCamera.hasZoom) {
+                            if (_digitalZoomActive) {
+                                _stepCameraZoom(-1)
+                            } else if (_zoomOutCanContinuous) {
+                                _startCameraZoom(-1)
+                                _zoomOutActive = true
+                            } else {
+                                _stepCameraZoom(-1)
+                            }
+                        }
+                    }
+                    onReleased: {
+                        if (_zoomOutActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomOutActive = false
+                        } else if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
+                    }
+                    onCanceled: {
+                        if (_zoomOutActive && _usePayload) {
+                            _activePayload.stopZoom()
+                            _zoomOutActive = false
+                        } else if (_zoomOutActive && _mavlinkCamera) {
+                            _mavlinkCamera.stopZoom()
+                            _zoomOutActive = false
+                        }
+                    }
                 }
             }
         }
@@ -430,6 +909,9 @@ Item {
         // ───────────────────────────────
         // 7. Gimbal Yaw, Pitch Text
         GridLayout {
+            // DragonEye's ATTITUDE packets describe the intermediary
+            // autopilot, not a reliable gimbal line-of-sight angle.
+            visible: !_isNextVisionPayload
             columns: 2
             columnSpacing: ScreenTools.defaultFontPixelWidth
             rowSpacing: ScreenTools.defaultFontPixelHeight / 2
@@ -488,6 +970,7 @@ Item {
         // ───────────────────────────────
         // 8. Separator Line
         Rectangle {
+            visible: !_isNextVisionPayload
             color: "lightgray"
             height: 1
             Layout.fillWidth: true
@@ -502,13 +985,13 @@ Item {
                 source: "/res/SDCard.svg"
                 width: ScreenTools.defaultFontPixelWidth * 2
                 height: ScreenTools.defaultFontPixelWidth * 2
-                visible:            _mavlinkCameraStorageReady
+                visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
             }
 
             QGCLabel {
-                text:_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : ""
+                text:               _mavlinkCameraSdCardMissing ? qsTr("SD Card Missing") : (_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : "")
                 font.pointSize:     ScreenTools.defaultFontPointSize * 1.2
-                visible:            _mavlinkCameraStorageReady
+                visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
                 Layout.alignment: Qt.AlignVCenter
             }
         }
@@ -521,6 +1004,29 @@ Item {
             id:         settingsDialog            
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
+
+            // Nano tracker can runaway on very close targets — warn the operator
+            // only when the tracking algorithm is actively switched to "Nano".
+            property var _trackAlgorithmFact: _mavlinkCamera ? _mavlinkCamera.getFact("TRACK_ALGORITHM") : null
+
+            Connections {
+                target: settingsDialog._trackAlgorithmFact
+                ignoreUnknownSignals: true
+                function onValueChanged() {
+                    if (settingsDialog._trackAlgorithmFact
+                            && settingsDialog._trackAlgorithmFact.value === "Nano") {
+                        nanoRunawayWarning.open()
+                    }
+                }
+            }
+
+            MessageDialog {
+                id:                 nanoRunawayWarning
+                title:              qsTr("Tracking Algorithm")
+                text:               qsTr("If the target is close, camera runaway may occur.")
+                standardButtons:    StandardButton.Ok
+                onAccepted:         nanoRunawayWarning.close()
+            }
 
             ColumnLayout {
                 spacing: _margins
@@ -638,7 +1144,11 @@ Item {
                         displayValue:               true
                         updateValueWhileDragging:   true
                         visible:                    _mavlinkCameraHasThermalVideoStream && _mavlinkCamera.thermalMode === QGCCameraControl.THERMAL_BLEND
-                        onValueChanged:             _mavlinkCamera.thermalOpacity = value
+                        onPressedChanged: {
+                            if (!pressed && _mavlinkCamera && Math.abs(_mavlinkCamera.thermalOpacity - value) > 0.1) {
+                                _mavlinkCamera.thermalOpacity = value
+                            }
+                        }
                     }
 
                     // Mavlink Camera Protocol active settings

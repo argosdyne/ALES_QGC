@@ -26,9 +26,14 @@ Item {
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
     FactPanelController { id: controller; }
 
-    property Fact batVChargedFact:  controller.getParameterFact(-1, "BAT1_V_CHARGED")
-    property Fact batVEmptyFact:    controller.getParameterFact(-1, "BAT1_V_EMPTY")
-    property Fact batCellsFact:     controller.getParameterFact(-1, "BAT1_N_CELLS")
+    function batteryParamName(paramSuffix) {
+        var indexedName = "BAT1_" + paramSuffix
+        return controller.parameterExists(-1, indexedName) ? indexedName : "BAT_" + paramSuffix
+    }
+
+    property Fact batVChargedFact:  controller.getParameterFact(-1, batteryParamName("V_CHARGED"))
+    property Fact batVEmptyFact:    controller.getParameterFact(-1, batteryParamName("V_EMPTY"))
+    property Fact batCellsFact:     controller.getParameterFact(-1, batteryParamName("N_CELLS"))
 
     Column {
         anchors.fill:       parent

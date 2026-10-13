@@ -60,6 +60,8 @@ libs/thirdParty/libxbee/lib/
 GeneratedFiles/
 gstreamer-1.0-android*
 localization/qgroundcontrol/
+.lh/
+.lh/.lhignore
 
 *.autosave
 .settings/

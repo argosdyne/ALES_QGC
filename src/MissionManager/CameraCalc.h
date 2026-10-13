@@ -249,6 +249,11 @@ signals:
     //GreenValley
     void isGVLidarChanged                   (void);
     void isGVAltitudeEnableChanged          (void);
+    // Agrowing: emitted when the Agrowing camera is selected, so SurveyComplexItem can apply
+    // its own grid-angle / turnaround-distance presets (those facts are not owned by CameraCalc).
+    void agrowingPresetSelected             (void);
+    // Emitted when switching away from Agrowing, so SurveyComplexItem restores its saved values.
+    void agrowingPresetCleared              (void);
 
 private slots:
     void _recalcTriggerDistance             (void);
@@ -261,6 +266,14 @@ private:
     QString _validCanonicalCameraName       (const QString& cameraName);
 
     bool                                _disableRecalc              = false;
+
+    // Agrowing preset: remember the values active before the preset was applied, so they can be
+    // restored when the user switches away to another camera.
+    bool                                _agrowingPresetActive       = false;
+    QVariant                            _savedValueSetIsDistance;
+    QVariant                            _savedDistanceToSurface;
+    QVariant                            _savedFrontalOverlap;
+    QVariant                            _savedSideOverlap;
 
     QString                             _cameraModel;
     QStringList                         _cameraBrandList;

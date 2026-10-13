@@ -171,12 +171,38 @@ void FTPManager::_downloadComplete(const QString& errorMsg)
 
 void FTPManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 {
-    if (message.msgid != MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL ||
-            message.sysid != _vehicle->id() || message.compid != _ftpCompId) {
+    if (message.msgid != MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL) {
+        return;
+    }
+
+    qCInfo(FTPManagerLog) << "ftp-rx message"
+                          << "sysid" << message.sysid
+                          << "compid" << message.compid
+                          << "expectedSysid" << _vehicle->id()
+                          << "expectedCompid" << _ftpCompId
+                          << "msgLen" << message.len
+                          << "magic" << QStringLiteral("0x%1").arg(message.magic, 2, 16, QLatin1Char('0'))
+                          << "incompatFlags" << QStringLiteral("0x%1").arg(message.incompat_flags, 2, 16, QLatin1Char('0'))
+                          << "compatFlags" << QStringLiteral("0x%1").arg(message.compat_flags, 2, 16, QLatin1Char('0'))
+                          << "stateIndex" << _currentStateMachineIndex
+                          << "expectedSeq" << _expectedIncomingSeqNumber;
+
+    if (message.sysid != _vehicle->id()) {
+        qCWarning(FTPManagerLog) << "ftp-rx dropped wrong-sysid"
+                                 << "sysid" << message.sysid
+                                 << "expectedSysid" << _vehicle->id();
+        return;
+    }
+
+    if (message.compid != _ftpCompId) {
+        qCWarning(FTPManagerLog) << "ftp-rx dropped wrong-compid"
+                                 << "compid" << message.compid
+                                 << "expectedCompid" << _ftpCompId;
         return;
     }
 
     if (_currentStateMachineIndex == -1) {
+        qCWarning(FTPManagerLog) << "ftp-rx dropped inactive-state-machine";
         return;
     }
 
@@ -186,10 +212,24 @@ void FTPManager::_mavlinkMessageReceived(const mavlink_message_t& message)
     // Make sure we are the target system
     int qgcId = qgcApp()->toolbox()->mavlinkProtocol()->getSystemId();
     if (data.target_system != qgcId) {
+        qCWarning(FTPManagerLog) << "ftp-rx dropped wrong-target-system"
+                                 << "targetSystem" << data.target_system
+                                 << "qgcSystemId" << qgcId
+                                 << "targetComponent" << data.target_component;
         return;
     }
     
     MavlinkFTP::Request* request = (MavlinkFTP::Request*)&data.payload[0];
+
+    qCInfo(FTPManagerLog) << "ftp-rx payload"
+                          << "targetSystem" << data.target_system
+                          << "targetComponent" << data.target_component
+                          << "opcode" << MavlinkFTP::opCodeToString(static_cast<MavlinkFTP::OpCode_t>(request->hdr.opcode))
+                          << "reqOpcode" << MavlinkFTP::opCodeToString(static_cast<MavlinkFTP::OpCode_t>(request->hdr.req_opcode))
+                          << "seqNumber" << request->hdr.seqNumber
+                          << "session" << request->hdr.session
+                          << "offset" << request->hdr.offset
+                          << "size" << request->hdr.size;
 
     // Ignore old/reordered packets (handle wrap-around properly)
     uint16_t actualIncomingSeqNumber = request->hdr.seqNumber;
@@ -260,6 +300,12 @@ void FTPManager::_openFileROBegin(void)
 
 void FTPManager::_openFileROTimeout(void)
 {
+    qCWarning(FTPManagerLog) << "ftp-timeout open-file-ro"
+                             << "path" << _downloadState.fullPathOnVehicle
+                             << "ftpCompId" << _ftpCompId
+                             << "expectedSeq" << _expectedIncomingSeqNumber
+                             << "retryCount" << _downloadState.retryCount
+                             << "stateIndex" << _currentStateMachineIndex;
     qCDebug(FTPManagerLog) << "_openFileROTimeout";
     _downloadComplete(tr("Download failed"));
 }
@@ -612,6 +658,25 @@ void FTPManager::_sendRequestExpectAck(MavlinkFTP::Request* request)
         request->hdr.seqNumber = _expectedIncomingSeqNumber + 1;    // Outgoing is 1 past last incoming
         _expectedIncomingSeqNumber += 2;
 
+        QString requestPath;
+        if (request->hdr.opcode == MavlinkFTP::kCmdOpenFileRO && request->hdr.size > 0) {
+            requestPath = QString::fromLatin1(reinterpret_cast<const char*>(request->data), request->hdr.size);
+        }
+
+        qCInfo(FTPManagerLog) << "ftp-tx request"
+                              << "opcode" << MavlinkFTP::opCodeToString(static_cast<MavlinkFTP::OpCode_t>(request->hdr.opcode))
+                              << "seqNumber" << request->hdr.seqNumber
+                              << "expectedIncomingSeq" << _expectedIncomingSeqNumber
+                              << "session" << request->hdr.session
+                              << "offset" << request->hdr.offset
+                              << "size" << request->hdr.size
+                              << "path" << requestPath
+                              << "targetSysid" << _vehicle->id()
+                              << "targetCompid" << _ftpCompId
+                              << "sourceSysid" << qgcApp()->toolbox()->mavlinkProtocol()->getSystemId()
+                              << "sourceCompid" << qgcApp()->toolbox()->mavlinkProtocol()->getComponentId()
+                              << "channel" << sharedLink->mavlinkChannel();
+
         qCDebug(FTPManagerLog) << "_sendRequestExpectAck opcode:" << MavlinkFTP::opCodeToString(static_cast<MavlinkFTP::OpCode_t>(request->hdr.opcode)) << "seqNumber:" << request->hdr.seqNumber;
 
         mavlink_message_t message;
@@ -623,6 +688,16 @@ void FTPManager::_sendRequestExpectAck(MavlinkFTP::Request* request)
                                                      _vehicle->id(),
                                                      _ftpCompId,
                                                      (uint8_t*)request);                                    // Payload
+        qCInfo(FTPManagerLog) << "ftp-tx packed"
+                              << "msgid" << message.msgid
+                              << "sysid" << message.sysid
+                              << "compid" << message.compid
+                              << "targetSysid" << _vehicle->id()
+                              << "targetCompid" << _ftpCompId
+                              << "msgLen" << message.len
+                              << "magic" << QStringLiteral("0x%1").arg(message.magic, 2, 16, QLatin1Char('0'))
+                              << "incompatFlags" << QStringLiteral("0x%1").arg(message.incompat_flags, 2, 16, QLatin1Char('0'))
+                              << "compatFlags" << QStringLiteral("0x%1").arg(message.compat_flags, 2, 16, QLatin1Char('0'));
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
     }
 }

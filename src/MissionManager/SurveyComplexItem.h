@@ -141,6 +141,12 @@ private:
     SettingsFact    _splitConcavePolygonsFact;
     int             _entryPoint;
 
+    // Agrowing preset: remember grid angle / turnaround before the preset is applied, to restore
+    // them when switching away from the Agrowing camera.
+    bool            _agrowingSurveyPresetActive = false;
+    QVariant        _savedGridAngle;
+    QVariant        _savedTurnAroundDistance;
+
     static const char* _jsonGridAngleKey;
     static const char* _jsonEntryPointKey;
     static const char* _jsonFlyAlternateTransectsKey;

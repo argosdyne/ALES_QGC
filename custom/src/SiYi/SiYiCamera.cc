@@ -3,6 +3,8 @@
 
 #include "SiYiCamera.h"
 
+QGC_LOGGING_CATEGORY(SiYiCameraLog, "SiYiCameraLog")
+
 SiYiCamera::SiYiCamera(QObject *parent)
     : SiYiTcpClient("192.168.144.25", 37256)
 {
@@ -59,7 +61,7 @@ bool SiYiCamera::autoFocus(int x, int y, int w, int h)
 
     quint16 cookedX = x*resolutionWidth_/w;
     quint16 cookedY = y*resolutionWidth_/h;
-    qInfo() << cookedX << cookedY << x << y << w << h << resolutionWidth_ << resolutionHeight_;
+    qCDebug(SiYiCameraLog) << cookedX << cookedY << x << y << w << h << resolutionWidth_ << resolutionHeight_;
     body.append(reinterpret_cast<char*>(&cookedX), 2);
     body.append(reinterpret_cast<char*>(&cookedY), 2);
 
@@ -243,7 +245,7 @@ void SiYiCamera::analyzeMessage()
                 }
 
                 if (!(msg.header.cmdId == 0x90)) {
-                    qInfo() << info << "Rx:" << packet.toHex(' ');
+                    qCDebug(SiYiCameraLog) << info << "Rx:" << packet.toHex(' ');
                 }
 
                 rxBytes_.remove(0, msgLen);

@@ -24,6 +24,7 @@ import QGroundControl.FactControls      1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FlightMap         1.0
 import QGroundControl.Palette           1.0
+import QGroundControl.Payload           1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Vehicle           1.0
 
@@ -61,7 +62,12 @@ Item {
     property bool   _cameraModeUndefined:   !_cameraPhotoMode && !_cameraVideoMode
     property bool   _recordingVideo:        _cameraVideoMode && _camera.videoStatus === QGCCameraControl.VIDEO_CAPTURE_STATUS_RUNNING
     property bool   _settingsEnabled:       !_communicationLost && _camera && _camera.cameraMode !== QGCCameraControl.CAM_MODE_UNDEFINED && _camera.photoStatus === QGCCameraControl.PHOTO_CAPTURE_IDLE && !_recordingVideo
-    property bool   _hasZoom:               _camera && _camera.hasZoom
+    property var    _activePayload:         PayloadManager.active
+    property bool   _usePayload:            _activePayload && (_activePayload.connected
+                                                   || (PayloadManager.activeType === 1
+                                                       && PayloadManager.nextvision
+                                                       && PayloadManager.nextvision.vehicleControlAvailable))
+    property bool   _hasZoom:               (_camera && _camera.hasZoom) || _usePayload
     property Fact   _irPaletteFact:         _camera ? _camera.irPalette : null
     property bool   _isShortScreen:         mainWindow.height / ScreenTools.realPixelDensity < 120
     property real   _gimbalPitch:           activeVehicle ? -activeVehicle.gimbalPitch : 0
@@ -73,6 +79,64 @@ Item {
     function capitalize(str) {
         var strs = str
         return strs.toUpperCase()
+    }
+
+    function _homeCameraOrPayload() {
+        if (_usePayload) {
+            _activePayload.gimbalHome()
+        } else if (_camera) {
+            _camera.zoomLevel = 1
+        }
+    }
+
+    function _gimbalHomeCameraOrPayload() {
+        if (_usePayload) {
+            _activePayload.gimbalHome()
+        } else if (_camera && typeof _camera.centerGimbal === "function") {
+            _camera.centerGimbal()
+        }
+    }
+
+    function _zoomCameraOrPayload(direction) {
+        if (_usePayload) {
+            if (PayloadManager.activeType === 0) {
+                PayloadManager.gremsy.stepZoom(direction)
+            } else {
+                direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
+            }
+        } else if (_camera && _camera.hasZoom) {
+            if (typeof _camera.stepZoomFromUi === "function") {
+                _camera.stepZoomFromUi(direction)
+            } else if (typeof _camera.stepZoom === "function") {
+                _camera.stepZoom(direction)
+            }
+        }
+    }
+
+    function _startZoomCameraOrPayload(direction) {
+        if (_usePayload) {
+            direction > 0 ? _activePayload.zoomIn() : _activePayload.zoomOut()
+        } else if (_camera && _camera.hasZoom) {
+            if (direction < 0 && typeof _camera.startZoomFromUi === "function") {
+                _camera.startZoomFromUi(direction)
+            } else if (typeof _camera.startZoom === "function") {
+                _camera.startZoom(direction)
+            }
+        }
+    }
+
+    function _stopZoomCameraOrPayload() {
+        if (_usePayload) {
+            _activePayload.stopZoom()
+        } else if (_camera) {
+            _camera.stopZoom()
+        }
+    }
+
+    Connections {
+        target: _dynamicCameras
+        function onCurrentCameraChanged() {}
+        function onCamerasChanged() {}
     }
 
 //    Connections {
@@ -146,7 +210,7 @@ Item {
                 }
             }
         }
-        // RestZoom
+        // Home / Reset Zoom
         Rectangle {
             width:          zoomControl.width
             height:         zoomControl.height
@@ -156,7 +220,7 @@ Item {
             anchors.right:  parent.right
             QGCLabel {
                 anchors.centerIn: parent
-                text: qsTr("Rest Zoom")
+                text: _usePayload ? qsTr("Home") : qsTr("Reset Zoom")
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 font.pointSize: ScreenTools.mediumFontPointSize
@@ -164,7 +228,7 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    _camera.zoomLevel = 1
+                    _root._homeCameraOrPayload()
                 }
             }
         }
@@ -175,21 +239,28 @@ Item {
             mainColor:      qgcPal.window
             contentColor:   qgcPal.text
             fontPointSize:  ScreenTools.defaultFontPointSize * 1.75
-            zoomLevelVisible: false
-            zoomLevel:      _hasZoom ? _camera.zoomLevel : NaN
-            onlyContinousZoom: true
+            zoomLevelVisible: _hasZoom
+            zoomLevel:      _usePayload
+                                ? (PayloadManager.activeType === 0 ? PayloadManager.gremsy.zoomLevel : 1)
+                                : (_camera && _camera.hasZoom
+                                ? (typeof _camera.displayZoomLevel !== "undefined"
+                                   ? _camera.displayZoomLevel
+                                   : _camera.zoomLevel)
+                                : NaN)
+            showZoomPrecision: false
+            onlyContinousZoom: false
             anchors.right:  parent.right
             onZoomIn: {
-                _camera.stepZoom(1)
+                _root._zoomCameraOrPayload(1)
             }
             onZoomOut: {
-                _camera.stepZoom(-1)
+                _root._zoomCameraOrPayload(-1)
             }
             onContinuousZoomStart: {
-                _camera.startZoom(zoomIn ? 1 : -1)
+                _root._startZoomCameraOrPayload(zoomIn ? 1 : -1)
             }
             onContinuousZoomStop: {
-                _camera.stopZoom()
+                _root._stopZoomCameraOrPayload()
             }
         }
         //---------------------------------------------------------------------
@@ -541,6 +612,11 @@ Item {
                     fillMode:       Image.PreserveAspectFit
                     sourceSize.width: width
                     anchors.horizontalCenter: parent.horizontalCenter
+                    MouseArea {
+                        anchors.fill:   parent
+                        enabled:        _usePayload || (_camera && typeof _camera.centerGimbal === "function")
+                        onClicked:      _root._gimbalHomeCameraOrPayload()
+                    }
                 }
                 Image {
                     id:                 pitchScale
@@ -602,6 +678,12 @@ Item {
         x:                  Math.round((mainWindow.width  - width)  * 0.5)
         y:                  Math.round((mainWindow.height - height) * 0.5)
         closePolicy:        Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        onOpened: {}
+        Connections {
+            target: _camera
+            function onParametersReady() {}
+            function onActiveSettingsChanged() {}
+        }
         background: Rectangle {
             anchors.fill:   parent
             color:          qgcPal.globalTheme === QGCPalette.Light ? Qt.rgba(1,1,1,0.95) : Qt.rgba(0,0,0,0.75)
@@ -1117,4 +1199,3 @@ Item {
         }
     }
 }
-

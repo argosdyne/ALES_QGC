@@ -15,6 +15,7 @@
 #include <QStringList>
 #include <QTextToSpeech>
 
+#include <QUdpSocket>
 
 #include "QGCApplication.h"
 
@@ -32,6 +33,8 @@ public:
     Q_INVOKABLE void _loopAudio(int index);
 
     void sendCommand(int playMode, int audioIndex = 0);
+    void _sendPX4AudioCommand(int playMode, int audioIndex = 0);
+    QUdpSocket* _udpSocket = nullptr;
 
 
 public slots:

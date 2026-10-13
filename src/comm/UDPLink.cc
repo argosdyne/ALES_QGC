@@ -34,6 +34,13 @@ struct UdpWriteErrorLogState {
     int suppressedCount = 0;
 };
 
+struct UdpReceiveLogState {
+    qint64 firstLogMs = 0;
+    qint64 lastLogMs = 0;
+    int packetCount = 0;
+    qint64 byteCount = 0;
+};
+
 void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
 {
     static constexpr qint64 kUdpWriteErrorLogWindowMs = 5000;
@@ -55,6 +62,45 @@ void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
         .arg(address.toString())
         .arg(port)
         .arg(suppressedCount);
+}
+
+void logUdpReceiveThrottled(const QString& linkName, quint16 localPort, const QHostAddress& sender, quint16 senderPort, qint64 datagramSize)
+{
+    static constexpr qint64 kUdpReceiveLogWindowMs = 5000;
+    static QHash<QString, UdpReceiveLogState> s_udpReceiveLogState;
+
+    const QString key = QStringLiteral("%1:%2:%3:%4").arg(linkName).arg(localPort).arg(sender.toString()).arg(senderPort);
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    UdpReceiveLogState& state = s_udpReceiveLogState[key];
+    if (state.firstLogMs == 0) {
+        state.firstLogMs = now;
+        state.lastLogMs = now;
+        state.packetCount = 1;
+        state.byteCount = datagramSize;
+        qCWarning(LinkInterfaceLog) << "UDP receive first packet"
+                                    << linkName
+                                    << "localPort" << localPort
+                                    << "sender" << sender.toString()
+                                    << "senderPort" << senderPort
+                                    << "bytes" << datagramSize;
+        return;
+    }
+
+    state.packetCount++;
+    state.byteCount += datagramSize;
+    if ((now - state.lastLogMs) >= kUdpReceiveLogWindowMs) {
+        qCWarning(LinkInterfaceLog) << "UDP receive rate"
+                                    << linkName
+                                    << "localPort" << localPort
+                                    << "sender" << sender.toString()
+                                    << "senderPort" << senderPort
+                                    << "windowMs" << (now - state.lastLogMs)
+                                    << "packets" << state.packetCount
+                                    << "bytes" << state.byteCount;
+        state.lastLogMs = now;
+        state.packetCount = 0;
+        state.byteCount = 0;
+    }
 }
 
 }
@@ -218,8 +264,13 @@ void UDPLink::readBytes()
         // but will fail on the readDatagram call
         qint64 slen = _socket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
         if (slen == -1) {
+            qCWarning(LinkInterfaceLog) << "UDP readDatagram failed"
+                                        << _config->name()
+                                        << "localPort" << _udpConfig->localPort()
+                                        << "error" << _socket->errorString();
             break;
         }
+        logUdpReceiveThrottled(_config->name(), _udpConfig->localPort(), sender, senderPort, slen);
         databuffer.append(datagram);
         //-- Wait a bit before sending it over
         if (databuffer.size() > 10 * 1024) {
@@ -239,6 +290,13 @@ void UDPLink::readBytes()
             //qDebug() << "Adding target" << asender << senderPort;
             UDPCLient* target = new UDPCLient(asender, senderPort);
             _sessionTargets.append(target);
+            qCWarning(LinkInterfaceLog) << "UDP session target added"
+                                        << _config->name()
+                                        << "localPort" << _udpConfig->localPort()
+                                        << "sender" << sender.toString()
+                                        << "mappedSender" << asender.toString()
+                                        << "senderPort" << senderPort
+                                        << "sessionTargets" << _sessionTargets.count();
         }
         locker.unlock();
     }
@@ -298,8 +356,16 @@ bool UDPLink::_hardwareConnect()
 #endif
         _registerZeroconf(_udpConfig->localPort(), kZeroconfRegistration);
         QObject::connect(_socket, &QUdpSocket::readyRead, this, &UDPLink::readBytes);
+        qCWarning(LinkInterfaceLog) << "UDP bound"
+                                    << _config->name()
+                                    << "localPort" << _udpConfig->localPort()
+                                    << "targetHosts" << _udpConfig->hostList();
         emit connected();
     } else {
+        qCWarning(LinkInterfaceLog) << "UDP bind failed"
+                                    << _config->name()
+                                    << "localPort" << _udpConfig->localPort()
+                                    << "error" << _socket->errorString();
         emit communicationError(tr("UDP Link Error"), tr("Error binding UDP port: %1").arg(_socket->errorString()));
     }
     return _connectState;

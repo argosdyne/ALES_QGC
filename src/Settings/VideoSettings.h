@@ -56,14 +56,18 @@ public:
     Q_PROPERTY(QString  tcpVideoSource          READ tcpVideoSource         CONSTANT)
     Q_PROPERTY(QString  mpegtsVideoSource       READ mpegtsVideoSource      CONSTANT)
     Q_PROPERTY(QString  disabledVideoSource     READ disabledVideoSource    CONSTANT)
+    Q_PROPERTY(bool     rtspUrlUserSet          READ rtspUrlUserSet         NOTIFY rtspUrlUserSetChanged)
 
     bool     streamConfigured       ();
+    bool     rtspUrlUserSet         () const { return _rtspUrlUserSet; }
     QString  rtspVideoSource        () { return videoSourceRTSP; }
     QString  udp264VideoSource      () { return videoSourceUDPH264; }
     QString  udp265VideoSource      () { return videoSourceUDPH265; }
     QString  tcpVideoSource         () { return videoSourceTCP; }
     QString  mpegtsVideoSource      () { return videoSourceMPEGTS; }
     QString  disabledVideoSource    () { return videoDisabled; }
+
+    Q_INVOKABLE void setRtspUrlUserSet(bool userSet);
 
     static const char* videoSourceNoVideo;
     static const char* videoDisabled;
@@ -80,6 +84,7 @@ public:
 
 signals:
     void streamConfiguredChanged    (bool configured);
+    void rtspUrlUserSetChanged      (bool userSet);
 
 private slots:
     void _configChanged             (QVariant value);
@@ -89,6 +94,7 @@ private:
 
 private:
     bool _noVideo = false;
+    bool _rtspUrlUserSet = false;
 
 };
 
