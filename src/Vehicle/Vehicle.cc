@@ -3275,21 +3275,19 @@ void Vehicle::startMission()
     _firmwarePlugin->startMission(this);
 }
 
-void Vehicle::guidedModeGotoLocation(const QGeoCoordinate& gotoCoord)
+bool Vehicle::guidedModeGotoLocation(const QGeoCoordinate& gotoCoord, bool useTargetAltitude)
 {
-    if (!guidedModeSupported()) {
+    if (!guidedModeSupported() || (useTargetAltitude && firmwareType() != MAV_AUTOPILOT_PX4 && firmwareType() != MAV_AUTOPILOT_ARDUPILOTMEGA)) {
         qgcApp()->showAppMessage(guided_mode_not_supported_by_vehicle);
-        return;
+        return false;
     }
-    if (!coordinate().isValid()) {
-        return;
+    // Input values were checked before confirmation. Only recheck mutable flight state here.
+    if (!armed() || !flying() || vehicleLinkManager()->communicationLost()) {
+        qgcApp()->showAppMessage(tr("GoTo requires an airborne, armed vehicle with an active connection."));
+        return false;
     }
-    double maxDistance = _settingsManager->flyViewSettings()->maxGoToLocationDistance()->rawValue().toDouble();
-    if (coordinate().distanceTo(gotoCoord) > maxDistance) {
-        qgcApp()->showAppMessage(QString("New location is too far. Must be less than %1 %2.").arg(qRound(FactMetaData::metersToAppSettingsHorizontalDistanceUnits(maxDistance).toDouble())).arg(FactMetaData::appSettingsHorizontalDistanceUnitsString()));
-        return;
-    }
-    _firmwarePlugin->guidedModeGotoLocation(this, gotoCoord);
+    _firmwarePlugin->guidedModeGotoLocation(this, gotoCoord, useTargetAltitude);
+    return true;
 }
 
 void Vehicle::guidedModeChangeAltitude(double altitudeChange, bool pauseVehicle)

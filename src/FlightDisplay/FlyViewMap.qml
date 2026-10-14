@@ -42,6 +42,62 @@ FlightMap {
     property var    rightPanelWidth
     property var    planMasterController
     property bool   pipMode:                    false   // true: map is shown in a small pip mode
+    // A draft is deliberately separate from the existing, commanded GoTo marker.
+    property bool   gotoSelectionEnabled:       false
+    readonly property bool gotoConfirmationPending: !!(globals.guidedControllerFlyView &&
+        globals.guidedControllerFlyView.confirmDialog && globals.guidedControllerFlyView.confirmDialog.visible &&
+        globals.guidedControllerFlyView.confirmDialog.actionData &&
+        globals.guidedControllerFlyView.confirmDialog.actionData.map === _root)
+    property var    gotoDraftCoordinate:        QtPositioning.coordinate()
+    readonly property bool gotoAvailable:       globals.guidedControllerFlyView ? globals.guidedControllerFlyView.showGotoLocation : false
+
+    function beginGotoSelection(coordinate) {
+        if (!gotoAvailable || pipMode) {
+            return
+        }
+        gotoSelectionEnabled = true
+        setGotoDraftCoordinate(coordinate, false)
+    }
+
+    onGotoAvailableChanged: {
+        if (!gotoAvailable) {
+            cancelGotoSelection()
+        }
+    }
+
+    function setGotoDraftCoordinate(coordinate, panToTarget) {
+        if (!gotoAvailable || !gotoSelectionEnabled || gotoConfirmationPending || !coordinate.isValid) {
+            return
+        }
+        if (!gotoDraftCoordinate.isValid || gotoDraftCoordinate.latitude !== coordinate.latitude || gotoDraftCoordinate.longitude !== coordinate.longitude) {
+            gotoDraftCoordinate = QtPositioning.coordinate(coordinate.latitude, coordinate.longitude)
+        }
+        _disableVehicleTracking = true
+        if (panToTarget) {
+            center = gotoDraftCoordinate
+        }
+    }
+
+    function cancelGotoSelection() {
+        if (gotoConfirmationPending && globals.guidedControllerFlyView.confirmDialog.visible) {
+            globals.guidedControllerFlyView.confirmDialog.confirmCancelled()
+        }
+        gotoSelectionEnabled = false
+        gotoDraftCoordinate = QtPositioning.coordinate()
+    }
+
+    function completeGotoSelection(coordinate) {
+        gotoLocationItem.show(coordinate)
+        cancelGotoSelection()
+    }
+
+    on_ActiveVehicleChanged: cancelGotoSelection()
+    onPipModeChanged: {
+        _adjustMapZoomForPipMode()
+        if (pipMode) {
+            cancelGotoSelection()
+        }
+    }
     property var    toolInsets                          // Insets for the center viewport area
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
@@ -70,8 +126,6 @@ FlightMap {
         }
         _saveZoomLevelSetting = true
     }
-
-    onPipModeChanged: _adjustMapZoomForPipMode()
 
     onVisibleChanged: {
         if (visible) {
@@ -412,6 +466,41 @@ FlightMap {
         }
     }
 
+    MapPolyline {
+        visible: _root.gotoSelectionEnabled && _root.gotoDraftCoordinate.isValid && _activeVehicleCoordinate.isValid
+        z: QGroundControl.zOrderMapItems
+        line.width: 2
+        line.color: QGroundControl.globalPalette.primaryButton
+        path: visible ? [_activeVehicleCoordinate, _root.gotoDraftCoordinate] : []
+    }
+
+    MapQuickItem {
+        id: gotoDraftMarker
+        coordinate: _root.gotoDraftCoordinate
+        visible: _root.gotoSelectionEnabled && _root.gotoDraftCoordinate.isValid
+        z: QGroundControl.zOrderMapItems
+        anchorPoint.x: sourceItem.anchorPointX
+        anchorPoint.y: sourceItem.anchorPointY
+        sourceItem: MissionItemIndexLabel {
+            checked: true
+            index: -1
+            label: qsTr("GoTo target")
+        }
+    }
+
+    MissionItemIndicatorDrag {
+        mapControl: _root
+        itemIndicator: gotoDraftMarker
+        itemCoordinate: _root.gotoDraftCoordinate
+        visible: gotoDraftMarker.visible && !_root.gotoConfirmationPending
+        onItemCoordinateChanged: {
+            if (itemCoordinate.isValid) {
+                _root.setGotoDraftCoordinate(itemCoordinate, false)
+            }
+        }
+        onDragStop: itemCoordinate = Qt.binding(function() { return _root.gotoDraftCoordinate })
+    }
+
     // GoTo Location visuals
     MapQuickItem {
         id:             gotoLocationItem
@@ -578,6 +667,10 @@ FlightMap {
         anchors.fill: parent
         
         onClicked: {
+            if (_root.gotoSelectionEnabled) {
+                _root.setGotoDraftCoordinate(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false), false)
+                return
+            }
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
                 (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
                 orbitMapCircle.hide()
@@ -642,13 +735,12 @@ FlightMap {
             QGCButton {
                 Layout.fillWidth:   true
                 text:               qsTr("Go to location")
-                visible:            globals.guidedControllerFlyView.showGotoLocation
+                visible:            _root.gotoAvailable
                 onClicked: {
                     if (popup.opened) {
                         popup.close()
                     }
-                    gotoLocationItem.show(mapClickCoord)
-                    globals.guidedControllerFlyView.confirmAction(globals.guidedControllerFlyView.actionGoto, mapClickCoord, gotoLocationItem)
+                    _root.beginGotoSelection(mapClickCoord)
                 }
             }
 

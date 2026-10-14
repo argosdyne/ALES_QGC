@@ -457,8 +457,15 @@ Item {
             break;
         case actionGoto:
             confirmDialog.title = gotoTitle
-            confirmDialog.message = gotoMessage
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showGotoLocation })
+            confirmDialog.message = actionData.coordinate ?
+                qsTr("GoTo %1, %2\nAltitude: %3 - %4")
+                    .arg(actionData.coordinate.latitude.toFixed(7)).arg(actionData.coordinate.longitude.toFixed(7))
+                    .arg(actionData.altitudeText).arg(QGroundControl.altitudeModeShortDescription(actionData.altitudeMode)) : gotoMessage
+            confirmDialog.hideTrigger = Qt.binding(function() {
+                return !showGotoLocation || (actionData.coordinate &&
+                    (actionData.vehicle !== _activeVehicle || actionData.vehicle.vehicleLinkManager.communicationLost ||
+                     actionData.altitudeMode !== Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue)))
+            })
             break;
         case actionSetWaypoint:
             confirmDialog.title = setWaypointTitle
@@ -572,7 +579,15 @@ Item {
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, false /* pauseVehicle */)
             break
         case actionGoto:
-            _activeVehicle.guidedModeGotoLocation(actionData)
+            if (actionData.coordinate) {
+                if (showGotoLocation && actionData.vehicle === _activeVehicle &&
+                        actionData.altitudeMode === Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) &&
+                        _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)) {
+                    actionData.map.completeGotoSelection(actionData.coordinate)
+                }
+            } else {
+                _activeVehicle.guidedModeGotoLocation(actionData)
+            }
             break
         case actionSetWaypoint:
             _activeVehicle.setCurrentMissionSequence(actionData)

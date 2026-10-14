@@ -50,7 +50,7 @@ public:
     bool                isCapable                       (const Vehicle *vehicle, FirmwareCapabilities capabilities) override;
     void                setGuidedMode                   (Vehicle* vehicle, bool guidedMode) override;
     void                guidedModeTakeoff               (Vehicle* vehicle, double altitudeRel) override;
-    void                guidedModeGotoLocation          (Vehicle* vehicle, const QGeoCoordinate& gotoCoord) override;
+    void                guidedModeGotoLocation          (Vehicle* vehicle, const QGeoCoordinate& gotoCoord, bool useTargetAltitude) override;
     double              minimumTakeoffAltitude          (Vehicle* vehicle) override;
     void                startMission                    (Vehicle* vehicle) override;
     QStringList         flightModes                     (Vehicle* vehicle) override;

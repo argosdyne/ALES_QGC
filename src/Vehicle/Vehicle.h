@@ -407,8 +407,9 @@ public:
     /// @return Minumum equivalent airspeed.
     Q_INVOKABLE double minimumEquivalentAirspeed();
 
-    /// Command vehicle to move to specified location (altitude is ignored)
-    Q_INVOKABLE void guidedModeGotoLocation(const QGeoCoordinate& gotoCoord);
+    /// Dispatch GoTo; optionally use gotoCoord.altitude() as AMSL. Values are validated by the editor.
+    /// True means dispatched, not ACKed. Existing one-argument calls keep the current altitude.
+    Q_INVOKABLE bool guidedModeGotoLocation(const QGeoCoordinate& gotoCoord, bool useTargetAltitude = false);
 
     /// Command vehicle to change altitude
     ///     @param altitudeChange If > 0, go up by amount specified, if < 0, go down by amount specified

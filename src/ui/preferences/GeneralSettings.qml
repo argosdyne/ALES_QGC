@@ -296,6 +296,17 @@ Rectangle {
                                     visible:                fact.visible
                                     fact:                  _flyViewSettings.maxGoToLocationDistance
                                 }
+                                QGCLabel {
+                                    text: qsTr("GoTo Altitude Reference")
+                                    visible: gotoAltitudeReferenceField.visible
+                                }
+                                FactComboBox {
+                                    id: gotoAltitudeReferenceField
+                                    Layout.preferredWidth: _comboFieldWidth
+                                    fact: _flyViewSettings.gotoAltitudeReference
+                                    indexModel: false
+                                    visible: fact.visible
+                                }
                             }
 
                             GridLayout {

@@ -68,6 +68,14 @@
     "min":              1
 },
 {
+    "name":             "gotoAltitudeReference",
+    "shortDesc":        "Altitude reference for GoTo target input",
+    "type":             "uint32",
+    "default":          1,
+    "enumStrings":      "Relative to Home,AMSL",
+    "enumValues":       "1,2"
+},
+{
     "name":             "updateHomePosition",
     "shortDesc": "Send updated GCS' home position to autopilot in case of change of the home position",
     "type":                 "bool",
