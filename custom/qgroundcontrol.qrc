@@ -327,7 +327,8 @@
 		<file alias="QGroundControl/Controls/QGCSimpleMessageDialog.qml">../src/QmlControls/QGCSimpleMessageDialog.qml</file>
 		<file alias="QGroundControl/Controls/MockLinkOptionsDlg.qml">../src/comm/MockLinkOptionsDlg.qml</file>
 		<!-- FlyViewCustomLayer and FlyViewVideo are provided by custom/custom.qrc -->
-		<file alias="QGroundControl/FlightDisplay/FlyViewWidgetLayer.qml">../src/FlightDisplay/FlyViewWidgetLayer.qml</file>		
+		<file alias="QGroundControl/FlightDisplay/FlyViewWidgetLayer.qml">../src/FlightDisplay/FlyViewWidgetLayer.qml</file>
+		<file alias="QGroundControl/FlightDisplay/MissionResetBanner.qml">../src/FlightDisplay/MissionResetBanner.qml</file>		
 		<file alias="QGroundControl/FlightDisplay/GuidedActionGripper.qml">../src/FlightDisplay/GuidedActionGripper.qml</file>
 		<file alias="QGroundControl/FlightDisplay/GripperMenu.qml">../src/FlightDisplay/GripperMenu.qml</file>
 		<file alias="QGroundControl/Controls/QGCColumnButton.qml">../src/QmlControls/QGCColumnButton.qml</file>

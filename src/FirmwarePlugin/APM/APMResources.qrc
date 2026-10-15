@@ -13,6 +13,7 @@
         <file alias="APMLightsComponent.qml">../../AutoPilotPlugins/APM/APMLightsComponent.qml</file>
         <file alias="APMLightsComponentSummary.qml">../../AutoPilotPlugins/APM/APMLightsComponentSummary.qml</file>
         <file alias="APMMotorComponent.qml">../../AutoPilotPlugins/APM/APMMotorComponent.qml</file>
+        <file alias="APMMissionComponent.qml">../../AutoPilotPlugins/APM/APMMissionComponent.qml</file>
         <file alias="APMSubFrameComponent.qml">../../AutoPilotPlugins/APM/APMSubFrameComponent.qml</file>
         <file alias="APMSubFrameComponentSummary.qml">../../AutoPilotPlugins/APM/APMSubFrameComponentSummary.qml</file>
         <file alias="APMSubMotorComponent.qml">../../AutoPilotPlugins/APM/APMSubMotorComponent.qml</file>
