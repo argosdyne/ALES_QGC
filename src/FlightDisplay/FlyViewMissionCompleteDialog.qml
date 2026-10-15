@@ -19,6 +19,8 @@ import QGroundControl.ScreenTools   1.0
 
 /// Dialog which shows up when a flight completes. Prompts the user for things like whether they should remove the plan from the vehicle.
 Item {
+    id: root
+
     visible: false
 
     property var missionController
@@ -27,6 +29,8 @@ Item {
 
     // The following code is used to track vehicle states for showing the mission complete dialog
     property var  _activeVehicle:                   QGroundControl.multiVehicleManager.activeVehicle
+    property bool _hasThermal:                      QGroundControl.videoManager.hasThermal
+    property int  _imageFileMultiplier:             _hasThermal ? 2 : 1
     property bool _vehicleArmed:                    _activeVehicle ? _activeVehicle.armed : true // true here prevents pop up from showing during shutdown
     property bool _vehicleWasArmed:                 false
     property bool _vehicleInMissionFlightMode:      _activeVehicle ? (_activeVehicle.flightMode === _activeVehicle.missionFlightMode) : false
@@ -76,8 +80,8 @@ Item {
                 QGCLabel {
                     Layout.fillWidth:       true
                     text:                   _activeVehicle.missionImageCount >= 0
-                                                ? qsTr("%1 Images Taken").arg(_activeVehicle.missionImageCount)
-                                                : qsTr("%1 Images Taken").arg(_activeVehicle.cameraTriggerPoints.count)
+                                                ? qsTr("%1 Images Taken").arg(_activeVehicle.missionImageCount * root._imageFileMultiplier)
+                                                : qsTr("%1 Images Taken").arg(_activeVehicle.cameraTriggerPoints.count * root._imageFileMultiplier)
                     horizontalAlignment:    Text.AlignHCenter
                     visible:                _activeVehicle.missionImageCount >= 0 || _activeVehicle.cameraTriggerPoints.count !== 0
                 }

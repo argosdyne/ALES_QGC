@@ -29,6 +29,7 @@
 #include "MultiVehicleManager.h"
 #include "Settings/SettingsManager.h"
 #include "Vehicle.h"
+#include "QGCCameraControl.h"
 #include "QGCCameraManager.h"
 
 #if defined(QGC_GST_STREAMING)
@@ -609,7 +610,6 @@ VideoManager::hasThermal()
     return false;
 }
 
-//-----------------------------------------------------------------------------
 QString
 VideoManager::imageFile()
 {

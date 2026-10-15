@@ -120,6 +120,7 @@ private:
     bool _hasTurnaround(void) const;
     double _turnaroundDistance(void) const;
     bool _hoverAndCaptureEnabled(void) const;
+    int _calcPx4DistanceTriggerShots(double triggerDistance) const;
     bool _loadV3(const QJsonObject& complexObject, int sequenceNumber, QString& errorString);
     bool _loadV4V5(const QJsonObject& complexObject, int sequenceNumber, QString& errorString, int version, bool forPresets);
     void _saveCommon(QJsonObject& complexObject);

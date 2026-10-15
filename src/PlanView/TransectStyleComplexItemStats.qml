@@ -10,6 +10,9 @@ Grid {
     // The following properties must be available up the hierarchy chain
     //property var    missionItem       ///< Mission Item for editor
 
+    property bool _hasThermal: QGroundControl.videoManager.hasThermal
+    property int _imageFileMultiplier: _hasThermal ? 2 : 1
+
     columns:        2
     columnSpacing:  ScreenTools.defaultFontPixelWidth
 
@@ -17,7 +20,7 @@ Grid {
     QGCLabel { text: QGroundControl.unitsConversion.squareMetersToAppSettingsAreaUnits(missionItem.coveredArea).toFixed(2) + " " + QGroundControl.unitsConversion.appSettingsAreaUnitsString }
 
     QGCLabel { text: qsTr("Photo Count") }
-    QGCLabel { text: missionItem.cameraShots }
+    QGCLabel { text: missionItem.cameraShots * _imageFileMultiplier }
 
     QGCLabel { text: qsTr("Photo Interval") }
     QGCLabel { text: missionItem.timeBetweenShots.toFixed(1) + " " + qsTr("secs") }

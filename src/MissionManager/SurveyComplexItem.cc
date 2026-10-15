@@ -196,8 +196,11 @@ bool SurveyComplexItem::load(const QJsonObject& complexObject, int sequenceNumbe
         }
 
         _recalcComplexDistance();
-        if (_cameraShots == 0) {
-            // Shot count was possibly not available from plan file
+        const bool refreshPx4DistanceTriggerForecast = _controllerVehicle->px4Firmware()
+                && _cameraTriggerInTurnAroundFact.rawValue().toBool()
+                && !hoverAndCaptureEnabled();
+        if (_cameraShots == 0 || refreshPx4DistanceTriggerForecast) {
+            // A stored count can predate the PX4 distance-trigger forecast.
             _recalcCameraShots();
         }
     } else {
@@ -1335,7 +1338,18 @@ void SurveyComplexItem::_recalcCameraShots(void)
         _cameraShots = 0;
     } else {
         if (_cameraTriggerInTurnAroundFact.rawValue().toBool()) {
-            _cameraShots = qCeil(_complexDistance / triggerDistance);
+            // PX4 measures the straight-line distance from the last trigger point.
+            // In particular, it does not accumulate the length of a turnaround arc.
+            // Simulate that behaviour on QGC's planned path to avoid systematically
+            // overestimating photo count for surveys with turnarounds.
+            const bool simulatePx4DistanceTrigger = _controllerVehicle->px4Firmware()
+                    && !hoverAndCaptureEnabled();
+            if (simulatePx4DistanceTrigger) {
+                const int px4ShotCount = _calcPx4DistanceTriggerShots(triggerDistance);
+                _cameraShots = px4ShotCount > 0 ? px4ShotCount : qCeil(_complexDistance / triggerDistance);
+            } else {
+                _cameraShots = qCeil(_complexDistance / triggerDistance);
+            }
         } else {
             _cameraShots = 0;
 
@@ -1410,6 +1424,105 @@ void SurveyComplexItem::_recalcCameraShots(void)
     }
 
     emit cameraShotsChanged();
+}
+
+int SurveyComplexItem::_calcPx4DistanceTriggerShots(double triggerDistance) const
+{
+    // camera_trigger checks each local-position update against the position of
+    // the previous trigger, then resets that reference point to the current
+    // position. Sampling the planned path at a small interval gives the same
+    // geometric behaviour without depending on the vehicle's actual telemetry.
+    constexpr double sampleDistance = 0.25;
+
+    if (triggerDistance <= 0.0) {
+        return 0;
+    }
+
+    QList<QGeoCoordinate> flightPath;
+    if (!_rgFlightPathCoordInfo.isEmpty()) {
+        int firstPathIndex = 0;
+        int lastPathIndex = _rgFlightPathCoordInfo.count() - 1;
+        if (_aggressiveFlyThroughFact.rawValue().toBool()) {
+            // Aggressive fly-through starts distance triggering at the first
+            // survey entry and stops it at the last survey exit. The outer
+            // turnaround legs are part of the flight path but are not captured.
+            for (int index = 0; index < _rgFlightPathCoordInfo.count(); ++index) {
+                if (_rgFlightPathCoordInfo[index].coordType == CoordTypeSurveyEntry) {
+                    firstPathIndex = index;
+                    break;
+                }
+            }
+            for (int index = _rgFlightPathCoordInfo.count() - 1; index >= firstPathIndex; --index) {
+                if (_rgFlightPathCoordInfo[index].coordType == CoordTypeSurveyExit) {
+                    lastPathIndex = index;
+                    break;
+                }
+            }
+        }
+
+        for (int index = firstPathIndex; index <= lastPathIndex; ++index) {
+            flightPath.append(_rgFlightPathCoordInfo[index].coord);
+        }
+    } else if (_loadedMissionItemsParent) {
+        // A loaded plan keeps its previous CameraShots value. Recreate only the
+        // part of the waypoint path over which distance capture is enabled so
+        // the PX4 forecast is refreshed when an older plan is opened.
+        bool distanceTriggerActive = false;
+        QGeoCoordinate lastCoordinate;
+        for (const MissionItem* missionItem : _loadedMissionItems) {
+            if (missionItem->command() == MAV_CMD_DO_SET_CAM_TRIGG_DIST) {
+                if (missionItem->param1() > 0.0f) {
+                    if (!distanceTriggerActive && lastCoordinate.isValid()) {
+                        flightPath.append(lastCoordinate);
+                    }
+                    distanceTriggerActive = true;
+                } else {
+                    distanceTriggerActive = false;
+                }
+                continue;
+            }
+
+            const bool isPathCoordinate = missionItem->command() == MAV_CMD_NAV_WAYPOINT
+                    || missionItem->command() == MAV_CMD_CONDITION_GATE;
+            if (!isPathCoordinate) {
+                continue;
+            }
+
+            const QGeoCoordinate coordinate(missionItem->param5(), missionItem->param6(), missionItem->param7());
+            if (coordinate.isValid()) {
+                lastCoordinate = coordinate;
+                if (distanceTriggerActive) {
+                    flightPath.append(coordinate);
+                }
+            }
+        }
+    }
+
+    if (flightPath.isEmpty()) {
+        return 0;
+    }
+
+    int shotCount = 1; // PX4 triggers once when distance triggering first gets a valid position.
+    QGeoCoordinate lastShotCoordinate = flightPath.first();
+
+    for (int coordIndex = 1; coordIndex < flightPath.count(); ++coordIndex) {
+        const QGeoCoordinate& segmentStart = flightPath[coordIndex - 1];
+        const QGeoCoordinate& segmentEnd = flightPath[coordIndex];
+        const double segmentDistance = segmentStart.distanceTo(segmentEnd);
+        const double segmentAzimuth = segmentStart.azimuthTo(segmentEnd);
+        const int sampleCount = qCeil(segmentDistance / sampleDistance);
+
+        for (int sampleIndex = 1; sampleIndex <= sampleCount; ++sampleIndex) {
+            const double distanceAlongSegment = qMin(sampleIndex * sampleDistance, segmentDistance);
+            const QGeoCoordinate sampleCoordinate = segmentStart.atDistanceAndAzimuth(distanceAlongSegment, segmentAzimuth);
+            if (sampleCoordinate.distanceTo(lastShotCoordinate) >= triggerDistance) {
+                ++shotCount;
+                lastShotCoordinate = sampleCoordinate;
+            }
+        }
+    }
+
+    return shotCount;
 }
 
 SurveyComplexItem::ReadyForSaveState SurveyComplexItem::readyForSaveState(void) const
