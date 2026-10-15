@@ -128,7 +128,8 @@ Item {
     property bool showRTL:              _guidedActionsEnabled && _vehicleArmed && _activeVehicle.guidedModeSupported && _vehicleFlying && !_vehicleInRTLMode
     property bool showTakeoff:          _guidedActionsEnabled && _activeVehicle.takeoffVehicleSupported && !_vehicleFlying && _canTakeoff
     property bool showLand:             _guidedActionsEnabled && _activeVehicle.guidedModeSupported && _vehicleArmed && !_activeVehicle.fixedWing && !_vehicleInLandMode
-    property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission
+    property bool _missionStartBlocked: _activeVehicle && _activeVehicle.missionResetMonitor ? _activeVehicle.missionResetMonitor.startFailureMode !== 0 : false
+    property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission && !_missionStartBlocked
     property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1)
     property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying && !_vehiclePaused && !_fixedWingOnApproach
     property bool showChangeAlt:        _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive

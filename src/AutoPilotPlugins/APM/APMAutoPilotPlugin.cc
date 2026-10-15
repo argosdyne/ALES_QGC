@@ -19,6 +19,7 @@
 #include "APMFlightModesComponent.h"
 #include "APMRadioComponent.h"
 #include "APMSafetyComponent.h"
+#include "APMMissionComponent.h"
 #include "APMTuningComponent.h"
 #include "APMSensorsComponent.h"
 #include "APMPowerComponent.h"
@@ -50,6 +51,7 @@ APMAutoPilotPlugin::APMAutoPilotPlugin(Vehicle* vehicle, QObject* parent)
     , _motorComponent           (nullptr)
     , _radioComponent           (nullptr)
     , _safetyComponent          (nullptr)
+    , _missionComponent         (nullptr)
     , _sensorsComponent         (nullptr)
     , _tuningComponent          (nullptr)
     , _esp8266Component         (nullptr)
@@ -108,6 +110,13 @@ const QVariantList& APMAutoPilotPlugin::vehicleComponents(void)
             _safetyComponent = new APMSafetyComponent(_vehicle, this);
             _safetyComponent->setupTriggerSignals();
             _components.append(QVariant::fromValue((VehicleComponent*)_safetyComponent));
+
+            if (qobject_cast<ArduCopterFirmwarePlugin*>(_vehicle->firmwarePlugin()) &&
+                    _vehicle->parameterManager()->parameterExists(-1, QStringLiteral("MIS_OPTIONS"))) {
+                _missionComponent = new APMMissionComponent(_vehicle, this);
+                _missionComponent->setupTriggerSignals();
+                _components.append(QVariant::fromValue((VehicleComponent*)_missionComponent));
+            }
 
 #if 0
     // Follow me not ready for Stable
