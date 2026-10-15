@@ -46,6 +46,7 @@ Item {
     readonly property string continueMissionTitle:          qsTr("Continue Mission")
     readonly property string resumeMissionUploadFailTitle:  qsTr("Resume FAILED")
     readonly property string pauseTitle:                    qsTr("Pause")
+    readonly property string continueGoToTitle:             qsTr("Continue GoTo")
     readonly property string mvPauseTitle:                  qsTr("Pause (MV)")
     readonly property string changeAltTitle:                qsTr("Change Altitude")
     readonly property string changeCruiseSpeedTitle:        qsTr("Change Max Ground Speed")
@@ -78,6 +79,7 @@ Item {
     readonly property string orbitMessage:                      qsTr("Orbit the vehicle around the specified location.")
     readonly property string landAbortMessage:                  qsTr("Abort the landing sequence.")
     readonly property string pauseMessage:                      qsTr("Pause the vehicle at it's current position, adjusting altitude up or down as needed.")
+    readonly property string continueGoToMessage:               qsTr("Continue GoTo from current waypoint.")
     readonly property string mvPauseMessage:                    qsTr("Pause all vehicles at their current position.")
     readonly property string vtolTransitionFwdMessage:          qsTr("Transition VTOL to fixed wing flight.")
     readonly property string vtolTransitionMRMessage:           qsTr("Transition VTOL to multi-rotor flight.")
@@ -111,6 +113,13 @@ Item {
     readonly property int actionChangeSpeed:                25
     readonly property int actionGripper:                    26
     readonly property int actionSetHome:                    27
+    readonly property int actionContinueGoTo:               28
+
+    // The map owns the target and progress state. This reference only connects that state to
+    // the existing guided-action confirmation flow used by the left tool strip.
+    property var gotoProgressMap
+    readonly property bool gotoProgressActive:  gotoProgressMap && gotoProgressMap.gotoProgressActive
+    readonly property bool gotoPaused:          gotoProgressActive && gotoProgressMap.gotoProgressPaused
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -129,8 +138,9 @@ Item {
     property bool showTakeoff:          _guidedActionsEnabled && _activeVehicle.takeoffVehicleSupported && !_vehicleFlying && _canTakeoff
     property bool showLand:             _guidedActionsEnabled && _activeVehicle.guidedModeSupported && _vehicleArmed && !_activeVehicle.fixedWing && !_vehicleInLandMode
     property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission
-    property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1)
+    property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1) && !gotoProgressActive
     property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying && !_vehiclePaused && !_fixedWingOnApproach
+    property bool showContinueGoTo:     gotoProgressActive && gotoPaused && _guidedActionsEnabled && _vehicleArmed && _vehicleFlying
     property bool showChangeAlt:        _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive
     property bool showChangeSpeed:      _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive && _speedLimitsAvailable
     property bool showOrbit:            _guidedActionsEnabled && _vehicleFlying && __orbitSupported && !_missionActive
@@ -265,6 +275,15 @@ Item {
             confirmAction(actionContinueMission)
         }
     }
+    onShowContinueGoToChanged: {
+        if (showContinueGoTo) {
+            confirmAction(actionContinueGoTo, {
+                "map":        gotoProgressMap,
+                "vehicle":    _activeVehicle,
+                "coordinate": gotoProgressMap.gotoProgressCoordinate
+            })
+        }
+    }
     onShowRTLChanged: {
         if (_corePlugin.guidedActionsControllerLogging()) {
             console.log("showRTL", showRTL)
@@ -362,6 +381,16 @@ Item {
         confirmDialog.visible =     false
         actionList.visible =        false
         guidedValueSlider.visible =    false
+    }
+
+    function setGotoProgressMap(map) {
+        gotoProgressMap = map
+    }
+
+    function clearGotoProgressMap(map) {
+        if (gotoProgressMap === map) {
+            gotoProgressMap = undefined
+        }
     }
 
     // Called when an action is about to be executed in order to confirm
@@ -488,6 +517,11 @@ Item {
             confirmDialog.hideTrigger = Qt.binding(function() { return !showPause })
             guidedValueSlider.visible = true
             break;
+        case actionContinueGoTo:
+            confirmDialog.title = continueGoToTitle
+            confirmDialog.message = continueGoToMessage
+            confirmDialog.hideTrigger = Qt.binding(function() { return !showContinueGoTo })
+            break;
         case actionMVPause:
             confirmDialog.title = mvPauseTitle
             confirmDialog.message = mvPauseMessage
@@ -541,9 +575,15 @@ Item {
         var rgVehicle;
         switch (actionCode) {
         case actionRTL:
+            if (gotoProgressActive) {
+                gotoProgressMap.beginGotoTermination("rtl")
+            }
             _activeVehicle.guidedModeRTL(optionChecked)
             break
         case actionLand:
+            if (gotoProgressActive) {
+                gotoProgressMap.beginGotoTermination("land")
+            }
             _activeVehicle.guidedModeLand()
             break
         case actionTakeoff:
@@ -583,7 +623,7 @@ Item {
                 if (showGotoLocation && actionData.vehicle === _activeVehicle &&
                         actionData.altitudeMode === Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) &&
                         _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)) {
-                    actionData.map.completeGotoSelection(actionData.coordinate)
+                    actionData.map.completeGotoSelection(actionData.coordinate, actionData.altitudeMode)
                 }
             } else {
                 _activeVehicle.guidedModeGotoLocation(actionData)
@@ -600,6 +640,12 @@ Item {
             break
         case actionPause:
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, true /* pauseVehicle */)
+            break
+        case actionContinueGoTo:
+            if (actionData && actionData.map === gotoProgressMap && gotoProgressActive && gotoPaused &&
+                    actionData.vehicle === _activeVehicle && actionData.coordinate && actionData.coordinate.isValid) {
+                _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)
+            }
             break
         case actionMVPause:
             rgVehicle = QGroundControl.multiVehicleManager.vehicles

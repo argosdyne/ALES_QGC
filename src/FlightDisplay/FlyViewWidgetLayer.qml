@@ -54,8 +54,8 @@ Item {
         leftEdgeTopInset:       toolStrip.leftEdgeTopInset
         leftEdgeCenterInset:    parentToolInsets.leftEdgeCenterInset
         leftEdgeBottomInset:    virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.leftEdgeBottomInset : parentToolInsets.leftEdgeBottomInset
-        rightEdgeTopInset:      Math.max(instrumentPanel.rightEdgeTopInset, gotoTargetEditor.rightEdgeInset)
-        rightEdgeCenterInset:   Math.max(telemetryPanel.rightEdgeCenterInset, photoVideoControl.rightEdgeCenterInset, gotoTargetEditor.rightEdgeInset)
+        rightEdgeTopInset:      Math.max(instrumentPanel.rightEdgeTopInset, gotoTargetEditor.rightEdgeInset, gotoProgressPanel.rightEdgeInset)
+        rightEdgeCenterInset:   Math.max(telemetryPanel.rightEdgeCenterInset, photoVideoControl.rightEdgeCenterInset, gotoTargetEditor.rightEdgeInset, gotoProgressPanel.rightEdgeInset)
         rightEdgeBottomInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.rightEdgeBottomInset : parentToolInsets.rightEdgeBottomInset
         topEdgeLeftInset:       toolStrip.topEdgeLeftInset
         topEdgeCenterInset:     mapScale.topEdgeCenterInset
@@ -157,7 +157,7 @@ Item {
         id:                         instrumentPanel
         anchors.margins:            _toolsMargin
         anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
-        anchors.right:              gotoTargetEditor.visible ? gotoTargetEditor.left : parent.right
+        anchors.right:              gotoTargetEditor.visible ? gotoTargetEditor.left : (gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right)
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
         visible:                    QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -172,7 +172,7 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
-        gotoEditorVisible:      gotoTargetEditor.visible
+        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 
@@ -203,7 +203,7 @@ Item {
     //-- Audio Control
     AudioControl {
         anchors.margins: _toolsMargin
-        anchors.right: gotoTargetEditor.visible ? gotoTargetEditor.left : parent.right
+        anchors.right: gotoTargetEditor.visible ? gotoTargetEditor.left : (gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right)
         width: _rightPanelWidth
         anchors.top: parent.top
         visible: QGroundControl.settingsManager.flyViewSettings.enableAudioController.value &&
@@ -374,6 +374,38 @@ Item {
             item.vehicle = Qt.binding(function() { return _activeVehicle })
             item.altitudeMode = Qt.binding(function() { return Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) })
             item.initializeAltitude()
+        }
+    }
+
+    Loader {
+        id: gotoProgressPanel
+        active: _mainWindowIsMap && mapControl.gotoProgressActive && !mapControl.gotoSelectionEnabled
+        visible: active
+        source: "qrc:/qml/GoToProgressPanel.qml"
+        anchors.right: parent.right
+        anchors.rightMargin: _toolsMargin
+        y: multiVehiclePanelSelector.visible ?
+               multiVehiclePanelSelector.y + multiVehiclePanelSelector.height + _toolsMargin : _toolsMargin
+        width: Math.min(parent.width / 3, ScreenTools.defaultFontPixelWidth * 30)
+        readonly property real _availableBottom: {
+            var bottom = parent.height - Math.max(parentToolInsets.bottomEdgeRightInset,
+                                                  telemetryPanel.bottomEdgeCenterInset) - _toolsMargin
+            if (telemetryPanel.visible && !telemetryPanel.bottomMode) {
+                bottom = Math.min(bottom, telemetryPanel.y - _toolsMargin)
+            }
+            if (opticalFlowControl.visible) {
+                bottom = Math.min(bottom, opticalFlowControl.y - _toolsMargin)
+            }
+            return bottom
+        }
+        height: Math.max(0, Math.min(item ? item.implicitHeight : 0,
+                                   _availableBottom - y))
+        readonly property real rightEdgeInset: visible ? width + _toolsMargin : 0
+        z: QGroundControl.zOrderWidgets + 1
+        onLoaded: {
+            item.mapControl = mapControl
+            item.vehicle = Qt.binding(function() { return _activeVehicle })
+            item.altitudeMode = Qt.binding(function() { return mapControl.gotoProgressAltitudeMode })
         }
     }
 

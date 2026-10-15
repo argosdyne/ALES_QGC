@@ -44,15 +44,35 @@ FlightMap {
     property bool   pipMode:                    false   // true: map is shown in a small pip mode
     // A draft is deliberately separate from the existing, commanded GoTo marker.
     property bool   gotoSelectionEnabled:       false
+    property bool   gotoProgressActive:         false
     readonly property bool gotoConfirmationPending: !!(globals.guidedControllerFlyView &&
         globals.guidedControllerFlyView.confirmDialog && globals.guidedControllerFlyView.confirmDialog.visible &&
         globals.guidedControllerFlyView.confirmDialog.actionData &&
         globals.guidedControllerFlyView.confirmDialog.actionData.map === _root)
     property var    gotoDraftCoordinate:        QtPositioning.coordinate()
+    property var    gotoProgressCoordinate:     QtPositioning.coordinate()
+    property int    gotoProgressAltitudeMode:   QGroundControl.AltitudeModeRelative
+    property bool   gotoArrivalConfirmed:       false
+    readonly property bool gotoProgressPaused:   gotoProgressActive && _activeVehicle && _activeVehicle.flightMode === _activeVehicle.pauseFlightMode
+    property string gotoProgressTermination:    ""
+    readonly property bool gotoTerminationModeConfirmed: {
+        if (!gotoProgressActive || !_activeVehicle || !gotoProgressTermination.length) {
+            return false
+        }
+        if (gotoProgressTermination === "rtl") {
+            return _activeVehicle.flightMode === _activeVehicle.rtlFlightMode ||
+                   _activeVehicle.flightMode === _activeVehicle.smartRTLFlightMode
+        }
+        if (gotoProgressTermination === "land") {
+            return _activeVehicle.flightMode === _activeVehicle.landFlightMode
+        }
+        return gotoProgressTermination === "takeControl" &&
+               _activeVehicle.flightMode === _activeVehicle.takeControlFlightMode
+    }
     readonly property bool gotoAvailable:       globals.guidedControllerFlyView ? globals.guidedControllerFlyView.showGotoLocation : false
 
     function beginGotoSelection(coordinate) {
-        if (!gotoAvailable || pipMode) {
+        if (!gotoAvailable || pipMode || gotoProgressTermination.length) {
             return
         }
         gotoSelectionEnabled = true
@@ -62,6 +82,7 @@ FlightMap {
     onGotoAvailableChanged: {
         if (!gotoAvailable) {
             cancelGotoSelection()
+            clearGotoProgress()
         }
     }
 
@@ -86,16 +107,88 @@ FlightMap {
         gotoDraftCoordinate = QtPositioning.coordinate()
     }
 
-    function completeGotoSelection(coordinate) {
+    function clearGotoProgress() {
+        gotoProgressActive = false
+        gotoProgressCoordinate = QtPositioning.coordinate()
+        gotoArrivalConfirmed = false
+        gotoProgressTermination = ""
+        gotoTerminationTimer.stop()
+        if (globals.guidedControllerFlyView) {
+            globals.guidedControllerFlyView.clearGotoProgressMap(_root)
+        }
+    }
+
+    function beginGotoTermination(termination) {
+        if (gotoProgressActive && !gotoProgressTermination.length) {
+            gotoProgressTermination = termination
+        }
+    }
+
+    function confirmGotoArrival() {
+        if (!gotoProgressActive || gotoArrivalConfirmed) {
+            return
+        }
+        gotoArrivalConfirmed = true
+        gotoLocationItem.setArrived()
+    }
+
+    function completeGotoSelection(coordinate, altitudeMode) {
         gotoLocationItem.show(coordinate)
+        gotoProgressCoordinate = coordinate
+        gotoProgressAltitudeMode = altitudeMode
+        gotoArrivalConfirmed = false
+        gotoProgressTermination = ""
+        gotoProgressActive = true
+        if (globals.guidedControllerFlyView) {
+            globals.guidedControllerFlyView.setGotoProgressMap(_root)
+        }
         cancelGotoSelection()
     }
 
-    on_ActiveVehicleChanged: cancelGotoSelection()
+    on_ActiveVehicleChanged: {
+        cancelGotoSelection()
+        clearGotoProgress()
+    }
     onPipModeChanged: {
         _adjustMapZoomForPipMode()
         if (pipMode) {
             cancelGotoSelection()
+            clearGotoProgress()
+        }
+    }
+
+    onGotoTerminationModeConfirmedChanged: {
+        if (gotoTerminationModeConfirmed) {
+            gotoTerminationTimer.restart()
+        }
+    }
+
+    Timer {
+        id: gotoTerminationTimer
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            if (gotoTerminationModeConfirmed) {
+                gotoLocationItem.hide()
+                clearGotoProgress()
+            }
+        }
+    }
+
+    Connections {
+        target: _activeVehicle
+        function onFlightModeChanged() {
+            if (!gotoProgressActive || gotoProgressTermination.length || !_activeVehicle) {
+                return
+            }
+            if (_activeVehicle.flightMode === _activeVehicle.rtlFlightMode ||
+                    _activeVehicle.flightMode === _activeVehicle.smartRTLFlightMode) {
+                beginGotoTermination("rtl")
+            } else if (_activeVehicle.flightMode === _activeVehicle.landFlightMode) {
+                beginGotoTermination("land")
+            } else if (_activeVehicle.flightMode === _activeVehicle.takeControlFlightMode) {
+                beginGotoTermination("takeControl")
+            }
         }
     }
     property var    toolInsets                          // Insets for the center viewport area
@@ -511,9 +604,10 @@ FlightMap {
         sourceItem: MissionItemIndexLabel {
             checked:    true
             index:      -1
-            label:      qsTr("Go here", "Go to location waypoint")
+            label:      gotoLocationItem.arrived ? qsTr("Arrived") : qsTr("Go here", "Go to location waypoint")
         }
 
+        property bool arrived: false
         property bool inGotoFlightMode: _activeVehicle ? _activeVehicle.flightMode === _activeVehicle.gotoFlightMode : false
 
         onInGotoFlightModeChanged: {
@@ -534,7 +628,12 @@ FlightMap {
 
         function show(coord) {
             gotoLocationItem.coordinate = coord
+            gotoLocationItem.arrived = false
             gotoLocationItem.visible = true
+        }
+
+        function setArrived() {
+            gotoLocationItem.arrived = true
         }
 
         function hide() {

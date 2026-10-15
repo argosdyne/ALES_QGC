@@ -73,6 +73,7 @@
     </qresource>
     <qresource prefix="/qml">
         <file alias="GoToTargetEditor.qml">res/Custom/FlightDisplay/GoToTargetEditor.qml</file>
+        <file alias="GoToProgressPanel.qml">res/Custom/FlightDisplay/GoToProgressPanel.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
         <file alias="CustomCameraControl.qml">CustomCameraControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
