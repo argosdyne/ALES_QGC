@@ -20,7 +20,7 @@
 class Fact;
 class Vehicle;
 
-/// Copter-only connect banner and reboot detection for MIS_OPTIONS bit0.
+/// Copter-only reboot notice for MIS_OPTIONS bit0.
 class APMMissionResetMonitor : public QObject
 {
     Q_OBJECT
@@ -93,8 +93,6 @@ private:
     void _noteReboot();
     void _requestSystemTime();
     void _updateMissionItemState();
-    void _tryPresentConnectNotice();
-    bool _missionListKnown() const;
     bool _vehicleHasMissionItems() const;
     void _beginCountProbe(int purpose);
     void _sendMissionCountRequest();
@@ -116,9 +114,6 @@ private:
     bool        _clearOnReboot = false;
     bool        _hasMissionItems = false;
     bool        _bitBannerRequested = false;
-    bool        _awaitingConnectNotice = false;
-    bool        _connectNoticeStarted = false;
-    bool        _blockConnectNotice = false;
     bool        _rebootBannerVisible = false;
     bool        _rebootDetected = false;
     bool        _missionUnconfirmed = false;
