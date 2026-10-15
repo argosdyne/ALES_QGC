@@ -158,9 +158,6 @@ void APMMissionResetMonitor::_parametersReady(bool parametersReady)
         _requestSystemTime();
     }
     _applyValue(qRound(_misOptions->rawValue().toDouble()));
-    // Reconnecting QGC only re-reads the mission already on the vehicle.
-    // That is not a notice. Notices are shown when the flight controller reboots.
-    _connectNoticeStarted = true;
 }
 
 void APMMissionResetMonitor::_misOptionsChanged(QVariant value)
@@ -174,10 +171,8 @@ void APMMissionResetMonitor::_missionSendComplete(bool error)
         _updateMissionItemState();
         return;
     }
-    // A mission the operator just uploaded is not a connect or reboot notice.
-    // A mission download that follows the upload must not open one either.
-    _blockConnectNotice = true;
-    _awaitingConnectNotice = false;
+    // A mission the operator just uploaded closes the reboot notice.
+    // A mission download that follows the upload must not open it again.
     _bitBannerRequested = false;
     _rebootDetected = false;
     _missionUnconfirmed = false;
@@ -191,7 +186,6 @@ void APMMissionResetMonitor::_missionItemsChanged(bool success)
 {
     Q_UNUSED(success)
     _updateMissionItemState();
-    _tryPresentConnectNotice();
 }
 
 void APMMissionResetMonitor::_updateMissionItemState()
@@ -204,12 +198,6 @@ void APMMissionResetMonitor::_updateMissionItemState()
     emit bannerChanged();
 }
 
-bool APMMissionResetMonitor::_missionListKnown() const
-{
-    MissionManager* missionManager = _vehicle ? _vehicle->missionManager() : nullptr;
-    return missionManager && missionManager->lastMissionReadSucceeded();
-}
-
 bool APMMissionResetMonitor::_vehicleHasMissionItems() const
 {
     MissionManager* missionManager = _vehicle ? _vehicle->missionManager() : nullptr;
@@ -218,21 +206,6 @@ bool APMMissionResetMonitor::_vehicleHasMissionItems() const
     }
     // Item 0 is home. Copter treats the mission as present only when another item exists.
     return missionManager->missionItems().count() > 1;
-}
-
-void APMMissionResetMonitor::_tryPresentConnectNotice()
-{
-    if (_blockConnectNotice || !_awaitingConnectNotice || !_valueKnown || !_missionListKnown()) {
-        _sendQGCTimeToVehicle
-        return;
-    }
-    _awaitingConnectNotice = false;
-    _updateMissionItemState();
-    if (!_hasMissionItems) {
-        return;
-    }
-    _bitBannerRequested = true;
-    emit bannerChanged();
 }
 
 void APMMissionResetMonitor::_applyValue(int value)

@@ -995,7 +995,8 @@ static void _copterMissionStartResult(void* resultHandlerData, int compId, const
 void APMFirmwarePlugin::startMission(Vehicle* vehicle)
 {
     auto* monitor = qobject_cast<APMMissionResetMonitor*>(vehicle->missionResetMonitor());
-    if (monitor) {
+    // In the air, continue mission only changes to Auto. Do not wait on a mission count.
+    if (monitor && !vehicle->flying()) {
         monitor->beginMissionStart();
         return;
     }
