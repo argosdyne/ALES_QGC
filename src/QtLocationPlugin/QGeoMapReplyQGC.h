@@ -73,6 +73,8 @@ private slots:
 
 private:
     void _clearReply            ();
+    void _beginTileDownload     ();
+    bool _retryTileDownload     ();
     void setIgnoreSSLErrorsIfNeeded(QNetworkReply& networkReply);
 
 private:
@@ -82,6 +84,8 @@ private:
     QByteArray              _badMapbox;
     QByteArray              _badTile;
     QTimer                  _timer;
+    int                     _timeoutRetries;
+    bool                    _aborted;
     static QByteArray       _bingNoTileImage;
     static int              _requestCount;
 };

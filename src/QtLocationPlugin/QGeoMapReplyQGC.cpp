@@ -56,6 +56,18 @@
 #include "CustomQmlInterface.h"
 int         QGeoTiledMapReplyQGC::_requestCount = 0;
 QByteArray  QGeoTiledMapReplyQGC::_bingNoTileImage;
+static const int kTileDownloadTimeoutMs      = 10000;
+static const int kTileDownloadTimeoutRetries = 2;
+
+static bool tileBytesAreImage(const QByteArray& image)
+{
+    static const unsigned char pngSig[]  = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    static const unsigned char jpegSig[] = {0xFF, 0xD8, 0xFF};
+    static const unsigned char gifSig[]  = {0x47, 0x49, 0x46, 0x38};
+    return image.startsWith(QByteArray(reinterpret_cast<const char*>(pngSig), int(sizeof(pngSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(jpegSig), int(sizeof(jpegSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(gifSig), int(sizeof(gifSig))));
+}
 
 static inline QString mapDownloadRequiredMessage()
 {
@@ -68,6 +80,8 @@ QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager
     , _reply(nullptr)
     , _request(request)
     , _networkManager(networkManager)
+    , _timeoutRetries(0)
+    , _aborted(false)
 {
     if (_bingNoTileImage.count() == 0) {
         QFile file(":/res/BingNoTileBytes.dat");
@@ -115,6 +129,7 @@ QGeoTiledMapReplyQGC::_clearReply()
 void
 QGeoTiledMapReplyQGC::abort()
 {
+    _aborted = true;
     _timer.stop();
     if (_reply)
         _reply->abort();
@@ -125,18 +140,15 @@ QGeoTiledMapReplyQGC::abort()
 void
 QGeoTiledMapReplyQGC::networkReplyFinished()
 {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply || reply != _reply) {
+        return;
+    }
     _timer.stop();
-    if (!_reply) {
-        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
-        emit aborted();
+    if (reply->error() != QNetworkReply::NoError) {
         return;
     }
-    if (_reply->error() != QNetworkReply::NoError) {
-        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
-        emit aborted();
-        return;
-    }
-    QByteArray a = _reply->readAll();
+    QByteArray a = reply->readAll();
     UrlFactory* urlFactory = getQGCMapEngine()->urlFactory();
     QString format = urlFactory->getImageFormat(tileSpec().mapId(), a);
     //-- Test for a specialized, elevation data (not map tile)
@@ -159,6 +171,15 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             // This allows us to zoom up to level 23 even though the tiles don't actually exist
             //setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
             CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
+            setFinished(true);
+        } else if (!tileBytesAreImage(a) || (_bingNoTileImage.size() && a == _bingNoTileImage)) {
+            // XML/error pages and the empty-tile graphic are not map imagery.
+            // Finishing them as success leaves a permanent hole, so retry first.
+            if (_retryTileDownload()) {
+                return;
+            }
+            setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Invalid tile image"));
+            setFinished(true);
         } else {
             //-- This is a map tile. Process and cache it if valid.
             setMapImageData(a);
@@ -166,8 +187,8 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
                 setMapImageFormat(format);
                 getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()), tileSpec().x(), tileSpec().y(), tileSpec().zoom(), a, format);
             }
+            setFinished(true);
         }
-        setFinished(true);
     }
     _clearReply();
 }
@@ -176,19 +197,22 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
 void
 QGeoTiledMapReplyQGC::networkReplyError(QNetworkReply::NetworkError error)
 {
-    _timer.stop();
-    if (!_reply) {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply || reply != _reply) {
         return;
     }
+    _timer.stop();
     //-- Test for a specialized, elevation data (not map tile)
     if( getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())){
         emit terrainDone(QByteArray(), error);
+    } else if (error == QNetworkReply::OperationCanceledError) {
+        setFinished(true);
+    } else if (_retryTileDownload()) {
+        return;
     } else {
-        //-- Regular map tile
-        if (error != QNetworkReply::OperationCanceledError) {
-            qWarning() << "Fetch tile error:" << _reply->errorString();
-            setError(QGeoTiledMapReply::CommunicationError, _reply->errorString());
-        }
+        qWarning() << "Fetch tile error:" << reply->errorString();
+        setError(QGeoTiledMapReply::CommunicationError, reply->errorString());
+        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
         setFinished(true);
     }
     _clearReply();
@@ -211,28 +235,36 @@ QGeoTiledMapReplyQGC::cacheError(QGCMapTask::TaskType type, QString /*errorStrin
             qWarning() << "QGeoTiledMapReplyQGC::cacheError() for wrong task";
         }
         //-- Tile not in cache. Get it off the Internet.
-#if !defined(__mobile__)
-        QNetworkProxy proxy = _networkManager->proxy();
-        QNetworkProxy tProxy;
-        tProxy.setType(QNetworkProxy::DefaultProxy);
-        _networkManager->setProxy(tProxy);
-#endif
-        _reply = _networkManager->get(_request);
-        _reply->setParent(nullptr);
-
-        setIgnoreSSLErrorsIfNeeded(*_reply);
-
-        connect(_reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::networkReplyFinished);
-        connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkReplyError(QNetworkReply::NetworkError)));
-#if !defined(__mobile__)
-        _networkManager->setProxy(proxy);
-#endif
-        //- Wait for an answer up to 10 seconds
-        connect(&_timer, &QTimer::timeout, this, &QGeoTiledMapReplyQGC::timeout);
-        _timer.setSingleShot(true);
-        _timer.start(10000);
-        _requestCount++;
+        _beginTileDownload();
     }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_beginTileDownload()
+{
+#if !defined(__mobile__)
+    QNetworkProxy proxy = _networkManager->proxy();
+    QNetworkProxy tProxy;
+    tProxy.setType(QNetworkProxy::DefaultProxy);
+    _networkManager->setProxy(tProxy);
+#endif
+    _reply = _networkManager->get(_request);
+    _reply->setParent(nullptr);
+
+    setIgnoreSSLErrorsIfNeeded(*_reply);
+
+    connect(_reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::networkReplyFinished);
+    connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkReplyError(QNetworkReply::NetworkError)));
+#if !defined(__mobile__)
+    _networkManager->setProxy(proxy);
+#endif
+    // Queued tiles share a small per-host connection pool, so a request can
+    // still be waiting when this timer fires. Retry those instead of dropping the tile.
+    connect(&_timer, &QTimer::timeout, this, &QGeoTiledMapReplyQGC::timeout, Qt::UniqueConnection);
+    _timer.setSingleShot(true);
+    _timer.start(kTileDownloadTimeoutMs);
+    _requestCount++;
 }
 
 //-----------------------------------------------------------------------------
@@ -253,13 +285,61 @@ QGeoTiledMapReplyQGC::cacheReply(QGCCacheTile* tile)
 }
 
 //-----------------------------------------------------------------------------
+bool
+QGeoTiledMapReplyQGC::_retryTileDownload()
+{
+    if (_aborted || isFinished() || _timeoutRetries >= kTileDownloadTimeoutRetries) {
+        return false;
+    }
+    _timeoutRetries++;
+    if (_reply) {
+        QNetworkReply* stalled = _reply;
+        _reply = nullptr;
+        stalled->disconnect(this);
+        // abort() inside QNetworkReply::error() emits that error a second time
+        // ("this method must only be called once") and then later tile requests stop.
+        if (!stalled->isFinished() && stalled->error() == QNetworkReply::NoError) {
+            stalled->abort();
+        }
+        stalled->deleteLater();
+        if (_requestCount > 0) {
+            _requestCount--;
+        }
+    }
+    QTimer::singleShot(0, this, [this]() {
+        if (!_aborted && !isFinished() && !_reply) {
+            _beginTileDownload();
+        }
+    });
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 void
 QGeoTiledMapReplyQGC::timeout()
 {
-    if(_reply) {
-        _reply->abort();
+    if (getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())) {
+        if(_reply) {
+            _reply->abort();
+        }
+        emit aborted();
+        return;
     }
-    emit aborted();
+    if (_retryTileDownload()) {
+        return;
+    }
+    if (_reply) {
+        QNetworkReply* stalled = _reply;
+        _reply = nullptr;
+        stalled->disconnect(this);
+        stalled->abort();
+        stalled->deleteLater();
+        if (_requestCount > 0) {
+            _requestCount--;
+        }
+    }
+    setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Tile request timed out"));
+    setFinished(true);
 }
 
 //-----------------------------------------------------------------------------

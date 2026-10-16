@@ -98,9 +98,9 @@ QString VWorldStreetMapProvider::_getURL(const int x, const int y, const int zoo
     Q_UNUSED(networkManager)
     const int gap   = zoom - 6;
     const int x_min = int(53 * pow(2, gap));
-    const int x_max = int(55 * pow(2, gap) + (2 * gap - 1));
+    const int x_max = int(56 * pow(2, gap) - 1);
     const int y_min = int(22 * pow(2, gap));
-    const int y_max = int(26 * pow(2, gap) + (2 * gap - 1));
+    const int y_max = int(27 * pow(2, gap) - 1);
 
     const QString VWorldMapToken = qgcApp()->toolbox()->settingsManager()->appSettings()->vworldToken()->rawValue().toString();
 
@@ -119,9 +119,9 @@ QString VWorldSatMapProvider::_getURL(const int x, const int y, const int zoom, 
     Q_UNUSED(networkManager)
     const int gap   = zoom - 6;
     const int x_min = int(53 * pow(2, gap));
-    const int x_max = int(55 * pow(2, gap) + (2 * gap - 1));
+    const int x_max = int(56 * pow(2, gap) - 1);
     const int y_min = int(22 * pow(2, gap));
-    const int y_max = int(26 * pow(2, gap) + (2 * gap - 1));
+    const int y_max = int(27 * pow(2, gap) - 1);
 
     const QString VWorldMapToken = qgcApp()->toolbox()->settingsManager()->appSettings()->vworldToken()->rawValue().toString();
 
