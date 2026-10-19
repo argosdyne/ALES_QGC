@@ -7,10 +7,38 @@
  *
  ****************************************************************************/
 
+#include <QBuffer>
+#include <QImage>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QPainter>
 
 #include "MapProvider.h"
+
+QByteArray composeMapOverlay(const QByteArray& baseImage, const QByteArray& overlayImage)
+{
+    QImage base;
+    QImage overlay;
+    if (!base.loadFromData(baseImage) || !overlay.loadFromData(overlayImage) || base.size().isEmpty()) {
+        return QByteArray();
+    }
+    if (overlay.size() != base.size()) {
+        overlay = overlay.scaled(base.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
+    overlay = overlay.convertToFormat(QImage::Format_ARGB32);
+    QImage result = base.convertToFormat(QImage::Format_ARGB32);
+    QPainter painter(&result);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.drawImage(0, 0, overlay);
+    painter.end();
+    QByteArray encoded;
+    QBuffer buffer(&encoded);
+    buffer.open(QIODevice::WriteOnly);
+    if (!result.save(&buffer, "PNG")) {
+        return QByteArray();
+    }
+    return encoded;
+}
 
 MapProvider::MapProvider(const QString &referrer, const QString &imageFormat,
                          const quint32 averageSize, const QGeoMapType::MapStyle mapType, QObject* parent)

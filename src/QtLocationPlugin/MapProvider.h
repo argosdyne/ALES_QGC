@@ -23,6 +23,9 @@ static const unsigned char gifSignature[]  = {0x47, 0x49, 0x46, 0x38, 0x00};
 
 static const quint32 AVERAGE_TILE_SIZE = 13652;
 
+// Draw overlayImage onto baseImage. Returns a PNG, or empty if either image cannot be decoded.
+QByteArray composeMapOverlay(const QByteArray& baseImage, const QByteArray& overlayImage);
+
 class QNetworkRequest;
 class QNetworkAccessManager;
 
@@ -47,6 +50,14 @@ public:
 
     virtual bool _isElevationProvider() const { return false; }
     virtual bool _isBingProvider() const { return false; }
+
+    // Empty unless this map draws a second transparent tile on top of _getURL.
+    virtual QString overlayTileUrl(const int x, const int y, const int zoom) const {
+        Q_UNUSED(x)
+        Q_UNUSED(y)
+        Q_UNUSED(zoom)
+        return QString();
+    }
 
     virtual QGCTileSet getTileCount(const int zoom, const double topleftLon,
                                      const double topleftLat, const double bottomRightLon,

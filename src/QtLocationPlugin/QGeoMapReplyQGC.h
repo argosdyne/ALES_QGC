@@ -74,6 +74,8 @@ private slots:
 private:
     void _clearReply            ();
     void _beginTileDownload     ();
+    bool _beginOverlayDownload  (const QUrl& url);
+    void _finishHybridOverlay   (const QByteArray& overlayBytes);
     bool _retryTileDownload     ();
     void setIgnoreSSLErrorsIfNeeded(QNetworkReply& networkReply);
 
@@ -86,6 +88,8 @@ private:
     QTimer                  _timer;
     int                     _timeoutRetries;
     bool                    _aborted;
+    bool                    _awaitingOverlay;
+    QByteArray              _baseTileImage;
     static QByteArray       _bingNoTileImage;
     static int              _requestCount;
 };

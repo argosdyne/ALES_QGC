@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QString>
 #include <QHash>
+#include <QSet>
 #include <QDateTime>
 #include <QImage>
 
@@ -157,6 +158,8 @@ private slots:
 private:
     void        _prepareDownload        ();
     void        _doneWithDownload       ();
+    void        _storeDownloadedTile    (const QString& hash, const QString& type, const QByteArray& image, const QString& format);
+    bool        _startHybridOverlay     (const QString& hash, const QByteArray& baseImage);
 
 private:
     QString     _name;
@@ -181,6 +184,8 @@ private:
     QString _type;
     QNetworkAccessManager*  _networkManager;
     QHash<QString, QNetworkReply*> _replies;
+    QHash<QString, QByteArray>  _hybridBaseImages;
+    QSet<QString>               _hybridOverlayPending;
     quint32     _errorCount;
     //-- Tile download
     QList<QGCTile *> _tilesToDownload;

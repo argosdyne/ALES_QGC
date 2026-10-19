@@ -54,6 +54,7 @@
 #include <QCoreApplication>
 #include "TerrainTile.h"
 #include "CustomQmlInterface.h"
+#include "MapProvider.h"
 int         QGeoTiledMapReplyQGC::_requestCount = 0;
 QByteArray  QGeoTiledMapReplyQGC::_bingNoTileImage;
 static const int kTileDownloadTimeoutMs      = 10000;
@@ -117,6 +118,7 @@ QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager
     , _networkManager(networkManager)
     , _timeoutRetries(0)
     , _aborted(false)
+    , _awaitingOverlay(false)
 {
     if (_bingNoTileImage.count() == 0) {
         QFile file(":/res/BingNoTileBytes.dat");
@@ -172,6 +174,64 @@ QGeoTiledMapReplyQGC::abort()
 }
 
 //-----------------------------------------------------------------------------
+bool
+QGeoTiledMapReplyQGC::_beginOverlayDownload(const QUrl& url)
+{
+    if (_aborted || isFinished()) {
+        return false;
+    }
+    if (_reply) {
+        QNetworkReply* done = _reply;
+        _reply = nullptr;
+        done->disconnect(this);
+        done->deleteLater();
+        if (_requestCount > 0) {
+            _requestCount--;
+        }
+    }
+    QNetworkRequest request(url);
+    request.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("*/*"));
+    request.setRawHeader(QByteArrayLiteral("Referrer"), QByteArrayLiteral("www.vworld.kr"));
+    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArray());
+    _request = request;
+    _awaitingOverlay = true;
+    _beginTileDownload();
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_finishHybridOverlay(const QByteArray& overlayBytes)
+{
+    if (!_awaitingOverlay || isFinished()) {
+        return;
+    }
+    _awaitingOverlay = false;
+    QByteArray image = _baseTileImage;
+    QString format = getQGCMapEngine()->urlFactory()->getImageFormat(tileSpec().mapId(), image);
+    const QByteArray composed = composeMapOverlay(_baseTileImage, overlayBytes);
+    if (!composed.isEmpty()) {
+        image = composed;
+        format = QStringLiteral("png");
+    } else {
+        const QString rejection = vworldTileRejection(_request.url(), overlayBytes);
+        if (!rejection.isEmpty()) {
+            logVworldTileRejectionOnce(rejection);
+        } else if (!overlayBytes.isEmpty()) {
+            logVworldTileRejectionOnce(QStringLiteral("VWorld: hybrid overlay unavailable"));
+        }
+    }
+    _baseTileImage.clear();
+    setMapImageData(image);
+    if (!format.isEmpty()) {
+        setMapImageFormat(format);
+        getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()),
+                                      tileSpec().x(), tileSpec().y(), tileSpec().zoom(), image, format);
+    }
+    setFinished(true);
+}
+
+//-----------------------------------------------------------------------------
 void
 QGeoTiledMapReplyQGC::networkReplyFinished()
 {
@@ -184,6 +244,11 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
         return;
     }
     QByteArray a = reply->readAll();
+    if (_awaitingOverlay) {
+        _finishHybridOverlay(a);
+        _clearReply();
+        return;
+    }
     UrlFactory* urlFactory = getQGCMapEngine()->urlFactory();
     QString format = urlFactory->getImageFormat(tileSpec().mapId(), a);
     //-- Test for a specialized, elevation data (not map tile)
@@ -221,6 +286,14 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Invalid tile image"));
             setFinished(true);
         } else {
+            // VWorld Hybrid keeps the satellite tile and draws the label tile on top.
+            const QString overlayUrl = mapProvider ? mapProvider->overlayTileUrl(tileSpec().x(), tileSpec().y(), tileSpec().zoom()) : QString();
+            if (!overlayUrl.isEmpty()) {
+                _baseTileImage = a;
+                if (_beginOverlayDownload(QUrl(overlayUrl))) {
+                    return;
+                }
+            }
             //-- This is a map tile. Process and cache it if valid.
             setMapImageData(a);
             if(!format.isEmpty()) {
@@ -242,6 +315,17 @@ QGeoTiledMapReplyQGC::networkReplyError(QNetworkReply::NetworkError error)
         return;
     }
     _timer.stop();
+    if (_awaitingOverlay) {
+        if (_aborted || error == QNetworkReply::OperationCanceledError) {
+            _awaitingOverlay = false;
+            _baseTileImage.clear();
+            setFinished(true);
+        } else {
+            _finishHybridOverlay(QByteArray());
+        }
+        _clearReply();
+        return;
+    }
     //-- Test for a specialized, elevation data (not map tile)
     if( getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())){
         emit terrainDone(QByteArray(), error);
@@ -358,6 +442,22 @@ QGeoTiledMapReplyQGC::_retryTileDownload()
 void
 QGeoTiledMapReplyQGC::timeout()
 {
+    if (_awaitingOverlay) {
+        if (_reply) {
+            QNetworkReply* stalled = _reply;
+            _reply = nullptr;
+            stalled->disconnect(this);
+            if (!stalled->isFinished() && stalled->error() == QNetworkReply::NoError) {
+                stalled->abort();
+            }
+            stalled->deleteLater();
+            if (_requestCount > 0) {
+                _requestCount--;
+            }
+        }
+        _finishHybridOverlay(QByteArray());
+        return;
+    }
     if (getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())) {
         if(_reply) {
             _reply->abort();
