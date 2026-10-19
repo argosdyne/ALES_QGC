@@ -88,7 +88,10 @@ bool _isTracedControlCommandFrame(const QByteArray& frame, quint16* commandOut,
                             (byteAt(payloadOffset + kCommandOffset + 1) << 8);
     const quint8 targetSystem = byteAt(payloadOffset + kTargetSystemOffset);
     const quint8 targetComponent = byteAt(payloadOffset + kTargetComponentOffset);
-    const bool isNavSightUpdateLocation = command == 44444 && targetSystem == 10 && targetComponent == 192;
+    // NavSight defaults to sysid 10 but can be configured with another sysid.
+    // Component 192 identifies the NavSight endpoint; do not hide a correctly
+    // addressed UPDATE_LOCATION frame from the transport diagnostic log.
+    const bool isNavSightUpdateLocation = command == 44444 && targetComponent == 192;
     const bool isEkfSourceSet = command == MAV_CMD_SET_EKF_SOURCE_SET && targetComponent == MAV_COMP_ID_AUTOPILOT1;
     if (!isNavSightUpdateLocation && !isEkfSourceSet) {
         return false;

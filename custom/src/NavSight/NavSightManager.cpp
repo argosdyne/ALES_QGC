@@ -234,8 +234,22 @@ void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 
 void NavSightManager::_rawMavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-    if (message.sysid != kDefaultSystemId || message.compid != kDefaultComponentId ||
-        !_vehicle || !_vehicle->vehicleLinkManager()->containsLink(link)) {
+    if (!_vehicle || !_vehicle->vehicleLinkManager()->containsLink(link) ||
+        message.compid != kDefaultComponentId) {
+        return;
+    }
+
+    // NavSight v1.2.X may use a configurable sysid, including the FC's sysid.
+    // Component 192 is its stable identity. Only a HEARTBEAT may establish or
+    // replace the address; every following NavSight message must match it.
+    if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
+        _setNavSightSystemId(message.sysid);
+    } else if (_navSightSystemId == 0 || message.sysid != _navSightSystemId) {
+        qCDebug(NavSightManagerLog).nospace()
+            << "Ignoring NavSight message from undiscovered/mismatched source="
+            << message.sysid << '/' << message.compid
+            << " discoveredSystemId=" << _navSightSystemId
+            << " msgid=" << message.msgid;
         return;
     }
 
@@ -255,7 +269,9 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
         }
 
         if (ack.result == MAV_RESULT_ACCEPTED) {
-            qCInfo(NavSightManagerLog) << "NavSight COMMAND_ACK accepted: source=10/192 command=" << ack.command << "result=" << ack.result;
+            qCInfo(NavSightManagerLog).nospace()
+                << "NavSight COMMAND_ACK accepted: source=" << message.sysid << '/' << message.compid
+                << " command=" << ack.command << " result=" << ack.result;
             _finishUpdateLocation(QStringLiteral("NavSight location updated"));
         } else if (ack.result == MAV_RESULT_TEMPORARILY_REJECTED ||
                    ack.result == kNavSightTemporaryRejectedResult) {
@@ -344,7 +360,27 @@ void NavSightManager::_setOffline()
     _navSightGpsActive = false;
     _navSightVisualNavigationActive = false;
     _initialLocationAccepted = false;
+    _setNavSightSystemId(0);
     emit navSightStatusChanged();
+}
+
+void NavSightManager::_setNavSightSystemId(int systemId)
+{
+    if (_navSightSystemId == systemId) {
+        return;
+    }
+
+    const int previousSystemId = _navSightSystemId;
+    _navSightSystemId = systemId;
+    emit navSightAddressChanged();
+
+    if (systemId == 0) {
+        qCInfo(NavSightManagerLog) << "NavSight address cleared; waiting for component 192 HEARTBEAT";
+    } else {
+        qCInfo(NavSightManagerLog).nospace()
+            << "NavSight address discovered: " << systemId << '/' << kDefaultComponentId
+            << " (previous sysid=" << previousSystemId << ")";
+    }
 }
 void NavSightManager::_setUpdateLocationResult(const QString& result)
 {
@@ -357,7 +393,7 @@ void NavSightManager::_setUpdateLocationResult(const QString& result)
 
 bool NavSightManager::_queuePendingUpdateLocation()
 {
-    if (!_vehicle) {
+    if (!_vehicle || _navSightSystemId == 0) {
         return false;
     }
 
@@ -367,7 +403,7 @@ bool NavSightManager::_queuePendingUpdateLocation()
     }
 
     mavlink_command_long_t command{};
-    command.target_system = static_cast<uint8_t>(kDefaultSystemId);
+    command.target_system = static_cast<uint8_t>(_navSightSystemId);
     command.target_component = static_cast<uint8_t>(kDefaultComponentId);
     command.command = 44444; // NavSight UPDATE_LOCATION
     command.confirmation = 0;
@@ -526,9 +562,19 @@ bool NavSightManager::sendUpdateLocation(double latitude, double longitude)
         return false;
     }
 
+    // Do not use sysid 10 as a send fallback. Version 1.2.X permits a
+    // configurable NavSight sysid and ignores broadcast commands, so an
+    // address learned from the component-192 heartbeat is required.
+    if (!_navSightOnline || _navSightSystemId == 0) {
+        qCWarning(NavSightManagerLog) << "UPDATE_LOCATION rejected locally: NavSight address has not been discovered";
+        _setUpdateLocationResult(QStringLiteral("Waiting for NavSight heartbeat"));
+        return false;
+    }
+
     qCInfo(NavSightManagerLog).nospace()
         << "UPDATE_LOCATION requested: latitude=" << latitude << " longitude=" << longitude
         << " vehicle=" << _vehicle->id() << " flying=" << _vehicle->flying()
+        << " navSightTarget=" << _navSightSystemId << '/' << kDefaultComponentId
         << " initialLocationAccepted=" << _initialLocationAccepted
         << " primaryLink=\"" << _vehicle->vehicleLinkManager()->primaryLinkName() << '\"';
 

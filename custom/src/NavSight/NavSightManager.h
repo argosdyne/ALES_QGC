@@ -39,7 +39,10 @@ public:
     Q_PROPERTY(QString  lastUpdateLocationResult       READ lastUpdateLocationResult       NOTIFY updateLocationStateChanged)
     Q_PROPERTY(int      activeEkfSourceSet             READ activeEkfSourceSet             NOTIFY ekfSourceStateChanged)
     Q_PROPERTY(bool     ekfSourceChangeInProgress      READ ekfSourceChangeInProgress      NOTIFY ekfSourceStateChanged)
-    Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 CONSTANT)
+    // NavSight defaults to sysid 10, but the unit may be configured to use
+    // another system id (including the vehicle's sysid). The address is
+    // learned from its component-192 heartbeat on the active vehicle link.
+    Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 NOTIFY navSightAddressChanged)
     Q_PROPERTY(bool     visualNavigationSourceConfigured READ visualNavigationSourceConfigured NOTIFY externalNavConfigurationChanged)
     Q_PROPERTY(bool     deadReckoningSourceConfigured     READ deadReckoningSourceConfigured     NOTIFY externalNavConfigurationChanged)
     Q_PROPERTY(int      targetComponentId              READ targetComponentId              CONSTANT)
@@ -60,7 +63,7 @@ public:
     QString lastUpdateLocationResult() const { return _lastUpdateLocationResult; }
     int activeEkfSourceSet() const { return _activeEkfSourceSet; }
     bool ekfSourceChangeInProgress() const { return _ekfSourceChangeInProgress; }
-    int targetSystemId() const { return kDefaultSystemId; }
+    int targetSystemId() const { return _navSightSystemId; }
     bool visualNavigationSourceConfigured() const { return _visualNavigationSourceConfigured; }
     bool deadReckoningSourceConfigured() const { return _deadReckoningSourceConfigured; }
     int targetComponentId() const { return kDefaultComponentId; }
@@ -76,6 +79,7 @@ signals:
     void ekfSourceStateChanged();
     void updateLocationSent(double latitude, double longitude);
     void externalNavConfigurationChanged();
+    void navSightAddressChanged();
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
@@ -87,6 +91,7 @@ private slots:
 
 private:
     void _setOffline();
+    void _setNavSightSystemId(int systemId);
     void _setUpdateLocationResult(const QString& result);
     bool _queuePendingUpdateLocation();
     void _finishUpdateLocation(const QString& result);
@@ -123,6 +128,7 @@ private:
     QMetaObject::Connection _externalNavParametersReadyConnection;
     QVector<QMetaObject::Connection> _externalNavFactConnections;
     Vehicle* _vehicle{nullptr};
+    int _navSightSystemId{0}; // Unknown until a component-192 HEARTBEAT is received.
     QElapsedTimer _lastHeartbeatTimer;
     QTimer _heartbeatWatchdog;
     QTimer _updateLocationAckTimer;
