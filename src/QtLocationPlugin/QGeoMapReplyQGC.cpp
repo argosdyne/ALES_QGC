@@ -74,6 +74,41 @@ static inline QString mapDownloadRequiredMessage()
     return QCoreApplication::translate("QGeoTiledMapReplyQGC", "Please download the map of the flight area.");
 }
 
+// VWorld returns these as HTTP 200 XML, not as a network error.
+// The log text is English. The Korean literals below are the server's ExceptionText.
+static QString vworldTileRejection(const QUrl& url, const QByteArray& body)
+{
+    if (!url.host().contains(QLatin1String("vworld.kr"), Qt::CaseInsensitive)) {
+        return QString();
+    }
+    // <Exception locator="key"> means the API key is not registered.
+    if (body.contains("locator=\"key\"")) {
+        return QStringLiteral("VWorld: unregistered API key");
+    }
+    // Quota ExceptionText is Korean. "초과" = exceeded, together with
+    // usage / traffic / calls / limit. OVER_REQUEST is VWorld's English code.
+    const QString text = QString::fromUtf8(body);
+    if (body.contains("OVER_REQUEST")
+        || (text.contains(QStringLiteral("초과"))
+            && (text.contains(QStringLiteral("활용"))
+                || text.contains(QStringLiteral("트래픽"))
+                || text.contains(QStringLiteral("호출"))
+                || text.contains(QStringLiteral("제한"))))) {
+        return QStringLiteral("VWorld: usage quota exceeded");
+    }
+    return QString();
+}
+
+static void logVworldTileRejectionOnce(const QString& message)
+{
+    static QStringList logged;
+    if (logged.contains(message)) {
+        return;
+    }
+    logged.append(message);
+    qWarning().noquote() << message;
+}
+
 //-----------------------------------------------------------------------------
 QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager, const QNetworkRequest &request, const QGeoTileSpec &spec, QObject *parent)
     : QGeoTiledMapReply(spec, parent)
@@ -164,6 +199,7 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
         emit terrainDone(a, QNetworkReply::NoError);
     } else {
         MapProvider* mapProvider = urlFactory->getMapProviderFromId(tileSpec().mapId());
+        const QString vworldRejection = vworldTileRejection(reply->url(), a);
         if (mapProvider && mapProvider->_isBingProvider() && a.size() && _bingNoTileImage.size() && a == _bingNoTileImage) {
             // Bing doesn't return an error if you request a tile above supported zoom level
             // It instead returns an image of a missing tile graphic. We need to detect that
@@ -171,6 +207,10 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             // This allows us to zoom up to level 23 even though the tiles don't actually exist
             //setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
             CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
+            setFinished(true);
+        } else if (!vworldRejection.isEmpty()) {
+            logVworldTileRejectionOnce(vworldRejection);
+            setError(QGeoTiledMapReply::CommunicationError, vworldRejection);
             setFinished(true);
         } else if (!tileBytesAreImage(a) || (_bingNoTileImage.size() && a == _bingNoTileImage)) {
             // XML/error pages and the empty-tile graphic are not map imagery.

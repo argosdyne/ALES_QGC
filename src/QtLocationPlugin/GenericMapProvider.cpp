@@ -107,7 +107,7 @@ QString VWorldStreetMapProvider::_getURL(const int x, const int y, const int zoo
     if (zoom > 19) {
         return QString();
     } else if (zoom > 5 && x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
-        return QString("http://api.vworld.kr/req/wmts/1.0.0/%1/Base/%2/%3/%4.png").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
+        return QString("https://api.vworld.kr/req/wmts/1.0.0/%1/Base/%2/%3/%4.png").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
     } else {
         const QString key = _tileXYToQuadKey(x, y, zoom);
         return QString(QStringLiteral("http://ecn.t%1.tiles.virtualearth.net/tiles/r%2.png?g=%3&mkt=%4"))
@@ -128,7 +128,7 @@ QString VWorldSatMapProvider::_getURL(const int x, const int y, const int zoom, 
     if (zoom > 19) {
         return QString();
     } else if (zoom > 5 && x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
-        return QString("http://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/%2/%3/%4.jpeg").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
+        return QString("https://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/%2/%3/%4.jpeg").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
     } else {
         const QString key = _tileXYToQuadKey(x, y, zoom);
         return QString("http://ecn.t%1.tiles.virtualearth.net/tiles/a%2.jpeg?g=%3&mkt=%4")
