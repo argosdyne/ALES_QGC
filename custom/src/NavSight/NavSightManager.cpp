@@ -149,7 +149,8 @@ QString NavSightManager::_mavlinkString(const char* text, int textLength)
 
 QStringList NavSightManager::_decodeStatusBitmask(quint32 statusBitmask)
 {
-    // NavSight MAVLink API v1.2.4p, statusBitVec bits 0 through 26.
+    // NavSight v1.2.X statusBitVec bits 0 through 30. Bit 26 was renamed
+    // from BAD_MAVLINK_BAUDRATE in v1.2.4p to BAD_PARAMS.
     static const char* const statusNames[] = {
         "NAVIGATION_OK",
         "NO_CAMERA_LINK",
@@ -177,7 +178,11 @@ QStringList NavSightManager::_decodeStatusBitmask(quint32 statusBitmask)
         "CAMERA_FPS_JITTERS",
         "CAMERA_FPS_SLOW",
         "SLAM_FPS_JITTERS",
+        "BAD_PARAMS",
+        "REBOOT_FC",
+        "READY_FOR_TAKEOFF",
         "BAD_MAVLINK_BAUDRATE",
+        "LANDING_IN_PROCESS",
     };
 
     QStringList activeStatuses;
@@ -194,6 +199,29 @@ QStringList NavSightManager::_decodeStatusBitmask(quint32 statusBitmask)
     }
 
     return activeStatuses;
+}
+
+NavSightManager::NavSightStatusSeverity NavSightManager::_statusSeverity(quint32 statusBitmask)
+{
+    // Keep status interpretation with the MAVLink protocol code. QML receives
+    // only the presentation-neutral severity, never protocol bit positions.
+    constexpr quint32 criticalMask = 0x2c000000u; // BAD_PARAMS, REBOOT_FC, BAD_MAVLINK_BAUDRATE
+    constexpr quint32 landingMask = 0x40000000u;  // LANDING_IN_PROCESS
+
+    if ((statusBitmask & criticalMask) != 0) {
+        return NavSightStatusSeverityCritical;
+    }
+    if ((statusBitmask & landingMask) != 0) {
+        return NavSightStatusSeverityWarning;
+    }
+    const quint32 normalMask = kReadyForTakeoffMask | quint32{1};
+    if ((statusBitmask & normalMask) != 0 && (statusBitmask & ~normalMask) == 0) {
+        return NavSightStatusSeverityNormal;
+    }
+
+    // Preserve the previous panel behavior: any non-navigation status is red
+    // until NavSight provides a complete severity definition for every flag.
+    return statusBitmask == 0 ? NavSightStatusSeverityNone : NavSightStatusSeverityCritical;
 }
 
 void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
@@ -295,7 +323,12 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
         _navSightStatusBitmask = heartbeat.custom_mode;
         _navSightActiveStatuses = _decodeStatusBitmask(_navSightStatusBitmask);
         _navSightStatusText = _navSightActiveStatuses.join(QLatin1Char('-'));
-        _initialLocationAccepted = (heartbeat.custom_mode & kWaitingForStartMissionMask) == 0;
+        _navSightStatusSeverity = _statusSeverity(_navSightStatusBitmask);
+        // v1.2.X explicitly reports READY_FOR_TAKEOFF after a successful
+        // ground UPDATE_LOCATION. Older v1.2.4p units do not have that bit,
+        // so retain the documented WAITING_FOR_START_MISSION fallback.
+        _initialLocationAccepted = (heartbeat.custom_mode & kReadyForTakeoffMask) != 0 ||
+                                   (heartbeat.custom_mode & kWaitingForStartMissionMask) == 0;
         _lastHeartbeatTimer.restart();
         emit navSightStatusChanged();
         qCInfo(NavSightManagerLog).nospace()
@@ -356,6 +389,7 @@ void NavSightManager::_setOffline()
     _navSightActiveStatuses.clear();
     _navSightDiagnosticText.clear();
     _navSightStatusBitmask = 0;
+    _navSightStatusSeverity = NavSightStatusSeverityNone;
     _navSightDeadReckoningActive = false;
     _navSightGpsActive = false;
     _navSightVisualNavigationActive = false;

@@ -21,6 +21,14 @@ public:
     static constexpr int kDefaultSystemId = 10;
     static constexpr int kDefaultComponentId = 192;
 
+    enum NavSightStatusSeverity {
+        NavSightStatusSeverityNone = 0,
+        NavSightStatusSeverityWarning,
+        NavSightStatusSeverityCritical,
+        NavSightStatusSeverityNormal,
+    };
+    Q_ENUM(NavSightStatusSeverity)
+
     explicit NavSightManager(QGCApplication* app, QGCToolbox* toolbox);
 
     Q_PROPERTY(bool     navSightOnline                 READ navSightOnline                 NOTIFY navSightStatusChanged)
@@ -30,6 +38,7 @@ public:
     Q_PROPERTY(QStringList navSightActiveStatuses      READ navSightActiveStatuses         NOTIFY navSightStatusChanged)
     Q_PROPERTY(QString  navSightDiagnosticText         READ navSightDiagnosticText         NOTIFY navSightStatusChanged)
     Q_PROPERTY(quint32  navSightStatusBitmask          READ navSightStatusBitmask          NOTIFY navSightStatusChanged)
+    Q_PROPERTY(int      navSightStatusSeverity         READ navSightStatusSeverity         NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightDeadReckoningActive    READ navSightDeadReckoningActive    NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightGpsActive              READ navSightGpsActive              NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     navSightVisualNavigationActive READ navSightVisualNavigationActive NOTIFY navSightStatusChanged)
@@ -54,6 +63,7 @@ public:
     QStringList navSightActiveStatuses() const { return _navSightActiveStatuses; }
     QString navSightDiagnosticText() const { return _navSightDiagnosticText; }
     quint32 navSightStatusBitmask() const { return _navSightStatusBitmask; }
+    int navSightStatusSeverity() const { return _navSightStatusSeverity; }
     bool navSightDeadReckoningActive() const { return _navSightDeadReckoningActive; }
     bool navSightGpsActive() const { return _navSightGpsActive; }
     bool navSightVisualNavigationActive() const { return _navSightVisualNavigationActive; }
@@ -102,6 +112,7 @@ private:
     static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
     static QStringList _decodeStatusBitmask(quint32 statusBitmask);
+    static NavSightStatusSeverity _statusSeverity(quint32 statusBitmask);
 
     bool    _navSightOnline{false};
     double  _navSightConfidence{0.0};
@@ -110,6 +121,7 @@ private:
     QStringList _navSightActiveStatuses;
     QString _navSightDiagnosticText;
     quint32 _navSightStatusBitmask{0};
+    NavSightStatusSeverity _navSightStatusSeverity{NavSightStatusSeverityNone};
     bool    _navSightDeadReckoningActive{false};
     bool    _navSightGpsActive{false};
     bool    _navSightVisualNavigationActive{false};
@@ -136,7 +148,9 @@ private:
 
     static constexpr int kHeartbeatTimeoutMs = 3000;
     static constexpr quint32 kWaitingForStartMissionMask = 0x00001000u;
-    static constexpr quint32 kKnownStatusBitsMask = 0x07ffffffu;
+    // NavSight v1.2.X status flags 0 through 30 are carried in HEARTBEAT.custom_mode.
+    static constexpr quint32 kReadyForTakeoffMask = 0x10000000u;
+    static constexpr quint32 kKnownStatusBitsMask = 0x7fffffffu;
     static constexpr int kUpdateLocationAckTimeoutMs = 3000;
     static constexpr int kMaxUpdateLocationRetries = 2;
     static constexpr int kEkfSourceAckTimeoutMs = 3000;
