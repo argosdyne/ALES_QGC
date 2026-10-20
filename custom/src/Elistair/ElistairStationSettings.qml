@@ -18,6 +18,13 @@ Rectangle {
         if (title === "Control Settings") return "Control-frame timeout and station algorithm authorization."
         return "Maintenance counter, total powered hours and number of drone flights."
     }
+    function detail(title) {
+        if (title === "Cable Settings") return "Length alarm • Protection length • Theoretical tether length • Tether weight"
+        if (title === "Power Settings") return "Power alarm • Alert percentage • Automatic output-power thresholds"
+        if (title === "Safety Limits") return "Take-off/landing protection • Anti-shock • Anti-entrapment • Anti-ground dragging"
+        if (title === "Control Settings") return "Control-frame timeout • Algorithm authorization • Torque presets"
+        return "Maintenance counter • Total powered hours • Number of drone flights"
+    }
     ColumnLayout {
         anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 2
         QGCLabel { text: "SAFE-T Station"; font.pointSize: ScreenTools.largeFontPointSize; font.bold: true }
@@ -64,32 +71,49 @@ Rectangle {
             Flickable {
                 clip: true; contentHeight: settings.implicitHeight
                 ColumnLayout {
-                    id: settings; width: parent.width; spacing: ScreenTools.defaultFontPixelHeight
+                    id: settings
+                    width: Math.min(parent.width, ScreenTools.defaultFontPixelWidth * 72)
+                    x: Math.max(0, (parent.width - width) / 2)
+                    spacing: ScreenTools.defaultFontPixelHeight * 0.7
                     Rectangle {
-                        Layout.fillWidth: true; implicitHeight: warning.implicitHeight + ScreenTools.defaultFontPixelHeight * 2; color: settingsLocked ? "#d69e2e" : qgcPal.colorGreen
-                        QGCLabel { id: warning; anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth; color: "white"; wrapMode: Text.WordWrap; text: settingsLocked ? "Configuration is locked until SAFE-T is connected. It must only be read or written while the aircraft is disarmed and tether is not flying." : "Configuration write is allowed only while the aircraft is disarmed and tether output is safe." }
+                        Layout.fillWidth: true; implicitHeight: warning.implicitHeight + ScreenTools.defaultFontPixelHeight * 2; color: settingsLocked ? "#a87508" : "#b7791f"; radius: 4
+                        RowLayout {
+                            anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth
+                            QGCLabel { text: "⚠"; color: "#1b1f24"; font.pointSize: ScreenTools.largeFontPointSize; font.bold: true }
+                            QGCLabel { id: warning; Layout.fillWidth: true; color: "#1b1f24"; wrapMode: Text.WordWrap; text: settingsLocked ? "Configuration is locked. Connect SAFE-T and keep the aircraft disarmed before reading or writing configuration." : "Configuration may cut tether output. Ensure the aircraft is disarmed and tether is not flying." }
+                            QGCButton { text: "Read Configuration"; enabled: !settingsLocked; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 18 }
+                        }
                     }
                     RowLayout {
-                        QGCButton { text: "Read Configuration"; enabled: !settingsLocked }
-                        QGCButton { text: "Write Changed Values"; enabled: !settingsLocked }
+                        Item { Layout.fillWidth: true }
+                        QGCButton { text: "Write Changed Values"; enabled: !settingsLocked; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 20 }
                     }
                     Repeater {
                         model: ["Cable Settings", "Power Settings", "Safety Limits", "Control Settings", "Maintenance"]
-                        delegate: Rectangle {
+                        delegate: Item {
                             Layout.fillWidth: true
-                            implicitHeight: sectionColumn.implicitHeight + ScreenTools.defaultFontPixelHeight
-                            color: qgcPal.button
-                            radius: 3
-                            ColumnLayout {
-                                id: sectionColumn
-                                anchors.fill: parent
-                                anchors.margins: ScreenTools.defaultFontPixelWidth
-                                QGCLabel { text: modelData; font.bold: true }
-                                QGCLabel { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: description(modelData); color: qgcPal.buttonText }
+                            property bool expanded: false
+                            implicitHeight: header.implicitHeight + (expanded ? details.implicitHeight : 0)
+                            Rectangle {
+                                id: header; width: parent.width; implicitHeight: ScreenTools.defaultFontPixelHeight * 3.1
+                                color: qgcPal.button; radius: 4
+                                RowLayout {
+                                    anchors.fill: parent; anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 1.25; anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 1.25
+                                    QGCLabel { text: parent.parent.expanded ? "⌄" : "›"; color: qgcPal.buttonText; font.pointSize: ScreenTools.largeFontPointSize }
+                                    QGCLabel { Layout.fillWidth: true; text: modelData; font.bold: true }
+                                    QGCLabel { text: "Configure"; color: qgcPal.buttonText }
+                                }
+                                MouseArea { anchors.fill: parent; onClicked: parent.parent.expanded = !parent.parent.expanded }
+                            }
+                            Rectangle {
+                                id: details; visible: parent.expanded; y: header.height; width: parent.width
+                                implicitHeight: detailText.implicitHeight + ScreenTools.defaultFontPixelHeight * 2
+                                color: qgcPal.windowShade; radius: 4
+                                QGCLabel { id: detailText; anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 1.5; text: detail(modelData); wrapMode: Text.WordWrap; color: qgcPal.buttonText }
                             }
                         }
                     }
-                    QGCLabel { text: "SAFE-T Config V0: Read 0xA5 / Write 0xD5. EEPROM writes are sent once only, never periodically."; wrapMode: Text.WordWrap; color: qgcPal.buttonText }
+                    QGCLabel { Layout.topMargin: ScreenTools.defaultFontPixelHeight * .4; text: "SAFE-T Config V0  •  Read 0xA5 / Write 0xD5  •  EEPROM writes are sent once only."; wrapMode: Text.WordWrap; color: qgcPal.buttonText; horizontalAlignment: Text.AlignHCenter; Layout.fillWidth: true }
                 }
             }
             Flickable {
