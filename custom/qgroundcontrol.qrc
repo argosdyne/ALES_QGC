@@ -54,6 +54,8 @@
 		<file alias="GeneralSettings.qml">../src/ui/preferences/GeneralSettings.qml</file>
 		<file alias="CodevCameraVisual.qml">../src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">../src/M2Link/M2Settings.qml</file>
+		<file alias="ElistairStationPanel.qml">src/Elistair/ElistairStationPanel.qml</file>
+		<file alias="ElistairStationSettings.qml">src/Elistair/ElistairStationSettings.qml</file>
 		<file alias="RajantSettings.qml">../src/RajantLink/RajantSettings.qml</file>
 		<!--<flie alias="QGCBusyIndicator.qml">../src/QmlControls/QGCBusyIndicator.qml</flie> -->
 		<file alias="QGroundControl/Controls/PseudocolorBar.qml">../src/QmlControls/PseudocolorBar.qml</file>

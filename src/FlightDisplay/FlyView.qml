@@ -230,6 +230,14 @@ Item {
         }
     }
 
+    Loader {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: _toolsMargin
+        z: QGroundControl.zOrderTopMost
+        source: "qrc:/qml/ElistairStationPanel.qml"
+    }
+
     // QGCPipOverlay {
     //     id:                     _pipOverlay
     //     anchors.left:           parent.left
