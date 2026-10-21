@@ -159,6 +159,7 @@ private:
     void        _prepareDownload        ();
     void        _doneWithDownload       ();
     void        _storeDownloadedTile    (const QString& hash, const QString& type, const QByteArray& image, const QString& format);
+    void        _failHybridOverlayDownload(const QString& hash);
     bool        _startHybridOverlay     (const QString& hash, const QByteArray& baseImage);
 
 private:

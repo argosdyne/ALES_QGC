@@ -261,6 +261,20 @@ QGCCachedTileSet::_storeDownloadedTile(const QString& hash, const QString& type,
 }
 
 //-----------------------------------------------------------------------------
+void
+QGCCachedTileSet::_failHybridOverlayDownload(const QString& hash)
+{
+    // Leave the satellite image out of the Hybrid set so a later download requests the label again.
+    if (hash.isEmpty()) {
+        return;
+    }
+    _errorCount++;
+    emit errorCountChanged();
+    QGCUpdateTileDownloadStateTask* task = new QGCUpdateTileDownloadStateTask(_id, QGCTile::StateError, hash);
+    getQGCMapEngine()->addTask(task);
+}
+
+//-----------------------------------------------------------------------------
 bool
 QGCCachedTileSet::_startHybridOverlay(const QString& hash, const QByteArray& baseImage)
 {
@@ -388,7 +402,7 @@ QGCCachedTileSet::_networkReplyFinished()
                         loggedUnavailable = true;
                         qWarning() << "VWorld: hybrid overlay unavailable";
                     }
-                    _storeDownloadedTile(hash, type, baseImage, QString());
+                    _failHybridOverlayDownload(hash);
                 }
             } else if (_startHybridOverlay(hash, image)) {
                 reply->deleteLater();
@@ -420,7 +434,7 @@ QGCCachedTileSet::_networkReplyError(QNetworkReply::NetworkError error)
     QString hash = reply->request().attribute(QNetworkRequest::User).toString();
     if (_hybridOverlayPending.contains(hash)) {
         _hybridOverlayPending.remove(hash);
-        const QByteArray baseImage = _hybridBaseImages.take(hash);
+        _hybridBaseImages.remove(hash);
         if (_replies.contains(hash)) {
             _replies.remove(hash);
         }
@@ -429,7 +443,7 @@ QGCCachedTileSet::_networkReplyError(QNetworkReply::NetworkError error)
             loggedUnavailable = true;
             qWarning() << "VWorld: hybrid overlay unavailable";
         }
-        _storeDownloadedTile(hash, getQGCMapEngine()->hashToType(hash), baseImage, QString());
+        _failHybridOverlayDownload(hash);
         _prepareDownload();
         reply->deleteLater();
         return;

@@ -210,7 +210,8 @@ QGeoTiledMapReplyQGC::_finishHybridOverlay(const QByteArray& overlayBytes)
     QByteArray image = _baseTileImage;
     QString format = getQGCMapEngine()->urlFactory()->getImageFormat(tileSpec().mapId(), image);
     const QByteArray composed = composeMapOverlay(_baseTileImage, overlayBytes);
-    if (!composed.isEmpty()) {
+    const bool overlayReady = !composed.isEmpty();
+    if (overlayReady) {
         image = composed;
         format = QStringLiteral("png");
     } else {
@@ -222,11 +223,15 @@ QGeoTiledMapReplyQGC::_finishHybridOverlay(const QByteArray& overlayBytes)
         }
     }
     _baseTileImage.clear();
+    // Show the satellite tile for this view. Cache it only after the label is composited,
+    // so a failed label is requested again the next time this tile is needed.
     setMapImageData(image);
     if (!format.isEmpty()) {
         setMapImageFormat(format);
-        getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()),
-                                      tileSpec().x(), tileSpec().y(), tileSpec().zoom(), image, format);
+        if (overlayReady) {
+            getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()),
+                                          tileSpec().x(), tileSpec().y(), tileSpec().zoom(), image, format);
+        }
     }
     setFinished(true);
 }
