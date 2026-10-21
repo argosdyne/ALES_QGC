@@ -47,8 +47,11 @@
 #ifndef QGEOMAPREPLYQGC_H
 #define QGEOMAPREPLYQGC_H
 
+#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtLocation/private/qgeotiledmapreply_p.h>
+#include <QList>
+#include <QPointer>
 #include <QTimer>
 
 #include "QGCMapEngineData.h"
@@ -73,6 +76,8 @@ private slots:
 
 private:
     void _clearReply            ();
+    void _scheduleTileDownload  ();
+    void _releaseNetworkSlot    ();
     void _beginTileDownload     ();
     bool _beginOverlayDownload  (const QUrl& url);
     void _finishHybridOverlay   (const QByteArray& overlayBytes);
@@ -80,15 +85,18 @@ private:
     void setIgnoreSSLErrorsIfNeeded(QNetworkReply& networkReply);
 
 private:
-    QNetworkReply*          _reply;
-    QNetworkRequest         _request;
-    QNetworkAccessManager*  _networkManager;
+    QNetworkReply*                      _reply;
+    QNetworkRequest                     _request;
+    QPointer<QNetworkAccessManager>     _networkManager;
     QByteArray              _badMapbox;
     QByteArray              _badTile;
     QTimer                  _timer;
     int                     _timeoutRetries;
     bool                    _aborted;
     bool                    _awaitingOverlay;
+    bool                    _holdsNetworkSlot;
+    static int              _activeTileDownloads;
+    static QList<QPointer<QGeoTiledMapReplyQGC>> _pendingTileDownloads;
     QByteArray              _baseTileImage;
     static QByteArray       _bingNoTileImage;
     static int              _requestCount;

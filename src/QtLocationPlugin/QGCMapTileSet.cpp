@@ -301,6 +301,8 @@ QGCCachedTileSet::_startHybridOverlay(const QString& hash, const QByteArray& bas
     request.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("*/*"));
     request.setRawHeader(QByteArrayLiteral("Referrer"), QByteArrayLiteral("www.vworld.kr"));
     request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArray());
+    request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
     request.setAttribute(QNetworkRequest::User, hash);
 #if !defined(__mobile__)
     QNetworkProxy proxy = _networkManager->proxy();

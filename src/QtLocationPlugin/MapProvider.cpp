@@ -65,6 +65,11 @@ QNetworkRequest MapProvider::getTileURL(const int x, const int y, const int zoom
     request.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("*/*"));
     request.setRawHeader(QByteArrayLiteral("Referrer"), _referrer.toUtf8());
     request.setRawHeader(QByteArrayLiteral("User-Agent"), _userAgent);
+    // Tile servers may send Set-Cookie. Saving it calls QNetworkCookieJar::setCookiesFromUrl,
+    // and this Android Qt build jumps through a destroyed jar (SIGSEGV in libQt5Core .data).
+    // Map tiles do not use cookies.
+    request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
     return request;
 }
 
