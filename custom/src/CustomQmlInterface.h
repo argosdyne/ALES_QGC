@@ -13,14 +13,6 @@ class CodevRTCMManager;
 class mDNSManager;
 class LTEManager;
 #define DEFAULT_REMOTE_PORT_UDP_QGC_SLAVE   14599   ///< Slave port
-
-enum class GeoAwarenessErrorId {
-    Unknown = 0,
-    Inside,
-    Near,
-    NoData
-};
-
 class SystemMessage : public QObject
 {
     Q_OBJECT
@@ -76,8 +68,6 @@ public:
     void setGeoAwarenessY(const float& geoy);
     QPropertyAnimation* geoAwarenessCreateYAnimation(QVariant from, QVariant to);    
     void setGeoAwarenessType();
-    void setGeoAwarenessErrorId(GeoAwarenessErrorId errorId) { _geoAwarenessErrorId = errorId; }
-    GeoAwarenessErrorId geoAwarenessErrorId(void) const { return _geoAwarenessErrorId; }
 
 
 public slots:
@@ -115,7 +105,6 @@ private:
     float _geoAwarenessY;
     QPropertyAnimation *_geoAwarenessYAnimation;
     QTimer _geoAwarenessTimer;
-    GeoAwarenessErrorId _geoAwarenessErrorId{GeoAwarenessErrorId::Unknown};
 
 };
 
@@ -130,9 +119,7 @@ public:
         CUSTOM_FUNCTION_IR_SWITCH,
         CUSTOM_FUNCTION_GIMBAL_RESET,
         CUSTOM_FUNCTION_AIRCRAFT_RTL,
-        CUSTOM_FUNCTION_START_MISSION,
-        CUSTOM_FUNCTION_CAMERA_CAPTURE,
-        CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD
+        CUSTOM_FUNCTION_START_MISSION
     } CUSTOM_FUNCTION;
     Q_PROPERTY(ARManager* arManager READ arManager CONSTANT)
     Q_PROPERTY(CodevRTCMManager* codevRTCMManager READ codevRTCMManager CONSTANT)
@@ -167,8 +154,6 @@ signals:
     void thermalZoomTigger(bool start);
     void irSwitchTigger(bool start);
     void gimbalResetTigger(bool start);
-    void cameraCapture(bool start);
-    void cameraToggleRecord(bool start);
 
     void defaultFontPixelChanged();    
 
@@ -180,9 +165,7 @@ public slots:
      * @see ::SystemMessage::SystemMessageType
      */
     void showMessage(const QString& message, SystemMessage::SystemMessageType type = SystemMessage::Info);
-    void dismissGeoFenceAltitudeWarnings();
     void handleCustomButtonFunction(int type, bool pressed);
-    void handleAviatorButton(int type, bool pressed);
     void showMapUpdateDate();
 
     //GeoAwareness Message Window

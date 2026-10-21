@@ -2,77 +2,6 @@
 #include "CustomPlugin.h"
 #include "LinkManager.h"
 #include "CodevRTCMManager.h"
-#include "AVIATORInterface.h"
-#include "Vehicle.h"
-#include "MultiVehicleManager.h"
-#include "QGCCameraManager.h"
-#include "CodevCameraControl.h"
-#include "PayloadManager.h"
-#include <QCoreApplication>
-#include <QLocale>
-#include <cmath>
-
-namespace {
-
-CodevCameraControl* _activeCodevCamera(QGCToolbox* toolbox)
-{
-    if (!toolbox || !toolbox->multiVehicleManager()) {
-        return nullptr;
-    }
-    Vehicle* vehicle = toolbox->multiVehicleManager()->activeVehicle();
-    if (!vehicle || !vehicle->cameraManager()) {
-        return nullptr;
-    }
-    return qobject_cast<CodevCameraControl*>(vehicle->cameraManager()->currentCameraInstance());
-}
-
-bool _gremsyPayloadActive()
-{
-    PayloadManager* payloadManager = PayloadManager::instance();
-    return payloadManager && payloadManager->activeType() == 0;
-}
-
-bool _stepActiveCameraThermalZoom(QGCToolbox* toolbox)
-{
-    CodevCameraControl* camera = _activeCodevCamera(toolbox);
-    if (!camera) {
-        return false;
-    }
-
-    // Gremsy exposes C_T_ZOOM; Codev/R3 cameras expose IR_ZOOM.
-    // Prefer the payload-specific Fact without changing the path for other cameras.
-    const bool hasGremsyThermalZoom = camera->factExists(QStringLiteral("C_T_ZOOM"));
-    Fact* irZoom = hasGremsyThermalZoom
-            ? camera->getFact(QStringLiteral("C_T_ZOOM"))
-            : (camera->factExists(QStringLiteral("IR_ZOOM"))
-               ? camera->getFact(QStringLiteral("IR_ZOOM")) : nullptr);
-    if (!irZoom || irZoom->readOnly()) {
-        return false;
-    }
-
-    if (hasGremsyThermalZoom) {
-        irZoom->setCookedValue((irZoom->cookedValue().toUInt() + 1U) % 8U);
-        return true;
-    }
-
-    const double minValue = irZoom->cookedMin().toDouble();
-    const double maxValue = irZoom->cookedMax().toDouble();
-    double increment = irZoom->cookedIncrement();
-    if (!std::isfinite(increment) || increment <= 0.0) {
-        increment = 1.0;
-    }
-
-    double nextValue = irZoom->cookedValue().toDouble() + increment;
-    if (nextValue > maxValue + 0.01) {
-        nextValue = minValue;
-    } else if (nextValue > maxValue) {
-        nextValue = maxValue;
-    }
-    irZoom->setCookedValue(nextValue);
-    return true;
-}
-
-} // namespace
 
 #define CHAR_NUMBER_EACH_ROW 30
 
@@ -100,18 +29,6 @@ CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
 static const char* kDbFileName = "qgcMapCache.db";
 #define CACHE_PATH_VERSION  "300"
 
-namespace {
-bool _isMapDownloadMessage(const QString& message)
-{
-    static const char* kSourceText = "Please download the map of the flight area.";
-    if (message.contains(QLatin1String(kSourceText))) {
-        return true;
-    }
-    const QString translated = QCoreApplication::translate("QGeoTiledMapReplyQGC", kSourceText);
-    return translated != QLatin1String(kSourceText) && message.contains(translated);
-}
-}
-
 void CustomQmlInterface::showMapUpdateDate(){
 #ifdef __mobile__
     QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)      + QLatin1String("/QGCMapCache" CACHE_PATH_VERSION);
@@ -127,7 +44,7 @@ void CustomQmlInterface::showMapUpdateDate(){
     QFileInfo cacheFileInfo(fullCachePath);
     if (cacheFileInfo.exists()) {
         QDateTime lastModified = cacheFileInfo.lastModified();
-        QString msg = tr("Map tiles updated at %1").arg(QLocale().toString(lastModified, QLocale::ShortFormat));
+        QString msg = "Map tiles updated at " + lastModified.toString();
         showMessage(msg, SystemMessage::Info);
     }
 }
@@ -219,7 +136,7 @@ void CustomQmlInterface::_slaveModeChanged(bool slaveMode)
 void CustomQmlInterface::showMessage(const QString& message, SystemMessage::SystemMessageType type)
 {
     static bool mapMessageShown = false;
-    if (_isMapDownloadMessage(message)) {
+    if (message.contains("Please download the map")) {
         if (mapMessageShown)
             return;
         mapMessageShown = true;
@@ -229,7 +146,7 @@ void CustomQmlInterface::showMessage(const QString& message, SystemMessage::Syst
     m->setContext(message);
     m->setType(type);
 
-    if (_isMapDownloadMessage(message)) {
+    if (message.contains("Please download the map")) {
         _normalSystemMessages.append(m);
     }
     else if (type != SystemMessage::SystemMessageType::Warning && type != SystemMessage::SystemMessageType::Error) {
@@ -254,49 +171,16 @@ void CustomQmlInterface::showMessage(const QString& message, SystemMessage::Syst
     _refreshSystemMessageUI(true);
 }
 
-void CustomQmlInterface::dismissGeoFenceAltitudeWarnings()
-{
-    for (int i = _systemMessages.count() - 1; i >= 0; --i) {
-        SystemMessage* message = _systemMessages.value<SystemMessage*>(i);
-        if (message && message->context().contains(QStringLiteral("Entering 3D GeoFence area"), Qt::CaseInsensitive)) {
-            message->closeItstyle();
-        }
-    }
-}
-
 void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
 {
     qDebug() << "handleCustomButtonFunction : type = " << type;
     if(type == CUSTOM_FUNCTION_COACH_WAYPOINT) {
         if(_plugin->coachMode()) emit coachWaypointTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_THERMAL_ZOOM) {
-        if (pressed && _gremsyPayloadActive()) {
-            if (!_stepActiveCameraThermalZoom(_toolbox)) {
-                PayloadManager* payloadManager = PayloadManager::instance();
-                if (payloadManager && payloadManager->gremsy()) {
-                    payloadManager->gremsy()->stepThermalZoom();
-                }
-            }
-            return;
-        }
         emit thermalZoomTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_IR_SWITCH) {
         emit irSwitchTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_GIMBAL_RESET) {
-        if (pressed) {
-            if (_gremsyPayloadActive()) {
-                PayloadManager* payloadManager = PayloadManager::instance();
-                if (payloadManager && payloadManager->gremsy()) {
-                    payloadManager->gremsy()->gimbalHome();
-                }
-            }
-            if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
-                camera->syncZoomUiAfterReset();
-            }
-            if (_gremsyPayloadActive()) {
-                return;
-            }
-        }
         emit gimbalResetTigger(pressed);
     } else if(type == CUSTOM_FUNCTION_AIRCRAFT_RTL) {
         if(pressed) {
@@ -315,98 +199,6 @@ void CustomQmlInterface::handleCustomButtonFunction(int type, bool pressed)
                 vehicle->startMission();
             }
         }
-    } else if(type == CUSTOM_FUNCTION_CAMERA_CAPTURE) {
-        if(pressed) {
-            PayloadManager* payloadManager = PayloadManager::instance();
-            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
-            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
-                gremsy->captureImage();
-            } else if (payloadManager->activeType() == 1 &&
-                       payloadManager->nextvision() &&
-                       (payloadManager->nextvision()->connected() ||
-                        payloadManager->nextvision()->vehicleControlAvailable())) {
-                qInfo() << "[NextVision][Physical] snapshot requested";
-                payloadManager->nextvision()->captureImage();
-            } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
-                camera->buttonTakePhoto();
-            } else {
-                emit cameraCapture(true);
-            }
-        }
-    } else if(type == CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD) {
-        if(pressed) {
-            PayloadManager* payloadManager = PayloadManager::instance();
-            GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
-            if (payloadManager->activeType() == 0 && gremsy && gremsy->connected()) {
-                gremsy->toggleRecording();
-            } else if (payloadManager->activeType() == 1 && payloadManager->nextvision()
-                       && (payloadManager->nextvision()->connected()
-                           || payloadManager->nextvision()->vehicleControlAvailable())) {
-                qInfo() << "[NextVision][Physical] record toggle requested";
-                emit cameraToggleRecord(true);
-                Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
-                if (vehicle) {
-                    vehicle->toggleVideoCapture();
-                }
-            } else if (CodevCameraControl* camera = _activeCodevCamera(_toolbox)) {
-                // R3 and other MAVLink cameras must stay on their direct camera
-                // command path. Do not create a global RC override for record.
-                camera->buttonToggleVideo();
-            } else {
-                // Notify the camera panel as well. Recording is toggled by the
-                // vehicle below, but that state alone does not select the
-                // Video icon when a physical key is pressed in Photo mode.
-                emit cameraToggleRecord(true);
-                Vehicle* vehicle = _toolbox->multiVehicleManager()->activeVehicle();
-                if (vehicle) {
-                    vehicle->toggleVideoCapture();
-                }
-            }
-        }
-    }
-}
-
-void CustomQmlInterface::handleAviatorButton(int type, bool pressed)
-{
-    switch (type) {
-    case AVIATORInterface::AVIATOR_FUNCTION_THERMAL_ZOOM:
-        handleCustomButtonFunction(CUSTOM_FUNCTION_THERMAL_ZOOM, pressed);
-        break;
-    case AVIATORInterface::AVIATOR_FUNCTION_IR_SWITCH:
-        handleCustomButtonFunction(CUSTOM_FUNCTION_IR_SWITCH, pressed);
-        break;
-    case AVIATORInterface::AVIATOR_FUNCTION_GIMBAL_RESET:
-        handleCustomButtonFunction(CUSTOM_FUNCTION_GIMBAL_RESET, pressed);
-        break;
-    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_CAPTURE:
-        handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_CAPTURE, pressed);
-        break;
-    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD:
-        handleCustomButtonFunction(CUSTOM_FUNCTION_CAMERA_TOGGLE_RECORD, pressed);
-        break;
-    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN:
-    case AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_OUT: {
-        PayloadManager* payloadManager = PayloadManager::instance();
-        if (pressed) {
-            const int direction = type == AVIATORInterface::AVIATOR_FUNCTION_CAMERA_ZOOM_IN ? 1 : -1;
-            if (payloadManager->activeType() == 0) {
-                GremsyLynxPayloadController* gremsy = payloadManager->gremsy();
-                if (gremsy && gremsy->connected()) {
-                    gremsy->stepZoom(direction);
-                }
-            } else {
-                NextVisionPayloadController* nextvision = payloadManager->nextvision();
-                // Match the NextVision UI path: its RC override can be sent while
-                // the controller is still waiting for the first heartbeat.
-                if (nextvision) {
-                    nextvision->stepZoom(direction);
-                }
-            }
-        }
-        break;
-    }
-    default:
-        break;
     }
 }
 
@@ -531,7 +323,7 @@ void SystemMessage::setType(const SystemMessageType &type)
 {
     _type = type;
     if(_timer.isActive()) _timer.stop();
-    if(_isMapDownloadMessage(_context)){
+    if(_context.contains("Please download the map")){
     }
     else if(type == SystemMessageType::Error) {
         _timer.start(20000);    
@@ -556,18 +348,6 @@ static bool _geoAwarenessInsideMessageShown = false;
 static bool _geoAwarenessNearMessageShown = false;
 static bool _geoAwarenessNoDataMessageShown = false;
 
-namespace {
-bool _containsSourceOrTranslation(const QString& message, const char* sourceText)
-{
-    if (message.contains(QLatin1String(sourceText))) {
-        return true;
-    }
-
-    const QString translated = QCoreApplication::translate("FlightZoneManager", sourceText);
-    return translated != QLatin1String(sourceText) && message.contains(translated);
-}
-}
-
 void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 {
 
@@ -576,31 +356,36 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
     // qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
     // qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
 
-    GeoAwarenessErrorId type = GeoAwarenessErrorId::Unknown;
+    enum MessageType {
+        None,
+        Inside,
+        Near,
+        NoData
+    };
 
-    if (_containsSourceOrTranslation(message, "Drone is inside")) {
-        type = GeoAwarenessErrorId::Inside;
-    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close. Distance : %1M")) {
-        type = GeoAwarenessErrorId::Near;
-    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close.")) {
-        type = GeoAwarenessErrorId::Near;
-    } else if (_containsSourceOrTranslation(message, "Cannot access GeoZone data.<br>Please check local files or internet connection.")) {
-        type = GeoAwarenessErrorId::NoData;
+    MessageType type = None;
+
+    if (message.contains("Drone is inside")) {
+        type = Inside;
+    } else if (message.contains("The distance between the aircraft")) {
+        type = Near;
+    } else if (message.contains("Cannot access GeoZone data")) {
+        type = NoData;
     }
 
     // 이미 보여줬다면 return
     switch (type) {
-    case GeoAwarenessErrorId::Inside:
+    case Inside:
         if (_geoAwarenessInsideMessageShown)
             return;
         _geoAwarenessInsideMessageShown = true;
         break;
-    case GeoAwarenessErrorId::Near:
+    case Near:
         if (_geoAwarenessNearMessageShown)
             return;
         _geoAwarenessNearMessageShown = true;
         break;
-    case GeoAwarenessErrorId::NoData:
+    case NoData:
         if (_geoAwarenessNoDataMessageShown)
             return;
         _geoAwarenessNoDataMessageShown = true;
@@ -611,7 +396,6 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
 
     SystemMessage* m = new SystemMessage(this);
     m->setGeoAwarenessContext(message);
-    m->setGeoAwarenessErrorId(type);
     m->setGeoAwarenessType();
 
 
@@ -676,18 +460,12 @@ void SystemMessage::geoAwarenessCloseItstyle()
     if(index > 0) {
         _customQmlInterface->_geoAwarenessRefreshSystemMessageUI(false);
     }
-    switch (_geoAwarenessErrorId) {
-    case GeoAwarenessErrorId::Inside:
+    if (_geoAwarenessContext.contains("Drone is inside")) {
         _geoAwarenessInsideMessageShown = false;
-        break;
-    case GeoAwarenessErrorId::Near:
+    } else if (_geoAwarenessContext.contains("The distance between the aircraft")) {
         _geoAwarenessNearMessageShown = false;
-        break;
-    case GeoAwarenessErrorId::NoData:
+    } else if (_geoAwarenessContext.contains("Cannot access GeoZone data")) {
         _geoAwarenessNoDataMessageShown = false;
-        break;
-    default:
-        break;
     }
 }
 

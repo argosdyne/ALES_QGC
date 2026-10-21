@@ -249,7 +249,7 @@ AndroidBuild {
     CONFIG -= qtquickcompiler
 }
 
-AndroidBuild|DebugBuild {
+DebugBuild {
     CONFIG -= qtquickcompiler
 } else {
     CONFIG += qtquickcompiler
@@ -427,8 +427,6 @@ INCLUDEPATH += \
     src/FollowMe \
     src/Geo \
     src/Gimbal \
-    src/NextVision \
-    src/Payload \
     src/GPS \
     src/Joystick \
     src/PlanView \
@@ -441,7 +439,6 @@ INCLUDEPATH += \
     src/Terrain \
     src/Vehicle \
     src/Audio \
-    src/OpticalFlow \
     src/comm \
     src/input \
     src/lib/qmapcontrol \
@@ -455,7 +452,6 @@ INCLUDEPATH += \
     src/ui/toolbar \
     src/ui/uas \
 	src/M2Link \
-    src/RajantLink \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     INCLUDEPATH += \
@@ -617,7 +613,6 @@ HEADERS += \
     src/AnalyzeView/MavlinkConsoleController.h \
     src/Audio/AudioOutput.h \
     src/Audio/AudioControl.h \
-    src/OpticalFlow/OpticalFlowController.h \
     src/Vehicle/Autotune.h \
     src/Camera/QGCCameraControl.h \
     src/Camera/QGCCameraIO.h \
@@ -643,7 +638,7 @@ HEADERS += \
     src/MissionManager/YellowScanInitPathComplexItem.h \
     src/MissionManager/BlankPlanCreator.h \
     src/MissionManager/FixedWingLandingComplexItem.h \
-    src/MissionManager/GeoCageController.h \
+    #src/MissionManager/GeoCageController.h \
     src/MissionManager/GeoFenceController.h \
     src/MissionManager/GeoFenceManager.h \
     src/MissionManager/KMLPlanDomDocument.h \
@@ -689,11 +684,6 @@ HEADERS += \
     src/Geo/TransverseMercator.hpp \
     src/Geo/PolarStereographic.hpp \
     src/Gimbal/GimbalController.h \
-    src/NextVision/NextVisionController.h \
-    src/Payload/PayloadController.h \
-    src/Payload/GremsyLynxPayloadController.h \
-    src/Payload/NextVisionPayloadController.h \
-    src/Payload/PayloadManager.h \
     src/QGC.h \
     src/QGCApplication.h \
     src/QGCCachedFileDownload.h \
@@ -813,8 +803,6 @@ HEADERS += \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
     src/M2Link/M2Manager.h \
-    src/RajantLink/BcapiProtocol.h \
-    src/RajantLink/RajantManager.h \
     src/Camera/TargetObject.h \
     src/Camera/CodevCameraControl.h \
 
@@ -899,7 +887,6 @@ SOURCES += \
     src/AnalyzeView/MavlinkConsoleController.cc \
     src/Audio/AudioOutput.cc \
     src/Audio/AudioControl.cc \
-    src/OpticalFlow/OpticalFlowController.cc \
     src/Vehicle/Autotune.cpp \
     src/Camera/QGCCameraControl.cc \
     src/Camera/QGCCameraIO.cc \
@@ -925,7 +912,7 @@ SOURCES += \
     src/MissionManager/BlankPlanCreator.cc \
     src/MissionManager/FixedWingLandingComplexItem.cc \
     src/MissionManager/GeoFenceController.cc \
-    src/MissionManager/GeoCageController.cc \
+    #src/MissionManager/GeoCageController.cc \
     src/MissionManager/GeoFenceManager.cc \
     src/MissionManager/KMLPlanDomDocument.cc \
     src/MissionManager/LandingComplexItem.cc \
@@ -968,11 +955,6 @@ SOURCES += \
     src/Geo/TransverseMercator.cpp \
     src/Geo/PolarStereographic.cpp \
     src/Gimbal/GimbalController.cc \
-    src/NextVision/NextVisionController.cc \
-    src/Payload/PayloadController.cc \
-    src/Payload/GremsyLynxPayloadController.cc \
-    src/Payload/NextVisionPayloadController.cc \
-    src/Payload/PayloadManager.cc \
     src/QGC.cc \
     src/QGCApplication.cc \
     src/QGCCachedFileDownload.cc \
@@ -1091,10 +1073,8 @@ SOURCES += \
     src/AnalyzeView/GeoTagController.cc \
     src/AnalyzeView/ExifParser.cc \
     src/M2Link/M2Manager.cpp \
-    src/RajantLink/RajantManager.cpp \
     src/Camera/TargetObject.cpp \
     src/Camera/CodevCameraControl.cc \
-    src/Camera/CodevCameraControlMode.cc \
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

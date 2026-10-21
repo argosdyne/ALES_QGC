@@ -56,16 +56,13 @@ Rectangle {
     property bool   _isTCP:                     _isGst && _videoSource === _videoSettings.tcpVideoSource
     property bool   _isMPEGTS:                  _isGst && _videoSource === _videoSettings.mpegtsVideoSource
     property bool   _videoAutoStreamConfig:     QGroundControl.videoManager.autoStreamConfigured
-    property bool   _showManualVideoConfig:     !_videoAutoStreamConfig || _isRTSP
     property bool   _showSaveVideoSettings:     _isGst || _videoAutoStreamConfig
     property bool   _disableAllDataPersistence: QGroundControl.settingsManager.appSettings.disableAllPersistence.rawValue
 
-    property string gpsDisabled: qsTr("Disabled")
-    property string gpsUdpPort:  qsTr("UDP Port")
+    property string gpsDisabled: "Disabled"
+    property string gpsUdpPort:  "UDP Port"
 
     readonly property real _internalWidthRatio: 0.8
-
-    // Language change dialog handled directly in the language combo below
 
         QGCFlickable {
             clip:               true
@@ -154,7 +151,7 @@ Rectangle {
 
                             FactCheckBox {
                                 text:       qsTr("Use Vertical Instrument Panel")
-                                visible:    _alternateInstrumentPanel.visible && QGroundControl.corePlugin.options.flyView.showInstrumentPanel
+                                visible:    _alternateInstrumentPanel.visible
                                 fact:       _alternateInstrumentPanel
 
                                 property Fact _alternateInstrumentPanel: QGroundControl.settingsManager.flyViewSettings.alternateInstrumentPanel
@@ -312,7 +309,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         videoSourceLabel
                                     text:       qsTr("Source")
-                                    visible:    _showManualVideoConfig && _videoSettings.videoSource.visible
+                                    visible:    !_videoAutoStreamConfig && _videoSettings.videoSource.visible
                                 }
                                 FactComboBox {
                                     id:                     videoSource
@@ -325,7 +322,7 @@ Rectangle {
                                 QGCLabel {
                                     id:         udpPortLabel
                                     text:       qsTr("UDP Port")
-                                    visible:    _showManualVideoConfig && (_isUDP264 || _isUDP265 || _isMPEGTS) && _videoSettings.udpPort.visible
+                                    visible:    !_videoAutoStreamConfig && (_isUDP264 || _isUDP265 || _isMPEGTS) && _videoSettings.udpPort.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
@@ -336,19 +333,18 @@ Rectangle {
                                 QGCLabel {
                                     id:         rtspUrlLabel
                                     text:       qsTr("RTSP URL")
-                                    visible:    _showManualVideoConfig && _isRTSP && _videoSettings.rtspUrl.visible
+                                    visible:    !_videoAutoStreamConfig && _isRTSP && _videoSettings.rtspUrl.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _videoSettings.rtspUrl
                                     visible:                rtspUrlLabel.visible
-                                    onUpdated:              _videoSettings.setRtspUrlUserSet(true)
                                 }
 
                                 QGCLabel {
                                     id:         tcpUrlLabel
                                     text:       qsTr("TCP URL")
-                                    visible:    _showManualVideoConfig && _isTCP && _videoSettings.tcpUrl.visible
+                                    visible:    !_videoAutoStreamConfig && _isTCP && _videoSettings.tcpUrl.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
@@ -358,12 +354,12 @@ Rectangle {
 
                                 QGCLabel {
                                     text:                   qsTr("Aspect Ratio")
-                                    visible:                _showManualVideoConfig && _isGst && _videoSettings.aspectRatio.visible
+                                    visible:                !_videoAutoStreamConfig && _isGst && _videoSettings.aspectRatio.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _videoSettings.aspectRatio
-                                    visible:                _showManualVideoConfig && _isGst && _videoSettings.aspectRatio.visible
+                                    visible:                !_videoAutoStreamConfig && _isGst && _videoSettings.aspectRatio.visible
                                 }
 
                                 QGCLabel {
@@ -448,13 +444,6 @@ Rectangle {
                                     id: enableAudioCheck
                                     text: qsTr("Enable Audio")
                                     fact: QGroundControl.settingsManager.flyViewSettings.enableAudioController                                    
-                                }
-                                                                
-                                Item { width: 1; height:1 }
-                                FactCheckBox {
-                                    id: enableOpticalFlowCheck
-                                    text: qsTr("Enable Optical Flow Sensor")
-                                    fact: QGroundControl.settingsManager.flyViewSettings.enableOpticalFlowController
                                 }
                             }
                         }
@@ -578,27 +567,11 @@ Rectangle {
                                     text:           qsTr("Language")
                                     visible: QGroundControl.settingsManager.appSettings.qLocaleLanguage.visible
                                 }
-                                QGCComboBox {
-                                    id:                     languageCombo
+                                FactComboBox {
                                     Layout.preferredWidth:  _comboFieldWidth
-                                    model:                  QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumStrings
-                                    currentIndex:           QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumIndex
+                                    fact:                   QGroundControl.settingsManager.appSettings.qLocaleLanguage
+                                    indexModel:             false
                                     visible:                QGroundControl.settingsManager.appSettings.qLocaleLanguage.visible
-
-                                    onActivated: {
-                                        var selectedIndex = index
-                                        var previousIndex = QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumIndex
-                                        currentIndex = previousIndex  // revert visual until user confirms
-                                        mainWindow.showMessageDialog(
-                                            qsTr("Restart Required"),
-                                            qsTr("Language change requires restarting %1. Turn off now?").arg(QGroundControl.appName),
-                                            StandardButton.Yes | StandardButton.No,
-                                            function() {
-                                                QGroundControl.settingsManager.appSettings.qLocaleLanguage.value = QGroundControl.settingsManager.appSettings.qLocaleLanguage.enumValues[selectedIndex]
-                                                mainWindow.close()
-                                            }
-                                        )
-                                    }
                                 }
 
                                 QGCLabel {
@@ -786,30 +759,6 @@ Rectangle {
                                     visible:    _remoteIDEnable.visible
                                     property Fact _remoteIDEnable: QGroundControl.settingsManager.remoteIDSettings.enable
                                 }
-
-                                FactCheckBox {
-                                    text: qsTr("Enable Doodle Labs IP")
-                                    fact: QGroundControl.corePlugin.settings.doodleLabsIPEnable
-                                }
-
-                                RowLayout {
-                                    spacing: _margins
-                                    visible: QGroundControl.corePlugin.settings.doodleLabsIPEnable.value
-                                    QGCLabel {
-                                        text: qsTr("Doodle Labs IP")
-                                    }
-                                    FactTextField {
-                                        Layout.preferredWidth:  _comboFieldWidth
-                                        fact:                   QGroundControl.corePlugin.settings.doodleLabsIP
-                                    }
-                                }
-
-                                FactCheckBox {
-                                    text: qsTr("Enable Life Jacket")
-                                    fact: QGroundControl.corePlugin.settings.lifeJacketEnable
-                                    // Hide for PX4 vehicles; show for APM or when no vehicle is connected
-                                    visible:    !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
-                                }
                             }
                         }
 
@@ -965,7 +914,7 @@ Rectangle {
                                         var index = nmeaPortCombo.find(QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaPort.valueString);
                                         nmeaPortCombo.currentIndex = index;
                                         if (QGroundControl.linkManager.serialPorts.length === 0) {
-                                            nmeaPortCombo.model.append({text: qsTr("Serial <none available>")})
+                                            nmeaPortCombo.model.append({text: "Serial <none available>"})
                                         }
                                     }
                                 }

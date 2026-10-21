@@ -26,8 +26,6 @@ SpinBox {
         numericValuesOnly: true
         showUnits: unitsLabel.length != 0
         horizontalAlignment: TextInput.AlignHCenter
-        Keys.onReturnPressed: Qt.inputMethod.hide()
-        Keys.onEnterPressed: Qt.inputMethod.hide()
     }
     up.indicator: Rectangle {
         x: control.mirrored ? 0 : parent.width - width

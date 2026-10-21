@@ -20,7 +20,6 @@
 #include "Vehicle.h"
 #include <QDateTime>
 #include <QRegularExpression>
-#include <QCoreApplication>
 
 namespace {
 
@@ -39,12 +38,6 @@ QString throttleKeyForText(const QString& text)
     if (plainText.contains(QStringLiteral("radio failsafe"))) {
         return QStringLiteral("radio-failsafe");
     }
-    if (plainText.contains(QStringLiteral("c2 link quality critical"))) {
-        return QStringLiteral("c2-link-critical");
-    }
-    if (plainText.contains(QStringLiteral("c2 link quality degraded"))) {
-        return QStringLiteral("c2-link-degraded");
-    }
     if (plainText.contains(QStringLiteral("precland0")) || plainText.contains(QStringLiteral("precland1")) || plainText.contains(QStringLiteral("precland"))) {
         return QStringLiteral("precland-nactive");
     }
@@ -54,12 +47,7 @@ QString throttleKeyForText(const QString& text)
 
     return QString();
 }
-}
 
-static QString _translateStatusText(const QString& sourceText)
-{
-    const QByteArray sourceUtf8 = sourceText.toUtf8();
-    return QCoreApplication::translate("UASWarning", sourceUtf8.constData());
 }
 
 UASMessage::UASMessage(int componentid, int severity, QString text)
@@ -153,13 +141,6 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
     // Hack to prevent calibration messages from cluttering things up
     if (_activeVehicle->px4Firmware() && text.startsWith(QStringLiteral("[cal] "))) {
         return;
-    }
-
-    {
-        const QString translatedText = _translateStatusText(text);
-        if (translatedText != text) {
-            text = translatedText;
-        }
     }
 
     text = text.replace("\n", "<br/>");

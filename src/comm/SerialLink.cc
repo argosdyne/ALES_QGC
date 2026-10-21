@@ -177,12 +177,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
 
     _port = new QSerialPort(_serialConfig->portName(), this);
 
-#if defined(Q_OS_ANDROID) && !defined(FORCE_QSERIALPORT)
-    // Android shim exposes the legacy error(...) signal name
-    QObject::connect(_port, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(linkError(QSerialPort::SerialPortError)));
-#else
     QObject::connect(_port, &QSerialPort::errorOccurred, this, &SerialLink::linkError);
-#endif
     QObject::connect(_port, &QIODevice::readyRead, this, &SerialLink::_readBytes);
 
 // #ifdef Q_OS_ANDROID
@@ -289,8 +284,8 @@ bool SerialLink::isConnected() const
 
 void SerialLink::_emitLinkError(const QString& errorMsg)
 {
-    QString msg("Error on link - Hien:  %1. %2");
-    qDebug() << errorMsg;
+    // QString msg("Error on link %1. %2");
+    // qDebug() << errorMsg;
     //emit communicationError(tr("Link Error"), msg.arg(_config->name()).arg(errorMsg));
 }
 

@@ -9,7 +9,6 @@ CheckBox {
     property color  textColor:          _qgcPal.text
     property bool   textBold:           false
     property real   textFontPointSize:  ScreenTools.defaultFontPointSize
-    property real   indicatorSize:      ScreenTools.checkBoxIndicatorSize
 
     property var    _qgcPal: QGCPalette { colorGroupEnabled: enabled }
     property bool   _noText: text === ""
@@ -21,7 +20,7 @@ CheckBox {
 
         label: Item {
             implicitWidth:  _noText ? 0 : text.implicitWidth + ScreenTools.defaultFontPixelWidth * 0.25
-            implicitHeight: _noText ? 0 : Math.max(text.implicitHeight, control.indicatorSize)
+            implicitHeight: _noText ? 0 : Math.max(text.implicitHeight, ScreenTools.checkBoxIndicatorSize)
             baselineOffset: text.baselineOffset
 
             Text {
@@ -36,7 +35,7 @@ CheckBox {
         }
 
         indicator:  Item {
-            implicitWidth:  control.indicatorSize
+            implicitWidth:  ScreenTools.checkBoxIndicatorSize
             implicitHeight: implicitWidth
             Rectangle {
                 anchors.fill:   parent

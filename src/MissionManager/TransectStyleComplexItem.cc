@@ -31,8 +31,6 @@ const char* TransectStyleComplexItem::turnAroundDistanceName                = "T
 const char* TransectStyleComplexItem::turnAroundDistanceMultiRotorName      = "TurnAroundDistanceMultiRotor";
 const char* TransectStyleComplexItem::cameraTriggerInTurnAroundName         = "CameraTriggerInTurnAround";
 const char* TransectStyleComplexItem::hoverAndCaptureName                   = "HoverAndCapture";
-const char* TransectStyleComplexItem::aggressiveFlyThroughName              = "AggressiveFlyThrough";
-const char* TransectStyleComplexItem::passThroughRadiusName                 = "PassThroughRadius";
 const char* TransectStyleComplexItem::refly90DegreesName                    = "Refly90Degrees";
 const char* TransectStyleComplexItem::terrainAdjustToleranceName            = "TerrainAdjustTolerance";
 const char* TransectStyleComplexItem::terrainAdjustMaxClimbRateName         = "TerrainAdjustMaxClimbRate";
@@ -54,8 +52,6 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
     , _turnAroundDistanceFact           (settingsGroup, _metaDataMap[_controllerVehicle->multiRotor() ? turnAroundDistanceMultiRotorName : turnAroundDistanceName])
     , _cameraTriggerInTurnAroundFact    (settingsGroup, _metaDataMap[cameraTriggerInTurnAroundName])
     , _hoverAndCaptureFact              (settingsGroup, _metaDataMap[hoverAndCaptureName])
-    , _aggressiveFlyThroughFact         (settingsGroup, _metaDataMap[aggressiveFlyThroughName])
-    , _passThroughRadiusFact            (settingsGroup, _metaDataMap[passThroughRadiusName])
     , _refly90DegreesFact               (settingsGroup, _metaDataMap[refly90DegreesName])
     , _terrainAdjustToleranceFact       (settingsGroup, _metaDataMap[terrainAdjustToleranceName])
     , _terrainAdjustMaxClimbRateFact    (settingsGroup, _metaDataMap[terrainAdjustMaxClimbRateName])
@@ -72,8 +68,6 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
 
     connect(&_turnAroundDistanceFact,                   &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
     connect(&_hoverAndCaptureFact,                      &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
-    connect(&_aggressiveFlyThroughFact,                 &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
-    connect(&_passThroughRadiusFact,                    &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
     connect(&_refly90DegreesFact,                       &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
     connect(&_terrainAdjustMaxClimbRateFact,            &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
     connect(&_terrainAdjustMaxDescentRateFact,          &Fact::valueChanged,                this, &TransectStyleComplexItem::_rebuildTransects);
@@ -87,21 +81,17 @@ TransectStyleComplexItem::TransectStyleComplexItem(PlanMasterController* masterC
 
     connect(&_turnAroundDistanceFact,                   &Fact::valueChanged,            this, &TransectStyleComplexItem::complexDistanceChanged);
     connect(&_hoverAndCaptureFact,                      &Fact::valueChanged,            this, &TransectStyleComplexItem::complexDistanceChanged);
-    connect(&_aggressiveFlyThroughFact,                 &Fact::valueChanged,            this, &TransectStyleComplexItem::complexDistanceChanged);
     connect(&_refly90DegreesFact,                       &Fact::valueChanged,            this, &TransectStyleComplexItem::complexDistanceChanged);
     connect(&_surveyAreaPolygon,                        &QGCMapPolygon::pathChanged,    this, &TransectStyleComplexItem::complexDistanceChanged);
 
     connect(&_turnAroundDistanceFact,                   &Fact::valueChanged,            this, &TransectStyleComplexItem::greatestDistanceToChanged);
     connect(&_hoverAndCaptureFact,                      &Fact::valueChanged,            this, &TransectStyleComplexItem::greatestDistanceToChanged);
-    connect(&_aggressiveFlyThroughFact,                 &Fact::valueChanged,            this, &TransectStyleComplexItem::greatestDistanceToChanged);
     connect(&_refly90DegreesFact,                       &Fact::valueChanged,            this, &TransectStyleComplexItem::greatestDistanceToChanged);
     connect(&_surveyAreaPolygon,                        &QGCMapPolygon::pathChanged,    this, &TransectStyleComplexItem::greatestDistanceToChanged);
 
     connect(&_turnAroundDistanceFact,                   &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
     connect(&_cameraTriggerInTurnAroundFact,            &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
     connect(&_hoverAndCaptureFact,                      &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
-    connect(&_aggressiveFlyThroughFact,                 &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
-    connect(&_passThroughRadiusFact,                    &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
     connect(&_refly90DegreesFact,                       &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
     connect(&_terrainAdjustMaxClimbRateFact,            &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
     connect(&_terrainAdjustMaxDescentRateFact,          &Fact::valueChanged,            this, &TransectStyleComplexItem::_setDirty);
@@ -177,8 +167,6 @@ void TransectStyleComplexItem::_save(QJsonObject& complexObject)
     innerObject[turnAroundDistanceName] =           _turnAroundDistanceFact.rawValue().toDouble();
     innerObject[cameraTriggerInTurnAroundName] =    _cameraTriggerInTurnAroundFact.rawValue().toBool();
     innerObject[hoverAndCaptureName] =              _hoverAndCaptureFact.rawValue().toBool();
-    innerObject[aggressiveFlyThroughName] =         _aggressiveFlyThroughFact.rawValue().toBool();
-    innerObject[passThroughRadiusName] =            _passThroughRadiusFact.rawValue().toDouble();
     innerObject[refly90DegreesName] =               _refly90DegreesFact.rawValue().toBool();
     innerObject[_jsonCameraShotsKey] =              _cameraShots;
 
@@ -266,8 +254,6 @@ bool TransectStyleComplexItem::_load(const QJsonObject& complexObject, bool forP
         { turnAroundDistanceName,           QJsonValue::Double, true },
         { cameraTriggerInTurnAroundName,    QJsonValue::Bool,   true },
         { hoverAndCaptureName,              QJsonValue::Bool,   true },
-        { aggressiveFlyThroughName,         QJsonValue::Bool,   false },
-        { passThroughRadiusName,            QJsonValue::Double, false },
         { refly90DegreesName,               QJsonValue::Bool,   true },
         { _jsonCameraCalcKey,               QJsonValue::Object, true },
         { _jsonVisualTransectPointsKey,     QJsonValue::Array,  !forPresets },
@@ -310,8 +296,6 @@ bool TransectStyleComplexItem::_load(const QJsonObject& complexObject, bool forP
     _turnAroundDistanceFact.setRawValue         (innerObject[turnAroundDistanceName].toDouble());
     _cameraTriggerInTurnAroundFact.setRawValue  (innerObject[cameraTriggerInTurnAroundName].toBool());
     _hoverAndCaptureFact.setRawValue            (innerObject[hoverAndCaptureName].toBool());
-    _aggressiveFlyThroughFact.setRawValue       (innerObject.contains(aggressiveFlyThroughName) ? innerObject[aggressiveFlyThroughName].toBool() : false);
-    _passThroughRadiusFact.setRawValue          (innerObject.contains(passThroughRadiusName) ? innerObject[passThroughRadiusName].toDouble() : _passThroughRadiusFact.rawDefaultValue().toDouble());
     _refly90DegreesFact.setRawValue             (innerObject[refly90DegreesName].toBool());
 
     // These two keys where not included in initial implementation so they are optional. Without them the values will be
@@ -436,9 +420,6 @@ void TransectStyleComplexItem::replaceSpacing(void){
     if (_ignoreRecalc) {
         return;
     }
-
-    // YellowScan/GreenValley lidar flow relies on replaceSpacing(), so force fly-through behavior here.
-    _aggressiveFlyThroughFact.setRawValue(true);
 
     _transects.clear();
     _rgPathHeightInfo.clear();
@@ -1175,9 +1156,6 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
         int                         itemCount   = 0;
         BuildMissionItemsState_t    buildState  = _buildMissionItemsState();
 
-        const bool singleRunTrigger = buildState.aggressiveFlyThrough && triggerCamera() && !hoverAndCaptureEnabled();
-        bool triggerStarted = false;
-
         // Important Note: This code should match the logic in _buildAndAppendMissionItems
         for (int coordIndex=0; coordIndex<_rgFlightPathCoordInfo.count(); coordIndex++) {
             const CoordInfo_t& coordInfo = _rgFlightPathCoordInfo[coordIndex];
@@ -1202,43 +1180,22 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 break;
             case CoordTypeSurveyEntry:
                 if (triggerCamera()) {
-                    if (singleRunTrigger) {
-                        itemCount++; // Waypoint only
-                        if (!triggerStarted) {
-                            itemCount++; // Camera trigger start
-                            triggerStarted = true;
-                        }
-                    } else {
-                        itemCount += 2; // Waypoint + camera trigger
-                    }
+                    itemCount += 2; // Waypoint + camera trigger
                 } else {
                     itemCount++; // Waypoint only
                 }
                 break;
             case CoordTypeYellowScanMaxSpeed:
-                itemCount++; // Max speed command
                 break;
             case CoordTypeYellowScan:
-            case CoordTypeYellowScanTurn:
-                itemCount++; // Waypoint
-                break;
-            case CoordTypeYellowScanChangeYaw:
-                itemCount++; // Yaw command
                 break;
             case CoordTypeYellowScanPreviousSpeed:
-                itemCount++; // Restore previous speed command
                 break;
             case CoordTypeSurveyExit:
                 bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
                 if (triggerCamera()) {
                     if (hoverAndCaptureEnabled()) {
                         itemCount += 2; // Waypoint + camera trigger
-                    } else if (singleRunTrigger) {
-                        itemCount++; // Waypoint only
-                        if (lastSurveyExit && triggerStarted) {
-                            itemCount++; // Camera trigger stop
-                            triggerStarted = false;
-                        }
                     } else if (buildState.addTriggerAtFirstAndLastPoint && !buildState.hasTurnarounds && lastSurveyExit) {
                         itemCount += 2; // Waypoint + camera trigger
                     } else if (buildState.imagesInTurnaround) {
@@ -1282,12 +1239,6 @@ void TransectStyleComplexItem::_handleHoverAndCaptureEnabled(QVariant enabled)
     }
 }
 
-void TransectStyleComplexItem::setFixedYawDeg(double bearing){
-    _yellowScanInitPathAngle = bearing;
-
-    qInfo() << "_yellowScanInitPathAngle = " << _yellowScanInitPathAngle;
-}
-
 void TransectStyleComplexItem::appendMissionItems(QList<MissionItem*>& items, QObject* missionItemParent)
 {
     if (_loadedMissionItems.count()) {
@@ -1299,7 +1250,7 @@ void TransectStyleComplexItem::appendMissionItems(QList<MissionItem*>& items, QO
     }
 }
 
-void TransectStyleComplexItem::_appendWaypoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, float holdTime, const QGeoCoordinate& coordinate, float passThroughRadius)
+void TransectStyleComplexItem::_appendWaypoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, float holdTime, const QGeoCoordinate& coordinate)
 {
     double altitude = _cameraCalc.distanceMode() == QGroundControlQmlGlobal::AltitudeModeCalcAboveTerrain ? coordinate.altitude() : _cameraCalc.distanceToSurface()->rawValue().toDouble();
 
@@ -1307,8 +1258,8 @@ void TransectStyleComplexItem::_appendWaypoint(QList<MissionItem*>& items, QObje
                                         MAV_CMD_NAV_WAYPOINT,
                                         mavFrame,
                                         holdTime,
-                                        passThroughRadius,                           // Acceptance radius
-                                        passThroughRadius,                           // Pass through waypoint radius
+                                        0.0,                                         // No acceptance radius specified
+                                        0.0,                                         // Pass through waypoint
                                         std::numeric_limits<double>::quiet_NaN(),    // Yaw unchanged
                                         coordinate.latitude(),
                                         coordinate.longitude(),
@@ -1327,8 +1278,7 @@ void TransectStyleComplexItem::_appendSinglePhotoCapture(QList<MissionItem*>& it
                                         0,                                   // Reserved (Set to 0)
                                         0,                                   // Interval (none)
                                         1,                                   // Take 1 photo
-                                        0,                                   // Sequence Number (0 = not specified)
-                                        qQNaN(), qQNaN(), qQNaN(),           // param 5-7 reserved
+                                        qQNaN(), qQNaN(), qQNaN(), qQNaN(),  // param 4-7 reserved
                                         true,                                // autoContinue
                                         false,                               // isCurrentItem
                                         missionItemParent);
@@ -1355,54 +1305,16 @@ void TransectStyleComplexItem::_appendYSInitPathMaxSpeed(QList<MissionItem*>& it
 void TransectStyleComplexItem::_appendYSInitPathPreviousSpeed(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
 {
     // IMPORTANT NOTE: If anything changes here you must also change SpeedSection::scanForSettings
-    // ArduPilot WPNAV_SPEED is stored in cm/s. If it is unavailable (PX4,
-    // offline planning, or parameters not loaded), restore to a conservative
-    // fixed speed instead of relying on a possibly unrelated cruise setting.
-    const double restoreSpeed = qIsFinite(_previousVehicleSpeed) && _previousVehicleSpeed > 0.0
-            ? _previousVehicleSpeed / 100.0
-            : 5.0;
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_CHANGE_SPEED,
                                         MAV_FRAME_MISSION,
                                         _masterController->controllerVehicle()->multiRotor() ? 1 /* groundspeed */ : 0 /* airspeed */,    // Change airspeed or groundspeed
-                                        restoreSpeed,
+                                        _previousVehicleSpeed / 100,
                                         -1,                                                                 // No throttle change
                                         0,                                                                  // Absolute speed change
                                         0, 0, 0,                                                            // param 5-7 not used
                                         true,                                                               // autoContinue
                                         false,                                                              // isCurrentItem
-                                        missionItemParent);
-    items.append(item);
-}
-
-void TransectStyleComplexItem::_appendYSInitPathTurnWaypoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate)
-{
-    // Use only standard NAV_WAYPOINT commands for both PX4 and ArduPilot.
-    // Both multicopter controllers smooth a consecutive previous/current/next
-    // waypoint triplet. A zero hold time prevents an intentional stop, while
-    // the small radius keeps the generated trajectory close to the U-turn.
-    constexpr float turnAcceptanceRadius = 2.0f;
-    _appendWaypoint(items,
-                    missionItemParent,
-                    seqNum,
-                    mavFrame,
-                    0 /* holdTime */,
-                    coordinate,
-                    turnAcceptanceRadius);
-}
-
-void TransectStyleComplexItem::_appendYSInitPathYaw(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum){
-    //Add drone yaw change mavlink command
-    MissionItem* item = new MissionItem(seqNum++,
-                                        MAV_CMD_CONDITION_YAW,
-                                        MAV_FRAME_MISSION,
-                                        _yellowScanInitPathAngle,       // angle
-                                        5,                              // angle speed
-                                        0,
-                                        0,
-                                        0, 0, 0,
-                                        true,
-                                        false,
                                         missionItemParent);
     items.append(item);
 }
@@ -1457,13 +1369,10 @@ TransectStyleComplexItem::BuildMissionItemsState_t TransectStyleComplexItem::_bu
 
     state.imagesInTurnaround        = _cameraTriggerInTurnAroundFact.rawValue().toBool();
     state.hasTurnarounds            = _turnAroundDistance() != 0;
-    state.aggressiveFlyThrough      = _aggressiveFlyThroughFact.rawValue().toBool() && !hoverAndCaptureEnabled();
-    state.passThroughRadius         = qMax(static_cast<float>(_passThroughRadiusFact.rawValue().toDouble()), 0.0f);
-    state.addTriggerAtFirstAndLastPoint  = !state.aggressiveFlyThrough && !hoverAndCaptureEnabled() && state.imagesInTurnaround && triggerCamera();
+    state.addTriggerAtFirstAndLastPoint  = !hoverAndCaptureEnabled() && state.imagesInTurnaround && triggerCamera();
     state.useConditionGate          = _controllerVehicle->firmwarePlugin()->supportedMissionCommands(QGCMAVLink::VehicleClassGeneric).contains(MAV_CMD_CONDITION_GATE) &&
             triggerCamera() &&
-            !hoverAndCaptureEnabled() &&
-            !state.aggressiveFlyThrough;
+            !hoverAndCaptureEnabled();
 
     return state;
 }
@@ -1473,9 +1382,6 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
     int                         seqNum      = _sequenceNumber;
     BuildMissionItemsState_t    buildState  = _buildMissionItemsState();
     MAV_FRAME                   mavFrame;
-    const bool                  singleRunTrigger = buildState.aggressiveFlyThrough && triggerCamera() && !hoverAndCaptureEnabled();
-    const float                 flyThroughRadius = buildState.aggressiveFlyThrough ? buildState.passThroughRadius : 0.0f;
-    bool                        triggerStarted = false;
 
     qCDebug(TransectStyleComplexItemLog) << "_buildAndAppendMissionItems";
 
@@ -1503,7 +1409,7 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         switch (coordInfo.coordType) {
         case CoordTypeInterior:
         case CoordTypeInteriorTerrainAdded:
-            _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
+            _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             break;
         case CoordTypeTurnaround:
         {
@@ -1511,14 +1417,8 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             bool lastExitTurnaround     = coordIndex == _rgFlightPathCoordInfo.count() - 1;
             if (buildState.addTriggerAtFirstAndLastPoint && (firstEntryTurnaround || lastExitTurnaround)) {
                 _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, firstEntryTurnaround ? triggerDistance() : 0);
-            } else if (hoverAndCaptureEnabled() && triggerCamera()) {
-                // Hover-and-capture: photograph turnaround corners so the drone takes a
-                // photo at every waypoint it stops at. Without this the turnaround coord
-                // falls through to a fly-through NAV_WAYPOINT with no capture command.
-                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
-                _appendSinglePhotoCapture(items, missionItemParent, seqNum);
             } else {
-                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
+                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
         }
             break;
@@ -1531,18 +1431,12 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
                 if (hoverAndCaptureEnabled()) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
                     _appendSinglePhotoCapture(items, missionItemParent, seqNum);
-                } else if (singleRunTrigger) {
-                    _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
-                    if (!triggerStarted) {
-                        _appendCameraTriggerDistance(items, missionItemParent, seqNum, triggerDistance());
-                        triggerStarted = true;
-                    }
                 } else {
                     // We always add a trigger start to survey entry. Even for imagesInTurnaround = true. This allows you to resume a mission and refly a transect
                     _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, triggerDistance());
                 }
             } else {
-                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
+                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
             break;
         case CoordTypeYellowScanMaxSpeed:
@@ -1551,14 +1445,8 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         case CoordTypeYellowScanPreviousSpeed:
             _appendYSInitPathPreviousSpeed(items, missionItemParent, seqNum);
             break;
-        case CoordTypeYellowScan:            
+        case CoordTypeYellowScan:
             _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
-            break;
-        case CoordTypeYellowScanTurn:
-            _appendYSInitPathTurnWaypoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord);
-            break;
-        case CoordTypeYellowScanChangeYaw:
-            _appendYSInitPathYaw(items, missionItemParent, seqNum);
             break;
         case CoordTypeSurveyExit:
             bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
@@ -1566,22 +1454,16 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
                 if (hoverAndCaptureEnabled()) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
                     _appendSinglePhotoCapture(items, missionItemParent, seqNum);
-                } else if (singleRunTrigger) {
-                    _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
-                    if (lastSurveyExit && triggerStarted) {
-                        _appendCameraTriggerDistance(items, missionItemParent, seqNum, 0 /* triggerDistance */);
-                        triggerStarted = false;
-                    }
                 } else if (buildState.addTriggerAtFirstAndLastPoint && !buildState.hasTurnarounds && lastSurveyExit) {
                     _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */);
                 } else if (buildState.imagesInTurnaround) {
-                    _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
+                    _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
                 } else {
                     // If we get this far it means the camera is triggering start/stop for each transect
                     _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */);
                 }
             } else {
-                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord, flyThroughRadius);
+                _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
             break;
         }

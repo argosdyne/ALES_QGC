@@ -13,7 +13,6 @@
 
 #include "MissionController.h"
 #include "GeoFenceController.h"
-#include "GeoCageController.h"
 #include "RallyPointController.h"
 #include "Vehicle.h"
 #include "MultiVehicleManager.h"
@@ -41,7 +40,6 @@ public:
     Q_PROPERTY(Vehicle*                 managerVehicle          READ managerVehicle                         NOTIFY managerVehicleChanged)   ///< Either active vehicle or _controllerVehicle if no active vehicle
     Q_PROPERTY(MissionController*       missionController       READ missionController                      CONSTANT)
     Q_PROPERTY(GeoFenceController*      geoFenceController      READ geoFenceController                     CONSTANT)
-    Q_PROPERTY(GeoCageController*       geoCageController       READ geoCageController                      CONSTANT)
     Q_PROPERTY(RallyPointController*    rallyPointController    READ rallyPointController                   CONSTANT)
     Q_PROPERTY(bool                     offline                 READ offline                                NOTIFY offlineChanged)          ///< true: controller is not connected to an active vehicle
     Q_PROPERTY(bool                     containsItems           READ containsItems                          NOTIFY containsItemsChanged)    ///< true: Elemement is non-empty
@@ -85,7 +83,6 @@ public:
 
     MissionController*      missionController(void)     { return &_missionController; }
     GeoFenceController*     geoFenceController(void)    { return &_geoFenceController; }
-    GeoCageController*      geoCageController(void)     { return &_geoCageController; }
     RallyPointController*   rallyPointController(void)  { return &_rallyPointController; }
 
     bool        offline         (void) const { return _offline; }
@@ -144,7 +141,6 @@ private:
     bool                    _offline =                  true;
     MissionController       _missionController;
     GeoFenceController      _geoFenceController;
-    GeoCageController       _geoCageController;
     RallyPointController    _rallyPointController;
     bool                    _loadGeoFence =             false;
     bool                    _loadRallyPoints =          false;

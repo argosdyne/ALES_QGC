@@ -9,7 +9,6 @@ JoystickSDL::JoystickSDL(const QString& name, int axisCount, int buttonCount, in
     : Joystick(name,axisCount,buttonCount,hatCount,multiVehicleManager)
     , _isGameController(isGameController)
     , _index(index)
-    , _lastRawButtonState(buttonCount, -1)
 {
     if(_isGameController) _setDefaultCalibration();
 }
@@ -155,38 +154,16 @@ bool JoystickSDL::_update(void)
 }
 
 bool JoystickSDL::_getButton(int i) {
-    bool pressed = false;
     if (_isGameController) {
-        // SDL GameController exposes only standardized buttons. Vendor-specific
-        // buttons (e.g. stick-click variants / extra toggles) can be outside
-        // SDL_CONTROLLER_BUTTON_MAX. In that case, fall back to raw joystick.
-        if (i >= 0 && i < SDL_CONTROLLER_BUTTON_MAX) {
-            pressed = SDL_GameControllerGetButton(sdlController, SDL_GameControllerButton(i)) == 1;
-        } else {
-            pressed = SDL_JoystickGetButton(sdlJoystick, i) == 1;
-        }
+        return SDL_GameControllerGetButton(sdlController, SDL_GameControllerButton(i)) == 1;
     } else {
-        pressed = SDL_JoystickGetButton(sdlJoystick, i) == 1;
+        return SDL_JoystickGetButton(sdlJoystick, i) == 1;
     }
-
-    if (i >= 0 && i < _lastRawButtonState.size()) {
-        const int state = pressed ? 1 : 0;
-        if (_lastRawButtonState[i] != state) {
-            _lastRawButtonState[i] = state;
-        }
-    }
-
-    return pressed;
 }
 
 int JoystickSDL::_getAxis(int i) {
     if (_isGameController) {
-        // Same as buttons: standardized controller axes are limited.
-        // Extra axes (often dials/sliders) are exposed via raw joystick API.
-        if (i >= 0 && i < SDL_CONTROLLER_AXIS_MAX) {
-            return SDL_GameControllerGetAxis(sdlController, SDL_GameControllerAxis(i));
-        }
-        return SDL_JoystickGetAxis(sdlJoystick, i);
+        return SDL_GameControllerGetAxis(sdlController, SDL_GameControllerAxis(i));
     } else {
         return SDL_JoystickGetAxis(sdlJoystick, i);
     }

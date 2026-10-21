@@ -1,12 +1,10 @@
-#include "AVIATORInterface.h"
+﻿#include "AVIATORInterface.h"
 #include "QGCLoggingCategory.h"
 #include <QQmlEngine>
 #include <QString>
 #include "CustomQmlInterface.h"
 #include "QGCApplication.h"
 #include "CustomPlugin.h"
-#include "Vehicle.h"
-#include "MultiVehicleManager.h"
 
 #if defined(Q_OS_ANDROID)
 #include <QSocketNotifier>
@@ -49,10 +47,6 @@ AVIATORInterface::AVIATORInterface(QObject* parent)
     _addFact(&_usbOutFact, _usbOutFactName);
     _addFact(&_batteryCurrentFact, _batteryCurrentFactName);
     _addFact(&_batteryChargingFact, _batteryChargingFactName);
-
-    _emergencyHoldTimer.setSingleShot(true);
-    _emergencyHoldTimer.setInterval(5000);
-    connect(&_emergencyHoldTimer, &QTimer::timeout, this, &AVIATORInterface::_onEmergencyHoldTimeout);
 
 #if defined (Q_OS_ANDROID)
     QObject::connect(this, &AVIATORInterface::bytesReceived, this, &AVIATORInterface::_handlebytesReceived);
@@ -286,7 +280,13 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
         channels.chan17_raw, channels.chan18_raw
     };
 
-    _updateEmergencyStopCombo(channels.chan7_raw, channels.chan15_raw);
+    for (int i = 0; i < newChannelValues.size(); ++i) {
+        if (_prevChannelValues[i] != newChannelValues[i]) {
+            qCDebug(AVIATORInterfaceLog) << "Channel" << (i + 1) << "Changed: Previous Value =" << _prevChannelValues[i] << ", New Value1 =" << newChannelValues[i];
+        }
+    }
+
+    _prevChannelValues = newChannelValues;
 
 
     for (uint16_t value : newChannelValues) {
@@ -303,12 +303,8 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     bool f1 = channels.chan15_raw == 2000;
     bool f2 = channels.chan14_raw == 2000;
     bool f3 = channels.chan16_raw == 2000;
-    bool capture = _rcSwitchActive(channels.chan12_raw);
-    bool record = _rcSwitchActive(channels.chan13_raw);
-    const uint16_t zoomRaw = channels.chan11_raw;
-    const int cameraZoomState = (zoomRaw >= 1700 && zoomRaw <= 2200) ? 1
-                              : (zoomRaw >= 800 && zoomRaw <= 1300) ? -1
-                              : 0;
+    bool capture = channels.chan12_raw == 2000;
+    bool record = channels.chan13_raw == 2000;
 
 
     // F1 
@@ -324,36 +320,29 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
     }
 
     // F2 
-    // PX4 RC is primary for FN2/FN3; serial is used only while PX4 RC is unavailable.
-    if (!_px4ThermalRcIsActive()) {
     if(f2 != _f2Pressed) {
         _f2Pressed = f2;
         emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
     }
 
     // F3 
-    if(f3) _serialF3PressCount++;
+    static int f3Count = 0;
+    if(f3) f3Count++;
     else {
-        if(_serialF3PressCount > 0 && _serialF3PressCount < 50) { // 1s
+        if(f3Count > 0 && f3Count < 50) { // 1s
             emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
         }
-        _serialF3PressCount = 0;
+        f3Count = 0;
     }
 
-    bool f3Pressed = (_serialF3PressCount > 250); // 5s
+    bool f3Pressed = (f3Count > 250); // 5s
     if(f3Pressed != _f3Pressed) {
         _f3Pressed = f3Pressed;
-        // qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
-        // qCInfo(AVIATORInterfaceLog) << "[ThermalRC] F3 long-press state"
-        //                             << "active" << _f3Pressed
-        //                             << "thresholdMs" << kF3LongPressMs;
+        qCDebug(AVIATORInterfaceLog) << "F3 Button State Changed: " << (_f3Pressed ? "길게 눌림 (5초 이상)" : "해제됨");
         emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, _f3Pressed);
         qCDebug(AVIATORInterfaceLog) << "START MISSION 명령 전송: " << _f3Pressed;
     }
 
-    } else {
-        _serialF3PressCount = 0;
-    }
     //해당 조건에 있을 경우 true를 반환함. 따라서 cn에 맞는 값들을 넣어줘야함
     bool cn1 = channels.chan1_raw ;//== 2000;
     bool cn2 = channels.chan2_raw ;//== 2000;
@@ -393,29 +382,14 @@ void AVIATORInterface::_handle_mavlink_rc_channels(const mavlink_message_t& mess
 
     if(capture != _capturePressed) {
         _capturePressed = capture;
-        qInfo() << "[GremsyPhysical] capture CH12" << channels.chan12_raw
-                << "pressed" << _capturePressed;
+        qInfo() << "Capture Btn Click";
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_CAPTURE, _capturePressed);
     }
 
     if(record != _recordPressed) {
         _recordPressed = record;
-        qInfo() << "[GremsyPhysical] record CH13" << channels.chan13_raw
-                << "pressed" << _recordPressed;
+        qInfo() <<" Record Btn Click";
         emit buttonPressed(AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD, _recordPressed);
-    }
-
-    // C1/C2 share CH11. Emit one camera zoom step whenever CH11 moves away
-    // from center; the active payload decides how that step is implemented.
-    if (cameraZoomState != _cameraZoomState) {
-        _cameraZoomState = cameraZoomState;
-        qInfo() << "[CameraPhysical] zoom CH11" << zoomRaw
-                << "state" << _cameraZoomState;
-        if (_cameraZoomState > 0) {
-            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_IN, true);
-        } else if (_cameraZoomState < 0) {
-            emit buttonPressed(AVIATOR_FUNCTION_CAMERA_ZOOM_OUT, true);
-        }
     }
 
     if (cn9 != _cn9Pressed) {
@@ -502,135 +476,4 @@ void AVIATORInterface::_handle_mavlink_param_value(const mavlink_message_t& mess
 
         fact->setRawValue(parameterValue);
     }
-}
-
-void AVIATORInterface::handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels)
-{
-    static constexpr qint64 shortPressMaxMs = 1000;
-    static constexpr qint64 longPressMs = 5000;
-
-    _lastPx4ThermalRcFrameTimer.restart();
-
-    const bool f2 = _rcSwitchActive(channels.chan14_raw);
-    const bool f3 = _rcSwitchActive(channels.chan16_raw);
-
-    if (f2 != _f2Pressed) {
-        _f2Pressed = f2;
-        emit buttonPressed(AVIATOR_FUNCTION_THERMAL_ZOOM, _f2Pressed);
-    }
-
-    static QElapsedTimer f3PressTimer;
-    if (f3) {
-        if (!f3PressTimer.isValid()) {
-            f3PressTimer.start();
-        }
-    } else if (f3PressTimer.isValid()) {
-        const qint64 pressDurationMs = f3PressTimer.elapsed();
-        if (pressDurationMs < shortPressMaxMs) {
-            emit buttonPressed(AVIATOR_FUNCTION_IR_SWITCH, true);
-        }
-        f3PressTimer.invalidate();
-    }
-
-    const bool f3LongPressed = f3 && f3PressTimer.isValid()
-            && f3PressTimer.elapsed() >= longPressMs;
-    if (f3LongPressed != _f3Pressed) {
-        _f3Pressed = f3LongPressed;
-        emit buttonPressed(CustomQmlInterface::CUSTOM_FUNCTION_START_MISSION, _f3Pressed);
-    }
-}
-
-bool AVIATORInterface::_px4ThermalRcIsActive() const
-{
-    static constexpr qint64 kPx4RcTimeoutMs = 1500;
-    return _lastPx4ThermalRcFrameTimer.isValid()
-            && _lastPx4ThermalRcFrameTimer.elapsed() < kPx4RcTimeoutMs;
-
-}
-bool AVIATORInterface::_rcSwitchActive(uint16_t rawValue)
-{
-    return rawValue >= 1900;
-}
-
-void AVIATORInterface::_resetEmergencyStopComboState()
-{
-    _comboPaired = false;
-    _rc7EdgeMs = -1;
-    _rc15EdgeMs = -1;
-    _emergencyHoldTimer.stop();
-}
-
-void AVIATORInterface::_updateEmergencyStopCombo(uint16_t chan7, uint16_t chan15)
-{
-    static constexpr int kComboPairWindowMs = 2000;
-
-    _lastRc7Raw = chan7;
-    _lastRc15Raw = chan15;
-
-    if (!_comboClock.isValid()) {
-        _comboClock.start();
-    }
-
-    const bool rc7Active = _rcSwitchActive(chan7);
-    const bool rc15Active = _rcSwitchActive(chan15);
-
-    if (rc7Active && !_rc7WasActive) {
-        _rc7EdgeMs = _comboClock.elapsed();
-        qCInfo(AVIATORInterfaceLog) << "[EmergencyStop] RC7 edge, ch7=" << chan7;
-    }
-    if (rc15Active && !_rc15WasActive) {
-        _rc15EdgeMs = _comboClock.elapsed();
-        qCInfo(AVIATORInterfaceLog) << "[EmergencyStop] RC15 edge, ch15=" << chan15;
-    }
-
-    _rc7WasActive = rc7Active;
-    _rc15WasActive = rc15Active;
-
-    const bool bothEdgesValid = (_rc7EdgeMs >= 0) && (_rc15EdgeMs >= 0);
-    const qint64 edgeGapMs = bothEdgesValid ? qAbs(_rc7EdgeMs - _rc15EdgeMs) : (kComboPairWindowMs + 1);
-    _comboPaired = rc7Active && rc15Active && bothEdgesValid && (edgeGapMs <= kComboPairWindowMs);
-
-    if (_comboPaired && rc15Active) {
-        if (!_emergencyHoldTimer.isActive() && !_emergencyStopComboActive) {
-            qCInfo(AVIATORInterfaceLog) << "[EmergencyStop] combo paired, gapMs=" << edgeGapMs
-                                        << "ch7=" << chan7 << "ch15=" << chan15;
-            _emergencyHoldTimer.start();
-        }
-    } else if (_emergencyHoldTimer.isActive()) {
-        qCInfo(AVIATORInterfaceLog) << "[EmergencyStop] combo cancelled, ch7=" << chan7
-                                    << "ch15=" << chan15 << "paired=" << _comboPaired
-                                    << "gapMs=" << edgeGapMs;
-        _emergencyHoldTimer.stop();
-    }
-
-    if (!rc15Active && (_emergencyHoldTimer.isActive() || _comboPaired)) {
-        _resetEmergencyStopComboState();
-    }
-
-    if (_emergencyStopComboActive && !rc15Active) {
-        _emergencyStopComboActive = false;
-        _resetEmergencyStopComboState();
-    }
-}
-
-void AVIATORInterface::_onEmergencyHoldTimeout()
-{
-    const bool rc7StillActive = _rcSwitchActive(_lastRc7Raw);
-    const bool rc15StillHeld = _rcSwitchActive(_lastRc15Raw);
-    if (_emergencyStopComboActive || !_comboPaired || !rc7StillActive || !rc15StillHeld) {
-        qCInfo(AVIATORInterfaceLog) << "[EmergencyStop] timeout ignored, active=" << _emergencyStopComboActive
-                                    << "paired=" << _comboPaired
-                                    << "lastCh7=" << _lastRc7Raw << "lastCh15=" << _lastRc15Raw;
-        return;
-    }
-
-    _emergencyStopComboActive = true;
-    qCInfo(AVIATORInterfaceLog) << "RC7+RC15 combo paired and held ~5s total - sending Emergency Stop";
-    if (Vehicle* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()) {
-        vehicle->emergencyStop();
-    } else {
-        qCWarning(AVIATORInterfaceLog) << "Emergency Stop: no active vehicle";
-    }
-
-    _resetEmergencyStopComboState();
 }

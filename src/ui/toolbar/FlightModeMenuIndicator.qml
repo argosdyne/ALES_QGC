@@ -54,10 +54,10 @@ Item {
                         model: activeVehicle ? activeVehicle.flightModes : []
 
                         QGCButton {
-                            text: _modeDisplay(modelData)
+                            text: modelData
                             Layout.fillWidth: true
                             onClicked: {
-                                activeVehicle.flightMode = modelData
+                                activeVehicle.flightMode = text
                                 mainWindow.hideIndicatorPopup()
                             }
                         }
@@ -89,7 +89,7 @@ Item {
         }
 
         QGCLabel {
-            text:               activeVehicle ? _modeDisplay(activeVehicle.flightMode) : qsTr("N/A", "No data to display")
+            text:               activeVehicle ? activeVehicle.flightMode : qsTr("N/A", "No data to display")
             font.pointSize:     fontPointSize
             Layout.alignment:   Qt.AlignVCenter
         }
@@ -98,9 +98,5 @@ Item {
     QGCMouseArea {
         anchors.fill:   parent
         onClicked:      mainWindow.showIndicatorPopup(_root, flightModeMenu)
-    }
-
-    function _modeDisplay(mode) {
-        return qsTranslate("APMCopterMode", mode)
     }
 }

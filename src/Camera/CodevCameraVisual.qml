@@ -12,18 +12,11 @@ import QGroundControl.Vehicle           1.0
 import QGroundControl.Controllers       1.0
 import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
-import QGroundControl.Payload           1.0
 
 import CustomQmlInterface 1.0
 
 Item {
     clip: true
-    property bool _gremsyPayloadActive: PayloadManager.activeType === 0
-    property var _gremsyTrackingController: PayloadManager.gremsy
-    property bool _gremsyTrackingMode: _gremsyPayloadActive
-                                                && _gremsyTrackingController
-                                                && _gremsyTrackingController.connected
-    property bool _gremsyTrackingArmed: false
     property Fact _pseudocolor: _camera ? _camera.getFact("IR_PALETTE") : null
     property Fact _thermometry: _camera ? _camera.getFact("IR_THERMOMETRY") : null
     property Fact _irZoom: _camera ? _camera.getFact("IR_ZOOM") : null
@@ -39,33 +32,8 @@ Item {
     property Fact _aiSource: _camera ? _camera.getFact("AI_SOURCE") : null
     property bool spotMeteringEnable: false
     property bool spotFocusEnable: false
-    property bool lifeboatDropEnable: false
     property bool aiInThermal: !(!_aiSource || _aiSource.enumIndex === 0)
     property var aiParentItem: aiInThermal ? thermalOverlayItem : videoContentOverlayItem
-    property bool _trackingSelectionEnabled: _gremsyTrackingMode
-                                                    ? _gremsyTrackingArmed
-                                                    : trackRadioButton.checked
-    property bool _trackingActive: _gremsyTrackingMode
-                                          ? _gremsyTrackingController.trackingActive
-                                          : (_camera ? _camera.trackingEnabled : false)
-    property bool _gremsyDetectionActive: _gremsyTrackingMode
-                                                   && _gremsyTrackingController.objectDetectionEnabled
-    property rect _displayTrackingRect: _gremsyTrackingMode
-                                               ? _gremsyTrackingController.trackingImageRect
-                                               : (_camera ? _camera.trackingImageRect : Qt.rect(0, 0, 0, 0))
-
-    property string _cameraModelUpper: _camera ? ((_camera.modelName || "").toUpperCase()) : ""
-        property string _cameraVendorUpper: _camera ? ((_camera.vendor || "").toUpperCase()) : ""
-    property bool _isSonyIR1: _camera && (
-                                       _cameraVendorUpper.indexOf("SONY") !== -1 ||
-                                       _cameraModelUpper.indexOf("SONY") !== -1 ||
-                                       _cameraModelUpper.indexOf("IR1") !== -1 ||
-                                       _cameraModelUpper.indexOf("IR-1") !== -1 ||
-                                       _cameraModelUpper.indexOf("IR_1") !== -1 ||
-                                       _cameraModelUpper.indexOf("IR 1") !== -1 ||
-                                       _cameraModelUpper.indexOf("LR1") !== -1)
-
-    property bool _hasLaserRangefinder: !_isSonyIR1 && !!_tofEN && (!_tofEN.readOnly || !!_tofEN.value || (_camera && _camera.targetDistance > 0))
 
     function _ensureTrackingDefaults() {
         if (_smartSelect && _smartSelect.value === "None") {
@@ -76,58 +44,18 @@ Item {
         }
     }
 
-    function _startSelectedPoint(x, y) {
-        if (_gremsyTrackingMode) {
-            _gremsyTrackingController.startTrackingPoint(x, y, 0.05)
-            return
-        }
-        if (_trackAlg && _trackAlg.value !== "None" && _smartSelect && _smartSelect.value !== "None") {
-            var point = Qt.point(x, y)
-            _ensureTrackingDefaults()
-            _camera.startTracking(point, 1.0)
-            _camera.trackingEnabled = true
-        }
-    }
-
-    function _startSelectedRectangle(x1, y1, x2, y2) {
-        if (_gremsyTrackingMode) {
-            _gremsyTrackingController.startTrackingRectangle(x1, y1, x2, y2)
-            return
-        }
-        var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
-        _ensureTrackingDefaults()
-        _camera.startTracking(rec)
-        _camera.trackingEnabled = true
-    }
-
-    Connections {
-        target: PayloadManager
-        function onActiveTypeChanged() {
-            if (PayloadManager.activeType !== 0) {
-                _gremsyTrackingArmed = false
-                if (_gremsyTrackingController.objectDetectionEnabled) {
-                    _gremsyTrackingController.setObjectDetectionEnabled(false)
-                }
-            }
-        }
-    }
-
-    Connections {
-        target: _gremsyTrackingController
-        ignoreUnknownSignals: true
-        function onConnectedChanged() {
-            if (!_gremsyTrackingController.connected) {
-                _gremsyTrackingArmed = false
-                if (_gremsyTrackingController.objectDetectionEnabled) {
-                    _gremsyTrackingController.setObjectDetectionEnabled(false)
-                }
-            }
-        }
+    Component.onCompleted: {
+        console.log("CodevCameraVisual load")
+        console.log("aiInThermal = ", aiInThermal)
     }
 
     Connections {
         id: aviatorConnections
         target: AVIATORInterface
+
+        Component.onCompleted: {
+            console.log("QGroundControl.aviatorInterface =", AVIATORInterface)
+        }
 
         function thermalZoomTigger(start) {
             if(start && _irZoom) {
@@ -140,6 +68,7 @@ Item {
                 } else {
                     _irZoom.value = v
                 }
+                irZoomChangedAnimator.restart()
             }
         }
         function irSwitchTigger(start) {
@@ -156,21 +85,28 @@ Item {
                 _camera.centerGimbal()
             }
         }
-        function onButtonPressed(type, pressed) {
-            // Gremsy Fn1/Fn2 are handled centrally by CustomQmlInterface so
-            // they still work when this camera-specific visual is not loaded.
-            // Do not execute them a second time here.
-            if (_gremsyPayloadActive &&
-                    (type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM ||
-                     type === AVIATORInterface.AVIATOR_FUNCTION_GIMBAL_RESET)) {
-                return
+        function buttonTakePhoto(start) {
+            if(start) {
+                _camera.buttonTakePhoto()
             }
+        }
+        function buttonToggleVideo(start) {
+            if(start) {
+                _camera.buttonToggleVideo()
+            }
+        }
+        function onButtonPressed(type, pressed) {
+            console.log("use onButtonPressed Function", type)
             if(type === AVIATORInterface.AVIATOR_FUNCTION_THERMAL_ZOOM) {
                 thermalZoomTigger(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_IR_SWITCH) {
                 irSwitchTigger(pressed)
             } else if(type === AVIATORInterface.AVIATOR_FUNCTION_GIMBAL_RESET) {
                 gimbalResetTigger(pressed)
+            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_CAPTURE) {
+                buttonTakePhoto(pressed)
+            } else if(type === AVIATORInterface.AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD) {
+                buttonToggleVideo(pressed)
             }
         }
     }
@@ -188,13 +124,35 @@ Item {
         color:              "transparent"
         border.color:       "red"
         border.width:       3
-        visible:            _displayTrackingRect.width > 0.01 || isNaN(_displayTrackingRect.bottom)
-        x: aiParentItem.x + _displayTrackingRect.x * aiParentItem.width
-        y: aiParentItem.y + _displayTrackingRect.y * aiParentItem.height
-        width: _displayTrackingRect.width * aiParentItem.width
-        height: !isNaN(_displayTrackingRect.bottom) ? _displayTrackingRect.height * aiParentItem.height : width
-        radius: !isNaN(_displayTrackingRect.bottom) ? 0 : (width / 2)
+        visible:            _camera.trackingImageRect.width > 0.01 || isNaN(_camera.trackingImageRect.bottom)
+        x: aiParentItem.x + _camera.trackingImageRect.x * aiParentItem.width
+        y: aiParentItem.y + _camera.trackingImageRect.y * aiParentItem.height
+        width: _camera.trackingImageRect.width * aiParentItem.width
+        height: !isNaN(_camera.trackingImageRect.bottom) ? _camera.trackingImageRect.height * aiParentItem.height : width
+        radius: !isNaN(_camera.trackingImageRect.bottom) ? 0 : (width / 2)
     }
+
+    // MouseArea {
+    //     id: trackingClickArea
+    //     anchors.fill: parent
+    //     z: 1
+    //     hoverEnabled: true
+    //     acceptedButtons: Qt.AllButtons
+    //     enabled: true
+    //     // cursorShape: Qt.CrossCursor
+
+    //     onClicked: {
+    //         var normX = mouse.x / width
+    //         var normY = mouse.y / height
+    //         var radius = 0.1
+
+    //         console.log("Starting tracking at:", normX.toFixed(3), normY.toFixed(3))
+
+    //         // Start tracking using the globally available camera
+    //         // Exit tracking mode
+    //     }
+    // }
+
 
     Item {
         id: videoContentOverlayItem
@@ -214,17 +172,6 @@ Item {
             visible:            _tofEN && _tofEN.value
         }
 
-        QGCColoredImage {
-            anchors.centerIn: parent
-            width:              ScreenTools.defaultFontPixelWidth * 6
-            height:             width
-            sourceSize.height:  width
-            fillMode:           Image.PreserveAspectFit
-            color:              qgcPal.colorRed
-            source:             "qrc:/qmlimages/cross_hair.svg"
-            visible:            lifeboatDropEnable
-        }
-
         AreaFrame {
             width: parent.width / 15
             height: parent.height / 15
@@ -238,17 +185,23 @@ Item {
         TouchSelectArea {
             anchors.fill: parent
             enabled: parent.visible
-            enableRectangle: _trackingSelectionEnabled && !aiInThermal
-            enablePoint: spotAERadioButton.checked || (_trackingSelectionEnabled && !aiInThermal)
+            enableRectangle: trackRadioButton.checked && !aiInThermal
+            enablePoint: spotAERadioButton.checked || (trackRadioButton.checked && !aiInThermal)
             onTouchWithPointed: (x,y) => {
-                if(spotAERadioButton.checked && !(_gremsyTrackingMode && _gremsyTrackingArmed)) {
+                if(spotAERadioButton.checked) {
                     _camera.setSpotMetering(x, y)
-                } else if(_trackingSelectionEnabled) {
-                    _startSelectedPoint(x, y)
+                } else if(_trackAlg && _trackAlg.value !== "None" && _smartSelect && _smartSelect.value !== "None") {
+                    var point = Qt.point(x, y)
+                    _ensureTrackingDefaults()
+                    _camera.startTracking(point, 1.0)
+                    _camera.trackingEnabled = true
                 }
             }
             onTouchWithRectangled: (x1,y1,x2,y2) => {
-                _startSelectedRectangle(x1, y1, x2, y2)
+                var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                _ensureTrackingDefaults()
+                _camera.startTracking(rec)
+                _camera.trackingEnabled = true
             }
             onTouchDoubleClicked: {
                 QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
@@ -283,12 +236,6 @@ Item {
             text: _irZoom ? "x" + _irZoom.value.toFixed(1) : "x1.0"
             font.bold: true
             font.pointSize: ScreenTools.mediumFontPointSize
-        }
-        Connections {
-            target: _irZoom
-            function onValueChanged() {
-                irZoomChangedAnimator.restart()
-            }
         }
         OpacityAnimator {
             id: irZoomChangedAnimator
@@ -370,32 +317,27 @@ Item {
 
         TouchSelectArea {
             anchors.fill: parent
-            // Stay enabled whenever the thermal overlay is visible so the
-            // double-click fullscreen toggle always reaches us. The point/
-            // rectangle gestures themselves are gated by enablePoint /
-            // enableRectangle so they only act when thermometry or AI-in-
-            // thermal tracking is on. Without this, the DeadMouseArea below
-            // swallowed every click in the thermal region whenever those
-            // modes were off, which made the double-click feel intermittent.
-            enabled: parent.visible
-            enablePoint: (_thermometry && _thermometry.value) || (_trackingSelectionEnabled && aiInThermal)
-            enableRectangle: (_thermometry && _thermometry.value) || (_trackingSelectionEnabled && aiInThermal)
+            enabled: parent.visible && (_thermometry && _thermometry.value || trackRadioButton.checked && aiInThermal)
             onTouchWithPointed: (x,y) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setSpotTempPoint(x, y)
-                } else if(aiInThermal && _trackingSelectionEnabled) {
-                    _startSelectedPoint(x, y)
+                                        console.log("setSpotTemp Point = ", x, y)
+                } else if(aiInThermal) {
+                    var point = Qt.point(x, y)
+                    _ensureTrackingDefaults()
+                    _camera.startTracking(point, 1.0)
+                    _camera.trackingEnabled = true
                 }
             }
             onTouchWithRectangled: (x1,y1,x2,y2) => {
                 if(_thermometry && _thermometry.value) {
                     _camera.setAreaTempRect(x1,y1,x2,y2)
-                } else if(aiInThermal && _trackingSelectionEnabled) {
-                   _startSelectedRectangle(x1, y1, x2, y2)
+                } else if(aiInThermal) {
+                   var rec = Qt.rect(x1, y1, x2 - x1, y2 - y1)
+                   _ensureTrackingDefaults()
+                   _camera.startTracking(rec)
+                   _camera.trackingEnabled = true
                 }
-            }
-            onTouchDoubleClicked: {
-                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
             }
         }
     }
@@ -426,7 +368,7 @@ Item {
             Layout.fillHeight: true
             width: ScreenTools.defaultFontPixelHeight * 6
             orientation: Gradient.Horizontal
-            visible: thermalItem.visible && !!_pseudocolor
+            visible: thermalItem.visible && _pseudocolor
             Component.onCompleted: if(_pseudocolor) setPseudocolorBarIndex(_pseudocolor.enumIndex)
             Connections {
                 target: _pseudocolor
@@ -435,10 +377,7 @@ Item {
                 }
             }
             onVisibleChanged: {
-                if(visible && _pseudocolor) {
-                    setPseudocolorBarIndex(_pseudocolor.enumIndex)
-                } else {
-                    checked = false
+                if(visible) {
                     pseudocolorPopup.close()
                 }
             }
@@ -458,8 +397,7 @@ Item {
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _thermometry ? _thermometry.value : false
-            visible: thermalItem.visible && !!_thermometry
-            enabled: !!_thermometry
+            visible: thermalItem.visible
             source: {
                 if(!checked) {
                     return "qrc:/qmlimages/thermometry.svg"
@@ -473,30 +411,17 @@ Item {
                 }
             }
             onClicked: {
-                if (_thermometry) {
-                    _thermometry.value = !_thermometry.value
-                }
+                _thermometry.value = !_thermometry.value
             }
         }
 
         ToolRadioButton {
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
             checked: _tofEN ? _tofEN.value : false
-            visible: _hasLaserRangefinder
+            visible: _tofEN
             source: "qrc:/qmlimages/rangefinder.svg"
             onClicked: {
                 _tofEN.value = !_tofEN.value
-            }
-        }
-
-        ToolRadioButton {
-            id: lifeboatDropRadioButton
-            Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-            checked: lifeboatDropEnable
-            color: checked ? qgcPal.colorRed : "transparent"
-            source: "qrc:/qmlimages/cross_hair.svg"
-            onClicked: {
-                lifeboatDropEnable = !lifeboatDropEnable
             }
         }
 
@@ -519,26 +444,12 @@ Item {
         ToolRadioButton {
             id: trackRadioButton
             Layout.alignment:  Qt.AlignVCenter | Qt.AlignHCenter
-            checked: _gremsyTrackingMode ? _gremsyTrackingArmed : (_trackAlg ? _trackAlg.value !== "None" : false)
-            visible: _gremsyTrackingMode || (_trackAlg && !_camera.busyInDetectSetup && !_camera.busyInTrackSetup)
-            color: checked && enabled ? (_trackingActive ? qgcPal.buttonHighlight : qgcPal.colorOrange) : "transparent"
-            source: _gremsyTrackingMode
-                    ? "qrc:/qmlimages/focus.svg"
-                    : (_smartSelect && _smartSelect.value !== "None"
-                       ? "qrc:/qmlimages/smartSelect.svg"
-                       : "qrc:/qmlimages/focus.svg")
+            checked: _trackAlg ? _trackAlg.value !== "None" : false
+            visible: _trackAlg && !_camera.busyInDetectSetup && !_camera.busyInTrackSetup
+            color: checked && enabled ? (_camera.trackingEnabled ? qgcPal.buttonHighlight : qgcPal.colorOrange) : "transparent"
+            source: _smartSelect && _smartSelect.value !== "None" ? "qrc:/qmlimages/smartSelect.svg" : "qrc:/qmlimages/focus.svg"
             onClicked: {
-                if (_gremsyTrackingMode) {
-                    if (_gremsyTrackingController.objectDetectionEnabled) {
-                        _gremsyTrackingController.setObjectDetectionEnabled(false)
-                    }
-                    if (_gremsyTrackingController.trackingActive) {
-                        _gremsyTrackingController.stopTracking()
-                        _gremsyTrackingArmed = false
-                    } else {
-                        _gremsyTrackingArmed = !_gremsyTrackingArmed
-                    }
-                } else if(_camera.trackingEnabled) {
+                if(_camera.trackingEnabled) {
                     _camera.trackingEnabled = false
                     _camera.stopTracking()
                 } else {
@@ -550,9 +461,7 @@ Item {
                 }
             }
             onCheckedChanged: {
-                if (_gremsyTrackingMode) {
-                    return
-                } else if(checked) {
+                if(checked) {
                     trackRadioButton.enabled = Qt.binding(function() { return _camera.trackingImageStatus })
                 } else {
                     _camera.trackingEnabled = false
@@ -562,25 +471,11 @@ Item {
             Timer {
                 id: trakerTimer
                 interval: 30000
-                running: !_gremsyTrackingMode && trackRadioButton.checked
+                running: trackRadioButton.checked
                 repeat: false
                 onTriggered: {
                     trackRadioButton.enabled = true
                 }
-            }
-        }
-
-        ToolRadioButton {
-            id: detectionRadioButton
-            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-            checked: _gremsyDetectionActive
-            visible: _gremsyTrackingMode
-            color: checked && enabled ? qgcPal.buttonHighlight : "transparent"
-            source: "qrc:/qmlimages/smartSelect.svg"
-            onClicked: {
-                _gremsyTrackingArmed = false
-                _gremsyTrackingController.setObjectDetectionEnabled(
-                            !_gremsyTrackingController.objectDetectionEnabled)
             }
         }
 
@@ -612,7 +507,7 @@ Item {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: 1
             spacing: ScreenTools.defaultFontPixelWidth * 0.5
-            visible: (_tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _trackingActive || _gremsyDetectionActive
+            visible: (_tofEN && _tofEN.value) || (_nvDebug && _nvDebug.value && _nvStatus && _nvStatus.value) || _camera.trackingEnabled
             QGCLabel {
                 text: qsTr("RF:")
                 visible: (_tofEN && _tofEN.value)
@@ -629,25 +524,13 @@ Item {
             }
             QGCLabel {
                 text: qsTr("TrackScore:")
-                visible: _trackingActive && !_gremsyTrackingMode
+                visible: _camera.trackingEnabled
             }
             QGCLabel {
                 text: _camera.trackScore.toFixed(2)
                 horizontalAlignment: Text.AlignRight
                 width: ScreenTools.defaultFontPixelWidth * 5
-                visible: _trackingActive && !_gremsyTrackingMode
-            }
-            QGCLabel {
-                text: qsTr("Tracking")
-                color: qgcPal.colorGreen
-                font.bold: true
-                visible: _trackingActive && _gremsyTrackingMode
-            }
-            QGCLabel {
-                text: qsTr("Detection")
-                color: qgcPal.colorOrange
-                font.bold: true
-                visible: _gremsyDetectionActive
+                visible: _camera.trackingEnabled
             }
             QGCLabel {
                 text: qsTr("Temp:")
@@ -723,7 +606,7 @@ Item {
                         id:                     pseudocolorNameLabel
                         anchors.top:            pseudocolorImage.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text:                   qsTranslate("CodevCameraControl", _pseudocolor.enumStrings[index])
+                        text:                   _pseudocolor.enumStrings[index]
                         color:                  _pseudocolor.enumIndex === index ? qgcPal.buttonHighlightText : qgcPal.buttonText
                     }
 

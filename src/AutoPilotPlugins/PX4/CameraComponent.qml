@@ -44,25 +44,6 @@ SetupPage {
             property bool _rebooting:       false
             property var  _auxChannels:     [ 0, 0, 0, 0, 0, 0]
 
-            function _localizedPx4CameraEnumText(enumText) {
-                switch (enumText) {
-                case "Disable":
-                case "Time based, on command":
-                case "Time based, always on":
-                case "Distance based, always on":
-                case "Distance based, on command (Survey mode)":
-                case "GPIO":
-                case "Seagull MAP2 (over PWM)":
-                case "MAVLink (forward via MAV_CMD_IMAGE_START_CAPTURE)":
-                case "Generic PWM (IR trigger, servo)":
-                case "Active low":
-                case "Active high":
-                    return qsTranslate("PX4ParameterMetaData", enumText)
-                default:
-                    return enumText
-                }
-            }
-
             function clearAuxArray() {
                 for(var i = 0; i < 6; i++) {
                     _auxChannels[i] = 0
@@ -145,18 +126,11 @@ SetupPage {
                         }
                         FactComboBox {
                             fact:               _camTriggerMode
-                            model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4CameraEnumText(s) }) : null
-                            currentIndex:       fact ? fact.enumIndex : 0
+                            indexModel:         false
                             enabled:            !_rebooting
                             Layout.alignment:   Qt.AlignVCenter
                             Layout.minimumWidth: _editFieldWidth
-                            onModelChanged: {
-                                Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                            }
                             onActivated: {
-                                if (fact) {
-                                    fact.value = fact.enumValues[index]
-                                }
                                 applyAndRestart.visible = true
                             }
                         }
@@ -167,18 +141,11 @@ SetupPage {
                         }
                         FactComboBox {
                             fact:               _camTriggerInterface
-                            model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4CameraEnumText(s) }) : null
-                            currentIndex:       fact ? fact.enumIndex : 0
+                            indexModel:         false
                             enabled:            !_rebooting && (_camTriggerInterface ? true : false)
                             Layout.alignment:   Qt.AlignVCenter
                             Layout.minimumWidth: _editFieldWidth
-                            onModelChanged: {
-                                Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                            }
                             onActivated: {
-                                if (fact) {
-                                    fact.value = fact.enumValues[index]
-                                }
                                 applyAndRestart.visible = true
                             }
                         }

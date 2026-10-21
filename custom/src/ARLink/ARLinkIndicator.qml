@@ -25,9 +25,6 @@ Item {
     property var  _skyRssiA:    arManager.skyRssiA
     property var  _skyRssiB:    arManager.skyRssiB
     property var  _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
-    property bool _vehicleCommunicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : true
-    property bool _vehicleLinkActive: _activeVehicle && !_vehicleCommunicationLost
-    property bool _isDoodle: arManager.version == "DoodleLabs ubus"
 
     Component {
         id:                                     arRssiInfo
@@ -55,8 +52,7 @@ Item {
 
                 QGCLabel {
                     id:                         rssiLabel
-                    text:                       _connected ? qsTr("Link RSSI Status") :
-                                                    (_vehicleLinkActive ? qsTr("Radio status unavailable. Vehicle link active.") : qsTr("Link Disconnected"))
+                    text:                       _connected ? qsTr("Link RSSI Status") : qsTr("Link Disconnected")
                     font.family:                ScreenTools.demiboldFontFamily
                     anchors.horizontalCenter:   parent.horizontalCenter
                 }
@@ -74,12 +70,12 @@ Item {
                         color:                  qgcPal.text
                     }
                     QGCLabel {
-                        text:                   _connected ? _rssiA * -1 + " / " + _rssiB * -1 + " dB" : qsTr("N/A")
+                        text:                   _connected ? _rssiA * -1 + " / " + _rssiA * -1 + " dB" : qsTr("N/A")
                         color:                  qgcPal.text
                     }
 
                     QGCLabel {
-                        text:                   _isDoodle ? qsTr("Peer RSSI:") : qsTr("Sky RSSI:")
+                        text:                   qsTr("Sky RSSI:")
                         color:                  qgcPal.text
                     }
                     QGCLabel {
@@ -101,7 +97,6 @@ Item {
 
                 QGCButton {
                     text:                       qsTr("Start Pair")
-                    visible:                    !_isDoodle
                     width:                      ScreenTools.defaultFontPixelWidth * 15
                     anchors.horizontalCenter:   parent.horizontalCenter
                     onClicked: {
@@ -113,23 +108,14 @@ Item {
         }
     }
 
-function getSignalStrength(rssi) {
-    if (_isDoodle) {
-    if(rssi > 95) return 0;        // Link lost - 0 bars
-    else if(rssi > 85) return 30;  // Poor - 1 bar
-    else if(rssi > 78) return 40;  // Weak - 2 bars
-    else if(rssi > 70) return 60;  // Fair - 3 bars
-    else if(rssi > 50) return 85;  // Good - 4 bars
-    else return 100;               // Excellent (≤50) + Too Strong (<30) - 5 bars
+    function getSignalStrength(rssi) {
+        if(rssi < 10) return 0;
+        if(rssi >= 108) return 30;
+        else if(rssi >= 103) return 50;
+        else if(rssi >= 98) return 70;
+        else if(rssi >= 91) return 85;
+        else return 100;
     }
-    // Enpulse: original thresholds        if(rssi < 10) return 0;
-    if(rssi < 10) return 0;
-    if(rssi >= 108) return 30;
-    else if(rssi >= 103) return 50;
-    else if(rssi >= 98) return 70;
-    else if(rssi >= 91) return 85;
-    else return 100;
-}
 
     // Signal
     Row {
@@ -149,12 +135,12 @@ function getSignalStrength(rssi) {
             spacing: 0
             QGCLabel {
                 id:                     frequencyLable
-                text:                   _isDoodle ? "2.4G" : (arManager.is24G ? "2.4G" : "5.8G")
+                text:                   arManager.is24G ? "2.4G" : "5.8G"
                 font.pointSize:         ScreenTools.defaultFontPointSize
             }
             QGCLabel {
                 id:                     linkNameLable
-                text:                   _isDoodle ? "DoodleLab" : "Enpulse"
+                text:                   "Enpulse"
                 font.pointSize:         ScreenTools.defaultFontPointSize
             }
         }
@@ -296,9 +282,9 @@ function getSignalStrength(rssi) {
         anchors.fill:                   parent
         anchors.margins:                -ScreenTools.defaultFontPixelHeight * 0.66
         onClicked: {
-            if (_connected || _vehicleLinkActive) {
+            if (_connected) {
                 mainWindow.showIndicatorPopup(_root, arRssiInfo)
-            } else if (!_isDoodle) {                
+            } else {                
                 mainWindow.hideIndicatorPopup()
                 mainWindow.showCustomMessageDialog(arPairGuideComponent)
             }

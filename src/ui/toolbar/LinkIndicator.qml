@@ -39,11 +39,7 @@ Item {
 
         // Add new items
         for (i = 0; i < _rgLinkNames.length; i++) {
-            var linkStatus = _rgLinkStatus[i]
-            var menuItem = linkSelectionMenuItemComponent.createObject(null, {
-                "text": _rgLinkNames[i] + (linkStatus ? " " + linkStatus : ""),
-                "linkName": _rgLinkNames[i]
-            })
+            var menuItem = linkSelectionMenuItemComponent.createObject(null, { "text": _rgLinkNames[i] + " " + _rgLinkStatus[i] })
             _rgMenuItems.push(menuItem)
             linkSelectionMenu.insertItem(i, menuItem)
         }
@@ -73,8 +69,7 @@ Item {
     Component {
         id: linkSelectionMenuItemComponent
         QGCMenuItem {
-            property string linkName
-            onTriggered: _activeVehicle.vehicleLinkManager.primaryLinkName = linkName
+            onTriggered: _activeVehicle.vehicleLinkManager.primaryLinkName = text
         }
     }
 }

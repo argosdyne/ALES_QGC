@@ -36,7 +36,6 @@ DECLARE_SETTINGSFACT(FlyViewSettings, filePath)
 DECLARE_SETTINGSFACT(FlyViewSettings, onlinePath)
 DECLARE_SETTINGSFACT(FlyViewSettings, onlineLicenseKey)
 DECLARE_SETTINGSFACT(FlyViewSettings, enableAudioController)
-DECLARE_SETTINGSFACT(FlyViewSettings, enableOpticalFlowController)
 
 
 QString FlyViewSettings::readTextFile(const QString& path) {

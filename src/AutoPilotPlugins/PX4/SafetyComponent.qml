@@ -35,39 +35,6 @@ SetupPage {
                 id:         controller
             }
 
-            function _localizedPx4EnumText(enumText) {
-                switch (enumText) {
-                case "Disabled":
-                case "Lockdown":
-                case "None":
-                case "Warning":
-                case "Hold mode":
-                case "Return mode":
-                case "Terminate":
-                case "Land mode":
-                case "Disarm":
-                case "Return at critical level, land at emergency level":
-                case "Position mode":
-                case "Altitude mode":
-                case "Manual":
-                case "disabled":
-                case "All mission messages":
-                case "Geotagging messages":
-                case "when armed until disarm (default)":
-                case "from boot until disarm":
-                case "from boot until shutdown":
-                case "depending on AUX1 RC channel":
-                case "from 1st armed until shutdown":
-                case "external HITL":
-                case "HITL enabled":
-                case "HITL and SIH disabled":
-                case "SIH enabled":
-                    return qsTranslate("PX4ParameterMetaData", enumText)
-                default:
-                    return enumText
-                }
-            }
-
             readonly property string hitlParam: "SYS_HITL"
 
             property real _margins:         ScreenTools.defaultFontPixelHeight
@@ -81,11 +48,11 @@ SetupPage {
             property Fact _fenceRadius:         controller.getParameterFact(-1, "GF_MAX_HOR_DIST")
             property Fact _fenceMaxAlt:         controller.getParameterFact(-1, "GF_MAX_VER_DIST")
             //Add new geofence param
-            property Fact _fenceInside:         controller.getParameterFact(-1, "GF_ALT_INSIDE", false)
-            property Fact _fenceMinAlt:         controller.getParameterFact(-1, "GF_MIN_VER_DIST", false)
-            property Fact _fenceStartTime:      controller.getParameterFact(-1, "GF_ST_CLK_TIM", false)
-            property Fact _fenceDurationTime:   controller.getParameterFact(-1, "GF_SUSTAIN_HOR_T", false)
-            property Fact _fenceTimeZone:       controller.getParameterFact(-1, "GF_OFF_ZONE_TIM", false)
+            property Fact _fenceInside:         controller.getParameterFact(-1, "GF_ALT_INSIDE")
+            property Fact _fenceMinAlt:         controller.getParameterFact(-1, "GF_MIN_VER_DIST")
+            property Fact _fenceStartTime:      controller.getParameterFact(-1, "GF_ST_CLK_TIM")
+            property Fact _fenceDurationTime:   controller.getParameterFact(-1, "GF_SUSTAIN_HOR_T")
+            property Fact _fenceTimeZone:       controller.getParameterFact(-1, "GF_OFF_ZONE_TIM")
 
 
             property Fact _rtlLandDelay:        controller.getParameterFact(-1, "RTL_LAND_DELAY")
@@ -93,13 +60,8 @@ SetupPage {
             property Fact _rcLossAction:        controller.getParameterFact(-1, "NAV_RCL_ACT")
             property Fact _dlLossAction:        controller.getParameterFact(-1, "NAV_DLL_ACT")
             property Fact _disarmLandDelay:     controller.getParameterFact(-1, "COM_DISARM_LAND")
-            property Fact _collisionPrevention: controller.getParameterFact(-1, "CP_DIST", false)
-            property Fact _objectAvoidance:     controller.getParameterFact(-1, "COM_OBS_AVOID", false)
-            property Fact _batteryWarnLevel:    controller.parameterExists(-1, "BAT_LOW_THR") ? controller.getParameterFact(-1, "BAT_LOW_THR") : null
-            property Fact _batteryFailsafeLevel: controller.parameterExists(-1, "BAT_CRIT_THR") ? controller.getParameterFact(-1, "BAT_CRIT_THR") : null
-            property Fact _batteryEmergencyLevel: controller.parameterExists(-1, "BAT_EMERGEN_THR") ? controller.getParameterFact(-1, "BAT_EMERGEN_THR") : null
-            property Fact _rcLossTimeout:       controller.parameterExists(-1, "COM_RC_LOSS_T") ? controller.getParameterFact(-1, "COM_RC_LOSS_T") : null
-            property Fact _dlLossTimeout:       controller.parameterExists(-1, "COM_DL_LOSS_T") ? controller.getParameterFact(-1, "COM_DL_LOSS_T") : null
+            property Fact _collisionPrevention: controller.getParameterFact(-1, "CP_DIST")
+            property Fact _objectAvoidance:     controller.getParameterFact(-1, "COM_OBS_AVOID")
             property Fact _landSpeedMC:         controller.getParameterFact(-1, "MPC_LAND_SPEED", false)
             property bool _hitlAvailable:       controller.parameterExists(-1, hitlParam)
             property Fact _hitlEnabled:         controller.getParameterFact(-1, hitlParam, false)
@@ -144,18 +106,9 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _lowBattAction
-                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
-                                currentIndex:       fact ? fact.enumIndex : 0
+                                indexModel:         false
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
-                                onModelChanged: {
-                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                                }
-                                onActivated: {
-                                    if (fact) {
-                                        fact.value = fact.enumValues[index]
-                                    }
-                                }
                             }
 
                             QGCLabel {
@@ -163,7 +116,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _batteryWarnLevel
+                                fact:               controller.getParameterFact(-1, "BAT_LOW_THR")
                                 Layout.fillWidth:   true
                             }
 
@@ -172,7 +125,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _batteryFailsafeLevel
+                                fact:               controller.getParameterFact(-1, "BAT_CRIT_THR")
                                 Layout.fillWidth:   true
                             }
 
@@ -181,7 +134,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _batteryEmergencyLevel
+                                fact:               controller.getParameterFact(-1, "BAT_EMERGEN_THR")
                                 Layout.fillWidth:   true
                             }
                         }
@@ -335,18 +288,9 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _rcLossAction
-                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
-                                currentIndex:       fact ? fact.enumIndex : 0
+                                indexModel:         false
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
-                                onModelChanged: {
-                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                                }
-                                onActivated: {
-                                    if (fact) {
-                                        fact.value = fact.enumValues[index]
-                                    }
-                                }
                             }
 
                             QGCLabel {
@@ -354,7 +298,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _rcLossTimeout
+                                fact:               controller.getParameterFact(-1, "COM_RC_LOSS_T")
                                 Layout.fillWidth:   true
                             }
                         }
@@ -396,18 +340,9 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _dlLossAction
-                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
-                                currentIndex:       fact ? fact.enumIndex : 0
+                                indexModel:         false
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
-                                onModelChanged: {
-                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                                }
-                                onActivated: {
-                                    if (fact) {
-                                        fact.value = fact.enumValues[index]
-                                    }
-                                }
                             }
 
                             QGCLabel {
@@ -415,7 +350,7 @@ SetupPage {
                                 Layout.fillWidth:   true
                             }
                             FactTextField {
-                                fact:               _dlLossTimeout
+                                fact:               controller.getParameterFact(-1, "COM_DL_LOSS_T")
                                 Layout.fillWidth:   true
                             }
                         }
@@ -458,18 +393,9 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _fenceAction
-                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
-                                currentIndex:       fact ? fact.enumIndex : 0
+                                indexModel:         false
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
-                                onModelChanged: {
-                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                                }
-                                onActivated: {
-                                    if (fact) {
-                                        fact.value = fact.enumValues[index]
-                                    }
-                                }
                             }
 
                             QGCCheckBox {
@@ -810,18 +736,9 @@ SetupPage {
                             }
                             FactComboBox {
                                 fact:               _hitlEnabled
-                                model:              fact && fact.enumStrings ? fact.enumStrings.map(function(s) { return _localizedPx4EnumText(s) }) : null
-                                currentIndex:       fact ? fact.enumIndex : 0
+                                indexModel:         false
                                 Layout.minimumWidth:_editFieldWidth
                                 Layout.fillWidth:   true
-                                onModelChanged: {
-                                    Qt.callLater(function() { currentIndex = fact ? fact.enumIndex : 0 })
-                                }
-                                onActivated: {
-                                    if (fact) {
-                                        fact.value = fact.enumValues[index]
-                                    }
-                                }
                             }
                         }
                     }

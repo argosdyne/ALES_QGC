@@ -8,24 +8,17 @@
 #include "QGCCameraControl.h"
 #include "QGCCameraIO.h"
 #include "SettingsManager.h"
-#include "VideoSettings.h"
 #include "VideoManager.h"
 #include "QGCMapEngine.h"
 #include "QGCCameraManager.h"
 #include "FTPManager.h"
-#include "Vehicle.h"
-#include "VehicleLinkManager.h"
 #include "QGCLZMA.h"
 #include "QGCCorePlugin.h"
 
 #include <QDir>
-#include <QCryptographicHash>
-#include <QFileInfo>
-#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QDomDocument>
 #include <QDomNodeList>
-#include <QUrl>
 
 QGC_LOGGING_CATEGORY(CameraControlLog, "CameraControlLog")
 QGC_LOGGING_CATEGORY(CameraControlVerboseLog, "CameraControlVerboseLog")
@@ -70,98 +63,6 @@ static const char* kPhotoLapse      = "PhotoLapse";
 static const char* kPhotoLapseCount = "PhotoLapseCount";
 static const char* kThermalOpacity  = "ThermalOpacity";
 static const char* kThermalMode     = "ThermalMode";
-
-static QString _cameraDefinitionUri(const mavlink_camera_information_t* info)
-{
-    QByteArray uri(reinterpret_cast<const char*>(info->cam_definition_uri), sizeof(info->cam_definition_uri));
-    const int nullIndex = uri.indexOf('\0');
-    if (nullIndex >= 0) {
-        uri.truncate(nullIndex);
-    }
-    return QString::fromUtf8(uri);
-}
-
-static QString _mavlinkFixedString(const uint8_t* data, int maxLen)
-{
-    QByteArray raw(reinterpret_cast<const char*>(data), maxLen);
-    const int nullIndex = raw.indexOf('\0');
-    if (nullIndex >= 0) {
-        raw.truncate(nullIndex);
-    }
-    return QString::fromUtf8(raw);
-}
-
-static QString _mavlinkFixedString(const char* data, int maxLen)
-{
-    QByteArray raw(data, maxLen);
-    const int nullIndex = raw.indexOf('\0');
-    if (nullIndex >= 0) {
-        raw.truncate(nullIndex);
-    }
-    return QString::fromUtf8(raw);
-}
-
-static QString _codevCameraDefinitionFileNameFromRtsp(const QString& rtspUrl)
-{
-    const QUrl videoUrl(rtspUrl);
-    if (videoUrl.host().isEmpty()) {
-        return QString();
-    }
-
-    QString path = videoUrl.path();
-    while (path.endsWith(QLatin1Char('/'))) {
-        path.chop(1);
-    }
-    const QString lastSegment = path.section('/', -1);
-    if (lastSegment.compare(QStringLiteral("eo"), Qt::CaseInsensitive) == 0) {
-        return QStringLiteral("Codev_R3_023.xml");   // EO → R3
-    }
-    if (lastSegment.compare(QStringLiteral("cr"), Qt::CaseInsensitive) == 0) {
-        return QStringLiteral("Codev_RLR1_013.xml"); // CR → LR1
-    }
-
-    return QString();
-}
-
-static QString _cameraDefinitionFileNameFromUrl(const QString& url)
-{
-    const QString fileName = QFileInfo(QUrl(url).path()).fileName();
-    if (fileName.endsWith(QStringLiteral(".xml"), Qt::CaseInsensitive)) {
-        return fileName;
-    }
-    return QString();
-}
-
-static QString _cameraDefinitionCacheFileName(const QString& url, const QString& vendor, const QString& modelName, int version)
-{
-    const QString urlFileName = _cameraDefinitionFileNameFromUrl(url);
-    const bool isCodevCamera = vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0;
-    if (!urlFileName.isEmpty() && (!isCodevCamera || urlFileName.compare(QStringLiteral("caminfo.xml"), Qt::CaseInsensitive) != 0)) {
-        return urlFileName;
-    }
-
-    if (isCodevCamera) {
-        const QString rtspUrl = qgcApp()->toolbox()->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
-        const QString codevFileName = _codevCameraDefinitionFileNameFromRtsp(rtspUrl);
-        if (!codevFileName.isEmpty()) {
-            return codevFileName;
-        }
-    }
-
-    const QString uriHash = QString::fromLatin1(QCryptographicHash::hash(url.toUtf8(), QCryptographicHash::Sha1).toHex().left(12));
-    return QStringLiteral("%1_%2_%3_%4.xml")
-        .arg(vendor)
-        .arg(modelName)
-        .arg(version, 3, 10, QLatin1Char('0'))
-        .arg(uriHash);
-}
-
-static bool _isCodevPinnedDefinitionFile(const QString& fileName)
-{
-    static const QRegularExpression pattern(QStringLiteral("^Codev_.+_\\d{3}\\.xml$"),
-                                            QRegularExpression::CaseInsensitiveOption);
-    return pattern.match(fileName).hasMatch();
-}
 
 //-----------------------------------------------------------------------------
 // Known Parameters
@@ -264,35 +165,17 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     memcpy(&_info, info, sizeof(mavlink_camera_information_t));
     connect(this, &QGCCameraControl::dataReady, this, &QGCCameraControl::_dataReady);
-    _vendor = _mavlinkFixedString(info->vendor_name, sizeof(info->vendor_name));
-    _modelName = _mavlinkFixedString(info->model_name, sizeof(info->model_name));
+    _vendor = QString(reinterpret_cast<const char*>(info->vendor_name));
+    _modelName = QString(reinterpret_cast<const char*>(info->model_name));
     int ver = static_cast<int>(_info.cam_definition_version);
-    const QString definitionUri = _cameraDefinitionUri(info);
-    _cacheFile = QStringLiteral("%1/%2")
-                     .arg(qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath(),
-                          _cameraDefinitionCacheFileName(definitionUri, _vendor, _modelName, ver));
+    _cacheFile = QString::asprintf("%s/%s_%s_%03d.xml",
+        qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
+        _vendor.toStdString().c_str(),
+        _modelName.toStdString().c_str(),
+        ver);
     if(info->cam_definition_uri[0] != 0) {
-
-        const bool deferForStreamUri = _vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 &&
-                                       QUrl(definitionUri).host() == QStringLiteral("127.0.0.1");
-        if (deferForStreamUri) {
-            _deferredDefinitionUri = definitionUri;
-            _definitionFetchDeferred = true;
-
-            QTimer::singleShot(8000, this, [this]() {
-                if (_definitionFetchDeferred) {
-                    _definitionFetchDeferred = false;
-                    qCWarning(CameraControlLog) << "[CameraControl]"
-                            << "no stream uri for Codev definition within timeout, using placeholder fetch"
-                            << "compId" << _compID
-                            << "cacheFile" << _cacheFile;
-                    _handleDefinitionFile(_deferredDefinitionUri);
-                }
-            });
-        } else {
-            //-- Process camera definition file
-            _handleDefinitionFile(info->cam_definition_uri);
-        }
+        //-- Process camera definition file
+        _handleDefinitionFile(info->cam_definition_uri);
     } else {
         _initWhenReady();
     }
@@ -327,9 +210,9 @@ QGCCameraControl::~QGCCameraControl()
 void
 QGCCameraControl::_initWhenReady()
 {
-    qCDebug(CameraControlLog) << "[CameraControl]" << "_initWhenReady compId" << _compID;
+    qCDebug(CameraControlLog) << "_initWhenReady()";
     if(isBasic()) {
-        qCDebug(CameraControlLog) << "[CameraControl]" << "Basic camera, MAVLink only messages compId" << _compID;
+        qCDebug(CameraControlLog) << "Basic, MAVLink only messages.";
         _requestCameraSettings();
         QTimer::singleShot(250, this, &QGCCameraControl::_checkForVideoStreams);
         //-- Basic cameras have no parameters
@@ -339,21 +222,6 @@ QGCCameraControl::_initWhenReady()
         _requestAllParameters();
         //-- Give some time to load the parameters before going after the camera settings
         QTimer::singleShot(2000, this, &QGCCameraControl::_requestCameraSettings);
-        //-- Some camera firmwares never answer all PARAM_EXT requests. If we already
-        //-- have a valid definition and active settings, unblock the UI after a grace period.
-        QTimer::singleShot(8000, this, [this]() {
-            if (!_paramComplete && !_activeSettings.isEmpty()) {
-                qCWarning(CameraControlLog) << "[CameraControl]"
-                           << "forcing paramComplete after timeout for compId" << _compID
-                           << "active settings" << _activeSettings;
-                _logParameterLoadProgress(QStringLiteral("request-forced-complete"));
-                _paramLoadInProgress = false;
-                _paramComplete = true;
-                emit parametersReady();
-                _requestCameraSettings();
-                _checkForVideoStreams();
-            }
-        });
     }
     connect(_vehicle, &Vehicle::mavCommandResult, this, &QGCCameraControl::_mavCommandResult);
     connect(&_captureStatusTimer, &QTimer::timeout, this, &QGCCameraControl::_requestCaptureStatus);
@@ -370,10 +238,6 @@ QGCCameraControl::_initWhenReady()
 QString
 QGCCameraControl::firmwareVersion()
 {
-    if (_info.firmware_version == 0) {
-        return QString();
-    }
-
     int major = (_info.firmware_version >> 24) & 0xFF;
     int minor = (_info.firmware_version >> 16) & 0xFF;
     int build = _info.firmware_version & 0xFFFF;
@@ -475,203 +339,6 @@ QGCCameraControl::_setCameraMode(CameraMode mode)
         emit cameraModeChanged();
         //-- Update stream status
         _streamStatusTimer.start(1000);
-        _syncCameraModeFact(mode, true);
-        _scheduleExpModeParamRefresh();
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_syncCameraModeFact(CameraMode targetMode, bool skipRangeRefreshIfFactMatches)
-{
-    Fact* pModeFact = mode();
-    if (!pModeFact) {
-        return;
-    }
-
-    const bool factMatched = (pModeFact->rawValue().toInt() == static_cast<int>(targetMode));
-    if (!factMatched) {
-        pModeFact->setRawValue(targetMode);
-    } else if (!skipRangeRefreshIfFactMatches) {
-        // CAM_MODE fact already matches but mode-dependent option ranges may be stale
-        // (e.g. CAM_EXPMODE still limited to video options after returning to photo).
-        factChanged(pModeFact);
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_scheduleExpModeParamRefresh()
-{
-    if (!_paramIO.contains(kCAM_EXPMODE) || !_paramIO[kCAM_EXPMODE]) {
-        return;
-    }
-
-    QTimer::singleShot(800, this, [this]() {
-        if (_paramWriteInProgress(kCAM_EXPMODE) || _withinUserParamWriteGuard(kCAM_EXPMODE)
-                || _withinUserParamIntentLock(kCAM_EXPMODE)) {
-            return;
-        }
-        if (_paramIO.contains(kCAM_EXPMODE) && _paramIO[kCAM_EXPMODE]) {
-            _paramIO[kCAM_EXPMODE]->paramRequest();
-        }
-    });
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_noteUserParamWrite(const QString& paramName)
-{
-    _userParamWriteGuard[paramName].restart();
-    _userParamIntentLock[paramName].restart();
-    if (Fact* fact = getFact(paramName)) {
-        _userParamIntentValue[paramName] = fact->rawValue();
-    }
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_clearUserParamIntent(const QString& paramName)
-{
-    _userParamIntentLock.remove(paramName);
-    _userParamIntentValue.remove(paramName);
-}
-
-//-----------------------------------------------------------------------------
-bool
-QGCCameraControl::_paramWriteInProgress(const QString& paramName) const
-{
-    if (!_paramIO.contains(paramName) || !_paramIO[paramName]) {
-        return false;
-    }
-    return _paramIO[paramName]->paramWriteInProgress();
-}
-
-//-----------------------------------------------------------------------------
-bool
-QGCCameraControl::_withinUserParamWriteGuard(const QString& paramName) const
-{
-    const auto it = _userParamWriteGuard.constFind(paramName);
-    if (it == _userParamWriteGuard.constEnd() || !it->isValid()) {
-        return false;
-    }
-    return it->elapsed() < _kUserParamWriteGuardMs;
-}
-
-//-----------------------------------------------------------------------------
-bool
-QGCCameraControl::_withinUserParamIntentLock(const QString& paramName) const
-{
-    const auto it = _userParamIntentLock.constFind(paramName);
-    if (it == _userParamIntentLock.constEnd() || !it->isValid()) {
-        return false;
-    }
-    return it->elapsed() < _kUserParamIntentLockMs;
-}
-
-//-----------------------------------------------------------------------------
-bool
-QGCCameraControl::_shouldAcceptIncomingParam(Fact* fact, const QVariant& newValue) const
-{
-    if (!fact) {
-        return true;
-    }
-
-    const QString paramName = fact->name();
-    const QVariant uiValue = fact->rawValue();
-
-    if (newValue == uiValue) {
-        return true;
-    }
-
-    if (_paramWriteInProgress(paramName) || _withinUserParamWriteGuard(paramName)) {
-        return false;
-    }
-
-    if (_withinUserParamIntentLock(paramName)) {
-        const auto intentIt = _userParamIntentValue.constFind(paramName);
-        if (intentIt != _userParamIntentValue.constEnd() && newValue != intentIt.value()) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-//-----------------------------------------------------------------------------
-bool
-QGCCameraControl::_enumListContains(const QVariantList& values, const QVariant& value) const
-{
-    for (const QVariant& enumValue : values) {
-        if (enumValue == value) {
-            return true;
-        }
-    }
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_forceRestoreEnumOptions(const QString& paramName)
-{
-    if (!_originalOptNames.contains(paramName) || !_originalOptValues.contains(paramName)) {
-        return;
-    }
-
-    Fact* fact = getFact(paramName);
-    if (!fact) {
-        return;
-    }
-
-    fact->setEnumInfo(_originalOptNames[paramName], _originalOptValues[paramName]);
-    if (_paramIO.contains(paramName)) {
-        _paramIO[paramName]->optNames = _originalOptNames[paramName];
-        _paramIO[paramName]->optVariants = _originalOptValues[paramName];
-    }
-    emit fact->enumsChanged();
-    qCDebug(CameraControlLog) << "[CameraControl] Force restored enum options for"
-                              << paramName << "count" << _originalOptNames[paramName].count();
-}
-
-//-----------------------------------------------------------------------------
-void
-QGCCameraControl::_sanitizeEnumParameter(Fact* fact, bool useOriginalOptionList, bool refreshRangesFirst)
-{
-    if (!fact || !fact->metaData()) {
-        return;
-    }
-
-    if (_paramWriteInProgress(fact->name()) || _withinUserParamWriteGuard(fact->name())) {
-        return;
-    }
-
-    if (refreshRangesFirst && fact->name() == kCAM_EXPMODE) {
-        if (Fact* pModeFact = mode()) {
-            QGCCameraControl::factChanged(pModeFact);
-        }
-    }
-
-    const QVariantList checkValues = (useOriginalOptionList && _originalOptValues.contains(fact->name()))
-            ? _originalOptValues[fact->name()]
-            : fact->metaData()->enumValues();
-    if (checkValues.isEmpty()) {
-        return;
-    }
-
-    if (_enumListContains(checkValues, fact->rawValue())) {
-        return;
-    }
-
-    QVariant defaultVal = fact->metaData()->rawDefaultValue();
-    if (!_enumListContains(checkValues, defaultVal)) {
-        defaultVal = checkValues.first();
-    }
-
-    qCWarning(CameraControlLog) << "[CameraControl] Invalid enum value for"
-                                << fact->name() << fact->rawValue() << "- resetting to" << defaultVal;
-    fact->_containerSetRawValue(defaultVal);
-    if (!fact->readOnly() && _paramIO.contains(fact->name()) && _paramIO[fact->name()]) {
-        _paramIO[fact->name()]->sendParameter(false);
     }
 }
 
@@ -781,7 +448,6 @@ QGCCameraControl::startVideo()
                 false,                                      // Don't Show Error (handle locally)
                 0,                                          // Reserved (Set to 0)
                 0);                                         // CAMERA_CAPTURE_STATUS Frequency
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
             return true;
         }
     }
@@ -800,7 +466,6 @@ QGCCameraControl::stopVideo()
                 MAV_CMD_VIDEO_STOP_CAPTURE,                 // Command id
                 false,                                      // Don't Show Error (handle locally)
                 0);                                         // Reserved (Set to 0)
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
             return true;
         }
     }
@@ -872,9 +537,6 @@ QGCCameraControl::setThermalMode(ThermalViewMode mode)
     QSettings settings;
     settings.setValue(kThermalMode, static_cast<uint32_t>(mode));
     _thermalMode = mode;
-    if (_thermalMode == THERMAL_BLEND && (_thermalOpacity <= 0.1 || _thermalOpacity > 100.0)) {
-        setThermalOpacity(85.0);
-    }
     emit thermalModeChanged();
 }
 
@@ -1035,46 +697,37 @@ QGCCameraControl::_mavCommandResult(int vehicleId, int component, int command, i
     if(_vehicle->id() != vehicleId || compID() != component) {
         return;
     }
-    qCInfo(CameraControlLog) << "[CameraFlow]"
-            << "_mavCommandResult"
-            << "compId" << _compID
-            << "command" << command
-            << "result" << result
-            << "noResponse" << noReponseFromVehicle
-            << "cameraMode" << _cameraMode
-            << "videoStatus" << _video_status
-            << "photoStatus" << _photo_status;
     if(!noReponseFromVehicle && result == MAV_RESULT_IN_PROGRESS) {
         //-- Do Nothing
         qCDebug(CameraControlLog) << "In progress response for" << command;
     }else if(!noReponseFromVehicle && result == MAV_RESULT_ACCEPTED) {
         switch(command) {
-        case MAV_CMD_RESET_CAMERA_SETTINGS:
-            _resetting = false;
-            if(isBasic()) {
-                _requestCameraSettings();
-            } else {
-                QTimer::singleShot(500, this, &QGCCameraControl::_requestAllParameters);
-                QTimer::singleShot(2500, this, &QGCCameraControl::_requestCameraSettings);
-            }
-            break;
-        case MAV_CMD_VIDEO_START_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_VIDEO_STOP_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-            _captureInfoRetries = 0;
-            break;
-        case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-            _storageInfoRetries = 0;
-            break;
-        case MAV_CMD_IMAGE_START_CAPTURE:
-            _captureStatusTimer.start(1000);
-            break;
+            case MAV_CMD_RESET_CAMERA_SETTINGS:
+                _resetting = false;
+                if(isBasic()) {
+                    _requestCameraSettings();
+                } else {
+                    QTimer::singleShot(500, this, &QGCCameraControl::_requestAllParameters);
+                    QTimer::singleShot(2500, this, &QGCCameraControl::_requestCameraSettings);
+                }
+                break;
+            case MAV_CMD_VIDEO_START_CAPTURE:
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_VIDEO_STOP_CAPTURE:
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+                _captureInfoRetries = 0;
+                break;
+            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+                _storageInfoRetries = 0;
+                break;
+            case MAV_CMD_IMAGE_START_CAPTURE:
+                _captureStatusTimer.start(1000);
+                break;
         }
     } else {
         if(noReponseFromVehicle || result == MAV_RESULT_TEMPORARILY_REJECTED || result == MAV_RESULT_FAILED) {
@@ -1086,33 +739,33 @@ QGCCameraControl::_mavCommandResult(int vehicleId, int component, int command, i
                 qCDebug(CameraControlLog) << "Command failed for" << command;
             }
             switch(command) {
-            case MAV_CMD_RESET_CAMERA_SETTINGS:
-                _resetting = false;
-                qCDebug(CameraControlLog) << "Failed to reset camera settings";
+                case MAV_CMD_RESET_CAMERA_SETTINGS:
+                    _resetting = false;
+                    qCDebug(CameraControlLog) << "Failed to reset camera settings";
                 break;
-            case MAV_CMD_IMAGE_START_CAPTURE:
-            case MAV_CMD_IMAGE_STOP_CAPTURE:
-                if(++_captureInfoRetries < 5) {
-                    _captureStatusTimer.start(1000);
-                } else {
-                    qCDebug(CameraControlLog) << "Giving up start/stop image capture";
-                    _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-                }
-                break;
-            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-                if(++_captureInfoRetries < 5) {
-                    _captureStatusTimer.start(500);
-                } else {
-                    qCDebug(CameraControlLog) << "Giving up requesting capture status";
-                }
-                break;
-            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-                if(++_storageInfoRetries < 5) {
-                    QTimer::singleShot(500, this, &QGCCameraControl::_requestStorageInfo);
-                } else {
-                    qCDebug(CameraControlLog) << "Giving up requesting storage status";
-                }
-                break;
+                case MAV_CMD_IMAGE_START_CAPTURE:
+                case MAV_CMD_IMAGE_STOP_CAPTURE:
+                    if(++_captureInfoRetries < 5) {
+                        _captureStatusTimer.start(1000);
+                    } else {
+                        qCDebug(CameraControlLog) << "Giving up start/stop image capture";
+                        _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+                    }
+                    break;
+                case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+                    if(++_captureInfoRetries < 5) {
+                        _captureStatusTimer.start(500);
+                    } else {
+                        qCDebug(CameraControlLog) << "Giving up requesting capture status";
+                    }
+                    break;
+                case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+                    if(++_storageInfoRetries < 5) {
+                        QTimer::singleShot(500, this, &QGCCameraControl::_requestStorageInfo);
+                    } else {
+                        qCDebug(CameraControlLog) << "Giving up requesting storage status";
+                    }
+                    break;
             }
         } else {
             qCDebug(CameraControlLog) << "Bad response for" << command << result;
@@ -1128,13 +781,13 @@ QGCCameraControl::_setVideoStatus(VideoStatus status)
         _video_status = status;
         emit videoStatusChanged();
         if(status == VIDEO_CAPTURE_STATUS_RUNNING) {
-            _recordTime = 0;
-            _recTime = QTime::currentTime();
-            _recTimer.start();
+             _recordTime = 0;
+             _recTime = QTime::currentTime();
+             _recTimer.start();
         } else {
-            _recTimer.stop();
-            _recordTime = 0;
-            emit recordTimeChanged();
+             _recTimer.stop();
+             _recordTime = 0;
+             emit recordTimeChanged();
         }
     }
 }
@@ -1175,10 +828,6 @@ QGCCameraControl::_loadCameraDefinitionFile(QByteArray& bytes)
         qCCritical(CameraControlLog) << errorMsg;
         return false;
     }
-
-    if (!_nameToFactMetaDataMap.isEmpty()) {
-        _clearCameraDefinitionState();
-    }
     //-- Load camera constants
     QDomNodeList defElements = doc.elementsByTagName(kDefnition);
     if(!defElements.size() || !_loadConstants(defElements)) {
@@ -1200,7 +849,7 @@ QGCCameraControl::_loadCameraDefinitionFile(QByteArray& bytes)
         qCDebug(CameraControlLog) << "Saving camera definition file" << _cacheFile;
         QFile file(_cacheFile);
         if (!file.open(QIODevice::WriteOnly)) {
-            qCWarning(CameraControlLog) << QString("Could not save cache file %1. Error: %2").arg(_cacheFile).arg(file.errorString());
+            qWarning() << QString("Could not save cache file %1. Error: %2").arg(_cacheFile).arg(file.errorString());
         } else {
             file.write(originalData);
         }
@@ -1226,74 +875,6 @@ QGCCameraControl::_loadConstants(const QDomNodeList nodeList)
 }
 
 //-----------------------------------------------------------------------------
-void
-QGCCameraControl::_clearCameraDefinitionState()
-{
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "clearing previous camera definition state for compId" << _compID
-            << "settings count" << _settings.count();
-
-    //-- Tell the UI to drop its references to the current facts before we delete them.
-    _paramComplete = false;
-    _settings.clear();
-    _activeSettings.clear();
-    emit activeSettingsChanged();
-    emit parametersReady();
-
-    //-- Remove the parameter facts from the FactGroup so QML stops referencing them.
-    for (const QString& factName : _nameToFactMetaDataMap.keys()) {
-        if (_nameToFactMap.contains(factName)) {
-            Fact* pFact = _nameToFactMap.value(factName);
-            _nameToFactMap.remove(factName);
-            _factNames.removeAll(factName);
-            if (pFact) {
-                pFact->deleteLater();
-            }
-        }
-    }
-    emit factNamesChanged();
-
-    //-- Drop the "camera" fact group so it is rebuilt from the new definition.
-    _nameToFactGroupMap.remove(QStringLiteral("camera"));
-    emit factGroupNamesChanged();
-
-    //-- Delete the parameter IO handlers.
-    for (QGCCameraParamIO* pIO : _paramIO.values()) {
-        if (pIO) {
-            pIO->deleteLater();
-        }
-    }
-    _paramIO.clear();
-
-    //-- Delete the metadata owned by this control.
-    for (FactMetaData* metaData : _nameToFactMetaDataMap.values()) {
-        if (metaData) {
-            metaData->deleteLater();
-        }
-    }
-    _nameToFactMetaDataMap.clear();
-
-    //-- Delete option exclusions and ranges.
-    for (QGCCameraOptionExclusion* pExc : _valueExclusions) {
-        if (pExc) {
-            pExc->deleteLater();
-        }
-    }
-    _valueExclusions.clear();
-    for (QGCCameraOptionRange* pRange : _optionRanges) {
-        if (pRange) {
-            pRange->deleteLater();
-        }
-    }
-    _optionRanges.clear();
-
-    _originalOptNames.clear();
-    _originalOptValues.clear();
-    _requestUpdates.clear();
-    _updatesToRequest.clear();
-}
-
-//-----------------------------------------------------------------------------
 bool
 QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
 {
@@ -1311,7 +892,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
                 _settings << name;
             }
         } else {
-            qCCritical(CameraControlLog) << "Parameter entry missing parameter name";
+            qCritical() << "Parameter entry missing parameter name";
             return false;
         }
     }
@@ -1322,7 +903,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         read_attribute(parameterNode, kName, factName);
         QString type;
         if(!read_attribute(parameterNode, kType, type)) {
-            qCCritical(CameraControlLog) << QString("Parameter %1 missing parameter type").arg(factName);
+            qCritical() << QString("Parameter %1 missing parameter type").arg(factName);
             return false;
         }
         //-- Does it have a control?
@@ -1336,13 +917,13 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         read_attribute(parameterNode, kWriteOnly, writeOnly);
         //-- It can't be both
         if(readOnly && writeOnly) {
-            qCCritical(CameraControlLog) << QString("Parameter %1 cannot be both read only and write only").arg(factName);
+            qCritical() << QString("Parameter %1 cannot be both read only and write only").arg(factName);
         }
         //-- Param type
         bool unknownType;
         FactMetaData::ValueType_t factType = FactMetaData::stringToType(type, unknownType);
         if (unknownType) {
-            qCCritical(CameraControlLog) << QString("Unknown type for parameter %1").arg(factName);
+            qCritical() << QString("Unknown type for parameter %1").arg(factName);
             return false;
         }
         //-- By definition, custom types do not have control
@@ -1352,7 +933,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         //-- Description
         QString description;
         if(!read_value(parameterNode, kDescription, description)) {
-            qCCritical(CameraControlLog) << QString("Parameter %1 missing parameter description").arg(factName);
+            qCritical() << QString("Parameter %1 missing parameter description").arg(factName);
             return false;
         }
         //-- Check for updates
@@ -1411,7 +992,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
             if (metaData->convertAndValidateRaw(defaultValue, false, defaultVariant, errorString)) {
                 metaData->setRawDefaultValue(defaultVariant);
             } else {
-                qCWarning(CameraControlLog) << "Invalid default value for" << factName
+                qWarning() << "Invalid default value for" << factName
                            << " type:"  << metaData->type()
                            << " value:" << defaultValue
                            << " error:" << errorString;
@@ -1419,7 +1000,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         }
         //-- Set metadata and Fact
         if (_nameToFactMetaDataMap.contains(factName)) {
-            qCWarning(CameraControlLog) << QStringLiteral("Duplicate fact name:") << factName;
+            qWarning() << QStringLiteral("Duplicate fact name:") << factName;
             delete metaData;
         } else {
             {
@@ -1431,7 +1012,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
                     if (metaData->convertAndValidateRaw(attr, true /* convertOnly */, typedValue, errorString)) {
                         metaData->setRawMin(typedValue);
                     } else {
-                        qCWarning(CameraControlLog) << "Invalid min value for" << factName
+                        qWarning() << "Invalid min value for" << factName
                                    << " type:"  << metaData->type()
                                    << " value:" << attr
                                    << " error:" << errorString;
@@ -1447,7 +1028,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
                     if (metaData->convertAndValidateRaw(attr, true /* convertOnly */, typedValue, errorString)) {
                         metaData->setRawMax(typedValue);
                     } else {
-                        qCWarning(CameraControlLog) << "Invalid max value for" << factName
+                        qWarning() << "Invalid max value for" << factName
                                    << " type:"  << metaData->type()
                                    << " value:" << attr
                                    << " error:" << errorString;
@@ -1463,7 +1044,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
                     if (metaData->convertAndValidateRaw(attr, true /* convertOnly */, typedValue, errorString)) {
                         metaData->setRawIncrement(typedValue.toDouble());
                     } else {
-                        qCWarning(CameraControlLog) << "Invalid step value for" << factName
+                        qWarning() << "Invalid step value for" << factName
                                    << " type:"  << metaData->type()
                                    << " value:" << attr
                                    << " error:" << errorString;
@@ -1479,7 +1060,7 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
                     if (metaData->convertAndValidateRaw(attr, true /* convertOnly */, typedValue, errorString)) {
                         metaData->setDecimalPlaces(typedValue.toInt());
                     } else {
-                        qCWarning(CameraControlLog) << "Invalid decimal places value for" << factName
+                        qWarning() << "Invalid decimal places value for" << factName
                                    << " type:"  << metaData->type()
                                    << " value:" << attr
                                    << " error:" << errorString;
@@ -1509,11 +1090,6 @@ QGCCameraControl::_loadSettings(const QDomNodeList nodeList)
         _addFactGroup(this, "camera");
         _processRanges();
         _activeSettings = _settings;
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "Camera definition loaded for compId" << _compID
-                << "settings count" << _settings.count()
-                << "initial active settings" << _activeSettings
-                << "paramComplete" << _paramComplete;
         emit activeSettingsChanged();
         return true;
     }
@@ -1528,8 +1104,8 @@ QGCCameraControl::_handleLocalization(QByteArray& bytes)
     int errorLine;
     QDomDocument doc;
     if(!doc.setContent(bytes, false, &errorMsg, &errorLine)) {
-        qCCritical(CameraControlLog) << "Unable to parse camera definition file on line:" << errorLine;
-        qCCritical(CameraControlLog) << errorMsg;
+        qCritical() << "Unable to parse camera definition file on line:" << errorLine;
+        qCritical() << errorMsg;
         return false;
     }
     //-- Find out where we are
@@ -1556,7 +1132,7 @@ QGCCameraControl::_handleLocalization(QByteArray& bytes)
         QDomNode locale = locales.item(i);
         QString name;
         if(!read_attribute(locale, kName, name)) {
-            qCWarning(CameraControlLog) << "Localization entry is missing its name attribute";
+            qWarning() << "Localization entry is missing its name attribute";
             continue;
         }
         // If we found a direct match, deal with it now
@@ -1575,7 +1151,7 @@ QGCCameraControl::_handleLocalization(QByteArray& bytes)
         }
     }
     //-- Could not find a language to use
-    qCWarning(CameraControlLog) <<  "No match for" << QLocale::system().name() << "in camera definition file";
+    qWarning() <<  "No match for" << QLocale::system().name() << "in camera definition file";
     //-- Just use default, en_US
     return true;
 }
@@ -1608,42 +1184,25 @@ QGCCameraControl::_replaceLocaleStrings(const QDomNode node, QByteArray& bytes)
 void
 QGCCameraControl::_requestAllParameters()
 {
-    _paramLoadInProgress = true;
-    _paramLoadTimer.restart();
-    _expectedParamNames = _paramIO.keys();
-    _expectedParamNames.sort();
-    _receivedParamNames.clear();
-    _timedOutParamNames.clear();
-
     //-- Reset receive list
     for(const QString& paramName: _paramIO.keys()) {
         if(_paramIO[paramName]) {
             _paramIO[paramName]->setParamRequest();
         } else {
-            qCCritical(CameraControlLog) << "QGCParamIO is NULL" << paramName;
+            qCritical() << "QGCParamIO is NULL" << paramName;
         }
     }
     MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
-    if (!_vehicle || !mavlink) {
-        qWarning() << "[CameraControl] skip request all parameters without vehicle/mavlink" << _compID;
-        return;
-    }
-    SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qWarning() << "[CameraControl] skip request all parameters without active primary link" << _compID;
-        return;
-    }
     mavlink_message_t msg;
     mavlink_msg_param_ext_request_list_pack_chan(
-        static_cast<uint8_t>(mavlink->getSystemId()),
-        static_cast<uint8_t>(mavlink->getComponentId()),
-        sharedLink->mavlinkChannel(),
-        &msg,
-        static_cast<uint8_t>(_vehicle->id()),
-        static_cast<uint8_t>(compID()));
-    _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
-    qCDebug(CameraControlLog) << "[CameraControl]" << "Request all parameters compId" << _compID << "count" << _paramIO.keys().count();
-    _logParameterLoadProgress(QStringLiteral("request-start"));
+                static_cast<uint8_t>(mavlink->getSystemId()),
+                static_cast<uint8_t>(mavlink->getComponentId()),
+                _link->mavlinkChannel(),
+                &msg,
+                static_cast<uint8_t>(_vehicle->id()),
+                static_cast<uint8_t>(compID()));
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
+    qCDebug(CameraControlVerboseLog) << "Request all parameters";
 }
 
 //-----------------------------------------------------------------------------
@@ -1667,7 +1226,7 @@ QGCCameraControl::handleParamAck(const mavlink_param_ext_ack_t& ack)
     if(_paramIO[paramName]) {
         _paramIO[paramName]->handleParamAck(ack);
     } else {
-        qCCritical(CameraControlLog) << "QGCParamIO is NULL" << paramName;
+        qCritical() << "QGCParamIO is NULL" << paramName;
     }
 }
 
@@ -1683,7 +1242,7 @@ QGCCameraControl::handleParamValue(const mavlink_param_ext_value_t& value)
     if(_paramIO[paramName]) {
         _paramIO[paramName]->handleParamValue(value);
     } else {
-        qCCritical(CameraControlLog) << "QGCParamIO is NULL" << paramName;
+        qCritical() << "QGCParamIO is NULL" << paramName;
     }
 }
 
@@ -1710,12 +1269,6 @@ QGCCameraControl::_updateActiveList()
     }
     if(active != _activeSettings) {
         qCDebug(CameraControlVerboseLog) << "Excluding" << exclusionList;
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "_updateActiveList compId" << _compID
-                << "settings" << _settings
-                << "exclusions" << exclusionList
-                << "new active settings" << active
-                << "paramComplete" << _paramComplete;
         _activeSettings = active;
         emit activeSettingsChanged();
         //-- Force validity of "Facts" based on active set
@@ -1773,11 +1326,11 @@ QGCCameraControl::_processConditionTest(const QString conditionTest)
                 break;
             }
         } else {
-            qCWarning(CameraControlLog) << "Invalid condition parameter:" << test[0] << "in" << conditionTest;
+            qWarning() << "Invalid condition parameter:" << test[0] << "in" << conditionTest;
             return false;
         }
     }
-    qCWarning(CameraControlLog) << "Invalid condition" << conditionTest;
+    qWarning() << "Invalid condition" << conditionTest;
     return false;
 }
 
@@ -1873,18 +1426,6 @@ QGCCameraControl::_updateRanges(Fact* pFact)
             updates << f->name();
         }
     }
-    //-- After option lists change, clear stale values (e.g. Creative Look Unknown: 0 after AE change)
-    QStringList sanitizedTargets;
-    for (QGCCameraOptionRange* pRange : _optionRanges) {
-        if (pRange->param == pFact->name() || pRange->condition.contains(pFact->name())) {
-            if (!sanitizedTargets.contains(pRange->targetParam)) {
-                sanitizedTargets << pRange->targetParam;
-                if (Fact* targetFact = getFact(pRange->targetParam)) {
-                    _sanitizeEnumParameter(targetFact, false, false);
-                }
-            }
-        }
-    }
     //-- Parameter update requests
     if(_requestUpdates.contains(pFact->name())) {
         for(const QString& param: _requestUpdates[pFact->name()]) {
@@ -1903,9 +1444,6 @@ void
 QGCCameraControl::_requestParamUpdates()
 {
     for(const QString& param: _updatesToRequest) {
-        if (_withinUserParamWriteGuard(param) || _withinUserParamIntentLock(param)) {
-            continue;
-        }
         _paramIO[param]->paramRequest();
     }
     _updatesToRequest.clear();
@@ -1915,7 +1453,7 @@ QGCCameraControl::_requestParamUpdates()
 void
 QGCCameraControl::_requestCameraSettings()
 {
-    qCDebug(CameraControlLog) << "[CameraControl]" << "_requestCameraSettings compId" << _compID;
+    qCDebug(CameraControlLog) << "_requestCameraSettings()";
     if(_vehicle) {
         // Use REQUEST_MESSAGE instead of deprecated REQUEST_CAMERA_SETTINGS
         // first time and every other time after that.
@@ -1941,7 +1479,7 @@ QGCCameraControl::_requestCameraSettings()
 void
 QGCCameraControl::_requestStorageInfo()
 {
-    qCDebug(CameraControlLog) << "[CameraControl]" << "_requestStorageInfo compId" << _compID;
+    qCDebug(CameraControlLog) << "_requestStorageInfo()";
     if(_vehicle) {
         // Use REQUEST_MESSAGE instead of deprecated REQUEST_CAMERA_SETTINGS
         // first time and every other time after that.
@@ -1967,13 +1505,7 @@ QGCCameraControl::_requestStorageInfo()
 void
 QGCCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
 {
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "handleSettings() compId" << _compID
-            << "mode" << settings.mode_id
-            << "zoom" << settings.zoomLevel
-            << "focus" << settings.focusLevel
-            << "active settings" << _activeSettings
-            << "paramComplete" << _paramComplete;
+    qCDebug(CameraControlLog) << "handleSettings() Mode:" << settings.mode_id;
     _setCameraMode(static_cast<CameraMode>(settings.mode_id));
     qreal z = static_cast<qreal>(settings.zoomLevel);
     qreal f = static_cast<qreal>(settings.focusLevel);
@@ -2048,7 +1580,7 @@ QGCCameraControl::handleCaptureStatus(const mavlink_camera_capture_status_t& cap
     //-- Keep asking for it once in a while when recording
     if(videoStatus() == VIDEO_CAPTURE_STATUS_RUNNING) {
         _captureStatusTimer.start(5000);
-        //-- Same while (single) image capture is busy
+    //-- Same while (single) image capture is busy
     } else if(photoStatus() != PHOTO_CAPTURE_IDLE && photoMode() == PHOTO_CAPTURE_SINGLE) {
         _captureStatusTimer.start(1000);
     }
@@ -2068,58 +1600,8 @@ QGCCameraControl::handleCaptureStatus(const mavlink_camera_capture_status_t& cap
 void
 QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
 {
-    // MB1 firmware reports its IR stream as a normal running stream and, in
-    // RTSP mode, advertises the hidden per-stream port (5554) instead of the
-    // active general RTSP port. Normalize only this known Gremsy stream so QGC
-    // can expose Thermal View Mode without changing any other camera profile.
-    mavlink_video_stream_information_t normalizedInfo = *vi;
-    const QString reportedName = _mavlinkFixedString(vi->name, sizeof(vi->name));
-    QUrl reportedUri(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
-    const bool isGremsyCamera = _vendor.compare(QStringLiteral("Gremsy"), Qt::CaseInsensitive) == 0
-            || _modelName.compare(QStringLiteral("Lynx"), Qt::CaseInsensitive) == 0
-            || reportedUri.host() == QStringLiteral("192.168.2.240");
-    const bool isGremsyIrStream = isGremsyCamera
-            && (vi->stream_id == 2 || reportedName.contains(QStringLiteral("MB1 IR"), Qt::CaseInsensitive));
-
-    if (isGremsyIrStream) {
-        normalizedInfo.flags |= VIDEO_STREAM_STATUS_FLAGS_THERMAL;
-
-        if (reportedUri.scheme().compare(QStringLiteral("rtsp"), Qt::CaseInsensitive) == 0
-                && reportedUri.port() == 5554) {
-            int activeRtspPort = 8554;
-            VideoSettings* videoSettings = qgcApp()->toolbox()->settingsManager()->videoSettings();
-            if (videoSettings && videoSettings->rtspUrl()) {
-                const QUrl configuredUri(videoSettings->rtspUrl()->rawValue().toString());
-                if (configuredUri.host() == reportedUri.host() && configuredUri.port() > 0) {
-                    activeRtspPort = configuredUri.port();
-                }
-            }
-            reportedUri.setPort(activeRtspPort);
-            const QByteArray correctedUri = reportedUri.toEncoded();
-            memset(normalizedInfo.uri, 0, sizeof(normalizedInfo.uri));
-            memcpy(normalizedInfo.uri, correctedUri.constData(),
-                   qMin(static_cast<int>(sizeof(normalizedInfo.uri)) - 1, correctedUri.size()));
-        }
-
-        vi = &normalizedInfo;
-    }
-
     qCDebug(CameraControlLog) << "handleVideoInfo:" << vi->stream_id << vi->uri;
-    // The camera definition belongs to the primary EO stream. Alternating EO
-    // and IR metadata must not invalidate/reload it on every response.
-    if (!isGremsyIrStream) {
-        _checkRtspChangeAndInvalidateCache(_mavlinkFixedString(vi->uri, sizeof(vi->uri)));
-    }
     _expectedCount = vi->count;
-    qCDebug(CameraControlLog) << "THERMAL_TRACE"
-            << "handleVideoInfo"
-            << "compId" << _compID
-            << "streamId" << vi->stream_id
-            << "count" << vi->count
-            << "type" << vi->type
-            << "flags" << vi->flags
-            << "uri" << vi->uri
-            << "existingStreams" << _streams.count();
     if(!_findStream(vi->stream_id, false)) {
         qCDebug(CameraControlLog) << "Create stream handler for stream ID:" << vi->stream_id;
         QGCVideoStreamInfo* pStream = new QGCVideoStreamInfo(this, vi);
@@ -2133,150 +1615,17 @@ QGCCameraControl::handleVideoInfo(const mavlink_video_stream_information_t* vi)
         } else {
             emit thermalStreamChanged();
         }
-        qCDebug(CameraControlLog) << "THERMAL_TRACE"
-                << "streamAdded"
-                << "compId" << _compID
-                << "streamId" << pStream->streamID()
-                << "name" << pStream->name()
-                << "isThermal" << pStream->isThermal()
-                << "uri" << pStream->uri()
-                << "streamsNow" << _streams.count()
-                << "labelsNow" << _streamLabels;
     }
     //-- Check for missing count
     if(_streams.count() < _expectedCount) {
-        qCDebug(CameraControlLog) << "THERMAL_TRACE"
-                << "streamInfoPending"
-                << "compId" << _compID
-                << "streams" << _streams.count()
-                << "expected" << _expectedCount;
         _streamInfoTimer.start(1000);
     } else {
         //-- Done
         qCDebug(CameraControlLog) << "All stream handlers done";
         _streamInfoTimer.stop();
         _videoStreamInfoRetries = 0;
-        QGCVideoStreamInfo* pCurrent = currentStreamInstance();
-        QGCVideoStreamInfo* pThermal = thermalStreamInstance();
-        qCDebug(CameraControlLog) << "THERMAL_TRACE"
-                << "streamInfoComplete"
-                << "compId" << _compID
-                << "streams" << _streams.count()
-                << "expected" << _expectedCount
-                << "currentStreamId" << (pCurrent ? pCurrent->streamID() : -1)
-                << "currentUri" << (pCurrent ? pCurrent->uri() : QStringLiteral("null"))
-                << "thermalStreamId" << (pThermal ? pThermal->streamID() : -1)
-                << "thermalUri" << (pThermal ? pThermal->uri() : QStringLiteral("null"));
-        resumeStream();
         emit autoStreamChanged();
         emit _vehicle->cameraManager()->streamChanged();
-    }
-}
-
-QString QGCCameraControl::_cameraRtspSettingsKey() const
-{
-    // Compare by vehicle/component so camera model/vendor changes are still detected.
-    return QStringLiteral("Camera/LastRtsp/%1/%2")
-        .arg(_vehicle ? _vehicle->id() : -1)
-        .arg(_compID);
-}
-
-void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamUri)
-{
-    if (!streamUri.startsWith(QStringLiteral("rtsp://"), Qt::CaseInsensitive)) {
-        return;
-    }
-
-    if (_vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0) {
-        const QString codevFileName = _codevCameraDefinitionFileNameFromRtsp(streamUri);
-        if (codevFileName.isEmpty()) {
-            return;
-        }
-        const QString savePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
-        const QString desiredCacheFile = QStringLiteral("%1/%2").arg(savePath, codevFileName);
-        const bool nameChanged = QFileInfo(_cacheFile).fileName().compare(codevFileName, Qt::CaseInsensitive) != 0;
-        if (!_definitionFetchDeferred && !nameChanged) {
-            //-- Already loading/loaded the correct definition for this camera.
-            return;
-        }
-
-        const QUrl streamUrl(streamUri);
-        const QString upstreamUrl = QStringLiteral("http://%1/%2").arg(streamUrl.host(), codevFileName);
-        _definitionFetchDeferred = false;
-        _cacheFile = desiredCacheFile;
-        _cached = false;
-        qInfo() << "[CameraControl]"
-                << "Codev camera definition resolved from stream uri"
-                << "compId" << _compID
-                << "streamUri" << streamUri
-                << "cacheFile" << _cacheFile
-                << "upstreamUrl" << upstreamUrl;
-        _handleDefinitionFile(upstreamUrl);
-        return;
-    }
-
-    //-- Non-Codev cameras: refresh the definition only when the RTSP endpoint actually changes.
-    QSettings settings;
-    const QString key = _cameraRtspSettingsKey();
-    const QString previousUri = settings.value(key).toString();
-    if (previousUri.isEmpty()) {
-        settings.setValue(key, streamUri);
-        return;
-    }
-
-    if (previousUri.compare(streamUri, Qt::CaseInsensitive) == 0) {
-        return;
-    }
-
-    qWarning() << "[CameraControl]"
-               << "RTSP URI changed, refreshing camera definition"
-               << "compId" << _compID
-               << "previous" << previousUri
-               << "current" << streamUri;
-    _cached = false;
-    settings.setValue(key, streamUri);
-
-    const QString definitionUri = _cameraDefinitionUri(&_info);
-    if (!definitionUri.isEmpty()) {
-        _handleDefinitionFile(definitionUri);
-    }
-}
-
-void QGCCameraControl::_purgeCameraDefinitionCache()
-{
-    const QString parameterSavePath = qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath();
-    if (parameterSavePath.isEmpty()) {
-        return;
-    }
-
-    QDir cacheDir(parameterSavePath);
-    if (!cacheDir.exists()) {
-        return;
-    }
-
-    // Remove the active cache file first.
-    if (QFile::exists(_cacheFile) && !QFile::remove(_cacheFile)) {
-        qWarning() << "[CameraControl] Failed to remove active cache file:" << _cacheFile;
-    }
-
-    // Remove legacy/new camera definition cache files:
-    //   vendor_model_001.xml
-    //   vendor_model_001_<hash>.xml
-    const QRegularExpression pattern(QStringLiteral("^.+_.+_\\d{3}(?:_[0-9a-fA-F]{12})?\\.xml$"));
-
-    const QFileInfoList files = cacheDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoSymLinks);
-    for (const QFileInfo& fileInfo : files) {
-        if (fileInfo.absoluteFilePath().compare(_cacheFile, Qt::CaseInsensitive) == 0) {
-            continue;
-        }
-        if (!pattern.match(fileInfo.fileName()).hasMatch()) {
-            continue;
-        }
-        if (!QFile::remove(fileInfo.absoluteFilePath())) {
-            qWarning() << "[CameraControl] Failed to remove cache file:" << fileInfo.absoluteFilePath();
-        } else {
-            qInfo() << "[CameraControl] Removed cache file:" << fileInfo.absoluteFilePath();
-        }
     }
 }
 
@@ -2390,14 +1739,6 @@ void
 QGCCameraControl::stopStream()
 {
     QGCVideoStreamInfo* pInfo = currentStreamInstance();
-    QGCVideoStreamInfo* pThermalInfo = thermalStreamInstance();
-    qCDebug(CameraControlLog) << "THERMAL_TRACE"
-            << "stopStream"
-            << "compId" << _compID
-            << "currentStreamId" << (pInfo ? pInfo->streamID() : -1)
-            << "currentUri" << (pInfo ? pInfo->uri() : QStringLiteral("null"))
-            << "thermalStreamId" << (pThermalInfo ? pThermalInfo->streamID() : -1)
-            << "thermalUri" << (pThermalInfo ? pThermalInfo->uri() : QStringLiteral("null"));
     if(pInfo) {
         //-- Stop current stream
         _vehicle->sendMavCommand(
@@ -2406,13 +1747,6 @@ QGCCameraControl::stopStream()
             false,                                  // ShowError
             pInfo->streamID());                     // Stream ID
     }
-    if(pThermalInfo && (!pInfo || pThermalInfo->streamID() != pInfo->streamID())) {
-        _vehicle->sendMavCommand(
-            _compID,
-            MAV_CMD_VIDEO_STOP_STREAMING,
-            false,
-            pThermalInfo->streamID());
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2420,16 +1754,6 @@ void
 QGCCameraControl::resumeStream()
 {
     QGCVideoStreamInfo* pInfo = currentStreamInstance();
-    QGCVideoStreamInfo* pThermalInfo = thermalStreamInstance();
-    qCDebug(CameraControlLog) << "THERMAL_TRACE"
-            << "resumeStream"
-            << "compId" << _compID
-            << "currentStreamId" << (pInfo ? pInfo->streamID() : -1)
-            << "currentUri" << (pInfo ? pInfo->uri() : QStringLiteral("null"))
-            << "thermalStreamId" << (pThermalInfo ? pThermalInfo->streamID() : -1)
-            << "thermalUri" << (pThermalInfo ? pThermalInfo->uri() : QStringLiteral("null"))
-            << "streamLabels" << _streamLabels
-            << "expectedCount" << _expectedCount;
     if(pInfo) {
         //-- Start new stream
         _vehicle->sendMavCommand(
@@ -2437,13 +1761,6 @@ QGCCameraControl::resumeStream()
             MAV_CMD_VIDEO_START_STREAMING,          // Command id
             false,                                  // ShowError
             pInfo->streamID());                     // Stream ID
-    }
-    if(pThermalInfo && (!pInfo || pThermalInfo->streamID() != pInfo->streamID())) {
-        _vehicle->sendMavCommand(
-            _compID,
-            MAV_CMD_VIDEO_START_STREAMING,
-            false,
-            pThermalInfo->streamID());
     }
 }
 
@@ -2491,7 +1808,7 @@ void
 QGCCameraControl::_requestStreamInfo(uint8_t streamID)
 {
     qCDebug(CameraControlLog) << "Requesting video stream info for:" << streamID;
-    // By default, try to use new REQUEST_MESSAGE command instead of
+    // By default, try to use new REQUEST_MESSAGE command instead of 
     // deprecated MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION.
     if (_videoStreamStatusRetries++ % 2 == 0) {
         _vehicle->sendMavCommand(
@@ -2545,12 +1862,12 @@ QGCCameraControl::_findStream(uint8_t id, bool report)
                     return pStream;
                 }
             } else {
-                qCCritical(CameraControlLog) << "Null QGCVideoStreamInfo instance";
+                qCritical() << "Null QGCVideoStreamInfo instance";
             }
         }
     }
     if(report) {
-        qCWarning(CameraControlLog) << "Stream id not found:" << id;
+        qWarning() << "Stream id not found:" << id;
     }
     return nullptr;
 }
@@ -2667,7 +1984,7 @@ QGCCameraControl::_loadRanges(QDomNode option, const QString factName, QString p
             QString condition;
             QDomNode paramRange = parameterRanges.item(i);
             if(!read_attribute(paramRange, kParameter, param)) {
-                qCCritical(CameraControlLog) << QString("Malformed option range for parameter %1").arg(factName);
+                qCritical() << QString("Malformed option range for parameter %1").arg(factName);
                 return false;
             }
             read_attribute(paramRange, kCondition, condition);
@@ -2681,11 +1998,11 @@ QGCCameraControl::_loadRanges(QDomNode option, const QString factName, QString p
                 QString optValue;
                 QDomNode roption = rangeOptions.item(i);
                 if(!read_attribute(roption, kName, optName)) {
-                    qCCritical(CameraControlLog) << QString("Malformed roption for parameter %1").arg(factName);
+                    qCritical() << QString("Malformed roption for parameter %1").arg(factName);
                     return false;
                 }
                 if(!read_attribute(roption, kValue, optValue)) {
-                    qCCritical(CameraControlLog) << QString("Malformed rvalue for parameter %1").arg(factName);
+                    qCritical() << QString("Malformed rvalue for parameter %1").arg(factName);
                     return false;
                 }
                 optNames  << optName;
@@ -2713,7 +2030,7 @@ QGCCameraControl::_processRanges()
                 QVariant optVariant;
                 QString  errorString;
                 if (!pRFact->metaData()->convertAndValidateRaw(pRange->optValues[i], false, optVariant, errorString)) {
-                    qCWarning(CameraControlLog) << "Invalid roption value, name:" << pRange->targetParam
+                    qWarning() << "Invalid roption value, name:" << pRange->targetParam
                                << " type:"  << pRFact->metaData()->type()
                                << " value:" << pRange->optValues[i]
                                << " error:" << errorString;
@@ -2730,16 +2047,16 @@ bool
 QGCCameraControl::_loadNameValue(QDomNode option, const QString factName, FactMetaData* metaData, QString& optName, QString& optValue, QVariant& optVariant)
 {
     if(!read_attribute(option, kName, optName)) {
-        qCCritical(CameraControlLog) << QString("Malformed option for parameter %1").arg(factName);
+        qCritical() << QString("Malformed option for parameter %1").arg(factName);
         return false;
     }
     if(!read_attribute(option, kValue, optValue)) {
-        qCCritical(CameraControlLog) << QString("Malformed value for parameter %1").arg(factName);
+        qCritical() << QString("Malformed value for parameter %1").arg(factName);
         return false;
     }
     QString  errorString;
     if (!metaData->convertAndValidateRaw(optValue, false, optVariant, errorString)) {
-        qCWarning(CameraControlLog) << "Invalid option value, name:" << factName
+        qWarning() << "Invalid option value, name:" << factName
                    << " type:"  << metaData->type()
                    << " value:" << optValue
                    << " error:" << errorString;
@@ -2753,92 +2070,45 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 {
     //-- First check and see if we have it cached
     QFile xmlFile(_cacheFile);
-    qCInfo(CameraControlLog) << "[CameraFlow]"
-            << "_handleDefinitionFile"
-            << "compId" << _compID
-            << "model" << _modelName
-            << "vendor" << _vendor
-            << "url" << url
-            << "cacheFile" << _cacheFile
-            << "cacheExists" << xmlFile.exists();
 
     QString ftpPrefix(QStringLiteral("%1://").arg(FTPManager::mavlinkFTPScheme));
     if (!xmlFile.exists() && url.startsWith(ftpPrefix, Qt::CaseInsensitive)) {
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "camera definition source ftp"
-                << "compId" << _compID
-                << "cacheFile" << _cacheFile
-                << "url" << url;
+        qCDebug(CameraControlLog) << "No camera definition file cached, attempt ftp download";
+        int ver = static_cast<int>(_info.cam_definition_version);
         QString ext = "";
         if (url.endsWith(".lzma", Qt::CaseInsensitive)) { ext = ".lzma"; }
         if (url.endsWith(".xz", Qt::CaseInsensitive)) { ext = ".xz"; }
-        QString fileName = QFileInfo(_cacheFile).fileName();
-        if (!ext.isEmpty()) {
-            fileName += ext;
-        }
+        QString fileName = QString::asprintf("%s_%s_%03d.xml%s",
+            _vendor.toStdString().c_str(),
+            _modelName.toStdString().c_str(),
+            ver,
+            ext.toStdString().c_str());
         connect(_vehicle->ftpManager(), &FTPManager::downloadComplete, this, &QGCCameraControl::_ftpDownloadComplete);
         _vehicle->ftpManager()->download(_compID, url,
-                                         qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
-                                         fileName);
+            qgcApp()->toolbox()->settingsManager()->appSettings()->parameterSavePath().toStdString().c_str(),
+            fileName);
         return;
     }
 
     if (!xmlFile.exists()) {
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "camera definition source http"
-                << "compId" << _compID
-                << "cacheFile" << _cacheFile
-                << "url" << url;
+        qCDebug(CameraControlLog) << "No camera definition file cached, attempt http download";
         _httpRequest(url);
         return;
     }
     if (!xmlFile.open(QIODevice::ReadOnly)) {
-        qCWarning(CameraControlLog) << "Could not read cached camera definition file:" << _cacheFile;
+        qWarning() << "Could not read cached camera definition file:" << _cacheFile;
         _httpRequest(url);
         return;
     }
     QByteArray bytes = xmlFile.readAll();
     QDomDocument doc;
     if(!doc.setContent(bytes, false)) {
-        qCWarning(CameraControlLog) << "Could not parse cached camera definition file:" << _cacheFile;
+        qWarning() << "Could not parse cached camera definition file:" << _cacheFile;
         _httpRequest(url);
         return;
     }
-
-    const int advertisedVersion = static_cast<int>(_info.cam_definition_version);
-    if (advertisedVersion > 0 && !_isCodevPinnedDefinitionFile(QFileInfo(_cacheFile).fileName())) {
-        int cachedVersion = -1;
-        const QDomNodeList defElements = doc.elementsByTagName(kDefnition);
-        if (defElements.size()) {
-            QDomNode defNode = defElements.item(0);
-            read_attribute(defNode, kVersion, cachedVersion);
-        }
-        if (cachedVersion >= 0 && cachedVersion != advertisedVersion) {
-            qCInfo(CameraControlLog) << "[CameraControl]"
-                    << "cached camera definition is stale, re-downloading"
-                    << "compId" << _compID
-                    << "cacheFile" << _cacheFile
-                    << "cachedVersion" << cachedVersion
-                    << "advertisedVersion" << advertisedVersion;
-            xmlFile.close();
-
-            if (QFile::remove(_cacheFile)) {
-                _cached = false;
-                _handleDefinitionFile(url);
-                return;
-            }
-            qCWarning(CameraControlLog) << "[CameraControl]"
-                    << "could not remove stale cache file, using cached copy"
-                    << "cacheFile" << _cacheFile;
-        }
-    }
     //-- We have it
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "camera definition source cache"
-            << "compId" << _compID
-            << "cacheFile" << _cacheFile
-            << "url" << url
-            << "bytes" << bytes.size();
+    qCDebug(CameraControlLog) << "Using cached camera definition file:" << _cacheFile;
     _cached = true;
     emit dataReady(bytes);
 }
@@ -2847,11 +2117,7 @@ QGCCameraControl::_handleDefinitionFile(const QString &url)
 void
 QGCCameraControl::_httpRequest(const QString &url)
 {
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "request camera definition"
-            << "compId" << _compID
-            << "cacheFile" << _cacheFile
-            << "url" << url;
+    qCDebug(CameraControlLog) << "Request camera definition:" << url;
     if(!_netManager) {
         _netManager = new QNetworkAccessManager(this);
     }
@@ -2882,19 +2148,13 @@ QGCCameraControl::_downloadFinished()
     QByteArray data = reply->readAll();
     if(err == QNetworkReply::NoError && http_code == 200) {
         data.append("\n");
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "camera definition http response"
-                << "compId" << _compID
-                << "url" << reply->url().toDisplayString()
-                << "status" << http_code
-                << "bytes" << data.size();
     } else {
         data.clear();
-        qCWarning(CameraControlLog) << QString("Camera Definition (%1) download error: %2 status: %3").arg(
+        qWarning() << QString("Camera Definition (%1) download error: %2 status: %3").arg(
             reply->url().toDisplayString(),
             reply->errorString(),
             reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString()
-            );
+        );
     }
     emit dataReady(data);
     //reply->deleteLater();
@@ -2925,7 +2185,7 @@ void QGCCameraControl::_ftpDownloadComplete(const QString& fileName, const QStri
         return;
     }
     if (!xmlFile.open(QIODevice::ReadOnly)) {
-        qCWarning(CameraControlLog) << "Could not read downloaded camera definition file: " << fileName;
+        qWarning() << "Could not read downloaded camera definition file: " << fileName;
         return;
     }
 
@@ -2938,42 +2198,22 @@ void QGCCameraControl::_ftpDownloadComplete(const QString& fileName, const QStri
 void
 QGCCameraControl::_dataReady(QByteArray data)
 {
-    qCInfo(CameraControlLog) << "[CameraFlow]"
-            << "_dataReady"
-            << "compId" << _compID
-            << "model" << _modelName
-            << "bytes" << data.size()
-            << "cached" << _cached;
     if(data.size()) {
-        qCDebug(CameraControlLog) << "[CameraControl]" << "Parsing camera definition for compId" << _compID << "bytes" << data.size();
+        qCDebug(CameraControlLog) << "Parsing camera definition";
         _loadCameraDefinitionFile(data);
     } else {
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "camera definition source offline-search"
-                << "compId" << _compID
-                << "cacheFile" << _cacheFile
-                << "model" << _modelName;
+        qCDebug(CameraControlLog) << "No camera definition received, trying to search on our own...";
         QFile definitionFile;
         if(qgcApp()->toolbox()->corePlugin()->getOfflineCameraDefinitionFile(_modelName, definitionFile)) {
-            qCDebug(CameraControlLog) << "[CameraControl]"
-                    << "camera definition source offline"
-                    << "compId" << _compID
-                    << "model" << _modelName
-                    << "file" << definitionFile.fileName();
+            qCDebug(CameraControlLog) << "Found offline definition file for: " << _modelName << ", loading: " << definitionFile.fileName();
             if (definitionFile.open(QIODevice::ReadOnly)) {
                 QByteArray newData = definitionFile.readAll();
-                qCInfo(CameraControlLog) << "[CameraFlow]"
-                        << "offline camera definition opened"
-                        << "compId" << _compID
-                        << "model" << _modelName
-                        << "file" << definitionFile.fileName()
-                        << "bytes" << newData.size();
                 _loadCameraDefinitionFile(newData);
             } else {
-                qCDebug(CameraControlLog) << "[CameraControl]" << "Error opening offline definition file for" << _modelName;
+                qCDebug(CameraControlLog) << "error opening offline definition file for: " << _modelName;
             }
         } else {
-            qCDebug(CameraControlLog) << "[CameraControl]" << "No offline camera definition file found for" << _modelName;
+            qCDebug(CameraControlLog) << "No offline camera definition file found";
         }
     }
     _initWhenReady();
@@ -2983,70 +2223,16 @@ QGCCameraControl::_dataReady(QByteArray data)
 void
 QGCCameraControl::_paramDone()
 {
-    QStringList pending;
     for(const QString& param: _paramIO.keys()) {
         if(!_paramIO[param]->paramDone()) {
-            pending << param;
+            return;
         }
     }
-    if (!pending.isEmpty()) {
-        qCDebug(CameraControlLog) << "[CameraControl]"
-                << "_paramDone pending compId" << _compID
-                << "pending params" << pending;
-        return;
-    }
     //-- All parameters loaded (or timed out)
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "_paramDone complete compId" << _compID
-            << "active settings" << _activeSettings;
-    _logParameterLoadProgress(QStringLiteral("request-complete"));
-    _paramLoadInProgress = false;
     _paramComplete = true;
     emit parametersReady();
     //-- Check for video streaming
     _checkForVideoStreams();
-}
-
-void
-QGCCameraControl::_logParameterLoadProgress(const QString& event, const QString& paramName) const
-{
-    QStringList sortedMissing;
-    for (const QString& expectedParam: _expectedParamNames) {
-        if (!_receivedParamNames.contains(expectedParam)) {
-            sortedMissing << expectedParam;
-        }
-    }
-    sortedMissing.sort();
-
-    QString message = QStringLiteral("[CameraControl] param-load %1 compId %2 elapsedMs %3 received %4/%5")
-            .arg(event)
-            .arg(_compID)
-            .arg(_paramLoadTimer.isValid() ? _paramLoadTimer.elapsed() : 0)
-            .arg(_receivedParamNames.count())
-            .arg(_expectedParamNames.count());
-
-    if (!paramName.isEmpty()) {
-        message += QStringLiteral(" param %1").arg(paramName);
-    }
-
-    if (sortedMissing.isEmpty()) {
-        message += QStringLiteral(" missing []");
-    } else {
-        message += QStringLiteral(" missing [%1]").arg(sortedMissing.join(QStringLiteral(",")));
-    }
-
-    qCInfo(CameraControlLog).noquote() << message;
-
-    if (!_timedOutParamNames.isEmpty() && (event == QStringLiteral("request-complete") || event == QStringLiteral("request-forced-complete"))) {
-        QStringList sortedTimeouts = _timedOutParamNames;
-        sortedTimeouts.removeDuplicates();
-        sortedTimeouts.sort();
-        qCWarning(CameraControlLog) << "[CameraControl]"
-                                    << "param-load timed-out"
-                                    << "compId" << _compID
-                                    << "elapsedMs" << (_paramLoadTimer.isValid() ? _paramLoadTimer.elapsed() : 0)
-                                    << "params" << sortedTimeouts;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -3056,7 +2242,7 @@ QGCCameraControl::_checkForVideoStreams()
     if(_info.flags & CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM) {
         //-- Skip it if using Taisync as it has its own video settings
         if(!qgcApp()->toolbox()->videoManager()->isTaisync()) {
-            connect(&_streamInfoTimer, &QTimer::timeout, this, &QGCCameraControl::_streamInfoTimeout);
+        connect(&_streamInfoTimer, &QTimer::timeout, this, &QGCCameraControl::_streamInfoTimeout);
             _streamInfoTimer.setSingleShot(false);
             connect(&_streamStatusTimer, &QTimer::timeout, this, &QGCCameraControl::_streamStatusTimeout);
             _streamStatusTimer.setSingleShot(true);
@@ -3071,13 +2257,7 @@ QGCCameraControl::_checkForVideoStreams()
 bool
 QGCCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
 {
-    if (!_shouldAcceptIncomingParam(pFact, newValue)) {
-        qCDebug(CameraControlVerboseLog) << "Ignoring stale incoming param"
-                                         << (pFact ? pFact->name() : QString())
-                                         << newValue
-                                         << "ui" << (pFact ? pFact->rawValue() : QVariant());
-        return false;
-    }
+    Q_UNUSED(pFact);
     Q_UNUSED(newValue);
     return true;
 }
@@ -3095,10 +2275,7 @@ QGCCameraControl::validateParameter(Fact* pFact, QVariant& newValue)
 QStringList
 QGCCameraControl::activeSettings()
 {
-    qCDebug(CameraControlLog) << "[CameraControl]"
-            << "activeSettings() compId" << _compID
-            << "paramComplete" << _paramComplete
-            << "active settings" << _activeSettings;
+    qCDebug(CameraControlLog) << "Active:" << _activeSettings;
     return _activeSettings;
 }
 

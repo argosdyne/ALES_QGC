@@ -1,4 +1,4 @@
-#include "FlightZoneManager.h"
+﻿#include "FlightZoneManager.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
@@ -27,8 +27,6 @@
 #include "FlyViewSettings.h"
 #include "QGCApplication.h"
 #include "QGroundControlQmlGlobal.h"
-#include "Vehicle.h"
-#include "MultiVehicleManager.h"
 #include "QGCMapEngine.h"
 #include "QmlObjectListModel.h"
 #include <QQuickWindow>
@@ -481,11 +479,11 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
                 processJsonFile(jsonDoc);
             });
         } else {
-            QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
+            QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
             CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         }
     } else {
-        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
     }
     reply->deleteLater();
@@ -1530,7 +1528,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }
@@ -1541,7 +1539,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     QJsonDocument doc = QJsonDocument::fromJson(data);
     if (!doc.isObject()) {
         qWarning() << "Invalid JSON format";
-        QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
+        QString msg = "Cannot access GeoZone data.<br>Please check local files or internet connection.";
         CustomQmlInterface::instance()->geoAwarenessMessage(msg);
         return;
     }

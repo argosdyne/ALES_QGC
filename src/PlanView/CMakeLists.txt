@@ -7,8 +7,6 @@ add_custom_target(PlanViewQml
 		CorridorScanMapVisual.qml
 		FWLandingPatternEditor.qml
 		FWLandingPatternMapVisual.qml
-		GeoCageEditor.qml
-		GeoCageMapVisuals.qml
 		GeoFenceEditor.qml
 		GeoFenceMapVisuals.qml
 		MissionItemEditor.qml

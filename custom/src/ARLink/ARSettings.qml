@@ -23,8 +23,7 @@ Rectangle {
     property real _labelWidth:                  ScreenTools.defaultFontPixelWidth * 26
     property real _valueWidth:                  ScreenTools.defaultFontPixelWidth * 20
     property real _panelWidth:                  _root.width * _internalWidthRatio
-    property var arManager:                     CustomQmlInterface.arManager
-    property bool _isDoodle:                    arManager.version == "DoodleLabs ubus"
+    property var arManager: CustomQmlInterface.arManager
 
     readonly property real _internalWidthRatio:          0.8
 
@@ -79,20 +78,16 @@ Rectangle {
                             Layout.minimumWidth: _labelWidth
                         }
                         QGCLabel {
-                            text:           _isDoodle ? (arManager.connected ? qsTr("Connected") : qsTr("Not Connected"))
-                                            : (arManager.mounted ? qsTr("Connected") : qsTr("Not Connected"))
-                            color:          _isDoodle ? (arManager.connected ? qgcPal.colorGreen : qgcPal.colorRed)
-                                            : (arManager.mounted ? qgcPal.colorGreen : qgcPal.colorRed)
+                            text:           arManager.mounted ? qsTr("Connected") : qsTr("Not Connected")
+                            color:          arManager.mounted ? qgcPal.colorGreen : qgcPal.colorRed
                             Layout.minimumWidth: _valueWidth
                         }
                         QGCLabel {
                             text:           qsTr("Bind Status:")
-                            visible:        !_isDoodle
                             Layout.minimumWidth: _labelWidth
                         }
                         QGCLabel {
                             text:           arManager.connected ? qsTr("Binded") : qsTr("Not Binded")
-                            visible:        !_isDoodle
                             color:          arManager.connected ? qgcPal.colorGreen : qgcPal.colorRed
                             Layout.minimumWidth: _valueWidth
                         }
@@ -115,25 +110,25 @@ Rectangle {
                             text:           arManager.upRate / 1000 + " / " + arManager.flow / 1000 + " Kb"
                         }
 						QGCLabel {
-                            text:           _isDoodle ? qsTr("Local/Peer MCS:") : qsTr("Ground/Air MCS:")
+                            text:           qsTr("Ground/Air MCS:")
                         }
                         QGCLabel {
                             text:           arManager.mcs + " / " + arManager.skyMcs
                         }
                         QGCLabel {
-                            text:           _isDoodle ? qsTr("Local/Peer SNR:") : qsTr("Ground/Air/BR SNR:")
+                            text:           qsTr("Ground/Air/BR SNR:")
                         }
                         QGCLabel {
                             text:           arManager.snr + " / " + arManager.skySnr + " / " + arManager.brSnr
                         }
 						QGCLabel {
-                            text:           _isDoodle ? qsTr("Local RSSI A/B:") : qsTr("Ground RSSI A/B:")
+                            text:           qsTr("Ground RSSI A/B:")
                         }
                         QGCLabel {
                             text:           arManager.rssiA * -1 + " / " + arManager.rssiB * -1 + " dB"
                         }
                         QGCLabel {
-                            text:           _isDoodle ? qsTr("Peer RSSI A/B:") : qsTr("Air RSSI A/B:")
+                            text:           qsTr("Air RSSI A/B:")
                         }
                         QGCLabel {
                             text:           arManager.skyRssiA * -1 + " / " + arManager.skyRssiB * -1 + " dB"
@@ -146,11 +141,9 @@ Rectangle {
                         }
                         QGCLabel {
                             text:           qsTr("Temperature: G/A")
-                            visible:        !_isDoodle
                         }
                         QGCLabel {
                             text:           arManager.temperature + " / " + arManager.skyTemperature + " degC"
-                            visible:        !_isDoodle
                         }
                         QGCLabel {
                             text:           qsTr("Version:")
@@ -187,7 +180,6 @@ Rectangle {
             Item {
                 width:                      _panelWidth
                 height:                     groundSettingsLabel.height
-                visible:                    !_isDoodle
                 anchors.margins:            ScreenTools.defaultFontPixelWidth
                 anchors.horizontalCenter:   parent.horizontalCenter
                 QGCLabel {
@@ -198,7 +190,6 @@ Rectangle {
             }
             Rectangle {
                 height:                     groundSettingsGrid.height + (ScreenTools.defaultFontPixelHeight * 2)
-                visible:                    !_isDoodle
                 width:                      _panelWidth
                 color:                      qgcPal.windowShade
                 anchors.margins:            ScreenTools.defaultFontPixelWidth
@@ -262,7 +253,6 @@ Rectangle {
             Item {
                 width:                      _panelWidth
                 height:                     airSettingsLabel.height
-                visible:                    !_isDoodle
                 anchors.margins:            ScreenTools.defaultFontPixelWidth
                 anchors.horizontalCenter:   parent.horizontalCenter
                 QGCLabel {
@@ -274,7 +264,6 @@ Rectangle {
             Rectangle {
                 height:                     airSettingsGrid.height + (ScreenTools.defaultFontPixelHeight * 2)
                 width:                      _panelWidth
-                visible:                    !_isDoodle
                 color:                      qgcPal.windowShade
                 anchors.margins:            ScreenTools.defaultFontPixelWidth
                 anchors.horizontalCenter:   parent.horizontalCenter

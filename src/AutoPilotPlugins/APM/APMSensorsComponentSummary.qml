@@ -44,22 +44,22 @@ Item {
                                 (sensorParams.rgCompassCalibrated[index] ?
                                      getPriority(index) +
                                      (sensorParams.rgCompassExternalParamAvailable[index] ?
-                                          (sensorParams.rgCompassExternal[index] ? qsTr(", External") : qsTr(", Internal") ) :
+                                          (sensorParams.rgCompassExternal[index] ? ", External" : ", Internal" ) :
                                           "") :
                                      qsTr("Setup required")) :
                                 qsTr("Not installed")
 
                     function getPriority (index) {
                         if (sensorParams.rgCompassId[index].value == sensorParams.rgCompassPrio[0].value) {
-                            return qsTr("Primary")
+                            return "Primary"
                         }
                         if (sensorParams.rgCompassId[index].value == sensorParams.rgCompassPrio[1].value) {
-                            return qsTr("Secondary")
+                            return "Secondary"
                         }
                         if (sensorParams.rgCompassId[index].value == sensorParams.rgCompassPrio[2].value) {
-                            return qsTr("Tertiary")
+                            return "Tertiary"
                         }
-                        return qsTr("Unused")
+                        return "Unused"
                     }
                 }
 

@@ -52,7 +52,6 @@ public:
     bool            dirty               (void) const { return _dirty; }
     QGeoCoordinate  center              (void) const { return _center; }
     Fact*           radius              (void) { return &_radius; }
-    const Fact*     radius              (void) const { return &_radius; }
     bool            interactive         (void) const { return _interactive; }
     bool            showRotation        (void) const { return _showRotation; }
     bool            clockwiseRotation   (void) const { return _clockwiseRotation; }

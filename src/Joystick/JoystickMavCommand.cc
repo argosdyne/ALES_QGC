@@ -29,13 +29,8 @@ QList<JoystickMavCommand> JoystickMavCommand::load(const QString& jsonFilename)
 
     QFile jsonFile(jsonFilename);
     if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        const QString resourceFilename = QStringLiteral(":/json/JoystickMavCommands.json");
-        qCDebug(JoystickMavCommandLog) << "Could not open" << jsonFilename << "trying" << resourceFilename;
-        jsonFile.setFileName(resourceFilename);
-        if (!jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qCDebug(JoystickMavCommandLog) << "Could not open" << resourceFilename;
-            return result;
-        }
+        qCDebug(JoystickMavCommandLog) << "Could not open" << jsonFilename;
+        return result;
     }
 
     QByteArray bytes = jsonFile.readAll();

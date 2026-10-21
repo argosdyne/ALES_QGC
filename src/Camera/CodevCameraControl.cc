@@ -1,6 +1,7 @@
 #include "CodevCameraControl.h"
 #include "QGCCameraIO.h"
 #include "QGCCameraManager.h"
+#include <QTimeZone>
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
@@ -16,10 +17,6 @@
 #include "QGCCorePlugin.h"
 #include "VideoManager.h"
 #include "SettingsManager.h"
-#include "GimbalController.h"
-#include "LinkManager.h"
-#include "VehicleLinkManager.h"
-#include <QCoreApplication>
 
 static const char *kIR_TEMP_POINT = "IR_TEMP_POINT";
 static const char *kIR_TEMP_RECT = "IR_TEMP_RECT";
@@ -46,23 +43,6 @@ static constexpr qint64 kTrackingInvalidStopDelayMs = 10000;
 static constexpr float kTrackingSmallBoxArea = 0.002f;
 static constexpr float kTrackingCenterMargin = 0.35f;
 static constexpr float kTrackingCenterMax = 0.65f;
-static constexpr uint16_t kRcGimbalCenter = 1500;
-static constexpr uint16_t kRcGimbalDeadzone = 50;
-static constexpr uint16_t kRcGimbalMinValid = 900;
-static constexpr uint16_t kRcGimbalMaxValid = 2100;
-static constexpr uint16_t kRcGimbalChangeThreshold = 20;
-static constexpr qint64 kRcCameraSettingsRequestMinIntervalMs = 1000;
-static constexpr qint64 kRcGimbalCommandMinIntervalMs = 50;
-static constexpr float kRcGimbalMaxPitchRateDegS = 3.0f;
-static constexpr float kRcGimbalMaxYawRateDegS = 30.0f;
-static constexpr uint16_t kRcGimbalJoystickHoldOffset = 300;
-static constexpr int kRcGimbalJoystickStreamIntervalMs = 50;
-static constexpr int kRcGimbalJoystickStopFrames = 3;
-static constexpr int kR3TimeSyncIntervalMs = 1000;
-static constexpr int kR3TimeSyncDurationMs = 30000;
-static constexpr int kR3PeriodicTimeSyncIntervalMs = 15 * 60 * 1000;
-static constexpr uint8_t kR3TimeSyncSourceSystem = 1;
-static constexpr uint8_t kR3TimeSyncSourceComponent = 1;
 
 QGC_LOGGING_CATEGORY(CodevCameraLog, "CodevCameraLog")
 QGC_LOGGING_CATEGORY(CodevCameraVerboseLog, "CodevCameraVerboseLog")
@@ -80,103 +60,6 @@ static QStringList detected_labels_database = {
     "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
     "hair drier", "toothbrush"
 };
-
-static QString _translateCameraSettingText(const QString& sourceText)
-{
-    const QByteArray sourceUtf8 = sourceText.toUtf8();
-    return QCoreApplication::translate("CodevCameraControl", sourceUtf8.constData());
-}
-
-static QStringList _translateCameraSettingList(const QStringList& sourceList)
-{
-    QStringList translated;
-    translated.reserve(sourceList.size());
-    for (const QString& s : sourceList) {
-        translated << _translateCameraSettingText(s);
-    }
-    return translated;
-}
-
-static bool _isValidRcGimbalPwm(uint16_t raw)
-{
-    return raw >= kRcGimbalMinValid && raw <= kRcGimbalMaxValid && raw != 0xFFFF;
-}
-
-static bool _isR3CameraModel(const QString& modelName)
-{
-    return modelName.contains(QStringLiteral("R3"), Qt::CaseInsensitive)
-            || modelName.contains(QStringLiteral("RHYTHM"), Qt::CaseInsensitive);
-}
-
-// Sony R1 / LR1 / IR1 (and similar) ride CodevCameraControl but have no optical zoom.
-// CAMERA_INFORMATION may still advertise HAS_BASIC_ZOOM; optimistic R3 zoom UI would
-// then raise displayZoomLevel with no real lens motion.
-static bool _isNonZoomCodevCamera(const QString& modelName, const QString& vendorName)
-{
-    const QString model = modelName.toUpper();
-    const QString vendor = vendorName.toUpper();
-    if (vendor.contains(QStringLiteral("SONY")) || model.contains(QStringLiteral("SONY"))) {
-        return true;
-    }
-    if (model.contains(QStringLiteral("IR1"))
-            || model.contains(QStringLiteral("IR-1"))
-            || model.contains(QStringLiteral("IR_1"))
-            || model.contains(QStringLiteral("IR 1"))) {
-        return true;
-    }
-    if (model.contains(QStringLiteral("LR1")) || model.contains(QStringLiteral("RLR1"))) {
-        return true;
-    }
-    return false;
-}
-
-static constexpr int kUserModeIntentLockMs = 5000;
-
-static constexpr uint16_t kRcZoomJoystickStepOffset = 75;
-static constexpr qint64 kZoomStepDebounceMs = 150;
-static constexpr int kHoldZoomStepIntervalMs = 150;
-static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
-static constexpr int kPostZoomSettingsSyncDelayMs = 1000;
-static constexpr qint64 kFreshCameraReportMaxAgeMs = 5000;
-static constexpr int kMaxZoomStepsInFlight = 2;
-static constexpr int kMaxZoomCatchUpAttempts = 3;
-static constexpr int kZoomSettleResendDelayMs = 400;
-
-static bool _isStaleZoomDropToMin(float reported, float beforeRange)
-{
-    return reported <= 1.5f && beforeRange >= 8.0f;
-}
-
-static bool _isStaleZoomJumpToMax(float reported, float beforeRange)
-{
-    return reported >= 28.0f && beforeRange <= 3.0f;
-}
-
-static float _snapOpticalZoomLevel(float value, float maxOptical)
-{
-    // Camera zoom reports are typically 0.1 precision; keep that for Continuous UI.
-    const float snapped = qRound(value * 10.0f) / 10.0f;
-    return qBound(1.0f, snapped, maxOptical);
-}
-
-static float _rcPwmToGimbalRate(uint16_t raw, float maxRateDegS)
-{
-    if (!_isValidRcGimbalPwm(raw)) {
-        return 0.0f;
-    }
-
-    const int delta = static_cast<int>(raw) - static_cast<int>(kRcGimbalCenter);
-    if (qAbs(delta) <= kRcGimbalDeadzone) {
-        return 0.0f;
-    }
-
-    const float signedRange = delta > 0
-            ? static_cast<float>(kRcGimbalMaxValid - kRcGimbalCenter)
-            : static_cast<float>(kRcGimbalCenter - kRcGimbalMinValid);
-    return qBound(-maxRateDegS,
-                  (static_cast<float>(delta) / signedRange) * maxRateDegS,
-                  maxRateDegS);
-}
 
 CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info, Vehicle* vehicle, int compID, LinkInterface* link, QObject* parent)
     : QGCCameraControl(info, vehicle, compID, link, parent)
@@ -205,460 +88,15 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     connect(&_resetDetectObjectsPacket, &QTimer::timeout, [this]() {
         _targetObjects.clearAndDeleteContents();
     });
-    _modeSwitchTimer.setSingleShot(true);
-    _modeSwitchTimer.setInterval(4000);
-    connect(&_modeSwitchTimer, &QTimer::timeout, this, [this]() {
-        _modeSwitchPending = false;
-        if (_pendingRcAction != PendingRcAction::None && cameraMode() == _pendingCameraMode) {
-            _completePendingRcAction();
-        } else {
-            _cancelPendingRcAction();
-        }
-    });
-    _modeSwitchCommandTimer.setSingleShot(true);
-    _modeSwitchCommandTimer.setInterval(400);
-    connect(&_modeSwitchCommandTimer, &QTimer::timeout, this, &CodevCameraControl::_flushCoalescedModeSwitch);
-    _rcActionFallbackTimer.setSingleShot(true);
-    _rcActionFallbackTimer.setInterval(3500);
-    connect(&_rcActionFallbackTimer, &QTimer::timeout, this, [this]() {
-        if (_pendingRcAction == PendingRcAction::TakePhoto && cameraMode() != CAM_MODE_PHOTO) {
-            _cancelPendingRcAction();
-            return;
-        }
-        if (_pendingRcAction == PendingRcAction::ToggleVideo && cameraMode() != CAM_MODE_VIDEO) {
-            _cancelPendingRcAction();
-            return;
-        }
-        _completePendingRcAction();
-    });
-    _storageRefreshTimer.setSingleShot(true);
-    _storageRefreshTimer.setInterval(800);
-    connect(&_storageRefreshTimer, &QTimer::timeout, this, [this]() {
-        _requestAllStoragePools();
-        if (_isCurrentModeStorageReady() || ++_storageRefreshAttempts >= 12) {
-            _stopStorageRefreshAfterModeSwitch();
-        } else {
-            _storageRefreshTimer.start();
-        }
-    });
-    _modeSwitchRecoveryTimer.setSingleShot(true);
-    _modeSwitchRecoveryTimer.setInterval(3000);
-    connect(&_modeSwitchRecoveryTimer, &QTimer::timeout, this, &CodevCameraControl::_checkModeSwitchRecovery);
-    _modeSwitchProactiveRetryTimer.setSingleShot(true);
-    _modeSwitchProactiveRetryTimer.setInterval(1200);
-    connect(&_modeSwitchProactiveRetryTimer, &QTimer::timeout, this, &CodevCameraControl::_onProactiveModeRetry);
-    _modeSwitchNudgeReturnTimer.setSingleShot(true);
-    _modeSwitchNudgeReturnTimer.setInterval(800);
-    connect(&_modeSwitchNudgeReturnTimer, &QTimer::timeout, this, &CodevCameraControl::_onModeSwitchNudgeReturn);
-    _videoPipelineRestartTimer.setSingleShot(true);
-    _videoPipelineRestartTimer.setInterval(800);
-    connect(&_videoPipelineRestartTimer, &QTimer::timeout, this, &CodevCameraControl::_restartVideoPipeline);
-    if (VideoManager* videoManager = qgcApp()->toolbox()->videoManager()) {
-        connect(videoManager, &VideoManager::decodingChanged, this, &CodevCameraControl::_onVideoDecodingChanged);
-    }
-    connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &CodevCameraControl::_handleVehicleMavlinkMessage);
 
-    _joystickRcStreamTimer.setInterval(kRcGimbalJoystickStreamIntervalMs);
-    connect(&_joystickRcStreamTimer, &QTimer::timeout, this, &CodevCameraControl::_streamJoystickRc);
-
-    _r3TimeSyncTimer.setInterval(kR3TimeSyncIntervalMs);
-    connect(&_r3TimeSyncTimer, &QTimer::timeout, this, &CodevCameraControl::_sendR3TimeSync);
-    _r3PeriodicTimeSyncTimer.setInterval(kR3PeriodicTimeSyncIntervalMs);
-    connect(&_r3PeriodicTimeSyncTimer, &QTimer::timeout, this, [this]() {
-        _sendR3TimeZone();
-        _sendR3TimeSync();
-    });
-    QTimer::singleShot(250, this, &CodevCameraControl::_startR3TimeSync);
-
-    _holdZoomStepTimer.setSingleShot(false);
-    _holdZoomStepTimer.setInterval(kHoldZoomStepIntervalMs);
-    connect(&_holdZoomStepTimer, &QTimer::timeout, this, &CodevCameraControl::_holdZoomStepTick);
-  
-    _postZoomSettingsSyncTimer.setSingleShot(true);
-    _postZoomSettingsSyncTimer.setInterval(kPostZoomSettingsSyncDelayMs);
-    connect(&_postZoomSettingsSyncTimer, &QTimer::timeout, this, &CodevCameraControl::_requestCameraSettings);
-
-    _zoomSettleTimer.setSingleShot(true);
-    _zoomSettleTimer.setInterval(kZoomSettleResendDelayMs);
-    connect(&_zoomSettleTimer, &QTimer::timeout, this, &CodevCameraControl::_sendZoomSettle);
-
-    connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::displayZoomLevelChanged);
-}
-
-bool CodevCameraControl::_sendGimbalManagerPitchYaw(float pitch, float yaw, uint32_t flags, const char* sourceTag)
-{
-    if (!_vehicle->px4Firmware()) {
-        return false;
-    }
-
-    GimbalController* gimbalController = _vehicle->gimbalController();
-    Gimbal* activeGimbal = gimbalController ? gimbalController->activeGimbal() : nullptr;
-    if (!activeGimbal) {
-        qCInfo(CodevCameraLog) << "[CameraFlow]"
-                << sourceTag
-                << "px4 gimbal manager unavailable"
-                << "cameraCompId" << _compID;
-        return false;
-    }
-
-    const uint managerCompId = activeGimbal->managerCompid()->rawValue().toUInt();
-    const uint deviceId = activeGimbal->deviceId()->rawValue().toUInt();
-    if (managerCompId == 0 || deviceId == 0) {
-        qCInfo(CodevCameraLog) << "[CameraFlow]"
-                << sourceTag
-                << "px4 gimbal manager incomplete"
-                << "cameraCompId" << _compID
-                << "managerCompId" << managerCompId
-                << "deviceId" << deviceId;
-        return false;
-    }
-
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << sourceTag
-            << "using gimbal manager"
-            << "cameraCompId" << _compID
-            << "targetCompId" << managerCompId
-            << "deviceId" << deviceId
-            << "command" << MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
-            << "pitch" << pitch
-            << "yaw" << yaw
-            << "flags" << flags;
-    sendMavCommandWithTarget(
-        MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
-        static_cast<int>(managerCompId),
-        pitch,
-        yaw,
-        NAN,
-        NAN,
-        static_cast<float>(flags),
-        0.0f,
-        static_cast<float>(deviceId));
-    return true;
-}
-
-bool CodevCameraControl::_sendGimbalManagerPitchYawRate(float pitchRate, float yawRate, uint32_t flags, const char* sourceTag)
-{
-    Q_UNUSED(sourceTag)
-
-    if (!_vehicle->px4Firmware()) {
-        return false;
-    }
-
-    GimbalController* gimbalController = _vehicle->gimbalController();
-    Gimbal* activeGimbal = gimbalController ? gimbalController->activeGimbal() : nullptr;
-    uint managerCompId = 0;
-    uint deviceId = 0;
-    float pitchParam = NAN;
-    float yawParam = NAN;
-    float pitchRateParam = pitchRate;
-    float yawRateParam = yawRate;
-
-    if (activeGimbal) {
-        managerCompId = activeGimbal->managerCompid()->rawValue().toUInt();
-        deviceId = activeGimbal->deviceId()->rawValue().toUInt();
-
-        // Some gimbals ignore rate params. Use small angle increments, same model as QGC click-drag.
-        pitchParam = activeGimbal->absolutePitch()->rawValue().toFloat() + (pitchRate * 0.1f);
-        yawParam = activeGimbal->bodyYaw()->rawValue().toFloat() + (yawRate * 0.1f);
-        pitchRateParam = NAN;
-        yawRateParam = NAN;
-    }
-
-    if (managerCompId == 0 || deviceId == 0) {
-        managerCompId = MAV_COMP_ID_GIMBAL;
-        deviceId = 1;
-    }
-
-    mavlink_message_t msg;
-    mavlink_command_long_t cmd;
-    memset(&cmd, 0, sizeof(cmd));
-    cmd.target_system = _vehicle->id();
-    cmd.target_component = static_cast<uint8_t>(managerCompId);
-    cmd.command = MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW;
-    cmd.confirmation = 0;
-    cmd.param1 = pitchParam;
-    cmd.param2 = yawParam;
-    cmd.param3 = pitchRateParam;
-    cmd.param4 = yawRateParam;
-    cmd.param5 = static_cast<float>(flags);
-    cmd.param6 = 0.0f;
-    cmd.param7 = static_cast<float>(deviceId);
-    mavlink_msg_command_long_encode(_pMavlink->getSystemId(),
-                                    _pMavlink->getComponentId(),
-                                    &msg,
-                                    &cmd);
-    SharedLinkInterfacePtr commandLink = _activeCommandLink();
-    if (!commandLink) {
-        return false;
-    }
-    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
-    return true;
-}
-
-void CodevCameraControl::_sendR3RcChannels(const mavlink_rc_channels_t& rc, const char* sourceTag)
-{
-    Q_UNUSED(sourceTag)
-
-    mavlink_rc_channels_t outbound = rc;
-    outbound.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
-    if (outbound.chancount < 18) {
-        outbound.chancount = 18;
-    }
-    if (outbound.chan11_raw == 0) {
-        outbound.chan11_raw = kRcGimbalCenter;
-    }
-    if (outbound.chan15_raw == 0) {
-        outbound.chan15_raw = kRcGimbalCenter;
-    }
-    outbound.rssi = rc.rssi == 0 ? 255 : rc.rssi;
-
-    mavlink_message_t msg;
-    mavlink_msg_rc_channels_encode(static_cast<uint8_t>(_vehicle->id()),
-                                   MAV_COMP_ID_AUTOPILOT1,
-                                   &msg,
-                                   &outbound);
-    SharedLinkInterfacePtr commandLink = _activeCommandLink();
-    if (!commandLink) {
-        return;
-    }
-    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
-}
-
-void CodevCameraControl::_sendR3TimeZone()
-{
-    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    mavlink_param_ext_set_t param{};
-    // R3 already converts SYSTEM_TIME to its local time. Keep this parameter at
-    // UTC to prevent the local offset from being applied a second time.
-    const QByteArray timeZone = QByteArrayLiteral("UTC");
-    memcpy(param.param_value,
-           timeZone.constData(),
-           static_cast<size_t>(qMin(timeZone.size(), MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_VALUE_LEN)));
-    strncpy(param.param_id, kTIME_ZONE, MAVLINK_MSG_PARAM_EXT_SET_FIELD_PARAM_ID_LEN);
-    param.param_type = MAV_PARAM_EXT_TYPE_CUSTOM;
-    param.target_system = static_cast<uint8_t>(_vehicle->id());
-    param.target_component = static_cast<uint8_t>(compID());
-
-    mavlink_message_t msg;
-    mavlink_msg_param_ext_set_encode_chan(static_cast<uint8_t>(_pMavlink->getSystemId()),
-                                          static_cast<uint8_t>(_pMavlink->getComponentId()),
-                                          _link->mavlinkChannel(),
-                                          &msg,
-                                          &param);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
-}
-
-void CodevCameraControl::_sendJoystickRcChannels(uint16_t pitch, uint16_t yaw, uint16_t zoom, uint16_t centerCh15)
-{
-    mavlink_rc_channels_t rc{};
-    auto* rawChannels = reinterpret_cast<uint16_t*>(&rc.chan1_raw);
-    for (int i = 0; i < 18; ++i) {
-        rawChannels[i] = kRcGimbalCenter;
-    }
-    rc.chan9_raw = pitch;
-    rc.chan10_raw = yaw;
-    rc.chan11_raw = zoom;
-    rc.chan15_raw = centerCh15;
-    rc.chancount = 18;
-    rc.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
-    rc.rssi = 255;
-
-    _joystickRcPitchPwm = pitch;
-    _joystickRcYawPwm = yaw;
-    _joystickRcZoomPwm = zoom;
-
-    _sendR3RcChannels(rc, "joystickRC");
-    if (_isR3CameraModel(modelName())) {
-        _trackRcGimbalChannels(rc);
-    }
-}
-
-void CodevCameraControl::_trackRcGimbalChannels(const mavlink_rc_channels_t& rc)
-{
-    if (!_vehicle || !_vehicle->px4Firmware() || !_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    const uint16_t pitchRaw = rc.chan9_raw;
-    const uint16_t yawRaw = rc.chan10_raw;
-    const uint16_t zoomRaw = rc.chan11_raw;
-    const uint16_t centerRaw = rc.chan15_raw;
-    if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
-        return;
-    }
-
-    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
-    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
-    const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
-
-    const bool firstCommand = !_rcGimbalCommandTimer.isValid();
-    if (firstCommand) {
-        _rcGimbalCommandTimer.start();
-    }
-
-    const bool rawChanged =
-        qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
-        qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
-        qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
-        qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
-    const bool centerTransition = centered != _lastRcGimbalWasCentered;
-    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
-    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
-
-    if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
-        return;
-    }
-
-    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
-        return;
-    }
-
-    _lastRcGimbalPitchRaw = pitchRaw;
-    _lastRcGimbalYawRaw = yawRaw;
-    _lastRcGimbalZoomRaw = zoomRaw;
-    _lastRcGimbalCenterRaw = centerRaw;
-    _lastRcGimbalWasCentered = centered;
-    _rcGimbalCommandTimer.restart();
-}
-
-void CodevCameraControl::_startR3TimeSync()
-{
-    if (!_vehicle || !_link || !_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    _r3TimeSyncSendCount = 0;
-    _sendR3TimeZone();
-    _sendR3TimeSync();
-    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs < kR3TimeSyncDurationMs) {
-        _r3TimeSyncTimer.start();
-    }
-    if (!_r3PeriodicTimeSyncTimer.isActive()) {
-        _r3PeriodicTimeSyncTimer.start();
-    }
-}
-
-void CodevCameraControl::_sendR3TimeSync()
-{
-    if (!_vehicle || !_link || !_link->isConnected() || !_isR3CameraModel(modelName())) {
-        _r3TimeSyncTimer.stop();
-        return;
-    }
-
-    mavlink_message_t heartbeatMsg;
-    mavlink_msg_heartbeat_pack_chan(kR3TimeSyncSourceSystem,
-                                    kR3TimeSyncSourceComponent,
-                                    _link->mavlinkChannel(),
-                                    &heartbeatMsg,
-                                    MAV_TYPE_GCS,
-                                    MAV_AUTOPILOT_INVALID,
-                                    0,
-                                    0,
-                                    MAV_STATE_ACTIVE);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, heartbeatMsg);
-
-    mavlink_system_time_t systemTime{};
-    systemTime.time_unix_usec = static_cast<uint64_t>(QDateTime::currentMSecsSinceEpoch()) * 1000ULL;
-    systemTime.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds() & 0xFFFFFFFF);
-
-    mavlink_message_t timeMsg;
-    mavlink_msg_system_time_encode_chan(kR3TimeSyncSourceSystem,
-                                        kR3TimeSyncSourceComponent,
-                                        _link->mavlinkChannel(),
-                                        &timeMsg,
-                                        &systemTime);
-    _vehicle->sendMessageOnLinkThreadSafe(_link, timeMsg);
-
-    ++_r3TimeSyncSendCount;
-    if (_r3TimeSyncSendCount * kR3TimeSyncIntervalMs >= kR3TimeSyncDurationMs) {
-        _r3TimeSyncTimer.stop();
-    }
-}
-
-void CodevCameraControl::_sendLegacyMountControl(float pitch, float yaw, const char* sourceTag)
-{
-    Q_UNUSED(sourceTag)
-
-    mavlink_message_t msg;
-    mavlink_command_long_t cmd;
-    memset(&cmd, 0, sizeof(cmd));
-    cmd.target_system = _vehicle->id();
-    cmd.target_component = MAV_COMP_ID_GIMBAL;
-    cmd.command = MAV_CMD_DO_MOUNT_CONTROL;
-    cmd.confirmation = 0;
-    cmd.param1 = pitch;
-    cmd.param2 = 0.0f;
-    cmd.param3 = yaw;
-    cmd.param4 = 0.0f;
-    cmd.param5 = 0.0f;
-    cmd.param6 = 0.0f;
-    cmd.param7 = MAV_MOUNT_MODE_MAVLINK_TARGETING;
-    mavlink_msg_command_long_encode(_pMavlink->getSystemId(),
-                                    _pMavlink->getComponentId(),
-                                    &msg,
-                                    &cmd);
-    SharedLinkInterfacePtr commandLink = _activeCommandLink();
-    if (!commandLink) {
-        return;
-    }
-    _vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg);
 }
 
 void CodevCameraControl::centerGimbal()
 {
-    _logControlState("centerGimbal");
-    const uint32_t gimbalManagerFlags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
-        | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
-        | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
-
-    if (_sendGimbalManagerPitchYaw(0.0f, 0.0f, gimbalManagerFlags, "centerGimbal")) {
-        return;
-    }
-
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "centerGimbal"
-            << "using legacy mount control"
-            << "cameraCompId" << _compID
-            << "targetCompId" << MAV_COMP_ID_GIMBAL
-            << "command" << MAV_CMD_DO_MOUNT_CONTROL;
     sendMavCommandWithTarget(
         MAV_CMD_DO_MOUNT_CONTROL,           // Command id
         MAV_COMP_ID_GIMBAL,                 // Target id
         0,0,0,0,0,0,1);
-}
-
-void CodevCameraControl::syncZoomUiAfterReset()
-{
-    _setTrustedOpticalRange(1.0f);
-    _lastAckedOpticalRange = 1.0f;
-    _commandedRange = 1.0f;
-    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    if (_dZoomFact && _dZoomFact->rawValue().toDouble() > 1.01) {
-        _dZoomFact->setRawValue(1.0f);
-    }
-    if (qAbs(_zoomLevel - 1.0) > 0.01) {
-        _zoomLevel = 1.0;
-        emit zoomLevelChanged();
-    }
-    _opticalRangeBootstrapped = true;
-    emit displayZoomLevelChanged();
-    qCInfo(CodevCameraLog) << "syncZoomUiAfterReset"
-                           << "opticalRange" << _opticalRange
-                           << "zoomLevel" << _zoomLevel;
-}
-
-qreal CodevCameraControl::displayZoomLevel() const
-{    
-    double optical = static_cast<double>(_opticalRange);
-    if (optical >= static_cast<double>(_maxOpticalX - 0.05f)) {
-        optical = _maxOpticalX;
-    }
-    const double digital = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-    const double product = optical * digital;
-    return static_cast<qreal>(qRound(product * 10.0) / 10.0);
 }
 
 void CodevCameraControl::setSpotTempPoint(float x, float y)
@@ -758,28 +196,10 @@ void CodevCameraControl::deinitTracker()
 void CodevCameraControl::gimbalControlInImage(QPointF point)
 {
     if(point.x() == 0.0 && point.x() == 0.0) return;
-    _logControlState("gimbalControlInImage");
+    qCDebug(CodevCameraLog) << "Gimbal Point:" << point;
     float dzoom = 1.0f;
     Fact* fact = getFact(kEO_DZOOM);
     if(fact) dzoom = fact->rawValue().toFloat();
-
-    const uint32_t gimbalManagerFlags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
-        | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
-        | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
-
-    if (_sendGimbalManagerPitchYaw(static_cast<float>(point.y()), static_cast<float>(point.x()), gimbalManagerFlags, "gimbalControlInImage")) {
-        return;
-    }
-
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "gimbalControlInImage"
-            << "using legacy mount control"
-            << "cameraCompId" << _compID
-            << "targetCompId" << MAV_COMP_ID_GIMBAL
-            << "command" << MAV_CMD_DO_MOUNT_CONTROL
-            << "point" << point
-            << "zoomLevel" << _zoomLevel
-            << "dzoom" << dzoom;
     sendMavCommandWithTarget(
         MAV_CMD_DO_MOUNT_CONTROL,
         MAV_COMP_ID_GIMBAL,
@@ -796,37 +216,22 @@ void CodevCameraControl::setVideoMode()
 {
     if(!_resetting && hasModes()) {
         qCDebug(CodevCameraLog) << "setVideoMode()";
+        //-- Does it have a mode parameter?
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_VIDEO) {
-                if (_pendingRcAction == PendingRcAction::TakePhoto) {
-                    _cancelPendingRcAction();
-                }
-                _pendingCameraMode = CAM_MODE_VIDEO;
-                _setCameraMode(CAM_MODE_VIDEO);
                 pMode->setRawValue(CAM_MODE_VIDEO);
-                _markUserModeIntent(CAM_MODE_VIDEO);
-                _armModeSwitchRecovery(CAM_MODE_VIDEO);
-                _scheduleVideoPipelineRestart("user_mode_switch");
-            } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
-                _completePendingRcAction();
+                _setCameraMode(CAM_MODE_VIDEO);
             }
         } else {
+            //-- Use MAVLink Command
             if(_cameraMode != CAM_MODE_VIDEO) {
-                if (_pendingRcAction == PendingRcAction::TakePhoto) {
-                    _cancelPendingRcAction();
-                }
-                _pendingCameraMode = CAM_MODE_VIDEO;
+                //-- Use basic MAVLink message
                 sendMavCommand(
-                    MAV_CMD_SET_CAMERA_MODE,
-                    0,
-                    CAM_MODE_VIDEO);
+                    MAV_CMD_SET_CAMERA_MODE,                // Command id
+                    0,                                      // Reserved (Set to 0)
+                    CAM_MODE_VIDEO);                        // Camera mode (0: photo, 1: video)
                 _setCameraMode(CAM_MODE_VIDEO);
-                _markUserModeIntent(CAM_MODE_VIDEO);
-                _armModeSwitchRecovery(CAM_MODE_VIDEO);
-                _scheduleVideoPipelineRestart("user_mode_switch");
-            } else if (_pendingRcAction == PendingRcAction::ToggleVideo) {
-                _completePendingRcAction();
             }
         }
     }
@@ -836,127 +241,25 @@ void CodevCameraControl::setPhotoMode()
 {
     if(!_resetting && hasModes()) {
         qCDebug(CodevCameraLog) << "setPhotoMode()";
+        //-- Does it have a mode parameter?
         Fact* pMode = mode();
         if(pMode) {
             if(cameraMode() != CAM_MODE_PHOTO) {
-                if (_pendingRcAction == PendingRcAction::ToggleVideo) {
-                    _cancelPendingRcAction();
-                }
-                _pendingCameraMode = CAM_MODE_PHOTO;
-                _setCameraMode(CAM_MODE_PHOTO);
                 pMode->setRawValue(CAM_MODE_PHOTO);
-                _markUserModeIntent(CAM_MODE_PHOTO);
-                _armModeSwitchRecovery(CAM_MODE_PHOTO);
-                _scheduleVideoPipelineRestart("user_mode_switch");
-            } else {
-                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
-                    _scheduleStorageRefreshAfterModeSwitch();
-                }
-                if (_pendingRcAction == PendingRcAction::TakePhoto) {
-                    _completePendingRcAction();
-                }
+                _setCameraMode(CAM_MODE_PHOTO);
             }
         } else {
+            //-- Use MAVLink Command
             if(_cameraMode != CAM_MODE_PHOTO) {
-                if (_pendingRcAction == PendingRcAction::ToggleVideo) {
-                    _cancelPendingRcAction();
-                }
-                _pendingCameraMode = CAM_MODE_PHOTO;
+                //-- Use basic MAVLink message
                 sendMavCommand(
-                    MAV_CMD_SET_CAMERA_MODE,
-                    0,
-                    CAM_MODE_PHOTO);
+                    MAV_CMD_SET_CAMERA_MODE,                // Command id
+                    0,                                      // Reserved (Set to 0)
+                    CAM_MODE_PHOTO);                        // Camera mode (0: photo, 1: video)
                 _setCameraMode(CAM_MODE_PHOTO);
-                _markUserModeIntent(CAM_MODE_PHOTO);
-                _armModeSwitchRecovery(CAM_MODE_PHOTO);
-                _scheduleVideoPipelineRestart("user_mode_switch");
-            } else {
-                if (_storageFree == 0 && !_storageRefreshTimer.isActive()) {
-                    _scheduleStorageRefreshAfterModeSwitch();
-                }
-                if (_pendingRcAction == PendingRcAction::TakePhoto) {
-                    _completePendingRcAction();
-                }
             }
         }
     }
-}
-
-bool CodevCameraControl::hasZoom()
-{
-    if (_isNonZoomCodevCamera(modelName(), vendor())) {
-        return false;
-    }
-    return QGCCameraControl::hasZoom();
-}
-
-void CodevCameraControl::_markUserModeIntent(CameraMode mode)
-{
-    _userModeIntent = mode;
-    _userModeIntentTimer.restart();
-}
-
-bool CodevCameraControl::_shouldIgnoreStaleModeReport(CameraMode reported) const
-{
-    if (_modeSwitchCommandTimer.isActive()) {
-        if (_userModeIntent != CAM_MODE_UNDEFINED && reported != _userModeIntent) {
-            return true;
-        }
-    }
-    if (_isModeSwitchSettling() && reported != _pendingCameraMode) {
-        return true;
-    }
-    if (_userModeIntent == CAM_MODE_UNDEFINED || !_userModeIntentTimer.isValid()) {
-        return false;
-    }
-    if (_userModeIntentTimer.elapsed() >= kUserModeIntentLockMs) {
-        return false;
-    }
-    if (reported != CAM_MODE_PHOTO && reported != CAM_MODE_VIDEO) {
-        return false;
-    }
-    return reported != _userModeIntent;
-}
-
-void CodevCameraControl::factChanged(Fact* pFact)
-{
-    QGCCameraControl::factChanged(pFact);
-    if (!pFact || !factExists(kCAM_EXPMODE)) {
-        return;
-    }
-    // Re-validate AE only after mode changes, not when the user adjusts AE from the UI.
-    if (pFact->name() == kCAM_MODE) {
-        _clearUserParamIntent(kCAM_EXPMODE);
-        if (Fact* expFact = getFact(kCAM_EXPMODE)) {
-            _sanitizeEnumParameter(expFact, false, false);
-        }
-    }
-}
-
-bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
-{
-    if (!QGCCameraControl::incomingParameter(pFact, newValue)) {
-        return false;
-    }
-
-    if (pFact && pFact->metaData()) {
-        const QVariantList checkValues = pFact->metaData()->enumValues();
-        if (!checkValues.isEmpty() && !_enumListContains(checkValues, newValue)) {
-            if (_enumListContains(checkValues, pFact->rawValue())) {
-                qCDebug(CodevCameraLog) << "Ignoring invalid enum read for" << pFact->name()
-                                        << newValue << "keeping ui" << pFact->rawValue();
-                return false;
-            }
-            QVariant defaultVal = pFact->metaData()->rawDefaultValue();
-            if (!_enumListContains(checkValues, defaultVal)) {
-                defaultVal = checkValues.first();
-            }
-            qCWarning(CodevCameraLog) << "Rejecting invalid enum value for" << pFact->name()
-                                      << newValue << "using" << defaultVal;
-            newValue = defaultVal;
-        }
-    }
-    return true;
 }
 
 bool CodevCameraControl::takePhoto()
@@ -1027,7 +330,6 @@ bool CodevCameraControl::startVideo()
                 MAV_CMD_VIDEO_START_CAPTURE,                // Command id
                 0,                                          // Reserved (Set to 0)
                 0);                                         // CAMERA_CAPTURE_STATUS Frequency
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
             return true;
         }
     }
@@ -1042,7 +344,6 @@ bool CodevCameraControl::stopVideo()
             sendMavCommand(
                 MAV_CMD_VIDEO_STOP_CAPTURE,                 // Command id
                 0);                                         // Reserved (Set to 0)
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
             return true;
         }
     }
@@ -1082,103 +383,22 @@ void CodevCameraControl::formatCard(int id)
 void CodevCameraControl::startZoom(int direction)
 {
     qCDebug(CodevCameraLog) << "startZoom()" << direction;
-    if (!hasZoom() || direction == 0) {
-        return;
-    }
-
-    _holdZoomAllowDigital = false;
-    _holdZoomDirection = direction;
-    // Joystick hold: optical RANGE steps only.
-    _applyZoomStep(direction, false, "holdZoom", false);
-    if (!_holdZoomStepTimer.isActive()) {
-        _holdZoomStepTimer.start();
-    }
-}
-
-void CodevCameraControl::startZoomFromUi(int direction)
-{
-    qCDebug(CodevCameraLog) << "startZoomFromUi()" << direction;
-    if (!hasZoom() || direction == 0) {
-        return;
-    }
-
-    _holdZoomAllowDigital = true;
-    _holdZoomDirection = direction;
-    _applyZoomStep(direction, true, "holdZoom", false);
-    if (!_holdZoomStepTimer.isActive()) {
-        _holdZoomStepTimer.start();
+    if(hasZoom()) {
+        sendMavCommand(
+            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+            ZOOM_TYPE_CONTINUOUS,                   // Zoom type
+            direction);                             // Direction (-1 wide, 1 tele)
     }
 }
 
 void CodevCameraControl::stopZoom()
 {
     qCDebug(CodevCameraLog) << "stopZoom()";
-    _holdZoomStepTimer.stop();
-    _holdZoomDirection = 0;
-    _holdZoomAllowDigital = false;
-    _onZoomHoldReleased();
-}
-
-void CodevCameraControl::_onZoomHoldReleased()
-{
-    if (!hasZoom()) {
-        return;
-    }
-    _zoomSettleTimer.start();
-    _schedulePostZoomSettingsSync();
-}
-
-void CodevCameraControl::_sendZoomSettle()
-{
-    if (_isZoomHoldActive() || !hasZoom()) {
-        return;
-    }    
-    const float target = _commandedRange;
-    qCInfo(CodevCameraLog) << "zoom settle resend" << "target" << target
-                           << "confirmed" << _opticalRange;
-    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    _queueZoomRange(target, "settle");
-    _schedulePostZoomSettingsSync();
-}
-
-bool CodevCameraControl::_hasPendingZoomCommand() const
-{
-    for (const MavCommandQueueEntry_t& entry : _mavCommandQueue) {
-        if (entry.command == MAV_CMD_SET_CAMERA_ZOOM) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool CodevCameraControl::_isZoomHoldActive() const
-{
-    return _holdZoomDirection != 0 || _aviatorRcZoomState != 0;
-}
-
-void CodevCameraControl::_schedulePostZoomSettingsSync()
-{
-    if (!hasZoom()) {
-        return;
-    }
-    _postZoomSettingsSyncTimer.start();
-}
-
-void CodevCameraControl::_adoptCameraReportedOptical(float reported, const char* reason)
-{
-    const float before = _opticalRange;
-    _setTrustedOpticalRange(reported);
-    _lastAckedOpticalRange = _opticalRange;
-    _commandedRange = _opticalRange;
-    if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
-        _zoomLevel = _opticalRange;
-        emit zoomLevelChanged();
-    }
-    if (qAbs(before - _opticalRange) > 0.01f) {
-        qCInfo(CodevCameraLog) << "adopt camera zoom" << reason
-                               << "reported" << reported
-                               << "before" << before
-                               << "after" << _opticalRange;
+    if(hasZoom()) {
+        sendMavCommand(
+            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+            ZOOM_TYPE_CONTINUOUS,                   // Zoom type
+            0);                                     // Direction (-1 wide, 1 tele)
     }
 }
 
@@ -1288,19 +508,14 @@ void CodevCameraControl::stopTracking()
 
 void CodevCameraControl::setZoomLevel(qreal level)
 {
-    if (!hasZoom()) {
-        return;
+    if(hasZoom()) {
+        if(abs(level - 1.0) < 0.01) stepZoom(0);
+        level = std::min(std::max(level, 0.0), 100.0);
+        sendMavCommand(
+            MAV_CMD_SET_CAMERA_ZOOM,                // Command id
+            ZOOM_TYPE_RANGE,                        // Zoom type
+            static_cast<float>(level));             // Level
     }
-    if (qAbs(level - 1.0) < 0.01) {
-        stepZoom(0);
-        return;
-    }
-    const float snapped = static_cast<float>(qBound(1, qRound(level), qRound(_maxOpticalX)));
-    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    // UI (_opticalRange) follows on ACK, like every other RANGE command.
-    _commandedRange = snapped;
-    _queueZoomRange(snapped, "setZoomLevel");
-    _schedulePostZoomSettingsSync();
 }
 
 // void CodevCameraControl::stepZoom(int direction)
@@ -1346,77 +561,79 @@ void CodevCameraControl::setZoomLevel(qreal level)
 
 void CodevCameraControl::stepZoom(int direction)
 {
-    // Joystick / non-UI callers: optical RANGE steps only.
-    _applyZoomStep(direction, false, "stepZoom");
-}
-
-void CodevCameraControl::stepZoomFromUi(int direction)
-{
-    // UI tap: optical RANGE + digital EO_DZOOM when at optical max.
-    _applyZoomStep(direction, true, "stepZoomUi");
-}
-
-void CodevCameraControl::_holdZoomStepTick()
-{
-    if (_holdZoomDirection == 0) {
-        _holdZoomStepTimer.stop();
+    if (!_vehicle || !hasZoom() || direction == 0) {
         return;
     }
-    _applyZoomStep(_holdZoomDirection, _holdZoomAllowDigital, "holdZoom");
-}
 
+    // 현재 디지털 줌 값
+    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
+    const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
+    const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
+    double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
+
+    const bool atOpticalMax = ( _zoomLevel >= 29.5 ); 
+    float newLevel = _zoomLevel;
+    if (direction > 0) {
+        // 줌인
+        if (!atOpticalMax) {
+            // 1) 광학 줌 구간: RANGE 증가
+
+            if (_zoomLevel <= 1.1 && _opticalRange > 2.0f) {
+                _opticalRange = 1.0f;
+            }
+
+            qInfo() << "Zoom in optical Range = " << _opticalRange;
+            _opticalRange = std::min(100.0f, newLevel + direction);
+
+            sendMavCommand(
+                MAV_CMD_SET_CAMERA_ZOOM,
+                ZOOM_TYPE_RANGE,
+                _opticalRange);
+        } else {
+            // 2) 광학 최대 이후: 디지털 줌 증가
+            if (_dZoomFact) {
+                double next = std::min(dMax, dNow + dInc);
+                _dZoomFact->setRawValue(static_cast<float>(next));
+            } else {
+                qCWarning(CodevCameraLog) << "No kEO_DZOOM fact; cannot digital zoom";
+            }
+        }
+    } else {
+        // 줌아웃
+        if (_dZoomFact && dNow > (dMin + 1e-6)) {
+            // 1) 디지털이 남아 있으면 디지털부터 감소
+            double next = std::max(dMin, dNow - dInc);
+            _dZoomFact->setRawValue(static_cast<float>(next));
+        } else {
+            // 2) 디지털이 1.0이면 광학 RANGE 감소
+            qInfo() << "Zoom out optical Range = " << _opticalRange;
+            _opticalRange = std::max(0.0f, newLevel + direction); //Direction = -1
+
+            sendMavCommand(
+                MAV_CMD_SET_CAMERA_ZOOM,
+                ZOOM_TYPE_RANGE,
+                _opticalRange);
+        }
+    }
+}
 
 QStringList CodevCameraControl::activeSettings()
 {
     QStringList settings = _activeSettings;
-    QStringList removedSettings;
     if(!_hasTrack) {
         settings.removeOne(kTRACK_ALGORITHM);
-        removedSettings << kTRACK_ALGORITHM;
     }
     if(!_hasDetect) {
         settings.removeOne(kSMART_SELECT);
-        removedSettings << kSMART_SELECT;
     }
     settings.removeOne(kFACTORY_CALI);
-    removedSettings << kFACTORY_CALI;
-    qCDebug(CodevCameraLog) << "[CodevCamera]"
-            << "activeSettings() compId" << compID()
-            << "paramComplete" << paramComplete()
-            << "base" << _activeSettings
-            << "removed" << removedSettings
-            << "track" << _hasTrack
-            << "detect" << _hasDetect
-            << "result" << settings;
     return settings;
-}
-
-void CodevCameraControl::_clearCameraDefinitionState()
-{
-    qCDebug(CodevCameraLog) << "[CodevCamera]"
-            << "clearing Codev camera definition state for compId" << compID();
-
-    disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
-    disconnect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
-    _dZoomFact    = nullptr;
-    _zoomModeFact = nullptr;
-    _aiSourceFact = nullptr;
-    _hasTrack     = false;
-    _hasDetect    = false;
-
-    QGCCameraControl::_clearCameraDefinitionState();
-
-    connect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady, Qt::UniqueConnection);
 }
 
 void CodevCameraControl::_parametersReady()
 {
 
-    qCDebug(CodevCameraLog) << "[CodevCamera]"
-            << "_parametersReady compId" << compID()
-            << "paramComplete" << paramComplete()
-            << "initial active settings" << _activeSettings;
-    _logControlState("_parametersReady before setup");
+    qInfo() << "CodevCameraControl parametersReady";
     disconnect(this, &CodevCameraControl::parametersReady, this, &CodevCameraControl::_parametersReady);
 
     // nvidia system status
@@ -1446,11 +663,11 @@ void CodevCameraControl::_parametersReady()
     // time zones
     fact = getFact(kTIME_ZONE);
     if(fact) {
-        if (_isR3CameraModel(modelName())) {
-            QTimer::singleShot(1000, this, &CodevCameraControl::_startR3TimeSync);
-        } else {
-            fact->forceSetRawValue(QVariant(QTimeZone::systemTimeZoneId()));
+        QByteArray value = QTimeZone::systemTimeZone().id();
+        if (value.size() < 128) {
+            value.append(128 - value.size(), 0);
         }
+        fact->setRawValue(QVariant(value));
     }
 
     // zoom mode
@@ -1465,8 +682,6 @@ void CodevCameraControl::_parametersReady()
         _dZoomFact = fact;
         _dZoomInMaxChange();
         connect(this, &CodevCameraControl::zoomLevelChanged, this, &CodevCameraControl::_dZoomInMaxChange);
-        connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::displayZoomLevelChanged);
-        connect(fact, &Fact::valueChanged, this, &CodevCameraControl::displayZoomLevelChanged);
     }
 
     // ai source
@@ -1536,15 +751,6 @@ void CodevCameraControl::_parametersReady()
         }
     }
 
-    qCDebug(CodevCameraLog) << "[CodevCamera]"
-            << "_parametersReady compId" << compID()
-            << "paramComplete" << paramComplete()
-            << "hasTrack" << _hasTrack
-            << "hasDetect" << _hasDetect
-            << "active settings after custom setup" << _activeSettings
-            << "returned active settings" << activeSettings();
-    _logControlState("_parametersReady after setup");
-
     // json transfor request
     fact = getFact(kJSON_TR_REQ);
     if(fact) {
@@ -1557,204 +763,6 @@ void CodevCameraControl::_parametersReady()
     if(fact) {
         factChanged(fact);
         connect(fact, &Fact::rawValueChanged, this, &CodevCameraControl::_paramSlefChanged);
-    }
-
-    for (const QString& factName : activeSettings()) {
-        _localizeFactMetaData(getFact(factName));
-    }
-    // Translate option range lists and original option names so dynamic enum updates stay localized.
-    for (auto it = _originalOptNames.begin(); it != _originalOptNames.end(); ++it) {
-        it.value() = _translateCameraSettingList(it.value());
-    }
-    for (QGCCameraOptionRange* range : _optionRanges) {
-        if (range) {
-            range->optNames = _translateCameraSettingList(range->optNames);
-        }
-    }
-
-    fact = getFact(kCAM_MODE);
-    if (fact) {
-        factChanged(fact);
-    }
-
-    QTimer::singleShot(3000, this, &CodevCameraControl::_requestAllStoragePools);
-}
-
-QString CodevCameraControl::_factValueForLog(const char* factName) const
-{
-    Fact* fact = const_cast<CodevCameraControl*>(this)->getFact(factName);
-    if (!fact) {
-        return QStringLiteral("<missing>");
-    }
-
-    QString value = fact->rawValueString().trimmed();
-    value.remove(QChar('\0'));
-    if (value.isEmpty()) {
-        value = fact->rawValue().toString();
-    }
-    return value;
-}
-
-void CodevCameraControl::_logControlState(const char* sourceTag) const
-{
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << sourceTag
-            << "state"
-            << "cameraCompId" << _compID
-            << "model" << _modelName
-            << "yawMode" << _factValueForLog("YAW_MODE")
-            << "gbSpeed" << _factValueForLog("GB_SPEED")
-            << "yawSmooth" << _factValueForLog("YAW_SMOOTH")
-            << "landingMode" << _factValueForLog("LANDING_MODE")
-            << "landModeSwitch" << _factValueForLog("LANDMODE_SWITCH")
-            << "aiSource" << _factValueForLog("AI_SOURCE")
-            << "eoDZoom" << _factValueForLog("EO_DZOOM")
-            << "eoZoomMode" << _factValueForLog("EO_ZOOM_MODE")
-            << "trackAlgorithm" << _factValueForLog("TRACK_ALGORITHM")
-            << "smartSelect" << _factValueForLog("SMART_SELECT");
-}
-
-bool CodevCameraControl::_consumeQueuedCommandAck(int ackCompId, const mavlink_command_ack_t& ack, const char* sourceTag)
-{
-    if (!_mavCommandQueue.count()) {
-        return false;
-    }
-
-    const MavCommandQueueEntry_t& queuedCommand = _mavCommandQueue[0];
-    if (queuedCommand.command != ack.command || queuedCommand.component != ackCompId) {
-        return false;
-    }
-
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << sourceTag
-            << "matched queued ack"
-            << "cameraCompId" << _compID
-            << "ackCompId" << ackCompId
-            << "command" << ack.command
-            << "result" << ack.result
-            << "queueSizeBefore" << _mavCommandQueue.count();
-
-    if (queuedCommand.command == MAV_CMD_SET_CAMERA_ZOOM
-            && static_cast<int>(queuedCommand.rgParam[0]) == ZOOM_TYPE_RANGE) {
-        _onZoomRangeAck(static_cast<float>(queuedCommand.rgParam[1]), ack.result);
-    }
-
-    _mavCommandAckTimer.stop();
-    _mavCommandQueue.removeFirst();
-    _sendNextQueuedMavCommand();
-    return true;
-}
-
-void CodevCameraControl::_onZoomRangeAck(float value, uint8_t result)
-{
-    if (result == MAV_RESULT_ACCEPTED || result == MAV_RESULT_IN_PROGRESS) {
-        // The camera accepted this target: this is the moment the UI advances.
-        _lastAckedOpticalRange = value;
-        _setTrustedOpticalRange(value);
-        if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
-            _zoomLevel = _opticalRange;
-            emit zoomLevelChanged();
-        }
-        return;
-    }
-    qCWarning(CodevCameraLog) << "zoom RANGE rejected" << "value" << value << "result" << result;
-    _onZoomRangeFailed(value);
-}
-
-void CodevCameraControl::_onZoomRangeFailed(float value)
-{
-    if (_hasPendingZoomCommand()) {
-        return;
-    }
-    qCInfo(CodevCameraLog) << "zoom RANGE failed"
-                           << "failed" << value
-                           << "confirmed" << _opticalRange
-                           << "commandedBefore" << _commandedRange;
-    _commandedRange = _opticalRange;
-    _schedulePostZoomSettingsSync();
-}
-
-void CodevCameraControl::_queueZoomRange(float value, const char* sourceTag)
-{
-    _lastZoomCommandMs = QDateTime::currentMSecsSinceEpoch();
-    _pendingDownwardReport = -1;
-
-    for (int i = 1; i < _mavCommandQueue.count(); ++i) {
-        MavCommandQueueEntry_t& entry = _mavCommandQueue[i];
-        if (entry.command == MAV_CMD_SET_CAMERA_ZOOM
-                && static_cast<int>(entry.rgParam[0]) == ZOOM_TYPE_RANGE) {
-            qCDebug(CodevCameraLog) << sourceTag << "coalesce queued RANGE"
-                                    << "old" << entry.rgParam[1] << "new" << value;
-            entry.rgParam[1] = static_cast<double>(value);
-            return;
-        }
-    }
-    sendMavCommand(MAV_CMD_SET_CAMERA_ZOOM, ZOOM_TYPE_RANGE, value);
-}
-
-void CodevCameraControl::_rebaseOnFreshCameraReport(const char* sourceTag)
-{
-    if (_hasPendingZoomCommand() || _lastCameraReportMs <= 0) {
-        return;
-    }
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-    if (nowMs - _lastCameraReportMs > kFreshCameraReportMaxAgeMs) {
-        return;
-    }
-    if (_lastZoomCommandMs > 0
-            && _lastCameraReportMs < _lastZoomCommandMs + kZoomSettingsSyncSuppressMs) {
-        return;
-    }
-    if (_isStaleZoomDropToMin(_lastCameraReportedOptical, _opticalRange)
-            || _isStaleZoomJumpToMax(_lastCameraReportedOptical, _opticalRange)) {
-        return;
-    }
-    if (qRound(_lastCameraReportedOptical) <= qRound(_opticalRange)) {
-        return;
-    }
-    _adoptCameraReportedOptical(_lastCameraReportedOptical, sourceTag);
-}
-
-void CodevCameraControl::_handleVehicleMavlinkMessage(const mavlink_message_t& message, LinkInterface* link)
-{
-    Q_UNUSED(link);
-
-    if (message.sysid != _vehicle->id() || message.msgid != MAVLINK_MSG_ID_COMMAND_ACK) {
-        return;
-    }
-
-    mavlink_command_ack_t ack;
-    mavlink_msg_command_ack_decode(&message, &ack);
-
-    if (_consumeQueuedCommandAck(message.compid, ack, "rawAck")) {
-        _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
-    }
-}
-
-void CodevCameraControl::_localizeFactMetaData(Fact* fact)
-{
-    if (!fact) {
-        return;
-    }
-
-    FactMetaData* meta = fact->metaData();
-    if (!meta) {
-        return;
-    }
-
-    const QString shortDescription = meta->shortDescription();
-    if (!shortDescription.isEmpty()) {
-        meta->setShortDescription(_translateCameraSettingText(shortDescription));
-    }
-
-    const QString longDescription = meta->longDescription();
-    if (!longDescription.isEmpty()) {
-        meta->setLongDescription(_translateCameraSettingText(longDescription));
-    }
-
-    const QStringList enumStrings = meta->enumStrings();
-    if (!enumStrings.isEmpty()) {
-        meta->setEnumInfo(_translateCameraSettingList(enumStrings), meta->enumValues());
     }
 }
 
@@ -1845,7 +853,7 @@ void CodevCameraControl::_dZoomInMaxChange()
     if(_zoomModeFact && _zoomModeFact->rawValue().toInt() == 2) {
         max_zoom = 239.5;
     }
-    if(_opticalRange >= max_zoom) {
+    if(_zoomLevel >= max_zoom) {
         if(!_dZoomInMax) {
             _dZoomInMax = true;
             emit dZoomInMaxChanged();
@@ -1972,9 +980,9 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             const float right = tracking_image_status.rec_bottom_x;
             const float bottom = tracking_image_status.rec_bottom_y;
             const bool outOfRange = left < 0.0f || left > 1.0f
-                                    || top < 0.0f || top > 1.0f
-                                    || right < 0.0f || right > 1.0f
-                                    || bottom < 0.0f || bottom > 1.0f;
+                || top < 0.0f || top > 1.0f
+                || right < 0.0f || right > 1.0f
+                || bottom < 0.0f || bottom > 1.0f;
             const bool invalidRect = right <= left || bottom <= top;
             const float width = right - left;
             const float height = bottom - top;
@@ -1983,14 +991,14 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             const float centerY = (top + bottom) * 0.5f;
             const bool boxTooSmall = area < kTrackingSmallBoxArea;
             const bool outsideCenter30 = centerX < kTrackingCenterMargin || centerX > kTrackingCenterMax
-                                         || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
+                || centerY < kTrackingCenterMargin || centerY > kTrackingCenterMax;
             const bool shouldDelayStop = outOfRange || invalidRect || (boxTooSmall && outsideCenter30);
             if (shouldDelayStop) {
                 const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
                 if (_trackingInvalidStartMs < 0) {
                     _trackingInvalidStartMs = nowMs;
                 } else if (nowMs - _trackingInvalidStartMs >= kTrackingInvalidStopDelayMs) {
-                    qCWarning(CodevCameraLog) << "Tracking rect invalid/undesired for too long, stopping tracking"
+                    qWarning() << "Tracking rect invalid/undesired for too long, stopping tracking"
                                << "rect" << left << top << right << bottom;
                     setTrackingEnabled(false);
                     stopTracking();
@@ -2033,514 +1041,40 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
     }
 }
 
-void CodevCameraControl::_reconcileCameraAheadReport()
-{
-    // Camera can report slightly ahead of our trusted range (UI 1x, camera 1.9 -> 2).
-    // Adopt at most one step upward so zoom-out remains usable; never adopt downward
-    // (prevents stale 6x -> 5x drops) or large upward jumps (prevents stale 1x -> 3x).
-    if (_lastCameraReportedOptical <= _opticalRange + 0.01f) {
-        return;
-    }
-
-    const float upwardDelta = _lastCameraReportedOptical - _opticalRange;
-    if (upwardDelta > 1.01f) {
-        return;
-    }
-    
-    _setTrustedOpticalRange(static_cast<float>(qRound(_lastCameraReportedOptical)));
-    _lastAckedOpticalRange = _opticalRange;
-    if (_commandedRange < _opticalRange) {
-        _commandedRange = _opticalRange;
-    }
-    if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
-        _zoomLevel = _opticalRange;
-        emit zoomLevelChanged();
-    }
-    qCDebug(CodevCameraLog) << "reconcile camera ahead"
-                            << "trustedRange" << _opticalRange
-                            << "reported" << _lastCameraReportedOptical;
-}
-
-void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& settings)
-{
-    const CameraMode reportedMode = static_cast<CameraMode>(settings.mode_id);
-    _lastReportedCameraMode = reportedMode;
-    if (!_modeSwitchNudgeInProgress) {
-        if (_shouldIgnoreStaleModeReport(reportedMode)) {
-            qCDebug(CodevCameraLog) << "handleSettings ignore stale mode report"
-                                    << "reported" << reportedMode
-                                    << "userIntent" << _userModeIntent
-                                    << "elapsedMs" << _userModeIntentTimer.elapsed();
-        } else {
-            if (reportedMode != _cameraMode) {
-                _setCameraMode(reportedMode);
-            }
-            if (_userModeIntent != CAM_MODE_UNDEFINED
-                    && reportedMode == _userModeIntent) {
-                _userModeIntent = CAM_MODE_UNDEFINED;
-                _userModeIntentTimer.invalidate();
-            }
-        }
-
-        if (reportedMode == CAM_MODE_PHOTO) {
-            if (photoStatus() != PHOTO_CAPTURE_IDLE) {
-                _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-            }
-            if (videoStatus() != VIDEO_CAPTURE_STATUS_STOPPED) {
-                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-            }
-        }
-
-        if ((reportedMode == CAM_MODE_PHOTO || reportedMode == CAM_MODE_VIDEO)
-                && _pendingRcAction != PendingRcAction::None
-                && reportedMode == _pendingCameraMode) {
-            _completePendingRcAction();
-        }
-
-    }
-
-    qreal z = static_cast<qreal>(settings.zoomLevel);
-    qreal f = static_cast<qreal>(settings.focusLevel);
-    if (std::isfinite(z)) {
-        const float reported = _snapOpticalZoomLevel(static_cast<float>(z), _maxOpticalX);
-        _lastCameraReportedOptical = reported;
-        const float trustedRange = _opticalRange;
-        const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-        _lastCameraReportMs = nowMs;
-        const bool suppressSync = _zoomSettingsSyncSuppressUntilMs > 0
-                                  && nowMs < _zoomSettingsSyncSuppressUntilMs;
-
-        if (!_opticalRangeBootstrapped) {
-            _setTrustedOpticalRange(reported);
-            _lastAckedOpticalRange = _opticalRange;
-            _commandedRange = _opticalRange;
-            if (qAbs(_zoomLevel - _opticalRange) > 0.01) {
-                _zoomLevel = _opticalRange;
-                emit zoomLevelChanged();
-            }
-            _opticalRangeBootstrapped = true;
-            qCDebug(CodevCameraLog) << "handleSettings bootstrap optical range"
-                                    << "reported" << reported;
-        } else if (!suppressSync) {
-            if (_isStaleZoomDropToMin(reported, trustedRange)) {
-                qCDebug(CodevCameraLog) << "handleSettings ignore stale drop to min"
-                                        << "reported" << reported
-                                        << "trustedRange" << trustedRange;
-            } else if (_isStaleZoomJumpToMax(reported, trustedRange)) {
-                qCDebug(CodevCameraLog) << "handleSettings ignore stale jump to max"
-                                        << "reported" << reported
-                                        << "trustedRange" << trustedRange;
-            } else if (!_isZoomHoldActive() && !_hasPendingZoomCommand()) {
-                const int reportedStep = qRound(reported);
-                const int confirmedStep = qRound(trustedRange);
-                if (reportedStep >= confirmedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle");
-                } else if (_zoomCatchUpAttempts < kMaxZoomCatchUpAttempts) {
-                    ++_zoomCatchUpAttempts;
-                    _pendingDownwardReport = -1;
-                    qCInfo(CodevCameraLog) << "handleSettings lens short of confirmed, catch-up"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange
-                                           << "attempt" << _zoomCatchUpAttempts;
-                    _commandedRange = _opticalRange;
-                    _zoomSettingsSyncSuppressUntilMs = nowMs + kZoomSettingsSyncSuppressMs;
-                    _queueZoomRange(_opticalRange, "catchUp");
-                    _schedulePostZoomSettingsSync();
-                } else if (_pendingDownwardReport == reportedStep) {
-                    _pendingDownwardReport = -1;
-                    _zoomCatchUpAttempts = 0;
-                    _adoptCameraReportedOptical(reported, "idle-stable");
-                } else {
-                    qCInfo(CodevCameraLog) << "handleSettings camera below confirmed after catch-up, re-check"
-                                           << "reported" << reported
-                                           << "confirmed" << trustedRange;
-                    _pendingDownwardReport = reportedStep;
-                    _schedulePostZoomSettingsSync();
-                }
-            } else if (reported > trustedRange + 0.01f) {
-                _reconcileCameraAheadReport();
-            } else {
-                qCDebug(CodevCameraLog) << "handleSettings ignore lagging camera zoom"
-                                        << "reported" << reported
-                                        << "trustedRange" << trustedRange;
-            }
-        }
-    }
-    if (std::isfinite(f) && f != _focusLevel) {
-        _focusLevel = f;
-        emit focusLevelChanged();
-    }
-}
-bool CodevCameraControl::_qgcJoystickControlsCamera() const
-{
-    return _vehicle && _vehicle->joystickEnabled();
-}
-
-void CodevCameraControl::_setTrustedOpticalRange(float range)
-{
-    const float snapped = qBound(1.0f, static_cast<float>(qRound(range)), _maxOpticalX);
-    if (qAbs(_opticalRange - snapped) <= 0.01f) {
-        return;
-    }
-    _opticalRange = snapped;
-    emit displayZoomLevelChanged();
-    _dZoomInMaxChange();
-}
-
-static bool _isRcZoomInPwm(uint16_t ch11)
-{
-    return ch11 > static_cast<uint16_t>(kRcGimbalCenter + kRcZoomJoystickStepOffset);
-}
-
-static bool _isRcZoomOutPwm(uint16_t ch11)
-{
-    return ch11 < static_cast<uint16_t>(kRcGimbalCenter - kRcZoomJoystickStepOffset);
-}
-
-static int _rcZoomDirection(uint16_t ch11)
-{
-    if (_isRcZoomInPwm(ch11)) {
-        return 1;
-    }
-    if (_isRcZoomOutPwm(ch11)) {
-        return -1;
-    }
-    return 0;
-}
-
-bool CodevCameraControl::_zoomStepDebounced(bool enforceDebounce)
-{
-    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-    if (enforceDebounce
-        && _lastZoomStepMs > 0
-        && (nowMs - _lastZoomStepMs) < kZoomStepDebounceMs) {
-        return true;
-    }
-    _lastZoomStepMs = nowMs;
-    return false;
-}
-
-void CodevCameraControl::_applyOpticalZoomStep(int direction, const char* sourceTag)
-{
-    if (!hasZoom() || direction == 0) {
-        return;
-    }
-    
-    _rebaseOnFreshCameraReport(sourceTag);
-    _zoomCatchUpAttempts = 0;
-    _zoomSettleTimer.stop();
-
-    _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
-    // Single-shot; every step restarts it so it fires once, after the last step.
-    _schedulePostZoomSettingsSync();
-
-    const int confirmed = qRound(_opticalRange);
-    int commanded = qRound(_commandedRange);
-
-    if (qAbs(commanded - confirmed) >= kMaxZoomStepsInFlight) {
-        if (_hasPendingZoomCommand()) {
-            qCDebug(CodevCameraLog) << sourceTag << "wait for zoom ack"
-                                    << "confirmed" << confirmed
-                                    << "commanded" << commanded;
-            return;
-        }
-        // Queue was cleared underneath us (link change etc): resync and continue.
-        qCInfo(CodevCameraLog) << sourceTag << "zoom queue empty, resync commanded"
-                               << "confirmed" << confirmed
-                               << "commandedBefore" << commanded;
-        _commandedRange = _opticalRange;
-        commanded = confirmed;
-    }
-
-    const int maxOptical = qRound(_maxOpticalX);
-
-    if (direction > 0) {
-        if (commanded >= maxOptical) {            
-            if ((_holdZoomDirection > 0 || _aviatorRcZoomState > 0)
-                    && _lastCameraReportedOptical < (_maxOpticalX - 0.5f)) {
-                _queueZoomRange(_maxOpticalX, sourceTag);
-                qCDebug(CodevCameraLog) << sourceTag << "resend optical max while held"
-                                        << "confirmed" << confirmed;
-            } else {
-                qCDebug(CodevCameraLog) << sourceTag << "block zoom-in at optical max"
-                                        << "confirmed" << confirmed;
-            }
-            return;
-        }
-        const float next = static_cast<float>(qBound(1, commanded + 1, maxOptical));
-        _commandedRange = next;
-        _queueZoomRange(next, sourceTag);
-        qCInfo(CodevCameraLog) << sourceTag << "zoom step in"
-                               << "target" << next
-                               << "confirmed" << confirmed;
-    } else {
-        if (commanded <= 1) {
-            if (_lastCameraReportedOptical > 1.01f) {
-                // Confirmed says 1x but the camera reports otherwise: force RANGE 1.
-                _commandedRange = 1.0f;
-                _queueZoomRange(1.0f, sourceTag);
-                qCInfo(CodevCameraLog) << sourceTag << "zoom step out force min"
-                                       << "lastReported" << _lastCameraReportedOptical;
-            }
-            return;
-        }
-        const float next = static_cast<float>(qBound(1, commanded - 1, maxOptical));
-        _commandedRange = next;
-        _queueZoomRange(next, sourceTag);
-        qCInfo(CodevCameraLog) << sourceTag << "zoom step out"
-                               << "target" << next
-                               << "confirmed" << confirmed;
-    }
-}
-
-void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const char* sourceTag, bool enforceDebounce)
-{
-    if (!_vehicle || !hasZoom() || direction == 0) {
-        return;
-    }
-    if (_zoomStepDebounced(enforceDebounce)) {
-        return;
-    }
-
-    const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
-    const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
-    const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
-    const double dNow = _dZoomFact ? _dZoomFact->cookedValue().toDouble() : 1.0;
-    const bool atOpticalMax = _opticalRange >= (_maxOpticalX - 0.5f);
-
-    if (direction > 0) {
-        if (!atOpticalMax) {
-            _applyOpticalZoomStep(direction, sourceTag);
-            return;
-        }
-        if (allowDigital && _dZoomFact) {
-            const double next = std::min(dMax, dNow + dInc);
-            if (next > dNow + 1e-6) {
-                _dZoomFact->setRawValue(static_cast<float>(next));
-                qCDebug(CodevCameraLog) << sourceTag << "zoom step in digital" << next;
-            }
-        }
-        return;
-    }
-
-    if (allowDigital && _dZoomFact && dNow > (dMin + 1e-6)) {
-        const double next = std::max(dMin, dNow - dInc);
-        _dZoomFact->setRawValue(static_cast<float>(next));
-        qCDebug(CodevCameraLog) << sourceTag << "zoom step out digital" << next;
-        return;
-    }
-
-    _applyOpticalZoomStep(direction, sourceTag);
-}
-
-void CodevCameraControl::_applyAviatorRcZoomStep(int direction, bool enforceDebounce)
-{
-    if (!hasZoom() || direction == 0) {
-        return;
-    }
-    if (_zoomStepDebounced(enforceDebounce)) {
-        return;
-    }
-
-    _applyOpticalZoomStep(direction, "aviatorRC");
-}
-
-void CodevCameraControl::filterAviatorRcChannels(quint16* channels, int count)
-{
-    if (!channels || count < 11 || _qgcJoystickControlsCamera() || !_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    uint16_t& ch11 = channels[10];
-    const int direction = _rcZoomDirection(ch11);
-
-    if (direction == 0) {
-        if (_aviatorRcZoomState != 0) {
-            _aviatorRcZoomState = 0;
-            _onZoomHoldReleased();
-        }
-        return;
-    }
-
-    const bool newDeflection = direction != _aviatorRcZoomState;
-    _aviatorRcZoomState = direction;
-
-    // Hold-to-step: repeat MAVLink RANGE ±1 while ch11 is deflected (debounced ~150ms).
-    // First edge is immediate; never passthrough ch11 (avoids min/max jumps + UI desync).
-    _applyAviatorRcZoomStep(direction, !newDeflection);
-
-    ch11 = kRcGimbalCenter;
-}
-
-static uint16_t _holdRcPwm(int direction, uint16_t offset = kRcGimbalJoystickHoldOffset)
-{
-    if (direction == 0) {
-        return kRcGimbalCenter;
-    }
-    const int next = static_cast<int>(kRcGimbalCenter)
-                     + (direction > 0 ? static_cast<int>(offset) : -static_cast<int>(offset));
-    return static_cast<uint16_t>(qBound(static_cast<int>(kRcGimbalMinValid), next, static_cast<int>(kRcGimbalMaxValid)));
-}
-
-void CodevCameraControl::joystickGimbalPitchStep(int direction)
-{
-    // Hold-to-move: button down sets an absolute (non-accumulating) deflection from
-    // center, button up (direction == 0) returns to center. The deflection is held by
-    // the streaming timer so the camera keeps slewing until release.
-    _joystickRcPitchPwm = _holdRcPwm(direction);
-    _updateJoystickRcStream();
-}
-
-void CodevCameraControl::joystickGimbalYawStep(int direction)
-{
-    _joystickRcYawPwm = _holdRcPwm(direction);
-    _updateJoystickRcStream();
-}
-
-void CodevCameraControl::joystickGimbalCenter()
-{
-    _joystickRcPitchPwm = kRcGimbalCenter;
-    _joystickRcYawPwm = kRcGimbalCenter;
-    _joystickRcStreamTimer.stop();
-    centerGimbal();
-    _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, static_cast<uint16_t>(2000));
-    QTimer::singleShot(150, this, [this]() {
-        _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, kRcGimbalCenter);
-    });
-}
-
-bool CodevCameraControl::_joystickRcActive() const
-{
-    return _joystickRcPitchPwm != kRcGimbalCenter
-           || _joystickRcYawPwm != kRcGimbalCenter
-           || _joystickRcZoomPwm != kRcGimbalCenter;
-}
-
-void CodevCameraControl::_updateJoystickRcStream()
-{
-    // Send immediately for a responsive press/release, then let the timer hold it.
-    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
-
-    if (_joystickRcActive()) {
-        _joystickRcStopFrames = 0;
-    } else {
-        // Released: keep the timer alive for a few frames to guarantee the stop reaches the camera.
-        _joystickRcStopFrames = kRcGimbalJoystickStopFrames;
-    }
-    if (!_joystickRcStreamTimer.isActive()) {
-        _joystickRcStreamTimer.start();
-    }
-}
-
-void CodevCameraControl::_streamJoystickRc()
-{
-    _sendJoystickRcChannels(_joystickRcPitchPwm, _joystickRcYawPwm, _joystickRcZoomPwm, kRcGimbalCenter);
-
-    if (_joystickRcActive()) {
-        _joystickRcStopFrames = 0;
-    } else if (--_joystickRcStopFrames <= 0) {
-        _joystickRcStreamTimer.stop();
-    }
-}
-
 void CodevCameraControl::handleRCChannels(const mavlink_rc_channels_t& rc)
 {
     static uint16_t rc_zoom_value = 0;
     if(rc_zoom_value != rc.chan11_raw) {
         rc_zoom_value = rc.chan11_raw;
-        // Do not request CAMERA_SETTINGS while ch11 is held. That command shares
-        // the camera ACK queue with RANGE zoom and will stall mid-travel.
-        if (_rcZoomDirection(rc.chan11_raw) == 0
-                && (!_rcCameraSettingsRequestTimer.isValid()
-                    || _rcCameraSettingsRequestTimer.elapsed() >= kRcCameraSettingsRequestMinIntervalMs)) {
-            _requestCameraSettings();
-            _rcCameraSettingsRequestTimer.restart();
-        }
+        _requestCameraSettings();
     }
-
-    if (!_vehicle || !_vehicle->px4Firmware()) {
-        return;
-    }
-
-    if (!_isR3CameraModel(modelName())) {
-        return;
-    }
-
-    const uint16_t pitchRaw = rc.chan9_raw;
-    const uint16_t yawRaw = rc.chan10_raw;
-    const uint16_t zoomRaw = rc.chan11_raw;
-    const uint16_t centerRaw = rc.chan15_raw;
-    if (!_isValidRcGimbalPwm(pitchRaw) || !_isValidRcGimbalPwm(yawRaw)) {
-        return;
-    }
-
-    const float pitchRate = _rcPwmToGimbalRate(pitchRaw, kRcGimbalMaxPitchRateDegS);
-    const float yawRate = _rcPwmToGimbalRate(yawRaw, kRcGimbalMaxYawRateDegS);
-    const bool centered = qFuzzyIsNull(pitchRate) && qFuzzyIsNull(yawRate);
-
-    const bool firstCommand = !_rcGimbalCommandTimer.isValid();
-    if (firstCommand) {
-        _rcGimbalCommandTimer.start();
-    }
-
-    const bool rawChanged =
-            qAbs(static_cast<int>(pitchRaw) - static_cast<int>(_lastRcGimbalPitchRaw)) >= kRcGimbalChangeThreshold ||
-            qAbs(static_cast<int>(yawRaw) - static_cast<int>(_lastRcGimbalYawRaw)) >= kRcGimbalChangeThreshold ||
-            qAbs(static_cast<int>(zoomRaw) - static_cast<int>(_lastRcGimbalZoomRaw)) >= kRcGimbalChangeThreshold ||
-            qAbs(static_cast<int>(centerRaw) - static_cast<int>(_lastRcGimbalCenterRaw)) >= kRcGimbalChangeThreshold;
-    const bool centerTransition = centered != _lastRcGimbalWasCentered;
-    const qint64 elapsedMs = firstCommand ? kRcGimbalCommandMinIntervalMs : _rcGimbalCommandTimer.elapsed();
-    const bool refreshHeldCommand = !centered && elapsedMs >= kRcGimbalCommandMinIntervalMs;
-
-    if (!firstCommand && !rawChanged && !centerTransition && !refreshHeldCommand) {
-        return;
-    }
-
-    if (!firstCommand && elapsedMs < kRcGimbalCommandMinIntervalMs) {
-        return;
-    }
-
-    _sendR3RcChannels(rc, "aviatorRC-native");
-    _lastRcGimbalPitchRaw = pitchRaw;
-    _lastRcGimbalYawRaw = yawRaw;
-    _lastRcGimbalZoomRaw = zoomRaw;
-    _lastRcGimbalCenterRaw = centerRaw;
-    _lastRcGimbalWasCentered = centered;
-    _rcGimbalCommandTimer.restart();
 }
 
 void CodevCameraControl::handleCommandAck(const mavlink_command_ack_t& ack)
 {
-    const int queuedTarget = _mavCommandQueue.count() ? _mavCommandQueue[0].component : -1;
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-                           << "Codev handleCommandAck"
-                           << "compId" << compID()
-                           << "command" << ack.command
-                           << "result" << ack.result
-                           << "queueSize" << _mavCommandQueue.count()
-                           << "queuedTarget" << queuedTarget;
-    if (_consumeQueuedCommandAck(compID(), ack, "cameraAck")) {
-        // Queue handled by direct camera component ACK.
-        // Do not force photo/video mode from capture ACKs — that reverts user mode
-        // switches (Sony R1 flicker/rollback) and can stall further UI/RC commands.
-        _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
-        return;
-    }
-    if(ack.result == MAV_RESULT_ACCEPTED) {
+    qCDebug(CodevCameraLog) << QStringLiteral("_handleCommandAck command(%1) result(%2)").arg(ack.command).arg(ack.result);
+    if (_mavCommandQueue.count() && ack.command == _mavCommandQueue[0].command) {
+        _mavCommandAckTimer.stop();
+        _mavCommandQueue.removeFirst();
+        _sendNextQueuedMavCommand();
+    } else if(ack.result == MAV_RESULT_ACCEPTED) {
         switch(ack.command) {
-        case MAV_CMD_VIDEO_START_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_VIDEO_STOP_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_IMAGE_START_CAPTURE:
-            _captureStatusTimer.start(200);
-            break;
+            case MAV_CMD_VIDEO_START_CAPTURE:
+                setVideoMode();
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_VIDEO_STOP_CAPTURE:
+                setVideoMode();
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_IMAGE_START_CAPTURE:
+                if(_video_status != VIDEO_CAPTURE_STATUS_RUNNING) {
+                    setPhotoMode();
+                }
+                _captureStatusTimer.start(200);
+                break;
         }
     }
     _mavCommandResult(_vehicle->id(), compID(), ack.command, ack.result, false);
@@ -2557,45 +1091,7 @@ void CodevCameraControl::handleImageCaptured(const mavlink_camera_image_captured
 
 void CodevCameraControl::handleCaptureStatus(const mavlink_camera_capture_status_t& cap)
 {
-    mavlink_camera_capture_status_t capCopy = cap;
-    if (capCopy.recording_time_ms
-        && videoStatus() == VIDEO_CAPTURE_STATUS_RUNNING
-        && recordTime() > 0
-        && capCopy.recording_time_ms < recordTime()) {
-        qCDebug(CodevCameraLog) << "handleCaptureStatus ignore stale recording_time_ms"
-                                << capCopy.recording_time_ms << "current" << recordTime();
-        capCopy.recording_time_ms = 0;
-    }
-
-    if (_isModeSwitchSettling() && _cameraMode == CAM_MODE_PHOTO) {
-        if (capCopy.video_status == VIDEO_CAPTURE_STATUS_RUNNING) {
-            capCopy.video_status = VIDEO_CAPTURE_STATUS_STOPPED;
-            capCopy.recording_time_ms = 0;
-        }
-        if (capCopy.image_status != PHOTO_CAPTURE_IDLE) {
-            capCopy.image_status = PHOTO_CAPTURE_IDLE;
-        }
-    }
-
-    QGCCameraControl::handleCaptureStatus(capCopy);
-
-    if (cameraMode() == CAM_MODE_PHOTO) {
-        if (cap.available_capacity > 0) {
-            _syncPhotoPoolFromCaptureStatus(cap.available_capacity);
-        } else if (_hasModeStoragePool(CAM_MODE_PHOTO)) {
-            _applyStorageForCurrentMode();
-        }
-    }
-
-    if (cap.available_capacity > 0) {
-        if (storageStatus() != STORAGE_READY) {
-            _storageStatus = STORAGE_READY;
-            emit storageStatusChanged();
-        }
-        if (_isCurrentModeStorageReady()) {
-            _stopStorageRefreshAfterModeSwitch();
-        }
-    }
+    QGCCameraControl::handleCaptureStatus(cap);
     _photoIndex = cap.image_count;
     emit photoIndexChanged();
 }
@@ -2614,13 +1110,6 @@ void CodevCameraControl::sendMavCommand(MAV_CMD command, float param1, float par
     entry.rgParam[5] = static_cast<double>(param6);
     entry.rgParam[6] = static_cast<double>(param7);
 
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "queue camera command"
-            << "cameraCompId" << _compID
-            << "targetCompId" << entry.component
-            << "command" << command
-            << "params"
-            << param1 << param2 << param3 << param4 << param5 << param6 << param7;
     _mavCommandQueue.append(entry);
 
     if (_mavCommandQueue.count() == 1) {
@@ -2643,49 +1132,12 @@ void CodevCameraControl::sendMavCommandWithTarget(MAV_CMD command, int target_co
     entry.rgParam[5] = static_cast<double>(param6);
     entry.rgParam[6] = static_cast<double>(param7);
 
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "queue targeted command"
-            << "cameraCompId" << _compID
-            << "targetCompId" << target_component
-            << "command" << command
-            << "params"
-            << param1 << param2 << param3 << param4 << param5 << param6 << param7;
     _mavCommandQueue.append(entry);
 
     if (_mavCommandQueue.count() == 1) {
         _mavCommandRetryCount = 0;
         _sendMavCommandAgain();
     }
-}
-
-SharedLinkInterfacePtr CodevCameraControl::_activeCommandLink() const
-{
-    if (!_vehicle) {
-        return SharedLinkInterfacePtr();
-    }
-
-    // The camera may arrive over a different link from the vehicle's current
-    // primary telemetry link. This is also true for an R3 beside an ArduPilot
-    // vehicle: its CAMERA_INFORMATION can arrive directly at UDP 14550 while
-    // LTE is primary. Return R3 commands through that camera link, otherwise
-    // the gimbal command is sent to Birdcom/FC instead of 192.168.2.119.
-    if ((_vehicle->px4Firmware() || _isR3CameraModel(_modelName)) && _link) {
-        SharedLinkInterfacePtr cameraLink = qgcApp()->toolbox()->linkManager()->sharedLinkInterfacePointerForLink(_link, true);
-        if (cameraLink && cameraLink->isConnected()) {
-            return cameraLink;
-        }
-    }
-
-    if (!_vehicle->vehicleLinkManager()) {
-        return SharedLinkInterfacePtr();
-    }
-
-    SharedLinkInterfacePtr primaryLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
-    if (primaryLink && primaryLink->isConnected()) {
-        return primaryLink;
-    }
-
-    return SharedLinkInterfacePtr();
 }
 
 void CodevCameraControl::_sendMavCommandAgain()
@@ -2696,43 +1148,19 @@ void CodevCameraControl::_sendMavCommandAgain()
         return;
     }
 
-    SharedLinkInterfacePtr commandLink = _activeCommandLink();
-    if (!commandLink) {
-        qCWarning(CodevCameraLog) << "[CameraFlow]"
-                                  << "_sendMavCommandAgain skipped: no active link"
-                                  << "cameraCompId" << _compID
-                                  << "queueSize" << _mavCommandQueue.count();
-        _mavCommandAckTimer.stop();
-        _mavCommandQueue.clear();
-        return;
-    }
-
     MavCommandQueueEntry_t& queuedCommand = _mavCommandQueue[0];
 
     if (_mavCommandRetryCount++ > _mavCommandMaxRetryCount) {
-        const MAV_CMD failedCommand = queuedCommand.command;
-        const bool failedZoomRange = failedCommand == MAV_CMD_SET_CAMERA_ZOOM
-                && static_cast<int>(queuedCommand.rgParam[0]) == ZOOM_TYPE_RANGE;
-        const float failedZoomValue = static_cast<float>(queuedCommand.rgParam[1]);
-        qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending failed" << failedCommand;
+        qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending failed" << queuedCommand.command;
         _mavCommandQueue.removeFirst();
-        if (failedZoomRange) {
-            _onZoomRangeFailed(failedZoomValue);
-        }
         _sendNextQueuedMavCommand();
-        _mavCommandResult(_vehicle->id(), compID(), failedCommand, MAV_RESULT_CANCELLED, true);
+        _mavCommandResult(_vehicle->id(), compID(), queuedCommand.command, MAV_RESULT_CANCELLED, true);
         return;
     }
 
     _mavCommandAckTimer.start();
 
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "_sendMavCommandAgain sending"
-            << "cameraCompId" << _compID
-            << "targetCompId" << queuedCommand.component
-            << "command" << queuedCommand.command
-            << "retry" << _mavCommandRetryCount
-            << "queueSize" << _mavCommandQueue.count();
+    qCDebug(CodevCameraLog) << "_sendMavCommandAgain sending" << queuedCommand.command;
 
     mavlink_message_t       msg;
     mavlink_command_long_t  cmd;
@@ -2754,74 +1182,52 @@ void CodevCameraControl::_sendMavCommandAgain()
                                     &msg,
                                     &cmd);
 
-    if (!_vehicle->sendMessageOnLinkThreadSafe(commandLink.get(), msg)) {
-        qCWarning(CodevCameraLog) << "[CameraFlow]"
-                                  << "_sendMavCommandAgain send failed"
-                                  << "cameraCompId" << _compID
-                                  << "command" << queuedCommand.command;
-        _mavCommandAckTimer.stop();
-        _mavCommandQueue.clear();
-    }
+    _vehicle->sendMessageOnLinkThreadSafe(_link, msg);
 }
 
 void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int command, int result, bool noReponseFromVehicle)
 {
     //-- Is this ours?
     if(_vehicle->id() != vehicleId || compID() != component) {
-        qCInfo(CodevCameraLog) << "[CameraFlow]"
-                << "Codev _mavCommandResult ignored"
-                << "cameraCompId" << _compID
-                << "vehicleId" << vehicleId
-                << "component" << component
-                << "command" << command
-                << "result" << result
-                << "noResponse" << noReponseFromVehicle;
         return;
     }
-    qCInfo(CodevCameraLog) << "[CameraFlow]"
-            << "Codev _mavCommandResult"
-            << "cameraCompId" << _compID
-            << "component" << component
-            << "command" << command
-            << "result" << result
-            << "noResponse" << noReponseFromVehicle;
     if(!noReponseFromVehicle && result == MAV_RESULT_IN_PROGRESS) {
         //-- Do Nothing
         qCDebug(CodevCameraLog) << "In progress response for" << command;
     }else if(!noReponseFromVehicle && result == MAV_RESULT_ACCEPTED) {
         switch(command) {
-        case MAV_CMD_STORAGE_FORMAT:
-            _vehicle->clearCameraTriggerPoints();
-            break;
-        case MAV_CMD_RESET_CAMERA_SETTINGS:
-            _resetting = false;
-            if(isBasic()) {
+            case MAV_CMD_STORAGE_FORMAT:
+                _vehicle->cameraTriggerPoints()->clearAndDeleteContents();
+                break;
+            case MAV_CMD_RESET_CAMERA_SETTINGS:
+                _resetting = false;
+                if(isBasic()) {
+                    _requestCameraSettings();
+                } else {
+                    QTimer::singleShot(2000, this, &CodevCameraControl::_requestAllParameters);
+                    QTimer::singleShot(2500, this, &CodevCameraControl::_requestCameraSettings);
+                }
+                break;
+            case MAV_CMD_VIDEO_START_CAPTURE:
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_VIDEO_STOP_CAPTURE:
+                _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
+                _captureStatusTimer.start(1000);
+                break;
+            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+                _captureInfoRetries = 0;
+                break;
+            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+                _storageInfoRetries = 0;
+                break;
+            case MAV_CMD_IMAGE_START_CAPTURE:
+                _captureStatusTimer.start(200);
+                break;
+            case MAV_CMD_SET_CAMERA_ZOOM:
                 _requestCameraSettings();
-            } else {
-                QTimer::singleShot(2000, this, &CodevCameraControl::_requestAllParameters);
-                QTimer::singleShot(2500, this, &CodevCameraControl::_requestCameraSettings);
-            }
-            break;
-        case MAV_CMD_VIDEO_START_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_RUNNING);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_VIDEO_STOP_CAPTURE:
-            _setVideoStatus(VIDEO_CAPTURE_STATUS_STOPPED);
-            _captureStatusTimer.start(1000);
-            break;
-        case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-            _captureInfoRetries = 0;
-            break;
-        case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-            _storageInfoRetries = 0;
-            break;
-        case MAV_CMD_IMAGE_START_CAPTURE:
-            _captureStatusTimer.start(200);
-            break;
-        case MAV_CMD_SET_CAMERA_ZOOM:
-            _requestCameraSettings();
-            break;
+                break;
         }
     } else {
         if(noReponseFromVehicle || result == MAV_RESULT_TEMPORARILY_REJECTED || result == MAV_RESULT_FAILED) {
@@ -2833,30 +1239,30 @@ void CodevCameraControl::_mavCommandResult(int vehicleId, int component, int com
                 qCDebug(CodevCameraLog) << "Command failed for" << command;
             }
             switch(command) {
-            case MAV_CMD_IMAGE_START_CAPTURE:
-            case MAV_CMD_IMAGE_STOP_CAPTURE:
-                if(++_captureInfoRetries < 1) {
-                    _captureStatusTimer.start(1000);
-                } else {
-                    qCDebug(CodevCameraLog) << "Giving up start/stop image capture";
-                    _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-                }
-                break;
-            case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
-                if(++_captureInfoRetries < 1) {
-                    _captureStatusTimer.start(200);
-                } else {
-                    _setPhotoStatus(PHOTO_CAPTURE_IDLE);
-                    qCDebug(CodevCameraLog) << "Giving up requesting capture status";
-                }
-                break;
-            case MAV_CMD_REQUEST_STORAGE_INFORMATION:
-                if(++_storageInfoRetries < 3) {
-                    QTimer::singleShot(500, this, &CodevCameraControl::_requestStorageInfo);
-                } else {
-                    qCDebug(CodevCameraLog) << "Giving up requesting storage status";
-                }
-                break;
+                case MAV_CMD_IMAGE_START_CAPTURE:
+                case MAV_CMD_IMAGE_STOP_CAPTURE:
+                    if(++_captureInfoRetries < 1) {
+                        _captureStatusTimer.start(1000);
+                    } else {
+                        qCDebug(CodevCameraLog) << "Giving up start/stop image capture";
+                        _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+                    }
+                    break;
+                case MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS:
+                    if(++_captureInfoRetries < 1) {
+                        _captureStatusTimer.start(200);
+                    } else {
+                        _setPhotoStatus(PHOTO_CAPTURE_IDLE);
+                        qCDebug(CodevCameraLog) << "Giving up requesting capture status";
+                    }
+                    break;
+                case MAV_CMD_REQUEST_STORAGE_INFORMATION:
+                    if(++_storageInfoRetries < 3) {
+                        QTimer::singleShot(500, this, &CodevCameraControl::_requestStorageInfo);
+                    } else {
+                        qCDebug(CodevCameraLog) << "Giving up requesting storage status";
+                    }
+                    break;
             }
         } else {
             qCDebug(CodevCameraLog) << "Bad response for" << command << result;
@@ -2875,18 +1281,6 @@ void CodevCameraControl::_sendNextQueuedMavCommand()
 void CodevCameraControl::_requestStreamInfo(uint8_t streamID)
 {
     qCDebug(CodevCameraLog) << "Requesting video stream info for:" << streamID;
-    if (streamID == 0) {
-        // Some Codev firmware builds do not reliably answer the wildcard request.
-        // Probe the first two streams directly so EO and thermal are both discovered after restart.
-        _expectedCount = qMax(_expectedCount, 2);
-        sendMavCommand(
-            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
-            1);
-        sendMavCommand(
-            MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,
-            2);
-        return;
-    }
     sendMavCommand(
         MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION,           // Command id
         streamID);                                          // Stream ID
@@ -2913,17 +1307,17 @@ void CodevCameraControl::_requestCameraSettings()
 {
     qCDebug(CodevCameraLog) << "_requestCameraSettings()";
     sendMavCommand(
-        MAV_CMD_REQUEST_CAMERA_SETTINGS,        // command id
-        1);                                     // Do Request
+            MAV_CMD_REQUEST_CAMERA_SETTINGS,        // command id
+            1);                                     // Do Request
 }
 
 void CodevCameraControl::_requestStorageInfo()
 {
     qCDebug(CodevCameraLog) << "_requestStorageInfo()";
     sendMavCommand(
-        MAV_CMD_REQUEST_STORAGE_INFORMATION,    // command id
-        0,                                      // Storage ID (0 for all, 1 for first, 2 for second, etc.)
-        1);                                     // Do Request
+            MAV_CMD_REQUEST_STORAGE_INFORMATION,    // command id
+            0,                                      // Storage ID (0 for all, 1 for first, 2 for second, etc.)
+            1);                                     // Do Request
 }
 
 bool CodevCameraControl::_isTakingPhotoTimelapse()
@@ -2937,43 +1331,45 @@ bool CodevCameraControl::_isTakingPhotoTimelapse()
 
 void CodevCameraControl::buttonTakePhoto()
 {
-    qCDebug(CodevCameraLog) << "buttonTakePhoto()"
-            << "cameraMode" << cameraMode()
-            << "photoStatus" << photoStatus()
-            << "videoStatus" << videoStatus()
-            << "storageTotal" << storageTotal()
-            << "storageFree" << storageFree();
-
+    //-- Do we have storage (in kb) and is camera idle?
     if(photoMode() == PHOTO_CAPTURE_TIMELAPSE && photoStatus() != PHOTO_CAPTURE_IDLE) {
         stopTakePhoto();
         return;
     }
     if(photoMode() == PHOTO_CAPTURE_SINGLE && photoStatus() != PHOTO_CAPTURE_IDLE) {
-        qCDebug(CodevCameraLog) << "buttonTakePhoto blocked: photo not idle";
         return;
     }
-
-    if(cameraMode() != CAM_MODE_PHOTO) {
-        if(cameraMode() == CAM_MODE_VIDEO && videoStatus() != VIDEO_CAPTURE_STATUS_STOPPED) {
-            qCDebug(CodevCameraLog) << "buttonTakePhoto blocked: video recording";
-            return;
-        }
-        _startPendingRcAction(PendingRcAction::TakePhoto);
-        setPhotoMode();
-        return;
-    }
-
-    if (_hasKnownInsufficientPhotoStorage()) {
-        qCDebug(CodevCameraLog) << "buttonTakePhoto blocked: insufficient storage";
-        return;
-    }
-    if (storageTotal() == 0 && storageFree() == 0) {
-        _scheduleStorageRefreshAfterModeSwitch();
-    }
-    if(_isTakingPhotoTimelapse()) {
-        stopTakePhoto();
+    if(storageTotal() == 0 || storageFree() < 50) {
+        //-- Undefined camera state
     } else {
-        takePhoto();
+        if(cameraMode() == CAM_MODE_VIDEO) {
+            //-- Can camera capture images in video mode?
+            if(!photosInVideoMode()) {
+                //-- Can't take photos while video is being recorded
+                if(videoStatus() != VIDEO_CAPTURE_STATUS_STOPPED) {
+                } else {
+                    setPhotoMode();
+                    QTimer::singleShot(2500, this, &CodevCameraControl::takePhoto);
+                }
+            } else {
+                if(videoStatus() == VIDEO_CAPTURE_STATUS_STOPPED) {
+                    setPhotoMode();
+                }
+                if(_isTakingPhotoTimelapse()) {
+                    stopTakePhoto();
+                } else {
+                    takePhoto();
+                }
+            }
+        } else if(cameraMode() == CAM_MODE_PHOTO) {
+            if(_isTakingPhotoTimelapse()) {
+                stopTakePhoto();
+            } else {
+                takePhoto();
+            }
+        } else {
+            //-- Undefined camera state
+        }
     }
 }
 
@@ -2983,21 +1379,22 @@ void CodevCameraControl::buttonToggleVideo()
         toggleVideo();
         return;
     }
-
-    if(cameraMode() != CAM_MODE_VIDEO) {
-        if(cameraMode() == CAM_MODE_PHOTO && photoStatus() != PHOTO_CAPTURE_IDLE) {
-            return;
+    //-- Do we have storage (in kb) and is camera idle?
+    if(storageTotal() == 0 || storageFree() < 250) {
+        //-- Undefined camera state
+    } else {
+        //-- If already in video mode, simply toggle on/off
+        if(cameraMode() == CAM_MODE_VIDEO) {
+            toggleVideo();
+        } else {
+            //-- Must switch to video mode first
+            if(photosInVideoMode()) {
+                setVideoMode();
+                toggleVideo();
+            } else if(photoStatus() == PHOTO_CAPTURE_IDLE) {
+                setVideoMode();
+                QTimer::singleShot(2500, this, &CodevCameraControl::toggleVideo);
+            }
         }
-        _startPendingRcAction(PendingRcAction::ToggleVideo);
-        setVideoMode();
-        return;
     }
-
-    if (_hasKnownInsufficientVideoStorage()) {
-        return;
-    }
-    if (storageTotal() == 0 && storageFree() == 0) {
-        _scheduleStorageRefreshAfterModeSwitch();
-    }
-    toggleVideo();
 }

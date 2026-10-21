@@ -10,8 +10,6 @@
 #pragma once
 
 #include <QLoggingCategory>
-#include <QMutex>
-#include <QSet>
 #include <QStringList>
 
 // Add Global logging categories (not class specific) here using Q_DECLARE_LOGGING_CATEGORY
@@ -54,10 +52,6 @@ public:
     /// Returns true if logging is turned on for the specified category.
     Q_INVOKABLE bool categoryLoggingOn(const QString& category);
 
-    /// Returns true if logging is turned on for the specified category using
-    /// the in-memory cache. Safe for use from the Qt message handler.
-    bool categoryLoggingOnCached(const QString& category);
-
     /// Sets the logging filters rules from saved settings.
     ///     @param commandLineLogggingOptions Logging options which were specified on the command line
     void setFilterRulesFromSettings(const QString& commandLineLoggingOptions);
@@ -67,8 +61,6 @@ private:
     
     QStringList _registeredCategories;
     QString     _commandLineLoggingOptions;
-    QSet<QString> _enabledCategories;
-    QMutex      _enabledCategoriesMutex;
 
     static const char* _filterRulesSettingsGroup;
 };

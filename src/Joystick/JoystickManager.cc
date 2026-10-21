@@ -54,7 +54,6 @@ void JoystickManager::setToolbox(QGCToolbox *toolbox)
 }
 
 void JoystickManager::init() {
-    qWarning() << "[GremsyLynx]" << "JoystickManager init";
 #ifdef __sdljoystick__
     if (!JoystickSDL::init()) {
         return;
@@ -146,14 +145,9 @@ void JoystickManager::setActiveJoystick(Joystick* joystick)
 
     if (_activeJoystick != nullptr) {
         qCDebug(JoystickManagerLog) << "Set active:" << _activeJoystick->name();
-        qWarning() << "[GremsyLynx]" << "active joystick" << _activeJoystick->name();
 
         settings.beginGroup(_settingsGroup);
         settings.setValue(_settingsKeyActiveJoystick, _activeJoystick->name());
-
-        if (_multiVehicleManager && _multiVehicleManager->activeVehicle()) {
-            _activeJoystick->startPolling(_multiVehicleManager->activeVehicle());
-        }
     }
 
     emit activeJoystickChanged(_activeJoystick);

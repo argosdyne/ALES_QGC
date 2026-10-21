@@ -17,7 +17,6 @@
 #include "MultiVehicleManager.h"
 
 #include <SDL.h>
-#include <QVector>
 
 /// @brief SDL Joystick Interface
 class JoystickSDL : public Joystick
@@ -50,6 +49,5 @@ private:
 
     bool    _isGameController;
     int     _index;      ///< Index for SDL_JoystickOpen
-    QVector<int> _lastRawButtonState; ///< -1 unknown, 0 released, 1 pressed
 
 };

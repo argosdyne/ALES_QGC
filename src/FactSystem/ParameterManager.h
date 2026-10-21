@@ -16,7 +16,6 @@
 #include <QMutex>
 #include <QDir>
 #include <QJsonObject>
-#include <QElapsedTimer>
 
 #include "FactSystem.h"
 #include "MAVLinkProtocol.h"
@@ -122,7 +121,7 @@ private:
     void    _clearMetaData                      (void);
     QString _remapParamNameToVersion            (const QString& paramName);
     void    _loadOfflineEditingParams           (void);
-    QString _logVehiclePrefix                   (int componentId) const;
+    QString _logVehiclePrefix                   (int componentId);
     void    _setLoadProgress                    (double loadProgress);
     bool    _fillIndexBatchQueue                (bool waitingParamTimeout);
     void    _updateProgressBar                  (void);
@@ -130,7 +129,6 @@ private:
     void    _ftpDownloadComplete                (const QString& fileName, const QString& errorMsg);
     void    _ftpDownloadProgress                (float progress);
     bool    _parseParamFile                     (const QString& filename);
-    void    _logInitialLoadProgress             (const QString& event, int componentId = -1, const QString& paramName = QString()) const;
 
     static QVariant _stringToTypedVariant(const QString& string, FactMetaData::ValueType_t type, bool failOk = false);
 
@@ -185,10 +183,6 @@ private:
 
     QTimer _initialRequestTimeoutTimer;
     QTimer _waitingParamTimeoutTimer;
-    QElapsedTimer _initialLoadElapsedTimer;
-    bool _initialLoadTraceActive = false;
-    QMap<int, QStringList> _receivedParamNamesByComp;
-    QMap<int, QStringList> _timedOutReadParamNamesByComp;
 
     Fact _defaultFact;   ///< Used to return default fact, when parameter not found
 

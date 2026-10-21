@@ -104,16 +104,8 @@ GimbalController::setActiveGimbal(Gimbal* gimbal)
     }
 
     if (gimbal != _activeGimbal) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "setActiveGimbal"
-                          << "managerCompId" << gimbal->managerCompid()->rawValue().toUInt()
-                          << "deviceId" << gimbal->deviceId()->rawValue().toUInt()
-                          << "haveControl" << gimbal->gimbalHaveControl()
-                          << "othersHaveControl" << gimbal->gimbalOthersHaveControl();
         qCDebug(GimbalLog) << "Set active gimbal: " << gimbal;
         _activeGimbal = gimbal;
-        // Force the analog axis control to re-seed its target from the new gimbal's attitude
-        _gimbalAxisControlActive = false;
         emit activeGimbalChanged();
     }
 }
@@ -121,37 +113,6 @@ GimbalController::setActiveGimbal(Gimbal* gimbal)
 void
 GimbalController::_mavlinkMessageReceived(const mavlink_message_t& message)
 {
-    if (message.compid == MAV_COMP_ID_GIMBAL ||
-        message.msgid == MAVLINK_MSG_ID_GIMBAL_MANAGER_INFORMATION ||
-        message.msgid == MAVLINK_MSG_ID_GIMBAL_MANAGER_STATUS ||
-        message.msgid == MAVLINK_MSG_ID_GIMBAL_DEVICE_ATTITUDE_STATUS) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "raw mavlink"
-                          << "msgid" << message.msgid
-                          << "compId" << message.compid
-                          << "sysId" << message.sysid;
-    }
-
-    if (message.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
-        mavlink_command_ack_t ack;
-        mavlink_msg_command_ack_decode(&message, &ack);
-        if (message.compid == MAV_COMP_ID_GIMBAL ||
-            ack.command == MAV_CMD_DO_MOUNT_CONTROL ||
-            ack.command == MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW ||
-            ack.command == MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE ||
-            ack.command == MAV_CMD_REQUEST_MESSAGE ||
-            ack.command == MAV_CMD_SET_MESSAGE_INTERVAL) {
-            qCInfo(GimbalLog) << "[GimbalFlow]"
-                              << "raw command ack"
-                              << "ackCompId" << message.compid
-                              << "ackSysId" << message.sysid
-                              << "command" << ack.command
-                              << "result" << ack.result
-                              << "targetSystem" << ack.target_system
-                              << "targetComponent" << ack.target_component;
-        }
-    }
-
     // Don't proceed until parameters are ready, otherwise the gimbal controller handshake
     // could potentially not work due to the high traffic for parameters, mission download, etc
     if (!_vehicle->parameterManager()->parametersReady() ) {
@@ -177,9 +138,6 @@ void
 GimbalController::_handleHeartbeat(const mavlink_message_t& message)
 {
     if (!_potentialGimbalManagers.contains(message.compid)) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "new potential manager heartbeat"
-                          << "compId" << message.compid;
         qCDebug(GimbalLog) << "new potential gimbal manager component: " << message.compid;
     }
 
@@ -189,10 +147,6 @@ GimbalController::_handleHeartbeat(const mavlink_message_t& message)
     // This is because we address the gimbal manager by compid, but a gimbal device might have an
     // id different than the message compid it comes from. For more information see https://mavlink.io/en/services/gimbal_v2.html
     if (!gimbalManager.receivedInformation && gimbalManager.requestGimbalManagerInformationRetries > 0) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "request manager information from heartbeat"
-                          << "compId" << message.compid
-                          << "retriesRemainingBeforeSend" << gimbalManager.requestGimbalManagerInformationRetries;
         _requestGimbalInformation(message.compid);
         --gimbalManager.requestGimbalManagerInformationRetries;
     }
@@ -210,11 +164,6 @@ GimbalController::_handleGimbalManagerInformation(const mavlink_message_t& messa
                              << information.gimbal_device_id << ", from component id: " << message.compid;
         return;
     }
-
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "handle manager information"
-                      << "managerCompId" << message.compid
-                      << "deviceId" << information.gimbal_device_id;
 
     qCDebug(GimbalLog) << "_handleGimbalManagerInformation for gimbal device: " << information.gimbal_device_id << ", component id: " << message.compid;
 
@@ -250,15 +199,6 @@ GimbalController::_handleGimbalManagerStatus(const mavlink_message_t& message)
         << " reported status of gimbal device id: " << status.gimbal_device_id << " which is not a valid gimbal device id";
         return;
     }
-
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "handle manager status"
-                      << "managerCompId" << message.compid
-                      << "deviceId" << status.gimbal_device_id
-                      << "primarySysId" << status.primary_control_sysid
-                      << "primaryCompId" << status.primary_control_compid
-                      << "secondarySysId" << status.secondary_control_sysid
-                      << "secondaryCompId" << status.secondary_control_compid;
 
     GimbalPairId pairId{message.compid, status.gimbal_device_id};
     auto& gimbal = _potentialGimbals[pairId];
@@ -337,13 +277,6 @@ GimbalController::_handleGimbalDeviceAttitudeStatus(const mavlink_message_t& mes
         return;
     }
 
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "handle device attitude"
-                      << "messageCompId" << message.compid
-                      << "managerCompId" << pairId.managerCompid
-                      << "deviceId" << pairId.deviceId
-                      << "flags" << attitude_status.flags;
-
     auto& gimbal = _potentialGimbals[pairId];
 
     const bool yaw_in_vehicle_frame = _yawInVehicleFrame(attitude_status.flags);
@@ -387,9 +320,6 @@ GimbalController::_handleGimbalDeviceAttitudeStatus(const mavlink_message_t& mes
 void
 GimbalController::_requestGimbalInformation(uint8_t compid)
 {
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "request gimbal manager information"
-                      << "compId" << compid;
     qCDebug(GimbalLog) << "_requestGimbalInformation(" << compid << ")";
 
     if(_vehicle) {
@@ -446,37 +376,14 @@ GimbalController::_checkComplete(Gimbal& gimbal, GimbalPairId pairId)
                                  0 /* request default rate */);
 
         --gimbal._requestAttitudeRetries;
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "request device attitude status"
-                          << "managerCompId" << pairId.managerCompid
-                          << "deviceRequestCompId" << gimbalDeviceCompid
-                          << "deviceId" << pairId.deviceId
-                          << "retriesRemaining" << gimbal._requestAttitudeRetries;
     }
 
     if (!gimbal._receivedInformation || !gimbal._receivedStatus || !gimbal._receivedAttitude) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "gimbal incomplete"
-                          << "managerCompId" << pairId.managerCompid
-                          << "deviceId" << pairId.deviceId
-                          << "receivedInformation" << gimbal._receivedInformation
-                          << "receivedStatus" << gimbal._receivedStatus
-                          << "receivedAttitude" << gimbal._receivedAttitude
-                          << "infoRetries" << gimbal._requestInformationRetries
-                          << "statusRetries" << gimbal._requestStatusRetries
-                          << "attitudeRetries" << gimbal._requestAttitudeRetries;
         // Not complete yet.
         return;
     }
 
     gimbal._isComplete = true;
-
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbal complete"
-                      << "managerCompId" << pairId.managerCompid
-                      << "deviceId" << pairId.deviceId
-                      << "haveControl" << gimbal.gimbalHaveControl()
-                      << "othersHaveControl" << gimbal.gimbalOthersHaveControl();
 
     // If there is no current active gimbal, set this one as active
     if (!_activeGimbal) {
@@ -491,28 +398,16 @@ GimbalController::_checkComplete(Gimbal& gimbal, GimbalPairId pairId)
 bool GimbalController::_tryGetGimbalControl()
 {
     if (!_activeGimbal) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "tryGetControl failed"
-                          << "reason" << "no active gimbal";
         qCDebug(GimbalLog) << "_tryGetGimbalControl: active gimbal is nullptr, returning";
         return false;
     }
     // This means other component is in control, show popup
     if (_activeGimbal->gimbalOthersHaveControl()) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "tryGetControl blocked"
-                          << "managerCompId" << _activeGimbal->managerCompid()->rawValue().toUInt()
-                          << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt()
-                          << "reason" << "others have control";
         qCDebug(GimbalLog) << "Others in control, showing popup for user to confirm control..";
         emit showAcquireGimbalControlPopup();
         return false;
     // This means nobody is in control, so we can adquire directly and attempt to control
     } else if (!_activeGimbal->gimbalHaveControl()) {
-        qCInfo(GimbalLog) << "[GimbalFlow]"
-                          << "tryGetControl acquiring"
-                          << "managerCompId" << _activeGimbal->managerCompid()->rawValue().toUInt()
-                          << "deviceId" << _activeGimbal->deviceId()->rawValue().toUInt();
         qCDebug(GimbalLog) << "Nobody in control, acquiring control ourselves..";
         acquireGimbalControl();
     }
@@ -533,21 +428,11 @@ bool GimbalController::_yawInVehicleFrame(uint32_t flags)
 
 void GimbalController::gimbalPitchStep(int direction)
 {
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalPitchStep"
-                      << "direction" << direction
-                      << "hasActiveGimbal" << (_activeGimbal != nullptr);
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
         return;
     }
 
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalPitchStep target"
-                      << "yawLock" << _activeGimbal->yawLock()
-                      << "absolutePitch" << _activeGimbal->absolutePitch()->rawValue().toFloat()
-                      << "absoluteYaw" << _activeGimbal->absoluteYaw()->rawValue().toFloat()
-                      << "bodyYaw" << _activeGimbal->bodyYaw()->rawValue().toFloat();
     if (_activeGimbal->yawLock()) {
         sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat() + direction, _activeGimbal->absoluteYaw()->rawValue().toFloat(), false);
     } else {
@@ -557,21 +442,11 @@ void GimbalController::gimbalPitchStep(int direction)
 
 void GimbalController::gimbalYawStep(int direction)
 {
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalYawStep"
-                      << "direction" << direction
-                      << "hasActiveGimbal" << (_activeGimbal != nullptr);
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalStepPitch: active gimbal is nullptr, returning";
         return;
     }
 
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalYawStep target"
-                      << "yawLock" << _activeGimbal->yawLock()
-                      << "absolutePitch" << _activeGimbal->absolutePitch()->rawValue().toFloat()
-                      << "absoluteYaw" << _activeGimbal->absoluteYaw()->rawValue().toFloat()
-                      << "bodyYaw" << _activeGimbal->bodyYaw()->rawValue().toFloat();
     if (_activeGimbal->yawLock()) {
         sendPitchAbsoluteYaw(_activeGimbal->absolutePitch()->rawValue().toFloat(), _activeGimbal->absoluteYaw()->rawValue().toFloat() + direction, false);
     } else {
@@ -581,9 +456,6 @@ void GimbalController::gimbalYawStep(int direction)
 
 void GimbalController::centerGimbal()
 {
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalController centerGimbal"
-                      << "hasActiveGimbal" << (_activeGimbal != nullptr);
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalYawStep: active gimbal is nullptr, returning";
         return;
@@ -591,75 +463,9 @@ void GimbalController::centerGimbal()
     sendPitchBodyYaw(0.0, 0.0);
 }
 
-// Analog gimbal control from a joystick axis. Called repeatedly (at the joystick axis
-// rate) while a stick is deflected. pitch/yaw are deflections in [-1..1]. We integrate an
-// internal angle target at CameraSlideSpeed (deg/s) and send angle targets, mirroring the
-// click-and-drag path - true MAVLink rate commands are unreliable on the AP side.
-void GimbalController::gimbalAxisControl(float pitch, float yaw)
-{
-    if (!_activeGimbal) {
-        _gimbalAxisControlActive = false;
-        return;
-    }
-
-    // A (0,0) call means the stick returned to center: end the move so the next
-    // deflection re-seeds the target from the gimbal's current attitude.
-    if (pitch == 0.0f && yaw == 0.0f) {
-        _gimbalAxisControlActive = false;
-        return;
-    }
-
-    if (!_gimbalAxisControlActive) {
-        _gimbalAxisPitchTarget = _activeGimbal->absolutePitch()->rawValue().toFloat();
-        _gimbalAxisYawTarget   = _activeGimbal->yawLock()
-                                     ? _activeGimbal->absoluteYaw()->rawValue().toFloat()
-                                     : _activeGimbal->bodyYaw()->rawValue().toFloat();
-        _gimbalAxisControlActive = true;
-        _gimbalAxisElapsed.start();
-    }
-
-    // Time since the previous update, so the slew speed is CameraSlideSpeed (deg/s)
-    // regardless of the joystick polling frequency.
-    float dt = static_cast<float>(_gimbalAxisElapsed.restart()) / 1000.0f;
-    if (dt <= 0.0f || dt > 0.5f) {
-        dt = 0.04f; // sane fallback (~25 Hz) for the first tick or after a long pause
-    }
-
-    const float maxSpeed = qgcApp()->toolbox()->settingsManager()->gimbalControllerSettings()->CameraSlideSpeed()->rawValue().toFloat();
-
-    _gimbalAxisPitchTarget += pitch * maxSpeed * dt;
-    _gimbalAxisYawTarget   += yaw   * maxSpeed * dt;
-
-    // Keep pitch within typical gimbal limits and yaw wrapped to [-180, 180].
-    _gimbalAxisPitchTarget = qBound(-90.0f, _gimbalAxisPitchTarget, 90.0f);
-    while (_gimbalAxisYawTarget > 180.0f)  { _gimbalAxisYawTarget -= 360.0f; }
-    while (_gimbalAxisYawTarget < -180.0f) { _gimbalAxisYawTarget += 360.0f; }
-
-    qCDebug(GimbalLog) << "[GimbalFlow]"
-                       << "gimbalAxisControl"
-                       << "pitch" << pitch << "yaw" << yaw
-                       << "pitchTarget" << _gimbalAxisPitchTarget
-                       << "yawTarget" << _gimbalAxisYawTarget
-                       << "yawLock" << _activeGimbal->yawLock();
-
-    if (_activeGimbal->yawLock()) {
-        sendPitchAbsoluteYaw(_gimbalAxisPitchTarget, _gimbalAxisYawTarget, false);
-    } else {
-        sendPitchBodyYaw(_gimbalAxisPitchTarget, _gimbalAxisYawTarget, false);
-    }
-}
-
 // Pan and tilt comes as +-(0-1)
 void GimbalController::gimbalOnScreenControl(float panPct, float tiltPct, bool clickAndPoint, bool clickAndDrag, bool rateControl, bool retract, bool neutral, bool yawlock)
 {
-    qCInfo(GimbalLog) << "[GimbalFlow]"
-                      << "gimbalOnScreenControl"
-                      << "panPct" << panPct
-                      << "tiltPct" << tiltPct
-                      << "clickAndPoint" << clickAndPoint
-                      << "clickAndDrag" << clickAndDrag
-                      << "rateControl" << rateControl
-                      << "hasActiveGimbal" << (_activeGimbal != nullptr);
     if (!_activeGimbal) {
         qCDebug(GimbalLog) << "gimbalOnScreenControl: active gimbal is nullptr, returning";
         return;

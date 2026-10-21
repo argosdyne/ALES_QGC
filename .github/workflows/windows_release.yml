@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'Argos_Stable4.4'
-      - 'ALES_QGC_V01.29.00'
     tags:
       - 'v*'
     paths-ignore:
@@ -27,7 +26,7 @@ env:
 
 jobs:
   build:
-    runs-on:  windows-2022
+    runs-on:  windows-latest
 
     steps:
       - name: Checkout repo

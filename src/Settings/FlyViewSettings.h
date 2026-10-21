@@ -38,7 +38,6 @@ public:
     DEFINE_SETTINGFACT(onlinePath)
     DEFINE_SETTINGFACT(onlineLicenseKey)
     DEFINE_SETTINGFACT(enableAudioController)
-    DEFINE_SETTINGFACT(enableOpticalFlowController)
 
     Q_INVOKABLE QString readTextFile(const QString& path);
     Q_INVOKABLE void setFilePathRawValue(QString filePath);

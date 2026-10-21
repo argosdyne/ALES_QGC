@@ -4,8 +4,6 @@
 #include <QLoggingCategory>
 #include <mavlink.h>
 #include <QVariant>
-#include <QTimer>
-#include <QElapsedTimer>
 #include "FactGroup.h"
 
 Q_DECLARE_LOGGING_CATEGORY(AVIATORInterfaceLog)
@@ -26,9 +24,7 @@ public:
         AVIATOR_FUNCTION_IR_SWITCH,
         AVIATOR_FUNCTION_GIMBAL_RESET,
         AVIATOR_FUNCTION_CAMERA_CAPTURE,
-        AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD,
-        AVIATOR_FUNCTION_CAMERA_ZOOM_IN,
-        AVIATOR_FUNCTION_CAMERA_ZOOM_OUT
+        AVIATOR_FUNCTION_CAMERA_TOGGLE_RECORD
     } AVIATOR_FUNCTION;
     Q_ENUM(AVIATOR_FUNCTION)
 
@@ -54,8 +50,6 @@ public:
     Fact* batteryCurrent() { return &_batteryCurrentFact; }
     Fact* batteryCharging() { return &_batteryChargingFact; }
 
-    void handlePx4ThermalRCChannels(const mavlink_rc_channels_t& channels);
-
 signals:
     void write(const QByteArray data);
     void bytesReceived(const mavlink_message_t& message);
@@ -67,15 +61,12 @@ private slots:
     void _readBytes(void);
     void _handlebytesReceived(const mavlink_message_t& message);
 
+public slots:
+
 private:
     void _init();
     void _handle_mavlink_rc_channels(const mavlink_message_t& message);
     void _handle_mavlink_param_value(const mavlink_message_t& message);
-    void _updateEmergencyStopCombo(uint16_t chan7, uint16_t chan15);
-    void _onEmergencyHoldTimeout();
-    void _resetEmergencyStopComboState();
-    static bool _rcSwitchActive(uint16_t rawValue);
-    bool _px4ThermalRcIsActive() const;
 
     Fact _batteryVoltageFact;
     Fact _batteryRemainingFact;
@@ -111,20 +102,6 @@ private:
     bool _f3Pressed{false};
     bool _capturePressed{false};
     bool _recordPressed{false};
-    int _cameraZoomState{0};
-    bool _emergencyStopComboActive{false};
-    bool _comboPaired{false};
-    bool _rc7WasActive{false};
-    bool _rc15WasActive{false};
-    qint64 _rc7EdgeMs{-1};
-    qint64 _rc15EdgeMs{-1};
-    QTimer _emergencyHoldTimer;
-    QElapsedTimer _comboClock;
-
-    uint16_t _lastRc7Raw{0};
-    uint16_t _lastRc15Raw{0};
-    QElapsedTimer _lastPx4ThermalRcFrameTimer;
-    int _serialF3PressCount{0};
 
     bool _cn1Pressed{false};
     bool _cn2Pressed{false};
@@ -141,4 +118,5 @@ private:
     bool _cn13Pressed{false};
     bool _cn17Pressed{false};
     bool _cn18Pressed{false};
+    QVector<uint16_t> _prevChannelValues = QVector<uint16_t>(18, 0);
 };

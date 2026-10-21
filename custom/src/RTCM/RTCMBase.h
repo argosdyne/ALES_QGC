@@ -18,9 +18,6 @@ public:
         } flags;
         uint8_t len;
         uint8_t data[180];
-        // Not part of the MAVLink payload. Marks the last fragment of one RTCM frame
-        // so the send timer can emit that frame together.
-        bool endOfMessage;
     }rtcm_data_t;
 
     Q_PROPERTY(QString url READ url CONSTANT)
@@ -38,7 +35,6 @@ public:
 
 signals:
     void sendMavlinkRTCM(mavlink_gps_rtcm_data_t message);
-    void rtcmChunkSent();
     void pgggaMessageChanged(QVariant message);
     void streamingChanged(bool streaming);
 

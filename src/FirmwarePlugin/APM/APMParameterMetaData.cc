@@ -12,7 +12,6 @@
 #include "QGCApplication.h"
 #include "QGCLoggingCategory.h"
 
-#include <QCoreApplication>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -20,7 +19,6 @@
 #include <QStack>
 
 static const char* kInvalidConverstion = "Internal Error: No support for string parameters";
-static const char* kAPMParameterFactMetaDataContext = "APMParameterFactMetaData";
 
 QGC_LOGGING_CATEGORY(APMParameterMetaDataLog,           "APMParameterMetaDataLog")
 QGC_LOGGING_CATEGORY(APMParameterMetaDataVerboseLog,    "APMParameterMetaDataVerboseLog")
@@ -517,9 +515,8 @@ FactMetaData* APMParameterMetaData::getMetaDataForFact(const QString& name, MAV_
             QPair<QString, QString> enumPair = rawMetaData->values[i];
 
             if (metaData->convertAndValidateRaw(enumPair.first, false /* validate */, enumValue, errorString)) {
-                const QByteArray sourceTextUtf8 = enumPair.second.toUtf8();
                 enumValues << enumValue;
-                enumStrings << QCoreApplication::translate(kAPMParameterFactMetaDataContext, sourceTextUtf8.constData());
+                enumStrings << enumPair.second;
             } else {
                 qCDebug(APMParameterMetaDataLog) << "Invalid enum value, name:" << metaData->name()
                                                  << " type:" << metaData->type() << " value:" << enumPair.first
@@ -589,9 +586,8 @@ FactMetaData* APMParameterMetaData::getMetaDataForFact(const QString& name, MAV_
             }
 
             if (metaData->convertAndValidateRaw(typedBitSet, false /* validate */, bitmaskValue, errorString)) {
-                const QByteArray sourceTextUtf8 = bitmaskPair.second.toUtf8();
                 bitmaskValues << bitmaskValue;
-                bitmaskStrings << QCoreApplication::translate(kAPMParameterFactMetaDataContext, sourceTextUtf8.constData());
+                bitmaskStrings << bitmaskPair.second;
             } else {
                 qCDebug(APMParameterMetaDataLog) << "Invalid bitmask value, name:" << metaData->name()
                                                  << " type:" << metaData->type() << " value:" << typedBitSet

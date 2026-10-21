@@ -34,8 +34,6 @@ public:
     Q_PROPERTY(Fact*            turnAroundDistance          READ turnAroundDistance                                 CONSTANT)
     Q_PROPERTY(Fact*            cameraTriggerInTurnAround   READ cameraTriggerInTurnAround                          CONSTANT)
     Q_PROPERTY(Fact*            hoverAndCapture             READ hoverAndCapture                                    CONSTANT)
-    Q_PROPERTY(Fact*            aggressiveFlyThrough        READ aggressiveFlyThrough                               CONSTANT)
-    Q_PROPERTY(Fact*            passThroughRadius           READ passThroughRadius                                  CONSTANT)
     Q_PROPERTY(Fact*            refly90Degrees              READ refly90Degrees                                     CONSTANT)
 
     Q_PROPERTY(int              cameraShots                 READ cameraShots                                        NOTIFY cameraShotsChanged)
@@ -55,8 +53,6 @@ public:
     Fact* turnAroundDistance            (void) { return &_turnAroundDistanceFact; }
     Fact* cameraTriggerInTurnAround     (void) { return &_cameraTriggerInTurnAroundFact; }
     Fact* hoverAndCapture               (void) { return &_hoverAndCaptureFact; }
-    Fact* aggressiveFlyThrough          (void) { return &_aggressiveFlyThroughFact; }
-    Fact* passThroughRadius             (void) { return &_passThroughRadiusFact; }
     Fact* refly90Degrees                (void) { return &_refly90DegreesFact; }
     Fact* terrainAdjustTolerance        (void) { return &_terrainAdjustToleranceFact; }
     Fact* terrainAdjustMaxDescentRate   (void) { return &_terrainAdjustMaxDescentRateFact; }
@@ -118,16 +114,12 @@ public:
     static const char* turnAroundDistanceMultiRotorName;
     static const char* cameraTriggerInTurnAroundName;
     static const char* hoverAndCaptureName;
-    static const char* aggressiveFlyThroughName;
-    static const char* passThroughRadiusName;
     static const char* refly90DegreesName;
     static const char* terrainAdjustToleranceName;
     static const char* terrainAdjustMaxClimbRateName;
     static const char* terrainAdjustMaxDescentRateName;
 
     void replaceSpacing (void);
-
-    void setFixedYawDeg(double bearing);
 
 signals:
     void cameraShotsChanged             (void);
@@ -155,7 +147,7 @@ protected:
     double  _triggerDistance                (void) const;
     bool    _hasTurnaround                  (void) const;
     double  _turnAroundDistance             (void) const;
-    void    _appendWaypoint                 (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, float holdTime, const QGeoCoordinate& coordinate, float passThroughRadius = 0.0f);
+    void    _appendWaypoint                 (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, float holdTime, const QGeoCoordinate& coordinate);
     void    _appendSinglePhotoCapture       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
     void    _appendConditionGate            (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate);
     void    _appendCameraTriggerDistance    (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, float triggerDistance);
@@ -164,9 +156,7 @@ protected:
     void    _appendLoadedMissionItems       (QList<MissionItem*>& items, QObject* missionItemParent);
     void    _recalcComplexDistance          (void);
     void    _appendYSInitPathMaxSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
-    void    _appendYSInitPathPreviousSpeed  (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
-    void    _appendYSInitPathYaw            (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
-    void    _appendYSInitPathTurnWaypoint   (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate);
+    void    _appendYSInitPathPreviousSpeed       (QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum);
 
     int                 _sequenceNumber = 0;
     QGeoCoordinate      _coordinate;
@@ -181,10 +171,8 @@ protected:
         CoordTypeSurveyExit,            ///< Waypoint at exit edge of survey polygon
         CoordTypeTurnaround,            ///< Turnaround extension waypoint
         CoordTypeYellowScan,            ///< YellowScan initiation path
-        CoordTypeYellowScanTurn,        ///< YellowScan smooth U-turn waypoint
         CoordTypeYellowScanMaxSpeed,    ///< YellowScan initiation path max speed(10m/s)
-        CoordTypeYellowScanPreviousSpeed,
-        CoordTypeYellowScanChangeYaw
+        CoordTypeYellowScanPreviousSpeed
     };
 
     typedef struct {
@@ -216,8 +204,6 @@ protected:
     SettingsFact _turnAroundDistanceFact;
     SettingsFact _cameraTriggerInTurnAroundFact;
     SettingsFact _hoverAndCaptureFact;
-    SettingsFact _aggressiveFlyThroughFact;
-    SettingsFact _passThroughRadiusFact;
     SettingsFact _refly90DegreesFact;
     SettingsFact _terrainAdjustToleranceFact;
     SettingsFact _terrainAdjustMaxClimbRateFact;
@@ -246,8 +232,6 @@ private:
         bool hasTurnarounds;
         bool addTriggerAtFirstAndLastPoint;
         bool useConditionGate;
-        bool aggressiveFlyThrough;
-        float passThroughRadius;
     } BuildMissionItemsState_t;
 
     void    _queryTransectsPathHeightInfo                                   (void);
@@ -270,6 +254,5 @@ private:
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;
 
-    double _previousVehicleSpeed = -1.0;
-    double _yellowScanInitPathAngle = 0.0;
+    double _previousVehicleSpeed;
 };

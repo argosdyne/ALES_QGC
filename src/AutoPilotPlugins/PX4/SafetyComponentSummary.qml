@@ -11,20 +11,6 @@ Item {
 
     FactPanelController { id: controller; }
 
-    function _localizedEnumText(enumText) {
-        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
-        if (fromMetaData !== enumText) {
-            return fromMetaData
-        }
-
-        const fromFirmwarePlugin = qsTranslate("PX4FirmwarePlugin", enumText)
-        if (fromFirmwarePlugin !== enumText) {
-            return fromFirmwarePlugin
-        }
-
-        return enumText
-    }
-
     property Fact   returnAltFact:      controller.getParameterFact(-1, "RTL_RETURN_ALT")
     property Fact   _descendAltFact:    controller.getParameterFact(-1, "RTL_DESCEND_ALT")
     property Fact   landDelayFact:      controller.getParameterFact(-1, "RTL_LAND_DELAY")
@@ -40,12 +26,12 @@ Item {
 
         VehicleSummaryRow {
             labelText: qsTr("Low Battery Failsafe")
-            valueText: lowBattAction ? _localizedEnumText(lowBattAction.enumStringValue) : ""
+            valueText: lowBattAction ? lowBattAction.enumStringValue : ""
         }
 
         VehicleSummaryRow {
             labelText: qsTr("RC Loss Failsafe")
-            valueText: rcLossAction ? _localizedEnumText(rcLossAction.enumStringValue) : ""
+            valueText: rcLossAction ? rcLossAction.enumStringValue : ""
         }
 
         VehicleSummaryRow {
@@ -55,7 +41,7 @@ Item {
 
         VehicleSummaryRow {
             labelText: qsTr("Data Link Loss Failsafe")
-            valueText: dataLossAction ? _localizedEnumText(dataLossAction.enumStringValue) : ""
+            valueText: dataLossAction ? dataLossAction.enumStringValue : ""
         }
 
         VehicleSummaryRow {

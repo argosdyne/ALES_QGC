@@ -38,49 +38,11 @@ Item {
 
     property double _thermalHeightFactor: 0.85 //-- TODO
 
-    // Keep the GL video surface alive across brief decode gaps (e.g. camera mode switch).
-    property bool _hasDecodedOnce: false
-    property bool _showVideoFrame: false
-
-    Timer {
-        id:             decodingHoldTimer
-        interval:       2500
-        onTriggered: {
-            _showVideoFrame = QGroundControl.videoManager.decoding
-            if (!_showVideoFrame) {
-                _hasDecodedOnce = false
-            }
-        }
-    }
-
-    Connections {
-        target: QGroundControl.videoManager
-        function onDecodingChanged() {
-            if (QGroundControl.videoManager.decoding) {
-                _hasDecodedOnce = true
-                _showVideoFrame = true
-                decodingHoldTimer.stop()
-            } else if (_hasDecodedOnce) {
-                decodingHoldTimer.restart()
-            } else {
-                _showVideoFrame = false
-            }
-        }
-    }
-
-    Component.onCompleted: {
-        if (QGroundControl.videoManager.decoding) {
-            _hasDecodedOnce = true
-            _showVideoFrame = true
-        }
-    }
-
     Rectangle {
         id:             noVideo
         anchors.fill:   parent
         color:          Qt.rgba(0,0,0,0.75)
-        z:              2
-        visible:        !_showVideoFrame
+        visible:        !(QGroundControl.videoManager.decoding)
         QGCLabel {
             text:               QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
             font.family:        ScreenTools.demiboldFontFamily
@@ -92,7 +54,7 @@ Item {
     Rectangle {
         anchors.fill:   parent
         color:          "black"
-        z:              1
+        visible:        QGroundControl.videoManager.decoding
         function getWidth() {
             //-- Fit Width or Stretch
             if(_fitMode === 0 || _fitMode === 2) {
@@ -169,7 +131,7 @@ Item {
             height:             parent.getHeight()
             width:              parent.getWidth()
             anchors.centerIn:   parent
-            visible:            _showVideoFrame
+            visible:            QGroundControl.videoManager.decoding
             sourceComponent:    videoBackgroundComponent
 
             property bool videoDisabled: QGroundControl.settingsManager.videoSettings.videoSource.rawValue === QGroundControl.settingsManager.videoSettings.disabledVideoSource
@@ -201,34 +163,10 @@ Item {
             }
             Connections {
                 target:                 _camera
-                function onThermalModeChanged() {
-                    thermalItem.pipOrNot()
-                    thermalItem.logState("thermalModeChanged")
-                }
-                function onThermalOpacityChanged() {
-                    thermalItem.logState("thermalOpacityChanged")
-                }
+                function onThermalModeChanged() { thermalItem.pipOrNot() }
             }
             onVisibleChanged: {
                 thermalItem.pipOrNot()
-                thermalItem.logState("visibleChanged")
-            }
-            onWidthChanged: {
-                thermalItem.logState("widthChanged")
-            }
-            onHeightChanged: {
-                thermalItem.logState("heightChanged")
-            }
-            function logState(reason) {
-                console.warn("[FlightDisplay][THERMAL]",
-                             reason,
-                             "visible=", visible,
-                             "hasThermal=", QGroundControl.videoManager.hasThermal,
-                             "mode=", _camera ? _camera.thermalMode : -1,
-                             "opacity=", _camera ? _camera.thermalOpacity : -1,
-                             "width=", width,
-                             "height=", height,
-                             "aspect=", QGroundControl.videoManager.thermalAspectRatio)
             }
             QGCVideoBackground {
                 id:             thermalVideo

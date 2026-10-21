@@ -148,7 +148,6 @@ public:
 
 signals:
     void savePathsChanged();
-    void languageChangeRequiresRestart();
 
 private slots:
     void _indoorPaletteChanged();

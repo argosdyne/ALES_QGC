@@ -57,13 +57,6 @@ void QGCLoggingCategoryRegister::setCategoryLoggingOn(const QString& category, b
 
     settings.beginGroup(_filterRulesSettingsGroup);
     settings.setValue(category, enable);
-
-    QMutexLocker locker(&_enabledCategoriesMutex);
-    if (enable) {
-        _enabledCategories.insert(category);
-    } else {
-        _enabledCategories.remove(category);
-    }
 }
 
 bool QGCLoggingCategoryRegister::categoryLoggingOn(const QString& category)
@@ -74,32 +67,21 @@ bool QGCLoggingCategoryRegister::categoryLoggingOn(const QString& category)
     return settings.value(category, false).toBool();
 }
 
-bool QGCLoggingCategoryRegister::categoryLoggingOnCached(const QString& category)
-{
-    QMutexLocker locker(&_enabledCategoriesMutex);
-    return _enabledCategories.contains(category);
-}
-
 void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& commandLineLoggingOptions)
 {
     QString filterRules;
-    QString filterRuleFormat("%1.debug=true\n%1.info=true\n");
+    QString filterRuleFormat("%1.debug=true\n");
     bool    videoAllLogSet = false;
-    QSet<QString> enabledCategories;
 
     if (!commandLineLoggingOptions.isEmpty()) {
         _commandLineLoggingOptions = commandLineLoggingOptions;
     }
 
     filterRules += "*Log.debug=false\n";
-    filterRules += "*Log.info=false\n";
 
     // Set up filters defined in settings
-    QSettings settings;
-    settings.beginGroup(_filterRulesSettingsGroup);
     foreach (QString category, _registeredCategories) {
-        if (settings.value(category, false).toBool()) {
-            enabledCategories.insert(category);
+        if (categoryLoggingOn(category)) {
             filterRules += filterRuleFormat.arg(category);
             if (category == kVideoAllLogCategory) {
                 videoAllLogSet = true;
@@ -113,7 +95,6 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
 
         if (logList[0] == "full") {
             filterRules += "*Log.debug=true\n";
-            filterRules += "*Log.info=true\n";
             for(int i=1; i<logList.count(); i++) {
                 filterRules += filterRuleFormat.arg(logList[i]);
             }
@@ -137,11 +118,6 @@ void QGCLoggingCategoryRegister::setFilterRulesFromSettings(const QString& comma
     filterRules += filterRuleFormat.arg("GStreamerAPILog");
 
     filterRules += "qt.qml.connections=false";
-
-    {
-        QMutexLocker locker(&_enabledCategoriesMutex);
-        _enabledCategories = enabledCategories;
-    }
 
     qDebug() << "Filter rules" << filterRules;
     QLoggingCategory::setFilterRules(filterRules);

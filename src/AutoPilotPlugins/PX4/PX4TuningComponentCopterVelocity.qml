@@ -23,36 +23,6 @@ ColumnLayout {
     anchors.fill: parent
     property Fact _mcPosMode:       controller.getParameterFact(-1, "MPC_POS_MODE", false)
 
-    function _localizedEnumText(enumText) {
-        if (!enumText || enumText.length === 0) {
-            return enumText
-        }
-
-        const fromMetaDataJson = qsTranslate("Parameter.MetaData.json", enumText)
-        if (fromMetaDataJson !== enumText) {
-            return fromMetaDataJson
-        }
-
-        const fromMetaData = qsTranslate("PX4ParameterMetaData", enumText)
-        if (fromMetaData !== enumText) {
-            return fromMetaData
-        }
-
-        return enumText
-    }
-
-    function _localizedEnumStrings(enumStrings) {
-        if (!enumStrings) {
-            return enumStrings
-        }
-
-        var localized = []
-        for (var i = 0; i < enumStrings.length; i++) {
-            localized.push(_localizedEnumText(enumStrings[i]))
-        }
-        return localized
-    }
-
     GridLayout {
         columns: 2
 
@@ -62,7 +32,6 @@ ColumnLayout {
         }
         FactComboBox {
             fact:               _mcPosMode
-            model:              _localizedEnumStrings(_mcPosMode.enumStrings)
             indexModel:         false
             visible:            _mcPosMode
         }
@@ -74,8 +43,8 @@ ColumnLayout {
             property string name: qsTr("Horizontal")
             property string plotTitle: qsTr("Horizontal (Y direction, sidewards)")
             property var plot: [
-                { name: qsTr("Response"), value: globals.activeVehicle.localPosition.vy.value },
-                { name: qsTr("Setpoint"), value: globals.activeVehicle.localPositionSetpoint.vy.value }
+                { name: "Response", value: globals.activeVehicle.localPosition.vy.value },
+                { name: "Setpoint", value: globals.activeVehicle.localPositionSetpoint.vy.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -107,8 +76,8 @@ ColumnLayout {
         property var vertical: QtObject {
             property string name: qsTr("Vertical")
             property var plot: [
-                { name: qsTr("Response"), value: globals.activeVehicle.localPosition.vz.value },
-                { name: qsTr("Setpoint"), value: globals.activeVehicle.localPositionSetpoint.vz.value }
+                { name: "Response", value: globals.activeVehicle.localPosition.vz.value },
+                { name: "Setpoint", value: globals.activeVehicle.localPositionSetpoint.vz.value }
             ]
             property var params: ListModel {
                 ListElement {
@@ -137,9 +106,11 @@ ColumnLayout {
                 }
             }
         }
-        title: qsTr("Velocity")
+        title: "Velocity"
         tuningMode: Vehicle.ModeVelocityAndPosition
         unit: "m/s"
         axis: [ horizontal, vertical ]
     }
 }
+
+

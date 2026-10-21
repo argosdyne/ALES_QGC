@@ -11,13 +11,6 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QQuaternion>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QDir>
-#include <QFile>
-#include <QTextStream>
-#include <QtMath>
-#include <limits>
 
 #include <Eigen/Eigen>
 
@@ -43,7 +36,6 @@
 #include "QGCOptions.h"
 #include "ADSBVehicleManager.h"
 #include "QGCCameraManager.h"
-#include "QGCCameraControl.h"
 #include "VideoReceiver.h"
 #include "VideoManager.h"
 #include "VideoSettings.h"
@@ -60,8 +52,6 @@
 #include "EventHandler.h"
 #include "Actuators/Actuators.h"
 #include "GimbalController.h"
-#include "NextVisionController.h"
-#include "PayloadManager.h"
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
@@ -69,7 +59,6 @@
 #include "RemoteIDManager.h"
 
 #include "AudioControl.h"
-#include "OpticalFlowController.h"
 
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
@@ -83,78 +72,6 @@ const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode no
 
 const char* Vehicle::_settingsGroup =               "Vehicle%1";        // %1 replaced with mavlink system id
 const char* Vehicle::_joystickEnabledSettingsKey =  "JoystickEnabled";
-
-namespace {
-
-constexpr int kVideoRcOverrideIntervalMSecs = 40;
-constexpr int kVideoRcStopPulseCount = 5;
-constexpr uint16_t kVideoRcOverridePwmMin = 1000;
-constexpr uint16_t kVideoRcOverridePwmMax = 2000;
-
-QString _vehicleLogLinkName(LinkInterface* link)
-{
-    return link && link->linkConfiguration() ? link->linkConfiguration()->name() : QStringLiteral("<null>");
-}
-
-QString _vehicleLogLinkPtr(LinkInterface* link)
-{
-    return link ? QStringLiteral("0x%1").arg(reinterpret_cast<quintptr>(link), 0, 16) : QStringLiteral("0x0");
-}
-
-double _distancePointToSegmentMeters(const QPointF& point, const QPointF& segmentStart, const QPointF& segmentEnd)
-{
-    const double dx = segmentEnd.x() - segmentStart.x();
-    const double dy = segmentEnd.y() - segmentStart.y();
-    const double segmentLengthSquared = dx * dx + dy * dy;
-    if (qFuzzyIsNull(segmentLengthSquared)) {
-        const double ddx = point.x() - segmentStart.x();
-        const double ddy = point.y() - segmentStart.y();
-        return qSqrt(ddx * ddx + ddy * ddy);
-    }
-
-    const double t = ((point.x() - segmentStart.x()) * dx + (point.y() - segmentStart.y()) * dy) / segmentLengthSquared;
-    const double clamped = qBound(0.0, t, 1.0);
-    const double projX = segmentStart.x() + clamped * dx;
-    const double projY = segmentStart.y() + clamped * dy;
-    const double ddx = point.x() - projX;
-    const double ddy = point.y() - projY;
-    return qSqrt(ddx * ddx + ddy * ddy);
-}
-
-QPointF _nedPointFromCoordinate(const QGeoCoordinate& coordinate, const QGeoCoordinate& origin)
-{
-    if (coordinate == origin) {
-        return QPointF(0.0, 0.0);
-    }
-
-    double north = 0.0;
-    double east = 0.0;
-    double down = 0.0;
-    convertGeoToNed(coordinate, origin, &north, &east, &down);
-    return QPointF(east, north);
-}
-
-double _distanceToPolygonBoundaryMeters(const QGCFencePolygon& polygon, const QGeoCoordinate& coordinate)
-{
-    if (polygon.count() < 2) {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    const QGeoCoordinate origin = polygon.vertexCoordinate(0);
-    const QPointF point = _nedPointFromCoordinate(coordinate, origin);
-
-    double minDistance = std::numeric_limits<double>::infinity();
-    for (int i = 0; i < polygon.count(); i++) {
-        const int nextIndex = (i + 1) % polygon.count();
-        const QPointF start = _nedPointFromCoordinate(polygon.vertexCoordinate(i), origin);
-        const QPointF end = _nedPointFromCoordinate(polygon.vertexCoordinate(nextIndex), origin);
-        minDistance = qMin(minDistance, _distancePointToSegmentMeters(point, start, end));
-    }
-
-    return minDistance;
-}
-
-} // namespace
 
 const char* Vehicle::_rollFactName =                "roll";
 const char* Vehicle::_pitchFactName =               "pitch";
@@ -342,10 +259,6 @@ Vehicle::Vehicle(LinkInterface*             link,
     connect(&_sendMultipleTimer, &QTimer::timeout, this, &Vehicle::_sendMessageMultipleNext);
 
     connect(&_orbitTelemetryTimer, &QTimer::timeout, this, &Vehicle::_orbitTelemetryTimeout);
-    _missionImageCountFinalizationTimer.setSingleShot(true);
-    connect(&_missionImageCountFinalizationTimer, &QTimer::timeout, this, [this]() {
-        _missionImageCountTracking = false;
-    });
 
     // Create camera manager instance
     _cameraManager = _firmwarePlugin->createCameraManager(this);
@@ -361,9 +274,6 @@ Vehicle::Vehicle(LinkInterface*             link,
     //Create Audio Control
     _audioControl = _firmwarePlugin->createAudioControl(this);
     emit audioControlChanged();
-
-    //Create Optical Flow Controller
-    _opticalFlowController = new OpticalFlowController(this);
 }
 
 // Disconnected Vehicle for offline editing
@@ -468,16 +378,8 @@ void Vehicle::_commonInit()
     connect(this, &Vehicle::homePositionChanged,    this, &Vehicle::_updateDistanceHeadingToHome);
     connect(this, &Vehicle::hobbsMeterChanged,      this, &Vehicle::_updateHobbsMeter);
     connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_updateAltAboveTerrain);
-    connect(this, &Vehicle::coordinateChanged,      this, &Vehicle::_checkGeoFenceAlertTierLocal);
-    connect(&_altitudeRelativeFact, &Fact::rawValueChanged, this, &Vehicle::_checkGeoFenceAlertTierLocal);
-    connect(&_altitudeAMSLFact,     &Fact::rawValueChanged, this, &Vehicle::_checkGeoFenceAlertTierLocal);
-    connect(&_altitudeAboveTerrFact,&Fact::rawValueChanged, this, &Vehicle::_checkGeoFenceAlertTierLocal);
     // Initialize alt above terrain to Nan so frontend can display it correctly in case the terrain query had no response
     _altitudeAboveTerrFact.setRawValue(qQNaN());
-
-    _videoRcOverrideTimer.setInterval(kVideoRcOverrideIntervalMSecs);
-    _videoRcOverrideTimer.setSingleShot(false);
-    connect(&_videoRcOverrideTimer, &QTimer::timeout, this, &Vehicle::_sendVideoRcOverride);
 
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateDistanceToGCS);
     connect(_toolbox->qgcPositionManager(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateHomepoint);
@@ -505,7 +407,6 @@ void Vehicle::_commonInit()
 
     _parameterManager = new ParameterManager(this);
     connect(_parameterManager, &ParameterManager::parametersReadyChanged, this, &Vehicle::_parametersReady);
-    connect(_parameterManager, &ParameterManager::missingParametersChanged, this, [this](bool){ _updateGeoFenceParamsMissing(); });
 
     connect(_initialConnectStateMachine, &InitialConnectStateMachine::progressUpdate,
             this, &Vehicle::_gotProgressUpdate);
@@ -515,18 +416,10 @@ void Vehicle::_commonInit()
 
     _autotune = _firmwarePlugin->createAutotune(this);
 
-
-
     // GeoFenceManager needs to access ParameterManager so make sure to create after
     _geoFenceManager = new GeoFenceManager(this);
     connect(_geoFenceManager, &GeoFenceManager::error,          this, &Vehicle::_geoFenceManagerError);
     connect(_geoFenceManager, &GeoFenceManager::loadComplete,   this, &Vehicle::_firstGeoFenceLoadComplete);
-    connect(_geoFenceManager, &GeoFenceManager::loadComplete,   this, [this]() {
-        if (!_geoFenceLoaded) {
-            _geoFenceLoaded = true;
-            emit geoFenceLoadedChanged(true);
-        }
-    });
 
     _rallyPointManager = new RallyPointManager(this);
     connect(_rallyPointManager, &RallyPointManager::error,          this, &Vehicle::_rallyPointManagerError);
@@ -617,15 +510,11 @@ void Vehicle::_commonInit()
     _loadJoystickSettings();
 
     _gimbalController = new GimbalController(_mavlink, this);
-    _nextVisionController = new NextVisionController(this, this);
 }
 
 Vehicle::~Vehicle()
 {
     qCDebug(VehicleLog) << "~Vehicle" << this;
-
-    _videoCaptureRunning.store(false);
-    _videoRcOverrideTimer.stop();
 
     delete _missionManager;
     _missionManager = nullptr;
@@ -637,7 +526,6 @@ Vehicle::~Vehicle()
     _mav = nullptr;
 
     deleteGimbalController();
-    _nextVisionController = nullptr;
 }
 
 void Vehicle::prepareDelete()
@@ -741,14 +629,6 @@ void Vehicle::resetCounters()
 
 void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)
 {
-    if (message.msgid == MAVLINK_MSG_ID_CAMERA_INFORMATION) {
-        qCInfo(VehicleLog) << "[Vehicle]"
-                << "CAMERA_INFORMATION received"
-                << "sysid" << message.sysid
-                << "compid" << message.compid
-                << "msgid" << message.msgid
-                << "link" << link;
-    }
     // If the link is already running at Mavlink V2 set our max proto version to it.
     unsigned mavlinkVersion = _mavlink->getCurrentVersion();
     if (_maxProtoVersion != mavlinkVersion && mavlinkVersion >= 200) {
@@ -757,21 +637,6 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     }
 
     if (message.sysid != _id && message.sysid != 0) {
-        if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT) {
-            mavlink_heartbeat_t heartbeat;
-            mavlink_msg_heartbeat_decode(&message, &heartbeat);
-            qCWarning(VehicleLog) << "Vehicle rejected HEARTBEAT due to sysid mismatch"
-                                  << "vehicleId" << _id
-                                  << "messageSysid" << static_cast<int>(message.sysid)
-                                  << "compid" << static_cast<int>(message.compid)
-                                  << "seq" << static_cast<int>(message.seq)
-                                  << "type" << static_cast<int>(heartbeat.type)
-                                  << "autopilot" << static_cast<int>(heartbeat.autopilot)
-                                  << "baseMode" << static_cast<int>(heartbeat.base_mode)
-                                  << "customMode" << heartbeat.custom_mode
-                                  << "link" << _vehicleLogLinkName(link)
-                                  << _vehicleLogLinkPtr(link);
-        }
         // We allow RADIO_STATUS messages which come from a link the vehicle is using to pass through and be handled
         if (!(message.msgid == MAVLINK_MSG_ID_RADIO_STATUS && _vehicleLinkManager->containsLink(link))) {
             return;
@@ -896,12 +761,6 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_CAMERA_IMAGE_CAPTURED:
         _handleCameraImageCaptured(message);
         break;
-    case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
-        _handleCameraCaptureStatus(message);
-        break;
-    case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
-        _handleMissionItemReachedApmCamera(message);
-        break;
     case MAVLINK_MSG_ID_ADSB_VEHICLE:
         _handleADSBVehicle(message);
         break;
@@ -947,41 +806,13 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         mavlink_serial_control_t ser;
         mavlink_msg_serial_control_decode(&message, &ser);
         if (static_cast<size_t>(ser.count) > sizeof(ser.data)) {
-            qCWarning(VehicleLog) << "Invalid count for SERIAL_CONTROL, discarding." << ser.count;
+            qWarning() << "Invalid count for SERIAL_CONTROL, discarding." << ser.count;
         } else {
             emit mavlinkSerialControl(ser.device, ser.flags, ser.timeout, ser.baudrate,
                     QByteArray(reinterpret_cast<const char*>(ser.data), ser.count));
         }
     }
         break;
-    case MAVLINK_MSG_ID_PARAM_VALUE:
-    {
-        mavlink_param_value_t param;
-        mavlink_msg_param_value_decode(&message, &param);
-
-        QString paramId = QString::fromLatin1(param.param_id, strnlen(param.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN));
-
-        if (paramId == "EN_VISIONLIDAR") {
-            const int val = static_cast<int>(param.param_value);
-            emit visionLidarEnabledChanged(val);
-        }
-        else if (paramId == "VL_VALUE") {
-            int val = static_cast<int>(param.param_value);
-            qDebug() << "VL_VALUE received:" << val;
-            emit vlValueChanged(static_cast<int>(val));
-        }
-        else if (paramId == "VL_OBA_MODE") {
-            int val = static_cast<int>(param.param_value);
-            emit vlOBAValueChanged(val);
-        }
-        else if (paramId == "SL_STATUS") {
-            int val = static_cast<int>(param.param_value);
-            qCInfo(LifeVestLog) << "SL_STATUS received:" << val << "from compid" << message.compid;
-            emit slStatusChanged(val);
-        }
-        break;
-    }
-
 // #ifdef DAILY_BUILD // Disable use of development/WIP MAVLink messages for release builds
 //         case MAVLINK_MSG_ID_AVAILABLE_MODES_MONITOR:
 //     {
@@ -1026,7 +857,7 @@ void Vehicle::_handleCameraFeedback(const mavlink_message_t& message)
 
     QGeoCoordinate imageCoordinate((double)feedback.lat / qPow(10.0, 7.0), (double)feedback.lng / qPow(10.0, 7.0), feedback.alt_msl);
     qCDebug(VehicleLog) << "_handleCameraFeedback coord:index" << imageCoordinate << feedback.img_idx;
-    _addCameraTriggerPoint(imageCoordinate, feedback.cam_idx, feedback.img_idx);
+    _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
 }
 
 void Vehicle::_handleRangefinder(mavlink_message_t& message)
@@ -1083,168 +914,8 @@ void Vehicle::_handleCameraImageCaptured(const mavlink_message_t& message)
     QGeoCoordinate imageCoordinate((double)feedback.lat / qPow(10.0, 7.0), (double)feedback.lon / qPow(10.0, 7.0), feedback.alt);
     qCDebug(VehicleLog) << "_handleCameraFeedback coord:index" << imageCoordinate << feedback.image_index << feedback.capture_result;
     if (feedback.capture_result == 1) {
-        _addCameraTriggerPoint(imageCoordinate, feedback.camera_id, static_cast<quint32>(feedback.image_index));
+        _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
     }
-}
-
-void Vehicle::_handleCameraCaptureStatus(const mavlink_message_t& message)
-{
-    mavlink_camera_capture_status_t status;
-    mavlink_msg_camera_capture_status_decode(&message, &status);
-
-    if (status.image_count < 0) {
-        return;
-    }
-
-    const uint8_t componentId = message.compid;
-    const quint32 imageCount = static_cast<quint32>(status.image_count);
-    _cameraImageCounts[componentId] = imageCount;
-
-    if (!_missionImageCountTracking) {
-        return;
-    }
-
-    auto countIt = _missionCameraImageCounts.find(componentId);
-    if (countIt == _missionCameraImageCounts.end()) {
-        // Without a pre-mission baseline, a later status may already include
-        // captured images. Keep the result unavailable and use event fallback.
-        return;
-    }
-
-    MissionCameraImageCountInfo& countInfo = countIt.value();
-    if (imageCount >= countInfo.lastImageCount) {
-        const quint32 increment = imageCount - countInfo.lastImageCount;
-        if (increment != 0) {
-            countInfo.capturedImageCount += increment;
-        }
-        countInfo.lastImageCount = imageCount;
-    } else {
-        // Once the camera counter resets there is no reliable way to derive a
-        // mission delta. Do not publish a misleading value.
-        _missionImageCountValid = false;
-        countInfo.lastImageCount = imageCount;
-    }
-
-    _updateMissionImageCount();
-}
-
-void Vehicle::_startMissionImageCountTracking()
-{
-    if (_missionImageCountTracking) {
-        return;
-    }
-
-    _missionImageCountFinalizationTimer.stop();
-    _missionImageCountTracking = true;
-    _missionCameraImageCounts.clear();
-
-    for (auto it = _cameraImageCounts.cbegin(); it != _cameraImageCounts.cend(); ++it) {
-        MissionCameraImageCountInfo countInfo;
-        countInfo.lastImageCount = it.value();
-        countInfo.baselineAvailable = true;
-        _missionCameraImageCounts.insert(it.key(), countInfo);
-    }
-
-    _missionImageCountValid = !_missionCameraImageCounts.isEmpty();
-    _requestCameraCaptureStatus();
-    _updateMissionImageCount();
-}
-
-void Vehicle::_finishMissionImageCountTracking()
-{
-    if (!_missionImageCountTracking) {
-        return;
-    }
-
-    // The final image may still be writing when the vehicle disarms. Request a
-    // fresh camera status and keep accepting updates for a short settling period.
-    _requestCameraCaptureStatus();
-    _missionImageCountFinalizationTimer.start(3000);
-}
-
-void Vehicle::_requestCameraCaptureStatus()
-{
-    if (!_cameraManager) {
-        return;
-    }
-
-    for (QObject* object : *_cameraManager->cameras()->objectList()) {
-        QGCCameraControl* camera = qobject_cast<QGCCameraControl*>(object);
-        if (camera) {
-            sendMavCommand(camera->compID(), MAV_CMD_REQUEST_CAMERA_CAPTURE_STATUS, false, 1.0f);
-        }
-    }
-}
-
-void Vehicle::_updateMissionImageCount()
-{
-    int imageCount = -1;
-    if (_missionImageCountValid && !_missionCameraImageCounts.isEmpty()) {
-        imageCount = 0;
-        for (auto it = _missionCameraImageCounts.cbegin(); it != _missionCameraImageCounts.cend(); ++it) {
-            if (it.value().baselineAvailable) {
-                imageCount += static_cast<int>(it.value().capturedImageCount);
-            }
-        }
-    }
-
-    if (_missionImageCount != imageCount) {
-        _missionImageCount = imageCount;
-        emit missionImageCountChanged(_missionImageCount);
-    }
-}
-
-// APM survey hover-and-capture bridge: ArduPilot's mission executor runs
-// MAV_CMD_IMAGE_START_CAPTURE but only forwards to the MAVLink camera when
-// CAM1_TYPE is configured for it. On stock APM setups it silently no-ops.
-// APM emits MISSION_ITEM_REACHED only for NAV waypoints, not for the inline
-// IMAGE_START_CAPTURE items that follow them. So when a NAV is reached and
-// the very next mission item is IMAGE_START_CAPTURE, we rebroadcast the
-// shutter to the camera compid ourselves. PX4 rebroadcasts on-vehicle, so
-// we guard on apmFirmware() to avoid double-triggering.
-void Vehicle::_handleMissionItemReachedApmCamera(const mavlink_message_t& message)
-{
-    if (!apmFirmware() || !_missionManager || !_cameraManager) {
-        return;
-    }
-
-    mavlink_mission_item_reached_t reached;
-    mavlink_msg_mission_item_reached_decode(&message, &reached);
-
-    const QList<MissionItem*>& items = _missionManager->missionItems();
-    MissionItem* nextItem = nullptr;
-    for (MissionItem* item : items) {
-        if (item && item->sequenceNumber() == reached.seq + 1) {
-            nextItem = item;
-            break;
-        }
-    }
-    if (!nextItem || nextItem->command() != MAV_CMD_IMAGE_START_CAPTURE) {
-        return;
-    }
-
-    QGCCameraControl* cam = _cameraManager->currentCameraInstance();
-    if (!cam) {
-        qCWarning(VehicleLog) << "APM survey shutter: no camera instance for capture seq" << (reached.seq + 1);
-        return;
-    }
-
-    qCInfo(VehicleLog) << "APM survey shutter → NAV seq" << reached.seq
-                       << "reached, firing IMAGE_START_CAPTURE for next seq" << (reached.seq + 1)
-                       << "cameraClass" << cam->metaObject()->className();
-    cam->takePhoto();
-}
-
-void Vehicle::_addCameraTriggerPoint(const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex)
-{
-    const quint64 captureKey = (static_cast<quint64>(cameraId) << 32) | imageIndex;
-    if (_cameraCaptureIndices.contains(captureKey)) {
-        qCDebug(VehicleLog) << "Ignoring duplicate camera capture" << "cameraId" << cameraId << "imageIndex" << imageIndex;
-        return;
-    }
-
-    _cameraCaptureIndices.insert(captureKey);
-    _cameraTriggerPoints.append(new QGCQGeoCoordinate(imageCoordinate, this));
 }
 
 void Vehicle::_chunkedStatusTextTimeout(void)
@@ -1275,16 +946,6 @@ void Vehicle::_chunkedStatusTextCompleted(uint8_t compId)
     }
 
     _chunkedStatusTextInfoMap.remove(compId);
-
-    // ArduPilot does not provide a schedulable ALTITUDE (141) stream. Some
-    // OpenDroneID transmitters request it repeatedly and trigger this cosmetic
-    // warning even when their other required telemetry streams are available.
-    if (apmFirmware() &&
-        compId == MAV_COMP_ID_AUTOPILOT1 &&
-        messageText.trimmed() == QStringLiteral("No ap_message for mavlink id (141)")) {
-        qCDebug(VehicleLog) << "Suppressing unsupported ALTITUDE (141) stream warning";
-        return;
-    }
 
     // PX4 backwards compatibility: messages sent out ending with a tab are also sent as event
     if (messageText.endsWith('\t') && px4Firmware()) {
@@ -1318,15 +979,11 @@ void Vehicle::_chunkedStatusTextCompleted(uint8_t compId)
     // then read it aloud.
     bool readAloud = false;
 
-    const bool fenceBreachText =
-        messageText.contains(QStringLiteral("fence"), Qt::CaseInsensitive) &&
-        messageText.contains(QStringLiteral("breach"), Qt::CaseInsensitive);
-
     if (messageText.startsWith("#")) {
         messageText.remove(0, 1);
         readAloud = true;
     }
-    else if (severity <= MAV_SEVERITY_NOTICE || fenceBreachText) {
+    else if (severity <= MAV_SEVERITY_NOTICE) {
         readAloud = true;
     }
 
@@ -1923,27 +1580,9 @@ void Vehicle::_updateArmed(bool armed)
             _trajectoryPoints->start();
             _flightTimerStart();
             _clearCameraTriggerPoints();
-            _missionImageCountFinalizationTimer.stop();
-            _missionImageCountTracking = false;
-            _missionCameraImageCounts.clear();
-            _missionImageCountValid = false;
-            if (_missionImageCount != -1) {
-                _missionImageCount = -1;
-                emit missionImageCountChanged(_missionImageCount);
-            }
-            _requestCameraCaptureStatus();
-            if (flightMode() == missionFlightMode()) {
-                _startMissionImageCountTracking();
-            }
             // Reset battery warning
             _lowestBatteryChargeStateAnnouncedMap.clear();
-
-            if (!_preflightChecklistAllowsArming()) {
-                qgcApp()->showAppMessage(tr("Preflight checklist incomplete. Disarming vehicle."));
-                setArmed(false, true);
-            }
         } else {
-            _finishMissionImageCountTracking();
             _trajectoryPoints->stop();
             _flightTimerStop();
             // Also handle Video Streaming
@@ -2165,8 +1804,8 @@ void Vehicle::_handleHeartbeat(mavlink_message_t& message)
         if (previousFlightMode != flightMode()) {
             emit flightModeChanged(flightMode());
         }
-        qCInfo(VehicleLog) << "Flight mode changed:" << flightMode();
-        qCInfo(VehicleLog) << "HEARTBEAT received - base_mode:" << heartbeat.base_mode
+        qInfo() << "Flight mode changed:" << flightMode();
+        qInfo() << "HEARTBEAT received - base_mode:" << heartbeat.base_mode
                 << ", custom_mode:" << heartbeat.custom_mode;
 
     }
@@ -2244,8 +1883,6 @@ void Vehicle::_handleRadioStatus(mavlink_message_t& message)
         _telemetryRNoise = rnoise;
         emit telemetryRNoiseChanged(_telemetryRNoise);
     }
-
-    _updateLinkQuality();
 }
 
 void Vehicle::_handleRCChannels(mavlink_message_t& message)
@@ -2303,10 +1940,6 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
 
 bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t message)
 {
-    if (link == nullptr) {
-        qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe null link!";
-        return false;
-    }
     if (!link->isConnected()) {
         qCDebug(VehicleLog) << "sendMessageOnLinkThreadSafe" << link << "not connected!";
         return false;
@@ -2314,30 +1947,6 @@ bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t
 
     // Give the plugin a chance to adjust
     _firmwarePlugin->adjustOutgoingMavlinkMessageThreadSafe(this, link, &message);
-
-    // The state is entered only by the dedicated NextVision path. Keep other
-    // RC traffic from replacing its CH13 record override while it is active.
-    if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS) {
-        mavlink_rc_channels_t channels;
-        mavlink_msg_rc_channels_decode(&message, &channels);
-        channels.chan13_raw = UINT16_MAX;
-        mavlink_msg_rc_channels_encode_chan(message.sysid,
-                                            message.compid,
-                                            link->mavlinkChannel(),
-                                            &message,
-                                            &channels);
-    } else if (_videoCaptureRunning.load() && message.msgid == MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE) {
-        mavlink_rc_channels_override_t channels;
-        mavlink_msg_rc_channels_override_decode(&message, &channels);
-        if (channels.chan13_raw != kVideoRcOverridePwmMax) {
-            channels.chan13_raw = UINT16_MAX;
-            mavlink_msg_rc_channels_override_encode_chan(message.sysid,
-                                                         message.compid,
-                                                         link->mavlinkChannel(),
-                                                         &message,
-                                                         &channels);
-        }
-    }
 
     // Write message into buffer, prepending start sign
     uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
@@ -2519,7 +2128,6 @@ void Vehicle::resetAllMessages()
     if(type != _currentMessageType) {
         emit messageTypeChanged();
     }
-    _setGeoFenceMarginWarning(false);
 }
 
 // Reset warning counts only
@@ -2545,7 +2153,6 @@ void Vehicle::resetErrorLevelMessages()
     if (prevMessagetype != _currentMessageType) {
         emit messageTypeChanged();
     }
-    _setGeoFenceMarginWarning(false);
 }
 
 // this function called in three cases:
@@ -2557,20 +2164,9 @@ void Vehicle::_loadJoystickSettings()
     QSettings settings;
     settings.beginGroup(QString(_settingsGroup).arg(_id));
 
-    if (Joystick* activeJoystick = _toolbox->joystickManager()->activeJoystick()) {
-        bool enabled = settings.value(_joystickEnabledSettingsKey, false).toBool();
-        // If there is no stored preference yet (fresh install / after reinstall) but the
-        // active joystick already has a restored calibration, enable input automatically so
-        // the user does not have to re-check "Enable joystick input" after their config was
-        // restored. An explicit later choice (toggling the checkbox) is persisted and wins.
-        if (!settings.contains(_joystickEnabledSettingsKey) && activeJoystick->calibrated()) {
-            enabled = true;
-        }
-        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << enabled;
-        setJoystickEnabled(enabled);
-        if (_toolbox->multiVehicleManager()->activeVehicle() == this) {
-            _captureJoystick();
-        }
+    if (_toolbox->joystickManager()->activeJoystick()) {
+        qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified of an active joystick. Loading setting joystickenabled: " << settings.value(_joystickEnabledSettingsKey, false).toBool();
+        setJoystickEnabled(settings.value(_joystickEnabledSettingsKey, false).toBool());
     } else {
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " Notified that there is no active joystick";
         setJoystickEnabled(false);
@@ -2635,10 +2231,6 @@ void Vehicle::_captureJoystick()
     Joystick* joystick = _joystickManager->activeJoystick();
 
     if(joystick){
-        qWarning() << "[GremsyLynx]" << "vehicle capture joystick"
-                   << "vehicle" << this->id()
-                   << "name" << joystick->name()
-                   << "joystickEnabled" << _joystickEnabled;
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " Capture Joystick" << joystick->name();
         joystick->startPolling(this);
     }
@@ -2652,11 +2244,6 @@ QGeoCoordinate Vehicle::homePosition()
 
 void Vehicle::setArmed(bool armed, bool showError)
 {
-    if (armed && !_preflightChecklistAllowsArming()) {
-        qgcApp()->showAppMessage(tr("Preflight checklist must pass before arming."));
-        return;
-    }
-
     // We specifically use COMMAND_LONG:MAV_CMD_COMPONENT_ARM_DISARM since it is supported by more flight stacks.
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
@@ -2666,32 +2253,11 @@ void Vehicle::setArmed(bool armed, bool showError)
 
 void Vehicle::forceArm(void)
 {
-    if (!_preflightChecklistAllowsArming()) {
-        qgcApp()->showAppMessage(tr("Preflight checklist must pass before arming."));
-        return;
-    }
-
     sendMavCommand(_defaultComponentId,
                    MAV_CMD_COMPONENT_ARM_DISARM,
                    true,    // show error if fails
                    1.0f,    // arm
                    2989);   // force arm
-}
-
-bool Vehicle::_preflightChecklistAllowsArming() const
-{
-    AppSettings* appSettings = _settingsManager ? _settingsManager->appSettings() : nullptr;
-    QGCCorePlugin* corePlugin = _toolbox ? _toolbox->corePlugin() : nullptr;
-    QGCOptions* options = corePlugin ? corePlugin->options() : nullptr;
-    const bool checklistAvailable = options && !options->preFlightChecklistUrl().toString().isEmpty();
-
-    if (!appSettings || !checklistAvailable) {
-        return true;
-    }
-
-    const bool useChecklist = appSettings->useChecklist()->rawValue().toBool();
-    const bool enforceChecklist = appSettings->enforceChecklist()->rawValue().toBool();
-    return !(useChecklist && enforceChecklist && _checkListState != CheckListPassed);
 }
 
 bool Vehicle::flightModeSetAvailable()
@@ -2729,10 +2295,10 @@ void Vehicle::setFlightMode(const QString& flightMode)
     uint8_t     base_mode;
     uint32_t    custom_mode;
 
-    qCInfo(VehicleLog) << "Send flightMode : " << flightMode;
+    qInfo() << "Send flightMode : " << flightMode;
 
     if (setFlightModeCustom(flightMode, &base_mode, &custom_mode)) {
-        qCInfo(VehicleLog) << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
+        qInfo() << "Base Mode : " << base_mode << "Custom_Mode : " << custom_mode;
         SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
         if (!sharedLink) {
             qCDebug(VehicleLog) << "setFlightMode: primary link gone!";
@@ -2752,7 +2318,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
                            MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                            custom_mode);
 
-            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported";
+            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported";
         } else {
             mavlink_message_t msg;
             mavlink_msg_set_mode_pack_chan(_mavlink->getSystemId(),
@@ -2764,7 +2330,7 @@ void Vehicle::setFlightMode(const QString& flightMode)
                                            custom_mode);
             sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
 
-            qCInfo(VehicleLog) << "MAV_CMD_DO_SET_MODE_is_supported not";
+            qInfo() << "MAV_CMD_DO_SET_MODE_is_supported not";
         }
     } else {
         qCWarning(VehicleLog) << "FirmwarePlugin::setFlightMode failed, flightMode:" << flightMode;
@@ -2867,12 +2433,6 @@ void Vehicle::_rallyPointManagerError(int errorCode, const QString& errorMsg)
 
 void Vehicle::_clearCameraTriggerPoints()
 {
-    clearCameraTriggerPoints();
-}
-
-void Vehicle::clearCameraTriggerPoints()
-{
-    _cameraCaptureIndices.clear();
     _cameraTriggerPoints.clearAndDeleteContents();
 }
 
@@ -2915,10 +2475,6 @@ void Vehicle::_firstMissionLoadComplete()
 void Vehicle::_firstGeoFenceLoadComplete()
 {
     disconnect(_geoFenceManager, &GeoFenceManager::loadComplete, this, &Vehicle::_firstGeoFenceLoadComplete);
-    if (!_geoFenceLoaded) {
-        _geoFenceLoaded = true;
-        emit geoFenceLoadedChanged(true);
-    }
     _initialConnectStateMachine->advance();
 }
 
@@ -2941,23 +2497,6 @@ void Vehicle::_parametersReady(bool parametersReady)
     if (parametersReady) {
         disconnect(_parameterManager, &ParameterManager::parametersReadyChanged, this, &Vehicle::_parametersReady);
         _setupAutoDisarmSignalling();
-        _updateGeoFenceActiveState();
-        _updateGeoFenceParamsMissing();
-        _updateParachuteState();
-        _updateLinkQuality();
-
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-            Fact* fenceEnableFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE");
-            connect(fenceEnableFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
-        }
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
-            Fact* fenceTypeFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE");
-            connect(fenceTypeFact, &Fact::rawValueChanged, this, &Vehicle::_updateGeoFenceActiveState);
-        }
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "CHUTE_ENABLED")) {
-            Fact* chuteEnabledFact = _parameterManager->getParameter(FactSystem::defaultComponentId, "CHUTE_ENABLED");
-            connect(chuteEnabledFact, &Fact::rawValueChanged, this, &Vehicle::_updateParachuteState);
-        }
         _initialConnectStateMachine->advance();
     }
 
@@ -3023,7 +2562,6 @@ void Vehicle::_remoteControlRSSIChanged(uint8_t rssi)
     if(_rcRSSI != filteredRSSI) {
         _rcRSSI = filteredRSSI;
         emit rcRSSIChanged(_rcRSSI);
-        _updateLinkQuality();
     }
 }
 
@@ -3153,10 +2691,7 @@ QString Vehicle::_vehicleIdSpeech()
 void Vehicle::_handleFlightModeChanged(const QString& flightMode)
 {
     _say(tr("%1 %2 flight mode").arg(_vehicleIdSpeech()).arg(flightMode));
-    qCInfo(VehicleLog) << "_handleFlightModeChanged : " << flightMode;
-    if (_armed && flightMode == missionFlightMode()) {
-        _startMissionImageCountTracking();
-    }
+    qInfo() << "_handleFlightModeChanged : " << flightMode;
     emit guidedModeChanged(_firmwarePlugin->isGuidedMode(this));
 }
 
@@ -4013,7 +3548,7 @@ void Vehicle::_requestMessageWaitForMessageResultHandler(void* resultHandlerData
 
 void Vehicle::setPrearmError(const QString& prearmError)
 {
-    _prearmError = QCoreApplication::translate("UASWarning", prearmError.toUtf8().constData());
+    _prearmError = prearmError;
     emit prearmErrorChanged(_prearmError);
     if (!_prearmError.isEmpty()) {
         _prearmErrorTimer.start();
@@ -4249,137 +3784,6 @@ void Vehicle::stopMavlinkLog()
     sendMavCommand(_defaultComponentId, MAV_CMD_LOGGING_STOP, false /* showError */);
 }
 
-void Vehicle::startVideoCapture()
-{
-    PayloadManager* payloadManager = PayloadManager::instance();
-    const bool nextVisionActive = payloadManager->activeType() == 1
-            && payloadManager->nextvision()
-            && (payloadManager->nextvision()->connected()
-                || payloadManager->nextvision()->vehicleControlAvailable());
-    if (!nextVisionActive) {
-        if (_cameraManager && _cameraManager->currentCameraInstance()) {
-            _cameraManager->currentCameraInstance()->startVideo();
-        }
-        return;
-    }
-
-    qInfo() << "[NextVision][Record] start requested"
-            << "vehicleTransport" << payloadManager->nextvision()->vehicleControlAvailable();
-
-    if (_videoCaptureRunning.exchange(true)) {
-        return;
-    }
-
-    _videoRcStopPulsesRemaining = 0;
-    emit videoCaptureRunningChanged();
-    _sendVideoRcOverride();
-    _videoRcOverrideTimer.start();
-}
-
-void Vehicle::stopVideoCapture()
-{
-    if (!_videoCaptureRunning.load()) {
-        if (_cameraManager && _cameraManager->currentCameraInstance()) {
-            _cameraManager->currentCameraInstance()->stopVideo();
-        }
-        return;
-    }
-
-    if (!_videoCaptureRunning.exchange(false)) {
-        return;
-    }
-
-    qInfo() << "[NextVision][Record] stop requested";
-
-    _videoRcOverrideTimer.stop();
-    emit videoCaptureRunningChanged();
-    // Do not wait for the ArduPilot RC override timeout. Drive CH13 low for a
-    // few packets so the NextVision recorder stops immediately, then release
-    // the timer and let the regular RC stream own the channel again.
-    _videoRcStopPulsesRemaining = kVideoRcStopPulseCount;
-    _sendVideoRcOverride();
-    if (_videoRcStopPulsesRemaining > 0) {
-        _videoRcOverrideTimer.start();
-    }
-}
-
-void Vehicle::toggleVideoCapture()
-{
-    if (_videoCaptureRunning.load()) {
-        stopVideoCapture();
-    } else {
-        PayloadManager* payloadManager = PayloadManager::instance();
-        const bool nextVisionActive = payloadManager->activeType() == 1
-                && payloadManager->nextvision()
-                && (payloadManager->nextvision()->connected()
-                    || payloadManager->nextvision()->vehicleControlAvailable());
-        if (nextVisionActive) {
-            startVideoCapture();
-        } else if (_cameraManager && _cameraManager->currentCameraInstance()) {
-            _cameraManager->currentCameraInstance()->toggleVideo();
-        }
-    }
-}
-
-void Vehicle::_sendVideoRcOverride()
-{
-    const bool recording = _videoCaptureRunning.load();
-    if (!recording && _videoRcStopPulsesRemaining <= 0) {
-        _videoRcOverrideTimer.stop();
-        return;
-    }
-
-    SharedLinkInterfacePtr sharedLink;
-    PayloadManager* payloadManager = PayloadManager::instance();
-    if (payloadManager->activeType() == 1 && payloadManager->nextvision()
-            && payloadManager->nextvision()->vehicleControlAvailable()) {
-        sharedLink = vehicleLinkManager()->linkByUdpPort(NextVisionPayloadController::kLteMavlinkPort).lock();
-    }
-    if (!sharedLink) {
-        sharedLink = vehicleLinkManager()->primaryLink().lock();
-    }
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "_sendVideoRcOverride: primary link gone!";
-        if (!recording) {
-            _videoRcStopPulsesRemaining = 0;
-            _videoRcOverrideTimer.stop();
-        }
-        return;
-    }
-
-    const SharedLinkInterfacePtr lteLink = vehicleLinkManager()->linkByUdpPort(NextVisionPayloadController::kLteMavlinkPort).lock();
-    const bool lteTransport = property("onLTE").toBool()
-            || (lteLink && lteLink.get() == sharedLink.get());
-    if (sharedLink->linkConfiguration()->isHighLatency() && !lteTransport) {
-        if (!recording) {
-            _videoRcStopPulsesRemaining = 0;
-            _videoRcOverrideTimer.stop();
-        }
-        return;
-    }
-
-    const uint16_t recordPwm = recording ? kVideoRcOverridePwmMax : kVideoRcOverridePwmMin;
-    mavlink_message_t message;
-    mavlink_msg_rc_channels_override_pack_chan(
-                static_cast<uint8_t>(_mavlink->getSystemId()),
-                static_cast<uint8_t>(_mavlink->getComponentId()),
-                sharedLink->mavlinkChannel(),
-                &message,
-                static_cast<uint8_t>(_id),
-                MAV_COMP_ID_AUTOPILOT1,
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
-                recordPwm,                  // CH13 high = record, low = stop
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX);
-    sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-
-    if (!recording && --_videoRcStopPulsesRemaining <= 0) {
-        _videoRcStopPulsesRemaining = 0;
-        _videoRcOverrideTimer.stop();
-    }
-}
-
 void Vehicle::_ackMavlinkLogData(uint16_t sequence)
 {
     SharedLinkInterfacePtr  sharedLink = vehicleLinkManager()->primaryLink().lock();
@@ -4409,7 +3813,7 @@ void Vehicle::_handleMavlinkLoggingData(mavlink_message_t& message)
     mavlink_logging_data_t log;
     mavlink_msg_logging_data_decode(&message, &log);
     if (static_cast<size_t>(log.length) > sizeof(log.data)) {
-        qCWarning(VehicleLog) << "Invalid length for LOGGING_DATA, discarding." << log.length;
+        qWarning() << "Invalid length for LOGGING_DATA, discarding." << log.length;
     } else {
         emit mavlinkLogData(this, log.target_system, log.target_component, log.sequence,
                             log.first_message_offset, QByteArray((const char*)log.data, log.length), false);
@@ -4422,7 +3826,7 @@ void Vehicle::_handleMavlinkLoggingDataAcked(mavlink_message_t& message)
     mavlink_msg_logging_data_acked_decode(&message, &log);
     _ackMavlinkLogData(log.sequence);
     if (static_cast<size_t>(log.length) > sizeof(log.data)) {
-        qCWarning(VehicleLog) << "Invalid length for LOGGING_DATA_ACKED, discarding." << log.length;
+        qWarning() << "Invalid length for LOGGING_DATA_ACKED, discarding." << log.length;
     } else {
         emit mavlinkLogData(this, log.target_system, log.target_component, log.sequence,
                             log.first_message_offset, QByteArray((const char*)log.data, log.length), false);
@@ -4702,46 +4106,6 @@ void Vehicle::_mavlinkMessageStatus(int uasId, uint64_t totalSent, uint64_t tota
         _mavlinkLossCount       = totalLoss;
         _mavlinkLossPercent     = lossPercent;
         emit mavlinkStatusChanged();
-
-        // C2Link 5 s rate logger disabled. Re-enable by removing the #if 0 / #endif guard.
-#if 0
-        // Per-second rate logger: prints msg/s arriving + lost + total + lossPct
-        // once per second to C2LinkLog so we can correlate rate with link health.
-        static qint64 lastTickMs   = 0;
-        static uint64_t lastRx     = 0;
-        static uint64_t lastLost   = 0;
-        const qint64 nowTickMs     = QDateTime::currentMSecsSinceEpoch();
-        if (lastTickMs == 0) {
-            lastTickMs = nowTickMs;
-            lastRx     = totalReceived;
-            lastLost   = totalLoss;
-        } else if ((nowTickMs - lastTickMs) >= 5000) {
-            const double sec      = (nowTickMs - lastTickMs) / 1000.0;
-            const double rxRate   = (totalReceived - lastRx)   / sec;
-            const double lossRate = (totalLoss     - lastLost) / sec;
-            const double total    = rxRate + lossRate;
-            const double pct      = (total > 0.0) ? (lossRate / total * 100.0) : 0.0;
-            qCInfo(C2LinkLog) << "[Mavlink Link Status]"
-                                << "received="    << QString::number(rxRate, 'f', 1) << "msg/s"
-                                << "lost="  << QString::number(lossRate, 'f', 1) << "msg/s"
-                                << "total=" << QString::number(total, 'f', 1) << "msg/s"
-                                << "loss rate=" << QString::number(pct, 'f', 1) << "%";
-            lastTickMs = nowTickMs;
-            lastRx     = totalReceived;
-            lastLost   = totalLoss;
-        }
-#endif
-
-        //// Throttle banner re-evaluation on the packet-tick path to once every 7 s
-        //// in both directions. State-change callers (arm/disarm/flying) still call
-        //// _updateLinkQuality() directly and react instantly.
-        //static qint64 lastQualityEvalMs = 0;
-        //const qint64 nowQualityEvalMs = QDateTime::currentMSecsSinceEpoch();
-        //if (lastQualityEvalMs == 0 || (nowQualityEvalMs - lastQualityEvalMs) >= 7000) {
-        //    lastQualityEvalMs = nowQualityEvalMs;
-        //    _updateLinkQuality();
-        //}
-        _updateLinkQuality();
     }
 }
 
@@ -4986,17 +4350,17 @@ void Vehicle::_handleGimbalOrientation(const mavlink_message_t& message)
     mavlink_msg_mount_orientation_decode(&message, &o);
     if(fabsf(_curGimbalRoll - o.roll) > 0.5f) {
         _curGimbalRoll = o.roll;
-        qCInfo(VehicleLog) << "Cur Roll = " << _curGimbalRoll;
+        qInfo() << "Cur Roll = " << _curGimbalRoll;
         emit gimbalRollChanged();
     }
     if(fabsf(_curGimbalPitch - o.pitch) > 0.5f) {
         _curGimbalPitch = o.pitch;
-        qCInfo(VehicleLog) << "Cur Pitch = " << _curGimbalPitch;
+        qInfo() << "Cur Pitch = " << _curGimbalPitch;
         emit gimbalPitchChanged();
     }
     if(fabsf(_curGimbalYaw - o.yaw) > 0.5f) {
         _curGimbalYaw = o.yaw;
-        qCInfo(VehicleLog) << "Cur Yaw = " << _curGimbalYaw;
+        qInfo() << "Cur Yaw = " << _curGimbalYaw;
         emit gimbalYawChanged();
     }
     if(!_haveGimbalData) {
@@ -5019,662 +4383,35 @@ void Vehicle::_handleFenceStatus(const mavlink_message_t& message)
 
     mavlink_msg_fence_status_decode(&message, &fenceStatus);
 
-    qCDebug(VehicleLog) << "_handleFenceStatus breach_status" << fenceStatus.breach_status << "breach_count" << fenceStatus.breach_count;
+    qCDebug(VehicleLog) << "_handleFenceStatus breach_status" << fenceStatus.breach_status;
 
+    static qint64 lastUpdate = 0;
     qint64 now = QDateTime::currentMSecsSinceEpoch();
-    const bool statusBreached = fenceStatus.breach_status != 0;
-    bool breachCountIncreased = false;
-    if (!_fenceStatusReceived) {
-        _fenceStatusReceived = true;
-    } else if (fenceStatus.breach_count > _lastFenceBreachCount) {
-        breachCountIncreased = true;
-    }
-
-    bool shouldAlert = statusBreached || (breachCountIncreased && fenceStatus.breach_type != FENCE_BREACH_NONE);
-    bool breachedNow = statusBreached;
-
-    bool fenceActive = true;
-    if (_parameterManager && _parameterManager->parametersReady()) {
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE") &&
-            _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
-            fenceActive = false;
-        }
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
-            const uint32_t fenceTypeMask =
-                _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
-            if (fenceTypeMask == 0) {
-                fenceActive = false;
-            }
-        }
-    }
-    if (!fenceActive) {
-        breachedNow = false;
-    }
-    _fenceStatusBreached = breachedNow;
-
-    // If geofence is inactive, suppress both stateful and event-only alerts.
-    shouldAlert = shouldAlert && fenceActive;
-
-    if (shouldAlert && fenceStatus.breach_type == FENCE_BREACH_BOUNDARY) {
-        _checkGeoFenceAlertTierLocal();
-        if (_geoFenceAlertTier == GeoFenceAlertTierAltitudeWarning) {
-            shouldAlert = false;
-        }
-    }
-
-    QString breachTypeStr;
-    if (shouldAlert) {
-        switch (fenceStatus.breach_type) {
-            case FENCE_BREACH_NONE:
-                breachTypeStr = tr("unknown");
-                break;
-            case FENCE_BREACH_MINALT:
-                breachTypeStr = tr("minimum altitude");
-                break;
-            case FENCE_BREACH_MAXALT:
-                breachTypeStr = tr("maximum altitude");
-                break;
-            case FENCE_BREACH_BOUNDARY:
-                breachTypeStr = tr("boundary");
-                break;
-            default:
-                breachTypeStr = tr("unknown");
-                break;
-        }
-    }
-
-    if (shouldAlert && _geoFenceAlertTier < GeoFenceAlertTierBreach) {
-        _setGeoFenceAlertTier(GeoFenceAlertTierBreach, breachTypeStr);
-    } else if (!statusBreached && _geoFenceAlertTier == GeoFenceAlertTierBreach) {
-        _checkGeoFenceAlertTierLocal();
-    }
-
-    if (!shouldAlert) {
-        _lastGeoFenceBreachMessageMSecs = now;
-    }
-
-    _lastFenceBreachCount = fenceStatus.breach_count;
-}
-
-double Vehicle::_geoFenceContingencyWidthMeters(void) const
-{
-    QSettings settings;
-    settings.beginGroup(QStringLiteral("ContingencyVolume"));
-    const double maxSpeed = qMax(0.0, settings.value(QStringLiteral("maxSpeed"), 15.0).toDouble());
-    const double latency = qMax(0.0, settings.value(QStringLiteral("latency"), 1.0).toDouble());
-    const double maneuverTime = qMax(0.0, settings.value(QStringLiteral("maneuverTime"), 3.0).toDouble());
-    const double windSpeed = qMax(0.0, settings.value(QStringLiteral("windSpeed"), 0.0).toDouble());
-    const double positionError = qMax(0.0, settings.value(QStringLiteral("positionError"), 10.0).toDouble());
-    settings.endGroup();
-
-    return (maxSpeed * latency) + ((maxSpeed + windSpeed) * maneuverTime) + positionError;
-}
-
-void Vehicle::_setGeoFenceAlertTier(GeoFenceAlertTier tier, const QString& reason)
-{
-    if (_geoFenceAlertTier == tier) {
-        return;
-    }
-
-    const GeoFenceAlertTier previousTier = _geoFenceAlertTier;
-    const bool breachCleared = previousTier >= GeoFenceAlertTierBreach && tier < GeoFenceAlertTierBreach;
-    _geoFenceAlertTier = tier;
-    emit geoFenceAlertTierChanged(static_cast<int>(tier));
-
-    _setGeoFenceMarginWarning(tier == GeoFenceAlertTierMargin);
-    _setGeoFenceBreached(tier >= GeoFenceAlertTierBreach);
-
-    QString message;
-    QString speech;
-    int severity = MAV_SEVERITY_INFO;
-
-    switch (tier) {
-    case GeoFenceAlertTierMargin:
-        severity = MAV_SEVERITY_WARNING;
-        message = tr("Approaching geofence margin");
-        speech = message;
-        _lastGeoFenceMarginWarningMSecs = QDateTime::currentMSecsSinceEpoch();
-        if (breachCleared) {
-            _logGeoFenceEvent(QStringLiteral("BREACH_EXIT"));
-        }
-        _logGeoFenceEvent(QStringLiteral("MARGIN_ENTER"), reason);
-        break;
-    case GeoFenceAlertTierAltitudeWarning:
-        severity = MAV_SEVERITY_WARNING;
-        message = reason.isEmpty() ? tr("Entering 3D GeoFence area") : reason;
-        if (breachCleared) {
-            _logGeoFenceEvent(QStringLiteral("BREACH_EXIT"));
-        }
-        _logGeoFenceEvent(QStringLiteral("ALTITUDE_WARNING_ENTER"), reason);
-        break;
-    case GeoFenceAlertTierBreach:
-        severity = MAV_SEVERITY_ERROR;
-        message = reason.isEmpty() ? tr("GeoFence breach") : tr("GeoFence breach: %1").arg(reason);
-        speech = reason.isEmpty() ? tr("boundary fence breached") : reason + QStringLiteral(" ") + tr("fence breached");
-        _lastGeoFenceBreachMessageMSecs = QDateTime::currentMSecsSinceEpoch();
-        _logGeoFenceEvent(QStringLiteral("BREACH_ENTER"), reason);
-        break;
-    case GeoFenceAlertTierContingency:
-        severity = MAV_SEVERITY_ERROR;
-        message = reason.isEmpty() ? tr("GeoFence contingency exceeded") : tr("GeoFence contingency exceeded: %1").arg(reason);
-        speech = reason.isEmpty() ? tr("over contingency") : reason + QStringLiteral(" ") + tr("over contingency");
-        _lastGeoFenceBreachMessageMSecs = QDateTime::currentMSecsSinceEpoch();
-        _logGeoFenceEvent(QStringLiteral("CONTINGENCY_ENTER"), reason);
-        break;
-    case GeoFenceAlertTierNone:
-        if (previousTier == GeoFenceAlertTierMargin) {
-            message = tr("Geofence margin cleared");
-            _logGeoFenceEvent(QStringLiteral("MARGIN_EXIT"));
-        } else if (previousTier == GeoFenceAlertTierAltitudeWarning) {
-            message = tr("Geofence altitude warning cleared");
-            _logGeoFenceEvent(QStringLiteral("ALTITUDE_WARNING_EXIT"));
-        } else if (previousTier == GeoFenceAlertTierContingency) {
-            message = tr("Exited contingency area");
-            _logGeoFenceEvent(QStringLiteral("CONTINGENCY_EXIT"));
-        } else if (previousTier == GeoFenceAlertTierBreach) {
-            message = tr("Exited breach area");
-            _logGeoFenceEvent(QStringLiteral("BREACH_EXIT"));
-        }
-        break;
-    }
-
-    if (!message.isEmpty()) {
-        emit textMessageReceived(id(), defaultComponentId(), severity, message.toHtmlEscaped(), "");
-    }
-
-    if (!speech.isEmpty()) {
-        qgcApp()->toolbox()->audioOutput()->say(speech);
-    }
-}
-
-void Vehicle::_setGeoFenceMarginWarning(bool warningActive)
-{
-    if (_geoFenceMarginWarning == warningActive) {
-        return;
-    }
-    _geoFenceMarginWarning = warningActive;
-    emit geoFenceMarginWarningChanged();
-
-    if (warningActive) {
-        _logGeoFenceEvent(QStringLiteral("MARGIN_ENTER"));
-    } else {
-        _logGeoFenceEvent(QStringLiteral("MARGIN_EXIT"));
-    }
-}
-
-void Vehicle::_setGeoFenceBreached(bool breached)
-{
-    if (_geoFenceBreached == breached) {
-        return;
-    }
-    _geoFenceBreached = breached;
-    emit geoFenceBreachedChanged(breached);
-
-    if (breached && _geoFenceMarginWarning) {
-        _setGeoFenceMarginWarning(false);
-    }
-}
-
-void Vehicle::_updateGeoFenceActiveState(void)
-{
-    bool active = false;
-    if (_geoFenceManager && _geoFenceManager->supported() && _parameterManager && _parameterManager->parametersReady()) {
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-            active = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() != 0;
-        } else {
-            active = true;
-        }
-
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")) {
-            const uint32_t fenceTypeMask = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt();
-            if (fenceTypeMask == 0) {
-                active = false;
-            }
-        }
-    }
-
-    if (!active) {
-        // If fence is disabled, clear any latched warnings/breach state.
-        _fenceStatusBreached = false;
-        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
-        _setGeoFenceBreached(false);
-        _setGeoFenceMarginWarning(false);
-    }
-
-    if (_geoFenceActive == active) {
-        return;
-    }
-    _geoFenceActive = active;
-    emit geoFenceActiveChanged(active);
-}
-
-void Vehicle::_updateGeoFenceParamsMissing(void)
-{
-    bool missing = false;
-    if (_parameterManager && _geoFenceManager && _geoFenceManager->supported()) {
-        if (_parameterManager->parametersReady()) {
-            static const char* kRequiredApmFenceParams[] = {
-                "FENCE_ENABLE",
-                "FENCE_TYPE",
-            };
-            static const char* kRequiredPx4FenceParams[] = {
-                "GF_MAX_HOR_DIST",
-                "GF_MAX_VER_DIST",
-            };
-
-            const char* const* requiredParams = px4Firmware() ? kRequiredPx4FenceParams : kRequiredApmFenceParams;
-            const size_t requiredParamCount = px4Firmware()
-                ? (sizeof(kRequiredPx4FenceParams) / sizeof(kRequiredPx4FenceParams[0]))
-                : (sizeof(kRequiredApmFenceParams) / sizeof(kRequiredApmFenceParams[0]));
-
-            for (size_t i = 0; i < requiredParamCount; ++i) {
-                const char* paramName = requiredParams[i];
-                if (!_parameterManager->parameterExists(FactSystem::defaultComponentId, paramName)) {
-                    missing = true;
+    if (fenceStatus.breach_status == 1) {
+        if (now - lastUpdate > 3000) {
+            lastUpdate = now;
+            QString breachTypeStr;
+            switch (fenceStatus.breach_type) {
+                case FENCE_BREACH_NONE:
+                    return;
+                case FENCE_BREACH_MINALT:
+                    breachTypeStr = tr("minimum altitude");
                     break;
-                }
-            }
-        }
-    }
-
-    if (_geoFenceParamsMissing == missing) {
-        return;
-    }
-    _geoFenceParamsMissing = missing;
-    emit geoFenceParamsMissingChanged(missing);
-}
-
-void Vehicle::_checkGeoFenceAlertTierLocal(void)
-{
-    if (!_geoFenceManager || !_geoFenceManager->supported() || !_coordinate.isValid()) {
-        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
-        return;
-    }
-
-    if (!_parameterManager || !_parameterManager->parametersReady()) {
-        return;
-    }
-
-    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE") &&
-        _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
-        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
-        return;
-    }
-
-    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
-        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
-        : 0;
-    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
-        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
-        return;
-    }
-
-    const bool allowInclusionExclusionChecks =
-        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
-    const bool allowHomeCircleChecks =
-        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
-    const double marginMeters = (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_MARGIN"))
-        ? qMax(0.0, _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_MARGIN")->rawValue().toDouble())
-        : 0.0;
-    const double contingencyWidthMeters = qMax(0.0, _geoFenceContingencyWidthMeters());
-
-    bool hasGeometry = false;
-    GeoFenceAlertTier tier = GeoFenceAlertTierNone;
-    QString tierReason;
-
-    auto updateTier = [&](GeoFenceAlertTier candidateTier, const QString& candidateReason) {
-        if (candidateTier > tier) {
-            tier = candidateTier;
-            tierReason = candidateReason;
-        }
-    };
-
-    auto altitudeBandApplies = [&](bool enabled, int frame, double minimum, double maximum, QString& outsideReason) {
-        if (!enabled || maximum <= minimum) {
-            return true;
-        }
-
-        double altitude = qQNaN();
-        switch (frame) {
-        case MAV_FRAME_GLOBAL:
-        case MAV_FRAME_GLOBAL_INT:
-            altitude = _altitudeAMSLFact.rawValue().toDouble();
-            break;
-        case MAV_FRAME_GLOBAL_TERRAIN_ALT:
-        case MAV_FRAME_GLOBAL_TERRAIN_ALT_INT:
-            altitude = _altitudeAboveTerrFact.rawValue().toDouble();
-            break;
-        case MAV_FRAME_GLOBAL_RELATIVE_ALT:
-        case MAV_FRAME_GLOBAL_RELATIVE_ALT_INT:
-        default:
-            altitude = _altitudeRelativeFact.rawValue().toDouble();
-            break;
-        }
-
-        // Unknown altitude must not downgrade a real breach.
-        if (qIsNaN(altitude)) {
-            return true;
-        }
-        // Once outside the altitude band, require a small re-entry margin so
-        // altitude noise at Min/Max does not alternate warning and breach.
-        const double hysteresisMeters = (_geoFenceAlertTier == GeoFenceAlertTierAltitudeWarning)
-            ? qMin(0.5, (maximum - minimum) * 0.1)
-            : 0.0;
-        if (altitude < minimum + hysteresisMeters) {
-            outsideReason = tr("Entering 3D GeoFence area - Min: %1 m, Max: %2 m")
-                                .arg(minimum, 0, 'f', 1)
-                                .arg(maximum, 0, 'f', 1);
-            return false;
-        }
-        if (altitude > maximum - hysteresisMeters) {
-            outsideReason = tr("Entering 3D GeoFence area - Min: %1 m, Max: %2 m")
-                                .arg(minimum, 0, 'f', 1)
-                                .arg(maximum, 0, 'f', 1);
-            return false;
-        }
-        return true;
-    };
-
-    if (allowInclusionExclusionChecks) {
-        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
-        for (const QGCFencePolygon& polygon : polygons) {
-            if (!polygon.isValid()) {
-                continue;
+                case FENCE_BREACH_MAXALT:
+                    breachTypeStr = tr("maximum altitude");
+                    break;
+                case FENCE_BREACH_BOUNDARY:
+                    breachTypeStr = tr("boundary");
+                    break;
+                default:
+                    break;
             }
 
-            hasGeometry = true;
-            const bool contains = polygon.containsCoordinate(_coordinate);
-            const double distanceToBoundary = _distanceToPolygonBoundaryMeters(polygon, _coordinate);
-            QString altitudeReason;
-            const bool altitudeApplies = altitudeBandApplies(polygon.altitudeBandEnabled(),
-                                                              polygon.altitudeFrame(),
-                                                              polygon.altitudeMin(),
-                                                              polygon.altitudeMax(),
-                                                              altitudeReason);
-            const QString boundaryReason = polygon.altitudeBandEnabled()
-                ? tr("3D boundary, Min: %1 m, Max: %2 m").arg(polygon.altitudeMin(), 0, 'f', 1).arg(polygon.altitudeMax(), 0, 'f', 1)
-                : tr("boundary");
-            const QString exclusionReason = polygon.altitudeBandEnabled()
-                ? tr("3D exclusion, Min: %1 m, Max: %2 m").arg(polygon.altitudeMin(), 0, 'f', 1).arg(polygon.altitudeMax(), 0, 'f', 1)
-                : tr("exclusion");
-
-            if (polygon.inclusion()) {
-                if (contains) {
-                    if (altitudeApplies && marginMeters > 0.0 && distanceToBoundary <= marginMeters) {
-                        updateTier(GeoFenceAlertTierMargin, tr("boundary"));
-                    }
-                } else {
-                    if (altitudeApplies) {
-                        updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
-                                   boundaryReason);
-                    } else {
-                        updateTier(GeoFenceAlertTierAltitudeWarning, altitudeReason);
-                    }
-                }
-            } else if (contains) {
-                if (altitudeApplies) {
-                    updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
-                               exclusionReason);
-                } else {
-                    updateTier(GeoFenceAlertTierAltitudeWarning, altitudeReason);
-                }
-            }
+            qgcApp()->toolbox()->audioOutput()->say(breachTypeStr + " " + tr("fence breached"));
         }
+    } else {
+        lastUpdate = now;
     }
-
-    if (allowInclusionExclusionChecks) {
-        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
-        for (const QGCFenceCircle& circle : circles) {
-            const QGeoCoordinate center = circle.center();
-            if (!center.isValid()) {
-                continue;
-            }
-
-            const double radiusMeters = circle.radius()->rawValue().toDouble();
-            if (radiusMeters <= 0.0) {
-                continue;
-            }
-
-            hasGeometry = true;
-            const double distanceToCenter = _coordinate.distanceTo(center);
-            const double distanceToBoundary = qAbs(radiusMeters - distanceToCenter);
-            const bool contains = distanceToCenter <= radiusMeters;
-            QString altitudeReason;
-            const bool altitudeApplies = altitudeBandApplies(circle.altitudeBandEnabled(),
-                                                              circle.altitudeFrame(),
-                                                              circle.altitudeMin(),
-                                                              circle.altitudeMax(),
-                                                              altitudeReason);
-            const QString boundaryReason = circle.altitudeBandEnabled()
-                ? tr("3D boundary, Min: %1 m, Max: %2 m").arg(circle.altitudeMin(), 0, 'f', 1).arg(circle.altitudeMax(), 0, 'f', 1)
-                : tr("boundary");
-            const QString exclusionReason = circle.altitudeBandEnabled()
-                ? tr("3D exclusion, Min: %1 m, Max: %2 m").arg(circle.altitudeMin(), 0, 'f', 1).arg(circle.altitudeMax(), 0, 'f', 1)
-                : tr("exclusion");
-
-            if (circle.inclusion()) {
-                if (contains) {
-                    if (altitudeApplies && marginMeters > 0.0 && distanceToBoundary <= marginMeters) {
-                        updateTier(GeoFenceAlertTierMargin, tr("boundary"));
-                    }
-                } else {
-                    if (altitudeApplies) {
-                        updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
-                                   boundaryReason);
-                    } else {
-                        updateTier(GeoFenceAlertTierAltitudeWarning, altitudeReason);
-                    }
-                }
-            } else if (contains) {
-                if (altitudeApplies) {
-                    updateTier((contingencyWidthMeters > 0.0 && distanceToBoundary > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
-                               exclusionReason);
-                } else {
-                    updateTier(GeoFenceAlertTierAltitudeWarning, altitudeReason);
-                }
-            }
-        }
-    }
-
-    if (allowHomeCircleChecks && _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
-        const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
-        if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
-            hasGeometry = true;
-            const double distanceToHome = _coordinate.distanceTo(_homePosition);
-            if (distanceToHome <= fenceRadiusMeters) {
-                if (marginMeters > 0.0 && (fenceRadiusMeters - distanceToHome) <= marginMeters) {
-                    updateTier(GeoFenceAlertTierMargin, tr("boundary"));
-                }
-            } else {
-                const double overrunMeters = distanceToHome - fenceRadiusMeters;
-                updateTier((contingencyWidthMeters > 0.0 && overrunMeters > contingencyWidthMeters) ? GeoFenceAlertTierContingency : GeoFenceAlertTierBreach,
-                           tr("boundary"));
-            }
-        }
-    }
-
-    if (!hasGeometry) {
-        if (_fenceStatusBreached && _geoFenceAlertTier >= GeoFenceAlertTierBreach) {
-            return;
-        }
-        _setGeoFenceAlertTier(GeoFenceAlertTierNone);
-        return;
-    }
-
-    // Keep a confirmed autopilot breach critical until FENCE_STATUS clears it.
-    if (_fenceStatusBreached && tier < GeoFenceAlertTierBreach) {
-        return;
-    }
-
-    _setGeoFenceAlertTier(tier, tierReason);
-}
-
-void Vehicle::_updateParachuteState(void)
-{
-    bool available = false;
-    bool enabled = false;
-
-    if (_parameterManager && _parameterManager->parametersReady()) {
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "CHUTE_ENABLED")) {
-            available = true;
-            enabled = _parameterManager->getParameter(FactSystem::defaultComponentId, "CHUTE_ENABLED")->rawValue().toInt() != 0;
-        }
-    }
-
-    if (_parachuteAvailable != available) {
-        _parachuteAvailable = available;
-        emit parachuteAvailableChanged(available);
-    }
-    if (_parachuteEnabled != enabled) {
-        _parachuteEnabled = enabled;
-        emit parachuteEnabledChanged(enabled);
-    }
-}
-
-void Vehicle::_updateLinkQuality(void)
-{
-    // C2 link quality detection disabled — body short-circuited so all
-    // threshold checks, state toggles, arm-grace tracking, signal emits and
-    // STATUSTEXT generation are skipped. Re-enable by removing the #if 0 / #endif guard.
-#if 0
-    const bool wasWarning = _linkQualityWarning;
-    const bool wasCritical = _linkQualityCritical;
-
-    bool warning = false;
-    bool critical = false;
-
-    const bool lossStatsValid = (_mavlinkReceivedCount >= 50 || _mavlinkSentCount >= 50);
-    if (lossStatsValid) {
-        if (_mavlinkLossPercent >= 25.0f) {
-            critical = true;
-        } else if (_mavlinkLossPercent >= 10.0f) {
-            warning = true;
-        }
-    }
-
-    int rssiLocal = _telemetryLRSSI;
-    int rssiRemote = _telemetryRRSSI;
-    const bool rssiValid = (rssiLocal != 0 || rssiRemote != 0) && (rssiLocal > -120 || rssiRemote > -120);
-    int rssiWorst = 0;
-    if (rssiValid) {
-        if (rssiLocal == 0) {
-            rssiWorst = rssiRemote;
-        } else if (rssiRemote == 0) {
-            rssiWorst = rssiLocal;
-        } else {
-            rssiWorst = qMin(rssiLocal, rssiRemote);
-        }
-
-        if (rssiWorst <= -100) {
-            critical = true;
-        } else if (rssiWorst <= -90) {
-            warning = true;
-        }
-    } else if (_rcRSSI > 0 && _rcRSSI <= 100) {
-        if (_rcRSSI < 20) {
-            critical = true;
-        } else if (_rcRSSI < 40) {
-            warning = true;
-        }
-    }
-
-    if (_linkQualityWarning != warning) {
-        _linkQualityWarning = warning;
-        emit linkQualityWarningChanged(warning);
-    }
-    if (_linkQualityCritical != critical) {
-        _linkQualityCritical = critical;
-        emit linkQualityCriticalChanged(critical);
-    }
-
-    //const int newTrigger = (warning || critical) ? triggeredBy : 0;
-    //if (_linkQualityTrigger != newTrigger) {
-    //    _linkQualityTrigger = newTrigger;
-    //    emit linkQualityTriggerChanged(newTrigger);
-    //}
-    //// Pulse: bump the sequence each eval that finds bad state. QML banner listens
-    //// to this to show a brief 2-blink flash, instead of staying lit continuously.
-    //if (warning || critical) {
-    //    _linkQualityEvalSeq++;
-    //    emit linkQualityEvalSeqChanged(_linkQualityEvalSeq);
-    //}
-    // C2 link STATUSTEXT messages disabled. Re-enable by removing the #if 0 / #endif guard.
-#if 0
-    // Fire STATUSTEXT on transition into bad state, with a 10s cooldown per severity
-    // so a flapping link can't spam the message indicator.
-    static qint64 lastC2CriticalEmitMs = 0;
-    static qint64 lastC2WarningEmitMs  = 0;
-    if (!wasCritical && critical && (nowMs - lastC2CriticalEmitMs) > 10000) {
-        lastC2CriticalEmitMs = nowMs;
-        emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_ERROR, tr("C2 link quality critical").toHtmlEscaped(), "");
-    } else if (!wasWarning && warning) {
-        emit textMessageReceived(id(), defaultComponentId(), MAV_SEVERITY_WARNING, tr("C2 link quality degraded").toHtmlEscaped(), "");
-    }
-#endif // STATUSTEXT block
-#endif // entire _updateLinkQuality body
-}
-
-void Vehicle::_logGeoFenceEvent(const QString& reason, const QString& details)
-{
-    QString basePath;
-    if (_toolbox && _toolbox->settingsManager()) {
-        basePath = _toolbox->settingsManager()->appSettings()->telemetrySavePath();
-    }
-    if (basePath.isEmpty()) {
-        basePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    }
-
-    QDir dir(basePath);
-    if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
-        return;
-    }
-
-    const QString dateStamp = QDateTime::currentDateTimeUtc().toString(QStringLiteral("yyyyMMdd"));
-    const QString fileName = dir.filePath(QStringLiteral("GeoFenceEvents_%1.csv").arg(dateStamp));
-    const bool newFile = !QFile::exists(fileName);
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        return;
-    }
-
-    auto csvEscape = [](const QString& value) {
-        QString v = value;
-        v.replace("\"", "\"\"");
-        if (v.contains(',') || v.contains('\n')) {
-            v = "\"" + v + "\"";
-        }
-        return v;
-    };
-
-    QTextStream out(&file);
-    if (newFile) {
-        out << "timestamp,lat,lon,alt_m,groundspeed_mps,reason,details\n";
-    }
-
-    const QGeoCoordinate coord = _coordinate;
-    const QString lat = coord.isValid() ? QString::number(coord.latitude(), 'f', 7) : QString();
-    const QString lon = coord.isValid() ? QString::number(coord.longitude(), 'f', 7) : QString();
-    const QString alt = coord.isValid() ? QString::number(coord.altitude(), 'f', 1) : QString();
-    const double speed = _groundSpeedFact.rawValue().toDouble();
-
-    out << QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs) << ","
-        << lat << ","
-        << lon << ","
-        << alt << ","
-        << QString::number(speed, 'f', 2) << ","
-        << csvEscape(reason) << ","
-        << csvEscape(details) << "\n";
-}
-
-void Vehicle::_checkGeoFenceMargin(void)
-{
-    _checkGeoFenceAlertTierLocal();
-}
-
-void Vehicle::_checkGeoFenceBreachLocal(void)
-{
-    _checkGeoFenceAlertTierLocal();
 }
 
 void Vehicle::updateFlightDistance(double distance)
@@ -5716,92 +4453,6 @@ void Vehicle::sendParamMapRC(const QString& paramName, double scale, double cent
     sendMessageOnLinkThreadSafe(sharedLink.get(), message);
 }
 
-void Vehicle::deployParachute(void)
-{
-    sendMavCommand(_defaultComponentId, MAV_CMD_DO_PARACHUTE, true, 2, 0, 0, 0, 0, 0, 0);
-}
-
-bool Vehicle::isCoordinateOutsideFence(const QGeoCoordinate& coordinate)
-{
-    if (!_geoFenceManager || !_geoFenceManager->supported()) {
-        return false;
-    }
-
-    if (!_parameterManager || !_parameterManager->parametersReady()) {
-        return false;
-    }
-
-    if (!coordinate.isValid()) {
-        return false;
-    }
-
-    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_ENABLE")) {
-        if (_parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_ENABLE")->rawValue().toInt() == 0) {
-            return false;
-        }
-    }
-
-    const uint32_t fenceTypeMask = _parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE")
-        ? _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_TYPE")->rawValue().toUInt()
-        : 0;
-    if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") && fenceTypeMask == 0) {
-        return false;
-    }
-
-    const bool allowInclusionExclusionChecks =
-        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 4) != 0;
-    const bool allowHomeCircleChecks =
-        !_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_TYPE") || (fenceTypeMask & 2) != 0;
-
-    if (allowInclusionExclusionChecks) {
-        const QList<QGCFencePolygon>& polygons = _geoFenceManager->polygons();
-        for (const QGCFencePolygon& polygon : polygons) {
-            if (!polygon.isValid()) {
-                continue;
-            }
-            const bool contains = polygon.containsCoordinate(coordinate);
-            const bool isOutside = polygon.inclusion() ? !contains : contains;
-            if (isOutside) {
-                return true;
-            }
-        }
-    }
-
-    if (allowInclusionExclusionChecks) {
-        const QList<QGCFenceCircle>& circles = _geoFenceManager->circles();
-        for (const QGCFenceCircle& circle : circles) {
-            const QGeoCoordinate center = circle.center();
-            if (!center.isValid()) {
-                continue;
-            }
-            const double radiusMeters = circle.radius()->rawValue().toDouble();
-            if (radiusMeters <= 0.0) {
-                continue;
-            }
-            const double distanceToCenter = coordinate.distanceTo(center);
-            const bool contains = distanceToCenter <= radiusMeters;
-            const bool isOutside = circle.inclusion() ? !contains : contains;
-            if (isOutside) {
-                return true;
-            }
-        }
-    }
-
-    if (allowHomeCircleChecks) {
-        if (_parameterManager->parameterExists(FactSystem::defaultComponentId, "FENCE_RADIUS")) {
-            const double fenceRadiusMeters = _parameterManager->getParameter(FactSystem::defaultComponentId, "FENCE_RADIUS")->rawValue().toDouble();
-            if (fenceRadiusMeters > 0.0 && _homePosition.isValid()) {
-                const double distanceToHome = coordinate.distanceTo(_homePosition);
-                if (distanceToHome > fenceRadiusMeters) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 void Vehicle::clearAllParamMapRC(void)
 {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
@@ -5828,7 +4479,7 @@ void Vehicle::clearAllParamMapRC(void)
     }
 }
 
-void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch, float auxRoll)
+void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, float thrust, quint16 buttons)
 {
     SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
     if (!sharedLink) {
@@ -5849,18 +4500,6 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
     float newYawCommand    =    yaw * axesScaling;
     float newThrustCommand =    thrust * axesScaling;
 
-    int16_t auxPitchCommand =    0;
-    int16_t auxRollCommand  =    0;
-    uint8_t enabledExtensions =  0;
-    if (!qIsNaN(auxPitch)) {
-        auxPitchCommand = static_cast<int16_t>(auxPitch * axesScaling);
-        enabledExtensions |= 1 << 0;
-    }
-    if (!qIsNaN(auxRoll)) {
-        auxRollCommand = static_cast<int16_t>(auxRoll * axesScaling);
-        enabledExtensions |= 1 << 1;
-    }
-
     mavlink_msg_manual_control_pack_chan(
                 static_cast<uint8_t>(_mavlink->getSystemId()),
                 static_cast<uint8_t>(_mavlink->getComponentId()),
@@ -5872,104 +4511,8 @@ void Vehicle::sendJoystickDataThreadSafe(float roll, float pitch, float yaw, flo
                 static_cast<int16_t>(newThrustCommand),
                 static_cast<int16_t>(newYawCommand),
                 buttons,
-                0,
-                enabledExtensions,
-                auxPitchCommand,
-                auxRollCommand);
+                0, 0, 0, 0);
     sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-
-    if (!qIsNaN(auxPitch) || !qIsNaN(auxRoll)) {
-        constexpr uint16_t kIgnoreChannel = UINT16_MAX;
-        auto axisToPwm = [](float axis) -> uint16_t {
-            const float clamped = qBound(-1.0f, axis, 1.0f);
-            return static_cast<uint16_t>(1500 + (clamped * 500.0f));
-        };
-
-        const uint16_t chan9  = qIsNaN(auxPitch) ? kIgnoreChannel : axisToPwm(auxPitch);
-        const uint16_t chan10 = qIsNaN(auxRoll)  ? kIgnoreChannel : axisToPwm(auxRoll);
-        const uint8_t targetComponent = (_defaultComponentId > 0) ? static_cast<uint8_t>(_defaultComponentId) : static_cast<uint8_t>(MAV_COMP_ID_AUTOPILOT1);
-
-        mavlink_msg_rc_channels_override_pack_chan(
-                    static_cast<uint8_t>(_mavlink->getSystemId()),
-                    static_cast<uint8_t>(_mavlink->getComponentId()),
-                    sharedLink->mavlinkChannel(),
-                    &message,
-                    static_cast<uint8_t>(_id),
-                    targetComponent,
-                    kIgnoreChannel,  // chan1
-                    kIgnoreChannel,  // chan2
-                    kIgnoreChannel,  // chan3
-                    kIgnoreChannel,  // chan4
-                    kIgnoreChannel,  // chan5
-                    kIgnoreChannel,  // chan6
-                    kIgnoreChannel,  // chan7
-                    kIgnoreChannel,  // chan8
-                    chan9,
-                    chan10,
-                    kIgnoreChannel,  // chan11
-                    kIgnoreChannel,  // chan12
-                    kIgnoreChannel,  // chan13
-                    kIgnoreChannel,  // chan14
-                    kIgnoreChannel,  // chan15
-                    kIgnoreChannel,  // chan16
-                    kIgnoreChannel,  // chan17
-                    kIgnoreChannel); // chan18
-        sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-    }
-}
-
-void Vehicle::sendGimbalRCOverrideThreadSafe(float pitch, float yaw)
-{
-    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
-    if (!sharedLink) {
-        qCDebug(VehicleLog) << "sendGimbalRCOverrideThreadSafe: primary link gone!";
-        return;
-    }
-
-    if (sharedLink->linkConfiguration()->isHighLatency()) {
-        return;
-    }
-
-    auto axisToPwm = [](float value) -> uint16_t {
-        value = qBound(-1.0f, value, 1.0f);
-        return static_cast<uint16_t>(qRound(1500.0f + (value * 500.0f)));
-    };
-
-    const uint16_t channel6 = axisToPwm(yaw);
-    const uint16_t channel8 = axisToPwm(pitch);
-    mavlink_message_t message;
-    mavlink_msg_rc_channels_override_pack_chan(
-                static_cast<uint8_t>(_mavlink->getSystemId()),
-                static_cast<uint8_t>(_mavlink->getComponentId()),
-                sharedLink->mavlinkChannel(),
-                &message,
-                static_cast<uint8_t>(_id),
-                MAV_COMP_ID_AUTOPILOT1,
-                UINT16_MAX,         // CH1 ignore
-                UINT16_MAX,         // CH2 ignore
-                UINT16_MAX,         // CH3 ignore
-                UINT16_MAX,         // CH4 ignore
-                UINT16_MAX,         // CH5 ignore
-                channel6,           // CH6 Gremsy/ArduPilot legacy pan
-                UINT16_MAX,         // CH7 ignore
-                channel8,           // CH8 Gremsy/ArduPilot legacy tilt
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
-                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
-                UINT16_MAX, UINT16_MAX);
-    sendMessageOnLinkThreadSafe(sharedLink.get(), message);
-}
-
-void Vehicle::sendGremsyGimbalRate(float pitchRate, float yawRate)
-{
-    // This MB1/APM combination rejects MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW
-    // with MAV_RESULT_UNSUPPORTED. Preserve the original working APM mount
-    // path by expressing the requested rates as the configured RC channels.
-    sendGimbalRCOverrideThreadSafe(pitchRate, yawRate);
-}
-
-void Vehicle::stopGremsyGimbal()
-{
-    sendGremsyGimbalRate(0.0f, 0.0f);
 }
 
 void Vehicle::triggerSimpleCamera()

@@ -46,10 +46,6 @@ public:
     ///     Signals newMissionItemsAvailable when done
     void loadFromVehicle(void);
 
-    /// True after the vehicle successfully returned its mission list.
-    /// False after a failed read, and before the first successful read or upload.
-    bool lastMissionReadSucceeded(void) const { return _lastMissionReadSucceeded; }
-
     /// Writes the specified set of mission items to the vehicle
     /// IMPORTANT NOTE: PlanManager will take control of the MissionItem objects with the missionItems list. It will free them when done.
     ///     @param missionItems Items to send to vehicle
@@ -75,10 +71,10 @@ public:
 
     // These values are public so the unit test can set appropriate signal wait times
     // When passively waiting for a mission process, use a longer timeout.
-    static const int _ackTimeoutMilliseconds = 3000;
+    static const int _ackTimeoutMilliseconds = 1500;
     // When actively retrying to request mission items, use a shorter timeout instead.
     static const int _retryTimeoutMilliseconds = 250;
-    static const int _maxRetryCount = 8;
+    static const int _maxRetryCount = 5;
 
 signals:
     void newMissionItemsAvailable   (bool removeAllRequested);
@@ -160,11 +156,4 @@ protected:
 
 private:
     void _setTransactionInProgress(TransactionType_t type);
-    void _saveMissionSnapshot(void);
-    void _discardMissionSnapshot(void);
-    void _restoreMissionSnapshot(void);
-
-    bool                _lastMissionReadSucceeded = false;
-    bool                _haveMissionSnapshot = false;
-    QList<MissionItem*> _missionSnapshot;
 };

@@ -23,7 +23,6 @@ import QGroundControl.FactControls  1.0
 Item {
     width:                  grid.width  + (ScreenTools.defaultFontPixelWidth  * 2)
     height:                 grid.height + (ScreenTools.defaultFontPixelHeight * 2)
-
     //---------------------------------------------------------------------
     GridLayout {
         id:                 grid
@@ -183,7 +182,7 @@ Item {
                     qsTr("Deadband can also be adjusted by clicking and ") +
                     qsTr("dragging vertically on the corresponding axis monitor.")
         }
-
     }
 }
+
 

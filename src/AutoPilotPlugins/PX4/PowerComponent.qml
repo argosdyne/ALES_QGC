@@ -225,7 +225,6 @@ SetupPage {
 
                     property bool battVoltageDividerAvailable:  batParams.battVoltageDividerAvailable
                     property bool battAmpsPerVoltAvailable:     batParams.battAmpsPerVoltAvailable
-                    property bool batteryParamsAvailable:       battSource && battNumCells && battHighVolt && battLowVolt
 
                     property Fact battSource:           batParams.battSource
                     property Fact battNumCells:         batParams.battNumCells
@@ -236,7 +235,7 @@ SetupPage {
                     property Fact battAmpsPerVolt:      batParams.battAmpsPerVolt
 
                     function getBatteryImage() {
-                        switch(battNumCells ? battNumCells.value : 1) {
+                        switch(battNumCells.value) {
                         case 1:  return "/qmlimages/PowerComponentBattery_01cell.svg";
                         case 2:  return "/qmlimages/PowerComponentBattery_02cell.svg"
                         case 3:  return "/qmlimages/PowerComponentBattery_03cell.svg"
@@ -251,7 +250,7 @@ SetupPage {
 
                         RowLayout {
                             spacing: ScreenTools.defaultFontPixelWidth
-                            visible: batteryParamsAvailable && battSource.rawValue == -1
+                            visible: battSource.rawValue == -1
 
                             QGCLabel { text:  qsTr("Source") }
                             FactComboBox {
@@ -266,7 +265,7 @@ SetupPage {
                             id:             batteryGrid
                             columns:        5
                             columnSpacing:  ScreenTools.defaultFontPixelWidth
-                            visible:        batteryParamsAvailable && battSource.rawValue != -1
+                            visible:        battSource.rawValue != -1
 
                             QGCLabel { text:  qsTr("Source") }
                             FactComboBox {
@@ -297,7 +296,7 @@ SetupPage {
                                 showUnits:  true
                             }
                             QGCLabel { text: qsTr("Battery Max:") }
-                            QGCLabel { text: battNumCells && battHighVolt ? (battNumCells.value * battHighVolt.value).toFixed(1) + ' V' : "--" }
+                            QGCLabel { text: (battNumCells.value * battHighVolt.value).toFixed(1) + ' V' }
 
                             QGCLabel { text: qsTr("Empty Voltage (per cell)") }
                             FactTextField {
@@ -306,7 +305,7 @@ SetupPage {
                                 showUnits:  true
                             }
                             QGCLabel { text: qsTr("Battery Min:") }
-                            QGCLabel { text: battNumCells && battLowVolt ? (battNumCells.value * battLowVolt.value).toFixed(1) + ' V' : "--" }
+                            QGCLabel { text: (battNumCells.value * battLowVolt.value).toFixed(1) + ' V' }
 
 
                             QGCLabel { text: qsTr("Full Voltage (per cell)") }
@@ -374,15 +373,15 @@ SetupPage {
 
                             QGCLabel {
                                 text:       qsTr("Voltage Drop on Full Load (per cell)")
-                                visible:    showAdvanced.checked && battVoltLoadDrop
+                                visible:    showAdvanced.checked
                             }
                             FactTextField {
                                 id:         battDropField
                                 fact:       battVoltLoadDrop
                                 showUnits:  true
-                                visible:    showAdvanced.checked && battVoltLoadDrop
+                                visible:    showAdvanced.checked
                             }
-                            Item { width: 1; height: 1; Layout.columnSpan: 3; visible: showAdvanced.checked && battVoltLoadDrop }
+                            Item { width: 1; height: 1; Layout.columnSpan: 3; visible: showAdvanced.checked }
 
                             QGCLabel {
                                 Layout.columnSpan:  batteryGrid.columns
@@ -392,18 +391,18 @@ SetupPage {
                                 text:               qsTr("Batteries show less voltage at high throttle. Enter the difference in Volts between idle throttle and full ") +
                                                     qsTr("throttle, divided by the number of battery cells. Leave at the default if unsure. ") +
                                                     _highlightPrefix + qsTr("If this value is set too high, the battery might be deep discharged and damaged.") + _highlightSuffix
-                                visible:            showAdvanced.checked && battVoltLoadDrop
+                                visible:            showAdvanced.checked
                             }
 
                             QGCLabel {
                                 text:       qsTr("Compensated Minimum Voltage:")
-                                visible:    showAdvanced.checked && battVoltLoadDrop
+                                visible:    showAdvanced.checked
                             }
                             QGCLabel {
-                                text:       battNumCells && battLowVolt && battVoltLoadDrop ? ((battNumCells.value * battLowVolt.value) - (battNumCells.value * battVoltLoadDrop.value)).toFixed(1) + qsTr(" V") : "--"
-                                visible:    showAdvanced.checked && battVoltLoadDrop
+                                text:       ((battNumCells.value * battLowVolt.value) - (battNumCells.value * battVoltLoadDrop.value)).toFixed(1) + qsTr(" V")
+                                visible:    showAdvanced.checked
                             }
-                            Item { width: 1; height: 1; Layout.columnSpan: 3; visible: showAdvanced.checked && battVoltLoadDrop }
+                            Item { width: 1; height: 1; Layout.columnSpan: 3; visible: showAdvanced.checked }
                         } // Grid
                     }
                 } // QGCGroupBox - Battery settings

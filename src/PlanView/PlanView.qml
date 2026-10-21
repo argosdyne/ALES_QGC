@@ -41,7 +41,6 @@ Item {
     property var    _planMasterController:              planMasterController
     property var    _missionController:                 _planMasterController.missionController
     property var    _geoFenceController:                _planMasterController.geoFenceController
-    property var    _geoCageController:                 _planMasterController.geoCageController
     property var    _rallyPointController:              _planMasterController.rallyPointController
     property var    _visualItems:                       _missionController.visualItems
     property bool   _lightWidgetBorders:                editorMap.isSatelliteMap
@@ -57,7 +56,6 @@ Item {
 
     readonly property int       _layerMission:              1
     readonly property int       _layerGeoFence:             2
-    readonly property int       _layerGeoCage:              0
     readonly property int       _layerRallyPoints:          3
     readonly property string    _armedVehicleUploadPrompt:  qsTr("Vehicle is currently armed. Do you want to upload the mission to the vehicle?")
 
@@ -69,47 +67,10 @@ Item {
         return coordinate
     }
 
-    function _localizedComplexItemName(name) {
-        switch (name) {
-        case "Survey":
-            return qsTr("Survey")
-        case "Corridor Scan":
-            return qsTr("Corridor Scan")
-        case "Structure Scan":
-            return qsTr("Structure Scan")
-        case "Init Path":
-            return qsTr("Init Path")
-        default:
-            return name
-        }
-    }
-
-    function _localizedPlanCreatorName(name) {
-        switch (name) {
-        case "Blank":
-            return qsTr("Blank")
-        case "Survey":
-            return qsTr("Survey")
-        case "Corridor Scan":
-            return qsTr("Corridor Scan")
-        case "Structure Scan":
-            return qsTr("Structure Scan")
-        default:
-            return name
-        }
-    }
-
     property bool _firstMissionLoadComplete:    false
     property bool _firstFenceLoadComplete:      false
     property bool _firstRallyLoadComplete:      false
     property bool _firstLoadComplete:           false
-    property bool _geoFenceShow3D:              false
-
-    Component.onCompleted: {
-        _geoFenceShow3D = globals.geoFenceShow3D
-    }
-
-    on_GeoFenceShow3DChanged: globals.geoFenceShow3D = _geoFenceShow3D
 
     MapFitFunctions {
         id:                         mapFitFunctions  // The name for this id cannot be changed without breaking references outside of this code. Beware!
@@ -519,35 +480,7 @@ Item {
                 interactive:            _editingLayer == _layerGeoFence
                 homePosition:           _missionController.plannedHomePosition
                 planView:               true
-                visible:                globals.geoFenceShowOperational || _editingLayer == _layerGeoFence
-                opacity:                (_editingLayer == _layerGeoFence) || _editingLayer == _layerGeoCage ? 1 : editorMap._nonInteractiveOpacity
-                show3DView:             _geoFenceShow3D
-                breachStyle:            geoFenceEditor ? geoFenceEditor._breachStyle : Qt.SolidLine
-                fenceOpacity:           geoFenceEditor ? geoFenceEditor.fenceOpacity : 1.0
-                boundaryColor:          geoFenceEditor ? geoFenceEditor.boundaryColor : "orange"
-                 fillTopFace:            geoFenceEditor ? geoFenceEditor.fillTopFace : false
-                 fillSideFaces:          geoFenceEditor ? geoFenceEditor.fillSideFaces : false
-                 showMinMaxAltitude:     geoFenceEditor ? geoFenceEditor.showMinMaxAltitude : false
-                 hideOccludedEdges:      geoFenceEditor ? geoFenceEditor.hideOccludedEdges : true
-                 showOccludedEdgesDashed: geoFenceEditor ? geoFenceEditor.showOccludedEdgesDashed : false
-                 circleSegments:         geoFenceEditor ? geoFenceEditor.circleSegments : 40
-                 extrudeScale:           geoFenceEditor ? geoFenceEditor.extrudeScale : 1.0
-                 minExtrudeScale:        geoFenceEditor ? geoFenceEditor.minExtrudeScale : 0.6
-                 maxExtrudeScale:        geoFenceEditor ? geoFenceEditor.maxExtrudeScale : 1.6
-                 showOperationalLayer:   globals.geoFenceShowOperational || _editingLayer == _layerGeoFence
-                 showBufferLayer:        globals.geoFenceShowBuffer
-                 showContingencyLayer:   globals.geoFenceShowContingency
-             }
-
-            GeoCageMapVisuals {
-                map:                    editorMap
-                myGeoCageController:    _geoCageController
-                interactive:            _editingLayer == _layerGeoCage
-                homePosition:           _missionController.plannedHomePosition
-                visible:                globals.geoFenceShowContingency || (_editingLayer == _layerGeoCage)
-                opacity:                (_editingLayer == _layerGeoCage) ? 1 : editorMap._nonInteractiveOpacity
-                useFenceGeometry:       true
-                id:                     geoCageVisuals
+                opacity:                _editingLayer != _layerGeoFence ? editorMap._nonInteractiveOpacity : 1
             }
 
             RallyPointMapVisuals {
@@ -581,7 +514,7 @@ Item {
 
             property bool _isRallyLayer:    _editingLayer == _layerRallyPoints
             property bool _isMissionLayer:  _editingLayer == _layerMission
-            property bool _showInitPathAction: _missionController && _missionController.currentPlanViewItem && _missionController.currentPlanViewItem.cameraCalc && (_missionController.currentPlanViewItem.cameraCalc.isYSLidar === true)
+            property bool _showInitPathAction: _missionController && _missionController.currentPlanViewItem && _missionController.currentPlanViewItem.cameraCalc && _missionController.currentPlanViewItem.cameraCalc.isYSLidar
 
             ToolStripActionList {
                 id: toolStripActionList
@@ -635,7 +568,7 @@ Item {
                         onMyAddROIOnClickChanged: checked = _addROIOnClick
                     },
                     ToolStripAction {
-                        text:               _singleComplexItem ? _localizedComplexItemName(_missionController.complexMissionItemNames[0]) : qsTr("Pattern")
+                        text:               _singleComplexItem ? _missionController.complexMissionItemNames[0] : qsTr("Pattern")
                         iconSource:         "/qmlimages/MapDrawShape.svg"
                         enabled:            _missionController.flyThroughCommandsAllowed
                         visible:            toolStrip._isMissionLayer
@@ -673,19 +606,6 @@ Item {
                             insertComplexItemAfterCurrent("Init Path")
                         }
 
-                    },
-                    ToolStripAction {
-                        text:               qsTr("Vision LiDAR")
-                        iconSource:         "/qmlimages/VisionLidar.svg"
-                        enabled:            true
-                        visible :           true
-                        onTriggered: {
-                            visionLidarPanel.visible = true
-                            _missionController.getVisionLidarState()
-                            rightPanel.visible = false
-                            rightControls.visible = false
-                            missionItemEditor.visible = false
-                        }
                     }
 
                 ]
@@ -702,467 +622,6 @@ Item {
         }
 
         //-----------------------------------------------------------
-        //Vision Lidar editing controls
-        Rectangle {
-            id: visionLidarPanel
-            height: parent.height
-            width: _rightPanelWidth
-            color: "transparent"
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.rightMargin: _toolsMargin
-            visible: false
-            z: 100
-            Column {
-                width: parent.width
-                height: parent.height / 3
-
-                //-----------------------------------------------------------
-                //Vision Lidar Right Panel Controls
-                Row {
-                    id: visionLidarTitle
-                    width: parent.width
-                    height: ScreenTools.defaultFontPixelHeight * 2
-                    anchors.topMargin: _toolsMargin
-
-                    // 왼쪽 (Vision LiDAR)
-                    Rectangle {
-                        width: parent.width * 0.7
-                        height: parent.height
-                        color: "#00826F"   // 초록색 (QGC 느낌)
-
-                        QGCLabel {
-                            anchors.centerIn: parent
-                            text: qsTr("Vision LiDAR")
-                            color: "white"
-                        }
-                    }
-
-                    // 오른쪽 (Close 버튼)
-                    Rectangle {
-                        width: parent.width * 0.3
-                        height: parent.height
-                        color: "#485058"
-
-                        QGCLabel {
-                            anchors.centerIn: parent
-                            text: qsTr("Close")
-                            color: "white"
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                console.log("Close Clicked")
-                                visionLidarPanel.visible = false
-                                rightPanel.visible =        true
-                                rightControls.visible =     true
-                                missionItemEditor.visible = true
-                            }
-                        }
-                    }
-                }
-
-                //Vision Lidar functions
-                Rectangle {
-
-                    property bool   useObstacleDetection:   false
-                    property bool   avoidMode:              true
-                    property bool   stopChecked:            false
-                    property int    detectionDistance:      1500
-                    property int    currentDistance:        0
-                    property color  backgroundColor:        "#1a1a2e"
-
-                    id:     root
-                    width:  parent.width
-                    height: contentColumn.implicitHeight * 1.2
-                    color:  backgroundColor
-
-                    ColumnLayout {
-                        id: contentColumn
-                        anchors {
-                            left:    parent.left
-                            right:   parent.right
-                            top:     parent.top
-                            margins: ScreenTools.defaultFontPixelHeight * 0.6
-                        }
-                        spacing: ScreenTools.defaultFontPixelHeight
-
-                        // Use Obstacle Detection ──────────────────────────
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
-                            Layout.fillWidth: true
-
-                            Item {
-                                implicitWidth:  ScreenTools.defaultFontPointSize * 3
-                                implicitHeight: ScreenTools.defaultFontPointSize * 3
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    radius:       3
-                                    color:        root.useObstacleDetection ? "white" : "transparent"
-                                    border.color: "white"
-                                    border.width: 2
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text:             "✓"
-                                        color:            root.backgroundColor
-                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 2.4
-                                        font.bold:        true
-                                        visible:          root.useObstacleDetection
-                                    }
-                                }
-                            }
-
-                            Text {
-                                text:              qsTr("Use Obstacle Detection")
-                                color:             "white"
-                                font.pixelSize:    ScreenTools.defaultFontPointSize * 2
-                                font.bold:         true
-                                Layout.fillWidth:  true
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            // RowLayout 전체 클릭 처리
-                            MouseArea {
-                                anchors.fill:   parent
-                                onClicked: {
-                                    root.useObstacleDetection = !root.useObstacleDetection
-                                    if (root.useObstacleDetection) {
-                                        _missionController.setVisionLidar(1)
-                                        _missionController.setVisionLidarValue(1)
-                                        _missionController.getVisionLidarOBAMode();
-                                    } else {
-                                        _missionController.setVisionLidarValue(0)
-                                        _missionController.setVisionLidar(0)
-                                    }
-                                }
-                            }
-                        }
-
-                        Connections {
-                            target: _missionController
-                            onVisionLidarEnabledChanged: {
-                                root.useObstacleDetection = _missionController.visionLidarEnabled === 1
-                            }
-                            onVlOBAValueChanged: {
-                                root.avoidMode = _missionController.vlOBAValue === 1
-                                root.stopChecked = _missionController.vlOBAValue === 0
-                            }
-                        }
-
-                        
-                        // Avoid / Stop radio buttons hidden — Avoid is not used; Stop is exposed below as a checkbox
-                        /*
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelHeight
-                            Layout.fillWidth: true
-
-                            //Avoid / Stop
-                            RowLayout {
-                                spacing:          6
-                                Layout.fillWidth: true
-                                RadioBtn { selected: root.avoidMode;  enabled: root.useObstacleDetection; }
-                                Text {
-                                    text:           qsTr("Avoid")
-                                    color:          root.useObstacleDetection ? "white" : "#666"
-                                    font.pixelSize: ScreenTools.defaultFontPointSize * 3
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        root.avoidMode = true
-                                        _missionController.setVisionLidarOBAMode(1)
-                                    }
-                                }
-                            }
-                            RowLayout {
-                                spacing:          6
-                                Layout.fillWidth: true
-                                RadioBtn { selected: !root.avoidMode; enabled: root.useObstacleDetection; }
-                                Text {
-                                    text:           qsTr("Stop")
-                                    color:          root.useObstacleDetection ? "white" : "#666"
-                                    font.pixelSize: ScreenTools.defaultFontPointSize * 3
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        root.avoidMode = false
-                                        _missionController.setVisionLidarOBAMode(0)
-                                    }
-                                }
-                            }
-                        }
-
-                        */
-                        
-                        // Stop ──────────────────────────────────────────────
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelHeight * 0.3
-                            Layout.fillWidth: true
-
-                            Item {
-                                implicitWidth:  ScreenTools.defaultFontPointSize * 3
-                                implicitHeight: ScreenTools.defaultFontPointSize * 3
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    radius:       3
-                                    color:        (root.stopChecked && root.useObstacleDetection) ? "white" : "transparent"
-                                    border.color: root.useObstacleDetection ? "white" : "#666"
-                                    border.width: 2
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text:             "✓"
-                                        color:            root.backgroundColor
-                                        font.pixelSize:   ScreenTools.defaultFontPointSize * 2.4
-                                        font.bold:        true
-                                        visible:          root.stopChecked && root.useObstacleDetection
-                                    }
-                                }
-                            }
-
-                            Text {
-                                text:              qsTr("Stop")
-                                color:             root.useObstacleDetection ? "white" : "#666"
-                                font.pixelSize:    ScreenTools.defaultFontPointSize * 2
-                                font.bold:         true
-                                Layout.fillWidth:  true
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                enabled:      root.useObstacleDetection
-                                onClicked: {
-                                    root.stopChecked = !root.stopChecked
-                                    if (root.stopChecked) {
-                                        root.avoidMode = false
-                                        _missionController.setVisionLidarOBAMode(0)
-                                    } else {
-                                        root.avoidMode = true
-                                        _missionController.setVisionLidarOBAMode(1)
-                                    }
-                                }
-                            }
-                        }
-
-                        //Detection Distance text
-                        Text {
-                            text:                qsTr("Detection Distance")
-                            color:               root.useObstacleDetection ? "white" : "#666"
-                            font.pixelSize:      ScreenTools.defaultFontPointSize * 2.5
-                            font.bold:           true
-                            Layout.columnSpan:   2
-                            Layout.fillWidth:    true
-                            Layout.topMargin:    4
-                        }
-
-                        Connections {
-                            target: _missionController
-                            onVlValueChanged: {
-                                root.currentDistance = _missionController.vlValue
-                            }
-                        }
-
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelHeight * 0.5
-                            Layout.fillWidth: true
-
-                            id: topRowLayout
-                            property real minDistance: 200 //0.2m
-                            property real maxDistance: 5000 //50.0m
-                            property real step: 10 //0.1m
-
-                            property real controlSize: ScreenTools.defaultFontPixelHeight * 2.2
-
-                            // - button
-                            Rectangle {
-                                implicitWidth:  topRowLayout.controlSize
-                                implicitHeight: topRowLayout.controlSize
-                                radius:         4
-                                color:          "#444"
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "-"
-                                    color: "white"
-                                    font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.2
-                                }
-
-                                Timer {
-                                    id: minusTimer
-                                    interval: 100
-                                    repeat: true
-
-                                    onTriggered: {
-                                        let base = isNaN(root.detectionDistance) ? topRowLayout.minDistance : root.detectionDistance
-                                        let newValue = base - topRowLayout.step
-
-                                        newValue = Math.max(topRowLayout.minDistance, newValue)
-                                        newValue = Math.round(newValue * 10) / 10
-
-                                        root.detectionDistance = newValue
-                                    }
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: root.useObstacleDetection
-
-                                    onPressed: {
-                                        let base = isNaN(root.detectionDistance) ? topRowLayout.minDistance : root.detectionDistance
-                                        let newValue = base - topRowLayout.step
-
-                                        newValue = Math.max(topRowLayout.minDistance, newValue)
-                                        newValue = Math.round(newValue * 10) / 10
-
-                                        root.detectionDistance = newValue
-
-                                        minusTimer.start()
-                                    }
-
-                                    onReleased: {
-                                        minusTimer.stop()
-                                        _missionController.setVisionLidarDistance(root.detectionDistance)
-                                    }
-
-                                    onCanceled: {
-                                        minusTimer.stop()
-                                    }
-                                }
-                            }
-
-                            //Display distance value
-                            Text {
-                                width: ScreenTools.defaultFontPixelHeight * 6
-                                text: root.detectionDistance.toFixed(0) + " cm"
-                                color: root.useObstacleDetection ? "white" : "#666"
-                                font.pixelSize: ScreenTools.defaultFontPointSize * 3
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            // + Button
-                            Rectangle {
-                                implicitWidth:  topRowLayout.controlSize
-                                implicitHeight: topRowLayout.controlSize
-                                radius:         4
-                                color:          "#444"
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "+"
-                                    color: "white"
-                                    font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.2
-                                }
-
-                                Timer {
-                                    id: plusTimer
-                                    interval: 100
-                                    repeat: true
-
-                                    onTriggered: {
-                                        let base = isNaN(root.detectionDistance) ? topRowLayout.minDistance : root.detectionDistance
-                                        let newValue = base + topRowLayout.step
-
-                                        newValue = Math.min(topRowLayout.maxDistance, newValue)
-                                        newValue = Math.round(newValue * 10) / 10
-
-                                        root.detectionDistance = newValue
-                                    }
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    enabled: root.useObstacleDetection
-
-                                    onPressed: {
-                                        let base = isNaN(root.detectionDistance) ? topRowLayout.minDistance : root.detectionDistance
-                                        let newValue = base + topRowLayout.step
-
-                                        newValue = Math.min(topRowLayout.maxDistance, newValue)
-                                        newValue = Math.round(newValue * 10) / 10
-
-                                        root.detectionDistance = newValue
-
-                                        plusTimer.start()
-                                    }
-
-                                    onReleased: {
-                                        plusTimer.stop()
-                                        _missionController.setVisionLidarDistance(root.detectionDistance)
-                                    }
-
-                                    onCanceled: {
-                                        plusTimer.stop()
-                                    }
-                                }
-                            }
-                        }
-
-                        //Current sensor distance text
-                        Text {
-                            text:                qsTr("Current Distance")
-                            color:               root.useObstacleDetection ? "white" : "#666"
-                            font.pixelSize:      ScreenTools.defaultFontPointSize * 2.5
-                            font.bold:           true
-                            Layout.columnSpan:   2
-                            Layout.fillWidth:    true
-                            Layout.topMargin:    4
-                        }
-
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelHeight * 0.5
-                            Layout.fillWidth: true
-
-                            Text {
-                                text: root.currentDistance.toFixed(0) + " cm"
-                                color: root.useObstacleDetection ? "white" : "#666"
-                                font.pixelSize: ScreenTools.defaultFontPointSize * 3
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
-                    }
-
-                    // ── RadioButton Component ───────────────────────────────
-                    component RadioBtn: Item {
-                        implicitWidth:  ScreenTools.defaultFontPixelHeight * 1.5
-                        implicitHeight: ScreenTools.defaultFontPixelHeight * 1.5
-                        property bool selected: false
-                        signal clicked()
-
-                        Rectangle {
-                            anchors.fill:  parent
-                            radius:        width / 2
-                            color:         "transparent"
-                            border.color:  parent.enabled ? "white" : "#555"
-                            border.width:  2
-
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width:   parent.width / 2
-                                height:  parent.width / 2
-                                radius:  width / 2
-                                color:   "white"
-                                visible: parent.parent.selected
-                            }
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled:      parent.enabled
-                            onClicked:    parent.clicked()
-                        }
-                    }
-                }
-            }
-        }
-
-       //-----------------------------------------------------------
         // Right pane for mission editing controls
         Rectangle {
             id:                 rightPanel
@@ -1202,10 +661,6 @@ Item {
                         text:       qsTr("Fence")
                         enabled:    _geoFenceController.supported
                     }
-                    // QGCTabButton {
-                    //     text:       qsTr("Cage")
-                    //     enabled:    true
-                    // }
                     QGCTabButton {
                         text:       qsTr("Rally")
                         enabled:    _rallyPointController.supported
@@ -1255,29 +710,14 @@ Item {
             }
             // GeoFence Editor
             GeoFenceEditor {
-                id:                 geoFenceEditor
                 anchors.top:            rightControls.bottom
                 anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 0.25
                 anchors.bottom:         parent.bottom
                 anchors.left:           parent.left
                 anchors.right:          parent.right
                 myGeoFenceController:   _geoFenceController
-                myGeoCageController:    _geoCageController
                 flightMap:              editorMap
-                show3DView:             _geoFenceShow3D
-                onShow3DViewChanged:    _geoFenceShow3D = show3DView
                 visible:                _editingLayer == _layerGeoFence
-            }
-
-            GeoCageEditor {
-                anchors.top:            rightControls.bottom
-                anchors.topMargin:      ScreenTools.defaultFontPixelHeight * 0.25
-                anchors.bottom:         parent.bottom
-                anchors.left:           parent.left
-                anchors.right:          parent.right
-                myGeoCageController:    _geoCageController
-                flightMap:              editorMap
-                visible:                _editingLayer == _layerGeoCage
             }
 
             // Rally Point Editor
@@ -1401,7 +841,7 @@ Item {
                 model: _missionController.complexMissionItemNames
 
                 QGCButton {
-                    text:               _localizedComplexItemName(modelData)
+                    text:               modelData
                     Layout.fillWidth:   true
 
                     onClicked: {
@@ -1485,7 +925,7 @@ Item {
                             anchors.left:           parent.left
                             anchors.right:          parent.right
                             horizontalAlignment:    Text.AlignHCenter
-                            text:                   _localizedPlanCreatorName(object.name)
+                            text:                   object.name
                             color:                  button.pressed || button.highlighted ? qgcPal.buttonHighlightText : qgcPal.buttonText
                         }
 
