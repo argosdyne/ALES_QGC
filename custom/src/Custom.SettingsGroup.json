@@ -24,6 +24,24 @@
     "enumStrings":      "Disable",
     "enumValues":       "0",
     "default":          0
+},
+{
+    "name":             "doodleLabsIP",
+    "shortDesc":        "Doodle Labs IP Address",
+    "type":             "string",
+    "default":          "192.168.2.72"
+},
+{
+    "name":             "doodleLabsIPEnable",
+    "shortDesc":        "Enable Doodle Labs IP",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "lifeJacketEnable",
+    "shortDesc":        "Enable Life Jacket",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }

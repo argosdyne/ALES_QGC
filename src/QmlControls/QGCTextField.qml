@@ -21,6 +21,7 @@ TextField {
     property string unitsLabel:         ""
     property string extraUnitsLabel:    ""
     property bool   numericValuesOnly:  false   // true: Used as hint for mobile devices to show numeric only keyboard
+    property real   textFontPointSize:  ScreenTools.defaultFontPointSize
 
     signal helpClicked
 
@@ -54,7 +55,7 @@ TextField {
 
     style: TextFieldStyle {
         id:             tfs
-        font.pointSize: ScreenTools.defaultFontPointSize
+        font.pointSize: root.textFontPointSize
         font.family:    ScreenTools.normalFontFamily
         renderType:     ScreenTools.isWindows ? Text.QtRendering : tfs.renderType   // This works around font rendering problems on windows
 

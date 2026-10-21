@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QLoggingCategory>
+#include <QElapsedTimer>
 #include <cstdint>
 #include "Vehicle.h"
 #include "QmlObjectListModel.h"
@@ -164,6 +165,9 @@ public slots:
     Q_INVOKABLE void centerGimbal   (); // Also used by qml
     void gimbalPitchStep            (int direction);
     void gimbalYawStep              (int direction);
+    // Analog (rate-style) gimbal control from a joystick axis. pitch/yaw are stick
+    // deflections in the range [-1..1]; a (0,0) call releases/ends the current move.
+    void gimbalAxisControl          (float pitch, float yaw);
 
 signals:
     void    activeGimbalChanged           ();
@@ -185,6 +189,12 @@ private:
     MAVLinkProtocol*    _mavlink            = nullptr;
     Vehicle*            _vehicle            = nullptr;
     Gimbal*             _activeGimbal       = nullptr;
+
+    // State for analog joystick-axis gimbal control (integrated angle target)
+    float               _gimbalAxisPitchTarget   = 0.0f;
+    float               _gimbalAxisYawTarget     = 0.0f;
+    bool                _gimbalAxisControlActive = false;
+    QElapsedTimer       _gimbalAxisElapsed;
 
     QMap<uint8_t, PotentialGimbalManager> _potentialGimbalManagers; // key is compid
 

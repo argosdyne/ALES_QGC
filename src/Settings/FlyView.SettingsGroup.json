@@ -125,6 +125,12 @@
     "shortDesc": "Enable Audio Controller",
     "type":      "bool",
     "default":   false
+},
+{
+    "name":      "enableOpticalFlowController",
+    "shortDesc": "Enable Optical Flow Controller",
+    "type":      "bool",
+    "default":   false
 }
 ]
 }

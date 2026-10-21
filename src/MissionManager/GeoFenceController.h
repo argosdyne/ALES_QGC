@@ -37,6 +37,23 @@ public:
 
     // Radius of the "paramCircularFence" which is called the "Geofence Failsafe" in PX4 and the "Circular Geofence" on ArduPilot
     Q_PROPERTY(double               paramCircularFence      READ paramCircularFence                                 NOTIFY paramCircularFenceChanged)
+    Q_PROPERTY(bool                 paramCircularFenceActive READ paramCircularFenceActive                          NOTIFY paramCircularFenceChanged)
+    Q_PROPERTY(bool                 cageSupported           READ cageSupported                                      NOTIFY cageSupportChanged)
+    Q_PROPERTY(Fact*                cageRadius              READ cageRadius                                        NOTIFY cageParamsChanged)
+    Q_PROPERTY(Fact*                cageMaxAltitude         READ cageMaxAltitude                                   NOTIFY cageParamsChanged)
+    Q_PROPERTY(Fact*                cageMinAltitude         READ cageMinAltitude                                   NOTIFY cageParamsChanged)
+    Q_PROPERTY(Fact*                fenceMargin             READ fenceMargin                                       NOTIFY fenceMarginChanged)
+    Q_PROPERTY(double               cvMaxSpeed              READ cvMaxSpeed              WRITE setCvMaxSpeed              NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvLatency               READ cvLatency               WRITE setCvLatency               NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvManeuverTime          READ cvManeuverTime          WRITE setCvManeuverTime          NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvWindSpeed             READ cvWindSpeed             WRITE setCvWindSpeed             NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvPositionError         READ cvPositionError         WRITE setCvPositionError         NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvReactionDistance      READ cvReactionDistance                                      NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvCorrectionDistance    READ cvCorrectionDistance                                    NOTIFY cvParamsChanged)
+    Q_PROPERTY(double               cvWidthMeters           READ cvWidthMeters                                           NOTIFY cvParamsChanged)
+    Q_PROPERTY(bool                 fenceLoaded             READ fenceLoaded                                       NOTIFY fenceLoadedChanged)
+    Q_PROPERTY(bool                 fenceActive             READ fenceActive                                       NOTIFY fenceActiveChanged)
+    Q_PROPERTY(bool                 fenceParamsMissing      READ fenceParamsMissing                                NOTIFY fenceParamsMissingChanged)
 
     /// Add a new inclusion polygon to the fence
     ///     @param topLeft: Top left coordinate or map viewport
@@ -58,8 +75,10 @@ public:
 
     /// Clears the interactive bit from all fence items
     Q_INVOKABLE void clearAllInteractive(void);
+    Q_INVOKABLE QString geoFenceSelfTestReport(void) const;
 
     double  paramCircularFence  (void);
+    bool    paramCircularFenceActive(void) const;
     Fact*   breachReturnAltitude(void) { return &_breachReturnAltitudeFact; }
 
     // Overrides from PlanElementController
@@ -83,12 +102,41 @@ public:
 
     void setBreachReturnPoint   (const QGeoCoordinate& breachReturnPoint);
     bool isEmpty                (void) const;
+    bool cageSupported          (void) const { return _cageSupported; }
+    Fact* cageRadius            (void);
+    Fact* cageMaxAltitude       (void);
+    Fact* cageMinAltitude       (void);
+    Fact* fenceMargin           (void);
+    double cvMaxSpeed           (void) const { return _cvMaxSpeed; }
+    double cvLatency            (void) const { return _cvLatency; }
+    double cvManeuverTime       (void) const { return _cvManeuverTime; }
+    double cvWindSpeed          (void) const { return _cvWindSpeed; }
+    double cvPositionError      (void) const { return _cvPositionError; }
+    double cvReactionDistance   (void) const { return _cvMaxSpeed * _cvLatency; }
+    double cvCorrectionDistance (void) const { return (_cvMaxSpeed * _cvManeuverTime) + (_cvWindSpeed * _cvManeuverTime); }
+    double cvWidthMeters        (void) const { return cvReactionDistance() + cvCorrectionDistance() + _cvPositionError; }
+
+    void setCvMaxSpeed          (double value);
+    void setCvLatency           (double value);
+    void setCvManeuverTime      (double value);
+    void setCvWindSpeed         (double value);
+    void setCvPositionError     (double value);
+    bool fenceLoaded            (void) const { return _fenceLoaded; }
+    bool fenceActive            (void) const { return _fenceActive; }
+    bool fenceParamsMissing     (void) const { return _fenceParamsMissing; }
 
 signals:
     void breachReturnPointChanged       (QGeoCoordinate breachReturnPoint);
     void editorQmlChanged               (QString editorQml);
     void loadComplete                   (void);
     void paramCircularFenceChanged      (void);
+    void cageSupportChanged             (bool cageSupported);
+    void cageParamsChanged              (void);
+    void fenceMarginChanged             (void);
+    void cvParamsChanged                (void);
+    void fenceLoadedChanged             (bool loaded);
+    void fenceActiveChanged             (bool active);
+    void fenceParamsMissingChanged      (bool missing);
 
 private slots:
     void _polygonDirtyChanged       (bool dirty);
@@ -101,6 +149,8 @@ private slots:
     void _managerRemoveAllComplete  (bool error);
     void _parametersReady           (void);
     void _managerVehicleChanged      (Vehicle* managerVehicle);
+    void _updateFenceActiveState     (void);
+    void _updateFenceParamsMissing   (void);
 
 private:
     void _init(void);
@@ -114,11 +164,19 @@ private:
     Fact                _breachReturnAltitudeFact;
     double              _breachReturnDefaultAltitude =  qQNaN();
     bool                _itemsRequested =               false;
+    bool                _cageSupported =                false;
+    bool                _fenceLoaded =                  false;
+    bool                _fenceActive =                  false;
+    bool                _fenceParamsMissing =           false;
 
     Fact*               _px4ParamCircularFenceFact =        nullptr;
     Fact*               _apmParamCircularFenceRadiusFact =  nullptr;
     Fact*               _apmParamCircularFenceEnabledFact = nullptr;
     Fact*               _apmParamCircularFenceTypeFact =    nullptr;
+    Fact*               _px4ParamVerticalFenceFact =        nullptr;
+    Fact*               _apmParamFenceAltMaxFact =          nullptr;
+    Fact*               _apmParamFenceAltMinFact =          nullptr;
+    Fact*               _apmParamFenceMarginFact =          nullptr;
 
     static QMap<QString, FactMetaData*> _metaDataMap;
 
@@ -126,6 +184,10 @@ private:
     static const char* _apmParamCircularFenceRadius;
     static const char* _apmParamCircularFenceEnabled;
     static const char* _apmParamCircularFenceType;
+    static const char* _px4ParamVerticalFence;
+    static const char* _apmParamFenceAltMax;
+    static const char* _apmParamFenceAltMin;
+    static const char* _apmParamFenceMargin;
 
     static const int _jsonCurrentVersion = 2;
 
@@ -135,6 +197,15 @@ private:
     static const char* _jsonCirclesKey;
 
     static const char* _breachReturnAltitudeFactName;
+
+    void _loadCvSettings(void);
+    void _saveCvSettings(void);
+
+    double _cvMaxSpeed = 15.0;
+    double _cvLatency = 1.0;
+    double _cvManeuverTime = 3.0;
+    double _cvWindSpeed = 0.0;
+    double _cvPositionError = 10.0;
 };
 
 #endif

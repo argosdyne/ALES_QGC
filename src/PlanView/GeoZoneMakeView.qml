@@ -381,14 +381,14 @@ Item {
                         //spacing: 10
 
                         Label {
-                            text: "GeoZone Download"
+                            text: qsTr("GeoZone Download")
                             font.bold: true
                             font.pointSize: 14
                             Layout.alignment: Qt.AlignHCenter
                         }
 
                         GroupBox {
-                            title: "Center"                            
+                            title: qsTr("Center")
                             Layout.preferredWidth: _rightPanelWidth
 
                             GridLayout {
@@ -396,7 +396,7 @@ Item {
                                 rowSpacing: 10
                                 columnSpacing: 10
 
-                                Label { text: "Latitude" ; Layout.alignment: Qt.AlignRight}
+                                Label { text: qsTr("Latitude") ; Layout.alignment: Qt.AlignRight}
                                 TextField {
                                     id: latitudeField
                                     //text: _geoZoneViewSettings.centerCoord.latitude
@@ -412,7 +412,7 @@ Item {
                                     }
                                 }
 
-                                Label { text: "Longitude"; Layout.alignment: Qt.AlignRight }
+                                Label { text: qsTr("Longitude"); Layout.alignment: Qt.AlignRight }
                                 TextField {
                                     id: longitudeField
                                     //text: _geoZoneViewSettings.centerCoord.longitude
@@ -439,7 +439,7 @@ Item {
                         }
 
                         GroupBox {
-                            title: "Area"
+                            title: qsTr("Area")
                             Layout.preferredWidth: _rightPanelWidth
 
                             GridLayout {
@@ -448,7 +448,7 @@ Item {
                                 rowSpacing: 10
 
                                 // === Vertical ===
-                                Label { text: "Vertical" }
+                                Label { text: qsTr("Vertical") }
 
                                 SpinBox {
                                     id: verticalSpin
@@ -516,7 +516,7 @@ Item {
                                 Label { text: "m" }
 
                                 // === Horizontal ===
-                                Label { text: "Horizontal" }
+                                Label { text: qsTr("Horizontal") }
 
                                 SpinBox {
                                     id: horizontalSpin

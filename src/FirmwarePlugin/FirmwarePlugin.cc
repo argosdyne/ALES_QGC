@@ -802,6 +802,94 @@ const QVariantList& FirmwarePlugin::cameraList(const Vehicle*)
                     this);               // parent
         _cameraList.append(QVariant::fromValue(metaData));
 
+        //New Sony camera features
+        // Sony ILX-IR
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 24mm
+            "Sony ILX-IR 24mm",
+            tr("Sony"),
+            tr("ILX-IR 24mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            24,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 24mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 35mm
+            "Sony ILX-IR 35mm",
+            tr("Sony"),
+            tr("ILX-IR 35mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            35,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 35mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 40mm
+            "Sony ILX-IR 40mm",
+            tr("Sony"),
+            tr("ILX-IR 40mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            40,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 40mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR 50mm
+            "Sony ILX-IR 50mm",
+            tr("Sony"),
+            tr("ILX-IR 50mm"),
+            35.6,                   // sensorWidth
+            23.8,                   // sensorHeight
+            9504,                   // imageWidth
+            6337,                   // imageHeight
+            50,                     // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR 50mm"),
+            this);                  // parent
+        _cameraList.append(QVariant::fromValue(metaData));
+
+        metaData = new CameraMetaData(
+            //Sony ILX-IR Agrowing
+            "Sony ILX-IR Agrowing",
+            tr("Sony"),
+            tr("ILX-IR Agrowing"),
+            10.00,                  // sensorWitdh
+            10.50,                  // sensorHeight
+            2676,                   // imageWidth
+            2788,                   // imageHeight
+            21.8,                   // focalLength
+            true,                   // true: landscape orientation
+            false,                  // true: camera is fixed orientation
+            0,                      // minimum trigger interval
+            tr("Sony ILX-IR Agrowing"),
+            this);
+        _cameraList.append(QVariant::fromValue(metaData));
+
+
         metaData = new CameraMetaData(
                     "Yuneec CGOET",
                     tr("Yuneec"),
@@ -1144,7 +1232,8 @@ void FirmwarePlugin::_versionFileDownloadFinished(QString& remoteFile, QString& 
         QString currentVersionNumber = QString("%1.%2.%3").arg(vehicle->firmwareMajorVersion())
                 .arg(vehicle->firmwareMinorVersion())
                 .arg(vehicle->firmwarePatchVersion());
-        qgcApp()->showAppMessage(tr("Vehicle is not running latest stable firmware! Running %1, latest stable is %2.").arg(currentVersionNumber, version));
+        qCDebug(FirmwarePluginLog) << "Vehicle is not running latest stable firmware. Running"
+                                   << currentVersionNumber << "latest stable is" << version;
     }
 }
 

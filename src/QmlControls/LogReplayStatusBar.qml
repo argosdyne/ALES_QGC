@@ -111,7 +111,7 @@ Rectangle {
             text:       qsTr("Close")
             onClicked: {
                 var activeVehicle = QGroundControl.multiVehicleManager.activeVehicle
-                if (activeVehicle) {
+                if (controller.link && activeVehicle) {
                     activeVehicle.closeVehicle()
                 }
                 QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue = false

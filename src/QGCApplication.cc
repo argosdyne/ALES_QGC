@@ -79,6 +79,7 @@
 #include "MissionCommandTree.h"
 #include "QGCMapPolygon.h"
 #include "QGCMapCircle.h"
+#include "GeoCageController.h"
 #include "ParameterManager.h"
 #include "SettingsManager.h"
 #include "QGCCorePlugin.h"
@@ -107,9 +108,13 @@
 #include "CustomAction.h"
 #include "CustomActionManager.h"
 #include "GimbalController.h"
+#include "GremsyLynxPayloadController.h"
+#include "NextVisionPayloadController.h"
+#include "PayloadManager.h"
 #include "FlightZoneManager.h"
 
 #include "AudioControl.h"
+#include "OpticalFlowController.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -480,8 +485,16 @@ void QGCApplication::_initCommon()
     qmlRegisterUncreatableType<RemoteIDManager>         (kQGCVehicle,                       1, 0, "RemoteIDManager",            kRefOnly);
     qmlRegisterUncreatableType<GimbalController>        (kQGCVehicle,                       1, 0, "GimbalController",           kRefOnly);
 
+    // Self-contained payload controllers (own their direct UDP/MAVLink link; independent of Vehicle).
+    // Owned by the app-lifetime PayloadManager singleton so a connected payload + joystick control
+    // survive leaving the settings page; QML gets them through PayloadManager, never instantiates them.
+    qmlRegisterUncreatableType<GremsyLynxPayloadController>("QGroundControl.Payload",       1, 0, "GremsyLynxPayloadController", kRefOnly);
+    qmlRegisterUncreatableType<NextVisionPayloadController>("QGroundControl.Payload",       1, 0, "NextVisionPayloadController", kRefOnly);
+    qmlRegisterSingletonType<PayloadManager>            ("QGroundControl.Payload",          1, 0, "PayloadManager", PayloadManager::qmlSingletonFactory);
+
     qmlRegisterUncreatableType<MissionController>       (kQGCControllers,                   1, 0, "MissionController",          kRefOnly);
     qmlRegisterUncreatableType<GeoFenceController>      (kQGCControllers,                   1, 0, "GeoFenceController",         kRefOnly);
+    qmlRegisterUncreatableType<GeoCageController>       (kQGCControllers,                   1, 0, "GeoCageController",          kRefOnly);
     qmlRegisterUncreatableType<RallyPointController>    (kQGCControllers,                   1, 0, "RallyPointController",       kRefOnly);
 
     qmlRegisterUncreatableType<MissionItem>         (kQGroundControl,                       1, 0, "MissionItem",                kRefOnly);
@@ -554,6 +567,7 @@ void QGCApplication::_initCommon()
     qmlRegisterSingletonType<ShapeFileHelper>           ("MAVLink",                                 1, 0, "MAVLink",                mavlinkSingletonFactory);
 
     qRegisterMetaType<AudioControl*>("AudioControl*");
+    qRegisterMetaType<OpticalFlowController*>("OpticalFlowController*");
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {

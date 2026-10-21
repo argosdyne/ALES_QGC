@@ -58,6 +58,14 @@ ToolStripActionList {
             text:           qsTr("GeoZone")
             iconSource:     "/res/waypoint.svg"
             onTriggered:    mainWindow.showGeoZoneMakeView()
+        },
+        ToolStripAction {
+            text:           qsTr("Life Jacket")
+            iconSource:     "/qmlimages/LifeVestButton.svg"
+            // Hide on PX4 vehicles regardless of the setting value
+            visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
+                            !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
+            onTriggered:    mainWindow.lifeVestPanelVisible = true
         }
     ]
 }

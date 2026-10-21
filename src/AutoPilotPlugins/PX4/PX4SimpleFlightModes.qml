@@ -28,6 +28,81 @@ Item {
     readonly property real _flightModeComboWidth:   ScreenTools.defaultFontPixelWidth * 13
     readonly property real _channelComboWidth:      ScreenTools.defaultFontPixelWidth * 13
 
+    function _localizedSwitchText(text) {
+        if (!text || text.length === 0) {
+            return text
+        }
+
+        var channelMatch = /^Channel\s+(\d+)$/.exec(text)
+        if (channelMatch) {
+            return qsTr("Channel %1").arg(channelMatch[1])
+        }
+
+        switch (text) {
+        case "Unassigned":
+            return qsTr("Unassigned")
+        case "Arm switch channel":
+            return qsTr("Arm switch channel")
+        case "Gear switch channel":
+            return qsTr("Gear switch channel")
+        case "Kill switch channel":
+            return qsTr("Kill switch channel")
+        case "Loiter switch channel":
+            return qsTr("Loiter switch channel")
+        case "Offboard switch channel":
+            return qsTr("Offboard switch channel")
+        case "Emergency Kill switch channel":
+            return qsTr("Emergency Kill switch channel")
+        case "Landing gear switch channel":
+            return qsTr("Landing gear switch channel")
+        case "Return switch channel":
+            return qsTr("Return switch channel")
+        case "Transition switch channel":
+            return qsTr("Transition switch channel")
+        case "Flaps switch channel":
+            return qsTr("Flaps switch channel")
+        default:
+            break
+        }
+
+        // PX4 flight mode names come from PX4FirmwarePlugin context.
+        switch (text) {
+        case "Manual":
+        case "Acro":
+        case "Stabilized":
+        case "Rattitude":
+        case "Altitude":
+        case "Position":
+        case "Offboard":
+        case "Ready":
+        case "Takeoff":
+        case "Hold":
+        case "Mission":
+        case "Return":
+        case "Land":
+        case "Precision Land":
+        case "Return to Groundstation":
+        case "Follow Me":
+        case "Simple":
+        case "Orbit":
+        case "Slow":
+            return qsTranslate("PX4FirmwarePlugin", text)
+        default:
+            return text
+        }
+    }
+
+    function _localizedEnumStrings(enumStrings) {
+        if (!enumStrings) {
+            return enumStrings
+        }
+        var localized = []
+        for (var i = 0; i < enumStrings.length; i++) {
+            localized.push(_localizedSwitchText(enumStrings[i]))
+        }
+        return localized
+    }
+
     Component.onCompleted: {
         if (controller.vehicle.vtol) {
             _switchNameList.push("RC_MAP_TRANS_SW")
@@ -100,8 +175,10 @@ Item {
                             }
 
                             FactComboBox {
+                                property Fact _fact:    controller.getParameterFact(-1, "RC_MAP_FLTMODE")
                                 Layout.fillWidth:   true
-                                fact:               controller.getParameterFact(-1, "RC_MAP_FLTMODE")
+                                fact:               _fact
+                                model:              _localizedEnumStrings(_fact.enumStrings)
                                 indexModel:         false
                                 sizeToContents:     true
                             }
@@ -110,8 +187,10 @@ Item {
                                 model:  6
 
                                 FactComboBox {
+                                    property Fact _fact:    controller.getParameterFact(-1, "COM_FLTMODE" + (modelData + 1))
                                     Layout.fillWidth:   true
-                                    fact:               controller.getParameterFact(-1, "COM_FLTMODE" + (modelData + 1))
+                                    fact:               _fact
+                                    model:              _localizedEnumStrings(_fact.enumStrings)
                                     indexModel:         false
                                     sizeToContents:     true
                                 }
@@ -163,7 +242,7 @@ Item {
                                                                              (controller.rcChannelValues[swChannel] > thPWM) :
                                                                              (controller.rcChannelValues[swChannel] <= thPWM))
                                     QGCLabel {
-                                        text:               swFact.shortDescription
+                                        text:               _localizedSwitchText(swFact.shortDescription)
                                         Layout.fillWidth:   true
                                         color:              swActive ? "yellow" : qgcPal.text
                                     }
@@ -171,6 +250,7 @@ Item {
                                     FactComboBox {
                                         Layout.preferredWidth:  _channelComboWidth
                                         fact:                   swFact
+                                        model:                  _localizedEnumStrings(swFact.enumStrings)
                                         indexModel:             false
                                     }
                                 }

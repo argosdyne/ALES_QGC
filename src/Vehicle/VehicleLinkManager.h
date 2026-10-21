@@ -46,6 +46,7 @@ public:
     void                    mavlinkMessageReceived      (LinkInterface* link, mavlink_message_t message);
     bool                    containsLink                (LinkInterface* link);
     WeakLinkInterfacePtr    primaryLink                 (void) { return _primaryLink; }
+    WeakLinkInterfacePtr    linkByUdpPort               (quint16 localPort) const;
     QString                 primaryLinkName             (void) const;
     QStringList             linkNames                   (void) const;
     QStringList             linkStatuses                (void) const;
@@ -75,6 +76,7 @@ private:
     bool                    _updatePrimaryLink      (void);
     SharedLinkInterfacePtr  _bestActivePrimaryLink  (void);
     void                    _commRegainedOnLink     (LinkInterface*  link);
+    QString                 _logLinkSummary         (LinkInterface* primaryLink) const;
 
     typedef struct LinkInfo {
         SharedLinkInterfacePtr  link;
@@ -85,6 +87,7 @@ private:
     Vehicle*                _vehicle                    = nullptr;
     LinkManager*            _linkMgr                    = nullptr;
     QTimer                  _commLostCheckTimer;
+    QElapsedTimer           _totalCommLossElapsedTimer;
     QList<LinkInfo_t>       _rgLinkInfo;
     WeakLinkInterfacePtr    _primaryLink;
     bool                    _communicationLost          = false;
@@ -93,4 +96,5 @@ private:
 
     static const int _commLostCheckTimeoutMSecs     = 1000;  // Check for comm lost once a second
     static const int _heartbeatMaxElpasedMSecs      = 3500;  // No heartbeat for longer than this indicates comm loss
+    static const int _multiLinkTotalCommLossGraceMSecs = 10000; // Allow brief RF/LTE handover gaps before showing total comm loss
 };

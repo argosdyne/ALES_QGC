@@ -12,6 +12,7 @@
 
 #include "MAVLinkProtocol.h"
 #include "QGCMAVLink.h"
+#include <QUdpSocket>
 
 AudioControl::AudioControl(Vehicle *vehicle)
     : _vehicle(vehicle)
@@ -32,7 +33,11 @@ void AudioControl::_playAudio(int index)
         return;
     }
 
-    sendCommand(1, index);
+    if(_vehicle->apmFirmware()) {
+        sendCommand(1, index);
+    } else {
+        _sendPX4AudioCommand(1, index);
+    }
 
 }
 //Not Used
@@ -57,7 +62,13 @@ void AudioControl::_stopAudio()
         return;
     }
 
-    sendCommand(-1);
+    if(_vehicle->apmFirmware()) {
+        sendCommand(-1);
+    } else {
+        _sendPX4AudioCommand(0);
+    }
+
+
 }
 
 void AudioControl::sendCommand(int playMode, int audioIndex)
@@ -106,6 +117,32 @@ void AudioControl::sendCommand(int playMode, int audioIndex)
             << "mode:" << static_cast<int>(playMode);
 
 
+}
+
+void AudioControl::_sendPX4AudioCommand(int playMode, int audioIndex)
+{
+    if (!_udpSocket) {
+        _udpSocket = new QUdpSocket(this);
+    }
+
+    QByteArray command;
+    if (playMode == 1) {
+        command = QStringLiteral("PI %1 1\n").arg(audioIndex).toUtf8();
+    } else {
+        command = QByteArrayLiteral("SP\n");
+    }
+
+    // Send drone IP
+    const QHostAddress targetIP(QStringLiteral("192.168.2.110"));
+    //PX4 speaker default port
+    const quint16 dronePort = 14540;
+
+    qint64 sent = _udpSocket->writeDatagram(command, targetIP, dronePort);
+
+    qInfo() << "TX PX4 Audio UDP"
+            << "command:" << command.trimmed()
+            << "to: broadcast:" << dronePort
+            << "bytes:" << sent;
 }
 
 

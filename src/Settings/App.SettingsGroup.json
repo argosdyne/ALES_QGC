@@ -34,7 +34,7 @@
     "shortDesc": "Offline editing hover speed",
     "longDesc":  "This value defines the default speed for calculating mission statistics for multi-rotor vehicles or VTOL vehicle in multi-rotor mode. It does not modify the flight speed for a specific flight plan.",
     "type":             "double",
-    "default":     5.0,
+    "default":     10.0,
     "min":              1.0,
     "units":            "m/s",
     "decimalPlaces":    2

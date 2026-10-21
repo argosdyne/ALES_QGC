@@ -432,16 +432,16 @@ void SimpleMissionItem::_rebuildTextFieldFacts(void)
     _textFieldFacts.clear();
     
     if (rawEdit()) {
-        _missionItem._param1Fact._setName("Param1");
+        _missionItem._param1Fact._setName(tr("Param%1").arg(1));
         _missionItem._param1Fact.setMetaData(_defaultParamMetaData);
         _textFieldFacts.append(&_missionItem._param1Fact);
-        _missionItem._param2Fact._setName("Param2");
+        _missionItem._param2Fact._setName(tr("Param%1").arg(2));
         _missionItem._param2Fact.setMetaData(_defaultParamMetaData);
         _textFieldFacts.append(&_missionItem._param2Fact);
-        _missionItem._param3Fact._setName("Param3");
+        _missionItem._param3Fact._setName(tr("Param%1").arg(3));
         _missionItem._param3Fact.setMetaData(_defaultParamMetaData);
         _textFieldFacts.append(&_missionItem._param3Fact);
-        _missionItem._param4Fact._setName("Param4");
+        _missionItem._param4Fact._setName(tr("Param%1").arg(4));
         _missionItem._param4Fact.setMetaData(_defaultParamMetaData);
         _textFieldFacts.append(&_missionItem._param4Fact);
         _missionItem._param5Fact._setName("Lat/X");

@@ -50,6 +50,7 @@ public:
     bool        paramDone                   () const { return _done; }
     void        paramRequest                (bool reset = true);
     void        sendParameter               (bool updateUI = false);
+    bool        paramWriteInProgress        () const { return _paramWriteTimer.isActive(); }
 
     QStringList  optNames;
     QVariantList optVariants;
@@ -78,5 +79,6 @@ private:
     MAV_PARAM_EXT_TYPE  _mavParamType;
     MAVLinkProtocol*    _pMavlink;
     bool                _forceUIUpdate;
+    bool                _updatingFromVehicle = false;
 };
 

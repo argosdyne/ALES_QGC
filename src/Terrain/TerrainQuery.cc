@@ -376,7 +376,7 @@ void TerrainOfflineAirMapQuery::requestCarpetHeights(const QGeoCoordinate& swCoo
     Q_UNUSED(swCoord);
     Q_UNUSED(neCoord);
     Q_UNUSED(statsOnly);
-    qWarning() << "Carpet queries are currently not supported from offline air map data";
+    qCWarning(TerrainQueryLog) << "Carpet queries are currently not supported from offline air map data";
 }
 
 void TerrainOfflineAirMapQuery::_signalCoordinateHeights(bool success, QList<double> heights)

@@ -11,6 +11,7 @@
 
 #include <QtGlobal>
 #include <QDebug>
+#include <QCoreApplication>
 
 constexpr QGCMAVLink::FirmwareClass_t QGCMAVLink::FirmwareClassPX4;
 constexpr QGCMAVLink::FirmwareClass_t QGCMAVLink::FirmwareClassArduPilot;
@@ -188,7 +189,7 @@ QString QGCMAVLink::mavSysStatusSensorToString(MAV_SYS_STATUS_SENSOR sysStatusSe
 {
     struct sensorInfo_s {
         uint32_t    bit;
-        QString     sensorName;
+        const char* sensorName;
     };
 
     static const sensorInfo_s rgSensorInfo[] = {
@@ -228,13 +229,13 @@ QString QGCMAVLink::mavSysStatusSensorToString(MAV_SYS_STATUS_SENSOR sysStatusSe
     for (size_t i=0; i<sizeof(rgSensorInfo)/sizeof(sensorInfo_s); i++) {
         const sensorInfo_s* pSensorInfo = &rgSensorInfo[i];
         if (sysStatusSensor == pSensorInfo->bit) {
-            return pSensorInfo->sensorName;
+            return QCoreApplication::translate("MAVLink SYS_STATUS_SENSOR value", pSensorInfo->sensorName);
         }
     }
 
     qWarning() << "QGCMAVLink::mavSysStatusSensorToString: Unknown sensor" << sysStatusSensor;
 
-    return QT_TRANSLATE_NOOP("MAVLink unknown SYS_STATUS_SENSOR value", "Unknown sensor");
+    return QCoreApplication::translate("MAVLink unknown SYS_STATUS_SENSOR value", "Unknown sensor");
 }
 
 QString MavlinkFTP::opCodeToString(OpCode_t opCode)

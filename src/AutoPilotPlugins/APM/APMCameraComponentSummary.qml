@@ -11,13 +11,27 @@ Item {
 
     FactPanelController { id: controller; }
 
-    property Fact _mountRCInTilt:   controller.getParameterFact(-1, "MNT_RC_IN_TILT")
-    property Fact _mountRCInRoll:   controller.getParameterFact(-1, "MNT_RC_IN_ROLL")
-    property Fact _mountRCInPan:    controller.getParameterFact(-1, "MNT_RC_IN_PAN")
+    function _mountParamFact(suffix) {
+        if (controller.parameterExists(-1, "MNT1_" + suffix)) {
+            return controller.getParameterFact(-1, "MNT1_" + suffix, false)
+        }
+        if (controller.parameterExists(-1, "MNT_" + suffix)) {
+            return controller.getParameterFact(-1, "MNT_" + suffix, false)
+        }
+        return null
+    }
+
+    function _mountParamExists(suffix) {
+        return controller.parameterExists(-1, "MNT1_" + suffix) || controller.parameterExists(-1, "MNT_" + suffix)
+    }
+
+    property Fact _mountRCInTilt:   _mountParamFact("RC_IN_TILT")
+    property Fact _mountRCInRoll:   _mountParamFact("RC_IN_ROLL")
+    property Fact _mountRCInPan:    _mountParamFact("RC_IN_PAN")
 
     // MNT_TYPE parameter is not in older firmware versions
-    property bool   _mountTypeExists: controller.parameterExists(-1, "MNT_TYPE")
-    property string _mountTypeValue: _mountTypeExists ? controller.getParameterFact(-1, "MNT_TYPE").enumStringValue : ""
+    property bool   _mountTypeExists: _mountParamExists("TYPE")
+    property string _mountTypeValue: _mountTypeExists ? _mountParamFact("TYPE").enumStringValue : ""
 
     Column {
         anchors.fill:       parent

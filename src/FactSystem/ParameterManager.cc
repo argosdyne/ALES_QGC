@@ -106,6 +106,77 @@ ParameterManager::ParameterManager(Vehicle* vehicle)
     QFileInfo(QSettings().fileName()).dir().mkdir("ParamCache");
 }
 
+void ParameterManager::_logInitialLoadProgress(const QString& event, int componentId, const QString& paramName) const
+{
+    int receivedCount = 0;
+    for (auto compIt = _receivedParamNamesByComp.constBegin(); compIt != _receivedParamNamesByComp.constEnd(); ++compIt) {
+        receivedCount += compIt.value().count();
+    }
+
+    QStringList missingIndexEntries;
+    for (auto compIt = _waitingReadParamIndexMap.constBegin(); compIt != _waitingReadParamIndexMap.constEnd(); ++compIt) {
+        if (compIt.value().isEmpty()) {
+            continue;
+        }
+
+        QStringList indices;
+        for (auto idxIt = compIt.value().constBegin(); idxIt != compIt.value().constEnd(); ++idxIt) {
+            indices << QString::number(idxIt.key());
+        }
+        missingIndexEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(indices.join(QStringLiteral(",")));
+    }
+
+    QStringList missingNameEntries;
+    for (auto compIt = _waitingReadParamNameMap.constBegin(); compIt != _waitingReadParamNameMap.constEnd(); ++compIt) {
+        if (compIt.value().isEmpty()) {
+            continue;
+        }
+
+        QStringList names = compIt.value().keys();
+        names.sort();
+        missingNameEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
+    }
+
+    QString message = QStringLiteral("%1 fc-param-load %2 elapsedMs %3 received %4/%5")
+            .arg(_logVehiclePrefix(componentId))
+            .arg(event)
+            .arg(_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
+            .arg(receivedCount)
+            .arg(_totalParamCount);
+
+    if (!paramName.isEmpty()) {
+        message += QStringLiteral(" param %1").arg(paramName);
+    }
+
+    if (missingIndexEntries.isEmpty()) {
+        message += QStringLiteral(" missingIndexes []");
+    } else {
+        message += QStringLiteral(" missingIndexes [%1]").arg(missingIndexEntries.join(QStringLiteral(";")));
+    }
+
+    if (missingNameEntries.isEmpty()) {
+        message += QStringLiteral(" missingNames []");
+    } else {
+        message += QStringLiteral(" missingNames [%1]").arg(missingNameEntries.join(QStringLiteral(";")));
+    }
+
+    qCInfo(ParameterManagerLog).noquote() << message;
+
+    if ((event == QStringLiteral("request-complete") || event == QStringLiteral("request-failed")) && !_timedOutReadParamNamesByComp.isEmpty()) {
+        QStringList timedOutEntries;
+        for (auto compIt = _timedOutReadParamNamesByComp.constBegin(); compIt != _timedOutReadParamNamesByComp.constEnd(); ++compIt) {
+            QStringList names = compIt.value();
+            names.removeDuplicates();
+            names.sort();
+            timedOutEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
+        }
+        qCWarning(ParameterManagerLog) << _logVehiclePrefix(componentId)
+                                       << "fc-param-load timed-out-names"
+                                       << "elapsedMs" << (_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
+                                       << "entries" << timedOutEntries;
+    }
+}
+
 void ParameterManager::_updateProgressBar(void)
 {
     int waitingReadParamIndexCount = 0;
@@ -177,6 +248,16 @@ void ParameterManager::mavlinkMessageReceived(mavlink_message_t message)
         QByteArray bytes(param_value.param_id, MAVLINK_MSG_PARAM_VALUE_FIELD_PARAM_ID_LEN);
         QString parameterName(bytes);
 
+        qCInfo(ParameterManagerLog) << _logVehiclePrefix(message.compid)
+                                    << "PARAM_VALUE received"
+                                    << "sysid" << message.sysid
+                                    << "compid" << message.compid
+                                    << "name" << parameterName
+                                    << "index" << param_value.param_index
+                                    << "count" << param_value.param_count
+                                    << "type" << param_value.param_type
+                                    << "rawFloat" << param_value.param_value;
+
         mavlink_param_union_t paramUnion;
         paramUnion.param_float  = param_value.param_value;
         paramUnion.type         = param_value.param_type;
@@ -206,7 +287,7 @@ void ParameterManager::mavlinkMessageReceived(mavlink_message_t message)
             parameterValue = QVariant(paramUnion.param_int32);
             break;
         default:
-            qCritical() << "ParameterManager::_handleParamValue - unsupported MAV_PARAM_TYPE" << paramUnion.type;
+            qCCritical(ParameterManagerLog) << "ParameterManager::_handleParamValue - unsupported MAV_PARAM_TYPE" << paramUnion.type;
             break;
         }
 
@@ -286,6 +367,13 @@ void ParameterManager::_handleParamValue(int componentId, QString parameterName,
     if (!_paramCountMap.contains(componentId)) {
         _paramCountMap[componentId] = parameterCount;
         _totalParamCount += parameterCount;
+    }
+
+    if (!_receivedParamNamesByComp[componentId].contains(parameterName)) {
+        _receivedParamNamesByComp[componentId] << parameterName;
+        _receivedParamNamesByComp[componentId].sort();
+        _timedOutReadParamNamesByComp[componentId].removeAll(parameterName);
+        _logInitialLoadProgress(QStringLiteral("param-received"), componentId, parameterName);
     }
 
     // If we've never seen this component id before, setup the index wait lists.
@@ -448,6 +536,13 @@ void ParameterManager::_ftpDownloadComplete(const QString& fileName, const QStri
     bool continueWithDefaultParameterdownload = true;
     bool immediateRetry = false;
 
+    qCInfo(ParameterManagerLog) << _logVehiclePrefix(MAV_COMP_ID_AUTOPILOT1)
+                                << "param-ftp complete"
+                                << "fileName" << fileName
+                                << "errorMsg" << errorMsg
+                                << "progress" << _loadProgress
+                                << "retryCount" << _initialRequestRetryCount;
+
     disconnect(_vehicle->ftpManager(), &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
     disconnect(_vehicle->ftpManager(), &FTPManager::commandProgress, this, &ParameterManager::_ftpDownloadProgress);
 
@@ -494,6 +589,10 @@ void ParameterManager::_ftpDownloadComplete(const QString& fileName, const QStri
 
 void ParameterManager::_ftpDownloadProgress(float progress)
 {
+    qCInfo(ParameterManagerLog) << _logVehiclePrefix(MAV_COMP_ID_AUTOPILOT1)
+                                << "param-ftp progress"
+                                << "progress" << progress
+                                << "retryCount" << _initialRequestRetryCount;
     qCDebug(ParameterManagerVerbose1Log) << "ParameterManager::_ftpDownloadProgress: " << progress;
     _setLoadProgress(static_cast<double>(progress));
     if (progress > 0.001)
@@ -519,18 +618,47 @@ void ParameterManager::refreshAllParameters(uint8_t componentId)
     }
 
     if (!_initialLoadComplete) {
+        if (!_initialLoadTraceActive) {
+            _initialLoadTraceActive = true;
+            _initialLoadElapsedTimer.restart();
+            _receivedParamNamesByComp.clear();
+            _timedOutReadParamNamesByComp.clear();
+        }
+        _logInitialLoadProgress(QStringLiteral("request-start"), componentId == MAV_COMP_ID_ALL ? -1 : componentId);
         _initialRequestTimeoutTimer.start();
     }
+
+    qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId == MAV_COMP_ID_ALL ? -1 : componentId)
+                                << "param-ftp state"
+                                << "tryftp" << _tryftp
+                                << "apmFirmware" << _vehicle->apmFirmware()
+                                << "px4Firmware" << _vehicle->px4Firmware()
+                                << "genericFirmware" << _vehicle->genericFirmware()
+                                << "componentId" << componentId
+                                << "initialLoadComplete" << _initialLoadComplete
+                                << "retryCount" << _initialRequestRetryCount;
 
     if (_tryftp && (componentId == MAV_COMP_ID_ALL || componentId == MAV_COMP_ID_AUTOPILOT1)) {
         FTPManager* ftpManager = _vehicle->ftpManager();
         connect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
         _waitingParamTimeoutTimer.stop();
+        const QString downloadDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+        qCInfo(ParameterManagerLog) << _logVehiclePrefix(MAV_COMP_ID_AUTOPILOT1)
+                                    << "param-ftp download-start"
+                                    << "remotePath" << "@PARAM/param.pck"
+                                    << "targetCompId" << MAV_COMP_ID_AUTOPILOT1
+                                    << "downloadDir" << downloadDir;
         if (ftpManager->download(MAV_COMP_ID_AUTOPILOT1, "@PARAM/param.pck",
-                                 QStandardPaths::writableLocation(QStandardPaths::TempLocation),
+                                 downloadDir,
                                  "", false /* No filesize check */)) {
+            qCInfo(ParameterManagerLog) << _logVehiclePrefix(MAV_COMP_ID_AUTOPILOT1)
+                                        << "param-ftp download-accepted"
+                                        << "remotePath" << "@PARAM/param.pck";
             connect(ftpManager, &FTPManager::commandProgress, this, &ParameterManager::_ftpDownloadProgress);
         } else {
+            qCWarning(ParameterManagerLog) << _logVehiclePrefix(MAV_COMP_ID_AUTOPILOT1)
+                                           << "param-ftp download-rejected"
+                                           << "remotePath" << "@PARAM/param.pck";
             qCWarning(ParameterManagerLog) << "ParameterManager::refreshallParameters FTPManager::download returned failure";
             disconnect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
         }
@@ -549,12 +677,24 @@ void ParameterManager::refreshAllParameters(uint8_t componentId)
         mavlink_message_t       msg;
         SharedLinkInterfacePtr  sharedLink = weakLink.lock();
 
+        // PX4 autopilot parameters live on MAV_COMP_ID_AUTOPILOT1. Some stacks do not
+        // reliably answer PARAM_REQUEST_LIST when the target component is MAV_COMP_ID_ALL.
+        const uint8_t targetComponentId = componentId == MAV_COMP_ID_ALL ? MAV_COMP_ID_AUTOPILOT1 : componentId;
+
         mavlink_msg_param_request_list_pack_chan(mavlink->getSystemId(),
                                                  mavlink->getComponentId(),
                                                  sharedLink->mavlinkChannel(),
                                                  &msg,
                                                  _vehicle->id(),
-                                                 componentId);
+                                                 targetComponentId);
+        qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId == MAV_COMP_ID_ALL ? -1 : componentId)
+                                    << "PARAM_REQUEST_LIST sent"
+                                    << "targetSysId" << _vehicle->id()
+                                    << "targetCompId" << targetComponentId
+                                    << "requestedCompId" << componentId
+                                    << "sourceSysId" << mavlink->getSystemId()
+                                    << "sourceCompId" << mavlink->getComponentId()
+                                    << "channel" << sharedLink->mavlinkChannel();
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
     }
 
@@ -767,8 +907,10 @@ void ParameterManager::_waitingParamTimeout(void)
                 } else {
                     // Exceeded max retry count, notify user
                     _waitingReadParamNameMap[componentId].remove(paramName);
+                    _timedOutReadParamNamesByComp[componentId] << paramName;
                     QString errorMsg = tr("Parameter read failed: veh:%1 comp:%2 param:%3").arg(_vehicle->id()).arg(componentId).arg(paramName);
                     qCDebug(ParameterManagerLog) << errorMsg;
+                    _logInitialLoadProgress(QStringLiteral("param-read-timeout"), componentId, paramName);
                     qgcApp()->showAppMessage(errorMsg);
                 }
             }
@@ -800,6 +942,15 @@ void ParameterManager::_readParameterRaw(int componentId, const QString& paramNa
                                                  componentId,                    // Target component id
                                                  fixedParamName,                 // Named parameter being requested
                                                  paramIndex);                    // Parameter index being requested, -1 for named
+        qCInfo(ParameterManagerLog) << _logVehiclePrefix(componentId)
+                                    << "PARAM_REQUEST_READ sent"
+                                    << "targetSysId" << _vehicle->id()
+                                    << "targetCompId" << componentId
+                                    << "sourceSysId" << _mavlink->getSystemId()
+                                    << "sourceCompId" << _mavlink->getComponentId()
+                                    << "channel" << sharedLink->mavlinkChannel()
+                                    << "paramName" << (paramName.isEmpty() ? QStringLiteral("<by-index>") : paramName)
+                                    << "paramIndex" << paramIndex;
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
     }
 }
@@ -1227,6 +1378,9 @@ void ParameterManager::_checkInitialLoadComplete(void)
         }
     }
 
+    _logInitialLoadProgress(QStringLiteral("request-complete"));
+    _initialLoadTraceActive = false;
+
     // Signal load complete
     _parametersReady = true;
     _vehicle->autopilotPlugin()->parametersReadyPreChecks();
@@ -1238,6 +1392,7 @@ void ParameterManager::_initialRequestTimeout(void)
 {
     if (!_disableAllRetries && ++_initialRequestRetryCount <= _maxInitialRequestListRetry) {
         qCDebug(ParameterManagerLog) << _logVehiclePrefix(-1) << "Retrying initial parameter request list";
+        _logInitialLoadProgress(QStringLiteral("request-list-retry"));
         refreshAllParameters();
         _initialRequestTimeoutTimer.start();
     } else {
@@ -1245,6 +1400,8 @@ void ParameterManager::_initialRequestTimeout(void)
             QString errorMsg = tr("Vehicle %1 did not respond to request for parameters. "
                                   "This will cause %2 to be unable to display its full user interface.").arg(_vehicle->id()).arg(qgcApp()->applicationName());
             qCDebug(ParameterManagerLog) << errorMsg;
+            _logInitialLoadProgress(QStringLiteral("request-failed"));
+            _initialLoadTraceActive = false;
             qgcApp()->showAppMessage(errorMsg);
         }
     }
@@ -1390,7 +1547,7 @@ void ParameterManager::resetAllToVehicleConfiguration()
     }
 }
 
-QString ParameterManager::_logVehiclePrefix(int componentId)
+QString ParameterManager::_logVehiclePrefix(int componentId) const
 {
     if (componentId == -1) {
         return QString("V:%1").arg(_vehicle->id());

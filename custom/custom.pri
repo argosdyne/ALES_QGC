@@ -84,6 +84,7 @@ SOURCES += \
     $$PWD/src/SiYi/SiYiCrcApi.cc \
     $$PWD/src/SiYi/SiYiManager.cc \
     $$PWD/src/SiYi/SiYiTcpClient.cc \
+    $$PWD/src/YS/YSManager.cpp \
     $$PWD/src/SiYi/SiYiTransmitter.cc \
     $$PWD/src/codevsettings.cpp \
     $$PWD/src/CustomSettings.cc \
@@ -103,6 +104,7 @@ HEADERS += \
     $$PWD/src/SiYi/SiYiCrcApi.h \
     $$PWD/src/SiYi/SiYiManager.h \
     $$PWD/src/SiYi/SiYiTcpClient.h \
+    $$PWD/src/YS/YSManager.h \
     $$PWD/src/SiYi/SiYiTransmitter.h \
     $$PWD/src/codevsettings.h \
     $$PWD/src/CustomSettings.h \
@@ -120,7 +122,8 @@ INCLUDEPATH += \
     $$PWD/src/ARLink/ \
     $$PWD/src/AVIATOR/ \
     $$PWD/src/MissionManager \
-    $$PWD/src/Rhythm
+    $$PWD/src/Rhythm \
+    $$PWD/src/YS
 
 # Ensure make can locate custom sources in subfolders
 VPATH += \
@@ -130,6 +133,7 @@ VPATH += \
     $$PWD/src/ARLink \
     $$PWD/src/AVIATOR \
     $$PWD/src/MissionManager \
+    $$PWD/src/YS \
     $$PWD/src/FirmwarePlugin \
     $$PWD/src/AutoPilotPlugin
 DEPENDPATH += $$VPATH

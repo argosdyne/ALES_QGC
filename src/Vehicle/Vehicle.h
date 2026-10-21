@@ -13,9 +13,14 @@
 #include <QObject>
 #include <QVariantList>
 #include <QGeoCoordinate>
+#include <QHash>
 #include <QTime>
 #include <QQueue>
 #include <QSharedPointer>
+#include <QSet>
+#include <QTimer>
+
+#include <atomic>
 
 #include "FactGroup.h"
 #include "QGCMAVLink.h"
@@ -79,7 +84,9 @@ class InitialConnectStateMachine;
 class Autotune;
 class RemoteIDManager;
 class GimbalController;
+class NextVisionController;
 class AudioControl;
+class OpticalFlowController;
 
 namespace events {
 namespace parser {
@@ -160,6 +167,15 @@ public:
     };
     Q_ENUM(CheckList)
 
+    enum GeoFenceAlertTier {
+        GeoFenceAlertTierNone = 0,
+        GeoFenceAlertTierMargin,
+        GeoFenceAlertTierAltitudeWarning,
+        GeoFenceAlertTierBreach,
+        GeoFenceAlertTierContingency,
+    };
+    Q_ENUM(GeoFenceAlertTier)
+
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
     Q_PROPERTY(AutoPilotPlugin*     autopilot                   MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
@@ -172,16 +188,28 @@ public:
     Q_PROPERTY(QString              flightMode                  READ flightMode                 WRITE setFlightMode                 NOTIFY flightModeChanged)
     Q_PROPERTY(TrajectoryPoints*    trajectoryPoints            MEMBER _trajectoryPoints                                            CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  cameraTriggerPoints         READ cameraTriggerPoints                                            CONSTANT)
+    Q_PROPERTY(int                  missionImageCount           READ missionImageCount                                              NOTIFY missionImageCountChanged)
     Q_PROPERTY(float                latitude                    READ latitude                                                       NOTIFY coordinateChanged)
     Q_PROPERTY(float                longitude                   READ longitude                                                      NOTIFY coordinateChanged)
     Q_PROPERTY(bool                 messageTypeNone             READ messageTypeNone                                                NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeNormal           READ messageTypeNormal                                              NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeWarning          READ messageTypeWarning                                             NOTIFY messageTypeChanged)
     Q_PROPERTY(bool                 messageTypeError            READ messageTypeError                                               NOTIFY messageTypeChanged)
+    Q_PROPERTY(bool                 geoFenceMarginWarning       READ geoFenceMarginWarning                                          NOTIFY geoFenceMarginWarningChanged)
+    Q_PROPERTY(bool                 geoFenceBreached            READ geoFenceBreached                                               NOTIFY geoFenceBreachedChanged)
+    Q_PROPERTY(int                  geoFenceAlertTier           READ geoFenceAlertTier                                              NOTIFY geoFenceAlertTierChanged)
+    Q_PROPERTY(bool                 geoFenceLoaded              READ geoFenceLoaded                                                 NOTIFY geoFenceLoadedChanged)
+    Q_PROPERTY(bool                 geoFenceActive              READ geoFenceActive                                                 NOTIFY geoFenceActiveChanged)
+    Q_PROPERTY(bool                 geoFenceParamsMissing       READ geoFenceParamsMissing                                          NOTIFY geoFenceParamsMissingChanged)
+    Q_PROPERTY(bool                 linkQualityWarning          READ linkQualityWarning                                             NOTIFY linkQualityWarningChanged)
+    Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
+    Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
+    Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
     Q_PROPERTY(bool                 joystickEnabled             READ joystickEnabled            WRITE setJoystickEnabled            NOTIFY joystickEnabledChanged)
+    Q_PROPERTY(bool                 videoCaptureRunning         READ videoCaptureRunning                                            NOTIFY videoCaptureRunningChanged)
     Q_PROPERTY(int                  flowImageIndex              READ flowImageIndex                                                 NOTIFY flowImageIndexChanged)
     Q_PROPERTY(int                  rcRSSI                      READ rcRSSI                                                         NOTIFY rcRSSIChanged)
     Q_PROPERTY(bool                 px4Firmware                 READ px4Firmware                                                    NOTIFY firmwareTypeChanged)
@@ -250,6 +278,7 @@ public:
     Q_PROPERTY(qreal                gimbalYaw                   READ gimbalYaw                                                      NOTIFY gimbalYawChanged)
     Q_PROPERTY(bool                 gimbalData                  READ gimbalData                                                     NOTIFY gimbalDataChanged)
     Q_PROPERTY(GimbalController*    gimbalController            READ gimbalController                                               CONSTANT)
+    Q_PROPERTY(NextVisionController* nextVisionController        READ nextVisionController                                           CONSTANT)
     Q_PROPERTY(bool                 hasGripper                  READ hasGripper                                                     CONSTANT)
     Q_PROPERTY(bool                 isROIEnabled                READ isROIEnabled                                                   NOTIFY isROIEnabledChanged)
     Q_PROPERTY(CheckList            checkListState              READ checkListState             WRITE setCheckListState             NOTIFY checkListStateChanged)
@@ -261,6 +290,7 @@ public:
     Q_PROPERTY(double               loadProgress                READ loadProgress                                                   NOTIFY loadProgressChanged)
     Q_PROPERTY(bool                 initialConnectComplete      READ isInitialConnectComplete                                       NOTIFY initialConnectComplete)    
     Q_PROPERTY(AudioControl* audioControl READ audioControl CONSTANT)
+    Q_PROPERTY(OpticalFlowController* opticalFlowController READ opticalFlowController CONSTANT)
     // The following properties relate to Orbit status
     Q_PROPERTY(bool             orbitActive     READ orbitActive        NOTIFY orbitActiveChanged)
     Q_PROPERTY(QGCMapCircle*    orbitMapCircle  READ orbitMapCircle     CONSTANT)
@@ -457,6 +487,8 @@ public:
 
     /// Sends PARAM_MAP_RC message to vehicle
     Q_INVOKABLE void sendParamMapRC(const QString& paramName, double scale, double centerValue, int tuningID, double minValue, double maxValue);
+    Q_INVOKABLE void deployParachute(void);
+    Q_INVOKABLE bool isCoordinateOutsideFence(const QGeoCoordinate& coordinate);
 
     /// Clears all PARAM_MAP_RC settings from vehicle
     Q_INVOKABLE void clearAllParamMapRC(void);
@@ -466,6 +498,9 @@ public:
 
     /// Trigger camera using MAV_CMD_DO_DIGICAM_CONTROL command
     Q_INVOKABLE void triggerSimpleCamera(void);
+    Q_INVOKABLE void startVideoCapture(void);
+    Q_INVOKABLE void stopVideoCapture(void);
+    Q_INVOKABLE void toggleVideoCapture(void);
 
 #if !defined(NO_ARDUPILOT_DIALECT)
     Q_INVOKABLE void flashBootloader();
@@ -496,7 +531,11 @@ public:
 
     bool joystickEnabled            () const;
     void setJoystickEnabled         (bool enabled);
-    void sendJoystickDataThreadSafe (float roll, float pitch, float yaw, float thrust, quint16 buttons);
+    bool videoCaptureRunning        () const { return _videoCaptureRunning.load(); }
+    void sendJoystickDataThreadSafe (float roll, float pitch, float yaw, float thrust, quint16 buttons, float auxPitch = qQNaN(), float auxRoll = qQNaN());
+    void sendGimbalRCOverrideThreadSafe(float pitch, float yaw);
+    Q_INVOKABLE void sendGremsyGimbalRate(float pitchRate, float yawRate);
+    Q_INVOKABLE void stopGremsyGimbal();
 
     // Property accesors
     int id() const{ return _id; }
@@ -573,6 +612,8 @@ public:
     void setPrearmError(const QString& prearmError);
 
     QmlObjectListModel* cameraTriggerPoints () { return &_cameraTriggerPoints; }
+    void clearCameraTriggerPoints();
+    int missionImageCount() const { return _missionImageCount; }
 
     int  flowImageIndex() const{ return _flowImageIndex; }
 
@@ -601,6 +642,16 @@ public:
     bool            messageTypeNormal           () { return _currentMessageType == MessageNormal; }
     bool            messageTypeWarning          () { return _currentMessageType == MessageWarning; }
     bool            messageTypeError            () { return _currentMessageType == MessageError; }
+    bool            geoFenceMarginWarning       () const { return _geoFenceMarginWarning; }
+    bool            geoFenceBreached            () const { return _geoFenceBreached; }
+    int             geoFenceAlertTier           () const { return _geoFenceAlertTier; }
+    bool            geoFenceLoaded              () const { return _geoFenceLoaded; }
+    bool            geoFenceActive              () const { return _geoFenceActive; }
+    bool            geoFenceParamsMissing       () const { return _geoFenceParamsMissing; }
+    bool            linkQualityWarning          () const { return _linkQualityWarning; }
+    bool            linkQualityCritical         () const { return _linkQualityCritical; }
+    bool            parachuteAvailable          () const { return _parachuteAvailable; }
+    bool            parachuteEnabled            () const { return _parachuteEnabled; }
     int             newMessageCount             () const{ return _currentMessageCount; }
     int             messageCount                () const{ return _messageCount; }
     QString         formattedMessages           ();
@@ -889,6 +940,7 @@ public:
     QString                     hobbsMeter          ();
 
     AudioControl*               audioControl        () {return _audioControl; }
+    OpticalFlowController*      opticalFlowController() { return _opticalFlowController; }
 
     /// The vehicle is responsible for making the initial request for the Plan.
     /// @return: true: initial request is complete, false: initial request is still in progress;
@@ -925,6 +977,7 @@ public:
     bool        isROIEnabled            () const{ return _isROIEnabled; }
 
     GimbalController* gimbalController    () { return _gimbalController; }
+    NextVisionController* nextVisionController() { return _nextVisionController; }
 
     CheckList   checkListState          () { return _checkListState; }
     void        setCheckListState       (CheckList cl)  { _checkListState = cl; emit checkListStateChanged(); }
@@ -950,6 +1003,7 @@ signals:
     void armedPositionChanged();
     void armedChanged                   (bool armed);
     void flightModeChanged              (const QString& flightMode);
+    void missionImageCountChanged       (int imageCount);
     void flyingChanged                  (bool flying);
     void landingChanged                 (bool landing);
     void guidedModeChanged              (bool guidedMode);
@@ -974,6 +1028,16 @@ signals:
     void messagesSentChanged            ();
     void messagesLostChanged            ();
     void messageTypeChanged             ();
+    void geoFenceMarginWarningChanged  ();
+    void geoFenceBreachedChanged       (bool breached);
+    void geoFenceAlertTierChanged      (int tier);
+    void geoFenceLoadedChanged         (bool loaded);
+    void geoFenceActiveChanged         (bool active);
+    void geoFenceParamsMissingChanged  (bool missing);
+    void linkQualityWarningChanged     (bool warning);
+    void linkQualityCriticalChanged    (bool critical);
+    void parachuteAvailableChanged     (bool available);
+    void parachuteEnabledChanged       (bool enabled);
     void newMessageCountChanged         ();
     void messageCountChanged            ();
     void formattedMessagesChanged       ();
@@ -1052,6 +1116,11 @@ signals:
     void initialConnectComplete         ();
 
     void sensorsParametersResetAck      (bool success);
+    void vlValueChanged                 (int value); //Vision Lidar
+    void visionLidarEnabledChanged      (int value);
+    void vlOBAValueChanged              (int value);
+    void slStatusChanged                (int value); //Searchlight ON/OFF
+    void videoCaptureRunningChanged     ();
 
 private slots:
     void _mavlinkMessageReceived            (LinkInterface* link, mavlink_message_t message);
@@ -1070,6 +1139,7 @@ private slots:
     void _firstGeoFenceLoadComplete         ();
     void _firstRallyPointLoadComplete       ();
     void _sendMavCommandResponseTimeoutCheck();
+    void _sendVideoRcOverride              ();
     void _clearCameraTriggerPoints          ();
     void _updateDistanceHeadingToHome       ();
     void _updateMissionItemIndex            ();
@@ -1116,6 +1186,18 @@ private:
     void _handleGimbalOrientation       (const mavlink_message_t& message);
     void _handleObstacleDistance        (const mavlink_message_t& message);
     void _handleFenceStatus             (const mavlink_message_t& message);
+    void _checkGeoFenceAlertTierLocal   (void);
+    void _checkGeoFenceBreachLocal      (void);
+    void _checkGeoFenceMargin           (void);
+    void _setGeoFenceMarginWarning      (bool warningActive);
+    void _setGeoFenceBreached           (bool breached);
+    void _setGeoFenceAlertTier          (GeoFenceAlertTier tier, const QString& reason = QString());
+    void _updateGeoFenceActiveState     (void);
+    void _updateGeoFenceParamsMissing   (void);
+    void _updateParachuteState          (void);
+    void _updateLinkQuality             (void);
+    void _logGeoFenceEvent              (const QString& reason, const QString& details = QString());
+    double _geoFenceContingencyWidthMeters(void) const;
     void _handleEvent(uint8_t comp_id, std::unique_ptr<events::parser::ParsedEvent> event);
     // ArduPilot dialect messages
 #if !defined(NO_ARDUPILOT_DIALECT)
@@ -1123,6 +1205,13 @@ private:
     void _handleRangefinder             (mavlink_message_t& message);
 #endif
     void _handleCameraImageCaptured     (const mavlink_message_t& message);
+    void _handleCameraCaptureStatus     (const mavlink_message_t& message);
+    void _handleMissionItemReachedApmCamera(const mavlink_message_t& message);
+    void _addCameraTriggerPoint          (const QGeoCoordinate& imageCoordinate, uint8_t cameraId, quint32 imageIndex);
+    void _startMissionImageCountTracking ();
+    void _finishMissionImageCountTracking();
+    void _requestCameraCaptureStatus     ();
+    void _updateMissionImageCount        ();
     void _handleADSBVehicle             (const mavlink_message_t& message);
     void _handleRawImuTemp              (mavlink_message_t& message);
     void _missionManagerError           (int errorCode, const QString& errorMsg);
@@ -1145,6 +1234,7 @@ private:
     void _chunkedStatusTextTimeout      (void);
     void _chunkedStatusTextCompleted    (uint8_t compId);
     void _setMessageInterval            (int messageId, int rate);
+    bool _preflightChecklistAllowsArming() const;
     EventHandler& _eventHandler         (uint8_t compid);
     bool setFlightModeCustom            (const QString& flightMode, uint8_t* base_mode, uint32_t* custom_mode);
 
@@ -1196,6 +1286,21 @@ private:
     bool            _gps2RawMessageAvailable                = false;
     bool            _globalPositionIntMessageAvailable      = false;
     bool            _altitudeMessageAvailable               = false;
+    bool            _geoFenceBreached                       = false;
+    GeoFenceAlertTier _geoFenceAlertTier                    = GeoFenceAlertTierNone;
+    bool            _fenceStatusReceived                    = false;
+    bool            _fenceStatusBreached                    = false;
+    uint16_t        _lastFenceBreachCount                   = 0;
+    qint64          _lastGeoFenceMarginWarningMSecs         = 0;
+    qint64          _lastGeoFenceBreachMessageMSecs         = 0;
+    bool            _geoFenceMarginWarning                  = false;
+    bool            _geoFenceLoaded                         = false;
+    bool            _geoFenceActive                         = false;
+    bool            _geoFenceParamsMissing                  = false;
+    bool            _linkQualityWarning                     = false;
+    bool            _linkQualityCritical                    = false;
+    bool            _parachuteAvailable                     = false;
+    bool            _parachuteEnabled                       = false;
     double          _defaultCruiseSpeed = qQNaN();
     double          _defaultHoverSpeed = qQNaN();
     int             _telemetryRRSSI = 0;
@@ -1221,6 +1326,7 @@ private:
     QGCCameraManager* _cameraManager = nullptr;
 
     AudioControl* _audioControl = nullptr;
+    OpticalFlowController* _opticalFlowController = nullptr;
 
     QString             _prearmError;
     QTimer              _prearmErrorTimer;
@@ -1236,6 +1342,7 @@ private:
     VehicleObjectAvoidance*         _objectAvoidance                = nullptr;
     Autotune*                       _autotune                       = nullptr;
     GimbalController*               _gimbalController               = nullptr;
+    NextVisionController*           _nextVisionController           = nullptr;
 
     bool    _armed = false;         ///< true: vehicle is armed
     uint8_t _base_mode = 0;     ///< base_mode from HEARTBEAT
@@ -1261,6 +1368,18 @@ private:
     QTimer                          _flightTimeUpdater;
     TrajectoryPoints*               _trajectoryPoints = nullptr;
     QmlObjectListModel              _cameraTriggerPoints;
+    QSet<quint64>                   _cameraCaptureIndices;
+    struct MissionCameraImageCountInfo {
+        quint32 lastImageCount = 0;
+        quint32 capturedImageCount = 0;
+        bool baselineAvailable = false;
+    };
+    QHash<uint8_t, quint32>                     _cameraImageCounts;
+    QHash<uint8_t, MissionCameraImageCountInfo> _missionCameraImageCounts;
+    QTimer                                      _missionImageCountFinalizationTimer;
+    bool                                        _missionImageCountTracking = false;
+    bool                                        _missionImageCountValid = false;
+    int                                         _missionImageCount = -1;
     //QMap<QString, ADSBVehicle*>     _trafficVehicleMap;
 
     // Toolbox references
@@ -1268,7 +1387,9 @@ private:
     int                         _flowImageIndex = 0;
 
     bool _allLinksRemovedSent = false; ///< true: allLinkRemoved signal already sent one time
-
+    std::atomic_bool _videoCaptureRunning{false};
+    QTimer _videoRcOverrideTimer;
+    int _videoRcStopPulsesRemaining = 0;
     uint                _messagesReceived = 0;
     uint                _messagesSent = 0;
     uint                _messagesLost = 0;
@@ -1387,9 +1508,9 @@ private:
 
     QList<MavCommandListEntry_t>    _mavCommandList;
     QTimer                          _mavCommandResponseCheckTimer;
-    static const int                _mavCommandMaxRetryCount                = 3;
+    static const int                _mavCommandMaxRetryCount                = 6;
     static const int                _mavCommandResponseCheckTimeoutMSecs    = 500;
-    static const int                _mavCommandAckTimeoutMSecs              = 3000;
+    static const int                _mavCommandAckTimeoutMSecs              = 5000;
     static const int                _mavCommandAckTimeoutMSecsHighLatency   = 120000;
 
     void _sendMavCommandWorker  (
