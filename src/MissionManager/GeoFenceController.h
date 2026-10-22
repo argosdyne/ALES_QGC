@@ -77,6 +77,10 @@ public:
     Q_INVOKABLE void clearAllInteractive(void);
     Q_INVOKABLE QString geoFenceSelfTestReport(void) const;
 
+    /// Returns an empty string when a GoTo target is permitted by the active fence.
+    /// A non-empty result is a user-facing reason why it must be blocked.
+    Q_INVOKABLE QString goToTargetBlockReason(const QGeoCoordinate& coordinate) const;
+
     double  paramCircularFence  (void);
     bool    paramCircularFenceActive(void) const;
     Fact*   breachReturnAltitude(void) { return &_breachReturnAltitudeFact; }

@@ -44,6 +44,8 @@ FlightMap {
     property bool   pipMode:                    false   // true: map is shown in a small pip mode
     // A draft is deliberately separate from the existing, commanded GoTo marker.
     property bool   gotoSelectionEnabled:       false
+    property bool   gotoTargetEditorVisible:    false
+    property bool   gotoEditorHiddenForConfirmation: false
     property bool   gotoProgressActive:         false
     readonly property bool gotoConfirmationPending: !!(globals.guidedControllerFlyView &&
         globals.guidedControllerFlyView.confirmDialog && globals.guidedControllerFlyView.confirmDialog.visible &&
@@ -76,6 +78,8 @@ FlightMap {
             return
         }
         gotoSelectionEnabled = true
+        gotoTargetEditorVisible = true
+        gotoEditorHiddenForConfirmation = false
         setGotoDraftCoordinate(coordinate, false)
     }
 
@@ -104,7 +108,25 @@ FlightMap {
             globals.guidedControllerFlyView.confirmDialog.confirmCancelled()
         }
         gotoSelectionEnabled = false
+        gotoTargetEditorVisible = false
+        gotoEditorHiddenForConfirmation = false
         gotoDraftCoordinate = QtPositioning.coordinate()
+    }
+
+    function hideGotoTargetEditorForConfirmation() {
+        if (gotoSelectionEnabled) {
+            gotoTargetEditorVisible = false
+            gotoEditorHiddenForConfirmation = true
+        }
+    }
+
+    onGotoConfirmationPendingChanged: {
+        // Re-open the editor after cancelling the slide confirmation. A confirmed
+        // action clears the draft in completeGotoSelection instead.
+        if (!gotoConfirmationPending && gotoEditorHiddenForConfirmation && gotoSelectionEnabled) {
+            gotoTargetEditorVisible = true
+            gotoEditorHiddenForConfirmation = false
+        }
     }
 
     function clearGotoProgress() {

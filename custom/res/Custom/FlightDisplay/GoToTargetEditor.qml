@@ -34,6 +34,8 @@ Item {
     readonly property real distanceMeters: coordinatesValid && vehicle && vehicle.coordinate.isValid ?
         vehicle.coordinate.distanceTo(QtPositioning.coordinate(enteredLatitude, enteredLongitude)) : NaN
     readonly property var flySettings: QGroundControl.settingsManager.flyViewSettings
+    readonly property var geoFenceController: mapControl && mapControl.planMasterController ? mapControl.planMasterController.geoFenceController : null
+    readonly property bool geoFenceLoaded: geoFenceController ? geoFenceController.fenceLoaded : false
     readonly property real homeAltitudeAMSL: vehicle ? Number(vehicle.altitudeAMSL.rawValue) - Number(vehicle.altitudeRelative.rawValue) : NaN
     readonly property real targetAMSL: altitudeMode === QGroundControl.AltitudeModeAbsolute ? targetAltitudeMeters : targetAltitudeMeters + homeAltitudeAMSL
     readonly property real minimumAltitudeMeters: Number(flySettings.guidedMinimumAltitude.rawValue) + (altitudeMode === QGroundControl.AltitudeModeAbsolute ? homeAltitudeAMSL : 0)
@@ -50,7 +52,13 @@ Item {
          qsTr("Target exceeds the maximum GoTo distance (%1 %2).")
             .arg(Number(units.metersToAppSettingsHorizontalDistanceUnits(flySettings.maxGoToLocationDistance.rawValue)).toFixed(0))
             .arg(units.appSettingsHorizontalDistanceUnitsString) : ""))
-    readonly property bool targetValid: coordinatesValid && altitudeError === "" && distanceError === "" && isFinite(distanceMeters)
+    readonly property string geoFenceError: {
+        if (!coordinatesValid || !geoFenceController || !geoFenceLoaded) {
+            return ""
+        }
+        return geoFenceController.goToTargetBlockReason(QtPositioning.coordinate(enteredLatitude, enteredLongitude))
+    }
+    readonly property bool targetValid: coordinatesValid && altitudeError === "" && distanceError === "" && geoFenceError === "" && isFinite(distanceMeters)
     readonly property real altitudeDifference: targetAltitudeMeters - currentAltitude
     // The same configurable planning speeds used by Mission. This is an estimate, not measured progress.
     readonly property real planningSpeed: Number(QGroundControl.settingsManager.appSettings.offlineEditingHoverSpeed.rawValue)
@@ -192,6 +200,14 @@ Item {
                     font.pointSize: ScreenTools.smallFontPointSize
                 }
                 QGCLabel {
+                    visible: root.geoFenceError.length > 0
+                    text: root.geoFenceError
+                    color: qgcPal.warningText
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    font.pointSize: ScreenTools.smallFontPointSize
+                }
+                QGCLabel {
                     text: qsTr("Altitude - %1").arg(QGroundControl.altitudeModeShortDescription(root.altitudeMode))
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -232,11 +248,11 @@ Item {
                     Layout.fillWidth: true
                     columnSpacing: root.margin
                     rowSpacing: root.margin / 2
-                    QGCLabel { text: qsTr("Distance"); Layout.fillWidth: true; font.pointSize: ScreenTools.smallFontPointSize }
+                    QGCLabel { text: qsTr("Distance"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
                     QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.distanceMeters) ? Number(root.units.metersToAppSettingsHorizontalDistanceUnits(root.distanceMeters)).toFixed(0) : "--") + " " + root.units.appSettingsHorizontalDistanceUnitsString }
-                    QGCLabel { text: qsTr("Est. ETA"); Layout.fillWidth: true; font.pointSize: ScreenTools.smallFontPointSize }
+                    QGCLabel { text: qsTr("Est. ETA"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
                     QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.etaSeconds) ? Math.ceil(root.etaSeconds) : "--") + " s" }
-                    QGCLabel { text: qsTr("Altitude change"); Layout.fillWidth: true; font.pointSize: ScreenTools.smallFontPointSize }
+                    QGCLabel { text: qsTr("Altitude change"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
                     QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.altitudeDifference) ? (root.altitudeDifference > 0 ? "+" : "") + Number(root.units.metersToAppSettingsVerticalDistanceUnits(root.altitudeDifference)).toFixed(1) : "--") + " " + root.altitudeUnits }
                 }
             }
@@ -273,6 +289,7 @@ Item {
                             altitudeMode: root.altitudeMode,
                             altitudeText: root.targetAltitude + " " + root.altitudeUnits
                         })
+                        root.mapControl.hideGotoTargetEditorForConfirmation()
                     }
                 }
             }

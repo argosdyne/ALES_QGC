@@ -153,30 +153,12 @@ Item {
             columnSpacing: root.margin
             rowSpacing: root.margin
 
-            QGCLabel { text: qsTr("Remaining distance"); font.pointSize: ScreenTools.smallFontPointSize }
+            QGCLabel { text: qsTr("Remaining distance"); font.pointSize: ScreenTools.defaultFontPointSize }
             QGCLabel { Layout.alignment: Qt.AlignRight; text: root.displayDistance(root.remainingDistance) }
-            QGCLabel { text: qsTr("Est. ETA"); font.pointSize: ScreenTools.smallFontPointSize }
+            QGCLabel { text: qsTr("Est. ETA"); font.pointSize: ScreenTools.defaultFontPointSize }
             QGCLabel { Layout.alignment: Qt.AlignRight; text: isFinite(root.etaSeconds) ? Math.ceil(root.etaSeconds) + " s" : "--" }
-            QGCLabel { text: qsTr("Current altitude"); font.pointSize: ScreenTools.smallFontPointSize }
+            QGCLabel { text: qsTr("Current altitude"); font.pointSize: ScreenTools.defaultFontPointSize }
             QGCLabel { Layout.alignment: Qt.AlignRight; text: root.displayAltitude(root.currentAltitude) }
-        }
-
-        QGCLabel {
-            Layout.fillWidth: true
-            visible: root.atTarget && !root.arrived
-            text: qsTr("Arrival detected. Confirming hover position...")
-            color: qgcPal.warningText
-            wrapMode: Text.WordWrap
-            font.pointSize: ScreenTools.smallFontPointSize
-        }
-
-        QGCLabel {
-            Layout.fillWidth: true
-            visible: root.arrived
-            text: qsTr("Arrived at target. Vehicle is holding position.")
-            color: qgcPal.colorGreen
-            wrapMode: Text.WordWrap
-            font.pointSize: ScreenTools.smallFontPointSize
         }
 
         QGCLabel {
