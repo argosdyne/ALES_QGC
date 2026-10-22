@@ -54,12 +54,78 @@
 #include <QCoreApplication>
 #include "TerrainTile.h"
 #include "CustomQmlInterface.h"
+#include "MapProvider.h"
 int         QGeoTiledMapReplyQGC::_requestCount = 0;
+int         QGeoTiledMapReplyQGC::_activeTileDownloads = 0;
+QList<QPointer<QGeoTiledMapReplyQGC>> QGeoTiledMapReplyQGC::_pendingTileDownloads;
+static const int kMaxActiveTileDownloads = 4;
 QByteArray  QGeoTiledMapReplyQGC::_bingNoTileImage;
+static const int kTileDownloadTimeoutMs      = 10000;
+static const int kTileDownloadTimeoutRetries = 2;
+
+static bool tileBytesAreImage(const QByteArray& image)
+{
+    static const unsigned char pngSig[]  = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    static const unsigned char jpegSig[] = {0xFF, 0xD8, 0xFF};
+    static const unsigned char gifSig[]  = {0x47, 0x49, 0x46, 0x38};
+    return image.startsWith(QByteArray(reinterpret_cast<const char*>(pngSig), int(sizeof(pngSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(jpegSig), int(sizeof(jpegSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(gifSig), int(sizeof(gifSig))));
+}
 
 static inline QString mapDownloadRequiredMessage()
 {
     return QCoreApplication::translate("QGeoTiledMapReplyQGC", "Please download the map of the flight area.");
+}
+
+// Drop our slots and let the HTTP request finish on its own.
+// QNetworkReply::abort() from a map-type change runs inside QNetworkAccessManager,
+// and the next map's get() then jumps to a null createRequest.
+static void releaseNetworkReply(QNetworkReply* extra)
+{
+    if (!extra) {
+        return;
+    }
+    if (extra->isFinished()) {
+        extra->deleteLater();
+        return;
+    }
+    QObject::connect(extra, &QNetworkReply::finished, extra, &QObject::deleteLater);
+}
+
+// VWorld returns these as HTTP 200 XML, not as a network error.
+// The log text is English. The Korean literals below are the server's ExceptionText.
+static QString vworldTileRejection(const QUrl& url, const QByteArray& body)
+{
+    if (!url.host().contains(QLatin1String("vworld.kr"), Qt::CaseInsensitive)) {
+        return QString();
+    }
+    // <Exception locator="key"> means the API key is not registered.
+    if (body.contains("locator=\"key\"")) {
+        return QStringLiteral("VWorld: unregistered API key");
+    }
+    // Quota ExceptionText is Korean. "초과" = exceeded, together with
+    // usage / traffic / calls / limit. OVER_REQUEST is VWorld's English code.
+    const QString text = QString::fromUtf8(body);
+    if (body.contains("OVER_REQUEST")
+        || (text.contains(QStringLiteral("초과"))
+            && (text.contains(QStringLiteral("활용"))
+                || text.contains(QStringLiteral("트래픽"))
+                || text.contains(QStringLiteral("호출"))
+                || text.contains(QStringLiteral("제한"))))) {
+        return QStringLiteral("VWorld: usage quota exceeded");
+    }
+    return QString();
+}
+
+static void logVworldTileRejectionOnce(const QString& message)
+{
+    static QStringList logged;
+    if (logged.contains(message)) {
+        return;
+    }
+    logged.append(message);
+    qWarning().noquote() << message;
 }
 
 //-----------------------------------------------------------------------------
@@ -68,6 +134,10 @@ QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager
     , _reply(nullptr)
     , _request(request)
     , _networkManager(networkManager)
+    , _timeoutRetries(0)
+    , _aborted(false)
+    , _awaitingOverlay(false)
+    , _holdsNetworkSlot(false)
 {
     if (_bingNoTileImage.count() == 0) {
         QFile file(":/res/BingNoTileBytes.dat");
@@ -96,6 +166,7 @@ QGeoTiledMapReplyQGC::QGeoTiledMapReplyQGC(QNetworkAccessManager *networkManager
 //-----------------------------------------------------------------------------
 QGeoTiledMapReplyQGC::~QGeoTiledMapReplyQGC()
 {
+    _releaseNetworkSlot();
     _clearReply();
 }
 
@@ -104,39 +175,172 @@ void
 QGeoTiledMapReplyQGC::_clearReply()
 {
     _timer.stop();
-    if (_reply) {
-        _reply->deleteLater();
-        _reply = nullptr;
+    if (!_reply) {
+        return;
+    }
+    QNetworkReply* extra = _reply;
+    _reply = nullptr;
+    extra->disconnect(this);
+    if (_requestCount > 0) {
         _requestCount--;
     }
+    releaseNetworkReply(extra);
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_releaseNetworkSlot()
+{
+    _pendingTileDownloads.removeAll(this);
+    if (!_holdsNetworkSlot) {
+        return;
+    }
+    _holdsNetworkSlot = false;
+    if (_activeTileDownloads > 0) {
+        _activeTileDownloads--;
+    }
+    while (_activeTileDownloads < kMaxActiveTileDownloads && !_pendingTileDownloads.isEmpty()) {
+        QPointer<QGeoTiledMapReplyQGC> next = _pendingTileDownloads.takeFirst();
+        if (!next || next->_aborted || next->isFinished() || next->_holdsNetworkSlot) {
+            continue;
+        }
+        next->_holdsNetworkSlot = true;
+        _activeTileDownloads++;
+        next->_beginTileDownload();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_scheduleTileDownload()
+{
+    if (_aborted || isFinished() || _holdsNetworkSlot) {
+        return;
+    }
+    // This Android Qt build corrupts QNetworkAccessManager when a map switch
+    // starts every visible tile at once. Keep only a few HTTP requests in flight.
+    if (_activeTileDownloads >= kMaxActiveTileDownloads) {
+        if (!_pendingTileDownloads.contains(this)) {
+            _pendingTileDownloads.append(this);
+        }
+        return;
+    }
+    _holdsNetworkSlot = true;
+    _activeTileDownloads++;
+    _beginTileDownload();
 }
 
 //-----------------------------------------------------------------------------
 void
 QGeoTiledMapReplyQGC::abort()
 {
+    if (_aborted) {
+        return;
+    }
+    _aborted = true;
     _timer.stop();
-    if (_reply)
-        _reply->abort();
+    _awaitingOverlay = false;
+    _baseTileImage.clear();
+    _releaseNetworkSlot();
+    // Detach the HTTP reply without aborting it. Aborting every visible tile here
+    // leaves QNetworkAccessManager half-destroyed, and the new map type's get()
+    // calls a null createRequest.
+    _clearReply();
+    if (!getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId()) && !isFinished()) {
+        setFinished(true);
+    }
     emit aborted();
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGeoTiledMapReplyQGC::_beginOverlayDownload(const QUrl& url)
+{
+    if (_aborted || isFinished()) {
+        return false;
+    }
+    if (_reply) {
+        QNetworkReply* done = _reply;
+        _reply = nullptr;
+        done->disconnect(this);
+        done->deleteLater();
+        if (_requestCount > 0) {
+            _requestCount--;
+        }
+    }
+    QNetworkRequest request(url);
+    request.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("*/*"));
+    request.setRawHeader(QByteArrayLiteral("Referrer"), QByteArrayLiteral("www.vworld.kr"));
+    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArray());
+    request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
+    _request = request;
+    _awaitingOverlay = true;
+    // get() from inside the satellite reply's finished() handler crashes Qt on Android.
+    QTimer::singleShot(0, this, [this]() {
+        if (!_aborted && !isFinished() && !_reply && _awaitingOverlay) {
+            _beginTileDownload();
+        }
+    });
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_finishHybridOverlay(const QByteArray& overlayBytes)
+{
+    if (!_awaitingOverlay || isFinished()) {
+        return;
+    }
+    _awaitingOverlay = false;
+    QByteArray image = _baseTileImage;
+    QString format = getQGCMapEngine()->urlFactory()->getImageFormat(tileSpec().mapId(), image);
+    const QByteArray composed = composeMapOverlay(_baseTileImage, overlayBytes);
+    const bool overlayReady = !composed.isEmpty();
+    if (overlayReady) {
+        image = composed;
+        format = QStringLiteral("png");
+    } else {
+        const QString rejection = vworldTileRejection(_request.url(), overlayBytes);
+        if (!rejection.isEmpty()) {
+            logVworldTileRejectionOnce(rejection);
+        } else if (!overlayBytes.isEmpty()) {
+            logVworldTileRejectionOnce(QStringLiteral("VWorld: hybrid overlay unavailable"));
+        }
+    }
+    _baseTileImage.clear();
+    // Show the satellite tile for this view. Cache it only after the label is composited,
+    // so a failed label is requested again the next time this tile is needed.
+    setMapImageData(image);
+    if (!format.isEmpty()) {
+        setMapImageFormat(format);
+        if (overlayReady) {
+            getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()),
+                                          tileSpec().x(), tileSpec().y(), tileSpec().zoom(), image, format);
+        }
+    }
+    _releaseNetworkSlot();
+    setFinished(true);
 }
 
 //-----------------------------------------------------------------------------
 void
 QGeoTiledMapReplyQGC::networkReplyFinished()
 {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply || reply != _reply) {
+        return;
+    }
     _timer.stop();
-    if (!_reply) {
-        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
-        emit aborted();
+    if (reply->error() != QNetworkReply::NoError) {
         return;
     }
-    if (_reply->error() != QNetworkReply::NoError) {
-        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
-        emit aborted();
+    QByteArray a = reply->readAll();
+    if (_awaitingOverlay) {
+        _finishHybridOverlay(a);
+        _clearReply();
         return;
     }
-    QByteArray a = _reply->readAll();
     UrlFactory* urlFactory = getQGCMapEngine()->urlFactory();
     QString format = urlFactory->getImageFormat(tileSpec().mapId(), a);
     //-- Test for a specialized, elevation data (not map tile)
@@ -152,6 +356,7 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
         emit terrainDone(a, QNetworkReply::NoError);
     } else {
         MapProvider* mapProvider = urlFactory->getMapProviderFromId(tileSpec().mapId());
+        const QString vworldRejection = vworldTileRejection(reply->url(), a);
         if (mapProvider && mapProvider->_isBingProvider() && a.size() && _bingNoTileImage.size() && a == _bingNoTileImage) {
             // Bing doesn't return an error if you request a tile above supported zoom level
             // It instead returns an image of a missing tile graphic. We need to detect that
@@ -159,15 +364,36 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
             // This allows us to zoom up to level 23 even though the tiles don't actually exist
             //setError(QGeoTiledMapReply::CommunicationError, "Bing tile above zoom level");
             CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
+            setFinished(true);
+        } else if (!vworldRejection.isEmpty()) {
+            logVworldTileRejectionOnce(vworldRejection);
+            setError(QGeoTiledMapReply::CommunicationError, vworldRejection);
+            setFinished(true);
+        } else if (!tileBytesAreImage(a) || (_bingNoTileImage.size() && a == _bingNoTileImage)) {
+            // XML/error pages and the empty-tile graphic are not map imagery.
+            // Finishing them as success leaves a permanent hole, so retry first.
+            if (_retryTileDownload()) {
+                return;
+            }
+            setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Invalid tile image"));
+            setFinished(true);
         } else {
+            // VWorld Hybrid keeps the satellite tile and draws the label tile on top.
+            const QString overlayUrl = mapProvider ? mapProvider->overlayTileUrl(tileSpec().x(), tileSpec().y(), tileSpec().zoom()) : QString();
+            if (!overlayUrl.isEmpty()) {
+                _baseTileImage = a;
+                if (_beginOverlayDownload(QUrl(overlayUrl))) {
+                    return;
+                }
+            }
             //-- This is a map tile. Process and cache it if valid.
             setMapImageData(a);
             if(!format.isEmpty()) {
                 setMapImageFormat(format);
                 getQGCMapEngine()->cacheTile(getQGCMapEngine()->urlFactory()->getTypeFromId(tileSpec().mapId()), tileSpec().x(), tileSpec().y(), tileSpec().zoom(), a, format);
             }
+            setFinished(true);
         }
-        setFinished(true);
     }
     _clearReply();
 }
@@ -176,19 +402,33 @@ QGeoTiledMapReplyQGC::networkReplyFinished()
 void
 QGeoTiledMapReplyQGC::networkReplyError(QNetworkReply::NetworkError error)
 {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply || reply != _reply) {
+        return;
+    }
     _timer.stop();
-    if (!_reply) {
+    if (_awaitingOverlay) {
+        if (_aborted || error == QNetworkReply::OperationCanceledError) {
+            _awaitingOverlay = false;
+            _baseTileImage.clear();
+            setFinished(true);
+        } else {
+            _finishHybridOverlay(QByteArray());
+        }
+        _clearReply();
         return;
     }
     //-- Test for a specialized, elevation data (not map tile)
     if( getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())){
         emit terrainDone(QByteArray(), error);
+    } else if (error == QNetworkReply::OperationCanceledError) {
+        setFinished(true);
+    } else if (_retryTileDownload()) {
+        return;
     } else {
-        //-- Regular map tile
-        if (error != QNetworkReply::OperationCanceledError) {
-            qWarning() << "Fetch tile error:" << _reply->errorString();
-            setError(QGeoTiledMapReply::CommunicationError, _reply->errorString());
-        }
+        qWarning() << "Fetch tile error:" << reply->errorString();
+        setError(QGeoTiledMapReply::CommunicationError, reply->errorString());
+        CustomQmlInterface::instance()->showMessage(mapDownloadRequiredMessage(), SystemMessage::Error);
         setFinished(true);
     }
     _clearReply();
@@ -211,28 +451,49 @@ QGeoTiledMapReplyQGC::cacheError(QGCMapTask::TaskType type, QString /*errorStrin
             qWarning() << "QGeoTiledMapReplyQGC::cacheError() for wrong task";
         }
         //-- Tile not in cache. Get it off the Internet.
-#if !defined(__mobile__)
-        QNetworkProxy proxy = _networkManager->proxy();
-        QNetworkProxy tProxy;
-        tProxy.setType(QNetworkProxy::DefaultProxy);
-        _networkManager->setProxy(tProxy);
-#endif
-        _reply = _networkManager->get(_request);
-        _reply->setParent(nullptr);
-
-        setIgnoreSSLErrorsIfNeeded(*_reply);
-
-        connect(_reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::networkReplyFinished);
-        connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkReplyError(QNetworkReply::NetworkError)));
-#if !defined(__mobile__)
-        _networkManager->setProxy(proxy);
-#endif
-        //- Wait for an answer up to 10 seconds
-        connect(&_timer, &QTimer::timeout, this, &QGeoTiledMapReplyQGC::timeout);
-        _timer.setSingleShot(true);
-        _timer.start(10000);
-        _requestCount++;
+        _scheduleTileDownload();
     }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGeoTiledMapReplyQGC::_beginTileDownload()
+{
+    // get() virtual-calls createRequest. After the manager is destroyed that slot is
+    // null and the call jumps to address 0.
+    QNetworkAccessManager* manager = _networkManager.data();
+    if (!qobject_cast<QNetworkAccessManager*>(manager)) {
+        _releaseNetworkSlot();
+        if (!isFinished()) {
+            setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Map network is unavailable"));
+            setFinished(true);
+        }
+        return;
+    }
+#if !defined(__mobile__)
+    QNetworkProxy proxy = manager->proxy();
+    QNetworkProxy tProxy;
+    tProxy.setType(QNetworkProxy::DefaultProxy);
+    manager->setProxy(tProxy);
+#endif
+    _request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    _request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
+    _reply = manager->get(_request);
+    _reply->setParent(nullptr);
+
+    setIgnoreSSLErrorsIfNeeded(*_reply);
+
+    connect(_reply, &QNetworkReply::finished, this, &QGeoTiledMapReplyQGC::networkReplyFinished);
+    connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(networkReplyError(QNetworkReply::NetworkError)));
+#if !defined(__mobile__)
+    manager->setProxy(proxy);
+#endif
+    // Queued tiles share a small per-host connection pool, so a request can
+    // still be waiting when this timer fires. Retry those instead of dropping the tile.
+    connect(&_timer, &QTimer::timeout, this, &QGeoTiledMapReplyQGC::timeout, Qt::UniqueConnection);
+    _timer.setSingleShot(true);
+    _timer.start(kTileDownloadTimeoutMs);
+    _requestCount++;
 }
 
 //-----------------------------------------------------------------------------
@@ -253,13 +514,45 @@ QGeoTiledMapReplyQGC::cacheReply(QGCCacheTile* tile)
 }
 
 //-----------------------------------------------------------------------------
+bool
+QGeoTiledMapReplyQGC::_retryTileDownload()
+{
+    if (_aborted || isFinished() || _timeoutRetries >= kTileDownloadTimeoutRetries) {
+        return false;
+    }
+    _timeoutRetries++;
+    // Leave the HTTP request running. abort() destroys the reply while Qt is still
+    // delivering headers, and the next virtual call lands in non-executable data.
+    _clearReply();
+    QTimer::singleShot(0, this, [this]() {
+        if (!_aborted && !isFinished() && !_reply) {
+            _beginTileDownload();
+        }
+    });
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 void
 QGeoTiledMapReplyQGC::timeout()
 {
-    if(_reply) {
-        _reply->abort();
+    if (_awaitingOverlay) {
+        _clearReply();
+        _finishHybridOverlay(QByteArray());
+        return;
     }
-    emit aborted();
+    if (getQGCMapEngine()->urlFactory()->isElevation(tileSpec().mapId())) {
+        _clearReply();
+        emit terrainDone(QByteArray(), QNetworkReply::OperationCanceledError);
+        emit aborted();
+        return;
+    }
+    if (_retryTileDownload()) {
+        return;
+    }
+    _clearReply();
+    setError(QGeoTiledMapReply::CommunicationError, QStringLiteral("Tile request timed out"));
+    setFinished(true);
 }
 
 //-----------------------------------------------------------------------------

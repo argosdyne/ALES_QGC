@@ -15164,6 +15164,160 @@ sudo apt-get remove modemmanager</translation>
     </message>
   </context>
   <context>
+    <name>MapsSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="90"/>
+      <source>Map</source>
+      <translation>지도</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="110"/>
+      <source>Provider</source>
+      <translation>출처</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="132"/>
+      <source>Type</source>
+      <translation>유형</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="149"/>
+      <source>Elevation Provider</source>
+      <translation>고도 출처</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="164"/>
+      <source>Offline Maps</source>
+      <translation>오프라인 지도</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="168"/>
+      <source>Download map tiles for use when offline</source>
+      <translation>오프라인에서 사용할 지도 타일을 다운로드합니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="199"/>
+      <source>tiles</source>
+      <translation>타일</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="208"/>
+      <source>Edit</source>
+      <translation>수정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="218"/>
+      <source>Add New Set</source>
+      <translation>새로운 셋 추가</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="220"/>
+      <source>Add</source>
+      <translation>추가</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="229"/>
+      <source>Import Map Tiles</source>
+      <translation>지도 타일 불러오기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="231"/>
+      <source>Import</source>
+      <translation>불러오기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="240"/>
+      <source>Export Map Tiles</source>
+      <translation>지도 타일 내보내기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="242"/>
+      <source>Export</source>
+      <translation>내보내기</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="252"/>
+      <source>Tokens</source>
+      <translation>토큰</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="259"/>
+      <source>Allows access to additional providers</source>
+      <translation>추가 지도 제공자를 사용할 수 있습니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="278"/>
+      <source>Mapbox</source>
+      <translation>Mapbox</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="286"/>
+      <source>Esri</source>
+      <translation>Esri</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="294"/>
+      <source>VWorld</source>
+      <translation>VWorld</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="306"/>
+      <source>To enable VWorld maps, enter your access token.</source>
+      <translation>VWorld 지도를 사용하려면 액세스 토큰을 입력하여 주십시오.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="313"/>
+      <source>Mapbox Login</source>
+      <translation>Mapbox 로그인</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="333"/>
+      <source>Account</source>
+      <translation>계정</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="340"/>
+      <source>Map Style</source>
+      <translation>지도 스타일</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="351"/>
+      <source>Custom Map URL</source>
+      <translation>커스텀 맵 URL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="358"/>
+      <source>URL with {x} {y} {z} or {zoom} substitutions</source>
+      <translation>{x} {y} {z} 또는 {zoom} 치환값을 포함한 URL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="377"/>
+      <source>Server URL</source>
+      <translation>서버 URL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="387"/>
+      <source>Tile Cache</source>
+      <translation>타일 캐시</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="404"/>
+      <source>Max disk cache</source>
+      <translation>최대 디스크 캐시</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="420"/>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="438"/>
+      <source>MB</source>
+      <translation>MB</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="422"/>
+      <source>Max memory cache</source>
+      <translation>최대 메모리 캐시</translation>
+    </message>
+  </context>
+  <context>
     <name>QGCCorePlugin</name>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="134"/>
@@ -15176,9 +15330,9 @@ sudo apt-get remove modemmanager</translation>
       <translation>통신 링크</translation>
     </message>
     <message>
-      <location filename="../src/api/QGCCorePlugin.cc" line="142"/>
-      <source>Offline Maps</source>
-      <translation>오프라인 지도</translation>
+      <location filename="../src/api/QGCCorePlugin.cc" line="144"/>
+      <source>Maps</source>
+      <translation>지도</translation>
     </message>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="147"/>
@@ -20608,9 +20762,9 @@ Confirm change?</source>
         <translation>통신 링크</translation>
     </message>
 <message>
-        <location filename="../custom/src/CustomPlugin.cc" line="162"/>
-        <source>Offline Maps</source>
-        <translation>오프라인 지도</translation>
+        <location filename="../custom/src/CustomPlugin.cc" line="186"/>
+        <source>Maps</source>
+        <translation>지도</translation>
     </message>
 <message>
         <location filename="../custom/src/CustomPlugin.cc" line="163"/>

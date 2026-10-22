@@ -52,6 +52,7 @@
 		<file alias="FlightDisplayViewUVC.qml">../src/FlightDisplay/FlightDisplayViewUVC.qml</file>
 		<file alias="FWLandingPatternEditor.qml">../src/PlanView/FWLandingPatternEditor.qml</file>
 		<file alias="GeneralSettings.qml">../src/ui/preferences/GeneralSettings.qml</file>
+		<file alias="MapsSettings.qml">../src/ui/preferences/MapsSettings.qml</file>
 		<file alias="CodevCameraVisual.qml">../src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">../src/M2Link/M2Settings.qml</file>
 		<file alias="RajantSettings.qml">../src/RajantLink/RajantSettings.qml</file>
