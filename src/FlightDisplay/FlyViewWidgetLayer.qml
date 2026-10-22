@@ -173,7 +173,9 @@ Item {
         anchors.right:          parent.right
         width:                  _rightPanelWidth
         displayAllowed:         !mainWindow.tetherPanelVisible
-        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible
+
+        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible || mapControl.gotoConfirmationPending
+
 
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
@@ -348,7 +350,7 @@ Item {
 
     Loader {
         id: gotoTargetEditor
-        active: _mainWindowIsMap && mapControl.gotoSelectionEnabled
+        active: _mainWindowIsMap && mapControl.gotoSelectionEnabled && mapControl.gotoTargetEditorVisible
         visible: active
         source: "qrc:/qml/GoToTargetEditor.qml"
         anchors.right: parent.right
