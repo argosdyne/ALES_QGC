@@ -67,6 +67,13 @@
     "units":            "W"
 },
 {
+    "name":             "cycleCount",
+    "shortDesc":        "Cycle Count",
+    "type":             "double",
+    "decimalPlaces":    0,
+    "units":            "cycles"
+},
+{
     "name":             "timeRemaining",
     "shortDesc":        "Time Remaining",
     "type":             "double",

@@ -33,6 +33,7 @@ public:
     Q_PROPERTY(Fact* timeRemainingStr   READ timeRemainingStr   CONSTANT)
     Q_PROPERTY(Fact* chargeState        READ chargeState        CONSTANT)
     Q_PROPERTY(Fact* instantPower       READ instantPower       CONSTANT)
+    Q_PROPERTY(Fact* cycleCount         READ cycleCount         CONSTANT)
 
     Fact* id                        () { return &_batteryIdFact; }
     Fact* function                  () { return &_batteryFunctionFact; }
@@ -46,6 +47,7 @@ public:
     Fact* timeRemaining             () { return &_timeRemainingFact; }
     Fact* timeRemainingStr          () { return &_timeRemainingStrFact; }
     Fact* chargeState               () { return &_chargeStateFact; }
+    Fact* cycleCount                () { return &_cycleCountFact; }
 
     static const char* _batteryIdFactName;
     static const char* _batteryFunctionFactName;
@@ -59,6 +61,7 @@ public:
     static const char* _timeRemainingStrFactName;
     static const char* _chargeStateFactName;
     static const char* _instantPowerFactName;
+    static const char* _cycleCountFactName;
 
     static const char* _settingsGroup;
 
@@ -75,6 +78,8 @@ private:
     static void                     _handleHighLatency          (Vehicle* vehicle, mavlink_message_t& message);
     static void                     _handleHighLatency2         (Vehicle* vehicle, mavlink_message_t& message);
     static void                     _handleBatteryStatus        (Vehicle* vehicle, mavlink_message_t& message);
+    static void                     _handleSmartBatteryInfo     (Vehicle* vehicle, mavlink_message_t& message);
+    static VehicleBatteryFactGroup* _findBatteryGroupById       (Vehicle* vehicle, uint8_t batteryId);
     static VehicleBatteryFactGroup* _findOrAddBatteryGroupById  (Vehicle* vehicle, uint8_t batteryId);
 
     Fact            _batteryIdFact;
@@ -89,6 +94,6 @@ private:
     Fact            _timeRemainingStrFact;
     Fact            _chargeStateFact;
     Fact            _instantPowerFact;
-
+    Fact            _cycleCountFact;
     static const char* _batteryFactGroupNamePrefix;
 };
