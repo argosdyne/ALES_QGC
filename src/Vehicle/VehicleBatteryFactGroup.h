@@ -79,6 +79,7 @@ private:
     static void                     _handleHighLatency2         (Vehicle* vehicle, mavlink_message_t& message);
     static void                     _handleBatteryStatus        (Vehicle* vehicle, mavlink_message_t& message);
     static void                     _handleSmartBatteryInfo     (Vehicle* vehicle, mavlink_message_t& message);
+    static VehicleBatteryFactGroup* _findBatteryGroupById       (Vehicle* vehicle, uint8_t batteryId);
     static VehicleBatteryFactGroup* _findOrAddBatteryGroupById  (Vehicle* vehicle, uint8_t batteryId);
 
     Fact            _batteryIdFact;
@@ -94,9 +95,5 @@ private:
     Fact            _chargeStateFact;
     Fact            _instantPowerFact;
     Fact            _cycleCountFact;
-    bool            _smartBatteryInfoReceived = false;
-    bool            _smartBatteryInfoWarningScheduled = false;
-    bool            _smartBatteryInfoWarningShown = false;
-
     static const char* _batteryFactGroupNamePrefix;
 };
