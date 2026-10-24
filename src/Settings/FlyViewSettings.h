@@ -11,6 +11,8 @@
 
 #include "SettingsGroup.h"
 
+class QNetworkRequest;
+
 class FlyViewSettings : public SettingsGroup
 {
     Q_OBJECT
@@ -44,4 +46,10 @@ public:
     Q_INVOKABLE void setFilePathRawValue(QString filePath);
     Q_INVOKABLE void setOnlinePathRawValue(QString onlinePath);
     Q_INVOKABLE void setOnlineLicenseKeyRawValue(QString onlineLicenseKey);
+
+    /// Altitude Angel API key: the onlineLicenseKey setting if set, otherwise the build-time key
+    QString altitudeAngelApiKey();
+    /// Adds the Altitude Angel Authorization header to request. Returns false (and adds nothing)
+    /// when no key is available or the request does not go to the Altitude Angel API host.
+    bool addAltitudeAngelAuthorization(QNetworkRequest& request);
 };

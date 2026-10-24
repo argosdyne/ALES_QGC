@@ -28,6 +28,8 @@ qmake.exe ../qgroundcontrol.pro -spec android-clang "CONFIG+=debug" "CONFIG+=qml
 %ANDROID_NDK_ROOT%\prebuilt\windows-x86_64\bin\make.exe apk
 ```
 
+Online GeoAwareness needs the Altitude Angel API key at build time. It is never committed. Set the `ALTITUDE_ANGEL_API_KEY` environment variable before running qmake (CI passes the GitHub secret of the same name), or add an `ALTITUDE_ANGEL_API_KEY = <key>` line to `user_config.pri`. `custom/custom.pri` writes it to `AltitudeAngelKey.h` in the build directory. Without a key the build still succeeds, but online GeoAwareness requests are skipped.
+
 The `custom/` plugin is picked up automatically when the directory exists (`qgroundcontrol.pro` includes `custom/custom.pri` unless `CONFIG+=QGC_DISABLE_CUSTOM_BUILD`). Local build options can go in an untracked `user_config.pri`.
 
 ## Tests

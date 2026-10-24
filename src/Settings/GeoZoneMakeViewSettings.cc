@@ -412,8 +412,6 @@ void GeoZoneMakeViewSettings::onReplyFinished(QNetworkReply *reply){
 
 void GeoZoneMakeViewSettings::sendGeoZoneRequest(double n, double e, double s, double w){
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
-    QString onlineLicenseKey = _settingsManager->flyViewSettings()->onlineLicenseKey()->rawValueString();
-    QString authorizationHeader = "X-AA-ApiKey " + onlineLicenseKey;
     QUrl fullUrl(onlineUrl);
 
     QUrlQuery query;
@@ -426,7 +424,9 @@ void GeoZoneMakeViewSettings::sendGeoZoneRequest(double n, double e, double s, d
     QNetworkRequest request(fullUrl);
 
     // Add headers
-    request.setRawHeader("Authorization", authorizationHeader.toUtf8());
+    if (!_settingsManager->flyViewSettings()->addAltitudeAngelAuthorization(request)) {
+        return;
+    }
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     // Send GET request

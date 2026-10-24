@@ -1048,8 +1048,6 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
 void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, double w)
 {
     QString onlineUrl = _settingsManager->flyViewSettings()->onlinePath()->rawValueString();
-    QString onlineLicenseKey =_settingsManager->flyViewSettings()->onlineLicenseKey()->rawValueString();
-    QString authorizationHeader = "X-AA-ApiKey " + onlineLicenseKey;
     //qInfo(FlightZoneManagerLog) << "online Url : " << onlineUrl;
     QString url = "https://api.altitudeangel.com/v2/mapdata/geojson";
     QUrl fullUrl(onlineUrl);
@@ -1064,7 +1062,9 @@ void FlightZoneManager::fetchGeoJsonDataForRegion(double n, double e, double s, 
     QNetworkRequest request(fullUrl);
 
     // Add headers
-    request.setRawHeader("Authorization", authorizationHeader.toUtf8());
+    if (!_settingsManager->flyViewSettings()->addAltitudeAngelAuthorization(request)) {
+        return;
+    }
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     // Send GET request

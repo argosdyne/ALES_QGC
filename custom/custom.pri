@@ -38,6 +38,23 @@ message(Custom QGC Version: $${CUSTOM_QGC_VERSION})
 DEFINES += CUSTOMHEADER=\"\\\"CustomPlugin.h\\\"\"
 DEFINES += CUSTOMCLASS=CustomPlugin
 
+# Altitude Angel API key (online GeoAwareness)
+# The key is not stored in the repository. It is read from the ALTITUDE_ANGEL_API_KEY
+# environment variable (CI) or from an ALTITUDE_ANGEL_API_KEY line in the untracked
+# user_config.pri (local builds), and written to a generated header in the build directory.
+AA_API_KEY = $$(ALTITUDE_ANGEL_API_KEY)
+isEmpty(AA_API_KEY):exists($$PWD/../user_config.pri) {
+    AA_API_KEY = $$fromfile($$PWD/../user_config.pri, ALTITUDE_ANGEL_API_KEY)
+}
+isEmpty(AA_API_KEY) {
+    warning("ALTITUDE_ANGEL_API_KEY is not set - online GeoAwareness will be disabled")
+}
+AA_KEY_HEADER_LINES = "$${LITERAL_HASH}pragma once"
+AA_KEY_HEADER_LINES += "$${LITERAL_HASH}define QGC_ALTITUDE_ANGEL_API_KEY \"$$AA_API_KEY\""
+write_file($$OUT_PWD/AltitudeAngelKey.h, AA_KEY_HEADER_LINES)|error("Could not write AltitudeAngelKey.h")
+INCLUDEPATH += $$OUT_PWD
+DEFINES += QGC_HAS_ALTITUDE_ANGEL_KEY_HEADER
+
 TARGET   = AlesQGroundControl
 DEFINES += QGC_APPLICATION_NAME='"\\\"Ales QGC\\\""'
 

@@ -11,6 +11,14 @@
 
 #include <QQmlEngine>
 #include <QtQml>
+#include <QNetworkRequest>
+
+// The key is generated into the build directory by custom/custom.pri (never committed)
+#if defined(QGC_HAS_ALTITUDE_ANGEL_KEY_HEADER)
+#include "AltitudeAngelKey.h"
+#else
+#define QGC_ALTITUDE_ANGEL_API_KEY ""
+#endif
 
 DECLARE_SETTINGGROUP(FlyView, "FlyView")
 {
@@ -56,5 +64,30 @@ void FlyViewSettings:: setOnlinePathRawValue(QString onlinepath){
 
 void FlyViewSettings:: setOnlineLicenseKeyRawValue(QString lisencekey){
     onlineLicenseKey()->setRawValue(lisencekey);
+}
+
+QString FlyViewSettings::altitudeAngelApiKey()
+{
+    const QString userKey = onlineLicenseKey()->rawValueString().trimmed();
+    return userKey.isEmpty() ? QStringLiteral(QGC_ALTITUDE_ANGEL_API_KEY) : userKey;
+}
+
+bool FlyViewSettings::addAltitudeAngelAuthorization(QNetworkRequest& request)
+{
+    // Never send the key to a host other than the Altitude Angel API (onlinePath is user editable)
+    const QUrl url = request.url();
+    const QString host = url.host().toLower();
+    const bool altitudeAngelHost = host == QStringLiteral("altitudeangel.com") || host.endsWith(QStringLiteral(".altitudeangel.com"));
+    if (url.scheme() != QStringLiteral("https") || !altitudeAngelHost) {
+        qWarning() << "GeoAwareness: not sending the Altitude Angel key to" << url.host();
+        return false;
+    }
+    const QString key = altitudeAngelApiKey();
+    if (key.isEmpty()) {
+        qWarning() << "GeoAwareness: no Altitude Angel API key (set ALTITUDE_ANGEL_API_KEY at build time)";
+        return false;
+    }
+    request.setRawHeader("Authorization", QStringLiteral("X-AA-ApiKey %1").arg(key).toUtf8());
+    return true;
 }
 
