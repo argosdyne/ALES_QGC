@@ -432,14 +432,13 @@ QLocale::Language AppSettings::_qLocaleLanguageID(void)
     }
 
     QLocale::Language id = settings.value(qLocaleLanguageName, QLocale::AnyLanguage).value<QLocale::Language>();
-    if (id == QLocale::AnyLanguage) {
 #ifndef DAILY_BUILD
-        // Stable builds only support released and partial languages
-        if (!_rgReleaseLanguages.contains(id) && _rgPartialLanguages.contains(id)) {
-            id = QLocale::English;
-        }
-#endif
+    // Stable builds only support released and partial languages, so a language saved by a
+    // daily build that is not offered here falls back to the system language
+    if (!_rgReleaseLanguages.contains(id) && !_rgPartialLanguages.contains(id)) {
+        id = QLocale::AnyLanguage;
     }
+#endif
 
     return id;
 }
