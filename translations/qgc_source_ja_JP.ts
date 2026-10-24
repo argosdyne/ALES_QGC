@@ -76,12 +76,12 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponentController.cc" line="251"/>
       <source>Param file github json download failed: %1</source>
-      <translation>パラメータファイルのダウンロードに失敗しました: %1</translation>
+      <translation>パラメーターファイルのダウンロードに失敗しました: %1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponentController.cc" line="261"/>
       <source>Param file download failed: %1</source>
-      <translation>パラメータファイルのダウンロードに失敗しました: %1</translation>
+      <translation>パラメーターファイルのダウンロードに失敗しました: %1</translation>
     </message>
   </context>
   <context>
@@ -510,7 +510,7 @@
     <message>
       <location filename="../src/FirmwarePlugin/APM/APMFirmwarePlugin.cc" line="975"/>
       <source>Follow failed: Home position not set.</source>
-      <translation>フォローに失敗しました: ホーム位置が設定されていません。</translation>
+      <translation>フォローに失敗しました: ホームポイントが設定されていません。</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/APM/APMFirmwarePlugin.cc" line="985"/>
@@ -524,7 +524,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="58"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="58"/>
       <source>Flight Mode Settings</source>
-      <translation>飛行モード設定</translation>
+      <translation>フライトモード設定</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="58"/>
@@ -536,7 +536,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="82"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="82"/>
       <source>Flight mode channel:</source>
-      <translation>飛行モードチャンネル:</translation>
+      <translation>フライトモードチャンネル:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="88"/>
@@ -596,7 +596,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="106"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="106"/>
       <source>Flight Mode </source>
-      <translation>飛行モード </translation>
+      <translation>フライトモード </translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.qml" line="127"/>
@@ -631,12 +631,12 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.cc" line="18"/>
       <source>Flight Modes</source>
-      <translation>飛行モード</translation>
+      <translation>フライトモード</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponent.cc" line="29"/>
       <source>Flight Modes Setup is used to configure the transmitter switches associated with Flight Modes.</source>
-      <translation>飛行モード設定は、飛行モードおける送信機のスイッチ設定をするために使用します。</translation>
+      <translation>フライトモード設定は、フライトモードおける送信機のスイッチ設定をするために使用します。</translation>
     </message>
   </context>
   <context>
@@ -668,37 +668,37 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="28"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="28"/>
       <source>Flight Mode 1</source>
-      <translation>飛行モード1</translation>
+      <translation>フライトモード1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="33"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="33"/>
       <source>Flight Mode 2</source>
-      <translation>飛行モード2</translation>
+      <translation>フライトモード2</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="38"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="38"/>
       <source>Flight Mode 3</source>
-      <translation>飛行モード3</translation>
+      <translation>フライトモード3</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="43"/>
       <source>Flight Mode 4</source>
-      <translation>飛行モード4</translation>
+      <translation>フライトモード4</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="48"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="48"/>
       <source>Flight Mode 5</source>
-      <translation>飛行モード5</translation>
+      <translation>フライトモード5</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="53"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFlightModesComponentSummary.qml" line="53"/>
       <source>Flight Mode 6</source>
-      <translation>飛行モード6</translation>
+      <translation>フライトモード6</translation>
     </message>
   </context>
   <context>
@@ -719,7 +719,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="224"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="224"/>
       <source>The vehicle parameters required for follow me are currently set in a way which is not supported. Using follow with this setup may lead to unpredictable/hazardous results.</source>
-      <translation>フォローミー機能に必要な機体パラメータは現在サポートされていない方法で設定されています。この設定でフォローミー機能を使用すると、予測不可能 / 危険な結果につながる可能性があります。</translation>
+      <translation>フォローミー機能に必要な機体パラメーターは現在サポートされていない方法で設定されています。この設定でフォローミー機能を使用すると、予測不可能 / 危険な結果につながる可能性があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="230"/>
@@ -749,7 +749,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="265"/>
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="265"/>
       <source>Point Vehicle</source>
-      <translation>機体ポイント</translation>
+      <translation>機体を向ける</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMFollowComponent.qml" line="275"/>
@@ -984,7 +984,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMHeliComponent.cc" line="26"/>
       <source>Heli Setup is used to setup parameters which are specific to a helicopter.</source>
-      <translation>ヘリコプター設定はヘリコプター固有のパラメータを設定するために使用します。</translation>
+      <translation>ヘリコプター設定はヘリコプター固有のパラメーターを設定するために使用します。</translation>
     </message>
   </context>
   <context>
@@ -1242,7 +1242,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="268"/>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="268"/>
       <source>- Disconnect USB and battery so flight controller powers down</source>
-      <translation>- フライトコントローラの電源が切れるようにUSBとバッテリーを取り外します</translation>
+      <translation>- フライトコントローラーの電源が切れるようにUSBとバッテリーを取り外します</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="269"/>
@@ -1260,7 +1260,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="271"/>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="271"/>
       <source>- If using a flight controller with a safety button press it until it displays solid red</source>
-      <translation>- フライトコントローラに安全スイッチがある場合は、赤色になるまで押してください</translation>
+      <translation>- フライトコントローラーに安全スイッチがある場合は、赤色になるまで押してください</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="272"/>
@@ -1338,7 +1338,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="399"/>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="399"/>
       <source>Power sensor:</source>
-      <translation>電源センサ:</translation>
+      <translation>電源センサー:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="424"/>
@@ -1410,7 +1410,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="532"/>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="532"/>
       <source>If the vehicle reports a high current read when there is little or no current going through it, adjust the Amps Offset. It should be equal to the voltage reported by the sensor when the current is zero.</source>
-      <translation>通過する電流が少ない場合またはまったくない場合において、高い電流値が確認される場合はアンプオフセットを調整します。電流がゼロの場合は、センサによって確認される電圧と同じ値にする必要があります。</translation>
+      <translation>通過する電流が少ない場合またはまったくない場合において、高い電流値が確認される場合はアンプオフセットを調整します。電流がゼロの場合は、センサーによって確認される電圧と同じ値にする必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="563"/>
@@ -1464,7 +1464,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.cc" line="29"/>
       <source>The Power Component is used to setup battery parameters.</source>
-      <translation>電源コンポーネントはバッテリーパラメータの設定に使用されます。</translation>
+      <translation>電源コンポーネントはバッテリーパラメーターの設定に使用されます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="344"/>
@@ -1514,7 +1514,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
       <source>The Radio Component is used to setup which channels on your RC Transmitter you will use for each vehicle control such as Roll, Pitch, Yaw and Throttle. It also allows you to assign switches and dials to the various flight modes. Prior to flight you must also calibrate the extents for all of your channels.</source>
-      <translation>送信機コンポーネントは、RC送信機のどのチャンネルをロール、ピッチ、ヨー、スロットルなどの各機体制御に使用するかを設定するために使用します。また、スイッチやダイアルを様々な飛行モードに割り当てることもできます。飛行前には、すべてのチャンネルの数値範囲を調整する必要があります。</translation>
+      <translation>送信機コンポーネントは、RC送信機のどのチャンネルをロール、ピッチ、ヨー、スロットルなどの各機体制御に使用するかを設定するために使用します。また、スイッチやダイアルを様々なフライトモードに割り当てることもできます。飛行前には、すべてのチャンネルの数値範囲を調整する必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
@@ -1627,13 +1627,13 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="147"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="147"/>
       <source>Battery1 Failsafe Triggers</source>
-      <translation>バッテリー1 フェイルセーフトリガー</translation>
+      <translation>バッテリー1 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="181"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="181"/>
       <source>Battery2 Failsafe Triggers</source>
-      <translation>バッテリー2 フェイルセーフトリガー</translation>
+      <translation>バッテリー2 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="220"/>
@@ -1641,7 +1641,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="220"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="279"/>
       <source>Failsafe Triggers</source>
-      <translation>フェイルセーフ トリガー</translation>
+      <translation>フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="238"/>
@@ -1653,7 +1653,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="252"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="252"/>
       <source>GCS failsafe</source>
-      <translation>GCS フェイルセーフ</translation>
+      <translation>GCS フェールセーフ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="296"/>
@@ -1661,7 +1661,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="296"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="366"/>
       <source>Ground Station failsafe:</source>
-      <translation>グランドステーション フェイルセーフ:</translation>
+      <translation>グランドステーション フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="303"/>
@@ -1669,7 +1669,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="303"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="373"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="310"/>
@@ -1683,13 +1683,13 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="316"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="316"/>
       <source>Failsafe Crash Check:</source>
-      <translation>フェイルセーフ クラッシュチェック:</translation>
+      <translation>フェールセーフ クラッシュチェック:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="345"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="345"/>
       <source>General Failsafe Triggers</source>
-      <translation>全般 フェイルセーフトリガー</translation>
+      <translation>全般 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="375"/>
@@ -1819,7 +1819,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="33"/>
       <source>Safety Setup is used to setup failsafe actions, leak detection, and arming checks.</source>
-      <translation>セーフティ設定はフェイルセーフの有無、リーク検出、アームチェックの設定を行います。</translation>
+      <translation>セーフティ設定はフェールセーフの有無、リーク検出、アームチェックの設定を行います。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="44"/>
@@ -1862,7 +1862,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="85"/>
       <source>Battery1 Failsafe Triggers</source>
-      <translation>バッテリー1 フェイルセーフトリガー</translation>
+      <translation>バッテリー1 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="106"/>
@@ -1891,22 +1891,22 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="155"/>
       <source>Battery2 Failsafe Triggers</source>
-      <translation>バッテリー2 フェイルセーフトリガー</translation>
+      <translation>バッテリー2 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="224"/>
       <source>General Failsafe Triggers</source>
-      <translation>全般 フェイルセーフトリガー</translation>
+      <translation>全般 フェールセーフトリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="245"/>
       <source>Ground Station failsafe:</source>
-      <translation>グランドステーション フェイルセーフ:</translation>
+      <translation>グランドステーション フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="252"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="254"/>
@@ -2014,7 +2014,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="53"/>
       <source>Failsafe Triggers</source>
-      <translation>フェイルセーフ トリガー</translation>
+      <translation>フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="67"/>
@@ -2034,7 +2034,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="130"/>
       <source>GCS failsafe</source>
-      <translation>GCS フェイルセーフ</translation>
+      <translation>GCS フェールセーフ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="142"/>
@@ -2057,17 +2057,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="53"/>
       <source>Failsafe Triggers</source>
-      <translation>フェイルセーフ トリガー</translation>
+      <translation>フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="68"/>
       <source>Ground Station failsafe:</source>
-      <translation>グランドステーション フェイルセーフ:</translation>
+      <translation>グランドステーション フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="87"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="105"/>
@@ -2077,7 +2077,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="122"/>
       <source>Failsafe Crash Check:</source>
-      <translation>フェイルセーフ クラッシュチェック:</translation>
+      <translation>フェールセーフ クラッシュチェック:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="131"/>
@@ -2111,7 +2111,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="69"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="69"/>
       <source>Failsafe Actions</source>
-      <translation>フェイルセーフ 動作</translation>
+      <translation>フェールセーフ 動作</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="95"/>
@@ -2239,43 +2239,43 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="60"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="68"/>
       <source>Failsafe Action:</source>
-      <translation>フェイルセーフ 動作:</translation>
+      <translation>フェールセーフ 動作:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="76"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="76"/>
       <source>Failsafe Crash Check:</source>
-      <translation>フェイルセーフ クラッシュチェック:</translation>
+      <translation>フェールセーフ クラッシュチェック:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="84"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="84"/>
       <source>Batt1 low failsafe:</source>
-      <translation>Batt1低電圧フェイルセーフ:</translation>
+      <translation>Batt1低電圧フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="90"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="90"/>
       <source>Batt1 critical failsafe:</source>
-      <translation>Batt1重大フェイルセーフ:</translation>
+      <translation>Batt1重大フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="96"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="96"/>
       <source>Batt2 low failsafe:</source>
-      <translation>Batt2低電圧フェイルセーフ:</translation>
+      <translation>Batt2低電圧フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="102"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="102"/>
       <source>Batt2 critical failsafe:</source>
-      <translation>Batt2重大フェイルセーフ:</translation>
+      <translation>Batt2重大フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="108"/>
@@ -2364,27 +2364,27 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="46"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="51"/>
       <source>Batt1 low failsafe:</source>
-      <translation>Batt1低電圧フェイルセーフ:</translation>
+      <translation>Batt1低電圧フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="57"/>
       <source>Batt1 critical failsafe:</source>
-      <translation>Batt1重大フェイルセーフ:</translation>
+      <translation>Batt1重大フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="63"/>
       <source>Batt2 low failsafe:</source>
-      <translation>Batt2低電圧フェイルセーフ:</translation>
+      <translation>Batt2低電圧フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="69"/>
       <source>Batt2 critical failsafe:</source>
-      <translation>Batt2重大フェイルセーフ:</translation>
+      <translation>Batt2重大フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="75"/>
@@ -2443,7 +2443,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="27"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="28"/>
@@ -2455,12 +2455,12 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="32"/>
       <source>Voltage failsafe:</source>
-      <translation>電圧 フェイルセーフ:</translation>
+      <translation>電圧 フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="37"/>
       <source>mAh failsafe:</source>
-      <translation>容量(mAh) フェイルセーフ:</translation>
+      <translation>容量(mAh) フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="42"/>
@@ -2526,17 +2526,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="92"/>
       <source>Throttle failsafe:</source>
-      <translation>スロットル フェイルセーフ:</translation>
+      <translation>スロットル フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="97"/>
       <source>Failsafe Action:</source>
-      <translation>フェイルセーフ 動作:</translation>
+      <translation>フェールセーフ 動作:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="102"/>
       <source>Failsafe Crash Check:</source>
-      <translation>フェイルセーフ クラッシュチェック:</translation>
+      <translation>フェールセーフ クラッシュチェック:</translation>
     </message>
   </context>
   <context>
@@ -2563,43 +2563,43 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="46"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="46"/>
       <source>GCS failsafe:</source>
-      <translation>GCS フェイルセーフ:</translation>
+      <translation>GCS フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="50"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="50"/>
       <source>Leak failsafe:</source>
-      <translation>リーク フェイルセーフ:</translation>
+      <translation>リーク フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="55"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="55"/>
       <source>Battery failsafe:</source>
-      <translation>バッテリー フェイルセーフ:</translation>
+      <translation>バッテリー フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="70"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="70"/>
       <source>EKF failsafe:</source>
-      <translation>EKF フェイルセーフ:</translation>
+      <translation>EKF フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="75"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="75"/>
       <source>Pilot Input failsafe:</source>
-      <translation>パイロット入力 フェイルセーフ:</translation>
+      <translation>パイロット入力 フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="79"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="79"/>
       <source>Int. Temperature failsafe:</source>
-      <translation>内部温度 フェイルセーフ:</translation>
+      <translation>内部温度 フェールセーフ:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="83"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="83"/>
       <source>Int. Pressure failsafe:</source>
-      <translation>内部気圧 フェイルセーフ:</translation>
+      <translation>内部気圧 フェールセーフ:</translation>
     </message>
   </context>
   <context>
@@ -2638,7 +2638,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="46"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="46"/>
       <source>For Accelerometer calibration you will need to place your vehicle on all six sides on a perfectly level surface and hold it still in each orientation for a few seconds.</source>
-      <translation>加速度センサのキャリブレーションは、機体を上下左右前後の六つの側面すべてに対し完全に水平な面に置き、各方向にて数秒間静止させる必要があります。</translation>
+      <translation>加速度センサーのキャリブレーションは、機体を上下左右前後の六つの側面すべてに対し完全に水平な面に置き、各方向にて数秒間静止させる必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="47"/>
@@ -2684,7 +2684,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="107"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="692"/>
       <source>Sensor Settings</source>
-      <translation>センサ設定</translation>
+      <translation>センサー設定</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="155"/>
@@ -2929,7 +2929,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="590"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="590"/>
       <source>To calibrate the airspeed sensor shield it from the wind. Do not touch the sensor or obstruct any holes during the calibration.</source>
-      <translation>対気速度センサをキャリブレーションする際には、風を遮るようにしてください。またキャリブレーション中はセンサに触れたり、穴を塞いだりしないでください。</translation>
+      <translation>対気速度センサーをキャリブレーションする際には、風を遮るようにしてください。またキャリブレーション中はセンサーに触れたり、穴を塞いだりしないでください。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="610"/>
@@ -2945,7 +2945,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="632"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="632"/>
       <source>Accelerometer</source>
-      <translation>加速度センサ</translation>
+      <translation>加速度センサー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="640"/>
@@ -2957,7 +2957,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="645"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="645"/>
       <source>Accelerometer must be calibrated prior to Compass.</source>
-      <translation>加速度センサはコンパスより前にキャリブレーションする必要があります。</translation>
+      <translation>加速度センサーはコンパスより前にキャリブレーションする必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="656"/>
@@ -2969,7 +2969,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="660"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="660"/>
       <source>Accelerometer must be calibrated prior to Level Horizon.</source>
-      <translation>加速度センサはホライゾンレベリング(水平維持機能)より前にキャリブレーションする必要があります。</translation>
+      <translation>加速度センサーはホライゾンレベリング(水平維持機能)より前にキャリブレーションする必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="669"/>
@@ -3054,12 +3054,12 @@ Click Ok to start calibration.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.cc" line="21"/>
       <source>Sensors</source>
-      <translation>センサ</translation>
+      <translation>センサー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.cc" line="33"/>
       <source>Sensors Setup is used to calibrate the sensors within your vehicle.</source>
-      <translation>センサ設定は、機体内センサをキャリブレーションするためのものです。</translation>
+      <translation>センサー設定は、機体内センサーをキャリブレーションするためのものです。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="289"/>
@@ -3084,12 +3084,12 @@ Click Ok to start calibration.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="477"/>
       <source>Simple accelerometer calibration is less precise but allows calibrating without rotating the vehicle. Check this if you have a large/heavy vehicle.</source>
-      <translation>簡易加速度計キャリブレーションは精度が低いものの、機体を回転させずにキャリブレーションできます。大型/重量級の機体の場合はこれを選択してください。</translation>
+      <translation>簡易加速度センサーキャリブレーションは精度が低いものの、機体を回転させずにキャリブレーションできます。大型/重量級の機体の場合はこれを選択してください。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="481"/>
       <source>Simple Accelerometer Calibration</source>
-      <translation>簡易加速度計キャリブレーション</translation>
+      <translation>簡易加速度センサーキャリブレーション</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="529"/>
@@ -3276,7 +3276,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="46"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="46"/>
       <source>Accelerometer(s)</source>
-      <translation>加速度センサ(s)</translation>
+      <translation>加速度センサー(s)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
@@ -3322,12 +3322,12 @@ Click Ok to start calibration.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="76"/>
       <source>Accelerometer(s):</source>
-      <translation>加速度計:</translation>
+      <translation>加速度センサー:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="89"/>
       <source>Barometer(s):</source>
-      <translation>気圧計:</translation>
+      <translation>気圧センサー:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="90"/>
@@ -3345,7 +3345,7 @@ Click Ok to start calibration.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.cc" line="32"/>
       <source>Frame setup allows you to choose your vehicle&apos;s motor configuration. Install &lt;b&gt;clockwise&lt;/b&gt;&lt;br&gt;propellers on the &lt;b&gt;green thrusters&lt;/b&gt; and &lt;b&gt;counter-clockwise&lt;/b&gt; propellers on the &lt;b&gt;blue thrusters&lt;/b&gt;&lt;br&gt;(or vice-versa). The flight controller will need to be rebooted to apply changes.&lt;br&gt;When selecting a frame, you can choose to load the default parameter set for that frame configuration if available.</source>
-      <translation>フレーム設定では、機体のモーター構成を選択することができます。緑のスラスターには時計回りのプロペラを、青のスラスターには反時計回りのプロペラを設置します。(またはその逆) 変更を適用するには、フライトコントローラを再起動する必要があります。フレームを選択する際に、そのフレーム設定におけるデフォルトのパラメータセットがあれば、それを読み込むことができます。</translation>
+      <translation>フレーム設定では、機体のモーター構成を選択することができます。緑のスラスターには時計回りのプロペラを、青のスラスターには反時計回りのプロペラを設置します。(またはその逆) 変更を適用するには、フライトコントローラーを再起動する必要があります。フレームを選択する際に、そのフレーム設定におけるデフォルトのパラメーターセットがあれば、それを読み込むことができます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="178"/>
@@ -3357,7 +3357,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="201"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="201"/>
       <source>Would you like to load the default parameters for the frame ?</source>
-      <translation>フレームのデフォルトパラメータを読み込みますか？</translation>
+      <translation>フレームのデフォルトパラメーターを読み込みますか？</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="204"/>
@@ -3369,7 +3369,7 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="219"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="219"/>
       <source>Yes, Load default parameter set for %1</source>
-      <translation>はい、%1 に設定されたデフォルトパラメータを読み込みます。</translation>
+      <translation>はい、%1 に設定されたデフォルトパラメーターを読み込みます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="237"/>
@@ -3391,7 +3391,7 @@ Click Ok to start calibration.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="211"/>
       <source>Would you like to load the default parameters for the frame?</source>
-      <translation>このフレームのデフォルトパラメータを読み込みますか？</translation>
+      <translation>このフレームのデフォルトパラメーターを読み込みますか？</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="212"/>
@@ -3734,19 +3734,19 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="41"/>
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="41"/>
       <source>Attitude Controller Parameters</source>
-      <translation>姿勢制御パラメータ</translation>
+      <translation>姿勢制御パラメーター</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="49"/>
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="49"/>
       <source>Position Controller Parameters</source>
-      <translation>ポジション制御パラメータ</translation>
+      <translation>ポジション制御パラメーター</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="56"/>
       <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentSub.qml" line="56"/>
       <source>Waypoint navigation parameters</source>
-      <translation>ポイントナビゲーションパラメータ</translation>
+      <translation>ウェイポイントナビゲーションパラメーター</translation>
     </message>
   </context>
   <context>
@@ -3799,7 +3799,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="114"/>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="114"/>
       <source>Clicking &apos;Apply&apos; will save the changes you have made to your airframe configuration.&lt;br&gt;&lt;br&gt;All vehicle parameters other than Radio Calibration will be reset.&lt;br&gt;&lt;br&gt;Your vehicle will also be restarted in order to complete the process.</source>
-      <translation>【適用】をクリックすると、機体設定の変更内容が保存されます。&lt;br&gt;&lt;br&gt;送信機キャリブレーション以外のすべての機体パラメータがリセットされます。&lt;br&gt;&lt;br&gt;また処理を完了するために機体が再起動されます。</translation>
+      <translation>【適用】をクリックすると、機体設定の変更内容が保存されます。&lt;br&gt;&lt;br&gt;送信機キャリブレーション以外のすべての機体パラメーターがリセットされます。&lt;br&gt;&lt;br&gt;また処理を完了するために機体が再起動されます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="133"/>
@@ -3835,7 +3835,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
       <source>Airframe Setup is used to select the airframe that matches your vehicle. This will in turn set up the various tuning values for flight parameters.</source>
-      <translation>フレーム設定は、機体に合ったフレームを選択します。これにより飛行パラメータの各種調整値が設定されます。</translation>
+      <translation>フレーム設定は、機体に合ったフレームを選択します。これにより飛行パラメーターの各種調整値が設定されます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
@@ -3845,7 +3845,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="46"/>
       <source>This configuration can only be modified through the Parameter Editor.\n\n</source>
-      <translation>この構成はパラメータエディターでのみ変更できます。\n\n</translation>
+      <translation>この構成はパラメーターエディターでのみ変更できます。\n\n</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="122"/>
@@ -3853,7 +3853,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
                                                                         All vehicle parameters other than Radio Calibration will be reset.&lt;br&gt;&lt;br&gt;\
                                                                         Your vehicle will also be restarted in order to complete the process.</source>
       <translation>'適用'をクリックすると、フレーム構成への変更が保存されます。&lt;br&gt;&lt;br&gt;\
-                                                                        送信機キャリブレーションを除くすべての機体パラメータがリセットされます。&lt;br&gt;&lt;br&gt;\
+                                                                        送信機キャリブレーションを除くすべての機体パラメーターがリセットされます。&lt;br&gt;&lt;br&gt;\
                                                                         処理を完了するため、機体も再起動されます。</translation>
     </message>
   </context>
@@ -4346,7 +4346,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="47"/>
       <source>Relative To Launch</source>
-      <translation>離陸地点の影響</translation>
+      <translation>離陸地点からの相対高度</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="48"/>
@@ -4381,7 +4381,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="63"/>
       <source>Specified altitudes are distance above terrain. The actual altitude flown is controlled by the vehicle either from terrain height maps being sent to vehicle or a distance sensor.</source>
-      <translation>指定された高度は地形からの距離となります。実際の飛行高度は、機体に送られてくる地形マップの標高、距離センサによって機体がコントロールされます。</translation>
+      <translation>指定された高度は地形からの距離となります。実際の飛行高度は、機体に送られてくる地形マップの標高、距離センサーによって機体がコントロールされます。</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="67"/>
@@ -4465,7 +4465,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/Settings/AppSettings.cc" line="30"/>
       <source>Parameters</source>
-      <translation>パラメータ</translation>
+      <translation>パラメーター</translation>
     </message>
     <message>
       <location filename="../src/Settings/AppSettings.cc" line="31"/>
@@ -4592,7 +4592,7 @@ Please place your vehicle in water, click the button, and wait. Note that the th
     <message>
       <location filename="../src/Vehicle/Autotune.cpp" line="105"/>
       <source>Land and disarm the vehicle in order to apply the parameters.</source>
-      <translation>パラメータを適用するためには、機体を着陸させてディスアームする必要があります。</translation>
+      <translation>パラメーターを適用するためには、機体を着陸させてディスアームする必要があります。</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Autotune.cpp" line="110"/>
@@ -4836,7 +4836,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/VehicleSetup/Bootloader.cc" line="283"/>
       <source>This board is using a microcontroller with faulty silicon and an incorrect configuration and should be put out of service.</source>
-      <translation>このボードは、欠陥のあるチップセットと不正な構成となるマイクロコントローラを使用しているため、使用を中止してください。</translation>
+      <translation>このボードは、欠陥のあるチップセットと不正な構成となるマイクロコントローラーを使用しているため、使用を中止してください。</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/Bootloader.cc" line="286"/>
@@ -4993,7 +4993,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/CameraCalcCamera.qml" line="120"/>
       <source>Sensor</source>
-      <translation>センサ</translation>
+      <translation>センサー</translation>
     </message>
     <message>
       <location filename="../src/PlanView/CameraCalcCamera.qml" line="135"/>
@@ -5297,7 +5297,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/Vehicle/CompInfoParam.cc" line="262"/>
       <source>Internal Error: Parameter MetaData major must be 1</source>
-      <translation>内部エラー: パラメータMetaDataは1でなければなりません</translation>
+      <translation>内部エラー: パラメーターMetaDataは1でなければなりません</translation>
     </message>
   </context>
   <context>
@@ -5339,7 +5339,7 @@ OKをクリックすると自動チューニングを開始します。
       <location filename="../src/MissionManager/CorridorScanComplexItem.h" line="52"/>
       <location filename="../src/MissionManager/CorridorScanComplexItem.h" line="53"/>
       <source>Corridor Scan</source>
-      <translation>回廊スキャン</translation>
+      <translation>コリドースキャン</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/CorridorScanComplexItem.h" line="54"/>
@@ -5372,7 +5372,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/CorridorScanEditor.qml" line="56"/>
       <source>Images in turnarounds</source>
-      <translation>再構築中の画像</translation>
+      <translation>折り返し時に撮影</translation>
     </message>
   </context>
   <context>
@@ -5578,7 +5578,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/DefaultChecklist.qml" line="64"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/DefaultChecklist.qml" line="72"/>
@@ -5621,7 +5621,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/AutoPilotPlugins/Common/ESP8266Component.qml" line="33"/>
       <source>controller WiFi Bridge</source>
-      <translation>コントローラWiFiブリッジ</translation>
+      <translation>コントローラーWiFiブリッジ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/ESP8266Component.qml" line="66"/>
@@ -5903,7 +5903,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="40"/>
       <source>Set to vehicle heading</source>
-      <translation>機体ヘッディング設定</translation>
+      <translation>機体の機首方位設定</translation>
     </message>
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="41"/>
@@ -5934,7 +5934,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="135"/>
       <source>Heading</source>
-      <translation>ヘッディング</translation>
+      <translation>機首方位</translation>
     </message>
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="166"/>
@@ -6045,7 +6045,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FactSystem/Fact.cc" line="745"/>
       <source>Change of parameter %1 requires a Vehicle reboot to take effect.</source>
-      <translation>パラメータ %1 の変更を有効にするには機体の再起動が必要です。</translation>
+      <translation>パラメーター %1 の変更を有効にするには機体の再起動が必要です。</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/Fact.cc" line="747"/>
@@ -6205,12 +6205,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/VehicleSetup/FirmwareImage.cc" line="276"/>
       <source>Write failed for parameter meta data file, error: %1</source>
-      <translation>パラメータのメタデータファイルへの書き込みに失敗しました。エラー: %1</translation>
+      <translation>パラメーターのメタデータファイルへの書き込みに失敗しました。エラー: %1</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/FirmwareImage.cc" line="283"/>
       <source>Unable to open parameter meta data file %1 for writing, error: %2</source>
-      <translation>パラメータを書き込むメタデータファイル %1 を開けません。エラー: %2</translation>
+      <translation>パラメーターを書き込むメタデータファイル %1 を開けません。エラー: %2</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/FirmwareImage.cc" line="305"/>
@@ -7064,7 +7064,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/FixedWingChecklist.qml" line="64"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FixedWingChecklist.qml" line="72"/>
@@ -7241,7 +7241,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="47"/>
       <source>WAITING FOR VIDEO</source>
-      <translation>録画 待機中</translation>
+      <translation>映像待機中</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="47"/>
@@ -7286,12 +7286,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/FlightModesComponent.cc" line="24"/>
       <source>Flight Modes</source>
-      <translation>飛行モード</translation>
+      <translation>フライトモード</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/FlightModesComponent.cc" line="35"/>
       <source>Flight Modes Setup is used to configure the transmitter switches associated with Flight Modes.</source>
-      <translation>飛行モード設定は、飛行モードを変更するスイッチを設定するために使用します。</translation>
+      <translation>フライトモード設定は、フライトモードを変更するスイッチを設定するために使用します。</translation>
     </message>
   </context>
   <context>
@@ -7316,7 +7316,7 @@ OKをクリックすると自動チューニングを開始します。
       <location filename="../src/AutoPilotPlugins/PX4/FlightModesComponentSummary.qml" line="35"/>
       <location filename="../src/AutoPilotPlugins/PX4/FlightModesComponentSummary.qml" line="35"/>
       <source>Flight Mode %1 </source>
-      <translation>飛行モード%1</translation>
+      <translation>フライトモード%1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/FlightModesComponentSummary.qml" line="53"/>
@@ -7452,12 +7452,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/FlyViewMissionCompleteDialog.qml" line="116"/>
       <source>Resume Mission From Waypoint %1</source>
-      <translation>ポイント %1 からミッションを再開</translation>
+      <translation>ウェイポイント %1 からミッションを再開</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlyViewMissionCompleteDialog.qml" line="127"/>
       <source>Resume Mission will rebuild the current mission from the last flown waypoint and upload it to the vehicle for the next flight.</source>
-      <translation>ミッションを再開すると、最後に飛行したポイントから現在のミッションを再構築し、次の飛行のために機体にアップロードします。</translation>
+      <translation>ミッションを再開すると、最後に飛行したウェイポイントから現在のミッションを再構築し、次の飛行のために機体にアップロードします。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlyViewMissionCompleteDialog.qml" line="135"/>
@@ -7585,7 +7585,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/GPSIndicator.qml" line="71"/>
       <source>Course Over Ground:</source>
-      <translation>地上のコース:</translation>
+      <translation>対地進路:</translation>
     </message>
   </context>
   <context>
@@ -7593,7 +7593,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/GPSRTKIndicator.qml" line="47"/>
       <source>Survey-in Active</source>
-      <translation>調査 有効</translation>
+      <translation>サーベイイン 有効</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/GPSRTKIndicator.qml" line="47"/>
@@ -7813,7 +7813,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="161"/>
       <source>Show additional heading indicators on Compass</source>
-      <translation>コンパスに追加のヘッディングインジケータを表示</translation>
+      <translation>コンパスに追加の機首方位インジケータを表示</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="169"/>
@@ -7944,7 +7944,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="870"/>
       <source>Perform Survey-In</source>
-      <translation>調査を実行</translation>
+      <translation>サーベイインを実行</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="904"/>
@@ -8055,7 +8055,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="185"/>
       <source>Update home position based on device location. This will affect return to home</source>
-      <translation>デバイスの位置に基づいてホーム位置を更新します。ホームへ帰還に影響します</translation>
+      <translation>デバイスの位置に基づいてホームポイントを更新します。ホームへ帰還に影響します</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="192"/>
@@ -8095,7 +8095,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
       <source>Enable Optical Flow Sensor</source>
-      <translation>オプティカルフローセンサを有効にする</translation>
+      <translation>オプティカルフローセンサーを有効にする</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
@@ -8268,17 +8268,17 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="314"/>
       <source>Breach Return Point</source>
-      <translation>帰還ポイント違反</translation>
+      <translation>フェンス逸脱時の帰還ポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="318"/>
       <source>Add Breach Return Point</source>
-      <translation>帰還ポイント違反の追加</translation>
+      <translation>フェンス逸脱時の帰還ポイントの追加</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="327"/>
       <source>Remove Breach Return Point</source>
-      <translation>帰還ポイント違反の削除</translation>
+      <translation>フェンス逸脱時の帰還ポイントの削除</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="342"/>
@@ -8323,12 +8323,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
       <source>Missing Params</source>
-      <translation>パラメータ不足</translation>
+      <translation>パラメーター不足</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
       <source>Params OK</source>
-      <translation>パラメータOK</translation>
+      <translation>パラメーターOK</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="148"/>
@@ -8471,7 +8471,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/AnalyzeView/GeoTagPage.qml" line="26"/>
       <source>Used to tag a set of images from a survey mission with gps coordinates. You must provide the binary log from the flight as well as the directory which contains the images to tag.</source>
-      <translation>使われた調査ミッションの画像セットをGPS座標をタグ付けするために使用します。飛行におけるバイナリログと、タグ付けする画像を含むディレクトリを指定する必要があります。</translation>
+      <translation>使われたマッピングミッションの画像セットをGPS座標をタグ付けするために使用します。飛行におけるバイナリログと、タグ付けする画像を含むディレクトリを指定する必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AnalyzeView/GeoTagPage.qml" line="67"/>
@@ -8691,7 +8691,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52"/>
       <source>Set Waypoint</source>
-      <translation>ポイント設定</translation>
+      <translation>ウェイポイント設定</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="53"/>
@@ -8756,7 +8756,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="64"/>
       <source>Continue the mission from the current waypoint.</source>
-      <translation>現在のポイントからミッションを継続します。</translation>
+      <translation>現在のウェイポイントからミッションを継続します。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="65"/>
@@ -8781,7 +8781,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="70"/>
       <source>Adjust current waypoint to %1.</source>
-      <translation>現在のポイントを %1 に変更します。</translation>
+      <translation>現在のウェイポイントを %1 に変更します。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="71"/>
@@ -9965,12 +9965,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="196"/>
       <source>Accelerometer</source>
-      <translation>加速度センサ</translation>
+      <translation>加速度センサー</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="197"/>
       <source>Magnetometer</source>
-      <translation>磁気センサ</translation>
+      <translation>地磁気センサー</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="198"/>
@@ -10050,12 +10050,12 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="213"/>
       <source>Accelerometer 2</source>
-      <translation>加速度センサ2</translation>
+      <translation>加速度センサー2</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="214"/>
       <source>Magnetometer 2</source>
-      <translation>磁気センサ2</translation>
+      <translation>地磁気センサー2</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="215"/>
@@ -10100,7 +10100,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="223"/>
       <source>Pre-Arm Check</source>
-      <translation>プレアーム チェック</translation>
+      <translation>プリアーム チェック</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="224"/>
@@ -10118,7 +10118,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="236"/>
       <source>Unknown sensor</source>
-      <translation>不明なセンサ</translation>
+      <translation>不明なセンサー</translation>
     </message>
   </context>
   <context>
@@ -10334,7 +10334,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/MainRootWindow.qml" line="288"/>
       <source>You have pending parameter updates to a vehicle. If you close you will lose changes. Are you sure you want to close?</source>
-      <translation>機体パラメータの更新を保留中です。閉じると変更が失われます。閉じてもよろしいですか？</translation>
+      <translation>機体パラメーターの更新を保留中です。閉じると変更が失われます。閉じてもよろしいですか？</translation>
     </message>
     <message>
       <location filename="../src/ui/MainRootWindow.qml" line="351"/>
@@ -10478,7 +10478,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="196"/>
       <source>Sensor Status</source>
-      <translation>センサの状態</translation>
+      <translation>センサーの状態</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="173"/>
@@ -10532,11 +10532,11 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="192"/>
       <source>FENCE PARAMS MISSING</source>
-      <translation>フェンスパラメータ不足</translation>
+      <translation>フェンスパラメーター不足</translation>
     </message>
     <message>
       <source>FENCE PARAMs MISSING</source>
-      <translation>フェンスパラメータ不足</translation>
+      <translation>フェンスパラメーター不足</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="235"/>
@@ -10546,7 +10546,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="343"/>
       <source>Edit Parameter</source>
-      <translation>パラメータ編集</translation>
+      <translation>パラメーター編集</translation>
     </message>
   </context>
   <context>
@@ -10698,7 +10698,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="228"/>
       <source>Raw Sensors</source>
-      <translation>RAWセンサ</translation>
+      <translation>RAWセンサー</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="235"/>
@@ -10970,7 +10970,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/ui/toolbar/MessageIndicator.qml" line="183"/>
       <source>Edit Parameter</source>
-      <translation>パラメータ編集</translation>
+      <translation>パラメーター編集</translation>
     </message>
   </context>
   <context>
@@ -11145,35 +11145,35 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="297"/>
       <source>Param %1 incorrect type %2, must be double or null</source>
-      <translation>パラメータ %1 の不正な型 %2 は、doubleまたはnullでなければなりません</translation>
+      <translation>パラメーター %1 の不正な型 %2 は、doubleまたはnullでなければなりません</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="41"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="79"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="114"/>
       <source>Param1:</source>
-      <translation>パラメータ1:</translation>
+      <translation>パラメーター1:</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="42"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="80"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="115"/>
       <source>Param2:</source>
-      <translation>パラメータ2:</translation>
+      <translation>パラメーター2:</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="43"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="81"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="116"/>
       <source>Param3:</source>
-      <translation>パラメータ3:</translation>
+      <translation>パラメーター3:</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/MissionItem.cc" line="44"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="82"/>
       <location filename="../src/MissionManager/MissionItem.cc" line="117"/>
       <source>Param4:</source>
-      <translation>パラメータ4:</translation>
+      <translation>パラメーター4:</translation>
     </message>
   </context>
   <context>
@@ -11291,7 +11291,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="103"/>
       <source>Initial Waypoint Alt</source>
-      <translation>初期ポイント高度</translation>
+      <translation>初期ウェイポイント高度</translation>
     </message>
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="208"/>
@@ -11551,7 +11551,7 @@ OKをクリックすると自動チューニングを開始します。
     <message>
       <location filename="../src/FlightDisplay/MultiRotorChecklist.qml" line="59"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/MultiRotorChecklist.qml" line="67"/>
@@ -12048,7 +12048,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="371"/>
       <source>Automatic Flight Mode Switching</source>
-      <translation>自動飛行モード切替</translation>
+      <translation>自動フライトモード切替</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="381"/>
@@ -12082,25 +12082,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="32"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="32"/>
       <source>FLIGHT MODES</source>
-      <translation>飛行モード</translation>
+      <translation>フライトモード</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="35"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="35"/>
       <source>Assign Flight Modes to radio control channels and adjust the thresholds for triggering them.</source>
-      <translation>送信機制御チャンネルに飛行モードを割り当て、そのトリガーとなるしきい値を調整します。</translation>
+      <translation>送信機制御チャンネルにフライトモードを割り当て、そのトリガーとなるしきい値を調整します。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="36"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="36"/>
       <source>Assign Flight Modes to radio control channels and adjust the thresholds for triggering them. </source>
-      <translation>送信機制御チャンネルに飛行モードを割り当て、そのトリガーとなるしきい値を調整します。 </translation>
+      <translation>送信機制御チャンネルにフライトモードを割り当て、そのトリガーとなるしきい値を調整します。 </translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="37"/>
       <source>You can assign multiple flight modes to a single channel. </source>
-      <translation>1つのチャンネルに複数の飛行モードを割り当てることができます。 </translation>
+      <translation>1つのチャンネルに複数のフライトモードを割り当てることができます。 </translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="38"/>
@@ -12118,7 +12118,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="40"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="40"/>
       <source> are not available for Flight Modes since they are already in use for other functions.</source>
-      <translation> は、他機能で既に使用されているため飛行モードでは使用できません。</translation>
+      <translation> は、他機能で既に使用されているためフライトモードでは使用できません。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="42"/>
@@ -12234,7 +12234,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="65"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="65"/>
       <source>With no stick inputs the plane holds heading, but drifts off in wind. </source>
-      <translation>スティック入力がない状態では飛行機はヘッディングを保持しますが、風の中でドリフトします。 </translation>
+      <translation>スティック入力がない状態では飛行機は機首方位を保持しますが、風の中でドリフトします。 </translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="66"/>
@@ -12312,7 +12312,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="82"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="82"/>
       <source>Return</source>
-      <translation>戻る</translation>
+      <translation>帰還</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="83"/>
@@ -12336,7 +12336,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="159"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="159"/>
       <source>Flight Mode Config is disabled since you have a Joystick enabled.</source>
-      <translation>ジョイスティックが有効になっているため飛行モード設定は無効になっています。</translation>
+      <translation>ジョイスティックが有効になっているためフライトモード設定は無効になっています。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4AdvancedFlightModes.qml" line="194"/>
@@ -12440,7 +12440,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="48"/>
       <source>Return</source>
-      <translation>戻る</translation>
+      <translation>帰還</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="49"/>
@@ -12495,12 +12495,12 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="498"/>
       <source>Unable to change altitude, home position unknown.</source>
-      <translation>高度を変更することができません。ホーム位置が不明です。</translation>
+      <translation>高度を変更することができません。ホームポイントが不明です。</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="502"/>
       <source>Unable to change altitude, home position altitude unknown.</source>
-      <translation>高度を変更することができません。ホーム位置の高度が不明です。</translation>
+      <translation>高度を変更することができません。ホームポイントの高度が不明です。</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="533"/>
@@ -12510,7 +12510,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="537"/>
       <source>Unable to start mission: Vehicle not changing to %1 flight mode.</source>
-      <translation>ミッションを開始できません: 機体が %1 の飛行モードに変更されていません。</translation>
+      <translation>ミッションを開始できません: 機体が %1 のフライトモードに変更されていません。</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4FirmwarePlugin.cc" line="609"/>
@@ -12570,7 +12570,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="49"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="49"/>
       <source>Enable responsiveness slider (if enabled, acceleration limit parameters and others are automatically set)</source>
-      <translation>応答性スライダーを有効にします (有効にすると加速度制限パラメータなどが自動的に設定)</translation>
+      <translation>応答性スライダーを有効にします (有効にすると加速度制限パラメーターなどが自動的に設定)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="68"/>
@@ -12588,7 +12588,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="89"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="89"/>
       <source>Enable horizontal velocity slider (if enabled, individual velocity limit parameters are automatically set)</source>
-      <translation>水平方向の速度スライダーを有効にします (有効にした場合、個々の速度制限パラメータが自動的に設定)</translation>
+      <translation>水平方向の速度スライダーを有効にします (有効にした場合、個々の速度制限パラメーターが自動的に設定)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="108"/>
@@ -12606,7 +12606,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="124"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="124"/>
       <source>Enable vertical velocity slider (if enabled, individual velocity limit parameters are automatically set)</source>
-      <translation>垂直方向の速度スライダーを有効にします (有効にした場合、個々の速度制限パラメータが自動的に設定)</translation>
+      <translation>垂直方向の速度スライダーを有効にします (有効にした場合、個々の速度制限パラメーターが自動的に設定)</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
@@ -12811,7 +12811,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
       <source>Distance based, on command (Survey mode)</source>
-      <translation>距離ベース、コマンド時 (調査モード)</translation>
+      <translation>距離ベース、コマンド時 (マッピングモード)</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
@@ -13000,7 +13000,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="67"/>
       <source>Flight Mode Settings</source>
-      <translation>飛行モード設定</translation>
+      <translation>フライトモード設定</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="89"/>
@@ -13012,7 +13012,7 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="97"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="97"/>
       <source>Flight Mode %1</source>
-      <translation>飛行モード%1</translation>
+      <translation>フライトモード%1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="128"/>
@@ -13091,7 +13091,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponent.cc" line="28"/>
       <source>Tuning Setup is used to tune the flight controllers.</source>
-      <translation>チューニング設定はフライトコントローラのチューニングに使用します。</translation>
+      <translation>チューニング設定はフライトコントローラーのチューニングに使用します。</translation>
     </message>
   </context>
   <context>
@@ -13100,25 +13100,25 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="31"/>
       <source>Rate Controller</source>
-      <translation>レートコントローラ</translation>
+      <translation>レートコントローラー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="34"/>
       <source>Attitude Controller</source>
-      <translation>姿勢コントローラ</translation>
+      <translation>姿勢コントローラー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="37"/>
       <source>Velocity Controller</source>
-      <translation>速度コントローラ</translation>
+      <translation>速度コントローラー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterAll.qml" line="40"/>
       <source>Position Controller</source>
-      <translation>ポジションコントローラ</translation>
+      <translation>ポジションコントローラー</translation>
     </message>
   </context>
   <context>
@@ -13597,12 +13597,12 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/ParameterDiffDialog.qml" line="23"/>
       <source>Load Parameters</source>
-      <translation>パラメータの読み込み</translation>
+      <translation>パラメーターの読み込み</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterDiffDialog.qml" line="42"/>
       <source>The following parameters from the loaded file differ from what is currently set on the Vehicle. Click &apos;Ok&apos; to update them on the Vehicle.</source>
-      <translation>読み込まれたファイルの次のパラメータは、現在機体に設定されているものとは異なります。【OK】をクリックすると機体側で更新されます。</translation>
+      <translation>読み込まれたファイルの次のパラメーターは、現在機体に設定されているものとは異なります。【OK】をクリックすると機体側で更新されます。</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterDiffDialog.qml" line="43"/>
@@ -13686,7 +13686,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="121"/>
       <source>Load Parameters</source>
-      <translation>パラメータの読み込み</translation>
+      <translation>パラメーターの読み込み</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="127"/>
@@ -13696,12 +13696,12 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="129"/>
       <source>Save Parameters</source>
-      <translation>パラメータを保存</translation>
+      <translation>パラメーターを保存</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="136"/>
       <source>Clear all RC to Param</source>
-      <translation>すべての送信機パラメータをクリア</translation>
+      <translation>すべての送信機パラメーターをクリア</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="284"/>
@@ -13713,7 +13713,7 @@ Is this really what you want?</source>
       <source>Select Reset to reset all parameters to their defaults.
 
 Note that this will also completely reset everything, including UAVCAN nodes, all vehicle settings, setup and calibrations.</source>
-      <translation>【リセット】を選択すると、すべてのパラメータがデフォルト値にリセットされます。
+      <translation>【リセット】を選択すると、すべてのパラメーターがデフォルト値にリセットされます。
 
 これにより、UAVCANノード、すべての機体設定、設定全般、キャリブレーションなどすべてが完全にリセットされるのでご注意ください。</translation>
     </message>
@@ -13726,17 +13726,17 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="275"/>
       <source>Parameter Editor</source>
-      <translation>パラメータエディタ</translation>
+      <translation>パラメーターエディタ</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="284"/>
       <source>Parameter Files (*.%1)</source>
-      <translation>パラメータファイル (*.%1)</translation>
+      <translation>パラメーターファイル (*.%1)</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="333"/>
       <source>Select Reset to reset all parameters to the vehicle&apos;s configuration defaults.</source>
-      <translation>【リセット】を選択すると、すべてのパラメータが機体設定のデフォルト値にリセットされます。</translation>
+      <translation>【リセット】を選択すると、すべてのパラメーターが機体設定のデフォルト値にリセットされます。</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditor.qml" line="350"/>
@@ -13782,7 +13782,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="225"/>
       <source>Parameter name: </source>
-      <translation>パラメータ名: </translation>
+      <translation>パラメーター名: </translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="242"/>
@@ -13812,12 +13812,12 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="290"/>
       <source>Set RC to Param</source>
-      <translation>送信機パラメータを設定</translation>
+      <translation>送信機パラメーターを設定</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="25"/>
       <source>Parameter Editor</source>
-      <translation>パラメータエディタ</translation>
+      <translation>パラメーターエディタ</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="149"/>
@@ -13840,39 +13840,39 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="678"/>
       <source>Parameter write failed: veh:%1 comp:%2 param:%3</source>
-      <translation>パラメータの書き込みに失敗しました: veh:%1 comp:%2 param:%3</translation>
+      <translation>パラメーターの書き込みに失敗しました: veh:%1 comp:%2 param:%3</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="700"/>
       <source>Parameter read failed: veh:%1 comp:%2 param:%3</source>
-      <translation>パラメータの読み込みに失敗しました: veh:%1 comp:%2 param:%3</translation>
+      <translation>パラメーターの読み込みに失敗しました: veh:%1 comp:%2 param:%3</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="926"/>
       <source>Parameter cache CRC match failed</source>
-      <translation>パラメータキャッシュのCRC一致に失敗しました</translation>
+      <translation>パラメーターキャッシュのCRC一致に失敗しました</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="977"/>
       <source>Parameters not loaded since they are not currently on the vehicle: %1
 </source>
-      <translation>パラメータは現在機体に搭載されていないため読み込まれませんでした: %1
+      <translation>パラメーターは現在機体に搭載されていないため読み込まれませんでした: %1
 </translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="981"/>
       <source>Parameters not loaded due to type mismatch: %1</source>
-      <translation>タイプが一致しないため、パラメータが読み込まれません: %1</translation>
+      <translation>タイプが一致しないため、パラメーターが読み込まれません: %1</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="1149"/>
       <source>%1 was unable to retrieve the full set of parameters from vehicle %2. This will cause %1 to be unable to display its full user interface. If you are using modified firmware, you may need to resolve any vehicle startup errors to resolve the issue. If you are using standard firmware, you may need to upgrade to a newer version to resolve the issue.</source>
-      <translation>%1 は機体 %2 からパラメータのフルセットを取得できませんでした。これにより %1 は完全なユーザインタフェースを表示できなくなります。修正されたファームウェアを使用している場合は、問題を解決するために機体の起動エラーを解決する必要があります。標準のファームウェアを使用している場合は、問題を解決するために新しいバージョンにアップグレードする必要があります。</translation>
+      <translation>%1 は機体 %2 からパラメーターのフルセットを取得できませんでした。これにより %1 は完全なユーザインタフェースを表示できなくなります。修正されたファームウェアを使用している場合は、問題を解決するために機体の起動エラーを解決する必要があります。標準のファームウェアを使用している場合は、問題を解決するために新しいバージョンにアップグレードする必要があります。</translation>
     </message>
     <message>
       <location filename="../src/FactSystem/ParameterManager.cc" line="1175"/>
       <source>Vehicle %1 did not respond to request for parameters. This will cause %2 to be unable to display its full user interface.</source>
-      <translation>機体 %1 はパラメータのリクエストに応答しませんでした。これにより %2 はその完全なユーザインタフェースを表示できなくなります。</translation>
+      <translation>機体 %1 はパラメーターのリクエストに応答しませんでした。これにより %2 はその完全なユーザインタフェースを表示できなくなります。</translation>
     </message>
   </context>
   <context>
@@ -14159,7 +14159,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/MissionManager/PlanManager.cc" line="752"/>
       <source>One of the parameters has an invalid value.</source>
-      <translation>パラメータの1つに無効な値があります。</translation>
+      <translation>パラメーターの1つに無効な値があります。</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/PlanManager.cc" line="755"/>
@@ -14266,7 +14266,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="138"/>
       <source>Selected Waypoint</source>
-      <translation>ポイントを選択しました</translation>
+      <translation>選択中のウェイポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="143"/>
@@ -14292,7 +14292,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="177"/>
       <source>Heading:</source>
-      <translation>ヘッディング:</translation>
+      <translation>機首方位:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="192"/>
@@ -14421,7 +14421,7 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="662"/>
       <source>Waypoint</source>
-      <translation>ポイント</translation>
+      <translation>ウェイポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
@@ -14526,7 +14526,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="662"/>
       <source>Rally Point</source>
-      <translation>ポイント</translation>
+      <translation>ラリーポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
@@ -14536,7 +14536,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="698"/>
       <source>Return</source>
-      <translation>戻る</translation>
+      <translation>帰還</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="698"/>
@@ -14556,7 +14556,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="824"/>
       <source>Rally</source>
-      <translation>ポイント</translation>
+      <translation>ラリーポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="942"/>
@@ -14596,7 +14596,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1029"/>
       <source>Rally Points overwrite</source>
-      <translation>ポイント 上書き</translation>
+      <translation>ラリーポイント 上書き</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1037"/>
@@ -14692,12 +14692,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="73"/>
       <source>Survey</source>
-      <translation>調査</translation>
+      <translation>マッピング</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="75"/>
       <source>Corridor Scan</source>
-      <translation>回廊スキャン</translation>
+      <translation>コリドースキャン</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="77"/>
@@ -15050,7 +15050,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/AutoPilotPlugins/PX4/PowerComponent.qml" line="184"/>
       <location filename="../src/AutoPilotPlugins/PX4/PowerComponent.qml" line="184"/>
       <source>ESC parameters will only be accessible in the editor after assignment.</source>
-      <translation>ESCパラメータは、割り当て後にエディタでのみアクセス可能となります。</translation>
+      <translation>ESCパラメーターは、割り当て後にエディタでのみアクセス可能となります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PowerComponent.qml" line="190"/>
@@ -15120,7 +15120,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/PowerComponent.cc" line="30"/>
       <source>Power Setup is used to setup battery parameters as well as advanced settings for propellers.</source>
-      <translation>電源設定では、バッテリーのパラメータやプロペラの詳細設定を行います。</translation>
+      <translation>電源設定では、バッテリーのパラメーターやプロペラの詳細設定を行います。</translation>
     </message>
   </context>
   <context>
@@ -15265,17 +15265,17 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="17"/>
       <source>Sensors</source>
-      <translation>センサ</translation>
+      <translation>センサー</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="35"/>
       <source>Failure. Magnetometer issues. Check console.</source>
-      <translation>磁力センサの問題が発生しました。コンソールを確認してください。</translation>
+      <translation>磁力センサーの問題が発生しました。コンソールを確認してください。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="36"/>
       <source>Failure. Accelerometer issues. Check console.</source>
-      <translation>加速度センサの問題が発生しました。コンソールを確認してください。</translation>
+      <translation>加速度センサーの問題が発生しました。コンソールを確認してください。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="37"/>
@@ -15285,12 +15285,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="38"/>
       <source>Failure. Barometer issues. Check console.</source>
-      <translation>気圧センサの問題が発生しました。コンソールを確認してください。</translation>
+      <translation>気圧センサーの問題が発生しました。コンソールを確認してください。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="39"/>
       <source>Failure. Airspeed sensor issues. Check console.</source>
-      <translation>対気速度センサの問題が発生しました。コンソールを確認してください。</translation>
+      <translation>対気速度センサーの問題が発生しました。コンソールを確認してください。</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/PreFlightSensorsHealthCheck.qml" line="40"/>
@@ -15360,7 +15360,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/QGCApplication.cc" line="714"/>
       <source>Parameters are missing from firmware. You may be running a version of firmware which is not fully supported or your firmware has a bug in it. Missing params: %1</source>
-      <translation>ファームウェアにパラメータがありません。完全にサポートされていないバージョンのファームウェアを適用しているか、ファームウェアにバグがある可能性があります。Missing params: %1</translation>
+      <translation>ファームウェアにパラメーターがありません。完全にサポートされていないバージョンのファームウェアを適用しているか、ファームウェアにバグがある可能性があります。Missing params: %1</translation>
     </message>
     <message>
       <location filename="../src/QGCApplication.cc" line="855"/>
@@ -15457,7 +15457,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="201"/>
       <source>Vibration</source>
-      <translation>バイブ機能</translation>
+      <translation>振動</translation>
     </message>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="193"/>
@@ -15963,7 +15963,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/QmlControls/QGroundControlQmlGlobal.cc" line="290"/>
       <source>Relative To Launch</source>
-      <translation>離陸地点の影響</translation>
+      <translation>離陸地点からの相対高度</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/QGroundControlQmlGlobal.cc" line="296"/>
@@ -16229,22 +16229,22 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/QmlControls/RCToParamDialog.qml" line="25"/>
       <source>RC To Param</source>
-      <translation>送信機 to パラメータ</translation>
+      <translation>送信機 to パラメーター</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/RCToParamDialog.qml" line="44"/>
       <source>Bind an RC Channel to a parameter value. Tuning IDs can be mapped to an RC Channel from Radio Setup page.</source>
-      <translation>送信機チャンネルをパラメータ値にバインドします。チューニングIDは送信機設定ページから送信機チャンネルにマッピングすることができます。</translation>
+      <translation>送信機チャンネルをパラメーター値にバインドします。チューニングIDは送信機設定ページから送信機チャンネルにマッピングすることができます。</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/RCToParamDialog.qml" line="50"/>
       <source>Waiting on parameter update from Vehicle.</source>
-      <translation>機体からのパラメータ更新を待機しています。</translation>
+      <translation>機体からのパラメーター更新を待機しています。</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/RCToParamDialog.qml" line="61"/>
       <source>Parameter</source>
-      <translation>パラメータ</translation>
+      <translation>パラメーター</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/RCToParamDialog.qml" line="64"/>
@@ -16551,7 +16551,7 @@ Click Next to continue</source>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponentController.cc" line="134"/>
       <source>All settings have been captured. Click Next to write the new parameters to your board.</source>
-      <translation>すべての設定が取り込まれました。【次へ】をクリックすると、新しいパラメータがボードに書き込まれます。</translation>
+      <translation>すべての設定が取り込まれました。【次へ】をクリックすると、新しいパラメーターがボードに書き込まれます。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponentController.cc" line="201"/>
@@ -16598,12 +16598,12 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
     <message>
       <location filename="../src/MissionManager/RallyPointController.cc" line="102"/>
       <source>Rally: %1</source>
-      <translation>ポイント: %1</translation>
+      <translation>ラリーポイント: %1</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/RallyPointController.cc" line="105"/>
       <source>Rally Points supports version %1</source>
-      <translation>ポイントはバージョン %1 をサポートしています</translation>
+      <translation>ラリーポイントはバージョン %1 をサポートしています</translation>
     </message>
   </context>
   <context>
@@ -16611,12 +16611,12 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
     <message>
       <location filename="../src/PlanView/RallyPointEditorHeader.qml" line="30"/>
       <source>Rally Points</source>
-      <translation>ポイント</translation>
+      <translation>ラリーポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/RallyPointEditorHeader.qml" line="51"/>
       <source>Rally Points provide alternate landing points when performing a Return to Launch (RTL).</source>
-      <translation>ポイントは【着陸地点へ戻る】(RTL) を実行した際の代替着陸地点となります。</translation>
+      <translation>ラリーポイントは【着陸地点へ戻る】(RTL) を実行した際の代替着陸地点となります。</translation>
     </message>
   </context>
   <context>
@@ -16624,7 +16624,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
     <message>
       <location filename="../src/PlanView/RallyPointItemEditor.qml" line="51"/>
       <source>Rally Point</source>
-      <translation>ポイント</translation>
+      <translation>ラリーポイント</translation>
     </message>
     <message>
       <location filename="../src/PlanView/RallyPointItemEditor.qml" line="74"/>
@@ -16671,7 +16671,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
     <message>
       <location filename="../src/FlightDisplay/RoverChecklist.qml" line="54"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/RoverChecklist.qml" line="62"/>
@@ -16773,7 +16773,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <source>Low Battery Failsafe Trigger</source>
-      <translation>低バッテリー フェイルセーフ トリガー</translation>
+      <translation>低バッテリー フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="95"/>
@@ -16783,7 +16783,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="277"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="329"/>
       <source>Failsafe Action:</source>
-      <translation>フェイルセーフ 動作:</translation>
+      <translation>フェールセーフ 動作:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="107"/>
@@ -16795,7 +16795,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="116"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="116"/>
       <source>Battery Failsafe Level:</source>
-      <translation>バッテリー フェイルセーフ レベル:</translation>
+      <translation>バッテリー フェールセーフ レベル:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="125"/>
@@ -16857,7 +16857,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="249"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="249"/>
       <source>RC Loss Failsafe Trigger</source>
-      <translation>RC損失 フェイルセーフ トリガー</translation>
+      <translation>RC損失 フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="289"/>
@@ -16869,7 +16869,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="301"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="301"/>
       <source>Data Link Loss Failsafe Trigger</source>
-      <translation>データリンク損失 フェイルセーフ トリガー</translation>
+      <translation>データリンク損失 フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="341"/>
@@ -16881,7 +16881,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="353"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="353"/>
       <source>Geofence Failsafe Trigger</source>
-      <translation>ジオフェンス フェイルセーフ トリガー</translation>
+      <translation>ジオフェンス フェールセーフ トリガー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="382"/>
@@ -17028,13 +17028,13 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="28"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="28"/>
       <source>Low Battery Failsafe</source>
-      <translation>低バッテリー フェイルセーフ</translation>
+      <translation>低バッテリー フェールセーフ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="33"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="33"/>
       <source>RC Loss Failsafe</source>
-      <translation>RC損失 フェイルセーフ</translation>
+      <translation>RC損失 フェールセーフ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="38"/>
@@ -17046,7 +17046,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="43"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="43"/>
       <source>Data Link Loss Failsafe</source>
-      <translation>データリンク損失 フェイルセーフ</translation>
+      <translation>データリンク損失 フェールセーフ</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponentSummary.qml" line="48"/>
@@ -17096,12 +17096,12 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponent.cc" line="27"/>
       <source>Sensors</source>
-      <translation>センサ</translation>
+      <translation>センサー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponent.cc" line="39"/>
       <source>Sensors Setup is used to calibrate the sensors within your vehicle.</source>
-      <translation>センサ設定は、機体のセンサをキャリブレーションするためのものです。</translation>
+      <translation>センサー設定は、機体のセンサーをキャリブレーションするためのものです。</translation>
     </message>
   </context>
   <context>
@@ -17211,7 +17211,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummary.qml" line="51"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummary.qml" line="51"/>
       <source>Accelerometer</source>
-      <translation>加速度センサ</translation>
+      <translation>加速度センサー</translation>
     </message>
   </context>
   <context>
@@ -17256,7 +17256,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="42"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="42"/>
       <source>Accelerometer:</source>
-      <translation>加速度センサ:</translation>
+      <translation>加速度センサー:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsComponentSummaryFixedWing.qml" line="47"/>
@@ -17279,7 +17279,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="48"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="48"/>
       <source>For Airspeed calibration you will need to keep your airspeed sensor out of any wind and then blow across the sensor. Do not touch the sensor or obstruct any holes during the calibration.</source>
-      <translation>対気速度のキャリブレーションを行うには、対気速度センサを風から遠ざけ、センサ全体に風を当てる必要があります。キャリブレーション中はセンサに触れたり、穴を塞いだりしないでください。</translation>
+      <translation>対気速度のキャリブレーションを行うには、対気速度センサーを風から遠ざけ、センサー全体に風を当てる必要があります。キャリブレーション中はセンサーに触れたり、穴を塞いだりしないでください。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="50"/>
@@ -17303,13 +17303,13 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="214"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="214"/>
       <source>Sensor Calibration</source>
-      <translation>センサ キャリブレーション</translation>
+      <translation>センサー キャリブレーション</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="214"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="214"/>
       <source>Performing sensor calibration over a WiFi connection is known to be unreliable. You should disconnect and perform calibration using a direct USB connection instead.</source>
-      <translation>センサのキャリブレーションをWiFi接続で行うと信頼性が低下することが確認されています。そのためセンサを切断し、USBで直接接続してキャリブレーションを行う必要があります。</translation>
+      <translation>センサーのキャリブレーションをWiFi接続で行うと信頼性が低下することが確認されています。そのためセンサーを切断し、USBで直接接続してキャリブレーションを行う必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="222"/>
@@ -17345,7 +17345,7 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="46"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="46"/>
       <source>For Accelerometer calibration you will need to place your vehicle on all six sides on a perfectly level surface and hold it still in each orientation for a few seconds.</source>
-      <translation>加速度センサのキャリブレーションは、機体を上下左右前後の六つの側面すべてに対し完全に水平な面に置き、各方向にて数秒間静止させる必要があります。</translation>
+      <translation>加速度センサーのキャリブレーションは、機体を上下左右前後の六つの側面すべてに対し完全に水平な面に置き、各方向にて数秒間静止させる必要があります。</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="47"/>
@@ -17423,7 +17423,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="431"/>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="431"/>
       <source>Accelerometer</source>
-      <translation>加速度センサ</translation>
+      <translation>加速度センサー</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="438"/>
@@ -17691,7 +17691,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/VehicleSetup/SetupView.qml" line="171"/>
       <source>You are currently connected to a vehicle but it did not return the full parameter list. </source>
-      <translation>現在、機体に接続されていますが、完全なパラメータリストは返されませんでした。</translation>
+      <translation>現在、機体に接続されていますが、完全なパラメーターリストは返されませんでした。</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/SetupView.qml" line="172"/>
@@ -17721,7 +17721,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/VehicleSetup/SetupView.qml" line="293"/>
       <source>Parameters</source>
-      <translation>パラメータ</translation>
+      <translation>パラメーター</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/SetupView.qml" line="266"/>
@@ -17777,7 +17777,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/PlanView/SimpleItemEditor.qml" line="65"/>
       <source>Provides advanced access to all commands/parameters. Be very careful!</source>
-      <translation>すべてのコマンド / パラメータへの詳細なアクセスを提供します。非常に注意してください！！</translation>
+      <translation>すべてのコマンド / パラメーターへの詳細なアクセスを提供します。非常に注意してください！！</translation>
     </message>
     <message>
       <location filename="../src/PlanView/SimpleItemEditor.qml" line="77"/>
@@ -17847,7 +17847,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/PlanView/SimpleItemEditor.qml" line="45"/>
       <source>Param%1</source>
-      <translation>パラメータ%1</translation>
+      <translation>パラメーター%1</translation>
     </message>
   </context>
   <context>
@@ -17895,7 +17895,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/MissionManager/SimpleMissionItem.cc" line="435"/>
       <source>Param%1</source>
-      <translation>パラメータ%1</translation>
+      <translation>パラメーター%1</translation>
     </message>
   </context>
   <context>
@@ -18088,7 +18088,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/FlightDisplay/SubChecklist.qml" line="64"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/SubChecklist.qml" line="72"/>
@@ -18129,7 +18129,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="58"/>
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="59"/>
       <source>Survey</source>
-      <translation>調査</translation>
+      <translation>マッピング</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="60"/>
@@ -18142,7 +18142,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="18"/>
       <source>Use the Polygon Tools to create the polygon which outlines your survey area.</source>
-      <translation>ポリゴンツールを使い、調査エリアの輪郭を描くポリゴンを作成します。</translation>
+      <translation>ポリゴンツールを使い、マッピングエリアの輪郭を描くポリゴンを作成します。</translation>
     </message>
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="19"/>
@@ -18172,7 +18172,7 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="89"/>
       <source>Images in turnarounds</source>
-      <translation>再構築中の画像</translation>
+      <translation>折り返し時に撮影</translation>
     </message>
     <message>
       <location filename="../src/PlanView/SurveyItemEditor.qml" line="95"/>
@@ -18704,7 +18704,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemStats.qml" line="16"/>
       <source>Survey Area</source>
-      <translation>調査エリア</translation>
+      <translation>マッピングエリア</translation>
     </message>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemStats.qml" line="19"/>
@@ -18775,7 +18775,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/uas/UAS.cc" line="327"/>
       <source>Calibrating sensors, please wait.</source>
-      <translation>センサ キャリブレーション中です。しばらくお待ちください。</translation>
+      <translation>センサー キャリブレーション中です。しばらくお待ちください。</translation>
     </message>
     <message>
       <location filename="../src/uas/UAS.cc" line="330"/>
@@ -19187,7 +19187,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/FlightDisplay/VTOLChecklist.qml" line="64"/>
       <source>Please confirm mission is valid (waypoints valid, no terrain collision).</source>
-      <translation>ミッションが有効であることを確認してください。(ポイント有効、地形衝突なし)</translation>
+      <translation>ミッションが有効であることを確認してください。(ウェイポイント有効、地形衝突なし)</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VTOLChecklist.qml" line="72"/>
@@ -19238,7 +19238,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="40"/>
       <source>Set to vehicle heading</source>
-      <translation>機体ヘッディング設定</translation>
+      <translation>機体の機首方位設定</translation>
     </message>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="41"/>
@@ -19279,7 +19279,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="135"/>
       <source>Heading</source>
-      <translation>ヘッディング</translation>
+      <translation>機首方位</translation>
     </message>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="150"/>
@@ -19434,7 +19434,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2180"/>
       <source>Rally Point transfer failed. Error: %1</source>
-      <translation>ポイントの転送に失敗しました。エラー: %1</translation>
+      <translation>ラリーポイントの転送に失敗しました。エラー: %1</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="1423"/>
@@ -19551,7 +19551,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2409"/>
       <source>Onboard companion controller</source>
-      <translation>オンボードコンパニオンコントローラ</translation>
+      <translation>オンボードコンパニオンコントローラー</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2410"/>
@@ -19611,7 +19611,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2435"/>
       <source>%1 %2 flight mode</source>
-      <translation>%1 %2 飛行モード</translation>
+      <translation>%1 %2 フライトモード</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2441"/>
@@ -19671,7 +19671,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="981"/>
       <source>PreArm: Radio failsafe on</source>
-      <translation>プリアーム: 送信機フェイルセーフ作動中</translation>
+      <translation>プリアーム: 送信機フェールセーフ作動中</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="983"/>
@@ -19837,7 +19837,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
       <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>機体はプレアームチェックに失敗しました。機体をアームさせるためには、不具合を解決してください。</translation>
+      <translation>機体はプリアームチェックに失敗しました。機体をアームさせるためには、不具合を解決してください。</translation>
     </message>
   </context>
   <context>
@@ -19905,17 +19905,17 @@ Confirm change?</source>
     <message>
       <location filename="../src/AnalyzeView/VibrationPage.qml" line="202"/>
       <source>Accel 1: %1</source>
-      <translation>加速度計 1: %1</translation>
+      <translation>加速度センサー 1: %1</translation>
     </message>
     <message>
       <location filename="../src/AnalyzeView/VibrationPage.qml" line="206"/>
       <source>Accel 2: %1</source>
-      <translation>加速度計 2: %1</translation>
+      <translation>加速度センサー 2: %1</translation>
     </message>
     <message>
       <location filename="../src/AnalyzeView/VibrationPage.qml" line="210"/>
       <source>Accel 3: %1</source>
-      <translation>加速度計 3: %1</translation>
+      <translation>加速度センサー 3: %1</translation>
     </message>
   </context>
   <context>
@@ -20661,7 +20661,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/ActuatorFact.qml" line="46"/>
       <source>(Param not available)</source>
-      <translation>(パラメータ使用不可)</translation>
+      <translation>(パラメーター使用不可)</translation>
     </message>
   </context>
   <context>
@@ -20682,7 +20682,7 @@ Confirm change?</source>
     <message>
       <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="52"/>
       <source>Optical Flow Sensor</source>
-      <translation>オプティカルフローセンサ</translation>
+      <translation>オプティカルフローセンサー</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="76"/>
@@ -20990,7 +20990,7 @@ Confirm change?</source>
     <message>
       <location filename="../custom/CustomGPSIndicator.qml" line="89"/>
       <source>Course Over Ground:</source>
-      <translation>対地針路:</translation>
+      <translation>対地進路:</translation>
     </message>
   </context>
   <context>
@@ -22423,7 +22423,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>RangeFinder</source>
-      <translation>距離センサ</translation>
+      <translation>距離センサー</translation>
     </message>
     <message>
       <source>Fence</source>
@@ -22691,7 +22691,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Force FS Action to FBWA</source>
-      <translation>フェイルセーフ動作をFBWAに強制</translation>
+      <translation>フェールセーフ動作をFBWAに強制</translation>
     </message>
     <message>
       <source>Forward Throttle</source>
@@ -22811,7 +22811,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Non Auto Terrain Follow Disable</source>
-      <translation>非Auto時の地形追従を無効化</translation>
+      <translation>非Auto時の地形フォローを無効化</translation>
     </message>
     <message>
       <source>Optflow Calibration</source>
@@ -22935,7 +22935,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>simple heading reset</source>
-      <translation>シンプルヘッディングリセット</translation>
+      <translation>シンプル機首方位リセット</translation>
     </message>
     <message>
       <source>SmartRTL</source>
@@ -23015,7 +23015,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Windvane home heading direction offset</source>
-      <translation>ウィンドベーンのホームヘッディング方向オフセット</translation>
+      <translation>ウィンドベーンのホーム機首方位方向オフセット</translation>
     </message>
     <message>
       <source>ZigZag</source>
@@ -23163,7 +23163,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Barometer</source>
-      <translation>気圧計</translation>
+      <translation>気圧センサー</translation>
     </message>
     <message>
       <source>Compass</source>
@@ -23179,7 +23179,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Parameters</source>
-      <translation>パラメータ</translation>
+      <translation>パラメーター</translation>
     </message>
     <message>
       <source>RC Channels</source>
@@ -23219,7 +23219,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Rangefinder</source>
-      <translation>距離センサ</translation>
+      <translation>距離センサー</translation>
     </message>
     <message>
       <source>Camera</source>
@@ -23614,7 +23614,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Range finder</source>
-      <translation>距離センサ</translation>
+      <translation>距離センサー</translation>
     </message>
     <message>
       <source>AI OSD</source>
@@ -23701,7 +23701,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>%s below failsafe</source>
-      <translation>%s がフェイルセーフ値を下回っています</translation>
+      <translation>%s がフェールセーフ値を下回っています</translation>
     </message>
     <message>
       <source>%s radio max too low</source>
@@ -23881,35 +23881,35 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failsafe trigger 0x%x</source>
-      <translation>フェイルセーフ発動 0x%x</translation>
+      <translation>フェールセーフ発動 0x%x</translation>
     </message>
     <message>
       <source>Failsafe. Long event off: reason=%u</source>
-      <translation>フェイルセーフ: 長期イベント解除: reason=%u</translation>
+      <translation>フェールセーフ: 長期イベント解除: reason=%u</translation>
     </message>
     <message>
       <source>Failsafe. Long event on: type=%u/reason=%u</source>
-      <translation>フェイルセーフ: 長期イベント発生: type=%u/reason=%u</translation>
+      <translation>フェールセーフ: 長期イベント発生: type=%u/reason=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event off: reason=%u</source>
-      <translation>フェイルセーフ: 短期イベント解除: reason=%u</translation>
+      <translation>フェールセーフ: 短期イベント解除: reason=%u</translation>
     </message>
     <message>
       <source>Failsafe. Short event on: type=%u/reason=%u</source>
-      <translation>フェイルセーフ: 短期イベント発生: type=%u/reason=%u</translation>
+      <translation>フェールセーフ: 短期イベント発生: type=%u/reason=%u</translation>
     </message>
     <message>
       <source>Failsafe: Estimated %.0f seconds to home</source>
-      <translation>フェイルセーフ: ホームまで推定 %.0f 秒</translation>
+      <translation>フェールセーフ: ホームまで推定 %.0f 秒</translation>
     </message>
     <message>
       <source>Failsafe: RTL took </source>
-      <translation>フェイルセーフ: RTL所要 </translation>
+      <translation>フェールセーフ: RTL所要 </translation>
     </message>
     <message>
       <source>Failsafe: Terrain data missing</source>
-      <translation>フェイルセーフ: 地形データがありません</translation>
+      <translation>フェールセーフ: 地形データがありません</translation>
     </message>
     <message>
       <source>Flare %.1fm sink=%.2f speed=%.1f dist=%.1f</source>
@@ -23982,7 +23982,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Ignoring invalid START_LATITUDE or START_LONGITUDE parameter</source>
-      <translation>無効な START_LATITUDE または START_LONGITUDE パラメータを無視します</translation>
+      <translation>無効な START_LATITUDE または START_LONGITUDE パラメーターを無視します</translation>
     </message>
     <message>
       <source>Internal errors (0x%x)</source>
@@ -24166,19 +24166,19 @@ Confirm change?</source>
     </message>
     <message>
       <source>Airspeed %d not healthy</source>
-      <translation>対気速度センサ %d が異常です</translation>
+      <translation>対気速度センサー %d が異常です</translation>
     </message>
     <message>
       <source>Airspeed sensor %d failure. Disabling</source>
-      <translation>対気速度センサ %d が故障しました。無効にします</translation>
+      <translation>対気速度センサー %d が故障しました。無効にします</translation>
     </message>
     <message>
       <source>Airspeed sensor %d now OK. Re-enabled</source>
-      <translation>対気速度センサ %d が正常に戻りました。再度有効にしました</translation>
+      <translation>対気速度センサー %d が正常に戻りました。再度有効にしました</translation>
     </message>
     <message>
       <source>Airspeed sensor %d warning</source>
-      <translation>対気速度センサ %d 警告</translation>
+      <translation>対気速度センサー %d 警告</translation>
     </message>
     <message>
       <source>Alt assist %.1fm</source>
@@ -24250,7 +24250,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Bad parameter: %s</source>
-      <translation>不正なパラメータ: %s</translation>
+      <translation>不正なパラメーター: %s</translation>
     </message>
     <message>
       <source>Bad rally point count</source>
@@ -24334,15 +24334,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>Depth sensor error!</source>
-      <translation>深度センサエラー！</translation>
+      <translation>深度センサーエラー！</translation>
     </message>
     <message>
       <source>Depth sensor error.</source>
-      <translation>深度センサエラー。</translation>
+      <translation>深度センサーエラー。</translation>
     </message>
     <message>
       <source>Depth sensor is not connected.</source>
-      <translation>深度センサが接続されていません。</translation>
+      <translation>深度センサーが接続されていません。</translation>
     </message>
     <message>
       <source>Dijkstra: %s</source>
@@ -24478,7 +24478,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Radio failsafe on</source>
-      <translation>プリアーム: 送信機フェイルセーフ作動中</translation>
+      <translation>プリアーム: 送信機フェールセーフ作動中</translation>
     </message>
     <message>
       <source>PreArm: Waiting for 3D fix</source>
@@ -24494,11 +24494,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Throttle below Failsafe</source>
-      <translation>プリアーム: スロットルがフェイルセーフ値を下回っています</translation>
+      <translation>プリアーム: スロットルがフェールセーフ値を下回っています</translation>
     </message>
     <message>
       <source>PreArm: 3D Accel calibration needed</source>
-      <translation>プリアーム: 3D加速度計のキャリブレーションが必要です</translation>
+      <translation>プリアーム: 3D加速度センサーのキャリブレーションが必要です</translation>
     </message>
     <message>
       <source>PreArm: EKF altitude is bad</source>
@@ -24514,11 +24514,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Radio Failsafe - Disarming</source>
-      <translation>送信機フェイルセーフ - ディスアーム中</translation>
+      <translation>送信機フェールセーフ - ディスアーム中</translation>
     </message>
     <message>
       <source>Radio Failsafe Cleared</source>
-      <translation>送信機フェイルセーフ解除</translation>
+      <translation>送信機フェールセーフ解除</translation>
     </message>
     <message>
       <source>10 second cooldown required after motor test</source>
@@ -24526,7 +24526,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>3D Accel calibration needed</source>
-      <translation>3D加速度計のキャリブレーションが必要です</translation>
+      <translation>3D加速度センサーのキャリブレーションが必要です</translation>
     </message>
     <message>
       <source>ACRO_BAL_ROLL/PITCH</source>
@@ -24590,15 +24590,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>Accels calibrated requires reboot</source>
-      <translation>加速度計のキャリブレーション後は再起動が必要です</translation>
+      <translation>加速度センサーのキャリブレーション後は再起動が必要です</translation>
     </message>
     <message>
       <source>Accels inconsistent</source>
-      <translation>加速度計の値が一致しません</translation>
+      <translation>加速度センサーの値が一致しません</translation>
     </message>
     <message>
       <source>Accels not healthy</source>
-      <translation>加速度計が異常です</translation>
+      <translation>加速度センサーが異常です</translation>
     </message>
     <message>
       <source>Action: Minimum Collective Applied</source>
@@ -24610,7 +24610,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>All parameters reset, reboot board</source>
-      <translation>全パラメータをリセットしました。ボードを再起動してください</translation>
+      <translation>全パラメーターをリセットしました。ボードを再起動してください</translation>
     </message>
     <message>
       <source>Already flying - no takeoff</source>
@@ -24630,7 +24630,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Attempting auto failsafe recovery</source>
-      <translation>フェイルセーフの自動復帰を試行中</translation>
+      <translation>フェールセーフの自動復帰を試行中</translation>
     </message>
     <message>
       <source>Auto disarmed</source>
@@ -24718,27 +24718,27 @@ Confirm change?</source>
     </message>
     <message>
       <source>Barometer calibration complete</source>
-      <translation>気圧計のキャリブレーション完了</translation>
+      <translation>気圧センサーのキャリブレーション完了</translation>
     </message>
     <message>
       <source>Barometer not healthy</source>
-      <translation>気圧計が異常です</translation>
+      <translation>気圧センサーが異常です</translation>
     </message>
     <message>
       <source>Battery Failsafe</source>
-      <translation>バッテリーフェイルセーフ</translation>
+      <translation>バッテリーフェールセーフ</translation>
     </message>
     <message>
       <source>Battery Failsafe - Continuing Landing</source>
-      <translation>バッテリーフェイルセーフ - 着陸を継続</translation>
+      <translation>バッテリーフェールセーフ - 着陸を継続</translation>
     </message>
     <message>
       <source>Battery Failsafe - Disarming</source>
-      <translation>バッテリーフェイルセーフ - ディスアーム中</translation>
+      <translation>バッテリーフェールセーフ - ディスアーム中</translation>
     </message>
     <message>
       <source>Battery failsafe</source>
-      <translation>バッテリーフェイルセーフ</translation>
+      <translation>バッテリーフェールセーフ</translation>
     </message>
     <message>
       <source>Calibration successful</source>
@@ -24906,15 +24906,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>EKF failsafe</source>
-      <translation>EKFフェイルセーフ</translation>
+      <translation>EKFフェールセーフ</translation>
     </message>
     <message>
       <source>EKF failsafe cleared</source>
-      <translation>EKFフェイルセーフ解除</translation>
+      <translation>EKFフェールセーフ解除</translation>
     </message>
     <message>
       <source>EKF failsafe!</source>
-      <translation>EKFフェイルセーフ！</translation>
+      <translation>EKFフェールセーフ！</translation>
     </message>
     <message>
       <source>EKF variance</source>
@@ -24954,11 +24954,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failsafe ended</source>
-      <translation>フェイルセーフ終了</translation>
+      <translation>フェールセーフ終了</translation>
     </message>
     <message>
       <source>Failsafe terrain triggered</source>
-      <translation>地形フェイルセーフ発動</translation>
+      <translation>地形フェールセーフ発動</translation>
     </message>
     <message>
       <source>Fence Disabled</source>
@@ -25046,35 +25046,35 @@ Confirm change?</source>
     </message>
     <message>
       <source>GCS + Battery Failsafe - Continuing Landing</source>
-      <translation>GCS + バッテリーフェイルセーフ - 着陸を継続</translation>
+      <translation>GCS + バッテリーフェールセーフ - 着陸を継続</translation>
     </message>
     <message>
       <source>GCS Failsafe</source>
-      <translation>GCSフェイルセーフ</translation>
+      <translation>GCSフェールセーフ</translation>
     </message>
     <message>
       <source>GCS Failsafe - Continuing Auto Mode</source>
-      <translation>GCSフェイルセーフ - Autoモードを継続</translation>
+      <translation>GCSフェールセーフ - Autoモードを継続</translation>
     </message>
     <message>
       <source>GCS Failsafe - Continuing Landing</source>
-      <translation>GCSフェイルセーフ - 着陸を継続</translation>
+      <translation>GCSフェールセーフ - 着陸を継続</translation>
     </message>
     <message>
       <source>GCS Failsafe - Continuing Pilot Control</source>
-      <translation>GCSフェイルセーフ - パイロット操縦を継続</translation>
+      <translation>GCSフェールセーフ - パイロット操縦を継続</translation>
     </message>
     <message>
       <source>GCS Failsafe - Disarming</source>
-      <translation>GCSフェイルセーフ - ディスアーム中</translation>
+      <translation>GCSフェールセーフ - ディスアーム中</translation>
     </message>
     <message>
       <source>GCS Failsafe Cleared</source>
-      <translation>GCSフェイルセーフ解除</translation>
+      <translation>GCSフェールセーフ解除</translation>
     </message>
     <message>
       <source>GCS failsafe on</source>
-      <translation>GCSフェイルセーフ作動中</translation>
+      <translation>GCSフェールセーフ作動中</translation>
     </message>
     <message>
       <source>GPS Glitch</source>
@@ -25502,7 +25502,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Param storage failed</source>
-      <translation>パラメータの保存に失敗しました</translation>
+      <translation>パラメーターの保存に失敗しました</translation>
     </message>
     <message>
       <source>Passthru disabled</source>
@@ -25634,31 +25634,31 @@ Confirm change?</source>
     </message>
     <message>
       <source>RTL_ALT above rangefinder max range</source>
-      <translation>RTL_ALT が距離センサの最大範囲を超えています</translation>
+      <translation>RTL_ALT が距離センサーの最大範囲を超えています</translation>
     </message>
     <message>
       <source>Radio + Battery Failsafe - Continuing Landing</source>
-      <translation>送信機 + バッテリーフェイルセーフ - 着陸を継続</translation>
+      <translation>送信機 + バッテリーフェールセーフ - 着陸を継続</translation>
     </message>
     <message>
       <source>Radio Failsafe</source>
-      <translation>送信機フェイルセーフ</translation>
+      <translation>送信機フェールセーフ</translation>
     </message>
     <message>
       <source>Radio Failsafe - Continuing Auto Mode</source>
-      <translation>送信機フェイルセーフ - Auto モードを継続</translation>
+      <translation>送信機フェールセーフ - Auto モードを継続</translation>
     </message>
     <message>
       <source>Radio Failsafe - Continuing Guided Mode</source>
-      <translation>送信機フェイルセーフ - Guided モードを継続</translation>
+      <translation>送信機フェールセーフ - Guided モードを継続</translation>
     </message>
     <message>
       <source>Radio Failsafe - Continuing Landing</source>
-      <translation>送信機フェイルセーフ - 着陸を継続</translation>
+      <translation>送信機フェールセーフ - 着陸を継続</translation>
     </message>
     <message>
       <source>Radio failsafe on</source>
-      <translation>送信機フェイルセーフ作動</translation>
+      <translation>送信機フェールセーフ作動</translation>
     </message>
     <message>
       <source>Rally upload timeout</source>
@@ -25782,11 +25782,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>SurfaceTracking: no downward rangefinder</source>
-      <translation>地表追従: 下向き距離センサなし</translation>
+      <translation>地表追従: 下向き距離センサーなし</translation>
     </message>
     <message>
       <source>SurfaceTracking: no upward rangefinder</source>
-      <translation>地表追従: 上向き距離センサなし</translation>
+      <translation>地表追従: 上向き距離センサーなし</translation>
     </message>
     <message>
       <source>SystemID Finished</source>
@@ -25794,7 +25794,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>SystemID Parameter Error</source>
-      <translation>SystemID パラメータエラー</translation>
+      <translation>SystemID パラメーターエラー</translation>
     </message>
     <message>
       <source>SystemID Stopped: Landed</source>
@@ -25814,15 +25814,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>Terrain failsafe recovery failure: No Rangefinder!</source>
-      <translation>地形フェイルセーフ回復失敗: 距離センサなし！</translation>
+      <translation>地形フェールセーフ回復失敗: 距離センサーなし！</translation>
     </message>
     <message>
       <source>Terrain failsafe recovery successful!</source>
-      <translation>地形フェイルセーフ回復成功！</translation>
+      <translation>地形フェールセーフ回復成功！</translation>
     </message>
     <message>
       <source>Terrain failsafe recovery timeout!</source>
-      <translation>地形フェイルセーフ回復タイムアウト！</translation>
+      <translation>地形フェールセーフ回復タイムアウト！</translation>
     </message>
     <message>
       <source>Terrain out of memory</source>
@@ -25842,11 +25842,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Throttle failsafe off</source>
-      <translation>スロットルフェイルセーフ解除</translation>
+      <translation>スロットルフェールセーフ解除</translation>
     </message>
     <message>
       <source>Throttle failsafe on</source>
-      <translation>スロットルフェイルセーフ作動</translation>
+      <translation>スロットルフェールセーフ作動</translation>
     </message>
     <message>
       <source>Throttle not zero</source>
@@ -26046,7 +26046,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Warning: Poor RPM Sensor Health</source>
-      <translation>警告: RPM センサの状態不良</translation>
+      <translation>警告: RPM センサーの状態不良</translation>
     </message>
     <message>
       <source>ZigZag: manual control</source>
@@ -26082,7 +26082,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>check proximity sensor</source>
-      <translation>近接センサを確認</translation>
+      <translation>近接センサーを確認</translation>
     </message>
     <message>
       <source>finished motor test</source>
@@ -26118,7 +26118,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>wiping parameter storage header</source>
-      <translation>パラメータ保存領域ヘッダーを消去中</translation>
+      <translation>パラメーター保存領域ヘッダーを消去中</translation>
     </message>
     <message>
       <source>PreArm: Invalid MultiCopter FRAME_CLASS</source>
@@ -26126,7 +26126,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Bad parameter: %s</source>
-      <translation>プリアーム: 不正なパラメータ: %s</translation>
+      <translation>プリアーム: 不正なパラメーター: %s</translation>
     </message>
     <message>
       <source>PreArm: Check PILOT_SPEED_UP</source>
@@ -26242,11 +26242,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Battery failsafe</source>
-      <translation>プリアーム: バッテリーフェイルセーフ</translation>
+      <translation>プリアーム: バッテリーフェールセーフ</translation>
     </message>
     <message>
       <source>PreArm: %s below failsafe</source>
-      <translation>プリアーム: %s がフェイルセーフ値未満</translation>
+      <translation>プリアーム: %s がフェールセーフ値未満</translation>
     </message>
     <message>
       <source>PreArm: vehicle outside fence</source>
@@ -26258,7 +26258,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: check proximity sensor</source>
-      <translation>プリアーム: 近接センサを確認</translation>
+      <translation>プリアーム: 近接センサーを確認</translation>
     </message>
     <message>
       <source>PreArm: %s radio max too low</source>
@@ -26286,7 +26286,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Param storage failed</source>
-      <translation>プリアーム: パラメータ保存失敗</translation>
+      <translation>プリアーム: パラメーター保存失敗</translation>
     </message>
     <message>
       <source>PreArm: GPS %d failing configuration checks</source>
@@ -26314,11 +26314,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: RTL_ALT above rangefinder max range</source>
-      <translation>プリアーム: RTL_ALT が距離センサの最大範囲を超えています</translation>
+      <translation>プリアーム: RTL_ALT が距離センサーの最大範囲を超えています</translation>
     </message>
     <message>
       <source>PreArm: Accels calibrated requires reboot</source>
-      <translation>プリアーム: 加速度計のキャリブレーション後は再起動が必要です</translation>
+      <translation>プリアーム: 加速度センサーのキャリブレーション後は再起動が必要です</translation>
     </message>
     <message>
       <source>PreArm: Leaning</source>
@@ -26350,11 +26350,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Barometer not healthy</source>
-      <translation>プリアーム: 気圧計異常</translation>
+      <translation>プリアーム: 気圧センサー異常</translation>
     </message>
     <message>
       <source>PreArm: EKF failsafe</source>
-      <translation>プリアーム: EKF フェイルセーフ</translation>
+      <translation>プリアーム: EKF フェールセーフ</translation>
     </message>
     <message>
       <source>PreArm: GPS glitching</source>
@@ -26370,7 +26370,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: GCS failsafe on</source>
-      <translation>プリアーム: GCS フェイルセーフ作動</translation>
+      <translation>プリアーム: GCS フェールセーフ作動</translation>
     </message>
     <message>
       <source>PreArm: Motor Interlock not configured</source>
@@ -26390,7 +26390,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Accels inconsistent</source>
-      <translation>プリアーム: 加速度計の不一致</translation>
+      <translation>プリアーム: 加速度センサーの不一致</translation>
     </message>
     <message>
       <source>PreArm: Scripting out of memory</source>
@@ -26406,7 +26406,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Accels not healthy</source>
-      <translation>プリアーム: 加速度計異常</translation>
+      <translation>プリアーム: 加速度センサー異常</translation>
     </message>
     <message>
       <source>PreArm: Quadplane enabled but not running</source>
@@ -26434,7 +26434,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>PreArm: Airspeed %d not healthy</source>
-      <translation>プリアーム: 対気速度センサ %d 異常</translation>
+      <translation>プリアーム: 対気速度センサー %d 異常</translation>
     </message>
     <message>
       <source>PreArm: Proximity %d deg, %4.2fm</source>
@@ -26663,7 +26663,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Param write denied (%s)</source>
-      <translation>パラメータ書き込み拒否 (%s)</translation>
+      <translation>パラメーター書き込み拒否 (%s)</translation>
     </message>
     <message>
       <source>Passed waypoint #%i dist %um</source>
@@ -26711,11 +26711,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Rangefinder disengaged at %.2fm</source>
-      <translation>距離センサ解除 (%.2fm)</translation>
+      <translation>距離センサー解除 (%.2fm)</translation>
     </message>
     <message>
       <source>Rangefinder engaged at %.2fm</source>
-      <translation>距離センサ作動 (%.2fm)</translation>
+      <translation>距離センサー作動 (%.2fm)</translation>
     </message>
     <message>
       <source>Reached command #%i</source>
@@ -26935,7 +26935,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Target Heading: %3.1f</source>
-      <translation>目標ヘッディング: %3.1f</translation>
+      <translation>目標機首方位: %3.1f</translation>
     </message>
     <message>
       <source>Terminating due to %s</source>
@@ -27048,7 +27048,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Updating barometer calibration</source>
-      <translation>気圧計キャリブレーションを更新中</translation>
+      <translation>気圧センサーキャリブレーションを更新中</translation>
     </message>
     <message>
       <source>VTOL position2 started v=%.1f d=%.1f</source>
@@ -27156,7 +27156,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Accel 0 uncalibrated</source>
-      <translation>飛行前チェック失敗: 加速度計 0 未キャリブレーション</translation>
+      <translation>飛行前チェック失敗: 加速度センサー 0 未キャリブレーション</translation>
     </message>
     <message>
       <source>Preflight Fail: Compass 0 uncalibrated</source>
@@ -27224,15 +27224,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>[cal] accel %d invalid X-axis, check rotation</source>
-      <translation>[cal] 加速度計 %d の X 軸が不正です。向きを確認してください</translation>
+      <translation>[cal] 加速度センサー %d の X 軸が不正です。向きを確認してください</translation>
     </message>
     <message>
       <source>[cal] accel %d invalid Y-axis, check rotation</source>
-      <translation>[cal] 加速度計 %d の Y 軸が不正です。向きを確認してください</translation>
+      <translation>[cal] 加速度センサー %d の Y 軸が不正です。向きを確認してください</translation>
     </message>
     <message>
       <source>[cal] accel %d invalid Z-axis, check rotation</source>
-      <translation>[cal] 加速度計 %d の Z 軸が不正です。向きを確認してください</translation>
+      <translation>[cal] 加速度センサー %d の Z 軸が不正です。向きを確認してください</translation>
     </message>
     <message>
       <source>[cal] Battery connected</source>
@@ -27260,11 +27260,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>[cal] Ensure sensor is not measuring wind</source>
-      <translation>[cal] センサが風を測定しないようにしてください</translation>
+      <translation>[cal] センサーが風を測定しないようにしてください</translation>
     </message>
     <message>
       <source>[cal] External Mag: %d (%</source>
-      <translation>[cal] 外部磁気センサ: %d (%</translation>
+      <translation>[cal] 外部地磁気センサー: %d (%</translation>
     </message>
     <message>
       <source>[cal] Hold still, measuring %s side</source>
@@ -27308,15 +27308,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>[lpe] baro fault, r %5.2f m, beta %5.2f</source>
-      <translation>[lpe] 気圧計異常, r %5.2f m, beta %5.2f</translation>
+      <translation>[lpe] 気圧センサー異常, r %5.2f m, beta %5.2f</translation>
     </message>
     <message>
       <source>[lpe] baro OK</source>
-      <translation>[lpe] 気圧計 OK</translation>
+      <translation>[lpe] 気圧センサー OK</translation>
     </message>
     <message>
       <source>[lpe] baro timeout</source>
-      <translation>[lpe] 気圧計タイムアウト</translation>
+      <translation>[lpe] 気圧センサータイムアウト</translation>
     </message>
     <message>
       <source>[lpe] flow fault,  beta %5.2f</source>
@@ -27456,7 +27456,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Accel %</source>
-      <translation>加速度計 %</translation>
+      <translation>加速度センサー %</translation>
     </message>
     <message>
       <source>Airspeed estimation invalid</source>
@@ -27468,15 +27468,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>Airspeed sensor failure detected. Check connection and reboot.</source>
-      <translation>対気速度センサの故障を検出しました。接続を確認して再起動してください。</translation>
+      <translation>対気速度センサーの故障を検出しました。接続を確認して再起動してください。</translation>
     </message>
     <message>
       <source>Airspeed sensor healthy, start using again (%i, %i)</source>
-      <translation>対気速度センサが正常です。使用を再開します (%i, %i)</translation>
+      <translation>対気速度センサーが正常です。使用を再開します (%i, %i)</translation>
     </message>
     <message>
       <source>Airspeed sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</source>
-      <translation>対気速度センサ No. %d ASPD_SCALE 更新: %.4f --&gt; %.4f</translation>
+      <translation>対気速度センサー No. %d ASPD_SCALE 更新: %.4f --&gt; %.4f</translation>
     </message>
     <message>
       <source>Already higher than takeoff altitude</source>
@@ -27556,7 +27556,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Assuming vehicle is facing heading %.1f degrees</source>
-      <translation>機体がヘッディング %.1f 度を向いていると仮定します</translation>
+      <translation>機体が機首方位 %.1f 度を向いていると仮定します</translation>
     </message>
     <message>
       <source>attitude estimator not running - check system boot</source>
@@ -27564,7 +27564,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>attitude required for mag quick cal</source>
-      <translation>磁気センサのクイックキャリブレーションには姿勢情報が必要です</translation>
+      <translation>地磁気センサーのクイックキャリブレーションには姿勢情報が必要です</translation>
     </message>
     <message>
       <source>Autotune aborted before finishing</source>
@@ -27664,7 +27664,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Detected %u mags, but will calibrate only %u</source>
-      <translation>磁気センサを%u個検出しましたが、キャリブレーションするのは%u個のみです</translation>
+      <translation>地磁気センサーを%u個検出しましたが、キャリブレーションするのは%u個のみです</translation>
     </message>
     <message>
       <source>Disable transmitting with IRIDIUM mavlink on device %s</source>
@@ -27724,7 +27724,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>ERROR: missing data, sensor %d</source>
-      <translation>エラー: データ欠落、センサ %d</translation>
+      <translation>エラー: データ欠落、センサー %d</translation>
     </message>
     <message>
       <source>ERROR: Motion during calibration</source>
@@ -27808,7 +27808,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failed: No magnetometer available or enabled</source>
-      <translation>失敗: 使用可能または有効な磁気センサがありません</translation>
+      <translation>失敗: 使用可能または有効な地磁気センサーがありません</translation>
     </message>
     <message>
       <source>Failed: This calibration requires rotation.</source>
@@ -27816,11 +27816,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Failsafe activated</source>
-      <translation>フェイルセーフが作動しました</translation>
+      <translation>フェールセーフが作動しました</translation>
     </message>
     <message>
       <source>Failsafe activated: entering Hold for %i seconds</source>
-      <translation>フェイルセーフ作動: %i秒間 Hold に移行</translation>
+      <translation>フェールセーフ作動: %i秒間 Hold に移行</translation>
     </message>
     <message>
       <source>Figure 8 command not supported.</source>
@@ -27852,11 +27852,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Geofence invalid, doesn&apos;t contain Home position</source>
-      <translation>ジオフェンスが無効です。ホーム位置が含まれていません</translation>
+      <translation>ジオフェンスが無効です。ホームポイントが含まれていません</translation>
     </message>
     <message>
       <source>Geofence requires valid home position</source>
-      <translation>ジオフェンスには有効なホーム位置が必要です</translation>
+      <translation>ジオフェンスには有効なホームポイントが必要です</translation>
     </message>
     <message>
       <source>Geofence violation for waypoint %zu</source>
@@ -27888,7 +27888,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>GNSS heading not reliable - Land now!</source>
-      <translation>GNSSヘッディングの信頼性が低下 - 直ちに着陸してください！</translation>
+      <translation>GNSS機首方位の信頼性が低下 - 直ちに着陸してください！</translation>
     </message>
     <message>
       <source>GNSS signal jammed</source>
@@ -27904,11 +27904,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>GPS required for baro cal</source>
-      <translation>気圧計のキャリブレーションにはGPSが必要です</translation>
+      <translation>気圧センサーのキャリブレーションにはGPSが必要です</translation>
     </message>
     <message>
       <source>GPS required for mag quick cal</source>
-      <translation>磁気センサのクイックキャリブレーションにはGPSが必要です</translation>
+      <translation>地磁気センサーのクイックキャリブレーションにはGPSが必要です</translation>
     </message>
     <message>
       <source>Gyro %</source>
@@ -28008,7 +28008,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Mag quick calibration finished</source>
-      <translation>磁気センサのクイックキャリブレーション完了</translation>
+      <translation>地磁気センサーのクイックキャリブレーション完了</translation>
     </message>
     <message>
       <source>Manual backward speed has been constrained by forward speed</source>
@@ -28100,7 +28100,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Mission rejected: No home pos, WP %d uses rel alt</source>
-      <translation>ミッション拒否: ホーム位置がありません。WP %d は相対高度を使用しています</translation>
+      <translation>ミッション拒否: ホームポイントがありません。WP %d は相対高度を使用しています</translation>
     </message>
     <message>
       <source>Mission rejected: starts with land waypoint.</source>
@@ -28156,7 +28156,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>No airspeed sensor detected. Switch to non-airspeed mode.</source>
-      <translation>対気速度センサが検出されません。対気速度なしモードに切り替えます。</translation>
+      <translation>対気速度センサーが検出されません。対気速度なしモードに切り替えます。</translation>
     </message>
     <message>
       <source>No gyros found</source>
@@ -28168,7 +28168,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>No mags found</source>
-      <translation>磁気センサが見つかりません</translation>
+      <translation>地磁気センサーが見つかりません</translation>
     </message>
     <message>
       <source>No valid mission available, loitering</source>
@@ -28196,7 +28196,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Onboard controller regained</source>
-      <translation>オンボードコントローラが回復しました</translation>
+      <translation>オンボードコントローラーが回復しました</translation>
     </message>
     <message>
       <source>Orbit command rejected</source>
@@ -28236,15 +28236,15 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Accel %u inconsistent - check cal</source>
-      <translation>飛行前チェック失敗: 加速度計 %u が不整合 - キャリブレーションを確認してください</translation>
+      <translation>飛行前チェック失敗: 加速度センサー %u が不整合 - キャリブレーションを確認してください</translation>
     </message>
     <message>
       <source>Preflight Fail: Accel %u uncalibrated</source>
-      <translation>飛行前チェック失敗: 加速度計 %u が未キャリブレーション</translation>
+      <translation>飛行前チェック失敗: 加速度センサー %u が未キャリブレーション</translation>
     </message>
     <message>
       <source>Preflight Fail: Accel Sensor %u missing</source>
-      <translation>飛行前チェック失敗: 加速度計センサ %u がありません</translation>
+      <translation>飛行前チェック失敗: 加速度センサーセンサー %u がありません</translation>
     </message>
     <message>
       <source>Preflight Fail: Airspeed invalid</source>
@@ -28280,7 +28280,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: barometer %u missing</source>
-      <translation>飛行前チェック失敗: 気圧計 %u がありません</translation>
+      <translation>飛行前チェック失敗: 気圧センサー %u がありません</translation>
     </message>
     <message>
       <source>Preflight Fail: Battery unhealthy</source>
@@ -28296,7 +28296,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Compass Sensor %u missing</source>
-      <translation>飛行前チェック失敗: コンパスセンサ %u がありません</translation>
+      <translation>飛行前チェック失敗: コンパスセンサー %u がありません</translation>
     </message>
     <message>
       <source>Preflight Fail: Compasses %d° inconsistent</source>
@@ -28312,7 +28312,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Distance Sensor %u missing</source>
-      <translation>飛行前チェック失敗: 距離センサ %u がありません</translation>
+      <translation>飛行前チェック失敗: 距離センサー %u がありません</translation>
     </message>
     <message>
       <source>Preflight Fail: ekf2 missing data</source>
@@ -28352,11 +28352,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Gyro Sensor %u missing</source>
-      <translation>飛行前チェック失敗: ジャイロセンサ %u がありません</translation>
+      <translation>飛行前チェック失敗: ジャイロセンサー %u がありません</translation>
     </message>
     <message>
       <source>Preflight Fail: heading estimate invalid</source>
-      <translation>飛行前チェック失敗: ヘッディング推定が無効</translation>
+      <translation>飛行前チェック失敗: 機首方位推定が無効</translation>
     </message>
     <message>
       <source>Preflight Fail: height estimate not stable</source>
@@ -28364,7 +28364,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: High Accelerometer Bias</source>
-      <translation>飛行前チェック失敗: 加速度計バイアスが大きすぎます</translation>
+      <translation>飛行前チェック失敗: 加速度センサーバイアスが大きすぎます</translation>
     </message>
     <message>
       <source>Preflight Fail: High Gyro Bias</source>
@@ -28372,7 +28372,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: Home position required</source>
-      <translation>飛行前チェック失敗: ホーム位置が必要です</translation>
+      <translation>飛行前チェック失敗: ホームポイントが必要です</translation>
     </message>
     <message>
       <source>Preflight Fail: horizontal position unstable</source>
@@ -28412,11 +28412,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Accel %u</source>
-      <translation>飛行前チェック失敗: 加速度計 %u の有効なデータがありません</translation>
+      <translation>飛行前チェック失敗: 加速度センサー %u の有効なデータがありません</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Baro %u</source>
-      <translation>飛行前チェック失敗: 気圧計 %u の有効なデータがありません</translation>
+      <translation>飛行前チェック失敗: 気圧センサー %u の有効なデータがありません</translation>
     </message>
     <message>
       <source>Preflight Fail: No valid data from Compass %u</source>
@@ -28428,7 +28428,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Preflight Fail: No valid distance sensor %u data</source>
-      <translation>飛行前チェック失敗: 距離センサ %u の有効なデータがありません</translation>
+      <translation>飛行前チェック失敗: 距離センサー %u の有効なデータがありません</translation>
     </message>
     <message>
       <source>Preflight Fail: Open Drone ID system missing</source>
@@ -28524,7 +28524,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Primary airspeed index bigger than number connected sensors. Take last sensor.</source>
-      <translation>プライマリ対気速度インデックスが接続センサ数を超えています。最後のセンサを使用します。</translation>
+      <translation>プライマリ対気速度インデックスが接続センサー数を超えています。最後のセンサーを使用します。</translation>
     </message>
     <message>
       <source>Quad-chute triggered</source>
@@ -28668,7 +28668,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Transition to hover mode and descend.</source>
-      <translation>ホバーモードに遷移して降下します。</translation>
+      <translation>ホバリングモードに遷移して降下します。</translation>
     </message>
     <message>
       <source>Transponder Failure</source>
@@ -28684,11 +28684,11 @@ Confirm change?</source>
     </message>
     <message>
       <source>TRIM: PARAM SET FAIL</source>
-      <translation>TRIM: パラメータ設定失敗</translation>
+      <translation>TRIM: パラメーター設定失敗</translation>
     </message>
     <message>
       <source>unable to reach heading within timeout</source>
-      <translation>タイムアウト内に目標ヘッディングに到達できません</translation>
+      <translation>タイムアウト内に目標機首方位に到達できません</translation>
     </message>
     <message>
       <source>Unable to write on micro SD</source>
@@ -28696,7 +28696,7 @@ Confirm change?</source>
     </message>
     <message>
       <source>Unsupported ARM_DISARM param: %.3f</source>
-      <translation>未対応のARM_DISARMパラメータ: %.3f</translation>
+      <translation>未対応のARM_DISARMパラメーター: %.3f</translation>
     </message>
     <message>
       <source>Unsupported auto mode</source>
@@ -28831,17 +28831,17 @@ Confirm change?</source>
     <message>
       <location filename="../src/ui/preferences/DeviceSettings.qml" line="268"/>
       <source>Parameters</source>
-      <translation>パラメータ</translation>
+      <translation>パラメーター</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/DeviceSettings.qml" line="271"/>
       <source>Get Param</source>
-      <translation>パラメータ取得</translation>
+      <translation>パラメーター取得</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/DeviceSettings.qml" line="276"/>
       <source>Set Param</source>
-      <translation>パラメータ設定</translation>
+      <translation>パラメーター設定</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/DeviceSettings.qml" line="295"/>

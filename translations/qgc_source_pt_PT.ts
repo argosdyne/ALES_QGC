@@ -57,8 +57,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponent.cc" line="19"/>
       <source>Frame</source>
-      <translation>Estrutura
-</translation>
+      <translation>Estrutura</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponent.cc" line="40"/>
@@ -1627,13 +1626,13 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="147"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="147"/>
       <source>Battery1 Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura da Bateria1</translation>
+      <translation>Gatilhos de Failsafe da Bateria1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="181"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="181"/>
       <source>Battery2 Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura da Bateria2</translation>
+      <translation>Gatilhos de Failsafe da Bateria2</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="220"/>
@@ -1641,7 +1640,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="220"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="279"/>
       <source>Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura</translation>
+      <translation>Gatilhos de Failsafe</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="238"/>
@@ -1653,7 +1652,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="252"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="252"/>
       <source>GCS failsafe</source>
-      <translation>Falha segura GCS</translation>
+      <translation>Failsafe GCS</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="296"/>
@@ -1661,7 +1660,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="296"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="366"/>
       <source>Ground Station failsafe:</source>
-      <translation>Falha Segura da Estação Terrestre</translation>
+      <translation>Failsafe da Estação Terrestre:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="303"/>
@@ -1669,7 +1668,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="303"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="373"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador</translation>
+      <translation>Failsafe Acelerador</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="310"/>
@@ -1683,13 +1682,13 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="316"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="316"/>
       <source>Failsafe Crash Check:</source>
-      <translation>Verificação Falha Segura Acidente:</translation>
+      <translation>Verificação Failsafe Acidente:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="345"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="345"/>
       <source>General Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura Gerais</translation>
+      <translation>Gatilhos de Failsafe Gerais</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="375"/>
@@ -1719,19 +1718,19 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="414"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="414"/>
       <source>GeoFence</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="429"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="429"/>
       <source>Circle GeoFence enabled</source>
-      <translation>GeoCerca Circular Habilitada</translation>
+      <translation>Geocerca Circular Habilitada</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="454"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="454"/>
       <source>Altitude GeoFence enabled</source>
-      <translation>Altitude da GeoCerca Habilitada</translation>
+      <translation>Altitude da Geocerca Habilitada</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="479"/>
@@ -1743,7 +1742,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="490"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="490"/>
       <source>RTL or Land</source>
-      <translation>Retornar Casa ou Pousar</translation>
+      <translation>RTL ou Pousar</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="500"/>
@@ -1819,7 +1818,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="33"/>
       <source>Safety Setup is used to setup failsafe actions, leak detection, and arming checks.</source>
-      <translation>Configuração de Segurança é utilizada para configurar as ações de falha segura, detecção de vazamento e verificações para armar.</translation>
+      <translation>Configuração de Segurança é utilizada para configurar as ações de failsafe, detecção de vazamento e verificações para armar.</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="44"/>
@@ -1844,7 +1843,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="460"/>
       <source>Circle centered on Home</source>
-      <translation>Círculo centrado na Home</translation>
+      <translation>Círculo centrado no ponto de origem</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="478"/>
@@ -1862,7 +1861,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="85"/>
       <source>Battery1 Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura da Bateria1</translation>
+      <translation>Gatilhos de Failsafe da Bateria1</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="106"/>
@@ -1891,22 +1890,22 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="155"/>
       <source>Battery2 Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura da Bateria2</translation>
+      <translation>Gatilhos de Failsafe da Bateria2</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="224"/>
       <source>General Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura Gerais</translation>
+      <translation>Gatilhos de Failsafe Gerais</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="245"/>
       <source>Ground Station failsafe:</source>
-      <translation>Falha Segura da Estação Terrestre</translation>
+      <translation>Failsafe da Estação Terrestre:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="252"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador</translation>
+      <translation>Failsafe Acelerador</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="254"/>
@@ -1936,17 +1935,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="278"/>
       <source>GeoFence</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="293"/>
       <source>Circle GeoFence enabled</source>
-      <translation>GeoCerca Circular Habilitada</translation>
+      <translation>Geocerca Circular Habilitada</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="318"/>
       <source>Altitude GeoFence enabled</source>
-      <translation>Altitude da GeoCerca Habilitada</translation>
+      <translation>Altitude da Geocerca Habilitada</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="343"/>
@@ -1956,7 +1955,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="355"/>
       <source>RTL or Land</source>
-      <translation>Retorno Casa ou Pousar</translation>
+      <translation>RTL ou Pousar</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentCopter.qml" line="366"/>
@@ -2014,7 +2013,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="53"/>
       <source>Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura</translation>
+      <translation>Gatilhos de Failsafe</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="67"/>
@@ -2034,7 +2033,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="130"/>
       <source>GCS failsafe</source>
-      <translation>Falha segura GCS</translation>
+      <translation>Failsafe GCS</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentPlane.qml" line="142"/>
@@ -2057,17 +2056,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="53"/>
       <source>Failsafe Triggers</source>
-      <translation>Gatilhos de Falha Segura</translation>
+      <translation>Gatilhos de Failsafe</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="68"/>
       <source>Ground Station failsafe:</source>
-      <translation>Falha segura Estação Terrestre:</translation>
+      <translation>Failsafe Estação Terrestre:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="87"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador:</translation>
+      <translation>Failsafe Acelerador:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="105"/>
@@ -2077,7 +2076,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="122"/>
       <source>Failsafe Crash Check:</source>
-      <translation>Falha Segura Acidente:</translation>
+      <translation>Failsafe Acidente:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentRover.qml" line="131"/>
@@ -2111,7 +2110,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="69"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="69"/>
       <source>Failsafe Actions</source>
-      <translation>Ações de Falha Segura</translation>
+      <translation>Ações de Failsafe</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="95"/>
@@ -2239,43 +2238,43 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="52"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="60"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador:</translation>
+      <translation>Failsafe Acelerador:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="68"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="68"/>
       <source>Failsafe Action:</source>
-      <translation>Ação Falha Segura:</translation>
+      <translation>Ação de Failsafe:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="76"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="76"/>
       <source>Failsafe Crash Check:</source>
-      <translation>Verificação da Falha Segura Acidente:</translation>
+      <translation>Verificação do Failsafe Acidente:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="84"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="84"/>
       <source>Batt1 low failsafe:</source>
-      <translation>Falha Segura Batt1 Baixa:</translation>
+      <translation>Failsafe Batt1 Baixo:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="90"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="90"/>
       <source>Batt1 critical failsafe:</source>
-      <translation>Falha Segura Batt1 Crítica:</translation>
+      <translation>Failsafe Batt1 Crítico:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="96"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="96"/>
       <source>Batt2 low failsafe:</source>
-      <translation>Falha Segura Batt2 Baixo:</translation>
+      <translation>Failsafe Batt2 Baixo:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="102"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="102"/>
       <source>Batt2 critical failsafe:</source>
-      <translation>Falha Segura Batt2 Crítica:</translation>
+      <translation>Failsafe Batt2 Crítico:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="108"/>
@@ -2283,7 +2282,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="108"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="129"/>
       <source>GeoFence:</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="112"/>
@@ -2319,7 +2318,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
       <source>RTL or Land</source>
-      <translation>Retornar Casa ou Pousar</translation>
+      <translation>RTL ou Pousar</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="132"/>
@@ -2333,7 +2332,7 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="137"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="145"/>
       <source>RTL min alt:</source>
-      <translation>alt mín RTL</translation>
+      <translation>Alt. mín. RTL:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummary.qml" line="138"/>
@@ -2364,33 +2363,33 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="46"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador:</translation>
+      <translation>Failsafe Acelerador:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="51"/>
       <source>Batt1 low failsafe:</source>
-      <translation>Falha Segura Batt1 Baixo:</translation>
+      <translation>Failsafe Batt1 Baixo:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="57"/>
       <source>Batt1 critical failsafe:</source>
-      <translation>Falha Segura Batt1 Crítica:</translation>
+      <translation>Failsafe Batt1 Crítico:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="63"/>
       <source>Batt2 low failsafe:</source>
-      <translation>Falha Segura Batt2 Baixo:</translation>
+      <translation>Failsafe Batt2 Baixo:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="69"/>
       <source>Batt2 critical failsafe:</source>
-      <translation>Falha Segura Batt2 Crítica:</translation>
+      <translation>Failsafe Batt2 Crítico:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="75"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="84"/>
       <source>GeoFence:</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="77"/>
@@ -2420,7 +2419,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="87"/>
       <source>RTL or Land</source>
-      <translation>Retornar Casa ou Pousar</translation>
+      <translation>RTL ou Pousar</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="87"/>
@@ -2430,7 +2429,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="92"/>
       <source>RTL min alt:</source>
-      <translation>alt mín RTL</translation>
+      <translation>Alt. mín. RTL:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryCopter.qml" line="93"/>
@@ -2443,7 +2442,7 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="27"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador:</translation>
+      <translation>Failsafe Acelerador:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="28"/>
@@ -2455,17 +2454,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="32"/>
       <source>Voltage failsafe:</source>
-      <translation>Falha Segura Tensão:</translation>
+      <translation>Failsafe Tensão:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="37"/>
       <source>mAh failsafe:</source>
-      <translation>Falha Segura mAh:</translation>
+      <translation>Failsafe mAh:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="42"/>
       <source>RTL min alt:</source>
-      <translation>alt mín RTL</translation>
+      <translation>Alt. mín. RTL:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryPlane.qml" line="43"/>
@@ -2526,17 +2525,17 @@
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="92"/>
       <source>Throttle failsafe:</source>
-      <translation>Falha Segura Acelerador:</translation>
+      <translation>Failsafe Acelerador:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="97"/>
       <source>Failsafe Action:</source>
-      <translation>Ação Falha Segura:</translation>
+      <translation>Ação de Failsafe:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummaryRover.qml" line="102"/>
       <source>Failsafe Crash Check:</source>
-      <translation>Verificação Falha Segura Acidente:</translation>
+      <translation>Verificação Failsafe Acidente:</translation>
     </message>
   </context>
   <context>
@@ -2563,25 +2562,25 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="46"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="46"/>
       <source>GCS failsafe:</source>
-      <translation>Falha segura GCS:</translation>
+      <translation>Failsafe GCS:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="50"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="50"/>
       <source>Leak failsafe:</source>
-      <translation>Falha segura Vazamento</translation>
+      <translation>Failsafe Vazamento</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="55"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="55"/>
       <source>Battery failsafe:</source>
-      <translation>Falha Segura Bateria</translation>
+      <translation>Failsafe da Bateria</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="70"/>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="70"/>
       <source>EKF failsafe:</source>
-      <translation>Falha Segura EKF:</translation>
+      <translation>Failsafe EKF:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSummarySub.qml" line="75"/>
@@ -3343,8 +3342,7 @@ Clique em Ok para iniciar a calibração.</translation>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.cc" line="21"/>
       <source>Frame</source>
-      <translation>Estrutura
-</translation>
+      <translation>Estrutura</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.cc" line="32"/>
@@ -3834,7 +3832,7 @@ Por favor coloque seu veículo na água, clique no botão, e espere. Note que os
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="19"/>
       <source>Airframe</source>
-      <translation>Fuselagem</translation>
+      <translation>Estrutura</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
@@ -3881,7 +3879,7 @@ Por favor coloque seu veículo na água, clique no botão, e espere. Note que os
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponentSummary.qml" line="27"/>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponentSummary.qml" line="27"/>
       <source>Airframe type</source>
-      <translation>Tipo de Fuselagem</translation>
+      <translation>Tipo de Estrutura</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponentSummary.qml" line="28"/>
@@ -4351,7 +4349,7 @@ Escolher UMA REGULAÇÃO</translation>
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="47"/>
       <source>Relative To Launch</source>
-      <translation>Relativo a posição inicial</translation>
+      <translation>Relativo ao ponto de decolagem</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/AltModeDialog.qml" line="48"/>
@@ -5016,17 +5014,17 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/CameraCalcGrid.qml" line="47"/>
       <source>Front Lap</source>
-      <translation type="unfinished">Front Lap</translation>
+      <translation>Sobreposição frontal</translation>
     </message>
     <message>
       <location filename="../src/PlanView/CameraCalcGrid.qml" line="51"/>
       <source>Side Lap</source>
-      <translation type="unfinished">Side Lap</translation>
+      <translation>Sobreposição lateral</translation>
     </message>
     <message>
       <location filename="../src/PlanView/CameraCalcGrid.qml" line="59"/>
       <source>Overlap</source>
-      <translation type="unfinished">Overlap</translation>
+      <translation>Sobreposição</translation>
     </message>
     <message>
       <location filename="../src/PlanView/CameraCalcGrid.qml" line="72"/>
@@ -5221,7 +5219,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightMap/Widgets/CenterMapDropButton.qml" line="165"/>
       <source>Mission</source>
-      <translation>Rota</translation>
+      <translation>Missão</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/CenterMapDropButton.qml" line="177"/>
@@ -5264,7 +5262,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightMap/Widgets/CenterMapDropPanel.qml" line="32"/>
       <source>Mission</source>
-      <translation>Rota</translation>
+      <translation>Missão</translation>
     </message>
     <message>
       <location filename="../src/FlightMap/Widgets/CenterMapDropPanel.qml" line="43"/>
@@ -5594,7 +5592,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/DefaultChecklist.qml" line="76"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/DefaultChecklist.qml" line="77"/>
@@ -5909,7 +5907,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="40"/>
       <source>Set to vehicle heading</source>
-      <translation>Definir para a direção do veículo</translation>
+      <translation>Definir para a proa do veículo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="41"/>
@@ -5940,7 +5938,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="135"/>
       <source>Heading</source>
-      <translation>Direção</translation>
+      <translation>Proa</translation>
     </message>
     <message>
       <location filename="../src/PlanView/FWLandingPatternEditor.qml" line="166"/>
@@ -7080,7 +7078,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/FixedWingChecklist.qml" line="76"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FixedWingChecklist.qml" line="77"/>
@@ -7247,7 +7245,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="47"/>
       <source>WAITING FOR VIDEO</source>
-      <translation>ESPERANDO VÍDEO</translation>
+      <translation>AGUARDANDO VÍDEO</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="47"/>
@@ -7415,7 +7413,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/FlyViewMap.qml" line="656"/>
       <source>Set home here</source>
-      <translation>Definir Home aqui</translation>
+      <translation>Definir ponto de origem aqui</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlyViewMap.qml" line="672"/>
@@ -7492,7 +7490,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="22"/>
       <source>Plan</source>
-      <translation>Rotas</translation>
+      <translation>Planejar</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="58"/>
@@ -7591,7 +7589,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/toolbar/GPSIndicator.qml" line="71"/>
       <source>Course Over Ground:</source>
-      <translation>Direção em Relação ao Solo:</translation>
+      <translation>Rumo sobre o solo:</translation>
     </message>
   </context>
   <context>
@@ -7739,7 +7737,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="84"/>
       <source>Fly View</source>
-      <translation>Voar</translation>
+      <translation>Vista de voo</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="145"/>
@@ -7774,7 +7772,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="604"/>
       <source>Use Vehicle Pairing</source>
-      <translation>Usar Pareamento com Veículo</translation>
+      <translation>Usar Vinculação com Veículo</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="618"/>
@@ -7819,12 +7817,12 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="161"/>
       <source>Show additional heading indicators on Compass</source>
-      <translation>Mostrar indicadores de direção adicionais na Bússola</translation>
+      <translation>Mostrar indicadores de proa adicionais na Bússola</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="169"/>
       <source>Lock Compass Nose-Up</source>
-      <translation type="unfinished">Lock Compass Nose-Up</translation>
+      <translation>Travar bússola com frente para cima</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="216"/>
@@ -7859,7 +7857,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="356"/>
       <source>Plan View</source>
-      <translation>Painel Rotas</translation>
+      <translation>Tela de Planejamento</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="378"/>
@@ -8061,7 +8059,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="185"/>
       <source>Update home position based on device location. This will affect return to home</source>
-      <translation>Atualiza a posição Home com base na localização do dispositivo. Isso afetará o retorno à base</translation>
+      <translation>Atualiza o ponto de origem com base na localização do dispositivo. Isso afetará o retorno ao ponto de origem</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="192"/>
@@ -8139,27 +8137,27 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="151"/>
       <source>GeoFence supports version %1</source>
-      <translation>GeoCerca suporta versão %1</translation>
+      <translation>Geocerca suporta versão %1</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="158"/>
       <source>GeoFence polygon not stored as object</source>
-      <translation>Polígono da GeoCerca não foi armazenado como objeto</translation>
+      <translation>Polígono da Geocerca não foi armazenado como objeto</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="172"/>
       <source>GeoFence circle not stored as object</source>
-      <translation>Círculo da GeoCerca não foi armazenado como objeto</translation>
+      <translation>Círculo da Geocerca não foi armazenado como objeto</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="776"/>
       <source>GeoFence is not supported by this vehicle.</source>
-      <translation>GeoCerca não é suportada por este veículo.</translation>
+      <translation>Geocerca não é suportada por este veículo.</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="786"/>
       <source>No GeoFence items configured.</source>
-      <translation>Nenhum item de GeoCerca configurado.</translation>
+      <translation>Nenhum item de Geocerca configurado.</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="792"/>
@@ -8184,13 +8182,13 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
       <source>GeoFence self-test passed. Polygons: %1, Circles: %2, Circular fence: %3 m.</source>
-      <translation>Autoteste da GeoCerca aprovado. Polígonos: %1, Círculos: %2, Cerca circular: %3 m.</translation>
+      <translation>Autoteste da Geocerca aprovado. Polígonos: %1, Círculos: %2, Cerca circular: %3 m.</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="819"/>
       <source>GeoFence self-test issues:
 - %1</source>
-      <translation>Problemas no autoteste da GeoCerca:
+      <translation>Problemas no autoteste da Geocerca:
 - %1</translation>
     </message>
   </context>
@@ -8199,22 +8197,22 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="37"/>
       <source>GeoFence</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="65"/>
       <source>GeoFencing allows you to set a virtual fence around the area you want to fly in.</source>
-      <translation>GeoCerca permite definir uma cerca virtual ao redor da área que se deseja voar.</translation>
+      <translation>Geocerca permite definir uma cerca virtual ao redor da área que se deseja voar.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="66"/>
       <source>This vehicle does not support GeoFence.</source>
-      <translation>Este veículo não suporta GeoCerca.</translation>
+      <translation>Este veículo não suporta Geocerca.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="116"/>
       <source>Insert GeoFence</source>
-      <translation>Inserir GeoCerca</translation>
+      <translation>Inserir Geocerca</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="121"/>
@@ -8379,7 +8377,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="328"/>
       <source>GeoFence Self-Test</source>
-      <translation>Autoteste da GeoCerca</translation>
+      <translation>Autoteste da Geocerca</translation>
     </message>
     <message>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="336"/>
@@ -8422,17 +8420,17 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/MissionManager/GeoFenceManager.cc" line="165"/>
       <source>GeoFence load: Polygon type changed before last load complete - actual:expected</source>
-      <translation>carga GeoCerca: tipo do polígono mudou antes da última carga completa - atual:esperado</translation>
+      <translation>carga Geocerca: tipo do polígono mudou antes da última carga completa - atual:esperado</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceManager.cc" line="178"/>
       <source>GeoFence load: Incomplete polygon loaded</source>
-      <translation>carga GeoCerca: Polígono carregado incompleto</translation>
+      <translation>carga Geocerca: Polígono carregado incompleto</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/GeoFenceManager.cc" line="186"/>
       <source>GeoFence load: Unsupported command %1</source>
-      <translation>carga GeoCerca: Comando %1 não suportado</translation>
+      <translation>carga Geocerca: Comando %1 não suportado</translation>
     </message>
   </context>
   <context>
@@ -8757,7 +8755,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="63"/>
       <source>Takeoff from ground and start the current mission.</source>
-      <translation>Decola do chão e inicia a rota atual.</translation>
+      <translation>Decola do chão e inicia a missão atual.</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="64"/>
@@ -8877,7 +8875,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59"/>
       <source>Set Home</source>
-      <translation>Definir Home</translation>
+      <translation>Definir ponto de origem</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="67"/>
@@ -8897,7 +8895,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="85"/>
       <source>Set vehicle home as the specified location. This will affect Return to Home position</source>
-      <translation>Define a Home do veículo no local especificado. Isso afetará a posição de Retorno à Base</translation>
+      <translation>Define o ponto de origem do veículo no local especificado. Isso afetará o retorno ao ponto de origem</translation>
     </message>
   </context>
   <context>
@@ -9996,7 +9994,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="201"/>
       <source>Optical flow</source>
-      <translation type="unfinished">Optical flow</translation>
+      <translation>Fluxo óptico</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="202"/>
@@ -10066,7 +10064,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="215"/>
       <source>GeoFence</source>
-      <translation>GeoCerca</translation>
+      <translation>Geocerca</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="216"/>
@@ -10086,7 +10084,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="219"/>
       <source>Logging</source>
-      <translation type="unfinished">Logging</translation>
+      <translation>Registro</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="220"/>
@@ -10106,12 +10104,12 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="223"/>
       <source>Pre-Arm Check</source>
-      <translation type="unfinished">Pre-Arm Check</translation>
+      <translation>Verificação pré-armamento</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="224"/>
       <source>Avoidance/collision prevention</source>
-      <translation>Prevenção de evasão/colisão</translation>
+      <translation>Desvio de obstáculos/prevenção de colisão</translation>
     </message>
     <message>
       <location filename="../src/comm/QGCMAVLink.cc" line="225"/>
@@ -10260,12 +10258,12 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/AnalyzeView/MAVLinkInspectorPage.qml" line="180"/>
       <source>Plot 1</source>
-      <translation type="unfinished">Plot 1</translation>
+      <translation>Gráfico 1</translation>
     </message>
     <message>
       <location filename="../src/AnalyzeView/MAVLinkInspectorPage.qml" line="183"/>
       <source>Plot 2</source>
-      <translation type="unfinished">Plot 2</translation>
+      <translation>Gráfico 2</translation>
     </message>
   </context>
   <context>
@@ -10669,17 +10667,17 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="142"/>
       <source>Emit heartbeat</source>
-      <translation type="unfinished">Emit heartbeat</translation>
+      <translation>Emitir heartbeat</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="150"/>
       <source>Only accept MAVs with same protocol version</source>
-      <translation type="unfinished">Only accept MAVs with same protocol version</translation>
+      <translation>Aceitar apenas MAVs com a mesma versão de protocolo</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
       <source>Enable MAVLink forwarding</source>
-      <translation type="unfinished">Enable MAVLink forwarding</translation>
+      <translation>Habilitar encaminhamento MAVLink</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="170"/>
@@ -11298,7 +11296,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="103"/>
       <source>Initial Waypoint Alt</source>
-      <translation type="unfinished">Initial Waypoint Alt</translation>
+      <translation>Alt. do Waypoint Inicial</translation>
     </message>
     <message>
       <location filename="../src/PlanView/MissionSettingsEditor.qml" line="208"/>
@@ -11568,7 +11566,7 @@ Clique em Ok para iniciar o processo de autoajuste.
     <message>
       <location filename="../src/FlightDisplay/MultiRotorChecklist.qml" line="71"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/MultiRotorChecklist.qml" line="72"/>
@@ -11801,7 +11799,7 @@ Is this really what you want?</source>
       <location filename="../src/QtLocationPlugin/QMLControl/OfflineMap.qml" line="582"/>
       <location filename="../src/QtLocationPlugin/QMLControl/OfflineMap.qml" line="957"/>
       <source>Tile Count:</source>
-      <translation type="unfinished">Tile Count:</translation>
+      <translation>Quantidade de blocos:</translation>
     </message>
     <message>
       <location filename="../src/QtLocationPlugin/QMLControl/OfflineMap.qml" line="589"/>
@@ -12020,12 +12018,12 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="227"/>
       <source>Select Tuning:</source>
-      <translation type="unfinished">Select Tuning:</translation>
+      <translation>Selecionar ajuste:</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="253"/>
       <source>Clipboard Values:</source>
-      <translation type="unfinished">Clipboard Values:</translation>
+      <translation>Valores da área de transferência:</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="279"/>
@@ -12035,7 +12033,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="284"/>
       <source>Restore From Clipboard</source>
-      <translation type="unfinished">Restore From Clipboard</translation>
+      <translation>Restaurar da área de transferência</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/PIDTuning.qml" line="343"/>
@@ -12736,7 +12734,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
       <source>Loiter above Home for:</source>
-      <translation>Loiter acima da Home por:</translation>
+      <translation>Loiter acima do ponto de origem por:</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
@@ -12821,7 +12819,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
       <source>Distance based, on command (Survey mode)</source>
-      <translation>Baseado em distância, sob comando (modo Varredura)</translation>
+      <translation>Baseado em distância, sob comando (modo Mapeamento)</translation>
     </message>
     <message>
       <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
@@ -13528,7 +13526,7 @@ Is this really what you want?</source>
     <message>
       <location filename="../src/PairingManager/PairingManager.cc" line="80"/>
       <source>Pairing Successfull</source>
-      <translation>Pareamento Bem Sucedido</translation>
+      <translation>Vinculação Bem Sucedida</translation>
     </message>
     <message>
       <location filename="../src/PairingManager/PairingManager.cc" line="90"/>
@@ -14241,12 +14239,12 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/MissionManager/PlanMasterController.cc" line="357"/>
       <source>Error loading Plan file (%1). %2</source>
-      <translation>Erro no envio do arquivo de Rota (%1). %2</translation>
+      <translation>Erro no carregamento do arquivo de plano de voo (%1). %2</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/PlanMasterController.cc" line="481"/>
       <source>Plan save error %1 : %2</source>
-      <translation>Erro ao salvar rota %1 : %2</translation>
+      <translation>Erro ao salvar plano de voo %1 : %2</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/PlanMasterController.cc" line="513"/>
@@ -14275,7 +14273,7 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="138"/>
       <source>Selected Waypoint</source>
-      <translation>Ponto Selecionado</translation>
+      <translation>Waypoint selecionado</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="143"/>
@@ -14301,12 +14299,12 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="177"/>
       <source>Heading:</source>
-      <translation>Direção:</translation>
+      <translation>Proa:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="192"/>
       <source>Total Mission</source>
-      <translation>Total Rota</translation>
+      <translation>Total Missão</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="206"/>
@@ -14380,7 +14378,7 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="62"/>
       <source>Vehicle is currently armed. Do you want to upload the mission to the vehicle?</source>
-      <translation>O veículo está armado. Deseja enviar a rota para o veículo mesmo assim?</translation>
+      <translation>O veículo está armado. Deseja enviar a missão para o veículo mesmo assim?</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="129"/>
@@ -14395,22 +14393,22 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="237"/>
       <source>Plan is waiting on terrain data from server for correct altitude values.</source>
-      <translation>Rotas está aguardando dados do servidor sobre o terreno para corrigir os valores de altitude.</translation>
+      <translation>O plano de voo está aguardando dados do servidor sobre o terreno para corrigir os valores de altitude.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="263"/>
       <source>Plan Upload</source>
-      <translation>Enviar Rota</translation>
+      <translation>Enviar Plano de Voo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="269"/>
       <source>Select Plan File</source>
-      <translation>Selecionar Arquivo de Rota</translation>
+      <translation>Selecionar Arquivo de Plano de Voo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="280"/>
       <source>Save Plan</source>
-      <translation>Salvar Rota</translation>
+      <translation>Salvar Plano de Voo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="295"/>
@@ -14420,7 +14418,7 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="401"/>
       <source>Move the selected mission item to the be after following mission item:</source>
-      <translation>Move o item de rota selecionado para ser o próximo item da rota:</translation>
+      <translation>Move o item de missão selecionado para ser o próximo item da missão:</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="642"/>
@@ -14430,7 +14428,7 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="662"/>
       <source>Waypoint</source>
-      <translation>Ponto</translation>
+      <translation>Waypoint</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
@@ -14451,7 +14449,7 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
       <location filename="../src/PlanView/PlanView.qml" line="619"/>
       <location filename="../src/PlanView/PlanView.qml" line="785"/>
       <source>Plan</source>
-      <translation>Rota</translation>
+      <translation>Planejar</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="121"/>
@@ -14461,22 +14459,22 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="140"/>
       <source>Plan View - Vehicle Disconnected</source>
-      <translation>Tela da Rota - Veículo Desconectado</translation>
+      <translation>Tela de Planejamento - Veículo Desconectado</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="140"/>
       <source>Plan View - Vehicle Changed</source>
-      <translation>Tela da Rota - Veículo Mudou</translation>
+      <translation>Tela de Planejamento - Veículo Mudou</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="148"/>
       <source>The vehicle associated with the plan in the Plan View is no longer available. What would you like to do with that plan?</source>
-      <translation>O veículo associado a rota na Tela de Rota não está mais disponível. O que gostaria de fazer com essa rota?</translation>
+      <translation>O veículo associado ao plano de voo na Tela de Planejamento não está mais disponível. O que gostaria de fazer com esse plano de voo?</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="149"/>
       <source>The plan being worked on in the Plan View is not from the current vehicle. What would you like to do with that plan?</source>
-      <translation>A rota que está na Tela de Rota não está no veículo atual. O que gostaria de fazer com essa rota?</translation>
+      <translation>O plano de voo que está na Tela de Planejamento não está no veículo atual. O que gostaria de fazer com esse plano de voo?</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="156"/>
@@ -14486,29 +14484,29 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="157"/>
       <source>Discard Unsaved Changes, Load New Plan From Vehicle</source>
-      <translation>Descartar Mudanças Não Salvas, Carregar Nova Rota do Veículo</translation>
+      <translation>Descartar Mudanças Não Salvas, Carregar Novo Plano de Voo do Veículo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="158"/>
       <source>Load New Plan From Vehicle</source>
-      <translation>Carregar Nova Rota do Veículo</translation>
+      <translation>Carregar Novo Plano de Voo do Veículo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="169"/>
       <source>Keep Current Plan</source>
-      <translation>Manter Rota Atual</translation>
+      <translation>Manter Plano de Voo Atual</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="170"/>
       <source>Keep Current Plan, Don&apos;t Update From Vehicle</source>
-      <translation>Manter rota atual, não atualize com a rota do veículo</translation>
+      <translation>Manter plano de voo atual, não atualize com o plano de voo do veículo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="187"/>
       <source>This Plan was created for a different firmware or vehicle type than the firmware/vehicle type of vehicle you are uploading to. This can lead to errors or incorrect behavior. It is recommended to recreate the Plan for the correct firmware/vehicle type.
 
 Click &apos;Ok&apos; to upload the Plan anyway.</source>
-      <translation>Essa rota foi criada para um firmware ou tipo de veículo diferente do que o firmware/tipo de veículo para qual está enviando. Isso pode levar a erros ou comportamento incorreto. É recomendado recriar a Rota para o firmware/tipo de veículo correto.</translation>
+      <translation>Esse plano de voo foi criado para um firmware ou tipo de veículo diferente do que o firmware/tipo de veículo para qual está enviando. Isso pode levar a erros ou comportamento incorreto. É recomendado recriar o plano de voo para o firmware/tipo de veículo correto.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="260"/>
@@ -14518,7 +14516,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="260"/>
       <source>Current mission must be paused prior to uploading a new Plan</source>
-      <translation>Rota atual deve ser pausada antes de enviar uma nova rota</translation>
+      <translation>Missão atual deve ser pausada antes de enviar um novo plano de voo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="637"/>
@@ -14533,7 +14531,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="662"/>
       <source>Rally Point</source>
-      <translation type="unfinished">Rally Point</translation>
+      <translation>Ponto de Rally</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="669"/>
@@ -14553,7 +14551,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="817"/>
       <source>Mission</source>
-      <translation>Rota</translation>
+      <translation>Missão</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="820"/>
@@ -14563,7 +14561,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="824"/>
       <source>Rally</source>
-      <translation type="unfinished">Rally</translation>
+      <translation>Rally</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="942"/>
@@ -14583,7 +14581,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="978"/>
       <source>Are you sure you want to remove all mission items and clear the mission from the vehicle?</source>
-      <translation>Tem certeza que deseja remover todos os itens da rota e limpar a rota que está no veículo?</translation>
+      <translation>Tem certeza que deseja remover todos os itens da missão e limpar a missão que está no veículo?</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1004"/>
@@ -14593,12 +14591,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1029"/>
       <source>Mission overwrite</source>
-      <translation>Substituição da rota</translation>
+      <translation>Substituição da missão</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1029"/>
       <source>GeoFence overwrite</source>
-      <translation>Sobrescrever GeoCerca</translation>
+      <translation>Sobrescrever Geocerca</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1029"/>
@@ -14631,12 +14629,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="232"/>
       <source>Plan has incomplete items. Complete all items and %1 again.</source>
-      <translation>Rota tem itens incompletos. Complete todos os itens e %1 novamente.</translation>
+      <translation>O plano de voo tem itens incompletos. Complete todos os itens e %1 novamente.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="967"/>
       <source>Are you sure you want to remove current plan and create a new plan? </source>
-      <translation>Tem certeza que deseja remover a rota atual e criar uma nova rota? </translation>
+      <translation>Tem certeza que deseja remover o plano de voo atual e criar um novo plano de voo? </translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1036"/>
@@ -14647,7 +14645,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/PlanView/PlanView.qml" line="1044"/>
       <location filename="../src/PlanView/PlanView.qml" line="1096"/>
       <source>Create Plan</source>
-      <translation>Criar Rota</translation>
+      <translation>Criar Plano de Voo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1115"/>
@@ -14662,7 +14660,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1176"/>
       <source>Save Mission Waypoints As KML...</source>
-      <translation>Salvar pontos da rota como KML...</translation>
+      <translation>Salvar pontos da missão como KML...</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="1181"/>
@@ -14699,7 +14697,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="73"/>
       <source>Survey</source>
-      <translation>Varredura</translation>
+      <translation>Mapeamento</translation>
     </message>
     <message>
       <location filename="../src/PlanView/PlanView.qml" line="75"/>
@@ -15479,12 +15477,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="197"/>
       <source>MAVLink Console</source>
-      <translation type="unfinished">MAVLink Console</translation>
+      <translation>Console MAVLink</translation>
     </message>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="199"/>
       <source>MAVLink Inspector</source>
-      <translation type="unfinished">MAVLink Inspector</translation>
+      <translation>Inspetor MAVLink</translation>
     </message>
     <message>
       <location filename="../src/api/QGCCorePlugin.cc" line="286"/>
@@ -15502,7 +15500,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/MissionManager/QGCFenceCircle.cc" line="75"/>
       <source>GeoFence Circle only supports version %1</source>
-      <translation>Círculo GeoCerca apenas suporta versão %1</translation>
+      <translation>Círculo Geocerca apenas suporta versão %1</translation>
     </message>
   </context>
   <context>
@@ -15510,7 +15508,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/MissionManager/QGCFencePolygon.cc" line="68"/>
       <source>GeoFence Polygon only supports version %1</source>
-      <translation>Polígono GeoCerca apenas suporta versão %1</translation>
+      <translation>Polígono Geocerca apenas suporta versão %1</translation>
     </message>
   </context>
   <context>
@@ -15970,7 +15968,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/QmlControls/QGroundControlQmlGlobal.cc" line="290"/>
       <source>Relative To Launch</source>
-      <translation>Relativo a posição inicial</translation>
+      <translation>Relativo ao ponto de decolagem</translation>
     </message>
     <message>
       <location filename="../src/QmlControls/QGroundControlQmlGlobal.cc" line="296"/>
@@ -16427,12 +16425,12 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="408"/>
       <source>Spektrum Bind</source>
-      <translation type="unfinished">Spektrum Bind</translation>
+      <translation>Vinculação Spektrum</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="413"/>
       <source>Copy Trims</source>
-      <translation type="unfinished">Copy Trims</translation>
+      <translation>Copiar trims</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="437"/>
@@ -16447,7 +16445,7 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="72"/>
       <source>Click Ok to place your Spektrum receiver in the bind mode.</source>
-      <translation>Clique em Ok para colocar seu receptor Spektrum no modo de pareamento (bind).</translation>
+      <translation>Clique em Ok para colocar seu receptor Spektrum no modo de vinculação (bind).</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="77"/>
@@ -16618,12 +16616,12 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
     <message>
       <location filename="../src/PlanView/RallyPointEditorHeader.qml" line="30"/>
       <source>Rally Points</source>
-      <translation type="unfinished">Rally Points</translation>
+      <translation>Pontos de Rally</translation>
     </message>
     <message>
       <location filename="../src/PlanView/RallyPointEditorHeader.qml" line="51"/>
       <source>Rally Points provide alternate landing points when performing a Return to Launch (RTL).</source>
-      <translation type="unfinished">Rally Points provide alternate landing points when performing a Return to Launch (RTL).</translation>
+      <translation>Os Pontos de Rally fornecem pontos de pouso alternativos ao executar um Retorno ao Ponto de Lançamento (RTL).</translation>
     </message>
   </context>
   <context>
@@ -16631,7 +16629,7 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
     <message>
       <location filename="../src/PlanView/RallyPointItemEditor.qml" line="51"/>
       <source>Rally Point</source>
-      <translation type="unfinished">Rally Point</translation>
+      <translation>Ponto de Rally</translation>
     </message>
     <message>
       <location filename="../src/PlanView/RallyPointItemEditor.qml" line="74"/>
@@ -16688,7 +16686,7 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
     <message>
       <location filename="../src/FlightDisplay/RoverChecklist.qml" line="66"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/RoverChecklist.qml" line="67"/>
@@ -16780,7 +16778,7 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="67"/>
       <source>Low Battery Failsafe Trigger</source>
-      <translation>Gatilho Falha Segura de Bateria Baixa</translation>
+      <translation>Gatilho Failsafe de Bateria Baixa</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="95"/>
@@ -16790,7 +16788,7 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="277"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="329"/>
       <source>Failsafe Action:</source>
-      <translation>Ação Falha Segura:</translation>
+      <translation>Ação de Failsafe:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="107"/>
@@ -16802,7 +16800,7 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="116"/>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="116"/>
       <source>Battery Failsafe Level:</source>
-      <translation>Nível de Falha Segura para Bateria:</translation>
+      <translation>Nível de Failsafe para Bateria:</translation>
     </message>
     <message>
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="125"/>
@@ -17946,7 +17944,7 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
     <message>
       <location filename="../src/PlanView/StructureScanEditor.qml" line="113"/>
       <source>Note: Polygon respresents structure surface not vehicle flight path.</source>
-      <translation type="unfinished">Note: Polygon respresents structure surface not vehicle flight path.</translation>
+      <translation>Nota: o polígono representa a superfície da estrutura, não a rota de voo do veículo.</translation>
     </message>
     <message>
       <location filename="../src/PlanView/StructureScanEditor.qml" line="121"/>
@@ -18106,7 +18104,7 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
     <message>
       <location filename="../src/FlightDisplay/SubChecklist.qml" line="76"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/SubChecklist.qml" line="77"/>
@@ -18137,7 +18135,7 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="58"/>
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="59"/>
       <source>Survey</source>
-      <translation>Varredura</translation>
+      <translation>Mapeamento</translation>
     </message>
     <message>
       <location filename="../src/MissionManager/SurveyComplexItem.h" line="60"/>
@@ -18747,7 +18745,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemTerrainFollow.qml" line="62"/>
       <source>Max Climb Rate</source>
-      <translation>Taxa Máx de Subida</translation>
+      <translation>Razão Máx de Subida</translation>
     </message>
     <message>
       <location filename="../src/PlanView/TransectStyleComplexItemTerrainFollow.qml" line="68"/>
@@ -19208,7 +19206,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/FlightDisplay/VTOLChecklist.qml" line="76"/>
       <source>Payload</source>
-      <translation>Carga</translation>
+      <translation>Carga útil</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VTOLChecklist.qml" line="77"/>
@@ -19249,7 +19247,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="40"/>
       <source>Set to vehicle heading</source>
-      <translation>Definir para a direção do veículo</translation>
+      <translation>Definir para a proa do veículo</translation>
     </message>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="41"/>
@@ -19290,7 +19288,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="135"/>
       <source>Heading</source>
-      <translation>Direção</translation>
+      <translation>Proa</translation>
     </message>
     <message>
       <location filename="../src/PlanView/VTOLLandingPatternEditor.qml" line="150"/>
@@ -19440,7 +19438,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2174"/>
       <source>GeoFence transfer failed. Error: %1</source>
-      <translation>Falha na transferência da GeoCerca. Erro: %1</translation>
+      <translation>Falha na transferência da Geocerca. Erro: %1</translation>
     </message>
     <message>
       <location filename="../src/Vehicle/Vehicle.cc" line="2180"/>
@@ -19843,7 +19841,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="37"/>
       <source>No GPS Lock for Vehicle</source>
-      <translation>GPS está identificando posição do drone</translation>
+      <translation>Sem fix de GPS no veículo</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
@@ -19876,7 +19874,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/AnalyzeView/VibrationPage.qml" line="139"/>
       <source>Clip count</source>
-      <translation type="unfinished">Clip count</translation>
+      <translation>Contagem de saturação</translation>
     </message>
     <message>
       <location filename="../src/AnalyzeView/VibrationPage.qml" line="143"/>
@@ -20239,12 +20237,12 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="99"/>
       <source>Start Pair</source>
-      <translation>Iniciar Pareamento</translation>
+      <translation>Iniciar Vinculação</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="153"/>
       <source>Data Link Pair</source>
-      <translation>Pareamento do Link de Dados</translation>
+      <translation>Vinculação do Link de Dados</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="168"/>
@@ -20264,27 +20262,27 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="205"/>
       <source>Press and hold this, the remote control will enter the binding state.</source>
-      <translation>Mantenha pressionado para que o controle remoto entre no modo de pareamento.</translation>
+      <translation>Mantenha pressionado para que o controle remoto entre no modo de vinculação.</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="214"/>
       <source>Trigger Bind</source>
-      <translation>Acionar Pareamento</translation>
+      <translation>Acionar Vinculação</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="235"/>
       <source>Binding</source>
-      <translation>Pareando</translation>
+      <translation>Vinculando</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
       <source>Bind Success</source>
-      <translation>Pareamento Concluído</translation>
+      <translation>Vinculação Concluída</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
       <source>Bind Timeout</source>
-      <translation>Tempo de Pareamento Esgotado</translation>
+      <translation>Tempo de Vinculação Esgotado</translation>
     </message>
   </context>
   <context>
@@ -20317,17 +20315,17 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="86"/>
       <source>Bind Status:</source>
-      <translation>Status do Pareamento:</translation>
+      <translation>Status da Vinculação:</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
       <source>Binded</source>
-      <translation>Pareado</translation>
+      <translation>Vinculado</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
       <source>Not Binded</source>
-      <translation>Não Pareado</translation>
+      <translation>Não vinculado</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="95"/>
@@ -20387,7 +20385,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="211"/>
       <source>Bind</source>
-      <translation>Parear</translation>
+      <translation>Vincular</translation>
     </message>
     <message>
       <location filename="../custom/src/ARLink/ARSettings.qml" line="219"/>
@@ -20508,7 +20506,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/RajantLink/RajantSettings.qml" line="193"/>
       <source>Pairing Device</source>
-      <translation>Pareando Dispositivo</translation>
+      <translation>Vinculando Dispositivo</translation>
     </message>
     <message>
       <location filename="../src/RajantLink/RajantSettings.qml" line="219"/>
@@ -21001,7 +20999,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/CustomGPSIndicator.qml" line="89"/>
       <source>Course Over Ground:</source>
-      <translation>Curso em Relação ao Solo:</translation>
+      <translation>Rumo sobre o solo:</translation>
     </message>
   </context>
   <context>
@@ -21431,7 +21429,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="76"/>
       <source>Point &lt;br&gt; Home</source>
-      <translation>Apontar &lt;br&gt; Home</translation>
+      <translation>Apontar &lt;br&gt; Ponto de Origem</translation>
     </message>
     <message>
       <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="77"/>
@@ -21574,32 +21572,32 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="107"/>
       <source>Start Pair</source>
-      <translation>Iniciar Pareamento</translation>
+      <translation>Iniciar Vinculação</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="161"/>
       <source>Data Link Pair</source>
-      <translation>Pareamento do Link de Dados</translation>
+      <translation>Vinculação do Link de Dados</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="176"/>
       <source>Press and hold this, the remote control will enter the binding state.</source>
-      <translation>Mantenha pressionado para que o controle remoto entre no modo de pareamento.</translation>
+      <translation>Mantenha pressionado para que o controle remoto entre no modo de vinculação.</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="184"/>
       <source>Trigger Bind</source>
-      <translation>Acionar Pareamento</translation>
+      <translation>Acionar Vinculação</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="205"/>
       <source>Binding</source>
-      <translation>Pareando</translation>
+      <translation>Vinculando</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2LinkIndicator.qml" line="226"/>
       <source>Bind Success</source>
-      <translation>Pareamento Concluído</translation>
+      <translation>Vinculação Concluída</translation>
     </message>
   </context>
   <context>
@@ -21632,12 +21630,12 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/M2Link/M2Settings.qml" line="111"/>
       <source>Bind Status:</source>
-      <translation>Status do Pareamento:</translation>
+      <translation>Status da Vinculação:</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2Settings.qml" line="115"/>
       <source>Binding</source>
-      <translation>Pareando</translation>
+      <translation>Vinculando</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2Settings.qml" line="115"/>
@@ -21647,7 +21645,7 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../src/M2Link/M2Settings.qml" line="115"/>
       <source>Not Binded</source>
-      <translation>Não Pareado</translation>
+      <translation>Não vinculado</translation>
     </message>
     <message>
       <location filename="../src/M2Link/M2Settings.qml" line="120"/>
@@ -22946,7 +22944,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>simple heading reset</source>
-      <translation>redefinição de direção do modo simple</translation>
+      <translation>redefinição de proa do modo simple</translation>
     </message>
     <message>
       <source>SmartRTL</source>
@@ -23026,7 +23024,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Windvane home heading direction offset</source>
-      <translation>Deslocamento da direção home do weathervane</translation>
+      <translation>Deslocamento da proa home do weathervane</translation>
     </message>
     <message>
       <source>ZigZag</source>
@@ -23912,7 +23910,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Failsafe: Estimated %.0f seconds to home</source>
-      <translation>Failsafe: estimados %.0f segundos até o Home</translation>
+      <translation>Failsafe: estimados %.0f segundos até o ponto de origem</translation>
     </message>
     <message>
       <source>Failsafe: RTL took </source>
@@ -25109,15 +25107,15 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Geofence OK</source>
-      <translation>GeoCerca OK</translation>
+      <translation>Geocerca OK</translation>
     </message>
     <message>
       <source>Geofence loaded</source>
-      <translation>GeoCerca carregada</translation>
+      <translation>Geocerca carregada</translation>
     </message>
     <message>
       <source>Geofence triggered</source>
-      <translation>GeoCerca acionada</translation>
+      <translation>Geocerca acionada</translation>
     </message>
     <message>
       <source>GoPro Not Available</source>
@@ -25437,7 +25435,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>New HOME received</source>
-      <translation>Nova posição Home recebida</translation>
+      <translation>Novo ponto de origem recebido</translation>
     </message>
     <message>
       <source>No Mission. Can&apos;t set AUTO.</source>
@@ -26785,7 +26783,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Restored watchdog home</source>
-      <translation>Home do watchdog restaurado</translation>
+      <translation>Ponto de origem do watchdog restaurado</translation>
     </message>
     <message>
       <source>RevThrottle: %s</source>
@@ -26945,7 +26943,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Target Heading: %3.1f</source>
-      <translation>Direção alvo: %3.1f</translation>
+      <translation>Proa alvo: %3.1f</translation>
     </message>
     <message>
       <source>Terminating due to %s</source>
@@ -27493,7 +27491,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Altitude change is outside geofence</source>
-      <translation>Mudança de altitude está fora da GeoCerca</translation>
+      <translation>Mudança de altitude está fora da Geocerca</translation>
     </message>
     <message>
       <source>Approaching max flight time (system will RTL in %i minutes)</source>
@@ -27565,7 +27563,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Assuming vehicle is facing heading %.1f degrees</source>
-      <translation>Assumindo que o veículo está voltado para a direção %.1f graus</translation>
+      <translation>Assumindo que o veículo está com proa de %.1f graus</translation>
     </message>
     <message>
       <source>attitude estimator not running - check system boot</source>
@@ -27625,7 +27623,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Climb to %.1f meters above home</source>
-      <translation>Subir para %.1f metros acima da Home</translation>
+      <translation>Subir para %.1f metros acima do ponto de origem</translation>
     </message>
     <message>
       <source>command denied during calibration: %</source>
@@ -27845,7 +27843,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Figure 8 is outside geofence</source>
-      <translation>Figura 8 está fora da GeoCerca</translation>
+      <translation>Figura 8 está fora da Geocerca</translation>
     </message>
     <message>
       <source>GCS connection regained</source>
@@ -27853,39 +27851,39 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Geofence imported</source>
-      <translation>GeoCerca importada</translation>
+      <translation>Geocerca importada</translation>
     </message>
     <message>
       <source>Geofence invalid, doesn&apos;t contain current vehicle position</source>
-      <translation>GeoCerca inválida, não contém a posição atual do veículo</translation>
+      <translation>Geocerca inválida, não contém a posição atual do veículo</translation>
     </message>
     <message>
       <source>Geofence invalid, doesn&apos;t contain Home position</source>
-      <translation>GeoCerca inválida, não contém a posição Home</translation>
+      <translation>Geocerca inválida, não contém o ponto de origem</translation>
     </message>
     <message>
       <source>Geofence requires valid home position</source>
-      <translation>GeoCerca requer uma posição Home válida</translation>
+      <translation>Geocerca requer um ponto de origem válido</translation>
     </message>
     <message>
       <source>Geofence violation for waypoint %zu</source>
-      <translation>Violação da GeoCerca no waypoint %zu</translation>
+      <translation>Violação da Geocerca no waypoint %zu</translation>
     </message>
     <message>
       <source>Geofence: approaching or outside geofence</source>
-      <translation>GeoCerca: aproximando-se ou fora da GeoCerca</translation>
+      <translation>Geocerca: aproximando-se ou fora da Geocerca</translation>
     </message>
     <message>
       <source>Geofence: exceeding maximum altitude above Home</source>
-      <translation>GeoCerca: excedendo a altitude máxima acima da Home</translation>
+      <translation>Geocerca: excedendo a altitude máxima acima do ponto de origem</translation>
     </message>
     <message>
       <source>Geofence: exceeding maximum distance to Home</source>
-      <translation>GeoCerca: excedendo a distância máxima até a Home</translation>
+      <translation>Geocerca: excedendo a distância máxima até o ponto de origem</translation>
     </message>
     <message>
       <source>Geofence: import error</source>
-      <translation>GeoCerca: erro de importação</translation>
+      <translation>Geocerca: erro de importação</translation>
     </message>
     <message>
       <source>GNSS data fusion started</source>
@@ -27897,7 +27895,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>GNSS heading not reliable - Land now!</source>
-      <translation>Direção GNSS não confiável - Pouse agora!</translation>
+      <translation>Proa GNSS não confiável - Pouse agora!</translation>
     </message>
     <message>
       <source>GNSS signal jammed</source>
@@ -28109,7 +28107,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Mission rejected: No home pos, WP %d uses rel alt</source>
-      <translation>Missão rejeitada: Sem posição Home, WP %d usa altitude relativa</translation>
+      <translation>Missão rejeitada: Sem ponto de origem, WP %d usa altitude relativa</translation>
     </message>
     <message>
       <source>Mission rejected: starts with land waypoint.</source>
@@ -28121,7 +28119,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Mission rejected: Takeoff altitude below home altitude!</source>
-      <translation>Missão rejeitada: Altitude de decolagem abaixo da altitude da Home!</translation>
+      <translation>Missão rejeitada: Altitude de decolagem abaixo da altitude do ponto de origem!</translation>
     </message>
     <message>
       <source>Mission rejected: takeoff not first waypoint item</source>
@@ -28213,7 +28211,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Orbit is outside geofence</source>
-      <translation>Órbita está fora da GeoCerca</translation>
+      <translation>Órbita está fora da Geocerca</translation>
     </message>
     <message>
       <source>Orbit radius limit exceeded</source>
@@ -28345,7 +28343,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Preflight Fail: Geofence RTL requires valid home</source>
-      <translation>Falha pré-voo: RTL da GeoCerca requer Home válida</translation>
+      <translation>Falha pré-voo: RTL da Geocerca requer ponto de origem válido</translation>
     </message>
     <message>
       <source>Preflight Fail: Global position estimate required</source>
@@ -28365,7 +28363,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Preflight Fail: heading estimate invalid</source>
-      <translation>Falha pré-voo: estimativa de direção inválida</translation>
+      <translation>Falha pré-voo: estimativa de proa inválida</translation>
     </message>
     <message>
       <source>Preflight Fail: height estimate not stable</source>
@@ -28381,7 +28379,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Preflight Fail: Home position required</source>
-      <translation>Falha pré-voo: Posição Home necessária</translation>
+      <translation>Falha pré-voo: Ponto de origem necessário</translation>
     </message>
     <message>
       <source>Preflight Fail: horizontal position unstable</source>
@@ -28561,7 +28559,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>Reposition is outside geofence</source>
-      <translation>Reposicionamento está fora da GeoCerca</translation>
+      <translation>Reposicionamento está fora da Geocerca</translation>
     </message>
     <message>
       <source>Retry calibration (mag %</source>
@@ -28697,7 +28695,7 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <source>unable to reach heading within timeout</source>
-      <translation>não foi possível atingir a direção dentro do tempo limite</translation>
+      <translation>não foi possível atingir a proa dentro do tempo limite</translation>
     </message>
     <message>
       <source>Unable to write on micro SD</source>
