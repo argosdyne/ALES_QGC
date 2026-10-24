@@ -50,6 +50,7 @@ static const char* kFileExtension[VideoReceiver::FILE_FORMAT_MAX - VideoReceiver
     "mov",
     "mp4"
 };
+#endif
 
 static bool isPrivateRtspHost(const QString& host)
 {
@@ -84,7 +85,6 @@ static QString rtspUriWithConfiguredEndpoint(const QString& autoUri, const QStri
     }
     return autoUrl.toString();
 }
-#endif
 
 //-----------------------------------------------------------------------------
 VideoManager::VideoManager(QGCApplication* app, QGCToolbox* toolbox)
