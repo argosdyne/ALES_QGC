@@ -186,7 +186,8 @@ public slots:
     void showMapUpdateDate();
 
     //GeoAwareness Message Window
-    void geoAwarenessMessage(const QString& message);
+    // Shows the message once per type until it closes, with an alert sound and a spoken warning
+    void geoAwarenessMessage(GeoAwarenessErrorId type, const QString& message);
 
 private slots:
     void _slaveModeChanged(bool slaveMode);
@@ -210,6 +211,8 @@ private:
     LTEManager* _lteManager{nullptr};
 
     QSoundEffect _actionSound;
+    QSoundEffect _geoAwarenessAlertSound;
+    void _playGeoAwarenessAlert(GeoAwarenessErrorId type);
 
     float _defaultFontPixelHeight{16.0f};
     float _defaultFontPixelWidth{10.0f};

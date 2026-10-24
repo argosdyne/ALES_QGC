@@ -8,6 +8,7 @@
 #include "QGCCameraManager.h"
 #include "CodevCameraControl.h"
 #include "PayloadManager.h"
+#include "AudioOutput.h"
 #include <QCoreApplication>
 #include <QLocale>
 #include <cmath>
@@ -91,6 +92,8 @@ CustomQmlInterface::CustomQmlInterface(QGCApplication* app, QGCToolbox* toolbox)
     //showMapUpdateDate();
 
     qInfo() << "CusstomQmlInterface showmessage";
+
+    _geoAwarenessAlertSound.setSource(QUrl(QStringLiteral("qrc:/res/audio/Alert")));
 
 
 
@@ -556,38 +559,8 @@ static bool _geoAwarenessInsideMessageShown = false;
 static bool _geoAwarenessNearMessageShown = false;
 static bool _geoAwarenessNoDataMessageShown = false;
 
-namespace {
-bool _containsSourceOrTranslation(const QString& message, const char* sourceText)
+void CustomQmlInterface::geoAwarenessMessage(GeoAwarenessErrorId type, const QString& message)
 {
-    if (message.contains(QLatin1String(sourceText))) {
-        return true;
-    }
-
-    const QString translated = QCoreApplication::translate("FlightZoneManager", sourceText);
-    return translated != QLatin1String(sourceText) && message.contains(translated);
-}
-}
-
-void CustomQmlInterface::geoAwarenessMessage(const QString& message)
-{
-
-    // qInfo() << "geoAwareness Messag e== " << message;
-    // qInfo() << "_geoAwarenessMessageShown == " << _geoAwarenessInsideMessageShown;
-    // qInfo() << "_geoAwarenessNearMessageShown == " << _geoAwarenessNearMessageShown;
-    // qInfo() << "_geoAwarenessNoDataMessageShown == " << _geoAwarenessNoDataMessageShown;
-
-    GeoAwarenessErrorId type = GeoAwarenessErrorId::Unknown;
-
-    if (_containsSourceOrTranslation(message, "Drone is inside")) {
-        type = GeoAwarenessErrorId::Inside;
-    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close. Distance : %1M")) {
-        type = GeoAwarenessErrorId::Near;
-    } else if (_containsSourceOrTranslation(message, "The distance between the aircraft and GeoZone is close.")) {
-        type = GeoAwarenessErrorId::Near;
-    } else if (_containsSourceOrTranslation(message, "Cannot access GeoZone data.<br>Please check local files or internet connection.")) {
-        type = GeoAwarenessErrorId::NoData;
-    }
-
     // 이미 보여줬다면 return
     switch (type) {
     case GeoAwarenessErrorId::Inside:
@@ -615,8 +588,36 @@ void CustomQmlInterface::geoAwarenessMessage(const QString& message)
     m->setGeoAwarenessType();
 
 
-    _geoAwarenessMessages.append(m);    
+    _geoAwarenessMessages.append(m);
     _geoAwarenessRefreshSystemMessageUI(true);
+    _playGeoAwarenessAlert(type);
+}
+
+void CustomQmlInterface::_playGeoAwarenessAlert(GeoAwarenessErrorId type)
+{
+    QString spoken;
+    switch (type) {
+    case GeoAwarenessErrorId::Inside:
+        spoken = tr("Warning. Inside GeoZone.");
+        break;
+    case GeoAwarenessErrorId::Near:
+        spoken = tr("Warning. Approaching GeoZone.");
+        break;
+    case GeoAwarenessErrorId::NoData:
+        spoken = tr("GeoZone data is not available.");
+        break;
+    default:
+        return;
+    }
+
+    // AudioOutput::say() checks the mute setting itself; the alert sound follows the same setting
+    if (!_toolbox->settingsManager()->appSettings()->audioMuted()->rawValue().toBool()) {
+        _geoAwarenessAlertSound.play();
+    }
+    // Speak after the alert sound so the two do not overlap
+    QTimer::singleShot(1200, this, [this, spoken]() {
+        _toolbox->audioOutput()->say(spoken);
+    });
 }
 
 void SystemMessage::setGeoAwarenessContext(const QString &context)

@@ -20910,6 +20910,11 @@ Xác nhận thay đổi?</translation>
         <translation>Định dạng JSON không hợp lệ</translation>
     </message>
 <message>
+        <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="847"/>
+        <source>Drone is inside GeoZone!</source>
+        <translation>Máy bay đang ở trong GeoZone!</translation>
+    </message>
+<message>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
         <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
@@ -22535,6 +22540,21 @@ Xác nhận thay đổi?</translation>
       <location filename="../custom/src/CustomQmlInterface.cc" line="47"/>
       <source>Map tiles updated at %1</source>
       <translation>Ô bản đồ đã cập nhật lúc %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="613"/>
+      <source>Warning. Inside GeoZone.</source>
+      <translation>Cảnh báo. Đang ở trong GeoZone.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="616"/>
+      <source>Warning. Approaching GeoZone.</source>
+      <translation>Cảnh báo. Đang tiến gần GeoZone.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="619"/>
+      <source>GeoZone data is not available.</source>
+      <translation>Không có dữ liệu GeoZone.</translation>
     </message>
   </context>
   <context>

@@ -20910,6 +20910,11 @@ Bekræft ændring?</translation>
         <translation>Ugyldigt JSON-format</translation>
     </message>
 <message>
+        <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="847"/>
+        <source>Drone is inside GeoZone!</source>
+        <translation>Dronen er inde i en GeoZone!</translation>
+    </message>
+<message>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
         <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
@@ -22535,6 +22540,21 @@ Bekræft ændring?</translation>
       <location filename="../custom/src/CustomQmlInterface.cc" line="47"/>
       <source>Map tiles updated at %1</source>
       <translation>Kortfelter opdateret %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="613"/>
+      <source>Warning. Inside GeoZone.</source>
+      <translation>Advarsel. Inde i en GeoZone.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="616"/>
+      <source>Warning. Approaching GeoZone.</source>
+      <translation>Advarsel. Nærmer sig en GeoZone.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="619"/>
+      <source>GeoZone data is not available.</source>
+      <translation>GeoZone-data er ikke tilgængelige.</translation>
     </message>
   </context>
   <context>

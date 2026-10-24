@@ -482,11 +482,11 @@ void FlightZoneManager::onReplyFinished(QNetworkReply *reply) {
             });
         } else {
             QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
-            CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+            CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::NoData, msg);
         }
     } else {
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
-        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+        CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::NoData, msg);
     }
     reply->deleteLater();
 }
@@ -844,7 +844,7 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                         bool inside = checkPointInsidePolyhedron(poly, dronePoint);
                         if (inside) {
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [=]() {
-                                CustomQmlInterface::instance()->geoAwarenessMessage("Drone is inside GeoZone!");
+                                CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Inside, tr("Drone is inside GeoZone!"));
                             }, Qt::QueuedConnection);
                             continue; // 이미 알림 줬으면 거리 체크는 스킵 가능
                         }
@@ -870,9 +870,9 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                         double exactDist = std::sqrt(tree.squared_distance(dronePoint));
 
                         if (exactDist <= alarmDistance) {
-                            QString msg = QString("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(exactDist);
+                            QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(exactDist, 'f', 0));
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
-                                CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                                CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                             }, Qt::QueuedConnection);
                         }
                     }
@@ -934,11 +934,11 @@ void FlightZoneManager::checkDroneAndGeoZone() {
 
                         if(inside == true) // Drone is Inside polyhedron
                         {
-                            QString msg  = "Drone is inside GeoZone!";
+                            QString msg  = tr("Drone is inside GeoZone!");
                             //CustomQmlInterface::instance()->geoAwarenessMessage(msg);
 
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
-                                CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                                CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Inside, msg);
                             }, Qt::QueuedConnection);
                         }
                         else // Drone is out side polyhedron
@@ -946,11 +946,11 @@ void FlightZoneManager::checkDroneAndGeoZone() {
                             if(distance <= alarmDistance) // 지정한 거리값 안에 들어오면 알람을 띄워야됨
                             {
                                 //qInfo() << "Inside Index = " << i;
-                                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(distance);
+                                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(distance, 'f', 0));
                                 //CustomQmlInterface::instance()->geoAwarenessMessage(msg);
 
                                 QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
-                                    CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                                    CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                                 }, Qt::QueuedConnection);
                             }
                         }
@@ -1024,14 +1024,14 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
             const auto inside = CGAL::Side_of_triangle_mesh<Polyhedron, Kernel>(poly);
 
             if (inside(dronePosition) == CGAL::ON_BOUNDED_SIDE) {
-                QString msg  = "Drone is inside GeoZone!";
+                QString msg  = tr("Drone is inside GeoZone!");
                 QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
-                    CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                    CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Inside, msg);
                 }, Qt::QueuedConnection);
             } else if (distance <= alarmDistance) {
-                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(distance);
+                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(distance, 'f', 0));
                 QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
-                    CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+                    CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                 }, Qt::QueuedConnection);
             }
         }
@@ -1531,7 +1531,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
-        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+        CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::NoData, msg);
         return;
     }
 
@@ -1542,7 +1542,7 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
     if (!doc.isObject()) {
         qWarning() << "Invalid JSON format";
         QString msg = tr("Cannot access GeoZone data.<br>Please check local files or internet connection.");
-        CustomQmlInterface::instance()->geoAwarenessMessage(msg);
+        CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::NoData, msg);
         return;
     }
 

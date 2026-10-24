@@ -20923,6 +20923,11 @@ Confirm change?</source>
         <translation>잘못된 JSON 형식</translation>
     </message>
 <message>
+        <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="847"/>
+        <source>Drone is inside GeoZone!</source>
+        <translation>기체가 지오존 안에 있습니다!</translation>
+    </message>
+<message>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
         <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
@@ -22548,6 +22553,21 @@ Confirm change?</source>
       <location filename="../custom/src/CustomQmlInterface.cc" line="47"/>
       <source>Map tiles updated at %1</source>
       <translation>지도 타일이 %1에 업데이트되었습니다</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="613"/>
+      <source>Warning. Inside GeoZone.</source>
+      <translation>경고. 지오존 안에 있습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="616"/>
+      <source>Warning. Approaching GeoZone.</source>
+      <translation>경고. 지오존에 접근하고 있습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="619"/>
+      <source>GeoZone data is not available.</source>
+      <translation>지오존 데이터를 사용할 수 없습니다.</translation>
     </message>
   </context>
   <context>

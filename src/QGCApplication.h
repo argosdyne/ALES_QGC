@@ -135,12 +135,6 @@ public slots:
     // Close non-modal vehicle message to the user
     void closeCriticalVehicleMessage();
 
-    /// Show non-modal geoAwareness message to the user
-    void showGeoAwarenessAlertMessage(const QString& message, const qint64& index);
-
-    /// Close non-modal geoAwareness message to the user
-    void closeGeoAwarenessAlertMessage(const qint64& index);
-
     /// Show modal application message to the user
     void showAppMessage(const QString& message, const QString& title = QString());
 
