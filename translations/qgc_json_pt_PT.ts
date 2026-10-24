@@ -1828,4 +1828,136 @@
       <translation>Ativar,Desativar</translation>
     </message>
   </context>
+  <context>
+    <name>RTK.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInAccuracyLimit].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Survey in accuracy (U-blox only)</source>
+      <translation>Precisão do survey-in (somente U-blox)</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInAccuracyLimit].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>The minimum accuracy value that Survey-In must achieve before it can complete.</source>
+      <translation>O valor mínimo de precisão que o Survey-In deve atingir antes de ser concluído.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInMinObservationDuration].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Minimum observation time</source>
+      <translation>Tempo mínimo de observação</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInMinObservationDuration].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the minimum amount of observation time for the position calculation.</source>
+      <translation>Define o tempo mínimo de observação para o cálculo da posição.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[useFixedBasePosition].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Use specified base position</source>
+      <translation>Usar posição de base especificada</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[useFixedBasePosition].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Specify the values for the RTK base position without having to do a survey in.</source>
+      <translation>Especifique os valores da posição da base RTK sem precisar fazer um survey-in.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLatitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Latitude</source>
+      <translation>Latitude da posição da base</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLatitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the latitude of the fixed RTK base position.</source>
+      <translation>Define a latitude da posição fixa da base RTK.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLongitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Longitude</source>
+      <translation>Longitude da posição da base</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLongitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the longitude of the fixed RTK base position.</source>
+      <translation>Define a longitude da posição fixa da base RTK.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAltitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Alt (WGS84)</source>
+      <translation>Alt. da posição da base (WGS84)</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAltitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the altitude of the fixed RTK base position.</source>
+      <translation>Define a altitude da posição fixa da base RTK.</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAccuracy].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Accuracy</source>
+      <translation>Precisão da posição da base</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAccuracy].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the accuracy of the fixed RTK base position.</source>
+      <translation>Define a precisão da posição fixa da base RTK.</translation>
+    </message>
+  </context>
+  <context>
+    <name>ADSBVehicleManager.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerConnectEnabled].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Connect to ADSB SBS server</source>
+      <translation>Conectar ao servidor ADSB SBS</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerConnectEnabled].longDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Connect to ADSB SBS-1 server using specified address/port</source>
+      <translation>Conectar ao servidor ADSB SBS-1 usando o endereço/porta especificado</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerHostAddress].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Host address</source>
+      <translation>Endereço do host</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerPort].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Server port</source>
+      <translation>Porta do servidor</translation>
+    </message>
+  </context>
+  <context>
+    <name>Custom.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtcmSource].enumStrings, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Disable,NTRIP,SerialPort</source>
+      <translation>Desabilitar,NTRIP,Porta serial</translation>
+    </message>
+  </context>
+  <context>
+    <name>Codev.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtcmSource].enumStrings, </extracomment>
+      <location filename="../custom/src/Codev.SettingsGroup.json"/>
+      <source>Disable,NTRIP,SerialPort</source>
+      <translation>Desabilitar,NTRIP,Porta serial</translation>
+    </message>
+  </context>
 </TS>

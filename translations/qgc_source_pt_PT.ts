@@ -65,6 +65,11 @@
       <source>Frame Setup is used to select the airframe which matches your vehicle.</source>
       <translation>A configuração da estrutura do veículo é usada para selecionar a fuselagem que corresponde ao seu veículo.</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponent.qml" line="75"/>
+      <source> To change this configuration, select the desired frame class below and then reboot the vehicle.</source>
+      <translation> Para alterar esta configuração, selecione a classe de estrutura desejada abaixo e reinicie o veículo.</translation>
+    </message>
   </context>
   <context>
     <name>APMAirframeComponentController</name>
@@ -427,6 +432,26 @@
       <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="553"/>
       <source>Pan</source>
       <translation>Panorâmica</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="198"/>
+      <source>Channel 15</source>
+      <translation>Canal 15</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="199"/>
+      <source>Channel 16</source>
+      <translation>Canal 16</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="204"/>
+      <source>Show all settings (advanced)</source>
+      <translation>Mostrar todas as configurações (avançado)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="209"/>
+      <source>Camera mount tilt speed:</source>
+      <translation>Velocidade de inclinação do suporte da câmera:</translation>
     </message>
   </context>
   <context>
@@ -1441,6 +1466,16 @@
       <source>The Power Component is used to setup battery parameters.</source>
       <translation>O componente de energia é usado para configurar os parâmetros da bateria.</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="344"/>
+      <source>Blue Robotics Power Sense Module</source>
+      <translation>Blue Robotics Power Sense Module</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="353"/>
+      <source>Navigator w/ Blue Robotics Power Sense Module</source>
+      <translation>Navigator com Blue Robotics Power Sense Module</translation>
+    </message>
   </context>
   <context>
     <name>APMPowerComponentSummary</name>
@@ -1480,6 +1515,11 @@
       <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
       <source>The Radio Component is used to setup which channels on your RC Transmitter you will use for each vehicle control such as Roll, Pitch, Yaw and Throttle. It also allows you to assign switches and dials to the various flight modes. Prior to flight you must also calibrate the extents for all of your channels.</source>
       <translation>O Componente de Rádio é usado para configurar quais canais no seu Transmissor RC que você usará para cada controle do veículo, como Rolagem, Arfagem, Guinada e Acelerador. Ele também permite atribuir interruptores ou discos do controle para os vários modos de voo. Antes de voar, você deve calibrar todos os canais.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
+      <source>The Radio Component is used to setup which channels on your RC Transmitter you will use for each vehicle control such as Roll, Pitch, Yaw and Throttle. </source>
+      <translation>O componente Rádio é usado para configurar quais canais do seu transmissor RC serão usados para cada controle do veículo, como Rolagem, Arfagem, Guinada e Acelerador. </translation>
     </message>
   </context>
   <context>
@@ -1785,6 +1825,36 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="44"/>
       <source>Safety Setup is used to setup triggers for Return to Land as well as the settings for Return to Land itself.</source>
       <translation>Configuração de Segurança é usada para configurar os gatilhos de Retorno para posição inicial ou Pousar e, também, as configurações de Retorno para posição inicial ou Pousar.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="432"/>
+      <source>Enabled</source>
+      <translation>Habilitado</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="441"/>
+      <source>Maximum Altitude</source>
+      <translation>Altitude Máxima</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="506"/>
+      <source>Breach action</source>
+      <translation>Ação na violação</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="460"/>
+      <source>Circle centered on Home</source>
+      <translation>Círculo centrado na Home</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="478"/>
+      <source>Inclusion/Exclusion Circles+Polygons</source>
+      <translation>Círculos+Polígonos de Inclusão/Exclusão</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="515"/>
+      <source>Fence margin</source>
+      <translation>Margem da cerca</translation>
     </message>
   </context>
   <context>
@@ -2134,6 +2204,11 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="378"/>
       <source>Warning: Turning off arming checks can lead to loss of Vehicle control.</source>
       <translation>Atenção: Desativar as verificações  para armar pode levar à perda de controle do veículo.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="178"/>
+      <source>Power module not set up</source>
+      <translation>Módulo de energia não configurado</translation>
     </message>
   </context>
   <context>
@@ -2989,6 +3064,91 @@ Clique em Ok para iniciar a calibração.</translation>
       <source>Sensors Setup is used to calibrate the sensors within your vehicle.</source>
       <translation>As Configurações de Sensores é usada para calibrar os sensores no seu veículo.</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="289"/>
+      <source>Shown in the indicator bars is the quality of the calibration for each compass.\n\n</source>
+      <translation>As barras indicadoras mostram a qualidade da calibração de cada bússola.\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="290"/>
+      <source>- Green indicates a well functioning compass.\n</source>
+      <translation>- Verde indica uma bússola funcionando bem.\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="291"/>
+      <source>- Yellow indicates a questionable compass or calibration.\n</source>
+      <translation>- Amarelo indica uma bússola ou calibração duvidosa.\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="292"/>
+      <source>- Red indicates a compass which should not be used.\n\n</source>
+      <translation>- Vermelho indica uma bússola que não deve ser usada.\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="477"/>
+      <source>Simple accelerometer calibration is less precise but allows calibrating without rotating the vehicle. Check this if you have a large/heavy vehicle.</source>
+      <translation>A calibração simples do acelerômetro é menos precisa, mas permite calibrar sem girar o veículo. Marque esta opção se tiver um veículo grande/pesado.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="481"/>
+      <source>Simple Accelerometer Calibration</source>
+      <translation>Calibração Simples do Acelerômetro</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="529"/>
+      <source>Fast compass calibration given vehicle position and yaw. This </source>
+      <translation>Calibração rápida da bússola a partir da posição e da guinada do veículo. Isso </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="530"/>
+      <source>results in zero diagonal and off-diagonal elements, so is only </source>
+      <translation>resulta em elementos diagonais e fora da diagonal nulos, portanto só é </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="531"/>
+      <source>suitable for vehicles where the field is close to spherical. It is </source>
+      <translation>adequada para veículos em que o campo é próximo de esférico. É </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="532"/>
+      <source>useful for large vehicles where moving the vehicle to calibrate it </source>
+      <translation>útil para veículos grandes, nos quais é difícil mover o veículo </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="533"/>
+      <source>is difficult. Point the vehicle North before using it.</source>
+      <translation>para calibrá-lo. Aponte o veículo para o Norte antes de usá-la.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="546"/>
+      <source>Fast Calibration</source>
+      <translation>Calibração Rápida</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="554"/>
+      <source>Vehicle has no Valid positon, please provide it</source>
+      <translation>O veículo não tem uma posição válida, informe-a</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="560"/>
+      <source>Use GCS position instead</source>
+      <translation>Usar a posição da GCS</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="566"/>
+      <source>Use current map position instead</source>
+      <translation>Usar a posição atual do mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="600"/>
+      <source>Compass Motor Interference Calibration</source>
+      <translation>Calibração de Interferência dos Motores na Bússola</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="713"/>
+      <source>For Gyroscope calibration you will need to place your vehicle on a surface and leave it still.\n\nClick Ok to start calibration.</source>
+      <translation>Para calibrar o giroscópio, coloque o veículo sobre uma superfície e deixe-o imóvel.\n\nClique em Ok para iniciar a calibração.</translation>
+    </message>
   </context>
   <context>
     <name>APMSensorsComponentController</name>
@@ -3087,6 +3247,11 @@ Clique em Ok para iniciar a calibração.</translation>
       <source>Continue rotating...</source>
       <translation>Continuar rotacionando...</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentController.cc" line="518"/>
+      <source>In progress</source>
+      <translation>Em andamento</translation>
+    </message>
   </context>
   <context>
     <name>APMSensorsComponentSummary</name>
@@ -3121,6 +3286,56 @@ Clique em Ok para iniciar a calibração.</translation>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
       <source>Ready</source>
       <translation>Pronto</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
+      <source>, External</source>
+      <translation>, Externo</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
+      <source>, Internal</source>
+      <translation>, Interno</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="54"/>
+      <source>Primary</source>
+      <translation>Primário</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="57"/>
+      <source>Secondary</source>
+      <translation>Secundário</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="60"/>
+      <source>Tertiary</source>
+      <translation>Terciário</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="62"/>
+      <source>Unused</source>
+      <translation>Não utilizado</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="31"/>
+      <source>Compasses:</source>
+      <translation>Bússolas:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="76"/>
+      <source>Accelerometer(s):</source>
+      <translation>Acelerômetro(s):</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="89"/>
+      <source>Barometer(s):</source>
+      <translation>Barômetro(s):</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="90"/>
+      <source>Not Supported(Over APM 4.1)</source>
+      <translation>Não suportado (acima do APM 4.1)</translation>
     </message>
   </context>
   <context>
@@ -3171,6 +3386,21 @@ Clique em Ok para iniciar a calibração.</translation>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="240"/>
       <source>Confirm frame %1</source>
       <translation>Confirmar frame %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.cc" line="32"/>
+      <source>Frame setup allows you to choose your vehicle&apos;s motor configuration. Install &lt;b&gt;clockwise&lt;/b&gt;</source>
+      <translation>A configuração de estrutura permite escolher a configuração dos motores do seu veículo. Instale &lt;b&gt;no sentido horário&lt;/b&gt;</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="211"/>
+      <source>Would you like to load the default parameters for the frame?</source>
+      <translation>Deseja carregar os parâmetros padrão da estrutura?</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="212"/>
+      <source>Would you like to set the desired frame?</source>
+      <translation>Deseja definir a estrutura desejada?</translation>
     </message>
   </context>
   <context>
@@ -3245,6 +3475,16 @@ Os propulsores da Blue Robotics são lubrificados por água e não são projetad
 Please place your vehicle in water, click the button, and wait. Note that the thrusters still need to be connected to the correct outputs (thrusters 2 and 3 can&apos;t be swapped, for example).</source>
       <translation>Isso tentará detectar automaticamente a direção de rotação (normal/reverso) dos seus propulsores.
 Por favor coloque seu veículo na água, clique no botão, e espere. Note que os propulsores ainda precisam estar conectado na saídas corretas (populsor 2 e 3 não podem ser trocados, por exemplo).</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubMotorComponent.qml" line="163"/>
+      <source>Moving the sliders will cause the motors to spin. Make sure the motors and propellers are clear from obstructions! The direction of the motor rotation is dependent on how the three phases of the motor are physically connected to the ESCs (if any two wires are swapped, the direction of rotation will flip). Because we cannot guarantee what order the phases are connected, the motor directions must be configured in software. When a slider is moved DOWN, the thruster should push air/water TOWARD the cable entering the housing. Click the checkbox to reverse the direction of the corresponding thruster.\n\n</source>
+      <translation>Mover os controles deslizantes fará os motores girarem. Certifique-se de que os motores e as hélices estejam livres de obstruções! O sentido de rotação do motor depende de como as três fases do motor estão fisicamente conectadas aos ESCs (se quaisquer dois fios forem trocados, o sentido de rotação será invertido). Como não podemos garantir a ordem em que as fases estão conectadas, os sentidos dos motores devem ser configurados no software. Quando um controle deslizante for movido para BAIXO, o propulsor deve empurrar ar/água EM DIREÇÃO ao cabo que entra no invólucro. Clique na caixa de seleção para inverter o sentido do propulsor correspondente.\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubMotorComponent.qml" line="225"/>
+      <source>This will attempt to automatically detect the direction (normal/reversed) of your thrusters.\n</source>
+      <translation>Isso tentará detectar automaticamente o sentido (normal/invertido) dos seus propulsores.\n</translation>
     </message>
   </context>
   <context>
@@ -3436,6 +3676,61 @@ Por favor coloque seu veículo na água, clique no botão, e espere. Note que os
       <source>Yaw</source>
       <translation>Guinada</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="474"/>
+      <source>Roll axis angle controller P gain</source>
+      <translation>Ganho P do controlador de ângulo do eixo de rolagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="482"/>
+      <source>Roll axis rate controller P gain</source>
+      <translation>Ganho P do controlador de taxa do eixo de rolagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="490"/>
+      <source>Roll axis rate controller I gain</source>
+      <translation>Ganho I do controlador de taxa do eixo de rolagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="498"/>
+      <source>Roll axis rate controller D gain</source>
+      <translation>Ganho D do controlador de taxa do eixo de rolagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="515"/>
+      <source>Pitch axis angle controller P gain</source>
+      <translation>Ganho P do controlador de ângulo do eixo de arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="523"/>
+      <source>Pitch axis rate controller P gain</source>
+      <translation>Ganho P do controlador de taxa do eixo de arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="531"/>
+      <source>Pitch axis rate controller I gain</source>
+      <translation>Ganho I do controlador de taxa do eixo de arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="539"/>
+      <source>Pitch axis rate controller D gain</source>
+      <translation>Ganho D do controlador de taxa do eixo de arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="556"/>
+      <source>Yaw axis angle controller P gain</source>
+      <translation>Ganho P do controlador de ângulo do eixo de guinada</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="564"/>
+      <source>Yaw axis rate controller P gain</source>
+      <translation>Ganho P do controlador de taxa do eixo de guinada</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="572"/>
+      <source>Yaw axis rate controller I gain</source>
+      <translation>Ganho I do controlador de taxa do eixo de guinada</translation>
+    </message>
   </context>
   <context>
     <name>APMTuningComponentSub</name>
@@ -3545,6 +3840,25 @@ Por favor coloque seu veículo na água, clique no botão, e espere. Note que os
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
       <source>Airframe Setup is used to select the airframe that matches your vehicle. This will in turn set up the various tuning values for flight parameters.</source>
       <translation>A Configuração da Estrutura é usada para selecionar a estrutura que corresponde ao seu veículo. Isso irá, por sua vez, definir vários ajustes nos valores dos parâmetros de voo.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
+      <source>Airframe Setup is used to select the airframe that matches your vehicle. </source>
+      <translation>A configuração de estrutura é usada para selecionar a estrutura correspondente ao seu veículo. </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="46"/>
+      <source>This configuration can only be modified through the Parameter Editor.\n\n</source>
+      <translation>Esta configuração só pode ser modificada pelo Editor de Parâmetros.\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="122"/>
+      <source>Clicking 'Apply' will save the changes you have made to your airframe configuration.&lt;br&gt;&lt;br&gt;\
+                                                                        All vehicle parameters other than Radio Calibration will be reset.&lt;br&gt;&lt;br&gt;\
+                                                                        Your vehicle will also be restarted in order to complete the process.</source>
+      <translation>Clicar em 'Aplicar' salvará as alterações feitas na configuração da estrutura.&lt;br&gt;&lt;br&gt;\
+                                                                        Todos os parâmetros do veículo, exceto a Calibração do Rádio, serão redefinidos.&lt;br&gt;&lt;br&gt;\
+                                                                        Seu veículo também será reiniciado para concluir o processo.</translation>
     </message>
   </context>
   <context>
@@ -4352,6 +4666,31 @@ Antes de tentar o pocedimento de auto-ajuste, tenha certeza que:
 
 Clique em Ok para inciar o processo de auto-ajuste.</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/AutotuneUI.qml" line="52"/>
+      <source>WARNING!            
+
+The auto-tuning procedure should be executed with caution and requires the vehicle to fly stable enough before attempting the procedure!             
+
+Before starting the auto-tuning process, make sure that:             
+1. You have read the auto-tuning guide and have followed the preliminary steps             
+2. The current control gains are good enough to stabilize the drone in presence of medium disturbances             
+3. You are ready to abort the auto-tuning sequence by moving the RC sticks, if anything unexpected happens.             
+
+Click Ok to start the auto-tuning process.
+</source>
+      <translation>ATENÇÃO!            
+
+O procedimento de autoajuste deve ser executado com cautela e requer que o veículo voe de forma suficientemente estável antes de iniciar o procedimento!             
+
+Antes de iniciar o processo de autoajuste, certifique-se de que:             
+1. Você leu o guia de autoajuste e seguiu as etapas preliminares             
+2. Os ganhos de controle atuais são bons o suficiente para estabilizar o drone na presença de perturbações moderadas             
+3. Você está pronto para abortar a sequência de autoajuste movendo os sticks do RC, caso algo inesperado aconteça.             
+
+Clique em Ok para iniciar o processo de autoajuste.
+</translation>
+    </message>
   </context>
   <context>
     <name>AxisMonitor</name>
@@ -4699,6 +5038,12 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Grnd Res</source>
       <translation type="unfinished">Grnd Res</translation>
     </message>
+    <message>
+      <location filename="../src/PlanView/CameraCalcGrid.qml" line="393"/>
+      <location filename="../src/PlanView/CameraCalcGrid.qml" line="471"/>
+      <source>Calculate</source>
+      <translation>Calcular</translation>
+    </message>
   </context>
   <context>
     <name>CameraComponent</name>
@@ -4816,6 +5161,16 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="54"/>
       <source>AUX pin polarity</source>
       <translation type="unfinished">AUX pin polarity</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="55"/>
+      <source>High (3.3V)</source>
+      <translation>Alto (3,3V)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="55"/>
+      <source>Low (0V)</source>
+      <translation>Baixo (0V)</translation>
     </message>
   </context>
   <context>
@@ -5433,6 +5788,16 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>UART Baud Rate</source>
       <translation type="unfinished">UART Baud Rate</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/ESP8266ComponentSummary.qml" line="34"/>
+      <source>AP Mode</source>
+      <translation>Modo AP</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/ESP8266ComponentSummary.qml" line="34"/>
+      <source>Station Mode</source>
+      <translation>Modo Estação</translation>
+    </message>
   </context>
   <context>
     <name>EditPositionDialog</name>
@@ -5490,6 +5855,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/QmlControls/EditPositionDialog.qml" line="144"/>
       <source>Set From Vehicle Position</source>
       <translation>Definir da Posição do Veículo</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/EditPositionDialog.qml" line="24"/>
+      <source>Edit Position</source>
+      <translation>Editar Posição</translation>
     </message>
   </context>
   <context>
@@ -6486,6 +6856,81 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Flash ChibiOS Bootloader</source>
       <translation>Flash Bootloader ChibiOS</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source>Plug in your device</source>
+      <translation>Conecte seu dispositivo</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source> via USB to </source>
+      <translation> via USB para </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source>start</source>
+      <translation>iniciar</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source> firmware upgrade.</source>
+      <translation> a atualização de firmware.</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source>If upgrade failed, make sure to connect </source>
+      <translation>Se a atualização falhar, conecte </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source>directly</source>
+      <translation>diretamente</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source> to a powered USB port on your computer, not through a USB hub. </source>
+      <translation> a uma porta USB alimentada do seu computador, não por meio de um hub USB. </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="51"/>
+      <source>Also make sure you are only powered via USB </source>
+      <translation>Certifique-se também de que a alimentação seja apenas via USB, </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="51"/>
+      <source>not battery</source>
+      <translation>sem bateria</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="52"/>
+      <source> disconnected </source>
+      <translation> desconectada </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="52"/>
+      <source>prior to firmware upgrade.</source>
+      <translation>antes da atualização de firmware.</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="53"/>
+      <source>Please unplug your Pixhawk and/or Radio from USB.</source>
+      <translation>Desconecte seu Pixhawk e/ou Rádio da USB.</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="207"/>
+      <source>Either firmware list is still downloading, or no firmware is available for current selection.</source>
+      <translation>A lista de firmware ainda está sendo baixada ou não há firmware disponível para a seleção atual.</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="212"/>
+      <source>You must choose a board type.</source>
+      <translation>Você deve escolher um tipo de placa.</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="219"/>
+      <source>No firmware was found for the current selection.</source>
+      <translation>Nenhum firmware encontrado para a seleção atual.</translation>
+    </message>
   </context>
   <context>
     <name>FirmwareUpgradeController</name>
@@ -6809,6 +7254,12 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>VIDEO DISABLED</source>
       <translation>VÍDEO DESATIVADO</translation>
     </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlightDisplayViewVideo.qml" line="182"/>
+      <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="219"/>
+      <source>Double-click to exit full screen</source>
+      <translation>Clique duas vezes para sair da tela cheia</translation>
+    </message>
   </context>
   <context>
     <name>FlightMap</name>
@@ -6961,6 +7412,26 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>ROI at location</source>
       <translation>ROI na localização</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="656"/>
+      <source>Set home here</source>
+      <translation>Definir Home aqui</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="672"/>
+      <source>Edit ROI Position</source>
+      <translation>Editar Posição do ROI</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="690"/>
+      <source>Cancel ROI</source>
+      <translation>Cancelar ROI</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="699"/>
+      <source>Edit Position</source>
+      <translation>Editar Posição</translation>
+    </message>
   </context>
   <context>
     <name>FlyViewMissionCompleteDialog</name>
@@ -7023,6 +7494,16 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Plan</source>
       <translation>Rotas</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="58"/>
+      <source>GeoZone</source>
+      <translation>GeoZona</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="63"/>
+      <source>Life Jacket</source>
+      <translation>Colete Salva-vidas</translation>
+    </message>
   </context>
   <context>
     <name>FlyViewVideo</name>
@@ -7043,6 +7524,21 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="95"/>
       <source>Multi-Vehicle</source>
       <translation>Multi-Veículo</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK CRITICAL</source>
+      <translation>LINK C2 CRÍTICO</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK WARNING</source>
+      <translation>ALERTA DE LINK C2</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewWidgetLayer.qml" line="206"/>
+      <source>Waypoint</source>
+      <translation>Waypoint</translation>
     </message>
   </context>
   <context>
@@ -7542,6 +8038,101 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>%1 Version</source>
       <translation>Versão %1</translation>
     </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="782"/>
+      <source>Enable Doodle Labs IP</source>
+      <translation>Habilitar IP Doodle Labs</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="790"/>
+      <source>Doodle Labs IP</source>
+      <translation>IP Doodle Labs</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="800"/>
+      <source>Enable Life Jacket</source>
+      <translation>Habilitar Colete Salva-vidas</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="367"/>
+      <source>Record File Format</source>
+      <translation>Formato do Arquivo de Gravação</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="185"/>
+      <source>Update home position based on device location. This will affect return to home</source>
+      <translation>Atualiza a posição Home com base na localização do dispositivo. Isso afetará o retorno à base</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="192"/>
+      <source>Enable Custom Actions</source>
+      <translation>Habilitar Ações Personalizadas</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="218"/>
+      <source>Custom Action Definitions</source>
+      <translation>Definições de Ações Personalizadas</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="235"/>
+      <source>Choose the Custom Action Definitions file</source>
+      <translation>Escolha o arquivo de Definições de Ações Personalizadas</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="248"/>
+      <source>Reload</source>
+      <translation>Recarregar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="423"/>
+      <source>Disable FPV Video</source>
+      <translation>Desabilitar Vídeo FPV</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="437"/>
+      <source>Audio Settings</source>
+      <translation>Configurações de Áudio</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="445"/>
+      <source>Enable Audio</source>
+      <translation>Habilitar Áudio</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
+      <source>Enable Optical Flow Sensor</source>
+      <translation>Habilitar Sensor de Fluxo Óptico</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
+      <source>Save application data to SD Card</source>
+      <translation>Salvar dados do aplicativo no cartão SD</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="757"/>
+      <source>Enable Remote ID</source>
+      <translation>Habilitar Remote ID</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="71"/>
+      <source>Restart Required</source>
+      <translation>Reinicialização Necessária</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="62"/>
+      <source>Disabled</source>
+      <translation>Desabilitado</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="72"/>
+      <source>Language change requires restarting %1. Turn off now?</source>
+      <translation>A mudança de idioma requer reiniciar o %1. Desligar agora?</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="929"/>
+      <source>Serial &lt;none available&gt;</source>
+      <translation>Serial &lt;nenhuma disponível&gt;</translation>
+    </message>
   </context>
   <context>
     <name>GeoFenceController</name>
@@ -7559,6 +8150,48 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/MissionManager/GeoFenceController.cc" line="172"/>
       <source>GeoFence circle not stored as object</source>
       <translation>Círculo da GeoCerca não foi armazenado como objeto</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="776"/>
+      <source>GeoFence is not supported by this vehicle.</source>
+      <translation>GeoCerca não é suportada por este veículo.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="786"/>
+      <source>No GeoFence items configured.</source>
+      <translation>Nenhum item de GeoCerca configurado.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="792"/>
+      <source>Polygon %1 is invalid or has too few points.</source>
+      <translation>O polígono %1 é inválido ou tem poucos pontos.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="799"/>
+      <source>Circle %1 has an invalid center.</source>
+      <translation>O círculo %1 tem um centro inválido.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="803"/>
+      <source>Circle %1 has an invalid radius.</source>
+      <translation>O círculo %1 tem um raio inválido.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="809"/>
+      <source>Fence margin is zero; buffer warnings will be disabled.</source>
+      <translation>A margem da cerca é zero; os avisos de buffer serão desabilitados.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
+      <source>GeoFence self-test passed. Polygons: %1, Circles: %2, Circular fence: %3 m.</source>
+      <translation>Autoteste da GeoCerca aprovado. Polígonos: %1, Círculos: %2, Cerca circular: %3 m.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="819"/>
+      <source>GeoFence self-test issues:
+- %1</source>
+      <translation>Problemas no autoteste da GeoCerca:
+- %1</translation>
     </message>
   </context>
   <context>
@@ -7657,6 +8290,126 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="342"/>
       <source>Altitude</source>
       <translation>Altitude</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="124"/>
+      <source>Operational</source>
+      <translation>Operacional</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="129"/>
+      <source>Buffer</source>
+      <translation>Buffer</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="134"/>
+      <source>Contingency</source>
+      <translation>Contingência</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Loaded</source>
+      <translation>Carregado</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Not Loaded</source>
+      <translation>Não Carregado</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Active</source>
+      <translation>Ativo</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Inactive</source>
+      <translation>Inativo</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Missing Params</source>
+      <translation>Parâmetros Ausentes</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Params OK</source>
+      <translation>Parâmetros OK</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="148"/>
+      <source>Fence Status: %1 | %2 | %3</source>
+      <translation>Status da Cerca: %1 | %2 | %3</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="156"/>
+      <source>Contingency Volume</source>
+      <translation>Volume de Contingência</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="164"/>
+      <source>Vmax (m/s)</source>
+      <translation>Vmax (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="177"/>
+      <source>Latency (s)</source>
+      <translation>Latência (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="190"/>
+      <source>Maneuver (s)</source>
+      <translation>Manobra (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="203"/>
+      <source>Wind (m/s)</source>
+      <translation>Vento (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="216"/>
+      <source>Position Error (m)</source>
+      <translation>Erro de Posição (m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="238"/>
+      <source>CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)</source>
+      <translation>Largura do CV: %1 m (Reação: %2 m, Correção: %3 m, Erro: %4 m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="328"/>
+      <source>GeoFence Self-Test</source>
+      <translation>Autoteste da GeoCerca</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="336"/>
+      <source>3D View</source>
+      <translation>Visão 3D</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="344"/>
+      <source>Vertical cage</source>
+      <translation>Gaiola vertical</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="347"/>
+      <source>Solid</source>
+      <translation>Sólido</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="352"/>
+      <source>Dotted</source>
+      <translation>Pontilhado</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="360"/>
+      <source>Opacity</source>
+      <translation>Opacidade</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="375"/>
+      <source>Min/Max Altitude</source>
+      <translation>Altitude Mín/Máx</translation>
     </message>
   </context>
   <context>
@@ -7773,6 +8526,16 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Start Tagging</source>
       <translation type="unfinished">Start Tagging</translation>
     </message>
+    <message>
+      <location filename="../src/AnalyzeView/GeoTagPage.qml" line="141"/>
+      <source>/TAGGED folder in your image folder</source>
+      <translation>Pasta /TAGGED dentro da sua pasta de imagens</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/GeoTagPage.qml" line="141"/>
+      <source>/TAGGED</source>
+      <translation>/TAGGED</translation>
+    </message>
   </context>
   <context>
     <name>GeoTagWorker</name>
@@ -7839,6 +8602,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/FlightDisplay/GuidedActionConfirm.qml" line="104"/>
       <source>Slide to confirm</source>
       <translation>Deslize para Confirmar</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionConfirm.qml" line="113"/>
+      <source>Slide or hold spacebar</source>
+      <translation>Deslize ou mantenha a barra de espaço pressionada</translation>
     </message>
   </context>
   <context>
@@ -8070,6 +8838,66 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="536"/>
       <source>Internal error: unknown actionCode</source>
       <translation>Erro interno: actionCode desconhecido</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="42"/>
+      <source>Gripper Function</source>
+      <translation>Função da Garra</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="51"/>
+      <source>Change Max Ground Speed</source>
+      <translation>Alterar Velocidade Máx. em Relação ao Solo</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52"/>
+      <source>Change Airspeed</source>
+      <translation>Alterar Velocidade do Ar</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="204"/>
+      <source>Height</source>
+      <translation>Altura</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="207"/>
+      <source>Set Airspeed</source>
+      <translation>Definir Velocidade do Ar</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="212"/>
+      <source>Set Speed</source>
+      <translation>Definir Velocidade</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="217"/>
+      <source>New Alt(rel)</source>
+      <translation>Nova Alt. (rel)</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59"/>
+      <source>Set Home</source>
+      <translation>Definir Home</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="67"/>
+      <source>Grab or Release the cargo</source>
+      <translation>Pegar ou soltar a carga</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="74"/>
+      <source>Change the maximum horizontal cruise speed.</source>
+      <translation>Altera a velocidade máxima de cruzeiro horizontal.</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="75"/>
+      <source>Change the equivalent airspeed setpoint</source>
+      <translation>Altera o setpoint de velocidade do ar equivalente</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="85"/>
+      <source>Set vehicle home as the specified location. This will affect Return to Home position</source>
+      <translation>Define a Home do veículo no local especificado. Isso afetará a posição de Retorno à Base</translation>
     </message>
   </context>
   <context>
@@ -8391,6 +9219,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Advanced</source>
       <translation>Avançado</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/JoystickConfig.qml" line="29"/>
+      <source>Joystick Setup is used to configure and calibrate joysticks.</source>
+      <translation>A configuração do joystick é usada para configurar e calibrar joysticks.</translation>
+    </message>
   </context>
   <context>
     <name>JoystickConfigAdvanced</name>
@@ -8496,6 +9329,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="185"/>
       <source>No firmware support</source>
       <translation>Nenhum suporte ao firmware</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="258"/>
+      <source>QGC functions do not support shift actions</source>
+      <translation>As funções do QGC não suportam ações com shift</translation>
     </message>
   </context>
   <context>
@@ -8603,6 +9441,18 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="64"/>
       <source>Enabled:</source>
       <translation>Habilitado:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="61"/>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="66"/>
+      <source>Yes</source>
+      <translation>Sim</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="61"/>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="66"/>
+      <source>No</source>
+      <translation>Não</translation>
     </message>
   </context>
   <context>
@@ -9263,6 +10113,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Avoidance/collision prevention</source>
       <translation>Prevenção de evasão/colisão</translation>
     </message>
+    <message>
+      <location filename="../src/comm/QGCMAVLink.cc" line="225"/>
+      <source>Propulsion</source>
+      <translation>Propulsão</translation>
+    </message>
   </context>
   <context>
     <name>MAVLink unknown SYS_STATUS_SENSOR value</name>
@@ -9507,6 +10362,77 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Back</source>
       <translation>Voltar</translation>
     </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="222"/>
+      <location filename="../src/ui/MainRootWindow.qml" line="413"/>
+      <source>About</source>
+      <translation>Sobre</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="255"/>
+      <source>EasyGripper Smart Controller v1.0</source>
+      <translation>EasyGripper Smart Controller v1.0</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="262"/>
+      <source>Copyright © 2024 %1. All rights reserved.</source>
+      <translation>Copyright © 2024 %1. Todos os direitos reservados.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="284"/>
+      <source>This product includes software developed by the QGroundControl project &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</source>
+      <translation>Este produto inclui software desenvolvido pelo projeto QGroundControl &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="290"/>
+      <source>QGroundControl is licensed under the Apache License, Version 2.0.</source>
+      <translation>O QGroundControl é licenciado sob a Apache License, Versão 2.0.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="301"/>
+      <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
+      <translation>Você pode obter uma cópia da Apache License em:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310"/>
+      <source>Android %1</source>
+      <translation>Android %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="324"/>
+      <source>Develope under: %1 - Security patch %2</source>
+      <translation>Desenvolvido em: %1 - Patch de segurança %2</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="230"/>
+      <source>Close %1</source>
+      <translation>Fechar %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="420"/>
+      <source>Debug Touch Areas</source>
+      <translation>Depurar Áreas de Toque</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="421"/>
+      <source>Touch Area display toggled</source>
+      <translation>Exibição das áreas de toque alternada</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="439"/>
+      <source>Turn off Advanced Mode?</source>
+      <translation>Desativar o Modo Avançado?</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="633"/>
+      <source>Vehicle Error</source>
+      <translation>Erro do Veículo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="657"/>
+      <source>Additional errors received</source>
+      <translation>Erros adicionais recebidos</translation>
+    </message>
   </context>
   <context>
     <name>MainStatusIndicator</name>
@@ -9584,6 +10510,49 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="241"/>
       <source>Transition to Fixed Wing</source>
       <translation>Transição para Asa Fixa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA OFF</source>
+      <translation>PARAQUEDAS DESL.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA ARMED</source>
+      <translation>PARAQUEDAS ARMADO</translation>
+    </message>
+    <message>
+      <source>PARA ON</source>
+      <translation>PARAQUEDAS LIG.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE ON</source>
+      <translation>CERCA LIG.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE OFF</source>
+      <translation>CERCA DESL.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="192"/>
+      <source>FENCE PARAMS MISSING</source>
+      <translation>PARÂMETROS DA CERCA AUSENTES</translation>
+    </message>
+    <message>
+      <source>FENCE PARAMs MISSING</source>
+      <translation>PARÂMETROS DA CERCA AUSENTES</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="235"/>
+      <source>Arming Check Report:</source>
+      <translation>Relatório da Verificação de Armamento:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="343"/>
+      <source>Edit Parameter</source>
+      <translation>Editar Parâmetro</translation>
     </message>
   </context>
   <context>
@@ -9668,6 +10637,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/AnalyzeView/MavlinkConsolePage.qml" line="290"/>
       <source>Send</source>
       <translation>Enviar</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/MavlinkConsolePage.qml" line="277"/>
+      <source>Enter Commands here...</source>
+      <translation>Digite os comandos aqui...</translation>
     </message>
   </context>
   <context>
@@ -9941,6 +10915,57 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Confirm canceling the upload process?</source>
       <translation>Confirmar o cancelamento do processo de envio?</translation>
     </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="552"/>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="590"/>
+      <source>Please Select</source>
+      <translation>Selecione</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="553"/>
+      <source>Calm</source>
+      <translation>Calmo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="554"/>
+      <source>Breeze</source>
+      <translation>Brisa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="555"/>
+      <source>Gale</source>
+      <translation>Ventania</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="556"/>
+      <source>Storm</source>
+      <translation>Tempestade</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="591"/>
+      <source>Crashed (Pilot Error)</source>
+      <translation>Queda (Erro do Piloto)</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="592"/>
+      <source>Crashed (Software or Hardware issue)</source>
+      <translation>Queda (Problema de Software ou Hardware)</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="593"/>
+      <source>Unsatisfactory</source>
+      <translation>Insatisfatório</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="594"/>
+      <source>Good</source>
+      <translation>Bom</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="595"/>
+      <source>Great</source>
+      <translation>Ótimo</translation>
+    </message>
   </context>
   <context>
     <name>MessageIndicator</name>
@@ -9948,6 +10973,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/ui/toolbar/MessageIndicator.qml" line="112"/>
       <source>No Messages</source>
       <translation>Nenhuma mensagem</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MessageIndicator.qml" line="183"/>
+      <source>Edit Parameter</source>
+      <translation>Editar Parâmetro</translation>
     </message>
   </context>
   <context>
@@ -10053,6 +11083,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Category:</source>
       <translation>Categoria:</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/MissionCommandDialog.qml" line="23"/>
+      <source>Select Mission Command</source>
+      <translation>Selecionar Comando de Missão</translation>
+    </message>
   </context>
   <context>
     <name>MissionCommandTree</name>
@@ -10118,6 +11153,34 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/MissionManager/MissionItem.cc" line="297"/>
       <source>Param %1 incorrect type %2, must be double or null</source>
       <translation>Parâmetro %1 do tipo incorreto %2, deve ser duplo ou nulo</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="41"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="79"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="114"/>
+      <source>Param1:</source>
+      <translation>Param1:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="42"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="80"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="115"/>
+      <source>Param2:</source>
+      <translation>Param2:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="43"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="81"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="116"/>
+      <source>Param3:</source>
+      <translation>Param3:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="44"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="82"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="117"/>
+      <source>Param4:</source>
+      <translation>Param4:</translation>
     </message>
   </context>
   <context>
@@ -10274,6 +11337,12 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/MissionManager/MissionSettingsItem.cc" line="292"/>
       <source>Launch</source>
       <translation type="unfinished">Launch</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionSettingsItem.h" line="74"/>
+      <location filename="../src/MissionManager/MissionSettingsItem.h" line="75"/>
+      <source>Mission Start</source>
+      <translation>Início da Missão</translation>
     </message>
   </context>
   <context>
@@ -10543,6 +11612,33 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="130"/>
       <source>Disarmed</source>
       <translation>Desarmado</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="64"/>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="163"/>
+      <source>Pause</source>
+      <translation>Pausar</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="69"/>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="157"/>
+      <source>Start Mission</source>
+      <translation>Iniciar Missão</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="151"/>
+      <source>Arm</source>
+      <translation>Armar</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="169"/>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="175"/>
+      <source>Take control</source>
+      <translation>Assumir controle</translation>
     </message>
   </context>
   <context>
@@ -10880,6 +11976,11 @@ Is this really what you want?</source>
       <source>Import Tile Set</source>
       <translation type="unfinished">Import Tile Set</translation>
     </message>
+    <message>
+      <location filename="../src/QtLocationPlugin/QMLControl/OfflineMap.qml" line="635"/>
+      <source>Show zoom previews</source>
+      <translation>Mostrar prévias de zoom</translation>
+    </message>
   </context>
   <context>
     <name>OfflineVehicleFirstRunPrompt</name>
@@ -10965,6 +12066,21 @@ Is this really what you want?</source>
       <location filename="../src/QmlControls/PIDTuning.qml" line="386"/>
       <source>Switches to &apos;%1&apos; when you click Stop.</source>
       <translation>Muda para &apos;%1&apos; quando você clicar em Parar.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>ON</source>
+      <translation>LIG.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>OFF</source>
+      <translation>DESL.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="121"/>
+      <source>sec</source>
+      <translation>s</translation>
     </message>
   </context>
   <context>
@@ -11526,6 +12642,16 @@ Is this really what you want?</source>
       <source>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</source>
       <translation>O aumento disso leva ao arrendodamento das curvas nas missões (corte dos cantos). Use o menor valor possível para o rastreamento preciso dos cantos.</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="80"/>
+      <source>Warning: a high responsiveness requires a vehicle with large thrust-to-weight ratio. The vehicle might lose altitude otherwise.</source>
+      <translation>Aviso: uma alta responsividade requer um veículo com grande relação empuxo-peso. Caso contrário, o veículo pode perder altitude.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
+      <source>Vertical velocity (m/s)</source>
+      <translation>Velocidade vertical (m/s)</translation>
+    </message>
   </context>
   <context>
     <name>PX4FlowSensor</name>
@@ -11547,6 +12673,251 @@ Is this really what you want?</source>
       <source>Disabled</source>
       <translation>Desativado</translation>
     </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>disabled</source>
+      <translation>desabilitado</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Warning</source>
+      <translation>Aviso</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Hold mode</source>
+      <translation>Modo Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return mode</source>
+      <translation>Modo Return</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Terminate</source>
+      <translation>Terminar</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land mode</source>
+      <translation>Modo Land</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at critical level, land at emergency level</source>
+      <translation>Retornar no nível crítico, pousar no nível de emergência</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Lockdown</source>
+      <translation>Bloqueio</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disarm</source>
+      <translation>Desarmar</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at current altitude</source>
+      <translation>Retornar na altitude atual</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at specified altitude:</source>
+      <translation>Retornar na altitude especificada:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Loiter above Home for:</source>
+      <translation>Loiter acima da Home por:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land with descent speed:</source>
+      <translation>Pousar com velocidade de descida:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>external HITL</source>
+      <translation>HITL externo</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL enabled</source>
+      <translation>HITL habilitado</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL e SIH desabilitados</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>SIH enabled</source>
+      <translation>SIH habilitado</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>when armed until disarm (default)</source>
+      <translation>quando armado até desarmar (padrão)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until disarm</source>
+      <translation>da inicialização até desarmar</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until shutdown</source>
+      <translation>da inicialização até o desligamento</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>depending on AUX1 RC channel</source>
+      <translation>dependendo do canal RC AUX1</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from 1st armed until shutdown</source>
+      <translation>do primeiro armamento até o desligamento</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>All mission messages</source>
+      <translation>Todas as mensagens da missão</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Geotagging messages</source>
+      <translation>Mensagens de geomarcação</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disable</source>
+      <translation>Desabilitar</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, on command</source>
+      <translation>Baseado em tempo, sob comando</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, always on</source>
+      <translation>Baseado em tempo, sempre ativo</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, always on</source>
+      <translation>Baseado em distância, sempre ativo</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, on command (Survey mode)</source>
+      <translation>Baseado em distância, sob comando (modo Varredura)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>GPIO</source>
+      <translation>GPIO</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Seagull MAP2 (over PWM)</source>
+      <translation>Seagull MAP2 (via PWM)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>MAVLink (forward via MAV_CMD_IMAGE_START_CAPTURE)</source>
+      <translation>MAVLink (encaminhar via MAV_CMD_IMAGE_START_CAPTURE)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Generic PWM (IR trigger, servo)</source>
+      <translation>PWM genérico (gatilho IR, servo)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active low</source>
+      <translation>Ativo em nível baixo</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active high</source>
+      <translation>Ativo em nível alto</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Direct velocity</source>
+      <translation>Velocidade direta</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Smoothed velocity</source>
+      <translation>Velocidade suavizada</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Acceleration based</source>
+      <translation>Baseado em aceleração</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Position mode</source>
+      <translation>Modo Position</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Altitude mode</source>
+      <translation>Modo Altitude</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Manual</source>
+      <translation>Manual</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch</source>
+      <translation>Rolagem/Arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>Rolagem/Arfagem/Guinada</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX1 Passthrough RC channel</source>
+      <translation>Canal RC de passagem AUX1</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX2 Passthrough RC channel</source>
+      <translation>Canal RC de passagem AUX2</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM1 tuning channel</source>
+      <translation>Canal de ajuste PARAM1</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM2 tuning channel</source>
+      <translation>Canal de ajuste PARAM2</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM3 tuning channel</source>
+      <translation>Canal de ajuste PARAM3</translation>
+    </message>
   </context>
   <context>
     <name>PX4RadioComponent</name>
@@ -11559,6 +12930,11 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponent.cc" line="27"/>
       <source>Radio Setup is used to calibrate your transmitter. It also assign channels for Roll, Pitch, Yaw and Throttle vehicle control as well as determining whether they are reversed.</source>
       <translation>A Configuração do Rádio permite calibrar seu transmissor. Também atribui canais para Rolagem, Arfagem, Guinada e Acelerador do veículo e também determina se eles são revertidos.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponent.cc" line="27"/>
+      <source>Radio Setup is used to calibrate your transmitter. </source>
+      <translation>A configuração do rádio é usada para calibrar seu transmissor. </translation>
     </message>
   </context>
   <context>
@@ -11654,6 +13030,66 @@ Is this really what you want?</source>
       <source>Switch Settings</source>
       <translation>Opções Interruptor</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="35"/>
+      <source>Channel %1</source>
+      <translation>Canal %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="40"/>
+      <source>Unassigned</source>
+      <translation>Não atribuído</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="42"/>
+      <source>Arm switch channel</source>
+      <translation>Canal da chave de armamento</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="44"/>
+      <source>Gear switch channel</source>
+      <translation>Canal da chave do trem de pouso</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="45"/>
+      <source>Landing gear switch channel</source>
+      <translation>Canal da chave do trem de pouso</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="46"/>
+      <source>Kill switch channel</source>
+      <translation>Canal da chave de corte (kill)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="47"/>
+      <source>Emergency Kill switch channel</source>
+      <translation>Canal da chave de corte de emergência</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="48"/>
+      <source>Loiter switch channel</source>
+      <translation>Canal da chave Loiter</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="50"/>
+      <source>Offboard switch channel</source>
+      <translation>Canal da chave Offboard</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="52"/>
+      <source>Return switch channel</source>
+      <translation>Canal da chave Return</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="54"/>
+      <source>Transition switch channel</source>
+      <translation>Canal da chave de transição</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="56"/>
+      <source>Flaps switch channel</source>
+      <translation>Canal da chave dos flaps</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponent</name>
@@ -11747,6 +13183,18 @@ Is this really what you want?</source>
       <source>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</source>
       <translation>Aumente para maior capacidade de resposta, reduza se houver sobre-sinal na atitude(existe apenas um valor-alvo quando a Guinada está fixa, ou seja, quando centralizado o stick do controle).</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>Resposta</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>Setpoint</translation>
+    </message>
+    <message>
+      <source>Attitude</source>
+      <translation>Atitude</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentCopterPosition</name>
@@ -11793,6 +13241,18 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <source>Proportional gain (MPC_Z_P)</source>
       <translation>Ganho Proporcional (MPC_Z_P)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>Resposta</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>Setpoint</translation>
+    </message>
+    <message>
+      <source>Position</source>
+      <translation>Posição</translation>
     </message>
   </context>
   <context>
@@ -11903,6 +13363,18 @@ Is this really what you want?</source>
       <source>Integral Gain (MC_YAWRATE_I)</source>
       <translation>Ganho integral (MC_YAWRATE_I)</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>Resposta</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>Setpoint</translation>
+    </message>
+    <message>
+      <source>Rate</source>
+      <translation>Taxa</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentCopterVelocity</name>
@@ -11994,6 +13466,18 @@ Is this really what you want?</source>
       <source>Differential gain (MPC_Z_VEL_D_ACC)</source>
       <translation type="unfinished">Differential gain (MPC_Z_VEL_D_ACC)</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>Resposta</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>Setpoint</translation>
+    </message>
+    <message>
+      <source>Velocity</source>
+      <translation>Velocidade</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentPlaneAll</name>
@@ -12032,6 +13516,11 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentVTOL.qml" line="39"/>
       <source>Multirotor</source>
       <translation type="unfinished">Multirotor</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentVTOL.qml" line="42"/>
+      <source>Fixedwing</source>
+      <translation>Asa Fixa</translation>
     </message>
   </context>
   <context>
@@ -12335,6 +13824,26 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
       <source>Set RC to Param</source>
       <translation type="unfinished">Set RC to Param</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="25"/>
+      <source>Parameter Editor</source>
+      <translation>Editor de Parâmetros</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="149"/>
+      <source>Reset To Default</source>
+      <translation>Restaurar Padrão</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="221"/>
+      <source>Vehicle reboot required after change</source>
+      <translation>Reinicialização do veículo necessária após a alteração</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="226"/>
+      <source>Application restart required after change</source>
+      <translation>Reinicialização do aplicativo necessária após a alteração</translation>
+    </message>
   </context>
   <context>
     <name>ParameterManager</name>
@@ -12511,6 +14020,31 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="557"/>
       <source>Confirm erasing all files?</source>
       <translation>Confirma apagar todos os arquivos?</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="991"/>
+      <source>SD Card Missing</source>
+      <translation>Cartão SD Ausente</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="439"/>
+      <source>Gimbal Pitch</source>
+      <translation>Arfagem do Gimbal</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="448"/>
+      <source>Gimbal Yaw</source>
+      <translation>Guinada do Gimbal</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="555"/>
+      <source>Tracking Algorithm</source>
+      <translation>Algoritmo de Rastreamento</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="556"/>
+      <source>If the target is close, camera runaway may occur.</source>
+      <translation>Se o alvo estiver próximo, a câmera pode perder o controle (runaway).</translation>
     </message>
   </context>
   <context>
@@ -12813,6 +14347,32 @@ Note que isso também irá redefinir tudo, incluindo nós da UAVCAN, todas as co
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="316"/>
       <source>Click anywhere to hide</source>
       <translation>Clique em qualquer lugar para ocultar</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
+      <source>Req. Upload</source>
+      <translation>Envio Nec.</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="61"/>
+      <source> deg</source>
+      <translation> graus</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="66"/>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="67"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="118"/>
+      <source>Done</source>
+      <translation>Concluído</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="161"/>
+      <source>Dist prev WP:</source>
+      <translation>Dist. WP ant.:</translation>
     </message>
   </context>
   <context>
@@ -13125,6 +14685,76 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/PlanView/PlanView.qml" line="1213"/>
       <source>Download</source>
       <translation>Baixar</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="735"/>
+      <source>Vision LiDAR</source>
+      <translation>LiDAR de Visão</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="1047"/>
+      <source>Current Distance</source>
+      <translation>Distância Atual</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="73"/>
+      <source>Survey</source>
+      <translation>Varredura</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="75"/>
+      <source>Corridor Scan</source>
+      <translation>Varredura de Corredor</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="77"/>
+      <source>Structure Scan</source>
+      <translation>Varredura de Estrutura</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="79"/>
+      <source>Init Path</source>
+      <translation>Inicializar Rota</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="88"/>
+      <source>Blank</source>
+      <translation>Em branco</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="755"/>
+      <source>Powered by %1</source>
+      <translation>Desenvolvido por %1</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="874"/>
+      <source>Plan overwrite</source>
+      <translation>Sobrescrever plano</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="748"/>
+      <source>Close</source>
+      <translation>Fechar</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="816"/>
+      <source>Use Obstacle Detection</source>
+      <translation>Usar Detecção de Obstáculos</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="858"/>
+      <source>Avoid</source>
+      <translation>Desviar</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="876"/>
+      <source>Stop</source>
+      <translation>Parar</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="893"/>
+      <source>Detection Distance</source>
+      <translation>Distância de Detecção</translation>
     </message>
   </context>
   <context>
@@ -13860,6 +15490,11 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/api/QGCCorePlugin.cc" line="286"/>
       <source>WARNING: You are about to enter Advanced Mode. If used incorrectly, this may cause your vehicle to malfunction thus voiding your warranty. You should do so only if instructed by customer support. Are you sure you want to enable Advanced Mode?</source>
       <translation>ATENÇÃO: Você está prestes a entrar em Modo Avançado. Se usado incorretamente, isso pode levar o veículo a funcionar incorretamente levando a perda da garantia. Você só deve fazer isso se instruído pelo suporte ao consumidor. Você tem certeza que deseja habilitar o Modo Avançado?</translation>
+    </message>
+    <message>
+      <location filename="../src/api/QGCCorePlugin.cc" line="144"/>
+      <source>Maps</source>
+      <translation>Mapas</translation>
     </message>
   </context>
   <context>
@@ -14809,6 +16444,36 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <source>Mode 2</source>
       <translation>Modo 2</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="72"/>
+      <source>Click Ok to place your Spektrum receiver in the bind mode.</source>
+      <translation>Clique em Ok para colocar seu receptor Spektrum no modo de pareamento (bind).</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="77"/>
+      <source>Select the specific receiver type below:</source>
+      <translation>Selecione o tipo específico de receptor abaixo:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="317"/>
+      <source>Radio Not Ready</source>
+      <translation>Rádio Não Está Pronto</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="321"/>
+      <source>Ready to calibrate.</source>
+      <translation>Pronto para calibrar.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="323"/>
+      <source>Zero Trims</source>
+      <translation>Zerar Trims</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="324"/>
+      <source>Before calibrating you should zero all your trims and subtrims. Click Ok to start Calibration.\n\n%1</source>
+      <translation>Antes de calibrar, zere todos os trims e subtrims. Clique em Ok para iniciar a calibração.\n\n%1</translation>
+    </message>
   </context>
   <context>
     <name>RadioComponentController</name>
@@ -14928,6 +16593,11 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <translation>As opções de calibração atuais agora são mostradas para cada canal na tela.
 
 Clique no botão Próximo para enviar a calibração para a placa. Clique em Cancelar se você não deseja salvar esses valores.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponentController.cc" line="878"/>
+      <source>The current calibration settings are now displayed for each channel on screen.\n\n</source>
+      <translation>As configurações de calibração atuais agora são exibidas na tela para cada canal.\n\n</translation>
     </message>
   </context>
   <context>
@@ -15332,6 +17002,31 @@ Clique no botão Próximo para enviar a calibração para a placa. Clique em Can
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.cc" line="19"/>
       <source>Safety</source>
       <translation>Segurança</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="431"/>
+      <source>Min Altitude</source>
+      <translation>Altitude Mínima</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="444"/>
+      <source>Fence Inside</source>
+      <translation>Dentro da Cerca</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="457"/>
+      <source>Start Time(h)</source>
+      <translation>Hora de Início (h)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="470"/>
+      <source>Duration Time(h)</source>
+      <translation>Duração (h)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="483"/>
+      <source>Time Zone(GMT)</source>
+      <translation>Fuso Horário (GMT)</translation>
     </message>
   </context>
   <context>
@@ -15825,6 +17520,31 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
       <source>Factory reset</source>
       <translation type="unfinished">Factory reset</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="62"/>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="69"/>
+      <source>Roll</source>
+      <translation>Rolagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="71"/>
+      <source>Pitch</source>
+      <translation>Arfagem</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="73"/>
+      <source>Yaw</source>
+      <translation>Guinada</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="337"/>
+      <source>Adjust orientations as needed.\n\nROTATION_NONE indicates component points in direction of flight.</source>
+      <translation>Ajuste as orientações conforme necessário.\n\nROTATION_NONE indica que o componente aponta na direção do voo.</translation>
+    </message>
   </context>
   <context>
     <name>SerialConfiguration</name>
@@ -16010,6 +17730,11 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
       <source>Parameters</source>
       <translation>Parâmetros</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/SetupView.qml" line="266"/>
+      <source>Buttons</source>
+      <translation>Botões</translation>
+    </message>
   </context>
   <context>
     <name>ShapeFileHelper</name>
@@ -16126,6 +17851,11 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
       <source>Flight Speed</source>
       <translation>Velocidade de voo</translation>
     </message>
+    <message>
+      <location filename="../src/PlanView/SimpleItemEditor.qml" line="45"/>
+      <source>Param%1</source>
+      <translation>Param%1</translation>
+    </message>
   </context>
   <context>
     <name>SimpleMissionItem</name>
@@ -16168,6 +17898,11 @@ ROTATION_NONE indica que o componente aponta na direção do voo.</translation>
       <location filename="../src/MissionManager/SimpleMissionItem.cc" line="424"/>
       <source>Loiter</source>
       <translation type="unfinished">Loiter</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/SimpleMissionItem.cc" line="435"/>
+      <source>Param%1</source>
+      <translation>Param%1</translation>
     </message>
   </context>
   <context>
@@ -16508,6 +18243,16 @@ Pairar e capturar imagem</translation>
       <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.cc" line="28"/>
       <source>The Syslink Component is used to setup the radio connection on Crazyflies.</source>
       <translation>O Componente Syslink é usado para configurar a conexão de rádio em Crazyflies.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.qml" line="106"/>
+      <source>Address in hex. Default is E7E7E7E7E7.</source>
+      <translation>Endereço em hexadecimal. O padrão é E7E7E7E7E7.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.qml" line="126"/>
+      <source>Restore Defaults</source>
+      <translation>Restaurar Padrões</translation>
     </message>
   </context>
   <context>
@@ -17280,6 +19025,128 @@ Confirmar a alteração?</translation>
       <source>Weight units</source>
       <translation>Unidade de Peso</translation>
     </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="26"/>
+      <location filename="../src/Settings/UnitsSettings.cc" line="57"/>
+      <source>Feet</source>
+      <translation>Pés</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="26"/>
+      <location filename="../src/Settings/UnitsSettings.cc" line="57"/>
+      <source>Meters</source>
+      <translation>Metros</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="30"/>
+      <source>Distance units</source>
+      <translation>Unidades de distância</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="61"/>
+      <source>Altitude units</source>
+      <translation>Unidades de altitude</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareFeet</source>
+      <translation>Pés quadrados</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareMeters</source>
+      <translation>Metros quadrados</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareKilometers</source>
+      <translation>Quilômetros quadrados</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>Hectares</source>
+      <translation>Hectares</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>Acres</source>
+      <translation>Acres</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareMiles</source>
+      <translation>Milhas quadradas</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="96"/>
+      <source>Area units</source>
+      <translation>Unidades de área</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Feet/second</source>
+      <translation>Pés/segundo</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Meters/second</source>
+      <translation>Metros/segundo</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Miles/hour</source>
+      <translation>Milhas/hora</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Kilometers/hour</source>
+      <translation>Quilômetros/hora</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Knots</source>
+      <translation>Nós</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="131"/>
+      <source>Speed units</source>
+      <translation>Unidades de velocidade</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="158"/>
+      <source>Celsius</source>
+      <translation>Celsius</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="158"/>
+      <source>Fahrenheit</source>
+      <translation>Fahrenheit</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="162"/>
+      <source>Temperature units</source>
+      <translation>Unidades de temperatura</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Grams</source>
+      <translation>Gramas</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Kilograms</source>
+      <translation>Quilogramas</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Ounces</source>
+      <translation>Onças</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Pounds</source>
+      <translation>Libras</translation>
+    </message>
   </context>
   <context>
     <name>VTOLChecklist</name>
@@ -17812,6 +19679,32 @@ Confirmar a alteração?</translation>
       <source>%1 command failed</source>
       <translation>comando %1 falhou</translation>
     </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="981"/>
+      <source>PreArm: Radio failsafe on</source>
+      <translation>PreArm: Failsafe de rádio ativo</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="983"/>
+      <source>PreArm: Waiting for 3D fix</source>
+      <translation>PreArm: Aguardando fix 3D</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="985"/>
+      <source>PreArm: EKF attitude is bad</source>
+      <translation>PreArm: Atitude do EKF ruim</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="1803"/>
+      <source>Preflight checklist incomplete. Disarming vehicle.</source>
+      <translation>Checklist pré-voo incompleto. Desarmando o veículo.</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2488"/>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2502"/>
+      <source>Preflight checklist must pass before arming.</source>
+      <translation>O checklist pré-voo deve ser aprovado antes de armar.</translation>
+    </message>
   </context>
   <context>
     <name>Vehicle Class</name>
@@ -18005,6 +19898,36 @@ Confirmar a alteração?</translation>
       <source>Not Available</source>
       <translation>Indisponível</translation>
     </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="98"/>
+      <source>X (%1)</source>
+      <translation>X (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="143"/>
+      <source>Y (%1)</source>
+      <translation>Y (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="188"/>
+      <source>Z (%1)</source>
+      <translation>Z (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="202"/>
+      <source>Accel 1: %1</source>
+      <translation>Acel 1: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="206"/>
+      <source>Accel 2: %1</source>
+      <translation>Acel 2: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="210"/>
+      <source>Accel 3: %1</source>
+      <translation>Acel 3: %1</translation>
+    </message>
   </context>
   <context>
     <name>VideoManager</name>
@@ -18075,6 +19998,8949 @@ Confirmar a alteração?</translation>
       <location filename="../src/Settings/VideoSettings.cc" line="31"/>
       <source>Yuneec Mantis G</source>
       <translation>Yuneec Mantis G</translation>
+    </message>
+  </context>
+  <context>
+    <name>Parameter.MetaData.json</name>
+    <message>
+      <source>Disabled</source>
+      <translation>Desabilitado</translation>
+    </message>
+    <message>
+      <source>HITL and SIH disabled</source>
+      <translation>HITL e SIH desabilitados</translation>
+    </message>
+    <message>
+      <source>SIH enabled</source>
+      <translation>SIH habilitado</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch</source>
+      <translation>Rolagem/Arfagem</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>Rolagem/Arfagem/Guinada</translation>
+    </message>
+    <message>
+      <source>Simple position control</source>
+      <translation>Controle de posição simples</translation>
+    </message>
+    <message>
+      <source>Smooth position control</source>
+      <translation>Controle de posição suave</translation>
+    </message>
+    <message>
+      <source>Smooth position control (Jerk optimized)</source>
+      <translation>Controle de posição suave (otimizado para jerk)</translation>
+    </message>
+  </context>
+  <context>
+    <name>MapsSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="90"/>
+      <source>Map</source>
+      <translation>Mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="110"/>
+      <source>Provider</source>
+      <translation>Provedor</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="132"/>
+      <source>Type</source>
+      <translation>Tipo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="149"/>
+      <source>Elevation Provider</source>
+      <translation>Provedor de Elevação</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="164"/>
+      <source>Offline Maps</source>
+      <translation>Mapas Offline</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="168"/>
+      <source>Download map tiles for use when offline</source>
+      <translation>Baixar blocos de mapa para uso offline</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="199"/>
+      <source>tiles</source>
+      <translation>blocos</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="208"/>
+      <source>Edit</source>
+      <translation>Editar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="218"/>
+      <source>Add New Set</source>
+      <translation>Adicionar Novo Conjunto</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="220"/>
+      <source>Add</source>
+      <translation>Adicionar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="229"/>
+      <source>Import Map Tiles</source>
+      <translation>Importar Blocos de Mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="231"/>
+      <source>Import</source>
+      <translation>Importar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="240"/>
+      <source>Export Map Tiles</source>
+      <translation>Exportar Blocos de Mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="242"/>
+      <source>Export</source>
+      <translation>Exportar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="252"/>
+      <source>Tokens</source>
+      <translation>Tokens</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="259"/>
+      <source>Allows access to additional providers</source>
+      <translation>Permite acesso a provedores adicionais</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="278"/>
+      <source>Mapbox</source>
+      <translation>Mapbox</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="286"/>
+      <source>Esri</source>
+      <translation>Esri</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="294"/>
+      <source>VWorld</source>
+      <translation>VWorld</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="306"/>
+      <source>To enable VWorld maps, enter your access token.</source>
+      <translation>Para habilitar os mapas VWorld, insira seu token de acesso.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="313"/>
+      <source>Mapbox Login</source>
+      <translation>Login Mapbox</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="333"/>
+      <source>Account</source>
+      <translation>Conta</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="340"/>
+      <source>Map Style</source>
+      <translation>Estilo do Mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="351"/>
+      <source>Custom Map URL</source>
+      <translation>URL de Mapa Personalizado</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="358"/>
+      <source>URL with {x} {y} {z} or {zoom} substitutions</source>
+      <translation>URL com substituições {x} {y} {z} ou {zoom}</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="377"/>
+      <source>Server URL</source>
+      <translation>URL do Servidor</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="387"/>
+      <source>Tile Cache</source>
+      <translation>Cache de Blocos</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="404"/>
+      <source>Max disk cache</source>
+      <translation>Cache máx. em disco</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="420"/>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="438"/>
+      <source>MB</source>
+      <translation>MB</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="422"/>
+      <source>Max memory cache</source>
+      <translation>Cache máx. em memória</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMSupportForwardingIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/APMSupportForwardingIndicator.qml" line="46"/>
+      <source>Mavlink traffic is being forwarded to a support server</source>
+      <translation>O tráfego Mavlink está sendo encaminhado para um servidor de suporte</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/APMSupportForwardingIndicator.qml" line="50"/>
+      <source>Server name:</source>
+      <translation>Nome do servidor:</translation>
+    </message>
+  </context>
+  <context>
+    <name>ARLinkIndicator</name>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="55"/>
+      <source>Link RSSI Status</source>
+      <translation>Status do RSSI do Link</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="55"/>
+      <source>Link Disconnected</source>
+      <translation>Link Desconectado</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="69"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="73"/>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="82"/>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="92"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="78"/>
+      <source>Sky RSSI:</source>
+      <translation>RSSI Aéreo:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="87"/>
+      <source>Main Link:</source>
+      <translation>Link Principal:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="99"/>
+      <source>Start Pair</source>
+      <translation>Iniciar Pareamento</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="153"/>
+      <source>Data Link Pair</source>
+      <translation>Pareamento do Link de Dados</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="168"/>
+      <source>Step 1</source>
+      <translation>Etapa 1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="178"/>
+      <source>Quick press 6 times in 3 second.</source>
+      <translation>Pressione rapidamente 6 vezes em 3 segundos.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="194"/>
+      <source>Step 2</source>
+      <translation>Etapa 2</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="205"/>
+      <source>Press and hold this, the remote control will enter the binding state.</source>
+      <translation>Mantenha pressionado para que o controle remoto entre no modo de pareamento.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="214"/>
+      <source>Trigger Bind</source>
+      <translation>Acionar Pareamento</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="235"/>
+      <source>Binding</source>
+      <translation>Pareando</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
+      <source>Bind Success</source>
+      <translation>Pareamento Concluído</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
+      <source>Bind Timeout</source>
+      <translation>Tempo de Pareamento Esgotado</translation>
+    </message>
+  </context>
+  <context>
+    <name>ARSettings</name>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="41"/>
+      <source>Reboot ground/air unit for changes to take effect.</source>
+      <translation>Reinicie a unidade terrestre/aérea para que as alterações tenham efeito.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="56"/>
+      <source>Link Status</source>
+      <translation>Status do Link</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="77"/>
+      <source>Status:</source>
+      <translation>Status:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="81"/>
+      <source>Connected</source>
+      <translation>Conectado</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="81"/>
+      <source>Not Connected</source>
+      <translation>Não Conectado</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="86"/>
+      <source>Bind Status:</source>
+      <translation>Status do Pareamento:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
+      <source>Binded</source>
+      <translation>Pareado</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
+      <source>Not Binded</source>
+      <translation>Não Pareado</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="95"/>
+      <source>Frequency Band:</source>
+      <translation>Banda de Frequência:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="101"/>
+      <source>Frequency:</source>
+      <translation>Frequência:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="107"/>
+      <source>Bandwidth/Flow:</source>
+      <translation>Largura de Banda/Fluxo:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="113"/>
+      <source>Ground/Air MCS:</source>
+      <translation>MCS Terrestre/Aéreo:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="119"/>
+      <source>Ground/Air/BR SNR:</source>
+      <translation>SNR Terrestre/Aéreo/BR:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="125"/>
+      <source>Ground RSSI A/B:</source>
+      <translation>RSSI Terrestre A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="131"/>
+      <source>Air RSSI A/B:</source>
+      <translation>RSSI Aéreo A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="137"/>
+      <source>BR RSSI A/B:</source>
+      <translation>RSSI BR A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="143"/>
+      <source>Temperature: G/A</source>
+      <translation>Temperatura: T/A</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="149"/>
+      <source>Version:</source>
+      <translation>Versão:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="187"/>
+      <source>Ground Settings</source>
+      <translation>Configurações Terrestres</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="211"/>
+      <source>Bind</source>
+      <translation>Parear</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="219"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="280"/>
+      <source>Enable 2.4G</source>
+      <translation>Habilitar 2.4G</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="232"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="291"/>
+      <source>Enable 5.8G</source>
+      <translation>Habilitar 5.8G</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="241"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="302"/>
+      <source>Reboot</source>
+      <translation>Reiniciar</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="260"/>
+      <source>Air Settings</source>
+      <translation>Configurações Aéreas</translation>
+    </message>
+  </context>
+  <context>
+    <name>RajantSettings</name>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="51"/>
+      <source>Link Status</source>
+      <translation>Status do Link</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="72"/>
+      <source>Status:</source>
+      <translation>Status:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+      <source>Connected</source>
+      <translation>Conectado</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+      <source>Not Connected</source>
+      <translation>Não Conectado</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+      <source>Node Address:</source>
+      <translation>Endereço do Nó:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="86"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+      <source>Node adress:</source>
+      <translation>Endereço do nó:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+      <source>Serial Number:</source>
+      <translation>Número de Série:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="98"/>
+      <source>Current Network Name:</source>
+      <translation>Nome da Rede Atual:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+      <source>Radio:</source>
+      <translation>Rádio:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="99"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="109"/>
+      <source>Sky RSSI:</source>
+      <translation>RSSI Aéreo:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="119"/>
+      <source>Noise Floor:</source>
+      <translation>Nível de Ruído:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="127"/>
+      <source>Link Rate:</source>
+      <translation>Taxa do Link:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="135"/>
+      <source>Tx Power:</source>
+      <translation>Potência Tx:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="143"/>
+      <source>Peers:</source>
+      <translation>Pares:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="151"/>
+      <source>Hostname:</source>
+      <translation>Nome do Host:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="161"/>
+      <source>Firmware:</source>
+      <translation>Firmware:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="193"/>
+      <source>Pairing Device</source>
+      <translation>Pareando Dispositivo</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="219"/>
+      <source>Set Network Name:</source>
+      <translation>Definir Nome da Rede:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="227"/>
+      <source>Enter full mesh name</source>
+      <translation>Digite o nome completo da malha</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="244"/>
+      <source>Connect</source>
+      <translation>Conectar</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="252"/>
+      <source>Disconnect</source>
+      <translation>Desconectar</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="266"/>
+      <source>Applying settings and waiting reboot...</source>
+      <translation>Aplicando configurações e aguardando reinicialização...</translation>
+    </message>
+  </context>
+  <context>
+    <name>RajantLinkIndicator</name>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+      <source>Rajant Link Status</source>
+      <translation>Status do Link Rajant</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+      <source>Rajant Disconnected</source>
+      <translation>Rajant Desconectado</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="70"/>
+      <source>Radio:</source>
+      <translation>Rádio:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="77"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="79"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="87"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="93"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="99"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="106"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="113"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="83"/>
+      <source>Sky RSSI:</source>
+      <translation>RSSI Aéreo:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="91"/>
+      <source>Noise:</source>
+      <translation>Ruído:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="97"/>
+      <source>Link Rate:</source>
+      <translation>Taxa do Link:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="104"/>
+      <source>Tx Power:</source>
+      <translation>Potência Tx:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="111"/>
+      <source>Peers:</source>
+      <translation>Pares:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="116"/>
+      <source>Main Link:</source>
+      <translation>Link Principal:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="117"/>
+      <source>UDP</source>
+      <translation>UDP</translation>
+    </message>
+  </context>
+  <context>
+    <name>ActuatorComponent</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="38"/>
+      <source>Geometry</source>
+      <translation>Geometria</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="176"/>
+      <source>Actuator Testing</source>
+      <translation>Teste de Atuadores</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="195"/>
+      <source>Configure some outputs in order to test them.</source>
+      <translation>Configure algumas saídas para testá-las.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="232"/>
+      <source>Careful: Actuator sliders are enabled</source>
+      <translation>Cuidado: os controles deslizantes dos atuadores estão habilitados</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="232"/>
+      <source>Propellers are removed - Enable sliders</source>
+      <translation>As hélices foram removidas - Habilitar controles deslizantes</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="321"/>
+      <source>Actuator Outputs</source>
+      <translation>Saídas dos Atuadores</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="326"/>
+      <source>One or more actuator still needs to be assigned to an output.</source>
+      <translation>Um ou mais atuadores ainda precisam ser atribuídos a uma saída.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="368"/>
+      <source>Identify &amp; Assign Motors</source>
+      <translation>Identificar &amp; Atribuir Motores</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="384"/>
+      <source>Motor Order Identification and Assignment</source>
+      <translation>Identificação e Atribuição da Ordem dos Motores</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="396"/>
+      <source>Error</source>
+      <translation>Erro</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="401"/>
+      <source>Spin Motor Again</source>
+      <translation>Girar Motor Novamente</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="408"/>
+      <source>Abort</source>
+      <translation>Abortar</translation>
+    </message>
+  </context>
+  <context>
+    <name>ActuatorFact</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorFact.qml" line="46"/>
+      <source>(Param not available)</source>
+      <translation>(Parâmetro não disponível)</translation>
+    </message>
+  </context>
+  <context>
+    <name>AudioControl</name>
+    <message>
+      <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="86"/>
+      <source>Play</source>
+      <translation>Reproduzir</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="134"/>
+      <source>Stop</source>
+      <translation>Parar</translation>
+    </message>
+  </context>
+  <context>
+    <name>OpticalFlowControl</name>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="52"/>
+      <source>Optical Flow Sensor</source>
+      <translation>Sensor de Fluxo Óptico</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="76"/>
+      <source>GPS</source>
+      <translation>GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="100"/>
+      <source>Optical</source>
+      <translation>Óptico</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="124"/>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="148"/>
+      <source>Calib Start</source>
+      <translation>Iniciar Calib.</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="180"/>
+      <source>Calib Stop</source>
+      <translation>Parar Calib.</translation>
+    </message>
+  </context>
+  <context>
+    <name>CodevCameraVisual</name>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="512"/>
+      <source>RF:</source>
+      <translation>RF:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="526"/>
+      <source>TrackScore:</source>
+      <translation>Pontuação Rastr.:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="536"/>
+      <source>Temp:</source>
+      <translation>Temp:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="545"/>
+      <source>CPU:</source>
+      <translation>CPU:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="554"/>
+      <source>MEM:</source>
+      <translation>MEM:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomCameraControl</name>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="40"/>
+      <source>NO CAMERA</source>
+      <translation>SEM CÂMERA</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="159"/>
+      <source>Rest Zoom</source>
+      <translation>Redefinir Zoom</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="297"/>
+      <location filename="../custom/CustomCameraControl.qml" line="490"/>
+      <source>NONE</source>
+      <translation>NENHUM</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="298"/>
+      <location filename="../custom/CustomCameraControl.qml" line="491"/>
+      <source>FULL</source>
+      <translation>COMPLETO</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="325"/>
+      <source>Video</source>
+      <translation>Vídeo</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="325"/>
+      <source>Photo</source>
+      <translation>Foto</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="381"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="459"/>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Settings</source>
+      <translation>Configurações</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Video Settings</source>
+      <translation>Configurações de Vídeo</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Photo Settings</source>
+      <translation>Configurações de Foto</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="653"/>
+      <source>Camera Selector:</source>
+      <translation>Seletor de Câmera:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="678"/>
+      <source>Stream Selector:</source>
+      <translation>Seletor de Stream:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Off</source>
+      <translation>Desligado</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Blend</source>
+      <translation>Mesclar</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Full</source>
+      <translation>Completo</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Picture In Picture</source>
+      <translation>Picture-in-Picture</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="704"/>
+      <source>Thermal View Mode</source>
+      <translation>Modo de Visualização Térmica</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="729"/>
+      <source>Blend Opacity</source>
+      <translation>Opacidade da Mesclagem</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="840"/>
+      <source>Single</source>
+      <translation>Única</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="840"/>
+      <source>Time Lapse</source>
+      <translation>Time-lapse</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="842"/>
+      <source>Photo Mode</source>
+      <translation>Modo de Foto</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="867"/>
+      <source>Photo Interval (seconds)</source>
+      <translation>Intervalo de Fotos (segundos)</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="900"/>
+      <source>Show Gimbal Control</source>
+      <translation>Mostrar Controle do Gimbal</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="925"/>
+      <source>Screen Grid</source>
+      <translation>Grade na Tela</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="950"/>
+      <source>Video Screen Fit</source>
+      <translation>Ajustar Vídeo à Tela</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="974"/>
+      <source>Reset Camera Defaults</source>
+      <translation>Redefinir Padrões da Câmera</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="979"/>
+      <source>Reset</source>
+      <translation>Redefinir</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="987"/>
+      <source>Reset Camera to Factory Settings</source>
+      <translation>Restaurar Câmera para Configurações de Fábrica</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="988"/>
+      <source>Confirm resetting all settings?</source>
+      <translation>Confirmar a redefinição de todas as configurações?</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="1042"/>
+      <source>Close</source>
+      <translation>Fechar</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="1089"/>
+      <source>Thermal Palettes</source>
+      <translation>Paletas Térmicas</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomFlyViewOverlay</name>
+    <message>
+      <location filename="../custom/res/CustomFlyViewOverlay.qml" line="28"/>
+      <source>NO GPS</source>
+      <translation>SEM GPS</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomFlyViewWidgetLayer</name>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="92"/>
+      <source>Single</source>
+      <translation>Único</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="98"/>
+      <source>Multi-Vehicle</source>
+      <translation>Multiveículo</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="215"/>
+      <source>Photo captured.</source>
+      <translation>Foto capturada.</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="217"/>
+      <source>Photo capture failed.</source>
+      <translation>Falha ao capturar foto.</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="219"/>
+      <source>Recording failed.</source>
+      <translation>Falha na gravação.</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="221"/>
+      <source>No zoom in 4K video.</source>
+      <translation>Sem zoom em vídeo 4K.</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomGPSIndicator</name>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="68"/>
+      <source>GPS Status</source>
+      <translation>Status do GPS</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="68"/>
+      <source>GPS Data Unavailable</source>
+      <translation>Dados de GPS Indisponíveis</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="81"/>
+      <source>GPS Count:</source>
+      <translation>Satélites GPS:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="82"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="84"/>
+      <source>N/A</source>
+      <comment>No data to display</comment>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="83"/>
+      <source>GPS Lock:</source>
+      <translation>Fix GPS:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="85"/>
+      <source>HDOP:</source>
+      <translation>HDOP:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="86"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="88"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="90"/>
+      <source>--.--</source>
+      <comment>No data to display</comment>
+      <translation>--.--</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="87"/>
+      <source>VDOP:</source>
+      <translation>VDOP:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="89"/>
+      <source>Course Over Ground:</source>
+      <translation>Curso em Relação ao Solo:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomMainToolBar</name>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="91"/>
+      <source>Disconnect</source>
+      <translation>Desconectar</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="326"/>
+      <source>Downloading</source>
+      <translation>Baixando</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="334"/>
+      <source>Click anywhere to hide</source>
+      <translation>Clique em qualquer lugar para ocultar</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomOnOffSwitch</name>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomOnOffSwitch.qml" line="41"/>
+      <source>Off</source>
+      <translation>Desl.</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomOnOffSwitch.qml" line="55"/>
+      <source>On</source>
+      <translation>Lig.</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomPlugin</name>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="160"/>
+      <source>General</source>
+      <translation>Geral</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="161"/>
+      <source>Comm Links</source>
+      <translation>Links de Comunicação</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="186"/>
+      <source>Maps</source>
+      <translation>Mapas</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="163"/>
+      <source>MAVLink</source>
+      <translation>MAVLink</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="164"/>
+      <source>Console</source>
+      <translation>Console</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="169"/>
+      <source>RTCM</source>
+      <translation>RTCM</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="173"/>
+      <source>M2Link</source>
+      <translation>M2Link</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="177"/>
+      <source>Enpulse</source>
+      <translation>Enpulse</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="179"/>
+      <source>GeoAwareness</source>
+      <translation>GeoAwareness</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="182"/>
+      <source>Mock Link</source>
+      <translation>Link Simulado</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomVehicle</name>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="77"/>
+      <source>RC Channels are sending byself.</source>
+      <translation>Os canais RC estão sendo enviados pelo próprio veículo.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="153"/>
+      <source>UDP</source>
+      <translation>UDP</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="155"/>
+      <source>Serial</source>
+      <translation>Serial</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="157"/>
+      <source>Other</source>
+      <translation>Outro</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="161"/>
+      <source>Unknow</source>
+      <translation>Desconhecido</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="216"/>
+      <source>Set the forced landing point successfully.</source>
+      <translation>Ponto de pouso forçado definido com sucesso.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="218"/>
+      <source>Set the forced landing point failed!</source>
+      <translation>Falha ao definir o ponto de pouso forçado!</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="223"/>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="245"/>
+      <source>Setting of forced landing points is not supported.</source>
+      <translation>A definição de pontos de pouso forçado não é suportada.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="238"/>
+      <source>Remove the forced landing point successfully.</source>
+      <translation>Ponto de pouso forçado removido com sucesso.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="240"/>
+      <source>Remove the forced landing point failed!</source>
+      <translation>Falha ao remover o ponto de pouso forçado!</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="351"/>
+      <source>LandTarget X:%1, Y:%2, Size:%3</source>
+      <translation>Alvo de Pouso X:%1, Y:%2, Tamanho:%3</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="384"/>
+      <source>Switch to Local Link.</source>
+      <translation>Alternando para o Link Local.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="388"/>
+      <source>Switch to LTE Link.</source>
+      <translation>Alternando para o Link LTE.</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomVehicleButton</name>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="72"/>
+      <source>Vehicle </source>
+      <translation>Veículo </translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="72"/>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="79"/>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+  </context>
+  <context>
+    <name>FactTextFieldSlider</name>
+    <message>
+      <location filename="../src/FactSystem/FactControls/FactTextFieldSlider.qml" line="65"/>
+      <source>Value: </source>
+      <translation>Valor: </translation>
+    </message>
+  </context>
+  <context>
+    <name>FlightModeMenuIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/FlightModeMenuIndicator.qml" line="92"/>
+      <source>N/A</source>
+      <comment>No data to display</comment>
+      <translation>N/D</translation>
+    </message>
+  </context>
+  <context>
+    <name>FlightZoneManager</name>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="482"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="486"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1531"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1542"/>
+      <source>Cannot access GeoZone data.&lt;br&gt;Please check local files or internet connection.</source>
+      <translation>Não é possível acessar os dados de GeoZona.&lt;br&gt;Verifique os arquivos locais ou a conexão com a internet.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1541"/>
+      <source>Invalid JSON format</source>
+      <translation>Formato JSON inválido</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
+      <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
+      <translation>A aeronave está próxima da GeoZona. Distância: %1M</translation>
+    </message>
+  </context>
+  <context>
+    <name>FlyViewOverlay</name>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="31"/>
+      <source>NO GPS</source>
+      <translation>SEM GPS</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="248"/>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="259"/>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="330"/>
+      <source>CRITICAL:</source>
+      <translation>CRÍTICO:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="258"/>
+      <source>INFO:</source>
+      <translation>INFO:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="260"/>
+      <source>WARNING:</source>
+      <translation>AVISO:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="261"/>
+      <source>SUCCESS:</source>
+      <translation>SUCESSO:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="262"/>
+      <source>NONE:</source>
+      <translation>NENHUM:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="687"/>
+      <source>Life Jacket</source>
+      <translation>Colete Salva-vidas</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="705"/>
+      <source>Close</source>
+      <translation>Fechar</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="752"/>
+      <source>Drop Life Jacket</source>
+      <translation>Lançar Colete Salva-vidas</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="772"/>
+      <source>Searchlight</source>
+      <translation>Holofote</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneFileDialog</name>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="171"/>
+      <source>Path: %1</source>
+      <translation>Caminho: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="204"/>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="312"/>
+      <source>Delete</source>
+      <translation>Excluir</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="215"/>
+      <source>No files</source>
+      <translation>Nenhum arquivo</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="255"/>
+      <source>New file name:</source>
+      <translation>Novo nome de arquivo:</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="269"/>
+      <source>The file %1 exists. Click Save again to replace it.</source>
+      <translation>O arquivo %1 já existe. Clique em Salvar novamente para substituí-lo.</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="277"/>
+      <source>Save to existing file:</source>
+      <translation>Salvar em arquivo existente:</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneMakeView</name>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="65"/>
+      <source>Vehicle is currently armed. Do you want to upload the mission to the vehicle?</source>
+      <translation>O veículo está armado. Deseja enviar a missão para o veículo?</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="115"/>
+      <source>Save GeoZone</source>
+      <translation>Salvar GeoZona</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="282"/>
+      <source>Plan</source>
+      <translation>Plano</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="300"/>
+      <source>Go to main</source>
+      <translation>Ir para o início</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="305"/>
+      <source>Select Area</source>
+      <translation>Selecionar Área</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="319"/>
+      <source>Delete Area</source>
+      <translation>Excluir Área</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="384"/>
+      <source>GeoZone Download</source>
+      <translation>Baixar GeoZona</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="391"/>
+      <source>Center</source>
+      <translation>Centro</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="399"/>
+      <source>Latitude</source>
+      <translation>Latitude</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="415"/>
+      <source>Longitude</source>
+      <translation>Longitude</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="442"/>
+      <source>Area</source>
+      <translation>Área</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="451"/>
+      <source>Vertical</source>
+      <translation>Vertical</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="519"/>
+      <source>Horizontal</source>
+      <translation>Horizontal</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="611"/>
+      <source>DOWNLOAD</source>
+      <translation>BAIXAR</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneMapPolygonVisuals</name>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="51"/>
+      <source>Polygon Tools</source>
+      <translation>Ferramentas de Polígono</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="52"/>
+      <source>Click in the map to add vertices. Click &apos;Done Tracing&apos; when finished.</source>
+      <translation>Clique no mapa para adicionar vértices. Clique em &apos;Concluir Traçado&apos; ao terminar.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="558"/>
+      <source>Edit Center Position</source>
+      <translation>Editar Posição do Centro</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="574"/>
+      <source>Edit Vertex Position</source>
+      <translation>Editar Posição do Vértice</translation>
+    </message>
+  </context>
+  <context>
+    <name>GimbalIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="57"/>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="193"/>
+      <source>Gimbal </source>
+      <translation>Gimbal </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="59"/>
+      <source>&lt;br&gt; Controls</source>
+      <translation>&lt;br&gt; Controles</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="73"/>
+      <source>Yaw &lt;br&gt; Follow</source>
+      <translation>Guinada &lt;br&gt; Seguir</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="73"/>
+      <source>Yaw &lt;br&gt; Lock</source>
+      <translation>Guinada &lt;br&gt; Travar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="74"/>
+      <source>Center</source>
+      <translation>Centralizar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="75"/>
+      <source>Tilt 90</source>
+      <translation>Inclinar 90</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="76"/>
+      <source>Point &lt;br&gt; Home</source>
+      <translation>Apontar &lt;br&gt; Home</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="77"/>
+      <source>Retract</source>
+      <translation>Recolher</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="78"/>
+      <source>Release &lt;br&gt; Control</source>
+      <translation>Liberar &lt;br&gt; Controle</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="78"/>
+      <source>Acquire &lt;br&gt; Control</source>
+      <translation>Obter &lt;br&gt; Controle</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="124"/>
+      <source>Active &lt;br&gt; Gimbal: </source>
+      <translation>Gimbal &lt;br&gt; Ativo: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="136"/>
+      <source>Select &lt;br&gt; Gimbal</source>
+      <translation>Selecionar &lt;br&gt; Gimbal</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="222"/>
+      <source>Settings</source>
+      <translation>Configurações</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="257"/>
+      <source>Control type: </source>
+      <translation>Tipo de controle: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="267"/>
+      <source>Horizontal FOV</source>
+      <translation>FOV Horizontal</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="276"/>
+      <source>Vertical FOV</source>
+      <translation>FOV Vertical</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="285"/>
+      <source>Max speed:</source>
+      <translation>Velocidade máx.:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="304"/>
+      <source>Show gimbal Azimuth indicator in map</source>
+      <translation>Mostrar indicador de azimute do gimbal no mapa</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="313"/>
+      <source>Use Azimuth instead of local yaw on top toolbar indicator</source>
+      <translation>Usar azimute em vez da guinada local no indicador da barra superior</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="322"/>
+      <source>Show Acquire/Release control button</source>
+      <translation>Mostrar botão de Obter/Liberar controle</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="371"/>
+      <source>Retracted</source>
+      <translation>Recolhido</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="372"/>
+      <source>Yaw locked</source>
+      <translation>Guinada travada</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="372"/>
+      <source>Yaw follow</source>
+      <translation>Guinada seguindo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="378"/>
+      <source>P: </source>
+      <translation>P: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="383"/>
+      <source>Az: </source>
+      <translation>Az: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="384"/>
+      <source>Y: </source>
+      <translation>Y: </translation>
+    </message>
+  </context>
+  <context>
+    <name>HeightIndicator</name>
+    <message>
+      <location filename="../src/QmlControls/HeightIndicator.qml" line="13"/>
+      <source>30 ft</source>
+      <translation>30 ft</translation>
+    </message>
+  </context>
+  <context>
+    <name>M2LinkIndicator</name>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="65"/>
+      <source>Link RSSI Status</source>
+      <translation>Status do RSSI do Link</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="65"/>
+      <source>Link Disconnected</source>
+      <translation>Link Desconectado</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="79"/>
+      <source>LinkSpeed:</source>
+      <translation>Velocidade do Link:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="83"/>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="92"/>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="101"/>
+      <source>N/A</source>
+      <translation>N/D</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="88"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="97"/>
+      <source>Sky RSSI:</source>
+      <translation>RSSI da Aeronave:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="107"/>
+      <source>Start Pair</source>
+      <translation>Iniciar Pareamento</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="161"/>
+      <source>Data Link Pair</source>
+      <translation>Pareamento do Link de Dados</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="176"/>
+      <source>Press and hold this, the remote control will enter the binding state.</source>
+      <translation>Mantenha pressionado para que o controle remoto entre no modo de pareamento.</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="184"/>
+      <source>Trigger Bind</source>
+      <translation>Acionar Pareamento</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="205"/>
+      <source>Binding</source>
+      <translation>Pareando</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="226"/>
+      <source>Bind Success</source>
+      <translation>Pareamento Concluído</translation>
+    </message>
+  </context>
+  <context>
+    <name>M2Settings</name>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="74"/>
+      <source>Link Status</source>
+      <translation>Status do Link</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="95"/>
+      <source>Status:</source>
+      <translation>Status:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="99"/>
+      <source>Connected</source>
+      <translation>Conectado</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="99"/>
+      <source>Not Connected</source>
+      <translation>Não Conectado</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="104"/>
+      <source>SSID:</source>
+      <translation>SSID:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="111"/>
+      <source>Bind Status:</source>
+      <translation>Status do Pareamento:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Binding</source>
+      <translation>Pareando</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Finished</source>
+      <translation>Concluído</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Not Binded</source>
+      <translation>Não Pareado</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="120"/>
+      <source>Frequency:</source>
+      <translation>Frequência:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="126"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="132"/>
+      <source>LinkSpeed:</source>
+      <translation>Velocidade do Link:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="138"/>
+      <source>RSSI A/B:</source>
+      <translation>RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="144"/>
+      <source>Sky RSSI A/B:</source>
+      <translation>RSSI da Aeronave A/B:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="150"/>
+      <source>CPU Temp:</source>
+      <translation>Temp. da CPU:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="156"/>
+      <source>RF Temp:</source>
+      <translation>Temp. do RF:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="162"/>
+      <source>Version:</source>
+      <translation>Versão:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="178"/>
+      <source>Channel Information &amp; Selection</source>
+      <translation>Informações &amp; Seleção de Canal</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="189"/>
+      <source>Scan</source>
+      <translation>Procurar</translation>
+    </message>
+  </context>
+  <context>
+    <name>NTRIPClient</name>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="33"/>
+      <source>Host:</source>
+      <translation>Host:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="41"/>
+      <source>Port:</source>
+      <translation>Porta:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="53"/>
+      <source>Mountpoint:</source>
+      <translation>Mountpoint:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="135"/>
+      <source>Enter Mountpoint Manually</source>
+      <translation>Inserir Mountpoint Manualmente</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="78"/>
+      <source>User:</source>
+      <translation>Usuário:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="86"/>
+      <source>Password:</source>
+      <translation>Senha:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="96"/>
+      <source>Log out</source>
+      <translation>Sair</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="96"/>
+      <source>Log in</source>
+      <translation>Entrar</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="139"/>
+      <source>GPGGA Hz:</source>
+      <translation>GPGGA Hz:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="169"/>
+      <source>Get from Vehicle</source>
+      <translation>Obter do Veículo</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGCPopupDialog</name>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="159"/>
+      <source>Ok</source>
+      <translation>Ok</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="162"/>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="171"/>
+      <source>Open</source>
+      <translation>Abrir</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="165"/>
+      <source>Save</source>
+      <translation>Salvar</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="168"/>
+      <source>Apply</source>
+      <translation>Aplicar</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="174"/>
+      <source>Save All</source>
+      <translation>Salvar Tudo</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="177"/>
+      <source>Yes</source>
+      <translation>Sim</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="180"/>
+      <source>Yes to All</source>
+      <translation>Sim para Todos</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="183"/>
+      <source>Retry</source>
+      <translation>Tentar Novamente</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="186"/>
+      <source>Reset</source>
+      <translation>Redefinir</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="189"/>
+      <source>Restore to Defaults</source>
+      <translation>Restaurar Padrões</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="192"/>
+      <source>Ignore</source>
+      <translation>Ignorar</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="198"/>
+      <source>Cancel</source>
+      <translation>Cancelar</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="201"/>
+      <source>Close</source>
+      <translation>Fechar</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="204"/>
+      <source>No</source>
+      <translation>Não</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="207"/>
+      <source>No to All</source>
+      <translation>Não para Todos</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="210"/>
+      <source>Abort</source>
+      <translation>Abortar</translation>
+    </message>
+  </context>
+  <context>
+    <name>RCChannelMonitor</name>
+    <message>
+      <location filename="../src/QmlControls/RCChannelMonitor.qml" line="82"/>
+      <source>Not Mapped</source>
+      <translation>Não Mapeado</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/RCChannelMonitor.qml" line="104"/>
+      <source>Channel Monitor</source>
+      <translation>Monitor de Canais</translation>
+    </message>
+  </context>
+  <context>
+    <name>RTCMSettings</name>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="54"/>
+      <source>General</source>
+      <translation>Geral</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="74"/>
+      <source>RTCM Source:</source>
+      <translation>Fonte RTCM:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="84"/>
+      <source>RTCM Max Hz:</source>
+      <translation>Máx. Hz RTCM:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="107"/>
+      <source> RTCM Source</source>
+      <translation> Fonte RTCM</translation>
+    </message>
+  </context>
+  <context>
+    <name>RemoteIDIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="126"/>
+      <source>RemoteID Status</source>
+      <translation>Status do RemoteID</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="149"/>
+      <source>ARM STATUS</source>
+      <translation>STATUS DE ARMAMENTO</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
+      <source>RID COMMS</source>
+      <translation>COMUNICAÇÃO RID</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
+      <source>NOT CONNECTED</source>
+      <translation>NÃO CONECTADO</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="198"/>
+      <source>GCS GPS</source>
+      <translation>GPS DA GCS</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="223"/>
+      <source>BASIC ID</source>
+      <translation>ID BÁSICO</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="248"/>
+      <source>OPERATOR ID</source>
+      <translation>ID DO OPERADOR</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="274"/>
+      <source>EMERGENCY HAS BEEN DECLARED, Press and Hold for 3 seconds to cancel</source>
+      <translation>EMERGÊNCIA DECLARADA, mantenha pressionado por 3 segundos para cancelar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="274"/>
+      <source>Press and Hold below button to declare emergency</source>
+      <translation>Mantenha pressionado o botão abaixo para declarar emergência</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="299"/>
+      <source>Clear Emergency</source>
+      <translation>Cancelar Emergência</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="299"/>
+      <source>EMERGENCY</source>
+      <translation>EMERGÊNCIA</translation>
+    </message>
+  </context>
+  <context>
+    <name>SerialPortRTCMClient</name>
+    <message>
+      <location filename="../custom/src/RTCM/SerialPortRTCMClient.qml" line="31"/>
+      <source>Port:</source>
+      <translation>Porta:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/SerialPortRTCMClient.qml" line="71"/>
+      <source>Baud:</source>
+      <translation>Baud:</translation>
+    </message>
+  </context>
+  <context>
+    <name>YSTransectStyleComplexItemEditor</name>
+    <message>
+      <location filename="../src/PlanView/YSTransectStyleComplexItemEditor.qml" line="36"/>
+      <source>Done</source>
+      <translation>Concluído</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YSTransectStyleComplexItemEditor.qml" line="87"/>
+      <source>WARNING: Photo interval is below minimum interval (%1 secs) supported by camera.</source>
+      <translation>AVISO: o intervalo de fotos está abaixo do intervalo mínimo (%1 s) suportado pela câmera.</translation>
+    </message>
+  </context>
+  <context>
+    <name>YellowScanInitPathEditor</name>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="18"/>
+      <source>Use the Polyline Tools to create the polyline which defines the corridor.</source>
+      <translation>Use as Ferramentas de Polilinha para criar a polilinha que define o corredor.</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="19"/>
+      <source>Init Path</source>
+      <translation>Caminho Inicial</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="38"/>
+      <source>Altitude</source>
+      <translation>Altitude</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="47"/>
+      <source>Angle</source>
+      <translation>Ângulo</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="69"/>
+      <source>Turn Radius</source>
+      <translation>Raio de Curva</translation>
+    </message>
+  </context>
+  <context>
+    <name>YellowScanInitPathPolylineVisuals</name>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="46"/>
+      <source>Polyline Tools</source>
+      <translation>Ferramentas de Polilinha</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="47"/>
+      <source>Click in the map to add vertices. Click &apos;Done Tracing&apos; when finished.</source>
+      <translation>Clique no mapa para adicionar vértices. Clique em &apos;Concluir Traçado&apos; ao terminar.</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="152"/>
+      <source>Select KML File</source>
+      <translation>Selecionar Arquivo KML</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="174"/>
+      <source>Remove vertex</source>
+      <translation>Remover vértice</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="179"/>
+      <source>Edit position...</source>
+      <translation>Editar posição...</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="472"/>
+      <source>Basic</source>
+      <translation>Básico</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="479"/>
+      <source>Done Tracing</source>
+      <translation>Concluir Traçado</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="479"/>
+      <source>Trace</source>
+      <translation>Traçar</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="496"/>
+      <source>Load KML...</source>
+      <translation>Carregar KML...</translation>
+    </message>
+  </context>
+  <context>
+    <name>geoFenceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="50"/>
+      <source>Select Geozone File</source>
+      <translation>Selecionar Arquivo de Geozona</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="99"/>
+      <source>GeoAwareness Settings</source>
+      <translation>Configurações de GeoAwareness</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="119"/>
+      <source>Set Alarm Distance (meters) </source>
+      <translation>Definir Distância de Alarme (metros) </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="147"/>
+      <source>Select GeoAwareness Data Type</source>
+      <translation>Selecionar Tipo de Dados de GeoAwareness</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="158"/>
+      <source>Application Load/Save Path</source>
+      <translation>Caminho de Carregar/Salvar do Aplicativo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="169"/>
+      <source>Browse</source>
+      <translation>Procurar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="206"/>
+      <source>Get Online GeoAwareness </source>
+      <translation>Obter GeoAwareness Online </translation>
+    </message>
+  </context>
+  <context>
+    <name>APMCopterMode</name>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="26"/>
+      <source>Stabilize</source>
+      <translation>Stabilize</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="27"/>
+      <source>Acro</source>
+      <translation>Acro</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="28"/>
+      <source>Altitude Hold</source>
+      <translation>Altitude Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="29"/>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="30"/>
+      <source>Guided</source>
+      <translation>Guided</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="31"/>
+      <source>Loiter</source>
+      <translation>Loiter</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="32"/>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="33"/>
+      <source>Circle</source>
+      <translation>Circle</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="34"/>
+      <source>Land</source>
+      <translation>Land</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="35"/>
+      <source>Drift</source>
+      <translation>Drift</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="36"/>
+      <source>Sport</source>
+      <translation>Sport</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="37"/>
+      <source>Flip</source>
+      <translation>Flip</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="38"/>
+      <source>Autotune</source>
+      <translation>Autotune</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="39"/>
+      <source>Position Hold</source>
+      <translation>Position Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="40"/>
+      <source>Brake</source>
+      <translation>Brake</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="41"/>
+      <source>Throw</source>
+      <translation>Throw</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="42"/>
+      <source>Avoid ADSB</source>
+      <translation>Avoid ADSB</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="43"/>
+      <source>Guided No GPS</source>
+      <translation>Guided No GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="44"/>
+      <source>Smart RTL</source>
+      <translation>Smart RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="45"/>
+      <source>Flow Hold</source>
+      <translation>Flow Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="46"/>
+      <source>Follow</source>
+      <translation>Follow</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="47"/>
+      <source>ZigZag</source>
+      <translation>ZigZag</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="48"/>
+      <source>SystemID</source>
+      <translation>SystemID</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="49"/>
+      <source>AutoRotate</source>
+      <translation>AutoRotate</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="50"/>
+      <source>AutoRTL</source>
+      <translation>AutoRTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="51"/>
+      <source>Turtle</source>
+      <translation>Turtle</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="52"/>
+      <source>Slow</source>
+      <translation>Slow</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGCCacheWorker</name>
+    <message>
+      <location filename="../src/QtLocationPlugin/QGCTileCacheWorker.cpp" line="376"/>
+      <source>Default Tile Set</source>
+      <translation>Conjunto de Blocos Padrão</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGeoTiledMapReplyQGC</name>
+    <message>
+      <location filename="../src/QtLocationPlugin/QGeoMapReplyQGC.cpp" line="59"/>
+      <source>Please download the map of the flight area.</source>
+      <translation>Baixe o mapa da área de voo.</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMRemoteSupportComponent</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="46"/>
+      <source>Host name:</source>
+      <translation>Nome do host:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="54"/>
+      <source>Connect</source>
+      <translation>Conectar</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="63"/>
+      <source>Forwarding traffic: Mavlink traffic will keep being forwarded until application restarts</source>
+      <translation>Encaminhando tráfego: o tráfego MAVLink continuará sendo encaminhado até que o aplicativo seja reiniciado</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.cc" line="15"/>
+      <source>Remote Support</source>
+      <translation>Suporte Remoto</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.cc" line="26"/>
+      <source>On this menu you can forward mavlink telemetry to an ardupilot support engineer.</source>
+      <translation>Neste menu você pode encaminhar a telemetria MAVLink para um engenheiro de suporte do ArduPilot.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PX4TuningComponentPlaneAttitude</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="38"/>
+      <source>Time constant (FW_R_TC)</source>
+      <translation>Constante de tempo (FW_R_TC)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="39"/>
+      <source>The latency between a roll step input and the achieved setpoint (inverse to a P gain)</source>
+      <translation>A latência entre uma entrada em degrau de rolagem e o setpoint alcançado (inversa a um ganho P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="55"/>
+      <source>Time Constant (FW_P_TC)</source>
+      <translation>Constante de Tempo (FW_P_TC)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="56"/>
+      <source>The latency between a pitch step input and the achieved setpoint (inverse to a P gain)</source>
+      <translation>A latência entre uma entrada em degrau de arfagem e o setpoint alcançado (inversa a um ganho P)</translation>
+    </message>
+  </context>
+  <context>
+    <name>PX4TuningComponentPlaneRate</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="41"/>
+      <source>Porportional gain (FW_RR_P)</source>
+      <translation>Ganho proporcional (FW_RR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="42"/>
+      <source>Porportional gain.</source>
+      <translation>Ganho proporcional.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="49"/>
+      <source>Differential Gain (FW_RR_D)</source>
+      <translation>Ganho Derivativo (FW_RR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="57"/>
+      <source>Integral Gain (FW_RR_I)</source>
+      <translation>Ganho Integral (FW_RR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="65"/>
+      <source>Feedforward Gain (FW_RR_FF)</source>
+      <translation>Ganho Feedforward (FW_RR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="66"/>
+      <source>Feedforward gused to compensate for aerodynamic damping.</source>
+      <translation>Ganho feedforward usado para compensar o amortecimento aerodinâmico.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="82"/>
+      <source>Porportional Gain (FW_PR_P)</source>
+      <translation>Ganho Proporcional (FW_PR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="90"/>
+      <source>Differential Gain (FW_PR_D)</source>
+      <translation>Ganho Derivativo (FW_PR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="98"/>
+      <source>Integral Gain (FW_PR_I)</source>
+      <translation>Ganho Integral (FW_PR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="106"/>
+      <source>Feedforward Gain (FW_PR_FF)</source>
+      <translation>Ganho Feedforward (FW_PR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="123"/>
+      <source>Porportional Gain (FW_YR_P)</source>
+      <translation>Ganho Proporcional (FW_YR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="131"/>
+      <source>Integral Gain (FW_YR_D)</source>
+      <translation>Ganho Derivativo (FW_YR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="139"/>
+      <source>Integral Gain (FW_YR_I)</source>
+      <translation>Ganho Integral (FW_YR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="147"/>
+      <source>Feedforward Gain (FW_YR_FF)</source>
+      <translation>Ganho Feedforward (FW_YR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="155"/>
+      <source>Roll control to yaw feedforward (FW_RLL_TO_YAW_FF)</source>
+      <translation>Feedforward do controle de rolagem para guinada (FW_RLL_TO_YAW_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="156"/>
+      <source>Used to counteract the adverse yaw effect for fixed wings.</source>
+      <translation>Usado para compensar o efeito de guinada adversa em asas fixas.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="83"/>
+      <source>Porportional Gain.</source>
+      <translation>Ganho proporcional.</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="33"/>
+      <source>Airmode (disable during tuning) &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
+      <translation>Airmode (desative durante o ajuste) &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="45"/>
+      <source>Thrust curve &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
+      <translation>Curva de empuxo &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomQmlInterface</name>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="47"/>
+      <source>Map tiles updated at %1</source>
+      <translation>Blocos do mapa atualizados em %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMParameterFactMetaData</name>
+    <message>
+      <source>Do Nothing</source>
+      <translation>Não Fazer Nada</translation>
+    </message>
+    <message>
+      <source>Flip</source>
+      <translation>Flip</translation>
+    </message>
+    <message>
+      <source>Simple Mode</source>
+      <translation>Modo Simple</translation>
+    </message>
+    <message>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <source>Enabled always RTL</source>
+      <translation>Habilitado sempre RTL</translation>
+    </message>
+    <message>
+      <source>Avoid_ADSB</source>
+      <translation>Avoid_ADSB</translation>
+    </message>
+    <message>
+      <source>Guided_NoGPS</source>
+      <translation>Guided_NoGPS</translation>
+    </message>
+    <message>
+      <source>Smart_RTL</source>
+      <translation>Smart_RTL</translation>
+    </message>
+    <message>
+      <source>Heli_Autorotate</source>
+      <translation>Heli_Autorotate</translation>
+    </message>
+    <message>
+      <source>Save Trim</source>
+      <translation>Salvar Trim</translation>
+    </message>
+    <message>
+      <source>Save WP</source>
+      <translation>Salvar WP</translation>
+    </message>
+    <message>
+      <source>Camera Trigger</source>
+      <translation>Disparo da Câmera</translation>
+    </message>
+    <message>
+      <source>RangeFinder</source>
+      <translation>Telêmetro</translation>
+    </message>
+    <message>
+      <source>Fence</source>
+      <translation>Cerca</translation>
+    </message>
+    <message>
+      <source>Super Simple Mode</source>
+      <translation>Modo Super Simple</translation>
+    </message>
+    <message>
+      <source>Acro Trainer</source>
+      <translation>Acro Trainer</translation>
+    </message>
+    <message>
+      <source>Sprayer</source>
+      <translation>Pulverizador</translation>
+    </message>
+    <message>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>Interno</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>Externo</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>Externo Automático</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>ExternoAutomático</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>WBUmToque</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>WB de Um Toque</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>Manual</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>LâmpadaDeSódio</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>Lâmpada de Sódio</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>LâmpadaDeSódioAuto</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>Lâmpada de Sódio Automático</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>LâmpadaDeSódioExternoAuto</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>Lâmpada de Sódio Externo Automático</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>AWBUmToque</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>AWB de Um Toque</translation>
+    </message>
+    <message>
+      <source>ADSB-Avoidance</source>
+      <translation>Desvio ADSB</translation>
+    </message>
+    <message>
+      <source>ArmDisarm</source>
+      <translation>Armar/Desarmar</translation>
+    </message>
+    <message>
+      <source>Winch Enable</source>
+      <translation>Habilitar Guincho</translation>
+    </message>
+    <message>
+      <source>WinchControl</source>
+      <translation>Controle do Guincho</translation>
+    </message>
+    <message>
+      <source>Relay5</source>
+      <translation>Relé5</translation>
+    </message>
+    <message>
+      <source>Relay6</source>
+      <translation>Relé6</translation>
+    </message>
+    <message>
+      <source>AutoTune</source>
+      <translation>AutoTune</translation>
+    </message>
+    <message>
+      <source>Land</source>
+      <translation>Land</translation>
+    </message>
+    <message>
+      <source>Gripper</source>
+      <translation>Garra</translation>
+    </message>
+    <message>
+      <source>Parachute Enable</source>
+      <translation>Habilitar Paraquedas</translation>
+    </message>
+    <message>
+      <source>Parachute Release</source>
+      <translation>Liberar Paraquedas</translation>
+    </message>
+    <message>
+      <source>Parachute 3pos</source>
+      <translation>Paraquedas 3 posições</translation>
+    </message>
+    <message>
+      <source>Auto Mission Reset</source>
+      <translation>Redefinir Missão Auto</translation>
+    </message>
+    <message>
+      <source>AttCon Feed Forward</source>
+      <translation>AttCon Feed Forward</translation>
+    </message>
+    <message>
+      <source>AttCon Accel Limits</source>
+      <translation>AttCon Limites de Aceleração</translation>
+    </message>
+    <message>
+      <source>Retract Mount</source>
+      <translation>Recolher Suporte</translation>
+    </message>
+    <message>
+      <source>Acro</source>
+      <translation>Acro</translation>
+    </message>
+    <message>
+      <source>ADSB Avoidance En</source>
+      <translation>Habilitar Desvio ADSB</translation>
+    </message>
+    <message>
+      <source>Air Mode</source>
+      <translation>Air Mode</translation>
+    </message>
+    <message>
+      <source>Airspeed Ratio Calibration</source>
+      <translation>Calibração da Razão de Velocidade do Ar</translation>
+    </message>
+    <message>
+      <source>AltHold</source>
+      <translation>AltHold</translation>
+    </message>
+    <message>
+      <source>ArmDisarm (4.1 and lower)</source>
+      <translation>Armar/Desarmar (4.1 e anteriores)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm (4.2 and higher)</source>
+      <translation>Armar/Desarmar (4.2 e posteriores)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm with AirMode  (4.2 and higher)</source>
+      <translation>Armar/Desarmar com AirMode  (4.2 e posteriores)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm with Quadplane AirMode (4.2 and higher)</source>
+      <translation>Armar/Desarmar com AirMode de Quadplane (4.2 e posteriores)</translation>
+    </message>
+    <message>
+      <source>AUTO RTL</source>
+      <translation>AUTO RTL</translation>
+    </message>
+    <message>
+      <source>Brake</source>
+      <translation>Brake</translation>
+    </message>
+    <message>
+      <source>Camera Mode Toggle</source>
+      <translation>Alternar Modo da Câmera</translation>
+    </message>
+    <message>
+      <source>Circle</source>
+      <translation>Circle</translation>
+    </message>
+    <message>
+      <source>Clear Waypoints</source>
+      <translation>Limpar Waypoints</translation>
+    </message>
+    <message>
+      <source>Compass Learn</source>
+      <translation>Aprendizado da Bússola</translation>
+    </message>
+    <message>
+      <source>Crow Select</source>
+      <translation>Seleção de Crow</translation>
+    </message>
+    <message>
+      <source>CRUISE</source>
+      <translation>CRUISE</translation>
+    </message>
+    <message>
+      <source>Disable Airspeed Use</source>
+      <translation>Desabilitar Uso da Velocidade do Ar</translation>
+    </message>
+    <message>
+      <source>Disarm</source>
+      <translation>Desarmar</translation>
+    </message>
+    <message>
+      <source>Drift</source>
+      <translation>Drift</translation>
+    </message>
+    <message>
+      <source>EKF Pos Source</source>
+      <translation>Fonte de Posição do EKF</translation>
+    </message>
+    <message>
+      <source>EnableFixedWingAutotune</source>
+      <translation>Habilitar Autotune de Asa Fixa</translation>
+    </message>
+    <message>
+      <source>FBWA</source>
+      <translation>FBWA</translation>
+    </message>
+    <message>
+      <source>FBWA taildragger takeoff mode</source>
+      <translation>Modo de decolagem FBWA para taildragger</translation>
+    </message>
+    <message>
+      <source>Flap</source>
+      <translation>Flap</translation>
+    </message>
+    <message>
+      <source>FlowHold</source>
+      <translation>FlowHold</translation>
+    </message>
+    <message>
+      <source>Follow</source>
+      <translation>Follow</translation>
+    </message>
+    <message>
+      <source>Force Flying</source>
+      <translation>Forçar Voo</translation>
+    </message>
+    <message>
+      <source>Force FS Action to FBWA</source>
+      <translation>Forçar Ação de FS para FBWA</translation>
+    </message>
+    <message>
+      <source>Forward Throttle</source>
+      <translation>Acelerador para Frente</translation>
+    </message>
+    <message>
+      <source>Generator</source>
+      <translation>Gerador</translation>
+    </message>
+    <message>
+      <source>GPS Disable</source>
+      <translation>Desabilitar GPS</translation>
+    </message>
+    <message>
+      <source>GPS Disable Yaw</source>
+      <translation>Desabilitar Guinada do GPS</translation>
+    </message>
+    <message>
+      <source>Guided</source>
+      <translation>Guided</translation>
+    </message>
+    <message>
+      <source>Hold</source>
+      <translation>Hold</translation>
+    </message>
+    <message>
+      <source>InvertedFlight</source>
+      <translation>Voo Invertido</translation>
+    </message>
+    <message>
+      <source>KillIMU1</source>
+      <translation>KillIMU1</translation>
+    </message>
+    <message>
+      <source>KillIMU2</source>
+      <translation>KillIMU2</translation>
+    </message>
+    <message>
+      <source>Landing Flare</source>
+      <translation>Flare de Pouso</translation>
+    </message>
+    <message>
+      <source>Landing Gear</source>
+      <translation>Trem de Pouso</translation>
+    </message>
+    <message>
+      <source>LearnCruise</source>
+      <translation>Aprender Cruzeiro</translation>
+    </message>
+    <message>
+      <source>Loiter</source>
+      <translation>Loiter</translation>
+    </message>
+    <message>
+      <source>Lost Copter Sound</source>
+      <translation>Som de Copter Perdido</translation>
+    </message>
+    <message>
+      <source>Lost Plane Sound</source>
+      <translation>Som de Avião Perdido</translation>
+    </message>
+    <message>
+      <source>Lost Rover Sound</source>
+      <translation>Som de Rover Perdido</translation>
+    </message>
+    <message>
+      <source>MainSail</source>
+      <translation>Vela Principal</translation>
+    </message>
+    <message>
+      <source>ModeACRO</source>
+      <translation>ModeACRO</translation>
+    </message>
+    <message>
+      <source>ModeAuto</source>
+      <translation>ModeAuto</translation>
+    </message>
+    <message>
+      <source>ModeCircle</source>
+      <translation>ModeCircle</translation>
+    </message>
+    <message>
+      <source>ModeGuided</source>
+      <translation>ModeGuided</translation>
+    </message>
+    <message>
+      <source>ModeLoiter</source>
+      <translation>ModeLoiter</translation>
+    </message>
+    <message>
+      <source>ModeManual</source>
+      <translation>ModeManual</translation>
+    </message>
+    <message>
+      <source>ModeQRTL</source>
+      <translation>ModeQRTL</translation>
+    </message>
+    <message>
+      <source>ModeRTL</source>
+      <translation>ModeRTL</translation>
+    </message>
+    <message>
+      <source>ModeTakeoff</source>
+      <translation>ModeTakeoff</translation>
+    </message>
+    <message>
+      <source>ModeTraining</source>
+      <translation>ModeTraining</translation>
+    </message>
+    <message>
+      <source>Motor Emergency Stop</source>
+      <translation>Parada de Emergência dos Motores</translation>
+    </message>
+    <message>
+      <source>Motor Interlock</source>
+      <translation>Intertravamento dos Motores</translation>
+    </message>
+    <message>
+      <source>Non Auto Terrain Follow Disable</source>
+      <translation>Desabilitar Seguimento de Terreno fora do Auto</translation>
+    </message>
+    <message>
+      <source>Optflow Calibration</source>
+      <translation>Calibração do Fluxo Óptico</translation>
+    </message>
+    <message>
+      <source>Pitch</source>
+      <translation>Arfagem</translation>
+    </message>
+    <message>
+      <source>PosHold</source>
+      <translation>PosHold</translation>
+    </message>
+    <message>
+      <source>PrecLoiter</source>
+      <translation>PrecLoiter</translation>
+    </message>
+    <message>
+      <source>Proximity Avoidance</source>
+      <translation>Desvio por Proximidade</translation>
+    </message>
+    <message>
+      <source>QAssist 3pos</source>
+      <translation>QAssist 3 posições</translation>
+    </message>
+    <message>
+      <source>RC Override Enable</source>
+      <translation>Habilitar Override de RC</translation>
+    </message>
+    <message>
+      <source>Relay On/Off</source>
+      <translation>Relé Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Relay2 On/Off</source>
+      <translation>Relé2 Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Relay3 On/Off</source>
+      <translation>Relé3 Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Relay4 On/Off</source>
+      <translation>Relé4 Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Relay5 On/Off</source>
+      <translation>Relé5 Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Relay6 On/Off</source>
+      <translation>Relé6 Liga/Desliga</translation>
+    </message>
+    <message>
+      <source>Reverse Throttle</source>
+      <translation>Acelerador Reverso</translation>
+    </message>
+    <message>
+      <source>Roll</source>
+      <translation>Rolagem</translation>
+    </message>
+    <message>
+      <source>RunCam Control</source>
+      <translation>Controle RunCam</translation>
+    </message>
+    <message>
+      <source>RunCam OSD Control</source>
+      <translation>Controle do OSD RunCam</translation>
+    </message>
+    <message>
+      <source>Sailboat motoring 3pos</source>
+      <translation>Motorização do Veleiro 3 posições</translation>
+    </message>
+    <message>
+      <source>Sailboat Tack</source>
+      <translation>Bordejo do Veleiro</translation>
+    </message>
+    <message>
+      <source>Save Trim (4.1 and lower)</source>
+      <translation>Salvar Trim (4.1 e anteriores)</translation>
+    </message>
+    <message>
+      <source>Scripting1</source>
+      <translation>Scripting1</translation>
+    </message>
+    <message>
+      <source>Scripting2</source>
+      <translation>Scripting2</translation>
+    </message>
+    <message>
+      <source>Scripting3</source>
+      <translation>Scripting3</translation>
+    </message>
+    <message>
+      <source>Scripting4</source>
+      <translation>Scripting4</translation>
+    </message>
+    <message>
+      <source>Scripting5</source>
+      <translation>Scripting5</translation>
+    </message>
+    <message>
+      <source>Scripting6</source>
+      <translation>Scripting6</translation>
+    </message>
+    <message>
+      <source>Scripting7</source>
+      <translation>Scripting7</translation>
+    </message>
+    <message>
+      <source>Scripting8</source>
+      <translation>Scripting8</translation>
+    </message>
+    <message>
+      <source>set roll pitch and yaw trim to current servo and RC</source>
+      <translation>definir trim de rolagem, arfagem e guinada para o servo e RC atuais</translation>
+    </message>
+    <message>
+      <source>set steering trim to current servo and RC</source>
+      <translation>definir trim de esterçamento para o servo e RC atuais</translation>
+    </message>
+    <message>
+      <source>simple heading reset</source>
+      <translation>redefinição de direção do modo simple</translation>
+    </message>
+    <message>
+      <source>SmartRTL</source>
+      <translation>SmartRTL</translation>
+    </message>
+    <message>
+      <source>Soaring Enable</source>
+      <translation>Habilitar Soaring</translation>
+    </message>
+    <message>
+      <source>Stabilize</source>
+      <translation>Stabilize</translation>
+    </message>
+    <message>
+      <source>Standby Mode</source>
+      <translation>Modo de Espera</translation>
+    </message>
+    <message>
+      <source>Steering</source>
+      <translation>Esterçamento</translation>
+    </message>
+    <message>
+      <source>SurfaceTrackingUpDown</source>
+      <translation>Rastreamento de Superfície Cima/Baixo</translation>
+    </message>
+    <message>
+      <source>Throw</source>
+      <translation>Throw</translation>
+    </message>
+    <message>
+      <source>Torqeedo Clear Err</source>
+      <translation>Torqeedo Limpar Erro</translation>
+    </message>
+    <message>
+      <source>trigger re-reading of mode switch</source>
+      <translation>acionar releitura da chave de modo</translation>
+    </message>
+    <message>
+      <source>Turbine Start(heli)</source>
+      <translation>Partida da Turbina (heli)</translation>
+    </message>
+    <message>
+      <source>Turtle</source>
+      <translation>Turtle</translation>
+    </message>
+    <message>
+      <source>User Function 1</source>
+      <translation>Função do Usuário 1</translation>
+    </message>
+    <message>
+      <source>User Function 2</source>
+      <translation>Função do Usuário 2</translation>
+    </message>
+    <message>
+      <source>User Function 3</source>
+      <translation>Função do Usuário 3</translation>
+    </message>
+    <message>
+      <source>Viso Align</source>
+      <translation>Alinhamento Viso</translation>
+    </message>
+    <message>
+      <source>VisOdom Align</source>
+      <translation>Alinhamento VisOdom</translation>
+    </message>
+    <message>
+      <source>VTX Power</source>
+      <translation>Potência do VTX</translation>
+    </message>
+    <message>
+      <source>Walking Height</source>
+      <translation>Altura de Caminhada</translation>
+    </message>
+    <message>
+      <source>Weathervane Enable</source>
+      <translation>Habilitar Weathervane</translation>
+    </message>
+    <message>
+      <source>Windvane home heading direction offset</source>
+      <translation>Deslocamento da direção home do weathervane</translation>
+    </message>
+    <message>
+      <source>ZigZag</source>
+      <translation>ZigZag</translation>
+    </message>
+    <message>
+      <source>ZigZag Auto</source>
+      <translation>ZigZag Auto</translation>
+    </message>
+    <message>
+      <source>ZigZag SaveWP</source>
+      <translation>ZigZag Salvar WP</translation>
+    </message>
+    <message>
+      <source>Sport</source>
+      <translation>Sport</translation>
+    </message>
+    <message>
+      <source>SystemID</source>
+      <translation>SystemID</translation>
+    </message>
+    <message>
+      <source>Auto RTL</source>
+      <translation>Auto RTL</translation>
+    </message>
+    <message>
+      <source>Disabled</source>
+      <translation>Desabilitado</translation>
+    </message>
+    <message>
+      <source>Analog Voltage Only</source>
+      <translation>Somente Tensão Analógica</translation>
+    </message>
+    <message>
+      <source>Analog Voltage and Current</source>
+      <translation>Tensão e Corrente Analógicas</translation>
+    </message>
+    <message>
+      <source>Sum Of Selected Monitors</source>
+      <translation>Soma dos Monitores Selecionados</translation>
+    </message>
+    <message>
+      <source>FuelFlow</source>
+      <translation>FluxoDeCombustível</translation>
+    </message>
+    <message>
+      <source>FuelLevelPWM</source>
+      <translation>NívelDeCombustívelPWM</translation>
+    </message>
+    <message>
+      <source>Generator-Elec</source>
+      <translation>Gerador-Elétrico</translation>
+    </message>
+    <message>
+      <source>Generator-Fuel</source>
+      <translation>Gerador-Combustível</translation>
+    </message>
+    <message>
+      <source>Disabled/NoAction</source>
+      <translation>Desabilitado/Sem Ação</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+    <message>
+      <source>NONE</source>
+      <translation>NENHUM</translation>
+    </message>
+    <message>
+      <source>none</source>
+      <translation>nenhum</translation>
+    </message>
+    <message>
+      <source>RTL or Hold</source>
+      <translation>RTL ou Hold</translation>
+    </message>
+    <message>
+      <source>RTL or Land</source>
+      <translation>RTL ou Land</translation>
+    </message>
+    <message>
+      <source>RTL or Continue with Mission in Auto Mode (Removed in 4.0+-see FS_OPTIONS)</source>
+      <translation>RTL ou Continuar a Missão no Modo Auto (Removido no 4.0+-veja FS_OPTIONS)</translation>
+    </message>
+    <message>
+      <source>RTL or Continue with Mission in Auto Mode (Deprecated in 4.0+-see FS_OPTIONS)</source>
+      <translation>RTL ou Continuar a Missão no Modo Auto (Obsoleto no 4.0+-veja FS_OPTIONS)</translation>
+    </message>
+    <message>
+      <source>Land (4.0+ Only)</source>
+      <translation>Land (Somente 4.0+)</translation>
+    </message>
+    <message>
+      <source>Enabled Continue with Mission in Auto</source>
+      <translation>Habilitado Continuar a Missão no Auto</translation>
+    </message>
+    <message>
+      <source>Enabled Continue with Mission in Auto Mode (Removed in 4.0+)</source>
+      <translation>Habilitado Continuar a Missão no Modo Auto (Removido no 4.0+)</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL</source>
+      <translation>SmartRTL ou RTL</translation>
+    </message>
+    <message>
+      <source>SmartRTL or Land</source>
+      <translation>SmartRTL ou Land</translation>
+    </message>
+    <message>
+      <source>SmartRTL or Hold</source>
+      <translation>SmartRTL ou Hold</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL or Hold</source>
+      <translation>SmartRTL ou RTL ou Hold</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL or Land</source>
+      <translation>SmartRTL ou RTL ou Land</translation>
+    </message>
+    <message>
+      <source>Terminate</source>
+      <translation>Terminação</translation>
+    </message>
+    <message>
+      <source>Auto DO_LAND_START or RTL</source>
+      <translation>Auto DO_LAND_START ou RTL</translation>
+    </message>
+    <message>
+      <source>Enabled Auto DO_LAND_START or RTL</source>
+      <translation>Habilitado Auto DO_LAND_START ou RTL</translation>
+    </message>
+    <message>
+      <source>Enabled always SmartRTL or RTL</source>
+      <translation>Habilitado sempre SmartRTL ou RTL</translation>
+    </message>
+    <message>
+      <source>Enabled always SmartRTL or Land</source>
+      <translation>Habilitado sempre SmartRTL ou Land</translation>
+    </message>
+    <message>
+      <source>All</source>
+      <translation>Todos</translation>
+    </message>
+    <message>
+      <source>Barometer</source>
+      <translation>Barômetro</translation>
+    </message>
+    <message>
+      <source>Compass</source>
+      <translation>Bússola</translation>
+    </message>
+    <message>
+      <source>GPS lock</source>
+      <translation>Fix do GPS</translation>
+    </message>
+    <message>
+      <source>INS</source>
+      <translation>INS</translation>
+    </message>
+    <message>
+      <source>Parameters</source>
+      <translation>Parâmetros</translation>
+    </message>
+    <message>
+      <source>RC Channels</source>
+      <translation>Canais RC</translation>
+    </message>
+    <message>
+      <source>Board voltage</source>
+      <translation>Tensão da placa</translation>
+    </message>
+    <message>
+      <source>Battery Level</source>
+      <translation>Nível da Bateria</translation>
+    </message>
+    <message>
+      <source>Airspeed</source>
+      <translation>Velocidade do Ar</translation>
+    </message>
+    <message>
+      <source>Logging Available</source>
+      <translation>Log Disponível</translation>
+    </message>
+    <message>
+      <source>Hardware safety switch</source>
+      <translation>Chave de segurança de hardware</translation>
+    </message>
+    <message>
+      <source>GPS Configuration</source>
+      <translation>Configuração do GPS</translation>
+    </message>
+    <message>
+      <source>System</source>
+      <translation>Sistema</translation>
+    </message>
+    <message>
+      <source>Mission</source>
+      <translation>Missão</translation>
+    </message>
+    <message>
+      <source>Rangefinder</source>
+      <translation>Telêmetro</translation>
+    </message>
+    <message>
+      <source>Camera</source>
+      <translation>Câmera</translation>
+    </message>
+    <message>
+      <source>AuxAuth</source>
+      <translation>AuxAuth</translation>
+    </message>
+    <message>
+      <source>FFT</source>
+      <translation>FFT</translation>
+    </message>
+    <message>
+      <source>VisualOdometry</source>
+      <translation>OdometriaVisual</translation>
+    </message>
+  </context>
+  <context>
+    <name>CodevCameraControl</name>
+    <message>
+      <source>Camera EV</source>
+      <translation>EV da Câmera</translation>
+    </message>
+    <message>
+      <source>Camera AE</source>
+      <translation>AE da Câmera</translation>
+    </message>
+    <message>
+      <source>Camera ISO</source>
+      <translation>ISO da Câmera</translation>
+    </message>
+    <message>
+      <source>Camera Shutter</source>
+      <translation>Obturador da Câmera</translation>
+    </message>
+    <message>
+      <source>Camera Aperture</source>
+      <translation>Abertura da Câmera</translation>
+    </message>
+    <message>
+      <source>Camera Focus Mode</source>
+      <translation>Modo de Foco da Câmera</translation>
+    </message>
+    <message>
+      <source>AF Area</source>
+      <translation>Área de AF</translation>
+    </message>
+    <message>
+      <source>Image Type</source>
+      <translation>Tipo de Imagem</translation>
+    </message>
+    <message>
+      <source>Creative Look</source>
+      <translation>Creative Look</translation>
+    </message>
+    <message>
+      <source>Creative Contrast</source>
+      <translation>Contraste Criativo</translation>
+    </message>
+    <message>
+      <source>Creative Highlights</source>
+      <translation>Realces Criativos</translation>
+    </message>
+    <message>
+      <source>Creative Shadows</source>
+      <translation>Sombras Criativas</translation>
+    </message>
+    <message>
+      <source>Creative Fade</source>
+      <translation>Esmaecimento Criativo</translation>
+    </message>
+    <message>
+      <source>Creative Saturation</source>
+      <translation>Saturação Criativa</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness</source>
+      <translation>Nitidez Criativa</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness Range</source>
+      <translation>Faixa de Nitidez Criativa</translation>
+    </message>
+    <message>
+      <source>Creative Clarity</source>
+      <translation>Clareza Criativa</translation>
+    </message>
+    <message>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>Interno</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>Externo</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>Externo Automático</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>ExternoAutomático</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>AWBUmToque</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>WBUmToque</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>WB de Um Toque</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>AWB de Um Toque</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>Manual</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>LâmpadaDeSódio</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>Lâmpada de Sódio</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>LâmpadaDeSódioAuto</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>Lâmpada de Sódio Automático</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>LâmpadaDeSódioExternoAuto</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>Lâmpada de Sódio Externo Automático</translation>
+    </message>
+    <message>
+      <source>Continuous AF</source>
+      <translation>AF Contínuo</translation>
+    </message>
+    <message>
+      <source>Wide</source>
+      <translation>Amplo</translation>
+    </message>
+    <message>
+      <source>Movie File Format</source>
+      <translation>Formato de Arquivo de Vídeo</translation>
+    </message>
+    <message>
+      <source>Movie Recording Frame Rate</source>
+      <translation>Taxa de Quadros de Gravação de Vídeo</translation>
+    </message>
+    <message>
+      <source>Movie Recording Setting</source>
+      <translation>Configuração de Gravação de Vídeo</translation>
+    </message>
+    <message>
+      <source>Movie Auto</source>
+      <translation>Vídeo Auto</translation>
+    </message>
+    <message>
+      <source>Movie M</source>
+      <translation>Vídeo M</translation>
+    </message>
+    <message>
+      <source>Movie P</source>
+      <translation>Vídeo P</translation>
+    </message>
+    <message>
+      <source>Movie A</source>
+      <translation>Vídeo A</translation>
+    </message>
+    <message>
+      <source>Movie S</source>
+      <translation>Vídeo S</translation>
+    </message>
+    <message>
+      <source>Single</source>
+      <translation>Único</translation>
+    </message>
+    <message>
+      <source>Time Lapse</source>
+      <translation>Time Lapse</translation>
+    </message>
+    <message>
+      <source>Camera WhiteBalance</source>
+      <translation>Balanço de Branco da Câmera</translation>
+    </message>
+    <message>
+      <source>RTSP Bitrate</source>
+      <translation>Taxa de Bits RTSP</translation>
+    </message>
+    <message>
+      <source>RTSP Resolution</source>
+      <translation>Resolução RTSP</translation>
+    </message>
+    <message>
+      <source>Video Quality</source>
+      <translation>Qualidade de Vídeo</translation>
+    </message>
+    <message>
+      <source>High Sensitivity</source>
+      <translation>Alta Sensibilidade</translation>
+    </message>
+    <message>
+      <source>Zoom Speed</source>
+      <translation>Velocidade do Zoom</translation>
+    </message>
+    <message>
+      <source>Zoom Feature</source>
+      <translation>Função de Zoom</translation>
+    </message>
+    <message>
+      <source>Digital Zoom</source>
+      <translation>Zoom Digital</translation>
+    </message>
+    <message>
+      <source>Infrared Palette</source>
+      <translation>Paleta Infravermelha</translation>
+    </message>
+    <message>
+      <source>IR Zoom</source>
+      <translation>Zoom IR</translation>
+    </message>
+    <message>
+      <source>High/Low (TRUE/FALSE) Gain</source>
+      <translation>Ganho Alto/Baixo (TRUE/FALSE)</translation>
+    </message>
+    <message>
+      <source>Hight/Low(TRUE/FALSE) Gain</source>
+      <translation>Ganho Alto/Baixo(TRUE/FALSE)</translation>
+    </message>
+    <message>
+      <source>High/Low(TRUE/FALSE) Gain</source>
+      <translation>Ganho Alto/Baixo(TRUE/FALSE)</translation>
+    </message>
+    <message>
+      <source>On/Off thermometry</source>
+      <translation>Ligar/Desligar termometria</translation>
+    </message>
+    <message>
+      <source>On/Off Thermometry</source>
+      <translation>Ligar/Desligar Termometria</translation>
+    </message>
+    <message>
+      <source>Default</source>
+      <translation>Padrão</translation>
+    </message>
+    <message>
+      <source>Medium</source>
+      <translation>Médio</translation>
+    </message>
+    <message>
+      <source>High</source>
+      <translation>Alto</translation>
+    </message>
+    <message>
+      <source>Normal</source>
+      <translation>Normal</translation>
+    </message>
+    <message>
+      <source>Super Resolution</source>
+      <translation>Super Resolução</translation>
+    </message>
+    <message>
+      <source>Ironbow</source>
+      <translation>Ironbow</translation>
+    </message>
+    <message>
+      <source>White Hot</source>
+      <translation>Branco Quente</translation>
+    </message>
+    <message>
+      <source>Black Hot</source>
+      <translation>Preto Quente</translation>
+    </message>
+    <message>
+      <source>Red Hot</source>
+      <translation>Vermelho Quente</translation>
+    </message>
+    <message>
+      <source>Glory Hot</source>
+      <translation>Glory Hot</translation>
+    </message>
+    <message>
+      <source>Sepia</source>
+      <translation>Sépia</translation>
+    </message>
+    <message>
+      <source>Rainbow</source>
+      <translation>Arco-íris</translation>
+    </message>
+    <message>
+      <source>Night</source>
+      <translation>Noturno</translation>
+    </message>
+    <message>
+      <source>Aurora</source>
+      <translation>Aurora</translation>
+    </message>
+    <message>
+      <source>Jungle</source>
+      <translation>Selva</translation>
+    </message>
+    <message>
+      <source>Medical</source>
+      <translation>Médico</translation>
+    </message>
+    <message>
+      <source>Gimbal Speed</source>
+      <translation>Velocidade do Gimbal</translation>
+    </message>
+    <message>
+      <source>Gimbal speed</source>
+      <translation>Velocidade do gimbal</translation>
+    </message>
+    <message>
+      <source>Yaw Smooth</source>
+      <translation>Suavização de Guinada</translation>
+    </message>
+    <message>
+      <source>Yaw Mode</source>
+      <translation>Modo de Guinada</translation>
+    </message>
+    <message>
+      <source>Head</source>
+      <translation>Cabeça</translation>
+    </message>
+    <message>
+      <source>Global</source>
+      <translation>Global</translation>
+    </message>
+    <message>
+      <source>Custom 1</source>
+      <translation>Personalizado 1</translation>
+    </message>
+    <message>
+      <source>Custom 2</source>
+      <translation>Personalizado 2</translation>
+    </message>
+    <message>
+      <source>Gimbal Tracker Gain</source>
+      <translation>Ganho do Rastreador do Gimbal</translation>
+    </message>
+    <message>
+      <source>NV Power Mode</source>
+      <translation>Modo de Energia NV</translation>
+    </message>
+    <message>
+      <source>NV Debug</source>
+      <translation>Depuração NV</translation>
+    </message>
+    <message>
+      <source>Track Algorithm</source>
+      <translation>Algoritmo de Rastreamento</translation>
+    </message>
+    <message>
+      <source>Smart Select</source>
+      <translation>Seleção Inteligente</translation>
+    </message>
+    <message>
+      <source>AI Expect Resolution</source>
+      <translation>Resolução Esperada da IA</translation>
+    </message>
+    <message>
+      <source>AI Expected Resolution</source>
+      <translation>Resolução Esperada da IA</translation>
+    </message>
+    <message>
+      <source>UUID</source>
+      <translation>UUID</translation>
+    </message>
+    <message>
+      <source>Range finder</source>
+      <translation>Telêmetro</translation>
+    </message>
+    <message>
+      <source>AI OSD</source>
+      <translation>OSD de IA</translation>
+    </message>
+    <message>
+      <source>AI Video Source</source>
+      <translation>Fonte de Vídeo da IA</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+    <message>
+      <source>Yolov8</source>
+      <translation>Yolov8</translation>
+    </message>
+    <message>
+      <source>SiamRPN</source>
+      <translation>SiamRPN</translation>
+    </message>
+    <message>
+      <source>Nano</source>
+      <translation>Nano</translation>
+    </message>
+    <message>
+      <source>15W 4CORE</source>
+      <translation>15W 4CORE</translation>
+    </message>
+    <message>
+      <source>15W 2CORE</source>
+      <translation>15W 2CORE</translation>
+    </message>
+    <message>
+      <source>15W 6CORE</source>
+      <translation>15W 6CORE</translation>
+    </message>
+    <message>
+      <source>10W 2CORE</source>
+      <translation>10W 2CORE</translation>
+    </message>
+    <message>
+      <source>10W 4CORE</source>
+      <translation>10W 4CORE</translation>
+    </message>
+    <message>
+      <source>10W DESKTOP</source>
+      <translation>10W DESKTOP</translation>
+    </message>
+    <message>
+      <source>20W 2CORE</source>
+      <translation>20W 2CORE</translation>
+    </message>
+    <message>
+      <source>20W 4CORE</source>
+      <translation>20W 4CORE</translation>
+    </message>
+    <message>
+      <source>20W 6CORE</source>
+      <translation>20W 6CORE</translation>
+    </message>
+    <message>
+      <source>EO</source>
+      <translation>EO</translation>
+    </message>
+    <message>
+      <source>IR</source>
+      <translation>IR</translation>
+    </message>
+  </context>
+  <context>
+    <name>UASWarning</name>
+    <message>
+      <source>%e </source>
+      <translation>%e </translation>
+    </message>
+    <message>
+      <source>%f %f %f %f</source>
+      <translation>%f %f %f %f</translation>
+    </message>
+    <message>
+      <source>%s</source>
+      <translation>%s</translation>
+    </message>
+    <message>
+      <source>%s below failsafe</source>
+      <translation>%s abaixo do failsafe</translation>
+    </message>
+    <message>
+      <source>%s radio max too low</source>
+      <translation>%s: máximo do rádio muito baixo</translation>
+    </message>
+    <message>
+      <source>%s radio min too high</source>
+      <translation>%s: mínimo do rádio muito alto</translation>
+    </message>
+    <message>
+      <source>%s radio trim above max</source>
+      <translation>%s: trim do rádio acima do máximo</translation>
+    </message>
+    <message>
+      <source>%s radio trim below min</source>
+      <translation>%s: trim do rádio abaixo do mínimo</translation>
+    </message>
+    <message>
+      <source>%s too high</source>
+      <translation>%s muito alto</translation>
+    </message>
+    <message>
+      <source>%s: %s</source>
+      <translation>%s: %s</translation>
+    </message>
+    <message>
+      <source>%s: %s %s: %s</source>
+      <translation>%s: %s %s: %s</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer off</source>
+      <translation>%u: Buzzer desligado</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on</source>
+      <translation>%u: Buzzer ligado</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on again</source>
+      <translation>%u: Buzzer ligado novamente</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using GPS</source>
+      <translation>EKF3 IMU%u está usando GPS</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using range beacons</source>
+      <translation>EKF3 IMU%u está usando beacons de distância</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u origin set</source>
+      <translation>EKF3 IMU%u origem definida</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u started relative aiding</source>
+      <translation>EKF3 IMU%u iniciou auxílio relativo</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u stopped aiding</source>
+      <translation>EKF3 IMU%u parou o auxílio</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u switching to compass %u</source>
+      <translation>EKF3 IMU%u mudando para a bússola %u</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u tilt alignment complete</source>
+      <translation>EKF3 IMU%u alinhamento de inclinação concluído</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned</source>
+      <translation>EKF3 IMU%u guinada alinhada</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF3 IMU%u guinada alinhada à velocidade do GPS</translation>
+    </message>
+    <message>
+      <source>ERROR: Won&apos;t setup signing when armed</source>
+      <translation>ERRO: Não é possível configurar a assinatura quando armado</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Auto calibration</source>
+      <translation>Calibração do ESC: calibração automática</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Passing pilot throttle to ESCs</source>
+      <translation>Calibração do ESC: repassando o acelerador do piloto aos ESCs</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Push safety switch</source>
+      <translation>Calibração do ESC: pressione o interruptor de segurança</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Restart board</source>
+      <translation>Calibração do ESC: reinicie a placa</translation>
+    </message>
+    <message>
+      <source>ESC: </source>
+      <translation>ESC: </translation>
+    </message>
+    <message>
+      <source>Enable fence failed (cannot autoenable</source>
+      <translation>Falha ao habilitar a cerca (não é possível habilitar automaticamente</translation>
+    </message>
+    <message>
+      <source>Engine: start control disabled</source>
+      <translation>Motor a combustão: controle de partida desabilitado</translation>
+    </message>
+    <message>
+      <source>Entered VTOL mode</source>
+      <translation>Entrou no modo VTOL</translation>
+    </message>
+    <message>
+      <source>Error replacing item (%u)</source>
+      <translation>Erro ao substituir o item (%u)</translation>
+    </message>
+    <message>
+      <source>Error setting rally point</source>
+      <translation>Erro ao definir o ponto de rally</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %d</source>
+      <translation>Erro: número de modo inválido: %d</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %u</source>
+      <translation>Erro: número de modo inválido: %u</translation>
+    </message>
+    <message>
+      <source>Exited VTOL mode</source>
+      <translation>Saiu do modo VTOL</translation>
+    </message>
+    <message>
+      <source>Extended by: %f (%f)</source>
+      <translation>Estendido em: %f (%f)</translation>
+    </message>
+    <message>
+      <source>Extended: %3.8f %3.8f</source>
+      <translation>Estendido: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for HarmonicNotchFilter</source>
+      <translation>Falha ao alocar %u bytes para HarmonicNotchFilter</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for IMU batch sampling</source>
+      <translation>Falha ao alocar %u bytes para amostragem em lote da IMU</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff within time limit</source>
+      <translation>Falha ao concluir a decolagem dentro do tempo limite</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff, excessive wind</source>
+      <translation>Falha ao concluir a decolagem, vento excessivo</translation>
+    </message>
+    <message>
+      <source>Failed to get rally point</source>
+      <translation>Falha ao obter o ponto de rally</translation>
+    </message>
+    <message>
+      <source>Failed to get return point</source>
+      <translation>Falha ao obter o ponto de retorno</translation>
+    </message>
+    <message>
+      <source>Failed to initialise RC function (%u)</source>
+      <translation>Falha ao inicializar a função RC (%u)</translation>
+    </message>
+    <message>
+      <source>Failed! Please check Thruster %d and frame setup!</source>
+      <translation>Falha! Verifique o propulsor %d e a configuração da estrutura!</translation>
+    </message>
+    <message>
+      <source>Failsafe trigger 0x%x</source>
+      <translation>Gatilho de failsafe 0x%x</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event off: reason=%u</source>
+      <translation>Failsafe. Evento longo desligado: motivo=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event on: type=%u/reason=%u</source>
+      <translation>Failsafe. Evento longo ligado: tipo=%u/motivo=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event off: reason=%u</source>
+      <translation>Failsafe. Evento curto desligado: motivo=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event on: type=%u/reason=%u</source>
+      <translation>Failsafe. Evento curto ligado: tipo=%u/motivo=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe: Estimated %.0f seconds to home</source>
+      <translation>Failsafe: estimados %.0f segundos até o Home</translation>
+    </message>
+    <message>
+      <source>Failsafe: RTL took </source>
+      <translation>Failsafe: RTL levou </translation>
+    </message>
+    <message>
+      <source>Failsafe: Terrain data missing</source>
+      <translation>Failsafe: dados de terreno ausentes</translation>
+    </message>
+    <message>
+      <source>Flare %.1fm sink=%.2f speed=%.1f dist=%.1f</source>
+      <translation>Flare %.1fm afundamento=%.2f velocidade=%.1f dist=%.1f</translation>
+    </message>
+    <message>
+      <source>Flare crash detected: speed=%.1f</source>
+      <translation>Queda detectada no flare: velocidade=%.1f</translation>
+    </message>
+    <message>
+      <source>Flight mode = %u</source>
+      <translation>Modo de voo = %u</translation>
+    </message>
+    <message>
+      <source>Forcing safety off for watchdog\n</source>
+      <translation>Forçando a segurança desligada pelo watchdog
+</translation>
+    </message>
+    <message>
+      <source>Found %d complete logs at 0x%04X-0x%04X</source>
+      <translation>Encontrados %d logs completos em 0x%04X-0x%04X</translation>
+    </message>
+    <message>
+      <source>Found corrupt log %d at 0x%04X, erasing</source>
+      <translation>Log corrompido %d encontrado em 0x%04X, apagando</translation>
+    </message>
+    <message>
+      <source>Frame: %s</source>
+      <translation>Estrutura: %s</translation>
+    </message>
+    <message>
+      <source>FuelFlow: Failed to attach to pin %u</source>
+      <translation>FuelFlow: falha ao conectar ao pino %u</translation>
+    </message>
+    <message>
+      <source>FuelLevelPWM: Failed to attach to pin %u</source>
+      <translation>FuelLevelPWM: falha ao conectar ao pino %u</translation>
+    </message>
+    <message>
+      <source>GPS and AHRS differ by %4.1fm</source>
+      <translation>GPS e AHRS diferem em %4.1fm</translation>
+    </message>
+    <message>
+      <source>GPS positions differ by %4.1fm</source>
+      <translation>Posições de GPS diferem em %4.1fm</translation>
+    </message>
+    <message>
+      <source>Geofence error, %s</source>
+      <translation>Erro de geocerca, %s</translation>
+    </message>
+    <message>
+      <source>GoPro recording, can&apos;t change modes</source>
+      <translation>GoPro gravando, não é possível mudar de modo</translation>
+    </message>
+    <message>
+      <source>Got a point! %d total</source>
+      <translation>Ponto obtido! %d no total</translation>
+    </message>
+    <message>
+      <source>Heater: P=%.1f I=%.1f Out=%.1f Temp=%.1f</source>
+      <translation>Aquecedor: P=%.1f I=%.1f Saída=%.1f Temp=%.1f</translation>
+    </message>
+    <message>
+      <source>Holding course %d at %.1fm/s (%.1f)</source>
+      <translation>Mantendo o curso %d a %.1fm/s (%.1f)</translation>
+    </message>
+    <message>
+      <source>INS: alloc %u bytes for ISB (free=%u)</source>
+      <translation>INS: alocados %u bytes para ISB (livre=%u)</translation>
+    </message>
+    <message>
+      <source>Ignoring invalid START_LATITUDE or START_LONGITUDE parameter</source>
+      <translation>Ignorando parâmetro START_LATITUDE ou START_LONGITUDE inválido</translation>
+    </message>
+    <message>
+      <source>Internal errors (0x%x)</source>
+      <translation>Erros internos (0x%x)</translation>
+    </message>
+    <message>
+      <source>Internal pressure critical!</source>
+      <translation>Pressão interna crítica!</translation>
+    </message>
+    <message>
+      <source>Internal temperature critical!</source>
+      <translation>Temperatura interna crítica!</translation>
+    </message>
+    <message>
+      <source>Invalid channel option (%u)</source>
+      <translation>Opção de canal inválida (%u)</translation>
+    </message>
+    <message>
+      <source>Invalid coord frame in SET_POSTION_TARGET_GLOBAL_INT</source>
+      <translation>Frame de coordenadas inválido em SET_POSTION_TARGET_GLOBAL_INT</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad count (%u vs %u)</source>
+      <translation>Ponto de cerca inválido, contagem incorreta (%u vs %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad lat or lng</source>
+      <translation>Ponto de cerca inválido, lat ou lng incorreta</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total (%u &gt;= %u)</source>
+      <translation>Ponto de cerca inválido, índice além do total (%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total(%u &gt;= %u)</source>
+      <translation>Ponto de cerca inválido, índice além do total(%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, lat or lng too large</source>
+      <translation>Ponto de cerca inválido, lat ou lng muito grande</translation>
+    </message>
+    <message>
+      <source>Invalid vertex count (%u)</source>
+      <translation>Número de vértices inválido (%u)</translation>
+    </message>
+    <message>
+      <source>LEDs: chan=</source>
+      <translation>LEDs: canal=</translation>
+    </message>
+    <message>
+      <source>LEDs: channel not set</source>
+      <translation>LEDs: canal não definido</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MAX too small (%u)</source>
+      <translation>LIM_PITCH_MAX muito pequeno (%u)</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MIN too large (%u)</source>
+      <translation>LIM_PITCH_MIN muito grande (%u)</translation>
+    </message>
+    <message>
+      <source>LIM_ROLL_CD too small (%u)</source>
+      <translation>LIM_ROLL_CD muito pequeno (%u)</translation>
+    </message>
+    <message>
+      <source>Landing aborted, climbing to %dm</source>
+      <translation>Pouso abortado, subindo para %dm</translation>
+    </message>
+    <message>
+      <source>Landing approach start at %.1fm</source>
+      <translation>Início da aproximação para pouso a %.1fm</translation>
+    </message>
+    <message>
+      <source>Landing glide slope %.1f degrees</source>
+      <translation>Rampa de planeio do pouso %.1f graus</translation>
+    </message>
+    <message>
+      <source>Landing sequence start</source>
+      <translation>Início da sequência de pouso</translation>
+    </message>
+    <message>
+      <source>Landing slope too steep, aborting (%.0fm %.1fdeg)</source>
+      <translation>Rampa de pouso muito íngreme, abortando (%.0fm %.1fdeg)</translation>
+    </message>
+    <message>
+      <source>Log recovery complete, erased %d blocks</source>
+      <translation>Recuperação de log concluída, %d blocos apagados</translation>
+    </message>
+    <message>
+      <source>Loiter en: %3.8f %3.8f</source>
+      <translation>Loiter entrada: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter ex: %3.8f %3.8f</source>
+      <translation>Loiter saída: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter to alt was stuck at %d</source>
+      <translation>Loiter até altitude travado em %d</translation>
+    </message>
+    <message>
+      <source>Lua: %s</source>
+      <translation>Lua: %s</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a delay (0x%d)</source>
+      <translation>Lua: %s não retornou um atraso (0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a function (0x%d)</source>
+      <translation>Lua: %s não retornou uma função (0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s exceeded time limit (%d)</source>
+      <translation>Lua: %s excedeu o tempo limite (%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s returned bad result count (%d)</source>
+      <translation>Lua: %s retornou número de resultados incorreto (%d)</translation>
+    </message>
+    <message>
+      <source>Lua: Could not find a scripts directory</source>
+      <translation>Lua: não foi possível encontrar um diretório de scripts</translation>
+    </message>
+    <message>
+      <source>Lua: Couldn&apos;t allocate a lua state</source>
+      <translation>Lua: não foi possível alocar um estado Lua</translation>
+    </message>
+    <message>
+      <source>Lua: Error: %s</source>
+      <translation>Lua: Erro: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Insufficent memory loading %s</source>
+      <translation>Lua: memória insuficiente ao carregar %s</translation>
+    </message>
+    <message>
+      <source>Lua: No scripts to run</source>
+      <translation>Lua: nenhum script para executar</translation>
+    </message>
+    <message>
+      <source>Lua: Panic: %s</source>
+      <translation>Lua: Pânico: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Running %s</source>
+      <translation>Lua: executando %s</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; Ground start</source>
+      <translation>&lt;startup_ground&gt; Inicialização em solo</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; With delay</source>
+      <translation>&lt;startup_ground&gt; Com atraso</translation>
+    </message>
+    <message>
+      <source>ADSB: Found transceiver on channel %d</source>
+      <translation>ADSB: transceptor encontrado no canal %d</translation>
+    </message>
+    <message>
+      <source>ADSB: Transceiver heartbeat timed out</source>
+      <translation>ADSB: tempo esgotado do heartbeat do transceptor</translation>
+    </message>
+    <message>
+      <source>ADSB: Using ICAO_id %d and Callsign %s</source>
+      <translation>ADSB: usando ICAO_id %d e indicativo de chamada %s</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can't terminate the vehicle</source>
+      <translation>AFS não habilitado, não é possível executar a terminação do veículo</translation>
+    </message>
+    <message>
+      <source>AP_Logger: stuck thread (%s)</source>
+      <translation>AP_Logger: thread travada (%s)</translation>
+    </message>
+    <message>
+      <source>Aborting termination due to %s</source>
+      <translation>Abortando a terminação devido a %s</translation>
+    </message>
+    <message>
+      <source>Airspeed %d not healthy</source>
+      <translation>Velocidade do ar %d com falha</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d failure. Disabling</source>
+      <translation>Falha no sensor de velocidade do ar %d. Desabilitando</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d now OK. Re-enabled</source>
+      <translation>Sensor de velocidade do ar %d OK novamente. Reabilitado</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d warning</source>
+      <translation>Aviso do sensor de velocidade do ar %d</translation>
+    </message>
+    <message>
+      <source>Alt assist %.1fm</source>
+      <translation>Assistência de altitude %.1fm</translation>
+    </message>
+    <message>
+      <source>Angle assist r=%d p=%d</source>
+      <translation>Assistência de ângulo r=%d p=%d</translation>
+    </message>
+    <message>
+      <source>Arc: %3.8f %3.8f</source>
+      <translation>Arco: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Arm motors before testing motors.</source>
+      <translation>Arme os motores antes de testá-los.</translation>
+    </message>
+    <message>
+      <source>Armed AUTO, xaccel = %.1f m/s/s, waiting %.1f sec</source>
+      <translation>Armado em AUTO, xaccel = %.1f m/s/s, aguardando %.1f s</translation>
+    </message>
+    <message>
+      <source>AutoTune: (%c) %s</source>
+      <translation>AutoTune: (%c) %s</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for %s%s%s</source>
+      <translation>AutoTune: ganhos salvos para %s%s%s</translation>
+    </message>
+    <message>
+      <source>AutoTune: WFL (%s) (%f &gt; %f)</source>
+      <translation>AutoTune: WFL (%s) (%f &gt; %f)</translation>
+    </message>
+    <message>
+      <source>AutoTune: lean=%f target=%f</source>
+      <translation>AutoTune: inclinação=%f alvo=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f accel=%f</source>
+      <translation>AutoTune: p=%f accel=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f d=%f</source>
+      <translation>AutoTune: p=%f d=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: rotation=%f target=%f</source>
+      <translation>AutoTune: rotação=%f alvo=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: success %u/%u</source>
+      <translation>AutoTune: sucesso %u/%u</translation>
+    </message>
+    <message>
+      <source>Avoid: Performing action: %d</source>
+      <translation>Desvio: executando ação: %d</translation>
+    </message>
+    <message>
+      <source>Avoid: Resuming with action: %d</source>
+      <translation>Desvio: retomando com a ação: %d</translation>
+    </message>
+    <message>
+      <source>BAD NAV ALT %0.2f</source>
+      <translation>ALT DE NAV INVÁLIDA %0.2f</translation>
+    </message>
+    <message>
+      <source>BAD NAV AltFrame %d</source>
+      <translation>AltFrame DE NAV INVÁLIDO %d</translation>
+    </message>
+    <message>
+      <source>Bad parameter: %s</source>
+      <translation>Parâmetro inválido: %s</translation>
+    </message>
+    <message>
+      <source>Bad rally point count</source>
+      <translation>Contagem de pontos de rally inválida</translation>
+    </message>
+    <message>
+      <source>Bad thrust read, trying to push the other way...</source>
+      <translation>Leitura de empuxo inválida, tentando empurrar no outro sentido...</translation>
+    </message>
+    <message>
+      <source>Bailing Out of Autorotation</source>
+      <translation>Saindo da autorrotação</translation>
+    </message>
+    <message>
+      <source>Battery %d is %s %.2fV used %.0f mAh</source>
+      <translation>Bateria %d está %s %.2fV consumo %.0f mAh</translation>
+    </message>
+    <message>
+      <source>Battery needs replacing (%d cycles)</source>
+      <translation>A bateria precisa ser substituída (%d ciclos)</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move plane</source>
+      <translation>Iniciando calibração do INS. Não mova o avião</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move vehicle</source>
+      <translation>Iniciando calibração do INS. Não mova o veículo</translation>
+    </message>
+    <message>
+      <source>Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>Placa (%1.1fv) fora da faixa %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>Can't check rally without position</source>
+      <translation>Não é possível verificar rally sem posição</translation>
+    </message>
+    <message>
+      <source>Change alt to %.1f</source>
+      <translation>Alterar altitude para %.1f</translation>
+    </message>
+    <message>
+      <source>Check BRD_TYPE: %s</source>
+      <translation>Verifique BRD_TYPE: %s</translation>
+    </message>
+    <message>
+      <source>Command received: </source>
+      <translation>Comando recebido: </translation>
+    </message>
+    <message>
+      <source>Could not create scripting stack (%d)</source>
+      <translation>Não foi possível criar a pilha de scripts (%d)</translation>
+    </message>
+    <message>
+      <source>Cruise Learned: Thr:%d Speed:%3.1f</source>
+      <translation>Cruzeiro aprendido: Acel:%d Velocidade:%3.1f</translation>
+    </message>
+    <message>
+      <source>Current</source>
+      <translation>Corrente</translation>
+    </message>
+    <message>
+      <source>DB init failed . Sizes queue:%u, db:%u</source>
+      <translation>Falha na inicialização do BD. Tamanhos fila:%u, bd:%u</translation>
+    </message>
+    <message>
+      <source>Deepstall: Entry: %0.1f (m) Travel: %0.1f (m)</source>
+      <translation>Deepstall: Entrada: %0.1f (m) Percurso: %0.1f (m)</translation>
+    </message>
+    <message>
+      <source>Deepstall: Invalid data from AHRS. Holding level</source>
+      <translation>Deepstall: dados inválidos do AHRS. Mantendo nivelado</translation>
+    </message>
+    <message>
+      <source>Deepstall: Unable to find the elevator channels</source>
+      <translation>Deepstall: não foi possível encontrar os canais do profundor</translation>
+    </message>
+    <message>
+      <source>Delaying %u sec</source>
+      <translation>Aguardando %u s</translation>
+    </message>
+    <message>
+      <source>Depth sensor error!</source>
+      <translation>Erro no sensor de profundidade!</translation>
+    </message>
+    <message>
+      <source>Depth sensor error.</source>
+      <translation>Erro no sensor de profundidade.</translation>
+    </message>
+    <message>
+      <source>Depth sensor is not connected.</source>
+      <translation>Sensor de profundidade não conectado.</translation>
+    </message>
+    <message>
+      <source>Dijkstra: %s</source>
+      <translation>Dijkstra: %s</translation>
+    </message>
+    <message>
+      <source>Distance from LAND point=%.2fm</source>
+      <translation>Distância do ponto de POUSO=%.2fm</translation>
+    </message>
+    <message>
+      <source>Distance: %.1f %.1f</source>
+      <translation>Distância: %.1f %.1f</translation>
+    </message>
+    <message>
+      <source>EK2: Changed EK2_GPS_TYPE to 1</source>
+      <translation>EK2: EK2_GPS_TYPE alterado para 1</translation>
+    </message>
+    <message>
+      <source>EK3: Changed EK3_GPS_TYPE to 1</source>
+      <translation>EK3: EK3_GPS_TYPE alterado para 1</translation>
+    </message>
+    <message>
+      <source>EKF primary changed:%d</source>
+      <translation>EKF primário alterado:%d</translation>
+    </message>
+    <message>
+      <source>EKF yaw reset %.2f</source>
+      <translation>Reset de guinada do EKF %.2f</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ext nav yaw alignment complete</source>
+      <translation>EKF2 IMU%u alinhamento de guinada por nav externa concluído</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u forced reset</source>
+      <translation>EKF2 IMU%u reset forçado</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF2 IMU%u anomalia magnética no solo, guinada realinhada</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u has stopped aiding</source>
+      <translation>EKF2 IMU%u parou o auxílio</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF2 IMU%u alinhamento de guinada em voo concluído</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF2 IMU%u deslocamento D inicial da pos. do beacon = %3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u pos. inicial NE = %3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NED = %3.1f,%3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u pos. inicial NED = %3.1f,%3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial yaw alignment complete</source>
+      <translation>EKF2 IMU%u alinhamento inicial de guinada concluído</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using GPS</source>
+      <translation>EKF2 IMU%u está usando GPS</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using external nav data</source>
+      <translation>EKF2 IMU%u está usando dados de nav externa</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using optical flow</source>
+      <translation>EKF2 IMU%u está usando fluxo óptico</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using range beacons</source>
+      <translation>EKF2 IMU%u está usando beacons de distância</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u origin set</source>
+      <translation>EKF2 IMU%u origem definida</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u switching to compass %u</source>
+      <translation>EKF2 IMU%u mudando para a bússola %u</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u tilt alignment complete</source>
+      <translation>EKF2 IMU%u alinhamento de inclinação concluído</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF2 IMU%u guinada alinhada à velocidade do GPS</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u buffers IMU=%u OBS=%u OF=%u, dt=%.4f</source>
+      <translation>EKF3 IMU%u buffers IMU=%u OBS=%u OF=%u, dt=%.4f</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing odometry</source>
+      <translation>EKF3 IMU%u fundindo odometria</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing optical flow</source>
+      <translation>EKF3 IMU%u fundindo fluxo óptico</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF3 IMU%u anomalia magnética no solo, guinada realinhada</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF3 IMU%u alinhamento de guinada em voo concluído</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF3 IMU%u deslocamento D inicial da pos. do beacon = %3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF3 IMU%u pos. inicial NE = %3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial yaw alignment complete</source>
+      <translation>EKF3 IMU%u alinhamento inicial de guinada concluído</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initialised</source>
+      <translation>EKF3 IMU%u inicializado</translation>
+    </message>
+    <message>
+      <source>PreArm: Radio failsafe on</source>
+      <translation>Pré-armamento: Failsafe de rádio ativo</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix</source>
+      <translation>Pré-armamento: Aguardando fix 3D</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix </source>
+      <translation>Pré-armamento: Aguardando fix 3D </translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix.</source>
+      <translation>Pré-armamento: Aguardando fix 3D.</translation>
+    </message>
+    <message>
+      <source>PreArm: Throttle below Failsafe</source>
+      <translation>Pré-armamento: Acelerador abaixo do Failsafe</translation>
+    </message>
+    <message>
+      <source>PreArm: 3D Accel calibration needed</source>
+      <translation>Pré-armamento: Calibração 3D do acelerômetro necessária</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF altitude is bad</source>
+      <translation>Pré-armamento: Altitude do EKF incorreta</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF attitude is bad</source>
+      <translation>Pré-armamento: Atitude do EKF incorreta</translation>
+    </message>
+    <message>
+      <source>PreArm: fence requires position</source>
+      <translation>Pré-armamento: a cerca requer posição</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Disarming</source>
+      <translation>Failsafe de rádio - Desarmando</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe Cleared</source>
+      <translation>Failsafe de rádio encerrado</translation>
+    </message>
+    <message>
+      <source>10 second cooldown required after motor test</source>
+      <translation>Aguarde 10 segundos de resfriamento após o teste de motor</translation>
+    </message>
+    <message>
+      <source>3D Accel calibration needed</source>
+      <translation>Calibração 3D do acelerômetro necessária</translation>
+    </message>
+    <message>
+      <source>ACRO_BAL_ROLL/PITCH</source>
+      <translation>ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>AC_Fence: invalid polygon vertex count</source>
+      <translation>AC_Fence: número de vértices do polígono inválido</translation>
+    </message>
+    <message>
+      <source>AC_Fence: latlon read failed</source>
+      <translation>AC_Fence: falha na leitura de lat/lon</translation>
+    </message>
+    <message>
+      <source>AC_Fence: non-positive circle radius</source>
+      <translation>AC_Fence: raio do círculo não positivo</translation>
+    </message>
+    <message>
+      <source>AC_Fence: polygon read failed</source>
+      <translation>AC_Fence: falha na leitura do polígono</translation>
+    </message>
+    <message>
+      <source>ADSB threat detected</source>
+      <translation>Ameaça ADSB detectada</translation>
+    </message>
+    <message>
+      <source>AHRS not healthy</source>
+      <translation>AHRS com falha</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO</source>
+      <translation>Estado AFS: AFS_AUTO</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GCS now OK</source>
+      <translation>Estado AFS: AFS_AUTO, GCS OK novamente</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GPS now OK</source>
+      <translation>Estado AFS: AFS_AUTO, GPS OK novamente</translation>
+    </message>
+    <message>
+      <source>AFS State: DATA_LINK_LOSS</source>
+      <translation>Estado AFS: DATA_LINK_LOSS</translation>
+    </message>
+    <message>
+      <source>AFS State: GPS_LOSS</source>
+      <translation>Estado AFS: GPS_LOSS</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can&apos;t terminate the vehicle</source>
+      <translation>AFS não habilitado, não é possível executar a terminação do veículo</translation>
+    </message>
+    <message>
+      <source>AUTO triggered off</source>
+      <translation>AUTO acionado desligado</translation>
+    </message>
+    <message>
+      <source>AUTOTUNE: pilot overrides active</source>
+      <translation>AUTOTUNE: intervenção do piloto ativa</translation>
+    </message>
+    <message>
+      <source>Accels calibrated requires reboot</source>
+      <translation>Acelerômetros calibrados, reinicialização necessária</translation>
+    </message>
+    <message>
+      <source>Accels inconsistent</source>
+      <translation>Acelerômetros inconsistentes</translation>
+    </message>
+    <message>
+      <source>Accels not healthy</source>
+      <translation>Acelerômetros com falha</translation>
+    </message>
+    <message>
+      <source>Action: Minimum Collective Applied</source>
+      <translation>Ação: Coletivo mínimo aplicado</translation>
+    </message>
+    <message>
+      <source>Aircraft in auto without a running mission</source>
+      <translation>Aeronave em auto sem missão em execução</translation>
+    </message>
+    <message>
+      <source>All parameters reset, reboot board</source>
+      <translation>Todos os parâmetros redefinidos, reinicie a placa</translation>
+    </message>
+    <message>
+      <source>Already flying - no takeoff</source>
+      <translation>Já em voo - sem decolagem</translation>
+    </message>
+    <message>
+      <source>Altitude disparity</source>
+      <translation>Disparidade de altitude</translation>
+    </message>
+    <message>
+      <source>Arm: Motor Emergency Stopped</source>
+      <translation>Armar: parada de emergência dos motores ativa</translation>
+    </message>
+    <message>
+      <source>Arming motors</source>
+      <translation>Armando motores</translation>
+    </message>
+    <message>
+      <source>Attempting auto failsafe recovery</source>
+      <translation>Tentando recuperação automática do failsafe</translation>
+    </message>
+    <message>
+      <source>Auto disarmed</source>
+      <translation>Desarmado automaticamente</translation>
+    </message>
+    <message>
+      <source>Auto: Missing Takeoff Cmd</source>
+      <translation>Auto: comando de decolagem ausente</translation>
+    </message>
+    <message>
+      <source>AutoTune: Failed</source>
+      <translation>AutoTune: Falhou</translation>
+    </message>
+    <message>
+      <source>AutoTune: Paused: Pilot Override Active</source>
+      <translation>AutoTune: Pausado: intervenção do piloto ativa</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for </source>
+      <translation>AutoTune: ganhos salvos para </translation>
+    </message>
+    <message>
+      <source>AutoTune: Started</source>
+      <translation>AutoTune: Iniciado</translation>
+    </message>
+    <message>
+      <source>AutoTune: Stopped</source>
+      <translation>AutoTune: Parado</translation>
+    </message>
+    <message>
+      <source>AutoTune: Success</source>
+      <translation>AutoTune: Sucesso</translation>
+    </message>
+    <message>
+      <source>AutoTune: TWITCHING</source>
+      <translation>AutoTune: TWITCHING</translation>
+    </message>
+    <message>
+      <source>AutoTune: Twitch</source>
+      <translation>AutoTune: Twitch</translation>
+    </message>
+    <message>
+      <source>AutoTune: UPDATING_GAINS</source>
+      <translation>AutoTune: UPDATING_GAINS</translation>
+    </message>
+    <message>
+      <source>AutoTune: unknown step</source>
+      <translation>AutoTune: etapa desconhecida</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Change Fail: Interlock Engaged</source>
+      <translation>Falha na mudança para modo autorrotação: interlock engatado</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Not Enabled</source>
+      <translation>Modo autorrotação não habilitado</translation>
+    </message>
+    <message>
+      <source>Autorotation initiated</source>
+      <translation>Autorrotação iniciada</translation>
+    </message>
+    <message>
+      <source>BANG!  Parachute deployed</source>
+      <translation>BANG!  Paraquedas acionado</translation>
+    </message>
+    <message>
+      <source>Bad GPS Position</source>
+      <translation>Posição de GPS incorreta</translation>
+    </message>
+    <message>
+      <source>Bad fence point</source>
+      <translation>Ponto de cerca inválido</translation>
+    </message>
+    <message>
+      <source>Bad lat or lon</source>
+      <translation>Lat ou lon inválida</translation>
+    </message>
+    <message>
+      <source>Bad launch AUTO</source>
+      <translation>Lançamento AUTO inválido</translation>
+    </message>
+    <message>
+      <source>Bad rally point ID</source>
+      <translation>ID de ponto de rally inválido</translation>
+    </message>
+    <message>
+      <source>Barometer calibration complete</source>
+      <translation>Calibração do barômetro concluída</translation>
+    </message>
+    <message>
+      <source>Barometer not healthy</source>
+      <translation>Barômetro com falha</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe</source>
+      <translation>Failsafe de bateria</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Continuing Landing</source>
+      <translation>Failsafe de bateria - Continuando o pouso</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Disarming</source>
+      <translation>Failsafe de bateria - Desarmando</translation>
+    </message>
+    <message>
+      <source>Battery failsafe</source>
+      <translation>Failsafe de bateria</translation>
+    </message>
+    <message>
+      <source>Calibration successful</source>
+      <translation>Calibração bem-sucedida</translation>
+    </message>
+    <message>
+      <source>Can&apos;t check rally without position</source>
+      <translation>Não é possível verificar rally sem posição</translation>
+    </message>
+    <message>
+      <source>Check ANGLE_MAX</source>
+      <translation>Verifique ANGLE_MAX</translation>
+    </message>
+    <message>
+      <source>Check FS_THR_VALUE</source>
+      <translation>Verifique FS_THR_VALUE</translation>
+    </message>
+    <message>
+      <source>Check MOT_PWM_MAX/MIN</source>
+      <translation>Verifique MOT_PWM_MAX/MIN</translation>
+    </message>
+    <message>
+      <source>Check Object Avoidance</source>
+      <translation>Verifique o desvio de obstáculos</translation>
+    </message>
+    <message>
+      <source>Check PILOT_SPEED_UP</source>
+      <translation>Verifique PILOT_SPEED_UP</translation>
+    </message>
+    <message>
+      <source>Check compass</source>
+      <translation>Verifique a bússola</translation>
+    </message>
+    <message>
+      <source>Check fence</source>
+      <translation>Verifique a cerca</translation>
+    </message>
+    <message>
+      <source>Check mag field</source>
+      <translation>Verifique o campo magnético</translation>
+    </message>
+    <message>
+      <source>Chip erase complete</source>
+      <translation>Apagamento do chip concluído</translation>
+    </message>
+    <message>
+      <source>Chip erase started</source>
+      <translation>Apagamento do chip iniciado</translation>
+    </message>
+    <message>
+      <source>Clearing Mission</source>
+      <translation>Limpando a missão</translation>
+    </message>
+    <message>
+      <source>Compass cal requires GPS lock</source>
+      <translation>Calibração da bússola requer fix de GPS</translation>
+    </message>
+    <message>
+      <source>Compass cal requires reboot after priority change</source>
+      <translation>Calibração da bússola requer reinicialização após mudança de prioridade</translation>
+    </message>
+    <message>
+      <source>Compass calibrated requires reboot</source>
+      <translation>Bússola calibrada, reinicialização necessária</translation>
+    </message>
+    <message>
+      <source>Compass calibration running</source>
+      <translation>Calibração da bússola em andamento</translation>
+    </message>
+    <message>
+      <source>Compass disabled</source>
+      <translation>Bússola desabilitada</translation>
+    </message>
+    <message>
+      <source>Compass not healthy</source>
+      <translation>Bússola com falha</translation>
+    </message>
+    <message>
+      <source>Compass offsets too high</source>
+      <translation>Offsets da bússola muito altos</translation>
+    </message>
+    <message>
+      <source>CompassLearn: Initialised</source>
+      <translation>CompassLearn: inicializado</translation>
+    </message>
+    <message>
+      <source>CompassLearn: finished</source>
+      <translation>CompassLearn: concluído</translation>
+    </message>
+    <message>
+      <source>CompassLearn: have earth field</source>
+      <translation>CompassLearn: campo terrestre obtido</translation>
+    </message>
+    <message>
+      <source>Compasses inconsistent</source>
+      <translation>Bússolas inconsistentes</translation>
+    </message>
+    <message>
+      <source>Crash detected</source>
+      <translation>Queda detectada</translation>
+    </message>
+    <message>
+      <source>Crash detected. No action taken</source>
+      <translation>Queda detectada. Nenhuma ação tomada</translation>
+    </message>
+    <message>
+      <source>Crash: Disarming</source>
+      <translation>Queda: Desarmando</translation>
+    </message>
+    <message>
+      <source>Crash: Going to HOLD</source>
+      <translation>Queda: indo para HOLD</translation>
+    </message>
+    <message>
+      <source>Cruise Learning NOT started</source>
+      <translation>Aprendizado de cruzeiro NÃO iniciado</translation>
+    </message>
+    <message>
+      <source>Cruise Learning failed</source>
+      <translation>Falha no aprendizado de cruzeiro</translation>
+    </message>
+    <message>
+      <source>Cruise Learning started</source>
+      <translation>Aprendizado de cruzeiro iniciado</translation>
+    </message>
+    <message>
+      <source>Disable fence failed (autodisable)</source>
+      <translation>Falha ao desabilitar a cerca (desabilitação automática)</translation>
+    </message>
+    <message>
+      <source>Disable fence floor failed (autodisable)</source>
+      <translation>Falha ao desabilitar o piso da cerca (desabilitação automática)</translation>
+    </message>
+    <message>
+      <source>Disarm before calibration.</source>
+      <translation>Desarme antes da calibração.</translation>
+    </message>
+    <message>
+      <source>Disarm hardware safety switch before testing motors.</source>
+      <translation>Desarme o interruptor de segurança antes de testar os motores.</translation>
+    </message>
+    <message>
+      <source>Disarm to allow compass calibration</source>
+      <translation>Desarme para permitir a calibração da bússola</translation>
+    </message>
+    <message>
+      <source>Disarming motors</source>
+      <translation>Desarmando motores</translation>
+    </message>
+    <message>
+      <source>Duplicate Aux Switch Options</source>
+      <translation>Opções de chave auxiliar duplicadas</translation>
+    </message>
+    <message>
+      <source>EKF attitude is bad</source>
+      <translation>Atitude do EKF incorreta</translation>
+    </message>
+    <message>
+      <source>EKF bad</source>
+      <translation>EKF incorreto</translation>
+    </message>
+    <message>
+      <source>EKF compass variance</source>
+      <translation>Variância de bússola do EKF</translation>
+    </message>
+    <message>
+      <source>EKF failsafe</source>
+      <translation>Failsafe do EKF</translation>
+    </message>
+    <message>
+      <source>EKF failsafe cleared</source>
+      <translation>Failsafe do EKF encerrado</translation>
+    </message>
+    <message>
+      <source>EKF failsafe!</source>
+      <translation>Failsafe do EKF!</translation>
+    </message>
+    <message>
+      <source>EKF variance</source>
+      <translation>Variância do EKF</translation>
+    </message>
+    <message>
+      <source>EKF-home variance</source>
+      <translation>Variância EKF-Home</translation>
+    </message>
+    <message>
+      <source>EKF2 refusing set origin</source>
+      <translation>EKF2 recusando definir a origem</translation>
+    </message>
+    <message>
+      <source>EKF3 refusing set origin</source>
+      <translation>EKF3 recusando definir a origem</translation>
+    </message>
+    <message>
+      <source>EKF3 waiting for GPS config data</source>
+      <translation>EKF3 aguardando dados de configuração do GPS</translation>
+    </message>
+    <message>
+      <source>ERROR: Failed to save signing key</source>
+      <translation>ERRO: falha ao salvar a chave de assinatura</translation>
+    </message>
+    <message>
+      <source>Entry Phase</source>
+      <translation>Fase de entrada</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag mode</source>
+      <translation>FBWA modo tdrag</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag off</source>
+      <translation>FBWA tdrag desligado</translation>
+    </message>
+    <message>
+      <source>Failsafe ended</source>
+      <translation>Failsafe encerrado</translation>
+    </message>
+    <message>
+      <source>Failsafe terrain triggered</source>
+      <translation>Failsafe de terreno acionado</translation>
+    </message>
+    <message>
+      <source>Fence Disabled</source>
+      <translation>Cerca desabilitada</translation>
+    </message>
+    <message>
+      <source>Fence Enabled</source>
+      <translation>Cerca habilitada</translation>
+    </message>
+    <message>
+      <source>Fence Indexed OK</source>
+      <translation>Cerca indexada OK</translation>
+    </message>
+    <message>
+      <source>Fence corrupt</source>
+      <translation>Cerca corrompida</translation>
+    </message>
+    <message>
+      <source>Fence disabled (autodisable)</source>
+      <translation>Cerca desabilitada (desabilitação automática)</translation>
+    </message>
+    <message>
+      <source>Fence enabled (autoenabled)</source>
+      <translation>Cerca habilitada (habilitação automática)</translation>
+    </message>
+    <message>
+      <source>Fence exceeds storage size</source>
+      <translation>Cerca excede o tamanho do armazenamento</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled</source>
+      <translation>Piso da cerca desabilitado</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled (auto disable)</source>
+      <translation>Piso da cerca desabilitado (desabilitação automática)</translation>
+    </message>
+    <message>
+      <source>Fence not configured</source>
+      <translation>Cerca não configurada</translation>
+    </message>
+    <message>
+      <source>Fence read failed</source>
+      <translation>Falha na leitura da cerca</translation>
+    </message>
+    <message>
+      <source>Fence upload timeout</source>
+      <translation>Tempo esgotado no envio da cerca</translation>
+    </message>
+    <message>
+      <source>Fence validation failed</source>
+      <translation>Falha na validação da cerca</translation>
+    </message>
+    <message>
+      <source>Fence: auto-enabled for arming</source>
+      <translation>Cerca: habilitada automaticamente para armar</translation>
+    </message>
+    <message>
+      <source>Fence: cannot enable for arming</source>
+      <translation>Cerca: não é possível habilitar para armar</translation>
+    </message>
+    <message>
+      <source>Fencing must be disabled</source>
+      <translation>A cerca deve estar desabilitada</translation>
+    </message>
+    <message>
+      <source>Finished active loiter</source>
+      <translation>Loiter ativo concluído</translation>
+    </message>
+    <message>
+      <source>Flight mode change failed</source>
+      <translation>Falha na mudança de modo de voo</translation>
+    </message>
+    <message>
+      <source>Flight plan received</source>
+      <translation>Plano de voo recebido</translation>
+    </message>
+    <message>
+      <source>Flight plan update rejected</source>
+      <translation>Atualização do plano de voo rejeitada</translation>
+    </message>
+    <message>
+      <source>Forcing logging for watchdog reset</source>
+      <translation>Forçando log devido ao reset do watchdog</translation>
+    </message>
+    <message>
+      <source>GCS + Battery Failsafe - Continuing Landing</source>
+      <translation>Failsafe de GCS + bateria - Continuando o pouso</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe</source>
+      <translation>Failsafe de GCS</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Auto Mode</source>
+      <translation>Failsafe de GCS - Continuando o modo Auto</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Landing</source>
+      <translation>Failsafe de GCS - Continuando o pouso</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Pilot Control</source>
+      <translation>Failsafe de GCS - Continuando o controle do piloto</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Disarming</source>
+      <translation>Failsafe de GCS - Desarmando</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe Cleared</source>
+      <translation>Failsafe de GCS encerrado</translation>
+    </message>
+    <message>
+      <source>GCS failsafe on</source>
+      <translation>Failsafe de GCS ativo</translation>
+    </message>
+    <message>
+      <source>GPS Glitch</source>
+      <translation>Glitch de GPS</translation>
+    </message>
+    <message>
+      <source>GPS Glitch cleared</source>
+      <translation>Glitch de GPS resolvido</translation>
+    </message>
+    <message>
+      <source>GPS blending unhealthy</source>
+      <translation>Mesclagem de GPS com falha</translation>
+    </message>
+    <message>
+      <source>GPS glitching</source>
+      <translation>GPS com glitch</translation>
+    </message>
+    <message>
+      <source>GPS is not healthy</source>
+      <translation>GPS com falha</translation>
+    </message>
+    <message>
+      <source>Geofence OK</source>
+      <translation>GeoCerca OK</translation>
+    </message>
+    <message>
+      <source>Geofence loaded</source>
+      <translation>GeoCerca carregada</translation>
+    </message>
+    <message>
+      <source>Geofence triggered</source>
+      <translation>GeoCerca acionada</translation>
+    </message>
+    <message>
+      <source>GoPro Not Available</source>
+      <translation>GoPro indisponível</translation>
+    </message>
+    <message>
+      <source>GoPro Photo Trigger</source>
+      <translation>Disparo de foto da GoPro</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Start</source>
+      <translation>Início da gravação da GoPro</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Stop</source>
+      <translation>Fim da gravação da GoPro</translation>
+    </message>
+    <message>
+      <source>GoPro Unsupported Capture Mode</source>
+      <translation>Modo de captura da GoPro não suportado</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode photo</source>
+      <translation>GoPro mudando para o modo foto</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode video</source>
+      <translation>GoPro mudando para o modo vídeo</translation>
+    </message>
+    <message>
+      <source>Gripper Grabbed</source>
+      <translation>Garra fechada</translation>
+    </message>
+    <message>
+      <source>Gripper Released</source>
+      <translation>Garra liberada</translation>
+    </message>
+    <message>
+      <source>Gripper code disabled</source>
+      <translation>Código da garra desabilitado</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbed</source>
+      <translation>Carga da garra agarrada</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbing</source>
+      <translation>Garra agarrando a carga</translation>
+    </message>
+    <message>
+      <source>Gripper load released</source>
+      <translation>Carga da garra liberada</translation>
+    </message>
+    <message>
+      <source>Gripper load releasing</source>
+      <translation>Garra liberando a carga</translation>
+    </message>
+    <message>
+      <source>Gripper not valid</source>
+      <translation>Garra inválida</translation>
+    </message>
+    <message>
+      <source>Ground start</source>
+      <translation>Inicialização em solo</translation>
+    </message>
+    <message>
+      <source>Ground start complete</source>
+      <translation>Inicialização em solo concluída</translation>
+    </message>
+    <message>
+      <source>Ground start with delay</source>
+      <translation>Inicialização em solo com atraso</translation>
+    </message>
+    <message>
+      <source>Gyros inconsistent</source>
+      <translation>Giroscópios inconsistentes</translation>
+    </message>
+    <message>
+      <source>Gyros not calibrated</source>
+      <translation>Giroscópios não calibrados</translation>
+    </message>
+    <message>
+      <source>Gyros not healthy</source>
+      <translation>Giroscópios com falha</translation>
+    </message>
+    <message>
+      <source>Hard landing detected</source>
+      <translation>Pouso brusco detectado</translation>
+    </message>
+    <message>
+      <source>Hard landing detected. No action taken</source>
+      <translation>Pouso brusco detectado. Nenhuma ação tomada</translation>
+    </message>
+    <message>
+      <source>Hardware safety switch</source>
+      <translation>Interruptor de segurança de hardware</translation>
+    </message>
+    <message>
+      <source>Heli motors checks failed</source>
+      <translation>Falha nas verificações dos motores do helicóptero</translation>
+    </message>
+    <message>
+      <source>High GPS HDOP</source>
+      <translation>HDOP de GPS alto</translation>
+    </message>
+    <message>
+      <source>IOMCU is unhealthy</source>
+      <translation>IOMCU com falha</translation>
+    </message>
+    <message>
+      <source>Incorrect item count</source>
+      <translation>Quantidade de itens incorreta</translation>
+    </message>
+    <message>
+      <source>Initialising APM</source>
+      <translation>Inicializando APM</translation>
+    </message>
+    <message>
+      <source>Interlock/E-Stop Conflict</source>
+      <translation>Conflito de Interlock/Parada de emergência</translation>
+    </message>
+    <message>
+      <source>Invalid FENCE_TOTAL</source>
+      <translation>FENCE_TOTAL inválido</translation>
+    </message>
+    <message>
+      <source>Invalid Heli FRAME_CLASS</source>
+      <translation>FRAME_CLASS de helicóptero inválido</translation>
+    </message>
+    <message>
+      <source>Invalid MultiCopter FRAME_CLASS</source>
+      <translation>FRAME_CLASS de multicóptero inválido</translation>
+    </message>
+    <message>
+      <source>Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>THR_FS_VALUE inválido para acelerador reverso</translation>
+    </message>
+    <message>
+      <source>Invalid VTOL mode</source>
+      <translation>Modo VTOL inválido</translation>
+    </message>
+    <message>
+      <source>Inverted flight option not supported</source>
+      <translation>Opção de voo invertido não suportada</translation>
+    </message>
+    <message>
+      <source>Land complete</source>
+      <translation>Pouso concluído</translation>
+    </message>
+    <message>
+      <source>Land descend started</source>
+      <translation>Descida de pouso iniciada</translation>
+    </message>
+    <message>
+      <source>Land final started</source>
+      <translation>Fase final do pouso iniciada</translation>
+    </message>
+    <message>
+      <source>Landing abort sequence start</source>
+      <translation>Início da sequência de aborto de pouso</translation>
+    </message>
+    <message>
+      <source>Landing aborted via throttle</source>
+      <translation>Pouso abortado pelo acelerador</translation>
+    </message>
+    <message>
+      <source>Landing configuration error, invalid LAND_TYPE</source>
+      <translation>Erro na configuração de pouso, LAND_TYPE inválido</translation>
+    </message>
+    <message>
+      <source>Landing gear was not deployed</source>
+      <translation>O trem de pouso não foi baixado</translation>
+    </message>
+    <message>
+      <source>LandingGear: DEPLOY</source>
+      <translation>Trem de pouso: BAIXAR</translation>
+    </message>
+    <message>
+      <source>LandingGear: RETRACT</source>
+      <translation>Trem de pouso: RECOLHER</translation>
+    </message>
+    <message>
+      <source>Leak Detected</source>
+      <translation>Vazamento detectado</translation>
+    </message>
+    <message>
+      <source>Leaning</source>
+      <translation>Inclinando</translation>
+    </message>
+    <message>
+      <source>Locate Copter alarm</source>
+      <translation>Alarme de localização do Copter</translation>
+    </message>
+    <message>
+      <source>Log download in progress</source>
+      <translation>Download de log em andamento</translation>
+    </message>
+    <message>
+      <source>Logging failed</source>
+      <translation>Falha no log</translation>
+    </message>
+    <message>
+      <source>Logging not started</source>
+      <translation>Log não iniciado</translation>
+    </message>
+    <message>
+      <source>Loiter orbits complete</source>
+      <translation>Órbitas de Loiter concluídas</translation>
+    </message>
+    <message>
+      <source>Loiter time complete</source>
+      <translation>Tempo de Loiter concluído</translation>
+    </message>
+    <message>
+      <source>Loiter to alt complete</source>
+      <translation>Loiter até altitude concluído</translation>
+    </message>
+    <message>
+      <source>Lost manual control</source>
+      <translation>Controle manual perdido</translation>
+    </message>
+    <message>
+      <source>Mission Complete</source>
+      <translation>Missão concluída</translation>
+    </message>
+    <message>
+      <source>Mission complete, changing mode to RTL</source>
+      <translation>Missão concluída, mudando o modo para RTL</translation>
+    </message>
+    <message>
+      <source>Mission upload timeout</source>
+      <translation>Tempo esgotado no envio da missão</translation>
+    </message>
+    <message>
+      <source>Mode change failed: throttle too high</source>
+      <translation>Falha na mudança de modo: acelerador muito alto</translation>
+    </message>
+    <message>
+      <source>Mode not armable</source>
+      <translation>Modo não armável</translation>
+    </message>
+    <message>
+      <source>Motor Interlock Enabled</source>
+      <translation>Interlock do motor habilitado</translation>
+    </message>
+    <message>
+      <source>Motor Interlock not configured</source>
+      <translation>Interlock do motor não configurado</translation>
+    </message>
+    <message>
+      <source>Motor Test: Board initialising</source>
+      <translation>Teste de motor: placa inicializando</translation>
+    </message>
+    <message>
+      <source>Motor Test: RC not calibrated</source>
+      <translation>Teste de motor: RC não calibrado</translation>
+    </message>
+    <message>
+      <source>Motor Test: Safety switch</source>
+      <translation>Teste de motor: interruptor de segurança</translation>
+    </message>
+    <message>
+      <source>Motor Test: vehicle not landed</source>
+      <translation>Teste de motor: veículo não pousado</translation>
+    </message>
+    <message>
+      <source>Motor direction detection is complete.</source>
+      <translation>Detecção da direção dos motores concluída.</translation>
+    </message>
+    <message>
+      <source>Motor test timed out!</source>
+      <translation>Tempo esgotado no teste de motor!</translation>
+    </message>
+    <message>
+      <source>Motors Emergency Stopped</source>
+      <translation>Parada de emergência dos motores</translation>
+    </message>
+    <message>
+      <source>Multiple return points</source>
+      <translation>Múltiplos pontos de retorno</translation>
+    </message>
+    <message>
+      <source>Must assign a disarm or arm_toggle button</source>
+      <translation>É necessário atribuir um botão de desarmar ou arm_toggle</translation>
+    </message>
+    <message>
+      <source>Must be armed for takeoff</source>
+      <translation>É necessário estar armado para decolar</translation>
+    </message>
+    <message>
+      <source>Must be disarmed for motor test</source>
+      <translation>É necessário estar desarmado para o teste de motor</translation>
+    </message>
+    <message>
+      <source>NAV_PLACE: landed</source>
+      <translation>NAV_PLACE: pousado</translation>
+    </message>
+    <message>
+      <source>NavEKF2: allocation failed</source>
+      <translation>NavEKF2: falha na alocação</translation>
+    </message>
+    <message>
+      <source>NavEKF2: not enough memory</source>
+      <translation>NavEKF2: memória insuficiente</translation>
+    </message>
+    <message>
+      <source>NavEKF3: allocation failed</source>
+      <translation>NavEKF3: falha na alocação</translation>
+    </message>
+    <message>
+      <source>NavEKF3: not enough memory</source>
+      <translation>NavEKF3: memória insuficiente</translation>
+    </message>
+    <message>
+      <source>Need mavlink2 for item transfer</source>
+      <translation>É necessário mavlink2 para a transferência de itens</translation>
+    </message>
+    <message>
+      <source>New HOME received</source>
+      <translation>Nova posição Home recebida</translation>
+    </message>
+    <message>
+      <source>No Mission. Can&apos;t set AUTO.</source>
+      <translation>Sem missão. Não é possível definir AUTO.</translation>
+    </message>
+    <message>
+      <source>No SD card</source>
+      <translation>Sem cartão SD</translation>
+    </message>
+    <message>
+      <source>No airspeed</source>
+      <translation>Sem velocidade do ar</translation>
+    </message>
+    <message>
+      <source>No mission library present</source>
+      <translation>Biblioteca de missões ausente</translation>
+    </message>
+    <message>
+      <source>No mission loaded</source>
+      <translation>Nenhuma missão carregada</translation>
+    </message>
+    <message>
+      <source>No rally library present</source>
+      <translation>Biblioteca de rally ausente</translation>
+    </message>
+    <message>
+      <source>No such mode</source>
+      <translation>Modo inexistente</translation>
+    </message>
+    <message>
+      <source>No sufficently close rally point located</source>
+      <translation>Nenhum ponto de rally suficientemente próximo encontrado</translation>
+    </message>
+    <message>
+      <source>Non-positive circle radius</source>
+      <translation>Raio do círculo não positivo</translation>
+    </message>
+    <message>
+      <source>Not enough memory for quadplane</source>
+      <translation>Memória insuficiente para quadplane</translation>
+    </message>
+    <message>
+      <source>Not landed</source>
+      <translation>Não pousado</translation>
+    </message>
+    <message>
+      <source>Out of memory for upload</source>
+      <translation>Memória insuficiente para o envio</translation>
+    </message>
+    <message>
+      <source>Parachute already released</source>
+      <translation>Paraquedas já liberado</translation>
+    </message>
+    <message>
+      <source>Parachute not enabled</source>
+      <translation>Paraquedas não habilitado</translation>
+    </message>
+    <message>
+      <source>Parachute: Landed</source>
+      <translation>Paraquedas: pousado</translation>
+    </message>
+    <message>
+      <source>Parachute: Released</source>
+      <translation>Paraquedas: liberado</translation>
+    </message>
+    <message>
+      <source>Parachute: Released again</source>
+      <translation>Paraquedas: liberado novamente</translation>
+    </message>
+    <message>
+      <source>Parachute: Too low</source>
+      <translation>Paraquedas: muito baixo</translation>
+    </message>
+    <message>
+      <source>Param storage failed</source>
+      <translation>Falha no armazenamento de parâmetros</translation>
+    </message>
+    <message>
+      <source>Passthru disabled</source>
+      <translation>Passthru desabilitado</translation>
+    </message>
+    <message>
+      <source>Passthru enabled</source>
+      <translation>Passthru habilitado</translation>
+    </message>
+    <message>
+      <source>Passthru timed out</source>
+      <translation>Tempo esgotado no passthru</translation>
+    </message>
+    <message>
+      <source>PolyFence: Multiple return points found</source>
+      <translation>PolyFence: múltiplos pontos de retorno encontrados</translation>
+    </message>
+    <message>
+      <source>PolyFence: latlon read failed</source>
+      <translation>PolyFence: falha na leitura de lat/lon</translation>
+    </message>
+    <message>
+      <source>PolyFence: storage write failed</source>
+      <translation>PolyFence: falha na gravação no armazenamento</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence floor enabled</source>
+      <translation>Pré-armamento: piso da cerca habilitado</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence load failed</source>
+      <translation>Pré-armamento: falha ao carregar a cerca</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence not enabled</source>
+      <translation>Pré-armamento: cerca não habilitada</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN out of range</source>
+      <translation>Pré-armamento: H_GYR_GAIN fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN_ACRO out of range</source>
+      <translation>Pré-armamento: H_GYR_GAIN_ACRO fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_H3_PHANG out of range</source>
+      <translation>Pré-armamento: H_H3_PHANG fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_CRITICAL out of range</source>
+      <translation>Pré-armamento: H_RSC_CRITICAL fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_IDLE out of range</source>
+      <translation>Pré-armamento: H_RSC_IDLE fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_MODE invalid</source>
+      <translation>Pré-armamento: H_RSC_MODE inválido</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_SETPOINT out of range</source>
+      <translation>Pré-armamento: H_RSC_SETPOINT fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RUNUP_TIME too small</source>
+      <translation>Pré-armamento: H_RUNUP_TIME muito pequeno</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW1_H3_PHANG out of range</source>
+      <translation>Pré-armamento: H_SW1_H3_PHANG fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW2_H3_PHANG out of range</source>
+      <translation>Pré-armamento: H_SW2_H3_PHANG fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: H_TAIL_SPEED out of range</source>
+      <translation>Pré-armamento: H_TAIL_SPEED fora da faixa</translation>
+    </message>
+    <message>
+      <source>PreArm: check skid steering config</source>
+      <translation>Pré-armamento: verifique a configuração de direção diferencial (skid steering)</translation>
+    </message>
+    <message>
+      <source>PreArm: check steering and throttle config</source>
+      <translation>Pré-armamento: verifique a configuração de direção e acelerador</translation>
+    </message>
+    <message>
+      <source>PreArm: maxalt breached</source>
+      <translation>Pré-armamento: altitude máxima violada</translation>
+    </message>
+    <message>
+      <source>PreArm: no position available</source>
+      <translation>Pré-armamento: nenhuma posição disponível</translation>
+    </message>
+    <message>
+      <source>PreArm: outside fence</source>
+      <translation>Pré-armamento: fora da cerca</translation>
+    </message>
+    <message>
+      <source>PreArm: regular AND skid steering configured</source>
+      <translation>Pré-armamento: direção normal E diferencial (skid) configuradas</translation>
+    </message>
+    <message>
+      <source>QAUTOTUNE disabled</source>
+      <translation>QAUTOTUNE desabilitado</translation>
+    </message>
+    <message>
+      <source>QuadPlane initialised</source>
+      <translation>QuadPlane inicializado</translation>
+    </message>
+    <message>
+      <source>QuadPlane mode refused</source>
+      <translation>Modo QuadPlane recusado</translation>
+    </message>
+    <message>
+      <source>QuadPlane setup failed</source>
+      <translation>Falha na configuração do QuadPlane</translation>
+    </message>
+    <message>
+      <source>Quadplane enabled but not running</source>
+      <translation>QuadPlane habilitado, mas não em execução</translation>
+    </message>
+    <message>
+      <source>RC not calibrated</source>
+      <translation>RC não calibrado</translation>
+    </message>
+    <message>
+      <source>RTL_ALT above rangefinder max range</source>
+      <translation>RTL_ALT acima do alcance máximo do telêmetro</translation>
+    </message>
+    <message>
+      <source>Radio + Battery Failsafe - Continuing Landing</source>
+      <translation>Failsafe de rádio + bateria - continuando o pouso</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe</source>
+      <translation>Failsafe de rádio</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Auto Mode</source>
+      <translation>Failsafe de rádio - continuando no modo Auto</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Guided Mode</source>
+      <translation>Failsafe de rádio - continuando no modo Guided</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Landing</source>
+      <translation>Failsafe de rádio - continuando o pouso</translation>
+    </message>
+    <message>
+      <source>Radio failsafe on</source>
+      <translation>Failsafe de rádio ativado</translation>
+    </message>
+    <message>
+      <source>Rally upload timeout</source>
+      <translation>Tempo esgotado no envio dos pontos de rally</translation>
+    </message>
+    <message>
+      <source>Reached RTL location</source>
+      <translation>Local de RTL alcançado</translation>
+    </message>
+    <message>
+      <source>Reached altitude</source>
+      <translation>Altitude alcançada</translation>
+    </message>
+    <message>
+      <source>Reached destination</source>
+      <translation>Destino alcançado</translation>
+    </message>
+    <message>
+      <source>Reached maximum descent</source>
+      <translation>Descida máxima alcançada</translation>
+    </message>
+    <message>
+      <source>Ready to drive</source>
+      <translation>Pronto para dirigir</translation>
+    </message>
+    <message>
+      <source>Ready to track</source>
+      <translation>Pronto para rastrear</translation>
+    </message>
+    <message>
+      <source>Reboot rejected, ESC cal on reboot</source>
+      <translation>Reinicialização rejeitada, calibração de ESC na reinicialização</translation>
+    </message>
+    <message>
+      <source>Releasing the gripper</source>
+      <translation>Liberando a garra</translation>
+    </message>
+    <message>
+      <source>Restarting RTL - Terrain data missing</source>
+      <translation>Reiniciando RTL - dados de terreno ausentes</translation>
+    </message>
+    <message>
+      <source>SS Glide Phase</source>
+      <translation>SS fase de planeio</translation>
+    </message>
+    <message>
+      <source>Safety Switch</source>
+      <translation>Chave de segurança</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking</source>
+      <translation>Veleiro: cambando</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking timed out</source>
+      <translation>Veleiro: tempo esgotado ao cambar</translation>
+    </message>
+    <message>
+      <source>Sailboat: failed to enable motor</source>
+      <translation>Veleiro: falha ao habilitar o motor</translation>
+    </message>
+    <message>
+      <source>Scripting failed to start</source>
+      <translation>Falha ao iniciar o scripting</translation>
+    </message>
+    <message>
+      <source>Scripting has stopped</source>
+      <translation>O scripting parou</translation>
+    </message>
+    <message>
+      <source>Scripting out of memory</source>
+      <translation>Scripting sem memória</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode off</source>
+      <translation>Modo SIMPLE desligado</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode on</source>
+      <translation>Modo SIMPLE ligado</translation>
+    </message>
+    <message>
+      <source>SUPERSIMPLE mode on</source>
+      <translation>Modo SUPERSIMPLE ligado</translation>
+    </message>
+    <message>
+      <source>SmartRTL Low on space!</source>
+      <translation>SmartRTL com pouco espaço!</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Trying RTL Mode</source>
+      <translation>SmartRTL indisponível, tentando o modo RTL</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Using Land Mode</source>
+      <translation>SmartRTL indisponível, usando o modo Land</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: init failed</source>
+      <translation>SmartRTL desativado: falha na inicialização</translation>
+    </message>
+    <message>
+      <source>Stand By Disabled</source>
+      <translation>Standby desabilitado</translation>
+    </message>
+    <message>
+      <source>Stand By Enabled</source>
+      <translation>Standby habilitado</translation>
+    </message>
+    <message>
+      <source>Starting calibration</source>
+      <translation>Iniciando calibração</translation>
+    </message>
+    <message>
+      <source>Starting engine</source>
+      <translation>Ligando o motor</translation>
+    </message>
+    <message>
+      <source>Stopped engine</source>
+      <translation>Motor desligado</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no downward rangefinder</source>
+      <translation>SurfaceTracking: sem telêmetro voltado para baixo</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no upward rangefinder</source>
+      <translation>SurfaceTracking: sem telêmetro voltado para cima</translation>
+    </message>
+    <message>
+      <source>SystemID Finished</source>
+      <translation>SystemID concluído</translation>
+    </message>
+    <message>
+      <source>SystemID Parameter Error</source>
+      <translation>SystemID: erro de parâmetro</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: Landed</source>
+      <translation>SystemID parado: pousado</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: axis = 0</source>
+      <translation>SystemID parado: eixo = 0</translation>
+    </message>
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>ESCs TCAN exigem MOT_PWM_MAX=2000</translation>
+    </message>
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>ESCs TCAN exigem MOT_PWM_MIN=1000</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery failure: No Rangefinder!</source>
+      <translation>Falha na recuperação do failsafe de terreno: sem telêmetro!</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery successful!</source>
+      <translation>Recuperação do failsafe de terreno bem-sucedida!</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery timeout!</source>
+      <translation>Tempo esgotado na recuperação do failsafe de terreno!</translation>
+    </message>
+    <message>
+      <source>Terrain out of memory</source>
+      <translation>Terreno sem memória</translation>
+    </message>
+    <message>
+      <source>Terrain: Allocation failed</source>
+      <translation>Terreno: falha na alocação</translation>
+    </message>
+    <message>
+      <source>Throttle armed</source>
+      <translation>Acelerador armado</translation>
+    </message>
+    <message>
+      <source>Throttle disarmed</source>
+      <translation>Acelerador desarmado</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe off</source>
+      <translation>Failsafe do acelerador desligado</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe on</source>
+      <translation>Failsafe do acelerador ligado</translation>
+    </message>
+    <message>
+      <source>Throttle not zero</source>
+      <translation>Acelerador não está em zero</translation>
+    </message>
+    <message>
+      <source>Timeout AUTO</source>
+      <translation>Tempo esgotado AUTO</translation>
+    </message>
+    <message>
+      <source>Tmode: ACRO is disabled</source>
+      <translation>Tmode: ACRO está desabilitado</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD arm failed</source>
+      <translation>Tmode: falha ao armar ALT_HOLD</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD update arm</source>
+      <translation>Tmode: atualização de armamento ALT_HOLD</translation>
+    </message>
+    <message>
+      <source>Tmode: Force disarm</source>
+      <translation>Tmode: desarme forçado</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS armed motors</source>
+      <translation>Tmode: motores armados com GPS</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS arming failed</source>
+      <translation>Tmode: falha ao armar com GPS</translation>
+    </message>
+    <message>
+      <source>Tmode: LANDING</source>
+      <translation>Tmode: POUSANDO</translation>
+    </message>
+    <message>
+      <source>Tmode: LOITER update</source>
+      <translation>Tmode: atualização LOITER</translation>
+    </message>
+    <message>
+      <source>Tmode: RTL cancel</source>
+      <translation>Tmode: RTL cancelado</translation>
+    </message>
+    <message>
+      <source>Tmode: THROW is disabled</source>
+      <translation>Tmode: THROW está desabilitado</translation>
+    </message>
+    <message>
+      <source>Tmode: WiFi reset</source>
+      <translation>Tmode: redefinição do WiFi</translation>
+    </message>
+    <message>
+      <source>Tmode: enable compass learning</source>
+      <translation>Tmode: habilitar aprendizado da bússola</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test failed</source>
+      <translation>Tmode: falha no load_test</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off</source>
+      <translation>Tmode: load_test desligado</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off (battery)</source>
+      <translation>Tmode: load_test desligado (bateria)</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test on</source>
+      <translation>Tmode: load_test ligado</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS armed motors</source>
+      <translation>Tmode: motores armados sem GPS</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS arming failed</source>
+      <translation>Tmode: falha ao armar sem GPS</translation>
+    </message>
+    <message>
+      <source>Tmode: sticks not centered</source>
+      <translation>Tmode: sticks não centralizados</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle arm</source>
+      <translation>Tmode: armar pelo acelerador</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle disarm</source>
+      <translation>Tmode: desarmar pelo acelerador</translation>
+    </message>
+    <message>
+      <source>Transition FW done</source>
+      <translation>Transição para FW concluída</translation>
+    </message>
+    <message>
+      <source>Transition VTOL done</source>
+      <translation>Transição para VTOL concluída</translation>
+    </message>
+    <message>
+      <source>Transition airspeed wait</source>
+      <translation>Transição: aguardando velocidade do ar</translation>
+    </message>
+    <message>
+      <source>Transition done</source>
+      <translation>Transição concluída</translation>
+    </message>
+    <message>
+      <source>Transition failed, exceeded time limit</source>
+      <translation>Falha na transição, limite de tempo excedido</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO with pin</source>
+      <translation>AUTO acionado pelo pino</translation>
+    </message>
+    <message>
+      <source>Tuning: Saved</source>
+      <translation>Ajuste: salvo</translation>
+    </message>
+    <message>
+      <source>Tuning: reverted</source>
+      <translation>Ajuste: revertido</translation>
+    </message>
+    <message>
+      <source>UC Node Alloc Failed!</source>
+      <translation>Falha na alocação de nó UC!</translation>
+    </message>
+    <message>
+      <source>Unable to allocate scripting memory</source>
+      <translation>Não foi possível alocar memória para scripting</translation>
+    </message>
+    <message>
+      <source>Unable to disable fence floor</source>
+      <translation>Não foi possível desabilitar o piso da cerca</translation>
+    </message>
+    <message>
+      <source>Unable to restart landing sequence</source>
+      <translation>Não foi possível reiniciar a sequência de pouso</translation>
+    </message>
+    <message>
+      <source>Unable to start landing sequence</source>
+      <translation>Não foi possível iniciar a sequência de pouso</translation>
+    </message>
+    <message>
+      <source>Unable to terminate, termination is not configured</source>
+      <translation>Não é possível terminar, a terminação não está configurada</translation>
+    </message>
+    <message>
+      <source>Unknown GUIDED mode</source>
+      <translation>Modo GUIDED desconhecido</translation>
+    </message>
+    <message>
+      <source>User Takeoff only in GUIDED mode</source>
+      <translation>Decolagem pelo usuário apenas no modo GUIDED</translation>
+    </message>
+    <message>
+      <source>VTOL not available</source>
+      <translation>VTOL não disponível</translation>
+    </message>
+    <message>
+      <source>VTOL transition only in AUTO</source>
+      <translation>Transição VTOL apenas em AUTO</translation>
+    </message>
+    <message>
+      <source>Vehicle contains advanced fences</source>
+      <translation>O veículo contém cercas avançadas</translation>
+    </message>
+    <message>
+      <source>Vibration compensation OFF</source>
+      <translation>Compensação de vibração DESLIGADA</translation>
+    </message>
+    <message>
+      <source>Vibration compensation ON</source>
+      <translation>Compensação de vibração LIGADA</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 1</source>
+      <translation>Alternar vídeo: fonte 1</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 2</source>
+      <translation>Alternar vídeo: fonte 2</translation>
+    </message>
+    <message>
+      <source>WP_SPEED too low</source>
+      <translation>WP_SPEED muito baixo</translation>
+    </message>
+    <message>
+      <source>Waiting for Terrain data</source>
+      <translation>Aguardando dados de terreno</translation>
+    </message>
+    <message>
+      <source>Waiting for first HIL_STATE message</source>
+      <translation>Aguardando a primeira mensagem HIL_STATE</translation>
+    </message>
+    <message>
+      <source>Warning: Poor RPM Sensor Health</source>
+      <translation>Aviso: saúde ruim do sensor de RPM</translation>
+    </message>
+    <message>
+      <source>ZigZag: manual control</source>
+      <translation>ZigZag: controle manual</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to A</source>
+      <translation>ZigZag: movendo para A</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to B</source>
+      <translation>ZigZag: movendo para B</translation>
+    </message>
+    <message>
+      <source>ZigZag: point A stored</source>
+      <translation>ZigZag: ponto A armazenado</translation>
+    </message>
+    <message>
+      <source>ZigZag: point B stored</source>
+      <translation>ZigZag: ponto B armazenado</translation>
+    </message>
+    <message>
+      <source>bad do_loiter_to_alt</source>
+      <translation>do_loiter_to_alt inválido</translation>
+    </message>
+    <message>
+      <source>calling AP_HAL::panic(...)</source>
+      <translation>chamando AP_HAL::panic(...)</translation>
+    </message>
+    <message>
+      <source>check firmware or FRAME_CLASS</source>
+      <translation>verifique o firmware ou FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>check proximity sensor</source>
+      <translation>verifique o sensor de proximidade</translation>
+    </message>
+    <message>
+      <source>finished motor test</source>
+      <translation>teste de motor concluído</translation>
+    </message>
+    <message>
+      <source>starting motor test</source>
+      <translation>iniciando teste de motor</translation>
+    </message>
+    <message>
+      <source>terrain data unhealthy</source>
+      <translation>dados de terreno com falha</translation>
+    </message>
+    <message>
+      <source>throw detected - uprighting</source>
+      <translation>lançamento detectado - endireitando</translation>
+    </message>
+    <message>
+      <source>uprighted - controlling height</source>
+      <translation>endireitado - controlando a altura</translation>
+    </message>
+    <message>
+      <source>waiting for terrain data</source>
+      <translation>aguardando dados de terreno</translation>
+    </message>
+    <message>
+      <source>waiting for throw</source>
+      <translation>aguardando lançamento</translation>
+    </message>
+    <message>
+      <source>watchdog: Bypassing arming checks</source>
+      <translation>watchdog: ignorando verificações de armamento</translation>
+    </message>
+    <message>
+      <source>wiping parameter storage header</source>
+      <translation>apagando o cabeçalho do armazenamento de parâmetros</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid MultiCopter FRAME_CLASS</source>
+      <translation>Pré-armamento: FRAME_CLASS de multicóptero inválido</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad parameter: %s</source>
+      <translation>Pré-armamento: parâmetro inválido: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: Check PILOT_SPEED_UP</source>
+      <translation>Pré-armamento: verifique PILOT_SPEED_UP</translation>
+    </message>
+    <message>
+      <source>PreArm: Compasses inconsistent</source>
+      <translation>Pré-armamento: bússolas inconsistentes</translation>
+    </message>
+    <message>
+      <source>PreArm: ACRO_BAL_ROLL/PITCH</source>
+      <translation>Pré-armamento: ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>PreArm: Mode not armable</source>
+      <translation>Pré-armamento: modo não permite armar</translation>
+    </message>
+    <message>
+      <source>PreArm: %s too high</source>
+      <translation>Pré-armamento: %s muito alto</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d minimum is greater than trim</source>
+      <translation>Pré-armamento: mínimo de SERVO%d é maior que o trim</translation>
+    </message>
+    <message>
+      <source>PreArm: No rally library present</source>
+      <translation>Pré-armamento: biblioteca de rally ausente</translation>
+    </message>
+    <message>
+      <source>PreArm: AHRS not healthy</source>
+      <translation>Pré-armamento: AHRS com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d minimum is greater than trim</source>
+      <translation>Pré-armamento: mínimo de RC%d é maior que o trim</translation>
+    </message>
+    <message>
+      <source>PreArm: Inverted flight option not supported</source>
+      <translation>Pré-armamento: opção de voo invertido não suportada</translation>
+    </message>
+    <message>
+      <source>PreArm: Check fence</source>
+      <translation>Pré-armamento: verifique a cerca</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibrated requires reboot</source>
+      <translation>Pré-armamento: bússola calibrada, requer reinicialização</translation>
+    </message>
+    <message>
+      <source>PreArm: Terrain out of memory</source>
+      <translation>Pré-armamento: terreno sem memória</translation>
+    </message>
+    <message>
+      <source>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>Pré-armamento: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS is not healthy</source>
+      <translation>Pré-armamento: GPS com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MAX too small (%u)</source>
+      <translation>Pré-armamento: LIM_PITCH_MAX muito pequeno (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibration running</source>
+      <translation>Pré-armamento: calibração da bússola em andamento</translation>
+    </message>
+    <message>
+      <source>PreArm: Fences invalid</source>
+      <translation>Pré-armamento: cercas inválidas</translation>
+    </message>
+    <message>
+      <source>PreArm: Hardware safety switch</source>
+      <translation>Pré-armamento: chave de segurança de hardware</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim below min</source>
+      <translation>Pré-armamento: trim do rádio %s abaixo do mínimo</translation>
+    </message>
+    <message>
+      <source>PreArm: Interlock/E-Stop Conflict</source>
+      <translation>Pré-armamento: conflito Interlock/parada de emergência</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging not started</source>
+      <translation>Pré-armamento: log não iniciado</translation>
+    </message>
+    <message>
+      <source>PreArm: Safety Switch</source>
+      <translation>Pré-armamento: chave de segurança</translation>
+    </message>
+    <message>
+      <source>PreArm: Check FS_THR_VALUE</source>
+      <translation>Pré-armamento: verifique FS_THR_VALUE</translation>
+    </message>
+    <message>
+      <source>PreArm: Duplicate Aux Switch Options</source>
+      <translation>Pré-armamento: opções de chave auxiliar duplicadas</translation>
+    </message>
+    <message>
+      <source>PreArm: check firmware or FRAME_CLASS</source>
+      <translation>Pré-armamento: verifique o firmware ou FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>PreArm: terrain data unhealthy</source>
+      <translation>Pré-armamento: dados de terreno com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging failed</source>
+      <translation>Pré-armamento: falha no log</translation>
+    </message>
+    <message>
+      <source>PreArm: Battery failsafe</source>
+      <translation>Pré-armamento: failsafe de bateria</translation>
+    </message>
+    <message>
+      <source>PreArm: %s below failsafe</source>
+      <translation>Pré-armamento: %s abaixo do failsafe</translation>
+    </message>
+    <message>
+      <source>PreArm: vehicle outside fence</source>
+      <translation>Pré-armamento: veículo fora da cerca</translation>
+    </message>
+    <message>
+      <source>PreArm: quadplane needs SCHED_LOOP_RATE &gt;= 100</source>
+      <translation>Pré-armamento: quadplane exige SCHED_LOOP_RATE &gt;= 100</translation>
+    </message>
+    <message>
+      <source>PreArm: check proximity sensor</source>
+      <translation>Pré-armamento: verifique o sensor de proximidade</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio max too low</source>
+      <translation>Pré-armamento: máximo do rádio %s muito baixo</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF-home variance</source>
+      <translation>Pré-armamento: variância EKF-home</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS positions differ by %4.1fm</source>
+      <translation>Pré-armamento: posições de GPS diferem em %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock Enabled</source>
+      <translation>Pré-armamento: Interlock do motor habilitado</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not healthy</source>
+      <translation>Pré-armamento: giroscópios com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: No SD card</source>
+      <translation>Pré-armamento: sem cartão SD</translation>
+    </message>
+    <message>
+      <source>PreArm: Param storage failed</source>
+      <translation>Pré-armamento: falha no armazenamento de parâmetros</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS %d failing configuration checks</source>
+      <translation>Pré-armamento: GPS %d falhando nas verificações de configuração</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros inconsistent</source>
+      <translation>Pré-armamento: giroscópios inconsistentes</translation>
+    </message>
+    <message>
+      <source>PreArm: Check Object Avoidance</source>
+      <translation>Pré-armamento: verifique o desvio de obstáculos</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MIN too large (%u)</source>
+      <translation>Pré-armamento: LIM_PITCH_MIN muito grande (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Check MOT_PWM_MAX/MIN</source>
+      <translation>Pré-armamento: verifique MOT_PWM_MAX/MIN</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo Test is still running</source>
+      <translation>Pré-armamento: teste de servo ainda em execução</translation>
+    </message>
+    <message>
+      <source>PreArm: RTL_ALT above rangefinder max range</source>
+      <translation>Pré-armamento: RTL_ALT acima do alcance máximo do telêmetro</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels calibrated requires reboot</source>
+      <translation>Pré-armamento: acelerômetros calibrados, requer reinicialização</translation>
+    </message>
+    <message>
+      <source>PreArm: Leaning</source>
+      <translation>Pré-armamento: inclinado</translation>
+    </message>
+    <message>
+      <source>PreArm: Heli motors checks failed</source>
+      <translation>Pré-armamento: falha nas verificações dos motores do helicóptero</translation>
+    </message>
+    <message>
+      <source>PreArm: Must assign a disarm or arm_toggle button</source>
+      <translation>Pré-armamento: é preciso atribuir um botão de desarmar ou arm_toggle</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_RADIUS value</source>
+      <translation>Pré-armamento: valor de FENCE_RADIUS inválido</translation>
+    </message>
+    <message>
+      <source>PreArm: No sufficently close rally point located</source>
+      <translation>Pré-armamento: nenhum ponto de rally suficientemente próximo encontrado</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad GPS Position</source>
+      <translation>Pré-armamento: posição de GPS ruim</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission library present</source>
+      <translation>Pré-armamento: biblioteca de missão ausente</translation>
+    </message>
+    <message>
+      <source>PreArm: Barometer not healthy</source>
+      <translation>Pré-armamento: barômetro com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF failsafe</source>
+      <translation>Pré-armamento: failsafe do EKF</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS glitching</source>
+      <translation>Pré-armamento: falhas intermitentes do GPS (glitch)</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio min too high</source>
+      <translation>Pré-armamento: mínimo do rádio %s muito alto</translation>
+    </message>
+    <message>
+      <source>PreArm: WP_SPEED too low</source>
+      <translation>Pré-armamento: WP_SPEED muito baixo</translation>
+    </message>
+    <message>
+      <source>PreArm: GCS failsafe on</source>
+      <translation>Pré-armamento: failsafe do GCS ativado</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock not configured</source>
+      <translation>Pré-armamento: Interlock do motor não configurado</translation>
+    </message>
+    <message>
+      <source>PreArm: Check mag field</source>
+      <translation>Pré-armamento: verifique o campo magnético</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>Pré-armamento: THR_FS_VALUE inválido para acelerador reverso</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>Pré-armamento: ESCs TCAN exigem MOT_PWM_MAX=2000</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels inconsistent</source>
+      <translation>Pré-armamento: acelerômetros inconsistentes</translation>
+    </message>
+    <message>
+      <source>PreArm: Scripting out of memory</source>
+      <translation>Pré-armamento: scripting sem memória</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d maximum is less than trim</source>
+      <translation>Pré-armamento: máximo de SERVO%d é menor que o trim</translation>
+    </message>
+    <message>
+      <source>PreArm: Check ANGLE_MAX</source>
+      <translation>Pré-armamento: verifique ANGLE_MAX</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels not healthy</source>
+      <translation>Pré-armamento: acelerômetros com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: Quadplane enabled but not running</source>
+      <translation>Pré-armamento: QuadPlane habilitado, mas não em execução</translation>
+    </message>
+    <message>
+      <source>PreArm: High GPS HDOP</source>
+      <translation>Pré-armamento: HDOP do GPS alto</translation>
+    </message>
+    <message>
+      <source>PreArm: Missing mission item: %s</source>
+      <translation>Pré-armamento: item de missão ausente: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission loaded</source>
+      <translation>Pré-armamento: nenhuma missão carregada</translation>
+    </message>
+    <message>
+      <source>PreArm: ADSB threat detected</source>
+      <translation>Pré-armamento: ameaça ADSB detectada</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not calibrated</source>
+      <translation>Pré-armamento: giroscópios não calibrados</translation>
+    </message>
+    <message>
+      <source>PreArm: Airspeed %d not healthy</source>
+      <translation>Pré-armamento: sensor de velocidade do ar %d com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: Proximity %d deg, %4.2fm</source>
+      <translation>Pré-armamento: proximidade %d graus, %4.2fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>Pré-armamento: tensão do servo muito baixa (%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_ALT_MAX value</source>
+      <translation>Pré-armamento: valor de FENCE_ALT_MAX inválido</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid Heli FRAME_CLASS</source>
+      <translation>Pré-armamento: FRAME_CLASS de helicóptero inválido</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim above max</source>
+      <translation>Pré-armamento: trim do rádio %s acima do máximo</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass offsets too high</source>
+      <translation>Pré-armamento: offsets da bússola muito altos</translation>
+    </message>
+    <message>
+      <source>PreArm: Internal errors (0x%x)</source>
+      <translation>Pré-armamento: erros internos (0x%x)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass not healthy</source>
+      <translation>Pré-armamento: bússola com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: Motors Emergency Stopped</source>
+      <translation>Pré-armamento: motores em parada de emergência</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>Pré-armamento: ESCs TCAN exigem MOT_PWM_MIN=1000</translation>
+    </message>
+    <message>
+      <source>PreArm: Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>Pré-armamento: placa (%1.1fv) fora da faixa %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS and AHRS differ by %4.1fm</source>
+      <translation>Pré-armamento: GPS e AHRS diferem em %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Can't check rally without position</source>
+      <translation>Pré-armamento: não é possível verificar o rally sem posição</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_ROLL_CD too small (%u)</source>
+      <translation>Pré-armamento: LIM_ROLL_CD muito pequeno (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Altitude disparity</source>
+      <translation>Pré-armamento: disparidade de altitude</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d maximum is less than trim</source>
+      <translation>Pré-armamento: máximo de RC%d é menor que o trim</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF compass variance</source>
+      <translation>Pré-armamento: variância da bússola no EKF</translation>
+    </message>
+    <message>
+      <source>PreArm: IOMCU is unhealthy</source>
+      <translation>Pré-armamento: IOMCU com falha</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for Terrain data</source>
+      <translation>Pré-armamento: aguardando dados de terreno</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS blending unhealthy</source>
+      <translation>Pré-armamento: mesclagem de GPS com falha</translation>
+    </message>
+    <message>
+      <source>#CompassMot calibration not supported</source>
+      <translation>#Calibração CompassMot não suportada</translation>
+    </message>
+    <message>
+      <source>#Gain is %2.0f%%</source>
+      <translation>#Ganho é %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Gain: %2.0f%%</source>
+      <translation>#Ganho: %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Input Hold Disabled</source>
+      <translation>#Retenção de entrada desabilitada</translation>
+    </message>
+    <message>
+      <source>#Input Hold Set</source>
+      <translation>#Retenção de entrada definida</translation>
+    </message>
+    <message>
+      <source>Lua: Syntax error in %s</source>
+      <translation>Lua: erro de sintaxe em %s</translation>
+    </message>
+    <message>
+      <source>Lua: Time: %u Mem: %d + %d</source>
+      <translation>Lua: Tempo: %u Mem: %d + %d</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to allocate a heap</source>
+      <translation>Lua: não foi possível alocar um heap</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to load the file: %s</source>
+      <translation>Lua: não foi possível carregar o arquivo: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Unknown error (%d) loading %s</source>
+      <translation>Lua: erro desconhecido (%d) ao carregar %s</translation>
+    </message>
+    <message>
+      <source>MYGCS: %u, heartbeat lost</source>
+      <translation>MYGCS: %u, heartbeat perdido</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu removed</source>
+      <translation>Mag: bússola #%d com DEVID %lu removida</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu replaced</source>
+      <translation>Mag: bússola #%d com DEVID %lu substituída</translation>
+    </message>
+    <message>
+      <source>Mag: WMM table error</source>
+      <translation>Mag: erro na tabela WMM</translation>
+    </message>
+    <message>
+      <source>Mag: no position available</source>
+      <translation>Mag: nenhuma posição disponível</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: bad uncorrected field</source>
+      <translation>Mag[%u]: campo não corrigido inválido</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: unhealthy\n</source>
+      <translation>Mag[%u]: com falha\n</translation>
+    </message>
+    <message>
+      <source>Magic not set</source>
+      <translation>Magic não definido</translation>
+    </message>
+    <message>
+      <source>Missing mission item: %s</source>
+      <translation>Item de missão ausente: %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u %s</source>
+      <translation>Missão: %u %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u Jump %i/%i</source>
+      <translation>Missão: %u salto %i/%i</translation>
+    </message>
+    <message>
+      <source>Mode change failed: %s requires position</source>
+      <translation>Falha na mudança de modo: %s requer posição</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid motor (%d)</source>
+      <translation>Teste de motor: motor inválido (%d)</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid throttle type: %d</source>
+      <translation>Teste de motor: tipo de acelerador inválido: %d</translation>
+    </message>
+    <message>
+      <source>Motor Test: percentage (%d) too high</source>
+      <translation>Teste de motor: porcentagem (%d) muito alta</translation>
+    </message>
+    <message>
+      <source>Motor Test: pwm (%d) too high</source>
+      <translation>Teste de motor: pwm (%d) muito alto</translation>
+    </message>
+    <message>
+      <source>Motors: unable to setup motor %u</source>
+      <translation>Motores: não foi possível configurar o motor %u</translation>
+    </message>
+    <message>
+      <source>MotorsTri: unable to setup yaw channel</source>
+      <translation>MotorsTri: não foi possível configurar o canal de guinada</translation>
+    </message>
+    <message>
+      <source>N-E-D follow offset loaded</source>
+      <translation>Offset de seguimento N-E-D carregado</translation>
+    </message>
+    <message>
+      <source>NavEKF2: lane switch %u</source>
+      <translation>NavEKF2: troca de lane %u</translation>
+    </message>
+    <message>
+      <source>NavEKF3: lane switch %u</source>
+      <translation>NavEKF3: troca de lane %u</translation>
+    </message>
+    <message>
+      <source>New target %d %d</source>
+      <translation>Novo alvo %d %d</translation>
+    </message>
+    <message>
+      <source>No ap_message for mavlink id (%u)</source>
+      <translation>Nenhuma ap_message para o id mavlink (%u)</translation>
+    </message>
+    <message>
+      <source>No axis selected, SID_AXIS = 0</source>
+      <translation>Nenhum eixo selecionado, SID_AXIS = 0</translation>
+    </message>
+    <message>
+      <source>No last page of log %d at top=%X or bot=%X</source>
+      <translation>Sem última página do log %d em top=%X ou bot=%X</translation>
+    </message>
+    <message>
+      <source>Out of allowable altitude range, beginning cruise. Alt = %f</source>
+      <translation>Fora da faixa de altitude permitida, iniciando cruzeiro. Alt = %f</translation>
+    </message>
+    <message>
+      <source>Param write denied (%s)</source>
+      <translation>Escrita de parâmetro negada (%s)</translation>
+    </message>
+    <message>
+      <source>Passed waypoint #%i dist %um</source>
+      <translation>Waypoint #%i ultrapassado, dist %um</translation>
+    </message>
+    <message>
+      <source>Potential Thrust Loss (%d)</source>
+      <translation>Possível perda de empuxo (%d)</translation>
+    </message>
+    <message>
+      <source>PreArm: %s</source>
+      <translation>Pré-armamento: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: servo function %u unassigned</source>
+      <translation>Pré-armamento: função de servo %u não atribuída</translation>
+    </message>
+    <message>
+      <source>PreArm:[^</source>
+      <translation>Pré-armamento:[^</translation>
+    </message>
+    <message>
+      <source>Proximity %d deg, %4.2fm</source>
+      <translation>Proximidade %d graus, %4.2fm</translation>
+    </message>
+    <message>
+      <source>RC%d maximum is less than trim</source>
+      <translation>Máximo de RC%d é menor que o trim</translation>
+    </message>
+    <message>
+      <source>RC%d minimum is greater than trim</source>
+      <translation>Mínimo de RC%d é maior que o trim</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to attach to pin %u</source>
+      <translation>RPM: falha ao anexar ao pino %u</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to detach from pin %u</source>
+      <translation>RPM: falha ao desanexar do pino %u</translation>
+    </message>
+    <message>
+      <source>RSC control mode change failed</source>
+      <translation>Falha na mudança do modo de controle RSC</translation>
+    </message>
+    <message>
+      <source>Rangefinder disengaged at %.2fm</source>
+      <translation>Telêmetro desativado em %.2fm</translation>
+    </message>
+    <message>
+      <source>Rangefinder engaged at %.2fm</source>
+      <translation>Telêmetro ativado em %.2fm</translation>
+    </message>
+    <message>
+      <source>Reached command #%i</source>
+      <translation>Comando #%i alcançado</translation>
+    </message>
+    <message>
+      <source>Reached descent rate %.1f m/s</source>
+      <translation>Taxa de descida de %.1f m/s alcançada</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%i dist %um</source>
+      <translation>Waypoint #%i alcançado, dist %um</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u</source>
+      <translation>Waypoint #%u alcançado</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u. Loiter for %u seconds</source>
+      <translation>Waypoint #%u alcançado. Loiter por %u segundos</translation>
+    </message>
+    <message>
+      <source>Received incorrect type (want=%u got=%u)</source>
+      <translation>Tipo incorreto recebido (esperado=%u recebido=%u)</translation>
+    </message>
+    <message>
+      <source>Received incorrect vertex type (want=%u got=%u)</source>
+      <translation>Tipo de vértice incorreto recebido (esperado=%u recebido=%u)</translation>
+    </message>
+    <message>
+      <source>Relative follow offset loaded</source>
+      <translation>Offset de seguimento relativo carregado</translation>
+    </message>
+    <message>
+      <source>Reset alt target to %.1f</source>
+      <translation>Alvo de altitude redefinido para %.1f</translation>
+    </message>
+    <message>
+      <source>Resetting previous waypoint</source>
+      <translation>Redefinindo o waypoint anterior</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence at waypoint %d</source>
+      <translation>Sequência de pouso reiniciada no waypoint %d</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence. Climbing to %dm</source>
+      <translation>Sequência de pouso reiniciada. Subindo para %dm</translation>
+    </message>
+    <message>
+      <source>Restarted landing via DO_LAND_START: %d</source>
+      <translation>Pouso reiniciado via DO_LAND_START: %d</translation>
+    </message>
+    <message>
+      <source>Restored watchdog attitude %.0f %.0f %.0f</source>
+      <translation>Atitude do watchdog restaurada %.0f %.0f %.0f</translation>
+    </message>
+    <message>
+      <source>Restored watchdog home</source>
+      <translation>Home do watchdog restaurado</translation>
+    </message>
+    <message>
+      <source>RevThrottle: %s</source>
+      <translation>RevThrottle: %s</translation>
+    </message>
+    <message>
+      <source>SERVO%d maximum is less than trim</source>
+      <translation>Máximo de SERVO%d é menor que o trim</translation>
+    </message>
+    <message>
+      <source>SERVO%d minimum is greater than trim</source>
+      <translation>Mínimo de SERVO%d é maior que o trim</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not create sandbox: %s</source>
+      <translation>Scripting: não foi possível criar o sandbox: %s</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not find sandbox</source>
+      <translation>Scripting: sandbox não encontrado</translation>
+    </message>
+    <message>
+      <source>Scripting: Loading sandbox: %s</source>
+      <translation>Scripting: carregando sandbox: %s</translation>
+    </message>
+    <message>
+      <source>Selected an approach path of %.1f</source>
+      <translation>Trajetória de aproximação selecionada: %.1f</translation>
+    </message>
+    <message>
+      <source>Sending unknown message (%u)</source>
+      <translation>Enviando mensagem desconhecida (%u)</translation>
+    </message>
+    <message>
+      <source>Servo Test is still running</source>
+      <translation>Teste de servo ainda em execução</translation>
+    </message>
+    <message>
+      <source>Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>Tensão do servo muito baixa (%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>ServoRelayEvent: Channel %d is already in use</source>
+      <translation>ServoRelayEvent: canal %d já está em uso</translation>
+    </message>
+    <message>
+      <source>Set FOLL_ENABLE = 1</source>
+      <translation>Defina FOLL_ENABLE = 1</translation>
+    </message>
+    <message>
+      <source>Set HOME to %.6f %.6f at %.2fm</source>
+      <translation>HOME definido em %.6f %.6f a %.2fm</translation>
+    </message>
+    <message>
+      <source>Set airspeed %u m/s</source>
+      <translation>Velocidade do ar definida %u m/s</translation>
+    </message>
+    <message>
+      <source>Set fence enabled state to %u</source>
+      <translation>Estado de habilitação da cerca definido para %u</translation>
+    </message>
+    <message>
+      <source>Set groundspeed %u</source>
+      <translation>Velocidade em relação ao solo definida %u</translation>
+    </message>
+    <message>
+      <source>Set inverted %u</source>
+      <translation>Invertido definido %u</translation>
+    </message>
+    <message>
+      <source>Set throttle %u</source>
+      <translation>Acelerador definido %u</translation>
+    </message>
+    <message>
+      <source>Skipping INS calibration</source>
+      <translation>Ignorando calibração do INS</translation>
+    </message>
+    <message>
+      <source>Skipping invalid cmd #%i</source>
+      <translation>Ignorando comando inválido #%i</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: %s</source>
+      <translation>SmartRTL desativado: %s</translation>
+    </message>
+    <message>
+      <source>SmartRTL: failed to set destination</source>
+      <translation>SmartRTL: falha ao definir o destino</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal detected, entering loiter</source>
+      <translation>Soaring: térmica detectada, entrando em loiter</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, entering RTL</source>
+      <translation>Soaring: térmica encerrada, entrando em RTL</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring AUTO</source>
+      <translation>Soaring: térmica encerrada, restaurando AUTO</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring CRUISE</source>
+      <translation>Soaring: térmica encerrada, restaurando CRUISE</translation>
+    </message>
+    <message>
+      <source>Soaring: forcing RTL</source>
+      <translation>Soaring: forçando RTL</translation>
+    </message>
+    <message>
+      <source>Starting ESC calibration</source>
+      <translation>Iniciando calibração de ESC</translation>
+    </message>
+    <message>
+      <source>Starting VTOL land approach path</source>
+      <translation>Iniciando trajetória de aproximação para pouso VTOL</translation>
+    </message>
+    <message>
+      <source>Starting height reached %.1f</source>
+      <translation>Altura inicial alcançada %.1f</translation>
+    </message>
+    <message>
+      <source>Steering trim saved!</source>
+      <translation>Trim de direção salvo!</translation>
+    </message>
+    <message>
+      <source>SystemID Starting: axis=%d</source>
+      <translation>SystemID iniciando: eixo=%d</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: lean=%f max=%f</source>
+      <translation>SystemID parado: inclinação=%f máx=%f</translation>
+    </message>
+    <message>
+      <source>Takeoff complete at %.2fm</source>
+      <translation>Decolagem concluída a %.2fm</translation>
+    </message>
+    <message>
+      <source>Takeoff height set to %.1fm</source>
+      <translation>Altura de decolagem definida para %.1fm</translation>
+    </message>
+    <message>
+      <source>Takeoff level-off starting at %dm</source>
+      <translation>Nivelamento da decolagem iniciando a %dm</translation>
+    </message>
+    <message>
+      <source>Takeoff skipped - circling</source>
+      <translation>Decolagem ignorada - circulando</translation>
+    </message>
+    <message>
+      <source>Takeoff timeout at %.1f m/s</source>
+      <translation>Tempo esgotado na decolagem a %.1f m/s</translation>
+    </message>
+    <message>
+      <source>Takeoff to %.0fm at %.1fm to %.1f deg</source>
+      <translation>Decolagem para %.0fm a %.1fm até %.1f graus</translation>
+    </message>
+    <message>
+      <source>Target Heading: %3.1f</source>
+      <translation>Direção alvo: %3.1f</translation>
+    </message>
+    <message>
+      <source>Terminating due to %s</source>
+      <translation>Terminando devido a %s</translation>
+    </message>
+    <message>
+      <source>Terminating due to RC failure</source>
+      <translation>Terminando devido a falha do RC</translation>
+    </message>
+    <message>
+      <source>Terminating due to dual loss</source>
+      <translation>Terminando devido a perda dupla</translation>
+    </message>
+    <message>
+      <source>Terminating due to fence breach</source>
+      <translation>Terminando devido a violação da cerca</translation>
+    </message>
+    <message>
+      <source>Terminating due to range %.1fkm</source>
+      <translation>Terminando devido ao alcance %.1fkm</translation>
+    </message>
+    <message>
+      <source>Thermal weak, recommend quitting: W %f R %f th %f alt %f Mc %f</source>
+      <translation>Térmica fraca, recomenda-se sair: W %f R %f th %f alt %f Mc %f</translation>
+    </message>
+    <message>
+      <source>Thruster %d is ok!</source>
+      <translation>Propulsor %d está ok!</translation>
+    </message>
+    <message>
+      <source>Thruster %d is reversed! Saving it!</source>
+      <translation>Propulsor %d está invertido! Salvando!</translation>
+    </message>
+    <message>
+      <source>Tmode: %u FAILED</source>
+      <translation>Tmode: %u FALHOU</translation>
+    </message>
+    <message>
+      <source>Tmode: action %u</source>
+      <translation>Tmode: ação %u</translation>
+    </message>
+    <message>
+      <source>Tmode: mode %s</source>
+      <translation>Tmode: modo %s</translation>
+    </message>
+    <message>
+      <source>Tmode: thr mid %d</source>
+      <translation>Tmode: acel. médio %d</translation>
+    </message>
+    <message>
+      <source>Tmode: trim %u %u %u %u</source>
+      <translation>Tmode: trim %u %u %u %u</translation>
+    </message>
+    <message>
+      <source>Transition airspeed reached %.1f</source>
+      <translation>Velocidade do ar de transição alcançada %.1f</translation>
+    </message>
+    <message>
+      <source>Transition started airspeed %.1f</source>
+      <translation>Transição iniciada, velocidade do ar %.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO xaccel=%.1f</source>
+      <translation>AUTO acionado xaccel=%.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO. GPS speed = %.1f</source>
+      <translation>AUTO acionado. Velocidade GPS = %.1f</translation>
+    </message>
+    <message>
+      <source>Trim saved</source>
+      <translation>Trim salvo</translation>
+    </message>
+    <message>
+      <source>Tuning: error %.2f</source>
+      <translation>Ajuste: erro %.2f</translation>
+    </message>
+    <message>
+      <source>Tuning: mid-point %s</source>
+      <translation>Ajuste: ponto médio %s</translation>
+    </message>
+    <message>
+      <source>Tuning: recentered %s</source>
+      <translation>Ajuste: recentralizado %s</translation>
+    </message>
+    <message>
+      <source>Tuning: started %s</source>
+      <translation>Ajuste: iniciado %s</translation>
+    </message>
+    <message>
+      <source>Unable to set fence. Enabled state to %u</source>
+      <translation>Não foi possível definir a cerca. Estado de habilitação para %u</translation>
+    </message>
+    <message>
+      <source>Unable to start find a landing abort sequence</source>
+      <translation>Não foi possível iniciar a busca por uma sequência de aborto de pouso</translation>
+    </message>
+    <message>
+      <source>Unexpected vertex count want=%u got=%u\n</source>
+      <translation>Contagem de vértices inesperada esperado=%u recebido=%u\n</translation>
+    </message>
+    <message>
+      <source>Unknown mavlink coordinate frame %u</source>
+      <translation>Sistema de coordenadas mavlink desconhecido %u</translation>
+    </message>
+    <message>
+      <source>Unsupported FTP: %d</source>
+      <translation>FTP não suportado: %d</translation>
+    </message>
+    <message>
+      <source>Updating barometer calibration</source>
+      <translation>Atualizando calibração do barômetro</translation>
+    </message>
+    <message>
+      <source>VTOL position2 started v=%.1f d=%.1f</source>
+      <translation>VTOL position2 iniciado v=%.1f d=%.1f</translation>
+    </message>
+    <message>
+      <source>Vehicle %d battery %d is powering off</source>
+      <translation>Veículo %d bateria %d está desligando</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to attach to pin %u</source>
+      <translation>WEnc: falha ao anexar ao pino %u</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to detach from pin %u</source>
+      <translation>WEnc: falha ao desanexar do pino %u</translation>
+    </message>
+    <message>
+      <source>Watchdog: resume WP %u</source>
+      <translation>Watchdog: retomando WP %u</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel offset not set!</source>
+      <translation>WheelEncoder: offset da roda não definido!</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel radius not set!</source>
+      <translation>WheelEncoder: raio da roda não definido!</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration complete (volt min:%.1f max:%1.f)</source>
+      <translation>WindVane: calibração concluída (tensão mín:%.1f máx:%1.f)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration failed (volt diff %.1f below %.1f)</source>
+      <translation>WindVane: falha na calibração (dif. de tensão %.1f abaixo de %.1f)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration started, rotate wind vane</source>
+      <translation>WindVane: calibração iniciada, gire o cata-vento</translation>
+    </message>
+    <message>
+      <source>WindVane: No cal required</source>
+      <translation>WindVane: calibração não necessária</translation>
+    </message>
+    <message>
+      <source>WindVane: disarm for cal</source>
+      <translation>WindVane: desarme para calibrar</translation>
+    </message>
+    <message>
+      <source>WindVane: driver not found</source>
+      <translation>WindVane: driver não encontrado</translation>
+    </message>
+    <message>
+      <source>WindVane: rev P. zero wind voltage offset set to %.1f</source>
+      <translation>WindVane: offset de tensão de vento zero P. rev definido para %.1f</translation>
+    </message>
+    <message>
+      <source>bad test type %0.2f</source>
+      <translation>tipo de teste inválido %0.2f</translation>
+    </message>
+    <message>
+      <source>bad throttle type %0.2f</source>
+      <translation>tipo de acelerador inválido %0.2f</translation>
+    </message>
+    <message>
+      <source>deferencing a bad thing</source>
+      <translation>desreferenciando algo inválido</translation>
+    </message>
+    <message>
+      <source>entering lockup</source>
+      <translation>entrando em travamento</translation>
+    </message>
+    <message>
+      <source>failed to get battery cycles</source>
+      <translation>falha ao obter os ciclos da bateria</translation>
+    </message>
+    <message>
+      <source>height achieved - controlling position</source>
+      <translation>altura atingida - controlando a posição</translation>
+    </message>
+    <message>
+      <source>hello, world</source>
+      <translation>hello, world</translation>
+    </message>
+    <message>
+      <source>hover throttle delta: %f</source>
+      <translation>delta do acelerador de pairar: %f</translation>
+    </message>
+    <message>
+      <source>motor test initialization failed!</source>
+      <translation>falha na inicialização do teste de motor!</translation>
+    </message>
+    <message>
+      <source>quadplane needs SCHED_LOOP_RATE >= 100</source>
+      <translation>quadplane exige SCHED_LOOP_RATE >= 100</translation>
+    </message>
+    <message>
+      <source>speed: %.1f m/s</source>
+      <translation>velocidade: %.1f m/s</translation>
+    </message>
+    <message>
+      <source>target not received last 3secs, stopping</source>
+      <translation>alvo não recebido nos últimos 3 s, parando</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel 0 uncalibrated</source>
+      <translation>Falha pré-voo: acelerômetro 0 não calibrado</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass 0 uncalibrated</source>
+      <translation>Falha pré-voo: bússola 0 não calibrada</translation>
+    </message>
+    <message>
+      <source>C2 link quality degraded</source>
+      <translation>Qualidade do link C2 degradada</translation>
+    </message>
+    <message>
+      <source>C2 link quality critical</source>
+      <translation>Qualidade do link C2 crítica</translation>
+    </message>
+    <message>
+      <source>Data link regained</source>
+      <translation>Link de dados recuperado</translation>
+    </message>
+    <message>
+      <source>x: %f e: %f r: %f d: %f</source>
+      <translation>x: %f e: %f r: %f d: %f</translation>
+    </message>
+    <message>
+      <source>%s #%i fail: %s%s%s%s%s!</source>
+      <translation>%s #%i falha: %s%s%s%s%s!</translation>
+    </message>
+    <message>
+      <source>%s #%i failed: %s%s%s%s%s!</source>
+      <translation>%s #%i falhou: %s%s%s%s%s!</translation>
+    </message>
+    <message>
+      <source>%sdelayed data old: %8.4f</source>
+      <translation>%sdados atrasados antigos: %8.4f</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Lidar detected with ID %zu</source>
+      <translation>%sLidar voltado para baixo detectado com ID %zu</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Sonar detected with ID %zu</source>
+      <translation>%sSonar voltado para baixo detectado com ID %zu</translation>
+    </message>
+    <message>
+      <source>%soffline. %s</source>
+      <translation>%soffline. %s</translation>
+    </message>
+    <message>
+      <source>%sreinit x</source>
+      <translation>%sreinit x</translation>
+    </message>
+    <message>
+      <source>%sreinit x, x(%zu) not finite</source>
+      <translation>%sreinit x, x(%zu) não finito</translation>
+    </message>
+    <message>
+      <source>[cal] %s side already completed</source>
+      <translation>[cal] lado %s já concluído</translation>
+    </message>
+    <message>
+      <source>[cal] %s side done, rotate to a different side</source>
+      <translation>[cal] lado %s concluído, gire para outro lado</translation>
+    </message>
+    <message>
+      <source>[cal] %s side result: [%.3f %.3f %.3f]</source>
+      <translation>[cal] resultado do lado %s: [%.3f %.3f %.3f]</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid X-axis, check rotation</source>
+      <translation>[cal] acelerômetro %d eixo X inválido, verifique a rotação</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Y-axis, check rotation</source>
+      <translation>[cal] acelerômetro %d eixo Y inválido, verifique a rotação</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Z-axis, check rotation</source>
+      <translation>[cal] acelerômetro %d eixo Z inválido, verifique a rotação</translation>
+    </message>
+    <message>
+      <source>[cal] Battery connected</source>
+      <translation>[cal] Bateria conectada</translation>
+    </message>
+    <message>
+      <source>[cal] Blow into front of pitot without touching</source>
+      <translation>[cal] Sopre na frente do pitot sem tocar</translation>
+    </message>
+    <message>
+      <source>[cal] Connect battery now</source>
+      <translation>[cal] Conecte a bateria agora</translation>
+    </message>
+    <message>
+      <source>[cal] Create air pressure! (got %d, wanted: 50 Pa)</source>
+      <translation>[cal] Crie pressão de ar! (obtido %d, desejado: 50 Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] detected motion, hold still...</source>
+      <translation>[cal] movimento detectado, mantenha parado...</translation>
+    </message>
+    <message>
+      <source>[cal] detected rest position, hold still...</source>
+      <translation>[cal] posição de repouso detectada, mantenha parado...</translation>
+    </message>
+    <message>
+      <source>[cal] Ensure sensor is not measuring wind</source>
+      <translation>[cal] Certifique-se de que o sensor não está medindo vento</translation>
+    </message>
+    <message>
+      <source>[cal] External Mag: %d (%</source>
+      <translation>[cal] Mag externo: %d (%</translation>
+    </message>
+    <message>
+      <source>[cal] Hold still, measuring %s side</source>
+      <translation>[cal] Mantenha parado, medindo o lado %s</translation>
+    </message>
+    <message>
+      <source>[cal] hold vehicle still on a pending side</source>
+      <translation>[cal] mantenha o veículo parado em um lado pendente</translation>
+    </message>
+    <message>
+      <source>[cal] Negative pressure difference detected (%d Pa)</source>
+      <translation>[cal] Diferença de pressão negativa detectada (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Offset of %d Pascal</source>
+      <translation>[cal] Offset de %d Pascal</translation>
+    </message>
+    <message>
+      <source>[cal] pending:%s</source>
+      <translation>[cal] pendente:%s</translation>
+    </message>
+    <message>
+      <source>[cal] Positive pressure: OK (%d Pa)</source>
+      <translation>[cal] Pressão positiva: OK (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Rotate vehicle</source>
+      <translation>[cal] Gire o veículo</translation>
+    </message>
+    <message>
+      <source>[cal] Swap static and dynamic ports or set SENS_DPRES_REV</source>
+      <translation>[cal] Troque as portas estática e dinâmica ou defina SENS_DPRES_REV</translation>
+    </message>
+    <message>
+      <source>[IO] config read fail, abort.</source>
+      <translation>[IO] falha na leitura da configuração, abortando.</translation>
+    </message>
+    <message>
+      <source>[logger] %s</source>
+      <translation>[logger] %s</translation>
+    </message>
+    <message>
+      <source>[lpe] baro fault, r %5.2f m, beta %5.2f</source>
+      <translation>[lpe] falha do barômetro, r %5.2f m, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] baro OK</source>
+      <translation>[lpe] barômetro OK</translation>
+    </message>
+    <message>
+      <source>[lpe] baro timeout</source>
+      <translation>[lpe] tempo esgotado do barômetro</translation>
+    </message>
+    <message>
+      <source>[lpe] flow fault,  beta %5.2f</source>
+      <translation>[lpe] falha do fluxo,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] flow init:</source>
+      <translation>[lpe] inicialização do fluxo:</translation>
+    </message>
+    <message>
+      <source>[lpe] flow OK</source>
+      <translation>[lpe] fluxo OK</translation>
+    </message>
+    <message>
+      <source>[lpe] flow timeout</source>
+      <translation>[lpe] tempo esgotado do fluxo</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (gps) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] origem global inicializada (gps) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (mocap) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] origem global inicializada (mocap) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (parameter) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] origem global inicializada (parâmetro) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (vision) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] origem global inicializada (visão) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] gps fault %3g %3g %3g %3g %3g %3g</source>
+      <translation>[lpe] falha do GPS %3g %3g %3g %3g %3g %3g</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS OK</source>
+      <translation>[lpe] GPS OK</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS timeout</source>
+      <translation>[lpe] tempo esgotado do GPS</translation>
+    </message>
+    <message>
+      <source>[lpe] land fault,  beta %5.2f</source>
+      <translation>[lpe] falha de pouso,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] land init</source>
+      <translation>[lpe] inicialização de pouso</translation>
+    </message>
+    <message>
+      <source>[lpe] land OK</source>
+      <translation>[lpe] pouso OK</translation>
+    </message>
+    <message>
+      <source>[lpe] land timeout</source>
+      <translation>[lpe] tempo esgotado de pouso</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar fault,  beta %5.2f</source>
+      <translation>[lpe] falha do lidar,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar init:</source>
+      <translation>[lpe] inicialização do lidar:</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar OK</source>
+      <translation>[lpe] lidar OK</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar timeout</source>
+      <translation>[lpe] tempo esgotado do lidar</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] dados de mocap inválidos. eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap fault, beta %5.2f</source>
+      <translation>[lpe] falha do mocap, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap OK</source>
+      <translation>[lpe] mocap OK</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap position init:</source>
+      <translation>[lpe] inicialização da posição mocap:</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap timeout</source>
+      <translation>[lpe] tempo esgotado do mocap</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar fault,  beta %5.2f</source>
+      <translation>[lpe] falha do sonar,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init std &gt; min</source>
+      <translation>[lpe] inicialização do sonar std &gt; mín</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init timeout</source>
+      <translation>[lpe] tempo esgotado na inicialização do sonar</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar OK</source>
+      <translation>[lpe] sonar OK</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar timeout</source>
+      <translation>[lpe] tempo limite do sonar</translation>
+    </message>
+    <message>
+      <source>[lpe] vision data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] dados de visão inválidos. eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position fault, beta %5.2f</source>
+      <translation>[lpe] falha de posição por visão, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position init:</source>
+      <translation>[lpe] inicialização de posição por visão:</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position OK</source>
+      <translation>[lpe] posição por visão OK</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position timeout</source>
+      <translation>[lpe] tempo limite de posição por visão</translation>
+    </message>
+    <message>
+      <source>Accel %</source>
+      <translation>Acel %</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation invalid</source>
+      <translation>Estimativa de velocidade do ar inválida</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation valid</source>
+      <translation>Estimativa de velocidade do ar válida</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor failure detected. Check connection and reboot.</source>
+      <translation>Falha do sensor de velocidade do ar detectada. Verifique a conexão e reinicie.</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor healthy, start using again (%i, %i)</source>
+      <translation>Sensor de velocidade do ar íntegro, voltando a usá-lo (%i, %i)</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</source>
+      <translation>Sensor de velocidade do ar nº %d ASPD_SCALE atualizado: %.4f --&gt; %.4f</translation>
+    </message>
+    <message>
+      <source>Already higher than takeoff altitude</source>
+      <translation>Já acima da altitude de decolagem</translation>
+    </message>
+    <message>
+      <source>Altitude change is outside geofence</source>
+      <translation>Mudança de altitude está fora da GeoCerca</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i minutes)</source>
+      <translation>Aproximando-se do tempo máximo de voo (o sistema fará RTL em %i minutos)</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i seconds)</source>
+      <translation>Aproximando-se do tempo máximo de voo (o sistema fará RTL em %i segundos)</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied</source>
+      <translation>Autorização de armamento: Negada</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because airspace is in use</source>
+      <translation>Autorização de armamento: Negada porque o espaço aéreo está em uso</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because of bad weather</source>
+      <translation>Autorização de armamento: Negada devido ao mau tempo</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied by timeout in authorizer</source>
+      <translation>Autorização de armamento: Negada por tempo limite no autorizador</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied, waypoint %</source>
+      <translation>Autorização de armamento: Negada, waypoint %</translation>
+    </message>
+    <message>
+      <source>Arm auth: No response</source>
+      <translation>Autorização de armamento: Sem resposta</translation>
+    </message>
+    <message>
+      <source>Arm auth: Requesting authorization...</source>
+      <translation>Autorização de armamento: Solicitando autorização...</translation>
+    </message>
+    <message>
+      <source>Arm auth: Temporarily rejected</source>
+      <translation>Autorização de armamento: Rejeitada temporariamente</translation>
+    </message>
+    <message>
+      <source>Arm stick gesture disabled if arm switch in use</source>
+      <translation>Gesto de armamento por stick desabilitado se a chave de armamento estiver em uso</translation>
+    </message>
+    <message>
+      <source>Armed by %s</source>
+      <translation>Armado por %s</translation>
+    </message>
+    <message>
+      <source>Arming denied: calibrating</source>
+      <translation>Armamento negado: calibrando</translation>
+    </message>
+    <message>
+      <source>Arming denied: Resolve system health failures first</source>
+      <translation>Armamento negado: Resolva primeiro as falhas de integridade do sistema</translation>
+    </message>
+    <message>
+      <source>Arming denied: switch to manual mode first</source>
+      <translation>Armamento negado: mude primeiro para o modo manual</translation>
+    </message>
+    <message>
+      <source>Arming denied: throttle not in safe position</source>
+      <translation>Armamento negado: acelerador fora da posição segura</translation>
+    </message>
+    <message>
+      <source>Ascent speed has been constrained by max speed</source>
+      <translation>Velocidade de subida foi limitada pela velocidade máxima</translation>
+    </message>
+    <message>
+      <source>Assuming vehicle is facing heading %.1f degrees</source>
+      <translation>Assumindo que o veículo está voltado para a direção %.1f graus</translation>
+    </message>
+    <message>
+      <source>attitude estimator not running - check system boot</source>
+      <translation>estimador de atitude não está em execução - verifique a inicialização do sistema</translation>
+    </message>
+    <message>
+      <source>attitude required for mag quick cal</source>
+      <translation>atitude necessária para a calibração rápida do magnetômetro</translation>
+    </message>
+    <message>
+      <source>Autotune aborted before finishing</source>
+      <translation>Autotune abortado antes de terminar</translation>
+    </message>
+    <message>
+      <source>Autotune axis timeout, skipping to next axis</source>
+      <translation>Tempo limite do eixo no Autotune, passando para o próximo eixo</translation>
+    </message>
+    <message>
+      <source>Autotune finished successfully</source>
+      <translation>Autotune concluído com sucesso</translation>
+    </message>
+    <message>
+      <source>Autotune returned to idle</source>
+      <translation>Autotune retornou ao estado ocioso</translation>
+    </message>
+    <message>
+      <source>Autotune started</source>
+      <translation>Autotune iniciado</translation>
+    </message>
+    <message>
+      <source>Battery %d: %s. %s</source>
+      <translation>Bateria %d: %s. %s</translation>
+    </message>
+    <message>
+      <source>Battery %i disconnected</source>
+      <translation>Bateria %i desconectada</translation>
+    </message>
+    <message>
+      <source>Battery %i missing</source>
+      <translation>Bateria %i ausente</translation>
+    </message>
+    <message>
+      <source>Calibration denied: not supported in SIH mode</source>
+      <translation>Calibração negada: não suportada no modo SIH</translation>
+    </message>
+    <message>
+      <source>calibration save failed</source>
+      <translation>falha ao salvar a calibração</translation>
+    </message>
+    <message>
+      <source>Calibration: Disabling RC input</source>
+      <translation>Calibração: Desabilitando a entrada do RC</translation>
+    </message>
+    <message>
+      <source>Calibration: Restoring RC input</source>
+      <translation>Calibração: Restaurando a entrada do RC</translation>
+    </message>
+    <message>
+      <source>Climb to %.1f meters above home</source>
+      <translation>Subir para %.1f metros acima da Home</translation>
+    </message>
+    <message>
+      <source>command denied during calibration: %</source>
+      <translation>comando negado durante a calibração: %</translation>
+    </message>
+    <message>
+      <source>Compass needs calibration - Land now!</source>
+      <translation>Bússola precisa de calibração - Pouse agora!</translation>
+    </message>
+    <message>
+      <source>Connection to ground station lost</source>
+      <translation>Conexão com a estação de solo perdida</translation>
+    </message>
+    <message>
+      <source>Connection to mission computer lost</source>
+      <translation>Conexão com o computador de missão perdida</translation>
+    </message>
+    <message>
+      <source>Control high latency failed! Telemetry unavailable</source>
+      <translation>Falha no controle de alta latência! Telemetria indisponível</translation>
+    </message>
+    <message>
+      <source>Could not set mission closest to position.</source>
+      <translation>Não foi possível definir a missão mais próxima da posição.</translation>
+    </message>
+    <message>
+      <source>Critical battery</source>
+      <translation>Bateria crítica</translation>
+    </message>
+    <message>
+      <source>Cruise speed has been constrained by max speed</source>
+      <translation>Velocidade de cruzeiro foi limitada pela velocidade máxima</translation>
+    </message>
+    <message>
+      <source>Dangerously low battery! Shutting system down in 60 seconds</source>
+      <translation>Bateria perigosamente baixa! Desligando o sistema em 60 segundos</translation>
+    </message>
+    <message>
+      <source>Descent speed has been constrained by max speed</source>
+      <translation>Velocidade de descida foi limitada pela velocidade máxima</translation>
+    </message>
+    <message>
+      <source>Detected %u gyros, but will calibrate only %u</source>
+      <translation>Detectados %u giroscópios, mas apenas %u serão calibrados</translation>
+    </message>
+    <message>
+      <source>Detected %u mags, but will calibrate only %u</source>
+      <translation>Detectados %u magnetômetros, mas apenas %u serão calibrados</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>Desabilitar transmissão com MAVLink IRIDIUM no dispositivo %s</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>Desabilitar transmissão com MAVLink IRIDIUM no dispositivo %s por comando</translation>
+    </message>
+    <message>
+      <source>Disarmed by %s</source>
+      <translation>Desarmado por %s</translation>
+    </message>
+    <message>
+      <source>Disarming denied: not landed</source>
+      <translation>Desarmamento negado: não pousado</translation>
+    </message>
+    <message>
+      <source>Disconnect battery and try again</source>
+      <translation>Desconecte a bateria e tente novamente</translation>
+    </message>
+    <message>
+      <source>DO JUMP waypoint could not be written.</source>
+      <translation>Não foi possível gravar o waypoint DO JUMP.</translation>
+    </message>
+    <message>
+      <source>EKF2_MAG_TYPE invalid, resetting to default</source>
+      <translation>EKF2_MAG_TYPE inválido, redefinindo para o padrão</translation>
+    </message>
+    <message>
+      <source>Emergency battery level</source>
+      <translation>Nível de bateria de emergência</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>Habilitar transmissão com MAVLink IRIDIUM no dispositivo %s</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>Habilitar transmissão com MAVLink IRIDIUM no dispositivo %s por comando</translation>
+    </message>
+    <message>
+      <source>Error loading settings</source>
+      <translation>Erro ao carregar as configurações</translation>
+    </message>
+    <message>
+      <source>Error saving settings</source>
+      <translation>Erro ao salvar as configurações</translation>
+    </message>
+    <message>
+      <source>ERROR: cannot open calibration storage</source>
+      <translation>ERRO: não é possível abrir o armazenamento de calibração</translation>
+    </message>
+    <message>
+      <source>ERROR: invalid orientation</source>
+      <translation>ERRO: orientação inválida</translation>
+    </message>
+    <message>
+      <source>ERROR: missing data, sensor %d</source>
+      <translation>ERRO: dados ausentes, sensor %d</translation>
+    </message>
+    <message>
+      <source>ERROR: Motion during calibration</source>
+      <translation>ERRO: Movimento durante a calibração</translation>
+    </message>
+    <message>
+      <source>ERROR: out of memory</source>
+      <translation>ERRO: memória insuficiente</translation>
+    </message>
+    <message>
+      <source>ERROR: Waypoint index exceeds list capacity</source>
+      <translation>ERRO: Índice de waypoint excede a capacidade da lista</translation>
+    </message>
+    <message>
+      <source>ERROR: wp index out of bounds</source>
+      <translation>ERRO: índice de wp fora dos limites</translation>
+    </message>
+    <message>
+      <source>esc</source>
+      <translation>esc</translation>
+    </message>
+    <message>
+      <source>ESC calibration denied! Press safety button first</source>
+      <translation>Calibração de ESC negada! Pressione primeiro o botão de segurança</translation>
+    </message>
+    <message>
+      <source>ESC failure: Not all ESCs are armed. Land now!</source>
+      <translation>Falha de ESC: Nem todos os ESCs estão armados. Pouse agora!</translation>
+    </message>
+    <message>
+      <source>ESC%d: %s. %s</source>
+      <translation>ESC%d: %s. %s</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f check CRC is different,will upload tap esc firmware</source>
+      <translation>esc_id %1.f CRC diferente, o firmware do tap esc será enviado</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision failed</source>
+      <translation>esc_id %1.f falha ao obter a revisão da placa</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision: %02</source>
+      <translation>esc_id %1.f revisão da placa encontrada: %02</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision failed</source>
+      <translation>esc_id %1.f falha ao obter a revisão do bootloader</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision: %4.4f</source>
+      <translation>esc_id %1.f revisão do bootloader encontrada: %4.4f</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision failed</source>
+      <translation>esc_id %1.f falha ao obter a revisão do firmware</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision: %4.4f</source>
+      <translation>esc_id %1.f revisão do firmware encontrada: %4.4f</translation>
+    </message>
+    <message>
+      <source>excess pitch angle</source>
+      <translation>ângulo de arfagem excessivo</translation>
+    </message>
+    <message>
+      <source>excess roll angle</source>
+      <translation>ângulo de rolagem excessivo</translation>
+    </message>
+    <message>
+      <source>Executing Mission</source>
+      <translation>Executando missão</translation>
+    </message>
+    <message>
+      <source>Fail</source>
+      <translation>Falha</translation>
+    </message>
+    <message>
+      <source>Failed to communicate with IO, abort.</source>
+      <translation>Falha na comunicação com o IO, abortando.</translation>
+    </message>
+    <message>
+      <source>Failed: No magnetometer available or enabled</source>
+      <translation>Falha: Nenhum magnetômetro disponível ou habilitado</translation>
+    </message>
+    <message>
+      <source>Failed: This calibration requires rotation.</source>
+      <translation>Falha: Esta calibração requer rotação.</translation>
+    </message>
+    <message>
+      <source>Failsafe activated</source>
+      <translation>Failsafe ativado</translation>
+    </message>
+    <message>
+      <source>Failsafe activated: entering Hold for %i seconds</source>
+      <translation>Failsafe ativado: entrando em Hold por %i segundos</translation>
+    </message>
+    <message>
+      <source>Figure 8 command not supported.</source>
+      <translation>Comando Figura 8 não suportado.</translation>
+    </message>
+    <message>
+      <source>Figure 8 command only available for fixed wing and vtol vehicles.</source>
+      <translation>Comando Figura 8 disponível apenas para veículos de asa fixa e VTOL.</translation>
+    </message>
+    <message>
+      <source>Figure 8 command rejected, Only available in fixed wing mode.</source>
+      <translation>Comando Figura 8 rejeitado, disponível apenas no modo de asa fixa.</translation>
+    </message>
+    <message>
+      <source>Figure 8 is outside geofence</source>
+      <translation>Figura 8 está fora da GeoCerca</translation>
+    </message>
+    <message>
+      <source>GCS connection regained</source>
+      <translation>Conexão com a GCS restabelecida</translation>
+    </message>
+    <message>
+      <source>Geofence imported</source>
+      <translation>GeoCerca importada</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain current vehicle position</source>
+      <translation>GeoCerca inválida, não contém a posição atual do veículo</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain Home position</source>
+      <translation>GeoCerca inválida, não contém a posição Home</translation>
+    </message>
+    <message>
+      <source>Geofence requires valid home position</source>
+      <translation>GeoCerca requer uma posição Home válida</translation>
+    </message>
+    <message>
+      <source>Geofence violation for waypoint %zu</source>
+      <translation>Violação da GeoCerca no waypoint %zu</translation>
+    </message>
+    <message>
+      <source>Geofence: approaching or outside geofence</source>
+      <translation>GeoCerca: aproximando-se ou fora da GeoCerca</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum altitude above Home</source>
+      <translation>GeoCerca: excedendo a altitude máxima acima da Home</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum distance to Home</source>
+      <translation>GeoCerca: excedendo a distância máxima até a Home</translation>
+    </message>
+    <message>
+      <source>Geofence: import error</source>
+      <translation>GeoCerca: erro de importação</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion started</source>
+      <translation>Fusão de dados GNSS iniciada</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion stopped</source>
+      <translation>Fusão de dados GNSS interrompida</translation>
+    </message>
+    <message>
+      <source>GNSS heading not reliable - Land now!</source>
+      <translation>Direção GNSS não confiável - Pouse agora!</translation>
+    </message>
+    <message>
+      <source>GNSS signal jammed</source>
+      <translation>Sinal GNSS sob interferência (jamming)</translation>
+    </message>
+    <message>
+      <source>GNSS signal spoofed</source>
+      <translation>Sinal GNSS falsificado (spoofing)</translation>
+    </message>
+    <message>
+      <source>GPS jamming detected</source>
+      <translation>Interferência de GPS (jamming) detectada</translation>
+    </message>
+    <message>
+      <source>GPS required for baro cal</source>
+      <translation>GPS necessário para a calibração do barômetro</translation>
+    </message>
+    <message>
+      <source>GPS required for mag quick cal</source>
+      <translation>GPS necessário para a calibração rápida do magnetômetro</translation>
+    </message>
+    <message>
+      <source>Gyro %</source>
+      <translation>Giro %</translation>
+    </message>
+    <message>
+      <source>Hardware fault: Camera capture disabled</source>
+      <translation>Falha de hardware: Captura da câmera desabilitada</translation>
+    </message>
+    <message>
+      <source>Hardware fault: GPS PPS disabled</source>
+      <translation>Falha de hardware: GPS PPS desabilitado</translation>
+    </message>
+    <message>
+      <source>High latency data link lost</source>
+      <translation>Link de dados de alta latência perdido</translation>
+    </message>
+    <message>
+      <source>Holding at %d m above landing waypoint.</source>
+      <translation>Mantendo a %d m acima do waypoint de pouso.</translation>
+    </message>
+    <message>
+      <source>Hover thrust has been constrained by min/max</source>
+      <translation>Empuxo de pairar foi limitado pelo mín./máx.</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Busy</source>
+      <translation>IGN MISSION_ITEM: Ocupado</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Invalid item</source>
+      <translation>IGN MISSION_ITEM: Item inválido</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: No transfer</source>
+      <translation>IGN MISSION_ITEM: Sem transferência</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM_REQUEST(_INT): No active transfer</source>
+      <translation>IGN MISSION_ITEM_REQUEST(_INT): Nenhuma transferência ativa</translation>
+    </message>
+    <message>
+      <source>Invalid mission state.</source>
+      <translation>Estado de missão inválido.</translation>
+    </message>
+    <message>
+      <source>IO protocol/firmware mismatch, abort.</source>
+      <translation>Incompatibilidade de protocolo/firmware do IO, abortando.</translation>
+    </message>
+    <message>
+      <source>IO RC config upload fail</source>
+      <translation>Falha no envio da configuração de RC do IO</translation>
+    </message>
+    <message>
+      <source>Kill disengaged</source>
+      <translation>Kill desativado</translation>
+    </message>
+    <message>
+      <source>Land tilt has been constrained by max tilt</source>
+      <translation>Inclinação de pouso foi limitada pela inclinação máxima</translation>
+    </message>
+    <message>
+      <source>Landing at current position</source>
+      <translation>Pousando na posição atual</translation>
+    </message>
+    <message>
+      <source>Landing detected</source>
+      <translation>Pouso detectado</translation>
+    </message>
+    <message>
+      <source>Landing target fault, beta %5.2f</source>
+      <translation>Falha do alvo de pouso, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>Landing target init</source>
+      <translation>Inicialização do alvo de pouso</translation>
+    </message>
+    <message>
+      <source>Landing target OK</source>
+      <translation>Alvo de pouso OK</translation>
+    </message>
+    <message>
+      <source>Landing target timeout</source>
+      <translation>Tempo limite do alvo de pouso</translation>
+    </message>
+    <message>
+      <source>Landing target: coordinate frame %</source>
+      <translation>Alvo de pouso: sistema de coordenadas %</translation>
+    </message>
+    <message>
+      <source>level</source>
+      <translation>nível</translation>
+    </message>
+    <message>
+      <source>Low battery</source>
+      <translation>Bateria baixa</translation>
+    </message>
+    <message>
+      <source>Mag quick calibration finished</source>
+      <translation>Calibração rápida do magnetômetro concluída</translation>
+    </message>
+    <message>
+      <source>Manual backward speed has been constrained by forward speed</source>
+      <translation>Velocidade manual para trás foi limitada pela velocidade para frente</translation>
+    </message>
+    <message>
+      <source>Manual sideways speed has been constrained by forward speed</source>
+      <translation>Velocidade manual lateral foi limitada pela velocidade para frente</translation>
+    </message>
+    <message>
+      <source>Manual speed has been constrained by max speed</source>
+      <translation>Velocidade manual foi limitada pela velocidade máxima</translation>
+    </message>
+    <message>
+      <source>MAVLink signing disabled</source>
+      <translation>Assinatura MAVLink desabilitada</translation>
+    </message>
+    <message>
+      <source>MAVLink signing key accepted</source>
+      <translation>Chave de assinatura MAVLink aceita</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: blank key rejected</source>
+      <translation>Assinatura MAVLink: chave em branco rejeitada</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: rejected while armed</source>
+      <translation>Assinatura MAVLink: rejeitada enquanto armado</translation>
+    </message>
+    <message>
+      <source>Maximum flight time reached</source>
+      <translation>Tempo máximo de voo atingido</translation>
+    </message>
+    <message>
+      <source>Mission cannot be completed</source>
+      <translation>A missão não pode ser concluída</translation>
+    </message>
+    <message>
+      <source>Mission could not reset jump count.</source>
+      <translation>Não foi possível redefinir o contador de saltos da missão.</translation>
+    </message>
+    <message>
+      <source>Mission download request ignored, already active</source>
+      <translation>Solicitação de download da missão ignorada, já ativa</translation>
+    </message>
+    <message>
+      <source>Mission finished, landed</source>
+      <translation>Missão concluída, pousado</translation>
+    </message>
+    <message>
+      <source>Mission finished, loitering</source>
+      <translation>Missão concluída, em loiter</translation>
+    </message>
+    <message>
+      <source>Mission item could not be set.</source>
+      <translation>Não foi possível definir o item de missão.</translation>
+    </message>
+    <message>
+      <source>Mission land item could not be read.</source>
+      <translation>Não foi possível ler o item de pouso da missão.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Landing item or remove Takeoff.</source>
+      <translation>Missão rejeitada: Adicione um item de pouso ou remova a decolagem.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Takeoff item or remove Landing.</source>
+      <translation>Missão rejeitada: Adicione um item de decolagem ou remova o pouso.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: invalid land start.</source>
+      <translation>Missão rejeitada: início de pouso inválido.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: item %i: unsupported cmd: %d</source>
+      <translation>Missão rejeitada: item %i: comando não suportado: %d</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Landing waypoint/pattern required.</source>
+      <translation>Missão rejeitada: Waypoint/padrão de pouso necessário.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Mission contains VTOL items but vehicle is not a VTOL</source>
+      <translation>Missão rejeitada: A missão contém itens VTOL, mas o veículo não é VTOL</translation>
+    </message>
+    <message>
+      <source>Mission rejected: more than one land start.</source>
+      <translation>Missão rejeitada: mais de um início de pouso.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: No home pos, WP %d uses rel alt</source>
+      <translation>Missão rejeitada: Sem posição Home, WP %d usa altitude relativa</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with land waypoint.</source>
+      <translation>Missão rejeitada: começa com waypoint de pouso.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with landing</source>
+      <translation>Missão rejeitada: começa com pouso</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff altitude below home altitude!</source>
+      <translation>Missão rejeitada: Altitude de decolagem abaixo da altitude da Home!</translation>
+    </message>
+    <message>
+      <source>Mission rejected: takeoff not first waypoint item</source>
+      <translation>Missão rejeitada: decolagem não é o primeiro item de waypoint</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff or Landing item missing.</source>
+      <translation>Missão rejeitada: Item de decolagem ou pouso ausente.</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff waypoint required.</source>
+      <translation>Missão rejeitada: Waypoint de decolagem necessário.</translation>
+    </message>
+    <message>
+      <source>Mission start denied! No valid mission</source>
+      <translation>Início da missão negado! Nenhuma missão válida</translation>
+    </message>
+    <message>
+      <source>Mission storage: Unable to write to microSD</source>
+      <translation>Armazenamento da missão: Não é possível gravar no microSD</translation>
+    </message>
+    <message>
+      <source>Mission sync timeout</source>
+      <translation>Tempo limite de sincronização da missão</translation>
+    </message>
+    <message>
+      <source>motion during calibration</source>
+      <translation>movimento durante a calibração</translation>
+    </message>
+    <message>
+      <source>motion, retrying..</source>
+      <translation>movimento, tentando novamente..</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d overcurrent detected</source>
+      <translation>Falha de motor: Sobrecorrente detectada no motor %d</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d undercurrent detected</source>
+      <translation>Falha de motor: Subcorrente detectada no motor %d</translation>
+    </message>
+    <message>
+      <source>No airspeed sensor detected. Switch to non-airspeed mode.</source>
+      <translation>Nenhum sensor de velocidade do ar detectado. Mude para o modo sem velocidade do ar.</translation>
+    </message>
+    <message>
+      <source>No gyros found</source>
+      <translation>Nenhum giroscópio encontrado</translation>
+    </message>
+    <message>
+      <source>no inputs, aborting</source>
+      <translation>sem entradas, abortando</translation>
+    </message>
+    <message>
+      <source>No mags found</source>
+      <translation>Nenhum magnetômetro encontrado</translation>
+    </message>
+    <message>
+      <source>No valid mission available, loitering</source>
+      <translation>Nenhuma missão válida disponível, em loiter</translation>
+    </message>
+    <message>
+      <source>No valid mission available, refusing takeoff</source>
+      <translation>Nenhuma missão válida disponível, decolagem recusada</translation>
+    </message>
+    <message>
+      <source>Not enough bandwidth to enable log streaming</source>
+      <translation>Largura de banda insuficiente para habilitar o streaming de log</translation>
+    </message>
+    <message>
+      <source>Not yet ready for mission, no position lock.</source>
+      <translation>Ainda não está pronto para a missão, sem fixação de posição.</translation>
+    </message>
+    <message>
+      <source>Obstacle message received in unsupported frame %i</source>
+      <translation>Mensagem de obstáculo recebida em sistema de coordenadas não suportado %i</translation>
+    </message>
+    <message>
+      <source>ODOMETRY: estimator_type %</source>
+      <translation>ODOMETRY: estimator_type %</translation>
+    </message>
+    <message>
+      <source>Onboard controller regained</source>
+      <translation>Controlador de bordo restabelecido</translation>
+    </message>
+    <message>
+      <source>Orbit command rejected</source>
+      <translation>Comando de órbita rejeitado</translation>
+    </message>
+    <message>
+      <source>Orbit is outside geofence</source>
+      <translation>Órbita está fora da GeoCerca</translation>
+    </message>
+    <message>
+      <source>Orbit radius limit exceeded</source>
+      <translation>Limite de raio de órbita excedido</translation>
+    </message>
+    <message>
+      <source>Parachute system lost</source>
+      <translation>Sistema de paraquedas perdido</translation>
+    </message>
+    <message>
+      <source>Parachute system regained</source>
+      <translation>Sistema de paraquedas restabelecido</translation>
+    </message>
+    <message>
+      <source>parameter_rc_channel_index out of bounds</source>
+      <translation>parameter_rc_channel_index fora dos limites</translation>
+    </message>
+    <message>
+      <source>Pilot took over using sticks</source>
+      <translation>Piloto assumiu o controle pelos sticks</translation>
+    </message>
+    <message>
+      <source>Position estimate has low accuracy</source>
+      <translation>Estimativa de posição com baixa precisão</translation>
+    </message>
+    <message>
+      <source>Precision landing</source>
+      <translation>Pouso de precisão</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u inconsistent - check cal</source>
+      <translation>Falha pré-voo: Acel %u inconsistente - verifique a calibração</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u uncalibrated</source>
+      <translation>Falha pré-voo: Acel %u não calibrado</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel Sensor %u missing</source>
+      <translation>Falha pré-voo: Sensor de aceleração %u ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed invalid</source>
+      <translation>Falha pré-voo: Velocidade do ar inválida</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed selector module down</source>
+      <translation>Falha pré-voo: Módulo seletor de velocidade do ar inativo</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed too high</source>
+      <translation>Falha pré-voo: Velocidade do ar muito alta</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Altitude failure</source>
+      <translation>Falha pré-voo: Falha de altitude</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (pitch)</source>
+      <translation>Falha pré-voo: Falha de atitude (arfagem)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (roll)</source>
+      <translation>Falha pré-voo: Falha de atitude (rolagem)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power high: %6.2f Volt</source>
+      <translation>Falha pré-voo: Alimentação da aviônica alta: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power low: %6.2f Volt</source>
+      <translation>Falha pré-voo: Alimentação da aviônica baixa: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: barometer %u missing</source>
+      <translation>Falha pré-voo: barômetro %u ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Battery unhealthy</source>
+      <translation>Falha pré-voo: Bateria com problema</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u fault</source>
+      <translation>Falha pré-voo: Falha na bússola %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u uncalibrated</source>
+      <translation>Falha pré-voo: Bússola %u não calibrada</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass Sensor %u missing</source>
+      <translation>Falha pré-voo: Sensor de bússola %u ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <translation>Falha pré-voo: Bússolas inconsistentes em %d째</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: CPU load too high: %3.1f%%</source>
+      <translation>Falha pré-voo: Carga da CPU muito alta: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Crash dumps present on SD</source>
+      <translation>Falha pré-voo: Crash dumps presentes no SD</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Distance Sensor %u missing</source>
+      <translation>Falha pré-voo: Sensor de distância %u ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ekf2 missing data</source>
+      <translation>Falha pré-voo: ekf2 com dados ausentes</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ESC telemetry missing</source>
+      <translation>Falha pré-voo: Telemetria do ESC ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flight termination active</source>
+      <translation>Falha pré-voo: Terminação de voo ativa</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flying with USB is not safe</source>
+      <translation>Falha pré-voo: Voar com USB não é seguro</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Found %i compass (required: %</source>
+      <translation>Falha pré-voo: %i bússola(s) encontrada(s) (necessário: %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Geofence RTL requires valid home</source>
+      <translation>Falha pré-voo: RTL da GeoCerca requer Home válida</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Global position estimate required</source>
+      <translation>Falha pré-voo: Estimativa de posição global necessária</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u inconsistent - check cal</source>
+      <translation>Falha pré-voo: Giro %u inconsistente - verifique a calibração</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u uncalibrated</source>
+      <translation>Falha pré-voo: Giro %u não calibrado</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro Sensor %u missing</source>
+      <translation>Falha pré-voo: Sensor de giroscópio %u ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: heading estimate invalid</source>
+      <translation>Falha pré-voo: estimativa de direção inválida</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: height estimate not stable</source>
+      <translation>Falha pré-voo: estimativa de altura instável</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Accelerometer Bias</source>
+      <translation>Falha pré-voo: Bias do acelerômetro alto</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Gyro Bias</source>
+      <translation>Falha pré-voo: Bias do giroscópio alto</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Home position required</source>
+      <translation>Falha pré-voo: Posição Home necessária</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal position unstable</source>
+      <translation>Falha pré-voo: posição horizontal instável</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal velocity unstable</source>
+      <translation>Falha pré-voo: velocidade horizontal instável</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Imbalanced propeller detected</source>
+      <translation>Falha pré-voo: Hélice desbalanceada detectada</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Kill switch engaged</source>
+      <translation>Falha pré-voo: Chave de kill acionada</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Landing gear switch set in UP position</source>
+      <translation>Falha pré-voo: Chave do trem de pouso na posição UP</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Missing FMU SD Card</source>
+      <translation>Falha pré-voo: Cartão SD da FMU ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No connection to the GCS</source>
+      <translation>Falha pré-voo: Sem conexão com a GCS</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No CPU and RAM load information</source>
+      <translation>Falha pré-voo: Sem informações de carga da CPU e RAM</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No rally point available</source>
+      <translation>Falha pré-voo: Nenhum ponto de Rally disponível</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Accel %u</source>
+      <translation>Falha pré-voo: Sem dados válidos do Acel %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Baro %u</source>
+      <translation>Falha pré-voo: Sem dados válidos do Baro %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Compass %u</source>
+      <translation>Falha pré-voo: Sem dados válidos da Bússola %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Gyro %u</source>
+      <translation>Falha pré-voo: Sem dados válidos do Giro %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid distance sensor %u data</source>
+      <translation>Falha pré-voo: Sem dados válidos do sensor de distância %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system missing</source>
+      <translation>Falha pré-voo: Sistema Open Drone ID ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system not ready</source>
+      <translation>Falha pré-voo: Sistema Open Drone ID não está pronto</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system missing</source>
+      <translation>Falha pré-voo: Sistema de paraquedas ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system not ready</source>
+      <translation>Falha pré-voo: Sistema de paraquedas não está pronto</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power module not connected</source>
+      <translation>Falha pré-voo: Módulo de energia não conectado</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power redundancy not met: %d of %</source>
+      <translation>Falha pré-voo: Redundância de energia não atendida: %d de %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Press safety button first</source>
+      <translation>Falha pré-voo: Pressione primeiro o botão de segurança</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RAM usage too high: %3.1f%%</source>
+      <translation>Falha pré-voo: Uso de RAM muito alto: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MAX &gt; %u</source>
+      <translation>Falha pré-voo: ERRO DE RC: RC%d_MAX &gt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MIN &lt; %u</source>
+      <translation>Falha pré-voo: ERRO DE RC: RC%d_MIN &lt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &lt; MIN (%d/%d)</source>
+      <translation>Falha pré-voo: ERRO DE RC: RC%d_TRIM &lt; MIN (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &gt; MAX (%d/%d)</source>
+      <translation>Falha pré-voo: ERRO DE RC: RC%d_TRIM &gt; MAX (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RTL switch engaged</source>
+      <translation>Falha pré-voo: Chave de RTL acionada</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Strong magnetic interference</source>
+      <translation>Falha pré-voo: Forte interferência magnética</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: system power unavailable</source>
+      <translation>Falha pré-voo: alimentação do sistema indisponível</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Task watchdog dumps present on SD</source>
+      <translation>Falha pré-voo: Dumps do watchdog de tarefas presentes no SD</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Traffic avoidance system missing</source>
+      <translation>Falha pré-voo: Sistema de desvio de tráfego ausente</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: triggered by external system</source>
+      <translation>Falha pré-voo: acionada por sistema externo</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in safety configuration</source>
+      <translation>Falha pré-voo: Veículo está em configuração de segurança</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in transition state</source>
+      <translation>Falha pré-voo: Veículo está em estado de transição</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is not in multicopter mode</source>
+      <translation>Falha pré-voo: Veículo não está no modo multicóptero</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: vertical velocity unstable</source>
+      <translation>Falha pré-voo: velocidade vertical instável</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: VTOL fixed-wing system failure detected</source>
+      <translation>Falha pré-voo: Falha no sistema de asa fixa do VTOL detectada</translation>
+    </message>
+    <message>
+      <source>Primary airspeed index bigger than number connected sensors. Take last sensor.</source>
+      <translation>Índice do sensor de velocidade do ar primário maior que o número de sensores conectados. Usando o último sensor.</translation>
+    </message>
+    <message>
+      <source>Quad-chute triggered</source>
+      <translation>Quad-chute acionado</translation>
+    </message>
+    <message>
+      <source>Received unknown mission type, abort.</source>
+      <translation>Tipo de missão desconhecido recebido, abortando.</translation>
+    </message>
+    <message>
+      <source>REJ. MIS ITEM: partner id mismatch</source>
+      <translation>REJ. MIS ITEM: id do parceiro não corresponde</translation>
+    </message>
+    <message>
+      <source>REJ. WP CMD: partner id mismatch</source>
+      <translation>REJ. WP CMD: id do parceiro não corresponde</translation>
+    </message>
+    <message>
+      <source>Remote ID system lost</source>
+      <translation>Sistema Remote ID perdido</translation>
+    </message>
+    <message>
+      <source>Remote ID system regained</source>
+      <translation>Sistema Remote ID restabelecido</translation>
+    </message>
+    <message>
+      <source>Reposition is outside geofence</source>
+      <translation>Reposicionamento está fora da GeoCerca</translation>
+    </message>
+    <message>
+      <source>Retry calibration (mag %</source>
+      <translation>Repetir calibração (mag %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (sphere NaN, %</source>
+      <translation>Repetir calibração (esfera NaN, %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (unable to fit mag %</source>
+      <translation>Repetir calibração (não foi possível ajustar mag %</translation>
+    </message>
+    <message>
+      <source>Returning to launch</source>
+      <translation>Retornando ao ponto de lançamento</translation>
+    </message>
+    <message>
+      <source>RTL Mission land: climb to %d m</source>
+      <translation>RTL Pouso da missão: subir para %d m</translation>
+    </message>
+    <message>
+      <source>RTL: completed, loitering</source>
+      <translation>RTL: concluído, em loiter</translation>
+    </message>
+    <message>
+      <source>RTL: land at destination</source>
+      <translation>RTL: pousar no destino</translation>
+    </message>
+    <message>
+      <source>RTL: start return at %d m (%d m above destination)</source>
+      <translation>RTL: iniciar retorno a %d m (%d m acima do destino)</translation>
+    </message>
+    <message>
+      <source>RTL: unsupported MAV_FRAME</source>
+      <translation>RTL: MAV_FRAME não suportado</translation>
+    </message>
+    <message>
+      <source>Septentrio: Baud rate %d is unsupported, falling back to default %</source>
+      <translation>Septentrio: Taxa de baud %d não suportada, voltando ao padrão %</translation>
+    </message>
+    <message>
+      <source>Septentrio: Device paths must be different</source>
+      <translation>Septentrio: Os caminhos dos dispositivos devem ser diferentes</translation>
+    </message>
+    <message>
+      <source>Septentrio: Failed to configure receiver internal logging</source>
+      <translation>Septentrio: Falha ao configurar o registro interno do receptor</translation>
+    </message>
+    <message>
+      <source>Septentrio: Logging stream should be different from main stream</source>
+      <translation>Septentrio: O stream de registro deve ser diferente do stream principal</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT force not supported</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT: força não suportada</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT invalid coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT: sistema de coordenadas inválido %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED: sistema de coordenadas %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED force not supported</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED: força não suportada</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED invalid</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED inválido</translation>
+    </message>
+    <message>
+      <source>Switching to %s is currently not available</source>
+      <translation>Mudar para %s não está disponível no momento</translation>
+    </message>
+    <message>
+      <source>System does not support shutdown</source>
+      <translation>O sistema não suporta desligamento</translation>
+    </message>
+    <message>
+      <source>Takeoff detected</source>
+      <translation>Decolagem detectada</translation>
+    </message>
+    <message>
+      <source>Target altitude higher than max HAGL</source>
+      <translation>Altitude alvo acima do HAGL máximo</translation>
+    </message>
+    <message>
+      <source>Terrain collision risk, descent is stopped</source>
+      <translation>Risco de colisão com o terreno, descida interrompida</translation>
+    </message>
+    <message>
+      <source>Tilt constrained to safe value</source>
+      <translation>Inclinação limitada a um valor seguro</translation>
+    </message>
+    <message>
+      <source>Timeout waiting for battery</source>
+      <translation>Tempo limite aguardando a bateria</translation>
+    </message>
+    <message>
+      <source>timeout: no motion</source>
+      <translation>tempo limite: sem movimento</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system lost</source>
+      <translation>Sistema de desvio de tráfego perdido</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system regained</source>
+      <translation>Sistema de desvio de tráfego restabelecido</translation>
+    </message>
+    <message>
+      <source>Transition to hover mode and descend.</source>
+      <translation>Transição para o modo de voo estacionário e descida.</translation>
+    </message>
+    <message>
+      <source>Transponder Failure</source>
+      <translation>Falha do transponder</translation>
+    </message>
+    <message>
+      <source>Transponder System Failure</source>
+      <translation>Falha do sistema do transponder</translation>
+    </message>
+    <message>
+      <source>trim cal done</source>
+      <translation>calibração de trim concluída</translation>
+    </message>
+    <message>
+      <source>TRIM: PARAM SET FAIL</source>
+      <translation>TRIM: FALHA AO DEFINIR PARÂMETRO</translation>
+    </message>
+    <message>
+      <source>unable to reach heading within timeout</source>
+      <translation>não foi possível atingir a direção dentro do tempo limite</translation>
+    </message>
+    <message>
+      <source>Unable to write on micro SD</source>
+      <translation>Não é possível gravar no micro SD</translation>
+    </message>
+    <message>
+      <source>Unsupported ARM_DISARM param: %.3f</source>
+      <translation>Parâmetro ARM_DISARM não suportado: %.3f</translation>
+    </message>
+    <message>
+      <source>Unsupported auto mode</source>
+      <translation>Modo auto não suportado</translation>
+    </message>
+    <message>
+      <source>Unsupported base mode</source>
+      <translation>Modo base não suportado</translation>
+    </message>
+    <message>
+      <source>Unsupported main mode</source>
+      <translation>Modo principal não suportado</translation>
+    </message>
+    <message>
+      <source>Warning: mag %</source>
+      <translation>Aviso: mag %</translation>
+    </message>
+    <message>
+      <source>Waypoint could not be read.</source>
+      <translation>Não foi possível ler o waypoint.</translation>
+    </message>
+    <message>
+      <source>WPM: IGN CLEAR CMD: Busy</source>
+      <translation>WPM: IGN CLEAR CMD: Ocupado</translation>
+    </message>
+    <message>
+      <source>WPM: IGN MISSION_COUNT: Busy</source>
+      <translation>WPM: IGN MISSION_COUNT: Ocupado</translation>
+    </message>
+    <message>
+      <source>WPM: IGN WP CURR CMD: Busy</source>
+      <translation>WPM: IGN WP CURR CMD: Ocupado</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Busy</source>
+      <translation>WPM: REJ. CMD: Ocupado</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: partner id mismatch</source>
+      <translation>WPM: REJ. CMD: id do parceiro não corresponde</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Req. WP was unexpected</source>
+      <translation>WPM: REJ. CMD: WP solicitado era inesperado</translation>
+    </message>
+    <message>
+      <source>WPM: WP CURR CMD: Not in list</source>
+      <translation>WPM: WP CURR CMD: Não está na lista</translation>
+    </message>
+    <message>
+      <source>Yaw Airmode requires disabling the stick arm gesture</source>
+      <translation>O Airmode de guinada requer desabilitar o gesto de armamento por stick</translation>
+    </message>
+  </context>
+  <context>
+    <name>DeviceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="139"/>
+      <source>YellowScan 3D LiDAR</source>
+      <translation>YellowScan LiDAR 3D</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="149"/>
+      <source>PWR OFF</source>
+      <translation>DESLIGAR</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition OFF</source>
+      <translation>Aquisição DESLIGADA</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition ON</source>
+      <translation>Aquisição LIGADA</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="199"/>
+      <source>Configure</source>
+      <translation>Configurar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="233"/>
+      <source>Details</source>
+      <translation>Detalhes</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="238"/>
+      <source>Acquisition Running</source>
+      <translation>Aquisição em andamento</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="239"/>
+      <source>Time Not Set</source>
+      <translation>Hora não definida</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="240"/>
+      <source>Scanner Not Ready</source>
+      <translation>Scanner não está pronto</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="241"/>
+      <source>INS Not Locked</source>
+      <translation>INS não travado</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="242"/>
+      <source>Scanner Error</source>
+      <translation>Erro do scanner</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="243"/>
+      <source>INS Error</source>
+      <translation>Erro do INS</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="244"/>
+      <source>No USB</source>
+      <translation>Sem USB</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="245"/>
+      <source>USB Full</source>
+      <translation>USB cheio</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="246"/>
+      <source>Camera Error</source>
+      <translation>Erro da câmera</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="268"/>
+      <source>Parameters</source>
+      <translation>Parâmetros</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="271"/>
+      <source>Get Param</source>
+      <translation>Obter parâmetro</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="276"/>
+      <source>Set Param</source>
+      <translation>Definir parâmetro</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="295"/>
+      <source>Scanner High Sensitivity</source>
+      <translation>Alta sensibilidade do scanner</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>On</source>
+      <translation>Ligado</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>Off</source>
+      <translation>Desligado</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="320"/>
+      <source>Scanner Pattern</source>
+      <translation>Padrão do scanner</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>None</source>
+      <translation>Nenhum</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>Repetition</source>
+      <translation>Repetição</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="345"/>
+      <source>Emb. Camera</source>
+      <translation>Câm. embarcada</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Disable</source>
+      <translation>Desabilitar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Enable</source>
+      <translation>Habilitar</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="370"/>
+      <source>Emb. Cam. Init. Height</source>
+      <translation>Altura inicial da câm. emb.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="379"/>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="420"/>
+      <source>Float</source>
+      <translation>Float</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="397"/>
+      <source>Emb. Cam. Trigger Mode</source>
+      <translation>Modo de disparo da câm. emb.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Time</source>
+      <translation>Tempo</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Distance</source>
+      <translation>Distância</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="454"/>
+      <source>Message Monitor</source>
+      <translation>Monitor de mensagens</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="465"/>
+      <source>Sent:</source>
+      <translation>Enviados:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="485"/>
+      <source>Received:</source>
+      <translation>Recebidos:</translation>
     </message>
   </context>
 </TS>

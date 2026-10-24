@@ -53,6 +53,7 @@ QList<int> AppSettings::_rgReleaseLanguages = {
     QLocale::English,
     QLocale::Korean,
     QLocale::Azerbaijani,
+    QLocale::Portuguese,
 };
 // Partial languages are 40%+ complete
 QList<int> AppSettings::_rgPartialLanguages = {

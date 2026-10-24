@@ -406,6 +406,11 @@ void QGCApplication::setLanguage()
     if (possibleLocale != QLocale::AnyLanguage) {
         _locale = QLocale(possibleLocale);
     }
+    //-- Portuguese translations are only bundled as qgc_*_pt_PT, while QLocale(Portuguese) and
+    //-- Brazilian system locales resolve to pt_BR, so the translator would not find them
+    if (_locale.language() == QLocale::Portuguese && _locale.country() != QLocale::Portugal) {
+        _locale = QLocale(QLocale::Portuguese, QLocale::Portugal);
+    }
     //-- We have specific fonts for Korean
     if(_locale == QLocale::Korean) {
         qCDebug(LocalizationLog) << "Loading Korean fonts" << _locale.name();
