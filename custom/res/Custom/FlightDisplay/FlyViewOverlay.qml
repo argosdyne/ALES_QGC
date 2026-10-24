@@ -314,7 +314,8 @@ Item {
         model: CustomQmlInterface.geoAwarenessMessages
         Rectangle {
             id:                 geoAwarenessMessageArea
-            width:              object.geoAwarenessWidth
+            // Centered, but narrow enough to stay clear of the status message column on the right
+            width:              Math.min(object.geoAwarenessWidth, _flyViewOverlay.width - 2 * (_flyViewOverlay.width - statusMessageCol.x + ScreenTools.defaultFontPixelWidth))
             height:             Math.max(object.geoAwarenessHeight, geoAwarenessMessageAreaMessageText.contentHeight)
             focus:              true
             visible:            true
@@ -323,7 +324,7 @@ Item {
             border.color:       qgcPal.window
             border.width:       1
             opacity:            object.geoAwarenessOpacity
-            x:                  Math.round((mainWindow.width - width) * 0.5)
+            x:                  Math.round((_flyViewOverlay.width - width) * 0.5)
             y:                  object.geoAwarenessY
 
             QGCLabel {
@@ -405,9 +406,9 @@ Item {
             TextEdit {
                 id:             geoAwarenessMessageAreaMessageText
                 anchors.left:   parent.left
-                anchors.right:  parent.right
+                anchors.right:  geoAwarenessMessageClose.left
                 anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 2 + geoAwarenessdumyPrefix.width
-                anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 2
+                anchors.rightMargin: ScreenTools.defaultFontPixelWidth
                 anchors.verticalCenter: geoAwarenessMessageArea.verticalCenter
                 readOnly:       true
                 textFormat:     TextEdit.RichText
