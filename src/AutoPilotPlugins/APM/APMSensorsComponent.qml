@@ -73,7 +73,19 @@ SetupPage {
             readonly property int _calTypeCompass:  1   ///< Calibrate compass
             readonly property int _calTypeAccel:    2   ///< Calibrate accel
             readonly property int _calTypeSet:      3   ///< Set orientations only
-            readonly property int _buttonWidth:     ScreenTools.defaultFontPixelWidth * 15
+            readonly property int _buttonWidth:     Math.max(ScreenTools.defaultFontPixelWidth * 15, _widestButtonLabel())
+
+            // Translated labels (e.g. Portuguese) can be wider than the default button width
+            function _widestButtonLabel() {
+                var widest = 0
+                var columns = [ buttonColumn, nextCancelColumn ]
+                for (var i = 0; i < columns.length; i++) {
+                    for (var j = 0; j < columns[i].children.length; j++) {
+                        widest = Math.max(widest, columns[i].children[j].implicitWidth)
+                    }
+                }
+                return Math.ceil(widest)
+            }
 
             property bool   _orientationsDialogShowCompass: true
             property string _orientationDialogHelp:         orientationHelpSet

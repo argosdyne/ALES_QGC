@@ -16,6 +16,7 @@
 
 #include "QGCApplication.h"
 #include "UASMessageHandler.h"
+#include "StatusTextTranslator.h"
 #include "MultiVehicleManager.h"
 #include "Vehicle.h"
 #include <QDateTime>
@@ -58,8 +59,7 @@ QString throttleKeyForText(const QString& text)
 
 static QString _translateStatusText(const QString& sourceText)
 {
-    const QByteArray sourceUtf8 = sourceText.toUtf8();
-    return QCoreApplication::translate("UASWarning", sourceUtf8.constData());
+    return StatusTextTranslator::translate(sourceText);
 }
 
 UASMessage::UASMessage(int componentid, int severity, QString text)

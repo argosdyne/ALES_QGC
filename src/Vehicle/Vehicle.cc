@@ -27,6 +27,7 @@
 #include "LinkManager.h"
 #include "FirmwarePlugin.h"
 #include "UAS.h"
+#include "StatusTextTranslator.h"
 #include "JoystickManager.h"
 #include "MissionManager.h"
 #include "MissionController.h"
@@ -4013,7 +4014,7 @@ void Vehicle::_requestMessageWaitForMessageResultHandler(void* resultHandlerData
 
 void Vehicle::setPrearmError(const QString& prearmError)
 {
-    _prearmError = QCoreApplication::translate("UASWarning", prearmError.toUtf8().constData());
+    _prearmError = StatusTextTranslator::translate(prearmError);
     emit prearmErrorChanged(_prearmError);
     if (!_prearmError.isEmpty()) {
         _prearmErrorTimer.start();

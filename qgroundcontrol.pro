@@ -810,6 +810,8 @@ HEADERS += \
     src/uas/UAS.h \
     src/uas/UASInterface.h \
     src/uas/UASMessageHandler.h \
+    src/uas/StatusTextTranslator.h \
+    src/uas/UASWarningPatterns.h \
     src/AnalyzeView/GeoTagController.h \
     src/AnalyzeView/ExifParser.h \
     src/M2Link/M2Manager.h \
@@ -1088,6 +1090,7 @@ SOURCES += \
     src/main.cc \
     src/uas/UAS.cc \
     src/uas/UASMessageHandler.cc \
+    src/uas/StatusTextTranslator.cc \
     src/AnalyzeView/GeoTagController.cc \
     src/AnalyzeView/ExifParser.cc \
     src/M2Link/M2Manager.cpp \

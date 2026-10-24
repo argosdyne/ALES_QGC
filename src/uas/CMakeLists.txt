@@ -5,6 +5,9 @@ add_library(uas
 	UASInterface.h
 	UASMessageHandler.cc
 	UASMessageHandler.h
+	StatusTextTranslator.cc
+	StatusTextTranslator.h
+	UASWarningPatterns.h
 )
 
 target_link_libraries(uas
