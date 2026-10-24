@@ -1828,4 +1828,136 @@
       <translation>有効,無効</translation>
     </message>
   </context>
+  <context>
+    <name>RTK.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInAccuracyLimit].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Survey in accuracy (U-blox only)</source>
+      <translation>サーベイイン精度 (U-bloxのみ)</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInAccuracyLimit].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>The minimum accuracy value that Survey-In must achieve before it can complete.</source>
+      <translation>サーベイインを完了するために達成する必要がある最小精度です。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInMinObservationDuration].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Minimum observation time</source>
+      <translation>最小観測時間</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[surveyInMinObservationDuration].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the minimum amount of observation time for the position calculation.</source>
+      <translation>位置計算に必要な最小観測時間を設定します。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[useFixedBasePosition].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Use specified base position</source>
+      <translation>指定した基地局位置を使用</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[useFixedBasePosition].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Specify the values for the RTK base position without having to do a survey in.</source>
+      <translation>サーベイインを行わずに、RTK基地局の位置を指定します。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLatitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Latitude</source>
+      <translation>基地局位置の緯度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLatitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the latitude of the fixed RTK base position.</source>
+      <translation>固定RTK基地局位置の緯度を設定します。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLongitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Longitude</source>
+      <translation>基地局位置の経度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionLongitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the longitude of the fixed RTK base position.</source>
+      <translation>固定RTK基地局位置の経度を設定します。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAltitude].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Alt (WGS84)</source>
+      <translation>基地局位置の高度 (WGS84)</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAltitude].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the altitude of the fixed RTK base position.</source>
+      <translation>固定RTK基地局位置の高度を設定します。</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAccuracy].shortDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Base Position Accuracy</source>
+      <translation>基地局位置の精度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[fixedBasePositionAccuracy].longDesc, </extracomment>
+      <location filename="../src/Settings/RTK.SettingsGroup.json"/>
+      <source>Defines the accuracy of the fixed RTK base position.</source>
+      <translation>固定RTK基地局位置の精度を設定します。</translation>
+    </message>
+  </context>
+  <context>
+    <name>ADSBVehicleManager.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerConnectEnabled].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Connect to ADSB SBS server</source>
+      <translation>ADSB SBSサーバーに接続</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerConnectEnabled].longDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Connect to ADSB SBS-1 server using specified address/port</source>
+      <translation>指定したアドレス/ポートでADSB SBS-1サーバーに接続します</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerHostAddress].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Host address</source>
+      <translation>ホストアドレス</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[adsbServerPort].shortDesc, </extracomment>
+      <location filename="../src\Settings\ADSBVehicleManager.SettingsGroup.json"/>
+      <source>Server port</source>
+      <translation>サーバーポート</translation>
+    </message>
+  </context>
+  <context>
+    <name>Custom.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtcmSource].enumStrings, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Disable,NTRIP,SerialPort</source>
+      <translation>無効,NTRIP,シリアルポート</translation>
+    </message>
+  </context>
+  <context>
+    <name>Codev.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[rtcmSource].enumStrings, </extracomment>
+      <location filename="../custom/src/Codev.SettingsGroup.json"/>
+      <source>Disable,NTRIP,SerialPort</source>
+      <translation>無効,NTRIP,シリアルポート</translation>
+    </message>
+  </context>
 </TS>

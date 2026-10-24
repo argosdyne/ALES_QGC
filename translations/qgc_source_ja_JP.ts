@@ -65,6 +65,11 @@
       <source>Frame Setup is used to select the airframe which matches your vehicle.</source>
       <translation>フレーム設定では、機体に合ったフレームを選択します。</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMAirframeComponent.qml" line="75"/>
+      <source> To change this configuration, select the desired frame class below and then reboot the vehicle.</source>
+      <translation> この構成を変更するには、下で目的のフレームクラスを選択してから機体を再起動してください。</translation>
+    </message>
   </context>
   <context>
     <name>APMAirframeComponentController</name>
@@ -427,6 +432,26 @@
       <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="553"/>
       <source>Pan</source>
       <translation>パン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="198"/>
+      <source>Channel 15</source>
+      <translation>チャンネル15</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="199"/>
+      <source>Channel 16</source>
+      <translation>チャンネル16</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="204"/>
+      <source>Show all settings (advanced)</source>
+      <translation>すべての設定を表示（詳細）</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMCameraSubComponent.qml" line="209"/>
+      <source>Camera mount tilt speed:</source>
+      <translation>カメラマウントのチルト速度:</translation>
     </message>
   </context>
   <context>
@@ -1441,6 +1466,16 @@
       <source>The Power Component is used to setup battery parameters.</source>
       <translation>電源コンポーネントはバッテリーパラメータの設定に使用されます。</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="344"/>
+      <source>Blue Robotics Power Sense Module</source>
+      <translation>Blue Robotics電源センスモジュール</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMPowerComponent.qml" line="353"/>
+      <source>Navigator w/ Blue Robotics Power Sense Module</source>
+      <translation>Navigator + Blue Robotics電源センスモジュール</translation>
+    </message>
   </context>
   <context>
     <name>APMPowerComponentSummary</name>
@@ -1480,6 +1515,11 @@
       <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
       <source>The Radio Component is used to setup which channels on your RC Transmitter you will use for each vehicle control such as Roll, Pitch, Yaw and Throttle. It also allows you to assign switches and dials to the various flight modes. Prior to flight you must also calibrate the extents for all of your channels.</source>
       <translation>送信機コンポーネントは、RC送信機のどのチャンネルをロール、ピッチ、ヨー、スロットルなどの各機体制御に使用するかを設定するために使用します。また、スイッチやダイアルを様々な飛行モードに割り当てることもできます。飛行前には、すべてのチャンネルの数値範囲を調整する必要があります。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRadioComponent.cc" line="37"/>
+      <source>The Radio Component is used to setup which channels on your RC Transmitter you will use for each vehicle control such as Roll, Pitch, Yaw and Throttle. </source>
+      <translation>送信機コンポーネントは、RC送信機のどのチャンネルをロール、ピッチ、ヨー、スロットルなどの各機体操作に使用するかを設定します。 </translation>
     </message>
   </context>
   <context>
@@ -1785,6 +1825,36 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.cc" line="44"/>
       <source>Safety Setup is used to setup triggers for Return to Land as well as the settings for Return to Land itself.</source>
       <translation>セーフティ設定はReturn to Land (RTL)トリガーとRTL自体の設定に使用されます。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="432"/>
+      <source>Enabled</source>
+      <translation>有効</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="441"/>
+      <source>Maximum Altitude</source>
+      <translation>最大高度</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="506"/>
+      <source>Breach action</source>
+      <translation>逸脱時の動作</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="460"/>
+      <source>Circle centered on Home</source>
+      <translation>ホーム中心の円</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="478"/>
+      <source>Inclusion/Exclusion Circles+Polygons</source>
+      <translation>包含/除外の円+ポリゴン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponent.qml" line="515"/>
+      <source>Fence margin</source>
+      <translation>フェンスマージン</translation>
     </message>
   </context>
   <context>
@@ -2134,6 +2204,11 @@
       <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="378"/>
       <source>Warning: Turning off arming checks can lead to loss of Vehicle control.</source>
       <translation>警告: アームチェックをOFFにすると、機体の制御ができなくなる可能性があります。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSafetyComponentSub.qml" line="178"/>
+      <source>Power module not set up</source>
+      <translation>電源モジュールが設定されていません</translation>
     </message>
   </context>
   <context>
@@ -2986,6 +3061,91 @@ Click Ok to start calibration.</source>
       <source>Sensors Setup is used to calibrate the sensors within your vehicle.</source>
       <translation>センサ設定は、機体内センサをキャリブレーションするためのものです。</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="289"/>
+      <source>Shown in the indicator bars is the quality of the calibration for each compass.\n\n</source>
+      <translation>インジケーターバーには各コンパスのキャリブレーション品質が表示されます。\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="290"/>
+      <source>- Green indicates a well functioning compass.\n</source>
+      <translation>- 緑は正常に機能しているコンパスを示します。\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="291"/>
+      <source>- Yellow indicates a questionable compass or calibration.\n</source>
+      <translation>- 黄はコンパスまたはキャリブレーションに問題がある可能性を示します。\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="292"/>
+      <source>- Red indicates a compass which should not be used.\n\n</source>
+      <translation>- 赤は使用すべきでないコンパスを示します。\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="477"/>
+      <source>Simple accelerometer calibration is less precise but allows calibrating without rotating the vehicle. Check this if you have a large/heavy vehicle.</source>
+      <translation>簡易加速度計キャリブレーションは精度が低いものの、機体を回転させずにキャリブレーションできます。大型/重量級の機体の場合はこれを選択してください。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="481"/>
+      <source>Simple Accelerometer Calibration</source>
+      <translation>簡易加速度計キャリブレーション</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="529"/>
+      <source>Fast compass calibration given vehicle position and yaw. This </source>
+      <translation>機体の位置とヨーを用いた高速コンパスキャリブレーションです。これは </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="530"/>
+      <source>results in zero diagonal and off-diagonal elements, so is only </source>
+      <translation>対角成分と非対角成分がゼロになるため、 </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="531"/>
+      <source>suitable for vehicles where the field is close to spherical. It is </source>
+      <translation>磁場が球形に近い機体にのみ適しています。 </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="532"/>
+      <source>useful for large vehicles where moving the vehicle to calibrate it </source>
+      <translation>キャリブレーションのために機体を動かすことが </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="533"/>
+      <source>is difficult. Point the vehicle North before using it.</source>
+      <translation>難しい大型機体で有用です。使用前に機体を北に向けてください。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="546"/>
+      <source>Fast Calibration</source>
+      <translation>高速キャリブレーション</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="554"/>
+      <source>Vehicle has no Valid positon, please provide it</source>
+      <translation>機体に有効な位置がありません。位置を指定してください</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="560"/>
+      <source>Use GCS position instead</source>
+      <translation>代わりにGCSの位置を使用</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="566"/>
+      <source>Use current map position instead</source>
+      <translation>代わりに現在の地図位置を使用</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="600"/>
+      <source>Compass Motor Interference Calibration</source>
+      <translation>コンパスのモーター干渉キャリブレーション</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponent.qml" line="713"/>
+      <source>For Gyroscope calibration you will need to place your vehicle on a surface and leave it still.\n\nClick Ok to start calibration.</source>
+      <translation>ジャイロのキャリブレーションでは、機体を平らな面に置いて静止させてください。\n\nOKをクリックするとキャリブレーションを開始します。</translation>
+    </message>
   </context>
   <context>
     <name>APMSensorsComponentController</name>
@@ -3084,6 +3244,11 @@ Click Ok to start calibration.</source>
       <source>Continue rotating...</source>
       <translation>回転継続中...</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentController.cc" line="518"/>
+      <source>In progress</source>
+      <translation>進行中</translation>
+    </message>
   </context>
   <context>
     <name>APMSensorsComponentSummary</name>
@@ -3118,6 +3283,56 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
       <source>Ready</source>
       <translation>準備完了</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
+      <source>, External</source>
+      <translation>, 外部</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="47"/>
+      <source>, Internal</source>
+      <translation>, 内部</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="54"/>
+      <source>Primary</source>
+      <translation>プライマリ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="57"/>
+      <source>Secondary</source>
+      <translation>セカンダリ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="60"/>
+      <source>Tertiary</source>
+      <translation>ターシャリ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="62"/>
+      <source>Unused</source>
+      <translation>未使用</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="31"/>
+      <source>Compasses:</source>
+      <translation>コンパス:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="76"/>
+      <source>Accelerometer(s):</source>
+      <translation>加速度計:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="89"/>
+      <source>Barometer(s):</source>
+      <translation>気圧計:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSensorsComponentSummary.qml" line="90"/>
+      <source>Not Supported(Over APM 4.1)</source>
+      <translation>非対応（APM 4.1超）</translation>
     </message>
   </context>
   <context>
@@ -3167,6 +3382,21 @@ Click Ok to start calibration.</source>
       <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="240"/>
       <source>Confirm frame %1</source>
       <translation>フレームを確認 %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.cc" line="32"/>
+      <source>Frame setup allows you to choose your vehicle&apos;s motor configuration. Install &lt;b&gt;clockwise&lt;/b&gt;</source>
+      <translation>フレーム設定では、機体のモーター構成を選択できます。&lt;b&gt;時計回り&lt;/b&gt;で取り付けてください</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="211"/>
+      <source>Would you like to load the default parameters for the frame?</source>
+      <translation>このフレームのデフォルトパラメータを読み込みますか？</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubFrameComponent.qml" line="212"/>
+      <source>Would you like to set the desired frame?</source>
+      <translation>選択したフレームに設定しますか？</translation>
     </message>
   </context>
   <context>
@@ -3241,6 +3471,16 @@ Blue Roboticsのスラスターは水中での潤滑が想定されており、�
 Please place your vehicle in water, click the button, and wait. Note that the thrusters still need to be connected to the correct outputs (thrusters 2 and 3 can&apos;t be swapped, for example).</source>
       <translation>これによりスラスター方向 (ノーマル / リバース) を自動的に検出しようとします。
 水中に機体を配置、ボタンをクリックしてしばらくお待ちください。なおスラスターは正しい出力に接続する必要があります。(例えば、スラスター2と3を入れ替えることはできません)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubMotorComponent.qml" line="163"/>
+      <source>Moving the sliders will cause the motors to spin. Make sure the motors and propellers are clear from obstructions! The direction of the motor rotation is dependent on how the three phases of the motor are physically connected to the ESCs (if any two wires are swapped, the direction of rotation will flip). Because we cannot guarantee what order the phases are connected, the motor directions must be configured in software. When a slider is moved DOWN, the thruster should push air/water TOWARD the cable entering the housing. Click the checkbox to reverse the direction of the corresponding thruster.\n\n</source>
+      <translation>スライダーを動かすとモーターが回転します。モーターとプロペラの周囲に障害物がないことを確認してください！モーターの回転方向は、モーターの3相がESCに物理的にどう接続されているかによって決まります（いずれか2本の線を入れ替えると回転方向が反転します）。相の接続順序は保証できないため、モーターの方向はソフトウェアで設定する必要があります。スライダーを下に動かしたとき、スラスターはハウジングに入るケーブルの方向へ空気/水を押し出す必要があります。対応するスラスターの方向を反転するには、チェックボックスをクリックしてください。\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMSubMotorComponent.qml" line="225"/>
+      <source>This will attempt to automatically detect the direction (normal/reversed) of your thrusters.\n</source>
+      <translation>スラスターの方向（正転/逆転）の自動検出を試みます。\n</translation>
     </message>
   </context>
   <context>
@@ -3432,6 +3672,61 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <source>Yaw</source>
       <translation>ヨー</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="474"/>
+      <source>Roll axis angle controller P gain</source>
+      <translation>ロール軸角度コントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="482"/>
+      <source>Roll axis rate controller P gain</source>
+      <translation>ロール軸レートコントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="490"/>
+      <source>Roll axis rate controller I gain</source>
+      <translation>ロール軸レートコントローラーIゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="498"/>
+      <source>Roll axis rate controller D gain</source>
+      <translation>ロール軸レートコントローラーDゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="515"/>
+      <source>Pitch axis angle controller P gain</source>
+      <translation>ピッチ軸角度コントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="523"/>
+      <source>Pitch axis rate controller P gain</source>
+      <translation>ピッチ軸レートコントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="531"/>
+      <source>Pitch axis rate controller I gain</source>
+      <translation>ピッチ軸レートコントローラーIゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="539"/>
+      <source>Pitch axis rate controller D gain</source>
+      <translation>ピッチ軸レートコントローラーDゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="556"/>
+      <source>Yaw axis angle controller P gain</source>
+      <translation>ヨー軸角度コントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="564"/>
+      <source>Yaw axis rate controller P gain</source>
+      <translation>ヨー軸レートコントローラーPゲイン</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMTuningComponentCopter.qml" line="572"/>
+      <source>Yaw axis rate controller I gain</source>
+      <translation>ヨー軸レートコントローラーIゲイン</translation>
+    </message>
   </context>
   <context>
     <name>APMTuningComponentSub</name>
@@ -3541,6 +3836,25 @@ Please place your vehicle in water, click the button, and wait. Note that the th
       <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
       <source>Airframe Setup is used to select the airframe that matches your vehicle. This will in turn set up the various tuning values for flight parameters.</source>
       <translation>フレーム設定は、機体に合ったフレームを選択します。これにより飛行パラメータの各種調整値が設定されます。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.cc" line="31"/>
+      <source>Airframe Setup is used to select the airframe that matches your vehicle. </source>
+      <translation>フレーム設定では、機体に合ったフレームを選択します。 </translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="46"/>
+      <source>This configuration can only be modified through the Parameter Editor.\n\n</source>
+      <translation>この構成はパラメータエディターでのみ変更できます。\n\n</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/AirframeComponent.qml" line="122"/>
+      <source>Clicking 'Apply' will save the changes you have made to your airframe configuration.&lt;br&gt;&lt;br&gt;\
+                                                                        All vehicle parameters other than Radio Calibration will be reset.&lt;br&gt;&lt;br&gt;\
+                                                                        Your vehicle will also be restarted in order to complete the process.</source>
+      <translation>'適用'をクリックすると、フレーム構成への変更が保存されます。&lt;br&gt;&lt;br&gt;\
+                                                                        送信機キャリブレーションを除くすべての機体パラメータがリセットされます。&lt;br&gt;&lt;br&gt;\
+                                                                        処理を完了するため、機体も再起動されます。</translation>
     </message>
   </context>
   <context>
@@ -4347,6 +4661,31 @@ Click Ok to start the auto-tuning process.
 
 【OK】をクリックすると、自動調整プロセスが開始されます。</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/AutotuneUI.qml" line="52"/>
+      <source>WARNING!            
+
+The auto-tuning procedure should be executed with caution and requires the vehicle to fly stable enough before attempting the procedure!             
+
+Before starting the auto-tuning process, make sure that:             
+1. You have read the auto-tuning guide and have followed the preliminary steps             
+2. The current control gains are good enough to stabilize the drone in presence of medium disturbances             
+3. You are ready to abort the auto-tuning sequence by moving the RC sticks, if anything unexpected happens.             
+
+Click Ok to start the auto-tuning process.
+</source>
+      <translation>警告！
+
+自動チューニングは慎重に実行する必要があり、実行前に機体が十分に安定して飛行できる状態であることが必要です！
+
+自動チューニングを開始する前に、以下を確認してください:
+1. 自動チューニングガイドを読み、事前手順を実施済みであること
+2. 現在の制御ゲインが、中程度の外乱下でもドローンを安定させるのに十分であること
+3. 予期しない事態が発生した場合、RCスティックを動かして自動チューニングシーケンスを中止できる準備ができていること。
+
+OKをクリックすると自動チューニングを開始します。
+</translation>
+    </message>
   </context>
   <context>
     <name>AxisMonitor</name>
@@ -4694,6 +5033,12 @@ Click Ok to start the auto-tuning process.
       <source>Grnd Res</source>
       <translation>解像度</translation>
     </message>
+    <message>
+      <location filename="../src/PlanView/CameraCalcGrid.qml" line="393"/>
+      <location filename="../src/PlanView/CameraCalcGrid.qml" line="471"/>
+      <source>Calculate</source>
+      <translation>計算</translation>
+    </message>
   </context>
   <context>
     <name>CameraComponent</name>
@@ -4811,6 +5156,16 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="54"/>
       <source>AUX pin polarity</source>
       <translation>AUXピンの極性</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="55"/>
+      <source>High (3.3V)</source>
+      <translation>High (3.3V)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/CameraComponentSummary.qml" line="55"/>
+      <source>Low (0V)</source>
+      <translation>Low (0V)</translation>
     </message>
   </context>
   <context>
@@ -5427,6 +5782,16 @@ Click Ok to start the auto-tuning process.
       <source>UART Baud Rate</source>
       <translation>UART伝送速度</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/ESP8266ComponentSummary.qml" line="34"/>
+      <source>AP Mode</source>
+      <translation>APモード</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/ESP8266ComponentSummary.qml" line="34"/>
+      <source>Station Mode</source>
+      <translation>ステーションモード</translation>
+    </message>
   </context>
   <context>
     <name>EditPositionDialog</name>
@@ -5484,6 +5849,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/QmlControls/EditPositionDialog.qml" line="144"/>
       <source>Set From Vehicle Position</source>
       <translation>機体位置を設定</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/EditPositionDialog.qml" line="24"/>
+      <source>Edit Position</source>
+      <translation>位置の編集</translation>
     </message>
   </context>
   <context>
@@ -6480,6 +6850,81 @@ Click Ok to start the auto-tuning process.
       <source>Flash ChibiOS Bootloader</source>
       <translation>ChibiOSブートローダーの書き込み</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source>Plug in your device</source>
+      <translation>デバイスを接続してください</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source> via USB to </source>
+      <translation> USB経由で </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source>start</source>
+      <translation>開始</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="49"/>
+      <source> firmware upgrade.</source>
+      <translation> ファームウェアアップグレードを開始します。</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source>If upgrade failed, make sure to connect </source>
+      <translation>アップグレードに失敗した場合は、必ず </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source>directly</source>
+      <translation>直接</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="50"/>
+      <source> to a powered USB port on your computer, not through a USB hub. </source>
+      <translation> コンピューターの給電されたUSBポートに接続してください（USBハブ経由は不可）。 </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="51"/>
+      <source>Also make sure you are only powered via USB </source>
+      <translation>また、USBのみで給電してください </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="51"/>
+      <source>not battery</source>
+      <translation>バッテリーは不可</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="52"/>
+      <source> disconnected </source>
+      <translation> 切断 </translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="52"/>
+      <source>prior to firmware upgrade.</source>
+      <translation>ファームウェアアップグレードの前に。</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="53"/>
+      <source>Please unplug your Pixhawk and/or Radio from USB.</source>
+      <translation>PixhawkおよびRadioをUSBから取り外してください。</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="207"/>
+      <source>Either firmware list is still downloading, or no firmware is available for current selection.</source>
+      <translation>ファームウェアリストをダウンロード中か、現在の選択で使用可能なファームウェアがありません。</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="212"/>
+      <source>You must choose a board type.</source>
+      <translation>ボードタイプを選択する必要があります。</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/FirmwareUpgrade.qml" line="219"/>
+      <source>No firmware was found for the current selection.</source>
+      <translation>現在の選択に対応するファームウェアが見つかりません。</translation>
+    </message>
   </context>
   <context>
     <name>FirmwareUpgradeController</name>
@@ -6803,6 +7248,12 @@ Click Ok to start the auto-tuning process.
       <source>VIDEO DISABLED</source>
       <translation>録画を無効にしました</translation>
     </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlightDisplayViewVideo.qml" line="182"/>
+      <location filename="../src/FlightDisplay/FlightDisplayViewVideo.qml" line="219"/>
+      <source>Double-click to exit full screen</source>
+      <translation>ダブルクリックで全画面表示を終了</translation>
+    </message>
   </context>
   <context>
     <name>FlightMap</name>
@@ -6955,6 +7406,26 @@ Click Ok to start the auto-tuning process.
       <source>ROI at location</source>
       <translation>位置を対象領域に</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="656"/>
+      <source>Set home here</source>
+      <translation>ここをホームに設定</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="672"/>
+      <source>Edit ROI Position</source>
+      <translation>ROI位置の編集</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="690"/>
+      <source>Cancel ROI</source>
+      <translation>ROIキャンセル</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="699"/>
+      <source>Edit Position</source>
+      <translation>位置の編集</translation>
+    </message>
   </context>
   <context>
     <name>FlyViewMissionCompleteDialog</name>
@@ -7017,6 +7488,16 @@ Click Ok to start the auto-tuning process.
       <source>Plan</source>
       <translation>プラン</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="58"/>
+      <source>GeoZone</source>
+      <translation>ジオゾーン</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="63"/>
+      <source>Life Jacket</source>
+      <translation>救命胴衣</translation>
+    </message>
   </context>
   <context>
     <name>FlyViewVideo</name>
@@ -7037,6 +7518,21 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="95"/>
       <source>Multi-Vehicle</source>
       <translation>複数機体</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK CRITICAL</source>
+      <translation>C2リンク危険</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="146"/>
+      <source>C2 LINK WARNING</source>
+      <translation>C2リンク警告</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewWidgetLayer.qml" line="206"/>
+      <source>Waypoint</source>
+      <translation>ウェイポイント</translation>
     </message>
   </context>
   <context>
@@ -7536,6 +8032,101 @@ Click Ok to start the auto-tuning process.
       <source>%1 Version</source>
       <translation>%1 バージョン</translation>
     </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="782"/>
+      <source>Enable Doodle Labs IP</source>
+      <translation>Doodle Labs IPを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="790"/>
+      <source>Doodle Labs IP</source>
+      <translation>Doodle Labs IP</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="800"/>
+      <source>Enable Life Jacket</source>
+      <translation>救命胴衣を有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="367"/>
+      <source>Record File Format</source>
+      <translation>録画ファイル形式</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="185"/>
+      <source>Update home position based on device location. This will affect return to home</source>
+      <translation>デバイスの位置に基づいてホーム位置を更新します。ホームへ帰還に影響します</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="192"/>
+      <source>Enable Custom Actions</source>
+      <translation>カスタムアクションを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="218"/>
+      <source>Custom Action Definitions</source>
+      <translation>カスタムアクション定義</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="235"/>
+      <source>Choose the Custom Action Definitions file</source>
+      <translation>カスタムアクション定義ファイルを選択</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="248"/>
+      <source>Reload</source>
+      <translation>再読み込み</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="423"/>
+      <source>Disable FPV Video</source>
+      <translation>FPVビデオを無効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="437"/>
+      <source>Audio Settings</source>
+      <translation>オーディオ設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="445"/>
+      <source>Enable Audio</source>
+      <translation>オーディオを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="454"/>
+      <source>Enable Optical Flow Sensor</source>
+      <translation>オプティカルフローセンサを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="717"/>
+      <source>Save application data to SD Card</source>
+      <translation>アプリケーションデータをSDカードに保存</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="757"/>
+      <source>Enable Remote ID</source>
+      <translation>リモートIDを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="71"/>
+      <source>Restart Required</source>
+      <translation>再起動が必要</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="62"/>
+      <source>Disabled</source>
+      <translation>無効</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="72"/>
+      <source>Language change requires restarting %1. Turn off now?</source>
+      <translation>言語を変更するには%1の再起動が必要です。今すぐ終了しますか？</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/GeneralSettings.qml" line="929"/>
+      <source>Serial &lt;none available&gt;</source>
+      <translation>シリアル &lt;使用可能なものなし&gt;</translation>
+    </message>
   </context>
   <context>
     <name>GeoFenceController</name>
@@ -7553,6 +8144,48 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/MissionManager/GeoFenceController.cc" line="172"/>
       <source>GeoFence circle not stored as object</source>
       <translation>ジオフェンスサークルはオブジェクトとして保存されていません</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="776"/>
+      <source>GeoFence is not supported by this vehicle.</source>
+      <translation>この機体はジオフェンスに対応していません。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="786"/>
+      <source>No GeoFence items configured.</source>
+      <translation>ジオフェンス項目が設定されていません。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="792"/>
+      <source>Polygon %1 is invalid or has too few points.</source>
+      <translation>ポリゴン%1が無効か、点の数が不足しています。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="799"/>
+      <source>Circle %1 has an invalid center.</source>
+      <translation>円%1の中心が無効です。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="803"/>
+      <source>Circle %1 has an invalid radius.</source>
+      <translation>円%1の半径が無効です。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="809"/>
+      <source>Fence margin is zero; buffer warnings will be disabled.</source>
+      <translation>フェンスマージンがゼロのため、バッファ警告は無効になります。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="813"/>
+      <source>GeoFence self-test passed. Polygons: %1, Circles: %2, Circular fence: %3 m.</source>
+      <translation>ジオフェンスのセルフテストに合格しました。ポリゴン: %1、円: %2、円形フェンス: %3 m。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoFenceController.cc" line="819"/>
+      <source>GeoFence self-test issues:
+- %1</source>
+      <translation>ジオフェンスのセルフテストの問題:
+- %1</translation>
     </message>
   </context>
   <context>
@@ -7651,6 +8284,126 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/PlanView/GeoFenceEditor.qml" line="342"/>
       <source>Altitude</source>
       <translation>高度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="124"/>
+      <source>Operational</source>
+      <translation>運用</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="129"/>
+      <source>Buffer</source>
+      <translation>バッファ</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="134"/>
+      <source>Contingency</source>
+      <translation>緊急時</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Loaded</source>
+      <translation>読み込み済</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="145"/>
+      <source>Not Loaded</source>
+      <translation>未読み込み</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Active</source>
+      <translation>アクティブ</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="146"/>
+      <source>Inactive</source>
+      <translation>非アクティブ</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Missing Params</source>
+      <translation>パラメータ不足</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="147"/>
+      <source>Params OK</source>
+      <translation>パラメータOK</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="148"/>
+      <source>Fence Status: %1 | %2 | %3</source>
+      <translation>フェンス状態: %1 | %2 | %3</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="156"/>
+      <source>Contingency Volume</source>
+      <translation>緊急時空域</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="164"/>
+      <source>Vmax (m/s)</source>
+      <translation>Vmax (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="177"/>
+      <source>Latency (s)</source>
+      <translation>遅延 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="190"/>
+      <source>Maneuver (s)</source>
+      <translation>機動時間 (s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="203"/>
+      <source>Wind (m/s)</source>
+      <translation>風速 (m/s)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="216"/>
+      <source>Position Error (m)</source>
+      <translation>位置誤差 (m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="238"/>
+      <source>CV Width: %1 m (Reaction: %2 m, Correction: %3 m, Error: %4 m)</source>
+      <translation>CV幅: %1 m (反応: %2 m、補正: %3 m、誤差: %4 m)</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="328"/>
+      <source>GeoFence Self-Test</source>
+      <translation>ジオフェンスのセルフテスト</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="336"/>
+      <source>3D View</source>
+      <translation>3D表示</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="344"/>
+      <source>Vertical cage</source>
+      <translation>垂直ケージ</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="347"/>
+      <source>Solid</source>
+      <translation>実線</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="352"/>
+      <source>Dotted</source>
+      <translation>点線</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="360"/>
+      <source>Opacity</source>
+      <translation>不透明度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoFenceEditor.qml" line="375"/>
+      <source>Min/Max Altitude</source>
+      <translation>最小/最大高度</translation>
     </message>
   </context>
   <context>
@@ -7767,6 +8520,16 @@ Click Ok to start the auto-tuning process.
       <source>Start Tagging</source>
       <translation>タグ付けを開始</translation>
     </message>
+    <message>
+      <location filename="../src/AnalyzeView/GeoTagPage.qml" line="141"/>
+      <source>/TAGGED folder in your image folder</source>
+      <translation>画像フォルダ内の/TAGGEDフォルダ</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/GeoTagPage.qml" line="141"/>
+      <source>/TAGGED</source>
+      <translation>/TAGGED</translation>
+    </message>
   </context>
   <context>
     <name>GeoTagWorker</name>
@@ -7833,6 +8596,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/FlightDisplay/GuidedActionConfirm.qml" line="104"/>
       <source>Slide to confirm</source>
       <translation>スライドして確認</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionConfirm.qml" line="113"/>
+      <source>Slide or hold spacebar</source>
+      <translation>スライドまたはスペースキーを長押し</translation>
     </message>
   </context>
   <context>
@@ -8064,6 +8832,66 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="536"/>
       <source>Internal error: unknown actionCode</source>
       <translation>内部エラー: 不明なアクションコード</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="42"/>
+      <source>Gripper Function</source>
+      <translation>グリッパー機能</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="51"/>
+      <source>Change Max Ground Speed</source>
+      <translation>最大対地速度を変更</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52"/>
+      <source>Change Airspeed</source>
+      <translation>対気速度を変更</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="204"/>
+      <source>Height</source>
+      <translation>高さ</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="207"/>
+      <source>Set Airspeed</source>
+      <translation>対気速度を設定</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="212"/>
+      <source>Set Speed</source>
+      <translation>速度を設定</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="217"/>
+      <source>New Alt(rel)</source>
+      <translation>新高度(相対)</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59"/>
+      <source>Set Home</source>
+      <translation>ホーム設定</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="67"/>
+      <source>Grab or Release the cargo</source>
+      <translation>貨物を掴むまたは放す</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="74"/>
+      <source>Change the maximum horizontal cruise speed.</source>
+      <translation>最大水平巡航速度を変更します。</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="75"/>
+      <source>Change the equivalent airspeed setpoint</source>
+      <translation>等価対気速度の設定値を変更します</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="85"/>
+      <source>Set vehicle home as the specified location. This will affect Return to Home position</source>
+      <translation>指定した位置を機体のホームに設定します。ホームへ帰還する位置に影響します</translation>
     </message>
   </context>
   <context>
@@ -8385,6 +9213,11 @@ Click Ok to start the auto-tuning process.
       <source>Advanced</source>
       <translation>詳細設定</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/JoystickConfig.qml" line="29"/>
+      <source>Joystick Setup is used to configure and calibrate joysticks.</source>
+      <translation>ジョイスティックセットアップでは、ジョイスティックの設定とキャリブレーションを行います。</translation>
+    </message>
   </context>
   <context>
     <name>JoystickConfigAdvanced</name>
@@ -8464,7 +9297,7 @@ Click Ok to start the auto-tuning process.
     <message>
       <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="45"/>
       <source> Multiple buttons that have the same action must be pressed simultaneously to invoke the action.</source>
-      <translation type="unfinished"> Multiple buttons that have the same action must be pressed simultaneously to invoke the action.</translation>
+      <translation> 同じアクションが割り当てられた複数のボタンは、同時に押すとアクションが実行されます。</translation>
     </message>
     <message>
       <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="94"/>
@@ -8490,6 +9323,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="185"/>
       <source>No firmware support</source>
       <translation>ファームウェアがサポートされていません</translation>
+    </message>
+    <message>
+      <location filename="../src/VehicleSetup/JoystickConfigButtons.qml" line="258"/>
+      <source>QGC functions do not support shift actions</source>
+      <translation>QGC機能はシフト操作に対応していません</translation>
     </message>
   </context>
   <context>
@@ -8597,6 +9435,18 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="64"/>
       <source>Enabled:</source>
       <translation>有効:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="61"/>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="66"/>
+      <source>Yes</source>
+      <translation>はい</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="61"/>
+      <location filename="../src/ui/toolbar/JoystickIndicator.qml" line="66"/>
+      <source>No</source>
+      <translation>いいえ</translation>
     </message>
   </context>
   <context>
@@ -9257,6 +10107,11 @@ Click Ok to start the auto-tuning process.
       <source>Avoidance/collision prevention</source>
       <translation>回避 / 衝突防止</translation>
     </message>
+    <message>
+      <location filename="../src/comm/QGCMAVLink.cc" line="225"/>
+      <source>Propulsion</source>
+      <translation>推進系</translation>
+    </message>
   </context>
   <context>
     <name>MAVLink unknown SYS_STATUS_SENSOR value</name>
@@ -9501,6 +10356,77 @@ Click Ok to start the auto-tuning process.
       <source>Back</source>
       <translation>戻る</translation>
     </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="222"/>
+      <location filename="../src/ui/MainRootWindow.qml" line="413"/>
+      <source>About</source>
+      <translation>バージョン情報</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="255"/>
+      <source>EasyGripper Smart Controller v1.0</source>
+      <translation>EasyGripper スマートコントローラー v1.0</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="262"/>
+      <source>Copyright © 2024 %1. All rights reserved.</source>
+      <translation>Copyright © 2024 %1. All rights reserved.</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="284"/>
+      <source>This product includes software developed by the QGroundControl project &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;).</source>
+      <translation>本製品にはQGroundControlプロジェクトが開発したソフトウェアが含まれています &lt;br/&gt; (&lt;a href=&quot;https://qgroundcontrol.com&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://qgroundcontrol.com&lt;/a&gt;)。</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="290"/>
+      <source>QGroundControl is licensed under the Apache License, Version 2.0.</source>
+      <translation>QGroundControlはApache License, Version 2.0の下でライセンスされています。</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="301"/>
+      <source>You may obtain a copy of the Apache License at:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</source>
+      <translation>Apache Licenseの写しは次から入手できます:&lt;br&gt;&lt;a href=&quot;https://www.apache.org/licenses/LICENSE-2.0&quot; style=&quot;color:%1;text-decoration:underline;&quot;&gt;https://www.apache.org/licenses/LICENSE-2.0&lt;/a&gt;</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="310"/>
+      <source>Android %1</source>
+      <translation>Android %1</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="324"/>
+      <source>Develope under: %1 - Security patch %2</source>
+      <translation>開発環境: %1 - セキュリティパッチ %2</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="230"/>
+      <source>Close %1</source>
+      <translation>%1を閉じる</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="420"/>
+      <source>Debug Touch Areas</source>
+      <translation>タッチ領域のデバッグ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="421"/>
+      <source>Touch Area display toggled</source>
+      <translation>タッチ領域の表示を切り替えました</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="439"/>
+      <source>Turn off Advanced Mode?</source>
+      <translation>アドバンスモードをオフにしますか？</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="633"/>
+      <source>Vehicle Error</source>
+      <translation>機体エラー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/MainRootWindow.qml" line="657"/>
+      <source>Additional errors received</source>
+      <translation>追加のエラーを受信しました</translation>
+    </message>
   </context>
   <context>
     <name>MainStatusIndicator</name>
@@ -9578,6 +10504,49 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="241"/>
       <source>Transition to Fixed Wing</source>
       <translation>固定翼機へ移行</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA OFF</source>
+      <translation>パラシュート OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="162"/>
+      <source>PARA ARMED</source>
+      <translation>パラシュート アーム済</translation>
+    </message>
+    <message>
+      <source>PARA ON</source>
+      <translation>パラシュート ON</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE ON</source>
+      <translation>フェンス ON</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="194"/>
+      <source>FENCE OFF</source>
+      <translation>フェンス OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="192"/>
+      <source>FENCE PARAMS MISSING</source>
+      <translation>フェンスパラメータ不足</translation>
+    </message>
+    <message>
+      <source>FENCE PARAMs MISSING</source>
+      <translation>フェンスパラメータ不足</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="235"/>
+      <source>Arming Check Report:</source>
+      <translation>アーミングチェックレポート:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MainStatusIndicator.qml" line="343"/>
+      <source>Edit Parameter</source>
+      <translation>パラメータ編集</translation>
     </message>
   </context>
   <context>
@@ -9662,6 +10631,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/AnalyzeView/MavlinkConsolePage.qml" line="290"/>
       <source>Send</source>
       <translation>送信</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/MavlinkConsolePage.qml" line="277"/>
+      <source>Enter Commands here...</source>
+      <translation>ここにコマンドを入力...</translation>
     </message>
   </context>
   <context>
@@ -9934,6 +10908,57 @@ Click Ok to start the auto-tuning process.
       <source>Confirm canceling the upload process?</source>
       <translation>アップロード処理をキャンセルしてもよろしいですか？</translation>
     </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="552"/>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="590"/>
+      <source>Please Select</source>
+      <translation>選択してください</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="553"/>
+      <source>Calm</source>
+      <translation>穏やか</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="554"/>
+      <source>Breeze</source>
+      <translation>そよ風</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="555"/>
+      <source>Gale</source>
+      <translation>強風</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="556"/>
+      <source>Storm</source>
+      <translation>嵐</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="591"/>
+      <source>Crashed (Pilot Error)</source>
+      <translation>墜落 (操縦ミス)</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="592"/>
+      <source>Crashed (Software or Hardware issue)</source>
+      <translation>墜落 (ソフトウェアまたはハードウェアの問題)</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="593"/>
+      <source>Unsatisfactory</source>
+      <translation>不満</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="594"/>
+      <source>Good</source>
+      <translation>良好</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="595"/>
+      <source>Great</source>
+      <translation>非常に良好</translation>
+    </message>
   </context>
   <context>
     <name>MessageIndicator</name>
@@ -9941,6 +10966,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/toolbar/MessageIndicator.qml" line="112"/>
       <source>No Messages</source>
       <translation>メッセージはありません</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/MessageIndicator.qml" line="183"/>
+      <source>Edit Parameter</source>
+      <translation>パラメータ編集</translation>
     </message>
   </context>
   <context>
@@ -10046,6 +11076,11 @@ Click Ok to start the auto-tuning process.
       <source>Category:</source>
       <translation>カテゴリ:</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/MissionCommandDialog.qml" line="23"/>
+      <source>Select Mission Command</source>
+      <translation>ミッションコマンドを選択</translation>
+    </message>
   </context>
   <context>
     <name>MissionCommandTree</name>
@@ -10111,6 +11146,34 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/MissionManager/MissionItem.cc" line="297"/>
       <source>Param %1 incorrect type %2, must be double or null</source>
       <translation>パラメータ %1 の不正な型 %2 は、doubleまたはnullでなければなりません</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="41"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="79"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="114"/>
+      <source>Param1:</source>
+      <translation>パラメータ1:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="42"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="80"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="115"/>
+      <source>Param2:</source>
+      <translation>パラメータ2:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="43"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="81"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="116"/>
+      <source>Param3:</source>
+      <translation>パラメータ3:</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionItem.cc" line="44"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="82"/>
+      <location filename="../src/MissionManager/MissionItem.cc" line="117"/>
+      <source>Param4:</source>
+      <translation>パラメータ4:</translation>
     </message>
   </context>
   <context>
@@ -10267,6 +11330,12 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/MissionManager/MissionSettingsItem.cc" line="292"/>
       <source>Launch</source>
       <translation>離陸地点</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/MissionSettingsItem.h" line="74"/>
+      <location filename="../src/MissionManager/MissionSettingsItem.h" line="75"/>
+      <source>Mission Start</source>
+      <translation>ミッション開始</translation>
     </message>
   </context>
   <context>
@@ -10536,6 +11605,33 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="130"/>
       <source>Disarmed</source>
       <translation>ディスアームしました</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="64"/>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="163"/>
+      <source>Pause</source>
+      <translation>一時停止</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="69"/>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="157"/>
+      <source>Start Mission</source>
+      <translation>ミッション開始</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="151"/>
+      <source>Arm</source>
+      <translation>アーム</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="169"/>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/MultiVehicleList.qml" line="175"/>
+      <source>Take control</source>
+      <translation>制御を取得</translation>
     </message>
   </context>
   <context>
@@ -10873,6 +11969,11 @@ Is this really what you want?</source>
       <source>Import Tile Set</source>
       <translation>タイルセットをインポート</translation>
     </message>
+    <message>
+      <location filename="../src/QtLocationPlugin/QMLControl/OfflineMap.qml" line="635"/>
+      <source>Show zoom previews</source>
+      <translation>ズームプレビューを表示</translation>
+    </message>
   </context>
   <context>
     <name>OfflineVehicleFirstRunPrompt</name>
@@ -10958,6 +12059,21 @@ Is this really what you want?</source>
       <location filename="../src/QmlControls/PIDTuning.qml" line="386"/>
       <source>Switches to &apos;%1&apos; when you click Stop.</source>
       <translation>【停止】をクリックすると【%1】に切り替わります。</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>ON</source>
+      <translation>ON</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="196"/>
+      <source>OFF</source>
+      <translation>OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/PIDTuning.qml" line="121"/>
+      <source>sec</source>
+      <translation>秒</translation>
     </message>
   </context>
   <context>
@@ -11516,6 +12632,16 @@ Is this really what you want?</source>
       <source>Increasing this leads to rounder turns in missions (corner cutting). Use the minimum value for accurate corner tracking.</source>
       <translation>この値を大きくすると、ミッションにおける曲がり角はなだらかに曲がります。(コーナーカット) 正確なコーナートラッキングをするためには、最小値を使用してください。</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="80"/>
+      <source>Warning: a high responsiveness requires a vehicle with large thrust-to-weight ratio. The vehicle might lose altitude otherwise.</source>
+      <translation>警告: 高い応答性には推力重量比の大きい機体が必要です。そうでない場合、機体が高度を失う可能性があります。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4FlightBehaviorCopter.qml" line="143"/>
+      <source>Vertical velocity (m/s)</source>
+      <translation>垂直速度 (m/s)</translation>
+    </message>
   </context>
   <context>
     <name>PX4FlowSensor</name>
@@ -11537,6 +12663,251 @@ Is this really what you want?</source>
       <source>Disabled</source>
       <translation>無効</translation>
     </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>disabled</source>
+      <translation>無効</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Warning</source>
+      <translation>警告</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Hold mode</source>
+      <translation>Holdモード</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return mode</source>
+      <translation>Returnモード</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Terminate</source>
+      <translation>強制終了</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land mode</source>
+      <translation>Landモード</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at critical level, land at emergency level</source>
+      <translation>クリティカルレベルで帰還、緊急レベルで着陸</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Lockdown</source>
+      <translation>ロックダウン</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disarm</source>
+      <translation>ディスアーム</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at current altitude</source>
+      <translation>現在の高度で帰還</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Return at specified altitude:</source>
+      <translation>指定高度で帰還:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Loiter above Home for:</source>
+      <translation>ホーム上空でロイター:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Land with descent speed:</source>
+      <translation>降下速度で着陸:</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>external HITL</source>
+      <translation>外部HITL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL enabled</source>
+      <translation>HITL有効</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>HITL and SIH disabled</source>
+      <translation>HITLおよびSIH無効</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>SIH enabled</source>
+      <translation>SIH有効</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>when armed until disarm (default)</source>
+      <translation>アームからディスアームまで (デフォルト)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until disarm</source>
+      <translation>起動からディスアームまで</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from boot until shutdown</source>
+      <translation>起動からシャットダウンまで</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>depending on AUX1 RC channel</source>
+      <translation>AUX1 RCチャンネルに依存</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>from 1st armed until shutdown</source>
+      <translation>最初のアームからシャットダウンまで</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>All mission messages</source>
+      <translation>すべてのミッションメッセージ</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Geotagging messages</source>
+      <translation>ジオタグメッセージ</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Disable</source>
+      <translation>無効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, on command</source>
+      <translation>時間ベース、コマンド時</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Time based, always on</source>
+      <translation>時間ベース、常時オン</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, always on</source>
+      <translation>距離ベース、常時オン</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Distance based, on command (Survey mode)</source>
+      <translation>距離ベース、コマンド時 (調査モード)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>GPIO</source>
+      <translation>GPIO</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Seagull MAP2 (over PWM)</source>
+      <translation>Seagull MAP2 (PWM経由)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>MAVLink (forward via MAV_CMD_IMAGE_START_CAPTURE)</source>
+      <translation>MAVLink (MAV_CMD_IMAGE_START_CAPTUREで転送)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Generic PWM (IR trigger, servo)</source>
+      <translation>汎用PWM (IRトリガー、サーボ)</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active low</source>
+      <translation>アクティブLow</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Active high</source>
+      <translation>アクティブHigh</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Direct velocity</source>
+      <translation>直接速度</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Smoothed velocity</source>
+      <translation>平滑化速度</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Acceleration based</source>
+      <translation>加速度ベース</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Position mode</source>
+      <translation>Positionモード</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Altitude mode</source>
+      <translation>Altitudeモード</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Manual</source>
+      <translation>Manual</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch</source>
+      <translation>ロール/ピッチ</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>ロール/ピッチ/ヨー</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX1 Passthrough RC channel</source>
+      <translation>AUX1パススルーRCチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>AUX2 Passthrough RC channel</source>
+      <translation>AUX2パススルーRCチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM1 tuning channel</source>
+      <translation>PARAM1チューニングチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM2 tuning channel</source>
+      <translation>PARAM2チューニングチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/PX4/PX4ParameterMetaData.cc" line="313"/>
+      <source>PARAM3 tuning channel</source>
+      <translation>PARAM3チューニングチャンネル</translation>
+    </message>
   </context>
   <context>
     <name>PX4RadioComponent</name>
@@ -11549,6 +12920,11 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponent.cc" line="27"/>
       <source>Radio Setup is used to calibrate your transmitter. It also assign channels for Roll, Pitch, Yaw and Throttle vehicle control as well as determining whether they are reversed.</source>
       <translation>送信機設定は、送信機のキャリブレーションを行います。また機体制御のロール、ピッチ、ヨー、スロットルのチャンネルを割り当てたり、それらがリバースになっているかどうかを判断します。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4RadioComponent.cc" line="27"/>
+      <source>Radio Setup is used to calibrate your transmitter. </source>
+      <translation>送信機セットアップでは、送信機のキャリブレーションを行います。 </translation>
     </message>
   </context>
   <context>
@@ -11644,6 +13020,66 @@ Is this really what you want?</source>
       <source>Switch Settings</source>
       <translation>スイッチ設定</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="35"/>
+      <source>Channel %1</source>
+      <translation>チャンネル%1</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="40"/>
+      <source>Unassigned</source>
+      <translation>未割り当て</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="42"/>
+      <source>Arm switch channel</source>
+      <translation>アームスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="44"/>
+      <source>Gear switch channel</source>
+      <translation>ギアスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="45"/>
+      <source>Landing gear switch channel</source>
+      <translation>ランディングギアスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="46"/>
+      <source>Kill switch channel</source>
+      <translation>キルスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="47"/>
+      <source>Emergency Kill switch channel</source>
+      <translation>緊急キルスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="48"/>
+      <source>Loiter switch channel</source>
+      <translation>Loiterスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="50"/>
+      <source>Offboard switch channel</source>
+      <translation>Offboardスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="52"/>
+      <source>Return switch channel</source>
+      <translation>Returnスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="54"/>
+      <source>Transition switch channel</source>
+      <translation>トランジションスイッチチャンネル</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4SimpleFlightModes.qml" line="56"/>
+      <source>Flaps switch channel</source>
+      <translation>フラップスイッチチャンネル</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponent</name>
@@ -11737,6 +13173,18 @@ Is this really what you want?</source>
       <source>Increase for more responsiveness, reduce if the attitude overshoots (there is only a setpoint when yaw is fixed, i.e. when centering the stick).</source>
       <translation>応答性を高めたい場合は大きく、姿勢がオーバーシュートする場合は小さくします。(ヨーが固定されている時、つまりスティック中央値の時にのみの設定値)</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>応答</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>設定値</translation>
+    </message>
+    <message>
+      <source>Attitude</source>
+      <translation>姿勢</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentCopterPosition</name>
@@ -11783,6 +13231,18 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterPosition.qml" line="68"/>
       <source>Proportional gain (MPC_Z_P)</source>
       <translation>P値ゲイン[強度] (MPC_Z_P)</translation>
+    </message>
+    <message>
+      <source>Response</source>
+      <translation>応答</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>設定値</translation>
+    </message>
+    <message>
+      <source>Position</source>
+      <translation>位置</translation>
     </message>
   </context>
   <context>
@@ -11893,6 +13353,18 @@ Is this really what you want?</source>
       <source>Integral Gain (MC_YAWRATE_I)</source>
       <translation>I値ゲイン[強度] (MC_YAWRATE_I)</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>応答</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>設定値</translation>
+    </message>
+    <message>
+      <source>Rate</source>
+      <translation>レート</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentCopterVelocity</name>
@@ -11984,6 +13456,18 @@ Is this really what you want?</source>
       <source>Differential gain (MPC_Z_VEL_D_ACC)</source>
       <translation>D値ゲイン[強度] (MPC_Z_VEL_D_ACC)</translation>
     </message>
+    <message>
+      <source>Response</source>
+      <translation>応答</translation>
+    </message>
+    <message>
+      <source>Setpoint</source>
+      <translation>設定値</translation>
+    </message>
+    <message>
+      <source>Velocity</source>
+      <translation>速度</translation>
+    </message>
   </context>
   <context>
     <name>PX4TuningComponentPlaneAll</name>
@@ -12022,6 +13506,11 @@ Is this really what you want?</source>
       <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentVTOL.qml" line="39"/>
       <source>Multirotor</source>
       <translation>マルチコプター</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentVTOL.qml" line="42"/>
+      <source>Fixedwing</source>
+      <translation>固定翼</translation>
     </message>
   </context>
   <context>
@@ -12325,6 +13814,26 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <source>Set RC to Param</source>
       <translation>送信機パラメータを設定</translation>
     </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="25"/>
+      <source>Parameter Editor</source>
+      <translation>パラメータエディタ</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="149"/>
+      <source>Reset To Default</source>
+      <translation>デフォルトにリセット</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="221"/>
+      <source>Vehicle reboot required after change</source>
+      <translation>変更後に機体の再起動が必要</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/ParameterEditorDialog.qml" line="226"/>
+      <source>Application restart required after change</source>
+      <translation>変更後にアプリケーションの再起動が必要</translation>
+    </message>
   </context>
   <context>
     <name>ParameterManager</name>
@@ -12502,6 +14011,31 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="557"/>
       <source>Confirm erasing all files?</source>
       <translation>すべてのファイルを消去してもよろしいですか？</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="991"/>
+      <source>SD Card Missing</source>
+      <translation>SDカードなし</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="439"/>
+      <source>Gimbal Pitch</source>
+      <translation>ジンバルピッチ</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="448"/>
+      <source>Gimbal Yaw</source>
+      <translation>ジンバルヨー</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="555"/>
+      <source>Tracking Algorithm</source>
+      <translation>追跡アルゴリズム</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/PhotoVideoControl.qml" line="556"/>
+      <source>If the target is close, camera runaway may occur.</source>
+      <translation>ターゲットが近いと、カメラが暴走する可能性があります。</translation>
     </message>
   </context>
   <context>
@@ -12804,6 +14338,32 @@ Note that this will also completely reset everything, including UAVCAN nodes, al
       <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="316"/>
       <source>Click anywhere to hide</source>
       <translation>クリックして非表示</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="246"/>
+      <source>Req. Upload</source>
+      <translation>要アップロード</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="61"/>
+      <source> deg</source>
+      <translation> deg</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="66"/>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="67"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="118"/>
+      <source>Done</source>
+      <translation>完了</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanToolBarIndicators.qml" line="161"/>
+      <source>Dist prev WP:</source>
+      <translation>前WPまでの距離:</translation>
     </message>
   </context>
   <context>
@@ -13118,6 +14678,76 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/PlanView/PlanView.qml" line="1213"/>
       <source>Download</source>
       <translation>ダウンロード</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="735"/>
+      <source>Vision LiDAR</source>
+      <translation>ビジョンLiDAR</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="1047"/>
+      <source>Current Distance</source>
+      <translation>現在の距離</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="73"/>
+      <source>Survey</source>
+      <translation>調査</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="75"/>
+      <source>Corridor Scan</source>
+      <translation>回廊スキャン</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="77"/>
+      <source>Structure Scan</source>
+      <translation>構造スキャン</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="79"/>
+      <source>Init Path</source>
+      <translation>経路の初期化</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="88"/>
+      <source>Blank</source>
+      <translation>空白</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="755"/>
+      <source>Powered by %1</source>
+      <translation>提供: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="874"/>
+      <source>Plan overwrite</source>
+      <translation>プランの上書き</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="748"/>
+      <source>Close</source>
+      <translation>閉じる</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="816"/>
+      <source>Use Obstacle Detection</source>
+      <translation>障害物検知を使用</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="858"/>
+      <source>Avoid</source>
+      <translation>回避</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="876"/>
+      <source>Stop</source>
+      <translation>停止</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/PlanView.qml" line="893"/>
+      <source>Detection Distance</source>
+      <translation>検知距離</translation>
     </message>
   </context>
   <context>
@@ -13853,6 +15483,11 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <location filename="../src/api/QGCCorePlugin.cc" line="286"/>
       <source>WARNING: You are about to enter Advanced Mode. If used incorrectly, this may cause your vehicle to malfunction thus voiding your warranty. You should do so only if instructed by customer support. Are you sure you want to enable Advanced Mode?</source>
       <translation>警告: 詳細モードに入ろうとしています。誤った設定をすると機体が故障し保証が受けられなくなることがあります。カスタマーサポートからの指示があった場合のみ実施してください。詳細モードを有効にしてもよろしいですか？</translation>
+    </message>
+    <message>
+      <location filename="../src/api/QGCCorePlugin.cc" line="144"/>
+      <source>Maps</source>
+      <translation>地図</translation>
     </message>
   </context>
   <context>
@@ -14802,6 +16437,36 @@ Click &apos;Ok&apos; to upload the Plan anyway.</source>
       <source>Mode 2</source>
       <translation>モード2</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="72"/>
+      <source>Click Ok to place your Spektrum receiver in the bind mode.</source>
+      <translation>OKをクリックすると、Spektrum受信機をペアリングモードにします。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="77"/>
+      <source>Select the specific receiver type below:</source>
+      <translation>以下から受信機のタイプを選択してください:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="317"/>
+      <source>Radio Not Ready</source>
+      <translation>送信機の準備ができていません</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="321"/>
+      <source>Ready to calibrate.</source>
+      <translation>キャリブレーションの準備ができました。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="323"/>
+      <source>Zero Trims</source>
+      <translation>トリムをゼロに</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponent.qml" line="324"/>
+      <source>Before calibrating you should zero all your trims and subtrims. Click Ok to start Calibration.\n\n%1</source>
+      <translation>キャリブレーションの前に、すべてのトリムとサブトリムをゼロにしてください。OKをクリックするとキャリブレーションを開始します。\n\n%1</translation>
+    </message>
   </context>
   <context>
     <name>RadioComponentController</name>
@@ -14921,6 +16586,11 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <translation>現在のキャリブレーション設定が各チャンネル毎に画面に表示されます。
 
 【次へ】ボタンをクリックして、キャリブレーション設定をボードにアップロードします。これらの値を保存しない場合は【キャンセル】をクリックしてください。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/RadioComponentController.cc" line="878"/>
+      <source>The current calibration settings are now displayed for each channel on screen.\n\n</source>
+      <translation>現在のキャリブレーション設定が、各チャンネルごとに画面に表示されています。\n\n</translation>
     </message>
   </context>
   <context>
@@ -15325,6 +16995,31 @@ Click the Next button to upload calibration to board. Click Cancel if you don&ap
       <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.cc" line="19"/>
       <source>Safety</source>
       <translation>セーフティ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="431"/>
+      <source>Min Altitude</source>
+      <translation>最低高度</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="444"/>
+      <source>Fence Inside</source>
+      <translation>フェンス内側</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="457"/>
+      <source>Start Time(h)</source>
+      <translation>開始時刻(h)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="470"/>
+      <source>Duration Time(h)</source>
+      <translation>継続時間(h)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SafetyComponent.qml" line="483"/>
+      <source>Time Zone(GMT)</source>
+      <translation>タイムゾーン(GMT)</translation>
     </message>
   </context>
   <context>
@@ -15818,6 +17513,31 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <source>Factory reset</source>
       <translation>工場出荷時の状態にリセット</translation>
     </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="62"/>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="69"/>
+      <source>Roll</source>
+      <translation>ロール</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="71"/>
+      <source>Pitch</source>
+      <translation>ピッチ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="73"/>
+      <source>Yaw</source>
+      <translation>ヨー</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/SensorsSetup.qml" line="337"/>
+      <source>Adjust orientations as needed.\n\nROTATION_NONE indicates component points in direction of flight.</source>
+      <translation>必要に応じて向きを調整してください。\n\nROTATION_NONEは、部品が飛行方向を向いていることを示します。</translation>
+    </message>
   </context>
   <context>
     <name>SerialConfiguration</name>
@@ -16003,6 +17723,11 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <source>Parameters</source>
       <translation>パラメータ</translation>
     </message>
+    <message>
+      <location filename="../src/VehicleSetup/SetupView.qml" line="266"/>
+      <source>Buttons</source>
+      <translation>ボタン</translation>
+    </message>
   </context>
   <context>
     <name>ShapeFileHelper</name>
@@ -16119,6 +17844,11 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <source>Flight Speed</source>
       <translation>飛行速度</translation>
     </message>
+    <message>
+      <location filename="../src/PlanView/SimpleItemEditor.qml" line="45"/>
+      <source>Param%1</source>
+      <translation>パラメータ%1</translation>
+    </message>
   </context>
   <context>
     <name>SimpleMissionItem</name>
@@ -16161,6 +17891,11 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <location filename="../src/MissionManager/SimpleMissionItem.cc" line="424"/>
       <source>Loiter</source>
       <translation>ロイター</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/SimpleMissionItem.cc" line="435"/>
+      <source>Param%1</source>
+      <translation>パラメータ%1</translation>
     </message>
   </context>
   <context>
@@ -16499,6 +18234,16 @@ ROTATION_NONEは、コンポーネントが飛行方向を向いていること�
       <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.cc" line="28"/>
       <source>The Syslink Component is used to setup the radio connection on Crazyflies.</source>
       <translation>SyslinkコンポーネントはCrazyfliesの送信機接続を設定するために使用します。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.qml" line="106"/>
+      <source>Address in hex. Default is E7E7E7E7E7.</source>
+      <translation>16進数のアドレス。デフォルトはE7E7E7E7E7です。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/Common/SyslinkComponent.qml" line="126"/>
+      <source>Restore Defaults</source>
+      <translation>デフォルトに戻す</translation>
     </message>
   </context>
   <context>
@@ -17269,6 +19014,128 @@ Confirm change?</source>
       <source>Weight units</source>
       <translation>重量単位</translation>
     </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="26"/>
+      <location filename="../src/Settings/UnitsSettings.cc" line="57"/>
+      <source>Feet</source>
+      <translation>フィート</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="26"/>
+      <location filename="../src/Settings/UnitsSettings.cc" line="57"/>
+      <source>Meters</source>
+      <translation>メートル</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="30"/>
+      <source>Distance units</source>
+      <translation>距離単位</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="61"/>
+      <source>Altitude units</source>
+      <translation>高度単位</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareFeet</source>
+      <translation>平方フィート</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareMeters</source>
+      <translation>平方メートル</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareKilometers</source>
+      <translation>平方キロメートル</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>Hectares</source>
+      <translation>ヘクタール</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>Acres</source>
+      <translation>エーカー</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="87"/>
+      <source>SquareMiles</source>
+      <translation>平方マイル</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="96"/>
+      <source>Area units</source>
+      <translation>面積単位</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Feet/second</source>
+      <translation>フィート/秒</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Meters/second</source>
+      <translation>メートル/秒</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Miles/hour</source>
+      <translation>マイル/時</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Kilometers/hour</source>
+      <translation>キロメートル/時</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="123"/>
+      <source>Knots</source>
+      <translation>ノット</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="131"/>
+      <source>Speed units</source>
+      <translation>速度単位</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="158"/>
+      <source>Celsius</source>
+      <translation>摂氏</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="158"/>
+      <source>Fahrenheit</source>
+      <translation>華氏</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="162"/>
+      <source>Temperature units</source>
+      <translation>温度単位</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Grams</source>
+      <translation>グラム</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Kilograms</source>
+      <translation>キログラム</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Ounces</source>
+      <translation>オンス</translation>
+    </message>
+    <message>
+      <location filename="../src/Settings/UnitsSettings.cc" line="196"/>
+      <source>Pounds</source>
+      <translation>ポンド</translation>
+    </message>
   </context>
   <context>
     <name>VTOLChecklist</name>
@@ -17801,6 +19668,32 @@ Confirm change?</source>
       <source>%1 command failed</source>
       <translation>%1 コマンドに失敗しました</translation>
     </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="981"/>
+      <source>PreArm: Radio failsafe on</source>
+      <translation>プリアーム: 送信機フェイルセーフ作動中</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="983"/>
+      <source>PreArm: Waiting for 3D fix</source>
+      <translation>プリアーム: 3D Fix待機中</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="985"/>
+      <source>PreArm: EKF attitude is bad</source>
+      <translation>プリアーム: EKF姿勢不良</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="1803"/>
+      <source>Preflight checklist incomplete. Disarming vehicle.</source>
+      <translation>飛行前チェックリストが完了していません。機体をディスアームします。</translation>
+    </message>
+    <message>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2488"/>
+      <location filename="../src/Vehicle/Vehicle.cc" line="2502"/>
+      <source>Preflight checklist must pass before arming.</source>
+      <translation>アームする前に飛行前チェックリストを完了する必要があります。</translation>
+    </message>
   </context>
   <context>
     <name>Vehicle Class</name>
@@ -17994,6 +19887,36 @@ Confirm change?</source>
       <source>Not Available</source>
       <translation>利用不可</translation>
     </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="98"/>
+      <source>X (%1)</source>
+      <translation>X (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="143"/>
+      <source>Y (%1)</source>
+      <translation>Y (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="188"/>
+      <source>Z (%1)</source>
+      <translation>Z (%1)</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="202"/>
+      <source>Accel 1: %1</source>
+      <translation>加速度計 1: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="206"/>
+      <source>Accel 2: %1</source>
+      <translation>加速度計 2: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/AnalyzeView/VibrationPage.qml" line="210"/>
+      <source>Accel 3: %1</source>
+      <translation>加速度計 3: %1</translation>
+    </message>
   </context>
   <context>
     <name>VideoManager</name>
@@ -18064,6 +19987,8951 @@ Confirm change?</source>
       <location filename="../src/Settings/VideoSettings.cc" line="31"/>
       <source>Yuneec Mantis G</source>
       <translation>Yuneec Mantis G</translation>
+    </message>
+  </context>
+  <context>
+    <name>Parameter.MetaData.json</name>
+    <message>
+      <source>Disabled</source>
+      <translation>無効</translation>
+    </message>
+    <message>
+      <source>HITL and SIH disabled</source>
+      <translation>HITLおよびSIH無効</translation>
+    </message>
+    <message>
+      <source>SIH enabled</source>
+      <translation>SIH有効</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch</source>
+      <translation>ロール/ピッチ</translation>
+    </message>
+    <message>
+      <source>Roll/Pitch/Yaw</source>
+      <translation>ロール/ピッチ/ヨー</translation>
+    </message>
+    <message>
+      <source>Simple position control</source>
+      <translation>シンプル位置制御</translation>
+    </message>
+    <message>
+      <source>Smooth position control</source>
+      <translation>スムーズ位置制御</translation>
+    </message>
+    <message>
+      <source>Smooth position control (Jerk optimized)</source>
+      <translation>スムーズ位置制御 (ジャーク最適化)</translation>
+    </message>
+  </context>
+  <context>
+    <name>MapsSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="90"/>
+      <source>Map</source>
+      <translation>地図</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="110"/>
+      <source>Provider</source>
+      <translation>プロバイダー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="132"/>
+      <source>Type</source>
+      <translation>タイプ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="149"/>
+      <source>Elevation Provider</source>
+      <translation>標高プロバイダー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="164"/>
+      <source>Offline Maps</source>
+      <translation>オフラインマップ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="168"/>
+      <source>Download map tiles for use when offline</source>
+      <translation>オフラインで使用する地図タイルをダウンロード</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="199"/>
+      <source>tiles</source>
+      <translation>タイル</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="208"/>
+      <source>Edit</source>
+      <translation>編集</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="218"/>
+      <source>Add New Set</source>
+      <translation>新規セットを追加</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="220"/>
+      <source>Add</source>
+      <translation>追加</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="229"/>
+      <source>Import Map Tiles</source>
+      <translation>地図タイルのインポート</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="231"/>
+      <source>Import</source>
+      <translation>インポート</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="240"/>
+      <source>Export Map Tiles</source>
+      <translation>地図タイルのエクスポート</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="242"/>
+      <source>Export</source>
+      <translation>エクスポート</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="252"/>
+      <source>Tokens</source>
+      <translation>トークン</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="259"/>
+      <source>Allows access to additional providers</source>
+      <translation>追加のプロバイダーを利用できます</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="278"/>
+      <source>Mapbox</source>
+      <translation>Mapbox</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="286"/>
+      <source>Esri</source>
+      <translation>Esri</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="294"/>
+      <source>VWorld</source>
+      <translation>VWorld</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="306"/>
+      <source>To enable VWorld maps, enter your access token.</source>
+      <translation>VWorld地図を有効にするには、アクセストークンを入力してください。</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="313"/>
+      <source>Mapbox Login</source>
+      <translation>Mapboxログイン</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="333"/>
+      <source>Account</source>
+      <translation>アカウント</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="340"/>
+      <source>Map Style</source>
+      <translation>地図スタイル</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="351"/>
+      <source>Custom Map URL</source>
+      <translation>カスタム地図URL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="358"/>
+      <source>URL with {x} {y} {z} or {zoom} substitutions</source>
+      <translation>{x} {y} {z} または {zoom} の置換を含むURL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="377"/>
+      <source>Server URL</source>
+      <translation>サーバーURL</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="387"/>
+      <source>Tile Cache</source>
+      <translation>タイルキャッシュ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="404"/>
+      <source>Max disk cache</source>
+      <translation>最大ディスクキャッシュ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="420"/>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="438"/>
+      <source>MB</source>
+      <translation>MB</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/MapsSettings.qml" line="422"/>
+      <source>Max memory cache</source>
+      <translation>最大メモリキャッシュ</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMSupportForwardingIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/APMSupportForwardingIndicator.qml" line="46"/>
+      <source>Mavlink traffic is being forwarded to a support server</source>
+      <translation>MAVLinkトラフィックをサポートサーバーへ転送中です</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/APMSupportForwardingIndicator.qml" line="50"/>
+      <source>Server name:</source>
+      <translation>サーバー名:</translation>
+    </message>
+  </context>
+  <context>
+    <name>ARLinkIndicator</name>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="55"/>
+      <source>Link RSSI Status</source>
+      <translation>リンクRSSI状態</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="55"/>
+      <source>Link Disconnected</source>
+      <translation>リンク切断</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="69"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="73"/>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="82"/>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="92"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="78"/>
+      <source>Sky RSSI:</source>
+      <translation>機体側RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="87"/>
+      <source>Main Link:</source>
+      <translation>メインリンク:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="99"/>
+      <source>Start Pair</source>
+      <translation>ペアリング開始</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="153"/>
+      <source>Data Link Pair</source>
+      <translation>データリンクのペアリング</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="168"/>
+      <source>Step 1</source>
+      <translation>ステップ1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="178"/>
+      <source>Quick press 6 times in 3 second.</source>
+      <translation>3秒以内に6回素早く押してください。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="194"/>
+      <source>Step 2</source>
+      <translation>ステップ2</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="205"/>
+      <source>Press and hold this, the remote control will enter the binding state.</source>
+      <translation>これを長押しすると、送信機がペアリング状態になります。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="214"/>
+      <source>Trigger Bind</source>
+      <translation>ペアリング実行</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="235"/>
+      <source>Binding</source>
+      <translation>ペアリング中</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
+      <source>Bind Success</source>
+      <translation>ペアリング成功</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARLinkIndicator.qml" line="257"/>
+      <source>Bind Timeout</source>
+      <translation>ペアリングタイムアウト</translation>
+    </message>
+  </context>
+  <context>
+    <name>ARSettings</name>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="41"/>
+      <source>Reboot ground/air unit for changes to take effect.</source>
+      <translation>変更を反映するには地上/機体ユニットを再起動してください。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="56"/>
+      <source>Link Status</source>
+      <translation>リンク状態</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="77"/>
+      <source>Status:</source>
+      <translation>状態:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="81"/>
+      <source>Connected</source>
+      <translation>接続済</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="81"/>
+      <source>Not Connected</source>
+      <translation>未接続</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="86"/>
+      <source>Bind Status:</source>
+      <translation>ペアリング状態:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
+      <source>Binded</source>
+      <translation>ペアリング済</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="90"/>
+      <source>Not Binded</source>
+      <translation>未ペアリング</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="95"/>
+      <source>Frequency Band:</source>
+      <translation>周波数帯:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="101"/>
+      <source>Frequency:</source>
+      <translation>周波数:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="107"/>
+      <source>Bandwidth/Flow:</source>
+      <translation>帯域幅/フロー:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="113"/>
+      <source>Ground/Air MCS:</source>
+      <translation>地上/機体 MCS:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="119"/>
+      <source>Ground/Air/BR SNR:</source>
+      <translation>地上/機体/BR SNR:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="125"/>
+      <source>Ground RSSI A/B:</source>
+      <translation>地上RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="131"/>
+      <source>Air RSSI A/B:</source>
+      <translation>機体RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="137"/>
+      <source>BR RSSI A/B:</source>
+      <translation>BR RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="143"/>
+      <source>Temperature: G/A</source>
+      <translation>温度: 地上/機体</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="149"/>
+      <source>Version:</source>
+      <translation>バージョン:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="187"/>
+      <source>Ground Settings</source>
+      <translation>地上ユニット設定</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="211"/>
+      <source>Bind</source>
+      <translation>ペアリング</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="219"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="280"/>
+      <source>Enable 2.4G</source>
+      <translation>2.4Gを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="232"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="291"/>
+      <source>Enable 5.8G</source>
+      <translation>5.8Gを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="241"/>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="302"/>
+      <source>Reboot</source>
+      <translation>再起動</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/ARLink/ARSettings.qml" line="260"/>
+      <source>Air Settings</source>
+      <translation>機体ユニット設定</translation>
+    </message>
+  </context>
+  <context>
+    <name>RajantSettings</name>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="51"/>
+      <source>Link Status</source>
+      <translation>リンク状態</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="72"/>
+      <source>Status:</source>
+      <translation>状態:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+      <source>Connected</source>
+      <translation>接続済</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="76"/>
+      <source>Not Connected</source>
+      <translation>未接続</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+      <source>Node Address:</source>
+      <translation>ノードアドレス:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="86"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="81"/>
+      <source>Node adress:</source>
+      <translation>ノードアドレス:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+      <source>Serial Number:</source>
+      <translation>シリアル番号:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="98"/>
+      <source>Current Network Name:</source>
+      <translation>現在のネットワーク名:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="91"/>
+      <source>Radio:</source>
+      <translation>無線機:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="99"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="109"/>
+      <source>Sky RSSI:</source>
+      <translation>機体側RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="119"/>
+      <source>Noise Floor:</source>
+      <translation>ノイズフロア:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="127"/>
+      <source>Link Rate:</source>
+      <translation>リンクレート:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="135"/>
+      <source>Tx Power:</source>
+      <translation>送信出力:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="143"/>
+      <source>Peers:</source>
+      <translation>ピア:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="151"/>
+      <source>Hostname:</source>
+      <translation>ホスト名:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="161"/>
+      <source>Firmware:</source>
+      <translation>ファームウェア:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="193"/>
+      <source>Pairing Device</source>
+      <translation>デバイスのペアリング</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="219"/>
+      <source>Set Network Name:</source>
+      <translation>ネットワーク名の設定:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="227"/>
+      <source>Enter full mesh name</source>
+      <translation>完全なメッシュ名を入力</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="244"/>
+      <source>Connect</source>
+      <translation>接続</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="252"/>
+      <source>Disconnect</source>
+      <translation>切断</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantSettings.qml" line="266"/>
+      <source>Applying settings and waiting reboot...</source>
+      <translation>設定を適用し、再起動を待機中...</translation>
+    </message>
+  </context>
+  <context>
+    <name>RajantLinkIndicator</name>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+      <source>Rajant Link Status</source>
+      <translation>Rajantリンク状態</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="59"/>
+      <source>Rajant Disconnected</source>
+      <translation>Rajant切断</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="70"/>
+      <source>Radio:</source>
+      <translation>無線機:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="77"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="79"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="87"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="93"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="99"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="106"/>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="113"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="83"/>
+      <source>Sky RSSI:</source>
+      <translation>機体側RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="91"/>
+      <source>Noise:</source>
+      <translation>ノイズ:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="97"/>
+      <source>Link Rate:</source>
+      <translation>リンクレート:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="104"/>
+      <source>Tx Power:</source>
+      <translation>送信出力:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="111"/>
+      <source>Peers:</source>
+      <translation>ピア:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="116"/>
+      <source>Main Link:</source>
+      <translation>メインリンク:</translation>
+    </message>
+    <message>
+      <location filename="../src/RajantLink/RajantLinkIndicator.qml" line="117"/>
+      <source>UDP</source>
+      <translation>UDP</translation>
+    </message>
+  </context>
+  <context>
+    <name>ActuatorComponent</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="38"/>
+      <source>Geometry</source>
+      <translation>ジオメトリ</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="176"/>
+      <source>Actuator Testing</source>
+      <translation>アクチュエーターテスト</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="195"/>
+      <source>Configure some outputs in order to test them.</source>
+      <translation>テストするには出力を設定してください。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="232"/>
+      <source>Careful: Actuator sliders are enabled</source>
+      <translation>注意: アクチュエータースライダーが有効です</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="232"/>
+      <source>Propellers are removed - Enable sliders</source>
+      <translation>プロペラ取り外し済 - スライダーを有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="321"/>
+      <source>Actuator Outputs</source>
+      <translation>アクチュエーター出力</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="326"/>
+      <source>One or more actuator still needs to be assigned to an output.</source>
+      <translation>1つ以上のアクチュエーターがまだ出力に割り当てられていません。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="368"/>
+      <source>Identify &amp; Assign Motors</source>
+      <translation>モーターの識別&amp;割り当て</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="384"/>
+      <source>Motor Order Identification and Assignment</source>
+      <translation>モーター順序の識別と割り当て</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="396"/>
+      <source>Error</source>
+      <translation>エラー</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="401"/>
+      <source>Spin Motor Again</source>
+      <translation>モーターを再度回転</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorComponent.qml" line="408"/>
+      <source>Abort</source>
+      <translation>中止</translation>
+    </message>
+  </context>
+  <context>
+    <name>ActuatorFact</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/ActuatorFact.qml" line="46"/>
+      <source>(Param not available)</source>
+      <translation>(パラメータ使用不可)</translation>
+    </message>
+  </context>
+  <context>
+    <name>AudioControl</name>
+    <message>
+      <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="86"/>
+      <source>Play</source>
+      <translation>再生</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/AudioControl.qml" line="134"/>
+      <source>Stop</source>
+      <translation>停止</translation>
+    </message>
+  </context>
+  <context>
+    <name>OpticalFlowControl</name>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="52"/>
+      <source>Optical Flow Sensor</source>
+      <translation>オプティカルフローセンサ</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="76"/>
+      <source>GPS</source>
+      <translation>GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="100"/>
+      <source>Optical</source>
+      <translation>オプティカル</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="124"/>
+      <source>Auto</source>
+      <translation>自動</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="148"/>
+      <source>Calib Start</source>
+      <translation>キャリブレーション開始</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightMap/Widgets/OpticalFlowControl.qml" line="180"/>
+      <source>Calib Stop</source>
+      <translation>キャリブレーション停止</translation>
+    </message>
+  </context>
+  <context>
+    <name>CodevCameraVisual</name>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="512"/>
+      <source>RF:</source>
+      <translation>RF:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="526"/>
+      <source>TrackScore:</source>
+      <translation>追跡スコア:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="536"/>
+      <source>Temp:</source>
+      <translation>温度:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="545"/>
+      <source>CPU:</source>
+      <translation>CPU:</translation>
+    </message>
+    <message>
+      <location filename="../src/Camera/CodevCameraVisual.qml" line="554"/>
+      <source>MEM:</source>
+      <translation>MEM:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomCameraControl</name>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="40"/>
+      <source>NO CAMERA</source>
+      <translation>カメラなし</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="159"/>
+      <source>Rest Zoom</source>
+      <translation>ズームリセット</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="297"/>
+      <location filename="../custom/CustomCameraControl.qml" line="490"/>
+      <source>NONE</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="298"/>
+      <location filename="../custom/CustomCameraControl.qml" line="491"/>
+      <source>FULL</source>
+      <translation>フル</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="325"/>
+      <source>Video</source>
+      <translation>ビデオ</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="325"/>
+      <source>Photo</source>
+      <translation>写真</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="381"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="459"/>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Settings</source>
+      <translation>設定</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Video Settings</source>
+      <translation>ビデオ設定</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="625"/>
+      <source>Photo Settings</source>
+      <translation>写真設定</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="653"/>
+      <source>Camera Selector:</source>
+      <translation>カメラ選択:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="678"/>
+      <source>Stream Selector:</source>
+      <translation>ストリーム選択:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Off</source>
+      <translation>オフ</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Blend</source>
+      <translation>ブレンド</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Full</source>
+      <translation>フル</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="702"/>
+      <source>Picture In Picture</source>
+      <translation>ピクチャー・イン・ピクチャー</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="704"/>
+      <source>Thermal View Mode</source>
+      <translation>サーマル表示モード</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="729"/>
+      <source>Blend Opacity</source>
+      <translation>ブレンド不透明度</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="840"/>
+      <source>Single</source>
+      <translation>シングル</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="840"/>
+      <source>Time Lapse</source>
+      <translation>タイムラプス</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="842"/>
+      <source>Photo Mode</source>
+      <translation>撮影モード</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="867"/>
+      <source>Photo Interval (seconds)</source>
+      <translation>撮影間隔 (秒)</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="900"/>
+      <source>Show Gimbal Control</source>
+      <translation>ジンバル操作を表示</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="925"/>
+      <source>Screen Grid</source>
+      <translation>画面グリッド</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="950"/>
+      <source>Video Screen Fit</source>
+      <translation>ビデオ画面フィット</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="974"/>
+      <source>Reset Camera Defaults</source>
+      <translation>カメラ設定をデフォルトに戻す</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="979"/>
+      <source>Reset</source>
+      <translation>リセット</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="987"/>
+      <source>Reset Camera to Factory Settings</source>
+      <translation>カメラを工場出荷時設定にリセット</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="988"/>
+      <source>Confirm resetting all settings?</source>
+      <translation>すべての設定をリセットしてもよろしいですか？</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="1042"/>
+      <source>Close</source>
+      <translation>閉じる</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomCameraControl.qml" line="1089"/>
+      <source>Thermal Palettes</source>
+      <translation>サーマルパレット</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomFlyViewOverlay</name>
+    <message>
+      <location filename="../custom/res/CustomFlyViewOverlay.qml" line="28"/>
+      <source>NO GPS</source>
+      <translation>GPSなし</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomFlyViewWidgetLayer</name>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="92"/>
+      <source>Single</source>
+      <translation>シングル</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="98"/>
+      <source>Multi-Vehicle</source>
+      <translation>複数機体</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="215"/>
+      <source>Photo captured.</source>
+      <translation>写真を撮影しました。</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="217"/>
+      <source>Photo capture failed.</source>
+      <translation>写真の撮影に失敗しました。</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="219"/>
+      <source>Recording failed.</source>
+      <translation>録画に失敗しました。</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomFlyViewWidgetLayer.qml" line="221"/>
+      <source>No zoom in 4K video.</source>
+      <translation>4Kビデオではズームできません。</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomGPSIndicator</name>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="68"/>
+      <source>GPS Status</source>
+      <translation>GPS状態</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="68"/>
+      <source>GPS Data Unavailable</source>
+      <translation>GPSデータなし</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="81"/>
+      <source>GPS Count:</source>
+      <translation>GPS数:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="82"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="84"/>
+      <source>N/A</source>
+      <comment>No data to display</comment>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="83"/>
+      <source>GPS Lock:</source>
+      <translation>GPS測位:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="85"/>
+      <source>HDOP:</source>
+      <translation>HDOP:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="86"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="88"/>
+      <location filename="../custom/CustomGPSIndicator.qml" line="90"/>
+      <source>--.--</source>
+      <comment>No data to display</comment>
+      <translation>--.--</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="87"/>
+      <source>VDOP:</source>
+      <translation>VDOP:</translation>
+    </message>
+    <message>
+      <location filename="../custom/CustomGPSIndicator.qml" line="89"/>
+      <source>Course Over Ground:</source>
+      <translation>対地針路:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomMainToolBar</name>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="91"/>
+      <source>Disconnect</source>
+      <translation>切断</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="326"/>
+      <source>Downloading</source>
+      <translation>ダウンロード中</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/CustomMainToolBar.qml" line="334"/>
+      <source>Click anywhere to hide</source>
+      <translation>任意の場所をクリックして非表示</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomOnOffSwitch</name>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomOnOffSwitch.qml" line="41"/>
+      <source>Off</source>
+      <translation>オフ</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomOnOffSwitch.qml" line="55"/>
+      <source>On</source>
+      <translation>オン</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomPlugin</name>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="160"/>
+      <source>General</source>
+      <translation>一般</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="161"/>
+      <source>Comm Links</source>
+      <translation>通信リンク</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="186"/>
+      <source>Maps</source>
+      <translation>地図</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="163"/>
+      <source>MAVLink</source>
+      <translation>MAVLink</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="164"/>
+      <source>Console</source>
+      <translation>コンソール</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="169"/>
+      <source>RTCM</source>
+      <translation>RTCM</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="173"/>
+      <source>M2Link</source>
+      <translation>M2Link</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="177"/>
+      <source>Enpulse</source>
+      <translation>Enpulse</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="179"/>
+      <source>GeoAwareness</source>
+      <translation>ジオアウェアネス</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/CustomPlugin.cc" line="182"/>
+      <source>Mock Link</source>
+      <translation>模擬リンク</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomVehicle</name>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="77"/>
+      <source>RC Channels are sending byself.</source>
+      <translation>RC チャンネルを自機から送信中です。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="153"/>
+      <source>UDP</source>
+      <translation>UDP</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="155"/>
+      <source>Serial</source>
+      <translation>シリアル</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="157"/>
+      <source>Other</source>
+      <translation>その他</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="161"/>
+      <source>Unknow</source>
+      <translation>不明</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="216"/>
+      <source>Set the forced landing point successfully.</source>
+      <translation>強制着陸地点を設定しました。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="218"/>
+      <source>Set the forced landing point failed!</source>
+      <translation>強制着陸地点の設定に失敗しました！</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="223"/>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="245"/>
+      <source>Setting of forced landing points is not supported.</source>
+      <translation>強制着陸地点の設定には対応していません。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="238"/>
+      <source>Remove the forced landing point successfully.</source>
+      <translation>強制着陸地点を削除しました。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="240"/>
+      <source>Remove the forced landing point failed!</source>
+      <translation>強制着陸地点の削除に失敗しました！</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="351"/>
+      <source>LandTarget X:%1, Y:%2, Size:%3</source>
+      <translation>着陸ターゲット X:%1, Y:%2, サイズ:%3</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="384"/>
+      <source>Switch to Local Link.</source>
+      <translation>ローカルリンクに切り替えます。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/FirmwarePlugin/CustomVehicle.cc" line="388"/>
+      <source>Switch to LTE Link.</source>
+      <translation>LTEリンクに切り替えます。</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomVehicleButton</name>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="72"/>
+      <source>Vehicle </source>
+      <translation>機体 </translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="72"/>
+      <location filename="../custom/res/Custom/Widgets/CustomVehicleButton.qml" line="79"/>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+  </context>
+  <context>
+    <name>FactTextFieldSlider</name>
+    <message>
+      <location filename="../src/FactSystem/FactControls/FactTextFieldSlider.qml" line="65"/>
+      <source>Value: </source>
+      <translation>値: </translation>
+    </message>
+  </context>
+  <context>
+    <name>FlightModeMenuIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/FlightModeMenuIndicator.qml" line="92"/>
+      <source>N/A</source>
+      <comment>No data to display</comment>
+      <translation>N/A</translation>
+    </message>
+  </context>
+  <context>
+    <name>FlightZoneManager</name>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="482"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="486"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1531"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1542"/>
+      <source>Cannot access GeoZone data.&lt;br&gt;Please check local files or internet connection.</source>
+      <translation>ジオゾーンデータにアクセスできません。&lt;br&gt;ローカルファイルまたはインターネット接続を確認してください。</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1541"/>
+      <source>Invalid JSON format</source>
+      <translation>無効なJSON形式</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
+      <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
+      <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
+      <translation>機体がジオゾーンに接近しています。距離 : %1M</translation>
+    </message>
+  </context>
+  <context>
+    <name>FlyViewOverlay</name>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="31"/>
+      <source>NO GPS</source>
+      <translation>GPSなし</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="248"/>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="259"/>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="330"/>
+      <source>CRITICAL:</source>
+      <translation>重大:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="258"/>
+      <source>INFO:</source>
+      <translation>情報:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="260"/>
+      <source>WARNING:</source>
+      <translation>警告:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="261"/>
+      <source>SUCCESS:</source>
+      <translation>成功:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="262"/>
+      <source>NONE:</source>
+      <translation>なし:</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="687"/>
+      <source>Life Jacket</source>
+      <translation>救命胴衣</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="705"/>
+      <source>Close</source>
+      <translation>閉じる</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="752"/>
+      <source>Drop Life Jacket</source>
+      <translation>救命胴衣投下</translation>
+    </message>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/FlyViewOverlay.qml" line="772"/>
+      <source>Searchlight</source>
+      <translation>サーチライト</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneFileDialog</name>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="171"/>
+      <source>Path: %1</source>
+      <translation>パス: %1</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="204"/>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="312"/>
+      <source>Delete</source>
+      <translation>削除</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="215"/>
+      <source>No files</source>
+      <translation>ファイルなし</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="255"/>
+      <source>New file name:</source>
+      <translation>新しいファイル名:</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="269"/>
+      <source>The file %1 exists. Click Save again to replace it.</source>
+      <translation>ファイル%1は既に存在します。もう一度保存をクリックすると置き換えます。</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/GeoZoneFileDialog.qml" line="277"/>
+      <source>Save to existing file:</source>
+      <translation>既存ファイルに保存:</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneMakeView</name>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="65"/>
+      <source>Vehicle is currently armed. Do you want to upload the mission to the vehicle?</source>
+      <translation>機体は現在アーム済です。ミッションを機体にアップロードしますか？</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="115"/>
+      <source>Save GeoZone</source>
+      <translation>ジオゾーンを保存</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="282"/>
+      <source>Plan</source>
+      <translation>プラン</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="300"/>
+      <source>Go to main</source>
+      <translation>メインへ移動</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="305"/>
+      <source>Select Area</source>
+      <translation>エリア選択</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="319"/>
+      <source>Delete Area</source>
+      <translation>エリア削除</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="384"/>
+      <source>GeoZone Download</source>
+      <translation>ジオゾーンのダウンロード</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="391"/>
+      <source>Center</source>
+      <translation>中心</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="399"/>
+      <source>Latitude</source>
+      <translation>緯度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="415"/>
+      <source>Longitude</source>
+      <translation>経度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="442"/>
+      <source>Area</source>
+      <translation>エリア</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="451"/>
+      <source>Vertical</source>
+      <translation>垂直</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="519"/>
+      <source>Horizontal</source>
+      <translation>水平</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/GeoZoneMakeView.qml" line="611"/>
+      <source>DOWNLOAD</source>
+      <translation>ダウンロード</translation>
+    </message>
+  </context>
+  <context>
+    <name>GeoZoneMapPolygonVisuals</name>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="51"/>
+      <source>Polygon Tools</source>
+      <translation>ポリゴンツール</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="52"/>
+      <source>Click in the map to add vertices. Click &apos;Done Tracing&apos; when finished.</source>
+      <translation>地図をクリックして頂点を追加します。完了したら&apos;トレース完了&apos;をクリックしてください。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="558"/>
+      <source>Edit Center Position</source>
+      <translation>中心位置の編集</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/GeoZoneMapPolygonVisuals.qml" line="574"/>
+      <source>Edit Vertex Position</source>
+      <translation>頂点位置の編集</translation>
+    </message>
+  </context>
+  <context>
+    <name>GimbalIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="57"/>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="193"/>
+      <source>Gimbal </source>
+      <translation>ジンバル </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="59"/>
+      <source>&lt;br&gt; Controls</source>
+      <translation>&lt;br&gt; 操作</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="73"/>
+      <source>Yaw &lt;br&gt; Follow</source>
+      <translation>ヨー &lt;br&gt; 追従</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="73"/>
+      <source>Yaw &lt;br&gt; Lock</source>
+      <translation>ヨー &lt;br&gt; ロック</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="74"/>
+      <source>Center</source>
+      <translation>センター</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="75"/>
+      <source>Tilt 90</source>
+      <translation>チルト90</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="76"/>
+      <source>Point &lt;br&gt; Home</source>
+      <translation>ホーム &lt;br&gt; 指向</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="77"/>
+      <source>Retract</source>
+      <translation>格納</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="78"/>
+      <source>Release &lt;br&gt; Control</source>
+      <translation>制御 &lt;br&gt; 解放</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="78"/>
+      <source>Acquire &lt;br&gt; Control</source>
+      <translation>制御 &lt;br&gt; 取得</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="124"/>
+      <source>Active &lt;br&gt; Gimbal: </source>
+      <translation>アクティブ &lt;br&gt; ジンバル: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="136"/>
+      <source>Select &lt;br&gt; Gimbal</source>
+      <translation>ジンバル &lt;br&gt; 選択</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="222"/>
+      <source>Settings</source>
+      <translation>設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="257"/>
+      <source>Control type: </source>
+      <translation>制御タイプ: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="267"/>
+      <source>Horizontal FOV</source>
+      <translation>水平FOV</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="276"/>
+      <source>Vertical FOV</source>
+      <translation>垂直FOV</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="285"/>
+      <source>Max speed:</source>
+      <translation>最大速度:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="304"/>
+      <source>Show gimbal Azimuth indicator in map</source>
+      <translation>地図にジンバル方位インジケーターを表示</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="313"/>
+      <source>Use Azimuth instead of local yaw on top toolbar indicator</source>
+      <translation>上部ツールバーのインジケーターでローカルヨーの代わりに方位を使用</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="322"/>
+      <source>Show Acquire/Release control button</source>
+      <translation>制御取得/解放ボタンを表示</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="371"/>
+      <source>Retracted</source>
+      <translation>格納済</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="372"/>
+      <source>Yaw locked</source>
+      <translation>ヨーロック</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="372"/>
+      <source>Yaw follow</source>
+      <translation>ヨー追従</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="378"/>
+      <source>P: </source>
+      <translation>P: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="383"/>
+      <source>Az: </source>
+      <translation>Az: </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/GimbalIndicator.qml" line="384"/>
+      <source>Y: </source>
+      <translation>Y: </translation>
+    </message>
+  </context>
+  <context>
+    <name>HeightIndicator</name>
+    <message>
+      <location filename="../src/QmlControls/HeightIndicator.qml" line="13"/>
+      <source>30 ft</source>
+      <translation>30 ft</translation>
+    </message>
+  </context>
+  <context>
+    <name>M2LinkIndicator</name>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="65"/>
+      <source>Link RSSI Status</source>
+      <translation>リンクRSSIステータス</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="65"/>
+      <source>Link Disconnected</source>
+      <translation>リンク切断</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="79"/>
+      <source>LinkSpeed:</source>
+      <translation>リンク速度:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="83"/>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="92"/>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="101"/>
+      <source>N/A</source>
+      <translation>N/A</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="88"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="97"/>
+      <source>Sky RSSI:</source>
+      <translation>機体側RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="107"/>
+      <source>Start Pair</source>
+      <translation>ペアリング開始</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="161"/>
+      <source>Data Link Pair</source>
+      <translation>データリンクのペアリング</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="176"/>
+      <source>Press and hold this, the remote control will enter the binding state.</source>
+      <translation>長押しすると、送信機がペアリング状態になります。</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="184"/>
+      <source>Trigger Bind</source>
+      <translation>ペアリング実行</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="205"/>
+      <source>Binding</source>
+      <translation>ペアリング中</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2LinkIndicator.qml" line="226"/>
+      <source>Bind Success</source>
+      <translation>ペアリング成功</translation>
+    </message>
+  </context>
+  <context>
+    <name>M2Settings</name>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="74"/>
+      <source>Link Status</source>
+      <translation>リンクステータス</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="95"/>
+      <source>Status:</source>
+      <translation>ステータス:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="99"/>
+      <source>Connected</source>
+      <translation>接続済み</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="99"/>
+      <source>Not Connected</source>
+      <translation>未接続</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="104"/>
+      <source>SSID:</source>
+      <translation>SSID:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="111"/>
+      <source>Bind Status:</source>
+      <translation>ペアリング状態:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Binding</source>
+      <translation>ペアリング中</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Finished</source>
+      <translation>完了</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="115"/>
+      <source>Not Binded</source>
+      <translation>未ペアリング</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="120"/>
+      <source>Frequency:</source>
+      <translation>周波数:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="126"/>
+      <source>RSSI:</source>
+      <translation>RSSI:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="132"/>
+      <source>LinkSpeed:</source>
+      <translation>リンク速度:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="138"/>
+      <source>RSSI A/B:</source>
+      <translation>RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="144"/>
+      <source>Sky RSSI A/B:</source>
+      <translation>機体側RSSI A/B:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="150"/>
+      <source>CPU Temp:</source>
+      <translation>CPU温度:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="156"/>
+      <source>RF Temp:</source>
+      <translation>RF温度:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="162"/>
+      <source>Version:</source>
+      <translation>バージョン:</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="178"/>
+      <source>Channel Information &amp; Selection</source>
+      <translation>チャンネル情報 &amp; 選択</translation>
+    </message>
+    <message>
+      <location filename="../src/M2Link/M2Settings.qml" line="189"/>
+      <source>Scan</source>
+      <translation>スキャン</translation>
+    </message>
+  </context>
+  <context>
+    <name>NTRIPClient</name>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="33"/>
+      <source>Host:</source>
+      <translation>ホスト:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="41"/>
+      <source>Port:</source>
+      <translation>ポート:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="53"/>
+      <source>Mountpoint:</source>
+      <translation>マウントポイント:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="135"/>
+      <source>Enter Mountpoint Manually</source>
+      <translation>マウントポイントを手動入力</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="78"/>
+      <source>User:</source>
+      <translation>ユーザー:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="86"/>
+      <source>Password:</source>
+      <translation>パスワード:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="96"/>
+      <source>Log out</source>
+      <translation>ログアウト</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="96"/>
+      <source>Log in</source>
+      <translation>ログイン</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="139"/>
+      <source>GPGGA Hz:</source>
+      <translation>GPGGA Hz:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/NTRIPClient.qml" line="169"/>
+      <source>Get from Vehicle</source>
+      <translation>機体から取得</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGCPopupDialog</name>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="159"/>
+      <source>Ok</source>
+      <translation>OK</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="162"/>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="171"/>
+      <source>Open</source>
+      <translation>開く</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="165"/>
+      <source>Save</source>
+      <translation>保存</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="168"/>
+      <source>Apply</source>
+      <translation>適用</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="174"/>
+      <source>Save All</source>
+      <translation>すべて保存</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="177"/>
+      <source>Yes</source>
+      <translation>はい</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="180"/>
+      <source>Yes to All</source>
+      <translation>すべてはい</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="183"/>
+      <source>Retry</source>
+      <translation>再試行</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="186"/>
+      <source>Reset</source>
+      <translation>リセット</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="189"/>
+      <source>Restore to Defaults</source>
+      <translation>デフォルトに戻す</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="192"/>
+      <source>Ignore</source>
+      <translation>無視</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="198"/>
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="201"/>
+      <source>Close</source>
+      <translation>閉じる</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="204"/>
+      <source>No</source>
+      <translation>いいえ</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="207"/>
+      <source>No to All</source>
+      <translation>すべていいえ</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/QGCPopupDialog.qml" line="210"/>
+      <source>Abort</source>
+      <translation>中止</translation>
+    </message>
+  </context>
+  <context>
+    <name>RCChannelMonitor</name>
+    <message>
+      <location filename="../src/QmlControls/RCChannelMonitor.qml" line="82"/>
+      <source>Not Mapped</source>
+      <translation>未割り当て</translation>
+    </message>
+    <message>
+      <location filename="../src/QmlControls/RCChannelMonitor.qml" line="104"/>
+      <source>Channel Monitor</source>
+      <translation>チャンネルモニター</translation>
+    </message>
+  </context>
+  <context>
+    <name>RTCMSettings</name>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="54"/>
+      <source>General</source>
+      <translation>一般</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="74"/>
+      <source>RTCM Source:</source>
+      <translation>RTCMソース:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="84"/>
+      <source>RTCM Max Hz:</source>
+      <translation>RTCM最大Hz:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/RTCMSettings.qml" line="107"/>
+      <source> RTCM Source</source>
+      <translation> RTCMソース</translation>
+    </message>
+  </context>
+  <context>
+    <name>RemoteIDIndicator</name>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="126"/>
+      <source>RemoteID Status</source>
+      <translation>RemoteIDステータス</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="149"/>
+      <source>ARM STATUS</source>
+      <translation>アーム状態</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
+      <source>RID COMMS</source>
+      <translation>RID通信</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
+      <source>NOT CONNECTED</source>
+      <translation>未接続</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="198"/>
+      <source>GCS GPS</source>
+      <translation>GCS GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="223"/>
+      <source>BASIC ID</source>
+      <translation>基本ID</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="248"/>
+      <source>OPERATOR ID</source>
+      <translation>オペレーターID</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="274"/>
+      <source>EMERGENCY HAS BEEN DECLARED, Press and Hold for 3 seconds to cancel</source>
+      <translation>緊急事態が宣言されました。キャンセルするには3秒間長押ししてください</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="274"/>
+      <source>Press and Hold below button to declare emergency</source>
+      <translation>緊急事態を宣言するには下のボタンを長押ししてください</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="299"/>
+      <source>Clear Emergency</source>
+      <translation>緊急事態を解除</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="299"/>
+      <source>EMERGENCY</source>
+      <translation>緊急事態</translation>
+    </message>
+  </context>
+  <context>
+    <name>SerialPortRTCMClient</name>
+    <message>
+      <location filename="../custom/src/RTCM/SerialPortRTCMClient.qml" line="31"/>
+      <source>Port:</source>
+      <translation>ポート:</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/RTCM/SerialPortRTCMClient.qml" line="71"/>
+      <source>Baud:</source>
+      <translation>ボーレート:</translation>
+    </message>
+  </context>
+  <context>
+    <name>YSTransectStyleComplexItemEditor</name>
+    <message>
+      <location filename="../src/PlanView/YSTransectStyleComplexItemEditor.qml" line="36"/>
+      <source>Done</source>
+      <translation>完了</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YSTransectStyleComplexItemEditor.qml" line="87"/>
+      <source>WARNING: Photo interval is below minimum interval (%1 secs) supported by camera.</source>
+      <translation>警告: 撮影間隔がカメラの対応する最小間隔（%1秒）を下回っています。</translation>
+    </message>
+  </context>
+  <context>
+    <name>YellowScanInitPathEditor</name>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="18"/>
+      <source>Use the Polyline Tools to create the polyline which defines the corridor.</source>
+      <translation>ポリラインツールを使用して、回廊を定義するポリラインを作成してください。</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="19"/>
+      <source>Init Path</source>
+      <translation>初期パス</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="38"/>
+      <source>Altitude</source>
+      <translation>高度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="47"/>
+      <source>Angle</source>
+      <translation>角度</translation>
+    </message>
+    <message>
+      <location filename="../src/PlanView/YellowScanInitPathEditor.qml" line="69"/>
+      <source>Turn Radius</source>
+      <translation>旋回半径</translation>
+    </message>
+  </context>
+  <context>
+    <name>YellowScanInitPathPolylineVisuals</name>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="46"/>
+      <source>Polyline Tools</source>
+      <translation>ポリラインツール</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="47"/>
+      <source>Click in the map to add vertices. Click &apos;Done Tracing&apos; when finished.</source>
+      <translation>地図をクリックして頂点を追加します。完了したら&apos;トレース完了&apos;をクリックしてください。</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="152"/>
+      <source>Select KML File</source>
+      <translation>KMLファイルを選択</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="174"/>
+      <source>Remove vertex</source>
+      <translation>頂点を削除</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="179"/>
+      <source>Edit position...</source>
+      <translation>位置を編集...</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="472"/>
+      <source>Basic</source>
+      <translation>基本</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="479"/>
+      <source>Done Tracing</source>
+      <translation>トレース完了</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="479"/>
+      <source>Trace</source>
+      <translation>トレース</translation>
+    </message>
+    <message>
+      <location filename="../src/MissionManager/YellowScanInitPathPolylineVisuals.qml" line="496"/>
+      <source>Load KML...</source>
+      <translation>KMLを読み込み...</translation>
+    </message>
+  </context>
+  <context>
+    <name>geoFenceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="50"/>
+      <source>Select Geozone File</source>
+      <translation>ジオゾーンファイルを選択</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="99"/>
+      <source>GeoAwareness Settings</source>
+      <translation>GeoAwareness設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="119"/>
+      <source>Set Alarm Distance (meters) </source>
+      <translation>警報距離の設定（メートル） </translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="147"/>
+      <source>Select GeoAwareness Data Type</source>
+      <translation>GeoAwarenessデータタイプを選択</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="158"/>
+      <source>Application Load/Save Path</source>
+      <translation>アプリケーションの読み込み/保存パス</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="169"/>
+      <source>Browse</source>
+      <translation>参照</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/geoFenceSettings.qml" line="206"/>
+      <source>Get Online GeoAwareness </source>
+      <translation>オンラインGeoAwarenessを取得 </translation>
+    </message>
+  </context>
+  <context>
+    <name>APMCopterMode</name>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="26"/>
+      <source>Stabilize</source>
+      <translation>Stabilize</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="27"/>
+      <source>Acro</source>
+      <translation>Acro</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="28"/>
+      <source>Altitude Hold</source>
+      <translation>Altitude Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="29"/>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="30"/>
+      <source>Guided</source>
+      <translation>Guided</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="31"/>
+      <source>Loiter</source>
+      <translation>Loiter</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="32"/>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="33"/>
+      <source>Circle</source>
+      <translation>Circle</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="34"/>
+      <source>Land</source>
+      <translation>Land</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="35"/>
+      <source>Drift</source>
+      <translation>Drift</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="36"/>
+      <source>Sport</source>
+      <translation>Sport</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="37"/>
+      <source>Flip</source>
+      <translation>Flip</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="38"/>
+      <source>Autotune</source>
+      <translation>Autotune</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="39"/>
+      <source>Position Hold</source>
+      <translation>Position Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="40"/>
+      <source>Brake</source>
+      <translation>Brake</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="41"/>
+      <source>Throw</source>
+      <translation>Throw</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="42"/>
+      <source>Avoid ADSB</source>
+      <translation>Avoid ADSB</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="43"/>
+      <source>Guided No GPS</source>
+      <translation>Guided No GPS</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="44"/>
+      <source>Smart RTL</source>
+      <translation>Smart RTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="45"/>
+      <source>Flow Hold</source>
+      <translation>Flow Hold</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="46"/>
+      <source>Follow</source>
+      <translation>Follow</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="47"/>
+      <source>ZigZag</source>
+      <translation>ZigZag</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="48"/>
+      <source>SystemID</source>
+      <translation>SystemID</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="49"/>
+      <source>AutoRotate</source>
+      <translation>AutoRotate</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="50"/>
+      <source>AutoRTL</source>
+      <translation>AutoRTL</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="51"/>
+      <source>Turtle</source>
+      <translation>Turtle</translation>
+    </message>
+    <message>
+      <location filename="../src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc" line="52"/>
+      <source>Slow</source>
+      <translation>Slow</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGCCacheWorker</name>
+    <message>
+      <location filename="../src/QtLocationPlugin/QGCTileCacheWorker.cpp" line="376"/>
+      <source>Default Tile Set</source>
+      <translation>デフォルトタイルセット</translation>
+    </message>
+  </context>
+  <context>
+    <name>QGeoTiledMapReplyQGC</name>
+    <message>
+      <location filename="../src/QtLocationPlugin/QGeoMapReplyQGC.cpp" line="59"/>
+      <source>Please download the map of the flight area.</source>
+      <translation>飛行エリアの地図をダウンロードしてください。</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMRemoteSupportComponent</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="46"/>
+      <source>Host name:</source>
+      <translation>ホスト名:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="54"/>
+      <source>Connect</source>
+      <translation>接続</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.qml" line="63"/>
+      <source>Forwarding traffic: Mavlink traffic will keep being forwarded until application restarts</source>
+      <translation>トラフィック転送中: アプリケーションを再起動するまでMAVLinkトラフィックの転送が続きます</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.cc" line="15"/>
+      <source>Remote Support</source>
+      <translation>リモートサポート</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/APM/APMRemoteSupportComponent.cc" line="26"/>
+      <source>On this menu you can forward mavlink telemetry to an ardupilot support engineer.</source>
+      <translation>このメニューでは、MAVLinkテレメトリーをArduPilotサポートエンジニアに転送できます。</translation>
+    </message>
+  </context>
+  <context>
+    <name>PX4TuningComponentPlaneAttitude</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="38"/>
+      <source>Time constant (FW_R_TC)</source>
+      <translation>時定数 (FW_R_TC)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="39"/>
+      <source>The latency between a roll step input and the achieved setpoint (inverse to a P gain)</source>
+      <translation>ロールのステップ入力から目標値に達するまでの遅れ（Pゲインの逆数）</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="55"/>
+      <source>Time Constant (FW_P_TC)</source>
+      <translation>時定数 (FW_P_TC)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneAttitude.qml" line="56"/>
+      <source>The latency between a pitch step input and the achieved setpoint (inverse to a P gain)</source>
+      <translation>ピッチのステップ入力から目標値に達するまでの遅れ（Pゲインの逆数）</translation>
+    </message>
+  </context>
+  <context>
+    <name>PX4TuningComponentPlaneRate</name>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="41"/>
+      <source>Porportional gain (FW_RR_P)</source>
+      <translation>比例ゲイン (FW_RR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="42"/>
+      <source>Porportional gain.</source>
+      <translation>比例ゲイン。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="49"/>
+      <source>Differential Gain (FW_RR_D)</source>
+      <translation>微分ゲイン (FW_RR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="57"/>
+      <source>Integral Gain (FW_RR_I)</source>
+      <translation>積分ゲイン (FW_RR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="65"/>
+      <source>Feedforward Gain (FW_RR_FF)</source>
+      <translation>フィードフォワードゲイン (FW_RR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="66"/>
+      <source>Feedforward gused to compensate for aerodynamic damping.</source>
+      <translation>空力減衰を補償するためのフィードフォワード。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="82"/>
+      <source>Porportional Gain (FW_PR_P)</source>
+      <translation>比例ゲイン (FW_PR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="90"/>
+      <source>Differential Gain (FW_PR_D)</source>
+      <translation>微分ゲイン (FW_PR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="98"/>
+      <source>Integral Gain (FW_PR_I)</source>
+      <translation>積分ゲイン (FW_PR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="106"/>
+      <source>Feedforward Gain (FW_PR_FF)</source>
+      <translation>フィードフォワードゲイン (FW_PR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="123"/>
+      <source>Porportional Gain (FW_YR_P)</source>
+      <translation>比例ゲイン (FW_YR_P)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="131"/>
+      <source>Integral Gain (FW_YR_D)</source>
+      <translation>積分ゲイン (FW_YR_D)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="139"/>
+      <source>Integral Gain (FW_YR_I)</source>
+      <translation>積分ゲイン (FW_YR_I)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="147"/>
+      <source>Feedforward Gain (FW_YR_FF)</source>
+      <translation>フィードフォワードゲイン (FW_YR_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="155"/>
+      <source>Roll control to yaw feedforward (FW_RLL_TO_YAW_FF)</source>
+      <translation>ロールからヨーへのフィードフォワード (FW_RLL_TO_YAW_FF)</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="156"/>
+      <source>Used to counteract the adverse yaw effect for fixed wings.</source>
+      <translation>固定翼機のアドバースヨーを打ち消すために使用します。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentPlaneRate.qml" line="83"/>
+      <source>Porportional Gain.</source>
+      <translation>比例ゲイン。</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="33"/>
+      <source>Airmode (disable during tuning) &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
+      <translation>エアモード（チューニング中は無効にする） &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#airmode-mixer-saturation\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+    </message>
+    <message>
+      <location filename="../src/AutoPilotPlugins/PX4/PX4TuningComponentCopterRate.qml" line="45"/>
+      <source>Thrust curve &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</source>
+      <translation>推力カーブ &lt;b&gt;&lt;a href=\&quot;https://docs.px4.io/master/en/config_mc/pid_tuning_guide_multicopter.html#thrust-curve\&quot;&gt;?&lt;/a&gt;&lt;/b&gt;:</translation>
+    </message>
+  </context>
+  <context>
+    <name>CustomQmlInterface</name>
+    <message>
+      <location filename="../custom/src/CustomQmlInterface.cc" line="47"/>
+      <source>Map tiles updated at %1</source>
+      <translation>地図タイルを%1に更新しました</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMParameterFactMetaData</name>
+    <message>
+      <source>Do Nothing</source>
+      <translation>何もしない</translation>
+    </message>
+    <message>
+      <source>Flip</source>
+      <translation>Flip</translation>
+    </message>
+    <message>
+      <source>Simple Mode</source>
+      <translation>シンプルモード</translation>
+    </message>
+    <message>
+      <source>RTL</source>
+      <translation>RTL</translation>
+    </message>
+    <message>
+      <source>Enabled always RTL</source>
+      <translation>常にRTLを有効化</translation>
+    </message>
+    <message>
+      <source>Avoid_ADSB</source>
+      <translation>Avoid_ADSB</translation>
+    </message>
+    <message>
+      <source>Guided_NoGPS</source>
+      <translation>Guided_NoGPS</translation>
+    </message>
+    <message>
+      <source>Smart_RTL</source>
+      <translation>Smart_RTL</translation>
+    </message>
+    <message>
+      <source>Heli_Autorotate</source>
+      <translation>Heli_Autorotate</translation>
+    </message>
+    <message>
+      <source>Save Trim</source>
+      <translation>トリム保存</translation>
+    </message>
+    <message>
+      <source>Save WP</source>
+      <translation>WP保存</translation>
+    </message>
+    <message>
+      <source>Camera Trigger</source>
+      <translation>カメラトリガー</translation>
+    </message>
+    <message>
+      <source>RangeFinder</source>
+      <translation>距離センサ</translation>
+    </message>
+    <message>
+      <source>Fence</source>
+      <translation>フェンス</translation>
+    </message>
+    <message>
+      <source>Super Simple Mode</source>
+      <translation>スーパーシンプルモード</translation>
+    </message>
+    <message>
+      <source>Acro Trainer</source>
+      <translation>Acroトレーナー</translation>
+    </message>
+    <message>
+      <source>Sprayer</source>
+      <translation>散布装置</translation>
+    </message>
+    <message>
+      <source>Auto</source>
+      <translation>Auto</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>屋内</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>屋外</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>屋外オート</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>屋外オート</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>ワンプッシュWB</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>ワンプッシュWB</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>マニュアル</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>ナトリウムランプ</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>ナトリウムランプ</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>ナトリウムランプオート</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>ナトリウムランプオート</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>ナトリウムランプ屋外オート</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>ナトリウムランプ屋外オート</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>ワンプッシュAWB</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>ワンプッシュAWB</translation>
+    </message>
+    <message>
+      <source>ADSB-Avoidance</source>
+      <translation>ADSB回避</translation>
+    </message>
+    <message>
+      <source>ArmDisarm</source>
+      <translation>アーム/ディスアーム</translation>
+    </message>
+    <message>
+      <source>Winch Enable</source>
+      <translation>ウインチ有効化</translation>
+    </message>
+    <message>
+      <source>WinchControl</source>
+      <translation>ウインチ制御</translation>
+    </message>
+    <message>
+      <source>Relay5</source>
+      <translation>リレー5</translation>
+    </message>
+    <message>
+      <source>Relay6</source>
+      <translation>リレー6</translation>
+    </message>
+    <message>
+      <source>AutoTune</source>
+      <translation>AutoTune</translation>
+    </message>
+    <message>
+      <source>Land</source>
+      <translation>Land</translation>
+    </message>
+    <message>
+      <source>Gripper</source>
+      <translation>グリッパー</translation>
+    </message>
+    <message>
+      <source>Parachute Enable</source>
+      <translation>パラシュート有効化</translation>
+    </message>
+    <message>
+      <source>Parachute Release</source>
+      <translation>パラシュート放出</translation>
+    </message>
+    <message>
+      <source>Parachute 3pos</source>
+      <translation>パラシュート 3段スイッチ</translation>
+    </message>
+    <message>
+      <source>Auto Mission Reset</source>
+      <translation>自動ミッションリセット</translation>
+    </message>
+    <message>
+      <source>AttCon Feed Forward</source>
+      <translation>姿勢制御フィードフォワード</translation>
+    </message>
+    <message>
+      <source>AttCon Accel Limits</source>
+      <translation>姿勢制御加速度制限</translation>
+    </message>
+    <message>
+      <source>Retract Mount</source>
+      <translation>マウント格納</translation>
+    </message>
+    <message>
+      <source>Acro</source>
+      <translation>Acro</translation>
+    </message>
+    <message>
+      <source>ADSB Avoidance En</source>
+      <translation>ADSB回避有効化</translation>
+    </message>
+    <message>
+      <source>Air Mode</source>
+      <translation>エアモード</translation>
+    </message>
+    <message>
+      <source>Airspeed Ratio Calibration</source>
+      <translation>対気速度比キャリブレーション</translation>
+    </message>
+    <message>
+      <source>AltHold</source>
+      <translation>AltHold</translation>
+    </message>
+    <message>
+      <source>ArmDisarm (4.1 and lower)</source>
+      <translation>アーム/ディスアーム (4.1以前)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm (4.2 and higher)</source>
+      <translation>アーム/ディスアーム (4.2以降)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm with AirMode  (4.2 and higher)</source>
+      <translation>エアモード付きアーム/ディスアーム  (4.2以降)</translation>
+    </message>
+    <message>
+      <source>ArmDisarm with Quadplane AirMode (4.2 and higher)</source>
+      <translation>クアッドプレーンエアモード付きアーム/ディスアーム (4.2以降)</translation>
+    </message>
+    <message>
+      <source>AUTO RTL</source>
+      <translation>AUTO RTL</translation>
+    </message>
+    <message>
+      <source>Brake</source>
+      <translation>Brake</translation>
+    </message>
+    <message>
+      <source>Camera Mode Toggle</source>
+      <translation>カメラモード切替</translation>
+    </message>
+    <message>
+      <source>Circle</source>
+      <translation>Circle</translation>
+    </message>
+    <message>
+      <source>Clear Waypoints</source>
+      <translation>ウェイポイントをクリア</translation>
+    </message>
+    <message>
+      <source>Compass Learn</source>
+      <translation>コンパス学習</translation>
+    </message>
+    <message>
+      <source>Crow Select</source>
+      <translation>Crow選択</translation>
+    </message>
+    <message>
+      <source>CRUISE</source>
+      <translation>CRUISE</translation>
+    </message>
+    <message>
+      <source>Disable Airspeed Use</source>
+      <translation>対気速度の使用を無効化</translation>
+    </message>
+    <message>
+      <source>Disarm</source>
+      <translation>ディスアーム</translation>
+    </message>
+    <message>
+      <source>Drift</source>
+      <translation>Drift</translation>
+    </message>
+    <message>
+      <source>EKF Pos Source</source>
+      <translation>EKF位置ソース</translation>
+    </message>
+    <message>
+      <source>EnableFixedWingAutotune</source>
+      <translation>固定翼オートチューン有効化</translation>
+    </message>
+    <message>
+      <source>FBWA</source>
+      <translation>FBWA</translation>
+    </message>
+    <message>
+      <source>FBWA taildragger takeoff mode</source>
+      <translation>FBWAテールドラッガー離陸モード</translation>
+    </message>
+    <message>
+      <source>Flap</source>
+      <translation>フラップ</translation>
+    </message>
+    <message>
+      <source>FlowHold</source>
+      <translation>FlowHold</translation>
+    </message>
+    <message>
+      <source>Follow</source>
+      <translation>Follow</translation>
+    </message>
+    <message>
+      <source>Force Flying</source>
+      <translation>強制飛行</translation>
+    </message>
+    <message>
+      <source>Force FS Action to FBWA</source>
+      <translation>フェイルセーフ動作をFBWAに強制</translation>
+    </message>
+    <message>
+      <source>Forward Throttle</source>
+      <translation>前進スロットル</translation>
+    </message>
+    <message>
+      <source>Generator</source>
+      <translation>発電機</translation>
+    </message>
+    <message>
+      <source>GPS Disable</source>
+      <translation>GPS無効化</translation>
+    </message>
+    <message>
+      <source>GPS Disable Yaw</source>
+      <translation>GPSヨー無効化</translation>
+    </message>
+    <message>
+      <source>Guided</source>
+      <translation>Guided</translation>
+    </message>
+    <message>
+      <source>Hold</source>
+      <translation>Hold</translation>
+    </message>
+    <message>
+      <source>InvertedFlight</source>
+      <translation>背面飛行</translation>
+    </message>
+    <message>
+      <source>KillIMU1</source>
+      <translation>IMU1停止</translation>
+    </message>
+    <message>
+      <source>KillIMU2</source>
+      <translation>IMU2停止</translation>
+    </message>
+    <message>
+      <source>Landing Flare</source>
+      <translation>着陸フレア</translation>
+    </message>
+    <message>
+      <source>Landing Gear</source>
+      <translation>ランディングギア</translation>
+    </message>
+    <message>
+      <source>LearnCruise</source>
+      <translation>クルーズ学習</translation>
+    </message>
+    <message>
+      <source>Loiter</source>
+      <translation>Loiter</translation>
+    </message>
+    <message>
+      <source>Lost Copter Sound</source>
+      <translation>コプター紛失時のサウンド</translation>
+    </message>
+    <message>
+      <source>Lost Plane Sound</source>
+      <translation>プレーン紛失時のサウンド</translation>
+    </message>
+    <message>
+      <source>Lost Rover Sound</source>
+      <translation>ローバー紛失時のサウンド</translation>
+    </message>
+    <message>
+      <source>MainSail</source>
+      <translation>メインセイル</translation>
+    </message>
+    <message>
+      <source>ModeACRO</source>
+      <translation>モードACRO</translation>
+    </message>
+    <message>
+      <source>ModeAuto</source>
+      <translation>モードAuto</translation>
+    </message>
+    <message>
+      <source>ModeCircle</source>
+      <translation>モードCircle</translation>
+    </message>
+    <message>
+      <source>ModeGuided</source>
+      <translation>モードGuided</translation>
+    </message>
+    <message>
+      <source>ModeLoiter</source>
+      <translation>モードLoiter</translation>
+    </message>
+    <message>
+      <source>ModeManual</source>
+      <translation>モードManual</translation>
+    </message>
+    <message>
+      <source>ModeQRTL</source>
+      <translation>モードQRTL</translation>
+    </message>
+    <message>
+      <source>ModeRTL</source>
+      <translation>モードRTL</translation>
+    </message>
+    <message>
+      <source>ModeTakeoff</source>
+      <translation>モードTakeoff</translation>
+    </message>
+    <message>
+      <source>ModeTraining</source>
+      <translation>モードTraining</translation>
+    </message>
+    <message>
+      <source>Motor Emergency Stop</source>
+      <translation>モーター緊急停止</translation>
+    </message>
+    <message>
+      <source>Motor Interlock</source>
+      <translation>モーターインターロック</translation>
+    </message>
+    <message>
+      <source>Non Auto Terrain Follow Disable</source>
+      <translation>非Auto時の地形追従を無効化</translation>
+    </message>
+    <message>
+      <source>Optflow Calibration</source>
+      <translation>オプティカルフローキャリブレーション</translation>
+    </message>
+    <message>
+      <source>Pitch</source>
+      <translation>ピッチ</translation>
+    </message>
+    <message>
+      <source>PosHold</source>
+      <translation>PosHold</translation>
+    </message>
+    <message>
+      <source>PrecLoiter</source>
+      <translation>PrecLoiter</translation>
+    </message>
+    <message>
+      <source>Proximity Avoidance</source>
+      <translation>近接回避</translation>
+    </message>
+    <message>
+      <source>QAssist 3pos</source>
+      <translation>QAssist 3段スイッチ</translation>
+    </message>
+    <message>
+      <source>RC Override Enable</source>
+      <translation>RCオーバーライド有効化</translation>
+    </message>
+    <message>
+      <source>Relay On/Off</source>
+      <translation>リレー On/Off</translation>
+    </message>
+    <message>
+      <source>Relay2 On/Off</source>
+      <translation>リレー2 On/Off</translation>
+    </message>
+    <message>
+      <source>Relay3 On/Off</source>
+      <translation>リレー3 On/Off</translation>
+    </message>
+    <message>
+      <source>Relay4 On/Off</source>
+      <translation>リレー4 On/Off</translation>
+    </message>
+    <message>
+      <source>Relay5 On/Off</source>
+      <translation>リレー5 On/Off</translation>
+    </message>
+    <message>
+      <source>Relay6 On/Off</source>
+      <translation>リレー6 On/Off</translation>
+    </message>
+    <message>
+      <source>Reverse Throttle</source>
+      <translation>逆転スロットル</translation>
+    </message>
+    <message>
+      <source>Roll</source>
+      <translation>ロール</translation>
+    </message>
+    <message>
+      <source>RunCam Control</source>
+      <translation>RunCam制御</translation>
+    </message>
+    <message>
+      <source>RunCam OSD Control</source>
+      <translation>RunCam OSD制御</translation>
+    </message>
+    <message>
+      <source>Sailboat motoring 3pos</source>
+      <translation>セイルボートのモーター航行 3段スイッチ</translation>
+    </message>
+    <message>
+      <source>Sailboat Tack</source>
+      <translation>セイルボートのタック</translation>
+    </message>
+    <message>
+      <source>Save Trim (4.1 and lower)</source>
+      <translation>トリム保存 (4.1以前)</translation>
+    </message>
+    <message>
+      <source>Scripting1</source>
+      <translation>スクリプト1</translation>
+    </message>
+    <message>
+      <source>Scripting2</source>
+      <translation>スクリプト2</translation>
+    </message>
+    <message>
+      <source>Scripting3</source>
+      <translation>スクリプト3</translation>
+    </message>
+    <message>
+      <source>Scripting4</source>
+      <translation>スクリプト4</translation>
+    </message>
+    <message>
+      <source>Scripting5</source>
+      <translation>スクリプト5</translation>
+    </message>
+    <message>
+      <source>Scripting6</source>
+      <translation>スクリプト6</translation>
+    </message>
+    <message>
+      <source>Scripting7</source>
+      <translation>スクリプト7</translation>
+    </message>
+    <message>
+      <source>Scripting8</source>
+      <translation>スクリプト8</translation>
+    </message>
+    <message>
+      <source>set roll pitch and yaw trim to current servo and RC</source>
+      <translation>ロール・ピッチ・ヨーのトリムを現在のサーボとRCに設定</translation>
+    </message>
+    <message>
+      <source>set steering trim to current servo and RC</source>
+      <translation>ステアリングトリムを現在のサーボとRCに設定</translation>
+    </message>
+    <message>
+      <source>simple heading reset</source>
+      <translation>シンプルヘッディングリセット</translation>
+    </message>
+    <message>
+      <source>SmartRTL</source>
+      <translation>SmartRTL</translation>
+    </message>
+    <message>
+      <source>Soaring Enable</source>
+      <translation>ソアリング有効化</translation>
+    </message>
+    <message>
+      <source>Stabilize</source>
+      <translation>Stabilize</translation>
+    </message>
+    <message>
+      <source>Standby Mode</source>
+      <translation>スタンバイモード</translation>
+    </message>
+    <message>
+      <source>Steering</source>
+      <translation>ステアリング</translation>
+    </message>
+    <message>
+      <source>SurfaceTrackingUpDown</source>
+      <translation>水面追従 上/下</translation>
+    </message>
+    <message>
+      <source>Throw</source>
+      <translation>Throw</translation>
+    </message>
+    <message>
+      <source>Torqeedo Clear Err</source>
+      <translation>Torqeedoエラークリア</translation>
+    </message>
+    <message>
+      <source>trigger re-reading of mode switch</source>
+      <translation>モードスイッチの再読み込みをトリガー</translation>
+    </message>
+    <message>
+      <source>Turbine Start(heli)</source>
+      <translation>タービン始動(ヘリ)</translation>
+    </message>
+    <message>
+      <source>Turtle</source>
+      <translation>Turtle</translation>
+    </message>
+    <message>
+      <source>User Function 1</source>
+      <translation>ユーザー機能1</translation>
+    </message>
+    <message>
+      <source>User Function 2</source>
+      <translation>ユーザー機能2</translation>
+    </message>
+    <message>
+      <source>User Function 3</source>
+      <translation>ユーザー機能3</translation>
+    </message>
+    <message>
+      <source>Viso Align</source>
+      <translation>Viso整列</translation>
+    </message>
+    <message>
+      <source>VisOdom Align</source>
+      <translation>ビジュアルオドメトリー整列</translation>
+    </message>
+    <message>
+      <source>VTX Power</source>
+      <translation>VTX出力</translation>
+    </message>
+    <message>
+      <source>Walking Height</source>
+      <translation>歩行高さ</translation>
+    </message>
+    <message>
+      <source>Weathervane Enable</source>
+      <translation>ウェザーベーン有効化</translation>
+    </message>
+    <message>
+      <source>Windvane home heading direction offset</source>
+      <translation>ウィンドベーンのホームヘッディング方向オフセット</translation>
+    </message>
+    <message>
+      <source>ZigZag</source>
+      <translation>ZigZag</translation>
+    </message>
+    <message>
+      <source>ZigZag Auto</source>
+      <translation>ZigZag Auto</translation>
+    </message>
+    <message>
+      <source>ZigZag SaveWP</source>
+      <translation>ZigZag WP保存</translation>
+    </message>
+    <message>
+      <source>Sport</source>
+      <translation>Sport</translation>
+    </message>
+    <message>
+      <source>SystemID</source>
+      <translation>SystemID</translation>
+    </message>
+    <message>
+      <source>Auto RTL</source>
+      <translation>Auto RTL</translation>
+    </message>
+    <message>
+      <source>Disabled</source>
+      <translation>無効</translation>
+    </message>
+    <message>
+      <source>Analog Voltage Only</source>
+      <translation>アナログ電圧のみ</translation>
+    </message>
+    <message>
+      <source>Analog Voltage and Current</source>
+      <translation>アナログ電圧と電流</translation>
+    </message>
+    <message>
+      <source>Sum Of Selected Monitors</source>
+      <translation>選択したモニターの合計</translation>
+    </message>
+    <message>
+      <source>FuelFlow</source>
+      <translation>燃料流量</translation>
+    </message>
+    <message>
+      <source>FuelLevelPWM</source>
+      <translation>燃料レベルPWM</translation>
+    </message>
+    <message>
+      <source>Generator-Elec</source>
+      <translation>発電機（電気）</translation>
+    </message>
+    <message>
+      <source>Generator-Fuel</source>
+      <translation>発電機（燃料）</translation>
+    </message>
+    <message>
+      <source>Disabled/NoAction</source>
+      <translation>無効/動作なし</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <source>NONE</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <source>none</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <source>RTL or Hold</source>
+      <translation>RTLまたはHold</translation>
+    </message>
+    <message>
+      <source>RTL or Land</source>
+      <translation>RTLまたはLand</translation>
+    </message>
+    <message>
+      <source>RTL or Continue with Mission in Auto Mode (Removed in 4.0+-see FS_OPTIONS)</source>
+      <translation>RTLまたはAutoモードでミッション継続（4.0+で削除、FS_OPTIONSを参照）</translation>
+    </message>
+    <message>
+      <source>RTL or Continue with Mission in Auto Mode (Deprecated in 4.0+-see FS_OPTIONS)</source>
+      <translation>RTLまたはAutoモードでミッション継続（4.0+で非推奨、FS_OPTIONSを参照）</translation>
+    </message>
+    <message>
+      <source>Land (4.0+ Only)</source>
+      <translation>Land（4.0+のみ）</translation>
+    </message>
+    <message>
+      <source>Enabled Continue with Mission in Auto</source>
+      <translation>有効: Autoでミッション継続</translation>
+    </message>
+    <message>
+      <source>Enabled Continue with Mission in Auto Mode (Removed in 4.0+)</source>
+      <translation>有効: Autoモードでミッション継続（4.0+で削除）</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL</source>
+      <translation>SmartRTLまたはRTL</translation>
+    </message>
+    <message>
+      <source>SmartRTL or Land</source>
+      <translation>SmartRTLまたはLand</translation>
+    </message>
+    <message>
+      <source>SmartRTL or Hold</source>
+      <translation>SmartRTLまたはHold</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL or Hold</source>
+      <translation>SmartRTLまたはRTLまたはHold</translation>
+    </message>
+    <message>
+      <source>SmartRTL or RTL or Land</source>
+      <translation>SmartRTLまたはRTLまたはLand</translation>
+    </message>
+    <message>
+      <source>Terminate</source>
+      <translation>飛行終了</translation>
+    </message>
+    <message>
+      <source>Auto DO_LAND_START or RTL</source>
+      <translation>Auto DO_LAND_STARTまたはRTL</translation>
+    </message>
+    <message>
+      <source>Enabled Auto DO_LAND_START or RTL</source>
+      <translation>有効: Auto DO_LAND_STARTまたはRTL</translation>
+    </message>
+    <message>
+      <source>Enabled always SmartRTL or RTL</source>
+      <translation>有効: 常にSmartRTLまたはRTL</translation>
+    </message>
+    <message>
+      <source>Enabled always SmartRTL or Land</source>
+      <translation>有効: 常にSmartRTLまたはLand</translation>
+    </message>
+    <message>
+      <source>All</source>
+      <translation>すべて</translation>
+    </message>
+    <message>
+      <source>Barometer</source>
+      <translation>気圧計</translation>
+    </message>
+    <message>
+      <source>Compass</source>
+      <translation>コンパス</translation>
+    </message>
+    <message>
+      <source>GPS lock</source>
+      <translation>GPS測位</translation>
+    </message>
+    <message>
+      <source>INS</source>
+      <translation>INS</translation>
+    </message>
+    <message>
+      <source>Parameters</source>
+      <translation>パラメータ</translation>
+    </message>
+    <message>
+      <source>RC Channels</source>
+      <translation>RCチャンネル</translation>
+    </message>
+    <message>
+      <source>Board voltage</source>
+      <translation>ボード電圧</translation>
+    </message>
+    <message>
+      <source>Battery Level</source>
+      <translation>バッテリー残量</translation>
+    </message>
+    <message>
+      <source>Airspeed</source>
+      <translation>対気速度</translation>
+    </message>
+    <message>
+      <source>Logging Available</source>
+      <translation>ログ記録可能</translation>
+    </message>
+    <message>
+      <source>Hardware safety switch</source>
+      <translation>ハードウェア安全スイッチ</translation>
+    </message>
+    <message>
+      <source>GPS Configuration</source>
+      <translation>GPS構成</translation>
+    </message>
+    <message>
+      <source>System</source>
+      <translation>システム</translation>
+    </message>
+    <message>
+      <source>Mission</source>
+      <translation>ミッション</translation>
+    </message>
+    <message>
+      <source>Rangefinder</source>
+      <translation>距離センサ</translation>
+    </message>
+    <message>
+      <source>Camera</source>
+      <translation>カメラ</translation>
+    </message>
+    <message>
+      <source>AuxAuth</source>
+      <translation>補助認証</translation>
+    </message>
+    <message>
+      <source>FFT</source>
+      <translation>FFT</translation>
+    </message>
+    <message>
+      <source>VisualOdometry</source>
+      <translation>ビジュアルオドメトリー</translation>
+    </message>
+  </context>
+  <context>
+    <name>CodevCameraControl</name>
+    <message>
+      <source>Camera EV</source>
+      <translation>カメラEV</translation>
+    </message>
+    <message>
+      <source>Camera AE</source>
+      <translation>カメラAE</translation>
+    </message>
+    <message>
+      <source>Camera ISO</source>
+      <translation>カメラISO</translation>
+    </message>
+    <message>
+      <source>Camera Shutter</source>
+      <translation>カメラシャッター</translation>
+    </message>
+    <message>
+      <source>Camera Aperture</source>
+      <translation>カメラ絞り</translation>
+    </message>
+    <message>
+      <source>Camera Focus Mode</source>
+      <translation>カメラフォーカスモード</translation>
+    </message>
+    <message>
+      <source>AF Area</source>
+      <translation>AFエリア</translation>
+    </message>
+    <message>
+      <source>Image Type</source>
+      <translation>画像形式</translation>
+    </message>
+    <message>
+      <source>Creative Look</source>
+      <translation>クリエイティブルック</translation>
+    </message>
+    <message>
+      <source>Creative Contrast</source>
+      <translation>クリエイティブ コントラスト</translation>
+    </message>
+    <message>
+      <source>Creative Highlights</source>
+      <translation>クリエイティブ ハイライト</translation>
+    </message>
+    <message>
+      <source>Creative Shadows</source>
+      <translation>クリエイティブ シャドウ</translation>
+    </message>
+    <message>
+      <source>Creative Fade</source>
+      <translation>クリエイティブ フェード</translation>
+    </message>
+    <message>
+      <source>Creative Saturation</source>
+      <translation>クリエイティブ 彩度</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness</source>
+      <translation>クリエイティブ シャープネス</translation>
+    </message>
+    <message>
+      <source>Creative Sharpness Range</source>
+      <translation>クリエイティブ シャープネス範囲</translation>
+    </message>
+    <message>
+      <source>Creative Clarity</source>
+      <translation>クリエイティブ クラリティ</translation>
+    </message>
+    <message>
+      <source>Auto</source>
+      <translation>オート</translation>
+    </message>
+    <message>
+      <source>AWB</source>
+      <translation>AWB</translation>
+    </message>
+    <message>
+      <source>ATW</source>
+      <translation>ATW</translation>
+    </message>
+    <message>
+      <source>Indoor</source>
+      <translation>屋内</translation>
+    </message>
+    <message>
+      <source>Outdoor</source>
+      <translation>屋外</translation>
+    </message>
+    <message>
+      <source>Outdoor Auto</source>
+      <translation>屋外オート</translation>
+    </message>
+    <message>
+      <source>OutdoorAuto</source>
+      <translation>屋外オート</translation>
+    </message>
+    <message>
+      <source>OnePushAWB</source>
+      <translation>ワンプッシュAWB</translation>
+    </message>
+    <message>
+      <source>OnePushWB</source>
+      <translation>ワンプッシュWB</translation>
+    </message>
+    <message>
+      <source>One Push WB</source>
+      <translation>ワンプッシュWB</translation>
+    </message>
+    <message>
+      <source>One Push AWB</source>
+      <translation>ワンプッシュAWB</translation>
+    </message>
+    <message>
+      <source>Manual</source>
+      <translation>マニュアル</translation>
+    </message>
+    <message>
+      <source>SodiumLamp</source>
+      <translation>ナトリウムランプ</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp</source>
+      <translation>ナトリウムランプ</translation>
+    </message>
+    <message>
+      <source>SodiumLampAuto</source>
+      <translation>ナトリウムランプオート</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Auto</source>
+      <translation>ナトリウムランプオート</translation>
+    </message>
+    <message>
+      <source>SodiumLampOutdoorAuto</source>
+      <translation>ナトリウムランプ屋外オート</translation>
+    </message>
+    <message>
+      <source>Sodium Lamp Outdoor Auto</source>
+      <translation>ナトリウムランプ屋外オート</translation>
+    </message>
+    <message>
+      <source>Continuous AF</source>
+      <translation>コンティニュアスAF</translation>
+    </message>
+    <message>
+      <source>Wide</source>
+      <translation>ワイド</translation>
+    </message>
+    <message>
+      <source>Movie File Format</source>
+      <translation>動画ファイル形式</translation>
+    </message>
+    <message>
+      <source>Movie Recording Frame Rate</source>
+      <translation>動画記録フレームレート</translation>
+    </message>
+    <message>
+      <source>Movie Recording Setting</source>
+      <translation>動画記録設定</translation>
+    </message>
+    <message>
+      <source>Movie Auto</source>
+      <translation>動画オート</translation>
+    </message>
+    <message>
+      <source>Movie M</source>
+      <translation>動画M</translation>
+    </message>
+    <message>
+      <source>Movie P</source>
+      <translation>動画P</translation>
+    </message>
+    <message>
+      <source>Movie A</source>
+      <translation>動画A</translation>
+    </message>
+    <message>
+      <source>Movie S</source>
+      <translation>動画S</translation>
+    </message>
+    <message>
+      <source>Single</source>
+      <translation>シングル</translation>
+    </message>
+    <message>
+      <source>Time Lapse</source>
+      <translation>タイムラプス</translation>
+    </message>
+    <message>
+      <source>Camera WhiteBalance</source>
+      <translation>カメラホワイトバランス</translation>
+    </message>
+    <message>
+      <source>RTSP Bitrate</source>
+      <translation>RTSPビットレート</translation>
+    </message>
+    <message>
+      <source>RTSP Resolution</source>
+      <translation>RTSP解像度</translation>
+    </message>
+    <message>
+      <source>Video Quality</source>
+      <translation>ビデオ画質</translation>
+    </message>
+    <message>
+      <source>High Sensitivity</source>
+      <translation>高感度</translation>
+    </message>
+    <message>
+      <source>Zoom Speed</source>
+      <translation>ズーム速度</translation>
+    </message>
+    <message>
+      <source>Zoom Feature</source>
+      <translation>ズーム機能</translation>
+    </message>
+    <message>
+      <source>Digital Zoom</source>
+      <translation>デジタルズーム</translation>
+    </message>
+    <message>
+      <source>Infrared Palette</source>
+      <translation>赤外線パレット</translation>
+    </message>
+    <message>
+      <source>IR Zoom</source>
+      <translation>IRズーム</translation>
+    </message>
+    <message>
+      <source>High/Low (TRUE/FALSE) Gain</source>
+      <translation>High/Low (TRUE/FALSE) ゲイン</translation>
+    </message>
+    <message>
+      <source>Hight/Low(TRUE/FALSE) Gain</source>
+      <translation>High/Low(TRUE/FALSE) ゲイン</translation>
+    </message>
+    <message>
+      <source>High/Low(TRUE/FALSE) Gain</source>
+      <translation>High/Low(TRUE/FALSE) ゲイン</translation>
+    </message>
+    <message>
+      <source>On/Off thermometry</source>
+      <translation>温度測定オン/オフ</translation>
+    </message>
+    <message>
+      <source>On/Off Thermometry</source>
+      <translation>温度測定オン/オフ</translation>
+    </message>
+    <message>
+      <source>Default</source>
+      <translation>デフォルト</translation>
+    </message>
+    <message>
+      <source>Medium</source>
+      <translation>中</translation>
+    </message>
+    <message>
+      <source>High</source>
+      <translation>高</translation>
+    </message>
+    <message>
+      <source>Normal</source>
+      <translation>標準</translation>
+    </message>
+    <message>
+      <source>Super Resolution</source>
+      <translation>超解像</translation>
+    </message>
+    <message>
+      <source>Ironbow</source>
+      <translation>アイアンボウ</translation>
+    </message>
+    <message>
+      <source>White Hot</source>
+      <translation>ホワイトホット</translation>
+    </message>
+    <message>
+      <source>Black Hot</source>
+      <translation>ブラックホット</translation>
+    </message>
+    <message>
+      <source>Red Hot</source>
+      <translation>レッドホット</translation>
+    </message>
+    <message>
+      <source>Glory Hot</source>
+      <translation>グローリーホット</translation>
+    </message>
+    <message>
+      <source>Sepia</source>
+      <translation>セピア</translation>
+    </message>
+    <message>
+      <source>Rainbow</source>
+      <translation>レインボー</translation>
+    </message>
+    <message>
+      <source>Night</source>
+      <translation>ナイト</translation>
+    </message>
+    <message>
+      <source>Aurora</source>
+      <translation>オーロラ</translation>
+    </message>
+    <message>
+      <source>Jungle</source>
+      <translation>ジャングル</translation>
+    </message>
+    <message>
+      <source>Medical</source>
+      <translation>メディカル</translation>
+    </message>
+    <message>
+      <source>Gimbal Speed</source>
+      <translation>ジンバル速度</translation>
+    </message>
+    <message>
+      <source>Gimbal speed</source>
+      <translation>ジンバル速度</translation>
+    </message>
+    <message>
+      <source>Yaw Smooth</source>
+      <translation>ヨースムーズ</translation>
+    </message>
+    <message>
+      <source>Yaw Mode</source>
+      <translation>ヨーモード</translation>
+    </message>
+    <message>
+      <source>Head</source>
+      <translation>ヘッド</translation>
+    </message>
+    <message>
+      <source>Global</source>
+      <translation>グローバル</translation>
+    </message>
+    <message>
+      <source>Custom 1</source>
+      <translation>カスタム 1</translation>
+    </message>
+    <message>
+      <source>Custom 2</source>
+      <translation>カスタム 2</translation>
+    </message>
+    <message>
+      <source>Gimbal Tracker Gain</source>
+      <translation>ジンバルトラッカーゲイン</translation>
+    </message>
+    <message>
+      <source>NV Power Mode</source>
+      <translation>NV電源モード</translation>
+    </message>
+    <message>
+      <source>NV Debug</source>
+      <translation>NVデバッグ</translation>
+    </message>
+    <message>
+      <source>Track Algorithm</source>
+      <translation>トラッキングアルゴリズム</translation>
+    </message>
+    <message>
+      <source>Smart Select</source>
+      <translation>スマート選択</translation>
+    </message>
+    <message>
+      <source>AI Expect Resolution</source>
+      <translation>AI想定解像度</translation>
+    </message>
+    <message>
+      <source>AI Expected Resolution</source>
+      <translation>AI想定解像度</translation>
+    </message>
+    <message>
+      <source>UUID</source>
+      <translation>UUID</translation>
+    </message>
+    <message>
+      <source>Range finder</source>
+      <translation>距離センサ</translation>
+    </message>
+    <message>
+      <source>AI OSD</source>
+      <translation>AI OSD</translation>
+    </message>
+    <message>
+      <source>AI Video Source</source>
+      <translation>AIビデオソース</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <source>Yolov8</source>
+      <translation>Yolov8</translation>
+    </message>
+    <message>
+      <source>SiamRPN</source>
+      <translation>SiamRPN</translation>
+    </message>
+    <message>
+      <source>Nano</source>
+      <translation>Nano</translation>
+    </message>
+    <message>
+      <source>15W 4CORE</source>
+      <translation>15W 4CORE</translation>
+    </message>
+    <message>
+      <source>15W 2CORE</source>
+      <translation>15W 2CORE</translation>
+    </message>
+    <message>
+      <source>15W 6CORE</source>
+      <translation>15W 6CORE</translation>
+    </message>
+    <message>
+      <source>10W 2CORE</source>
+      <translation>10W 2CORE</translation>
+    </message>
+    <message>
+      <source>10W 4CORE</source>
+      <translation>10W 4CORE</translation>
+    </message>
+    <message>
+      <source>10W DESKTOP</source>
+      <translation>10W DESKTOP</translation>
+    </message>
+    <message>
+      <source>20W 2CORE</source>
+      <translation>20W 2CORE</translation>
+    </message>
+    <message>
+      <source>20W 4CORE</source>
+      <translation>20W 4CORE</translation>
+    </message>
+    <message>
+      <source>20W 6CORE</source>
+      <translation>20W 6CORE</translation>
+    </message>
+    <message>
+      <source>EO</source>
+      <translation>EO</translation>
+    </message>
+    <message>
+      <source>IR</source>
+      <translation>IR</translation>
+    </message>
+  </context>
+  <context>
+    <name>UASWarning</name>
+    <message>
+      <source>%e </source>
+      <translation>%e </translation>
+    </message>
+    <message>
+      <source>%f %f %f %f</source>
+      <translation>%f %f %f %f</translation>
+    </message>
+    <message>
+      <source>%s</source>
+      <translation>%s</translation>
+    </message>
+    <message>
+      <source>%s below failsafe</source>
+      <translation>%s がフェイルセーフ値を下回っています</translation>
+    </message>
+    <message>
+      <source>%s radio max too low</source>
+      <translation>%s 送信機の最大値が低すぎます</translation>
+    </message>
+    <message>
+      <source>%s radio min too high</source>
+      <translation>%s 送信機の最小値が高すぎます</translation>
+    </message>
+    <message>
+      <source>%s radio trim above max</source>
+      <translation>%s 送信機のトリムが最大値を超えています</translation>
+    </message>
+    <message>
+      <source>%s radio trim below min</source>
+      <translation>%s 送信機のトリムが最小値を下回っています</translation>
+    </message>
+    <message>
+      <source>%s too high</source>
+      <translation>%s が高すぎます</translation>
+    </message>
+    <message>
+      <source>%s: %s</source>
+      <translation>%s: %s</translation>
+    </message>
+    <message>
+      <source>%s: %s %s: %s</source>
+      <translation>%s: %s %s: %s</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer off</source>
+      <translation>%u: ブザーオフ</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on</source>
+      <translation>%u: ブザーオン</translation>
+    </message>
+    <message>
+      <source>%u: Buzzer on again</source>
+      <translation>%u: ブザー再オン</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using GPS</source>
+      <translation>EKF3 IMU%u がGPSを使用中</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u is using range beacons</source>
+      <translation>EKF3 IMU%u が測距ビーコンを使用中</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u origin set</source>
+      <translation>EKF3 IMU%u 原点を設定しました</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u started relative aiding</source>
+      <translation>EKF3 IMU%u 相対補助を開始しました</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u stopped aiding</source>
+      <translation>EKF3 IMU%u 補助を停止しました</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u switching to compass %u</source>
+      <translation>EKF3 IMU%u コンパス %u に切り替え中</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u tilt alignment complete</source>
+      <translation>EKF3 IMU%u 傾きアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned</source>
+      <translation>EKF3 IMU%u ヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF3 IMU%u GPS速度でヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>ERROR: Won&apos;t setup signing when armed</source>
+      <translation>エラー: アーム中は署名を設定できません</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Auto calibration</source>
+      <translation>ESCキャリブレーション: 自動キャリブレーション</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Passing pilot throttle to ESCs</source>
+      <translation>ESCキャリブレーション: パイロットのスロットルをESCに転送中</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Push safety switch</source>
+      <translation>ESCキャリブレーション: セーフティスイッチを押してください</translation>
+    </message>
+    <message>
+      <source>ESC calibration: Restart board</source>
+      <translation>ESCキャリブレーション: ボードを再起動してください</translation>
+    </message>
+    <message>
+      <source>ESC: </source>
+      <translation>ESC: </translation>
+    </message>
+    <message>
+      <source>Enable fence failed (cannot autoenable</source>
+      <translation>フェンスの有効化に失敗しました (自動有効化不可</translation>
+    </message>
+    <message>
+      <source>Engine: start control disabled</source>
+      <translation>エンジン: 始動制御が無効です</translation>
+    </message>
+    <message>
+      <source>Entered VTOL mode</source>
+      <translation>VTOLモードに移行しました</translation>
+    </message>
+    <message>
+      <source>Error replacing item (%u)</source>
+      <translation>項目の置換エラー (%u)</translation>
+    </message>
+    <message>
+      <source>Error setting rally point</source>
+      <translation>ラリーポイントの設定エラー</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %d</source>
+      <translation>エラー: 無効なモード番号: %d</translation>
+    </message>
+    <message>
+      <source>Error: invalid mode number: %u</source>
+      <translation>エラー: 無効なモード番号: %u</translation>
+    </message>
+    <message>
+      <source>Exited VTOL mode</source>
+      <translation>VTOLモードを終了しました</translation>
+    </message>
+    <message>
+      <source>Extended by: %f (%f)</source>
+      <translation>延長量: %f (%f)</translation>
+    </message>
+    <message>
+      <source>Extended: %3.8f %3.8f</source>
+      <translation>延長: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for HarmonicNotchFilter</source>
+      <translation>HarmonicNotchFilter 用に %u バイトの確保に失敗しました</translation>
+    </message>
+    <message>
+      <source>Failed to allocate %u bytes for IMU batch sampling</source>
+      <translation>IMUバッチサンプリング用に %u バイトの確保に失敗しました</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff within time limit</source>
+      <translation>制限時間内に離陸を完了できませんでした</translation>
+    </message>
+    <message>
+      <source>Failed to complete takeoff, excessive wind</source>
+      <translation>離陸を完了できませんでした。強風です</translation>
+    </message>
+    <message>
+      <source>Failed to get rally point</source>
+      <translation>ラリーポイントの取得に失敗しました</translation>
+    </message>
+    <message>
+      <source>Failed to get return point</source>
+      <translation>帰還地点の取得に失敗しました</translation>
+    </message>
+    <message>
+      <source>Failed to initialise RC function (%u)</source>
+      <translation>RC機能の初期化に失敗しました (%u)</translation>
+    </message>
+    <message>
+      <source>Failed! Please check Thruster %d and frame setup!</source>
+      <translation>失敗しました！スラスター %d とフレーム設定を確認してください！</translation>
+    </message>
+    <message>
+      <source>Failsafe trigger 0x%x</source>
+      <translation>フェイルセーフ発動 0x%x</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event off: reason=%u</source>
+      <translation>フェイルセーフ: 長期イベント解除: reason=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Long event on: type=%u/reason=%u</source>
+      <translation>フェイルセーフ: 長期イベント発生: type=%u/reason=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event off: reason=%u</source>
+      <translation>フェイルセーフ: 短期イベント解除: reason=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe. Short event on: type=%u/reason=%u</source>
+      <translation>フェイルセーフ: 短期イベント発生: type=%u/reason=%u</translation>
+    </message>
+    <message>
+      <source>Failsafe: Estimated %.0f seconds to home</source>
+      <translation>フェイルセーフ: ホームまで推定 %.0f 秒</translation>
+    </message>
+    <message>
+      <source>Failsafe: RTL took </source>
+      <translation>フェイルセーフ: RTL所要 </translation>
+    </message>
+    <message>
+      <source>Failsafe: Terrain data missing</source>
+      <translation>フェイルセーフ: 地形データがありません</translation>
+    </message>
+    <message>
+      <source>Flare %.1fm sink=%.2f speed=%.1f dist=%.1f</source>
+      <translation>フレア %.1fm 沈下=%.2f 速度=%.1f 距離=%.1f</translation>
+    </message>
+    <message>
+      <source>Flare crash detected: speed=%.1f</source>
+      <translation>フレア中に墜落を検出: 速度=%.1f</translation>
+    </message>
+    <message>
+      <source>Flight mode = %u</source>
+      <translation>フライトモード = %u</translation>
+    </message>
+    <message>
+      <source>Forcing safety off for watchdog\n</source>
+      <translation>ウォッチドッグのためセーフティを強制オフ
+</translation>
+    </message>
+    <message>
+      <source>Found %d complete logs at 0x%04X-0x%04X</source>
+      <translation>完全なログを %d 件検出 (0x%04X-0x%04X)</translation>
+    </message>
+    <message>
+      <source>Found corrupt log %d at 0x%04X, erasing</source>
+      <translation>破損ログ %d を 0x%04X で検出、消去中</translation>
+    </message>
+    <message>
+      <source>Frame: %s</source>
+      <translation>フレーム: %s</translation>
+    </message>
+    <message>
+      <source>FuelFlow: Failed to attach to pin %u</source>
+      <translation>FuelFlow: ピン %u への接続に失敗しました</translation>
+    </message>
+    <message>
+      <source>FuelLevelPWM: Failed to attach to pin %u</source>
+      <translation>FuelLevelPWM: ピン %u への接続に失敗しました</translation>
+    </message>
+    <message>
+      <source>GPS and AHRS differ by %4.1fm</source>
+      <translation>GPSとAHRSの差が %4.1fm あります</translation>
+    </message>
+    <message>
+      <source>GPS positions differ by %4.1fm</source>
+      <translation>GPS位置の差が %4.1fm あります</translation>
+    </message>
+    <message>
+      <source>Geofence error, %s</source>
+      <translation>ジオフェンスエラー、%s</translation>
+    </message>
+    <message>
+      <source>GoPro recording, can&apos;t change modes</source>
+      <translation>GoPro録画中のため、モードを変更できません</translation>
+    </message>
+    <message>
+      <source>Got a point! %d total</source>
+      <translation>ポイントを取得しました！合計 %d</translation>
+    </message>
+    <message>
+      <source>Heater: P=%.1f I=%.1f Out=%.1f Temp=%.1f</source>
+      <translation>ヒーター: P=%.1f I=%.1f Out=%.1f Temp=%.1f</translation>
+    </message>
+    <message>
+      <source>Holding course %d at %.1fm/s (%.1f)</source>
+      <translation>コース %d を %.1fm/s で維持中 (%.1f)</translation>
+    </message>
+    <message>
+      <source>INS: alloc %u bytes for ISB (free=%u)</source>
+      <translation>INS: ISB用に %u バイト確保 (空き=%u)</translation>
+    </message>
+    <message>
+      <source>Ignoring invalid START_LATITUDE or START_LONGITUDE parameter</source>
+      <translation>無効な START_LATITUDE または START_LONGITUDE パラメータを無視します</translation>
+    </message>
+    <message>
+      <source>Internal errors (0x%x)</source>
+      <translation>内部エラー (0x%x)</translation>
+    </message>
+    <message>
+      <source>Internal pressure critical!</source>
+      <translation>内部圧力が危険レベルです！</translation>
+    </message>
+    <message>
+      <source>Internal temperature critical!</source>
+      <translation>内部温度が危険レベルです！</translation>
+    </message>
+    <message>
+      <source>Invalid channel option (%u)</source>
+      <translation>無効なチャンネルオプション (%u)</translation>
+    </message>
+    <message>
+      <source>Invalid coord frame in SET_POSTION_TARGET_GLOBAL_INT</source>
+      <translation>SET_POSTION_TARGET_GLOBAL_INT の座標フレームが無効です</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad count (%u vs %u)</source>
+      <translation>無効なフェンスポイント、個数不正 (%u / %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, bad lat or lng</source>
+      <translation>無効なフェンスポイント、緯度または経度が不正です</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total (%u &gt;= %u)</source>
+      <translation>無効なフェンスポイント、インデックスが総数を超えています (%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, index past total(%u &gt;= %u)</source>
+      <translation>無効なフェンスポイント、インデックスが総数を超えています(%u &gt;= %u)</translation>
+    </message>
+    <message>
+      <source>Invalid fence point, lat or lng too large</source>
+      <translation>無効なフェンスポイント、緯度または経度が大きすぎます</translation>
+    </message>
+    <message>
+      <source>Invalid vertex count (%u)</source>
+      <translation>無効な頂点数 (%u)</translation>
+    </message>
+    <message>
+      <source>LEDs: chan=</source>
+      <translation>LED: チャンネル=</translation>
+    </message>
+    <message>
+      <source>LEDs: channel not set</source>
+      <translation>LED: チャンネルが設定されていません</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MAX too small (%u)</source>
+      <translation>LIM_PITCH_MAX が小さすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>LIM_PITCH_MIN too large (%u)</source>
+      <translation>LIM_PITCH_MIN が大きすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>LIM_ROLL_CD too small (%u)</source>
+      <translation>LIM_ROLL_CD が小さすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>Landing aborted, climbing to %dm</source>
+      <translation>着陸を中止し、%dm まで上昇中</translation>
+    </message>
+    <message>
+      <source>Landing approach start at %.1fm</source>
+      <translation>着陸進入を %.1fm で開始</translation>
+    </message>
+    <message>
+      <source>Landing glide slope %.1f degrees</source>
+      <translation>着陸滑空角 %.1f 度</translation>
+    </message>
+    <message>
+      <source>Landing sequence start</source>
+      <translation>着陸シーケンス開始</translation>
+    </message>
+    <message>
+      <source>Landing slope too steep, aborting (%.0fm %.1fdeg)</source>
+      <translation>着陸勾配が急すぎるため中止します (%.0fm %.1fdeg)</translation>
+    </message>
+    <message>
+      <source>Log recovery complete, erased %d blocks</source>
+      <translation>ログ復旧完了、%d ブロックを消去しました</translation>
+    </message>
+    <message>
+      <source>Loiter en: %3.8f %3.8f</source>
+      <translation>ロイター開始: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter ex: %3.8f %3.8f</source>
+      <translation>ロイター終了: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Loiter to alt was stuck at %d</source>
+      <translation>高度ロイターが %d で停滞しました</translation>
+    </message>
+    <message>
+      <source>Lua: %s</source>
+      <translation>Lua: %s</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a delay (0x%d)</source>
+      <translation>Lua: %s が遅延を返しませんでした (0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s did not return a function (0x%d)</source>
+      <translation>Lua: %s が関数を返しませんでした (0x%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s exceeded time limit (%d)</source>
+      <translation>Lua: %s が制限時間を超過しました (%d)</translation>
+    </message>
+    <message>
+      <source>Lua: %s returned bad result count (%d)</source>
+      <translation>Lua: %s が不正な結果数を返しました (%d)</translation>
+    </message>
+    <message>
+      <source>Lua: Could not find a scripts directory</source>
+      <translation>Lua: スクリプトディレクトリが見つかりません</translation>
+    </message>
+    <message>
+      <source>Lua: Couldn&apos;t allocate a lua state</source>
+      <translation>Lua: Lua状態を確保できませんでした</translation>
+    </message>
+    <message>
+      <source>Lua: Error: %s</source>
+      <translation>Lua: エラー: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Insufficent memory loading %s</source>
+      <translation>Lua: %s の読み込み中にメモリ不足</translation>
+    </message>
+    <message>
+      <source>Lua: No scripts to run</source>
+      <translation>Lua: 実行するスクリプトがありません</translation>
+    </message>
+    <message>
+      <source>Lua: Panic: %s</source>
+      <translation>Lua: パニック: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Running %s</source>
+      <translation>Lua: %s を実行中</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; Ground start</source>
+      <translation>&lt;startup_ground&gt; 地上起動</translation>
+    </message>
+    <message>
+      <source>&lt;startup_ground&gt; With delay</source>
+      <translation>&lt;startup_ground&gt; 遅延あり</translation>
+    </message>
+    <message>
+      <source>ADSB: Found transceiver on channel %d</source>
+      <translation>ADSB: チャンネル %d でトランシーバーを検出</translation>
+    </message>
+    <message>
+      <source>ADSB: Transceiver heartbeat timed out</source>
+      <translation>ADSB: トランシーバーのハートビートがタイムアウトしました</translation>
+    </message>
+    <message>
+      <source>ADSB: Using ICAO_id %d and Callsign %s</source>
+      <translation>ADSB: ICAO_id %d とコールサイン %s を使用</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can't terminate the vehicle</source>
+      <translation>AFSが有効でないため、機体を強制停止できません</translation>
+    </message>
+    <message>
+      <source>AP_Logger: stuck thread (%s)</source>
+      <translation>AP_Logger: スレッド停止 (%s)</translation>
+    </message>
+    <message>
+      <source>Aborting termination due to %s</source>
+      <translation>%s のため強制停止を中止します</translation>
+    </message>
+    <message>
+      <source>Airspeed %d not healthy</source>
+      <translation>対気速度センサ %d が異常です</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d failure. Disabling</source>
+      <translation>対気速度センサ %d が故障しました。無効にします</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d now OK. Re-enabled</source>
+      <translation>対気速度センサ %d が正常に戻りました。再度有効にしました</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor %d warning</source>
+      <translation>対気速度センサ %d 警告</translation>
+    </message>
+    <message>
+      <source>Alt assist %.1fm</source>
+      <translation>高度アシスト %.1fm</translation>
+    </message>
+    <message>
+      <source>Angle assist r=%d p=%d</source>
+      <translation>角度アシスト r=%d p=%d</translation>
+    </message>
+    <message>
+      <source>Arc: %3.8f %3.8f</source>
+      <translation>円弧: %3.8f %3.8f</translation>
+    </message>
+    <message>
+      <source>Arm motors before testing motors.</source>
+      <translation>モーターテストの前にモーターをアームしてください。</translation>
+    </message>
+    <message>
+      <source>Armed AUTO, xaccel = %.1f m/s/s, waiting %.1f sec</source>
+      <translation>AUTOでアーム、xaccel = %.1f m/s/s、%.1f 秒待機中</translation>
+    </message>
+    <message>
+      <source>AutoTune: (%c) %s</source>
+      <translation>AutoTune: (%c) %s</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for %s%s%s</source>
+      <translation>AutoTune: %s%s%s のゲインを保存しました</translation>
+    </message>
+    <message>
+      <source>AutoTune: WFL (%s) (%f &gt; %f)</source>
+      <translation>AutoTune: WFL (%s) (%f &gt; %f)</translation>
+    </message>
+    <message>
+      <source>AutoTune: lean=%f target=%f</source>
+      <translation>AutoTune: 傾き=%f 目標=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f accel=%f</source>
+      <translation>AutoTune: p=%f 加速度=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: p=%f d=%f</source>
+      <translation>AutoTune: p=%f d=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: rotation=%f target=%f</source>
+      <translation>AutoTune: 回転=%f 目標=%f</translation>
+    </message>
+    <message>
+      <source>AutoTune: success %u/%u</source>
+      <translation>AutoTune: 成功 %u/%u</translation>
+    </message>
+    <message>
+      <source>Avoid: Performing action: %d</source>
+      <translation>回避: アクションを実行中: %d</translation>
+    </message>
+    <message>
+      <source>Avoid: Resuming with action: %d</source>
+      <translation>回避: アクションを再開: %d</translation>
+    </message>
+    <message>
+      <source>BAD NAV ALT %0.2f</source>
+      <translation>不正なナビゲーション高度 %0.2f</translation>
+    </message>
+    <message>
+      <source>BAD NAV AltFrame %d</source>
+      <translation>不正なナビゲーション高度フレーム %d</translation>
+    </message>
+    <message>
+      <source>Bad parameter: %s</source>
+      <translation>不正なパラメータ: %s</translation>
+    </message>
+    <message>
+      <source>Bad rally point count</source>
+      <translation>ラリーポイント数が不正です</translation>
+    </message>
+    <message>
+      <source>Bad thrust read, trying to push the other way...</source>
+      <translation>推力の読み取りが不正です。逆方向に押してみます...</translation>
+    </message>
+    <message>
+      <source>Bailing Out of Autorotation</source>
+      <translation>オートローテーションから離脱中</translation>
+    </message>
+    <message>
+      <source>Battery %d is %s %.2fV used %.0f mAh</source>
+      <translation>バッテリー %d は %s %.2fV、使用量 %.0f mAh</translation>
+    </message>
+    <message>
+      <source>Battery needs replacing (%d cycles)</source>
+      <translation>バッテリーの交換が必要です (%d サイクル)</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move plane</source>
+      <translation>INSキャリブレーションを開始します。機体を動かさないでください</translation>
+    </message>
+    <message>
+      <source>Beginning INS calibration. Do not move vehicle</source>
+      <translation>INSキャリブレーションを開始します。機体を動かさないでください</translation>
+    </message>
+    <message>
+      <source>Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>ボード (%1.1fv) が範囲外です %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>Can't check rally without position</source>
+      <translation>位置情報がないためラリーを確認できません</translation>
+    </message>
+    <message>
+      <source>Change alt to %.1f</source>
+      <translation>高度を %.1f に変更</translation>
+    </message>
+    <message>
+      <source>Check BRD_TYPE: %s</source>
+      <translation>BRD_TYPE を確認してください: %s</translation>
+    </message>
+    <message>
+      <source>Command received: </source>
+      <translation>コマンド受信: </translation>
+    </message>
+    <message>
+      <source>Could not create scripting stack (%d)</source>
+      <translation>スクリプトスタックを作成できませんでした (%d)</translation>
+    </message>
+    <message>
+      <source>Cruise Learned: Thr:%d Speed:%3.1f</source>
+      <translation>クルーズ学習済み: スロットル:%d 速度:%3.1f</translation>
+    </message>
+    <message>
+      <source>Current</source>
+      <translation>電流</translation>
+    </message>
+    <message>
+      <source>DB init failed . Sizes queue:%u, db:%u</source>
+      <translation>DB初期化に失敗しました。サイズ キュー:%u、db:%u</translation>
+    </message>
+    <message>
+      <source>Deepstall: Entry: %0.1f (m) Travel: %0.1f (m)</source>
+      <translation>ディープストール: 進入: %0.1f (m) 移動: %0.1f (m)</translation>
+    </message>
+    <message>
+      <source>Deepstall: Invalid data from AHRS. Holding level</source>
+      <translation>ディープストール: AHRSのデータが無効です。水平を維持します</translation>
+    </message>
+    <message>
+      <source>Deepstall: Unable to find the elevator channels</source>
+      <translation>ディープストール: エレベーターチャンネルが見つかりません</translation>
+    </message>
+    <message>
+      <source>Delaying %u sec</source>
+      <translation>%u 秒遅延中</translation>
+    </message>
+    <message>
+      <source>Depth sensor error!</source>
+      <translation>深度センサエラー！</translation>
+    </message>
+    <message>
+      <source>Depth sensor error.</source>
+      <translation>深度センサエラー。</translation>
+    </message>
+    <message>
+      <source>Depth sensor is not connected.</source>
+      <translation>深度センサが接続されていません。</translation>
+    </message>
+    <message>
+      <source>Dijkstra: %s</source>
+      <translation>Dijkstra: %s</translation>
+    </message>
+    <message>
+      <source>Distance from LAND point=%.2fm</source>
+      <translation>着陸地点からの距離=%.2fm</translation>
+    </message>
+    <message>
+      <source>Distance: %.1f %.1f</source>
+      <translation>距離: %.1f %.1f</translation>
+    </message>
+    <message>
+      <source>EK2: Changed EK2_GPS_TYPE to 1</source>
+      <translation>EK2: EK2_GPS_TYPE を 1 に変更しました</translation>
+    </message>
+    <message>
+      <source>EK3: Changed EK3_GPS_TYPE to 1</source>
+      <translation>EK3: EK3_GPS_TYPE を 1 に変更しました</translation>
+    </message>
+    <message>
+      <source>EKF primary changed:%d</source>
+      <translation>EKFプライマリ変更:%d</translation>
+    </message>
+    <message>
+      <source>EKF yaw reset %.2f</source>
+      <translation>EKFヨーリセット %.2f</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ext nav yaw alignment complete</source>
+      <translation>EKF2 IMU%u 外部ナビのヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u forced reset</source>
+      <translation>EKF2 IMU%u 強制リセット</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF2 IMU%u 地上で磁気異常、ヨーを再アライメントしました</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u has stopped aiding</source>
+      <translation>EKF2 IMU%u 補助を停止しました</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF2 IMU%u 飛行中のヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF2 IMU%u ビーコン初期位置 Dオフセット = %3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u 初期位置 NE = %3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial pos NED = %3.1f,%3.1f,%3.1f (m)</source>
+      <translation>EKF2 IMU%u 初期位置 NED = %3.1f,%3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u initial yaw alignment complete</source>
+      <translation>EKF2 IMU%u 初期ヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using GPS</source>
+      <translation>EKF2 IMU%u がGPSを使用中</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using external nav data</source>
+      <translation>EKF2 IMU%u が外部ナビデータを使用中</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using optical flow</source>
+      <translation>EKF2 IMU%u がオプティカルフローを使用中</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u is using range beacons</source>
+      <translation>EKF2 IMU%u が測距ビーコンを使用中</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u origin set</source>
+      <translation>EKF2 IMU%u 原点を設定しました</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u switching to compass %u</source>
+      <translation>EKF2 IMU%u コンパス %u に切り替え中</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u tilt alignment complete</source>
+      <translation>EKF2 IMU%u 傾きアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF2 IMU%u yaw aligned to GPS velocity</source>
+      <translation>EKF2 IMU%u GPS速度でヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u buffers IMU=%u OBS=%u OF=%u, dt=%.4f</source>
+      <translation>EKF3 IMU%u バッファ IMU=%u OBS=%u OF=%u、dt=%.4f</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing odometry</source>
+      <translation>EKF3 IMU%u オドメトリを融合中</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u fusing optical flow</source>
+      <translation>EKF3 IMU%u オプティカルフローを融合中</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u ground mag anomaly, yaw re-aligned</source>
+      <translation>EKF3 IMU%u 地上で磁気異常、ヨーを再アライメントしました</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u in-flight yaw alignment complete</source>
+      <translation>EKF3 IMU%u 飛行中のヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial beacon pos D offset = %3.1f (m)</source>
+      <translation>EKF3 IMU%u ビーコン初期位置 Dオフセット = %3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial pos NE = %3.1f,%3.1f (m)</source>
+      <translation>EKF3 IMU%u 初期位置 NE = %3.1f,%3.1f (m)</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initial yaw alignment complete</source>
+      <translation>EKF3 IMU%u 初期ヨーアライメント完了</translation>
+    </message>
+    <message>
+      <source>EKF3 IMU%u initialised</source>
+      <translation>EKF3 IMU%u 初期化完了</translation>
+    </message>
+    <message>
+      <source>PreArm: Radio failsafe on</source>
+      <translation>プリアーム: 送信機フェイルセーフ作動中</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix</source>
+      <translation>プリアーム: 3D Fix待機中</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix </source>
+      <translation>プリアーム: 3D Fix待機中 </translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for 3D fix.</source>
+      <translation>プリアーム: 3D Fix待機中。</translation>
+    </message>
+    <message>
+      <source>PreArm: Throttle below Failsafe</source>
+      <translation>プリアーム: スロットルがフェイルセーフ値を下回っています</translation>
+    </message>
+    <message>
+      <source>PreArm: 3D Accel calibration needed</source>
+      <translation>プリアーム: 3D加速度計のキャリブレーションが必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF altitude is bad</source>
+      <translation>プリアーム: EKF高度が不正です</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF attitude is bad</source>
+      <translation>プリアーム: EKF姿勢が不正です</translation>
+    </message>
+    <message>
+      <source>PreArm: fence requires position</source>
+      <translation>プリアーム: フェンスには位置情報が必要です</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Disarming</source>
+      <translation>送信機フェイルセーフ - ディスアーム中</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe Cleared</source>
+      <translation>送信機フェイルセーフ解除</translation>
+    </message>
+    <message>
+      <source>10 second cooldown required after motor test</source>
+      <translation>モーターテスト後は10秒のクールダウンが必要です</translation>
+    </message>
+    <message>
+      <source>3D Accel calibration needed</source>
+      <translation>3D加速度計のキャリブレーションが必要です</translation>
+    </message>
+    <message>
+      <source>ACRO_BAL_ROLL/PITCH</source>
+      <translation>ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>AC_Fence: invalid polygon vertex count</source>
+      <translation>AC_Fence: ポリゴンの頂点数が無効です</translation>
+    </message>
+    <message>
+      <source>AC_Fence: latlon read failed</source>
+      <translation>AC_Fence: 緯度経度の読み取りに失敗しました</translation>
+    </message>
+    <message>
+      <source>AC_Fence: non-positive circle radius</source>
+      <translation>AC_Fence: 円の半径が正の値ではありません</translation>
+    </message>
+    <message>
+      <source>AC_Fence: polygon read failed</source>
+      <translation>AC_Fence: ポリゴンの読み取りに失敗しました</translation>
+    </message>
+    <message>
+      <source>ADSB threat detected</source>
+      <translation>ADSB脅威を検出しました</translation>
+    </message>
+    <message>
+      <source>AHRS not healthy</source>
+      <translation>AHRSが異常です</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO</source>
+      <translation>AFS状態: AFS_AUTO</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GCS now OK</source>
+      <translation>AFS状態: AFS_AUTO、GCS正常復帰</translation>
+    </message>
+    <message>
+      <source>AFS State: AFS_AUTO, GPS now OK</source>
+      <translation>AFS状態: AFS_AUTO、GPS正常復帰</translation>
+    </message>
+    <message>
+      <source>AFS State: DATA_LINK_LOSS</source>
+      <translation>AFS状態: DATA_LINK_LOSS</translation>
+    </message>
+    <message>
+      <source>AFS State: GPS_LOSS</source>
+      <translation>AFS状態: GPS_LOSS</translation>
+    </message>
+    <message>
+      <source>AFS not enabled, can&apos;t terminate the vehicle</source>
+      <translation>AFSが有効でないため、機体を強制停止できません</translation>
+    </message>
+    <message>
+      <source>AUTO triggered off</source>
+      <translation>AUTOトリガーオフ</translation>
+    </message>
+    <message>
+      <source>AUTOTUNE: pilot overrides active</source>
+      <translation>AUTOTUNE: パイロットによるオーバーライド中</translation>
+    </message>
+    <message>
+      <source>Accels calibrated requires reboot</source>
+      <translation>加速度計のキャリブレーション後は再起動が必要です</translation>
+    </message>
+    <message>
+      <source>Accels inconsistent</source>
+      <translation>加速度計の値が一致しません</translation>
+    </message>
+    <message>
+      <source>Accels not healthy</source>
+      <translation>加速度計が異常です</translation>
+    </message>
+    <message>
+      <source>Action: Minimum Collective Applied</source>
+      <translation>アクション: 最小コレクティブを適用</translation>
+    </message>
+    <message>
+      <source>Aircraft in auto without a running mission</source>
+      <translation>ミッション未実行のまま機体がAutoです</translation>
+    </message>
+    <message>
+      <source>All parameters reset, reboot board</source>
+      <translation>全パラメータをリセットしました。ボードを再起動してください</translation>
+    </message>
+    <message>
+      <source>Already flying - no takeoff</source>
+      <translation>既に飛行中のため離陸できません</translation>
+    </message>
+    <message>
+      <source>Altitude disparity</source>
+      <translation>高度の不一致</translation>
+    </message>
+    <message>
+      <source>Arm: Motor Emergency Stopped</source>
+      <translation>アーム: モーター緊急停止中</translation>
+    </message>
+    <message>
+      <source>Arming motors</source>
+      <translation>モーターをアーム中</translation>
+    </message>
+    <message>
+      <source>Attempting auto failsafe recovery</source>
+      <translation>フェイルセーフの自動復帰を試行中</translation>
+    </message>
+    <message>
+      <source>Auto disarmed</source>
+      <translation>自動ディスアーム</translation>
+    </message>
+    <message>
+      <source>Auto: Missing Takeoff Cmd</source>
+      <translation>Auto: 離陸コマンドがありません</translation>
+    </message>
+    <message>
+      <source>AutoTune: Failed</source>
+      <translation>AutoTune: 失敗</translation>
+    </message>
+    <message>
+      <source>AutoTune: Paused: Pilot Override Active</source>
+      <translation>AutoTune: 一時停止: パイロットによるオーバーライド中</translation>
+    </message>
+    <message>
+      <source>AutoTune: Saved gains for </source>
+      <translation>AutoTune: ゲインを保存しました </translation>
+    </message>
+    <message>
+      <source>AutoTune: Started</source>
+      <translation>AutoTune: 開始</translation>
+    </message>
+    <message>
+      <source>AutoTune: Stopped</source>
+      <translation>AutoTune: 停止</translation>
+    </message>
+    <message>
+      <source>AutoTune: Success</source>
+      <translation>AutoTune: 成功</translation>
+    </message>
+    <message>
+      <source>AutoTune: TWITCHING</source>
+      <translation>AutoTune: TWITCHING</translation>
+    </message>
+    <message>
+      <source>AutoTune: Twitch</source>
+      <translation>AutoTune: トゥイッチ</translation>
+    </message>
+    <message>
+      <source>AutoTune: UPDATING_GAINS</source>
+      <translation>AutoTune: UPDATING_GAINS</translation>
+    </message>
+    <message>
+      <source>AutoTune: unknown step</source>
+      <translation>AutoTune: 不明なステップ</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Change Fail: Interlock Engaged</source>
+      <translation>オートローテーションモード変更失敗: インターロック作動中</translation>
+    </message>
+    <message>
+      <source>Autorot Mode Not Enabled</source>
+      <translation>オートローテーションモードが有効ではありません</translation>
+    </message>
+    <message>
+      <source>Autorotation initiated</source>
+      <translation>オートローテーションを開始しました</translation>
+    </message>
+    <message>
+      <source>BANG!  Parachute deployed</source>
+      <translation>BANG!  パラシュートを展開しました</translation>
+    </message>
+    <message>
+      <source>Bad GPS Position</source>
+      <translation>GPS位置が不正です</translation>
+    </message>
+    <message>
+      <source>Bad fence point</source>
+      <translation>フェンスポイントが不正です</translation>
+    </message>
+    <message>
+      <source>Bad lat or lon</source>
+      <translation>緯度または経度が不正です</translation>
+    </message>
+    <message>
+      <source>Bad launch AUTO</source>
+      <translation>AUTO発進が不正です</translation>
+    </message>
+    <message>
+      <source>Bad rally point ID</source>
+      <translation>ラリーポイントIDが不正です</translation>
+    </message>
+    <message>
+      <source>Barometer calibration complete</source>
+      <translation>気圧計のキャリブレーション完了</translation>
+    </message>
+    <message>
+      <source>Barometer not healthy</source>
+      <translation>気圧計が異常です</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe</source>
+      <translation>バッテリーフェイルセーフ</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Continuing Landing</source>
+      <translation>バッテリーフェイルセーフ - 着陸を継続</translation>
+    </message>
+    <message>
+      <source>Battery Failsafe - Disarming</source>
+      <translation>バッテリーフェイルセーフ - ディスアーム中</translation>
+    </message>
+    <message>
+      <source>Battery failsafe</source>
+      <translation>バッテリーフェイルセーフ</translation>
+    </message>
+    <message>
+      <source>Calibration successful</source>
+      <translation>キャリブレーション成功</translation>
+    </message>
+    <message>
+      <source>Can&apos;t check rally without position</source>
+      <translation>位置情報がないためラリーを確認できません</translation>
+    </message>
+    <message>
+      <source>Check ANGLE_MAX</source>
+      <translation>ANGLE_MAX を確認してください</translation>
+    </message>
+    <message>
+      <source>Check FS_THR_VALUE</source>
+      <translation>FS_THR_VALUE を確認してください</translation>
+    </message>
+    <message>
+      <source>Check MOT_PWM_MAX/MIN</source>
+      <translation>MOT_PWM_MAX/MIN を確認してください</translation>
+    </message>
+    <message>
+      <source>Check Object Avoidance</source>
+      <translation>障害物回避を確認してください</translation>
+    </message>
+    <message>
+      <source>Check PILOT_SPEED_UP</source>
+      <translation>PILOT_SPEED_UP を確認してください</translation>
+    </message>
+    <message>
+      <source>Check compass</source>
+      <translation>コンパスを確認してください</translation>
+    </message>
+    <message>
+      <source>Check fence</source>
+      <translation>フェンスを確認してください</translation>
+    </message>
+    <message>
+      <source>Check mag field</source>
+      <translation>磁場を確認してください</translation>
+    </message>
+    <message>
+      <source>Chip erase complete</source>
+      <translation>チップ消去完了</translation>
+    </message>
+    <message>
+      <source>Chip erase started</source>
+      <translation>チップ消去開始</translation>
+    </message>
+    <message>
+      <source>Clearing Mission</source>
+      <translation>ミッションを消去中</translation>
+    </message>
+    <message>
+      <source>Compass cal requires GPS lock</source>
+      <translation>コンパスキャリブレーションにはGPS測位が必要です</translation>
+    </message>
+    <message>
+      <source>Compass cal requires reboot after priority change</source>
+      <translation>優先度変更後のコンパスキャリブレーションには再起動が必要です</translation>
+    </message>
+    <message>
+      <source>Compass calibrated requires reboot</source>
+      <translation>コンパスのキャリブレーション後は再起動が必要です</translation>
+    </message>
+    <message>
+      <source>Compass calibration running</source>
+      <translation>コンパスキャリブレーション実行中</translation>
+    </message>
+    <message>
+      <source>Compass disabled</source>
+      <translation>コンパス無効</translation>
+    </message>
+    <message>
+      <source>Compass not healthy</source>
+      <translation>コンパスが異常です</translation>
+    </message>
+    <message>
+      <source>Compass offsets too high</source>
+      <translation>コンパスのオフセットが大きすぎます</translation>
+    </message>
+    <message>
+      <source>CompassLearn: Initialised</source>
+      <translation>CompassLearn: 初期化完了</translation>
+    </message>
+    <message>
+      <source>CompassLearn: finished</source>
+      <translation>CompassLearn: 完了</translation>
+    </message>
+    <message>
+      <source>CompassLearn: have earth field</source>
+      <translation>CompassLearn: 地磁気を取得しました</translation>
+    </message>
+    <message>
+      <source>Compasses inconsistent</source>
+      <translation>コンパスの値が一致しません</translation>
+    </message>
+    <message>
+      <source>Crash detected</source>
+      <translation>墜落を検出しました</translation>
+    </message>
+    <message>
+      <source>Crash detected. No action taken</source>
+      <translation>墜落を検出しました。処置は行いません</translation>
+    </message>
+    <message>
+      <source>Crash: Disarming</source>
+      <translation>墜落: ディスアーム中</translation>
+    </message>
+    <message>
+      <source>Crash: Going to HOLD</source>
+      <translation>墜落: HOLDに移行中</translation>
+    </message>
+    <message>
+      <source>Cruise Learning NOT started</source>
+      <translation>クルーズ学習は開始されていません</translation>
+    </message>
+    <message>
+      <source>Cruise Learning failed</source>
+      <translation>クルーズ学習に失敗しました</translation>
+    </message>
+    <message>
+      <source>Cruise Learning started</source>
+      <translation>クルーズ学習を開始しました</translation>
+    </message>
+    <message>
+      <source>Disable fence failed (autodisable)</source>
+      <translation>フェンスの無効化に失敗しました (自動無効化)</translation>
+    </message>
+    <message>
+      <source>Disable fence floor failed (autodisable)</source>
+      <translation>フェンス下限の無効化に失敗しました (自動無効化)</translation>
+    </message>
+    <message>
+      <source>Disarm before calibration.</source>
+      <translation>キャリブレーションの前にディスアームしてください。</translation>
+    </message>
+    <message>
+      <source>Disarm hardware safety switch before testing motors.</source>
+      <translation>モーターテストの前にハードウェアセーフティスイッチを解除してください。</translation>
+    </message>
+    <message>
+      <source>Disarm to allow compass calibration</source>
+      <translation>コンパスキャリブレーションを行うにはディスアームしてください</translation>
+    </message>
+    <message>
+      <source>Disarming motors</source>
+      <translation>モーターをディスアーム中</translation>
+    </message>
+    <message>
+      <source>Duplicate Aux Switch Options</source>
+      <translation>AUXスイッチオプションが重複しています</translation>
+    </message>
+    <message>
+      <source>EKF attitude is bad</source>
+      <translation>EKF姿勢が不正です</translation>
+    </message>
+    <message>
+      <source>EKF bad</source>
+      <translation>EKF不良</translation>
+    </message>
+    <message>
+      <source>EKF compass variance</source>
+      <translation>EKFコンパス分散</translation>
+    </message>
+    <message>
+      <source>EKF failsafe</source>
+      <translation>EKFフェイルセーフ</translation>
+    </message>
+    <message>
+      <source>EKF failsafe cleared</source>
+      <translation>EKFフェイルセーフ解除</translation>
+    </message>
+    <message>
+      <source>EKF failsafe!</source>
+      <translation>EKFフェイルセーフ！</translation>
+    </message>
+    <message>
+      <source>EKF variance</source>
+      <translation>EKF分散</translation>
+    </message>
+    <message>
+      <source>EKF-home variance</source>
+      <translation>EKF-ホーム分散</translation>
+    </message>
+    <message>
+      <source>EKF2 refusing set origin</source>
+      <translation>EKF2 が原点設定を拒否しました</translation>
+    </message>
+    <message>
+      <source>EKF3 refusing set origin</source>
+      <translation>EKF3 が原点設定を拒否しました</translation>
+    </message>
+    <message>
+      <source>EKF3 waiting for GPS config data</source>
+      <translation>EKF3 GPS設定データ待機中</translation>
+    </message>
+    <message>
+      <source>ERROR: Failed to save signing key</source>
+      <translation>エラー: 署名キーの保存に失敗しました</translation>
+    </message>
+    <message>
+      <source>Entry Phase</source>
+      <translation>進入フェーズ</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag mode</source>
+      <translation>FBWA tdragモード</translation>
+    </message>
+    <message>
+      <source>FBWA tdrag off</source>
+      <translation>FBWA tdragオフ</translation>
+    </message>
+    <message>
+      <source>Failsafe ended</source>
+      <translation>フェイルセーフ終了</translation>
+    </message>
+    <message>
+      <source>Failsafe terrain triggered</source>
+      <translation>地形フェイルセーフ発動</translation>
+    </message>
+    <message>
+      <source>Fence Disabled</source>
+      <translation>フェンス無効</translation>
+    </message>
+    <message>
+      <source>Fence Enabled</source>
+      <translation>フェンス有効</translation>
+    </message>
+    <message>
+      <source>Fence Indexed OK</source>
+      <translation>フェンスのインデックス作成OK</translation>
+    </message>
+    <message>
+      <source>Fence corrupt</source>
+      <translation>フェンスが破損しています</translation>
+    </message>
+    <message>
+      <source>Fence disabled (autodisable)</source>
+      <translation>フェンス無効 (自動無効化)</translation>
+    </message>
+    <message>
+      <source>Fence enabled (autoenabled)</source>
+      <translation>フェンス有効 (自動有効化)</translation>
+    </message>
+    <message>
+      <source>Fence exceeds storage size</source>
+      <translation>フェンスがストレージ容量を超えています</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled</source>
+      <translation>フェンス下限無効</translation>
+    </message>
+    <message>
+      <source>Fence floor disabled (auto disable)</source>
+      <translation>フェンス下限無効 (自動無効化)</translation>
+    </message>
+    <message>
+      <source>Fence not configured</source>
+      <translation>フェンスが設定されていません</translation>
+    </message>
+    <message>
+      <source>Fence read failed</source>
+      <translation>フェンスの読み取りに失敗しました</translation>
+    </message>
+    <message>
+      <source>Fence upload timeout</source>
+      <translation>フェンスのアップロードがタイムアウトしました</translation>
+    </message>
+    <message>
+      <source>Fence validation failed</source>
+      <translation>フェンスの検証に失敗しました</translation>
+    </message>
+    <message>
+      <source>Fence: auto-enabled for arming</source>
+      <translation>フェンス: アーム時に自動で有効化しました</translation>
+    </message>
+    <message>
+      <source>Fence: cannot enable for arming</source>
+      <translation>フェンス: アーム時に有効化できません</translation>
+    </message>
+    <message>
+      <source>Fencing must be disabled</source>
+      <translation>フェンスを無効にする必要があります</translation>
+    </message>
+    <message>
+      <source>Finished active loiter</source>
+      <translation>アクティブロイター完了</translation>
+    </message>
+    <message>
+      <source>Flight mode change failed</source>
+      <translation>フライトモードの変更に失敗しました</translation>
+    </message>
+    <message>
+      <source>Flight plan received</source>
+      <translation>飛行計画を受信しました</translation>
+    </message>
+    <message>
+      <source>Flight plan update rejected</source>
+      <translation>飛行計画の更新が拒否されました</translation>
+    </message>
+    <message>
+      <source>Forcing logging for watchdog reset</source>
+      <translation>ウォッチドッグリセットのためログ記録を強制実行</translation>
+    </message>
+    <message>
+      <source>GCS + Battery Failsafe - Continuing Landing</source>
+      <translation>GCS + バッテリーフェイルセーフ - 着陸を継続</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe</source>
+      <translation>GCSフェイルセーフ</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Auto Mode</source>
+      <translation>GCSフェイルセーフ - Autoモードを継続</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Landing</source>
+      <translation>GCSフェイルセーフ - 着陸を継続</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Continuing Pilot Control</source>
+      <translation>GCSフェイルセーフ - パイロット操縦を継続</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe - Disarming</source>
+      <translation>GCSフェイルセーフ - ディスアーム中</translation>
+    </message>
+    <message>
+      <source>GCS Failsafe Cleared</source>
+      <translation>GCSフェイルセーフ解除</translation>
+    </message>
+    <message>
+      <source>GCS failsafe on</source>
+      <translation>GCSフェイルセーフ作動中</translation>
+    </message>
+    <message>
+      <source>GPS Glitch</source>
+      <translation>GPSグリッチ</translation>
+    </message>
+    <message>
+      <source>GPS Glitch cleared</source>
+      <translation>GPSグリッチ解除</translation>
+    </message>
+    <message>
+      <source>GPS blending unhealthy</source>
+      <translation>GPSブレンディング異常</translation>
+    </message>
+    <message>
+      <source>GPS glitching</source>
+      <translation>GPSグリッチ発生中</translation>
+    </message>
+    <message>
+      <source>GPS is not healthy</source>
+      <translation>GPSが異常です</translation>
+    </message>
+    <message>
+      <source>Geofence OK</source>
+      <translation>ジオフェンスOK</translation>
+    </message>
+    <message>
+      <source>Geofence loaded</source>
+      <translation>ジオフェンスを読み込みました</translation>
+    </message>
+    <message>
+      <source>Geofence triggered</source>
+      <translation>ジオフェンスが作動しました</translation>
+    </message>
+    <message>
+      <source>GoPro Not Available</source>
+      <translation>GoProが使用できません</translation>
+    </message>
+    <message>
+      <source>GoPro Photo Trigger</source>
+      <translation>GoPro写真トリガー</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Start</source>
+      <translation>GoPro録画開始</translation>
+    </message>
+    <message>
+      <source>GoPro Recording Stop</source>
+      <translation>GoPro録画停止</translation>
+    </message>
+    <message>
+      <source>GoPro Unsupported Capture Mode</source>
+      <translation>GoPro非対応の撮影モード</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode photo</source>
+      <translation>GoProを写真モードに変更中</translation>
+    </message>
+    <message>
+      <source>GoPro changing to mode video</source>
+      <translation>GoProをビデオモードに変更中</translation>
+    </message>
+    <message>
+      <source>Gripper Grabbed</source>
+      <translation>グリッパー把持</translation>
+    </message>
+    <message>
+      <source>Gripper Released</source>
+      <translation>グリッパー解放</translation>
+    </message>
+    <message>
+      <source>Gripper code disabled</source>
+      <translation>グリッパーコード無効</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbed</source>
+      <translation>グリッパーで荷物を把持しました</translation>
+    </message>
+    <message>
+      <source>Gripper load grabbing</source>
+      <translation>グリッパーで荷物を把持中</translation>
+    </message>
+    <message>
+      <source>Gripper load released</source>
+      <translation>グリッパーで荷物を解放しました</translation>
+    </message>
+    <message>
+      <source>Gripper load releasing</source>
+      <translation>グリッパーで荷物を解放中</translation>
+    </message>
+    <message>
+      <source>Gripper not valid</source>
+      <translation>グリッパーが無効です</translation>
+    </message>
+    <message>
+      <source>Ground start</source>
+      <translation>地上起動</translation>
+    </message>
+    <message>
+      <source>Ground start complete</source>
+      <translation>地上起動完了</translation>
+    </message>
+    <message>
+      <source>Ground start with delay</source>
+      <translation>遅延付き地上起動</translation>
+    </message>
+    <message>
+      <source>Gyros inconsistent</source>
+      <translation>ジャイロの値が一致しません</translation>
+    </message>
+    <message>
+      <source>Gyros not calibrated</source>
+      <translation>ジャイロ未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Gyros not healthy</source>
+      <translation>ジャイロが異常です</translation>
+    </message>
+    <message>
+      <source>Hard landing detected</source>
+      <translation>ハードランディングを検出しました</translation>
+    </message>
+    <message>
+      <source>Hard landing detected. No action taken</source>
+      <translation>ハードランディングを検出しました。処置は行いません</translation>
+    </message>
+    <message>
+      <source>Hardware safety switch</source>
+      <translation>ハードウェアセーフティスイッチ</translation>
+    </message>
+    <message>
+      <source>Heli motors checks failed</source>
+      <translation>ヘリのモーターチェックに失敗しました</translation>
+    </message>
+    <message>
+      <source>High GPS HDOP</source>
+      <translation>GPS HDOPが高い</translation>
+    </message>
+    <message>
+      <source>IOMCU is unhealthy</source>
+      <translation>IOMCUが異常です</translation>
+    </message>
+    <message>
+      <source>Incorrect item count</source>
+      <translation>項目数が正しくありません</translation>
+    </message>
+    <message>
+      <source>Initialising APM</source>
+      <translation>APMを初期化中</translation>
+    </message>
+    <message>
+      <source>Interlock/E-Stop Conflict</source>
+      <translation>インターロック/緊急停止の競合</translation>
+    </message>
+    <message>
+      <source>Invalid FENCE_TOTAL</source>
+      <translation>無効な FENCE_TOTAL</translation>
+    </message>
+    <message>
+      <source>Invalid Heli FRAME_CLASS</source>
+      <translation>無効なヘリ FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>Invalid MultiCopter FRAME_CLASS</source>
+      <translation>無効なマルチコプター FRAME_CLASS</translation>
+    </message>
+    <message>
+      <source>Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>逆スロットル用の THR_FS_VALUE が無効です</translation>
+    </message>
+    <message>
+      <source>Invalid VTOL mode</source>
+      <translation>無効なVTOLモード</translation>
+    </message>
+    <message>
+      <source>Inverted flight option not supported</source>
+      <translation>背面飛行オプションはサポートされていません</translation>
+    </message>
+    <message>
+      <source>Land complete</source>
+      <translation>着陸完了</translation>
+    </message>
+    <message>
+      <source>Land descend started</source>
+      <translation>着陸降下開始</translation>
+    </message>
+    <message>
+      <source>Land final started</source>
+      <translation>着陸最終段階開始</translation>
+    </message>
+    <message>
+      <source>Landing abort sequence start</source>
+      <translation>着陸中止シーケンス開始</translation>
+    </message>
+    <message>
+      <source>Landing aborted via throttle</source>
+      <translation>スロットル操作により着陸を中止しました</translation>
+    </message>
+    <message>
+      <source>Landing configuration error, invalid LAND_TYPE</source>
+      <translation>着陸設定エラー、LAND_TYPE が無効です</translation>
+    </message>
+    <message>
+      <source>Landing gear was not deployed</source>
+      <translation>ランディングギアが展開されていません</translation>
+    </message>
+    <message>
+      <source>LandingGear: DEPLOY</source>
+      <translation>ランディングギア: 展開</translation>
+    </message>
+    <message>
+      <source>LandingGear: RETRACT</source>
+      <translation>ランディングギア: 格納</translation>
+    </message>
+    <message>
+      <source>Leak Detected</source>
+      <translation>浸水を検出しました</translation>
+    </message>
+    <message>
+      <source>Leaning</source>
+      <translation>傾斜中</translation>
+    </message>
+    <message>
+      <source>Locate Copter alarm</source>
+      <translation>機体位置確認アラーム</translation>
+    </message>
+    <message>
+      <source>Log download in progress</source>
+      <translation>ログをダウンロード中</translation>
+    </message>
+    <message>
+      <source>Logging failed</source>
+      <translation>ログ記録に失敗しました</translation>
+    </message>
+    <message>
+      <source>Logging not started</source>
+      <translation>ログ記録が開始されていません</translation>
+    </message>
+    <message>
+      <source>Loiter orbits complete</source>
+      <translation>ロイター周回完了</translation>
+    </message>
+    <message>
+      <source>Loiter time complete</source>
+      <translation>ロイター時間完了</translation>
+    </message>
+    <message>
+      <source>Loiter to alt complete</source>
+      <translation>高度ロイター完了</translation>
+    </message>
+    <message>
+      <source>Lost manual control</source>
+      <translation>手動操縦を喪失しました</translation>
+    </message>
+    <message>
+      <source>Mission Complete</source>
+      <translation>ミッション完了</translation>
+    </message>
+    <message>
+      <source>Mission complete, changing mode to RTL</source>
+      <translation>ミッション完了、モードをRTLに変更します</translation>
+    </message>
+    <message>
+      <source>Mission upload timeout</source>
+      <translation>ミッションのアップロードがタイムアウトしました</translation>
+    </message>
+    <message>
+      <source>Mode change failed: throttle too high</source>
+      <translation>モード変更失敗: スロットルが高すぎます</translation>
+    </message>
+    <message>
+      <source>Mode not armable</source>
+      <translation>このモードではアームできません</translation>
+    </message>
+    <message>
+      <source>Motor Interlock Enabled</source>
+      <translation>モーターインターロック有効</translation>
+    </message>
+    <message>
+      <source>Motor Interlock not configured</source>
+      <translation>モーターインターロックが設定されていません</translation>
+    </message>
+    <message>
+      <source>Motor Test: Board initialising</source>
+      <translation>モーターテスト: ボード初期化中</translation>
+    </message>
+    <message>
+      <source>Motor Test: RC not calibrated</source>
+      <translation>モーターテスト: 送信機 (RC) 未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Motor Test: Safety switch</source>
+      <translation>モーターテスト: セーフティスイッチ</translation>
+    </message>
+    <message>
+      <source>Motor Test: vehicle not landed</source>
+      <translation>モーターテスト: 機体が着陸していません</translation>
+    </message>
+    <message>
+      <source>Motor direction detection is complete.</source>
+      <translation>モーター回転方向の検出が完了しました。</translation>
+    </message>
+    <message>
+      <source>Motor test timed out!</source>
+      <translation>モーターテストがタイムアウトしました！</translation>
+    </message>
+    <message>
+      <source>Motors Emergency Stopped</source>
+      <translation>モーター緊急停止中</translation>
+    </message>
+    <message>
+      <source>Multiple return points</source>
+      <translation>帰還地点が複数あります</translation>
+    </message>
+    <message>
+      <source>Must assign a disarm or arm_toggle button</source>
+      <translation>ディスアームまたは arm_toggle ボタンを割り当てる必要があります</translation>
+    </message>
+    <message>
+      <source>Must be armed for takeoff</source>
+      <translation>離陸するにはアームが必要です</translation>
+    </message>
+    <message>
+      <source>Must be disarmed for motor test</source>
+      <translation>モーターテストにはディスアームが必要です</translation>
+    </message>
+    <message>
+      <source>NAV_PLACE: landed</source>
+      <translation>NAV_PLACE: 着陸しました</translation>
+    </message>
+    <message>
+      <source>NavEKF2: allocation failed</source>
+      <translation>NavEKF2: 確保に失敗しました</translation>
+    </message>
+    <message>
+      <source>NavEKF2: not enough memory</source>
+      <translation>NavEKF2: メモリ不足</translation>
+    </message>
+    <message>
+      <source>NavEKF3: allocation failed</source>
+      <translation>NavEKF3: 確保に失敗しました</translation>
+    </message>
+    <message>
+      <source>NavEKF3: not enough memory</source>
+      <translation>NavEKF3: メモリ不足</translation>
+    </message>
+    <message>
+      <source>Need mavlink2 for item transfer</source>
+      <translation>項目の転送には mavlink2 が必要です</translation>
+    </message>
+    <message>
+      <source>New HOME received</source>
+      <translation>新しいホームを受信しました</translation>
+    </message>
+    <message>
+      <source>No Mission. Can&apos;t set AUTO.</source>
+      <translation>ミッションがありません。AUTOに設定できません。</translation>
+    </message>
+    <message>
+      <source>No SD card</source>
+      <translation>SDカードがありません</translation>
+    </message>
+    <message>
+      <source>No airspeed</source>
+      <translation>対気速度なし</translation>
+    </message>
+    <message>
+      <source>No mission library present</source>
+      <translation>ミッションライブラリがありません</translation>
+    </message>
+    <message>
+      <source>No mission loaded</source>
+      <translation>ミッションが読み込まれていません</translation>
+    </message>
+    <message>
+      <source>No rally library present</source>
+      <translation>ラリーライブラリがありません</translation>
+    </message>
+    <message>
+      <source>No such mode</source>
+      <translation>該当するモードがありません</translation>
+    </message>
+    <message>
+      <source>No sufficently close rally point located</source>
+      <translation>十分近いラリーポイントが見つかりません</translation>
+    </message>
+    <message>
+      <source>Non-positive circle radius</source>
+      <translation>円の半径が正の値ではありません</translation>
+    </message>
+    <message>
+      <source>Not enough memory for quadplane</source>
+      <translation>クアッドプレーン用のメモリが不足しています</translation>
+    </message>
+    <message>
+      <source>Not landed</source>
+      <translation>着陸していません</translation>
+    </message>
+    <message>
+      <source>Out of memory for upload</source>
+      <translation>アップロード用のメモリが不足しています</translation>
+    </message>
+    <message>
+      <source>Parachute already released</source>
+      <translation>パラシュートは既に放出されています</translation>
+    </message>
+    <message>
+      <source>Parachute not enabled</source>
+      <translation>パラシュートが有効ではありません</translation>
+    </message>
+    <message>
+      <source>Parachute: Landed</source>
+      <translation>パラシュート: 着陸済み</translation>
+    </message>
+    <message>
+      <source>Parachute: Released</source>
+      <translation>パラシュート: 放出しました</translation>
+    </message>
+    <message>
+      <source>Parachute: Released again</source>
+      <translation>パラシュート: 再放出しました</translation>
+    </message>
+    <message>
+      <source>Parachute: Too low</source>
+      <translation>パラシュート: 高度が低すぎます</translation>
+    </message>
+    <message>
+      <source>Param storage failed</source>
+      <translation>パラメータの保存に失敗しました</translation>
+    </message>
+    <message>
+      <source>Passthru disabled</source>
+      <translation>パススルー無効</translation>
+    </message>
+    <message>
+      <source>Passthru enabled</source>
+      <translation>パススルー有効</translation>
+    </message>
+    <message>
+      <source>Passthru timed out</source>
+      <translation>パススルーがタイムアウトしました</translation>
+    </message>
+    <message>
+      <source>PolyFence: Multiple return points found</source>
+      <translation>PolyFence: 帰還地点が複数見つかりました</translation>
+    </message>
+    <message>
+      <source>PolyFence: latlon read failed</source>
+      <translation>PolyFence: 緯度経度の読み取りに失敗しました</translation>
+    </message>
+    <message>
+      <source>PolyFence: storage write failed</source>
+      <translation>PolyFence: ストレージへの書き込みに失敗しました</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence floor enabled</source>
+      <translation>プリアーム: フェンス下限が有効です</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence load failed</source>
+      <translation>プリアーム: フェンスの読み込み失敗</translation>
+    </message>
+    <message>
+      <source>PreArm: Fence not enabled</source>
+      <translation>プリアーム: フェンスが無効</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN out of range</source>
+      <translation>プリアーム: H_GYR_GAIN が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_GYR_GAIN_ACRO out of range</source>
+      <translation>プリアーム: H_GYR_GAIN_ACRO が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_H3_PHANG out of range</source>
+      <translation>プリアーム: H_H3_PHANG が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_CRITICAL out of range</source>
+      <translation>プリアーム: H_RSC_CRITICAL が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_IDLE out of range</source>
+      <translation>プリアーム: H_RSC_IDLE が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_MODE invalid</source>
+      <translation>プリアーム: H_RSC_MODE が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RSC_SETPOINT out of range</source>
+      <translation>プリアーム: H_RSC_SETPOINT が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_RUNUP_TIME too small</source>
+      <translation>プリアーム: H_RUNUP_TIME が小さすぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW1_H3_PHANG out of range</source>
+      <translation>プリアーム: H_SW1_H3_PHANG が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_SW2_H3_PHANG out of range</source>
+      <translation>プリアーム: H_SW2_H3_PHANG が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: H_TAIL_SPEED out of range</source>
+      <translation>プリアーム: H_TAIL_SPEED が範囲外</translation>
+    </message>
+    <message>
+      <source>PreArm: check skid steering config</source>
+      <translation>プリアーム: スキッドステアリング設定を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: check steering and throttle config</source>
+      <translation>プリアーム: ステアリングとスロットルの設定を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: maxalt breached</source>
+      <translation>プリアーム: 最大高度を逸脱</translation>
+    </message>
+    <message>
+      <source>PreArm: no position available</source>
+      <translation>プリアーム: 位置情報なし</translation>
+    </message>
+    <message>
+      <source>PreArm: outside fence</source>
+      <translation>プリアーム: フェンス外</translation>
+    </message>
+    <message>
+      <source>PreArm: regular AND skid steering configured</source>
+      <translation>プリアーム: 通常ステアリングとスキッドステアリングが両方設定されています</translation>
+    </message>
+    <message>
+      <source>QAUTOTUNE disabled</source>
+      <translation>QAUTOTUNE 無効</translation>
+    </message>
+    <message>
+      <source>QuadPlane initialised</source>
+      <translation>QuadPlane 初期化完了</translation>
+    </message>
+    <message>
+      <source>QuadPlane mode refused</source>
+      <translation>QuadPlane モード拒否</translation>
+    </message>
+    <message>
+      <source>QuadPlane setup failed</source>
+      <translation>QuadPlane セットアップ失敗</translation>
+    </message>
+    <message>
+      <source>Quadplane enabled but not running</source>
+      <translation>QuadPlane は有効ですが動作していません</translation>
+    </message>
+    <message>
+      <source>RC not calibrated</source>
+      <translation>RC 未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>RTL_ALT above rangefinder max range</source>
+      <translation>RTL_ALT が距離センサの最大範囲を超えています</translation>
+    </message>
+    <message>
+      <source>Radio + Battery Failsafe - Continuing Landing</source>
+      <translation>送信機 + バッテリーフェイルセーフ - 着陸を継続</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe</source>
+      <translation>送信機フェイルセーフ</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Auto Mode</source>
+      <translation>送信機フェイルセーフ - Auto モードを継続</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Guided Mode</source>
+      <translation>送信機フェイルセーフ - Guided モードを継続</translation>
+    </message>
+    <message>
+      <source>Radio Failsafe - Continuing Landing</source>
+      <translation>送信機フェイルセーフ - 着陸を継続</translation>
+    </message>
+    <message>
+      <source>Radio failsafe on</source>
+      <translation>送信機フェイルセーフ作動</translation>
+    </message>
+    <message>
+      <source>Rally upload timeout</source>
+      <translation>ラリーアップロードタイムアウト</translation>
+    </message>
+    <message>
+      <source>Reached RTL location</source>
+      <translation>RTL 地点に到達</translation>
+    </message>
+    <message>
+      <source>Reached altitude</source>
+      <translation>高度に到達</translation>
+    </message>
+    <message>
+      <source>Reached destination</source>
+      <translation>目的地に到達</translation>
+    </message>
+    <message>
+      <source>Reached maximum descent</source>
+      <translation>最大降下に到達</translation>
+    </message>
+    <message>
+      <source>Ready to drive</source>
+      <translation>走行準備完了</translation>
+    </message>
+    <message>
+      <source>Ready to track</source>
+      <translation>追跡準備完了</translation>
+    </message>
+    <message>
+      <source>Reboot rejected, ESC cal on reboot</source>
+      <translation>再起動拒否、再起動時に ESC キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Releasing the gripper</source>
+      <translation>グリッパーを解放中</translation>
+    </message>
+    <message>
+      <source>Restarting RTL - Terrain data missing</source>
+      <translation>RTL 再開 - 地形データなし</translation>
+    </message>
+    <message>
+      <source>SS Glide Phase</source>
+      <translation>SS 滑空フェーズ</translation>
+    </message>
+    <message>
+      <source>Safety Switch</source>
+      <translation>セーフティスイッチ</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking</source>
+      <translation>セイルボート: タッキング</translation>
+    </message>
+    <message>
+      <source>Sailboat: Tacking timed out</source>
+      <translation>セイルボート: タッキングタイムアウト</translation>
+    </message>
+    <message>
+      <source>Sailboat: failed to enable motor</source>
+      <translation>セイルボート: モーターの有効化に失敗</translation>
+    </message>
+    <message>
+      <source>Scripting failed to start</source>
+      <translation>スクリプトの開始に失敗</translation>
+    </message>
+    <message>
+      <source>Scripting has stopped</source>
+      <translation>スクリプトが停止しました</translation>
+    </message>
+    <message>
+      <source>Scripting out of memory</source>
+      <translation>スクリプトのメモリ不足</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode off</source>
+      <translation>SIMPLE モード オフ</translation>
+    </message>
+    <message>
+      <source>SIMPLE mode on</source>
+      <translation>SIMPLE モード オン</translation>
+    </message>
+    <message>
+      <source>SUPERSIMPLE mode on</source>
+      <translation>SUPERSIMPLE モード オン</translation>
+    </message>
+    <message>
+      <source>SmartRTL Low on space!</source>
+      <translation>SmartRTL 記憶領域不足！</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Trying RTL Mode</source>
+      <translation>SmartRTL 使用不可、RTL モードを試行</translation>
+    </message>
+    <message>
+      <source>SmartRTL Unavailable, Using Land Mode</source>
+      <translation>SmartRTL 使用不可、Land モードを使用</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: init failed</source>
+      <translation>SmartRTL 無効化: 初期化失敗</translation>
+    </message>
+    <message>
+      <source>Stand By Disabled</source>
+      <translation>スタンバイ無効</translation>
+    </message>
+    <message>
+      <source>Stand By Enabled</source>
+      <translation>スタンバイ有効</translation>
+    </message>
+    <message>
+      <source>Starting calibration</source>
+      <translation>キャリブレーション開始</translation>
+    </message>
+    <message>
+      <source>Starting engine</source>
+      <translation>エンジン始動中</translation>
+    </message>
+    <message>
+      <source>Stopped engine</source>
+      <translation>エンジン停止</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no downward rangefinder</source>
+      <translation>地表追従: 下向き距離センサなし</translation>
+    </message>
+    <message>
+      <source>SurfaceTracking: no upward rangefinder</source>
+      <translation>地表追従: 上向き距離センサなし</translation>
+    </message>
+    <message>
+      <source>SystemID Finished</source>
+      <translation>SystemID 完了</translation>
+    </message>
+    <message>
+      <source>SystemID Parameter Error</source>
+      <translation>SystemID パラメータエラー</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: Landed</source>
+      <translation>SystemID 停止: 着陸済み</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: axis = 0</source>
+      <translation>SystemID 停止: axis = 0</translation>
+    </message>
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>TCAN ESC には MOT_PWM_MAX=2000 が必要です</translation>
+    </message>
+    <message>
+      <source>TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>TCAN ESC には MOT_PWM_MIN=1000 が必要です</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery failure: No Rangefinder!</source>
+      <translation>地形フェイルセーフ回復失敗: 距離センサなし！</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery successful!</source>
+      <translation>地形フェイルセーフ回復成功！</translation>
+    </message>
+    <message>
+      <source>Terrain failsafe recovery timeout!</source>
+      <translation>地形フェイルセーフ回復タイムアウト！</translation>
+    </message>
+    <message>
+      <source>Terrain out of memory</source>
+      <translation>地形データのメモリ不足</translation>
+    </message>
+    <message>
+      <source>Terrain: Allocation failed</source>
+      <translation>地形: メモリ割り当て失敗</translation>
+    </message>
+    <message>
+      <source>Throttle armed</source>
+      <translation>スロットル アーム</translation>
+    </message>
+    <message>
+      <source>Throttle disarmed</source>
+      <translation>スロットル ディスアーム</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe off</source>
+      <translation>スロットルフェイルセーフ解除</translation>
+    </message>
+    <message>
+      <source>Throttle failsafe on</source>
+      <translation>スロットルフェイルセーフ作動</translation>
+    </message>
+    <message>
+      <source>Throttle not zero</source>
+      <translation>スロットルがゼロではありません</translation>
+    </message>
+    <message>
+      <source>Timeout AUTO</source>
+      <translation>AUTO タイムアウト</translation>
+    </message>
+    <message>
+      <source>Tmode: ACRO is disabled</source>
+      <translation>Tmode: ACRO は無効です</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD arm failed</source>
+      <translation>Tmode: ALT_HOLD アーム失敗</translation>
+    </message>
+    <message>
+      <source>Tmode: ALT_HOLD update arm</source>
+      <translation>Tmode: ALT_HOLD アーム更新</translation>
+    </message>
+    <message>
+      <source>Tmode: Force disarm</source>
+      <translation>Tmode: 強制ディスアーム</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS armed motors</source>
+      <translation>Tmode: GPS モーターアーム</translation>
+    </message>
+    <message>
+      <source>Tmode: GPS arming failed</source>
+      <translation>Tmode: GPS アーム失敗</translation>
+    </message>
+    <message>
+      <source>Tmode: LANDING</source>
+      <translation>Tmode: 着陸</translation>
+    </message>
+    <message>
+      <source>Tmode: LOITER update</source>
+      <translation>Tmode: LOITER 更新</translation>
+    </message>
+    <message>
+      <source>Tmode: RTL cancel</source>
+      <translation>Tmode: RTL キャンセル</translation>
+    </message>
+    <message>
+      <source>Tmode: THROW is disabled</source>
+      <translation>Tmode: THROW は無効です</translation>
+    </message>
+    <message>
+      <source>Tmode: WiFi reset</source>
+      <translation>Tmode: WiFi リセット</translation>
+    </message>
+    <message>
+      <source>Tmode: enable compass learning</source>
+      <translation>Tmode: コンパス学習を有効化</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test failed</source>
+      <translation>Tmode: 負荷テスト失敗</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off</source>
+      <translation>Tmode: 負荷テスト オフ</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test off (battery)</source>
+      <translation>Tmode: 負荷テスト オフ (バッテリー)</translation>
+    </message>
+    <message>
+      <source>Tmode: load_test on</source>
+      <translation>Tmode: 負荷テスト オン</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS armed motors</source>
+      <translation>Tmode: 非 GPS モーターアーム</translation>
+    </message>
+    <message>
+      <source>Tmode: non-GPS arming failed</source>
+      <translation>Tmode: 非 GPS アーム失敗</translation>
+    </message>
+    <message>
+      <source>Tmode: sticks not centered</source>
+      <translation>Tmode: スティックが中央にありません</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle arm</source>
+      <translation>Tmode: スロットル アーム</translation>
+    </message>
+    <message>
+      <source>Tmode: throttle disarm</source>
+      <translation>Tmode: スロットル ディスアーム</translation>
+    </message>
+    <message>
+      <source>Transition FW done</source>
+      <translation>固定翼への遷移完了</translation>
+    </message>
+    <message>
+      <source>Transition VTOL done</source>
+      <translation>VTOL への遷移完了</translation>
+    </message>
+    <message>
+      <source>Transition airspeed wait</source>
+      <translation>遷移対気速度を待機中</translation>
+    </message>
+    <message>
+      <source>Transition done</source>
+      <translation>遷移完了</translation>
+    </message>
+    <message>
+      <source>Transition failed, exceeded time limit</source>
+      <translation>遷移失敗、制限時間超過</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO with pin</source>
+      <translation>ピンで AUTO を起動</translation>
+    </message>
+    <message>
+      <source>Tuning: Saved</source>
+      <translation>チューニング: 保存済み</translation>
+    </message>
+    <message>
+      <source>Tuning: reverted</source>
+      <translation>チューニング: 元に戻しました</translation>
+    </message>
+    <message>
+      <source>UC Node Alloc Failed!</source>
+      <translation>UC ノード割り当て失敗！</translation>
+    </message>
+    <message>
+      <source>Unable to allocate scripting memory</source>
+      <translation>スクリプトメモリを割り当てられません</translation>
+    </message>
+    <message>
+      <source>Unable to disable fence floor</source>
+      <translation>フェンス下限を無効にできません</translation>
+    </message>
+    <message>
+      <source>Unable to restart landing sequence</source>
+      <translation>着陸シーケンスを再開できません</translation>
+    </message>
+    <message>
+      <source>Unable to start landing sequence</source>
+      <translation>着陸シーケンスを開始できません</translation>
+    </message>
+    <message>
+      <source>Unable to terminate, termination is not configured</source>
+      <translation>終了できません。終了機能が設定されていません</translation>
+    </message>
+    <message>
+      <source>Unknown GUIDED mode</source>
+      <translation>不明な GUIDED モード</translation>
+    </message>
+    <message>
+      <source>User Takeoff only in GUIDED mode</source>
+      <translation>ユーザー離陸は GUIDED モードでのみ可能</translation>
+    </message>
+    <message>
+      <source>VTOL not available</source>
+      <translation>VTOL 使用不可</translation>
+    </message>
+    <message>
+      <source>VTOL transition only in AUTO</source>
+      <translation>VTOL 遷移は AUTO でのみ可能</translation>
+    </message>
+    <message>
+      <source>Vehicle contains advanced fences</source>
+      <translation>機体に高度なフェンスが含まれています</translation>
+    </message>
+    <message>
+      <source>Vibration compensation OFF</source>
+      <translation>振動補正 オフ</translation>
+    </message>
+    <message>
+      <source>Vibration compensation ON</source>
+      <translation>振動補正 オン</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 1</source>
+      <translation>ビデオ切替: ソース 1</translation>
+    </message>
+    <message>
+      <source>Video Toggle: Source 2</source>
+      <translation>ビデオ切替: ソース 2</translation>
+    </message>
+    <message>
+      <source>WP_SPEED too low</source>
+      <translation>WP_SPEED が低すぎます</translation>
+    </message>
+    <message>
+      <source>Waiting for Terrain data</source>
+      <translation>地形データを待機中</translation>
+    </message>
+    <message>
+      <source>Waiting for first HIL_STATE message</source>
+      <translation>最初の HIL_STATE メッセージを待機中</translation>
+    </message>
+    <message>
+      <source>Warning: Poor RPM Sensor Health</source>
+      <translation>警告: RPM センサの状態不良</translation>
+    </message>
+    <message>
+      <source>ZigZag: manual control</source>
+      <translation>ZigZag: 手動操作</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to A</source>
+      <translation>ZigZag: A へ移動中</translation>
+    </message>
+    <message>
+      <source>ZigZag: moving to B</source>
+      <translation>ZigZag: B へ移動中</translation>
+    </message>
+    <message>
+      <source>ZigZag: point A stored</source>
+      <translation>ZigZag: A 地点を保存</translation>
+    </message>
+    <message>
+      <source>ZigZag: point B stored</source>
+      <translation>ZigZag: B 地点を保存</translation>
+    </message>
+    <message>
+      <source>bad do_loiter_to_alt</source>
+      <translation>do_loiter_to_alt が不正</translation>
+    </message>
+    <message>
+      <source>calling AP_HAL::panic(...)</source>
+      <translation>AP_HAL::panic(...) を呼び出し中</translation>
+    </message>
+    <message>
+      <source>check firmware or FRAME_CLASS</source>
+      <translation>ファームウェアまたは FRAME_CLASS を確認</translation>
+    </message>
+    <message>
+      <source>check proximity sensor</source>
+      <translation>近接センサを確認</translation>
+    </message>
+    <message>
+      <source>finished motor test</source>
+      <translation>モーターテスト完了</translation>
+    </message>
+    <message>
+      <source>starting motor test</source>
+      <translation>モーターテスト開始</translation>
+    </message>
+    <message>
+      <source>terrain data unhealthy</source>
+      <translation>地形データ異常</translation>
+    </message>
+    <message>
+      <source>throw detected - uprighting</source>
+      <translation>投げ出しを検出 - 姿勢を立て直し中</translation>
+    </message>
+    <message>
+      <source>uprighted - controlling height</source>
+      <translation>姿勢回復 - 高度を制御中</translation>
+    </message>
+    <message>
+      <source>waiting for terrain data</source>
+      <translation>地形データを待機中</translation>
+    </message>
+    <message>
+      <source>waiting for throw</source>
+      <translation>投げ出しを待機中</translation>
+    </message>
+    <message>
+      <source>watchdog: Bypassing arming checks</source>
+      <translation>ウォッチドッグ: アーミングチェックをバイパス</translation>
+    </message>
+    <message>
+      <source>wiping parameter storage header</source>
+      <translation>パラメータ保存領域ヘッダーを消去中</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid MultiCopter FRAME_CLASS</source>
+      <translation>プリアーム: MultiCopter の FRAME_CLASS が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad parameter: %s</source>
+      <translation>プリアーム: 不正なパラメータ: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: Check PILOT_SPEED_UP</source>
+      <translation>プリアーム: PILOT_SPEED_UP を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Compasses inconsistent</source>
+      <translation>プリアーム: コンパスの不一致</translation>
+    </message>
+    <message>
+      <source>PreArm: ACRO_BAL_ROLL/PITCH</source>
+      <translation>プリアーム: ACRO_BAL_ROLL/PITCH</translation>
+    </message>
+    <message>
+      <source>PreArm: Mode not armable</source>
+      <translation>プリアーム: アームできないモード</translation>
+    </message>
+    <message>
+      <source>PreArm: %s too high</source>
+      <translation>プリアーム: %s が高すぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d minimum is greater than trim</source>
+      <translation>プリアーム: SERVO%d の最小値がトリムより大きい</translation>
+    </message>
+    <message>
+      <source>PreArm: No rally library present</source>
+      <translation>プリアーム: ラリーライブラリがありません</translation>
+    </message>
+    <message>
+      <source>PreArm: AHRS not healthy</source>
+      <translation>プリアーム: AHRS 異常</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d minimum is greater than trim</source>
+      <translation>プリアーム: RC%d の最小値がトリムより大きい</translation>
+    </message>
+    <message>
+      <source>PreArm: Inverted flight option not supported</source>
+      <translation>プリアーム: 背面飛行オプションは非対応</translation>
+    </message>
+    <message>
+      <source>PreArm: Check fence</source>
+      <translation>プリアーム: フェンスを確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibrated requires reboot</source>
+      <translation>プリアーム: コンパスのキャリブレーション後は再起動が必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: Terrain out of memory</source>
+      <translation>プリアーム: 地形データのメモリ不足</translation>
+    </message>
+    <message>
+      <source>PreArm: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</source>
+      <translation>プリアーム: FS_LONG_TIMEOUT &lt; FS_SHORT_TIMEOUT</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS is not healthy</source>
+      <translation>プリアーム: GPS 異常</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MAX too small (%u)</source>
+      <translation>プリアーム: LIM_PITCH_MAX が小さすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass calibration running</source>
+      <translation>プリアーム: コンパスのキャリブレーション実行中</translation>
+    </message>
+    <message>
+      <source>PreArm: Fences invalid</source>
+      <translation>プリアーム: フェンスが不正</translation>
+    </message>
+    <message>
+      <source>PreArm: Hardware safety switch</source>
+      <translation>プリアーム: ハードウェアセーフティスイッチ</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim below min</source>
+      <translation>プリアーム: %s 送信機トリムが最小値未満</translation>
+    </message>
+    <message>
+      <source>PreArm: Interlock/E-Stop Conflict</source>
+      <translation>プリアーム: インターロック/緊急停止の競合</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging not started</source>
+      <translation>プリアーム: ログ記録が開始されていません</translation>
+    </message>
+    <message>
+      <source>PreArm: Safety Switch</source>
+      <translation>プリアーム: セーフティスイッチ</translation>
+    </message>
+    <message>
+      <source>PreArm: Check FS_THR_VALUE</source>
+      <translation>プリアーム: FS_THR_VALUE を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Duplicate Aux Switch Options</source>
+      <translation>プリアーム: Aux スイッチオプションが重複</translation>
+    </message>
+    <message>
+      <source>PreArm: check firmware or FRAME_CLASS</source>
+      <translation>プリアーム: ファームウェアまたは FRAME_CLASS を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: terrain data unhealthy</source>
+      <translation>プリアーム: 地形データ異常</translation>
+    </message>
+    <message>
+      <source>PreArm: Logging failed</source>
+      <translation>プリアーム: ログ記録失敗</translation>
+    </message>
+    <message>
+      <source>PreArm: Battery failsafe</source>
+      <translation>プリアーム: バッテリーフェイルセーフ</translation>
+    </message>
+    <message>
+      <source>PreArm: %s below failsafe</source>
+      <translation>プリアーム: %s がフェイルセーフ値未満</translation>
+    </message>
+    <message>
+      <source>PreArm: vehicle outside fence</source>
+      <translation>プリアーム: 機体がフェンス外</translation>
+    </message>
+    <message>
+      <source>PreArm: quadplane needs SCHED_LOOP_RATE &gt;= 100</source>
+      <translation>プリアーム: QuadPlane には SCHED_LOOP_RATE &gt;= 100 が必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: check proximity sensor</source>
+      <translation>プリアーム: 近接センサを確認</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio max too low</source>
+      <translation>プリアーム: %s 送信機最大値が低すぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF-home variance</source>
+      <translation>プリアーム: EKF-ホーム分散</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS positions differ by %4.1fm</source>
+      <translation>プリアーム: GPS 位置の差 %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock Enabled</source>
+      <translation>プリアーム: モーターインターロック有効</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not healthy</source>
+      <translation>プリアーム: ジャイロ異常</translation>
+    </message>
+    <message>
+      <source>PreArm: No SD card</source>
+      <translation>プリアーム: SD カードなし</translation>
+    </message>
+    <message>
+      <source>PreArm: Param storage failed</source>
+      <translation>プリアーム: パラメータ保存失敗</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS %d failing configuration checks</source>
+      <translation>プリアーム: GPS %d 設定チェック失敗</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros inconsistent</source>
+      <translation>プリアーム: ジャイロの不一致</translation>
+    </message>
+    <message>
+      <source>PreArm: Check Object Avoidance</source>
+      <translation>プリアーム: 障害物回避を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_PITCH_MIN too large (%u)</source>
+      <translation>プリアーム: LIM_PITCH_MIN が大きすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Check MOT_PWM_MAX/MIN</source>
+      <translation>プリアーム: MOT_PWM_MAX/MIN を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo Test is still running</source>
+      <translation>プリアーム: サーボテスト実行中</translation>
+    </message>
+    <message>
+      <source>PreArm: RTL_ALT above rangefinder max range</source>
+      <translation>プリアーム: RTL_ALT が距離センサの最大範囲を超えています</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels calibrated requires reboot</source>
+      <translation>プリアーム: 加速度計のキャリブレーション後は再起動が必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: Leaning</source>
+      <translation>プリアーム: 傾いています</translation>
+    </message>
+    <message>
+      <source>PreArm: Heli motors checks failed</source>
+      <translation>プリアーム: ヘリモーターチェック失敗</translation>
+    </message>
+    <message>
+      <source>PreArm: Must assign a disarm or arm_toggle button</source>
+      <translation>プリアーム: ディスアームまたは arm_toggle ボタンを割り当ててください</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_RADIUS value</source>
+      <translation>プリアーム: FENCE_RADIUS の値が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: No sufficently close rally point located</source>
+      <translation>プリアーム: 十分に近いラリーポイントがありません</translation>
+    </message>
+    <message>
+      <source>PreArm: Bad GPS Position</source>
+      <translation>プリアーム: GPS 位置不良</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission library present</source>
+      <translation>プリアーム: ミッションライブラリがありません</translation>
+    </message>
+    <message>
+      <source>PreArm: Barometer not healthy</source>
+      <translation>プリアーム: 気圧計異常</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF failsafe</source>
+      <translation>プリアーム: EKF フェイルセーフ</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS glitching</source>
+      <translation>プリアーム: GPS グリッチ</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio min too high</source>
+      <translation>プリアーム: %s 送信機最小値が高すぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: WP_SPEED too low</source>
+      <translation>プリアーム: WP_SPEED が低すぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: GCS failsafe on</source>
+      <translation>プリアーム: GCS フェイルセーフ作動</translation>
+    </message>
+    <message>
+      <source>PreArm: Motor Interlock not configured</source>
+      <translation>プリアーム: モーターインターロック未設定</translation>
+    </message>
+    <message>
+      <source>PreArm: Check mag field</source>
+      <translation>プリアーム: 磁場を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid THR_FS_VALUE for rev throttle</source>
+      <translation>プリアーム: 逆スロットル用の THR_FS_VALUE が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MAX=2000</source>
+      <translation>プリアーム: TCAN ESC には MOT_PWM_MAX=2000 が必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels inconsistent</source>
+      <translation>プリアーム: 加速度計の不一致</translation>
+    </message>
+    <message>
+      <source>PreArm: Scripting out of memory</source>
+      <translation>プリアーム: スクリプトのメモリ不足</translation>
+    </message>
+    <message>
+      <source>PreArm: SERVO%d maximum is less than trim</source>
+      <translation>プリアーム: SERVO%d の最大値がトリムより小さい</translation>
+    </message>
+    <message>
+      <source>PreArm: Check ANGLE_MAX</source>
+      <translation>プリアーム: ANGLE_MAX を確認</translation>
+    </message>
+    <message>
+      <source>PreArm: Accels not healthy</source>
+      <translation>プリアーム: 加速度計異常</translation>
+    </message>
+    <message>
+      <source>PreArm: Quadplane enabled but not running</source>
+      <translation>プリアーム: QuadPlane は有効ですが動作していません</translation>
+    </message>
+    <message>
+      <source>PreArm: High GPS HDOP</source>
+      <translation>プリアーム: GPS HDOP が高い</translation>
+    </message>
+    <message>
+      <source>PreArm: Missing mission item: %s</source>
+      <translation>プリアーム: ミッション項目がありません: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: No mission loaded</source>
+      <translation>プリアーム: ミッション未読み込み</translation>
+    </message>
+    <message>
+      <source>PreArm: ADSB threat detected</source>
+      <translation>プリアーム: ADSB 脅威を検出</translation>
+    </message>
+    <message>
+      <source>PreArm: Gyros not calibrated</source>
+      <translation>プリアーム: ジャイロ未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>PreArm: Airspeed %d not healthy</source>
+      <translation>プリアーム: 対気速度センサ %d 異常</translation>
+    </message>
+    <message>
+      <source>PreArm: Proximity %d deg, %4.2fm</source>
+      <translation>プリアーム: 近接 %d 度, %4.2fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>プリアーム: サーボ電圧が低すぎます (%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid FENCE_ALT_MAX value</source>
+      <translation>プリアーム: FENCE_ALT_MAX の値が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: Invalid Heli FRAME_CLASS</source>
+      <translation>プリアーム: ヘリの FRAME_CLASS が不正</translation>
+    </message>
+    <message>
+      <source>PreArm: %s radio trim above max</source>
+      <translation>プリアーム: %s 送信機トリムが最大値超過</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass offsets too high</source>
+      <translation>プリアーム: コンパスオフセットが大きすぎます</translation>
+    </message>
+    <message>
+      <source>PreArm: Internal errors (0x%x)</source>
+      <translation>プリアーム: 内部エラー (0x%x)</translation>
+    </message>
+    <message>
+      <source>PreArm: Compass not healthy</source>
+      <translation>プリアーム: コンパス異常</translation>
+    </message>
+    <message>
+      <source>PreArm: Motors Emergency Stopped</source>
+      <translation>プリアーム: モーター緊急停止中</translation>
+    </message>
+    <message>
+      <source>PreArm: TCAN ESCs require MOT_PWM_MIN=1000</source>
+      <translation>プリアーム: TCAN ESC には MOT_PWM_MIN=1000 が必要です</translation>
+    </message>
+    <message>
+      <source>PreArm: Board (%1.1fv) out of range %1.1f-%1.1fv</source>
+      <translation>プリアーム: ボード電圧 (%1.1fv) が範囲外 %1.1f-%1.1fv</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS and AHRS differ by %4.1fm</source>
+      <translation>プリアーム: GPS と AHRS の差 %4.1fm</translation>
+    </message>
+    <message>
+      <source>PreArm: Can't check rally without position</source>
+      <translation>プリアーム: 位置情報なしではラリーを確認できません</translation>
+    </message>
+    <message>
+      <source>PreArm: LIM_ROLL_CD too small (%u)</source>
+      <translation>プリアーム: LIM_ROLL_CD が小さすぎます (%u)</translation>
+    </message>
+    <message>
+      <source>PreArm: Altitude disparity</source>
+      <translation>プリアーム: 高度の不一致</translation>
+    </message>
+    <message>
+      <source>PreArm: RC%d maximum is less than trim</source>
+      <translation>プリアーム: RC%d の最大値がトリムより小さい</translation>
+    </message>
+    <message>
+      <source>PreArm: EKF compass variance</source>
+      <translation>プリアーム: EKF コンパス分散</translation>
+    </message>
+    <message>
+      <source>PreArm: IOMCU is unhealthy</source>
+      <translation>プリアーム: IOMCU 異常</translation>
+    </message>
+    <message>
+      <source>PreArm: Waiting for Terrain data</source>
+      <translation>プリアーム: 地形データを待機中</translation>
+    </message>
+    <message>
+      <source>PreArm: GPS blending unhealthy</source>
+      <translation>プリアーム: GPS ブレンディング異常</translation>
+    </message>
+    <message>
+      <source>#CompassMot calibration not supported</source>
+      <translation>#CompassMot キャリブレーションは非対応です</translation>
+    </message>
+    <message>
+      <source>#Gain is %2.0f%%</source>
+      <translation>#ゲインは %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Gain: %2.0f%%</source>
+      <translation>#ゲイン: %2.0f%%</translation>
+    </message>
+    <message>
+      <source>#Input Hold Disabled</source>
+      <translation>#入力ホールド無効</translation>
+    </message>
+    <message>
+      <source>#Input Hold Set</source>
+      <translation>#入力ホールド設定</translation>
+    </message>
+    <message>
+      <source>Lua: Syntax error in %s</source>
+      <translation>Lua: %s の構文エラー</translation>
+    </message>
+    <message>
+      <source>Lua: Time: %u Mem: %d + %d</source>
+      <translation>Lua: 時間: %u メモリ: %d + %d</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to allocate a heap</source>
+      <translation>Lua: ヒープを割り当てられません</translation>
+    </message>
+    <message>
+      <source>Lua: Unable to load the file: %s</source>
+      <translation>Lua: ファイルを読み込めません: %s</translation>
+    </message>
+    <message>
+      <source>Lua: Unknown error (%d) loading %s</source>
+      <translation>Lua: %s の読み込み中に不明なエラー (%d)</translation>
+    </message>
+    <message>
+      <source>MYGCS: %u, heartbeat lost</source>
+      <translation>MYGCS: %u, ハートビート喪失</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu removed</source>
+      <translation>Mag: DEVID %lu のコンパス #%d を削除</translation>
+    </message>
+    <message>
+      <source>Mag: Compass #%d with DEVID %lu replaced</source>
+      <translation>Mag: DEVID %lu のコンパス #%d を交換</translation>
+    </message>
+    <message>
+      <source>Mag: WMM table error</source>
+      <translation>Mag: WMM テーブルエラー</translation>
+    </message>
+    <message>
+      <source>Mag: no position available</source>
+      <translation>Mag: 位置情報なし</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: bad uncorrected field</source>
+      <translation>Mag[%u]: 未補正磁場が不良</translation>
+    </message>
+    <message>
+      <source>Mag[%u]: unhealthy\n</source>
+      <translation>Mag[%u]: 異常
+</translation>
+    </message>
+    <message>
+      <source>Magic not set</source>
+      <translation>Magic 未設定</translation>
+    </message>
+    <message>
+      <source>Missing mission item: %s</source>
+      <translation>ミッション項目がありません: %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u %s</source>
+      <translation>ミッション: %u %s</translation>
+    </message>
+    <message>
+      <source>Mission: %u Jump %i/%i</source>
+      <translation>ミッション: %u ジャンプ %i/%i</translation>
+    </message>
+    <message>
+      <source>Mode change failed: %s requires position</source>
+      <translation>モード変更失敗: %s には位置情報が必要です</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid motor (%d)</source>
+      <translation>モーターテスト: 不正なモーター (%d)</translation>
+    </message>
+    <message>
+      <source>Motor Test: invalid throttle type: %d</source>
+      <translation>モーターテスト: 不正なスロットルタイプ: %d</translation>
+    </message>
+    <message>
+      <source>Motor Test: percentage (%d) too high</source>
+      <translation>モーターテスト: 割合 (%d) が高すぎます</translation>
+    </message>
+    <message>
+      <source>Motor Test: pwm (%d) too high</source>
+      <translation>モーターテスト: PWM (%d) が高すぎます</translation>
+    </message>
+    <message>
+      <source>Motors: unable to setup motor %u</source>
+      <translation>モーター: モーター %u をセットアップできません</translation>
+    </message>
+    <message>
+      <source>MotorsTri: unable to setup yaw channel</source>
+      <translation>MotorsTri: ヨーチャンネルをセットアップできません</translation>
+    </message>
+    <message>
+      <source>N-E-D follow offset loaded</source>
+      <translation>N-E-D フォローオフセットを読み込みました</translation>
+    </message>
+    <message>
+      <source>NavEKF2: lane switch %u</source>
+      <translation>NavEKF2: レーン切替 %u</translation>
+    </message>
+    <message>
+      <source>NavEKF3: lane switch %u</source>
+      <translation>NavEKF3: レーン切替 %u</translation>
+    </message>
+    <message>
+      <source>New target %d %d</source>
+      <translation>新しいターゲット %d %d</translation>
+    </message>
+    <message>
+      <source>No ap_message for mavlink id (%u)</source>
+      <translation>mavlink id (%u) に対応する ap_message がありません</translation>
+    </message>
+    <message>
+      <source>No axis selected, SID_AXIS = 0</source>
+      <translation>軸が選択されていません、SID_AXIS = 0</translation>
+    </message>
+    <message>
+      <source>No last page of log %d at top=%X or bot=%X</source>
+      <translation>ログ %d の最終ページがありません (top=%X または bot=%X)</translation>
+    </message>
+    <message>
+      <source>Out of allowable altitude range, beginning cruise. Alt = %f</source>
+      <translation>許容高度範囲外のため巡航を開始します。高度 = %f</translation>
+    </message>
+    <message>
+      <source>Param write denied (%s)</source>
+      <translation>パラメータ書き込み拒否 (%s)</translation>
+    </message>
+    <message>
+      <source>Passed waypoint #%i dist %um</source>
+      <translation>ウェイポイント #%i 通過 距離 %um</translation>
+    </message>
+    <message>
+      <source>Potential Thrust Loss (%d)</source>
+      <translation>推力喪失の可能性 (%d)</translation>
+    </message>
+    <message>
+      <source>PreArm: %s</source>
+      <translation>プリアーム: %s</translation>
+    </message>
+    <message>
+      <source>PreArm: servo function %u unassigned</source>
+      <translation>プリアーム: サーボ機能 %u が未割り当て</translation>
+    </message>
+    <message>
+      <source>PreArm:[^</source>
+      <translation>プリアーム:[^</translation>
+    </message>
+    <message>
+      <source>Proximity %d deg, %4.2fm</source>
+      <translation>近接 %d 度, %4.2fm</translation>
+    </message>
+    <message>
+      <source>RC%d maximum is less than trim</source>
+      <translation>RC%d の最大値がトリムより小さい</translation>
+    </message>
+    <message>
+      <source>RC%d minimum is greater than trim</source>
+      <translation>RC%d の最小値がトリムより大きい</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to attach to pin %u</source>
+      <translation>RPM: ピン %u への接続失敗</translation>
+    </message>
+    <message>
+      <source>RPM: Failed to detach from pin %u</source>
+      <translation>RPM: ピン %u からの切り離し失敗</translation>
+    </message>
+    <message>
+      <source>RSC control mode change failed</source>
+      <translation>RSC 制御モード変更失敗</translation>
+    </message>
+    <message>
+      <source>Rangefinder disengaged at %.2fm</source>
+      <translation>距離センサ解除 (%.2fm)</translation>
+    </message>
+    <message>
+      <source>Rangefinder engaged at %.2fm</source>
+      <translation>距離センサ作動 (%.2fm)</translation>
+    </message>
+    <message>
+      <source>Reached command #%i</source>
+      <translation>コマンド #%i に到達</translation>
+    </message>
+    <message>
+      <source>Reached descent rate %.1f m/s</source>
+      <translation>降下率 %.1f m/s に到達</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%i dist %um</source>
+      <translation>ウェイポイント #%i に到達 距離 %um</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u</source>
+      <translation>ウェイポイント #%u に到達</translation>
+    </message>
+    <message>
+      <source>Reached waypoint #%u. Loiter for %u seconds</source>
+      <translation>ウェイポイント #%u に到達。%u 秒間ロイター</translation>
+    </message>
+    <message>
+      <source>Received incorrect type (want=%u got=%u)</source>
+      <translation>不正なタイプを受信 (want=%u got=%u)</translation>
+    </message>
+    <message>
+      <source>Received incorrect vertex type (want=%u got=%u)</source>
+      <translation>不正な頂点タイプを受信 (want=%u got=%u)</translation>
+    </message>
+    <message>
+      <source>Relative follow offset loaded</source>
+      <translation>相対フォローオフセットを読み込みました</translation>
+    </message>
+    <message>
+      <source>Reset alt target to %.1f</source>
+      <translation>高度目標を %.1f にリセット</translation>
+    </message>
+    <message>
+      <source>Resetting previous waypoint</source>
+      <translation>前のウェイポイントをリセット中</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence at waypoint %d</source>
+      <translation>ウェイポイント %d で着陸シーケンスを再開</translation>
+    </message>
+    <message>
+      <source>Restarted landing sequence. Climbing to %dm</source>
+      <translation>着陸シーケンスを再開。%dm まで上昇中</translation>
+    </message>
+    <message>
+      <source>Restarted landing via DO_LAND_START: %d</source>
+      <translation>DO_LAND_START で着陸を再開: %d</translation>
+    </message>
+    <message>
+      <source>Restored watchdog attitude %.0f %.0f %.0f</source>
+      <translation>ウォッチドッグ姿勢を復元 %.0f %.0f %.0f</translation>
+    </message>
+    <message>
+      <source>Restored watchdog home</source>
+      <translation>ウォッチドッグのホームを復元</translation>
+    </message>
+    <message>
+      <source>RevThrottle: %s</source>
+      <translation>逆スロットル: %s</translation>
+    </message>
+    <message>
+      <source>SERVO%d maximum is less than trim</source>
+      <translation>SERVO%d の最大値がトリムより小さい</translation>
+    </message>
+    <message>
+      <source>SERVO%d minimum is greater than trim</source>
+      <translation>SERVO%d の最小値がトリムより大きい</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not create sandbox: %s</source>
+      <translation>スクリプト: サンドボックスを作成できません: %s</translation>
+    </message>
+    <message>
+      <source>Scripting: Could not find sandbox</source>
+      <translation>スクリプト: サンドボックスが見つかりません</translation>
+    </message>
+    <message>
+      <source>Scripting: Loading sandbox: %s</source>
+      <translation>スクリプト: サンドボックスを読み込み中: %s</translation>
+    </message>
+    <message>
+      <source>Selected an approach path of %.1f</source>
+      <translation>進入経路 %.1f を選択</translation>
+    </message>
+    <message>
+      <source>Sending unknown message (%u)</source>
+      <translation>不明なメッセージを送信中 (%u)</translation>
+    </message>
+    <message>
+      <source>Servo Test is still running</source>
+      <translation>サーボテスト実行中</translation>
+    </message>
+    <message>
+      <source>Servo voltage to low (%1.2fv &lt; %1.2fv)</source>
+      <translation>サーボ電圧が低すぎます (%1.2fv &lt; %1.2fv)</translation>
+    </message>
+    <message>
+      <source>ServoRelayEvent: Channel %d is already in use</source>
+      <translation>ServoRelayEvent: チャンネル %d は使用中です</translation>
+    </message>
+    <message>
+      <source>Set FOLL_ENABLE = 1</source>
+      <translation>FOLL_ENABLE = 1 に設定してください</translation>
+    </message>
+    <message>
+      <source>Set HOME to %.6f %.6f at %.2fm</source>
+      <translation>ホームを %.6f %.6f、高度 %.2fm に設定</translation>
+    </message>
+    <message>
+      <source>Set airspeed %u m/s</source>
+      <translation>対気速度を %u m/s に設定</translation>
+    </message>
+    <message>
+      <source>Set fence enabled state to %u</source>
+      <translation>フェンスの有効状態を %u に設定</translation>
+    </message>
+    <message>
+      <source>Set groundspeed %u</source>
+      <translation>対地速度を %u に設定</translation>
+    </message>
+    <message>
+      <source>Set inverted %u</source>
+      <translation>反転を %u に設定</translation>
+    </message>
+    <message>
+      <source>Set throttle %u</source>
+      <translation>スロットルを %u に設定</translation>
+    </message>
+    <message>
+      <source>Skipping INS calibration</source>
+      <translation>INS キャリブレーションをスキップ</translation>
+    </message>
+    <message>
+      <source>Skipping invalid cmd #%i</source>
+      <translation>不正なコマンド #%i をスキップ</translation>
+    </message>
+    <message>
+      <source>SmartRTL deactivated: %s</source>
+      <translation>SmartRTL 無効化: %s</translation>
+    </message>
+    <message>
+      <source>SmartRTL: failed to set destination</source>
+      <translation>SmartRTL: 目的地の設定に失敗</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal detected, entering loiter</source>
+      <translation>ソアリング: サーマルを検出、ロイターに移行</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, entering RTL</source>
+      <translation>ソアリング: サーマル終了、RTL に移行</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring AUTO</source>
+      <translation>ソアリング: サーマル終了、AUTO に復帰</translation>
+    </message>
+    <message>
+      <source>Soaring: Thermal ended, restoring CRUISE</source>
+      <translation>ソアリング: サーマル終了、CRUISE に復帰</translation>
+    </message>
+    <message>
+      <source>Soaring: forcing RTL</source>
+      <translation>ソアリング: RTL を強制</translation>
+    </message>
+    <message>
+      <source>Starting ESC calibration</source>
+      <translation>ESC キャリブレーション開始</translation>
+    </message>
+    <message>
+      <source>Starting VTOL land approach path</source>
+      <translation>VTOL 着陸進入経路を開始</translation>
+    </message>
+    <message>
+      <source>Starting height reached %.1f</source>
+      <translation>開始高度 %.1f に到達</translation>
+    </message>
+    <message>
+      <source>Steering trim saved!</source>
+      <translation>ステアリングトリムを保存しました！</translation>
+    </message>
+    <message>
+      <source>SystemID Starting: axis=%d</source>
+      <translation>SystemID 開始: axis=%d</translation>
+    </message>
+    <message>
+      <source>SystemID Stopped: lean=%f max=%f</source>
+      <translation>SystemID 停止: lean=%f max=%f</translation>
+    </message>
+    <message>
+      <source>Takeoff complete at %.2fm</source>
+      <translation>離陸完了 (%.2fm)</translation>
+    </message>
+    <message>
+      <source>Takeoff height set to %.1fm</source>
+      <translation>離陸高度を %.1fm に設定</translation>
+    </message>
+    <message>
+      <source>Takeoff level-off starting at %dm</source>
+      <translation>離陸レベルオフ開始 (%dm)</translation>
+    </message>
+    <message>
+      <source>Takeoff skipped - circling</source>
+      <translation>離陸をスキップ - 旋回中</translation>
+    </message>
+    <message>
+      <source>Takeoff timeout at %.1f m/s</source>
+      <translation>離陸タイムアウト (%.1f m/s)</translation>
+    </message>
+    <message>
+      <source>Takeoff to %.0fm at %.1fm to %.1f deg</source>
+      <translation>離陸: %.0fm まで、%.1fm で %.1f 度へ</translation>
+    </message>
+    <message>
+      <source>Target Heading: %3.1f</source>
+      <translation>目標ヘッディング: %3.1f</translation>
+    </message>
+    <message>
+      <source>Terminating due to %s</source>
+      <translation>%s のため終了</translation>
+    </message>
+    <message>
+      <source>Terminating due to RC failure</source>
+      <translation>RC 障害のため終了</translation>
+    </message>
+    <message>
+      <source>Terminating due to dual loss</source>
+      <translation>二重喪失のため終了</translation>
+    </message>
+    <message>
+      <source>Terminating due to fence breach</source>
+      <translation>フェンス逸脱のため終了</translation>
+    </message>
+    <message>
+      <source>Terminating due to range %.1fkm</source>
+      <translation>距離 %.1fkm のため終了</translation>
+    </message>
+    <message>
+      <source>Thermal weak, recommend quitting: W %f R %f th %f alt %f Mc %f</source>
+      <translation>サーマルが弱いため離脱を推奨: W %f R %f th %f alt %f Mc %f</translation>
+    </message>
+    <message>
+      <source>Thruster %d is ok!</source>
+      <translation>スラスター %d 正常！</translation>
+    </message>
+    <message>
+      <source>Thruster %d is reversed! Saving it!</source>
+      <translation>スラスター %d が逆転しています！保存します！</translation>
+    </message>
+    <message>
+      <source>Tmode: %u FAILED</source>
+      <translation>Tmode: %u 失敗</translation>
+    </message>
+    <message>
+      <source>Tmode: action %u</source>
+      <translation>Tmode: アクション %u</translation>
+    </message>
+    <message>
+      <source>Tmode: mode %s</source>
+      <translation>Tmode: モード %s</translation>
+    </message>
+    <message>
+      <source>Tmode: thr mid %d</source>
+      <translation>Tmode: スロットル中央 %d</translation>
+    </message>
+    <message>
+      <source>Tmode: trim %u %u %u %u</source>
+      <translation>Tmode: トリム %u %u %u %u</translation>
+    </message>
+    <message>
+      <source>Transition airspeed reached %.1f</source>
+      <translation>遷移対気速度 %.1f に到達</translation>
+    </message>
+    <message>
+      <source>Transition started airspeed %.1f</source>
+      <translation>遷移開始 対気速度 %.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO xaccel=%.1f</source>
+      <translation>AUTO を起動 xaccel=%.1f</translation>
+    </message>
+    <message>
+      <source>Triggered AUTO. GPS speed = %.1f</source>
+      <translation>AUTO を起動。GPS 速度 = %.1f</translation>
+    </message>
+    <message>
+      <source>Trim saved</source>
+      <translation>トリムを保存しました</translation>
+    </message>
+    <message>
+      <source>Tuning: error %.2f</source>
+      <translation>チューニング: エラー %.2f</translation>
+    </message>
+    <message>
+      <source>Tuning: mid-point %s</source>
+      <translation>チューニング: 中間点 %s</translation>
+    </message>
+    <message>
+      <source>Tuning: recentered %s</source>
+      <translation>チューニング: 再センタリング %s</translation>
+    </message>
+    <message>
+      <source>Tuning: started %s</source>
+      <translation>チューニング: 開始 %s</translation>
+    </message>
+    <message>
+      <source>Unable to set fence. Enabled state to %u</source>
+      <translation>フェンスを設定できません。有効状態 %u</translation>
+    </message>
+    <message>
+      <source>Unable to start find a landing abort sequence</source>
+      <translation>着陸中止シーケンスを開始できません</translation>
+    </message>
+    <message>
+      <source>Unexpected vertex count want=%u got=%u\n</source>
+      <translation>予期しない頂点数 want=%u got=%u
+</translation>
+    </message>
+    <message>
+      <source>Unknown mavlink coordinate frame %u</source>
+      <translation>不明な mavlink 座標フレーム %u</translation>
+    </message>
+    <message>
+      <source>Unsupported FTP: %d</source>
+      <translation>未対応の FTP: %d</translation>
+    </message>
+    <message>
+      <source>Updating barometer calibration</source>
+      <translation>気圧計キャリブレーションを更新中</translation>
+    </message>
+    <message>
+      <source>VTOL position2 started v=%.1f d=%.1f</source>
+      <translation>VTOL position2 開始 v=%.1f d=%.1f</translation>
+    </message>
+    <message>
+      <source>Vehicle %d battery %d is powering off</source>
+      <translation>機体 %d のバッテリー %d が電源オフ中</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to attach to pin %u</source>
+      <translation>WEnc: ピン %u への接続失敗</translation>
+    </message>
+    <message>
+      <source>WEnc: Failed to detach from pin %u</source>
+      <translation>WEnc: ピン %u からの切り離し失敗</translation>
+    </message>
+    <message>
+      <source>Watchdog: resume WP %u</source>
+      <translation>ウォッチドッグ: WP %u を再開</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel offset not set!</source>
+      <translation>WheelEncoder: ホイールオフセット未設定！</translation>
+    </message>
+    <message>
+      <source>WheelEncoder: wheel radius not set!</source>
+      <translation>WheelEncoder: ホイール半径未設定！</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration complete (volt min:%.1f max:%1.f)</source>
+      <translation>WindVane: キャリブレーション完了 (電圧 最小:%.1f 最大:%1.f)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration failed (volt diff %.1f below %.1f)</source>
+      <translation>WindVane: キャリブレーション失敗 (電圧差 %.1f が %.1f 未満)</translation>
+    </message>
+    <message>
+      <source>WindVane: Calibration started, rotate wind vane</source>
+      <translation>WindVane: キャリブレーション開始、風向計を回転してください</translation>
+    </message>
+    <message>
+      <source>WindVane: No cal required</source>
+      <translation>WindVane: キャリブレーション不要</translation>
+    </message>
+    <message>
+      <source>WindVane: disarm for cal</source>
+      <translation>WindVane: キャリブレーションのためディスアームしてください</translation>
+    </message>
+    <message>
+      <source>WindVane: driver not found</source>
+      <translation>WindVane: ドライバーが見つかりません</translation>
+    </message>
+    <message>
+      <source>WindVane: rev P. zero wind voltage offset set to %.1f</source>
+      <translation>WindVane: rev P. 無風電圧オフセットを %.1f に設定</translation>
+    </message>
+    <message>
+      <source>bad test type %0.2f</source>
+      <translation>不正なテストタイプ %0.2f</translation>
+    </message>
+    <message>
+      <source>bad throttle type %0.2f</source>
+      <translation>不正なスロットルタイプ %0.2f</translation>
+    </message>
+    <message>
+      <source>deferencing a bad thing</source>
+      <translation>不正な参照を逆参照</translation>
+    </message>
+    <message>
+      <source>entering lockup</source>
+      <translation>ロックアップに移行</translation>
+    </message>
+    <message>
+      <source>failed to get battery cycles</source>
+      <translation>バッテリーサイクルの取得に失敗</translation>
+    </message>
+    <message>
+      <source>height achieved - controlling position</source>
+      <translation>高度到達 - 位置を制御中</translation>
+    </message>
+    <message>
+      <source>hello, world</source>
+      <translation>こんにちは、世界</translation>
+    </message>
+    <message>
+      <source>hover throttle delta: %f</source>
+      <translation>ホバリングスロットル差分: %f</translation>
+    </message>
+    <message>
+      <source>motor test initialization failed!</source>
+      <translation>モーターテストの初期化に失敗！</translation>
+    </message>
+    <message>
+      <source>quadplane needs SCHED_LOOP_RATE >= 100</source>
+      <translation>QuadPlane には SCHED_LOOP_RATE >= 100 が必要です</translation>
+    </message>
+    <message>
+      <source>speed: %.1f m/s</source>
+      <translation>速度: %.1f m/s</translation>
+    </message>
+    <message>
+      <source>target not received last 3secs, stopping</source>
+      <translation>直近 3 秒間ターゲット未受信、停止します</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel 0 uncalibrated</source>
+      <translation>飛行前チェック失敗: 加速度計 0 未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass 0 uncalibrated</source>
+      <translation>飛行前チェック失敗: コンパス 0 未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>C2 link quality degraded</source>
+      <translation>C2 リンク品質低下</translation>
+    </message>
+    <message>
+      <source>C2 link quality critical</source>
+      <translation>C2 リンク品質危険</translation>
+    </message>
+    <message>
+      <source>Data link regained</source>
+      <translation>データリンク回復</translation>
+    </message>
+    <message>
+      <source>x: %f e: %f r: %f d: %f</source>
+      <translation>x: %f e: %f r: %f d: %f</translation>
+    </message>
+    <message>
+      <source>%s #%i fail: %s%s%s%s%s!</source>
+      <translation>%s #%i 失敗: %s%s%s%s%s！</translation>
+    </message>
+    <message>
+      <source>%s #%i failed: %s%s%s%s%s!</source>
+      <translation>%s #%i 失敗: %s%s%s%s%s！</translation>
+    </message>
+    <message>
+      <source>%sdelayed data old: %8.4f</source>
+      <translation>%s遅延データが古い: %8.4f</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Lidar detected with ID %zu</source>
+      <translation>%s下向きライダーを検出 ID %zu</translation>
+    </message>
+    <message>
+      <source>%sDownward-facing Sonar detected with ID %zu</source>
+      <translation>%s下向きソナーを検出 ID %zu</translation>
+    </message>
+    <message>
+      <source>%soffline. %s</source>
+      <translation>%sオフライン。%s</translation>
+    </message>
+    <message>
+      <source>%sreinit x</source>
+      <translation>%sx 再初期化</translation>
+    </message>
+    <message>
+      <source>%sreinit x, x(%zu) not finite</source>
+      <translation>%sx 再初期化、x(%zu) が有限値ではありません</translation>
+    </message>
+    <message>
+      <source>[cal] %s side already completed</source>
+      <translation>[cal] %s 面は完了済みです</translation>
+    </message>
+    <message>
+      <source>[cal] %s side done, rotate to a different side</source>
+      <translation>[cal] %s 面完了、別の面に回転してください</translation>
+    </message>
+    <message>
+      <source>[cal] %s side result: [%.3f %.3f %.3f]</source>
+      <translation>[cal] %s 面の結果: [%.3f %.3f %.3f]</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid X-axis, check rotation</source>
+      <translation>[cal] 加速度計 %d の X 軸が不正です。向きを確認してください</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Y-axis, check rotation</source>
+      <translation>[cal] 加速度計 %d の Y 軸が不正です。向きを確認してください</translation>
+    </message>
+    <message>
+      <source>[cal] accel %d invalid Z-axis, check rotation</source>
+      <translation>[cal] 加速度計 %d の Z 軸が不正です。向きを確認してください</translation>
+    </message>
+    <message>
+      <source>[cal] Battery connected</source>
+      <translation>[cal] バッテリー接続済み</translation>
+    </message>
+    <message>
+      <source>[cal] Blow into front of pitot without touching</source>
+      <translation>[cal] ピトー管の前面に触れずに息を吹きかけてください</translation>
+    </message>
+    <message>
+      <source>[cal] Connect battery now</source>
+      <translation>[cal] バッテリーを接続してください</translation>
+    </message>
+    <message>
+      <source>[cal] Create air pressure! (got %d, wanted: 50 Pa)</source>
+      <translation>[cal] 空気圧をかけてください！ (現在 %d、目標: 50 Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] detected motion, hold still...</source>
+      <translation>[cal] 動きを検出、静止させてください...</translation>
+    </message>
+    <message>
+      <source>[cal] detected rest position, hold still...</source>
+      <translation>[cal] 静止姿勢を検出、静止させてください...</translation>
+    </message>
+    <message>
+      <source>[cal] Ensure sensor is not measuring wind</source>
+      <translation>[cal] センサが風を測定しないようにしてください</translation>
+    </message>
+    <message>
+      <source>[cal] External Mag: %d (%</source>
+      <translation>[cal] 外部磁気センサ: %d (%</translation>
+    </message>
+    <message>
+      <source>[cal] Hold still, measuring %s side</source>
+      <translation>[cal] 静止させてください、%s 面を測定中</translation>
+    </message>
+    <message>
+      <source>[cal] hold vehicle still on a pending side</source>
+      <translation>[cal] 未完了の面で機体を静止させてください</translation>
+    </message>
+    <message>
+      <source>[cal] Negative pressure difference detected (%d Pa)</source>
+      <translation>[cal] 負の圧力差を検出 (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Offset of %d Pascal</source>
+      <translation>[cal] オフセット %d Pa</translation>
+    </message>
+    <message>
+      <source>[cal] pending:%s</source>
+      <translation>[cal] 未完了:%s</translation>
+    </message>
+    <message>
+      <source>[cal] Positive pressure: OK (%d Pa)</source>
+      <translation>[cal] 正圧: OK (%d Pa)</translation>
+    </message>
+    <message>
+      <source>[cal] Rotate vehicle</source>
+      <translation>[cal] 機体を回転させてください</translation>
+    </message>
+    <message>
+      <source>[cal] Swap static and dynamic ports or set SENS_DPRES_REV</source>
+      <translation>[cal] 静圧ポートと動圧ポートを入れ替えるか、SENS_DPRES_REV を設定してください</translation>
+    </message>
+    <message>
+      <source>[IO] config read fail, abort.</source>
+      <translation>[IO] 設定の読み込みに失敗、中止します。</translation>
+    </message>
+    <message>
+      <source>[logger] %s</source>
+      <translation>[logger] %s</translation>
+    </message>
+    <message>
+      <source>[lpe] baro fault, r %5.2f m, beta %5.2f</source>
+      <translation>[lpe] 気圧計異常, r %5.2f m, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] baro OK</source>
+      <translation>[lpe] 気圧計 OK</translation>
+    </message>
+    <message>
+      <source>[lpe] baro timeout</source>
+      <translation>[lpe] 気圧計タイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] flow fault,  beta %5.2f</source>
+      <translation>[lpe] オプティカルフロー異常,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] flow init:</source>
+      <translation>[lpe] オプティカルフロー初期化:</translation>
+    </message>
+    <message>
+      <source>[lpe] flow OK</source>
+      <translation>[lpe] オプティカルフロー OK</translation>
+    </message>
+    <message>
+      <source>[lpe] flow timeout</source>
+      <translation>[lpe] オプティカルフロータイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (gps) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] グローバル原点初期化 (gps) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (mocap) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] グローバル原点初期化 (mocap) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (parameter) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] グローバル原点初期化 (parameter) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] global origin init (vision) : lat %6.2f lon %6.2f alt %5.1f m</source>
+      <translation>[lpe] グローバル原点初期化 (vision) : lat %6.2f lon %6.2f alt %5.1f m</translation>
+    </message>
+    <message>
+      <source>[lpe] gps fault %3g %3g %3g %3g %3g %3g</source>
+      <translation>[lpe] GPS 異常 %3g %3g %3g %3g %3g %3g</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS OK</source>
+      <translation>[lpe] GPS OK</translation>
+    </message>
+    <message>
+      <source>[lpe] GPS timeout</source>
+      <translation>[lpe] GPS タイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] land fault,  beta %5.2f</source>
+      <translation>[lpe] 着陸異常,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] land init</source>
+      <translation>[lpe] 着陸初期化</translation>
+    </message>
+    <message>
+      <source>[lpe] land OK</source>
+      <translation>[lpe] 着陸 OK</translation>
+    </message>
+    <message>
+      <source>[lpe] land timeout</source>
+      <translation>[lpe] 着陸タイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar fault,  beta %5.2f</source>
+      <translation>[lpe] ライダー異常,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar init:</source>
+      <translation>[lpe] ライダー初期化:</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar OK</source>
+      <translation>[lpe] ライダー OK</translation>
+    </message>
+    <message>
+      <source>[lpe] lidar timeout</source>
+      <translation>[lpe] ライダータイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] mocap データが不正です。eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap fault, beta %5.2f</source>
+      <translation>[lpe] mocap 異常, beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap OK</source>
+      <translation>[lpe] mocap OK</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap position init:</source>
+      <translation>[lpe] mocap 位置初期化:</translation>
+    </message>
+    <message>
+      <source>[lpe] mocap timeout</source>
+      <translation>[lpe] mocap タイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar fault,  beta %5.2f</source>
+      <translation>[lpe] ソナー異常,  beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init std &gt; min</source>
+      <translation>[lpe] ソナー初期化 std &gt; min</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar init timeout</source>
+      <translation>[lpe] ソナー初期化タイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar OK</source>
+      <translation>[lpe] ソナー OK</translation>
+    </message>
+    <message>
+      <source>[lpe] sonar timeout</source>
+      <translation>[lpe] ソナータイムアウト</translation>
+    </message>
+    <message>
+      <source>[lpe] vision data invalid. eph: %f epv: %f</source>
+      <translation>[lpe] ビジョンデータが無効です。eph: %f epv: %f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position fault, beta %5.2f</source>
+      <translation>[lpe] ビジョン位置異常、beta %5.2f</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position init:</source>
+      <translation>[lpe] ビジョン位置初期化:</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position OK</source>
+      <translation>[lpe] ビジョン位置正常</translation>
+    </message>
+    <message>
+      <source>[lpe] vision position timeout</source>
+      <translation>[lpe] ビジョン位置タイムアウト</translation>
+    </message>
+    <message>
+      <source>Accel %</source>
+      <translation>加速度計 %</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation invalid</source>
+      <translation>対気速度推定が無効</translation>
+    </message>
+    <message>
+      <source>Airspeed estimation valid</source>
+      <translation>対気速度推定が有効</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor failure detected. Check connection and reboot.</source>
+      <translation>対気速度センサの故障を検出しました。接続を確認して再起動してください。</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor healthy, start using again (%i, %i)</source>
+      <translation>対気速度センサが正常です。使用を再開します (%i, %i)</translation>
+    </message>
+    <message>
+      <source>Airspeed sensor Nr. %d ASPD_SCALE updated: %.4f --&gt; %.4f</source>
+      <translation>対気速度センサ No. %d ASPD_SCALE 更新: %.4f --&gt; %.4f</translation>
+    </message>
+    <message>
+      <source>Already higher than takeoff altitude</source>
+      <translation>すでに離陸高度より高い位置にあります</translation>
+    </message>
+    <message>
+      <source>Altitude change is outside geofence</source>
+      <translation>高度変更がジオフェンスの範囲外です</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i minutes)</source>
+      <translation>最大飛行時間に近づいています (%i分後にRTLを実行します)</translation>
+    </message>
+    <message>
+      <source>Approaching max flight time (system will RTL in %i seconds)</source>
+      <translation>最大飛行時間に近づいています (%i秒後にRTLを実行します)</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied</source>
+      <translation>アーム認証: 拒否</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because airspace is in use</source>
+      <translation>アーム認証: 空域が使用中のため拒否されました</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied because of bad weather</source>
+      <translation>アーム認証: 悪天候のため拒否されました</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied by timeout in authorizer</source>
+      <translation>アーム認証: 認証機のタイムアウトにより拒否されました</translation>
+    </message>
+    <message>
+      <source>Arm auth: Denied, waypoint %</source>
+      <translation>アーム認証: 拒否、ウェイポイント %</translation>
+    </message>
+    <message>
+      <source>Arm auth: No response</source>
+      <translation>アーム認証: 応答なし</translation>
+    </message>
+    <message>
+      <source>Arm auth: Requesting authorization...</source>
+      <translation>アーム認証: 認証を要求中...</translation>
+    </message>
+    <message>
+      <source>Arm auth: Temporarily rejected</source>
+      <translation>アーム認証: 一時的に拒否</translation>
+    </message>
+    <message>
+      <source>Arm stick gesture disabled if arm switch in use</source>
+      <translation>アームスイッチ使用時はスティックによるアーム操作が無効になります</translation>
+    </message>
+    <message>
+      <source>Armed by %s</source>
+      <translation>%sによりアームされました</translation>
+    </message>
+    <message>
+      <source>Arming denied: calibrating</source>
+      <translation>アーム拒否: キャリブレーション中です</translation>
+    </message>
+    <message>
+      <source>Arming denied: Resolve system health failures first</source>
+      <translation>アーム拒否: 先にシステムの異常を解消してください</translation>
+    </message>
+    <message>
+      <source>Arming denied: switch to manual mode first</source>
+      <translation>アーム拒否: 先にマニュアルモードに切り替えてください</translation>
+    </message>
+    <message>
+      <source>Arming denied: throttle not in safe position</source>
+      <translation>アーム拒否: スロットルが安全位置にありません</translation>
+    </message>
+    <message>
+      <source>Ascent speed has been constrained by max speed</source>
+      <translation>上昇速度が最大速度により制限されました</translation>
+    </message>
+    <message>
+      <source>Assuming vehicle is facing heading %.1f degrees</source>
+      <translation>機体がヘッディング %.1f 度を向いていると仮定します</translation>
+    </message>
+    <message>
+      <source>attitude estimator not running - check system boot</source>
+      <translation>姿勢推定器が動作していません - システムの起動を確認してください</translation>
+    </message>
+    <message>
+      <source>attitude required for mag quick cal</source>
+      <translation>磁気センサのクイックキャリブレーションには姿勢情報が必要です</translation>
+    </message>
+    <message>
+      <source>Autotune aborted before finishing</source>
+      <translation>オートチューンが完了前に中止されました</translation>
+    </message>
+    <message>
+      <source>Autotune axis timeout, skipping to next axis</source>
+      <translation>オートチューン軸タイムアウト、次の軸へスキップします</translation>
+    </message>
+    <message>
+      <source>Autotune finished successfully</source>
+      <translation>オートチューンが正常に完了しました</translation>
+    </message>
+    <message>
+      <source>Autotune returned to idle</source>
+      <translation>オートチューンがアイドル状態に戻りました</translation>
+    </message>
+    <message>
+      <source>Autotune started</source>
+      <translation>オートチューンを開始しました</translation>
+    </message>
+    <message>
+      <source>Battery %d: %s. %s</source>
+      <translation>バッテリー %d: %s. %s</translation>
+    </message>
+    <message>
+      <source>Battery %i disconnected</source>
+      <translation>バッテリー %i が切断されました</translation>
+    </message>
+    <message>
+      <source>Battery %i missing</source>
+      <translation>バッテリー %i が見つかりません</translation>
+    </message>
+    <message>
+      <source>Calibration denied: not supported in SIH mode</source>
+      <translation>キャリブレーション拒否: SIHモードではサポートされていません</translation>
+    </message>
+    <message>
+      <source>calibration save failed</source>
+      <translation>キャリブレーションの保存に失敗しました</translation>
+    </message>
+    <message>
+      <source>Calibration: Disabling RC input</source>
+      <translation>キャリブレーション: RC入力を無効化</translation>
+    </message>
+    <message>
+      <source>Calibration: Restoring RC input</source>
+      <translation>キャリブレーション: RC入力を復元</translation>
+    </message>
+    <message>
+      <source>Climb to %.1f meters above home</source>
+      <translation>ホーム上空 %.1f メートルまで上昇</translation>
+    </message>
+    <message>
+      <source>command denied during calibration: %</source>
+      <translation>キャリブレーション中のためコマンドが拒否されました: %</translation>
+    </message>
+    <message>
+      <source>Compass needs calibration - Land now!</source>
+      <translation>コンパスのキャリブレーションが必要です - 直ちに着陸してください！</translation>
+    </message>
+    <message>
+      <source>Connection to ground station lost</source>
+      <translation>地上局との接続が失われました</translation>
+    </message>
+    <message>
+      <source>Connection to mission computer lost</source>
+      <translation>ミッションコンピュータとの接続が失われました</translation>
+    </message>
+    <message>
+      <source>Control high latency failed! Telemetry unavailable</source>
+      <translation>高遅延制御に失敗しました！テレメトリーを使用できません</translation>
+    </message>
+    <message>
+      <source>Could not set mission closest to position.</source>
+      <translation>現在位置に最も近いミッション項目を設定できませんでした。</translation>
+    </message>
+    <message>
+      <source>Critical battery</source>
+      <translation>バッテリー残量危険</translation>
+    </message>
+    <message>
+      <source>Cruise speed has been constrained by max speed</source>
+      <translation>巡航速度が最大速度により制限されました</translation>
+    </message>
+    <message>
+      <source>Dangerously low battery! Shutting system down in 60 seconds</source>
+      <translation>バッテリー残量が危険なほど低下しています！60秒後にシステムをシャットダウンします</translation>
+    </message>
+    <message>
+      <source>Descent speed has been constrained by max speed</source>
+      <translation>降下速度が最大速度により制限されました</translation>
+    </message>
+    <message>
+      <source>Detected %u gyros, but will calibrate only %u</source>
+      <translation>ジャイロを%u個検出しましたが、キャリブレーションするのは%u個のみです</translation>
+    </message>
+    <message>
+      <source>Detected %u mags, but will calibrate only %u</source>
+      <translation>磁気センサを%u個検出しましたが、キャリブレーションするのは%u個のみです</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>デバイス %s でのIRIDIUM mavlink送信を無効にします</translation>
+    </message>
+    <message>
+      <source>Disable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>コマンドによりデバイス %s でのIRIDIUM mavlink送信を無効にします</translation>
+    </message>
+    <message>
+      <source>Disarmed by %s</source>
+      <translation>%sによりディスアームされました</translation>
+    </message>
+    <message>
+      <source>Disarming denied: not landed</source>
+      <translation>ディスアーム拒否: 着陸していません</translation>
+    </message>
+    <message>
+      <source>Disconnect battery and try again</source>
+      <translation>バッテリーを外してから再度お試しください</translation>
+    </message>
+    <message>
+      <source>DO JUMP waypoint could not be written.</source>
+      <translation>DO JUMP ウェイポイントを書き込めませんでした。</translation>
+    </message>
+    <message>
+      <source>EKF2_MAG_TYPE invalid, resetting to default</source>
+      <translation>EKF2_MAG_TYPE が無効です。デフォルトにリセットします</translation>
+    </message>
+    <message>
+      <source>Emergency battery level</source>
+      <translation>バッテリー緊急レベル</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s</source>
+      <translation>デバイス %s でのIRIDIUM mavlink送信を有効にします</translation>
+    </message>
+    <message>
+      <source>Enable transmitting with IRIDIUM mavlink on device %s by command</source>
+      <translation>コマンドによりデバイス %s でのIRIDIUM mavlink送信を有効にします</translation>
+    </message>
+    <message>
+      <source>Error loading settings</source>
+      <translation>設定の読み込みエラー</translation>
+    </message>
+    <message>
+      <source>Error saving settings</source>
+      <translation>設定の保存エラー</translation>
+    </message>
+    <message>
+      <source>ERROR: cannot open calibration storage</source>
+      <translation>エラー: キャリブレーション保存領域を開けません</translation>
+    </message>
+    <message>
+      <source>ERROR: invalid orientation</source>
+      <translation>エラー: 無効な向き</translation>
+    </message>
+    <message>
+      <source>ERROR: missing data, sensor %d</source>
+      <translation>エラー: データ欠落、センサ %d</translation>
+    </message>
+    <message>
+      <source>ERROR: Motion during calibration</source>
+      <translation>エラー: キャリブレーション中に動きを検出</translation>
+    </message>
+    <message>
+      <source>ERROR: out of memory</source>
+      <translation>エラー: メモリ不足</translation>
+    </message>
+    <message>
+      <source>ERROR: Waypoint index exceeds list capacity</source>
+      <translation>エラー: ウェイポイントインデックスがリスト容量を超えています</translation>
+    </message>
+    <message>
+      <source>ERROR: wp index out of bounds</source>
+      <translation>エラー: ウェイポイントインデックスが範囲外です</translation>
+    </message>
+    <message>
+      <source>esc</source>
+      <translation>ESC</translation>
+    </message>
+    <message>
+      <source>ESC calibration denied! Press safety button first</source>
+      <translation>ESCキャリブレーション拒否！先にセーフティボタンを押してください</translation>
+    </message>
+    <message>
+      <source>ESC failure: Not all ESCs are armed. Land now!</source>
+      <translation>ESC故障: 一部のESCがアームされていません。直ちに着陸してください！</translation>
+    </message>
+    <message>
+      <source>ESC%d: %s. %s</source>
+      <translation>ESC%d: %s. %s</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f check CRC is different,will upload tap esc firmware</source>
+      <translation>esc_id %1.f のCRCが異なるため、TAP ESCファームウェアをアップロードします</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision failed</source>
+      <translation>esc_id %1.f ボードリビジョンの取得に失敗</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found board revision: %02</source>
+      <translation>esc_id %1.f ボードリビジョン: %02</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision failed</source>
+      <translation>esc_id %1.f ブートローダリビジョンの取得に失敗</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found bootloader revision: %4.4f</source>
+      <translation>esc_id %1.f ブートローダリビジョン: %4.4f</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision failed</source>
+      <translation>esc_id %1.f ファームウェアリビジョンの取得に失敗</translation>
+    </message>
+    <message>
+      <source>esc_id %1.f found firmware revision: %4.4f</source>
+      <translation>esc_id %1.f ファームウェアリビジョン: %4.4f</translation>
+    </message>
+    <message>
+      <source>excess pitch angle</source>
+      <translation>ピッチ角超過</translation>
+    </message>
+    <message>
+      <source>excess roll angle</source>
+      <translation>ロール角超過</translation>
+    </message>
+    <message>
+      <source>Executing Mission</source>
+      <translation>ミッション実行中</translation>
+    </message>
+    <message>
+      <source>Fail</source>
+      <translation>失敗</translation>
+    </message>
+    <message>
+      <source>Failed to communicate with IO, abort.</source>
+      <translation>IOとの通信に失敗したため中止します。</translation>
+    </message>
+    <message>
+      <source>Failed: No magnetometer available or enabled</source>
+      <translation>失敗: 使用可能または有効な磁気センサがありません</translation>
+    </message>
+    <message>
+      <source>Failed: This calibration requires rotation.</source>
+      <translation>失敗: このキャリブレーションには回転が必要です。</translation>
+    </message>
+    <message>
+      <source>Failsafe activated</source>
+      <translation>フェイルセーフが作動しました</translation>
+    </message>
+    <message>
+      <source>Failsafe activated: entering Hold for %i seconds</source>
+      <translation>フェイルセーフ作動: %i秒間 Hold に移行</translation>
+    </message>
+    <message>
+      <source>Figure 8 command not supported.</source>
+      <translation>Figure 8 コマンドはサポートされていません。</translation>
+    </message>
+    <message>
+      <source>Figure 8 command only available for fixed wing and vtol vehicles.</source>
+      <translation>Figure 8 コマンドは固定翼機およびVTOL機でのみ使用できます。</translation>
+    </message>
+    <message>
+      <source>Figure 8 command rejected, Only available in fixed wing mode.</source>
+      <translation>Figure 8 コマンドが拒否されました。固定翼モードでのみ使用できます。</translation>
+    </message>
+    <message>
+      <source>Figure 8 is outside geofence</source>
+      <translation>Figure 8 がジオフェンスの外側です</translation>
+    </message>
+    <message>
+      <source>GCS connection regained</source>
+      <translation>GCS接続が回復しました</translation>
+    </message>
+    <message>
+      <source>Geofence imported</source>
+      <translation>ジオフェンスをインポートしました</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain current vehicle position</source>
+      <translation>ジオフェンスが無効です。現在の機体位置が含まれていません</translation>
+    </message>
+    <message>
+      <source>Geofence invalid, doesn&apos;t contain Home position</source>
+      <translation>ジオフェンスが無効です。ホーム位置が含まれていません</translation>
+    </message>
+    <message>
+      <source>Geofence requires valid home position</source>
+      <translation>ジオフェンスには有効なホーム位置が必要です</translation>
+    </message>
+    <message>
+      <source>Geofence violation for waypoint %zu</source>
+      <translation>ウェイポイント %zu でジオフェンス違反</translation>
+    </message>
+    <message>
+      <source>Geofence: approaching or outside geofence</source>
+      <translation>ジオフェンス: ジオフェンスに接近中または逸脱</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum altitude above Home</source>
+      <translation>ジオフェンス: ホーム上空の最大高度を超過</translation>
+    </message>
+    <message>
+      <source>Geofence: exceeding maximum distance to Home</source>
+      <translation>ジオフェンス: ホームからの最大距離を超過</translation>
+    </message>
+    <message>
+      <source>Geofence: import error</source>
+      <translation>ジオフェンス: インポートエラー</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion started</source>
+      <translation>GNSSデータフュージョンを開始しました</translation>
+    </message>
+    <message>
+      <source>GNSS data fusion stopped</source>
+      <translation>GNSSデータフュージョンを停止しました</translation>
+    </message>
+    <message>
+      <source>GNSS heading not reliable - Land now!</source>
+      <translation>GNSSヘッディングの信頼性が低下 - 直ちに着陸してください！</translation>
+    </message>
+    <message>
+      <source>GNSS signal jammed</source>
+      <translation>GNSS信号のジャミングを検出</translation>
+    </message>
+    <message>
+      <source>GNSS signal spoofed</source>
+      <translation>GNSS信号のスプーフィングを検出</translation>
+    </message>
+    <message>
+      <source>GPS jamming detected</source>
+      <translation>GPSジャミングを検出</translation>
+    </message>
+    <message>
+      <source>GPS required for baro cal</source>
+      <translation>気圧計のキャリブレーションにはGPSが必要です</translation>
+    </message>
+    <message>
+      <source>GPS required for mag quick cal</source>
+      <translation>磁気センサのクイックキャリブレーションにはGPSが必要です</translation>
+    </message>
+    <message>
+      <source>Gyro %</source>
+      <translation>ジャイロ %</translation>
+    </message>
+    <message>
+      <source>Hardware fault: Camera capture disabled</source>
+      <translation>ハードウェア障害: カメラキャプチャ無効</translation>
+    </message>
+    <message>
+      <source>Hardware fault: GPS PPS disabled</source>
+      <translation>ハードウェア障害: GPS PPS無効</translation>
+    </message>
+    <message>
+      <source>High latency data link lost</source>
+      <translation>高遅延データリンクが失われました</translation>
+    </message>
+    <message>
+      <source>Holding at %d m above landing waypoint.</source>
+      <translation>着陸ウェイポイント上空 %d m で待機中です。</translation>
+    </message>
+    <message>
+      <source>Hover thrust has been constrained by min/max</source>
+      <translation>ホバリング推力が最小/最大値で制限されました</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Busy</source>
+      <translation>IGN MISSION_ITEM: ビジー</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: Invalid item</source>
+      <translation>IGN MISSION_ITEM: 無効な項目</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM: No transfer</source>
+      <translation>IGN MISSION_ITEM: 転送なし</translation>
+    </message>
+    <message>
+      <source>IGN MISSION_ITEM_REQUEST(_INT): No active transfer</source>
+      <translation>IGN MISSION_ITEM_REQUEST(_INT): アクティブな転送なし</translation>
+    </message>
+    <message>
+      <source>Invalid mission state.</source>
+      <translation>ミッション状態が無効です。</translation>
+    </message>
+    <message>
+      <source>IO protocol/firmware mismatch, abort.</source>
+      <translation>IOプロトコル/ファームウェアが一致しないため中止します。</translation>
+    </message>
+    <message>
+      <source>IO RC config upload fail</source>
+      <translation>IO RC設定のアップロードに失敗</translation>
+    </message>
+    <message>
+      <source>Kill disengaged</source>
+      <translation>キルスイッチ解除</translation>
+    </message>
+    <message>
+      <source>Land tilt has been constrained by max tilt</source>
+      <translation>着陸時の傾きが最大傾きにより制限されました</translation>
+    </message>
+    <message>
+      <source>Landing at current position</source>
+      <translation>現在位置に着陸します</translation>
+    </message>
+    <message>
+      <source>Landing detected</source>
+      <translation>着陸を検出しました</translation>
+    </message>
+    <message>
+      <source>Landing target fault, beta %5.2f</source>
+      <translation>着陸ターゲット異常、beta %5.2f</translation>
+    </message>
+    <message>
+      <source>Landing target init</source>
+      <translation>着陸ターゲット初期化</translation>
+    </message>
+    <message>
+      <source>Landing target OK</source>
+      <translation>着陸ターゲット正常</translation>
+    </message>
+    <message>
+      <source>Landing target timeout</source>
+      <translation>着陸ターゲットタイムアウト</translation>
+    </message>
+    <message>
+      <source>Landing target: coordinate frame %</source>
+      <translation>着陸ターゲット: 座標フレーム %</translation>
+    </message>
+    <message>
+      <source>level</source>
+      <translation>水平</translation>
+    </message>
+    <message>
+      <source>Low battery</source>
+      <translation>バッテリー残量低下</translation>
+    </message>
+    <message>
+      <source>Mag quick calibration finished</source>
+      <translation>磁気センサのクイックキャリブレーション完了</translation>
+    </message>
+    <message>
+      <source>Manual backward speed has been constrained by forward speed</source>
+      <translation>手動後退速度が前進速度により制限されました</translation>
+    </message>
+    <message>
+      <source>Manual sideways speed has been constrained by forward speed</source>
+      <translation>手動横移動速度が前進速度により制限されました</translation>
+    </message>
+    <message>
+      <source>Manual speed has been constrained by max speed</source>
+      <translation>手動速度が最大速度により制限されました</translation>
+    </message>
+    <message>
+      <source>MAVLink signing disabled</source>
+      <translation>MAVLink署名が無効になりました</translation>
+    </message>
+    <message>
+      <source>MAVLink signing key accepted</source>
+      <translation>MAVLink署名キーが受理されました</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: blank key rejected</source>
+      <translation>MAVLink署名: 空のキーは拒否されました</translation>
+    </message>
+    <message>
+      <source>MAVLink signing: rejected while armed</source>
+      <translation>MAVLink署名: アーム中は拒否されます</translation>
+    </message>
+    <message>
+      <source>Maximum flight time reached</source>
+      <translation>最大飛行時間に達しました</translation>
+    </message>
+    <message>
+      <source>Mission cannot be completed</source>
+      <translation>ミッションを完了できません</translation>
+    </message>
+    <message>
+      <source>Mission could not reset jump count.</source>
+      <translation>ミッションのジャンプ回数をリセットできませんでした。</translation>
+    </message>
+    <message>
+      <source>Mission download request ignored, already active</source>
+      <translation>ミッションダウンロード要求は無視されました (すでに実行中)</translation>
+    </message>
+    <message>
+      <source>Mission finished, landed</source>
+      <translation>ミッション完了、着陸しました</translation>
+    </message>
+    <message>
+      <source>Mission finished, loitering</source>
+      <translation>ミッション完了、ロイター中</translation>
+    </message>
+    <message>
+      <source>Mission item could not be set.</source>
+      <translation>ミッション項目を設定できませんでした。</translation>
+    </message>
+    <message>
+      <source>Mission land item could not be read.</source>
+      <translation>ミッションの着陸項目を読み込めませんでした。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Landing item or remove Takeoff.</source>
+      <translation>ミッション拒否: 着陸項目を追加するか、離陸項目を削除してください。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Add Takeoff item or remove Landing.</source>
+      <translation>ミッション拒否: 離陸項目を追加するか、着陸項目を削除してください。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: invalid land start.</source>
+      <translation>ミッション拒否: 着陸開始地点が無効です。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: item %i: unsupported cmd: %d</source>
+      <translation>ミッション拒否: 項目 %i: 未対応のコマンド: %d</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Landing waypoint/pattern required.</source>
+      <translation>ミッション拒否: 着陸ウェイポイント/パターンが必要です。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Mission contains VTOL items but vehicle is not a VTOL</source>
+      <translation>ミッション拒否: ミッションにVTOL項目が含まれていますが、機体はVTOLではありません</translation>
+    </message>
+    <message>
+      <source>Mission rejected: more than one land start.</source>
+      <translation>ミッション拒否: 着陸開始地点が複数あります。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: No home pos, WP %d uses rel alt</source>
+      <translation>ミッション拒否: ホーム位置がありません。WP %d は相対高度を使用しています</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with land waypoint.</source>
+      <translation>ミッション拒否: 着陸ウェイポイントから始まっています。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: starts with landing</source>
+      <translation>ミッション拒否: 着陸から始まっています</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff altitude below home altitude!</source>
+      <translation>ミッション拒否: 離陸高度がホーム高度より低くなっています！</translation>
+    </message>
+    <message>
+      <source>Mission rejected: takeoff not first waypoint item</source>
+      <translation>ミッション拒否: 離陸が最初のウェイポイント項目ではありません</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff or Landing item missing.</source>
+      <translation>ミッション拒否: 離陸または着陸項目がありません。</translation>
+    </message>
+    <message>
+      <source>Mission rejected: Takeoff waypoint required.</source>
+      <translation>ミッション拒否: 離陸ウェイポイントが必要です。</translation>
+    </message>
+    <message>
+      <source>Mission start denied! No valid mission</source>
+      <translation>ミッション開始拒否！有効なミッションがありません</translation>
+    </message>
+    <message>
+      <source>Mission storage: Unable to write to microSD</source>
+      <translation>ミッション保存: microSDに書き込めません</translation>
+    </message>
+    <message>
+      <source>Mission sync timeout</source>
+      <translation>ミッション同期タイムアウト</translation>
+    </message>
+    <message>
+      <source>motion during calibration</source>
+      <translation>キャリブレーション中に動きを検出</translation>
+    </message>
+    <message>
+      <source>motion, retrying..</source>
+      <translation>動きを検出、再試行中..</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d overcurrent detected</source>
+      <translation>モーター故障: モーター %d の過電流を検出</translation>
+    </message>
+    <message>
+      <source>Motor failure: Motor %d undercurrent detected</source>
+      <translation>モーター故障: モーター %d の低電流を検出</translation>
+    </message>
+    <message>
+      <source>No airspeed sensor detected. Switch to non-airspeed mode.</source>
+      <translation>対気速度センサが検出されません。対気速度なしモードに切り替えます。</translation>
+    </message>
+    <message>
+      <source>No gyros found</source>
+      <translation>ジャイロが見つかりません</translation>
+    </message>
+    <message>
+      <source>no inputs, aborting</source>
+      <translation>入力がないため中止します</translation>
+    </message>
+    <message>
+      <source>No mags found</source>
+      <translation>磁気センサが見つかりません</translation>
+    </message>
+    <message>
+      <source>No valid mission available, loitering</source>
+      <translation>有効なミッションがないため、ロイターします</translation>
+    </message>
+    <message>
+      <source>No valid mission available, refusing takeoff</source>
+      <translation>有効なミッションがないため、離陸を拒否します</translation>
+    </message>
+    <message>
+      <source>Not enough bandwidth to enable log streaming</source>
+      <translation>ログストリーミングを有効にするための帯域幅が不足しています</translation>
+    </message>
+    <message>
+      <source>Not yet ready for mission, no position lock.</source>
+      <translation>ミッションの準備ができていません。位置が確定していません。</translation>
+    </message>
+    <message>
+      <source>Obstacle message received in unsupported frame %i</source>
+      <translation>未対応のフレーム %i で障害物メッセージを受信しました</translation>
+    </message>
+    <message>
+      <source>ODOMETRY: estimator_type %</source>
+      <translation>ODOMETRY: estimator_type %</translation>
+    </message>
+    <message>
+      <source>Onboard controller regained</source>
+      <translation>オンボードコントローラが回復しました</translation>
+    </message>
+    <message>
+      <source>Orbit command rejected</source>
+      <translation>Orbitコマンドが拒否されました</translation>
+    </message>
+    <message>
+      <source>Orbit is outside geofence</source>
+      <translation>Orbitがジオフェンスの外側です</translation>
+    </message>
+    <message>
+      <source>Orbit radius limit exceeded</source>
+      <translation>Orbit半径の上限を超えました</translation>
+    </message>
+    <message>
+      <source>Parachute system lost</source>
+      <translation>パラシュートシステムが失われました</translation>
+    </message>
+    <message>
+      <source>Parachute system regained</source>
+      <translation>パラシュートシステムが回復しました</translation>
+    </message>
+    <message>
+      <source>parameter_rc_channel_index out of bounds</source>
+      <translation>parameter_rc_channel_index が範囲外です</translation>
+    </message>
+    <message>
+      <source>Pilot took over using sticks</source>
+      <translation>パイロットがスティック操作で介入しました</translation>
+    </message>
+    <message>
+      <source>Position estimate has low accuracy</source>
+      <translation>位置推定の精度が低下しています</translation>
+    </message>
+    <message>
+      <source>Precision landing</source>
+      <translation>精密着陸</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u inconsistent - check cal</source>
+      <translation>飛行前チェック失敗: 加速度計 %u が不整合 - キャリブレーションを確認してください</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel %u uncalibrated</source>
+      <translation>飛行前チェック失敗: 加速度計 %u が未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Accel Sensor %u missing</source>
+      <translation>飛行前チェック失敗: 加速度計センサ %u がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed invalid</source>
+      <translation>飛行前チェック失敗: 対気速度が無効</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed selector module down</source>
+      <translation>飛行前チェック失敗: 対気速度選択モジュールが停止</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Airspeed too high</source>
+      <translation>飛行前チェック失敗: 対気速度が高すぎます</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Altitude failure</source>
+      <translation>飛行前チェック失敗: 高度異常</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (pitch)</source>
+      <translation>飛行前チェック失敗: 姿勢異常 (ピッチ)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Attitude failure (roll)</source>
+      <translation>飛行前チェック失敗: 姿勢異常 (ロール)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power high: %6.2f Volt</source>
+      <translation>飛行前チェック失敗: アビオニクス電源が高すぎます: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Avionics Power low: %6.2f Volt</source>
+      <translation>飛行前チェック失敗: アビオニクス電源が低すぎます: %6.2f Volt</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: barometer %u missing</source>
+      <translation>飛行前チェック失敗: 気圧計 %u がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Battery unhealthy</source>
+      <translation>飛行前チェック失敗: バッテリー異常</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u fault</source>
+      <translation>飛行前チェック失敗: コンパス %u 異常</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass %u uncalibrated</source>
+      <translation>飛行前チェック失敗: コンパス %u が未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compass Sensor %u missing</source>
+      <translation>飛行前チェック失敗: コンパスセンサ %u がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <translation>飛行前チェック失敗: コンパス間の差 %d° (不整合)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: CPU load too high: %3.1f%%</source>
+      <translation>飛行前チェック失敗: CPU負荷が高すぎます: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Crash dumps present on SD</source>
+      <translation>飛行前チェック失敗: SDにクラッシュダンプがあります</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Distance Sensor %u missing</source>
+      <translation>飛行前チェック失敗: 距離センサ %u がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ekf2 missing data</source>
+      <translation>飛行前チェック失敗: ekf2 データ欠落</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: ESC telemetry missing</source>
+      <translation>飛行前チェック失敗: ESCテレメトリーがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flight termination active</source>
+      <translation>飛行前チェック失敗: 飛行終了が作動中</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Flying with USB is not safe</source>
+      <translation>飛行前チェック失敗: USB接続中の飛行は安全ではありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Found %i compass (required: %</source>
+      <translation>飛行前チェック失敗: コンパスを%i個検出 (必要数: %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Geofence RTL requires valid home</source>
+      <translation>飛行前チェック失敗: ジオフェンスRTLには有効なホームが必要です</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Global position estimate required</source>
+      <translation>飛行前チェック失敗: グローバル位置推定が必要です</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u inconsistent - check cal</source>
+      <translation>飛行前チェック失敗: ジャイロ %u が不整合 - キャリブレーションを確認してください</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro %u uncalibrated</source>
+      <translation>飛行前チェック失敗: ジャイロ %u が未キャリブレーション</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Gyro Sensor %u missing</source>
+      <translation>飛行前チェック失敗: ジャイロセンサ %u がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: heading estimate invalid</source>
+      <translation>飛行前チェック失敗: ヘッディング推定が無効</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: height estimate not stable</source>
+      <translation>飛行前チェック失敗: 高さ推定が不安定</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Accelerometer Bias</source>
+      <translation>飛行前チェック失敗: 加速度計バイアスが大きすぎます</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: High Gyro Bias</source>
+      <translation>飛行前チェック失敗: ジャイロバイアスが大きすぎます</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Home position required</source>
+      <translation>飛行前チェック失敗: ホーム位置が必要です</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal position unstable</source>
+      <translation>飛行前チェック失敗: 水平位置が不安定</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: horizontal velocity unstable</source>
+      <translation>飛行前チェック失敗: 水平速度が不安定</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Imbalanced propeller detected</source>
+      <translation>飛行前チェック失敗: プロペラのアンバランスを検出</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Kill switch engaged</source>
+      <translation>飛行前チェック失敗: キルスイッチが作動中</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Landing gear switch set in UP position</source>
+      <translation>飛行前チェック失敗: ランディングギアスイッチがUP位置です</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Missing FMU SD Card</source>
+      <translation>飛行前チェック失敗: FMU SDカードがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No connection to the GCS</source>
+      <translation>飛行前チェック失敗: GCSとの接続がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No CPU and RAM load information</source>
+      <translation>飛行前チェック失敗: CPUおよびRAM負荷情報がありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No rally point available</source>
+      <translation>飛行前チェック失敗: 使用可能なラリーポイントがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Accel %u</source>
+      <translation>飛行前チェック失敗: 加速度計 %u の有効なデータがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Baro %u</source>
+      <translation>飛行前チェック失敗: 気圧計 %u の有効なデータがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Compass %u</source>
+      <translation>飛行前チェック失敗: コンパス %u の有効なデータがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid data from Gyro %u</source>
+      <translation>飛行前チェック失敗: ジャイロ %u の有効なデータがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: No valid distance sensor %u data</source>
+      <translation>飛行前チェック失敗: 距離センサ %u の有効なデータがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system missing</source>
+      <translation>飛行前チェック失敗: Open Drone IDシステムがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Open Drone ID system not ready</source>
+      <translation>飛行前チェック失敗: Open Drone IDシステムの準備ができていません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system missing</source>
+      <translation>飛行前チェック失敗: パラシュートシステムがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Parachute system not ready</source>
+      <translation>飛行前チェック失敗: パラシュートシステムの準備ができていません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power module not connected</source>
+      <translation>飛行前チェック失敗: 電源モジュールが接続されていません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Power redundancy not met: %d of %</source>
+      <translation>飛行前チェック失敗: 電源の冗長性が不足: %d / %</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Press safety button first</source>
+      <translation>飛行前チェック失敗: 先にセーフティボタンを押してください</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RAM usage too high: %3.1f%%</source>
+      <translation>飛行前チェック失敗: RAM使用率が高すぎます: %3.1f%%</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MAX &gt; %u</source>
+      <translation>飛行前チェック失敗: RCエラー: RC%d_MAX &gt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_MIN &lt; %u</source>
+      <translation>飛行前チェック失敗: RCエラー: RC%d_MIN &lt; %u</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &lt; MIN (%d/%d)</source>
+      <translation>飛行前チェック失敗: RCエラー: RC%d_TRIM &lt; MIN (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RC ERROR: RC%d_TRIM &gt; MAX (%d/%d)</source>
+      <translation>飛行前チェック失敗: RCエラー: RC%d_TRIM &gt; MAX (%d/%d)</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: RTL switch engaged</source>
+      <translation>飛行前チェック失敗: RTLスイッチが作動中</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Strong magnetic interference</source>
+      <translation>飛行前チェック失敗: 強い磁気干渉</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: system power unavailable</source>
+      <translation>飛行前チェック失敗: システム電源を使用できません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Task watchdog dumps present on SD</source>
+      <translation>飛行前チェック失敗: SDにタスクウォッチドッグのダンプがあります</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Traffic avoidance system missing</source>
+      <translation>飛行前チェック失敗: 交通回避システムがありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: triggered by external system</source>
+      <translation>飛行前チェック失敗: 外部システムによるトリガー</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in safety configuration</source>
+      <translation>飛行前チェック失敗: 機体がセーフティ構成になっています</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is in transition state</source>
+      <translation>飛行前チェック失敗: 機体が遷移状態です</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: Vehicle is not in multicopter mode</source>
+      <translation>飛行前チェック失敗: 機体がマルチコプターモードではありません</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: vertical velocity unstable</source>
+      <translation>飛行前チェック失敗: 垂直速度が不安定</translation>
+    </message>
+    <message>
+      <source>Preflight Fail: VTOL fixed-wing system failure detected</source>
+      <translation>飛行前チェック失敗: VTOL固定翼システムの故障を検出</translation>
+    </message>
+    <message>
+      <source>Primary airspeed index bigger than number connected sensors. Take last sensor.</source>
+      <translation>プライマリ対気速度インデックスが接続センサ数を超えています。最後のセンサを使用します。</translation>
+    </message>
+    <message>
+      <source>Quad-chute triggered</source>
+      <translation>クアッドシュートが作動しました</translation>
+    </message>
+    <message>
+      <source>Received unknown mission type, abort.</source>
+      <translation>不明なミッションタイプを受信したため中止します。</translation>
+    </message>
+    <message>
+      <source>REJ. MIS ITEM: partner id mismatch</source>
+      <translation>REJ. MIS ITEM: パートナーIDが一致しません</translation>
+    </message>
+    <message>
+      <source>REJ. WP CMD: partner id mismatch</source>
+      <translation>REJ. WP CMD: パートナーIDが一致しません</translation>
+    </message>
+    <message>
+      <source>Remote ID system lost</source>
+      <translation>リモートIDシステムが失われました</translation>
+    </message>
+    <message>
+      <source>Remote ID system regained</source>
+      <translation>リモートIDシステムが回復しました</translation>
+    </message>
+    <message>
+      <source>Reposition is outside geofence</source>
+      <translation>再配置先がジオフェンスの外側です</translation>
+    </message>
+    <message>
+      <source>Retry calibration (mag %</source>
+      <translation>キャリブレーション再試行 (mag %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (sphere NaN, %</source>
+      <translation>キャリブレーション再試行 (sphere NaN, %</translation>
+    </message>
+    <message>
+      <source>Retry calibration (unable to fit mag %</source>
+      <translation>キャリブレーション再試行 (mag フィッティング不可 %</translation>
+    </message>
+    <message>
+      <source>Returning to launch</source>
+      <translation>離陸地点へ帰還中</translation>
+    </message>
+    <message>
+      <source>RTL Mission land: climb to %d m</source>
+      <translation>RTL ミッション着陸: %d m まで上昇</translation>
+    </message>
+    <message>
+      <source>RTL: completed, loitering</source>
+      <translation>RTL: 完了、ロイター中</translation>
+    </message>
+    <message>
+      <source>RTL: land at destination</source>
+      <translation>RTL: 目的地に着陸</translation>
+    </message>
+    <message>
+      <source>RTL: start return at %d m (%d m above destination)</source>
+      <translation>RTL: %d m で帰還開始 (目的地上空 %d m)</translation>
+    </message>
+    <message>
+      <source>RTL: unsupported MAV_FRAME</source>
+      <translation>RTL: 未対応のMAV_FRAME</translation>
+    </message>
+    <message>
+      <source>Septentrio: Baud rate %d is unsupported, falling back to default %</source>
+      <translation>Septentrio: ボーレート %d は未対応のため、デフォルトの % に戻します</translation>
+    </message>
+    <message>
+      <source>Septentrio: Device paths must be different</source>
+      <translation>Septentrio: デバイスパスは異なる必要があります</translation>
+    </message>
+    <message>
+      <source>Septentrio: Failed to configure receiver internal logging</source>
+      <translation>Septentrio: 受信機内部ログの設定に失敗しました</translation>
+    </message>
+    <message>
+      <source>Septentrio: Logging stream should be different from main stream</source>
+      <translation>Septentrio: ログストリームはメインストリームと異なる必要があります</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT force not supported</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT: force は未対応です</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_GLOBAL_INT invalid coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_GLOBAL_INT: 無効な座標フレーム %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED coordinate frame %</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED 座標フレーム %</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED force not supported</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED: force は未対応です</translation>
+    </message>
+    <message>
+      <source>SET_POSITION_TARGET_LOCAL_NED invalid</source>
+      <translation>SET_POSITION_TARGET_LOCAL_NED が無効です</translation>
+    </message>
+    <message>
+      <source>Switching to %s is currently not available</source>
+      <translation>現在 %s には切り替えできません</translation>
+    </message>
+    <message>
+      <source>System does not support shutdown</source>
+      <translation>システムはシャットダウンに対応していません</translation>
+    </message>
+    <message>
+      <source>Takeoff detected</source>
+      <translation>離陸を検出しました</translation>
+    </message>
+    <message>
+      <source>Target altitude higher than max HAGL</source>
+      <translation>目標高度が最大HAGLを超えています</translation>
+    </message>
+    <message>
+      <source>Terrain collision risk, descent is stopped</source>
+      <translation>地形衝突の危険があるため、降下を停止しました</translation>
+    </message>
+    <message>
+      <source>Tilt constrained to safe value</source>
+      <translation>傾きが安全な値に制限されました</translation>
+    </message>
+    <message>
+      <source>Timeout waiting for battery</source>
+      <translation>バッテリー待機タイムアウト</translation>
+    </message>
+    <message>
+      <source>timeout: no motion</source>
+      <translation>タイムアウト: 動きがありません</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system lost</source>
+      <translation>交通回避システムが失われました</translation>
+    </message>
+    <message>
+      <source>Traffic avoidance system regained</source>
+      <translation>交通回避システムが回復しました</translation>
+    </message>
+    <message>
+      <source>Transition to hover mode and descend.</source>
+      <translation>ホバーモードに遷移して降下します。</translation>
+    </message>
+    <message>
+      <source>Transponder Failure</source>
+      <translation>トランスポンダー故障</translation>
+    </message>
+    <message>
+      <source>Transponder System Failure</source>
+      <translation>トランスポンダーシステム故障</translation>
+    </message>
+    <message>
+      <source>trim cal done</source>
+      <translation>トリムキャリブレーション完了</translation>
+    </message>
+    <message>
+      <source>TRIM: PARAM SET FAIL</source>
+      <translation>TRIM: パラメータ設定失敗</translation>
+    </message>
+    <message>
+      <source>unable to reach heading within timeout</source>
+      <translation>タイムアウト内に目標ヘッディングに到達できません</translation>
+    </message>
+    <message>
+      <source>Unable to write on micro SD</source>
+      <translation>micro SDに書き込めません</translation>
+    </message>
+    <message>
+      <source>Unsupported ARM_DISARM param: %.3f</source>
+      <translation>未対応のARM_DISARMパラメータ: %.3f</translation>
+    </message>
+    <message>
+      <source>Unsupported auto mode</source>
+      <translation>未対応のautoモード</translation>
+    </message>
+    <message>
+      <source>Unsupported base mode</source>
+      <translation>未対応のbaseモード</translation>
+    </message>
+    <message>
+      <source>Unsupported main mode</source>
+      <translation>未対応のmainモード</translation>
+    </message>
+    <message>
+      <source>Warning: mag %</source>
+      <translation>警告: mag %</translation>
+    </message>
+    <message>
+      <source>Waypoint could not be read.</source>
+      <translation>ウェイポイントを読み込めませんでした。</translation>
+    </message>
+    <message>
+      <source>WPM: IGN CLEAR CMD: Busy</source>
+      <translation>WPM: IGN CLEAR CMD: ビジー</translation>
+    </message>
+    <message>
+      <source>WPM: IGN MISSION_COUNT: Busy</source>
+      <translation>WPM: IGN MISSION_COUNT: ビジー</translation>
+    </message>
+    <message>
+      <source>WPM: IGN WP CURR CMD: Busy</source>
+      <translation>WPM: IGN WP CURR CMD: ビジー</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Busy</source>
+      <translation>WPM: REJ. CMD: ビジー</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: partner id mismatch</source>
+      <translation>WPM: REJ. CMD: パートナーIDが一致しません</translation>
+    </message>
+    <message>
+      <source>WPM: REJ. CMD: Req. WP was unexpected</source>
+      <translation>WPM: REJ. CMD: 要求されたWPは想定外です</translation>
+    </message>
+    <message>
+      <source>WPM: WP CURR CMD: Not in list</source>
+      <translation>WPM: WP CURR CMD: リストにありません</translation>
+    </message>
+    <message>
+      <source>Yaw Airmode requires disabling the stick arm gesture</source>
+      <translation>Yaw Airmode を使用するにはスティックによるアーム操作を無効にする必要があります</translation>
+    </message>
+  </context>
+  <context>
+    <name>DeviceSettings</name>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="139"/>
+      <source>YellowScan 3D LiDAR</source>
+      <translation>YellowScan 3D LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="149"/>
+      <source>PWR OFF</source>
+      <translation>電源OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition OFF</source>
+      <translation>取得OFF</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="154"/>
+      <source>Acquisition ON</source>
+      <translation>取得ON</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="199"/>
+      <source>Configure</source>
+      <translation>設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="233"/>
+      <source>Details</source>
+      <translation>詳細</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="238"/>
+      <source>Acquisition Running</source>
+      <translation>データ取得中</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="239"/>
+      <source>Time Not Set</source>
+      <translation>時刻未設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="240"/>
+      <source>Scanner Not Ready</source>
+      <translation>スキャナ準備未完了</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="241"/>
+      <source>INS Not Locked</source>
+      <translation>INS未ロック</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="242"/>
+      <source>Scanner Error</source>
+      <translation>スキャナエラー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="243"/>
+      <source>INS Error</source>
+      <translation>INSエラー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="244"/>
+      <source>No USB</source>
+      <translation>USBなし</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="245"/>
+      <source>USB Full</source>
+      <translation>USB容量不足</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="246"/>
+      <source>Camera Error</source>
+      <translation>カメラエラー</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="268"/>
+      <source>Parameters</source>
+      <translation>パラメータ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="271"/>
+      <source>Get Param</source>
+      <translation>パラメータ取得</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="276"/>
+      <source>Set Param</source>
+      <translation>パラメータ設定</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="295"/>
+      <source>Scanner High Sensitivity</source>
+      <translation>スキャナ高感度</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>On</source>
+      <translation>オン</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="304"/>
+      <source>Off</source>
+      <translation>オフ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="320"/>
+      <source>Scanner Pattern</source>
+      <translation>スキャナパターン</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>None</source>
+      <translation>なし</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="329"/>
+      <source>Repetition</source>
+      <translation>繰り返し</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="345"/>
+      <source>Emb. Camera</source>
+      <translation>内蔵カメラ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Disable</source>
+      <translation>無効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="354"/>
+      <source>Enable</source>
+      <translation>有効にする</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="370"/>
+      <source>Emb. Cam. Init. Height</source>
+      <translation>内蔵カメラ初期高さ</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="379"/>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="420"/>
+      <source>Float</source>
+      <translation>浮動小数点</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="397"/>
+      <source>Emb. Cam. Trigger Mode</source>
+      <translation>内蔵カメラトリガーモード</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Time</source>
+      <translation>時間</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="406"/>
+      <source>Distance</source>
+      <translation>距離</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="454"/>
+      <source>Message Monitor</source>
+      <translation>メッセージモニター</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="465"/>
+      <source>Sent:</source>
+      <translation>送信:</translation>
+    </message>
+    <message>
+      <location filename="../src/ui/preferences/DeviceSettings.qml" line="485"/>
+      <source>Received:</source>
+      <translation>受信:</translation>
     </message>
   </context>
 </TS>
