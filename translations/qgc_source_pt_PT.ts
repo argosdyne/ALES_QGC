@@ -23484,10 +23484,6 @@ Confirmar a alteração?</translation>
       <translation>Ganho Alto/Baixo (TRUE/FALSE)</translation>
     </message>
     <message>
-      <source>Hight/Low(TRUE/FALSE) Gain</source>
-      <translation>Ganho Alto/Baixo(TRUE/FALSE)</translation>
-    </message>
-    <message>
       <source>High/Low(TRUE/FALSE) Gain</source>
       <translation>Ganho Alto/Baixo(TRUE/FALSE)</translation>
     </message>
@@ -28312,7 +28308,7 @@ Confirmar a alteração?</translation>
       <translation>Falha pré-voo: Sensor de bússola %u ausente</translation>
     </message>
     <message>
-      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <source>Preflight Fail: Compasses %d° inconsistent</source>
       <translation>Falha pré-voo: Bússolas inconsistentes em %d째</translation>
     </message>
     <message>

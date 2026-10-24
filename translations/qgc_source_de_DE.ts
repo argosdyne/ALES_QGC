@@ -23304,10 +23304,6 @@ Confirm change?</source>
       <translation>High/Low (TRUE/FALSE) Verstärkung</translation>
     </message>
     <message>
-      <source>Hight/Low(TRUE/FALSE) Gain</source>
-      <translation>High/Low (TRUE/FALSE) Verstärkung</translation>
-    </message>
-    <message>
       <source>High/Low(TRUE/FALSE) Gain</source>
       <translation>High/Low (TRUE/FALSE) Verstärkung</translation>
     </message>
@@ -28150,7 +28146,7 @@ Confirm change?</source>
       <translation>Vorflug-Fehler: Kompasssensor %u fehlt</translation>
     </message>
     <message>
-      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <source>Preflight Fail: Compasses %d° inconsistent</source>
       <translation>Vorflug-Fehler: Kompasse %d° inkonsistent</translation>
     </message>
     <message>

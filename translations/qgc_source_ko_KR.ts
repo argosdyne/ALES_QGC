@@ -23712,10 +23712,6 @@ Confirm change?</source>
       <translation>고/저(참/거짓) 게인</translation>
     </message>
     <message>
-      <source>Hight/Low(TRUE/FALSE) Gain</source>
-      <translation>고/저(참/거짓) 게인</translation>
-    </message>
-    <message>
       <source>High/Low(TRUE/FALSE) Gain</source>
       <translation>고/저(참/거짓) 게인</translation>
     </message>
@@ -28558,7 +28554,7 @@ Confirm change?</source>
       <translation>사전 점검 실패: 나침반 센서 %u 누락</translation>
     </message>
     <message>
-      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <source>Preflight Fail: Compasses %d° inconsistent</source>
       <translation>사전 점검 실패: 나침반 %d 불일치</translation>
     </message>
     <message>

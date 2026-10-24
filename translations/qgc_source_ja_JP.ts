@@ -23473,10 +23473,6 @@ Confirm change?</source>
       <translation>High/Low (TRUE/FALSE) ゲイン</translation>
     </message>
     <message>
-      <source>Hight/Low(TRUE/FALSE) Gain</source>
-      <translation>High/Low(TRUE/FALSE) ゲイン</translation>
-    </message>
-    <message>
       <source>High/Low(TRUE/FALSE) Gain</source>
       <translation>High/Low(TRUE/FALSE) ゲイン</translation>
     </message>
@@ -28303,7 +28299,7 @@ Confirm change?</source>
       <translation>飛行前チェック失敗: コンパスセンサ %u がありません</translation>
     </message>
     <message>
-      <source>Preflight Fail: Compasses %d째 inconsistent</source>
+      <source>Preflight Fail: Compasses %d° inconsistent</source>
       <translation>飛行前チェック失敗: コンパス間の差 %d° (不整合)</translation>
     </message>
     <message>
