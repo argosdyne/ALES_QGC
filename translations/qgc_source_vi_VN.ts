@@ -5067,7 +5067,7 @@ Nhấn Ok để bắt đầu tự động tinh chỉnh.
     <message>
       <location filename="../src/PlanView/CorridorScanEditor.qml" line="19"/>
       <source>Corridor</source>
-      <translation>Hành lang</translation>
+      <translation>Tuyến</translation>
     </message>
     <message>
       <location filename="../src/PlanView/CorridorScanEditor.qml" line="38"/>
