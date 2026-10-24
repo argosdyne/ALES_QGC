@@ -20788,6 +20788,11 @@ Xác nhận thay đổi?</translation>
         <source>Mock Link</source>
         <translation>Mock Link</translation>
     </message>
+    <message>
+        <location filename="../custom/src/CustomPlugin.cc" line="215"/>
+        <source>Remote ID</source>
+        <translation>Remote ID</translation>
+    </message>
 </context>
 <context>
 
@@ -29371,18 +29376,162 @@ Xác nhận thay đổi?</translation>
       <translation>Đã nhận:</translation>
     </message>
   </context>
+<context>
+    <name>RemoteIDSettings</name>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="75"/>
+        <source>Disabled</source>
+        <translation>Đã tắt</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="76"/>
+        <source>UDP Port</source>
+        <translation>Cổng UDP</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="162"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="305"/>
+        <source>ARM STATUS</source>
+        <translation>TRẠNG THÁI ARM</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>RID COMMS</source>
+        <translation>LIÊN LẠC RID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>NOT CONNECTED</source>
+        <translation>CHƯA KẾT NỐI</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="204"/>
+        <source>GCS GPS</source>
+        <translation>GPS CỦA GCS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="228"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="669"/>
+        <source>BASIC ID</source>
+        <translation>ID CƠ BẢN</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="252"/>
+        <source>OPERATOR ID</source>
+        <translation>ID NGƯỜI KHAI THÁC</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="332"/>
+        <source>Arm status error: </source>
+        <translation>Lỗi trạng thái arm: </translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="347"/>
+        <source>Region</source>
+        <translation>Khu vực</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="430"/>
+        <source>GPS GCS</source>
+        <translation>GPS của GCS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="499"/>
+        <source>Latitude Fixed(-90 to 90)</source>
+        <translation>Vĩ độ cố định (-90 đến 90)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="510"/>
+        <source>Longitude Fixed(-180 to 180)</source>
+        <translation>Kinh độ cố định (-180 đến 180)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="521"/>
+        <source>Altitude Fixed</source>
+        <translation>Độ cao cố định</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="532"/>
+        <source>Latitude</source>
+        <translation>Vĩ độ</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="543"/>
+        <source>Longitude</source>
+        <translation>Kinh độ</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="556"/>
+        <source>Altitude</source>
+        <translation>Độ cao</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="734"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="807"/>
+        <source> (Mandatory)</source>
+        <translation> (bắt buộc)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="567"/>
+        <source>Heading</source>
+        <translation>Hướng</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="578"/>
+        <source>Hor. Accuracy</source>
+        <translation>Độ chính xác ngang</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="603"/>
+        <source>NMEA External GPS Device</source>
+        <translation>Thiết bị GPS ngoài NMEA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="627"/>
+        <source>Serial &lt;none available&gt;</source>
+        <translation>Serial &lt;không có&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="634"/>
+        <source>NMEA GPS Baudrate</source>
+        <translation>Tốc độ baud GPS NMEA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="654"/>
+        <source>NMEA stream UDP port</source>
+        <translation>Cổng UDP luồng NMEA</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="691"/>
+        <source>Note: This parameter is optional if Basic ID is already set on RID device. On that case, this one will be registered as Basic ID 2</source>
+        <translation>Lưu ý: Tham số này là tùy chọn nếu ID cơ bản đã được đặt trên thiết bị RID. Khi đó, giá trị này sẽ được đăng ký là ID cơ bản 2</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="761"/>
+        <source>Operator ID</source>
+        <translation>ID người khai thác</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> valid</source>
+        <translation> hợp lệ</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> invalid</source>
+        <translation> không hợp lệ</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="872"/>
+        <source>Self ID</source>
+        <translation>Self ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="934"/>
+        <source>Note: Even if this box is unset, QGroundControl will send self ID message if an emergency is set, or after it has been cleared.                                                          The message for each kind of selfID is saved and preserves reboots. Select each type on the Self ID type dropdown to configure the message to be sent</source>
+        <translation>Lưu ý: Ngay cả khi bỏ chọn ô này, QGroundControl vẫn gửi thông điệp Self ID khi có tình trạng khẩn cấp hoặc sau khi tình trạng đó được hủy. Thông điệp cho từng loại Self ID được lưu và giữ nguyên sau khi khởi động lại. Chọn từng loại trong danh sách Loại Self ID để cấu hình thông điệp sẽ gửi</translation>
+    </message>
+</context>
 </TS>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

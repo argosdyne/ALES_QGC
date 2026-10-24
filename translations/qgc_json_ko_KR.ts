@@ -1962,6 +1962,181 @@
       <translation>비활성화,NTRIP,시리얼 포트</translation>
     </message>
   </context>
+  <context>
+    <name>RemoteID.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[enable].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Show Drone ID settings page when enabled</source>
+      <translation>활성화하면 드론 ID 설정 페이지 표시</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID</source>
+      <translation>운영자 ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDValid].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID is valid</source>
+      <translation>운영자 ID 유효</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID type</source>
+      <translation>운영자 ID 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>CAA</source>
+      <translation>CAA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendOperatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Operator ID</source>
+      <translation>운영자 ID 전송</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDFree].shortDesc, .QGC.MetaData.Facts[selfIDEmergency].shortDesc, .QGC.MetaData.Facts[selfIDExtended].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID</source>
+      <translation>셀프 ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID type</source>
+      <translation>셀프 ID 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Free Text,Emergency,Extended Status</source>
+      <translation>자유 텍스트,비상,확장 상태</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendSelfID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Self ID</source>
+      <translation>셀프 ID 전송</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID</source>
+      <translation>기본 ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID Type</source>
+      <translation>기본 ID 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>None, SerialNumber(ANSI/CTA-2063), CAA, UTM(RFC4122), Specific</source>
+      <translation>없음,일련번호(ANSI/CTA-2063),CAA,UTM(RFC4122),특정</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>UA type</source>
+      <translation>UA 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,Airplane/FixedWing,Helicopter/Multirrotor, Gyroplane, VTOL, Ornithopter, Glider, Kite, Free Ballon, Captive Ballon, Airship, Parachute, Rocket, Tethered powered aircraft, Ground Obstacle, Other</source>
+      <translation>미정의,비행기/고정익,헬리콥터/멀티로터,자이로플레인,VTOL,날갯짓 비행기,글라이더,연,자유 기구,계류 기구,비행선,낙하산,로켓,유선 동력 항공기,지상 장애물,기타</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendBasicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Basic ID</source>
+      <translation>기본 ID 전송</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Region of operation</source>
+      <translation>운용 지역</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>FAA,EU</source>
+      <translation>FAA,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Location Type</source>
+      <translation>위치 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Takeoff(Not Supported),Live GNNS, Fixed</source>
+      <translation>이륙 지점(지원 안 됨),실시간 GNSS,고정</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[latitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Latitude Fixed</source>
+      <translation>고정 위도</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[longitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Longitude Fixed</source>
+      <translation>고정 경도</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[altitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Altitude Fixed</source>
+      <translation>고정 고도</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Classification Type</source>
+      <translation>분류 유형</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,EU</source>
+      <translation>미정의,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Category EU</source>
+      <translation>EU 카테고리</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Open, Specific, Certified</source>
+      <translation>미신고,오픈,특정,인증</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Class EU</source>
+      <translation>EU 클래스</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Class 0, Class 1, Class 2, Class 3, Class 4, Class 5, Class 6</source>
+      <translation>미신고,클래스 0,클래스 1,클래스 2,클래스 3,클래스 4,클래스 5,클래스 6</translation>
+    </message>
+  </context>
 </TS>
-
-

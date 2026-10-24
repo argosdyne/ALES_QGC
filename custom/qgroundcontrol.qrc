@@ -56,6 +56,7 @@
 		<file alias="CodevCameraVisual.qml">../src/Camera/CodevCameraVisual.qml</file>
 		<file alias="M2Settings.qml">../src/M2Link/M2Settings.qml</file>
 		<file alias="RajantSettings.qml">../src/RajantLink/RajantSettings.qml</file>
+		<file alias="RemoteIDSettings.qml">../src/ui/preferences/RemoteIDSettings.qml</file>
 		<!--<flie alias="QGCBusyIndicator.qml">../src/QmlControls/QGCBusyIndicator.qml</flie> -->
 		<file alias="QGroundControl/Controls/PseudocolorBar.qml">../src/QmlControls/PseudocolorBar.qml</file>
 		<file alias="QGroundControl/Controls/TouchSelectArea.qml">../src/QmlControls/TouchSelectArea.qml</file>

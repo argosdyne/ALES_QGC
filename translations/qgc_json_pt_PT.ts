@@ -1960,4 +1960,181 @@
       <translation>Desabilitar,NTRIP,Porta serial</translation>
     </message>
   </context>
+  <context>
+    <name>RemoteID.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[enable].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Show Drone ID settings page when enabled</source>
+      <translation>Mostrar a página de configurações de ID do drone quando ativado</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID</source>
+      <translation>ID do operador</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDValid].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID is valid</source>
+      <translation>ID do operador válido</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID type</source>
+      <translation>Tipo de ID do operador</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>CAA</source>
+      <translation>CAA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendOperatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Operator ID</source>
+      <translation>Enviar ID do operador</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDFree].shortDesc, .QGC.MetaData.Facts[selfIDEmergency].shortDesc, .QGC.MetaData.Facts[selfIDExtended].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID</source>
+      <translation>Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID type</source>
+      <translation>Tipo de Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Free Text,Emergency,Extended Status</source>
+      <translation>Texto livre,Emergência,Estado estendido</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendSelfID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Self ID</source>
+      <translation>Enviar Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID</source>
+      <translation>ID básico</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID Type</source>
+      <translation>Tipo de ID básico</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>None, SerialNumber(ANSI/CTA-2063), CAA, UTM(RFC4122), Specific</source>
+      <translation>Nenhum,Número de série (ANSI/CTA-2063),CAA,UTM (RFC4122),Específico</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>UA type</source>
+      <translation>Tipo de UA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,Airplane/FixedWing,Helicopter/Multirrotor, Gyroplane, VTOL, Ornithopter, Glider, Kite, Free Ballon, Captive Ballon, Airship, Parachute, Rocket, Tethered powered aircraft, Ground Obstacle, Other</source>
+      <translation>Indefinido,Avião/Asa fixa,Helicóptero/Multirrotor,Autogiro,VTOL,Ornitóptero,Planador,Pipa,Balão livre,Balão cativo,Dirigível,Paraquedas,Foguete,Aeronave motorizada cativa,Obstáculo terrestre,Outro</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendBasicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Basic ID</source>
+      <translation>Enviar ID básico</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Region of operation</source>
+      <translation>Região de operação</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>FAA,EU</source>
+      <translation>FAA,UE</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Location Type</source>
+      <translation>Tipo de localização</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Takeoff(Not Supported),Live GNNS, Fixed</source>
+      <translation>Decolagem (não suportado),GNSS em tempo real,Fixa</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[latitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Latitude Fixed</source>
+      <translation>Latitude fixa</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[longitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Longitude Fixed</source>
+      <translation>Longitude fixa</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[altitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Altitude Fixed</source>
+      <translation>Altitude fixa</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Classification Type</source>
+      <translation>Tipo de classificação</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,EU</source>
+      <translation>Indefinido,UE</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Category EU</source>
+      <translation>Categoria UE</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Open, Specific, Certified</source>
+      <translation>Não declarado,Aberta,Específica,Certificada</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Class EU</source>
+      <translation>Classe UE</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Class 0, Class 1, Class 2, Class 3, Class 4, Class 5, Class 6</source>
+      <translation>Não declarado,Classe 0,Classe 1,Classe 2,Classe 3,Classe 4,Classe 5,Classe 6</translation>
+    </message>
+  </context>
 </TS>

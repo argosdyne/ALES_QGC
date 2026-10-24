@@ -840,7 +840,7 @@ Rectangle {
                         }
 
                         QGCLabel {
-                            text:               QGroundControl.settingsManager.remoteIDSettings.operatorID.shortDescription + qsTr(QGroundControl.settingsManager.remoteIDSettings.operatorIDValid.rawValue == true ? " valid" : " invalid")
+                            text:               QGroundControl.settingsManager.remoteIDSettings.operatorID.shortDescription + (QGroundControl.settingsManager.remoteIDSettings.operatorIDValid.rawValue == true ? qsTr(" valid") : qsTr(" invalid"))
                             visible:            _regionOperation == RemoteIDSettings.RegionOperation.EU
                             Layout.alignment:   Qt.AlignHCenter
                             Layout.fillWidth:   true

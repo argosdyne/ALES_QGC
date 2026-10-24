@@ -1960,4 +1960,181 @@
       <translation>無効,NTRIP,シリアルポート</translation>
     </message>
   </context>
+  <context>
+    <name>RemoteID.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[enable].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Show Drone ID settings page when enabled</source>
+      <translation>有効にするとドローンID設定ページを表示</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID</source>
+      <translation>運航者ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDValid].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID is valid</source>
+      <translation>運航者IDは有効</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID type</source>
+      <translation>運航者IDの種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>CAA</source>
+      <translation>CAA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendOperatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Operator ID</source>
+      <translation>運航者IDを送信</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDFree].shortDesc, .QGC.MetaData.Facts[selfIDEmergency].shortDesc, .QGC.MetaData.Facts[selfIDExtended].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID</source>
+      <translation>セルフID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID type</source>
+      <translation>セルフIDの種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Free Text,Emergency,Extended Status</source>
+      <translation>自由テキスト,緊急,拡張ステータス</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendSelfID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Self ID</source>
+      <translation>セルフIDを送信</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID</source>
+      <translation>基本ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID Type</source>
+      <translation>基本IDの種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>None, SerialNumber(ANSI/CTA-2063), CAA, UTM(RFC4122), Specific</source>
+      <translation>なし,シリアル番号(ANSI/CTA-2063),CAA,UTM(RFC4122),固有</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>UA type</source>
+      <translation>UAの種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,Airplane/FixedWing,Helicopter/Multirrotor, Gyroplane, VTOL, Ornithopter, Glider, Kite, Free Ballon, Captive Ballon, Airship, Parachute, Rocket, Tethered powered aircraft, Ground Obstacle, Other</source>
+      <translation>未定義,飛行機/固定翼,ヘリコプター/マルチローター,ジャイロプレーン,VTOL,オーニソプター,グライダー,凧,自由気球,係留気球,飛行船,パラシュート,ロケット,係留動力機,地上障害物,その他</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendBasicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Basic ID</source>
+      <translation>基本IDを送信</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Region of operation</source>
+      <translation>運用地域</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>FAA,EU</source>
+      <translation>FAA,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Location Type</source>
+      <translation>位置の種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Takeoff(Not Supported),Live GNNS, Fixed</source>
+      <translation>離陸地点(非対応),ライブGNSS,固定</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[latitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Latitude Fixed</source>
+      <translation>固定緯度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[longitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Longitude Fixed</source>
+      <translation>固定経度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[altitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Altitude Fixed</source>
+      <translation>固定高度</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Classification Type</source>
+      <translation>分類の種類</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,EU</source>
+      <translation>未定義,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Category EU</source>
+      <translation>EUカテゴリー</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Open, Specific, Certified</source>
+      <translation>未申告,オープン,特定,認証</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Class EU</source>
+      <translation>EUクラス</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Class 0, Class 1, Class 2, Class 3, Class 4, Class 5, Class 6</source>
+      <translation>未申告,クラス0,クラス1,クラス2,クラス3,クラス4,クラス5,クラス6</translation>
+    </message>
+  </context>
 </TS>

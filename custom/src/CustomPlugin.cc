@@ -211,6 +211,8 @@ CustomPlugin::settingsPages()
             }
         }
         _addSettingsEntry(tr("GeoAwareness"), "qrc:/qml/geoFenceSettings.qml");
+        // Shown in the menu only while General > Enable Remote ID is checked (AppSettings.qml)
+        _addSettingsEntry(tr("Remote ID"), "qrc:/qml/RemoteIDSettings.qml");
 #if defined(QT_DEBUG)
         //-- These are always present on Debug builds
         _addSettingsEntry(tr("Mock Link"),   "qrc:/qml/MockLink.qml");

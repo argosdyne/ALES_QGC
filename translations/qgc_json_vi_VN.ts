@@ -1960,6 +1960,181 @@
       <translation>Tắt,NTRIP,Cổng nối tiếp</translation>
     </message>
   </context>
+  <context>
+    <name>RemoteID.SettingsGroup.json</name>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[enable].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Show Drone ID settings page when enabled</source>
+      <translation>Hiển thị trang cài đặt ID drone khi bật</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID</source>
+      <translation>ID người khai thác</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDValid].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID is valid</source>
+      <translation>ID người khai thác hợp lệ</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Operator ID type</source>
+      <translation>Loại ID người khai thác</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[operatorIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>CAA</source>
+      <translation>CAA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendOperatorID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Operator ID</source>
+      <translation>Gửi ID người khai thác</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDFree].shortDesc, .QGC.MetaData.Facts[selfIDEmergency].shortDesc, .QGC.MetaData.Facts[selfIDExtended].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID</source>
+      <translation>Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Self ID type</source>
+      <translation>Loại Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[selfIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Free Text,Emergency,Extended Status</source>
+      <translation>Văn bản tự do,Khẩn cấp,Trạng thái mở rộng</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendSelfID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Self ID</source>
+      <translation>Gửi Self ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID</source>
+      <translation>ID cơ bản</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Basic ID Type</source>
+      <translation>Loại ID cơ bản</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>None, SerialNumber(ANSI/CTA-2063), CAA, UTM(RFC4122), Specific</source>
+      <translation>Không,Số sê-ri (ANSI/CTA-2063),CAA,UTM (RFC4122),Cụ thể</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>UA type</source>
+      <translation>Loại UA</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[basicIDUaType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,Airplane/FixedWing,Helicopter/Multirrotor, Gyroplane, VTOL, Ornithopter, Glider, Kite, Free Ballon, Captive Ballon, Airship, Parachute, Rocket, Tethered powered aircraft, Ground Obstacle, Other</source>
+      <translation>Không xác định,Máy bay/Cánh cố định,Trực thăng/Đa cánh quạt,Máy bay tự quay,VTOL,Máy bay vỗ cánh,Tàu lượn,Diều,Khinh khí cầu tự do,Khinh khí cầu neo,Khí cầu điều khiển,Dù,Tên lửa,Máy bay có dây cáp,Chướng ngại vật mặt đất,Khác</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[sendBasicID].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Send Basic ID</source>
+      <translation>Gửi ID cơ bản</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Region of operation</source>
+      <translation>Khu vực hoạt động</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[region].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>FAA,EU</source>
+      <translation>FAA,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Location Type</source>
+      <translation>Loại vị trí</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[locationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Takeoff(Not Supported),Live GNNS, Fixed</source>
+      <translation>Vị trí cất cánh (không hỗ trợ),GNSS trực tiếp,Cố định</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[latitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Latitude Fixed</source>
+      <translation>Vĩ độ cố định</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[longitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Longitude Fixed</source>
+      <translation>Kinh độ cố định</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[altitudeFixed].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Altitude Fixed</source>
+      <translation>Độ cao cố định</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Classification Type</source>
+      <translation>Loại phân loại</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classificationType].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undefined,EU</source>
+      <translation>Không xác định,EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Category EU</source>
+      <translation>Hạng mục EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[categoryEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Open, Specific, Certified</source>
+      <translation>Chưa khai báo,Mở,Đặc thù,Được chứng nhận</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].shortDesc, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Class EU</source>
+      <translation>Hạng EU</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[classEU].enumStrings, </extracomment>
+      <location filename="../src/Settings/RemoteID.SettingsGroup.json"/>
+      <source>Undeclared,Class 0, Class 1, Class 2, Class 3, Class 4, Class 5, Class 6</source>
+      <translation>Chưa khai báo,Hạng 0,Hạng 1,Hạng 2,Hạng 3,Hạng 4,Hạng 5,Hạng 6</translation>
+    </message>
+  </context>
 </TS>
-
-

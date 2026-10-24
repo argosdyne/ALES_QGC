@@ -20801,6 +20801,11 @@ Confirm change?</source>
         <source>Mock Link</source>
         <translation>모의 링크</translation>
     </message>
+    <message>
+        <location filename="../custom/src/CustomPlugin.cc" line="215"/>
+        <source>Remote ID</source>
+        <translation>원격 ID</translation>
+    </message>
 </context>
 <context>
 
@@ -29384,18 +29389,162 @@ Confirm change?</source>
       <translation>수신:</translation>
     </message>
   </context>
+<context>
+    <name>RemoteIDSettings</name>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="75"/>
+        <source>Disabled</source>
+        <translation>사용 안 함</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="76"/>
+        <source>UDP Port</source>
+        <translation>UDP 포트</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="162"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="305"/>
+        <source>ARM STATUS</source>
+        <translation>시동 상태</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>RID COMMS</source>
+        <translation>RID 통신</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>NOT CONNECTED</source>
+        <translation>연결 안 됨</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="204"/>
+        <source>GCS GPS</source>
+        <translation>GCS GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="228"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="669"/>
+        <source>BASIC ID</source>
+        <translation>기본 ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="252"/>
+        <source>OPERATOR ID</source>
+        <translation>운영자 ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="332"/>
+        <source>Arm status error: </source>
+        <translation>시동 상태 오류: </translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="347"/>
+        <source>Region</source>
+        <translation>지역</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="430"/>
+        <source>GPS GCS</source>
+        <translation>GCS GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="499"/>
+        <source>Latitude Fixed(-90 to 90)</source>
+        <translation>고정 위도(-90~90)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="510"/>
+        <source>Longitude Fixed(-180 to 180)</source>
+        <translation>고정 경도(-180~180)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="521"/>
+        <source>Altitude Fixed</source>
+        <translation>고정 고도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="532"/>
+        <source>Latitude</source>
+        <translation>위도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="543"/>
+        <source>Longitude</source>
+        <translation>경도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="556"/>
+        <source>Altitude</source>
+        <translation>고도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="734"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="807"/>
+        <source> (Mandatory)</source>
+        <translation> (필수)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="567"/>
+        <source>Heading</source>
+        <translation>기수 방향</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="578"/>
+        <source>Hor. Accuracy</source>
+        <translation>수평 정확도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="603"/>
+        <source>NMEA External GPS Device</source>
+        <translation>NMEA 외부 GPS 장치</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="627"/>
+        <source>Serial &lt;none available&gt;</source>
+        <translation>시리얼 &lt;사용 가능한 장치 없음&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="634"/>
+        <source>NMEA GPS Baudrate</source>
+        <translation>NMEA GPS 전송 속도</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="654"/>
+        <source>NMEA stream UDP port</source>
+        <translation>NMEA 스트림 UDP 포트</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="691"/>
+        <source>Note: This parameter is optional if Basic ID is already set on RID device. On that case, this one will be registered as Basic ID 2</source>
+        <translation>참고: RID 장치에 기본 ID가 이미 설정되어 있으면 이 항목은 선택 사항입니다. 이 경우 이 값은 기본 ID 2로 등록됩니다</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="761"/>
+        <source>Operator ID</source>
+        <translation>운영자 ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> valid</source>
+        <translation> 유효</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> invalid</source>
+        <translation> 유효하지 않음</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="872"/>
+        <source>Self ID</source>
+        <translation>셀프 ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="934"/>
+        <source>Note: Even if this box is unset, QGroundControl will send self ID message if an emergency is set, or after it has been cleared.                                                          The message for each kind of selfID is saved and preserves reboots. Select each type on the Self ID type dropdown to configure the message to be sent</source>
+        <translation>참고: 이 항목을 해제해도 비상 상황이 선언되었거나 해제된 직후에는 QGroundControl이 셀프 ID 메시지를 보냅니다. 셀프 ID 종류별 메시지는 저장되어 재부팅 후에도 유지됩니다. 셀프 ID 유형 드롭다운에서 각 유형을 선택해 보낼 메시지를 설정하세요</translation>
+    </message>
+</context>
 </TS>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

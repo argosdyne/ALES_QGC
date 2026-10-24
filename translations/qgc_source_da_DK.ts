@@ -20788,6 +20788,11 @@ Bekræft ændring?</translation>
         <source>Mock Link</source>
         <translation>Mock Link</translation>
     </message>
+    <message>
+        <location filename="../custom/src/CustomPlugin.cc" line="215"/>
+        <source>Remote ID</source>
+        <translation>Remote ID</translation>
+    </message>
 </context>
 <context>
 
@@ -29371,18 +29376,162 @@ Bekræft ændring?</translation>
       <translation>Modtaget:</translation>
     </message>
   </context>
+<context>
+    <name>RemoteIDSettings</name>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="75"/>
+        <source>Disabled</source>
+        <translation>Deaktiveret</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="76"/>
+        <source>UDP Port</source>
+        <translation>UDP-port</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="162"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="305"/>
+        <source>ARM STATUS</source>
+        <translation>ARMERINGSSTATUS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>RID COMMS</source>
+        <translation>RID-KOMMUNIKATION</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
+        <source>NOT CONNECTED</source>
+        <translation>IKKE FORBUNDET</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="204"/>
+        <source>GCS GPS</source>
+        <translation>GCS-GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="228"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="669"/>
+        <source>BASIC ID</source>
+        <translation>BASIS-ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="252"/>
+        <source>OPERATOR ID</source>
+        <translation>OPERATØR-ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="332"/>
+        <source>Arm status error: </source>
+        <translation>Fejl i armeringsstatus:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="347"/>
+        <source>Region</source>
+        <translation>Region</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="430"/>
+        <source>GPS GCS</source>
+        <translation>GCS-GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="499"/>
+        <source>Latitude Fixed(-90 to 90)</source>
+        <translation>Fast breddegrad (-90 til 90)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="510"/>
+        <source>Longitude Fixed(-180 to 180)</source>
+        <translation>Fast længdegrad (-180 til 180)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="521"/>
+        <source>Altitude Fixed</source>
+        <translation>Fast højde</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="532"/>
+        <source>Latitude</source>
+        <translation>Breddegrad</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="543"/>
+        <source>Longitude</source>
+        <translation>Længdegrad</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="556"/>
+        <source>Altitude</source>
+        <translation>Højde</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="555"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="734"/>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="807"/>
+        <source> (Mandatory)</source>
+        <translation> (påkrævet)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="567"/>
+        <source>Heading</source>
+        <translation>Kurs</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="578"/>
+        <source>Hor. Accuracy</source>
+        <translation>Vandret nøjagtighed</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="603"/>
+        <source>NMEA External GPS Device</source>
+        <translation>Ekstern NMEA-GPS-enhed</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="627"/>
+        <source>Serial &lt;none available&gt;</source>
+        <translation>Seriel &lt;ingen tilgængelig&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="634"/>
+        <source>NMEA GPS Baudrate</source>
+        <translation>NMEA GPS-baudhastighed</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="654"/>
+        <source>NMEA stream UDP port</source>
+        <translation>UDP-port til NMEA-strøm</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="691"/>
+        <source>Note: This parameter is optional if Basic ID is already set on RID device. On that case, this one will be registered as Basic ID 2</source>
+        <translation>Bemærk: Denne parameter er valgfri, hvis basis-ID allerede er indstillet på RID-enheden. I så fald registreres denne som basis-ID 2</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="761"/>
+        <source>Operator ID</source>
+        <translation>Operatør-ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> valid</source>
+        <translation> gyldigt</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="843"/>
+        <source> invalid</source>
+        <translation> ugyldigt</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="872"/>
+        <source>Self ID</source>
+        <translation>Self-ID</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="934"/>
+        <source>Note: Even if this box is unset, QGroundControl will send self ID message if an emergency is set, or after it has been cleared.                                                          The message for each kind of selfID is saved and preserves reboots. Select each type on the Self ID type dropdown to configure the message to be sent</source>
+        <translation>Bemærk: Selv om dette felt ikke er markeret, sender QGroundControl Self-ID-meddelelsen, hvis der erklæres en nødsituation, eller efter at den er ophævet. Meddelelsen for hver Self-ID-type gemmes og bevares efter genstart. Vælg hver type i rullelisten Self-ID-type for at indstille den meddelelse, der skal sendes</translation>
+    </message>
+</context>
 </TS>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
