@@ -250,7 +250,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
         // Only daily builds include full set
         for (int i=0; i<rgOriginalStrings.count(); i++) {
             int languageId = rgOriginalValues[i].toInt();
-            if (!_rgReleaseLanguages.contains(languageId)  || !_rgPartialLanguages.contains(languageId)) {
+            if (!_rgReleaseLanguages.contains(languageId) && !_rgPartialLanguages.contains(languageId)) {
                 rgUpdatedStrings.append(rgOriginalStrings[i] + AppSettings::tr(" (Test only)"));
                 rgUpdatedValues.append(rgOriginalValues[i].toInt());
             }
