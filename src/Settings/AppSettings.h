@@ -144,7 +144,12 @@ public:
     // by QGCApplication::setLanguage to query the language setting as early in the boot process as possible.
     // Specfically prior to any JSON files being loaded such that JSON file can be translated. Also since this
     // is a one-off mechanism custom build overrides for language are not currently supported.
-    static QLocale::Language _qLocaleLanguageID(void);
+    // The value is a QLocale::Language, or one of the language IDs below for languages QLocale::Language cannot express.
+    static int _qLocaleLanguageID(void);
+
+    // qLocaleLanguage value for Traditional Chinese (Taiwan). QLocale::Language alone cannot tell Traditional
+    // from Simplified Chinese, so this uses a value outside the QLocale::Language range.
+    static const int traditionalChineseTaiwanLanguageID = 10000;
 
 signals:
     void savePathsChanged();

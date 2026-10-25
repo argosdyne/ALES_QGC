@@ -402,9 +402,12 @@ void QGCApplication::setLanguage()
     _locale = QLocale::system();
     qDebug() << "System reported locale:" << _locale << "; Name" << _locale.name() << "; Preffered (used in maps): " << (QLocale::system().uiLanguages().length() > 0 ? QLocale::system().uiLanguages()[0] : "None");
 
-    QLocale::Language possibleLocale = AppSettings::_qLocaleLanguageID();
-    if (possibleLocale != QLocale::AnyLanguage) {
-        _locale = QLocale(possibleLocale);
+    int languageID = AppSettings::_qLocaleLanguageID();
+    if (languageID == AppSettings::traditionalChineseTaiwanLanguageID) {
+        //-- Loads the qgc_*_zh_TW translations; QLocale(QLocale::Chinese) alone resolves to zh_CN
+        _locale = QLocale(QLocale::Chinese, QLocale::TraditionalHanScript, QLocale::Taiwan);
+    } else if (languageID != QLocale::AnyLanguage) {
+        _locale = QLocale(static_cast<QLocale::Language>(languageID));
     }
     //-- Portuguese translations are only bundled as qgc_*_pt_PT, while QLocale(Portuguese) and
     //-- Brazilian system locales resolve to pt_BR, so the translator would not find them

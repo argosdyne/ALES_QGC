@@ -50,6 +50,7 @@ const char* AppSettings::geoZoneDirectory = QT_TRANSLATE_NOOP("AppSettings", "Ge
 QList<int> AppSettings::_rgReleaseLanguages = {
     QLocale::AnyLanguage,  // System
     QLocale::Chinese,
+    AppSettings::traditionalChineseTaiwanLanguageID,
     QLocale::English,
     QLocale::Korean,
     QLocale::Azerbaijani,
@@ -414,7 +415,7 @@ void AppSettings::firstRunPromptIdsMarkIdAsShown(int id)
 
 /// Hack to provide language settings as early in the boot process as possible. Must be known
 /// prior to loading any json files.
-QLocale::Language AppSettings::_qLocaleLanguageID(void)
+int AppSettings::_qLocaleLanguageID(void)
 {
     QSettings settings;
 
@@ -432,7 +433,7 @@ QLocale::Language AppSettings::_qLocaleLanguageID(void)
         settings.remove("language");
     }
 
-    QLocale::Language id = settings.value(qLocaleLanguageName, QLocale::AnyLanguage).value<QLocale::Language>();
+    int id = settings.value(qLocaleLanguageName, QLocale::AnyLanguage).toInt();
 #ifndef DAILY_BUILD
     // Stable builds only support released and partial languages, so a language saved by a
     // daily build that is not offered here falls back to the system language
