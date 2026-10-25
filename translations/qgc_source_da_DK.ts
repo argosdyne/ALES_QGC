@@ -21612,12 +21612,12 @@ Bekræft ændring?</translation>
 <message>
         <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="149"/>
         <source>ARM STATUS</source>
-        <translation>ARMERINGSSTATUS</translation>
+        <translation>ARMERING</translation>
     </message>
 <message>
         <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
         <source>RID COMMS</source>
-        <translation>RID-KOMMUNIKATION</translation>
+        <translation>RID-LINK</translation>
     </message>
 <message>
         <location filename="../src/ui/toolbar/RemoteIDIndicator.qml" line="173"/>
@@ -29392,12 +29392,12 @@ Bekræft ændring?</translation>
         <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="162"/>
         <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="305"/>
         <source>ARM STATUS</source>
-        <translation>ARMERINGSSTATUS</translation>
+        <translation>ARMERING</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
         <source>RID COMMS</source>
-        <translation>RID-KOMMUNIKATION</translation>
+        <translation>RID-LINK</translation>
     </message>
     <message>
         <location filename="../src/ui/preferences/RemoteIDSettings.qml" line="186"/>
