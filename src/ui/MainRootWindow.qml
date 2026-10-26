@@ -170,6 +170,14 @@ ApplicationWindow {
         planView.visible = true
     }
 
+    function showPlanMissionUpload() {
+        showPlanView()
+        var plan = globals.planMasterControllerPlanView
+        if (plan && plan.currentPlanFile !== "" && !plan.dirty) {
+            plan.loadFromFile(plan.currentPlanFile)
+        }
+    }
+
     // show GeoZoneMakeView
     function showGeoZoneMakeView(){
         //viewSwitch(toolbar.planViewToolbar)
@@ -190,6 +198,27 @@ ApplicationWindow {
 
     function showSetupTool() {
         showTool(qsTr("Vehicle Setup"), "SetupView.qml", "/qmlimages/Gears.svg")
+    }
+
+    function showSetupMission() {
+        showSetupTool()
+        Qt.callLater(_openSetupMissionPanel)
+    }
+
+    function _openSetupMissionPanel() {
+        var setup = toolDrawerLoader.item
+        var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+        if (!setup || !setup.showVehicleComponentPanel || !vehicle || !vehicle.autopilot) {
+            return
+        }
+        var components = vehicle.autopilot.vehicleComponents
+        for (var i = 0; i < components.length; i++) {
+            var setupSource = components[i].setupSource.toString()
+            if (setupSource.indexOf("APMMissionComponent.qml") !== -1) {
+                setup.showVehicleComponentPanel(components[i])
+                return
+            }
+        }
     }
 
     function showSettingsTool() {
@@ -610,6 +639,11 @@ ApplicationWindow {
         }
     }
 
+
+    MissionResetBanner {
+        width:  0
+        height: 0
+    }
 
     FlyView {
         id:             flightView
