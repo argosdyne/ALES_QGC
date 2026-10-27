@@ -230,12 +230,27 @@ Item {
         }
     }
 
-    Loader {
+    Rectangle {
+        id: tetherPanelContainer
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: _toolsMargin
+        width: ScreenTools.defaultFontPixelWidth * 31
+        height: Math.min(parent.height - ScreenTools.defaultFontPixelHeight * 2,
+                         ScreenTools.defaultFontPixelHeight * 38)
+        color: "#20252b"
+        radius: ScreenTools.defaultFontPixelWidth * 0.7
+        border.color: "#2c343e"
+        border.width: 1
         z: QGroundControl.zOrderTopMost
-        source: "qrc:/qml/ElistairStationPanel.qml"
+        visible: mainWindow.tetherPanelVisible
+        clip: true
+
+        Loader {
+            anchors.fill: parent
+            active: tetherPanelContainer.visible
+            source: "qrc:/qml/ElistairStationPanel.qml"
+        }
     }
 
     // QGCPipOverlay {

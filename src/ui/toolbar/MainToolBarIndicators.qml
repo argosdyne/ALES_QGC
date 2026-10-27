@@ -39,6 +39,13 @@ Row {
         }
     }
 
+    Loader {
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        source:             "qrc:/qml/TetherStatusIndicator.qml"
+        visible:            item && item.visible
+    }
+
     Repeater {
         id:     toolIndicatorsRepeater
         model:  _activeVehicle ? _activeVehicle.toolIndicators : []
