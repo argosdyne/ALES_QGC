@@ -14,6 +14,8 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(QString stationAddress READ stationAddress WRITE setStationAddress NOTIFY connectionSettingsChanged)
     Q_PROPERTY(int stationPort READ stationPort WRITE setStationPort NOTIFY connectionSettingsChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
+    Q_PROPERTY(bool noReply READ noReply NOTIFY connectedChanged)
+    Q_PROPERTY(bool linkLost READ linkLost NOTIFY connectedChanged)
     Q_PROPERTY(bool powerRemote READ powerRemote NOTIFY controlChanged)
     Q_PROPERTY(bool powerOn READ powerOn NOTIFY controlChanged)
     Q_PROPERTY(bool torqueRemote READ torqueRemote NOTIFY controlChanged)
@@ -34,6 +36,8 @@ public:
     QString stationAddress() const { return _stationAddress; }
     int stationPort() const { return _stationPort; }
     bool connected() const { return _connected; }
+    bool noReply() const { return _noReply; }
+    bool linkLost() const { return _linkLost; }
     bool powerRemote() const { return _powerRemote; }
     bool powerOn() const { return _powerOn; }
     bool torqueRemote() const { return _torqueRemote; }
@@ -84,6 +88,8 @@ private:
     int _stationPort = 7158;
     qint64 _lastMonitoringMsecs = 0;
     bool _connected = false;
+    bool _noReply = true;
+    bool _linkLost = false;
     bool _powerRemote = false;
     bool _powerOn = false;
     bool _torqueRemote = false;

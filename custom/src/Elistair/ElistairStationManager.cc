@@ -7,7 +7,8 @@ namespace {
 constexpr quint8 kSync = 0x56;
 constexpr quint8 kLocal = 0xff;
 constexpr int kControlIntervalMsecs = 200;
-constexpr int kResponseTimeoutMsecs = 1000;
+constexpr int kNoReplyTimeoutMsecs = 1000;
+constexpr int kLinkLostTimeoutMsecs = 5000;
 }
 
 ElistairStationManager::ElistairStationManager(QObject* parent)
@@ -123,6 +124,10 @@ void ElistairStationManager::_readDatagrams()
         _socket.readDatagram(frame.data(), frame.size());
         if (_decodeMonitoring(frame)) {
             _lastMonitoringMsecs = QDateTime::currentMSecsSinceEpoch();
+            const bool linkStateChanged = _noReply || _linkLost;
+            _noReply = false;
+            _linkLost = false;
+            if (linkStateChanged) emit connectedChanged();
             _setConnected(true);
         }
     }
@@ -130,9 +135,22 @@ void ElistairStationManager::_readDatagrams()
 
 void ElistairStationManager::_checkTimeout()
 {
-    if (_lastMonitoringMsecs > 0 && QDateTime::currentMSecsSinceEpoch() - _lastMonitoringMsecs > kResponseTimeoutMsecs) {
-        _setConnected(false);
+    const auto now = QDateTime::currentMSecsSinceEpoch();
+    const auto elapsed = _lastMonitoringMsecs > 0 ? now - _lastMonitoringMsecs : kLinkLostTimeoutMsecs + 1;
+    const bool noReply = elapsed > kNoReplyTimeoutMsecs;
+    const bool linkLost = elapsed > kLinkLostTimeoutMsecs;
+
+    if (_noReply != noReply || _linkLost != linkLost) {
+        _noReply = noReply;
+        _linkLost = linkLost;
+        if (_linkLost && (_powerRemote || _torqueRemote)) {
+            _powerRemote = false;
+            _torqueRemote = false;
+            emit controlChanged();
+        }
+        emit connectedChanged();
     }
+    _setConnected(!noReply);
 }
 
 bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)

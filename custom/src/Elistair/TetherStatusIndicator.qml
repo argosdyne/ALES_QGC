@@ -29,7 +29,7 @@ Rectangle {
             width: ScreenTools.defaultFontPixelHeight * 0.72
             height: width
             radius: width / 2
-            color: station.connected ? root.green : root.red
+            color: station.linkLost ? root.red : (station.noReply ? "#d68714" : root.green)
             border.color: "white"
             border.width: 1
         }
@@ -83,11 +83,11 @@ Rectangle {
                     Layout.preferredWidth: statusText.implicitWidth + ScreenTools.defaultFontPixelWidth
                     Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45
                     radius: height / 2
-                    color: station.connected ? root.green : root.red
+                    color: station.linkLost ? root.red : (station.noReply ? "#d68714" : root.green)
                     QGCLabel {
                         id: statusText
                         anchors.centerIn: parent
-                        text: station.connected ? qsTr("CONNECTED") : qsTr("DISCONNECTED")
+                        text: station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : qsTr("CONNECTED"))
                         color: "white"
                         font.family: ScreenTools.demiboldFontFamily
                         font.pointSize: ScreenTools.smallFontPointSize
@@ -106,7 +106,7 @@ Rectangle {
                 QGCLabel { text: qsTr("Station:"); color: root.mutedColor }
                 QGCLabel { text: qsTr("SAFE-T #1 - %1").arg(station.stationAddress); color: "white"; elide: Text.ElideRight; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Link:"); color: root.mutedColor }
-                QGCLabel { text: station.connected ? qsTr("Connected - Ext V1") : qsTr("Disconnected"); color: station.connected ? "white" : root.red; Layout.fillWidth: true }
+                QGCLabel { text: station.linkLost ? qsTr("Lost - reconnecting") : (station.noReply ? qsTr("No reply - waiting") : qsTr("Connected - Ext V1")); color: station.connected ? "white" : root.red; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Authority:"); color: root.mutedColor }
                 QGCLabel { text: station.powerRemote ? qsTr("REMOTE") : qsTr("LOCAL"); color: "white"; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Power:"); color: root.mutedColor }
