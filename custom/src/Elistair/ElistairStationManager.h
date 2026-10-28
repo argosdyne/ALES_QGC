@@ -104,3 +104,5 @@ private:
     QString _alarmSummary = QStringLiteral("No alarms");
     QString _lastError;
 };
+
+Q_DECLARE_METATYPE(ElistairStationManager*)
