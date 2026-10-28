@@ -109,6 +109,7 @@ CustomPlugin::CustomPlugin(QGCApplication *app, QGCToolbox* toolbox)
     _siyiManager = new SiYiManager(app,toolbox);
     _codevRTCMManager = new CodevRTCMManager(app, toolbox);
     _ysManager = new YSManager(app, toolbox);
+    qRegisterMetaType<ElistairStationManager*>("ElistairStationManager*");
     _elistairStationManager = new ElistairStationManager(this);
     _showAdvancedUI = false;
 }
