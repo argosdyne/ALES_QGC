@@ -12,8 +12,8 @@ Rectangle {
     id: root
 
     property var station: QGroundControl.corePlugin.elistairStationManager
-    property color backgroundColor: "#20252b"
-    property color cardColor: "#272d34"
+    property color backgroundColor: "#1f2328"
+    property color cardColor: "#2b3138"
     property color mutedText: "#9ca5b5"
     property color dividerColor: "#3a424d"
     property color green: "#00a77c"
@@ -28,6 +28,8 @@ Rectangle {
                      ScreenTools.defaultFontPixelHeight * 38)
     color: backgroundColor
     opacity: 1.0
+    layer.enabled: true
+    layer.smooth: false
     z: 100000
     radius: ScreenTools.defaultFontPixelWidth * 0.7
     border.color: "#2c343e"
@@ -43,7 +45,7 @@ Rectangle {
     // root Rectangle fill when this file is instantiated through Loader.
     Rectangle {
         anchors.fill: parent
-        color: "#20252b"
+        color: root.backgroundColor
         opacity: 1.0
         z: 100001
     }
@@ -94,13 +96,13 @@ Rectangle {
             QGCLabel { text: qsTr("Authority"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             Rectangle {
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6.4; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.1
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6.4; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
                 color: !station.powerRemote ? localButton : "#343b45"
                 QGCLabel { anchors.centerIn: parent; text: qsTr("LOCAL"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea { anchors.fill: parent; enabled: !station.linkLost; onClicked: station.setPowerRemote(false) }
             }
             Rectangle {
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 7.3; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.1
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 7.3; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
                 color: station.powerRemote ? green : "#343b45"
                 QGCLabel { anchors.centerIn: parent; text: qsTr("REMOTE"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea { anchors.fill: parent; enabled: station.connected && !station.linkLost; onClicked: station.setPowerRemote(true) }
@@ -111,13 +113,13 @@ Rectangle {
             Layout.fillWidth: true
             spacing: ScreenTools.defaultFontPixelWidth * 0.7
             Rectangle {
-                Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.45
+                Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.85
                 color: station.powerOn ? "#59636e" : "#46515d"
                 QGCLabel { anchors.centerIn: parent; text: qsTr("Power ON"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea { anchors.fill: parent; enabled: station.connected && station.powerRemote && !station.powerOn; onClicked: station.setPowerOn(true) }
             }
             Rectangle {
-                Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.45
+                Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.85
                 color: "#343b45"; border.color: danger; border.width: 1
                 QGCLabel { anchors.centerIn: parent; text: qsTr("Power OFF"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea {
@@ -147,20 +149,20 @@ Rectangle {
         Slider {
             id: torqueSlider
             Layout.fillWidth: true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.55
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.15
             from: 0; to: 100; stepSize: 1
             enabled: station.connected && station.torqueRemote
             value: station.torquePercent
             onMoved: station.setTorquePercent(Math.round(value))
             background: Rectangle {
                 x: torqueSlider.leftPadding; y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: torqueSlider.availableWidth; height: ScreenTools.defaultFontPixelHeight * 0.34; radius: height / 2; color: "#69717b"
+                width: torqueSlider.availableWidth; height: ScreenTools.defaultFontPixelHeight * 0.24; radius: height / 2; color: "#69717b"
                 Rectangle { width: torqueSlider.visualPosition * parent.width; height: parent.height; radius: parent.radius; color: root.blue }
             }
             handle: Rectangle {
                 x: torqueSlider.leftPadding + torqueSlider.visualPosition * (torqueSlider.availableWidth - width)
                 y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: ScreenTools.defaultFontPixelHeight * 1.65; height: width; radius: width / 2; color: "#4c5660"; border.color: "white"; border.width: 1
+                width: ScreenTools.defaultFontPixelHeight * 1.15; height: width; radius: width / 2; color: "#4c5660"; border.color: "white"; border.width: 1
             }
         }
 
@@ -169,7 +171,7 @@ Rectangle {
             Repeater {
                 model: [0, 30, 100]
                 delegate: Rectangle {
-                    Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.15
+                    Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
                     color: station.torquePercent === modelData ? green : "#48525d"
                     QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                     MouseArea { anchors.fill: parent; enabled: station.connected && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }

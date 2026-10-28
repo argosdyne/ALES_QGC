@@ -238,9 +238,11 @@ Item {
         width: ScreenTools.defaultFontPixelWidth * 31
         height: Math.min(parent.height - ScreenTools.defaultFontPixelHeight * 2,
                          ScreenTools.defaultFontPixelHeight * 38)
-        color: "#20252b"
+        color: "#1f2328"
+        opacity: 1.0
+        layer.enabled: true
         radius: ScreenTools.defaultFontPixelWidth * 0.7
-        border.color: "#2c343e"
+        border.color: "#38414b"
         border.width: 1
         z: QGroundControl.zOrderTopMost
         visible: mainWindow.tetherPanelVisible

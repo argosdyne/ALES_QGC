@@ -9,11 +9,11 @@ Rectangle {
     id: root
     property var station: QGroundControl.corePlugin.elistairStationManager
     property int page: 0
-    property color card: "#363c43"
+    property color card: "#2b3138"
     property color muted: "#a1a9b8"
     property color teal: "#0aa27e"
-    property real controlHeight: ScreenTools.defaultFontPixelHeight * 2.1
-    color: "#202428"
+    property real controlHeight: ScreenTools.defaultFontPixelHeight * 1.65
+    color: "#1f2328"
     function testConnection() {
         station.stationAddress = address.text.trim()
         station.stationPort = Number(port.text)
@@ -26,13 +26,13 @@ Rectangle {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 12
-            color: "#1d2226"
+            color: "#181c20"
             ColumnLayout {
                 anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * .6
                 Repeater {
                     model: [qsTr("Connection"), qsTr("Settings"), qsTr("Device Info")]
                     delegate: Rectangle {
-                        Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.8
+                        Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.1
                         color: root.page === index ? root.teal : "#505861"
                         QGCLabel { anchors.centerIn: parent; text: modelData; color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                         MouseArea { anchors.fill: parent; onClicked: root.page = index }
