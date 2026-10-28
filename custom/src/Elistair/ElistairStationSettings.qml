@@ -202,17 +202,45 @@ Rectangle {
                     }
                 }
             }
-            Rectangle {
-                color: root.card
-                ColumnLayout { anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 2
-                    QGCLabel { text: qsTr("Device information"); color: "white"; font.pointSize: ScreenTools.largeFontPointSize }
-                    GridLayout { columns: 2; columnSpacing: ScreenTools.defaultFontPixelWidth * 3
-                        QGCLabel { text: qsTr("Model"); color: root.muted }
-                                QGCLabel { text: qsTr("SAFE-T Extended V1"); color: "white" }
-                        QGCLabel { text: qsTr("Station endpoint"); color: root.muted }
-                                QGCLabel { text: station.stationAddress + ":" + station.stationPort; color: "white" }
-                        QGCLabel { text: qsTr("Connection"); color: root.muted }
-                                QGCLabel { text: station.connected ? qsTr("Connected") : qsTr("Disconnected"); color: station.connected ? root.teal : root.muted }
+            Item {
+                id: deviceInfoPage
+                property string serialNumber: station.connected ? qsTr("S/N") : qsTr("Not available")
+                property string deviceText: qsTr("Serial No.: %1\nFW ? Interface board: [x.y]\nFW ? Command board: [x.y]\nFW ? Power board: [x.y]\nFrame version: Ext V1 (auto-detected)\nPowered hours: 312 h\nFlights: 148\nSince maintenance: 46 h / interval [h]").arg(serialNumber)
+                TextEdit { id: deviceInfoCopyBuffer; visible: false; text: deviceInfoPage.deviceText }
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: ScreenTools.defaultFontPixelWidth * 1.3
+                    spacing: ScreenTools.defaultFontPixelHeight * .7
+                    QGCLabel { text: qsTr("Device"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+                    Rectangle {
+                        Layout.preferredWidth: parent.width * .56
+                        Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 15.2
+                        color: root.card
+                        ColumnLayout {
+                            anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * .9
+                            spacing: ScreenTools.defaultFontPixelHeight * .36
+                            GridLayout {
+                                Layout.fillWidth: true; columns: 2
+                                columnSpacing: ScreenTools.defaultFontPixelWidth * 4
+                                rowSpacing: ScreenTools.defaultFontPixelHeight * .3
+                                QGCLabel { text: qsTr("Serial No."); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: deviceInfoPage.serialNumber; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("FW ? Interface board"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: "[x.y]"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("FW ? Command board"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: "[x.y]"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("FW ? Power board"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: "[x.y]"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("Frame version"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: qsTr("Ext V1 (auto-detected)"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("Powered hours"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: "312 h"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("Flights"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: "148"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("Since maintenance"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }; QGCLabel { text: qsTr("46 h / interval [h]"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize }
+                            }
+                            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * .38; radius: height / 2; color: "#20252b"; Rectangle { width: parent.width * .37; height: parent.height; radius: parent.radius; color: root.teal } }
+                        }
+                    }
+                    QGCLabel { Layout.preferredWidth: parent.width * .56; text: qsTr("Maintenance reminder: caution at 90 % of the interval, warning above 100 %. Counter reset is not provided until Elistair defines a frame."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
+                    RowLayout {
+                        Layout.preferredWidth: parent.width * .56
+                        QGCButton { text: qsTr("Copy device info"); Layout.preferredHeight: root.controlHeight; onClicked: { deviceInfoCopyBuffer.selectAll(); deviceInfoCopyBuffer.copy(); deviceInfoCopyBuffer.deselect() } }
+                        Item { Layout.fillWidth: true }
+                        QGCLabel { text: qsTr("Read-only"); color: root.muted; font.pointSize: ScreenTools.smallFontPointSize }
                     }
                 }
             }
