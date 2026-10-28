@@ -97,7 +97,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
             Rectangle {
                 Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6.4; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
-                color: !station.powerRemote ? localButton : "#343b45"
+                color: !station.powerRemote ? (station.linkLost ? localButton : green) : "#343b45"
                 QGCLabel { anchors.centerIn: parent; text: qsTr("LOCAL"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea { anchors.fill: parent; enabled: !station.linkLost; onClicked: station.setPowerRemote(false) }
             }
@@ -114,7 +114,7 @@ Rectangle {
             spacing: ScreenTools.defaultFontPixelWidth * 0.7
             Rectangle {
                 Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.85
-                color: station.powerOn ? "#59636e" : "#46515d"
+                color: station.powerOn ? green : "#46515d"
                 QGCLabel { anchors.centerIn: parent; text: qsTr("Power ON"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea { anchors.fill: parent; enabled: station.connected && station.powerRemote && !station.powerOn; onClicked: station.setPowerOn(true) }
             }
