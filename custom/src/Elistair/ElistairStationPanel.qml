@@ -141,7 +141,7 @@ Rectangle {
             QGCLabel { text: qsTr("Torque"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel {
-                text: qsTr("set %1%% - applied %2%%").arg(station.torquePercent).arg(station.appliedTorquePercent)
+                text: qsTr("set %1% - applied %2%").arg(station.torquePercent).arg(station.appliedTorquePercent)
                 color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize
             }
         }
