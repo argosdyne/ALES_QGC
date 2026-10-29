@@ -114,7 +114,7 @@ Rectangle {
                 QGCLabel { text: qsTr("Tether:"); color: root.mutedColor }
                 QGCLabel { text: qsTr("%1 m / 100.0 m").arg(station.cableLength.toFixed(1)); color: "white"; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Torque:"); color: root.mutedColor }
-                QGCLabel { text: qsTr("set %1%% - applied %2%%").arg(station.torquePercent).arg(station.appliedTorquePercent); color: "white"; Layout.fillWidth: true }
+                QGCLabel { text: qsTr("set %1% - applied %2%").arg(station.torquePercent).arg(station.appliedTorquePercent); color: "white"; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Spool temp:"); color: root.mutedColor }
                 QGCLabel { text: station.spoolTemperature + qsTr(" C"); color: "white"; Layout.fillWidth: true }
                 QGCLabel { text: qsTr("Alarms:"); color: root.mutedColor }
