@@ -1321,13 +1321,23 @@ void TransectStyleComplexItem::_appendWaypoint(QList<MissionItem*>& items, QObje
 
 void TransectStyleComplexItem::_appendSinglePhotoCapture(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum)
 {
+    // Sequence Number (param4) is per-firmware:
+    //   APM : literal 0 is required — NaN here causes a mission upload failure
+    //         to APM (fix for #9230, #9224).
+    //   PX4 : literal 0 causes the camera (BirdCom/Codev) to dedup every shot
+    //         as "sequence 0" and skip after the first photo; NaN lets the
+    //         camera generate its own sequence per shot (works end-to-end).
+    const double sequenceNumber = _controllerVehicle && _controllerVehicle->apmFirmware()
+        ? 0.0
+        : qQNaN();
+
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_IMAGE_START_CAPTURE,
                                         MAV_FRAME_MISSION,
                                         0,                                   // Reserved (Set to 0)
                                         0,                                   // Interval (none)
                                         1,                                   // Take 1 photo
-                                        0,                                   // Sequence Number (0 = not specified)
+                                        sequenceNumber,                      // param4 — see note above
                                         qQNaN(), qQNaN(), qQNaN(),           // param 5-7 reserved
                                         true,                                // autoContinue
                                         false,                               // isCurrentItem
