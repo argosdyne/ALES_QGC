@@ -1192,6 +1192,8 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
                 bool lastExitTurnaround     = coordIndex == _rgFlightPathCoordInfo.count() - 1;
                 if (buildState.addTriggerAtFirstAndLastPoint && (firstEntryTurnaround || lastExitTurnaround)) {
                     itemCount += 2; // Waypoint + camera trigger
+                } else if (hoverAndCaptureEnabled() && triggerCamera()) {
+                    itemCount += 2; // Hover waypoint + single photo capture (matches _buildAndAppendMissionItems)
                 } else {
                     itemCount++; // Waypoint only
                 }
