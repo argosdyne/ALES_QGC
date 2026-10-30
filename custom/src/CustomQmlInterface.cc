@@ -434,7 +434,10 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     , _opacity(1)
     , _customQmlInterface(parent)
     , _yAnimation(nullptr)
+    , _geoAwarenessWidth(0)
+    , _geoAwarenessHeight(0)
     , _geoAwarenessOpacity(1)
+    , _geoAwarenessY(0)
     , _geoAwarenessYAnimation(nullptr)
 {
     QPropertyAnimation *opacityAnimation = new QPropertyAnimation(this, "opacity", this);
@@ -614,6 +617,11 @@ void CustomQmlInterface::_playGeoAwarenessAlert(GeoAwarenessErrorId type)
     if (!_toolbox->settingsManager()->appSettings()->audioMuted()->rawValue().toBool()) {
         _geoAwarenessAlertSound.play();
     }
+    // The TTS engine is forced to en_US on Linux, so translated text cannot be spoken correctly.
+    // Speak only when the UI language is English; other languages get the alert sound only.
+    if (qgcApp()->getCurrentLanguage().language() != QLocale::English) {
+        return;
+    }
     // Speak after the alert sound so the two do not overlap
     QTimer::singleShot(1200, this, [this, spoken]() {
         _toolbox->audioOutput()->say(spoken);
@@ -633,6 +641,18 @@ void SystemMessage::setGeoAwarenessOpacity(const float &opacity)
     emit geoAwarenessOpacityChanged(_geoAwarenessOpacity);
 }
 
+void SystemMessage::setGeoAwarenessDisplayHeight(float height)
+{
+    if (qAbs(_geoAwarenessDisplayHeight - height) < 0.5f) {
+        return;
+    }
+    _geoAwarenessDisplayHeight = height;
+    // Restack with the height actually drawn so wrapped alerts do not overlap the next one
+    if (_customQmlInterface->_geoAwarenessMessages.indexOf(this) >= 0) {
+        _customQmlInterface->_geoAwarenessRefreshSystemMessageUI(false);
+    }
+}
+
 void SystemMessage::setGeoAwarenessY(const float &geoy)
 {
     _geoAwarenessY = geoy;    
@@ -646,9 +666,9 @@ void CustomQmlInterface::_geoAwarenessRefreshSystemMessageUI(bool from)
     float y = _defaultFontPixelHeight * 0.5;
     for(int i = _geoAwarenessMessages.count() - 1; i >= 0; i--) {
         SystemMessage* m = _geoAwarenessMessages.value<SystemMessage*>(i);
-        QPropertyAnimation* animation = from ? m->geoAwarenessCreateYAnimation(y - m->geoAwarenessHeight(), y) : m->geoAwarenessCreateYAnimation(m->y(), y);
+        QPropertyAnimation* animation = from ? m->geoAwarenessCreateYAnimation(y - m->geoAwarenessStackHeight(), y) : m->geoAwarenessCreateYAnimation(m->geoAwarenessY(), y);
         _geoAwarenessGroup.addAnimation(animation);
-        y += m->geoAwarenessHeight() + _defaultFontPixelHeight * 0.5;
+        y += m->geoAwarenessStackHeight() + _defaultFontPixelHeight * 0.5;
     }
     _geoAwarenessGroup.start();
 }

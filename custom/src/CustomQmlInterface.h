@@ -72,6 +72,9 @@ public:
     float geoAwarenessHeight(void) const {return _geoAwarenessHeight; }
     float geoAwarenessOpacity(void) const {return _geoAwarenessOpacity; }
     float geoAwarenessY(void) const {return _geoAwarenessY; }
+    // Stacking uses the height QML actually draws; geoAwarenessHeight is only an estimate
+    float geoAwarenessStackHeight(void) const {return qMax(_geoAwarenessHeight, _geoAwarenessDisplayHeight); }
+    Q_INVOKABLE void setGeoAwarenessDisplayHeight(float height);
     void setGeoAwarenessOpacity(const float& opacity);
     void setGeoAwarenessY(const float& geoy);
     QPropertyAnimation* geoAwarenessCreateYAnimation(QVariant from, QVariant to);    
@@ -111,6 +114,7 @@ private:
     QString _geoAwarenessContext;
     float _geoAwarenessWidth;
     float _geoAwarenessHeight;
+    float _geoAwarenessDisplayHeight{0};
     float _geoAwarenessOpacity;
     float _geoAwarenessY;
     QPropertyAnimation *_geoAwarenessYAnimation;

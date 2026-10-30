@@ -327,6 +327,10 @@ Item {
             x:                  Math.round((_flyViewOverlay.width - width) * 0.5)
             y:                  object.geoAwarenessY
 
+            // Report the drawn height so C++ stacks the alerts without overlap
+            onHeightChanged:        object.setGeoAwarenessDisplayHeight(height)
+            Component.onCompleted:  object.setGeoAwarenessDisplayHeight(height)
+
             QGCLabel {
                 id: geoAwarenessdumyPrefix
                 anchors.verticalCenter: parent.verticalCenter
