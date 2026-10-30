@@ -25,6 +25,8 @@ TextField {
     // makes invalid input unmistakable instead of relying on a colour-only hint.
     property bool   validationError:    false
     property real   textFontPointSize:  ScreenTools.defaultFontPointSize
+    property bool   validationError:    false
+    property color  validationErrorColor: "#c74946"
 
     signal helpClicked
 
