@@ -122,6 +122,7 @@ Item {
     readonly property bool gotoPaused:          gotoProgressActive && gotoProgressMap.gotoProgressPaused
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
+    property bool   _communicationLost:         _activeVehicle && _activeVehicle.vehicleLinkManager.communicationLost
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
     property bool   _enforceChecklist:          _useChecklist && QGroundControl.settingsManager.appSettings.enforceChecklist.rawValue
     property bool   _checklistPassed:           _activeVehicle ? (_useChecklist ? (_enforceChecklist ? _activeVehicle.checkListState === Vehicle.CheckListPassed : true) : true) : true
@@ -160,7 +161,7 @@ Item {
 
     property var    _corePlugin:            QGroundControl.corePlugin
     property var    _corePluginOptions:     QGroundControl.corePlugin.options
-    property bool   _guidedActionsEnabled:  (!ScreenTools.isDebug && _corePluginOptions.guidedActionsRequireRCRSSI && _activeVehicle) ? _rcRSSIAvailable : _activeVehicle
+    property bool   _guidedActionsEnabled:  !_communicationLost && ((!ScreenTools.isDebug && _corePluginOptions.guidedActionsRequireRCRSSI && _activeVehicle) ? _rcRSSIAvailable : _activeVehicle)
     property string _flightMode:            _activeVehicle ? _activeVehicle.flightMode : ""
     property bool   _missionAvailable:      missionController.containsItems
     property bool   _vehicleMissionConfirmed: missionController.vehicleMissionConfirmed
@@ -486,10 +487,10 @@ Item {
             break;
         case actionGoto:
             confirmDialog.title = gotoTitle
-            confirmDialog.message = actionData.coordinate ?
+            confirmDialog.message = actionData && actionData.gotoSummary ? actionData.gotoSummary : (actionData.coordinate ?
                 qsTr("GoTo %1, %2\nAltitude: %3 - %4")
                     .arg(actionData.coordinate.latitude.toFixed(7)).arg(actionData.coordinate.longitude.toFixed(7))
-                    .arg(actionData.altitudeText).arg(QGroundControl.altitudeModeShortDescription(actionData.altitudeMode)) : gotoMessage
+                    .arg(actionData.altitudeText).arg(QGroundControl.altitudeModeShortDescription(actionData.altitudeMode)) : gotoMessage)
             confirmDialog.hideTrigger = Qt.binding(function() {
                 return !showGotoLocation || (actionData.coordinate &&
                     (actionData.vehicle !== _activeVehicle || actionData.vehicle.vehicleLinkManager.communicationLost ||

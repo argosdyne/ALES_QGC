@@ -19,11 +19,14 @@ Item {
     readonly property real enteredLongitude: parseNumber(longitudeField.text)
     readonly property bool coordinatesValid: isFinite(enteredLatitude) && enteredLatitude >= -90 && enteredLatitude <= 90 &&
         isFinite(enteredLongitude) && enteredLongitude >= -180 && enteredLongitude <= 180
-    readonly property string coordinateError: !isFinite(enteredLatitude) || enteredLatitude < -90 || enteredLatitude > 90 ?
-        qsTr("Latitude must be a number between -90 and 90.") :
-        (!isFinite(enteredLongitude) || enteredLongitude < -180 || enteredLongitude > 180 ? qsTr("Longitude must be a number between -180 and 180.") : "")
+    readonly property string latitudeError: !isFinite(enteredLatitude) || enteredLatitude < -90 || enteredLatitude > 90 ?
+        qsTr("Latitude must be between -90 and 90.") : ""
+    readonly property string longitudeError: !isFinite(enteredLongitude) || enteredLongitude < -180 || enteredLongitude > 180 ?
+        qsTr("Longitude must be between -180 and 180.") : ""
+    readonly property string coordinateError: latitudeError || longitudeError
     enabled: !mapControl || !mapControl.gotoConfirmationPending
     readonly property real margin: ScreenTools.defaultFontPixelHeight / 2
+    readonly property color validationColor: "#c74946"
     readonly property var units: QGroundControl.unitsConversion
     readonly property string altitudeUnits: units.appSettingsVerticalDistanceUnitsString
     readonly property bool altitudeSupported: altitudeMode === QGroundControl.AltitudeModeRelative || altitudeMode === QGroundControl.AltitudeModeAbsolute
@@ -96,8 +99,38 @@ Item {
         return true
     }
 
+    function rejectionMessage() {
+        if (geoFenceError.length) {
+            return qsTr("Target is outside the allowed area.")
+        }
+        return coordinateError || altitudeError || distanceError || qsTr("The target is not valid.")
+    }
+
+    function displayDistance(distance) {
+        if (!isFinite(distance)) {
+            return "--"
+        }
+        return distance >= 1000 ? (distance / 1000).toFixed(1) + " km" : distance.toFixed(0) + " m"
+    }
+
+    function displayEta(seconds) {
+        if (!isFinite(seconds) || seconds < 0) {
+            return "--"
+        }
+        var roundedSeconds = Math.round(seconds)
+        var remainingSeconds = (roundedSeconds % 60).toString()
+        return Math.floor(roundedSeconds / 60) + ":" + (remainingSeconds.length < 2 ? "0" : "") + remainingSeconds
+    }
+
     onCurrentAltitudeChanged: initializeAltitude()
     onMapControlChanged: updateCoordinateFields()
+    // Validation bindings can briefly be incomplete while this dialog opens.
+    // Only the Go button reports a rejection; a valid target clears an earlier one.
+    onTargetValidChanged: {
+        if (targetValid && mapControl) {
+            mapControl.gotoRejectionMessage = ""
+        }
+    }
     onAltitudeModeChanged: {
         // An edited value must not silently change meaning when the reference changes.
         altitudeEdited = false
@@ -109,191 +142,241 @@ Item {
         function onGotoDraftCoordinateChanged() { root.updateCoordinateFields() }
     }
 
-    implicitHeight: editorHeader.height + editorColumn.height + footer.height + margin * 3 + 4
+    // 30 character-widths renders at about 230 px on the 432 px mobile reference.
+    implicitWidth: ScreenTools.defaultFontPixelWidth * 30
+    implicitHeight: dialog.implicitHeight
 
     Rectangle {
+        id: dialog
         anchors.fill: parent
-        color: qgcPal.missionItemEditor
-        radius: ScreenTools.defaultFontPixelWidth / 2
-        DeadMouseArea { anchors.fill: parent }
-    }
-
-    Item {
-        id: editorHeader
-        anchors.top: parent.top
-        width: parent.width
-        height: ScreenTools.implicitComboBoxHeight + root.margin
-        QGCLabel {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: ScreenTools.defaultFontPixelWidth / 2
-            anchors.verticalCenter: parent.verticalCenter
-            text: qsTr("GoTo - Target")
-            color: qgcPal.primaryButtonText
-            font.pointSize: ScreenTools.defaultFontPointSize
-        }
-    }
-
-    Rectangle {
-        anchors.top: editorHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: 2
+        implicitHeight: header.height + content.implicitHeight
         color: qgcPal.windowShadeDark
-        radius: ScreenTools.defaultFontPixelWidth / 2
+        border.color: qgcPal.text
+        border.width: 1
+        radius: ScreenTools.defaultFontPixelWidth / 3
+        DeadMouseArea { anchors.fill: parent }
 
-        QGCFlickable {
-            id: editorFlickable
+        RowLayout {
+            id: header
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: footer.top
-            anchors.margins: root.margin
-            contentWidth: width
-            contentHeight: editorColumn.height
-            clip: true
+            height: ScreenTools.implicitComboBoxHeight + root.margin
+            spacing: 0
 
-            ColumnLayout {
-                id: editorColumn
-                width: editorFlickable.width
-                spacing: root.margin
-
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: qgcPal.missionItemEditor
                 QGCLabel {
-                    text: qsTr("Select on the map, drag the target, or enter coordinates.")
-                    font.pointSize: ScreenTools.smallFontPointSize
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                }
-                QGCLabel { text: qsTr("Latitude (deg)"); font.pointSize: ScreenTools.smallFontPointSize }
-                QGCTextField {
-                    id: latitudeField
-                    objectName: "gotoLatitudeField"
-                    Layout.fillWidth: true
-                    numericValuesOnly: true
-                    placeholderText: qsTr("-90 to 90")
-                    onEditingFinished: if (longitudeField.text.trim().length) root.applyCoordinates()
-                }
-                QGCLabel { text: qsTr("Longitude (deg)"); font.pointSize: ScreenTools.smallFontPointSize }
-                QGCTextField {
-                    id: longitudeField
-                    objectName: "gotoLongitudeField"
-                    Layout.fillWidth: true
-                    numericValuesOnly: true
-                    placeholderText: qsTr("-180 to 180")
-                    onEditingFinished: if (latitudeField.text.trim().length) root.applyCoordinates()
-                }
-                QGCLabel {
-                    visible: root.coordinateError.length > 0
-                    text: root.coordinateError
-                    color: qgcPal.warningText
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCLabel {
-                    visible: root.distanceError.length > 0
-                    text: root.distanceError
-                    color: qgcPal.warningText
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCLabel {
-                    visible: root.geoFenceError.length > 0
-                    text: root.geoFenceError
-                    color: qgcPal.warningText
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCLabel {
-                    text: qsTr("Altitude - %1").arg(QGroundControl.altitudeModeShortDescription(root.altitudeMode))
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCTextField {
-                    id: altitudeField
-                    objectName: "gotoAltitudeField"
-                    Layout.fillWidth: true
-                    numericValuesOnly: true
-                    showUnits: true
-                    unitsLabel: root.altitudeUnits
-                    enabled: root.altitudeSupported
-                    onTextChanged: {
-                        if (activeFocus && !root._updatingAltitude) {
-                            root.altitudeEdited = true
-                        }
-                    }
-                }
-                QGCLabel {
-                    text: !root.altitudeSupported ? qsTr("Current altitude is unavailable for this reference.") :
-                        qsTr("Current: %1 %2").arg(isFinite(root.currentAltitude) ? Number(root.units.metersToAppSettingsVerticalDistanceUnits(root.currentAltitude)).toFixed(1) : "--").arg(root.altitudeUnits)
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                QGCLabel {
-                    visible: root.altitudeError.length > 0
-                    text: root.altitudeError
-                    color: qgcPal.warningText
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                Rectangle { Layout.fillWidth: true; height: 1; color: qgcPal.text; opacity: 0.2 }
-                GridLayout {
-                    columns: 2
-                    Layout.fillWidth: true
-                    columnSpacing: root.margin
-                    rowSpacing: root.margin / 2
-                    QGCLabel { text: qsTr("Distance"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
-                    QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.distanceMeters) ? Number(root.units.metersToAppSettingsHorizontalDistanceUnits(root.distanceMeters)).toFixed(0) : "--") + " " + root.units.appSettingsHorizontalDistanceUnitsString }
-                    QGCLabel { text: qsTr("Est. ETA"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
-                    QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.etaSeconds) ? Math.ceil(root.etaSeconds) : "--") + " s" }
-                    QGCLabel { text: qsTr("Altitude change"); Layout.fillWidth: true; font.pointSize: ScreenTools.defaultFontPointSize }
-                    QGCLabel { Layout.alignment: Qt.AlignRight; text: (isFinite(root.altitudeDifference) ? (root.altitudeDifference > 0 ? "+" : "") + Number(root.units.metersToAppSettingsVerticalDistanceUnits(root.altitudeDifference)).toFixed(1) : "--") + " " + root.altitudeUnits }
+                    anchors.left: parent.left
+                    anchors.leftMargin: root.margin
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: qsTr("Go to coordinates")
+                    color: qgcPal.primaryButtonText
+                    font.pointSize: ScreenTools.defaultFontPointSize
                 }
             }
-        }
-
-        GridLayout {
-            id: footer
-            columns: root.width < ScreenTools.defaultFontPixelWidth * 27 ? 1 : 2
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: root.margin
-            columnSpacing: ScreenTools.defaultFontPixelWidth / 2
-            rowSpacing: ScreenTools.defaultFontPixelWidth / 2
             QGCButton {
                 text: qsTr("Cancel")
-                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6
                 onClicked: root.mapControl.cancelGotoSelection()
             }
             QGCButton {
-                text: qsTr("Execute")
+                text: qsTr("Go")
                 objectName: "gotoExecuteButton"
                 primary: true
-                Layout.fillWidth: true
-                enabled: root.mapControl && root.mapControl.gotoAvailable && root.vehicle && root.vehicle.armed && root.vehicle.flying && !root.vehicle.vehicleLinkManager.communicationLost && root.targetValid
+                Layout.fillHeight: true
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 5
+                // Keep the flight-safety gate intact. Target validation is handled on press
+                // so the operator receives a visible rejection instead of a silent disabled button.
+                enabled: root.mapControl && root.mapControl.gotoAvailable && root.vehicle && root.vehicle.armed && root.vehicle.flying && !root.vehicle.vehicleLinkManager.communicationLost
                 onClicked: {
-                    if (root.targetValid && root.applyCoordinates()) {
-                        var target = root.mapControl.gotoDraftCoordinate
-                        var controller = globals.guidedControllerFlyView
-                        controller.confirmAction(controller.actionGoto, {
-                            coordinate: QtPositioning.coordinate(target.latitude, target.longitude, root.targetAMSL),
-                            vehicle: root.vehicle,
-                            map: root.mapControl,
-                            altitudeMode: root.altitudeMode,
-                            altitudeText: root.targetAltitude + " " + root.altitudeUnits
-                        })
-                        root.mapControl.hideGotoTargetEditorForConfirmation()
+                    if (!root.targetValid) {
+                        root.mapControl.showGotoRejection(root.rejectionMessage())
+                        return
                     }
+                    if (!root.applyCoordinates()) {
+                        return
+                    }
+                    var target = root.mapControl.gotoDraftCoordinate
+                    var controller = globals.guidedControllerFlyView
+                    controller.confirmAction(controller.actionGoto, {
+                        coordinate: QtPositioning.coordinate(target.latitude, target.longitude, root.targetAMSL),
+                        vehicle: root.vehicle,
+                        map: root.mapControl,
+                        altitudeMode: root.altitudeMode,
+                        altitudeText: root.targetAltitude + " " + root.altitudeUnits,
+                        gotoSummary: qsTr("Go to location: %1 · ETA %2").arg(root.displayDistance(root.distanceMeters)).arg(root.displayEta(root.etaSeconds))
+                    })
+                    root.mapControl.hideGotoTargetEditorForConfirmation()
                 }
             }
         }
-    }
 
+        ColumnLayout {
+            id: content
+            anchors.top: header.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: root.margin
+            spacing: root.margin
+
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                columnSpacing: root.margin
+                rowSpacing: root.margin / 2
+
+                QGCLabel {
+                    text: qsTr("Latitude")
+                    Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 12
+                    Layout.alignment: Qt.AlignTop
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: latitudeField.implicitHeight + 2
+                        color: "transparent"
+                        border.width: root.latitudeError.length ? 1 : 0
+                        border.color: root.validationColor
+                        QGCTextField {
+                            id: latitudeField
+                            objectName: "gotoLatitudeField"
+                            anchors.fill: parent
+                            anchors.margins: root.latitudeError.length ? 1 : 0
+                            numericValuesOnly: true
+                            validationError: root.latitudeError.length > 0
+                            validationErrorColor: root.validationColor
+                            placeholderText: qsTr("-90 to 90")
+                            onEditingFinished: if (longitudeField.text.trim().length) root.applyCoordinates()
+                        }
+                    }
+                    QGCLabel {
+                        Layout.fillWidth: true
+                        visible: root.latitudeError.length > 0
+                        text: root.latitudeError
+                        color: root.validationColor
+                        wrapMode: Text.WordWrap
+                        font.pointSize: ScreenTools.smallFontPointSize
+                    }
+                }
+
+                QGCLabel { text: qsTr("Longitude"); Layout.alignment: Qt.AlignTop }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: longitudeField.implicitHeight + 2
+                        color: "transparent"
+                        border.width: root.longitudeError.length ? 1 : 0
+                        border.color: root.validationColor
+                        QGCTextField {
+                            id: longitudeField
+                            objectName: "gotoLongitudeField"
+                            anchors.fill: parent
+                            anchors.margins: root.longitudeError.length ? 1 : 0
+                            numericValuesOnly: true
+                            validationError: root.longitudeError.length > 0
+                            validationErrorColor: root.validationColor
+                            placeholderText: qsTr("-180 to 180")
+                            onEditingFinished: if (latitudeField.text.trim().length) root.applyCoordinates()
+                        }
+                    }
+                    QGCLabel {
+                        Layout.fillWidth: true
+                        visible: root.longitudeError.length > 0
+                        text: root.longitudeError
+                        color: root.validationColor
+                        wrapMode: Text.WordWrap
+                        font.pointSize: ScreenTools.smallFontPointSize
+                    }
+                }
+
+                QGCLabel { text: qsTr("Altitude"); Layout.alignment: Qt.AlignTop }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: altitudeField.implicitHeight + 2
+                        color: "transparent"
+                        border.width: root.altitudeError.length ? 1 : 0
+                        border.color: root.validationColor
+                        QGCTextField {
+                            id: altitudeField
+                            objectName: "gotoAltitudeField"
+                            anchors.fill: parent
+                            anchors.margins: root.altitudeError.length ? 1 : 0
+                            numericValuesOnly: true
+                            validationError: root.altitudeError.length > 0
+                            validationErrorColor: root.validationColor
+                            showUnits: true
+                            unitsLabel: root.altitudeUnits
+                            enabled: root.altitudeSupported
+                            onTextChanged: {
+                                if (activeFocus && !root._updatingAltitude) {
+                                    root.altitudeEdited = true
+                                }
+                            }
+                        }
+                    }
+                    QGCLabel {
+                        Layout.fillWidth: true
+                        visible: root.altitudeError.length > 0
+                        text: root.altitudeError
+                        color: root.validationColor
+                        wrapMode: Text.WordWrap
+                        font.pointSize: ScreenTools.smallFontPointSize
+                    }
+                }
+
+                QGCLabel { text: qsTr("Altitude reference") }
+                QGCLabel {
+                    Layout.fillWidth: true
+                    text: qsTr("%1 (Application Settings)").arg(QGroundControl.altitudeModeShortDescription(root.altitudeMode))
+                    color: qgcPal.buttonText
+                    opacity: 0.65
+                    elide: Text.ElideRight
+                }
+            }
+
+            QGCLabel {
+                visible: root.distanceError.length > 0
+                Layout.fillWidth: true
+                text: root.distanceError
+                color: qgcPal.warningText
+                wrapMode: Text.WordWrap
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+            QGCLabel {
+                visible: root.geoFenceError.length > 0
+                Layout.fillWidth: true
+                text: root.geoFenceError
+                color: qgcPal.warningText
+                wrapMode: Text.WordWrap
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+            QGCLabel {
+                Layout.fillWidth: true
+                text: qsTr("Decimal degrees (WGS84). The altitude reference follows the GCS setting and cannot be changed here.")
+                color: qgcPal.buttonText
+                opacity: 0.65
+                wrapMode: Text.WordWrap
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+            QGCLabel {
+                Layout.fillWidth: true
+                text: qsTr("Tip: the same values are prefilled when the dialog is opened from a map tap.")
+                color: qgcPal.buttonText
+                opacity: 0.65
+                wrapMode: Text.WordWrap
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+        }
+    }
 }

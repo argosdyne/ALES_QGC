@@ -22,6 +22,8 @@ TextField {
     property string extraUnitsLabel:    ""
     property bool   numericValuesOnly:  false   // true: Used as hint for mobile devices to show numeric only keyboard
     property real   textFontPointSize:  ScreenTools.defaultFontPointSize
+    property bool   validationError:    false
+    property color  validationErrorColor: "#c74946"
 
     signal helpClicked
 
@@ -73,7 +75,7 @@ TextField {
             Rectangle {
                 anchors.fill:           parent
                 border.width:           enabled ? 1 : 0
-                border.color:           root.activeFocus ? "#47b" : "#999"
+                border.color:           root.validationError ? root.validationErrorColor : (root.activeFocus ? "#47b" : "#999")
                 color:                  qgcPal.textField
             }
 

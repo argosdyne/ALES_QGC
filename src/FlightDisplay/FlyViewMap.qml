@@ -47,12 +47,16 @@ FlightMap {
     property bool   gotoTargetEditorVisible:    false
     property bool   gotoEditorHiddenForConfirmation: false
     property bool   gotoProgressActive:         false
+    property string gotoRejectionMessage:       ""
     readonly property bool gotoConfirmationPending: !!(globals.guidedControllerFlyView &&
         globals.guidedControllerFlyView.confirmDialog && globals.guidedControllerFlyView.confirmDialog.visible &&
         globals.guidedControllerFlyView.confirmDialog.actionData &&
         globals.guidedControllerFlyView.confirmDialog.actionData.map === _root)
     property var    gotoDraftCoordinate:        QtPositioning.coordinate()
     property var    gotoProgressCoordinate:     QtPositioning.coordinate()
+    // Snapshot the vehicle position when this GoTo starts. The progress panel
+    // uses it for the completed Trip distance, not the vehicle's live position.
+    property var    gotoProgressStartCoordinate: QtPositioning.coordinate()
     property int    gotoProgressAltitudeMode:   QGroundControl.AltitudeModeRelative
     property bool   gotoArrivalConfirmed:       false
     readonly property bool gotoProgressPaused:   gotoProgressActive && _activeVehicle && _activeVehicle.flightMode === _activeVehicle.pauseFlightMode
@@ -83,10 +87,26 @@ FlightMap {
         setGotoDraftCoordinate(coordinate, false)
     }
 
+    function showGotoRejection(message) {
+        gotoRejectionMessage = message
+        gotoRejectionTimer.restart()
+    }
+
+    Timer {
+        id: gotoRejectionTimer
+        interval: 5000
+        repeat: false
+        onTriggered: _root.gotoRejectionMessage = ""
+    }
+
     onGotoAvailableChanged: {
         if (!gotoAvailable) {
             cancelGotoSelection()
-            clearGotoProgress()
+            // A lost data link disables GoTo input, but the in-progress panel must
+            // retain its target and last known values until telemetry returns.
+            if (!(_activeVehicle && _activeVehicle.vehicleLinkManager.communicationLost)) {
+                clearGotoProgress()
+            }
         }
     }
 
@@ -132,6 +152,7 @@ FlightMap {
     function clearGotoProgress() {
         gotoProgressActive = false
         gotoProgressCoordinate = QtPositioning.coordinate()
+        gotoProgressStartCoordinate = QtPositioning.coordinate()
         gotoArrivalConfirmed = false
         gotoProgressTermination = ""
         gotoTerminationTimer.stop()
@@ -156,6 +177,9 @@ FlightMap {
 
     function completeGotoSelection(coordinate, altitudeMode) {
         gotoLocationItem.show(coordinate)
+        gotoProgressStartCoordinate = _activeVehicle && _activeVehicle.coordinate.isValid ?
+                    QtPositioning.coordinate(_activeVehicle.coordinate.latitude, _activeVehicle.coordinate.longitude) :
+                    QtPositioning.coordinate()
         gotoProgressCoordinate = coordinate
         gotoProgressAltitudeMode = altitudeMode
         gotoArrivalConfirmed = false
@@ -630,15 +654,6 @@ FlightMap {
         }
 
         property bool arrived: false
-        property bool inGotoFlightMode: _activeVehicle ? _activeVehicle.flightMode === _activeVehicle.gotoFlightMode : false
-
-        onInGotoFlightModeChanged: {
-            if (!inGotoFlightMode && gotoLocationItem.visible) {
-                // Hide goto indicator when vehicle falls out of guided mode
-                gotoLocationItem.visible = false
-            }
-        }
-
         Connections {
             target: QGroundControl.multiVehicleManager
             function onActiveVehicleChanged(activeVehicle) {
@@ -663,7 +678,7 @@ FlightMap {
         }
 
         function actionConfirmed() {
-            // We leave the indicator visible. The handling for onInGuidedModeChanged will hide it.
+            // Keep the target visible until GoTo is explicitly replaced or terminated.
         }
 
         function actionCancelled() {
@@ -795,7 +810,6 @@ FlightMap {
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
                 (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
                 orbitMapCircle.hide()
-                gotoLocationItem.hide()
                 var clickCoord = _root.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
                 var mapClickMenu = popupMenuComponent.createObject(_root, { coord: clickCoord, contentItemComponent: mapClickMenuComponent })
                 mapClickMenu.setPosition(mouse.x, mouse.y)

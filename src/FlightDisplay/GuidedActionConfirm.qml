@@ -37,6 +37,7 @@ Rectangle {
 
     property real _margins:         ScreenTools.defaultFontPixelWidth / 2
     property bool _emergencyAction: action === guidedController.actionEmergencyStop
+    readonly property bool _gotoConfirmation: action === guidedController.actionGoto && actionData && actionData.gotoSummary
 
     Component.onCompleted: guidedController.confirmDialog = this
 
@@ -92,6 +93,16 @@ Rectangle {
         QGCLabel {
             id:                     messageText
             Layout.fillWidth:       true
+            horizontalAlignment:    Text.AlignHCenter
+            wrapMode:               Text.WordWrap
+            font.pointSize:         ScreenTools.mediumFontPointSize
+        }
+
+        QGCLabel {
+            Layout.fillWidth:       true
+            visible:                _root._gotoConfirmation
+            text:                   qsTr("⚠ This vehicle cannot detect obstacles.")
+            color:                  qgcPal.colorOrange
             horizontalAlignment:    Text.AlignHCenter
             wrapMode:               Text.WordWrap
             font.pointSize:         ScreenTools.mediumFontPointSize

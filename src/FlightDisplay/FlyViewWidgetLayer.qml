@@ -54,8 +54,8 @@ Item {
         leftEdgeTopInset:       toolStrip.leftEdgeTopInset
         leftEdgeCenterInset:    parentToolInsets.leftEdgeCenterInset
         leftEdgeBottomInset:    virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.leftEdgeBottomInset : parentToolInsets.leftEdgeBottomInset
-        rightEdgeTopInset:      Math.max(instrumentPanel.rightEdgeTopInset, gotoTargetEditor.rightEdgeInset, gotoProgressPanel.rightEdgeInset)
-        rightEdgeCenterInset:   Math.max(telemetryPanel.rightEdgeCenterInset, photoVideoControl.rightEdgeCenterInset, gotoTargetEditor.rightEdgeInset, gotoProgressPanel.rightEdgeInset)
+        rightEdgeTopInset:      Math.max(instrumentPanel.rightEdgeTopInset, gotoProgressPanel.rightEdgeInset)
+        rightEdgeCenterInset:   Math.max(telemetryPanel.rightEdgeCenterInset, photoVideoControl.rightEdgeCenterInset, gotoProgressPanel.rightEdgeInset)
         rightEdgeBottomInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.rightEdgeBottomInset : parentToolInsets.rightEdgeBottomInset
         topEdgeLeftInset:       toolStrip.topEdgeLeftInset
         topEdgeCenterInset:     mapScale.topEdgeCenterInset
@@ -63,6 +63,67 @@ Item {
         bottomEdgeLeftInset:    virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeLeftInset : parentToolInsets.bottomEdgeLeftInset
         bottomEdgeCenterInset:  telemetryPanel.bottomEdgeCenterInset
         bottomEdgeRightInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeRightInset : parentToolInsets.bottomEdgeRightInset
+    }
+
+    Rectangle {
+        id: gotoRejectionToast
+        anchors.top: parent.top
+        border.color: "#d9dce0"
+        border.width: 1
+        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.75
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(parent.width * 0.70, ScreenTools.defaultFontPixelWidth * 44)
+        height: Math.max(ScreenTools.defaultFontPixelHeight * 2.4,
+                         rejectionContent.implicitHeight + ScreenTools.defaultFontPixelHeight)
+        visible: mapControl.gotoRejectionMessage.length > 0
+        color: "white"
+        radius: ScreenTools.defaultFontPixelWidth / 2
+        z: QGroundControl.zOrderWidgets + 2
+
+        Rectangle {
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: ScreenTools.defaultFontPixelWidth * 0.65
+            color: "#e53935"
+            radius: parent.radius
+        }
+
+        RowLayout {
+            id: rejectionContent
+            anchors.fill: parent
+            anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 1.1
+            anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.8
+            spacing: ScreenTools.defaultFontPixelWidth * 0.65
+
+            Text {
+                text: "⚠"
+                color: "#e53935"
+                font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.35
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            QGCLabel {
+                Layout.fillWidth: true
+                text: qsTr("GoTo blocked") + " · " + mapControl.gotoRejectionMessage
+                color: "#3f464c"
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Text {
+                id: closeRejectionText
+                text: "×"
+                color: "#727980"
+                font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.35
+                verticalAlignment: Text.AlignVCenter
+                MouseArea {
+                    anchors.margins: -ScreenTools.defaultFontPixelWidth / 2
+                    anchors.fill: parent
+                    onClicked: mapControl.gotoRejectionMessage = ""
+                }
+            }
+        }
     }
 
     FlyViewMissionCompleteDialog {
@@ -157,7 +218,7 @@ Item {
         id:                         instrumentPanel
         anchors.margins:            _toolsMargin
         anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
-        anchors.right:              gotoTargetEditor.visible ? gotoTargetEditor.left : (gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right)
+        anchors.right:              gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
         visible:                    QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -203,7 +264,7 @@ Item {
     //-- Audio Control
     AudioControl {
         anchors.margins: _toolsMargin
-        anchors.right: gotoTargetEditor.visible ? gotoTargetEditor.left : (gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right)
+        anchors.right: gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right
         width: _rightPanelWidth
         anchors.top: parent.top
         visible: QGroundControl.settingsManager.flyViewSettings.enableAudioController.value &&
@@ -349,25 +410,13 @@ Item {
         active: _mainWindowIsMap && mapControl.gotoSelectionEnabled && mapControl.gotoTargetEditorVisible
         visible: active
         source: "qrc:/qml/GoToTargetEditor.qml"
-        anchors.right: parent.right
-        anchors.rightMargin: _toolsMargin
-        y: multiVehiclePanelSelector.visible ?
-               multiVehiclePanelSelector.y + multiVehiclePanelSelector.height + _toolsMargin : _toolsMargin
-        width: Math.min(parent.width / 3, ScreenTools.defaultFontPixelWidth * 30)
-        readonly property real _availableBottom: {
-            var bottom = parent.height - Math.max(parentToolInsets.bottomEdgeRightInset,
-                                                  telemetryPanel.bottomEdgeCenterInset) - _toolsMargin
-            if (telemetryPanel.visible && !telemetryPanel.bottomMode) {
-                bottom = Math.min(bottom, telemetryPanel.y - _toolsMargin)
-            }
-            if (opticalFlowControl.visible) {
-                bottom = Math.min(bottom, opticalFlowControl.y - _toolsMargin)
-            }
-            return bottom
-        }
-        height: Math.max(0, Math.min(item ? item.implicitHeight : 0,
-                                   _availableBottom - y))
-        readonly property real rightEdgeInset: visible ? width + _toolsMargin : 0
+        // G-01b is a compact centred map dialog placed below the flight toolbar.
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: parent.height * 0.20
+        width: Math.min(parent.width - _toolsMargin * 2,
+                        Math.max(ScreenTools.defaultFontPixelWidth * 30, parent.width * 0.53))
+        height: Math.min(parent.height - _toolsMargin * 2, item ? item.implicitHeight : 0)
+        readonly property real rightEdgeInset: 0
         z: QGroundControl.zOrderWidgets + 1
         onLoaded: {
             item.mapControl = mapControl
