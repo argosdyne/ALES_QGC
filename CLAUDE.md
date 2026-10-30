@@ -58,6 +58,23 @@ ARGOSDYNE customization lives in two places:
 
 For UI work (including implementing Figma designs), see `.claude/rules/figma-design-system.md`. It covers QGCPalette color tokens, ScreenTools sizing, component modules, assets and icons.
 
+## Translations
+
+Every `translations/qgc_*.ts` is compiled and embedded by qmake (`TRANSLATIONS` + `CONFIG+=lrelease embed_translations` in `qgroundcontrol.pro`). `QGCApplication.cc` loads two translators per locale from `:/i18n`:
+- `qgc_source_<locale>.ts`: `tr()`/`qsTr()` strings from C++ and QML
+- `qgc_json_<locale>.ts`: strings from `*.json` metadata (FactMetaData, MAVCmdInfo). The context is the JSON file name, and the keys come from `translateKeys`. See `translations/README.md`.
+
+Source catalogs are regenerated with `translations/qgc-lupdate.sh` (`lupdate ../src` plus `qgc-lupdate-json.py`). Its `QT_PATH` is hard-coded for macOS.
+
+To add a UI language:
+1. Add the `.ts` pair.
+2. Add the entry to `qLocaleLanguage` `enumStrings`/`enumValues` in `src/Settings/App.SettingsGroup.json`. The values are `QLocale::Language` numbers.
+3. Add the language to `AppSettings::_rgReleaseLanguages` or `_rgPartialLanguages` (`src/Settings/AppSettings.cc`). Stable builds hide any language that is in neither list.
+
+The whole `enumStrings` value is one translation key. Editing it changes the source string in every `qgc_json_*.ts`, so update all of them, or existing translations of the language list stop matching.
+
+Vehicle status texts that contain values (e.g. "Compass 2 not calibrated") are translated in `src/uas/StatusTextTranslator`. It matches them against the printf-style `UASWarning` keys listed in `src/uas/UASWarningPatterns.h`. That header is generated: rerun `python3 tools/generate_uaswarning_patterns.py` (it reads `qgc_source_ko_KR.ts`) after adding `UASWarning` strings with placeholders.
+
 ## Versioning
 
 The user-visible version is hard-coded in `QGroundControlQmlGlobal::qgcVersion()` (`src/QmlControls/QGroundControlQmlGlobal.cc`, e.g. `"V01.29.00"`). A version bump also updates the release branch name in the `push.branches` trigger of `.github/workflows/windows_release.yml`. `CUSTOM_QGC_VERSION` in `custom/custom.pri` is separate and not the displayed version.
