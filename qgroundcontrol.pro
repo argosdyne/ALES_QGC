@@ -609,8 +609,8 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         #src/qgcunittest/MessageBoxTest.cc \
 
     CustomBuild {
-        HEADERS += custom/src/GeoAwarenessAlertTest.h
-        SOURCES += custom/src/GeoAwarenessAlertTest.cc
+        HEADERS += custom/src/GeoAwarenessAlertTest.h custom/src/CustomResourcesTest.h
+        SOURCES += custom/src/GeoAwarenessAlertTest.cc custom/src/CustomResourcesTest.cc
     }
 
 } } } } } }
