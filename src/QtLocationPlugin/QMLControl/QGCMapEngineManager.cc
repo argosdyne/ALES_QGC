@@ -229,6 +229,21 @@ QGCMapEngineManager::mapProviderList()
     return mapList;
 }
 
+QStringList
+QGCMapEngineManager::elevationProviderList()
+{
+    QStringList names;
+    UrlFactory* factory = getQGCMapEngine()->urlFactory();
+    const QHash<QString, MapProvider*> table = factory->getProviderTable();
+    for (auto it = table.constBegin(); it != table.constEnd(); ++it) {
+        if (it.value() && it.value()->_isElevationProvider()) {
+            names.append(it.key());
+        }
+    }
+    names.sort();
+    return names;
+}
+
 //-----------------------------------------------------------------------------
 QStringList
 QGCMapEngineManager::mapTypeList(QString provider)

@@ -23,7 +23,18 @@
 #include "TerrainTile.h"
 
 #include <QSettings>
+#include <QNetworkReply>
 #include <math.h>
+
+static bool downloadedTileIsImage(const QByteArray& image)
+{
+    static const unsigned char pngSig[]  = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    static const unsigned char jpegSig[] = {0xFF, 0xD8, 0xFF};
+    static const unsigned char gifSig[]  = {0x47, 0x49, 0x46, 0x38};
+    return image.startsWith(QByteArray(reinterpret_cast<const char*>(pngSig), int(sizeof(pngSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(jpegSig), int(sizeof(jpegSig))))
+        || image.startsWith(QByteArray(reinterpret_cast<const char*>(gifSig), int(sizeof(gifSig))));
+}
 
 QGC_LOGGING_CATEGORY(QGCCachedTileSetLog, "QGCCachedTileSetLog")
 
@@ -223,6 +234,95 @@ void QGCCachedTileSet::_doneWithDownload()
 }
 
 //-----------------------------------------------------------------------------
+void
+QGCCachedTileSet::_storeDownloadedTile(const QString& hash, const QString& type, const QByteArray& image, const QString& format)
+{
+    QString storedFormat = format;
+    if (storedFormat.isEmpty()) {
+        storedFormat = getQGCMapEngine()->urlFactory()->getImageFormat(type, image);
+    }
+    if (storedFormat.isEmpty()) {
+        return;
+    }
+    getQGCMapEngine()->cacheTile(type, hash, image, storedFormat, _id);
+    QGCUpdateTileDownloadStateTask* task = new QGCUpdateTileDownloadStateTask(_id, QGCTile::StateComplete, hash);
+    getQGCMapEngine()->addTask(task);
+    _savedTileSize += image.size();
+    _savedTileCount++;
+    emit savedTileSizeChanged();
+    emit savedTileCountChanged();
+    if (_savedTileCount % 10 == 0) {
+        quint32 avg = _savedTileSize / _savedTileCount;
+        _totalTileSize  = avg * _totalTileCount;
+        _uniqueTileSize = avg * _uniqueTileCount;
+        emit totalTilesSizeChanged();
+        emit uniqueTileSizeChanged();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void
+QGCCachedTileSet::_failHybridOverlayDownload(const QString& hash)
+{
+    // Leave the satellite image out of the Hybrid set so a later download requests the label again.
+    if (hash.isEmpty()) {
+        return;
+    }
+    _errorCount++;
+    emit errorCountChanged();
+    QGCUpdateTileDownloadStateTask* task = new QGCUpdateTileDownloadStateTask(_id, QGCTile::StateError, hash);
+    getQGCMapEngine()->addTask(task);
+}
+
+//-----------------------------------------------------------------------------
+bool
+QGCCachedTileSet::_startHybridOverlay(const QString& hash, const QByteArray& baseImage)
+{
+    if (hash.length() != 29 || !downloadedTileIsImage(baseImage)) {
+        return false;
+    }
+    const QString type = getQGCMapEngine()->hashToType(hash);
+    const QHash<QString, MapProvider*> providers = getQGCMapEngine()->urlFactory()->getProviderTable();
+    MapProvider* provider = providers.value(type, nullptr);
+    if (!provider) {
+        return false;
+    }
+    const int x = hash.mid(10, 8).toInt();
+    const int y = hash.mid(18, 8).toInt();
+    const int zoom = hash.mid(26, 3).toInt();
+    const QString overlayUrl = provider->overlayTileUrl(x, y, zoom);
+    if (overlayUrl.isEmpty() || !_networkManager) {
+        return false;
+    }
+    _hybridBaseImages.insert(hash, baseImage);
+    _hybridOverlayPending.insert(hash);
+    const QUrl tileUrl(overlayUrl);
+    QNetworkRequest request(tileUrl);
+    request.setRawHeader(QByteArrayLiteral("Accept"), QByteArrayLiteral("*/*"));
+    request.setRawHeader(QByteArrayLiteral("Referrer"), QByteArrayLiteral("www.vworld.kr"));
+    request.setRawHeader(QByteArrayLiteral("User-Agent"), QByteArray());
+    request.setAttribute(QNetworkRequest::CookieLoadControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::CookieSaveControlAttribute, QNetworkRequest::Manual);
+    request.setAttribute(QNetworkRequest::User, hash);
+#if !defined(__mobile__)
+    QNetworkProxy proxy = _networkManager->proxy();
+    QNetworkProxy tProxy;
+    tProxy.setType(QNetworkProxy::DefaultProxy);
+    _networkManager->setProxy(tProxy);
+#endif
+    QNetworkReply* reply = _networkManager->get(request);
+    reply->setParent(nullptr);
+    QGCFileDownload::setIgnoreSSLErrorsIfNeeded(*reply);
+    connect(reply, &QNetworkReply::finished, this, &QGCCachedTileSet::_networkReplyFinished);
+    connect(reply, &QNetworkReply::errorOccurred, this, &QGCCachedTileSet::_networkReplyError);
+    _replies.insert(hash, reply);
+#if !defined(__mobile__)
+    _networkManager->setProxy(proxy);
+#endif
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 void QGCCachedTileSet::_prepareDownload()
 {
     if(!_tilesToDownload.count()) {
@@ -292,25 +392,27 @@ QGCCachedTileSet::_networkReplyFinished()
             if (type == UrlFactory::kCopernicusElevationProviderKey) {
                 image = TerrainTile::serializeFromAirMapJson(image);
             }
-            QString format = getQGCMapEngine()->urlFactory()->getImageFormat(type, image);
-            if(!format.isEmpty()) {
-                //-- Cache tile
-                getQGCMapEngine()->cacheTile(type, hash, image, format, _id);
-                QGCUpdateTileDownloadStateTask* task = new QGCUpdateTileDownloadStateTask(_id, QGCTile::StateComplete, hash);
-                getQGCMapEngine()->addTask(task);
-                //-- Updated cached (downloaded) data
-                _savedTileSize += image.size();
-                _savedTileCount++;
-                emit savedTileSizeChanged();
-                emit savedTileCountChanged();
-                //-- Update estimate
-                if(_savedTileCount % 10 == 0) {
-                    quint32 avg = _savedTileSize / _savedTileCount;
-                    _totalTileSize  = avg * _totalTileCount;
-                    _uniqueTileSize = avg * _uniqueTileCount;
-                    emit totalTilesSizeChanged();
-                    emit uniqueTileSizeChanged();
+            if (_hybridOverlayPending.contains(hash)) {
+                _hybridOverlayPending.remove(hash);
+                const QByteArray baseImage = _hybridBaseImages.take(hash);
+                const QByteArray composed = composeMapOverlay(baseImage, image);
+                if (!composed.isEmpty()) {
+                    _storeDownloadedTile(hash, type, composed, QStringLiteral("png"));
+                } else {
+                    static bool loggedUnavailable = false;
+                    if (!loggedUnavailable) {
+                        loggedUnavailable = true;
+                        qWarning() << "VWorld: hybrid overlay unavailable";
+                    }
+                    _failHybridOverlayDownload(hash);
                 }
+            } else if (_startHybridOverlay(hash, image)) {
+                reply->deleteLater();
+                _prepareDownload();
+                return;
+            } else {
+                QString format = getQGCMapEngine()->urlFactory()->getImageFormat(type, image);
+                _storeDownloadedTile(hash, type, image, format);
             }
             //-- Setup a new download
             _prepareDownload();
@@ -330,11 +432,27 @@ QGCCachedTileSet::_networkReplyError(QNetworkReply::NetworkError error)
     if (!reply) {
         return;
     }
+    //-- Get tile hash
+    QString hash = reply->request().attribute(QNetworkRequest::User).toString();
+    if (_hybridOverlayPending.contains(hash)) {
+        _hybridOverlayPending.remove(hash);
+        _hybridBaseImages.remove(hash);
+        if (_replies.contains(hash)) {
+            _replies.remove(hash);
+        }
+        static bool loggedUnavailable = false;
+        if (!loggedUnavailable) {
+            loggedUnavailable = true;
+            qWarning() << "VWorld: hybrid overlay unavailable";
+        }
+        _failHybridOverlayDownload(hash);
+        _prepareDownload();
+        reply->deleteLater();
+        return;
+    }
     //-- Update error count
     _errorCount++;
     emit errorCountChanged();
-    //-- Get tile hash
-    QString hash = reply->request().attribute(QNetworkRequest::User).toString();
     qCDebug(QGCCachedTileSetLog) << "Error fetching tile" << reply->errorString();
     if(!hash.isEmpty()) {
         if(_replies.contains(hash)) {

@@ -178,6 +178,7 @@ Item {
                                     QGCLabel { text: qsTr("Voltage") }
                                     QGCLabel { text: qsTr("Consumed");      visible: true }
                                     QGCLabel { text: qsTr("Temperature");   visible: true }
+                                    QGCLabel { text: qsTr("Cycle Count");   visible: true }
                                     QGCLabel { text: qsTr("Function");      visible: true }
                                 }
                             }
@@ -213,6 +214,7 @@ Item {
                                     QGCLabel { text: object.voltage.valueString + " " + object.voltage.units }
                                     QGCLabel { text: object.mahConsumed.valueString + " " + object.mahConsumed.units; visible: true }
                                     QGCLabel { text: object.temperature.valueString + " " + object.temperature.units; visible: true }
+                                    QGCLabel { text: object.cycleCount.valueString + " " + object.cycleCount.units; visible: true }
                                     QGCLabel { text: object.function.enumStringValue;     visible: true }
                                 }
                             }

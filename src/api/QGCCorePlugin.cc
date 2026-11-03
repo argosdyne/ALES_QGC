@@ -141,8 +141,8 @@ QVariantList &QGCCorePlugin::settingsPages()
                                               QUrl::fromUserInput("qrc:/qml/LinkSettings.qml"),
                                               QUrl::fromUserInput("qrc:/res/waves.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pCommLinks)));
-        _p->pOfflineMaps = new QmlComponentInfo(tr("Offline Maps"),
-                                                QUrl::fromUserInput("qrc:/qml/OfflineMap.qml"),
+        _p->pOfflineMaps = new QmlComponentInfo(tr("Maps"),
+                                                QUrl::fromUserInput("qrc:/qml/MapsSettings.qml"),
                                                 QUrl::fromUserInput("qrc:/res/waves.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pOfflineMaps)));
         _p->pDeviceSettings = new QmlComponentInfo(tr("Device Setting"),

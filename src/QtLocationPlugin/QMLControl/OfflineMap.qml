@@ -42,6 +42,7 @@ Item {
     property Fact   _esriFact:          _settingsManager ? _settingsManager.appSettings.esriToken : null
     property Fact   _customURLFact:     _settingsManager ? _settingsManager.appSettings.customURL : null
     property Fact   _vworldFact:        _settingsManager ? _settingsManager.appSettings.vworldToken : null
+    property bool   hostedByMapsPage:   false
 
     property string mapType:            _fmSettings ? (_fmSettings.mapProvider.value + " " + _fmSettings.mapType.value) : ""
     property bool   isMapInteractive:   false
@@ -118,14 +119,24 @@ Item {
         addNewSetView.visible = true
     }
 
+    signal returned()
+
     function showList() {
         _exporTiles.visible = false
         isMapInteractive = false
         _map.visible = false
-        _tileSetList.visible = true
+        _tileSetList.visible = !hostedByMapsPage
         infoView.visible = false
         addNewSetView.visible = false
         QGroundControl.mapEngineManager.resetAction();
+        if (hostedByMapsPage) {
+            returned()
+        }
+    }
+
+    function openImport() {
+        QGroundControl.mapEngineManager.importAction = QGCMapEngineManager.ActionNone
+        importDialog.open()
     }
 
     function showExport() {
@@ -376,7 +387,7 @@ Item {
                     anchors.right:  parent.right
                     wrapMode:       Text.WordWrap
                     text:           qsTr("To enable VWorld maps, enter your access token.")
-                    visible:        _vworldFact ? _vworldFact.visible : false
+                    visible:        _vworldFact && _vworldFact.visible && _fmSettings && _fmSettings.mapProvider.value === "VWorld" && String(_vworldFact.rawValue).length === 0
                     font.pointSize: _adjustableFontPointSize
                 }
 

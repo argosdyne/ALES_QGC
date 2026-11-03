@@ -98,16 +98,16 @@ QString VWorldStreetMapProvider::_getURL(const int x, const int y, const int zoo
     Q_UNUSED(networkManager)
     const int gap   = zoom - 6;
     const int x_min = int(53 * pow(2, gap));
-    const int x_max = int(55 * pow(2, gap) + (2 * gap - 1));
+    const int x_max = int(56 * pow(2, gap) - 1);
     const int y_min = int(22 * pow(2, gap));
-    const int y_max = int(26 * pow(2, gap) + (2 * gap - 1));
+    const int y_max = int(27 * pow(2, gap) - 1);
 
     const QString VWorldMapToken = qgcApp()->toolbox()->settingsManager()->appSettings()->vworldToken()->rawValue().toString();
 
     if (zoom > 19) {
         return QString();
     } else if (zoom > 5 && x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
-        return QString("http://api.vworld.kr/req/wmts/1.0.0/%1/Base/%2/%3/%4.png").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
+        return QString("https://api.vworld.kr/req/wmts/1.0.0/%1/Base/%2/%3/%4.png").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
     } else {
         const QString key = _tileXYToQuadKey(x, y, zoom);
         return QString(QStringLiteral("http://ecn.t%1.tiles.virtualearth.net/tiles/r%2.png?g=%3&mkt=%4"))
@@ -119,19 +119,36 @@ QString VWorldSatMapProvider::_getURL(const int x, const int y, const int zoom, 
     Q_UNUSED(networkManager)
     const int gap   = zoom - 6;
     const int x_min = int(53 * pow(2, gap));
-    const int x_max = int(55 * pow(2, gap) + (2 * gap - 1));
+    const int x_max = int(56 * pow(2, gap) - 1);
     const int y_min = int(22 * pow(2, gap));
-    const int y_max = int(26 * pow(2, gap) + (2 * gap - 1));
+    const int y_max = int(27 * pow(2, gap) - 1);
 
     const QString VWorldMapToken = qgcApp()->toolbox()->settingsManager()->appSettings()->vworldToken()->rawValue().toString();
 
     if (zoom > 19) {
         return QString();
     } else if (zoom > 5 && x >= x_min && x <= x_max && y >= y_min && y <= y_max) {
-        return QString("http://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/%2/%3/%4.jpeg").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
+        return QString("https://api.vworld.kr/req/wmts/1.0.0/%1/Satellite/%2/%3/%4.jpeg").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
     } else {
         const QString key = _tileXYToQuadKey(x, y, zoom);
         return QString("http://ecn.t%1.tiles.virtualearth.net/tiles/a%2.jpeg?g=%3&mkt=%4")
             .arg(_getServerNum(x, y, 4)).arg(key, _versionBingMaps, _language);
     }
+}
+
+QString VWorldHybridMapProvider::overlayTileUrl(const int x, const int y, const int zoom) const {
+    if (zoom > 19 || zoom <= 5) {
+        return QString();
+    }
+    const int gap   = zoom - 6;
+    const int x_min = int(53 * pow(2, gap));
+    const int x_max = int(56 * pow(2, gap) - 1);
+    const int y_min = int(22 * pow(2, gap));
+    const int y_max = int(27 * pow(2, gap) - 1);
+
+    if (x < x_min || x > x_max || y < y_min || y > y_max) {
+        return QString();
+    }
+    const QString VWorldMapToken = qgcApp()->toolbox()->settingsManager()->appSettings()->vworldToken()->rawValue().toString();
+    return QString("https://api.vworld.kr/req/wmts/1.0.0/%1/Hybrid/%2/%3/%4.png").arg(VWorldMapToken).arg(zoom).arg(y).arg(x);
 }

@@ -155,3 +155,16 @@ class VWorldSatMapProvider : public MapProvider {
   private:
     const QString _versionBingMaps = QStringLiteral("563");
 };
+
+// Satellite tile with the VWorld Hybrid label tile drawn on top.
+class VWorldHybridMapProvider : public VWorldSatMapProvider {
+    Q_OBJECT
+  public:
+    VWorldHybridMapProvider(QObject* parent = nullptr)
+        : VWorldSatMapProvider(parent) {
+        _mapType = QGeoMapType::HybridMap;
+        _imageFormat = QStringLiteral("png");
+    }
+
+    QString overlayTileUrl(const int x, const int y, const int zoom) const override;
+};
