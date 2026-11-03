@@ -16,6 +16,7 @@ Rectangle {
     signal accept   ///< Action confirmed
 
     property string confirmText                         ///< Text for slider
+    property bool allowKeyboardConfirmation: true
     property alias  fontPointSize: label.font.pointSize ///< Point size for text
 
     property real _border:                      4   
@@ -25,6 +26,7 @@ Rectangle {
     property bool _waitingForLastAutoRepeat:    false
 
     Keys.onSpacePressed: {
+        if (!allowKeyboardConfirmation) { event.accepted = true; return }
         if (visible && event.modifiers === Qt.NoModifier && event.isAutoRepeat && !sliderDragArea.drag.active) {
             event.accepted = true
             if (_waitingForLastAutoRepeat) {

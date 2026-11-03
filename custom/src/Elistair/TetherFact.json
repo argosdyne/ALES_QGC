@@ -1,0 +1,14 @@
+﻿{
+  "version": 1,
+  "fileType": "FactMetaData",
+  "QGC.MetaData.Facts": [
+    { "name": "tetherLength", "shortDesc": "Tether Length", "type": "double", "decimalPlaces": 1, "units": "m" },
+    { "name": "tetherRemaining", "shortDesc": "Tether Remaining", "type": "double", "decimalPlaces": 1, "units": "m" },
+    { "name": "tetherPower", "shortDesc": "Tether Power", "type": "double", "decimalPlaces": 0, "units": "W" },
+    { "name": "tetherVoltage", "shortDesc": "Tether Voltage", "type": "double", "decimalPlaces": 1, "units": "V" },
+    { "name": "tetherCurrent", "shortDesc": "Tether Current", "type": "double", "decimalPlaces": 1, "units": "A" },
+    { "name": "torqueApplied", "shortDesc": "Tether Torque", "type": "double", "decimalPlaces": 0, "units": "%" },
+    { "name": "spoolTemp", "shortDesc": "Spool Temperature", "type": "double", "decimalPlaces": 0, "units": "degC" },
+    { "name": "cableSpeed", "shortDesc": "Cable Speed", "type": "double", "decimalPlaces": 1, "units": "m/s" }
+  ]
+}

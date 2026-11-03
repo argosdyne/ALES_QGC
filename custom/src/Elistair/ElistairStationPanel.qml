@@ -21,6 +21,20 @@ Rectangle {
     property color orange: "#d68714"
     property color danger: "#e1544e"
     property color localButton: "#515b67"
+    // Keep controls usable during the 1-second NO REPLY grace period, but
+    // lock them after the 5-second LOST threshold or before first telemetry.
+    readonly property bool controlsAvailable: station && station.hasMonitoring && !station.linkLost && (station.connected || station.noReply)
+    readonly property real telemetryOpacity: station && station.linkLost ? 0.48 : 1.0
+    readonly property color lostColor: "#68717b"
+    readonly property bool inFlight: station && station.powerOffRequiresConfirmation
+    readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    readonly property var droneBattery: flightVehicle && !flightVehicle.vehicleLinkManager.communicationLost && flightVehicle.batteries.count ? flightVehicle.batteries.get(0) : null
+    function droneBatteryText() {
+        var volts = droneBattery ? Number(droneBattery.voltage.rawValue) : NaN
+        var seconds = droneBattery ? Number(droneBattery.timeRemaining.rawValue) : NaN
+        return (isFinite(volts) && volts > 0 ? volts.toFixed(1) + " V" : qsTr("Voltage unavailable")) + " - " +
+                (isFinite(seconds) && seconds > 0 ? Math.floor(seconds / 60) + ":" + ("0" + Math.floor(seconds % 60)).slice(-2) + qsTr(" left") : qsTr("time unavailable"))
+    }
 
     visible: station !== null
     width: ScreenTools.defaultFontPixelWidth * 31
@@ -69,11 +83,11 @@ Rectangle {
                 Layout.preferredWidth: connectedLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.3
                 Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
                 radius: height / 2
-                color: station.linkLost ? root.danger : (station.noReply ? root.orange : root.green)
+                color: station.noPower ? root.danger : station.linkLost ? root.lostColor : (station.noReply ? root.lostColor : root.green)
                 QGCLabel {
                     id: connectedLabel
                     anchors.centerIn: parent
-                    text: station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : qsTr("CONNECTED"))
+                    text: station.noPower ? qsTr("NO POWER") : station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : (!station.hasMonitoring ? qsTr("CONNECTING") : qsTr("CONNECTED")))
                     color: "white"
                     font.family: ScreenTools.demiboldFontFamily
                     font.pointSize: ScreenTools.smallFontPointSize
@@ -83,7 +97,7 @@ Rectangle {
 
         QGCLabel {
             Layout.fillWidth: true
-            text: qsTr("SAFE-T #1 - %1:%2 - Ext V1").arg(station.stationAddress).arg(station.stationPort)
+            text: qsTr("SAFE-T #1 - %1:%2 - %3").arg(station.stationAddress).arg(station.stationPort).arg(station.activeFrameVersion)
             color: mutedText
             font.pointSize: ScreenTools.smallFontPointSize
             elide: Text.ElideRight
@@ -91,49 +105,95 @@ Rectangle {
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
 
-        RowLayout {
+        Rectangle {
+            visible: station.linkLost
             Layout.fillWidth: true
-            QGCLabel { text: qsTr("Authority"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
-            Item { Layout.fillWidth: true }
-            Rectangle {
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6.4; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
-                color: !station.powerRemote ? (station.linkLost ? localButton : green) : "#343b45"
-                QGCLabel { anchors.centerIn: parent; text: qsTr("LOCAL"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
-                MouseArea { anchors.fill: parent; enabled: !station.linkLost; onClicked: station.setPowerRemote(false) }
-            }
-            Rectangle {
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 7.3; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
-                color: station.powerRemote ? green : "#343b45"
-                QGCLabel { anchors.centerIn: parent; text: qsTr("REMOTE"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
-                MouseArea { anchors.fill: parent; enabled: station.connected && !station.linkLost; onClicked: station.setPowerRemote(true) }
+            Layout.preferredHeight: linkLostText.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.5
+            color: "#765718"
+            radius: ScreenTools.defaultFontPixelWidth * 0.25
+            QGCLabel {
+                id: linkLostText
+                anchors.fill: parent
+                anchors.margins: ScreenTools.defaultFontPixelWidth * 0.5
+                text: qsTr("Station link lost - last data %1 - reconnecting attempt %2").arg(station.lastMonitoringTime.length ? station.lastMonitoringTime : "--").arg(station.reconnectAttempt)
+                color: "#ffe2a0"
+                wrapMode: Text.WordWrap
+                font.pointSize: ScreenTools.smallFontPointSize
             }
         }
 
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: !station.noPower
         RowLayout {
             Layout.fillWidth: true
             spacing: ScreenTools.defaultFontPixelWidth * 0.7
             Rectangle {
                 Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.85
-                color: station.powerOn ? green : "#46515d"
-                QGCLabel { anchors.centerIn: parent; text: qsTr("Power ON"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
-                MouseArea { anchors.fill: parent; enabled: station.connected && station.powerRemote && !station.powerOn; onClicked: station.setPowerOn(true) }
+                color: !root.controlsAvailable ? "#59616b" : (station.powerOn && !station.powerOffPending ? root.blue : "#48525d")
+                border.color: !root.controlsAvailable ? "#6d7681" : (station.powerOn && !station.powerOffPending ? root.blue : "#69717b"); border.width: 1
+                QGCLabel { anchors.centerIn: parent; text: qsTr("Power ON"); color: root.controlsAvailable ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
+                MouseArea { anchors.fill: parent; enabled: root.controlsAvailable && !station.powerOn; onClicked: station.setPowerOn(true) }
             }
             Rectangle {
                 Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.85
-                color: "#343b45"; border.color: danger; border.width: 1
-                QGCLabel { anchors.centerIn: parent; text: qsTr("Power OFF"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+                color: !root.controlsAvailable ? "#59616b" : (station.powerOffPending ? root.green : (!station.powerOn ? root.blue : "#48525d"))
+                border.color: station.powerOffPending ? root.danger : (!root.controlsAvailable ? "#6d7681" : (!station.powerOn ? root.blue : "#69717b")); border.width: station.powerOffPending ? 2 : 1
+                QGCLabel { anchors.centerIn: parent; text: qsTr("Power OFF"); color: root.controlsAvailable ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
                 MouseArea {
-                    anchors.fill: parent; enabled: station.connected && station.powerRemote && station.powerOn
-                    onClicked: { var vehicle = QGroundControl.multiVehicleManager.activeVehicle; if (vehicle && vehicle.armed) powerOffConfirm.open(); else station.setPowerOn(false) }
+                    anchors.fill: parent; enabled: root.controlsAvailable && station.powerOn && !station.powerOffPending
+                    onClicked: station.setPowerOn(false)
                 }
             }
         }
 
         QGCLabel {
             Layout.fillWidth: true
-            text: station.linkLost ? qsTr("Link lost - authority reverted to LOCAL") : (station.noReply ? qsTr("No station reply - waiting for telemetry") : (station.powerRemote ? qsTr("In flight: Power OFF requires confirmation") : qsTr("Needs REMOTE authority (station or here)")))
-            color: station.linkLost ? danger : (station.noReply ? orange : mutedText)
+            visible: root.inFlight
+            text: qsTr("In flight: Power OFF \u2192 slide to confirm")
+            color: root.mutedText
             font.pointSize: ScreenTools.smallFontPointSize
+            wrapMode: Text.WordWrap
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            QGCLabel {
+                Layout.fillWidth: true
+                text: qsTr("Automatic Torque Control")
+                color: root.mutedText
+                font.pointSize: ScreenTools.defaultFontPointSize
+                elide: Text.ElideRight
+            }
+            Switch {
+                id: torqueControlSwitch
+                objectName: "automaticTorqueControlSwitch"
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 4.7
+                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.4
+                padding: 0
+                checked: station.torqueRemote
+                enabled: root.controlsAvailable
+                onClicked: station.setTorqueRemote(checked)
+                contentItem: Item {}
+                indicator: Rectangle {
+                    width: torqueControlSwitch.width
+                    height: ScreenTools.defaultFontPixelHeight
+                    y: (torqueControlSwitch.height - height) / 2
+                    radius: height / 2
+                    color: !torqueControlSwitch.enabled ? "#59616b" : (torqueControlSwitch.checked ? root.green : "#69717b")
+                    Rectangle {
+                        width: parent.height - 6; height: width; radius: width / 2
+                        x: torqueControlSwitch.checked ? parent.width - width - 3 : 3
+                        y: 3
+                        color: torqueControlSwitch.enabled ? "white" : "#a1a9b8"
+                    }
+                }
+            }
+            QGCLabel {
+                text: station.torqueRemote ? qsTr("ON") : qsTr("OFF")
+                color: root.controlsAvailable ? "white" : root.mutedText
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
         }
 
         RowLayout {
@@ -151,7 +211,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.15
             from: 0; to: 100; stepSize: 1
-            enabled: station.connected && station.torqueRemote
+            enabled: root.controlsAvailable && station.torqueRemote
+            opacity: station.torqueRemote ? 1.0 : 0.55
             value: station.torquePercent
             onMoved: station.setTorquePercent(Math.round(value))
             background: Rectangle {
@@ -172,45 +233,60 @@ Rectangle {
                 model: [0, 30, 100]
                 delegate: Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
-                    color: station.torquePercent === modelData ? green : "#48525d"
-                    QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
-                    MouseArea { anchors.fill: parent; enabled: station.connected && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }
+                    color: !station.torqueRemote ? "#59616b" : (station.torquePercent === modelData ? root.blue : "#48525d")
+                    border.color: !station.torqueRemote ? "#6d7681" : (station.torquePercent === modelData ? root.blue : "#69717b"); border.width: 1
+                    QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
+                    MouseArea { anchors.fill: parent; enabled: root.controlsAvailable && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }
                 }
             }
         }
 
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: station.noPower
+            QGCLabel { Layout.fillWidth: true; text: qsTr("Drone battery: %1").arg(root.droneBatteryText()); color: "white"; wrapMode: Text.WordWrap }
+            QGCLabel { text: qsTr("Altitude: %1 m").arg(root.flightVehicle && !root.flightVehicle.vehicleLinkManager.communicationLost ? root.flightVehicle.altitudeRelative.rawValue.toFixed(1) : "--"); color: "white" }
+            QGCLabel { visible: station.noPowerPrompt; text: qsTr("SELECT ACTION"); color: root.mutedText }
+            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("Land"); primary: true; enabled: root.controlsAvailable; onClicked: station.requestNoPowerAction(false) }
+            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("RTL to Station"); enabled: root.controlsAvailable; onClicked: station.requestNoPowerAction(true) }
+            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("Continue"); onClicked: station.dismissNoPower() }
+            QGCLabel { Layout.fillWidth: true; text: [qsTr("Failsafe: Recommend land"), qsTr("Failsafe: Warn only"), qsTr("Failsafe: Auto land")][station.noPowerFailsafe]; color: root.mutedText; wrapMode: Text.WordWrap }
+        }
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
 
         RowLayout {
             Layout.fillWidth: true
+            opacity: root.telemetryOpacity
             QGCLabel { text: qsTr("Power"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
-            QGCLabel { text: station.powerWatts.toLocaleString(Qt.locale(), 'f', 0) + " W"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
-            Rectangle { visible: station.powerOn; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 3.2; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45; radius: height / 2; color: green; QGCLabel { anchors.centerIn: parent; text: qsTr("ON"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.smallFontPointSize } }
+            QGCLabel { text: station.powerWatts.toLocaleString(Qt.locale(), 'f', 0) + " W"; color: station.noPower ? root.danger : "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
+            Rectangle { visible: station.powerOn && !station.noPower; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 3.2; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45; radius: height / 2; color: green; QGCLabel { anchors.centerIn: parent; text: qsTr("ON"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.smallFontPointSize } }
         }
-        QGCLabel { Layout.fillWidth: true; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.voltage.toFixed(1)).arg(station.current.toFixed(1)); color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
-        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.powerWatts, 2500); height: parent.height; radius: parent.radius; color: green } }
+        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.voltage.toFixed(1)).arg(station.current.toFixed(1)); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+        Rectangle { Layout.fillWidth: true; opacity: root.telemetryOpacity; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.powerWatts, 2500); height: parent.height; radius: parent.radius; color: green } }
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
 
         RowLayout {
             Layout.fillWidth: true
+            opacity: root.telemetryOpacity
             QGCLabel { text: qsTr("Tether"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel { text: station.cableLength.toFixed(1) + " m"; color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
         }
-        QGCLabel { Layout.fillWidth: true; text: qsTr("Cable speed %1 m/s - Spool %2 C").arg(station.cableSpeed.toFixed(1)).arg(station.spoolTemperature); color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
-        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.cableLength, 100); height: parent.height; radius: parent.radius; color: orange } }
+        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("Cable speed %1 m/s - Spool %2 C").arg(station.cableSpeed.toFixed(1)).arg(station.spoolTemperature); color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+        Rectangle { Layout.fillWidth: true; opacity: root.telemetryOpacity; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.cableLength, 100); height: parent.height; radius: parent.radius; color: orange } }
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
         Rectangle {
             Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.75; radius: ScreenTools.defaultFontPixelWidth * 0.35
-            color: station.alarmSummary === qsTr("No alarms") ? "#1e5e51" : "#6d322f"
+            color: station.linkLost ? "#765718" : (station.alarmSummary === qsTr("No alarms") ? "#1e5e51" : "#6d322f")
             RowLayout {
                 anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 0.7
-                QGCLabel { text: station.alarmSummary === qsTr("No alarms") ? qsTr("No active alarms") : station.alarmSummary; color: station.alarmSummary === qsTr("No alarms") ? "#28d49b" : "#ff867e"; font.pointSize: ScreenTools.defaultFontPointSize }
+                QGCLabel { text: station.linkLost ? qsTr("Station link lost") : (station.alarmSummary === qsTr("No alarms") ? qsTr("No active alarms") : station.alarmSummary); color: station.linkLost ? "#ffe2a0" : (station.alarmSummary === qsTr("No alarms") ? "#28d49b" : "#ff867e"); font.pointSize: ScreenTools.defaultFontPointSize }
                 Item { Layout.fillWidth: true }
-                QGCLabel { text: Qt.formatTime(new Date(), "hh:mm:ss"); color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+                QGCLabel { text: station.linkLost ? qsTr("last %1 - retry %2").arg(station.lastMonitoringTime.length ? station.lastMonitoringTime : "--").arg(station.reconnectAttempt) : station.lastMonitoringTime; color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
             }
         }
         QGCLabel {
@@ -227,84 +303,4 @@ Rectangle {
     }
 
     // SAFE-T T-01b: power-off during flight requires a deliberate slide action.
-    Popup {
-        id: powerOffConfirm
-        modal: true
-        focus: true
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        width: Math.min(root.width - ScreenTools.defaultFontPixelWidth * 2, ScreenTools.defaultFontPixelWidth * 27)
-        height: contentColumn.implicitHeight + ScreenTools.defaultFontPixelHeight * 2
-        x: (root.width - width) / 2
-        y: Math.max(ScreenTools.defaultFontPixelHeight, (root.height - height) / 2)
-        padding: ScreenTools.defaultFontPixelWidth
-        background: Rectangle {
-            color: "#293039"
-            border.color: danger
-            border.width: 1
-            radius: ScreenTools.defaultFontPixelWidth * .5
-        }
-        onOpened: offSlider.value = 0
-
-        ColumnLayout {
-            id: contentColumn
-            width: parent.width
-            spacing: ScreenTools.defaultFontPixelHeight * .65
-            QGCLabel {
-                Layout.fillWidth: true
-                text: qsTr("Turn tether power OFF?")
-                color: "white"
-                font.family: ScreenTools.demiboldFontFamily
-                font.pointSize: ScreenTools.defaultFontPointSize
-            }
-            QGCLabel {
-                Layout.fillWidth: true
-                text: qsTr("The vehicle is armed. Slide to confirm power-off.")
-                color: mutedText
-                wrapMode: Text.WordWrap
-                font.pointSize: ScreenTools.smallFontPointSize
-            }
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 2.7
-                radius: height / 2
-                color: "#404955"
-                border.color: "#65707e"
-                QGCLabel {
-                    anchors.centerIn: parent
-                    text: qsTr("Slide to confirm")
-                    color: "white"
-                    font.pointSize: ScreenTools.smallFontPointSize
-                }
-                Slider {
-                    id: offSlider
-                    anchors.fill: parent
-                    anchors.margins: ScreenTools.defaultFontPixelWidth * .4
-                    from: 0; to: 1
-                    onMoved: {
-                        if (value >= .94) {
-                            station.setPowerOn(false)
-                            powerOffConfirm.close()
-                        }
-                    }
-                    background: Rectangle {
-                        x: offSlider.leftPadding; y: offSlider.topPadding + offSlider.availableHeight / 2 - height / 2
-                        width: offSlider.availableWidth; height: ScreenTools.defaultFontPixelHeight * .42
-                        radius: height / 2; color: "#20252b"
-                        Rectangle { width: offSlider.visualPosition * parent.width; height: parent.height; radius: parent.radius; color: danger }
-                    }
-                    handle: Rectangle {
-                        x: offSlider.leftPadding + offSlider.visualPosition * (offSlider.availableWidth - width)
-                        y: offSlider.topPadding + offSlider.availableHeight / 2 - height / 2
-                        width: ScreenTools.defaultFontPixelHeight * 1.7; height: width; radius: width / 2
-                        color: danger; border.color: "white"; border.width: 1
-                    }
-                }
-            }
-            QGCButton {
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("Cancel")
-                onClicked: powerOffConfirm.close()
-            }
-        }
-    }
 }
