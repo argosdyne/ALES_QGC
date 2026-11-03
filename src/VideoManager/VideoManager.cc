@@ -84,6 +84,39 @@ static QString rtspUriWithConfiguredEndpoint(const QString& autoUri, const QStri
     }
     return autoUrl.toString();
 }
+
+static bool isLockedUserRtspPath(const QString& uri)
+{
+    const QUrl url(uri);
+    QString path = url.path();
+    while (path.endsWith(QLatin1Char('/'))) {
+        path.chop(1);
+    }
+    const QString lastSegment = path.section(QLatin1Char('/'), -1);
+    return lastSegment.compare(QStringLiteral("live0"), Qt::CaseInsensitive) == 0
+            || lastSegment.compare(QStringLiteral("video0"), Qt::CaseInsensitive) == 0
+            || lastSegment.compare(QStringLiteral("payload"), Qt::CaseInsensitive) == 0;
+}
+
+static bool sameRtspEndpoint(const QString& a, const QString& b)
+{
+    const QUrl urlA(a);
+    const QUrl urlB(b);
+    if (!urlA.isValid() || !urlB.isValid()) {
+        return a == b;
+    }
+
+    auto normalizedPath = [](QString path) {
+        while (path.endsWith(QLatin1Char('/'))) {
+            path.chop(1);
+        }
+        return path;
+    };
+    return urlA.scheme().compare(urlB.scheme(), Qt::CaseInsensitive) == 0
+            && urlA.host().compare(urlB.host(), Qt::CaseInsensitive) == 0
+            && urlA.port() == urlB.port()
+            && normalizedPath(urlA.path()).compare(normalizedPath(urlB.path()), Qt::CaseInsensitive) == 0;
+}
 #endif
 
 //-----------------------------------------------------------------------------
@@ -918,30 +951,37 @@ VideoManager::_updateSettings(unsigned id)
                 qCDebug(VideoManagerLog) << "Configure primary stream:" << pInfo->uri();
                 switch(pInfo->type()) {
                     case VIDEO_STREAM_TYPE_RTSP:
-                    {
+                    {                       
+                        const QString autoUri = pInfo->uri();
                         const QString configuredRtspUrl = _toolbox->settingsManager()->videoSettings()->rtspUrl()->rawValue().toString();
                         const QString configuredVideoSource = _toolbox->settingsManager()->videoSettings()->videoSource()->rawValue().toString();
                         const bool rtspUrlUserSet = _toolbox->settingsManager()->videoSettings()->rtspUrlUserSet();
-                        const bool rtspSourceSelected = configuredVideoSource == VideoSettings::videoSourceRTSP;
-                        const bool rtspUrlOverridesAuto = rtspSourceSelected && !configuredRtspUrl.isEmpty() && configuredRtspUrl != pInfo->uri();
-                        const bool useConfiguredRtsp = rtspSourceSelected && (rtspUrlUserSet || rtspUrlOverridesAuto);
-                        const QString rtspUri = useConfiguredRtsp
-                                                    ? configuredRtspUrl
-                                                    : pInfo->uri();
+                        const bool lockConfiguredUrl = rtspUrlUserSet && isLockedUserRtspPath(configuredRtspUrl);
+                        const QString rtspUri = (lockConfiguredUrl || autoUri.isEmpty())
+                                                    ? (configuredRtspUrl.isEmpty() ? autoUri : configuredRtspUrl)
+                                                    : rtspUriWithConfiguredEndpoint(autoUri, configuredRtspUrl);
+                        const QUrl selectedUrl(rtspUri);
+                        const bool selectedHostPrivate = isPrivateRtspHost(selectedUrl.host());
+                        const bool configuredHostIsPublic = !configuredRtspUrl.isEmpty()
+                                && !isPrivateRtspHost(QUrl(configuredRtspUrl).host());
+                        const bool persistSelectedUri = !lockConfiguredUrl
+                                && !rtspUri.isEmpty()
+                                && !sameRtspEndpoint(rtspUri, configuredRtspUrl)
+                                && !(selectedHostPrivate && configuredHostIsPublic);
                         qWarning().noquote() << "[VideoManager][RTSP] select-uri"
                                              << "id=" << id
-                                             << "autoUri=" << pInfo->uri()
+                                             << "autoUri=" << autoUri
                                              << "configuredRtsp=" << configuredRtspUrl
                                              << "source=" << configuredVideoSource
                                              << "rtspUrlUserSet=" << rtspUrlUserSet
-                                             << "overridesAuto=" << rtspUrlOverridesAuto
-                                             << "useConfigured=" << useConfiguredRtsp
-                                             << "selectedUri=" << rtspUri;
+                                             << "lockConfigured=" << lockConfiguredUrl
+                                             << "selectedUri=" << rtspUri
+                                             << "persistSelected=" << persistSelectedUri;
                         if ((settingsChanged |= _updateVideoUri(id, rtspUri))) {
                             _toolbox->settingsManager()->videoSettings()->videoSource()->setRawValue(VideoSettings::videoSourceRTSP);
                         }
-                        if (!useConfiguredRtsp && !pInfo->uri().isEmpty() && configuredRtspUrl != pInfo->uri()) {
-                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(pInfo->uri());
+                        if (persistSelectedUri) {
+                            _toolbox->settingsManager()->videoSettings()->rtspUrl()->setRawValue(rtspUri);
                         }
                         break;
                     }
