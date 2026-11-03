@@ -846,7 +846,9 @@ void MockLink::_handleParamRequestList(const mavlink_message_t& msg)
     mavlink_msg_param_request_list_decode(&msg, &request);
 
     Q_ASSERT(request.target_system == _vehicleSystemId);
-    Q_ASSERT(request.target_component == MAV_COMP_ID_ALL);
+    // ParameterManager targets MAV_COMP_ID_AUTOPILOT1 instead of MAV_COMP_ID_ALL for a full
+    // refresh (some PX4 stacks do not answer the broadcast), so accept both
+    Q_ASSERT(request.target_component == MAV_COMP_ID_ALL || request.target_component == MAV_COMP_ID_AUTOPILOT1);
 
     // Start the worker routine
     _currentParamRequestListComponentIndex = 0;
