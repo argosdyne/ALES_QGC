@@ -628,8 +628,17 @@ Vehicle::~Vehicle()
     _videoCaptureRunning.store(false);
     _videoRcOverrideTimer.stop();
 
+    // PlanManager has no QObject parent, so all three plan managers must be deleted here. A manager
+    // that outlives the Vehicle keeps its ack timer: if a load was pending when the link was lost,
+    // the timer fires later and dereferences this deleted Vehicle.
     delete _missionManager;
     _missionManager = nullptr;
+
+    delete _geoFenceManager;
+    _geoFenceManager = nullptr;
+
+    delete _rallyPointManager;
+    _rallyPointManager = nullptr;
 
     delete _autopilotPlugin;
     _autopilotPlugin = nullptr;
