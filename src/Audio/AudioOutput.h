@@ -29,6 +29,10 @@ public:
     static bool     getMillisecondString    (const QString& string, QString& match, int& number);
     static QString  fixTextMessageForAudio  (const QString& string);
 
+    /// @return false when audio is muted in the settings or unit tests are running.
+    /// Other sound output (alert sounds) should follow the same rule as speech.
+    bool            audioAllowed            (void) const;
+
 public slots:
     /// Convert string to speech output and say it
     void            say                     (const QString& text);

@@ -36,6 +36,14 @@ AudioOutput::AudioOutput(QGCApplication* app, QGCToolbox* toolbox)
     connect(_tts, &QTextToSpeech::stateChanged, this, &AudioOutput::_stateChanged);
 }
 
+bool AudioOutput::audioAllowed(void) const
+{
+    if (qgcApp()->runningUnitTests()) {
+        return false;
+    }
+    return !qgcApp()->toolbox()->settingsManager()->appSettings()->audioMuted()->rawValue().toBool();
+}
+
 void AudioOutput::say(const QString& inText)
 {
     if (!_tts) {
@@ -43,9 +51,7 @@ void AudioOutput::say(const QString& inText)
         return;
     }
 
-    bool muted = qgcApp()->toolbox()->settingsManager()->appSettings()->audioMuted()->rawValue().toBool();
-    muted |= qgcApp()->runningUnitTests();
-    if (!muted && !qgcApp()->runningUnitTests()) {
+    if (audioAllowed()) {
         QString text = fixTextMessageForAudio(inText);
         if(_tts->state() == QTextToSpeech::Speaking) {
             if(!_texts.contains(text)) {

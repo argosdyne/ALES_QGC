@@ -613,8 +613,8 @@ void CustomQmlInterface::_playGeoAwarenessAlert(GeoAwarenessErrorId type)
         return;
     }
 
-    // AudioOutput::say() checks the mute setting itself; the alert sound follows the same setting
-    if (!_toolbox->settingsManager()->appSettings()->audioMuted()->rawValue().toBool()) {
+    // The alert sound follows the same mute and unit-test rule as AudioOutput::say()
+    if (_toolbox->audioOutput()->audioAllowed()) {
         _geoAwarenessAlertSound.play();
     }
     // The TTS engine is forced to en_US on Linux, so translated text cannot be spoken correctly.

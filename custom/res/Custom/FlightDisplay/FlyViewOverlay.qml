@@ -314,8 +314,12 @@ Item {
         model: CustomQmlInterface.geoAwarenessMessages
         Rectangle {
             id:                 geoAwarenessMessageArea
-            // Centered, but narrow enough to stay clear of the status message column on the right
-            width:              Math.min(object.geoAwarenessWidth, _flyViewOverlay.width - 2 * (_flyViewOverlay.width - statusMessageCol.x + ScreenTools.defaultFontPixelWidth))
+            // Centered. While status messages are shown it is narrowed to stay clear of their
+            // column on the right; otherwise it only keeps a margin to the screen edges.
+            width:              Math.min(object.geoAwarenessWidth,
+                                         statusMessageCol.height > 0 ?
+                                             _flyViewOverlay.width - 2 * (_flyViewOverlay.width - statusMessageCol.x + ScreenTools.defaultFontPixelWidth) :
+                                             _flyViewOverlay.width - 2 * ScreenTools.defaultFontPixelWidth)
             height:             Math.max(object.geoAwarenessHeight, geoAwarenessMessageAreaMessageText.contentHeight)
             focus:              true
             visible:            true
