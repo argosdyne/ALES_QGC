@@ -108,6 +108,14 @@ ParameterManager::ParameterManager(Vehicle* vehicle)
 
 void ParameterManager::_logInitialLoadProgress(const QString& event, int componentId, const QString& paramName) const
 {
+    _logTimedOutParamNames(event, componentId);
+
+    // This runs for every received parameter. Building the message walks all waiting indices and
+    // names, so skip it unless the info output of the category is enabled.
+    if (!ParameterManagerLog().isInfoEnabled()) {
+        return;
+    }
+
     int receivedCount = 0;
     for (auto compIt = _receivedParamNamesByComp.constBegin(); compIt != _receivedParamNamesByComp.constEnd(); ++compIt) {
         receivedCount += compIt.value().count();
@@ -161,20 +169,32 @@ void ParameterManager::_logInitialLoadProgress(const QString& event, int compone
     }
 
     qCInfo(ParameterManagerLog).noquote() << message;
+}
 
-    if ((event == QStringLiteral("request-complete") || event == QStringLiteral("request-failed")) && !_timedOutReadParamNamesByComp.isEmpty()) {
-        QStringList timedOutEntries;
-        for (auto compIt = _timedOutReadParamNamesByComp.constBegin(); compIt != _timedOutReadParamNamesByComp.constEnd(); ++compIt) {
-            QStringList names = compIt.value();
-            names.removeDuplicates();
-            names.sort();
-            timedOutEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
-        }
-        qCWarning(ParameterManagerLog) << _logVehiclePrefix(componentId)
-                                       << "fc-param-load timed-out-names"
-                                       << "elapsedMs" << (_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
-                                       << "entries" << timedOutEntries;
+void ParameterManager::_logTimedOutParamNames(const QString& event, int componentId) const
+{
+    if (event != QStringLiteral("request-complete") && event != QStringLiteral("request-failed")) {
+        return;
     }
+
+    QStringList timedOutEntries;
+    for (auto compIt = _timedOutReadParamNamesByComp.constBegin(); compIt != _timedOutReadParamNamesByComp.constEnd(); ++compIt) {
+        QStringList names = compIt.value();
+        names.removeDuplicates();
+        if (names.isEmpty()) {
+            // Every parameter of this component that timed out arrived later
+            continue;
+        }
+        names.sort();
+        timedOutEntries << QStringLiteral("%1:[%2]").arg(compIt.key()).arg(names.join(QStringLiteral(",")));
+    }
+    if (timedOutEntries.isEmpty()) {
+        return;
+    }
+    qCWarning(ParameterManagerLog) << _logVehiclePrefix(componentId)
+                                   << "fc-param-load timed-out-names"
+                                   << "elapsedMs" << (_initialLoadElapsedTimer.isValid() ? _initialLoadElapsedTimer.elapsed() : 0)
+                                   << "entries" << timedOutEntries;
 }
 
 void ParameterManager::_updateProgressBar(void)
@@ -369,10 +389,14 @@ void ParameterManager::_handleParamValue(int componentId, QString parameterName,
         _totalParamCount += parameterCount;
     }
 
-    if (!_receivedParamNamesByComp[componentId].contains(parameterName)) {
-        _receivedParamNamesByComp[componentId] << parameterName;
-        _receivedParamNamesByComp[componentId].sort();
-        _timedOutReadParamNamesByComp[componentId].removeAll(parameterName);
+    QSet<QString>& receivedNames = _receivedParamNamesByComp[componentId];
+    if (!receivedNames.contains(parameterName)) {
+        receivedNames.insert(parameterName);
+        // find() instead of operator[] so no empty entry is created for components without timeouts
+        auto timedOutIt = _timedOutReadParamNamesByComp.find(componentId);
+        if (timedOutIt != _timedOutReadParamNamesByComp.end()) {
+            timedOutIt->removeAll(parameterName);
+        }
         _logInitialLoadProgress(QStringLiteral("param-received"), componentId, parameterName);
     }
 
