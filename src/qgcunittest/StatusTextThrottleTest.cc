@@ -242,6 +242,15 @@ void StatusTextThrottleTest::_stressFailsafeFlood(void)
     QVERIFY(stored <= 200);
 }
 
+void StatusTextThrottleTest::_languageResetClearsJsonTranslator(void)
+{
+    _setLanguage(QLocale::Danish);
+    QVERIFY(!qgcApp()->qgcJSONTranslator().isEmpty());
+
+    _setLanguage(QLocale::English);
+    QVERIFY2(qgcApp()->qgcJSONTranslator().isEmpty(), "JSON translator still holds the previous language");
+}
+
 void StatusTextThrottleTest::_randomSameDecisionsInEveryLanguage(void)
 {
     const quint32 seed = QRandomGenerator::global()->generate();

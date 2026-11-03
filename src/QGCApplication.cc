@@ -446,6 +446,10 @@ void QGCApplication::setLanguage()
         } else {
             qCWarning(LocalizationLog) << "Error loading json localization for" << translationLocale.name();
         }
+    } else {
+        // JsonHelper calls qgcJSONTranslator().translate() directly, so removing the translator is not
+        // enough: it would keep returning the previous language. load() discards the old contents first.
+        _qgcTranslatorJSON.load(QString());
     }
     // Cached status text translations belong to the previous language
     StatusTextTranslator::clearCache();

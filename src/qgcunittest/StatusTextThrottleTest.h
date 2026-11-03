@@ -41,6 +41,9 @@ private slots:
     // Random
     void _randomSameDecisionsInEveryLanguage(void);
 
+    // Switching back to English must not leave JSON strings in the previous language
+    void _languageResetClearsJsonTranslator(void);
+
 private:
     void    _setLanguage        (QLocale::Language language);
     void    _send               (const QString& text, const QString& description = QString());
