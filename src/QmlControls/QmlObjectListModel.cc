@@ -95,7 +95,11 @@ bool QmlObjectListModel::insertRows(int position, int rows, const QModelIndex& p
     if (position < 0 || position > _objectList.count() + 1) {
         qWarning() << "Invalid position position:count" << position << _objectList.count();
     }
-    
+    if (rows <= 0) {
+        // beginInsertRows(first, last) asserts on last < first in debug Qt builds
+        return true;
+    }
+
     beginInsertRows(QModelIndex(), position, position + rows - 1);
     endInsertRows();
     
@@ -113,7 +117,11 @@ bool QmlObjectListModel::removeRows(int position, int rows, const QModelIndex& p
     } else if (position + rows > _objectList.count()) {
         qWarning() << "Invalid rows position:rows:count" << position << rows << _objectList.count();
     }
-    
+    if (rows <= 0) {
+        // beginRemoveRows(first, last) asserts on last < first in debug Qt builds
+        return true;
+    }
+
     beginRemoveRows(QModelIndex(), position, position + rows - 1);
     for (int row=0; row<rows; row++) {
         _objectList.removeAt(position);
@@ -206,6 +214,10 @@ void QmlObjectListModel::insert(int i, QObject* object)
 
 void QmlObjectListModel::insert(int i, QList<QObject*> objects)
 {
+    if (objects.isEmpty()) {
+        // e.g. QGCMapPolygon::offset() of a polygon with two or fewer vertices
+        return;
+    }
     if (i < 0 || i > _objectList.count()) {
         qWarning() << "Invalid index index:count" << i << _objectList.count();
     }
