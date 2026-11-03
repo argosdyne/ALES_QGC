@@ -211,6 +211,9 @@ void MockLink::run(void)
 
     timer1HzTasks.start(1000);
     timer10HzTasks.start(100);
+    // A coarse timer only fires about every 15 ms on Windows, so sending the parameter list
+    // (one parameter per tick) took over 10 s and initial connect timed out in unit tests
+    timer500HzTasks.setTimerType(Qt::PreciseTimer);
     timer500HzTasks.start(2);
 
     // Wait a little bit for the ui to finish loading up before sending out status text messages

@@ -61,10 +61,13 @@ void ComponentInformationCacheTest::_basic_test()
 
     QVERIFY(cache.access(_tmpFiles[0].cacheTag) == _tmpFiles[0].cachedPath);
 
-    QFile f(_tmpFiles[0].cachedPath);
-    QVERIFY(f.open(QFile::ReadOnly | QFile::Text));
-    QTextStream in(&f);
-    QVERIFY(in.readAll() == _tmpFiles[0].content);
+    {
+        // Closed before _cleanup(): Windows cannot delete a file that is still open
+        QFile f(_tmpFiles[0].cachedPath);
+        QVERIFY(f.open(QFile::ReadOnly | QFile::Text));
+        QTextStream in(&f);
+        QVERIFY(in.readAll() == _tmpFiles[0].content);
+    }
 
     _cleanup();
 }

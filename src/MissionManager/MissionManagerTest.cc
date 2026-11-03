@@ -121,6 +121,9 @@ void MissionManagerTest::_roundTripItems(MockLinkMissionItemHandler::FailureMode
     
     _mockLink->setMissionItemFailureMode(failureMode, failureAckResult);
 
+    // A failed mission read restores the last complete list (PlanManager::_restoreMissionSnapshot)
+    const int cItemsBeforeRead = _missionManager->missionItems().count();
+
     // Read the items back from the vehicle
     _missionManager->loadFromVehicle();
     
@@ -167,19 +170,21 @@ void MissionManagerTest::_roundTripItems(MockLinkMissionItemHandler::FailureMode
     _multiSpyMissionManager->clearAllSignals();
 
     // Validate returned items
-    
-    int cMissionItemsExpected;
-    
+
     if (shouldFail) {
-        cMissionItemsExpected = 0;
-    } else {
-        cMissionItemsExpected = (int)_cTestCases;
-        if (_mockLink->getFirmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
-            // Home position at position 0 comes from vehicle
-            cMissionItemsExpected++;
-        }
+        // The previous mission is kept for display, but it is not marked as read from the vehicle,
+        // so Start/Continue/Resume Mission stay disabled (MissionController::vehicleMissionConfirmed)
+        QCOMPARE(_missionManager->missionItems().count(), cItemsBeforeRead);
+        QVERIFY(!_missionManager->lastMissionReadSucceeded());
+        return;
     }
-    
+
+    int cMissionItemsExpected = (int)_cTestCases;
+    if (_mockLink->getFirmwareType() == MAV_AUTOPILOT_ARDUPILOTMEGA) {
+        // Home position at position 0 comes from vehicle
+        cMissionItemsExpected++;
+    }
+
     QCOMPARE(_missionManager->missionItems().count(), (int)cMissionItemsExpected);
 
     int firstActualItem = 0;
