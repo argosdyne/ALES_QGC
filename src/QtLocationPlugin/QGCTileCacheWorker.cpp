@@ -74,7 +74,12 @@ void
 QGCCacheWorker::quit()
 {
     if(_hostLookupID) {
-        QHostInfo::abortHostLookup(_hostLookupID);
+        // destroyMapEngine() runs after the QCoreApplication has been deleted. QHostInfo cannot be
+        // used then (it asserts in debug builds), and the pending lookup goes away with the app.
+        if (QCoreApplication::instance()) {
+            QHostInfo::abortHostLookup(_hostLookupID);
+        }
+        _hostLookupID = 0;
     }
     QMutexLocker lock(&_taskQueueMutex);
     while(_taskQueue.count()) {
