@@ -1382,7 +1382,6 @@ void SurveyComplexItem::_recalcCameraShots(void)
                     for (int coordIndex = 0; coordIndex < _rgFlightPathCoordInfo.count(); coordIndex++) {
                         const CoordInfo_t& coordInfo = _rgFlightPathCoordInfo[coordIndex];
                         switch (coordInfo.coordType) {
-                        case CoordTypeTurnaround:
                         case CoordTypeSurveyEntry:
                         case CoordTypeInteriorHoverTrigger:
                         case CoordTypeSurveyExit:
@@ -1439,9 +1438,15 @@ double SurveyComplexItem::additionalTimeDelay (void) const
 {
     double hoverTime = 0;
 
-    if (hoverAndCaptureEnabled()) {
+    // Holds are only added at camera trigger points
+    if (hoverAndCaptureEnabled() && triggerCamera()) {
         for (const QList<TransectStyleComplexItem::CoordInfo_t>& transect: _transects) {
-            hoverTime += _hoverAndCaptureDelaySeconds * transect.count();
+            for (const TransectStyleComplexItem::CoordInfo_t& coordInfo: transect) {
+                // Turnaround points are flown through without a hold
+                if (coordInfo.coordType != CoordTypeTurnaround) {
+                    hoverTime += _hoverAndCaptureDelaySeconds;
+                }
+            }
         }
     }
 
