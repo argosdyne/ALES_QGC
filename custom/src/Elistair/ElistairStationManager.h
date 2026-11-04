@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include <QObject>
+#include "SafeTFrameNegotiator.h"
 #include <QHostAddress>
 #include <QUdpSocket>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVariantMap>
 #include <QPointer>
 class Vehicle;
@@ -18,6 +20,8 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(int stationPort READ stationPort WRITE setStationPort NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString frameVersion READ frameVersion WRITE setFrameVersion NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString activeFrameVersion READ activeFrameVersion NOTIFY connectionSettingsChanged)
+    Q_PROPERTY(bool frameVersionDetected READ frameVersionDetected NOTIFY connectionStatusChanged)
+    Q_PROPERTY(bool torqueSetpointAvailable READ torqueSetpointAvailable NOTIFY controlChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(bool noReply READ noReply NOTIFY connectedChanged)
     Q_PROPERTY(bool linkLost READ linkLost NOTIFY connectedChanged)
@@ -126,6 +130,13 @@ private slots:
     void _checkTimeout();
 
 private:
+    SafeTFrameNegotiator _negotiation;
+    QElapsedTimer _negotiationClock;
+    bool frameVersionDetected() const { return _negotiation.confirmed; }
+    bool torqueSetpointAvailable() const { return _torqueCommandKnown || (_hasMonitoring && _activeFrameVersion == 1); }
+    bool _safeForDetectionRead() const;
+    void _advanceNegotiation();
+    bool _torqueCommandKnown = false;
     static quint8 _crc8(const QByteArray& data);
     void _setError(const QString& error);
     void _setConnected(bool connected);
@@ -169,8 +180,6 @@ private:
     int _stationPort = 7158;
     int _configuredFrameVersion = 0; // Auto, Extended V1, Extended V0, Standard
     int _activeFrameVersion = 1;
-    int _autoAttempt = 0;
-    qint64 _lastAutoProbeMsecs = 0;
     qint64 _lastMonitoringMsecs = 0;
     qint64 _lastReconnectAttemptMsecs = 0;
     QString _lastMonitoringTime;
@@ -182,7 +191,7 @@ private:
     bool _powerRemote = false;
     bool _powerOn = false;
     bool _torqueRemote = false;
-    int _torquePercent = 50;
+    int _torquePercent = 0;
     int _powerWatts = 0;
     double _cableLength = 0;
     double _tetherRemaining = qQNaN();
