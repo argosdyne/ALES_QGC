@@ -6,7 +6,7 @@
 QGC_LOGGING_CATEGORY(SiYiCameraLog, "SiYiCameraLog")
 
 SiYiCamera::SiYiCamera(QObject *parent)
-    : SiYiTcpClient("192.168.144.25", 37256)
+    : SiYiTcpClient("192.168.144.25", 37256, parent)
 {
 #if 0
     connect(this, &SiYiCamera::connected,
@@ -27,7 +27,8 @@ SiYiCamera::SiYiCamera(QObject *parent)
 
 SiYiCamera::~SiYiCamera()
 {
-
+    // Stop the thread while this object is complete: run() calls analyzeMessage()/heartbeatMessage()
+    stopThread();
 }
 
 bool SiYiCamera::turn(int yaw, int pitch)

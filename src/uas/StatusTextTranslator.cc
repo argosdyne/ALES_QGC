@@ -10,6 +10,10 @@
 #include "StatusTextTranslator.h"
 #include "UASWarningPatterns.h"
 
+#include <QHash>
+#include <QMutex>
+#include <QMutexLocker>
+
 #include <QCoreApplication>
 #include <QRegularExpression>
 #include <QVector>
@@ -174,8 +178,9 @@ QString _translate(const QString& text, int depth)
         }
         const QString translated = QCoreApplication::translate(kContext, pattern.key.constData());
         if (translated == QString::fromUtf8(pattern.key)) {
-            // The current language has no translation for this key
-            return text;
+            // The current language has no translation for this key, but a less specific
+            // key (e.g. "PreArm: %s") may still match and be translated
+            continue;
         }
         return _fillArguments(translated, pattern, match, depth);
     }
@@ -184,7 +189,39 @@ QString _translate(const QString& text, int depth)
 
 } // namespace
 
+namespace {
+
+constexpr int kMaxCachedTexts = 512;
+
+QMutex                  _cacheMutex;
+QHash<QString, QString> _cache;
+
+} // namespace
+
 QString StatusTextTranslator::translate(const QString& text)
 {
-    return _translate(text, 0);
+    {
+        QMutexLocker locker(&_cacheMutex);
+        const auto it = _cache.constFind(text);
+        if (it != _cache.constEnd()) {
+            return it.value();
+        }
+    }
+
+    // Translating a new text can run several hundred pattern matches, so it is done once per text
+    const QString translated = _translate(text, 0);
+
+    QMutexLocker locker(&_cacheMutex);
+    if (_cache.count() >= kMaxCachedTexts) {
+        // Texts with changing values (e.g. altitudes) would otherwise grow the cache without bound
+        _cache.clear();
+    }
+    _cache.insert(text, translated);
+    return translated;
+}
+
+void StatusTextTranslator::clearCache(void)
+{
+    QMutexLocker locker(&_cacheMutex);
+    _cache.clear();
 }

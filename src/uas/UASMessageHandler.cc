@@ -155,6 +155,9 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
         return;
     }
 
+    // throttleKeyForText() matches English phrases, so the duplicate check must use the untranslated text
+    const QString sourceText = text;
+
     {
         const QString translatedText = _translateStatusText(text);
         if (translatedText != text) {
@@ -176,7 +179,7 @@ void UASMessageHandler::handleTextMessage(int, int compId, int severity, QString
     _mutex.lock();
 
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    if (_shouldDropDuplicateMessage(severity, text, now)) {
+    if (_shouldDropDuplicateMessage(severity, sourceText, now)) {
         _mutex.unlock();
         return;
     }

@@ -426,9 +426,11 @@ int main(int argc, char *argv[])
     }
 
     app->_shutdown();
-    delete app;
-    //-- Shutdown Cache System
+    //-- Shutdown Cache System while the application still exists. The cache worker thread may
+    //   still be running and call QHostInfo (internet check), which asserts in debug builds
+    //   once the QCoreApplication has been deleted.
     destroyMapEngine();
+    delete app;
 
     qDebug() << "After app delete";
 

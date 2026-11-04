@@ -540,6 +540,8 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         src/qgcunittest/MavlinkLogTest.h \
         src/qgcunittest/MultiSignalSpy.h \
         src/qgcunittest/MultiSignalSpyV2.h \
+        src/qgcunittest/StatusTextThrottleTest.h \
+        src/MissionManager/PlanManagerLifetimeTest.h \
         src/qgcunittest/UnitTest.h \
         src/Vehicle/FTPManagerTest.h \
         src/Vehicle/InitialConnectTest.h \
@@ -589,6 +591,8 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         src/qgcunittest/MavlinkLogTest.cc \
         src/qgcunittest/MultiSignalSpy.cc \
         src/qgcunittest/MultiSignalSpyV2.cc \
+        src/qgcunittest/StatusTextThrottleTest.cc \
+        src/MissionManager/PlanManagerLifetimeTest.cc \
         src/qgcunittest/UnitTest.cc \
         src/qgcunittest/UnitTestList.cc \
         src/Vehicle/FTPManagerTest.cc \
@@ -603,6 +607,11 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         #src/qgcunittest/FileManagerTest.cc \
         #src/qgcunittest/MainWindowTest.cc \
         #src/qgcunittest/MessageBoxTest.cc \
+
+    CustomBuild {
+        HEADERS += custom/src/GeoAwarenessAlertTest.h custom/src/CustomResourcesTest.h
+        SOURCES += custom/src/GeoAwarenessAlertTest.cc custom/src/CustomResourcesTest.cc
+    }
 
 } } } } } }
 

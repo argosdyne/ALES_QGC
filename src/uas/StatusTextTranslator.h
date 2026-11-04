@@ -21,4 +21,8 @@ class StatusTextTranslator
 public:
     /// @return the translated text, or @p text unchanged when no translation exists
     static QString translate(const QString& text);
+
+    /// Results are cached because vehicles repeat the same status texts. Call this
+    /// whenever the installed translators change.
+    static void clearCache(void);
 };

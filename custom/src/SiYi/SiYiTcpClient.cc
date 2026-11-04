@@ -15,12 +15,24 @@ SiYiTcpClient::SiYiTcpClient(const QString ip, quint16 port, QObject *parent)
     , port_(port)
 {
     sequence_ = quint16(QDateTime::currentMSecsSinceEpoch());
-    // Automatically reconnect
-    connect(this, &SiYiTcpClient::finished, this, [=](){start();});
+    // Automatically reconnect, unless stopThread() was called (a restart may already be queued)
+    connect(this, &SiYiTcpClient::finished, this, [=](){
+        if (!stopped_) {
+            start();
+        }
+    });
 }
 
 SiYiTcpClient::~SiYiTcpClient()
 {
+    // The derived class destructor must have stopped the thread: run() calls its overrides
+    Q_ASSERT(!isRunning());
+    stopThread();
+}
+
+void SiYiTcpClient::stopThread()
+{
+    stopped_ = true;
     if (isRunning()) {
         exit();
         wait();
@@ -156,7 +168,10 @@ void SiYiTcpClient::run()
     //txTimer->start();
     rxTimer->start();
     exec();
+    // Deleted when the thread finishes. All four are created again on every (re)start.
     txTimer->deleteLater();
+    rxTimer->deleteLater();
+    heartbeatTimer->deleteLater();
     tcpClient->deleteLater();
 }
 

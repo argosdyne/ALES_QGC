@@ -20,6 +20,7 @@
 		<file alias="APMSupportForwardingIndicator.qml">../src/ui/toolbar/APMSupportForwardingIndicator.qml</file>
 		<file alias="RemoteIDIndicator.qml">../src/ui/toolbar/RemoteIDIndicator.qml</file>
 		<file alias="GimbalIndicator.qml">../src/ui/toolbar/GimbalIndicator.qml</file>
+		<file alias="M2LinkIndicator.qml">../src/M2Link/M2LinkIndicator.qml</file>
 			</qresource>
 	<qresource prefix="/checklists">
 		<file alias="DefaultChecklist.qml">../src/FlightDisplay/DefaultChecklist.qml</file>
@@ -403,6 +404,7 @@
 		<file alias="GimbalController.SettingsGroup.json">../src/Settings/GimbalController.SettingsGroup.json</file>
 		<file alias="Vehicle/GeneratorFact.json">../src/Vehicle/GeneratorFact.json</file>
 		<file alias="Vehicle/EFIFact.json">../src/Vehicle/EFIFact.json</file>
+		<file alias="Vehicle/GimbalFact.json">../src/Gimbal/GimbalFact.json</file>
 	</qresource>
 	<qresource prefix="/MockLink">
 		<file alias="APMArduSubMockLink.params">../src/comm/APMArduSubMockLink.params</file>
@@ -411,5 +413,6 @@
 		<file alias="General.MetaData.json.xz">../src/comm/MockLink.General.MetaData.json.xz</file>
 		<file alias="Parameter.MetaData.json.xz">../src/comm/MockLink.Parameter.MetaData.json.xz</file>
 		<file alias="Parameter.MetaData.json">../src/comm/MockLink.Parameter.MetaData.json</file>
+		<file alias="Arduplane.params.ftp.bin">../src/comm/Mocklink.Arduplane.params.ftp.bin</file>
 	</qresource>
 </RCC>

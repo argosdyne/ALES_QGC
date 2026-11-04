@@ -143,6 +143,7 @@
 #endif
 
 #include "QGCMapEngine.h"
+#include "StatusTextTranslator.h"
 
 class FinishVideoInitialization : public QRunnable
 {
@@ -407,9 +408,12 @@ void QGCApplication::setLanguage()
         _locale = QLocale(possibleLocale);
     }
     //-- Portuguese translations are only bundled as qgc_*_pt_PT, while QLocale(Portuguese) and
-    //-- Brazilian system locales resolve to pt_BR, so the translator would not find them
-    if (_locale.language() == QLocale::Portuguese && _locale.country() != QLocale::Portugal) {
-        _locale = QLocale(QLocale::Portuguese, QLocale::Portugal);
+    //-- Brazilian system locales resolve to pt_BR, so the translator would not find them.
+    //-- Only the translation lookup falls back to pt_PT; _locale keeps the regional date and
+    //-- number formats.
+    QLocale translationLocale = _locale;
+    if (translationLocale.language() == QLocale::Portuguese && translationLocale.country() != QLocale::Portugal) {
+        translationLocale = QLocale(QLocale::Portuguese, QLocale::Portugal);
     }
     //-- We have specific fonts for Korean
     if(_locale == QLocale::Korean) {
@@ -432,17 +436,23 @@ void QGCApplication::setLanguage()
         } else {
             qCWarning(LocalizationLog) << "Qt lib localization for" << _locale.name() << "is not present";
         }
-        if(_qgcTranslatorSourceCode.load(_locale, QLatin1String("qgc_source_"), "", ":/i18n")) {
+        if(_qgcTranslatorSourceCode.load(translationLocale, QLatin1String("qgc_source_"), "", ":/i18n")) {
             _app->installTranslator(&_qgcTranslatorSourceCode);
         } else {
-            qCWarning(LocalizationLog) << "Error loading source localization for" << _locale.name();
+            qCWarning(LocalizationLog) << "Error loading source localization for" << translationLocale.name();
         }
-        if(_qgcTranslatorJSON.load(_locale, QLatin1String("qgc_json_"), "", ":/i18n")) {
+        if(_qgcTranslatorJSON.load(translationLocale, QLatin1String("qgc_json_"), "", ":/i18n")) {
             _app->installTranslator(&_qgcTranslatorJSON);
         } else {
-            qCWarning(LocalizationLog) << "Error loading json localization for" << _locale.name();
+            qCWarning(LocalizationLog) << "Error loading json localization for" << translationLocale.name();
         }
+    } else {
+        // JsonHelper calls qgcJSONTranslator().translate() directly, so removing the translator is not
+        // enough: it would keep returning the previous language. load() discards the old contents first.
+        _qgcTranslatorJSON.load(QString());
     }
+    // Cached status text translations belong to the previous language
+    StatusTextTranslator::clearCache();
     if(_qmlAppEngine)
         _qmlAppEngine->retranslate();
     emit languageChanged(_locale);

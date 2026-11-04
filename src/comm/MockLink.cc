@@ -211,6 +211,9 @@ void MockLink::run(void)
 
     timer1HzTasks.start(1000);
     timer10HzTasks.start(100);
+    // A coarse timer only fires about every 15 ms on Windows, so sending the parameter list
+    // (one parameter per tick) took over 10 s and initial connect timed out in unit tests
+    timer500HzTasks.setTimerType(Qt::PreciseTimer);
     timer500HzTasks.start(2);
 
     // Wait a little bit for the ui to finish loading up before sending out status text messages
@@ -846,7 +849,9 @@ void MockLink::_handleParamRequestList(const mavlink_message_t& msg)
     mavlink_msg_param_request_list_decode(&msg, &request);
 
     Q_ASSERT(request.target_system == _vehicleSystemId);
-    Q_ASSERT(request.target_component == MAV_COMP_ID_ALL);
+    // ParameterManager targets MAV_COMP_ID_AUTOPILOT1 instead of MAV_COMP_ID_ALL for a full
+    // refresh (some PX4 stacks do not answer the broadcast), so accept both
+    Q_ASSERT(request.target_component == MAV_COMP_ID_ALL || request.target_component == MAV_COMP_ID_AUTOPILOT1);
 
     // Start the worker routine
     _currentParamRequestListComponentIndex = 0;

@@ -77,6 +77,11 @@ int UnitTest::run(QString& singleTest)
             }
             QStringList args;
             args << "*" << "-maxwarnings" << "0";
+            // Windows builds show no QTest output on the console, so it can be written to files instead
+            const QString outputDir = qEnvironmentVariable("QGC_UNITTEST_OUTPUT_DIR");
+            if (!outputDir.isEmpty()) {
+                args << "-o" << QStringLiteral("%1/%2.txt,txt").arg(outputDir, test->objectName());
+            }
             ret += QTest::qExec(test, args);
         }
     }
