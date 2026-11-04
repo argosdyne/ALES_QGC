@@ -17,6 +17,7 @@ Rectangle {
         standardButtons: Dialog.Yes | Dialog.No
         contentItem: QGCLabel { text: qsTr("Cable integrity = 2 will send Land WITHOUT confirmation.\nOnly enable for the vehicle tethered to this station."); color: "#202020" }
         onAccepted: station.noPowerFailsafe = 2
+        onClosed: noPowerFailsafeCombo.currentIndex = Qt.binding(function() { return root.station.noPowerFailsafe })
     }
     property var station: QGroundControl.corePlugin.elistairStationManager
     property int page: 0
@@ -209,8 +210,8 @@ Rectangle {
                         ColumnLayout {
                             anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 1.1
                             QGCLabel { text: qsTr("Connection"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
-                            QGCCheckBox { text: qsTr("Enable SAFE-T tether station"); checked: true }
-                            QGCCheckBox { text: qsTr("Auto-connect on start"); checked: true }
+                            QGCCheckBox { text: qsTr("Enable SAFE-T tether station"); checked: station.enabled; onClicked: { if (!checked || root.connectionValid) { root.applyConnectionSettings(); station.enabled = checked } else checked = Qt.binding(function() { return station.enabled }) } }
+                            QGCCheckBox { text: qsTr("Auto-connect on start"); checked: station.autoConnect; enabled: station.enabled; onClicked: station.autoConnect = checked }
                             GridLayout {
                                 Layout.fillWidth: true; columns: 2
                                 columnSpacing: ScreenTools.defaultFontPixelWidth * 2; rowSpacing: ScreenTools.defaultFontPixelHeight * .65
@@ -229,7 +230,7 @@ Rectangle {
                                 }
                             }
                             RowLayout {
-                                QGCButton { text: qsTr("Test"); enabled: root.connectionValid; Layout.preferredHeight: root.controlHeight; onClicked: root.testConnection() }
+                                QGCButton { text: qsTr("Test"); enabled: station.enabled && root.connectionValid; Layout.preferredHeight: root.controlHeight; onClicked: root.testConnection() }
                                 Rectangle {
                                     visible: station.connected; width: ok.implicitWidth + ScreenTools.defaultFontPixelWidth; height: ScreenTools.defaultFontPixelHeight * 1.6
                                     radius: height / 2; color: root.teal
@@ -262,6 +263,7 @@ Rectangle {
                                 QGCLabel { text: qsTr("No-power failsafe"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                                 Item { Layout.fillWidth: true }
                                 QGCComboBox {
+                                    id: noPowerFailsafeCombo
                                     model: [qsTr("Recommend land"), qsTr("Warn only"), qsTr("Auto land")]
                                     currentIndex: station.noPowerFailsafe
                                     onActivated: { if (index === 2) autoLandWarning.open(); else station.noPowerFailsafe = index }

@@ -1490,7 +1490,7 @@ AndroidBuild {
 android: {
     # Qt 5.15/Gradle 5.6 requires the legacy dx tool. Do not select newer
     # build-tools automatically when they coexist in the SDK.
-    ANDROID_SDK_BUILD_TOOLS_REVISION = 31.0.0
+    ANDROID_SDK_BUILD_TOOLS_REVISION = 30.0.3
     greaterThan(QT_MAJOR_VERSION, 5): CONFIG += qtserialport
     !FORCE_QSERIALPORT {
         include($$PWD/libs/qtandroidserialport/src/qtandroidserialport.pri)

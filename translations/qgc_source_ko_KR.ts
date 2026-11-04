@@ -29598,6 +29598,18 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 <context>
   <name>ElistairStationManager</name>
   <message>
+    <source>Power OFF not sent: confirmation expired or was cancelled. Request it again.</source>
+    <translation>전원 OFF 명령 미전송: 확인이 만료되었거나 취소되었습니다. 다시 요청하세요.</translation>
+  </message>
+  <message>
+    <source>Power OFF not sent: station link or control authority unavailable. Request it again after reconnecting.</source>
+    <translation>전원 OFF 명령 미전송: 스테이션 연결 또는 제어 권한을 사용할 수 없습니다. 다시 연결한 후 요청하세요.</translation>
+  </message>
+  <message>
+    <source>Tether action NOT sent: incident expired, action already sent, or a live armed vehicle and fresh station telemetry are unavailable. Check links and request the action again.</source>
+    <translation>테더 동작 미전송: 상황이 만료되었거나 명령이 이미 전송되었거나, 연결된 시동 중 기체와 최신 스테이션 텔레메트리를 사용할 수 없습니다. 연결을 확인하고 다시 요청하세요.</translation>
+  </message>
+  <message>
     <source> Landing recommended. Select an action in the Tether panel.</source>
     <translation> 착륙을 권고합니다. 테더 패널에서 동작을 선택하세요.</translation>
   </message>

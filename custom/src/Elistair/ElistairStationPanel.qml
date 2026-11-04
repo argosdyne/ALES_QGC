@@ -283,10 +283,10 @@ Rectangle {
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
         Rectangle {
             Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.75; radius: ScreenTools.defaultFontPixelWidth * 0.35
-            color: station.linkLost ? "#765718" : (station.alarmSummary === qsTr("No alarms") ? "#1e5e51" : "#6d322f")
+            color: station.linkLost ? "#765718" : (station.alarmActive ? "#6d322f" : "#1e5e51")
             RowLayout {
                 anchors.fill: parent; anchors.margins: ScreenTools.defaultFontPixelWidth * 0.7
-                QGCLabel { text: station.linkLost ? qsTr("Station link lost") : (station.alarmSummary === qsTr("No alarms") ? qsTr("No active alarms") : station.alarmSummary); color: station.linkLost ? "#ffe2a0" : (station.alarmSummary === qsTr("No alarms") ? "#28d49b" : "#ff867e"); font.pointSize: ScreenTools.defaultFontPointSize }
+                QGCLabel { text: station.linkLost ? qsTr("Station link lost") : (!station.alarmActive ? qsTr("No active alarms") : station.alarmSummary); color: station.linkLost ? "#ffe2a0" : (station.alarmActive ? "#ff867e" : "#28d49b"); font.pointSize: ScreenTools.defaultFontPointSize }
                 Item { Layout.fillWidth: true }
                 QGCLabel { text: station.linkLost ? qsTr("last %1 - retry %2").arg(station.lastMonitoringTime.length ? station.lastMonitoringTime : "--").arg(station.reconnectAttempt) : station.lastMonitoringTime; color: mutedText; font.pointSize: ScreenTools.smallFontPointSize }
             }

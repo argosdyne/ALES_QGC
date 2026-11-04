@@ -172,7 +172,7 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
-        visible:                !mainWindow.tetherPanelVisible
+        displayAllowed:         !mainWindow.tetherPanelVisible
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 

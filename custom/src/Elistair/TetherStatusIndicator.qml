@@ -27,7 +27,7 @@ Rectangle {
         { label: qsTr("Alarms:"), value: station.linkLost ? qsTr("Station link lost") : station.alarmSummary, alarm: true }
     ]
 
-    readonly property bool showIndicator: station !== null && station !== undefined
+    readonly property bool showIndicator: station !== null && station !== undefined && station.enabled
     visible: showIndicator
     width: ScreenTools.defaultFontPixelWidth * 6.4
     height: parent ? parent.height : ScreenTools.defaultFontPixelHeight * 2.4
@@ -148,7 +148,7 @@ Rectangle {
                         width: parent.width - x
                         wrapMode: Text.Wrap
                         text: modelData.value
-                        color: station.linkLost || station.noReply ? root.mutedColor : (modelData.alarm && station.alarmSummary !== qsTr("No alarms") ? root.red : "white")
+                        color: station.linkLost || station.noReply ? root.mutedColor : (modelData.alarm && station.alarmActive ? root.red : "white")
                     }
                 }
             }
