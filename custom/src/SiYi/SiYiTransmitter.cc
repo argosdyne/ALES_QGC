@@ -7,6 +7,12 @@ SiYiTransmitter::SiYiTransmitter(QObject *parent)
 
 }
 
+SiYiTransmitter::~SiYiTransmitter()
+{
+    // Stop the thread while this object is complete: run() calls analyzeMessage()/heartbeatMessage()
+    stopThread();
+}
+
 QByteArray SiYiTransmitter::heartbeatMessage()
 {
 #if 0
