@@ -56,6 +56,9 @@ Item {
                         QGCButton {
                             text: _modeDisplay(modelData)
                             Layout.fillWidth: true
+                            // Compact menu (Figma EasyGripper): the widest mode name nearly fills its button
+                            leftPadding:  ScreenTools.defaultFontPixelWidth * 0.2
+                            rightPadding: ScreenTools.defaultFontPixelWidth * 0.2
                             onClicked: {
                                 activeVehicle.flightMode = modelData
                                 mainWindow.hideIndicatorPopup()

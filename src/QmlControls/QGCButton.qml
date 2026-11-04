@@ -53,7 +53,9 @@ Button {
         QGCColoredImage {
             id:                     icon
             source:                 control.iconSource
-            height:                 source === "" ? 0 : text.height
+            // Compare the string property: source is a url and never equals "", which reserved
+            // icon space (one text height) in every button without an icon
+            height:                 control.iconSource === "" ? 0 : text.height
             width:                  height
             color:                  text.color
             fillMode:               Image.PreserveAspectFit
