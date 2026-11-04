@@ -16,6 +16,8 @@ class ElistairStationManager : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY connectionSettingsChanged)
+    Q_PROPERTY(bool autoConnect READ autoConnect WRITE setAutoConnect NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString stationAddress READ stationAddress WRITE setStationAddress NOTIFY connectionSettingsChanged)
     Q_PROPERTY(int stationPort READ stationPort WRITE setStationPort NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString frameVersion READ frameVersion WRITE setFrameVersion NOTIFY connectionSettingsChanged)
@@ -43,6 +45,7 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(double current READ current NOTIFY telemetryChanged)
     Q_PROPERTY(int appliedTorquePercent READ appliedTorquePercent NOTIFY telemetryChanged)
     Q_PROPERTY(QString alarmSummary READ alarmSummary NOTIFY telemetryChanged)
+    Q_PROPERTY(bool alarmActive READ alarmActive NOTIFY telemetryChanged)
     Q_PROPERTY(bool noPower READ noPower NOTIFY noPowerChanged)
     Q_PROPERTY(bool noPowerPrompt READ noPowerPrompt NOTIFY noPowerChanged)
     Q_PROPERTY(int noPowerFailsafe READ noPowerFailsafe WRITE setNoPowerFailsafe NOTIFY noPowerChanged)
@@ -56,6 +59,10 @@ class ElistairStationManager : public QObject
 public:
     explicit ElistairStationManager(QObject* parent = nullptr);
 
+    bool enabled() const { return _enabled; }
+    bool autoConnect() const { return _autoConnect; }
+    void setEnabled(bool enabled);
+    void setAutoConnect(bool enabled);
     QString stationAddress() const { return _stationAddress; }
     int stationPort() const { return _stationPort; }
     QString frameVersion() const;
@@ -78,8 +85,9 @@ public:
     double current() const { return _current; }
     int appliedTorquePercent() const { return _appliedTorquePercent; }
     QString alarmSummary() const { return _alarmSummary; }
+    bool alarmActive() const { return _alarmActive || _noPower; }
     bool noPower() const { return _noPower; }
-    bool noPowerPrompt() const { return _noPower && !_noPowerDismissed && _noPowerFailsafe == 0; }
+    bool noPowerPrompt() const { return _noPower && !_noPowerDismissed && (_noPowerFailsafe == 0 || (_noPowerFailsafe == 2 && _autoLandFailed)); }
     int noPowerFailsafe() const { return _noPowerFailsafe; } // Recommend, Warn only, Auto land
     qulonglong noPowerIncident() const { return _noPowerIncident; }
     void setNoPowerFailsafe(int value);
@@ -139,6 +147,7 @@ private:
     bool _torqueCommandKnown = false;
     static quint8 _crc8(const QByteArray& data);
     void _setError(const QString& error);
+    bool _refuseAction(const QString& reason);
     void _setConnected(bool connected);
     bool _decodeMonitoring(const QByteArray& frame);
     static quint16 _u16be(const QByteArray& data, int offset);
@@ -158,6 +167,7 @@ private:
     void _updateNoPower(int integrity);
     void _announceNoPower();
     bool _noPower = false, _noPowerDismissed = false, _noPowerActionSent = false;
+    bool _autoLandFailed = false;
     int _noPowerFailsafe = 0, _decodedIntegrity = -1;
     qulonglong _noPowerIncident = 0;
     QPointer<Vehicle> _noPowerVehicle;
@@ -177,6 +187,8 @@ private:
     QString _settingsResult, _settingsReadTime;
     int _configOperation = 0; // 1: read, 2: write, 3: verify after successful write
     QString _stationAddress;
+    bool _enabled = false;
+    bool _autoConnect = true;
     int _stationPort = 7158;
     int _configuredFrameVersion = 0; // Auto, Extended V1, Extended V0, Standard
     int _activeFrameVersion = 1;
@@ -201,6 +213,7 @@ private:
     double _current = 0;
     int _appliedTorquePercent = 0;
     QString _alarmSummary = QStringLiteral("No alarms");
+    bool _alarmActive = false;
     QString _lastError;
     QString _lastLoggedAlarmSummary;
     qint64 _powerOnSinceMsecs = 0;

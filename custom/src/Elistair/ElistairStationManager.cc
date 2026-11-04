@@ -56,6 +56,11 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
         }
     });
     QSettings settings;
+    _alarmSummary = tr("No alarms");
+    // Migrate only explicitly configured endpoints; a fresh install stays off.
+    _enabled = settings.value(QStringLiteral("ElistairStation/enabled"),
+        settings.contains(QStringLiteral("ElistairStation/address")) || settings.contains(QStringLiteral("ElistairStation/port"))).toBool();
+    _autoConnect = settings.value(QStringLiteral("ElistairStation/autoConnect"), true).toBool();
     _noPowerFailsafe = qBound(0, settings.value(QStringLiteral("ElistairStation/noPowerFailsafe"), 0).toInt(), 2);
     _noPowerAlarmTimer.setInterval(15000);
     connect(&_noPowerAlarmTimer, &QTimer::timeout, this, &ElistairStationManager::_announceNoPower);
@@ -79,8 +84,26 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     });
     setFrameVersion(settings.value(QStringLiteral("ElistairStation/frameVersion"), QStringLiteral("Auto")).toString());
 
-    // The saved station endpoint is automatically reconnected at application startup.
-    QTimer::singleShot(0, this, &ElistairStationManager::connectStation);
+    QTimer::singleShot(0, this, [this]() {
+        if (_enabled && _autoConnect) connectStation();
+    });
+}
+
+void ElistairStationManager::setEnabled(bool enabled)
+{
+    if (_enabled == enabled) return;
+    _enabled = enabled;
+    QSettings().setValue(QStringLiteral("ElistairStation/enabled"), enabled);
+    emit connectionSettingsChanged();
+    if (enabled) connectStation(); else disconnectStation();
+}
+
+void ElistairStationManager::setAutoConnect(bool enabled)
+{
+    if (_autoConnect == enabled) return;
+    _autoConnect = enabled;
+    QSettings().setValue(QStringLiteral("ElistairStation/autoConnect"), enabled);
+    emit connectionSettingsChanged();
 }
 
 void ElistairStationManager::setStationAddress(const QString& address)
@@ -136,6 +159,7 @@ void ElistairStationManager::setFrameVersion(const QString& version)
 
 void ElistairStationManager::connectStation()
 {
+    if (!_enabled) return;
     cancelPowerOff();
     _powerCommandKnown = false;
     _settingsReconnectTimer.stop();
@@ -188,10 +212,17 @@ void ElistairStationManager::disconnectStation()
     _settingsReconnectTimer.stop();
     _controlTimer.stop();
     _timeoutTimer.stop();
+    _configTimer.stop();
+    if (_configOperation == 2) _settingsResult = tr("Save result unknown. No automatic retry; read settings again to verify.");
+    _configOperation = 0;
+    emit settingsTransactionChanged();
+    _socket.close();
+    _updateNoPower(0);
     _hasMonitoring = false;
     _noReply = false;
     _linkLost = false;
     _reconnectAttempt = 0;
+    emit connectedChanged();
     emit connectionStatusChanged();
     _setConnected(false);
     _logPowerSession();
@@ -267,9 +298,12 @@ void ElistairStationManager::cancelPowerOff()
 
 bool ElistairStationManager::confirmPowerOff(qulonglong requestId)
 {
-    if (!_powerOffPending || requestId != _powerOffRequestId || !_canControlPower()) {
+    if (!_powerOffPending || requestId != _powerOffRequestId) {
+        return _refuseAction(tr("Power OFF not sent: confirmation expired or was cancelled. Request it again."));
+    }
+    if (!_canControlPower()) {
         cancelPowerOff();
-        return false;
+        return _refuseAction(tr("Power OFF not sent: station link or control authority unavailable. Request it again after reconnecting."));
     }
     _powerOffPending = false; // One-shot; a repeated accept cannot resend OFF.
     qCInfo(SafeTLog) << "SAFE-T power OFF confirmed" << requestId;
@@ -523,9 +557,6 @@ void ElistairStationManager::_readDatagrams()
                 _alarmSummary = tr("CRITICAL: No power in flight (last reported)");
                 emit telemetryChanged();
             }
-            _publishTelemetry();
-            _logAlarmTransition();
-            _logStationFlightTime();
             _lastMonitoringMsecs = QDateTime::currentMSecsSinceEpoch();
             _hasMonitoring = true;
             _negotiation.monitoring(_negotiationClock.elapsed(), _safeForDetectionRead());
@@ -543,6 +574,9 @@ void ElistairStationManager::_readDatagrams()
             emit connectionStatusChanged();
             _setConnected(_negotiation.confirmed);
             _updateNoPower(_decodedIntegrity);
+            _publishTelemetry();
+            _logAlarmTransition();
+            _logStationFlightTime();
         }
     }
 }
@@ -562,7 +596,7 @@ void ElistairStationManager::_checkTimeout()
             _lastReconnectAttemptMsecs = now;
             qCWarning(SafeTLog) << "SAFE-T link lost" << "after" << elapsed << "ms";
             _logPowerSession();
-            _showLinkLostMessage();
+            if (_hasMonitoring) _showLinkLostMessage();
         } else if (_noReply) {
             qCWarning(SafeTLog) << "SAFE-T no reply" << "after" << elapsed << "ms";
         }
@@ -587,20 +621,24 @@ void ElistairStationManager::_checkTimeout()
 
 bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
 {
-    _decodedIntegrity = -1; // Unknown is never a fresh alarm-clear report.
+    // Do not mutate safety state for rejected (including bad-CRC) datagrams.
     // SAFE-T V2.1/V2.2 Extended Monitoring V1: 0x56, size=23, CRC,
     // payload (version + bytes 4..24), CR, LF. Multi-byte values are big-endian.
     if (_activeFrameVersion == FrameVersion::Standard) {
         if (frame.size() != 13 || quint8(frame.at(0)) != kStandardSync || quint8(frame.at(1)) != 9 || frame.at(11) != '\r' || frame.at(12) != '\n' || quint8(frame.at(10)) != _crc8(frame.mid(2, 8))) return false;
+        _decodedIntegrity = -1; // Standard has no fresh integrity report.
+        _alarmActive = false;
         _powerWatts = _u16le(frame, 2); _cableLength = _u16le(frame, 4) / 10.0; _tetherRemaining = qQNaN(); _cableSpeed = quint8(frame.at(6)) / 10.0; _spoolTemperature = qint8(frame.at(7)); _voltage = qQNaN(); _current = qQNaN(); _appliedTorquePercent = 0; _alarmSummary = tr("No alarms (Standard frame)"); emit telemetryChanged(); return true;
     }
     if (_activeFrameVersion == FrameVersion::ExtendedV0) {
         if (frame.size() != 18 || quint8(frame.at(0)) != kExtendedV0Sync || quint8(frame.at(1)) != 14 || frame.at(16) != '\r' || frame.at(17) != '\n' || quint8(frame.at(2)) != _crc8(frame.mid(3, 13))) return false;
         _powerWatts = _u16be(frame, 4); _cableLength = _u16be(frame, 6) / 10.0;
         _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[15]);
+        _alarmActive = false;
+        for (int i = 12; i <= 15; ++i) _alarmActive |= frame[i] != '0' && frame[i] != 0;
         _voltage = qQNaN(); _current = qQNaN(); _tetherRemaining = qQNaN(); _appliedTorquePercent = 0;
         _cableSpeed = quint8(frame.at(8)) / 10.0; _spoolTemperature = qint8(frame.at(9));
-        _alarmSummary = _decodedIntegrity == 2 ? tr("CRITICAL: No power in flight") : tr("Monitoring connected (Extended V0)"); emit telemetryChanged(); return true;
+        _alarmSummary = _decodedIntegrity == 2 ? tr("CRITICAL: No power in flight") : _alarmActive ? tr("SAFE-T alarm active") : tr("Monitoring connected (Extended V0)"); emit telemetryChanged(); return true;
     }
     if (frame.size() != 27 || quint8(frame.at(0)) != kExtendedV1Sync || quint8(frame.at(1)) != 23 || frame.at(25) != '\r' || frame.at(26) != '\n' || quint8(frame.at(3)) != 0x01) return false;
     if (quint8(frame.at(2)) != _crc8(frame.mid(3, 22))) return false;
@@ -617,6 +655,7 @@ bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
     if (!_torqueRemote && !_torqueCommandKnown) { _torquePercent = _appliedTorquePercent; emit controlChanged(); }
     const auto activeAlarm = [&frame](int offset) { return frame.at(offset) != '0' && frame.at(offset) != 0; };
     const bool alarm = activeAlarm(19) || activeAlarm(20) || activeAlarm(21) || activeAlarm(22) || activeAlarm(23);
+    _alarmActive = alarm;
     _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[22]);
     _alarmSummary = _decodedIntegrity == 2 ? tr("CRITICAL: No power in flight") : alarm ? tr("SAFE-T alarm active") : tr("No alarms");
     emit telemetryChanged();
@@ -655,6 +694,14 @@ void ElistairStationManager::_setError(const QString& error)
     if (_lastError == error) return;
     _lastError = error;
     emit lastErrorChanged();
+}
+
+bool ElistairStationManager::_refuseAction(const QString& reason)
+{
+    _setError(reason);
+    qCWarning(SafeTLog) << reason;
+    if (auto* plugin = qobject_cast<CustomPlugin*>(parent())) plugin->showMessage(reason, SystemMessage::Warning);
+    return false;
 }
 
 void ElistairStationManager::_publishTelemetry()
@@ -697,16 +744,22 @@ void ElistairStationManager::_updateNoPower(int integrity)
     ++_noPowerIncident;
     _noPowerDismissed = false;
     _noPowerActionSent = false;
+    _autoLandFailed = false;
     _noPowerVehicle = _noPower ? qgcApp()->toolbox()->multiVehicleManager()->activeVehicle() : nullptr;
     cancelPowerOff();
     emit noPowerChanged();
+    emit telemetryChanged();
     if (!_noPower) { _noPowerAlarmTimer.stop(); return; }
     qCCritical(SafeTLog) << "Cable integrity=2, no-power incident" << _noPowerIncident << "policy" << _noPowerFailsafe;
     _announceNoPower();
     _noPowerAlarmTimer.start();
     if (_noPowerFailsafe == 2) {
-        if (!executeNoPowerAction(_noPowerIncident, false))
-            _setError(tr("Auto land NOT sent: no live armed vehicle associated with this incident. Take manual action."));
+        if (!executeNoPowerAction(_noPowerIncident, false)) {
+            // One failed automatic attempt must leave a manual recovery path.
+            // Never automatically retry a flight command on later telemetry.
+            _autoLandFailed = true;
+            emit noPowerChanged();
+        }
     }
 }
 
@@ -714,7 +767,7 @@ void ElistairStationManager::requestNoPowerAction(bool rtl)
 {
     if (noPowerPrompt() && !_noPowerActionSent && _noPowerVehicle && connected() && !noReply() && !linkLost())
         emit noPowerActionRequested(rtl, _noPowerIncident);
-    else _setError(tr("Tether action unavailable: check vehicle and station links."));
+    else _refuseAction(tr("Tether action unavailable: check vehicle and station links."));
 }
 
 bool ElistairStationManager::executeNoPowerAction(qulonglong incident, bool rtl)
@@ -724,7 +777,9 @@ bool ElistairStationManager::executeNoPowerAction(qulonglong incident, bool rtl)
     if (!SafeTNoPowerPolicy::canDispatch(_noPower, _decodedIntegrity, incident == _noPowerIncident, _noPowerActionSent,
         connected() && !noReply() && !linkLost() && age >= 0 && age < 1000,
         vehicle && vehicle == _noPowerVehicle, vehicle && vehicle->armed(),
-        vehicle && !vehicle->vehicleLinkManager()->communicationLost(), vehicle && vehicle->guidedModeSupported())) return false;
+        vehicle && !vehicle->vehicleLinkManager()->communicationLost(), vehicle && vehicle->guidedModeSupported())) {
+        return _refuseAction(tr("Tether action NOT sent: incident expired, action already sent, or a live armed vehicle and fresh station telemetry are unavailable. Check links and request the action again."));
+    }
     _noPowerActionSent = true; // Latch before dispatch; no automatic retries on missing ACK.
     dismissNoPower();
     qCWarning(SafeTLog) << "No-power failsafe command" << (rtl ? "RTL to Home (station assumed)" : "Land") << "incident" << incident;
@@ -737,7 +792,7 @@ void ElistairStationManager::_logAlarmTransition()
 {
     if (_lastLoggedAlarmSummary == _alarmSummary) return;
     _lastLoggedAlarmSummary = _alarmSummary;
-    if (_alarmSummary == tr("No alarms")) {
+    if (!alarmActive()) {
         qCInfo(SafeTLog) << "SAFE-T alarms cleared";
     } else {
         qCWarning(SafeTLog) << "SAFE-T alarm event:" << _alarmSummary;
