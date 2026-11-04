@@ -23,7 +23,12 @@ QMAKE_CXXFLAGS += /utf-8
 
 # Ensure .cc files are compiled as C++ across toolchains
 QMAKE_EXT_CPP += .cc
-
+# Fix backslash paths for NDK make which uses bash on Windows (bash treats backslashes as escape chars)
+QMAKE_CC ~= s,\\\\,/,g
+QMAKE_CXX ~= s,\\\\,/,g
+QMAKE_LINK ~= s,\\\\,/,g
+QMAKE_LINK_SHLIB ~= s,\\\\,/,g
+QMAKE_AR ~= s,\\\\,/,g
 # These are disabled until proven correct
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED

@@ -12,6 +12,14 @@ DECLARE_SETTINGSFACT(CustomSettings, doodleLabsIP)
 DECLARE_SETTINGSFACT(CustomSettings, doodleLabsIPEnable)
 DECLARE_SETTINGSFACT(CustomSettings, lifeJacketEnable)
 
+DECLARE_SETTINGSFACT(CustomSettings, ysEnable)
+DECLARE_SETTINGSFACT(CustomSettings, ysOpenPanelOnConnect)
+DECLARE_SETTINGSFACT(CustomSettings, ysModel)
+DECLARE_SETTINGSFACT(CustomSettings, ysLink)
+DECLARE_SETTINGSFACT(CustomSettings, ysMavCompId)
+DECLARE_SETTINGSFACT(CustomSettings, ysCamera)
+DECLARE_SETTINGSFACT(CustomSettings, ysMissionStartStop)
+
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)
 {
     if (!_teamModeFact) {

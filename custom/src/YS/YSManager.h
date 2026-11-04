@@ -46,6 +46,17 @@ public:
     Q_PROPERTY(QString lastSentMessage         READ lastSentMessage         NOTIFY messageChanged)
     Q_PROPERTY(QString lastReceivedMessage     READ lastReceivedMessage     NOTIFY messageChanged)
 
+    // LiDAR Setup > Connection [Test]
+    enum TestState {
+        TestIdle = 0,
+        TestRunning,
+        TestOk,
+        TestFailed
+    };
+    Q_ENUM(TestState)
+    Q_PROPERTY(int     testState               READ testState               NOTIFY testChanged)
+    Q_PROPERTY(QString testMessage             READ testMessage             NOTIFY testChanged)
+
     bool statusValid(void) const { return _statusValid; }
     bool anyError(void) const { return timeNotSet() || scannerNotReady() || insNotLocked() || noUsb() || usbFull() || _insErr || _scnErr || _intErr || _camErr; }
 
@@ -81,6 +92,12 @@ public:
     QString lastSentMessage(void) const { return _lastSentMessage; }
     QString lastReceivedMessage(void) const { return _lastReceivedMessage; }
 
+    int testState(void) const { return _testState; }
+    QString testMessage(void) const { return _testMessage; }
+
+    /// Sends one Get Status (YS_STA_00 + YS_STA_01) and reports the result through testState/testMessage
+    Q_INVOKABLE void testConnection(void);
+
     Q_INVOKABLE void startAcquisition(void);
     Q_INVOKABLE void stopAcquisition(void);
     Q_INVOKABLE void powerOff(void);
@@ -97,16 +114,20 @@ signals:
     void parameterChanged(void);
     void messageChanged(void);
     void paramSetFailedChanged(void);
+    void testChanged(void);
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
     void _mavlinkReceived(const mavlink_message_t& message);
     void _checkStatusTimeout(void);
     void _restorePowerStatus(void);
+    void _testTimeout(void);
 
 private:
     static constexpr int kYellowScanSysId = 1;
-    static constexpr int kYellowScanCompId = MAV_COMP_ID_USER1;
+    static constexpr int kYellowScanDefaultCompId = MAV_COMP_ID_USER1;
+    uint8_t _compId(void) const;
+    void _finishTest(TestState state, const QString& message);
     QString _mavResultToString(uint8_t result) const;
     QString _formatMavlinkHex(const mavlink_message_t& message) const;
     void _sendNamedValueInt(const char* name, int32_t value);
@@ -182,6 +203,14 @@ private:
 
     QString _lastSentMessage;
     QString _lastReceivedMessage;
+
+    QTimer _testTimer;
+    TestState _testState{TestIdle};
+    QString _testMessage;
+    bool _testGotSta00{false};
+    bool _testGotSta01{false};
+    // Get Status = YS_STA_00 then YS_STA_01, each with a 2 s reply window
+    static constexpr int kTestTimeoutMs = 4000;
 
     static constexpr qint64 kStatusTimeoutMs = 7000;
     static constexpr qint64 kStatusResponseTimeoutMs = 2000;
