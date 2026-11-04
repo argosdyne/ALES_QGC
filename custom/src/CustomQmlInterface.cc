@@ -454,9 +454,6 @@ SystemMessage::SystemMessage(CustomQmlInterface* parent)
     opacityAnimation2->setStartValue(0);
     opacityAnimation2->setEndValue(1);
     opacityAnimation2->start();
-
-    _geoAwarenessTimer.setSingleShot(true);
-    connect(&_geoAwarenessTimer, &QTimer::timeout, this, &SystemMessage::geoAwarnessStartCloseItstyle);
 }
 
 QPropertyAnimation* SystemMessage::createYAnimation(QVariant from, QVariant to)
@@ -562,8 +559,28 @@ static bool _geoAwarenessInsideMessageShown = false;
 static bool _geoAwarenessNearMessageShown = false;
 static bool _geoAwarenessNoDataMessageShown = false;
 
+SystemMessage* CustomQmlInterface::_findGeoAwarenessMessage(GeoAwarenessErrorId type)
+{
+    for (int i = 0; i < _geoAwarenessMessages.count(); i++) {
+        SystemMessage* m = _geoAwarenessMessages.value<SystemMessage*>(i);
+        if (m && m->geoAwarenessErrorId() == type) {
+            return m;
+        }
+    }
+    return nullptr;
+}
+
 void CustomQmlInterface::geoAwarenessMessage(GeoAwarenessErrorId type, const QString& message)
 {
+    // Already shown: keep it on screen and only update the text (e.g. the distance)
+    if (SystemMessage* shown = _findGeoAwarenessMessage(type)) {
+        shown->cancelGeoAwarenessClose();
+        if (shown->geoAwarenessContext() != message) {
+            shown->setGeoAwarenessContext(message);
+        }
+        return;
+    }
+
     // 이미 보여줬다면 return
     switch (type) {
     case GeoAwarenessErrorId::Inside:
@@ -588,12 +605,29 @@ void CustomQmlInterface::geoAwarenessMessage(GeoAwarenessErrorId type, const QSt
     SystemMessage* m = new SystemMessage(this);
     m->setGeoAwarenessContext(message);
     m->setGeoAwarenessErrorId(type);
-    m->setGeoAwarenessType();
 
 
     _geoAwarenessMessages.append(m);
     _geoAwarenessRefreshSystemMessageUI(true);
     _playGeoAwarenessAlert(type);
+}
+
+void CustomQmlInterface::clearGeoAwarenessMessage(GeoAwarenessErrorId type)
+{
+    SystemMessage* m = _findGeoAwarenessMessage(type);
+    if (m && !m->geoAwarenessClosing()) {
+        m->geoAwarnessStartCloseItstyle();
+    }
+}
+
+void CustomQmlInterface::updateGeoAwarenessConditions(bool isInside, bool isNear)
+{
+    if (!isInside) {
+        clearGeoAwarenessMessage(GeoAwarenessErrorId::Inside);
+    }
+    if (!isNear) {
+        clearGeoAwarenessMessage(GeoAwarenessErrorId::Near);
+    }
 }
 
 void CustomQmlInterface::_playGeoAwarenessAlert(GeoAwarenessErrorId type)
@@ -632,7 +666,13 @@ void SystemMessage::setGeoAwarenessContext(const QString &context)
 {
     _geoAwarenessContext = context;
     _geoAwarenessWidth = _customQmlInterface->_defaultFontPixelWidth * 1 * (CHAR_NUMBER_EACH_ROW + 3) + _customQmlInterface->_defaultFontPixelHeight * 1 * 20;
+    const float previousStackHeight = geoAwarenessStackHeight();
     _geoAwarenessHeight = _customQmlInterface->_defaultFontPixelWidth * 1 * 5 + _customQmlInterface->_defaultFontPixelHeight * 1 * (_geoAwarenessContext.length() / CHAR_NUMBER_EACH_ROW + 1);
+    emit geoAwarenessContextChanged();
+    // A shown alert whose text changed may now need more or less room
+    if (qAbs(geoAwarenessStackHeight() - previousStackHeight) >= 0.5f && _customQmlInterface->_geoAwarenessMessages.indexOf(this) >= 0) {
+        _customQmlInterface->_geoAwarenessRefreshSystemMessageUI(false);
+    }
 }
 
 void SystemMessage::setGeoAwarenessOpacity(const float &opacity)
@@ -675,22 +715,47 @@ void CustomQmlInterface::_geoAwarenessRefreshSystemMessageUI(bool from)
 
 void SystemMessage::geoAwarnessStartCloseItstyle()
 {
-    QPropertyAnimation *animation = new QPropertyAnimation(this, "geoAwarenessOpacity", this);
-    animation->setDuration(2000);
-    animation->setStartValue(1);
-    animation->setEndValue(0);
-    connect(animation, &QPropertyAnimation::finished, this, &SystemMessage::geoAwarenessCloseItstyle);
-    animation->start();
+    if (_geoAwarenessFadeAnimation) {
+        return;     // already fading out
+    }
+    _geoAwarenessFadeAnimation = new QPropertyAnimation(this, "geoAwarenessOpacity", this);
+    _geoAwarenessFadeAnimation->setDuration(2000);
+    _geoAwarenessFadeAnimation->setStartValue(1);
+    _geoAwarenessFadeAnimation->setEndValue(0);
+    connect(_geoAwarenessFadeAnimation, &QPropertyAnimation::finished, this, &SystemMessage::geoAwarenessCloseItstyle);
+    _geoAwarenessFadeAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void SystemMessage::cancelGeoAwarenessClose()
+{
+    if (!_geoAwarenessFadeAnimation) {
+        return;
+    }
+    // The condition came back while the alert was fading out: keep showing it
+    QPropertyAnimation* fade = _geoAwarenessFadeAnimation;
+    _geoAwarenessFadeAnimation = nullptr;
+    disconnect(fade, &QPropertyAnimation::finished, this, &SystemMessage::geoAwarenessCloseItstyle);
+    fade->stop();
+    setGeoAwarenessOpacity(1);
 }
 
 void SystemMessage::geoAwarenessCloseItstyle()
 {
+    int index = _customQmlInterface->_geoAwarenessMessages.indexOf(this);
+    if (index < 0) {
+        return;     // already closed (e.g. close button during the fade-out)
+    }
+    if (_geoAwarenessFadeAnimation) {
+        QPropertyAnimation* fade = _geoAwarenessFadeAnimation;
+        _geoAwarenessFadeAnimation = nullptr;
+        disconnect(fade, &QPropertyAnimation::finished, this, &SystemMessage::geoAwarenessCloseItstyle);
+        fade->stop();
+    }
     if(_customQmlInterface->_geoAwarenessGroup.indexOfAnimation(_geoAwarenessYAnimation) > -1) {
         _customQmlInterface->_geoAwarenessGroup.removeAnimation(_geoAwarenessYAnimation);
         _geoAwarenessYAnimation->deleteLater();
         _geoAwarenessYAnimation = nullptr;
     }
-    int index = _customQmlInterface->_geoAwarenessMessages.indexOf(this);
     _customQmlInterface->_geoAwarenessNormalSystemMessages.removeOne(this);
     _customQmlInterface->_geoAwarenessMessages.removeAt(index)->deleteLater();
 
@@ -722,9 +787,4 @@ QPropertyAnimation* SystemMessage::geoAwarenessCreateYAnimation(QVariant from, Q
     return _geoAwarenessYAnimation;
 }
 
-void SystemMessage::setGeoAwarenessType()
-{
-    //Timer only show 10s
-    if(_geoAwarenessTimer.isActive()) _geoAwarenessTimer.stop();
-    _geoAwarenessTimer.start(10000);
-}
+

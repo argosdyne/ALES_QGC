@@ -5,8 +5,9 @@
 
 #include <QLocale>
 
-/// GeoAwareness alerts: stacking uses the height QML draws, and the spoken
-/// warning is played only when the UI language is English.
+/// GeoAwareness alerts: stacking uses the height QML draws, the spoken warning is
+/// played only when the UI language is English, and an alert stays until it is
+/// closed or its condition clears.
 class GeoAwarenessAlertTest : public UnitTest
 {
     Q_OBJECT
@@ -18,6 +19,10 @@ private slots:
     // Basic
     void _basicStackUsesDrawnHeight(void);
     void _basicSpeechOnlyInEnglish(void);
+    void _basicStaysUntilClosed(void);
+    void _basicRepeatUpdatesText(void);
+    void _basicConditionClears(void);
+    void _basicConditionReturnsDuringFade(void);
 
     // Abnormal input
     void _abnormalHeights(void);

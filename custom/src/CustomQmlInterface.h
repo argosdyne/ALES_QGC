@@ -61,7 +61,7 @@ public:
     QPropertyAnimation* createYAnimation(QVariant from, QVariant to);
 
     //GeoAwareness --------------------------------------------------------------
-    Q_PROPERTY(QString geoAwarenessContext READ geoAwarenessContext CONSTANT)
+    Q_PROPERTY(QString geoAwarenessContext READ geoAwarenessContext NOTIFY geoAwarenessContextChanged)
     QString geoAwarenessContext(void) const {return _geoAwarenessContext; }
     void setGeoAwarenessContext(const QString& context);
     Q_PROPERTY(float geoAwarenessWidth READ geoAwarenessWidth CONSTANT)
@@ -78,9 +78,10 @@ public:
     void setGeoAwarenessOpacity(const float& opacity);
     void setGeoAwarenessY(const float& geoy);
     QPropertyAnimation* geoAwarenessCreateYAnimation(QVariant from, QVariant to);    
-    void setGeoAwarenessType();
     void setGeoAwarenessErrorId(GeoAwarenessErrorId errorId) { _geoAwarenessErrorId = errorId; }
     GeoAwarenessErrorId geoAwarenessErrorId(void) const { return _geoAwarenessErrorId; }
+    bool geoAwarenessClosing(void) const { return _geoAwarenessFadeAnimation != nullptr; }
+    void cancelGeoAwarenessClose();
 
 
 public slots:
@@ -98,6 +99,7 @@ signals:
     //GeoAwareness ------
     void geoAwarenessOpacityChanged(const float& opacity);
     void geoAwarenessYChagned(const float& geoy);
+    void geoAwarenessContextChanged();
 
 private:
     QTimer _timer;
@@ -118,7 +120,7 @@ private:
     float _geoAwarenessOpacity;
     float _geoAwarenessY;
     QPropertyAnimation *_geoAwarenessYAnimation;
-    QTimer _geoAwarenessTimer;
+    QPropertyAnimation *_geoAwarenessFadeAnimation{nullptr};   // running while the alert fades out
     GeoAwarenessErrorId _geoAwarenessErrorId{GeoAwarenessErrorId::Unknown};
 
 };
@@ -190,13 +192,20 @@ public slots:
     void showMapUpdateDate();
 
     //GeoAwareness Message Window
-    // Shows the message once per type until it closes, with an alert sound and a spoken warning
+    // Shows the message once per type, with an alert sound and a spoken warning. While it is shown,
+    // a new message of the same type only updates the text. It stays until the user closes it or
+    // the condition clears (clearGeoAwarenessMessage / updateGeoAwarenessConditions).
     void geoAwarenessMessage(GeoAwarenessErrorId type, const QString& message);
+    // Fades out and removes the message of this type, if shown
+    void clearGeoAwarenessMessage(GeoAwarenessErrorId type);
+    // Result of one GeoZone check: clears the Inside / Near alerts whose condition no longer holds
+    void updateGeoAwarenessConditions(bool isInside, bool isNear);
 
 private slots:
     void _slaveModeChanged(bool slaveMode);
 
 private:
+    SystemMessage* _findGeoAwarenessMessage(GeoAwarenessErrorId type);
     void _refreshSystemMessageUI(bool from);
     QParallelAnimationGroup _group;
     QmlObjectListModel _systemMessages;

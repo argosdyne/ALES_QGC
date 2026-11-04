@@ -825,7 +825,10 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                     droneLon = manager->activeVehicle()->longitude();
                     droneAlt = manager->activeVehicle()->altitudeRelative()->rawValue().toDouble();
 
-                    if (std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt)) {
+                    // Without a valid position the result says nothing about the GeoZone conditions,
+                    // so it must not clear the alerts that are shown
+                    const bool positionValid = !(std::isnan(droneLat) || std::isnan(droneLon) || std::isnan(droneAlt));
+                    if (!positionValid) {
                         //qWarning() << "Received NaN for vehicle position. Using default values.";
                         droneLat = 0.0; // Default values to handle the NaN case
                         droneLon = 0.0;
@@ -839,10 +842,13 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
 
                     //Point_3 dronePoint = latLonAltToCartesian(lat, lon, alt);
 
+                    bool anyInside = false;
+                    bool anyNear = false;
                     for (const Polyhedron& poly : zoneList) {
 
                         bool inside = checkPointInsidePolyhedron(poly, dronePoint);
                         if (inside) {
+                            anyInside = true;
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [=]() {
                                 CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Inside, tr("Drone is inside GeoZone!"));
                             }, Qt::QueuedConnection);
@@ -870,11 +876,19 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
                         double exactDist = std::sqrt(tree.squared_distance(dronePoint));
 
                         if (exactDist <= alarmDistance) {
+                            anyNear = true;
                             QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(exactDist, 'f', 0));
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
                                 CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                             }, Qt::QueuedConnection);
                         }
+                    }
+
+                    // Alerts stay until closed or until their condition clears
+                    if (positionValid) {
+                        QMetaObject::invokeMethod(CustomQmlInterface::instance(), [anyInside, anyNear]() {
+                            CustomQmlInterface::instance()->updateGeoAwarenessConditions(anyInside, anyNear);
+                        }, Qt::QueuedConnection);
                     }
                 }
             }

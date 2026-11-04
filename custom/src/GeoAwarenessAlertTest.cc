@@ -17,6 +17,8 @@ namespace {
 const char* kLanguageKey = "qLocaleLanguage";
 constexpr int kAnimationSettleMs = 400;     // y animations run for 200 ms
 constexpr int kSpeechDelayMs     = 1500;    // speech is scheduled 1200 ms after the alert sound
+constexpr int kFadeOutSettleMs   = 2600;    // fade-out runs for 2000 ms, then the alert is removed
+constexpr int kOldAutoCloseMs    = 10000;   // alerts used to close by themselves after 10 s
 
 // AudioOutput has no speech engine in unit tests, so say() only logs "say <text>"
 QStringList*     gSpoken         = nullptr;
@@ -174,6 +176,81 @@ void GeoAwarenessAlertTest::_basicSpeechOnlyInEnglish(void)
         QVERIFY2(spoken.isEmpty(), qPrintable(QLocale::languageToString(language) + ": " + spoken.join(", ")));
         _closeAll();
     }
+}
+
+void GeoAwarenessAlertTest::_basicStaysUntilClosed(void)
+{
+    // No auto-close: the alert is still fully shown well after the old 10 s timeout
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Inside, QStringLiteral("Inside GeoZone"));
+    QTest::qWait(kOldAutoCloseMs + 1000);
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 1);
+    QCOMPARE(_messages()[0]->geoAwarenessOpacity(), 1.0f);
+    QVERIFY(!_messages()[0]->geoAwarenessClosing());
+}
+
+void GeoAwarenessAlertTest::_basicRepeatUpdatesText(void)
+{
+    _setLanguage(QLocale::English);
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Near, QStringLiteral("Distance : 30M"));
+    QCOMPARE(_spokenWithin(kSpeechDelayMs).count(), 1);
+
+    // The same type again only updates the shown text, without a second alert
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Near, QStringLiteral("Distance : 20M"));
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 1);
+    QCOMPARE(_messages()[0]->geoAwarenessContext(), QStringLiteral("Distance : 20M"));
+    QCOMPARE(_spokenWithin(kSpeechDelayMs).count(), 0);
+}
+
+void GeoAwarenessAlertTest::_basicConditionClears(void)
+{
+    for (GeoAwarenessErrorId type : kTypes) {
+        _interface->geoAwarenessMessage(type, QStringLiteral("alert"));
+    }
+    _settle();
+
+    // Still inside, no longer near: only the Near alert goes
+    _interface->updateGeoAwarenessConditions(true, false);
+    QTest::qWait(kFadeOutSettleMs);
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 2);
+    for (SystemMessage* m : _messages()) {
+        QVERIFY(m->geoAwarenessErrorId() != GeoAwarenessErrorId::Near);
+    }
+    _verifyNoOverlap(QStringLiteral("after Near cleared"));
+
+    // Outside and far: Inside goes too. NoData has no condition here and stays until closed.
+    _interface->updateGeoAwarenessConditions(false, false);
+    QTest::qWait(kFadeOutSettleMs);
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 1);
+    QCOMPARE(_messages()[0]->geoAwarenessErrorId(), GeoAwarenessErrorId::NoData);
+
+    // A cleared type can be shown again
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Inside, QStringLiteral("again"));
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 2);
+}
+
+void GeoAwarenessAlertTest::_basicConditionReturnsDuringFade(void)
+{
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Near, QStringLiteral("Distance : 40M"));
+    _settle();
+    _interface->updateGeoAwarenessConditions(false, false);
+    QTest::qWait(500);
+    QVERIFY(_messages()[0]->geoAwarenessClosing());
+
+    // Near again before the fade-out ends: the alert stays, fully visible, with the new text
+    _interface->geoAwarenessMessage(GeoAwarenessErrorId::Near, QStringLiteral("Distance : 35M"));
+    QVERIFY(!_messages()[0]->geoAwarenessClosing());
+    QTest::qWait(kFadeOutSettleMs);
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 1);
+    QCOMPARE(_messages()[0]->geoAwarenessOpacity(), 1.0f);
+    QCOMPARE(_messages()[0]->geoAwarenessContext(), QStringLiteral("Distance : 35M"));
+
+    // Close button while fading out: closed once, no double removal
+    _interface->updateGeoAwarenessConditions(false, false);
+    QTest::qWait(500);
+    _messages()[0]->geoAwarenessCloseItstyle();
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 0);
+    QTest::qWait(kFadeOutSettleMs);
+    QCOMPARE(_interface->geoAwarenessMessages()->count(), 0);
 }
 
 void GeoAwarenessAlertTest::_abnormalHeights(void)
