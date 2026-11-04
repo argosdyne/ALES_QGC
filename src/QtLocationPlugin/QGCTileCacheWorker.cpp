@@ -74,8 +74,9 @@ void
 QGCCacheWorker::quit()
 {
     if(_hostLookupID) {
-        // destroyMapEngine() runs after the QCoreApplication has been deleted. QHostInfo cannot be
-        // used then (it asserts in debug builds), and the pending lookup goes away with the app.
+        // main() destroys the map engine before the QCoreApplication. Keep the check in case the
+        // engine is ever destroyed later: QHostInfo cannot be used without the application (it
+        // asserts in debug builds), and the pending lookup goes away with the application.
         if (QCoreApplication::instance()) {
             QHostInfo::abortHostLookup(_hostLookupID);
         }
