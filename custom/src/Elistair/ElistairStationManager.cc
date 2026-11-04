@@ -154,11 +154,13 @@ void ElistairStationManager::connectStation()
     emit stationSettingsChanged();
     emit settingsTransactionChanged();
     qCInfo(SafeTLog) << "Connecting SAFE-T station" << _stationAddress << _stationPort;
-    _autoAttempt = 0;
-    _lastAutoProbeMsecs = QDateTime::currentMSecsSinceEpoch();
+    const auto started = QDateTime::currentMSecsSinceEpoch();
+    _negotiationClock.start();
+    _negotiation = SafeTFrameNegotiator(_configuredFrameVersion, 0);
+    _torqueCommandKnown = false;
     // A user initiated connection must receive a fresh Monitoring frame before
     // any station control can be enabled. Last values remain visible as history.
-    _lastMonitoringMsecs = _lastAutoProbeMsecs;
+    _lastMonitoringMsecs = started;
     _lastMonitoringTime.clear();
     _hasMonitoring = false;
     _setConnected(false);
@@ -180,6 +182,8 @@ void ElistairStationManager::connectStation()
 
 void ElistairStationManager::disconnectStation()
 {
+    _negotiation = SafeTFrameNegotiator(_configuredFrameVersion, 0);
+    _torqueCommandKnown = false;
     cancelPowerOff();
     _settingsReconnectTimer.stop();
     _controlTimer.stop();
@@ -230,7 +234,7 @@ void ElistairStationManager::setPowerOn(bool on)
 
 bool ElistairStationManager::_canControlPower() const
 {
-    return SafeTPowerOffPolicy::canControl(_hasMonitoring, _linkLost, _powerRemote,
+    return SafeTPowerOffPolicy::canControl(_hasMonitoring && _negotiation.confirmed, _linkLost, _powerRemote,
         QDateTime::currentMSecsSinceEpoch() - _lastMonitoringMsecs);
 }
 
@@ -289,8 +293,10 @@ void ElistairStationManager::_applyPowerOn(bool on)
 
 void ElistairStationManager::setTorqueRemote(bool remote)
 {
-    if (_linkLost || !_hasMonitoring || _torqueRemote == remote) return;
+    if (_linkLost || !_hasMonitoring || !_negotiation.confirmed || _torqueRemote == remote) return;
     _torqueRemote = remote;
+    _torqueCommandKnown = false;
+    if (remote && _activeFrameVersion == FrameVersion::ExtendedV1) _torquePercent = _appliedTorquePercent;
     qCInfo(SafeTLog) << "SAFE-T torque authority" << (remote ? "REMOTE" : "LOCAL");
     emit controlChanged();
     _sendControl();
@@ -299,16 +305,45 @@ void ElistairStationManager::setTorqueRemote(bool remote)
 void ElistairStationManager::setTorquePercent(int percent)
 {
     percent = qBound(0, percent, 100);
-    if (_linkLost || !_hasMonitoring || !_torqueRemote || _torquePercent == percent) return;
+    if (_linkLost || !_hasMonitoring || !_negotiation.confirmed || !_torqueRemote || (_torqueCommandKnown && _torquePercent == percent)) return;
+    _torqueCommandKnown = true;
     _torquePercent = percent;
     qCInfo(SafeTLog) << "SAFE-T torque command" << percent << "%";
     emit controlChanged();
     _sendControl();
 }
 
+bool ElistairStationManager::_safeForDetectionRead() const
+{
+    auto* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    const bool fc = vehicle && !vehicle->vehicleLinkManager()->communicationLost();
+    if (fc && (vehicle->armed() || vehicle->flying())) return false;
+    const bool fresh = _hasMonitoring && QDateTime::currentMSecsSinceEpoch() - _lastMonitoringMsecs < 1000;
+    if (fresh && (_powerWatts > 200 || _noPower || _decodedIntegrity == 2)) return false;
+    return fc || (fresh && _decodedIntegrity == 0 && _activeFrameVersion != FrameVersion::Standard);
+}
+
+void ElistairStationManager::_advanceNegotiation()
+{
+    const bool wasConfirmed = _negotiation.confirmed;
+    if (_negotiation.tick(_negotiationClock.elapsed(), _safeForDetectionRead())) {
+        const auto request = QByteArray::fromHex("a50400000d0a");
+        _socket.writeDatagram(request, QHostAddress(_stationAddress), quint16(_stationPort));
+        qCInfo(SafeTLog) << "SAFE-T detection Config Read (ground verified)";
+    }
+    _setActiveFrameVersion(_negotiation.active);
+    if (wasConfirmed && !_negotiation.confirmed) {
+        cancelPowerOff();
+        _powerRemote = _torqueRemote = _powerCommandKnown = _torqueCommandKnown = false;
+        emit controlChanged();
+    }
+    if (wasConfirmed != _negotiation.confirmed) emit connectionStatusChanged();
+}
+
 void ElistairStationManager::_sendControl()
 {
     if (!_controlTimer.isActive() || _settingsReconnectTimer.isActive()) return;
+    _advanceNegotiation();
     const QHostAddress address(_stationAddress);
     if (address.isNull()) return;
 
@@ -316,9 +351,9 @@ void ElistairStationManager::_sendControl()
     frame.reserve(6);
     const quint8 sync = _activeFrameVersion == FrameVersion::Standard ? kStandardSync : _activeFrameVersion == FrameVersion::ExtendedV0 ? kExtendedV0Sync : kExtendedV1Sync;
     frame.append(char(sync));
-    frame.append(char(_powerRemote && _powerCommandKnown ? (_powerOn ? 0x01 : 0x00) : kLocal));
+    frame.append(char(_negotiation.confirmed && _powerRemote && _powerCommandKnown ? (_powerOn ? 0x01 : 0x00) : kLocal));
     const int torqueScale = _activeFrameVersion == FrameVersion::ExtendedV1 ? 254 : 10;
-    frame.append(char(_torqueRemote ? qRound(_torquePercent * torqueScale / 100.0) : kLocal));
+    frame.append(char(_negotiation.confirmed && _torqueRemote && _torqueCommandKnown ? qRound(_torquePercent * torqueScale / 100.0) : kLocal));
     frame.append(char(_crc8(frame.mid(1, 2))));
     frame.append('\r');
     frame.append('\n');
@@ -330,7 +365,7 @@ void ElistairStationManager::_sendControl()
 QString ElistairStationManager::_settingsInterlockReason() const
 {
     auto* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
-    if (vehicle && vehicle->armed()) return tr("Settings are read-only while vehicle is armed.");
+    if (vehicle && (vehicle->armed() || vehicle->flying())) return tr("Settings are read-only while vehicle is armed.");
     if (!_connected || !_hasMonitoring || _linkLost) return tr("Station link unavailable.");
     if (_powerWatts > 200) return tr("Settings are read-only while station power exceeds 200 W.");
     if (_noPower) return tr("Settings are read-only: station reports no power in flight.");
@@ -397,7 +432,7 @@ bool ElistairStationManager::writeSettings(const QVariantMap& values)
         const QString text = values.value(key).toString();
         const int limit = key == QStringLiteral("wifiSsid") ? 20 : 10;
         if (text.toLatin1() != text.toUtf8() || text.contains(QChar('\0')) || text.size() >= limit)
-            return fail(tr("%1: ASCII only, maximum %2 characters.").arg(key).arg(limit - 1));
+            return fail(tr("%1: ASCII only, maximum %2 characters.").arg(limit == 20 ? tr("Wi-Fi SSID") : tr("Wi-Fi password")).arg(limit - 1));
         const int offset = limit == 20 ? 4 : 24;
         frame.replace(offset, limit, text.toLatin1().leftJustified(limit, '\0'));
     }
@@ -426,10 +461,14 @@ bool ElistairStationManager::writeSettings(const QVariantMap& values)
 bool ElistairStationManager::_decodeConfiguration(const QByteArray& frame)
 {
     if (frame.isEmpty() || (quint8(frame[0]) != 0xa5 && quint8(frame[0]) != 0xd5)) return false;
-    if ((_configOperation == 1 || _configOperation == 3) && quint8(frame[0]) == 0xa5
+    if ((_configOperation == 1 || _configOperation == 3 || _negotiation.configPending) && quint8(frame[0]) == 0xa5
         && frame.size() == 83 && quint8(frame[1]) == 79 && frame[3] == 0 && frame.endsWith("\r\n")
         && quint8(frame[2]) == _crc8(frame.mid(3, 78))) {
         const bool verified = _configOperation == 3;
+        if (_negotiation.configPending) {
+            if (!_negotiation.configuration(quint8(frame[75]), quint8(frame[76]), _negotiationClock.elapsed(), _safeForDetectionRead())) return true;
+            _setActiveFrameVersion(_negotiation.active);
+        }
         _configTimer.stop();
         _configSnapshot = frame;
         auto ascii = [&frame](int offset, int count) { return QString::fromLatin1(frame.mid(offset, count).split('\0').first()); };
@@ -477,6 +516,9 @@ void ElistairStationManager::_readDatagrams()
         if (!sender.isEqual(QHostAddress(_stationAddress), QHostAddress::TolerantConversion) || senderPort != _stationPort) continue;
         if (_decodeConfiguration(frame)) continue;
         if (_decodeMonitoring(frame)) {
+            // Output power is the available indication; it is not authority to
+            // send ON/OFF. The command-known latch remains false until a click.
+            if (!_powerCommandKnown) { _powerOn = _powerWatts > 0; emit controlChanged(); }
             if (_noPower && _decodedIntegrity < 0) {
                 _alarmSummary = tr("CRITICAL: No power in flight (last reported)");
                 emit telemetryChanged();
@@ -485,6 +527,9 @@ void ElistairStationManager::_readDatagrams()
             _logAlarmTransition();
             _logStationFlightTime();
             _lastMonitoringMsecs = QDateTime::currentMSecsSinceEpoch();
+            _hasMonitoring = true;
+            _negotiation.monitoring(_negotiationClock.elapsed(), _safeForDetectionRead());
+            _setActiveFrameVersion(_negotiation.active);
             _lastMonitoringTime = QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss"));
             const bool linkStateChanged = _noReply || _linkLost;
             _hasMonitoring = true;
@@ -496,7 +541,7 @@ void ElistairStationManager::_readDatagrams()
                 emit connectedChanged();
             }
             emit connectionStatusChanged();
-            _setConnected(true);
+            _setConnected(_negotiation.confirmed);
             _updateNoPower(_decodedIntegrity);
         }
     }
@@ -537,13 +582,7 @@ void ElistairStationManager::_checkTimeout()
         // _controlTimer keeps transmitting exactly at 5 Hz while reconnecting.
         emit connectionStatusChanged();
     }
-    if (noReply && _configuredFrameVersion == FrameVersion::Auto && _autoAttempt < 2 && now - _lastAutoProbeMsecs >= kNoReplyTimeoutMsecs) {
-        ++_autoAttempt;
-        _setActiveFrameVersion(_autoAttempt == 1 ? FrameVersion::ExtendedV0 : FrameVersion::Standard);
-        _lastAutoProbeMsecs = now;
-        _sendControl();
-    }
-    _setConnected(_hasMonitoring && !noReply);
+    _setConnected(_hasMonitoring && _negotiation.confirmed && !noReply);
 }
 
 bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
@@ -553,13 +592,14 @@ bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
     // payload (version + bytes 4..24), CR, LF. Multi-byte values are big-endian.
     if (_activeFrameVersion == FrameVersion::Standard) {
         if (frame.size() != 13 || quint8(frame.at(0)) != kStandardSync || quint8(frame.at(1)) != 9 || frame.at(11) != '\r' || frame.at(12) != '\n' || quint8(frame.at(10)) != _crc8(frame.mid(2, 8))) return false;
-        _powerWatts = _u16le(frame, 2); _cableLength = _u16le(frame, 4) / 10.0; _tetherRemaining = qQNaN(); _cableSpeed = quint8(frame.at(6)) / 10.0; _spoolTemperature = qint8(frame.at(7)); _voltage = 0; _current = 0; _appliedTorquePercent = 0; _alarmSummary = tr("No alarms (Standard frame)"); emit telemetryChanged(); return true;
+        _powerWatts = _u16le(frame, 2); _cableLength = _u16le(frame, 4) / 10.0; _tetherRemaining = qQNaN(); _cableSpeed = quint8(frame.at(6)) / 10.0; _spoolTemperature = qint8(frame.at(7)); _voltage = qQNaN(); _current = qQNaN(); _appliedTorquePercent = 0; _alarmSummary = tr("No alarms (Standard frame)"); emit telemetryChanged(); return true;
     }
     if (_activeFrameVersion == FrameVersion::ExtendedV0) {
         if (frame.size() != 18 || quint8(frame.at(0)) != kExtendedV0Sync || quint8(frame.at(1)) != 14 || frame.at(16) != '\r' || frame.at(17) != '\n' || quint8(frame.at(2)) != _crc8(frame.mid(3, 13))) return false;
         _powerWatts = _u16be(frame, 4); _cableLength = _u16be(frame, 6) / 10.0;
         _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[15]);
-        _voltage = 0; _current = 0; _tetherRemaining = qQNaN(); _appliedTorquePercent = 0;
+        _voltage = qQNaN(); _current = qQNaN(); _tetherRemaining = qQNaN(); _appliedTorquePercent = 0;
+        _cableSpeed = quint8(frame.at(8)) / 10.0; _spoolTemperature = qint8(frame.at(9));
         _alarmSummary = _decodedIntegrity == 2 ? tr("CRITICAL: No power in flight") : tr("Monitoring connected (Extended V0)"); emit telemetryChanged(); return true;
     }
     if (frame.size() != 27 || quint8(frame.at(0)) != kExtendedV1Sync || quint8(frame.at(1)) != 23 || frame.at(25) != '\r' || frame.at(26) != '\n' || quint8(frame.at(3)) != 0x01) return false;
@@ -573,7 +613,8 @@ bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
     _spoolTemperature = static_cast<qint8>(frame.at(11));
     _voltage = _u16be(frame, 14);
     _current = _u16be(frame, 16) / 1000.0;
-    _appliedTorquePercent = qRound(quint8(frame.at(18)) * 100.0 / 254.0);
+    _appliedTorquePercent = qBound(0, qRound(quint8(frame.at(18)) * 100.0 / 255.0), 100);
+    if (!_torqueRemote && !_torqueCommandKnown) { _torquePercent = _appliedTorquePercent; emit controlChanged(); }
     const auto activeAlarm = [&frame](int offset) { return frame.at(offset) != '0' && frame.at(offset) != 0; };
     const bool alarm = activeAlarm(19) || activeAlarm(20) || activeAlarm(21) || activeAlarm(22) || activeAlarm(23);
     _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[22]);
@@ -621,7 +662,7 @@ void ElistairStationManager::_publishTelemetry()
     if (auto* tether = activeTetherFactGroup()) {
         // The monitoring protocol has no maximum cable length, so remaining length is unavailable.
         tether->updateTelemetry(_cableLength, _tetherRemaining, _powerWatts, _voltage, _current,
-                                _appliedTorquePercent, _spoolTemperature, _cableSpeed);
+                                _activeFrameVersion == FrameVersion::ExtendedV1 ? _appliedTorquePercent : qQNaN(), _spoolTemperature, _cableSpeed);
     }
 }
 
@@ -696,7 +737,7 @@ void ElistairStationManager::_logAlarmTransition()
 {
     if (_lastLoggedAlarmSummary == _alarmSummary) return;
     _lastLoggedAlarmSummary = _alarmSummary;
-    if (_alarmSummary == QStringLiteral("No alarms")) {
+    if (_alarmSummary == tr("No alarms")) {
         qCInfo(SafeTLog) << "SAFE-T alarms cleared";
     } else {
         qCWarning(SafeTLog) << "SAFE-T alarm event:" << _alarmSummary;

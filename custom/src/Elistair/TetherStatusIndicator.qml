@@ -17,11 +17,11 @@ Rectangle {
     readonly property color lostColor: "#68717b"
     readonly property var statusRows: [
         { label: qsTr("Station:"), value: "SAFE-T #1 - " + station.stationAddress },
-        { label: qsTr("Link:"), value: station.linkLost ? qsTr("Lost - reconnecting (%1)").arg(station.reconnectAttempt) : (station.noReply ? qsTr("No reply - waiting") : (station.hasMonitoring ? qsTr("Connected - %1").arg(station.activeFrameVersion) : qsTr("Not connected"))) },
+        { label: qsTr("Link:"), value: station.linkLost ? qsTr("Lost - reconnecting (%1)").arg(station.reconnectAttempt) : (station.noReply ? qsTr("No reply - waiting") : (station.frameVersionDetected ? qsTr("Connected - %1").arg(station.activeFrameVersion) : qsTr("Not connected"))) },
         { label: qsTr("Authority:"), value: station.powerRemote ? qsTr("REMOTE") : qsTr("LOCAL") },
-        { label: qsTr("Power:"), value: (station.noPower ? "NO POWER" : station.powerOn ? "ON" : "OFF") + " - " + station.powerWatts.toFixed(0) + " W" },
+        { label: qsTr("Power:"), value: (station.noPower ? qsTr("NO POWER") : station.powerOn ? qsTr("ON") : qsTr("OFF")) + " - " + station.powerWatts.toFixed(0) + " W" },
         { label: qsTr("Tether:"), value: station.cableLength.toFixed(1) + " m / " + (station.stationSettings.tetherLength !== undefined ? station.stationSettings.tetherLength : "--") + " m" },
-        { label: qsTr("Torque:"), value: qsTr("set %1% - applied %2%").arg(station.torquePercent).arg(station.appliedTorquePercent) },
+        { label: qsTr("Torque:"), value: qsTr("set %1% - applied %2%").arg(station.torqueSetpointAvailable ? station.torquePercent : "—").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—") },
         { label: qsTr("Spool temp:"), value: station.spoolTemperature + " \u00b0C" },
         { label: qsTr("Last data:"), value: station.lastMonitoringTime.length ? station.lastMonitoringTime : "--" },
         { label: qsTr("Alarms:"), value: station.linkLost ? qsTr("Station link lost") : station.alarmSummary, alarm: true }
@@ -42,7 +42,7 @@ Rectangle {
             width: ScreenTools.defaultFontPixelHeight * 1.45
             height: width
             anchors.verticalCenter: parent.verticalCenter
-            source: "/res/AntennaT"
+            source: "/res/SafeTStation.svg"
             color: station.noPower ? root.red : station.connected && station.hasMonitoring && !station.linkLost && !station.noReply ? "white" : root.lostColor
         }
 
@@ -122,7 +122,7 @@ Rectangle {
                     QGCLabel {
                         id: statusText
                         anchors.centerIn: parent
-                        text: station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : (!station.hasMonitoring ? qsTr("CONNECTING") : qsTr("CONNECTED")))
+                        text: station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : (!station.frameVersionDetected ? qsTr("CONNECTING") : qsTr("CONNECTED")))
                         color: "white"
                         font.family: ScreenTools.demiboldFontFamily
                         font.pointSize: ScreenTools.smallFontPointSize

@@ -104,6 +104,11 @@ Rectangle {
         savedDraft = currentDraft
         draftReady = true
     }
+    function fieldLabel(key) {
+        var labels = { powerAlert: qsTr("Power alert"), lengthAlarm: qsTr("Length alarm"), lengthTrigger: qsTr("Length trigger"), highTrigger: qsTr("High"), lowTrigger: qsTr("Low"), timeTrigger: qsTr("Time trigger"), protectionLength: qsTr("Protection length"), antiShockPercent: qsTr("Anti-shock torque"), controlTimeout: qsTr("Control timeout"), wifiSsid: qsTr("Wi-Fi SSID"), autoOff: qsTr("Auto power-off"), protection: qsTr("Take-off/land protection"), antiShock: qsTr("Anti-shock"), antiDragging: qsTr("Anti-ground dragging"), antiEntrapment: qsTr("Anti-entrapment") }
+        return labels[key] || key
+    }
+    function fieldValue(value) { return typeof value === "boolean" ? (value ? qsTr("ON") : qsTr("OFF")) : value }
     function commitSettings() {
         if (settingsLocked || !settingsValid || station.settingsBusy) return
         awaitingSave = true
@@ -123,7 +128,7 @@ Rectangle {
                 var lines = []
                 for (var key in root.currentDraft) {
                     if (root.currentDraft[key] !== root.savedDraft[key])
-                        lines.push(key === "wifiPassword" ? qsTr("Wi-Fi password changed") : key + ": " + root.savedDraft[key] + " -> " + root.currentDraft[key])
+                        lines.push(key === "wifiPassword" ? qsTr("Wi-Fi password changed") : root.fieldLabel(key) + ": " + root.fieldValue(root.savedDraft[key]) + " -> " + root.fieldValue(root.currentDraft[key]))
                 }
                 return lines.join("\n")
             }
@@ -218,7 +223,7 @@ Rectangle {
                                 QGCLabel { text: qsTr("Frame version"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                                 QGCComboBox {
                                     model: [qsTr("Auto"), qsTr("Extended V1"), qsTr("Extended V0"), qsTr("Standard")]
-                                    currentIndex: Math.max(0, model.indexOf(station.frameVersion))
+                                    currentIndex: Math.max(0, ["Auto", "Extended V1", "Extended V0", "Standard"].indexOf(station.frameVersion))
                                     Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 29; Layout.preferredHeight: root.controlHeight
                                     onActivated: station.frameVersion = ["Auto", "Extended V1", "Extended V0", "Standard"][index]
                                 }
@@ -230,7 +235,7 @@ Rectangle {
                                     radius: height / 2; color: root.teal
                                     QGCLabel { id: ok; anchors.centerIn: parent; text: qsTr("OK"); color: "white" }
                                 }
-                                QGCLabel { text: station.connected ? qsTr("S/N [S/N] - FW [x.y] / [x.y] / [x.y] - %1").arg(station.activeFrameVersion) : qsTr("Waiting for station response"); color: root.muted; font.pointSize: ScreenTools.smallFontPointSize }
+                                QGCLabel { text: station.connected && station.frameVersionDetected ? qsTr("OK - %1").arg(station.activeFrameVersion) : qsTr("Waiting for station response"); color: root.muted; font.pointSize: ScreenTools.smallFontPointSize }
                             }
                             QGCLabel { Layout.fillWidth: true; text: qsTr("Ethernet, direct UDP to the station. One station per GCS. On failure, check PC IP, cable and station power."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
                             QGCLabel { visible: !root.connectionValid; Layout.fillWidth: true; text: qsTr("Enter a valid IPv4 address and UDP port (1–65535)."); color: "#ff5e57"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
@@ -632,7 +637,7 @@ Rectangle {
                 id: deviceInfoPage
                 function value(key, suffix) { var v = station.stationSettings[key]; return v === undefined ? qsTr("Not read") : String(v) + (suffix || "") }
                 property string serialNumber: value("serialNumber")
-                property string frameText: station.activeFrameVersion === "Auto" ? qsTr("Not detected") : station.activeFrameVersion + (station.frameVersion === "Auto" ? qsTr(" (auto-detected)") : qsTr(" (manual)"))
+                property string frameText: !station.frameVersionDetected ? qsTr("Not detected") : station.activeFrameVersion + (station.frameVersion === "Auto" ? qsTr(" (auto-detected)") : qsTr(" (manual)"))
                 property real maintenanceRatio: station.stationSettings.maintenanceHours === undefined ? 0 : station.stationSettings.maintenanceHours / maintenancePreferences.intervalHours
                 property color maintenanceColor: maintenanceRatio > 1 ? "#ff5e57" : (maintenanceRatio >= .9 ? "#ffbc42" : root.teal)
                 property string maintenanceText: value("maintenanceHours", " h") + " / " + maintenancePreferences.intervalHours + " h"

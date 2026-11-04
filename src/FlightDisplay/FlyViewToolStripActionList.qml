@@ -61,7 +61,7 @@ ToolStripActionList {
         },
         ToolStripAction {
             text:           qsTr("Tether")
-            iconSource:     "/res/AntennaT"
+            iconSource:     "/res/SafeTStation.svg"
             checkable:      true
             checked:        mainWindow.tetherPanelVisible
             visible:        QGroundControl.corePlugin.elistairStationManager !== null

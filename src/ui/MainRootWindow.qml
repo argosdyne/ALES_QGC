@@ -229,7 +229,7 @@ ApplicationWindow {
     }
 
     function showStationSetupTool() {
-        showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/AntennaT")
+        showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
     }
 
     function showAboutTool() {
@@ -549,7 +549,7 @@ ApplicationWindow {
                         height:             toolSelectDialog._toolButtonHeight
                         Layout.fillWidth:   true
                         text:               qsTr("Station Setup")
-                        imageResource:      "/res/AntennaT"
+                        imageResource:      "/res/SafeTStation.svg"
                         imageColor:         qgcPal.text
                         visible:            QGroundControl.corePlugin.elistairStationManager !== null
                         onClicked: {
