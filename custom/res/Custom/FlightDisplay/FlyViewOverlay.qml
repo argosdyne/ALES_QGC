@@ -30,17 +30,25 @@ Item {
     property var totalToolInsets:   _totalToolInsets    // The insets updated for the custom overlay additions
     property var mapControl
     property real warningToastTopInset: 0               // Bottom of the Fly view's warning toast; GeoAwareness toasts stack below it
-    property real warningToastStackBottom: 0            // Bottom of the GeoAwareness toasts (0 when none)
+    property real warningToastStackBottom: 0            // Bottom of the system message and GeoAwareness toasts (0 when none)
 
-    function _updateWarningToastStackBottom() {
+    // Top-center stack: Fly view warning toast, then system messages, then GeoAwareness alerts
+    property real _systemMessageStackBottom: 0
+
+    function _repeaterBottom(repeater) {
         var bottom = 0
-        for (var i = 0; i < geoAwarenessMessageRepeater.count; i++) {
-            var item = geoAwarenessMessageRepeater.itemAt(i)
+        for (var i = 0; i < repeater.count; i++) {
+            var item = repeater.itemAt(i)
             if (item && item.visible) {
                 bottom = Math.max(bottom, item.y + item.height)
             }
         }
-        warningToastStackBottom = bottom
+        return bottom
+    }
+
+    function _updateWarningToastStackBottom() {
+        _systemMessageStackBottom = _repeaterBottom(systemMessageRepeater)
+        warningToastStackBottom = Math.max(_systemMessageStackBottom, _repeaterBottom(geoAwarenessMessageRepeater))
     }
 
     readonly property string noGPS:         qsTr("NO GPS")
@@ -245,7 +253,11 @@ Item {
             border.width:       1
             opacity:            object.opacity
             x:                  Math.round((mainWindow.width - width) * 0.5)
-            y:                  object.y
+            y:                  object.y + _flyViewOverlay.warningToastTopInset   // below the Fly view's warning toast
+
+            onYChanged:                 _flyViewOverlay._updateWarningToastStackBottom()
+            onHeightChanged:            _flyViewOverlay._updateWarningToastStackBottom()
+            Component.onDestruction:    Qt.callLater(_flyViewOverlay._updateWarningToastStackBottom)
 
             Image {
                 anchors.verticalCenter: parent.verticalCenter
@@ -333,8 +345,8 @@ Item {
                                          _flyViewOverlay.width - 2 * (_flyViewOverlay.width - statusMessageCol.x + ScreenTools.defaultFontPixelWidth) :
                                          _flyViewOverlay.width - 2 * ScreenTools.defaultFontPixelWidth)
             x:              Math.round((_flyViewOverlay.width - width) * 0.5)
-            // Stacked by CustomQmlInterface, below the Fly view's own warning toast
-            y:              object.geoAwarenessY + _flyViewOverlay.warningToastTopInset
+            // Stacked by CustomQmlInterface, below the Fly view's warning toast and the system messages
+            y:              object.geoAwarenessY + Math.max(_flyViewOverlay.warningToastTopInset, _flyViewOverlay._systemMessageStackBottom)
             opacity:        object.geoAwarenessOpacity
             // Messages may contain <br>. The whole safety message uses the strong text color so it
             // stays readable; the translated strings do not mark separate key phrases.
