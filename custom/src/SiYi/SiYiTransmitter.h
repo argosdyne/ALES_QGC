@@ -44,6 +44,7 @@ public:
     };
 public:
     explicit SiYiTransmitter(QObject *parent = nullptr);
+    ~SiYiTransmitter();
 protected:
     QByteArray heartbeatMessage() override;
     void analyzeMessage() override;

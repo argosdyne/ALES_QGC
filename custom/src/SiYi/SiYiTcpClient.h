@@ -17,6 +17,9 @@ public:
     ~SiYiTcpClient();
 
     void sendMessage(const QByteArray &msg);
+    /// Stops the thread for good (no automatic restart). Derived classes must call this in their
+    /// destructor: run() calls their analyzeMessage()/heartbeatMessage() until the thread stops.
+    void stopThread();
 protected:
     virtual void analyzeMessage() = 0;
     virtual QByteArray heartbeatMessage() = 0;
@@ -36,6 +39,7 @@ protected:
     void resetIp(const QString &ip);
 private:
     quint16 sequence_;
+    bool stopped_{false};   // set by stopThread(), main thread only
 signals:
     void connected();
     void disconnected();
