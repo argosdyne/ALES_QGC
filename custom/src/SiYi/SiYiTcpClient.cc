@@ -183,9 +183,12 @@ quint32 SiYiTcpClient::checkSum32(const QByteArray &bytes)
 void SiYiTcpClient::resetIp(const QString &ip)
 {
     if (ip_ != ip) {
-        ip_ = ip;
+        // run() reads ip_ on the worker thread: stop the thread before changing the address.
+        // Must not be called from the worker thread itself, which cannot wait for itself.
+        Q_ASSERT(QThread::currentThread() != this);
         exit();
         wait();
-        emit ipChanged();
+        ip_ = ip;
+        emit ipChanged();   // SiYiManager restarts the client with the new address
     }
 }
