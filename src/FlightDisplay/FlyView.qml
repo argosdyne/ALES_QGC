@@ -33,6 +33,8 @@ Item {
     // These should only be used by MainRootWindow
     property var planController:    _planController
     property var guidedController:  _guidedController
+    /// Bottom of the warning toasts stacked at the top of the Fly view (pre-arm, custom overlay)
+    readonly property real warningToastBottom: Math.max(widgetLayer.warningToastBottom, customOverlay.visible ? customOverlay.warningToastStackBottom : 0)
 
     PlanMasterController {
         id:                     _planController
@@ -100,7 +102,30 @@ Item {
         z:                  _fullItemZorder + 2
         parentToolInsets:   widgetLayer.totalToolInsets
         mapControl:         _mapControl
+        warningToastTopInset: widgetLayer.warningToastBottom
         visible:            _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
+    }
+
+    // Attitude and compass at the bottom right while the video is the main view (the tool strip,
+    // map scale and custom overlay are hidden then)
+    FlyViewAttitudeIndicator {
+        id:                     videoMainAttitude
+        anchors.right:          parent.right
+        anchors.bottom:         parent.bottom
+        anchors.margins:        _toolsMargin
+        z:                      _fullItemZorder + 2
+        roll:                   _activeVehicle ? _activeVehicle.roll.rawValue : 0
+        pitch:                  _activeVehicle ? _activeVehicle.pitch.rawValue : 0
+        visible:                !_mainWindowIsMap && !QGroundControl.videoManager.fullScreen && _activeVehicle
+    }
+
+    FlyViewCompassDial {
+        anchors.right:          videoMainAttitude.left
+        anchors.rightMargin:    ScreenTools.defaultFontPixelHeight * 0.26
+        anchors.bottom:         videoMainAttitude.bottom
+        z:                      _fullItemZorder + 2
+        heading:                _activeVehicle ? _activeVehicle.heading.rawValue : 0
+        visible:                videoMainAttitude.visible
     }
 
     // Development tool for visualizing the insets for a paticular layer, enable if needed
@@ -147,6 +172,7 @@ Item {
     GuidedValueSlider {
         id:                 guidedValueSlider
         anchors.margins:    _toolsMargin
+        anchors.topMargin:  _toolsMargin + (ScreenTools.defaultFontPixelHeight * 1.84)
         anchors.right:      parent.right
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom

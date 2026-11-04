@@ -38,6 +38,8 @@
 		<file alias="notile.png">../resources/notile.png</file>
 		<file alias="yes.svg">../resources/yes.svg</file>
 		<file alias="no.svg">../resources/no.svg</file>
+		<file alias="WarningToastIcon.svg">../resources/WarningToastIcon.svg</file>
+		<file alias="WarningToastClose.svg">../resources/WarningToastClose.svg</file>
 		<file alias="Pause.svg">../resources/Pause.svg</file>
 		<file alias="pause-mission.svg">../resources/pause-mission.svg</file>
 		<file alias="pencil.svg">../resources/pencil.svg</file>

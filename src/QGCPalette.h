@@ -153,6 +153,11 @@ public:
     DEFINE_QGC_COLOR(toolbarBackground,             setToolbarBackground)
     DEFINE_QGC_COLOR(toolStripFGColor,              setToolStripFGColor)
     DEFINE_QGC_COLOR(toolStripHoverColor,           setToolStripHoverColor)
+    DEFINE_QGC_COLOR(warningToastBackground,        setWarningToastBackground)
+    DEFINE_QGC_COLOR(warningToastAccent,            setWarningToastAccent)
+    DEFINE_QGC_COLOR(warningToastText,              setWarningToastText)
+    DEFINE_QGC_COLOR(warningToastTextStrong,        setWarningToastTextStrong)
+    DEFINE_QGC_COLOR(warningToastDivider,           setWarningToastDivider)
 
      QGCPalette(QObject* parent = nullptr);
     ~QGCPalette();

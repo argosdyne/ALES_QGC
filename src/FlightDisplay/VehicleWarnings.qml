@@ -13,47 +13,26 @@ import QGroundControl               1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Controls      1.0
 
-Rectangle {
-    anchors.margins:    -ScreenTools.defaultFontPixelHeight
-    height:             warningsCol.height
-    width:              warningsCol.width
-    color:              Qt.rgba(1, 1, 1, 0.5)
-    radius:             ScreenTools.defaultFontPixelWidth / 2
-    visible:            _noGPSLockVisible || _prearmErrorVisible
+/// No GPS lock / pre-arm failure warning, shown as a WarningToast at the top of the Fly view.
+/// Closing it hides the current message only; a different message shows it again.
+WarningToast {
+    visible:        (_noGPSLockVisible || _prearmErrorVisible) && _messageKey !== _dismissedKey
+    strongText:     _noGPSLockVisible ? qsTr("No GPS Lock for Vehicle") : (_prearmErrorVisible ? _prearmError : "")
+    text:           _bodyText
 
-    property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
-    property bool _noGPSLockVisible:    _activeVehicle && _activeVehicle.requiresGpsFix && !_activeVehicle.coordinate.isValid
-    property bool _prearmErrorVisible:  _activeVehicle && !_activeVehicle.armed && _activeVehicle.prearmError && !_activeVehicle.healthAndArmingCheckReport.supported
-
-    Column {
-        id:         warningsCol
-        spacing:    ScreenTools.defaultFontPixelHeight
-
-        QGCLabel {
-            anchors.horizontalCenter:   parent.horizontalCenter
-            visible:                    _noGPSLockVisible
-            color:                      "black"
-            font.pointSize:             ScreenTools.largeFontPointSize
-            text:                       qsTr("No GPS Lock for Vehicle")
+    property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
+    property bool   _noGPSLockVisible:      _activeVehicle && _activeVehicle.requiresGpsFix && !_activeVehicle.coordinate.isValid
+    property bool   _prearmErrorVisible:    _activeVehicle && !_activeVehicle.armed && _activeVehicle.prearmError && !_activeVehicle.healthAndArmingCheckReport.supported
+    property string _prearmError:           _activeVehicle ? _activeVehicle.prearmError : ""
+    property string _prearmHelp:            qsTr("The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.")
+    property string _bodyText: {
+        if (!_prearmErrorVisible) {
+            return ""
         }
-
-        QGCLabel {
-            anchors.horizontalCenter:   parent.horizontalCenter
-            visible:                    _prearmErrorVisible
-            color:                      "black"
-            font.pointSize:             ScreenTools.largeFontPointSize
-            text:                       _activeVehicle ? _activeVehicle.prearmError : ""
-        }
-
-        QGCLabel {
-            anchors.horizontalCenter:   parent.horizontalCenter
-            visible:                    _prearmErrorVisible
-            width:                      ScreenTools.defaultFontPixelWidth * 50
-            horizontalAlignment:        Text.AlignHCenter
-            wrapMode:                   Text.WordWrap
-            color:                      "black"
-            font.pointSize:             ScreenTools.largeFontPointSize
-            text:                       qsTr("The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.")
-        }
+        return _noGPSLockVisible ? _prearmError + ". " + _prearmHelp : _prearmHelp
     }
+    property string _messageKey:            (_noGPSLockVisible ? "gps;" : "") + (_prearmErrorVisible ? _prearmError : "")
+    property string _dismissedKey
+
+    onCloseClicked: _dismissedKey = _messageKey
 }

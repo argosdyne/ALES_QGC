@@ -4,6 +4,8 @@ FlightDisplayViewWidgets        1.0 FlightDisplayViewWidgets.qml
 FlyView                         1.0 FlyView.qml
 FlyViewCustomLayer              1.0 FlyViewCustomLayer.qml
 FlyViewInstrumentPanel          1.0 FlyViewInstrumentPanel.qml
+FlyViewAttitudeIndicator        1.0 FlyViewAttitudeIndicator.qml
+FlyViewCompassDial              1.0 FlyViewCompassDial.qml
 FlyViewMap                      1.0 FlyViewMap.qml
 FlyViewMissionCompleteDialog    1.0 FlyViewMissionCompleteDialog.qml
 FlyViewPreFlightChecklistPopup  1.0 FlyViewPreFlightChecklistPopup.qml

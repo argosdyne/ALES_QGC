@@ -145,10 +145,12 @@ void GeoAwarenessAlertTest::_basicStackUsesDrawnHeight(void)
     QVERIFY(bottom->geoAwarenessY() >= top->geoAwarenessY() + drawn);
     _verifyNoOverlap(QStringLiteral("basic"));
 
-    // Shrinking back never goes below the estimate
-    top->setGeoAwarenessDisplayHeight(1);
+    // A compact toast drawn smaller than the character-count estimate stacks at its drawn height
+    const float compact = top->geoAwarenessHeight() / 2;
+    top->setGeoAwarenessDisplayHeight(compact);
     _settle();
-    QCOMPARE(top->geoAwarenessStackHeight(), top->geoAwarenessHeight());
+    QCOMPARE(top->geoAwarenessStackHeight(), compact);
+    QVERIFY(bottom->geoAwarenessY() < top->geoAwarenessY() + top->geoAwarenessHeight());
     _verifyNoOverlap(QStringLiteral("basic shrink"));
 }
 
@@ -185,7 +187,9 @@ void GeoAwarenessAlertTest::_abnormalHeights(void)
     for (float value : values) {
         for (SystemMessage* message : _messages()) {
             message->setGeoAwarenessDisplayHeight(value);
-            QVERIFY(message->geoAwarenessStackHeight() >= message->geoAwarenessHeight());
+            // Invalid drawn heights fall back to the estimate
+            const bool valid = qIsFinite(value) && value > 0;
+            QCOMPARE(message->geoAwarenessStackHeight(), valid ? value : message->geoAwarenessHeight());
         }
         _settle();
         _verifyNoOverlap(QStringLiteral("height %1").arg(value));

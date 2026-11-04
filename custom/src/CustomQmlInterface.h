@@ -73,7 +73,7 @@ public:
     float geoAwarenessOpacity(void) const {return _geoAwarenessOpacity; }
     float geoAwarenessY(void) const {return _geoAwarenessY; }
     // Stacking uses the height QML actually draws; geoAwarenessHeight is only an estimate
-    float geoAwarenessStackHeight(void) const {return qMax(_geoAwarenessHeight, _geoAwarenessDisplayHeight); }
+    float geoAwarenessStackHeight(void) const {return (qIsFinite(_geoAwarenessDisplayHeight) && _geoAwarenessDisplayHeight > 0) ? _geoAwarenessDisplayHeight : _geoAwarenessHeight; }
     Q_INVOKABLE void setGeoAwarenessDisplayHeight(float height);
     void setGeoAwarenessOpacity(const float& opacity);
     void setGeoAwarenessY(const float& geoy);

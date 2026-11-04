@@ -35,6 +35,8 @@ Item {
     property var    parentToolInsets
     property var    totalToolInsets:        _totalToolInsets
     property var    mapControl
+    /// Bottom of the top-center warning toast, so other toasts can stack below it
+    readonly property real warningToastBottom: vehicleWarnings.visible ? vehicleWarnings.y + vehicleWarnings.height : 0
 
     property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
@@ -45,6 +47,7 @@ Item {
     property var    _guidedController:      globals.guidedControllerFlyView
     property real   _margins:               ScreenTools.defaultFontPixelWidth / 2
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
+    property real   _photoVideoPanelPadding: ScreenTools.defaultFontPixelHeight * 0.42
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
     property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 30
     property alias  _gripperMenu:           gripperOptions
@@ -167,13 +170,24 @@ Item {
         property real topEdgeRightInset: visible ? y + height : 0
     }
 
+    // Translucent panel behind the camera controls so they stay readable over the map or video
+    Rectangle {
+        anchors.fill:       photoVideoControl
+        anchors.margins:    -_photoVideoPanelPadding
+        color:              Qt.rgba(0, 0, 0, 0.4)
+        radius:             _photoVideoPanelPadding
+        visible:            photoVideoControl.visible
+        z:                  photoVideoControl.z
+    }
+
     PhotoVideoControl {
         id:                     photoVideoControl
         anchors.margins:        _toolsMargin
+        anchors.rightMargin:    _toolsMargin + (_photoVideoPanelPadding / 2)
         anchors.right:          parent.right
         width:                  _rightPanelWidth
 
-        property real rightEdgeCenterInset: visible ? parent.width - x : 0
+        property real rightEdgeCenterInset: visible ? parent.width - x + _photoVideoPanelPadding : 0
 
         state:                  _verticalCenter ? "verticalCenter" : "topAnchor"
         states: [
@@ -329,7 +343,8 @@ Item {
     FlyViewToolStrip {
         id:                     toolStrip
         anchors.leftMargin:     _toolsMargin + parentToolInsets.leftEdgeCenterInset
-        anchors.topMargin:      _toolsMargin + parentToolInsets.topEdgeLeftInset
+        // Starts below the map scale row at the top of the view
+        anchors.topMargin:      _toolsMargin + parentToolInsets.topEdgeLeftInset + (ScreenTools.defaultFontPixelHeight * 1.2)
         anchors.left:           parent.left
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
@@ -348,8 +363,12 @@ Item {
     }
 
     VehicleWarnings {
-        anchors.centerIn:   parent
-        z:                  QGroundControl.zOrderTopMost
+        id:                         vehicleWarnings
+        anchors.top:                parent.top
+        anchors.topMargin:          ScreenTools.defaultFontPixelHeight * 0.42
+        anchors.horizontalCenter:   parent.horizontalCenter
+        width:                      Math.min(implicitWidth, parent.width - (ScreenTools.defaultFontPixelHeight * 2))
+        z:                          QGroundControl.zOrderTopMost
     }
 
     MapScale {

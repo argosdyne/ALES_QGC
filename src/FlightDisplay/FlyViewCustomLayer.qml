@@ -35,6 +35,8 @@ Item {
     property var parentToolInsets               // These insets tell you what screen real estate is available for positioning the controls in your overlay
     property var totalToolInsets:   _toolInsets // These are the insets for your custom overlay additions
     property var mapControl
+    property real warningToastTopInset: 0               // Bottom of the Fly view's warning toast, place your own toasts below it
+    property real warningToastStackBottom: 0            // Bottom of your own toasts at the top of the view (0 when none)
 
     // since this file is a placeholder for the custom layer in a standard build, we will just pass through the parent insets
     QGCToolInsets {

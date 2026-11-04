@@ -91,6 +91,12 @@ void QGCPalette::_buildMap()
     DECLARE_QGC_NONTHEMED_COLOR(toolStripFGColor,   "#707070", "#ffffff")
 
     // Colors not affecting by theming or enable/disable
+    // WarningToast (unified warning message): same colors in both themes
+    DECLARE_QGC_SINGLE_COLOR(warningToastBackground,        "#ffffff")
+    DECLARE_QGC_SINGLE_COLOR(warningToastAccent,            "#ff0000")
+    DECLARE_QGC_SINGLE_COLOR(warningToastText,              "#9fa0a0")
+    DECLARE_QGC_SINGLE_COLOR(warningToastTextStrong,        "#333333")
+    DECLARE_QGC_SINGLE_COLOR(warningToastDivider,           "#d9d9d9")
     DECLARE_QGC_SINGLE_COLOR(mapWidgetBorderLight,          "#ffffff")
     DECLARE_QGC_SINGLE_COLOR(mapWidgetBorderDark,           "#000000")
     DECLARE_QGC_SINGLE_COLOR(mapMissionTrajectory,          "#be781c")

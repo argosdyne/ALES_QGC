@@ -173,6 +173,7 @@
 		<file alias="QGroundControl/Controls/QGCFlickableVerticalIndicator.qml">../src/QmlControls/QGCFlickableVerticalIndicator.qml</file>
 		<file alias="QGroundControl/Controls/QGCGroupBox.qml">../src/QmlControls/QGCGroupBox.qml</file>
 		<file alias="QGroundControl/Controls/QGCLabel.qml">../src/QmlControls/QGCLabel.qml</file>
+		<file alias="QGroundControl/Controls/WarningToast.qml">../src/QmlControls/WarningToast.qml</file>
 		<file alias="QGroundControl/Controls/QGCSpinBox.qml">../src/QmlControls/QGCSpinBox.qml</file>
 		<file alias="QGroundControl/Controls/QGCListView.qml">../src/QmlControls/QGCListView.qml</file>
 		<file alias="QGroundControl/Controls/QGCMapCircleVisuals.qml">../src/MissionManager/QGCMapCircleVisuals.qml</file>
@@ -246,6 +247,8 @@
 		<file alias="QGroundControl/FlightDisplay/FlyViewAirspaceIndicator.qml">../src/FlightDisplay/FlyViewAirspaceIndicator.qml</file>
 		<file alias="QGroundControl/FlightDisplay/FlyView.qml">../src/FlightDisplay/FlyView.qml</file>
 		<file alias="QGroundControl/FlightDisplay/FlyViewInstrumentPanel.qml">../src/FlightDisplay/FlyViewInstrumentPanel.qml</file>
+		<file alias="QGroundControl/FlightDisplay/FlyViewAttitudeIndicator.qml">../src/FlightDisplay/FlyViewAttitudeIndicator.qml</file>
+		<file alias="QGroundControl/FlightDisplay/FlyViewCompassDial.qml">../src/FlightDisplay/FlyViewCompassDial.qml</file>
 		<file alias="QGroundControl/FlightDisplay/FlyViewMap.qml">../src/FlightDisplay/FlyViewMap.qml</file>
 		<file alias="QGroundControl/FlightDisplay/FlyViewMissionCompleteDialog.qml">../src/FlightDisplay/FlyViewMissionCompleteDialog.qml</file>
 		<file alias="QGroundControl/FlightDisplay/FlyViewPreFlightChecklistPopup.qml">../src/FlightDisplay/FlyViewPreFlightChecklistPopup.qml</file>

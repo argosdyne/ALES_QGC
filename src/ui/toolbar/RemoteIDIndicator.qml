@@ -45,6 +45,13 @@ Item {
 
     // Visual properties
     property real   _margins:           ScreenTools.defaultFontPixelWidth
+    property real   _popupPadding:      ScreenTools.defaultFontPixelHeight * 0.67
+    property color  _goodColor:         "#40c057"
+    property color  _badColor:          "#e03131"
+    property color  _hintColor:         "#adb5bd"
+    property color  _dividerColor:      "#495057"
+    property color  _emergencyColor:            "#e03131"
+    property color  _emergencyHighlightColor:   "#ff6b6b"
 
     enum RIDState {
         HEALTHY,
@@ -107,227 +114,150 @@ Item {
         id: remoteIDInfo
 
         Rectangle {
-            width:          remoteIDCol.width + ScreenTools.defaultFontPixelWidth  * 3
-            height:         remoteIDCol.height + ScreenTools.defaultFontPixelHeight * 2 + (emergencyButtonItem.visible ? emergencyButtonItem.height : 0)
-            radius:         ScreenTools.defaultFontPixelHeight * 0.5
+            width:          ScreenTools.defaultFontPixelHeight * 10.6
+            height:         remoteIDCol.height + (_popupPadding * 2)
+            radius:         ScreenTools.defaultFontPixelHeight * 0.45
             color:          qgcPal.window
-            border.color:   qgcPal.text
 
             Column {
-                id:                         remoteIDCol
-                spacing:                    ScreenTools.defaultFontPixelHeight * 0.5
-                width:                      Math.max(remoteIDGrid.width, remoteIDLabel.width)
-                anchors.margins:            ScreenTools.defaultFontPixelHeight
-                anchors.top:                parent.top
-                anchors.horizontalCenter:   parent.horizontalCenter
+                id:                 remoteIDCol
+                anchors.top:        parent.top
+                anchors.left:       parent.left
+                anchors.right:      parent.right
+                anchors.margins:    _popupPadding
+                spacing:            ScreenTools.defaultFontPixelHeight * 0.45
 
                 QGCLabel {
-                    id:                         remoteIDLabel
-                    text:                       qsTr("RemoteID Status")
-                    font.family:                ScreenTools.demiboldFontFamily
-                    anchors.horizontalCenter:   parent.horizontalCenter
-                }
-
-                GridLayout {
-                    id:                         remoteIDGrid
-                    anchors.margins:            ScreenTools.defaultFontPixelHeight
-                    columnSpacing:              ScreenTools.defaultFontPixelWidth
-                    anchors.horizontalCenter:   parent.horizontalCenter
-                    columns:                    2
-
-                    Image {
-                        id:                 armFlagImage
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             armFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("ARM STATUS")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-
-                    Image {
-                        id:                 commsFlagImage
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             commsFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   commsFlag ? qsTr("RID COMMS") : qsTr("NOT CONNECTED")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-                    
-                    Image {
-                        id:                 gpsFlagImage
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             gpsFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("GCS GPS")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-
-                    Image {
-                        id:                 basicIDFlagIge
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             basicIDFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("BASIC ID")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-
-                    Image {
-                        id:                 operatorIDFlagImage
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             operatorIDFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag && _activeVehicle ? (QGroundControl.settingsManager.remoteIDSettings.sendOperatorID.value || _regionOperation == RemoteIDIndicator.RegionOperation.EU) : false
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("OPERATOR ID")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-                }
-            }
-
-            Item {
-                id:             emergencyButtonItem
-                anchors.top:    remoteIDCol.bottom
-                anchors.left:   parent.left
-                anchors.right:  parent.right
-                height:         emergencyDeclareLabel.height + emergencyButton.height + (_margins * 4)
-                visible:        commsFlag
-
-                QGCLabel {
-                    id:                     emergencyDeclareLabel
-                    text:                   emergencyDeclared ? qsTr("EMERGENCY HAS BEEN DECLARED, Press and Hold for 3 seconds to cancel") : qsTr("Press and Hold below button to declare emergency")
+                    width:                  parent.width
+                    text:                   qsTr("RemoteID Status")
                     font.family:            ScreenTools.demiboldFontFamily
-                    anchors.top:            parent.top
-                    anchors.left:           parent.left
-                    anchors.right:          parent.right
-                    anchors.margins:        _margins
-                    anchors.topMargin:      _margins * 3
+                    font.pointSize:         ScreenTools.defaultFontPointSize * 0.9
+                    horizontalAlignment:    Text.AlignHCenter
+                }
+
+                Column {
+                    width:      parent.width
+                    spacing:    ScreenTools.defaultFontPixelHeight * 0.28
+
+                    Repeater {
+                        model: [
+                            { label: qsTr("ARM STATUS"),  flag: "arm" },
+                            { label: qsTr("RID COMMS"),   flag: "comms" },
+                            { label: qsTr("GCS GPS"),     flag: "gps" },
+                            { label: qsTr("BASIC ID"),    flag: "basicID" },
+                            { label: qsTr("OPERATOR ID"), flag: "operatorID" }
+                        ]
+
+                        Item {
+                            width:          parent.width
+                            implicitHeight: rowLabel.implicitHeight
+                            height:         visible ? implicitHeight : 0
+                            visible: {
+                                switch (modelData.flag) {
+                                case "comms":       return true
+                                case "operatorID":  return commsFlag && _activeVehicle ? (QGroundControl.settingsManager.remoteIDSettings.sendOperatorID.value || _regionOperation == RemoteIDIndicator.RegionOperation.EU) : false
+                                default:            return commsFlag
+                                }
+                            }
+
+                            property bool _good: {
+                                switch (modelData.flag) {
+                                case "arm":         return armFlag
+                                case "comms":       return commsFlag
+                                case "gps":         return gpsFlag
+                                case "basicID":     return basicIDFlag
+                                default:            return operatorIDFlag
+                                }
+                            }
+
+                            QGCLabel {
+                                id:                     rowLabel
+                                anchors.left:           parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                text:                   modelData.label
+                                font.pointSize:         ScreenTools.defaultFontPointSize * 0.83
+                            }
+
+                            Row {
+                                anchors.right:          parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing:                ScreenTools.defaultFontPixelHeight * 0.22
+
+                                Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width:                  ScreenTools.defaultFontPixelHeight * 0.28
+                                    height:                 width
+                                    radius:                 width / 2
+                                    color:                  rowValue.color
+                                }
+
+                                QGCLabel {
+                                    id:             rowValue
+                                    text:           parent.parent._good ? qsTr("OK") : (modelData.flag === "comms" ? qsTr("NOT CONNECTED") : qsTr("Failed"))
+                                    color:          parent.parent._good ? _goodColor : _badColor
+                                    font.family:    ScreenTools.demiboldFontFamily
+                                    font.pointSize: ScreenTools.defaultFontPointSize * 0.83
+                                }
+                            }
+
+                            QGCMouseArea {
+                                anchors.fill:   parent
+                                onClicked:      goToSettings()
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width:      parent.width
+                    height:     1
+                    color:      _dividerColor
+                    visible:    commsFlag
+                }
+
+                QGCLabel {
+                    width:                  parent.width
+                    text:                   emergencyDeclared ? qsTr("EMERGENCY HAS BEEN DECLARED, Press and Hold for 3 seconds to cancel") : qsTr("Press and Hold below button to declare emergency")
+                    color:                  _hintColor
+                    font.pointSize:         ScreenTools.defaultFontPointSize * 0.76
                     wrapMode:               Text.WordWrap
                     horizontalAlignment:    Text.AlignHCenter
-                    visible:                true
+                    visible:                commsFlag
                 }
 
-                Image {
-                    id:                         emergencyButton
-                    width:                      flagsWidth * 2
-                    height:                     flagsHeight * 1.5
-                    source:                     "/qmlimages/RidEmergencyBackground.svg"
-                    sourceSize.height:          height
-                    anchors.horizontalCenter:   parent.horizontalCenter
-                    anchors.top:                emergencyDeclareLabel.bottom
-                    anchors.margins:            _margins
-                    visible:                    true
+                Rectangle {
+                    id:         emergencyButton
+                    width:      parent.width
+                    height:     emergencyLabel.implicitHeight + (ScreenTools.defaultFontPixelHeight * 0.78)
+                    radius:     ScreenTools.defaultFontPixelHeight * 0.22
+                    color:      _highlighted ? _emergencyHighlightColor : _emergencyColor
+                    visible:    commsFlag
+
+                    property bool _highlighted: false
 
                     QGCLabel {
-                        anchors.fill:           parent
-                        text:                   emergencyDeclared ? qsTr("Clear Emergency") : qsTr("EMERGENCY")
-                        wrapMode:               Text.WordWrap
-                        horizontalAlignment:    Text.AlignHCenter
-                        verticalAlignment:      Text.AlignVCenter
-                        font.bold:              true
-                        font.pointSize:         ScreenTools.largeFontPointSize
+                        id:                 emergencyLabel
+                        anchors.centerIn:   parent
+                        text:               emergencyDeclared ? qsTr("Clear Emergency") : qsTr("EMERGENCY")
+                        color:              "white"
+                        font.bold:          true
+                        font.pointSize:     ScreenTools.defaultFontPointSize * 0.83
                     }
 
                     Timer {
                         id:             emergencyButtonTimer
                         interval:       350
-                        onTriggered: {
-                            if (emergencyButton.source == "/qmlimages/RidEmergencyBackgroundHighlight.svg" ) {
-                                emergencyButton.source = "/qmlimages/RidEmergencyBackground.svg"
-                            } else {
-                                emergencyButton.source = "/qmlimages/RidEmergencyBackgroundHighlight.svg"
-                            }
-                        }
+                        onTriggered:    emergencyButton._highlighted = !emergencyButton._highlighted
                     }
 
                     MouseArea {
                         anchors.fill:           parent
                         hoverEnabled:           true
-                        onEntered:              emergencyButton.source = "/qmlimages/RidEmergencyBackgroundHighlight.svg"
-                        onExited:               emergencyButton.source = "/qmlimages/RidEmergencyBackground.svg"
+                        onEntered:              emergencyButton._highlighted = true
+                        onExited:               emergencyButton._highlighted = false
                         pressAndHoldInterval:   emergencyDeclared ? 3000 : 800
                         onPressAndHold: {
-                            if (emergencyButton.source == "/qmlimages/RidEmergencyBackgroundHighlight.svg" ) {
-                                emergencyButton.source = "/qmlimages/RidEmergencyBackground.svg"
-                            } else {
-                                emergencyButton.source = "/qmlimages/RidEmergencyBackgroundHighlight.svg"
-                            }
+                            emergencyButton._highlighted = !emergencyButton._highlighted
                             emergencyButtonTimer.restart()
                             if (_activeVehicle) {
                                 _activeVehicle.remoteIDManager.setEmergency(!emergencyDeclared)
