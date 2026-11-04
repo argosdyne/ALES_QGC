@@ -1,9 +1,20 @@
 <RCC>
 	<qresource prefix="/fonts">
-		<file alias="opensans">../resources/fonts/OpenSans-Regular.ttf</file>
-		<file alias="opensans-demibold">../resources/fonts/OpenSans-Semibold.ttf</file>
-		<file alias="NanumGothic-Regular">../resources/fonts/NanumGothic-Regular.ttf</file>
-		<file alias="NanumGothic-Bold">../resources/fonts/NanumGothic-Bold.ttf</file>
+		<file alias="Roboto-Regular">../resources/fonts/Roboto-Regular.ttf</file>
+		<file alias="Roboto-Medium">../resources/fonts/Roboto-Medium.ttf</file>
+		<file alias="Roboto-Bold">../resources/fonts/Roboto-Bold.ttf</file>
+		<file alias="RobotoMono-Regular">../resources/fonts/RobotoMono-Regular.ttf</file>
+		<file alias="RobotoMono-Medium">../resources/fonts/RobotoMono-Medium.ttf</file>
+		<file alias="RobotoMono-Bold">../resources/fonts/RobotoMono-Bold.ttf</file>
+		<file alias="NotoSansKR-Regular">../resources/fonts/NotoSansKR-Regular.otf</file>
+		<file alias="NotoSansKR-Medium">../resources/fonts/NotoSansKR-Medium.otf</file>
+		<file alias="NotoSansKR-Bold">../resources/fonts/NotoSansKR-Bold.otf</file>
+		<file alias="NotoSansJP-Regular">../resources/fonts/NotoSansJP-Regular.otf</file>
+		<file alias="NotoSansJP-Medium">../resources/fonts/NotoSansJP-Medium.otf</file>
+		<file alias="NotoSansJP-Bold">../resources/fonts/NotoSansJP-Bold.otf</file>
+		<file alias="NotoSansSC-Regular">../resources/fonts/NotoSansSC-Regular.otf</file>
+		<file alias="NotoSansSC-Medium">../resources/fonts/NotoSansSC-Medium.otf</file>
+		<file alias="NotoSansSC-Bold">../resources/fonts/NotoSansSC-Bold.otf</file>
 	</qresource>
 	<qresource prefix="/res">
 		<file alias="action.svg">../resources/action.svg</file>

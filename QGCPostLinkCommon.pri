@@ -44,7 +44,11 @@ WindowsBuild {
     COPY_FILE_LIST = \
         $$SOURCE_DIR\\libs\\sdl2\\msvc\\lib\\x64\\SDL2.dll \
         $$SOURCE_DIR\\libs\\OpenSSL\\windows\\libcrypto-1_1-x64.dll \
-        $$SOURCE_DIR\\libs\\OpenSSL\\windows\\libssl-1_1-x64.dll
+        $$SOURCE_DIR\\libs\\OpenSSL\\windows\\libssl-1_1-x64.dll \
+        $$SOURCE_DIR\\resources\\fonts\\OFL-Roboto.txt \
+        $$SOURCE_DIR\\resources\\fonts\\OFL-RobotoMono.txt \
+        $$SOURCE_DIR\\resources\\fonts\\OFL-NotoSansCJK.txt
+    # The OFL texts ship next to the executable: the bundled UI fonts are licensed under SIL OFL 1.1
 
     for(COPY_FILE, COPY_FILE_LIST) {
         QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$COPY_FILE\" \"$$DESTDIR\"
@@ -163,4 +167,7 @@ LinuxBuild {
 
     # https://doc.qt.io/qt-5/qt-conf.html
     QMAKE_POST_LINK += && $$QMAKE_COPY "$$SOURCE_DIR/deploy/qt.conf" "$$DESTDIR"
+
+    # SIL OFL 1.1 texts of the bundled UI fonts
+    QMAKE_POST_LINK += && $$QMAKE_COPY "$$SOURCE_DIR/resources/fonts/OFL-Roboto.txt" "$$SOURCE_DIR/resources/fonts/OFL-RobotoMono.txt" "$$SOURCE_DIR/resources/fonts/OFL-NotoSansCJK.txt" "$$DESTDIR"
 }

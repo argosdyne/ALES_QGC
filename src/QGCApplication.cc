@@ -18,6 +18,7 @@
 
 #include <QFile>
 #include <QRegularExpression>
+#include <QFont>
 #include <QFontDatabase>
 #include <QQuickWindow>
 #include <QQuickImageProvider>
@@ -415,16 +416,9 @@ void QGCApplication::setLanguage()
     if (translationLocale.language() == QLocale::Portuguese && translationLocale.country() != QLocale::Portugal) {
         translationLocale = QLocale(QLocale::Portuguese, QLocale::Portugal);
     }
-    //-- We have specific fonts for Korean
-    if(_locale == QLocale::Korean) {
-        qCDebug(LocalizationLog) << "Loading Korean fonts" << _locale.name();
-        if(QFontDatabase::addApplicationFont(":/fonts/NanumGothic-Regular") < 0) {
-            qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Regular font";
-        }
-        if(QFontDatabase::addApplicationFont(":/fonts/NanumGothic-Bold") < 0) {
-            qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
-        }
-    }
+    //-- Roboto for all languages; Korean, Japanese and Chinese characters from the matching Noto Sans
+    _loadUiFonts();
+    _applyCjkFontFallback();
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
     _app->removeTranslator(&_qgcTranslatorJSON);
     _app->removeTranslator(&_qgcTranslatorSourceCode);
@@ -585,11 +579,114 @@ void QGCApplication::_initCommon()
     qRegisterMetaType<OpticalFlowController*>("OpticalFlowController*");
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
-    if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {
-        qWarning() << "Could not load /fonts/opensans font";
+    _loadUiFonts();
+}
+
+QStringList QGCApplication::_loadFontResource(const QString& resource)
+{
+    // Each font is added once; setLanguage() runs again on every language change
+    auto it = _loadedFonts.constFind(resource);
+    if (it != _loadedFonts.constEnd()) {
+        return it.value();
     }
-    if(QFontDatabase::addApplicationFont(":/fonts/opensans-demibold") < 0) {
-        qWarning() << "Could not load /fonts/opensans-demibold font";
+    QStringList families;
+    const int id = QFontDatabase::addApplicationFont(resource);
+    if (id < 0) {
+        qCWarning(LocalizationLog) << "Could not load font" << resource;
+    } else {
+        families = QFontDatabase::applicationFontFamilies(id);
+    }
+    _loadedFonts.insert(resource, families);
+    return families;
+}
+
+void QGCApplication::_loadUiFonts()
+{
+    // ARGOSDYNE UI font standard. The fonts are bundled so the UI does not depend on the fonts
+    // installed on the device.
+    const QStringList regular   = _loadFontResource(QStringLiteral(":/fonts/Roboto-Regular"));
+    const QStringList medium    = _loadFontResource(QStringLiteral(":/fonts/Roboto-Medium"));
+    _loadFontResource(QStringLiteral(":/fonts/Roboto-Bold"));
+    const QStringList mono      = _loadFontResource(QStringLiteral(":/fonts/RobotoMono-Regular"));
+    _loadFontResource(QStringLiteral(":/fonts/RobotoMono-Medium"));
+    _loadFontResource(QStringLiteral(":/fonts/RobotoMono-Bold"));
+
+    // Use the names the platform registered. Windows names the Medium face "Roboto Medium";
+    // FreeType based platforms (Android) may register it as "Roboto" with a Medium style.
+    if (!regular.isEmpty()) {
+        _normalFontFamily = regular.first();
+    }
+    if (!medium.isEmpty()) {
+        _mediumFontFamily = medium.first();
+    }
+    if (!mono.isEmpty()) {
+        _fixedFontFamily = mono.first();
+    }
+
+    // Default font for text that does not set a family (widgets, plain QML Text)
+    QFont appFont = QApplication::font();
+    if (appFont.family() != _normalFontFamily) {
+        appFont.setFamily(_normalFontFamily);
+        QApplication::setFont(appFont);
+    }
+}
+
+void QGCApplication::_applyCjkFontFallback()
+{
+    // Latin letters and digits stay Roboto; Hangul, kana and Han characters come from the Noto Sans
+    // of the UI language. Han glyph forms differ by region, so each language uses its own variant.
+    QString region;
+    switch (_locale.language()) {
+    case QLocale::Korean:
+        region = QStringLiteral("KR");
+        break;
+    case QLocale::Japanese:
+        region = QStringLiteral("JP");
+        break;
+    case QLocale::Chinese:
+        // The bundled Chinese translation is Simplified (zh_CN), so Noto Sans SC. A Traditional
+        // Chinese (zh-TW) translation would need Noto Sans TC, which the font standard names for it.
+        region = QStringLiteral("SC");
+        break;
+    default:
+        break;
+    }
+    if (_cjkFontFallbackApplied && region == _cjkFontRegion) {
+        return;
+    }
+    const bool changedAtRuntime = _cjkFontFallbackApplied;
+    _cjkFontFallbackApplied = true;
+    _cjkFontRegion = region;
+
+    const QStringList latinFamilies = { _normalFontFamily, _mediumFontFamily, _fixedFontFamily };
+    for (const QString& family : latinFamilies) {
+        QFont::removeSubstitutions(family);
+    }
+    if (!region.isEmpty()) {
+        qCDebug(LocalizationLog) << "CJK font fallback: Noto Sans" << region;
+        const QStringList regular   = _loadFontResource(QStringLiteral(":/fonts/NotoSans%1-Regular").arg(region));
+        const QStringList medium    = _loadFontResource(QStringLiteral(":/fonts/NotoSans%1-Medium").arg(region));
+        _loadFontResource(QStringLiteral(":/fonts/NotoSans%1-Bold").arg(region));
+        if (!regular.isEmpty()) {
+            QFont::insertSubstitution(_normalFontFamily, regular.first());
+            QFont::insertSubstitution(_fixedFontFamily, regular.first());
+        }
+        if (!medium.isEmpty() && _mediumFontFamily != _normalFontFamily) {
+            QFont::insertSubstitution(_mediumFontFamily, medium.first());
+        }
+    }
+
+    if (changedAtRuntime) {
+        // Qt caches font engines together with their fallback families, and changing a substitution
+        // does not clear that cache. Removing an application font is the public way to clear it, so
+        // text laid out after the language change uses the new fallback font.
+        QFile fontFile(QStringLiteral(":/fonts/RobotoMono-Regular"));
+        if (fontFile.open(QIODevice::ReadOnly)) {
+            const int id = QFontDatabase::addApplicationFontFromData(fontFile.readAll());
+            if (id >= 0) {
+                QFontDatabase::removeApplicationFont(id);
+            }
+        }
     }
 }
 

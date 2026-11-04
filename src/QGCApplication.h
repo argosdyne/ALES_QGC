@@ -94,6 +94,13 @@ public:
 
     void            setLanguage();
     QQuickWindow*   mainRootWindow();
+
+    /// UI font families (ARGOSDYNE UI font standard): Roboto for text, Roboto Medium for emphasis,
+    /// Roboto Mono for code-like text. Korean, Japanese and Chinese characters fall back to
+    /// Noto Sans KR / JP / SC through font substitution, chosen by the UI language.
+    QString         normalFontFamily() const { return _normalFontFamily; }
+    QString         mediumFontFamily() const { return _mediumFontFamily; }
+    QString         fixedFontFamily () const { return _fixedFontFamily; }
     uint64_t        msecsSinceBoot(void) { return _msecsElapsedTime.elapsed(); }
 
     /// Registers the signal such that only the last duplicate signal added is left in the queue.
@@ -193,6 +200,9 @@ private:
     QObject*    _rootQmlObject          ();
     void        _checkForNewVersion     ();
     void        _exitWithError          (QString errorMessage);
+    QStringList _loadFontResource       (const QString& resource);
+    void        _loadUiFonts            ();
+    void        _applyCjkFontFallback   ();
 
     // Overrides from QApplication
     bool compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents) override;
@@ -217,6 +227,12 @@ private:
     QTranslator         _qgcTranslatorJSON;                 ///< translations for json files
     QTranslator         _qgcTranslatorQtLibs;               ///< tranlsations for Qt libraries
     QLocale             _locale;
+    QString             _normalFontFamily       = QStringLiteral("Roboto");
+    QString             _mediumFontFamily       = QStringLiteral("Roboto Medium");
+    QString             _fixedFontFamily        = QStringLiteral("Roboto Mono");
+    QMap<QString, QStringList> _loadedFonts;               ///< font resource -> families it registered
+    QString             _cjkFontRegion;                     ///< Noto Sans variant in use: KR, JP, SC or empty
+    bool                _cjkFontFallbackApplied = false;
     bool                _error                  = false;
     QElapsedTimer       _msecsElapsedTime;
     QTimer              _eventLoopLagMonitorTimer;

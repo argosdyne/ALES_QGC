@@ -541,6 +541,7 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         src/qgcunittest/MultiSignalSpy.h \
         src/qgcunittest/MultiSignalSpyV2.h \
         src/qgcunittest/StatusTextThrottleTest.h \
+        src/qgcunittest/UiFontsTest.h \
         src/MissionManager/PlanManagerLifetimeTest.h \
         src/qgcunittest/UnitTest.h \
         src/Vehicle/FTPManagerTest.h \
@@ -592,6 +593,7 @@ DebugBuild { PX4FirmwarePlugin { PX4FirmwarePluginFactory { APMFirmwarePlugin { 
         src/qgcunittest/MultiSignalSpy.cc \
         src/qgcunittest/MultiSignalSpyV2.cc \
         src/qgcunittest/StatusTextThrottleTest.cc \
+        src/qgcunittest/UiFontsTest.cc \
         src/MissionManager/PlanManagerLifetimeTest.cc \
         src/qgcunittest/UnitTest.cc \
         src/qgcunittest/UnitTestList.cc \

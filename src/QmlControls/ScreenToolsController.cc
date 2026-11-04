@@ -85,31 +85,23 @@ ScreenToolsController::androidSecurityPatch() const
 QString
 ScreenToolsController::fixedFontFamily() const
 {
-    return QFontDatabase::systemFont(QFontDatabase::FixedFont).family();
+    // Roboto Mono: consoles, logs, parameter names and values, addresses
+    return qgcApp()->fixedFontFamily();
 }
 
 QString
 ScreenToolsController::normalFontFamily() const
 {
-    //-- See App.SettinsGroup.json for index
-    int langID = qgcApp()->toolbox()->settingsManager()->appSettings()->qLocaleLanguage()->rawValue().toInt();
-    if(langID == QLocale::Korean) {
-        return QString("NanumGothic");
-    } else {
-        return QString("Open Sans");
-    }
+    // Roboto for every language. Korean, Japanese and Chinese characters fall back to the Noto Sans
+    // of the UI language (QGCApplication::setLanguage), so the family does not depend on the language.
+    return qgcApp()->normalFontFamily();
 }
 
 QString
 ScreenToolsController::boldFontFamily() const
 {
-    //-- See App.SettinsGroup.json for index
-    int langID = qgcApp()->toolbox()->settingsManager()->appSettings()->qLocaleLanguage()->rawValue().toInt();
-    if(langID == QLocale::Korean) {
-        return QString("NanumGothic");
-    } else {
-        return QString("Open Sans Semibold");
-    }
+    // Emphasis weight: Roboto Medium (500)
+    return qgcApp()->mediumFontFamily();
 }
 
 double ScreenToolsController::defaultFontDescent(int pointSize) const
