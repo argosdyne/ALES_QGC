@@ -25,6 +25,14 @@ import QGroundControl.Vehicle       1.0
 
 FlightMap {
     id:                         _root
+    readonly property var tetherStation: QGroundControl.corePlugin.elistairStationManager
+    // The ST-12 RTL contract assumes Home is the physical station location.
+    MapPolyline {
+        visible: _root.tetherStation && _root.tetherStation.hasMonitoring && _activeVehicle && _activeVehicle.homePosition.isValid && _activeVehicle.coordinate.isValid
+        line.width: 3
+        line.color: _root.tetherStation.noPower ? "#e1544e" : _root.tetherStation.linkLost ? "#68717b" : "#d68714"
+        path: visible ? [_activeVehicle.homePosition, _activeVehicle.coordinate] : []
+    }
     allowGCSLocationCenter:     true
     allowVehicleLocationCenter: !_keepVehicleCentered
     planView:                   false
