@@ -23,7 +23,8 @@ Rectangle {
     property color localButton: "#515b67"
     // Keep controls usable during the 1-second NO REPLY grace period, but
     // lock them after the 5-second LOST threshold or before first telemetry.
-    readonly property bool controlsAvailable: station && station.hasMonitoring && !station.linkLost && (station.connected || station.noReply)
+    readonly property bool controlsAvailable: station && station.frameVersionDetected && station.hasMonitoring && !station.linkLost && (station.connected || station.noReply)
+    function measurement(value) { return isFinite(value) ? Number(value).toFixed(1) : "—" }
     readonly property real telemetryOpacity: station && station.linkLost ? 0.48 : 1.0
     readonly property color lostColor: "#68717b"
     readonly property bool inFlight: station && station.powerOffRequiresConfirmation
@@ -79,6 +80,7 @@ Rectangle {
                 font.pointSize: ScreenTools.largeFontPointSize
             }
             Item { Layout.fillWidth: true }
+            QGCLabel { text: !station.frameVersionDetected ? "—" : station.activeFrameVersion === "Standard" ? "STD" : station.activeFrameVersion === "Extended V0" ? "V0" : "V1"; color: root.mutedText; font.pointSize: ScreenTools.smallFontPointSize }
             Rectangle {
                 Layout.preferredWidth: connectedLabel.implicitWidth + ScreenTools.defaultFontPixelWidth * 1.3
                 Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.65
@@ -87,7 +89,7 @@ Rectangle {
                 QGCLabel {
                     id: connectedLabel
                     anchors.centerIn: parent
-                    text: station.noPower ? qsTr("NO POWER") : station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : (!station.hasMonitoring ? qsTr("CONNECTING") : qsTr("CONNECTED")))
+                    text: station.noPower ? qsTr("NO POWER") : station.linkLost ? qsTr("LOST > 5 s") : (station.noReply ? qsTr("NO REPLY") : (!station.frameVersionDetected ? qsTr("CONNECTING") : qsTr("CONNECTED")))
                     color: "white"
                     font.family: ScreenTools.demiboldFontFamily
                     font.pointSize: ScreenTools.smallFontPointSize
@@ -97,7 +99,7 @@ Rectangle {
 
         QGCLabel {
             Layout.fillWidth: true
-            text: qsTr("SAFE-T #1 - %1:%2 - %3").arg(station.stationAddress).arg(station.stationPort).arg(station.activeFrameVersion)
+            text: qsTr("SAFE-T #1 - %1:%2 - %3").arg(station.stationAddress).arg(station.stationPort).arg(station.frameVersionDetected ? station.activeFrameVersion : qsTr("Not detected"))
             color: mutedText
             font.pointSize: ScreenTools.smallFontPointSize
             elide: Text.ElideRight
@@ -201,7 +203,7 @@ Rectangle {
             QGCLabel { text: qsTr("Torque"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel {
-                text: qsTr("set %1% - applied %2%").arg(station.torquePercent).arg(station.appliedTorquePercent)
+                text: qsTr("set %1% - applied %2%").arg(station.torqueSetpointAvailable ? station.torquePercent : "—").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
                 color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize
             }
         }
@@ -233,8 +235,8 @@ Rectangle {
                 model: [0, 30, 100]
                 delegate: Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
-                    color: !station.torqueRemote ? "#59616b" : (station.torquePercent === modelData ? root.blue : "#48525d")
-                    border.color: !station.torqueRemote ? "#6d7681" : (station.torquePercent === modelData ? root.blue : "#69717b"); border.width: 1
+                    color: !station.torqueRemote ? "#59616b" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#48525d")
+                    border.color: !station.torqueRemote ? "#6d7681" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#69717b"); border.width: 1
                     QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
                     MouseArea { anchors.fill: parent; enabled: root.controlsAvailable && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }
                 }
@@ -263,7 +265,7 @@ Rectangle {
             QGCLabel { text: station.powerWatts.toLocaleString(Qt.locale(), 'f', 0) + " W"; color: station.noPower ? root.danger : "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
             Rectangle { visible: station.powerOn && !station.noPower; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 3.2; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45; radius: height / 2; color: green; QGCLabel { anchors.centerIn: parent; text: qsTr("ON"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.smallFontPointSize } }
         }
-        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.voltage.toFixed(1)).arg(station.current.toFixed(1)); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.hasMonitoring ? root.measurement(station.voltage) : "—").arg(station.hasMonitoring ? root.measurement(station.current) : "—"); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
         Rectangle { Layout.fillWidth: true; opacity: root.telemetryOpacity; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.powerWatts, 2500); height: parent.height; radius: parent.radius; color: green } }
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
