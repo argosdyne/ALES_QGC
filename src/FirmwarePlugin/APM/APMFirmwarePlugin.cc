@@ -821,15 +821,13 @@ out:
     delete data;
 }
 
-void APMFirmwarePlugin::guidedModeGotoLocation(Vehicle* vehicle, const QGeoCoordinate& gotoCoord, bool useTargetAltitude)
+void APMFirmwarePlugin::guidedModeGotoLocation(Vehicle* vehicle, const QGeoCoordinate& gotoCoord)
 {
-    if (qIsNaN(vehicle->altitudeRelative()->rawValue().toDouble()) ||
-        (useTargetAltitude && qIsNaN(vehicle->altitudeAMSL()->rawValue().toDouble()))) {
+    if (qIsNaN(vehicle->altitudeRelative()->rawValue().toDouble())) {
         qgcApp()->showAppMessage(QStringLiteral("Unable to go to location, vehicle position not known."));
         return;
     }
 
-    const float targetAltitude = useTargetAltitude ? static_cast<float>(gotoCoord.altitude()) : vehicle->altitudeAMSL()->rawValue().toFloat();
     // attempt to use MAV_CMD_DO_REPOSITION to move vehicle.  If that
     // comes back as unsupported, try using the old system of sending
     // through mission items with custom "current" field values.
@@ -859,7 +857,7 @@ void APMFirmwarePlugin::guidedModeGotoLocation(Vehicle* vehicle, const QGeoCoord
                 NAN,
                 gotoCoord.latitude(),
                 gotoCoord.longitude(),
-                targetAltitude
+                vehicle->altitudeAMSL()->rawValue().toFloat()
                 );
         }
         if (instanceData->MAV_CMD_DO_REPOSITION_supported) {
@@ -871,8 +869,7 @@ void APMFirmwarePlugin::guidedModeGotoLocation(Vehicle* vehicle, const QGeoCoord
     setGuidedMode(vehicle, true);
 
     QGeoCoordinate coordWithAltitude = gotoCoord;
-    const double relativeAltitude = vehicle->altitudeRelative()->rawValue().toDouble();
-    coordWithAltitude.setAltitude(useTargetAltitude ? gotoCoord.altitude() - vehicle->altitudeAMSL()->rawValue().toDouble() + relativeAltitude : relativeAltitude);
+    coordWithAltitude.setAltitude(vehicle->altitudeRelative()->rawValue().toDouble());
     vehicle->missionManager()->writeArduPilotGuidedMissionItem(coordWithAltitude, false /* altChangeOnly */);
 }
 
