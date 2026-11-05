@@ -52,6 +52,7 @@
         <file alias="png/ys_enable.png">res/Images/ys_enable.png</file>
         <file alias="png/ys_disable.png">res/Images/ys_disable.png</file>
         <file alias="png/ys_error.png">res/Images/ys_error.png</file>
+        <file alias="png/YSLidar.png">res/Images/YSLidar.png</file>
         <file>res/Images/redWarning.svg</file>
     </qresource>
     <qresource prefix="/qmlimages">
@@ -77,6 +78,9 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
+        <file alias="LidarSetupView.qml">src/YS/LidarSetupView.qml</file>
+        <file alias="LidarConnectionPage.qml">src/YS/LidarConnectionPage.qml</file>
+        <file alias="LidarSettingsPage.qml">src/YS/LidarSettingsPage.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>

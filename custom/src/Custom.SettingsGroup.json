@@ -42,6 +42,58 @@
     "shortDesc":        "Enable Life Jacket",
     "type":             "bool",
     "default":          false
+},
+{
+    "name":             "ysEnable",
+    "shortDesc":        "Enable YellowScan LiDAR",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "ysOpenPanelOnConnect",
+    "shortDesc":        "Open LiDAR panel on connect",
+    "type":             "bool",
+    "default":          true
+},
+{
+    "name":             "ysModel",
+    "shortDesc":        "YellowScan LiDAR model",
+    "type":             "uint32",
+    "enumStrings":      "Surveyor Ultra OEM,Mapper+ OEM A,Mapper+ OEM C",
+    "enumValues":       "0,1,2",
+    "default":          0
+},
+{
+    "name":             "ysLink",
+    "shortDesc":        "YellowScan LiDAR link path",
+    "type":             "uint32",
+    "enumStrings":      "Companion - UART 115200",
+    "enumValues":       "0",
+    "default":          0
+},
+{
+    "name":             "ysMavCompId",
+    "shortDesc":        "YellowScan LiDAR MAVLink component id",
+    "type":             "uint32",
+    "min":              1,
+    "max":              255,
+    "default":          25
+},
+{
+    "name":             "ysCamera",
+    "shortDesc":        "YellowScan LiDAR camera",
+    "type":             "uint32",
+    "enumStrings":      "None,RGB 8 MP (embedded)",
+    "enumValues":       "0,1",
+    "default":          1
+},
+{
+    "name":             "ysMissionStartStop",
+    "shortDesc":        "LiDAR acquisition start / stop during mission",
+    "type":             "uint32",
+    "enumStrings":      "Manual only,Auto (start at first survey WP, stop at last)",
+    "enumValues":       "0,1",
+    "default":          0
 }
 ]
 }

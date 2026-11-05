@@ -237,6 +237,9 @@ ApplicationWindow {
     function showStationSetupTool() {
         showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
     }
+    function showLidarSetupTool() {
+        showTool(qsTr("LiDAR Setup"), "LidarSetupView.qml", "/res/QGCLogoWhite")
+    }
 
     function showAboutTool() {
         aboutDialogComponent.createObject(mainWindow).open()
@@ -561,6 +564,22 @@ ApplicationWindow {
                         onClicked: {
                             toolSelectDialog.close()
                             mainWindow.showStationSetupTool()
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 lidarSetupButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("LiDAR Setup")
+                        imageResource:      "/custom/img/png/YSLidar.png"
+                        imageColor:         "transparent"
+                        visible:            QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
+                        onClicked: {
+                            if (!mainWindow.preventViewSwitch()) {
+                                toolSelectDialog.close()
+                                mainWindow.showLidarSetupTool()
+                            }
                         }
                     }
 

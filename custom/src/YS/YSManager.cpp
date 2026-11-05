@@ -4,8 +4,11 @@
 #include "MAVLinkProtocol.h"
 #include "QGCMAVLink.h"
 #include "VehicleLinkManager.h"
+#include "CustomPlugin.h"
+#include "CustomSettings.h"
 
 #include <QQmlEngine>
+#include <QTime>
 #include <cstring>
 
 #ifndef MAV_CMD_DO_GET_PARAMETER
@@ -23,6 +26,10 @@ YSManager::YSManager(QGCApplication* app, QGCToolbox* toolbox)
     _powerStatusResetTimer.setSingleShot(true);
     _powerStatusResetTimer.setInterval(static_cast<int>(10000));
     connect(&_powerStatusResetTimer, &QTimer::timeout, this, &YSManager::_restorePowerStatus);
+
+    _testTimer.setSingleShot(true);
+    _testTimer.setInterval(kTestTimeoutMs);
+    connect(&_testTimer, &QTimer::timeout, this, &YSManager::_testTimeout);
 
     _commandTimer.start();
     _statusRequestTimer.start();
@@ -98,6 +105,17 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
         }
         _lastReceivedMessage = QStringLiteral("NAMED_VALUE_INT %1 value=0x%2").arg(name).arg(value, 8, 16, QChar('0')).toUpper();
         emit messageChanged();
+
+        if (_testState == TestRunning) {
+            if (name == QStringLiteral("YS_STA_00")) {
+                _testGotSta00 = true;
+            } else if (name == QStringLiteral("YS_STA_01")) {
+                _testGotSta01 = true;
+            }
+            if (_testGotSta00 && _testGotSta01) {
+                _finishTest(TestOk, QString());
+            }
+        }
 
         if (_pendingStatus && (name == QStringLiteral("YS_STA_00") || name == QStringLiteral("YS_STA_01"))) {
             if (!_pendingStatusQueue.isEmpty() && _pendingStatusQueue.first() == name) {
@@ -307,10 +325,10 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
     mavlink_message_t msg{};
     mavlink_msg_command_long_pack(
         kYellowScanSysId,
-        kYellowScanCompId,
+        _compId(),
         &msg,
         kYellowScanSysId,
-        kYellowScanCompId,
+        _compId(),
         static_cast<uint16_t>(command),
         0,
         param1,
@@ -342,7 +360,7 @@ void YSManager::_sendNamedValueInt(const char* name, int32_t value)
     mavlink_message_t msg{};
     mavlink_msg_named_value_int_pack(
         kYellowScanSysId,
-        kYellowScanCompId,
+        _compId(),
         &msg,
         0,
         name,
@@ -484,6 +502,76 @@ void YSManager::setParameter(int paramIndex, float value)
 void YSManager::requestParameter(int paramIndex)
 {
     _enqueueGetParameter(paramIndex);
+}
+
+uint8_t YSManager::_compId(void) const
+{
+    CustomPlugin* plugin = qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin());
+    if (plugin && plugin->settings()) {
+        const uint compId = plugin->settings()->ysMavCompId()->rawValue().toUInt();
+        if (compId > 0 && compId <= 255) {
+            return static_cast<uint8_t>(compId);
+        }
+    }
+    return kYellowScanDefaultCompId;
+}
+
+void YSManager::testConnection(void)
+{
+    if (_testState == TestRunning) {
+        return;
+    }
+    if (!_vehicle) {
+        _finishTest(TestFailed, tr("No vehicle connected"));
+        return;
+    }
+
+    _testGotSta00 = false;
+    _testGotSta01 = false;
+    _testState = TestRunning;
+    _testMessage = tr("Waiting for Get Status reply...");
+    emit testChanged();
+
+    _testTimer.start();
+    requestStatus();
+}
+
+void YSManager::_testTimeout(void)
+{
+    if (_testState != TestRunning) {
+        return;
+    }
+    if (_testGotSta00 || _testGotSta01) {
+        _finishTest(TestFailed, tr("Partial reply (%1 missing)").arg(_testGotSta00 ? QStringLiteral("YS_STA_01") : QStringLiteral("YS_STA_00")));
+    } else {
+        _finishTest(TestFailed, tr("No reply from LiDAR (compid %1)").arg(_compId()));
+    }
+}
+
+void YSManager::_finishTest(TestState state, const QString& message)
+{
+    _testTimer.stop();
+    _testState = state;
+
+    const QString timeStr = QTime::currentTime().toString(QStringLiteral("HH:mm:ss"));
+    const QString sep = QStringLiteral(" ") + QChar(0x00B7) + QStringLiteral(" ");
+    if (state == TestOk) {
+        QStringList parts;
+        parts << tr("Get Status OK");
+        parts << (insNotLocked() ? tr("INS not locked") : tr("INS locked"));
+        parts << (noUsb() ? tr("No USB") : (usbFull() ? tr("USB full") : tr("USB present")));
+        if (scannerNotReady()) {
+            parts << tr("Scanner not ready");
+        }
+        if (_insErr || _scnErr || _intErr || _camErr) {
+            parts << tr("Error flags set");
+        }
+        parts << timeStr;
+        _testMessage = parts.join(sep);
+    } else {
+        _testMessage = message + sep + timeStr;
+    }
+    emit testChanged();
 }
 
 void YSManager::requestStatus(void)

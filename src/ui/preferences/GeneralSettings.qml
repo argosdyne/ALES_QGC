@@ -762,6 +762,12 @@ Rectangle {
                                     }
                                 }
 
+                                // Shows/hides Select Tool > LiDAR Setup
+                                FactCheckBox {
+                                    text: qsTr("Enable YellowScan LiDAR")
+                                    fact: QGroundControl.corePlugin.settings.ysEnable
+                                }
+
                                 FactCheckBox {
                                     text: qsTr("Enable Life Jacket")
                                     fact: QGroundControl.corePlugin.settings.lifeJacketEnable
