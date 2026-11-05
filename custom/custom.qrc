@@ -81,6 +81,7 @@
         <file alias="LidarSetupView.qml">src/YS/LidarSetupView.qml</file>
         <file alias="LidarConnectionPage.qml">src/YS/LidarConnectionPage.qml</file>
         <file alias="LidarSettingsPage.qml">src/YS/LidarSettingsPage.qml</file>
+        <file alias="LidarDevicePage.qml">src/YS/LidarDevicePage.qml</file>
         <file alias="LiDARPanel.qml">src/YS/LiDARPanel.qml</file>
     </qresource>
     <qresource prefix="/res">
