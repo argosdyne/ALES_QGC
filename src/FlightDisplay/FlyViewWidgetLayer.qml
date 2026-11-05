@@ -68,60 +68,30 @@ Item {
     Rectangle {
         id: gotoRejectionToast
         anchors.top: parent.top
-        border.color: "#d9dce0"
+        border.color: "#9e8100"
         border.width: 1
         anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.75
         anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.min(parent.width * 0.70, ScreenTools.defaultFontPixelWidth * 44)
+        width: Math.min(parent.width * 0.70, ScreenTools.defaultFontPixelWidth * 48)
         height: Math.max(ScreenTools.defaultFontPixelHeight * 2.4,
                          rejectionContent.implicitHeight + ScreenTools.defaultFontPixelHeight)
         visible: mapControl.gotoRejectionMessage.length > 0
-        color: "white"
+        color: "#d9b400"
         radius: ScreenTools.defaultFontPixelWidth / 2
         z: QGroundControl.zOrderWidgets + 2
 
-        Rectangle {
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: ScreenTools.defaultFontPixelWidth * 0.65
-            color: "#e53935"
-            radius: parent.radius
-        }
-
-        RowLayout {
+        ColumnLayout {
             id: rejectionContent
             anchors.fill: parent
-            anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 1.1
-            anchors.rightMargin: ScreenTools.defaultFontPixelWidth * 0.8
-            spacing: ScreenTools.defaultFontPixelWidth * 0.65
-
-            Text {
-                text: "⚠"
-                color: "#e53935"
-                font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.35
-                verticalAlignment: Text.AlignVCenter
-            }
+            anchors.margins: ScreenTools.defaultFontPixelWidth
+            spacing: ScreenTools.defaultFontPixelHeight / 6
 
             QGCLabel {
                 Layout.fillWidth: true
-                text: qsTr("GoTo blocked") + " · " + mapControl.gotoRejectionMessage
-                color: "#3f464c"
+                text: qsTr("GoTo rejected: %1").arg(mapControl.gotoRejectionMessage)
+                color: "black"
                 wrapMode: Text.WordWrap
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            Text {
-                id: closeRejectionText
-                text: "×"
-                color: "#727980"
-                font.pixelSize: ScreenTools.defaultFontPixelHeight * 1.35
-                verticalAlignment: Text.AlignVCenter
-                MouseArea {
-                    anchors.margins: -ScreenTools.defaultFontPixelWidth / 2
-                    anchors.fill: parent
-                    onClicked: mapControl.gotoRejectionMessage = ""
-                }
+                horizontalAlignment: Text.AlignHCenter
             }
         }
     }
@@ -413,8 +383,10 @@ Item {
         // G-01b is a compact centred map dialog placed below the flight toolbar.
         anchors.horizontalCenter: parent.horizontalCenter
         y: parent.height * 0.20
+        // Match the compact GoTo-coordinate dialog: 40 character-widths is
+        // about 330 px at the desktop scale used by Fly View.
         width: Math.min(parent.width - _toolsMargin * 2,
-                        Math.max(ScreenTools.defaultFontPixelWidth * 30, parent.width * 0.53))
+                        ScreenTools.defaultFontPixelWidth * 40)
         height: Math.min(parent.height - _toolsMargin * 2, item ? item.implicitHeight : 0)
         readonly property real rightEdgeInset: 0
         z: QGroundControl.zOrderWidgets + 1
@@ -423,6 +395,26 @@ Item {
             item.vehicle = Qt.binding(function() { return _activeVehicle })
             item.altitudeMode = Qt.binding(function() { return Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) })
             item.initializeAltitude()
+        }
+    }
+
+    Loader {
+        id: gotoAltitudeSlider
+        active: _mainWindowIsMap && mapControl.gotoConfirmationPending
+        visible: active
+        source: "qrc:/qml/GoToAltitudeSlider.qml"
+        anchors.right: parent.right
+        anchors.rightMargin: _toolsMargin
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: ScreenTools.defaultFontPixelWidth * 10
+        z: QGroundControl.zOrderWidgets + 1
+        onLoaded: {
+            item.mapControl = mapControl
+            item.actionData = Qt.binding(function() {
+                return globals.guidedControllerFlyView && globals.guidedControllerFlyView.confirmDialog ?
+                            globals.guidedControllerFlyView.confirmDialog.actionData : null
+            })
         }
     }
 

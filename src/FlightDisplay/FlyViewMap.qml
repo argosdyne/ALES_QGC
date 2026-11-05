@@ -57,6 +57,9 @@ FlightMap {
     // Snapshot the vehicle position when this GoTo starts. The progress panel
     // uses it for the completed Trip distance, not the vehicle's live position.
     property var    gotoProgressStartCoordinate: QtPositioning.coordinate()
+    // Telemetry-derived points collected only while this GoTo is active. This
+    // keeps the red line scoped to GoTo instead of showing the whole armed-flight track.
+    property var    gotoFlownTrack:              []
     property int    gotoProgressAltitudeMode:   QGroundControl.AltitudeModeRelative
     property bool   gotoArrivalConfirmed:       false
     readonly property bool gotoProgressPaused:   gotoProgressActive && _activeVehicle && _activeVehicle.flightMode === _activeVehicle.pauseFlightMode
@@ -76,6 +79,77 @@ FlightMap {
                _activeVehicle.flightMode === _activeVehicle.takeControlFlightMode
     }
     readonly property bool gotoAvailable:       globals.guidedControllerFlyView ? globals.guidedControllerFlyView.showGotoLocation : false
+    readonly property real gotoDraftDistance:   gotoSelectionEnabled && gotoDraftCoordinate.isValid && _activeVehicleCoordinate.isValid ?
+                                                _activeVehicleCoordinate.distanceTo(gotoDraftCoordinate) : NaN
+    readonly property var gotoRemainingRouteTarget: gotoSelectionEnabled ? gotoDraftCoordinate : gotoProgressCoordinate
+    readonly property bool gotoRemainingRouteVisible: _activeVehicleCoordinate.isValid && gotoRemainingRouteTarget.isValid &&
+                                                      (gotoSelectionEnabled || (gotoProgressActive && !gotoArrivalConfirmed))
+    readonly property real gotoRemainingRouteDistance: gotoRemainingRouteVisible ?
+                                                        _activeVehicleCoordinate.distanceTo(gotoRemainingRouteTarget) : NaN
+    readonly property int gotoRemainingDashCount: isFinite(gotoRemainingRouteDistance) && gotoRemainingRouteDistance > 0 ?
+                                                Math.min(48, Math.max(1, Math.ceil(gotoRemainingRouteDistance / 35))) : 0
+
+    function gotoDraftDistanceText() {
+        if (!isFinite(gotoDraftDistance)) {
+            return "--"
+        }
+        return Number(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(gotoDraftDistance)).toFixed(0) +
+                " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
+    }
+
+    function gotoRemainingRouteDistanceText() {
+        if (!isFinite(gotoRemainingRouteDistance)) {
+            return "--"
+        }
+        return Number(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(gotoRemainingRouteDistance)).toFixed(0) +
+                " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
+    }
+
+    function gotoRemainingDashPath(index) {
+        if (!gotoRemainingRouteVisible || gotoRemainingDashCount === 0) {
+            return []
+        }
+        var segmentLength = gotoRemainingRouteDistance / gotoRemainingDashCount
+        var startDistance = index * segmentLength
+        var endDistance = Math.min(gotoRemainingRouteDistance, startDistance + segmentLength * 0.58)
+        var bearing = _activeVehicleCoordinate.azimuthTo(gotoRemainingRouteTarget)
+        return [
+            _activeVehicleCoordinate.atDistanceAndAzimuth(startDistance, bearing),
+            _activeVehicleCoordinate.atDistanceAndAzimuth(endDistance, bearing)
+        ]
+    }
+
+    function _goToTrackCoordinate(coordinate) {
+        return QtPositioning.coordinate(coordinate.latitude, coordinate.longitude, coordinate.altitude)
+    }
+
+    function _appendGoToTrackPoint(coordinate) {
+        if (!gotoProgressActive || !coordinate || !coordinate.isValid) {
+            return
+        }
+        var track = gotoFlownTrack.slice(0)
+        var point = _goToTrackCoordinate(coordinate)
+        if (!track.length || track[track.length - 1].distanceTo(point) > 0.01) {
+            track.push(point)
+            gotoFlownTrack = track
+        }
+    }
+
+    function _updateGoToTrackPoint(coordinate) {
+        if (!gotoProgressActive || !coordinate || !coordinate.isValid) {
+            return
+        }
+        var track = gotoFlownTrack.slice(0)
+        var point = _goToTrackCoordinate(coordinate)
+        // Keep the start point fixed. The next point is continuously updated
+        // until the trajectory sampler detects a change of direction.
+        if (track.length < 2) {
+            track.push(point)
+        } else {
+            track[track.length - 1] = point
+        }
+        gotoFlownTrack = track
+    }
 
     function beginGotoSelection(coordinate) {
         if (!gotoAvailable || pipMode || gotoProgressTermination.length) {
@@ -153,6 +227,7 @@ FlightMap {
         gotoProgressActive = false
         gotoProgressCoordinate = QtPositioning.coordinate()
         gotoProgressStartCoordinate = QtPositioning.coordinate()
+        gotoFlownTrack = []
         gotoArrivalConfirmed = false
         gotoProgressTermination = ""
         gotoTerminationTimer.stop()
@@ -180,6 +255,7 @@ FlightMap {
         gotoProgressStartCoordinate = _activeVehicle && _activeVehicle.coordinate.isValid ?
                     QtPositioning.coordinate(_activeVehicle.coordinate.latitude, _activeVehicle.coordinate.longitude) :
                     QtPositioning.coordinate()
+        gotoFlownTrack = gotoProgressStartCoordinate.isValid ? [gotoProgressStartCoordinate] : []
         gotoProgressCoordinate = coordinate
         gotoProgressAltitudeMode = altitudeMode
         gotoArrivalConfirmed = false
@@ -454,7 +530,9 @@ FlightMap {
         line.width: 3
         line.color: "red"
         z:          QGroundControl.zOrderTrajectoryLines
-        visible:    !pipMode
+        // During GoTo the dedicated overlay below is used, so the pre-GoTo
+        // armed-flight history does not look like part of this command.
+        visible:    !pipMode && !_root.gotoProgressActive
 
         Connections {
             target:                 QGroundControl.multiVehicleManager
@@ -468,6 +546,18 @@ FlightMap {
             onPointAdded:           trajectoryPolyline.addCoordinate(coordinate)
             onUpdateLastPoint:      trajectoryPolyline.replaceCoordinate(trajectoryPolyline.pathLength() - 1, coordinate)
             onPointsCleared:        trajectoryPolyline.path = []
+        }
+    }
+
+    // Reuse Vehicle.trajectoryPoints: its sampler already removes redundant
+    // telemetry points, so this GoTo-only track remains light on the map.
+    Connections {
+        target: _activeVehicle ? _activeVehicle.trajectoryPoints : null
+        function onPointAdded(coordinate) {
+            _root._appendGoToTrackPoint(coordinate)
+        }
+        function onUpdateLastPoint(coordinate) {
+            _root._updateGoToTrackPoint(coordinate)
         }
     }
 
@@ -605,12 +695,51 @@ FlightMap {
         }
     }
 
+    // Actual track travelled after the GoTo was confirmed.
     MapPolyline {
-        visible: _root.gotoSelectionEnabled && _root.gotoDraftCoordinate.isValid && _activeVehicleCoordinate.isValid
-        z: QGroundControl.zOrderMapItems
-        line.width: 2
-        line.color: QGroundControl.globalPalette.primaryButton
-        path: visible ? [_activeVehicleCoordinate, _root.gotoDraftCoordinate] : []
+        visible: _root.gotoProgressActive && _root.gotoFlownTrack.length > 1
+        z: QGroundControl.zOrderTrajectoryLines
+        line.width: 3
+        line.color: "#e64b4b"
+        path: visible ? _root.gotoFlownTrack : []
+    }
+
+    // QtLocation 5.15 MapPolyline has no dash-style property. Draw short
+    // alternating segments to produce a portable dashed remaining route.
+    MapItemView {
+        model: _root.gotoRemainingDashCount
+        delegate: MapPolyline {
+            visible: _root.gotoRemainingRouteVisible
+            z: QGroundControl.zOrderTrajectoryLines
+            line.width: 2
+            line.color: "white"
+            path: _root.gotoRemainingDashPath(index)
+        }
+    }
+
+    MapQuickItem {
+        id: gotoDraftDistanceLabel
+        visible: _root.gotoRemainingRouteVisible && isFinite(_root.gotoRemainingRouteDistance)
+        z: QGroundControl.zOrderMapItems + 1
+        coordinate: visible ? _activeVehicleCoordinate.atDistanceAndAzimuth(
+                                _root.gotoRemainingRouteDistance / 2,
+                                _activeVehicleCoordinate.azimuthTo(_root.gotoRemainingRouteTarget)) : QtPositioning.coordinate()
+        anchorPoint.x: sourceItem.width / 2
+        anchorPoint.y: sourceItem.height / 2
+        sourceItem: Rectangle {
+            width: distanceLabel.implicitWidth + ScreenTools.defaultFontPixelWidth
+            height: distanceLabel.implicitHeight + ScreenTools.defaultFontPixelHeight / 3
+            color: QGroundControl.globalPalette.windowShadeDark
+            radius: ScreenTools.defaultFontPixelWidth / 3
+            QGCLabel {
+                id: distanceLabel
+                anchors.centerIn: parent
+                text: _root.gotoRemainingRouteDistanceText()
+                color: QGroundControl.globalPalette.primaryButtonText
+                font.bold: true
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+        }
     }
 
     MapQuickItem {
@@ -623,7 +752,7 @@ FlightMap {
         sourceItem: MissionItemIndexLabel {
             checked: true
             index: -1
-            label: qsTr("GoTo target")
+            label: qsTr("Go here", "Go to location waypoint")
         }
     }
 
