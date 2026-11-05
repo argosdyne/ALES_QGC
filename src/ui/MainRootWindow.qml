@@ -74,6 +74,15 @@ ApplicationWindow {
     // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
     property bool               lifeVestPanelVisible:       false
 
+    // Cross-file flag for the SAFE-T tether panel in the Fly view
+    property bool               tetherPanelVisible:         false
+    Connections {
+        target: QGroundControl.corePlugin.elistairStationManager
+        onConnectionSettingsChanged: {
+            if (!target.enabled) mainWindow.tetherPanelVisible = false
+        }
+    }
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------
@@ -170,6 +179,14 @@ ApplicationWindow {
         planView.visible = true
     }
 
+    function showPlanMissionUpload() {
+        showPlanView()
+        var plan = globals.planMasterControllerPlanView
+        if (plan && plan.currentPlanFile !== "" && !plan.dirty) {
+            plan.loadFromFile(plan.currentPlanFile)
+        }
+    }
+
     // show GeoZoneMakeView
     function showGeoZoneMakeView(){
         //viewSwitch(toolbar.planViewToolbar)
@@ -192,8 +209,33 @@ ApplicationWindow {
         showTool(qsTr("Vehicle Setup"), "SetupView.qml", "/qmlimages/Gears.svg")
     }
 
+    function showSetupMission() {
+        showSetupTool()
+        Qt.callLater(_openSetupMissionPanel)
+    }
+
+    function _openSetupMissionPanel() {
+        var setup = toolDrawerLoader.item
+        var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+        if (!setup || !setup.showVehicleComponentPanel || !vehicle || !vehicle.autopilot) {
+            return
+        }
+        var components = vehicle.autopilot.vehicleComponents
+        for (var i = 0; i < components.length; i++) {
+            var setupSource = components[i].setupSource.toString()
+            if (setupSource.indexOf("APMMissionComponent.qml") !== -1) {
+                setup.showVehicleComponentPanel(components[i])
+                return
+            }
+        }
+    }
+
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
+    }
+
+    function showStationSetupTool() {
+        showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
     }
 
     function showAboutTool() {
@@ -508,6 +550,20 @@ ApplicationWindow {
                         }
                     }
 
+                    SubMenuButton {
+                        id:                 stationSetupButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("Station Setup")
+                        imageResource:      "/res/SafeTStation.svg"
+                        imageColor:         qgcPal.text
+                        visible:            QGroundControl.corePlugin.elistairStationManager !== null
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showStationSetupTool()
+                        }
+                    }
+
                     ColumnLayout {
                         width:                  innerLayout.width
                         spacing:                0
@@ -610,6 +666,11 @@ ApplicationWindow {
         }
     }
 
+
+    MissionResetBanner {
+        width:  0
+        height: 0
+    }
 
     FlyView {
         id:             flightView

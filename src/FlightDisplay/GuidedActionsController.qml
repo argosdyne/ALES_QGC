@@ -46,6 +46,7 @@ Item {
     readonly property string continueMissionTitle:          qsTr("Continue Mission")
     readonly property string resumeMissionUploadFailTitle:  qsTr("Resume FAILED")
     readonly property string pauseTitle:                    qsTr("Pause")
+    readonly property string continueGoToTitle:             qsTr("Continue GoTo")
     readonly property string mvPauseTitle:                  qsTr("Pause (MV)")
     readonly property string changeAltTitle:                qsTr("Change Altitude")
     readonly property string changeCruiseSpeedTitle:        qsTr("Change Max Ground Speed")
@@ -78,6 +79,7 @@ Item {
     readonly property string orbitMessage:                      qsTr("Orbit the vehicle around the specified location.")
     readonly property string landAbortMessage:                  qsTr("Abort the landing sequence.")
     readonly property string pauseMessage:                      qsTr("Pause the vehicle at it's current position, adjusting altitude up or down as needed.")
+    readonly property string continueGoToMessage:               qsTr("Continue GoTo from current waypoint.")
     readonly property string mvPauseMessage:                    qsTr("Pause all vehicles at their current position.")
     readonly property string vtolTransitionFwdMessage:          qsTr("Transition VTOL to fixed wing flight.")
     readonly property string vtolTransitionMRMessage:           qsTr("Transition VTOL to multi-rotor flight.")
@@ -113,6 +115,7 @@ Item {
     readonly property int actionSetHome:                    27
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
+    property bool   _communicationLost:         _activeVehicle && _activeVehicle.vehicleLinkManager.communicationLost
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
     property bool   _enforceChecklist:          _useChecklist && QGroundControl.settingsManager.appSettings.enforceChecklist.rawValue
     property bool   _checklistPassed:           _activeVehicle ? (_useChecklist ? (_enforceChecklist ? _activeVehicle.checkListState === Vehicle.CheckListPassed : true) : true) : true
@@ -129,14 +132,16 @@ Item {
     property bool showTakeoff:          _guidedActionsEnabled && _activeVehicle.takeoffVehicleSupported && !_vehicleFlying && _canTakeoff
     property bool showLand:             _guidedActionsEnabled && _activeVehicle.guidedModeSupported && _vehicleArmed && !_activeVehicle.fixedWing && !_vehicleInLandMode
     property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission
-    property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1)
-    property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying && !_vehiclePaused && !_fixedWingOnApproach
+    property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1) && !gotoProgressActive
+    property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying &&
+                                        !(gotoProgressActive ? gotoPaused : _vehiclePaused) && !_fixedWingOnApproach
+    property bool showContinueGoTo:     gotoProgressActive && gotoPaused && _guidedActionsEnabled && !_communicationLost && _vehicleArmed && _vehicleFlying
     property bool showChangeAlt:        _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive
     property bool showChangeSpeed:      _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive && _speedLimitsAvailable
     property bool showOrbit:            _guidedActionsEnabled && _vehicleFlying && __orbitSupported && !_missionActive
     property bool showROI:              _guidedActionsEnabled && _vehicleFlying && __roiSupported && !_missionActive
     property bool showLandAbort:        _guidedActionsEnabled && _vehicleFlying && _fixedWingOnApproach
-    property bool showGotoLocation:     _guidedActionsEnabled && _vehicleFlying
+    property bool showGotoLocation:     _guidedActionsEnabled && !_communicationLost && _vehicleFlying
     property bool showSetHome:          _guidedActionsEnabled
     property bool showActionList:       _guidedActionsEnabled && (showStartMission || showResumeMission || showChangeAlt || showLandAbort || actionList.hasCustomActions)
     property bool showGripper:          _initialConnectComplete ? _activeVehicle.hasGripper : false
@@ -211,7 +216,7 @@ Item {
                 guidedValueSlider.setMaxVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()).toFixed(1))
                 guidedValueSlider.setValue(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()/2).toFixed(1))
             }
-        } else if (actionCode === actionChangeAlt || actionCode === actionOrbit || actionCode === actionGoto || actionCode === actionPause) {
+        } else if (actionCode === actionChangeAlt || actionCode === actionOrbit || actionCode === actionPause) {
             guidedValueSlider.setDisplayText(qsTr("New Alt(rel)"))
             guidedValueSlider.configureAsRelativeAltSliderExp()
         }
@@ -263,6 +268,15 @@ Item {
         _outputState()
         if (showContinueMission) {
             confirmAction(actionContinueMission)
+        }
+    }
+    onShowContinueGoToChanged: {
+        if (showContinueGoTo) {
+            confirmAction(actionContinueGoTo, {
+                "map":        gotoProgressMap,
+                "vehicle":    _activeVehicle,
+                "coordinate": gotoProgressMap.gotoProgressCoordinate
+            })
         }
     }
     onShowRTLChanged: {
@@ -359,18 +373,31 @@ Item {
     }
 
     function closeAll() {
+        if (confirmDialog && confirmDialog.action === actionTetherPowerOff && confirmDialog.visible) cancelTetherPowerOff()
         confirmDialog.visible =     false
         actionList.visible =        false
         guidedValueSlider.visible =    false
     }
 
+    function setGotoProgressMap(map) {
+        gotoProgressMap = map
+    }
+
+    function clearGotoProgressMap(map) {
+        if (gotoProgressMap === map) {
+            gotoProgressMap = undefined
+        }
+    }
+
     // Called when an action is about to be executed in order to confirm
     function confirmAction(actionCode, actionData, mapIndicator) {
+        // Do not let an automatic mission prompt replace a pending safety confirmation.
+        if (tetherStation && tetherStation.powerOffPending && (actionCode === actionStartMission || actionCode === actionContinueMission)) return
         var showImmediate = true
         closeAll()
         confirmDialog.action = actionCode
         confirmDialog.actionData = actionData
-        confirmDialog.hideTrigger = true
+        confirmDialog.hideTrigger = actionCode !== actionTetherPowerOff
         confirmDialog.mapIndicator = mapIndicator
         confirmDialog.optionText = ""
         _actionData = actionData
@@ -378,6 +405,19 @@ Item {
         setupSlider(actionCode)
 
         switch (actionCode) {
+        case actionTetherLand:
+        case actionTetherRTL:
+            if (!tetherStation || !tetherStation.noPowerPrompt || actionData !== tetherStation.noPowerIncident || !_activeVehicle) return
+            confirmDialog.title = actionCode === actionTetherLand ? qsTr("Tether: Land now") : qsTr("Tether: RTL to Station")
+            confirmDialog.message = actionCode === actionTetherLand ? qsTr("Land at the current position. Tether power is lost; the drone is on its onboard battery.") : qsTr("Return to Home and land. Verify that Home is the station location.")
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
+            break
+        case actionTetherPowerOff:
+            if (!tetherStation || !tetherStation.powerOffPending || actionData !== tetherStation.powerOffRequestId) return
+            confirmDialog.title = qsTr("Tether power OFF")
+            confirmDialog.message = Qt.binding(function() { return _root.tetherPowerOffMessage() })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.powerOffPending || !_root.tetherStation.hasMonitoring || _root.tetherStation.linkLost || !_root.tetherStation.powerRemote })
+            break
         case actionArm:
             if (_vehicleFlying || !_guidedActionsEnabled) {
                 return
@@ -457,8 +497,15 @@ Item {
             break;
         case actionGoto:
             confirmDialog.title = gotoTitle
-            confirmDialog.message = gotoMessage
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showGotoLocation })
+            confirmDialog.message = actionData && actionData.gotoSummary ? actionData.gotoSummary : (actionData.coordinate ?
+                qsTr("GoTo %1, %2\nAltitude: %3 - %4")
+                    .arg(actionData.coordinate.latitude.toFixed(7)).arg(actionData.coordinate.longitude.toFixed(7))
+                    .arg(actionData.altitudeText).arg(QGroundControl.altitudeModeShortDescription(actionData.altitudeMode)) : gotoMessage)
+            confirmDialog.hideTrigger = Qt.binding(function() {
+                return !showGotoLocation || (actionData.coordinate &&
+                    (actionData.vehicle !== _activeVehicle || actionData.vehicle.vehicleLinkManager.communicationLost ||
+                     actionData.altitudeMode !== Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue)))
+            })
             break;
         case actionSetWaypoint:
             confirmDialog.title = setWaypointTitle
@@ -480,6 +527,11 @@ Item {
             confirmDialog.message = pauseMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showPause })
             guidedValueSlider.visible = true
+            break;
+        case actionContinueGoTo:
+            confirmDialog.title = continueGoToTitle
+            confirmDialog.message = continueGoToMessage
+            confirmDialog.hideTrigger = Qt.binding(function() { return !showContinueGoTo })
             break;
         case actionMVPause:
             confirmDialog.title = mvPauseTitle
@@ -533,10 +585,23 @@ Item {
         var i;
         var rgVehicle;
         switch (actionCode) {
+        case actionTetherLand:
+        case actionTetherRTL:
+            if (tetherStation) tetherStation.executeNoPowerAction(actionData, actionCode === actionTetherRTL)
+            break
+        case actionTetherPowerOff:
+            if (tetherStation) tetherStation.confirmPowerOff(actionData)
+            break
         case actionRTL:
+            if (gotoProgressActive) {
+                gotoProgressMap.beginGotoTermination("rtl")
+            }
             _activeVehicle.guidedModeRTL(optionChecked)
             break
         case actionLand:
+            if (gotoProgressActive) {
+                gotoProgressMap.beginGotoTermination("land")
+            }
             _activeVehicle.guidedModeLand()
             break
         case actionTakeoff:
@@ -572,7 +637,15 @@ Item {
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, false /* pauseVehicle */)
             break
         case actionGoto:
-            _activeVehicle.guidedModeGotoLocation(actionData)
+            if (actionData.coordinate) {
+                if (showGotoLocation && actionData.vehicle === _activeVehicle &&
+                        actionData.altitudeMode === Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) &&
+                        _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)) {
+                    actionData.map.completeGotoSelection(actionData.coordinate, actionData.altitudeMode)
+                }
+            } else {
+                _activeVehicle.guidedModeGotoLocation(actionData)
+            }
             break
         case actionSetWaypoint:
             _activeVehicle.setCurrentMissionSequence(actionData)
@@ -584,7 +657,17 @@ Item {
             _activeVehicle.abortLanding(50)     // hardcoded value for climbOutAltitude that is currently ignored
             break
         case actionPause:
+            if (gotoProgressActive) {
+                gotoProgressMap.pauseGotoProgress()
+            }
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, true /* pauseVehicle */)
+            break
+        case actionContinueGoTo:
+            if (actionData && actionData.map === gotoProgressMap && gotoProgressActive && gotoPaused &&
+                    actionData.vehicle === _activeVehicle && actionData.coordinate && actionData.coordinate.isValid &&
+                    _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)) {
+                gotoProgressMap.resumeGotoProgress()
+            }
             break
         case actionMVPause:
             rgVehicle = QGroundControl.multiVehicleManager.vehicles

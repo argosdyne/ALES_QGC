@@ -24,6 +24,8 @@ add_library(AutoPilotPlugins
 	APM/APMSubFrameComponent.cc
 	APM/APMSubMotorComponentController.cc
 	APM/APMTuningComponent.cc
+	APM/APMMissionComponent.cc
+	APM/APMMissionComponentController.cc
 
 	Common/ESP8266Component.cc
 	Common/ESP8266ComponentController.cc

@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
  *
  * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
  *
@@ -56,6 +56,7 @@
 #include "StandardModes.h"
 #include "VehicleGeneratorFactGroup.h"
 #include "VehicleEFIFactGroup.h"
+#include "TetherFactGroup.h"
 
 class Actuators;
 class EventHandler;
@@ -205,6 +206,7 @@ public:
     Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
     Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
     Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
+    Q_PROPERTY(QObject*             missionResetMonitor         READ missionResetMonitor                                            NOTIFY missionResetMonitorChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
@@ -361,6 +363,7 @@ public:
     Q_PROPERTY(FactGroup*           hygrometer      READ hygrometerFactGroup        CONSTANT)
     Q_PROPERTY(FactGroup*           generator       READ generatorFactGroup         CONSTANT)
     Q_PROPERTY(FactGroup*           efi             READ efiFactGroup               CONSTANT)
+    Q_PROPERTY(FactGroup*           tether          READ tetherFactGroup            CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  batteries       READ batteries                  CONSTANT)
     Q_PROPERTY(Actuators*           actuators       READ actuators                  CONSTANT)
     Q_PROPERTY(HealthAndArmingCheckReport* healthAndArmingCheckReport READ healthAndArmingCheckReport CONSTANT)
@@ -407,8 +410,9 @@ public:
     /// @return Minumum equivalent airspeed.
     Q_INVOKABLE double minimumEquivalentAirspeed();
 
-    /// Command vehicle to move to specified location (altitude is ignored)
-    Q_INVOKABLE void guidedModeGotoLocation(const QGeoCoordinate& gotoCoord);
+    /// Dispatch GoTo; optionally use gotoCoord.altitude() as AMSL. Values are validated by the editor.
+    /// True means dispatched, not ACKed. Existing one-argument calls keep the current altitude.
+    Q_INVOKABLE bool guidedModeGotoLocation(const QGeoCoordinate& gotoCoord, bool useTargetAltitude = false);
 
     /// Command vehicle to change altitude
     ///     @param altitudeChange If > 0, go up by amount specified, if < 0, go down by amount specified
@@ -779,6 +783,7 @@ public:
     FactGroup* hygrometerFactGroup          () { return &_hygrometerFactGroup; }
     FactGroup* generatorFactGroup           () { return &_generatorFactGroup; }
     FactGroup* efiFactGroup                 () { return &_efiFactGroup; }
+    TetherFactGroup* tetherFactGroup        () { return &_tetherFactGroup; }
     QmlObjectListModel* batteries           () { return &_batteryFactGroupListModel; }
 
     MissionManager*                 missionManager      () { return _missionManager; }
@@ -925,6 +930,9 @@ public:
     /// and destroyed when the vehicle goes away.
     void setFirmwarePluginInstanceData(QObject* firmwarePluginInstanceData);
 
+    QObject* missionResetMonitor() const { return _missionResetMonitor; }
+    void setMissionResetMonitor(QObject* monitor);
+
     QString vehicleImageOpaque  () const;
     QString vehicleImageOutline () const;
     QString vehicleImageCompass () const;
@@ -1010,6 +1018,7 @@ signals:
     void vtolInFwdFlightChanged         (bool vtolInFwdFlight);
     void prearmErrorChanged             (const QString& prearmError);
     void soloFirmwareChanged            (bool soloFirmware);
+    void missionResetMonitorChanged     ();
     void defaultCruiseSpeedChanged      (double cruiseSpeed);
     void defaultHoverSpeedChanged       (double hoverSpeed);
     void firmwareTypeChanged            ();
@@ -1248,6 +1257,7 @@ private:
     MAV_TYPE            _vehicleType;
     FirmwarePlugin*     _firmwarePlugin = nullptr;
     QObject*            _firmwarePluginInstanceData = nullptr;
+    QObject*            _missionResetMonitor = nullptr;
     AutoPilotPlugin*    _autopilotPlugin = nullptr;
     MAVLinkProtocol*    _mavlink = nullptr;
     bool                _soloFirmware = false;
@@ -1578,6 +1588,7 @@ private:
     VehicleHygrometerFactGroup      _hygrometerFactGroup;
     VehicleGeneratorFactGroup       _generatorFactGroup;
     VehicleEFIFactGroup             _efiFactGroup;
+    TetherFactGroup                 _tetherFactGroup;
     TerrainFactGroup                _terrainFactGroup;
     QmlObjectListModel              _batteryFactGroupListModel;
 
@@ -1639,6 +1650,7 @@ private:
     static const char* _hygrometerFactGroupName;
     static const char* _generatorFactGroupName;
     static const char* _efiFactGroupName;
+    static const char* _tetherFactGroupName;
     static const char* _terrainFactGroupName;
 
     static const int _vehicleUIUpdateRateMSecs      = 100;

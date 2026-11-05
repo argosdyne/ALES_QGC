@@ -21,7 +21,12 @@ TextField {
     property string unitsLabel:         ""
     property string extraUnitsLabel:    ""
     property bool   numericValuesOnly:  false   // true: Used as hint for mobile devices to show numeric only keyboard
+    // Consumers set this after applying their field-specific validator. Keeping it here
+    // makes invalid input unmistakable instead of relying on a colour-only hint.
+    property bool   validationError:    false
     property real   textFontPointSize:  ScreenTools.defaultFontPointSize
+    property bool   validationError:    false
+    property color  validationErrorColor: "#c74946"
 
     signal helpClicked
 
@@ -73,7 +78,7 @@ TextField {
             Rectangle {
                 anchors.fill:           parent
                 border.width:           enabled ? 1 : 0
-                border.color:           root.activeFocus ? "#47b" : "#999"
+                border.color:           root.validationError ? "#ff5e57" : (root.activeFocus ? "#47b" : "#999")
                 color:                  qgcPal.textField
             }
 

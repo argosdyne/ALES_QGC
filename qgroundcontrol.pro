@@ -1232,6 +1232,8 @@ APMFirmwarePlugin {
         src/AutoPilotPlugins/APM/APMFollowComponentController.h \
         src/AutoPilotPlugins/APM/APMHeliComponent.h \
         src/AutoPilotPlugins/APM/APMLightsComponent.h \
+        src/AutoPilotPlugins/APM/APMMissionComponent.h \
+        src/AutoPilotPlugins/APM/APMMissionComponentController.h \
         src/AutoPilotPlugins/APM/APMSubFrameComponent.h \
         src/AutoPilotPlugins/APM/APMMotorComponent.h \
         src/AutoPilotPlugins/APM/APMPowerComponent.h \
@@ -1243,6 +1245,7 @@ APMFirmwarePlugin {
         src/AutoPilotPlugins/APM/APMTuningComponent.h \
         src/AutoPilotPlugins/APM/APMRemoteSupportComponent.h \
         src/FirmwarePlugin/APM/APMFirmwarePlugin.h \
+        src/FirmwarePlugin/APM/APMMissionResetMonitor.h \
         src/FirmwarePlugin/APM/APMParameterMetaData.h \
         src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.h \
         src/FirmwarePlugin/APM/ArduPlaneFirmwarePlugin.h \
@@ -1260,6 +1263,8 @@ APMFirmwarePlugin {
         src/AutoPilotPlugins/APM/APMFollowComponentController.cc \
         src/AutoPilotPlugins/APM/APMHeliComponent.cc \
         src/AutoPilotPlugins/APM/APMLightsComponent.cc \
+        src/AutoPilotPlugins/APM/APMMissionComponent.cc \
+        src/AutoPilotPlugins/APM/APMMissionComponentController.cc \
         src/AutoPilotPlugins/APM/APMSubFrameComponent.cc \
         src/AutoPilotPlugins/APM/APMMotorComponent.cc \
         src/AutoPilotPlugins/APM/APMPowerComponent.cc \
@@ -1271,6 +1276,7 @@ APMFirmwarePlugin {
         src/AutoPilotPlugins/APM/APMTuningComponent.cc \
         src/AutoPilotPlugins/APM/APMRemoteSupportComponent.cc \
         src/FirmwarePlugin/APM/APMFirmwarePlugin.cc \
+        src/FirmwarePlugin/APM/APMMissionResetMonitor.cc \
         src/FirmwarePlugin/APM/APMParameterMetaData.cc \
         src/FirmwarePlugin/APM/ArduCopterFirmwarePlugin.cc \
         src/FirmwarePlugin/APM/ArduPlaneFirmwarePlugin.cc \
@@ -1482,6 +1488,9 @@ AndroidBuild {
 }
 
 android: {
+    # Qt 5.15/Gradle 5.6 requires the legacy dx tool. Do not select newer
+    # build-tools automatically when they coexist in the SDK.
+    ANDROID_SDK_BUILD_TOOLS_REVISION = 30.0.3
     greaterThan(QT_MAJOR_VERSION, 5): CONFIG += qtserialport
     !FORCE_QSERIALPORT {
         include($$PWD/libs/qtandroidserialport/src/qtandroidserialport.pri)

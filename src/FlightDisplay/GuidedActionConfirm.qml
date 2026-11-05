@@ -19,7 +19,8 @@ import QGroundControl.Palette       1.0
 Rectangle {
     id:         _root
     width:      ScreenTools.defaultFontPixelWidth * 45
-    height:     mainLayout.height + (_margins * 2)
+    implicitHeight: mainLayout.implicitHeight + (_margins * 2)
+    height:     implicitHeight
     radius:     ScreenTools.defaultFontPixelWidth / 2
     color:      qgcPal.window
     visible:    false
@@ -37,11 +38,13 @@ Rectangle {
 
     property real _margins:         ScreenTools.defaultFontPixelWidth / 2
     property bool _emergencyAction: action === guidedController.actionEmergencyStop
+    readonly property bool _gotoConfirmation: action === guidedController.actionGoto && actionData && actionData.gotoSummary
 
     Component.onCompleted: guidedController.confirmDialog = this
 
     onVisibleChanged: {
         if (visible) {
+            slider.resetSpaceBarSliding()
             slider.focus = true
         }
     }
@@ -63,6 +66,8 @@ Rectangle {
     }
 
     function confirmCancelled() {
+        if (action === guidedController.actionTetherPowerOff) guidedController.cancelTetherPowerOff()
+        slider.resetSpaceBarSliding()
         guidedValueSlider.visible = false
         visible = false
         hideTrigger = false
@@ -97,6 +102,16 @@ Rectangle {
             font.pointSize:         ScreenTools.mediumFontPointSize
         }
 
+        QGCLabel {
+            Layout.fillWidth:       true
+            visible:                _root._gotoConfirmation
+            text:                   qsTr("⚠ This vehicle cannot detect obstacles.")
+            color:                  qgcPal.colorOrange
+            horizontalAlignment:    Text.AlignHCenter
+            wrapMode:               Text.WordWrap
+            font.pointSize:         ScreenTools.mediumFontPointSize
+        }
+
         QGCCheckBox {
             id:                 optionCheckBox
             Layout.alignment:   Qt.AlignHCenter
@@ -110,7 +125,8 @@ Rectangle {
 
             SliderSwitch {
                 id:                 slider
-                confirmText:        ScreenTools.isMobile ? qsTr("Slide to confirm") : qsTr("Slide or hold spacebar")
+                allowKeyboardConfirmation: _root.action !== guidedController.actionTetherPowerOff && _root.action !== guidedController.actionTetherLand && _root.action !== guidedController.actionTetherRTL
+                confirmText:        !allowKeyboardConfirmation || ScreenTools.isMobile ? qsTr("Slide to confirm") : qsTr("Slide or hold spacebar")
                 Layout.fillWidth:   true
 
                 onAccept: {
