@@ -54,8 +54,8 @@ Item {
         leftEdgeTopInset:       toolStrip.leftEdgeTopInset
         leftEdgeCenterInset:    parentToolInsets.leftEdgeCenterInset
         leftEdgeBottomInset:    virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.leftEdgeBottomInset : parentToolInsets.leftEdgeBottomInset
-        rightEdgeTopInset:      Math.max(instrumentPanel.rightEdgeTopInset, gotoProgressPanel.rightEdgeInset)
-        rightEdgeCenterInset:   Math.max(telemetryPanel.rightEdgeCenterInset, photoVideoControl.rightEdgeCenterInset, gotoProgressPanel.rightEdgeInset)
+        rightEdgeTopInset:      instrumentPanel.rightEdgeTopInset
+        rightEdgeCenterInset:   (telemetryPanel.rightEdgeCenterInset > photoVideoControl.rightEdgeCenterInset) ? telemetryPanel.rightEdgeCenterInset : photoVideoControl.rightEdgeCenterInset
         rightEdgeBottomInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.rightEdgeBottomInset : parentToolInsets.rightEdgeBottomInset
         topEdgeLeftInset:       toolStrip.topEdgeLeftInset
         topEdgeCenterInset:     mapScale.topEdgeCenterInset
@@ -63,37 +63,6 @@ Item {
         bottomEdgeLeftInset:    virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeLeftInset : parentToolInsets.bottomEdgeLeftInset
         bottomEdgeCenterInset:  telemetryPanel.bottomEdgeCenterInset
         bottomEdgeRightInset:   virtualJoystickMultiTouch.visible ? virtualJoystickMultiTouch.bottomEdgeRightInset : parentToolInsets.bottomEdgeRightInset
-    }
-
-    Rectangle {
-        id: gotoRejectionToast
-        anchors.top: parent.top
-        border.color: "#9e8100"
-        border.width: 1
-        anchors.topMargin: ScreenTools.defaultFontPixelHeight * 0.75
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.min(parent.width * 0.70, ScreenTools.defaultFontPixelWidth * 48)
-        height: Math.max(ScreenTools.defaultFontPixelHeight * 2.4,
-                         rejectionContent.implicitHeight + ScreenTools.defaultFontPixelHeight)
-        visible: mapControl.gotoRejectionMessage.length > 0
-        color: "#d9b400"
-        radius: ScreenTools.defaultFontPixelWidth / 2
-        z: QGroundControl.zOrderWidgets + 2
-
-        ColumnLayout {
-            id: rejectionContent
-            anchors.fill: parent
-            anchors.margins: ScreenTools.defaultFontPixelWidth
-            spacing: ScreenTools.defaultFontPixelHeight / 6
-
-            QGCLabel {
-                Layout.fillWidth: true
-                text: qsTr("GoTo rejected: %1").arg(mapControl.gotoRejectionMessage)
-                color: "black"
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
-            }
-        }
     }
 
     FlyViewMissionCompleteDialog {
@@ -188,7 +157,7 @@ Item {
         id:                         instrumentPanel
         anchors.margins:            _toolsMargin
         anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
-        anchors.right:              gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right
+        anchors.right:              parent.right
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
         visible:                    !mainWindow.tetherPanelVisible && QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -203,16 +172,7 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
-<<<<<<< HEAD
-<<<<<<< HEAD
         displayAllowed:         !mainWindow.tetherPanelVisible
-        gotoEditorVisible:      gotoTargetEditor.visible
-=======
-        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible
->>>>>>> a66a94f61 (Create Goto information panel)
-=======
-        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible || mapControl.gotoConfirmationPending
->>>>>>> 1404c72f2 (Update Goto Panel UI)
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 
@@ -243,7 +203,7 @@ Item {
     //-- Audio Control
     AudioControl {
         anchors.margins: _toolsMargin
-        anchors.right: gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right
+        anchors.right: parent.right
         width: _rightPanelWidth
         anchors.top: parent.top
         visible: QGroundControl.settingsManager.flyViewSettings.enableAudioController.value &&
@@ -382,81 +342,6 @@ Item {
 
         property real topEdgeLeftInset: visible ? y + height : 0
         property real leftEdgeTopInset: visible ? x + width : 0
-    }
-
-    Loader {
-        id: gotoTargetEditor
-        active: _mainWindowIsMap && mapControl.gotoSelectionEnabled && mapControl.gotoTargetEditorVisible
-        visible: active
-        source: "qrc:/qml/GoToTargetEditor.qml"
-        // G-01b is a compact centred map dialog placed below the flight toolbar.
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.20
-        // Match the compact GoTo-coordinate dialog: 40 character-widths is
-        // about 330 px at the desktop scale used by Fly View.
-        width: Math.min(parent.width - _toolsMargin * 2,
-                        ScreenTools.defaultFontPixelWidth * 40)
-        height: Math.min(parent.height - _toolsMargin * 2, item ? item.implicitHeight : 0)
-        readonly property real rightEdgeInset: 0
-        z: QGroundControl.zOrderWidgets + 1
-        onLoaded: {
-            item.mapControl = mapControl
-            item.vehicle = Qt.binding(function() { return _activeVehicle })
-            item.altitudeMode = Qt.binding(function() { return Number(QGroundControl.settingsManager.flyViewSettings.gotoAltitudeReference.rawValue) })
-            item.initializeAltitude()
-        }
-    }
-
-    Loader {
-        id: gotoAltitudeSlider
-        active: _mainWindowIsMap && mapControl.gotoConfirmationPending
-        visible: active
-        source: "qrc:/qml/GoToAltitudeSlider.qml"
-        anchors.right: parent.right
-        anchors.rightMargin: _toolsMargin
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        width: ScreenTools.defaultFontPixelWidth * 10
-        z: QGroundControl.zOrderWidgets + 1
-        onLoaded: {
-            item.mapControl = mapControl
-            item.actionData = Qt.binding(function() {
-                return globals.guidedControllerFlyView && globals.guidedControllerFlyView.confirmDialog ?
-                            globals.guidedControllerFlyView.confirmDialog.actionData : null
-            })
-        }
-    }
-
-    Loader {
-        id: gotoProgressPanel
-        active: _mainWindowIsMap && mapControl.gotoProgressActive && !mapControl.gotoSelectionEnabled
-        visible: active
-        source: "qrc:/qml/GoToProgressPanel.qml"
-        anchors.right: parent.right
-        anchors.rightMargin: _toolsMargin
-        y: multiVehiclePanelSelector.visible ?
-               multiVehiclePanelSelector.y + multiVehiclePanelSelector.height + _toolsMargin : _toolsMargin
-        width: Math.min(parent.width / 3, ScreenTools.defaultFontPixelWidth * 30)
-        readonly property real _availableBottom: {
-            var bottom = parent.height - Math.max(parentToolInsets.bottomEdgeRightInset,
-                                                  telemetryPanel.bottomEdgeCenterInset) - _toolsMargin
-            if (telemetryPanel.visible && !telemetryPanel.bottomMode) {
-                bottom = Math.min(bottom, telemetryPanel.y - _toolsMargin)
-            }
-            if (opticalFlowControl.visible) {
-                bottom = Math.min(bottom, opticalFlowControl.y - _toolsMargin)
-            }
-            return bottom
-        }
-        height: Math.max(0, Math.min(item ? item.implicitHeight : 0,
-                                   _availableBottom - y))
-        readonly property real rightEdgeInset: visible ? width + _toolsMargin : 0
-        z: QGroundControl.zOrderWidgets + 1
-        onLoaded: {
-            item.mapControl = mapControl
-            item.vehicle = Qt.binding(function() { return _activeVehicle })
-            item.altitudeMode = Qt.binding(function() { return mapControl.gotoProgressAltitudeMode })
-        }
     }
 
     GripperMenu {
