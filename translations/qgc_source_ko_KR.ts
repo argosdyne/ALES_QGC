@@ -7152,6 +7152,11 @@ Click Ok to start the auto-tuning process.
         <source>Edit Position</source>
         <translation>위치 편집</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewMap.qml" line="782"/>
+      <source>Arrived</source>
+      <translation>도착</translation>
+    </message>
 </context>
   <context>
     <name>FlyViewMissionCompleteDialog</name>
@@ -7261,6 +7266,11 @@ Click Ok to start the auto-tuning process.
         <location filename="../custom/res/Custom/FlightDisplay/FlyViewWidgetLayer.qml" line="206"/>
         <source>Waypoint</source>
         <translation>웨이포인트</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/FlyViewWidgetLayer.qml" line="91"/>
+      <source>GoTo rejected: %1</source>
+      <translation>GoTo가 거부되었습니다: %1</translation>
     </message>
 </context>
   <context>
@@ -8333,6 +8343,11 @@ Click Ok to start the auto-tuning process.
         <source>Slide or hold spacebar</source>
         <translation>슬라이드하거나 스페이스바를 누르고 있으십시오</translation>
     </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionConfirm.qml" line="104"/>
+      <source>⚠ This vehicle cannot detect obstacles.</source>
+      <translation>⚠ 이 기체는 장애물을 감지할 수 없습니다.</translation>
+    </message>
 </context>
   <context>
     <name>GuidedActionList</name>
@@ -8624,6 +8639,21 @@ Click Ok to start the auto-tuning process.
         <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="85"/>
         <source>Set vehicle home as the specified location. This will affect Return to Home position</source>
         <translation>지정된 위치를 기체 홈으로 설정합니다. 이는 귀환(RTH) 위치에 영향을 미칩니다</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="49"/>
+      <source>Continue GoTo</source>
+      <translation>GoTo 계속</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="82"/>
+      <source>Continue GoTo from current waypoint.</source>
+      <translation>현재 경로지점에서 GoTo를 계속합니다.</translation>
+    </message>
+    <message>
+      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="491"/>
+      <source>GoTo %1, %2\nAltitude: %3 - %4</source>
+      <translation>GoTo %1, %2\n고도: %3 - %4</translation>
     </message>
 </context>
   <context>
@@ -29213,6 +29243,87 @@ Confirm change?</source>
       <source>Received:</source>
       <translation>수신:</translation>
     </message>
+  </context>
+  <context>
+    <name>GoToAltitudeSlider</name>
+    <message>
+      <location filename="../custom/res/Custom/FlightDisplay/GoToAltitudeSlider.qml" line="88"/>
+      <source>Altitude</source>
+      <translation>고도</translation>
+    </message>
+  </context>
+  <context>
+    <name>GoToTargetEditor</name>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="23"/><source>Latitude must be between -90 and 90.</source><translation>위도는 -90에서 90 사이여야 합니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="25"/><source>Longitude must be between -180 and 180.</source><translation>경도는 -180에서 180 사이여야 합니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="46"/><source>Enter a valid target altitude.</source><translation>유효한 목표 고도를 입력하세요.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="47"/><source>Current altitude is unavailable.</source><translation>현재 고도를 사용할 수 없습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="49"/><source>Altitude must be between %1 and %2 %3 - %4.</source><translation>고도는 %1에서 %2 %3 - %4 사이여야 합니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="53"/><source>Current position is unavailable.</source><translation>현재 위치를 사용할 수 없습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="55"/><source>Target exceeds the maximum GoTo distance (%1 %2).</source><translation>목표점이 최대 GoTo 거리(%1 %2)를 초과했습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="104"/><source>Target is outside the allowed area.</source><translation>목표점이 허용 구역 밖에 있습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="106"/><source>The target is not valid.</source><translation>목표점이 유효하지 않습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="177"/><source>Go to coordinates</source><translation>좌표로 이동</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="183"/><source>Cancel</source><translation>취소</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="189"/><source>Go</source><translation>이동</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="218"/><source>Go to location: %1 · ETA %2</source><translation>위치로 이동: %1 · 예상 시간 %2</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="240"/><source>Latitude</source><translation>위도</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="261"/><source>-90 to 90</source><translation>-90~90</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="276"/><source>Longitude</source><translation>경도</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="294"/><source>-180 to 180</source><translation>-180~180</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="309"/><source>Altitude</source><translation>고도</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="349"/><source>Altitude reference</source><translation>고도 기준</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="357"/><source>%1 (Application Settings)</source><translation>%1 (애플리케이션 설정)</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="385"/><source>Decimal degrees (WGS84). The altitude reference follows the GCS setting and cannot be changed here.</source><translation>십진수 좌표(WGS84)입니다. 고도 기준은 GCS 설정을 따르며 여기서 변경할 수 없습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToTargetEditor.qml" line="394"/><source>Tip: the same values are prefilled when the dialog is opened from a map tap.</source><translation>팁: 지도에서 대화 상자를 열면 동일한 값이 자동으로 입력됩니다.</translation></message>
+  </context>
+  <context>
+    <name>GoToProgressPanel</name>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="40"/><source>RTL command sent</source><translation>RTL 명령을 전송했습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="41"/><source>Landing command sent</source><translation>착륙 명령을 전송했습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="42"/><source>Control handed over</source><translation>제어권을 넘겼습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="43"/><source>Arrived</source><translation>도착</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="43"/><source>Paused</source><translation>일시 정지됨</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="44"/><source>Stopped by Obstacle</source><translation>장애물로 정지됨</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="45"/><source>Avoiding</source><translation>회피 중</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="45"/><source>Moving</source><translation>이동 중</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="51"/><source>Level 1</source><translation>레벨 1</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="51"/><source>Unavailable</source><translation>사용 불가</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="177"/><source>%1 s ago</source><translation>%1초 전</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="178"/><source>%1 min ago</source><translation>%1분 전</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="209"/><source>GoTo: arrived at target,
+hovering</source><translation>GoTo: 목표점에 도착하여
+호버링 중</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="209"/><source>GoTo command accepted</source><translation>GoTo 명령이 수락되었습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="247"/><source>GoTo</source><translation>GoTo</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="270"/><source>Guided</source><translation>유도</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="270"/><source>Vehicle unavailable</source><translation>기체를 사용할 수 없습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="278"/><source>PROGRESS</source><translation>진행 상황</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="291"/><source>Remaining</source><translation>남은 거리</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="306"/><source>ETA</source><translation>예상 시간</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="308"/><source>Ground speed</source><translation>지상 속도</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="312"/><source>Altitude (%1)</source><translation>고도(%1)</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="321"/><source>TARGET</source><translation>목표점</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="334"/><source>Obstacle response</source><translation>장애물 대응</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="348"/><source>Arrival confirmed. The vehicle is hovering at the target.</source><translation>도착이 확인되었습니다. 기체가 목표점에서 호버링 중입니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="349"/><source>Paused. Use Continue GoTo to resume from the current position.</source><translation>일시 정지됨. 현재 위치에서 GoTo 계속을 사용하여 재개하세요.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="350"/><source>Tap the map to change the target (confirm again).</source><translation>목표점을 변경하려면 지도를 탭하세요(다시 확인 필요).</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="383"/><source>ARRIVED</source><translation>도착</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="399"/><source>RESULT</source><translation>결과</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="417"/><source>Trip</source><translation>이동 거리</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="419"/><source>Obstacle events</source><translation>장애물 이벤트</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="425"/><source>%1 (avoided)</source><translation>%1회(회피)</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="425"/><source>None</source><translation>없음</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="432"/><source>The vehicle holds position. Tap the map to choose the next target.</source><translation>기체가 현재 위치를 유지합니다. 다음 목표점을 선택하려면 지도를 탭하세요.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="443"/><source>Return</source><translation>복귀</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="448"/><source>Land</source><translation>착륙</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="484"/><source>NO LINK</source><translation>링크 없음</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="494"/><source>Last known mode: %1</source><translation>마지막 확인 모드: %1</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="494"/><source>Unknown</source><translation>알 수 없음</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="516"/><source>Communication lost</source><translation>통신이 끊어졌습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="522"/><source>The flight controller will apply its configured data-link-loss failsafe. GoTo commands are unavailable until the link is restored.</source><translation>비행 컨트롤러가 설정된 데이터 링크 손실 FailSafe를 적용합니다. 링크가 복구될 때까지 GoTo 명령을 사용할 수 없습니다.</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="531"/><source>LAST RECEIVED · %1</source><translation>마지막 수신 · %1</translation></message>
+    <message><location filename="../custom/res/Custom/FlightDisplay/GoToProgressPanel.qml" line="553"/><source>Values update again when the link is restored.</source><translation>링크가 복구되면 값이 다시 업데이트됩니다.</translation></message>
   </context>
 </TS>
 
