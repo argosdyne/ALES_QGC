@@ -15,4 +15,13 @@ public:
     DEFINE_SETTINGFACT(doodleLabsIP)
     DEFINE_SETTINGFACT(doodleLabsIPEnable)
     DEFINE_SETTINGFACT(lifeJacketEnable)
+
+    // YellowScan LiDAR (LiDAR Setup > Connection)
+    DEFINE_SETTINGFACT(ysEnable)
+    DEFINE_SETTINGFACT(ysOpenPanelOnConnect)
+    DEFINE_SETTINGFACT(ysModel)
+    DEFINE_SETTINGFACT(ysLink)
+    DEFINE_SETTINGFACT(ysMavCompId)
+    DEFINE_SETTINGFACT(ysCamera)
+    DEFINE_SETTINGFACT(ysMissionStartStop)
 };

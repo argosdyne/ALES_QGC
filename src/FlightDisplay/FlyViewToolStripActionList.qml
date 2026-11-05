@@ -7,6 +7,7 @@
  *
  ****************************************************************************/
 
+import QtQml        2.12
 import QtQml.Models 2.12
 
 import QGroundControl           1.0
@@ -74,6 +75,12 @@ ToolStripActionList {
             visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
                             !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
             onTriggered:    mainWindow.lifeVestPanelVisible = true
+        },
+        ToolStripAction {
+            text:           qsTr("LiDAR")
+            iconSource:     "/custom/img/png/YSLidar.png"
+            visible:        QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
+            onTriggered:    mainWindow.lidarPanelVisible = !mainWindow.lidarPanelVisible
         }
     ]
 }
