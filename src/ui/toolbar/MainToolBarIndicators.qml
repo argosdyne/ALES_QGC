@@ -39,6 +39,14 @@ Row {
         }
     }
 
+    Loader {
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        source:             "qrc:/qml/TetherStatusIndicator.qml"
+        active:             !_activeVehicle
+        visible:            active && item && item.showIndicator
+    }
+
     Repeater {
         id:     toolIndicatorsRepeater
         model:  _activeVehicle ? _activeVehicle.toolIndicators : []
@@ -52,11 +60,27 @@ Row {
             }
         }
 
-        Loader {
+        Row {
+            // Keep the SAFE-T status immediately after the vehicle battery.
+            // Expose item for dropMessageIndicatorTool() above.
+            property alias item: vehicleIndicator.item
             anchors.top:        parent.top
             anchors.bottom:     parent.bottom
-            source:             modelData
-            visible:            item.showIndicator
+            spacing:            indicatorRow.spacing
+            Loader {
+                id: vehicleIndicator
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                source: modelData
+                visible: item && item.showIndicator
+            }
+            Loader {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                active: String(modelData).indexOf("BatteryIndicator.qml") !== -1
+                source: active ? "qrc:/qml/TetherStatusIndicator.qml" : ""
+                visible: active && item && item.showIndicator
+            }
         }
     }
 

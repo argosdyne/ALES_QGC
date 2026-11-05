@@ -111,6 +111,29 @@ Item {
     readonly property int actionChangeSpeed:                25
     readonly property int actionGripper:                    26
     readonly property int actionSetHome:                    27
+    // Deliberately not exposed in the Action menu or joystick assignments.
+    readonly property int actionTetherPowerOff:             28
+    readonly property int actionTetherLand:                 29
+    readonly property int actionTetherRTL:                  30
+    property var tetherStation: QGroundControl.corePlugin.elistairStationManager
+    readonly property var tetherBattery: _activeVehicle && _activeVehicle.batteries.count > 0 ? _activeVehicle.batteries.get(0) : null
+
+    function tetherPowerOffMessage() {
+        var fresh = _activeVehicle && !_activeVehicle.vehicleLinkManager.communicationLost
+        var percent = fresh && tetherBattery ? Number(tetherBattery.percentRemaining.rawValue) : NaN
+        var seconds = fresh && tetherBattery ? Number(tetherBattery.timeRemaining.rawValue) : NaN
+        var level = isFinite(percent) && percent >= 0 && percent <= 100 ? Math.round(percent) + " %" : qsTr("battery level unavailable")
+        var remaining = isFinite(seconds) && seconds > 0 ? qsTr("about %1 min").arg(Math.max(1, Math.round(seconds / 60))) : qsTr("remaining time unavailable")
+        return qsTr("Tether power OFF: the drone will fly on its onboard battery only (%1, %2).").arg(level).arg(remaining)
+    }
+    Connections {
+        target: _root.tetherStation
+        onPowerOffConfirmationRequested: _root.confirmAction(_root.actionTetherPowerOff, _root.tetherStation.powerOffRequestId)
+        onNoPowerActionRequested: _root.confirmAction(rtl ? _root.actionTetherRTL : _root.actionTetherLand, incident)
+    }
+    function cancelTetherPowerOff() {
+        if (tetherStation) tetherStation.cancelPowerOff()
+    }
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
@@ -360,6 +383,7 @@ Item {
     }
 
     function closeAll() {
+        if (confirmDialog && confirmDialog.action === actionTetherPowerOff && confirmDialog.visible) cancelTetherPowerOff()
         confirmDialog.visible =     false
         actionList.visible =        false
         guidedValueSlider.visible =    false
@@ -367,11 +391,13 @@ Item {
 
     // Called when an action is about to be executed in order to confirm
     function confirmAction(actionCode, actionData, mapIndicator) {
+        // Do not let an automatic mission prompt replace a pending safety confirmation.
+        if (tetherStation && tetherStation.powerOffPending && (actionCode === actionStartMission || actionCode === actionContinueMission)) return
         var showImmediate = true
         closeAll()
         confirmDialog.action = actionCode
         confirmDialog.actionData = actionData
-        confirmDialog.hideTrigger = true
+        confirmDialog.hideTrigger = actionCode !== actionTetherPowerOff
         confirmDialog.mapIndicator = mapIndicator
         confirmDialog.optionText = ""
         _actionData = actionData
@@ -379,6 +405,19 @@ Item {
         setupSlider(actionCode)
 
         switch (actionCode) {
+        case actionTetherLand:
+        case actionTetherRTL:
+            if (!tetherStation || !tetherStation.noPowerPrompt || actionData !== tetherStation.noPowerIncident || !_activeVehicle) return
+            confirmDialog.title = actionCode === actionTetherLand ? qsTr("Tether: Land now") : qsTr("Tether: RTL to Station")
+            confirmDialog.message = actionCode === actionTetherLand ? qsTr("Land at the current position. Tether power is lost; the drone is on its onboard battery.") : qsTr("Return to Home and land. Verify that Home is the station location.")
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
+            break
+        case actionTetherPowerOff:
+            if (!tetherStation || !tetherStation.powerOffPending || actionData !== tetherStation.powerOffRequestId) return
+            confirmDialog.title = qsTr("Tether power OFF")
+            confirmDialog.message = Qt.binding(function() { return _root.tetherPowerOffMessage() })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.powerOffPending || !_root.tetherStation.hasMonitoring || _root.tetherStation.linkLost || !_root.tetherStation.powerRemote })
+            break
         case actionArm:
             if (_vehicleFlying || !_guidedActionsEnabled) {
                 return
@@ -534,6 +573,13 @@ Item {
         var i;
         var rgVehicle;
         switch (actionCode) {
+        case actionTetherLand:
+        case actionTetherRTL:
+            if (tetherStation) tetherStation.executeNoPowerAction(actionData, actionCode === actionTetherRTL)
+            break
+        case actionTetherPowerOff:
+            if (tetherStation) tetherStation.confirmPowerOff(actionData)
+            break
         case actionRTL:
             _activeVehicle.guidedModeRTL(optionChecked)
             break

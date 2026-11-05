@@ -74,6 +74,15 @@ ApplicationWindow {
     // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
     property bool               lifeVestPanelVisible:       false
 
+    // Cross-file flag for the SAFE-T tether panel in the Fly view
+    property bool               tetherPanelVisible:         false
+    Connections {
+        target: QGroundControl.corePlugin.elistairStationManager
+        onConnectionSettingsChanged: {
+            if (!target.enabled) mainWindow.tetherPanelVisible = false
+        }
+    }
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------
@@ -223,6 +232,10 @@ ApplicationWindow {
 
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
+    }
+
+    function showStationSetupTool() {
+        showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
     }
 
     function showAboutTool() {
@@ -534,6 +547,20 @@ ApplicationWindow {
                         onClicked: {
                             toolSelectDialog.close()
                             mainWindow.showAboutTool()
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 stationSetupButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("Station Setup")
+                        imageResource:      "/res/SafeTStation.svg"
+                        imageColor:         qgcPal.text
+                        visible:            QGroundControl.corePlugin.elistairStationManager !== null
+                        onClicked: {
+                            toolSelectDialog.close()
+                            mainWindow.showStationSetupTool()
                         }
                     }
 

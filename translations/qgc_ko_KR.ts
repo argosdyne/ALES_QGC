@@ -7018,13 +7018,17 @@ Click Ok to start the auto-tuning process.
     </message>
   </context>
   <context>
-    <name>FlyViewToolStripActionList</name>
-    <message>
-      <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="22"/>
-      <source>Plan</source>
-      <translation type="unfinished">Plan</translation>
-    </message>
-  </context>
+  <name>FlyViewToolStripActionList</name>
+  <message>
+    <location filename="../src/FlightDisplay/FlyViewToolStripActionList.qml" line="22" />
+    <source>Plan</source>
+    <translation type="unfinished">Plan</translation>
+  </message>
+  <message>
+    <source>Tether</source>
+    <translation>테더</translation>
+  </message>
+</context>
   <context>
     <name>FlyViewVideo</name>
     <message>
@@ -7851,228 +7855,256 @@ Click Ok to start the auto-tuning process.
     </message>
   </context>
   <context>
-    <name>GuidedActionsController</name>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="36"/>
-      <source>EMERGENCY STOP</source>
-      <translation type="unfinished">EMERGENCY STOP</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="37"/>
-      <source>Arm</source>
-      <translation type="unfinished">Arm</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="39"/>
-      <source>Disarm</source>
-      <translation type="unfinished">Disarm</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="40"/>
-      <source>Return</source>
-      <translation type="unfinished">Return</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="41"/>
-      <source>Takeoff</source>
-      <translation type="unfinished">Takeoff</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="42"/>
-      <source>Land</source>
-      <translation type="unfinished">Land</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="43"/>
-      <source>Start Mission</source>
-      <translation type="unfinished">Start Mission</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="44"/>
-      <source>Start Mission (MV)</source>
-      <translation type="unfinished">Start Mission (MV)</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="45"/>
-      <source>Continue Mission</source>
-      <translation type="unfinished">Continue Mission</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="46"/>
-      <source>Resume FAILED</source>
-      <translation type="unfinished">Resume FAILED</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="47"/>
-      <source>Pause</source>
-      <translation type="unfinished">Pause</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="48"/>
-      <source>Pause (MV)</source>
-      <translation type="unfinished">Pause (MV)</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="49"/>
-      <source>Change Altitude</source>
-      <translation type="unfinished">Change Altitude</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="50"/>
-      <source>Orbit</source>
-      <translation type="unfinished">Orbit</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="51"/>
-      <source>Land Abort</source>
-      <translation type="unfinished">Land Abort</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52"/>
-      <source>Set Waypoint</source>
-      <translation type="unfinished">Set Waypoint</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="53"/>
-      <source>Go To Location</source>
-      <translation type="unfinished">Go To Location</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="67"/>
-      <source>Return to the launch position of the vehicle.</source>
-      <translation type="unfinished">Return to the launch position of the vehicle.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="54"/>
-      <source>VTOL Transition</source>
-      <translation type="unfinished">VTOL Transition</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="38"/>
-      <source>Force Arm</source>
-      <translation type="unfinished">Force Arm</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="55"/>
-      <source>ROI</source>
-      <translation type="unfinished">ROI</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="56"/>
-      <source>Action</source>
-      <translation type="unfinished">Action</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="58"/>
-      <source>Arm the vehicle.</source>
-      <translation type="unfinished">Arm the vehicle.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59"/>
-      <source>WARNING: This will force arming of the vehicle bypassing any safety checks.</source>
-      <translation type="unfinished">WARNING: This will force arming of the vehicle bypassing any safety checks.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="60"/>
-      <source>Disarm the vehicle</source>
-      <translation type="unfinished">Disarm the vehicle</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="61"/>
-      <source>WARNING: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.</source>
-      <translation type="unfinished">WARNING: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="62"/>
-      <source>Takeoff from ground and hold position.</source>
-      <translation type="unfinished">Takeoff from ground and hold position.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="63"/>
-      <source>Takeoff from ground and start the current mission.</source>
-      <translation type="unfinished">Takeoff from ground and start the current mission.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="64"/>
-      <source>Continue the mission from the current waypoint.</source>
-      <translation type="unfinished">Continue the mission from the current waypoint.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="65"/>
-      <source>Upload of resume mission failed. Confirm to retry upload</source>
-      <translation type="unfinished">Upload of resume mission failed. Confirm to retry upload</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="66"/>
-      <source>Land the vehicle at the current position.</source>
-      <translation type="unfinished">Land the vehicle at the current position.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="68"/>
-      <source>Change the altitude of the vehicle up or down.</source>
-      <translation type="unfinished">Change the altitude of the vehicle up or down.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="69"/>
-      <source>Move the vehicle to the specified location.</source>
-      <translation type="unfinished">Move the vehicle to the specified location.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="70"/>
-      <source>Adjust current waypoint to %1.</source>
-      <translation type="unfinished">Adjust current waypoint to %1.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="71"/>
-      <source>Orbit the vehicle around the specified location.</source>
-      <translation type="unfinished">Orbit the vehicle around the specified location.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="72"/>
-      <source>Abort the landing sequence.</source>
-      <translation type="unfinished">Abort the landing sequence.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="73"/>
-      <source>Pause the vehicle at it&apos;s current position, adjusting altitude up or down as needed.</source>
-      <translation type="unfinished">Pause the vehicle at it&apos;s current position, adjusting altitude up or down as needed.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="74"/>
-      <source>Pause all vehicles at their current position.</source>
-      <translation type="unfinished">Pause all vehicles at their current position.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="75"/>
-      <source>Transition VTOL to fixed wing flight.</source>
-      <translation type="unfinished">Transition VTOL to fixed wing flight.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="76"/>
-      <source>Transition VTOL to multi-rotor flight.</source>
-      <translation type="unfinished">Transition VTOL to multi-rotor flight.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="77"/>
-      <source>Make the specified location a Region Of Interest.</source>
-      <translation type="unfinished">Make the specified location a Region Of Interest.</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="163"/>
-      <source>_activeVehicle(%1) _vehicleArmed(%2) guidedModeSupported(%3) _vehicleFlying(%4) _vehicleWasFlying(%5) _vehicleInRTLMode(%6) pauseVehicleSupported(%7) _vehiclePaused(%8) _flightMode(%9) _missionItemCount(%10) roiSupported(%11) orbitSupported(%12) _missionActive(%13) _hideROI(%14) _hideOrbit(%15)</source>
-      <translation type="unfinished">_activeVehicle(%1) _vehicleArmed(%2) guidedModeSupported(%3) _vehicleFlying(%4) _vehicleWasFlying(%5) _vehicleInRTLMode(%6) pauseVehicleSupported(%7) _vehiclePaused(%8) _flightMode(%9) _missionItemCount(%10) roiSupported(%11) orbitSupported(%12) _missionActive(%13) _hideROI(%14) _hideOrbit(%15)</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="392"/>
-      <source>Smart RTL</source>
-      <translation type="unfinished">Smart RTL</translation>
-    </message>
-    <message>
-      <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="536"/>
-      <source>Internal error: unknown actionCode</source>
-      <translation type="unfinished">Internal error: unknown actionCode</translation>
-    </message>
-  </context>
+  <name>GuidedActionsController</name>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="36" />
+    <source>EMERGENCY STOP</source>
+    <translation type="unfinished">EMERGENCY STOP</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="37" />
+    <source>Arm</source>
+    <translation type="unfinished">Arm</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="39" />
+    <source>Disarm</source>
+    <translation type="unfinished">Disarm</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="40" />
+    <source>Return</source>
+    <translation type="unfinished">Return</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="41" />
+    <source>Takeoff</source>
+    <translation type="unfinished">Takeoff</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="42" />
+    <source>Land</source>
+    <translation type="unfinished">Land</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="43" />
+    <source>Start Mission</source>
+    <translation type="unfinished">Start Mission</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="44" />
+    <source>Start Mission (MV)</source>
+    <translation type="unfinished">Start Mission (MV)</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="45" />
+    <source>Continue Mission</source>
+    <translation type="unfinished">Continue Mission</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="46" />
+    <source>Resume FAILED</source>
+    <translation type="unfinished">Resume FAILED</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="47" />
+    <source>Pause</source>
+    <translation type="unfinished">Pause</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="48" />
+    <source>Pause (MV)</source>
+    <translation type="unfinished">Pause (MV)</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="49" />
+    <source>Change Altitude</source>
+    <translation type="unfinished">Change Altitude</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="50" />
+    <source>Orbit</source>
+    <translation type="unfinished">Orbit</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="51" />
+    <source>Land Abort</source>
+    <translation type="unfinished">Land Abort</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="52" />
+    <source>Set Waypoint</source>
+    <translation type="unfinished">Set Waypoint</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="53" />
+    <source>Go To Location</source>
+    <translation type="unfinished">Go To Location</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="67" />
+    <source>Return to the launch position of the vehicle.</source>
+    <translation type="unfinished">Return to the launch position of the vehicle.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="54" />
+    <source>VTOL Transition</source>
+    <translation type="unfinished">VTOL Transition</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="38" />
+    <source>Force Arm</source>
+    <translation type="unfinished">Force Arm</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="55" />
+    <source>ROI</source>
+    <translation type="unfinished">ROI</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="56" />
+    <source>Action</source>
+    <translation type="unfinished">Action</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="58" />
+    <source>Arm the vehicle.</source>
+    <translation type="unfinished">Arm the vehicle.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="59" />
+    <source>WARNING: This will force arming of the vehicle bypassing any safety checks.</source>
+    <translation type="unfinished">WARNING: This will force arming of the vehicle bypassing any safety checks.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="60" />
+    <source>Disarm the vehicle</source>
+    <translation type="unfinished">Disarm the vehicle</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="61" />
+    <source>WARNING: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.</source>
+    <translation type="unfinished">WARNING: THIS WILL STOP ALL MOTORS. IF VEHICLE IS CURRENTLY IN THE AIR IT WILL CRASH.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="62" />
+    <source>Takeoff from ground and hold position.</source>
+    <translation type="unfinished">Takeoff from ground and hold position.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="63" />
+    <source>Takeoff from ground and start the current mission.</source>
+    <translation type="unfinished">Takeoff from ground and start the current mission.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="64" />
+    <source>Continue the mission from the current waypoint.</source>
+    <translation type="unfinished">Continue the mission from the current waypoint.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="65" />
+    <source>Upload of resume mission failed. Confirm to retry upload</source>
+    <translation type="unfinished">Upload of resume mission failed. Confirm to retry upload</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="66" />
+    <source>Land the vehicle at the current position.</source>
+    <translation type="unfinished">Land the vehicle at the current position.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="68" />
+    <source>Change the altitude of the vehicle up or down.</source>
+    <translation type="unfinished">Change the altitude of the vehicle up or down.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="69" />
+    <source>Move the vehicle to the specified location.</source>
+    <translation type="unfinished">Move the vehicle to the specified location.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="70" />
+    <source>Adjust current waypoint to %1.</source>
+    <translation type="unfinished">Adjust current waypoint to %1.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="71" />
+    <source>Orbit the vehicle around the specified location.</source>
+    <translation type="unfinished">Orbit the vehicle around the specified location.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="72" />
+    <source>Abort the landing sequence.</source>
+    <translation type="unfinished">Abort the landing sequence.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="73" />
+    <source>Pause the vehicle at it's current position, adjusting altitude up or down as needed.</source>
+    <translation type="unfinished">Pause the vehicle at it's current position, adjusting altitude up or down as needed.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="74" />
+    <source>Pause all vehicles at their current position.</source>
+    <translation type="unfinished">Pause all vehicles at their current position.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="75" />
+    <source>Transition VTOL to fixed wing flight.</source>
+    <translation type="unfinished">Transition VTOL to fixed wing flight.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="76" />
+    <source>Transition VTOL to multi-rotor flight.</source>
+    <translation type="unfinished">Transition VTOL to multi-rotor flight.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="77" />
+    <source>Make the specified location a Region Of Interest.</source>
+    <translation type="unfinished">Make the specified location a Region Of Interest.</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="163" />
+    <source>_activeVehicle(%1) _vehicleArmed(%2) guidedModeSupported(%3) _vehicleFlying(%4) _vehicleWasFlying(%5) _vehicleInRTLMode(%6) pauseVehicleSupported(%7) _vehiclePaused(%8) _flightMode(%9) _missionItemCount(%10) roiSupported(%11) orbitSupported(%12) _missionActive(%13) _hideROI(%14) _hideOrbit(%15)</source>
+    <translation type="unfinished">_activeVehicle(%1) _vehicleArmed(%2) guidedModeSupported(%3) _vehicleFlying(%4) _vehicleWasFlying(%5) _vehicleInRTLMode(%6) pauseVehicleSupported(%7) _vehiclePaused(%8) _flightMode(%9) _missionItemCount(%10) roiSupported(%11) orbitSupported(%12) _missionActive(%13) _hideROI(%14) _hideOrbit(%15)</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="392" />
+    <source>Smart RTL</source>
+    <translation type="unfinished">Smart RTL</translation>
+  </message>
+  <message>
+    <location filename="../src/FlightDisplay/GuidedActionsController.qml" line="536" />
+    <source>Internal error: unknown actionCode</source>
+    <translation type="unfinished">Internal error: unknown actionCode</translation>
+  </message>
+  <message>
+    <source>Land at the current position. Tether power is lost; the drone is on its onboard battery.</source>
+    <translation>현재 위치에 착륙합니다. 테더 전원이 끊겨 기체 자체 배터리를 사용 중입니다.</translation>
+  </message>
+  <message>
+    <source>Return to Home and land. Verify that Home is the station location.</source>
+    <translation>Home으로 복귀하여 착륙합니다. Home이 스테이션 위치인지 확인하세요.</translation>
+  </message>
+  <message>
+    <source>Tether power OFF</source>
+    <translation>테더 전원 끄기</translation>
+  </message>
+  <message>
+    <source>Tether power OFF: the drone will fly on its onboard battery only (%1, %2).</source>
+    <translation>테더 전원 끄기: 기체가 자체 배터리만으로 비행하게 됩니다 (%1, %2).</translation>
+  </message>
+  <message>
+    <source>about %1 min</source>
+    <translation>약 %1분</translation>
+  </message>
+  <message>
+    <source>battery level unavailable</source>
+    <translation>배터리 잔량 확인 불가</translation>
+  </message>
+  <message>
+    <source>remaining time unavailable</source>
+    <translation>잔여 시간 확인 불가</translation>
+  </message>
+</context>
   <context>
     <name>GuidedAltitudeSlider</name>
     <message>
@@ -18075,4 +18107,876 @@ Confirm change?</translation>
       <translation type="unfinished">Yuneec Mantis G</translation>
     </message>
   </context>
+<context>
+  <name>ElistairStationManager</name>
+  <message>
+    <source>Power OFF not sent: confirmation expired or was cancelled. Request it again.</source>
+    <translation>전원 OFF 명령 미전송: 확인이 만료되었거나 취소되었습니다. 다시 요청하세요.</translation>
+  </message>
+  <message>
+    <source>Power OFF not sent: station link or control authority unavailable. Request it again after reconnecting.</source>
+    <translation>전원 OFF 명령 미전송: 스테이션 연결 또는 제어 권한을 사용할 수 없습니다. 다시 연결한 후 요청하세요.</translation>
+  </message>
+  <message>
+    <source>Tether action NOT sent: incident expired, action already sent, or a live armed vehicle and fresh station telemetry are unavailable. Check links and request the action again.</source>
+    <translation>테더 동작 미전송: 상황이 만료되었거나 명령이 이미 전송되었거나, 연결된 시동 중 기체와 최신 스테이션 텔레메트리를 사용할 수 없습니다. 연결을 확인하고 다시 요청하세요.</translation>
+  </message>
+  <message>
+    <source> Landing recommended. Select an action in the Tether panel.</source>
+    <translation> 착륙을 권고합니다. 테더 패널에서 동작을 선택하세요.</translation>
+  </message>
+  <message>
+    <source>%1: ASCII only, maximum %2 characters.</source>
+    <translation>%1: ASCII만 허용, 최대 %2자.</translation>
+  </message>
+  <message>
+    <source>Auto land NOT sent: no live armed vehicle associated with this incident. Take manual action.</source>
+    <translation>자동 착륙 명령 미전송: 해당 상황과 연결된 시동 중 기체가 없습니다. 수동으로 조치하세요.</translation>
+  </message>
+  <message>
+    <source>CRITICAL: No power in flight</source>
+    <translation>위험: 비행 중 전원 없음</translation>
+  </message>
+  <message>
+    <source>CRITICAL: No power in flight (last reported)</source>
+    <translation>위험: 비행 중 전원 없음 (마지막 보고)</translation>
+  </message>
+  <message>
+    <source>Config Read timed out.</source>
+    <translation>Config Read 응답 시간이 초과되었습니다.</translation>
+  </message>
+  <message>
+    <source>Control timeout: allowed 200-12750 ms in 50 ms increments.</source>
+    <translation>제어 타임아웃: 허용 범위 200–12750 ms, 50 ms 단위.</translation>
+  </message>
+  <message>
+    <source>Correct the out-of-range settings.</source>
+    <translation>범위를 벗어난 설정을 수정하세요.</translation>
+  </message>
+  <message>
+    <source>High / Low: allowed 0-5000 W.</source>
+    <translation>상한 / 하한: 허용 범위 0–5000 W.</translation>
+  </message>
+  <message>
+    <source>Invalid SAFE-T station address: %1</source>
+    <translation>잘못된 SAFE-T 스테이션 주소: %1</translation>
+  </message>
+  <message>
+    <source>Monitoring connected (Extended V0)</source>
+    <translation>모니터링 연결됨 (Extended V0)</translation>
+  </message>
+  <message>
+    <source>No alarms</source>
+    <translation>알람 없음</translation>
+  </message>
+  <message>
+    <source>No alarms (Standard frame)</source>
+    <translation>알람 없음 (Standard 프레임)</translation>
+  </message>
+  <message>
+    <source>Read station settings before saving.</source>
+    <translation>저장 전에 스테이션 설정을 읽으세요.</translation>
+  </message>
+  <message>
+    <source>Reading station settings...</source>
+    <translation>스테이션 설정 읽는 중...</translation>
+  </message>
+  <message>
+    <source>SAFE-T alarm active</source>
+    <translation>SAFE-T 알람 발생</translation>
+  </message>
+  <message>
+    <source>Save result unknown. No automatic retry; read settings again to verify.</source>
+    <translation>저장 결과 확인 불가. 자동 재시도하지 않습니다. 설정을 다시 읽어 확인하세요.</translation>
+  </message>
+  <message>
+    <source>Save result unknown: %1</source>
+    <translation>저장 결과 확인 불가: %1</translation>
+  </message>
+  <message>
+    <source>Saved and re-read successfully.</source>
+    <translation>저장 후 다시 읽기를 완료했습니다.</translation>
+  </message>
+  <message>
+    <source>Saving station settings...</source>
+    <translation>스테이션 설정 저장 중...</translation>
+  </message>
+  <message>
+    <source>Settings are read-only while station power exceeds 200 W.</source>
+    <translation>스테이션 전력이 200 W를 초과하면 설정은 읽기 전용입니다.</translation>
+  </message>
+  <message>
+    <source>Settings are read-only while vehicle is armed.</source>
+    <translation>기체가 시동 상태이면 설정은 읽기 전용입니다.</translation>
+  </message>
+  <message>
+    <source>Settings are read-only: station reports no power in flight.</source>
+    <translation>설정은 읽기 전용입니다: 스테이션이 비행 중 전원 없음을 보고합니다.</translation>
+  </message>
+  <message>
+    <source>Settings require Extended V1.</source>
+    <translation>설정에는 Extended V1이 필요합니다.</translation>
+  </message>
+  <message>
+    <source>Station link unavailable.</source>
+    <translation>스테이션에 연결할 수 없습니다.</translation>
+  </message>
+  <message>
+    <source>Station rejected settings (error mask 0x%1). Changes kept.</source>
+    <translation>스테이션이 설정을 거부했습니다 (오류 마스크 0x%1). 변경 사항을 유지합니다.</translation>
+  </message>
+  <message>
+    <source>Station settings read successfully.</source>
+    <translation>스테이션 설정을 읽었습니다.</translation>
+  </message>
+  <message>
+    <source>Tether action unavailable: check vehicle and station links.</source>
+    <translation>테더 동작 불가: 기체와 스테이션 연결을 확인하세요.</translation>
+  </message>
+  <message>
+    <source>Tether power lost in flight. Drone on onboard battery.</source>
+    <translation>비행 중 테더 전원이 끊겼습니다. 기체 자체 배터리 사용 중입니다.</translation>
+  </message>
+  <message>
+    <source>Tether station link lost (&gt; 5 s) - values are last received - controls locked. Reconnecting... (%1)</source>
+    <translation>테더 스테이션 연결 끊김 (&gt; 5 s) - 마지막 수신값 표시 - 제어 잠김. 재연결 중... (%1)</translation>
+  </message>
+  <message>
+    <source>Tether: Land command sent.</source>
+    <translation>테더: 착륙 명령을 전송했습니다.</translation>
+  </message>
+  <message>
+    <source>Tether: RTL command sent to Home (station assumed).</source>
+    <translation>테더: Home으로 복귀 명령을 전송했습니다 (스테이션 위치로 가정).</translation>
+  </message>
+  <message>
+    <source>Time trigger: allowed 0.1-25.5 s, in 0.1 s increments.</source>
+    <translation>시간 트리거: 허용 범위 0.1–25.5 s, 0.1 s 단위.</translation>
+  </message>
+  <message>
+    <source>Write acknowledged, but re-read failed. Read settings again to verify.</source>
+    <translation>쓰기 응답을 받았으나 다시 읽기에 실패했습니다. 설정을 다시 읽어 확인하세요.</translation>
+  </message>
+  <message>
+    <source>Write acknowledged. Re-reading settings...</source>
+    <translation>쓰기 응답을 받았습니다. 설정 다시 읽는 중...</translation>
+  </message>
+  <message>
+    <source>Wi-Fi SSID</source>
+    <translation>Wi-Fi SSID</translation>
+  </message>
+  <message>
+    <source>Wi-Fi password</source>
+    <translation>Wi-Fi 비밀번호</translation>
+  </message>
+</context>
+<context>
+  <name>ElistairStationPanel</name>
+  <message>
+    <source> left</source>
+    <translation> 남음</translation>
+  </message>
+  <message>
+    <source>%1 V - %2 A - Input unavailable</source>
+    <translation>%1 V - %2 A - 입력 확인 불가</translation>
+  </message>
+  <message>
+    <source>Altitude: %1 m</source>
+    <translation>고도: %1 m</translation>
+  </message>
+  <message>
+    <source>Automatic Torque Control</source>
+    <translation>자동 토크 제어</translation>
+  </message>
+  <message>
+    <source>CONNECTED</source>
+    <translation>연결됨</translation>
+  </message>
+  <message>
+    <source>CONNECTING</source>
+    <translation>연결 중</translation>
+  </message>
+  <message>
+    <source>Cable speed %1 m/s - Spool %2 C</source>
+    <translation>케이블 속도 %1 m/s - 스풀 %2 C</translation>
+  </message>
+  <message>
+    <source>Continue</source>
+    <translation>계속</translation>
+  </message>
+  <message>
+    <source>Drone battery: %1</source>
+    <translation>기체 배터리: %1</translation>
+  </message>
+  <message>
+    <source>Failsafe: Auto land</source>
+    <translation>페일세이프: 자동 착륙</translation>
+  </message>
+  <message>
+    <source>Failsafe: Recommend land</source>
+    <translation>페일세이프: 착륙 권고</translation>
+  </message>
+  <message>
+    <source>Failsafe: Warn only</source>
+    <translation>페일세이프: 경고만</translation>
+  </message>
+  <message>
+    <source>In flight: Power OFF → slide to confirm</source>
+    <translation>비행 중: 전원 끄기 → 슬라이드하여 확인</translation>
+  </message>
+  <message>
+    <source>LOST &gt; 5 s</source>
+    <translation>연결 끊김 &gt; 5 s</translation>
+  </message>
+  <message>
+    <source>Land</source>
+    <translation>착륙</translation>
+  </message>
+  <message>
+    <source>NO POWER</source>
+    <translation>전원 없음</translation>
+  </message>
+  <message>
+    <source>NO REPLY</source>
+    <translation>응답 없음</translation>
+  </message>
+  <message>
+    <source>No active alarms</source>
+    <translation>활성 알람 없음</translation>
+  </message>
+  <message>
+    <source>No alarms</source>
+    <translation>알람 없음</translation>
+  </message>
+  <message>
+    <source>OFF</source>
+    <translation>꺼짐</translation>
+  </message>
+  <message>
+    <source>ON</source>
+    <translation>켜짐</translation>
+  </message>
+  <message>
+    <source>Power</source>
+    <translation>전력</translation>
+  </message>
+  <message>
+    <source>Power OFF</source>
+    <translation>전원 끄기</translation>
+  </message>
+  <message>
+    <source>Power ON</source>
+    <translation>전원 켜기</translation>
+  </message>
+  <message>
+    <source>RTL to Station</source>
+    <translation>스테이션으로 복귀</translation>
+  </message>
+  <message>
+    <source>SAFE-T #1 - %1:%2 - %3</source>
+    <translation>SAFE-T #1 - %1:%2 - %3</translation>
+  </message>
+  <message>
+    <source>SELECT ACTION</source>
+    <translation>동작 선택</translation>
+  </message>
+  <message>
+    <source>Station Setup  &gt;</source>
+    <translation>스테이션 설정  &gt;</translation>
+  </message>
+  <message>
+    <source>Station link lost</source>
+    <translation>스테이션 연결 끊김</translation>
+  </message>
+  <message>
+    <source>Station link lost - last data %1 - reconnecting attempt %2</source>
+    <translation>스테이션 연결 끊김 - 마지막 수신 %1 - 재연결 시도 %2</translation>
+  </message>
+  <message>
+    <source>Tether</source>
+    <translation>테더</translation>
+  </message>
+  <message>
+    <source>Torque</source>
+    <translation>토크</translation>
+  </message>
+  <message>
+    <source>Voltage unavailable</source>
+    <translation>전압 확인 불가</translation>
+  </message>
+  <message>
+    <source>last %1 - retry %2</source>
+    <translation>마지막 %1 - 재시도 %2</translation>
+  </message>
+  <message>
+    <source>set %1% - applied %2%</source>
+    <translation>설정 %1% - 적용 %2%</translation>
+  </message>
+  <message>
+    <source>time unavailable</source>
+    <translation>시간 확인 불가</translation>
+  </message>
+  <message>
+    <source>Not detected</source>
+    <translation>감지되지 않음</translation>
+  </message>
+</context>
+<context>
+  <name>ElistairStationSettings</name>
+  <message>
+    <source>  Last read: </source>
+    <translation>  마지막 읽기: </translation>
+  </message>
+  <message>
+    <source> (auto-detected)</source>
+    <translation> (자동 감지)</translation>
+  </message>
+  <message>
+    <source> (manual)</source>
+    <translation> (수동)</translation>
+  </message>
+  <message>
+    <source> changes</source>
+    <translation>개 변경</translation>
+  </message>
+  <message>
+    <source> error(s)</source>
+    <translation>개 오류</translation>
+  </message>
+  <message>
+    <source>1 s / 5 s</source>
+    <translation>1 s / 5 s</translation>
+  </message>
+  <message>
+    <source>5 Hz</source>
+    <translation>5 Hz</translation>
+  </message>
+  <message>
+    <source>Alarms</source>
+    <translation>알람</translation>
+  </message>
+  <message>
+    <source>Allowed 0-200 m</source>
+    <translation>허용 범위 0–200 m</translation>
+  </message>
+  <message>
+    <source>Allowed 0-5000 W</source>
+    <translation>허용 범위 0–5000 W</translation>
+  </message>
+  <message>
+    <source>Allowed 0.1-25.5 s (step 0.1 s)</source>
+    <translation>허용 범위 0.1–25.5 s (0.1 s 단위)</translation>
+  </message>
+  <message>
+    <source>Anti-entrapment</source>
+    <translation>끼임 방지</translation>
+  </message>
+  <message>
+    <source>Anti-ground dragging</source>
+    <translation>지면 끌림 방지</translation>
+  </message>
+  <message>
+    <source>Anti-shock</source>
+    <translation>충격 방지</translation>
+  </message>
+  <message>
+    <source>Auto</source>
+    <translation>자동</translation>
+  </message>
+  <message>
+    <source>Auto land</source>
+    <translation>자동 착륙</translation>
+  </message>
+  <message>
+    <source>Auto power-off</source>
+    <translation>자동 전원 차단</translation>
+  </message>
+  <message>
+    <source>Auto-connect on start</source>
+    <translation>시작 시 자동 연결</translation>
+  </message>
+  <message>
+    <source>Cable integrity = 2 will send Land WITHOUT confirmation.
+Only enable for the vehicle tethered to this station.</source>
+    <translation>Cable integrity = 2이면 확인 없이 착륙 명령을 전송합니다.
+이 스테이션에 테더로 연결된 기체에만 사용하세요.</translation>
+  </message>
+  <message>
+    <source>Cancel</source>
+    <translation>취소</translation>
+  </message>
+  <message>
+    <source>Comms &amp; Wi-Fi</source>
+    <translation>통신 및 Wi-Fi</translation>
+  </message>
+  <message>
+    <source>Connection</source>
+    <translation>연결</translation>
+  </message>
+  <message>
+    <source>Control rate</source>
+    <translation>제어 송신 주기</translation>
+  </message>
+  <message>
+    <source>Control timeout</source>
+    <translation>제어 타임아웃</translation>
+  </message>
+  <message>
+    <source>Copy device info</source>
+    <translation>장비 정보 복사</translation>
+  </message>
+  <message>
+    <source>Device</source>
+    <translation>장비</translation>
+  </message>
+  <message>
+    <source>Device Info</source>
+    <translation>장비 정보</translation>
+  </message>
+  <message>
+    <source>Enable</source>
+    <translation>사용</translation>
+  </message>
+  <message>
+    <source>Enable Auto land?</source>
+    <translation>자동 착륙을 사용하시겠습니까?</translation>
+  </message>
+  <message>
+    <source>Enable SAFE-T tether station</source>
+    <translation>SAFE-T 테더 스테이션 사용</translation>
+  </message>
+  <message>
+    <source>Enter a valid IPv4 address and UDP port (1–65535).</source>
+    <translation>올바른 IPv4 주소와 UDP 포트 (1–65535)를 입력하세요.</translation>
+  </message>
+  <message>
+    <source>Ethernet, direct UDP to the station. One station per GCS. On failure, check PC IP, cable and station power.</source>
+    <translation>Ethernet으로 스테이션에 직접 UDP 연결합니다. GCS당 1대입니다. 연결 실패 시 PC IP, 케이블 및 스테이션 전원을 확인하세요.</translation>
+  </message>
+  <message>
+    <source>Extended V0</source>
+    <translation>Extended V0</translation>
+  </message>
+  <message>
+    <source>Extended V1</source>
+    <translation>Extended V1</translation>
+  </message>
+  <message>
+    <source>FW - Command board</source>
+    <translation>FW - 제어 보드</translation>
+  </message>
+  <message>
+    <source>FW - Interface board</source>
+    <translation>FW - 인터페이스 보드</translation>
+  </message>
+  <message>
+    <source>FW - Power board</source>
+    <translation>FW - 전원 보드</translation>
+  </message>
+  <message>
+    <source>Flights</source>
+    <translation>비행 횟수</translation>
+  </message>
+  <message>
+    <source>Frame version</source>
+    <translation>프레임 버전</translation>
+  </message>
+  <message>
+    <source>GCS behavior</source>
+    <translation>GCS 동작</translation>
+  </message>
+  <message>
+    <source>GCS maintenance interval (h)</source>
+    <translation>GCS 정비 주기 (h)</translation>
+  </message>
+  <message>
+    <source>High</source>
+    <translation>상한</translation>
+  </message>
+  <message>
+    <source>High / Low</source>
+    <translation>상한 / 하한</translation>
+  </message>
+  <message>
+    <source>Keep Anti-entrapment enabled.</source>
+    <translation>끼임 방지 기능을 켜 두세요.</translation>
+  </message>
+  <message>
+    <source>Length alarm</source>
+    <translation>길이 알람</translation>
+  </message>
+  <message>
+    <source>Length trigger</source>
+    <translation>길이 트리거</translation>
+  </message>
+  <message>
+    <source>Length trigger: Allowed 0-200 m</source>
+    <translation>길이 트리거: 허용 범위 0–200 m</translation>
+  </message>
+  <message>
+    <source>Low</source>
+    <translation>하한</translation>
+  </message>
+  <message>
+    <source>Maintenance due soon (90% or more).</source>
+    <translation>정비 시점 임박 (90% 이상).</translation>
+  </message>
+  <message>
+    <source>Maintenance overdue — service before flight.</source>
+    <translation>정비 주기 초과 — 비행 전에 정비하세요.</translation>
+  </message>
+  <message>
+    <source>Maintenance reminder: caution at 90 % of the interval, warning above 100 %. Counter reset is not provided until Elistair defines a frame.</source>
+    <translation>정비 알림: 주기의 90%에서 주의, 100% 초과 시 경고합니다. Elistair가 프레임을 정의할 때까지 카운터 초기화는 제공하지 않습니다.</translation>
+  </message>
+  <message>
+    <source>Name</source>
+    <translation>이름</translation>
+  </message>
+  <message>
+    <source>No reply / Lost</source>
+    <translation>무응답 / 연결 끊김</translation>
+  </message>
+  <message>
+    <source>No-power failsafe</source>
+    <translation>전원 없음 페일세이프</translation>
+  </message>
+  <message>
+    <source>Not detected</source>
+    <translation>감지되지 않음</translation>
+  </message>
+  <message>
+    <source>Not read</source>
+    <translation>읽기 전</translation>
+  </message>
+  <message>
+    <source>OK</source>
+    <translation>확인</translation>
+  </message>
+  <message>
+    <source>Options: Warn only - Recommend land - Auto land</source>
+    <translation>옵션: 경고만 - 착륙 권고 - 자동 착륙</translation>
+  </message>
+  <message>
+    <source>Power alarm</source>
+    <translation>전력 알람</translation>
+  </message>
+  <message>
+    <source>Power alert</source>
+    <translation>전력 주의</translation>
+  </message>
+  <message>
+    <source>Powered hours</source>
+    <translation>누적 전원 시간</translation>
+  </message>
+  <message>
+    <source>Read-only</source>
+    <translation>읽기 전용</translation>
+  </message>
+  <message>
+    <source>Read-only while the vehicle is armed or the station reports flight (&gt; 200 W).</source>
+    <translation>기체가 시동 상태이거나 스테이션이 비행 상태를 보고하면 (&gt; 200 W) 읽기 전용입니다.</translation>
+  </message>
+  <message>
+    <source>Read-only: Settings require Extended V1. Standard/V0 are not supported.</source>
+    <translation>읽기 전용: 설정에는 Extended V1이 필요합니다. Standard/V0는 지원하지 않습니다.</translation>
+  </message>
+  <message>
+    <source>Read-only: station link unavailable or lost.</source>
+    <translation>읽기 전용: 스테이션 연결 불가 또는 연결 끊김.</translation>
+  </message>
+  <message>
+    <source>Read-only: station reports flight (&gt; 200 W).</source>
+    <translation>읽기 전용: 스테이션이 비행 상태를 보고합니다 (&gt; 200 W).</translation>
+  </message>
+  <message>
+    <source>Read-only: station reports no power in flight.</source>
+    <translation>읽기 전용: 스테이션이 비행 중 전원 없음을 보고합니다.</translation>
+  </message>
+  <message>
+    <source>Read-only: vehicle is armed. Disarm before editing settings.</source>
+    <translation>읽기 전용: 기체가 시동 상태입니다. 시동 해제 후 설정을 편집하세요.</translation>
+  </message>
+  <message>
+    <source>Recommend land</source>
+    <translation>착륙 권고</translation>
+  </message>
+  <message>
+    <source>Reload settings</source>
+    <translation>설정 다시 읽기</translation>
+  </message>
+  <message>
+    <source>S/N [S/N] - FW [x.y] / [x.y] / [x.y] - %1</source>
+    <translation>S/N [S/N] - FW [x.y] / [x.y] / [x.y] - %1</translation>
+  </message>
+  <message>
+    <source>Save</source>
+    <translation>저장</translation>
+  </message>
+  <message>
+    <source>Save station settings?</source>
+    <translation>스테이션 설정을 저장하시겠습니까?</translation>
+  </message>
+  <message>
+    <source>Serial No.</source>
+    <translation>일련번호</translation>
+  </message>
+  <message>
+    <source>Settings</source>
+    <translation>설정</translation>
+  </message>
+  <message>
+    <source>Show password</source>
+    <translation>비밀번호 표시</translation>
+  </message>
+  <message>
+    <source>Since maintenance</source>
+    <translation>정비 후 경과 시간</translation>
+  </message>
+  <message>
+    <source>Standard</source>
+    <translation>Standard</translation>
+  </message>
+  <message>
+    <source>Station IP</source>
+    <translation>스테이션 IP</translation>
+  </message>
+  <message>
+    <source>Stored in the station (EEPROM). Changes are written together when you press Save.</source>
+    <translation>스테이션 EEPROM에 저장됩니다. 저장을 누르면 변경 사항을 한 번에 씁니다.</translation>
+  </message>
+  <message>
+    <source>Take-off/land protection</source>
+    <translation>이착륙 보호</translation>
+  </message>
+  <message>
+    <source>Test</source>
+    <translation>테스트</translation>
+  </message>
+  <message>
+    <source>Tether length</source>
+    <translation>테더 길이</translation>
+  </message>
+  <message>
+    <source>Tether weight</source>
+    <translation>테더 무게</translation>
+  </message>
+  <message>
+    <source>Time trigger</source>
+    <translation>시간 트리거</translation>
+  </message>
+  <message>
+    <source>Torque presets</source>
+    <translation>토크 프리셋</translation>
+  </message>
+  <message>
+    <source>UDP port</source>
+    <translation>UDP 포트</translation>
+  </message>
+  <message>
+    <source>Values apply immediately and are kept after restart.</source>
+    <translation>값은 즉시 적용되며 재시작 후에도 유지됩니다.</translation>
+  </message>
+  <message>
+    <source>Waiting for station response</source>
+    <translation>스테이션 응답 대기 중</translation>
+  </message>
+  <message>
+    <source>Warn only</source>
+    <translation>경고만</translation>
+  </message>
+  <message>
+    <source>Wi-Fi SSID</source>
+    <translation>Wi-Fi SSID</translation>
+  </message>
+  <message>
+    <source>Wi-Fi password</source>
+    <translation>Wi-Fi 비밀번호</translation>
+  </message>
+  <message>
+    <source>Wi-Fi password changed</source>
+    <translation>Wi-Fi 비밀번호 변경</translation>
+  </message>
+  <message>
+    <source>Winch functions</source>
+    <translation>윈치 기능</translation>
+  </message>
+  <message>
+    <source>allowed 0-100 %</source>
+    <translation>허용 범위 0–100 %</translation>
+  </message>
+  <message>
+    <source>allowed 0-200 m</source>
+    <translation>허용 범위 0–200 m</translation>
+  </message>
+  <message>
+    <source>allowed 200-12750 ms, in 50 ms increments</source>
+    <translation>허용 범위 200–12750 ms, 50 ms 단위</translation>
+  </message>
+  <message>
+    <source>fixed</source>
+    <translation>고정</translation>
+  </message>
+  <message>
+    <source>Anti-shock torque</source>
+    <translation>충격 방지 토크</translation>
+  </message>
+  <message>
+    <source>Protection length</source>
+    <translation>보호 구간 길이</translation>
+  </message>
+  <message>
+    <source>OFF</source>
+    <translation>꺼짐</translation>
+  </message>
+  <message>
+    <source>ON</source>
+    <translation>켜짐</translation>
+  </message>
+  <message>
+    <source>OK - %1</source>
+    <translation>정상 - %1</translation>
+  </message>
+</context>
+<context>
+  <name>TetherStatusIndicator</name>
+  <message>
+    <source> m</source>
+    <translation> m</translation>
+  </message>
+  <message>
+    <source>Alarms:</source>
+    <translation>알람:</translation>
+  </message>
+  <message>
+    <source>Authority:</source>
+    <translation>제어권:</translation>
+  </message>
+  <message>
+    <source>CONNECTED</source>
+    <translation>연결됨</translation>
+  </message>
+  <message>
+    <source>CONNECTING</source>
+    <translation>연결 중</translation>
+  </message>
+  <message>
+    <source>Connected - %1</source>
+    <translation>연결됨 - %1</translation>
+  </message>
+  <message>
+    <source>LOCAL</source>
+    <translation>로컬</translation>
+  </message>
+  <message>
+    <source>LOST</source>
+    <translation>연결 끊김</translation>
+  </message>
+  <message>
+    <source>LOST &gt; 5 s</source>
+    <translation>연결 끊김 &gt; 5 s</translation>
+  </message>
+  <message>
+    <source>Last data:</source>
+    <translation>마지막 수신:</translation>
+  </message>
+  <message>
+    <source>Link:</source>
+    <translation>연결:</translation>
+  </message>
+  <message>
+    <source>Lost - reconnecting (%1)</source>
+    <translation>연결 끊김 - 재연결 중 (%1)</translation>
+  </message>
+  <message>
+    <source>NO REPLY</source>
+    <translation>응답 없음</translation>
+  </message>
+  <message>
+    <source>No alarms</source>
+    <translation>알람 없음</translation>
+  </message>
+  <message>
+    <source>No reply - waiting</source>
+    <translation>응답 없음 - 대기 중</translation>
+  </message>
+  <message>
+    <source>Not connected</source>
+    <translation>연결 안 됨</translation>
+  </message>
+  <message>
+    <source>OFF</source>
+    <translation>꺼짐</translation>
+  </message>
+  <message>
+    <source>ON</source>
+    <translation>켜짐</translation>
+  </message>
+  <message>
+    <source>Open Tether Panel</source>
+    <translation>테더 패널 열기</translation>
+  </message>
+  <message>
+    <source>Power:</source>
+    <translation>전력:</translation>
+  </message>
+  <message>
+    <source>REMOTE</source>
+    <translation>원격</translation>
+  </message>
+  <message>
+    <source>Spool temp:</source>
+    <translation>스풀 온도:</translation>
+  </message>
+  <message>
+    <source>Station link lost</source>
+    <translation>스테이션 연결 끊김</translation>
+  </message>
+  <message>
+    <source>Station:</source>
+    <translation>스테이션:</translation>
+  </message>
+  <message>
+    <source>Tether Status</source>
+    <translation>테더 상태</translation>
+  </message>
+  <message>
+    <source>Tether:</source>
+    <translation>테더:</translation>
+  </message>
+  <message>
+    <source>Torque:</source>
+    <translation>토크:</translation>
+  </message>
+  <message>
+    <source>WAIT</source>
+    <translation>대기</translation>
+  </message>
+  <message>
+    <source>set %1% - applied %2%</source>
+    <translation>설정 %1% - 적용 %2%</translation>
+  </message>
+  <message>
+    <source>NO POWER</source>
+    <translation>전원 없음</translation>
+  </message>
+</context>
+<context>
+  <name>FlyView</name>
+  <message>
+    <source> Landing recommended. Select an action in the Tether panel.</source>
+    <translation> 착륙을 권고합니다. 테더 패널에서 동작을 선택하세요.</translation>
+  </message>
+  <message>
+    <source>Tether power lost in flight - drone on onboard battery.</source>
+    <translation>비행 중 테더 전원 끊김 - 기체 자체 배터리 사용 중.</translation>
+  </message>
+</context>
+<context>
+  <name>CustomPlugin</name>
+  <message>
+    <source>SAFE-T Station</source>
+    <translation>SAFE-T 스테이션</translation>
+  </message>
+</context>
 </TS>

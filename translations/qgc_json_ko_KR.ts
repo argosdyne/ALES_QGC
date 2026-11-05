@@ -1962,6 +1962,41 @@
       <translation>비활성화,NTRIP,시리얼 포트</translation>
     </message>
   </context>
+<context>
+  <name>TetherFact.json</name>
+  <message>
+    <source>Cable Speed</source>
+    <translation>케이블 속도</translation>
+  </message>
+  <message>
+    <source>Spool Temperature</source>
+    <translation>스풀 온도</translation>
+  </message>
+  <message>
+    <source>Tether Current</source>
+    <translation>테더 전류</translation>
+  </message>
+  <message>
+    <source>Tether Length</source>
+    <translation>테더 길이</translation>
+  </message>
+  <message>
+    <source>Tether Power</source>
+    <translation>테더 전력</translation>
+  </message>
+  <message>
+    <source>Tether Remaining</source>
+    <translation>테더 잔여 길이</translation>
+  </message>
+  <message>
+    <source>Tether Torque</source>
+    <translation>테더 토크</translation>
+  </message>
+  <message>
+    <source>Tether Voltage</source>
+    <translation>테더 전압</translation>
+  </message>
+</context>
 </TS>
 
 

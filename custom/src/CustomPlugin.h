@@ -27,6 +27,7 @@
 
 #include "M2Manager.h"
 #include "RajantManager.h"
+#include "ElistairStationManager.h"
 
 class CustomOptions;
 class CustomPlugin;
@@ -116,6 +117,9 @@ public:
     Q_PROPERTY(RajantManager* rajantManager           READ rajantManager          NOTIFY rajantManagerChanged)
     RajantManager* rajantManager() { return _rajantManager; }
 
+    Q_PROPERTY(ElistairStationManager* elistairStationManager READ elistairStationManager CONSTANT)
+    ElistairStationManager* elistairStationManager() { return _elistairStationManager; }
+
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
@@ -146,6 +150,7 @@ private:
     QUdpSocket*             _m2boardcastSocket      = nullptr;
     M2Manager*              _m2Manager              = nullptr;
     RajantManager* _rajantManager = nullptr;
+    ElistairStationManager* _elistairStationManager = nullptr;
     QStringList             _rajantCandidates;
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";

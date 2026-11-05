@@ -230,6 +230,50 @@ Item {
         }
     }
 
+    Rectangle {
+        readonly property var station: QGroundControl.corePlugin.elistairStationManager
+        visible: station && station.noPower
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: _toolsMargin
+        width: Math.min(parent.width * 0.52, ScreenTools.defaultFontPixelWidth * 70)
+        height: tetherCriticalMessage.implicitHeight + 24
+        color: "#d9b300"
+        radius: 8
+        z: QGroundControl.zOrderTopMost
+        QGCLabel {
+            id: tetherCriticalMessage
+            anchors.fill: parent; anchors.margins: 12
+            text: qsTr("Tether power lost in flight - drone on onboard battery.") + (parent.station.noPowerFailsafe === 1 ? "" : qsTr(" Landing recommended. Select an action in the Tether panel."))
+            color: "black"; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter
+        }
+        MouseArea { anchors.fill: parent; onClicked: mainWindow.tetherPanelVisible = true }
+    }
+    Rectangle {
+        id: tetherPanelContainer
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: _toolsMargin
+        width: ScreenTools.defaultFontPixelWidth * 31
+        height: Math.min(parent.height - ScreenTools.defaultFontPixelHeight * 2,
+                         ScreenTools.defaultFontPixelHeight * 38)
+        color: "#1f2328"
+        opacity: 1.0
+        layer.enabled: true
+        radius: ScreenTools.defaultFontPixelWidth * 0.7
+        border.color: "#38414b"
+        border.width: 1
+        z: QGroundControl.zOrderTopMost
+        visible: mainWindow.tetherPanelVisible
+        clip: true
+
+        Loader {
+            anchors.fill: parent
+            active: tetherPanelContainer.visible
+            source: "qrc:/qml/ElistairStationPanel.qml"
+        }
+    }
+
     // QGCPipOverlay {
     //     id:                     _pipOverlay
     //     anchors.left:           parent.left

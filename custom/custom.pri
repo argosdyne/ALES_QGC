@@ -76,6 +76,8 @@ QML_IMPORT_PATH += \
 # Our own, custom sources
 SOURCES += \
     $$PWD/src/CustomPlugin.cc \
+    $$PWD/src/Elistair/ElistairStationManager.cc \
+    $$PWD/src/Elistair/TetherFactGroup.cc \
     $$PWD/src/RTCM/CodevRTCMManager.cpp \
     $$PWD/src/RTCM/NTRIPRTCMSource.cpp \
     $$PWD/src/RTCM/RTCMBase.cpp \
@@ -96,6 +98,10 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/src/CustomPlugin.h \
+    $$PWD/src/Elistair/ElistairStationManager.h \
+    $$PWD/src/Elistair/SafeTFrameNegotiator.h \
+    $$PWD/src/Elistair/SafeTNoPowerPolicy.h \
+    $$PWD/src/Elistair/TetherFactGroup.h \
     $$PWD/src/RTCM/CodevRTCMManager.h \
     $$PWD/src/RTCM/NTRIPRTCMSource.h \
     $$PWD/src/RTCM/RTCMBase.h \
@@ -123,7 +129,8 @@ INCLUDEPATH += \
     $$PWD/src/AVIATOR/ \
     $$PWD/src/MissionManager \
     $$PWD/src/Rhythm \
-    $$PWD/src/YS
+    $$PWD/src/YS \
+    $$PWD/src/Elistair
 
 # Ensure make can locate custom sources in subfolders
 VPATH += \

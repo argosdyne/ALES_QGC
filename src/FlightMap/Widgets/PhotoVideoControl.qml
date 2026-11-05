@@ -31,7 +31,8 @@ import QGroundControl.FlightMap         1.0
 
 Item {    
     implicitHeight: content.implicitHeight    
-    visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
+    property bool displayAllowed: true
+    visible:    displayAllowed && (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
     property var    _activePayload:                             PayloadManager.active

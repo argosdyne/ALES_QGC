@@ -60,6 +60,14 @@ ToolStripActionList {
             onTriggered:    mainWindow.showGeoZoneMakeView()
         },
         ToolStripAction {
+            text:           qsTr("Tether")
+            iconSource:     "/res/SafeTStation.svg"
+            checkable:      true
+            checked:        mainWindow.tetherPanelVisible
+            visible:        QGroundControl.corePlugin.elistairStationManager !== null && QGroundControl.corePlugin.elistairStationManager.enabled
+            onTriggered:    mainWindow.tetherPanelVisible = checked
+        },
+        ToolStripAction {
             text:           qsTr("Life Jacket")
             iconSource:     "/qmlimages/LifeVestButton.svg"
             // Hide on PX4 vehicles regardless of the setting value
