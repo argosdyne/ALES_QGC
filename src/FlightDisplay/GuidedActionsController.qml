@@ -167,14 +167,15 @@ Item {
     property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1)
 
     property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1) && !gotoProgressActive
-    property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying && !_vehiclePaused && !_fixedWingOnApproach
-    property bool showContinueGoTo:     gotoProgressActive && gotoPaused && _guidedActionsEnabled && _vehicleArmed && _vehicleFlying
+    property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying &&
+                                        !(gotoProgressActive ? gotoPaused : _vehiclePaused) && !_fixedWingOnApproach
+    property bool showContinueGoTo:     gotoProgressActive && gotoPaused && _guidedActionsEnabled && !_communicationLost && _vehicleArmed && _vehicleFlying
     property bool showChangeAlt:        _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive
     property bool showChangeSpeed:      _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive && _speedLimitsAvailable
     property bool showOrbit:            _guidedActionsEnabled && _vehicleFlying && __orbitSupported && !_missionActive
     property bool showROI:              _guidedActionsEnabled && _vehicleFlying && __roiSupported && !_missionActive
     property bool showLandAbort:        _guidedActionsEnabled && _vehicleFlying && _fixedWingOnApproach
-    property bool showGotoLocation:     _guidedActionsEnabled && _vehicleFlying
+    property bool showGotoLocation:     _guidedActionsEnabled && !_communicationLost && _vehicleFlying
     property bool showSetHome:          _guidedActionsEnabled
     property bool showActionList:       _guidedActionsEnabled && (showStartMission || showResumeMission || showChangeAlt || showLandAbort || actionList.hasCustomActions)
     property bool showGripper:          _initialConnectComplete ? _activeVehicle.hasGripper : false
@@ -188,7 +189,7 @@ Item {
 
     property var    _corePlugin:            QGroundControl.corePlugin
     property var    _corePluginOptions:     QGroundControl.corePlugin.options
-    property bool   _guidedActionsEnabled:  !_communicationLost && ((!ScreenTools.isDebug && _corePluginOptions.guidedActionsRequireRCRSSI && _activeVehicle) ? _rcRSSIAvailable : _activeVehicle)
+    property bool   _guidedActionsEnabled:  (!ScreenTools.isDebug && _corePluginOptions.guidedActionsRequireRCRSSI && _activeVehicle) ? _rcRSSIAvailable : _activeVehicle
     property string _flightMode:            _activeVehicle ? _activeVehicle.flightMode : ""
     property bool   _missionAvailable:      missionController.containsItems
     property bool   _vehicleMissionConfirmed: missionController.vehicleMissionConfirmed
@@ -690,12 +691,16 @@ Item {
             _activeVehicle.abortLanding(50)     // hardcoded value for climbOutAltitude that is currently ignored
             break
         case actionPause:
+            if (gotoProgressActive) {
+                gotoProgressMap.pauseGotoProgress()
+            }
             _activeVehicle.guidedModeChangeAltitude(sliderOutputValue, true /* pauseVehicle */)
             break
         case actionContinueGoTo:
             if (actionData && actionData.map === gotoProgressMap && gotoProgressActive && gotoPaused &&
-                    actionData.vehicle === _activeVehicle && actionData.coordinate && actionData.coordinate.isValid) {
-                _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)
+                    actionData.vehicle === _activeVehicle && actionData.coordinate && actionData.coordinate.isValid &&
+                    _activeVehicle.guidedModeGotoLocation(actionData.coordinate, true)) {
+                gotoProgressMap.resumeGotoProgress()
             }
             break
         case actionMVPause:
