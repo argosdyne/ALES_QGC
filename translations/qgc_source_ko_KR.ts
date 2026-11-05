@@ -30772,6 +30772,7 @@ Only enable for the vehicle tethered to this station.</source>
     <translation>비행 중 테더 전원 끊김 - 기체 자체 배터리 사용 중.</translation>
   </message>
 </context>
+<context>
     <name>GoToAltitudeSlider</name>
     <message>
       <location filename="../custom/res/Custom/FlightDisplay/GoToAltitudeSlider.qml" line="88"/>

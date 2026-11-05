@@ -136,7 +136,7 @@ Item {
     function cancelTetherPowerOff() {
         if (tetherStation) tetherStation.cancelPowerOff()
     }
-    readonly property int actionContinueGoTo:               28
+    readonly property int actionContinueGoTo:               31
 
     // The map owns the target and progress state. This reference only connects that state to
     // the existing guided-action confirmation flow used by the left tool strip.
@@ -164,8 +164,6 @@ Item {
 
     property bool _missionStartBlocked: _activeVehicle && _activeVehicle.missionResetMonitor ? _activeVehicle.missionResetMonitor.startFailureMode !== 0 : false
     property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission && !_missionStartBlocked
-    property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1)
-
     property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1) && !gotoProgressActive
     property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying &&
                                         !(gotoProgressActive ? gotoPaused : _vehiclePaused) && !_fixedWingOnApproach
