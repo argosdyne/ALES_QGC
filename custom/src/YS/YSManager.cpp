@@ -194,17 +194,21 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
                 // Any reply ends STARTING / STOPPING
                 _acqTransition = AcqNone;
             }
-            if (ack.command == MAV_CMD_USER_2 && ack.result == MAV_RESULT_ACCEPTED) {
+            if (ack.command == MAV_CMD_USER_2) {
+                // Birdcom ACKs Power Off with FAILED even on success, so any result counts.
+                // _updateStatus() clears this if Get Status answers again (power off did not happen).
                 _poweredOff = true;
             }
 
             if (ack.command == MAV_CMD_USER_1 && ack.result == MAV_RESULT_ACCEPTED) {
-                const bool startRequested = _lastCommand == MAV_CMD_USER_1 && _lastCommandParam1 > 0.5f;
+                const bool startRequested = _acqStartRequested;
                 if (startRequested) {
                     kGenInfoAcqRunning = true;
                 } else {
                     kGenInfoAcqRunning = false;
                 }
+                // Fast-path hint: Get Status does not override it until the LiDAR has had time to update its logging bit
+                _acqAckHintTimer.start();
                 _lastStatusMs = _statusTimer.elapsed();
                 if (!_statusValid) {
                     _statusValid = true;
@@ -260,6 +264,12 @@ void YSManager::_updateStatus(quint8 insInfo, quint8 scnInfo, quint8 genInfo,
     _scnErr = scnErr & 0x1F; // Mask to 5 bits as scanner error only has 5 error flags.
     _intErr = intErr & 0x03; // Mask to 2 bits as internal error only has 2 error flags.;
     _camErr = camErr & 0x07; // Mask to 3 bits as camera error only has 3 error flags.;
+    // Recording comes from Get Status so it is right after a QGC restart / reconnect, not only after a Start ACK.
+    // genInfo bit 3 = data logging (YellowScan Serial Interface Control v4.0). After an accepted Start/Stop ACK the
+    // ACK value is kept for kAcqCommandAckTimeoutMs so the LiDAR has time to update this bit.
+    if (!_acqAckHintTimer.isValid() || _acqAckHintTimer.elapsed() > kAcqCommandAckTimeoutMs) {
+        kGenInfoAcqRunning = (_genInfo & kGenInfoDataLogging) != 0;
+    }
     _poweredOff = false;    // LiDAR answered, so it is on again
     _lastStatusMs = _statusTimer.elapsed();
     _awaitingFreshStatus = false;
@@ -352,6 +362,10 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
 {
     if (_shouldDebounceCommand(command, param1, param2)) {
         return;
+    }
+    if (command == MAV_CMD_USER_1) {
+        // Only Start/Stop sets this; Get/Set/Power Off sends must not change how the Start/Stop ACK is read
+        _acqStartRequested = param1 > 0.5f;
     }
     _lastReceivedMessage.clear();
     mavlink_message_t msg{};
@@ -835,7 +849,7 @@ void YSManager::_rebuildPreChecks(void)
         }
 
         // Scanner: ready + scanner error flags
-        const quint8 scnErrFlags = scnErr();
+        const quint8 scnErrFlags = static_cast<quint8>(_scnErr | (_scnInfo & 0x01));
         if (scnErrFlags) {
             list << row(tr("Scanner"), PreCheckFail, tr("Error %1").arg(hex(scnErrFlags)));
         } else if (scannerNotReady()) {
@@ -865,8 +879,14 @@ void YSManager::_rebuildPreChecks(void)
             list << row(tr("Camera"), PreCheckOk, tr("No error"));
         }
 
-        // Temperature: the existing status decoding has no temperature flag - row stays Unknown and is not counted as unmet
-        list << row(tr("Temperature"), PreCheckUnknown, tr("Not decoded"));
+        // Temperature: internal computer error flags (YS_STA_01 byte 1)
+        if (_intErr & kIntErrOverheat) {
+            list << row(tr("Temperature"), PreCheckFail, tr("Overheating"));
+        } else if (_intErr & kIntErrTempWarning) {
+            list << row(tr("Temperature"), PreCheckFail, tr("Warning"));
+        } else {
+            list << row(tr("Temperature"), PreCheckOk, tr("OK"));
+        }
     }
 
     for (const QVariant& v : list) {

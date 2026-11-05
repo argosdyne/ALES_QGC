@@ -85,6 +85,15 @@ ApplicationWindow {
 
     // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
     property bool               lidarPanelVisible:          false
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        onActiveVehicleChanged: {
+            var s = QGroundControl.corePlugin.settings
+            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue) {
+                mainWindow.lidarPanelVisible = true
+            }
+        }
+    }
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 

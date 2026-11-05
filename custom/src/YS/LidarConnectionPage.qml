@@ -232,7 +232,7 @@ Rectangle {
                                 wrapMode:           Text.WordWrap
                                 font.pointSize:     ScreenTools.smallFontPointSize
                                 opacity:            0.6
-                                text:               qsTr("Options: Manual only · Auto (start at first survey WP, stop at last)")
+                                text:               qsTr("Acquisition is started / stopped manually by the operator.")
                             }
 
                             QGCLabel { text: qsTr("Stop in flight") }

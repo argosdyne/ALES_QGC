@@ -233,6 +233,7 @@ private:
     float _lastCommandParam1{0.0f};
     float _lastCommandParam2{0.0f};
     qint64 _lastCommandMs{-1000};
+    bool _acqStartRequested{false};     // last Start/Stop sent (MAV_CMD_USER_1 p1), read by its COMMAND_ACK
     qint64 _lastSentMs{-1000};
 
     bool _hasPendingControlCommand{false};
@@ -292,6 +293,7 @@ private:
     bool          _poweredOff{false};
     AcqTransition _acqTransition{AcqNone};
     QElapsedTimer _acqTransitionTimer;
+    QElapsedTimer _acqAckHintTimer;     // started on an accepted Start/Stop ACK; Get Status does not override the flag until it expires
     QElapsedTimer _recordingTimer;
     bool          _wasRecording{false};
     int           _lastRecordingSeconds{0};
@@ -312,6 +314,9 @@ private:
     static constexpr quint8 kScnInfoNotReady  = 1 << 1;
     static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
+    static constexpr quint8 kGenInfoDataLogging = 1 << 3;
+    static constexpr quint8 kIntErrOverheat     = 1 << 0;   // internal computer >= 70 C
+    static constexpr quint8 kIntErrTempWarning  = 1 << 1;   // internal computer > 65 C
 
     enum YSParameterIndex {
         ParamScannerHighSensitivity = 0,
