@@ -467,6 +467,17 @@ bool GeoFenceController::containsItems(void) const
     return _polygons.count() > 0 || _circles.count() > 0;
 }
 
+QString GeoFenceController::goToTargetBlockReason(const QGeoCoordinate& coordinate) const
+{
+    if (!coordinate.isValid() || !_managerVehicle) {
+        return QString();
+    }
+
+    return _managerVehicle->isCoordinateOutsideFence(coordinate)
+        ? tr("Target is outside the allowed area.")
+        : QString();
+}
+
 void GeoFenceController::_updateContainsItems(void)
 {
     emit containsItemsChanged(containsItems());

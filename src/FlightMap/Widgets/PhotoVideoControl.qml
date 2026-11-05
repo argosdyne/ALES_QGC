@@ -30,9 +30,12 @@ import QGroundControl.FlightMap         1.0
 
 
 Item {    
+    id: photoVideoRoot
     implicitHeight: content.implicitHeight    
     property bool displayAllowed: true
-    visible:    displayAllowed && (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
+    property bool gotoEditorVisible: false
+    visible:   displayAllowed && !gotoEditorVisible && (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
+
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
     property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
     property var    _activePayload:                             PayloadManager.active
@@ -1003,6 +1006,14 @@ Item {
 
         QGCPopupDialog {
             id:         settingsDialog            
+            Connections {
+                target: photoVideoRoot
+                function onGotoEditorVisibleChanged() {
+                    if (photoVideoRoot.gotoEditorVisible) {
+                        settingsDialog.close()
+                    }
+                }
+            }
             title: (_mavlinkCamera && _mavlinkCamera.firmwareVersion) ? qsTr("Settings") + " v" + _mavlinkCamera.firmwareVersion : qsTr("Settings")
             buttons:    StandardButton.Close
 
