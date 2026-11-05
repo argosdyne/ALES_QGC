@@ -83,6 +83,9 @@ ApplicationWindow {
         }
     }
 
+    // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
+    property bool               lidarPanelVisible:          false
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------

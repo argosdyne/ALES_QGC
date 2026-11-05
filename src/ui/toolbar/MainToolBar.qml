@@ -33,6 +33,24 @@ Rectangle {
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property color  _mainStatusBGColor: qgcPal.brandingPurple
 
+    // Fly view fit: when status + indicators + logo + link indicator are wider than the toolbar, every
+    // item is scaled down by the same factor so all of them stay visible.
+    // Below the minimum scale the indicators scroll and the logo hides (old behavior)
+    readonly property real  _minFitScale:       0.75
+    readonly property real  _toolsLeftMargin:   ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
+    readonly property real  _linkMargin:        ScreenTools.defaultFontPixelHeight * 0.66
+    readonly property real  _logoGap:           ScreenTools.defaultFontPixelHeight - _linkMargin    // logo to link indicator gap (unchanged)
+    readonly property real  _logoMinGap:        ScreenTools.defaultFontPixelWidth                   // indicators to logo gap (unchanged)
+    property var            _linkLoader:        rajantLinkIndicator.visible ? rajantLinkIndicator : arLinkIndicator
+    property real           _linkWidth:         _linkLoader.item ? _linkLoader.item.width : 0
+    property bool           _logoWanted:        currentToolbar !== planViewToolbar && !!_activeVehicle && !_communicationLost && brandingLogo._fullWidth > 0
+    // Widths at scale 1: the scaled parts, and the fixed gaps that do not scale
+    property real           _scaledPartsWidth:  viewButtonRow.width + _toolsLeftMargin + indicatorLoader.width +
+                                                (_logoWanted ? brandingLogo._fullWidth + _logoGap : 0) + _linkWidth
+    property real           _fixedPartsWidth:   _logoMinGap + _linkMargin
+    property real           _fitScale:          (currentToolbar === flyViewToolbar && _scaledPartsWidth > 0 && (_scaledPartsWidth + _fixedPartsWidth) > width) ?
+                                                    Math.max(_minFitScale, (width - _fixedPartsWidth) / _scaledPartsWidth) : 1
+
     function dropMessageIndicatorTool() {
         if (currentToolbar === flyViewToolbar) {
             indicatorLoader.item.dropMessageIndicatorTool();
@@ -52,7 +70,10 @@ Rectangle {
     }
 
     Rectangle {
-        anchors.fill:   viewButtonRow
+        anchors.left:   viewButtonRow.left
+        anchors.top:    viewButtonRow.top
+        anchors.bottom: viewButtonRow.bottom
+        width:          viewButtonRow.width * _fitScale
         visible:        currentToolbar === flyViewToolbar
 
         gradient: Gradient {
@@ -69,6 +90,8 @@ Rectangle {
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         spacing:                ScreenTools.defaultFontPixelWidth / 2
+        transformOrigin:        Item.Left
+        scale:                  _fitScale
 
         QGCToolBarButton {
             id:                     currentButton
@@ -93,13 +116,14 @@ Rectangle {
 
     QGCFlickable {
         id:                     toolsFlickable
-        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
+        // viewButtonRow is scaled from its left edge, so pull in by the width it no longer occupies
+        anchors.leftMargin:     (_toolsLeftMargin * _fitScale) - (viewButtonRow.width * (1 - _fitScale))
         anchors.left:           viewButtonRow.right
         anchors.bottomMargin:   1
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         anchors.right:          parent.right
-        contentWidth:           indicatorLoader.x + indicatorLoader.width
+        contentWidth:           indicatorLoader.x + (indicatorLoader.width * _fitScale)
         flickableDirection:     Flickable.HorizontalFlick
 
         Loader {
@@ -107,6 +131,8 @@ Rectangle {
             anchors.left:       parent.left
             anchors.top:        parent.top
             anchors.bottom:     parent.bottom
+            transformOrigin:    Item.Left
+            scale:              _fitScale
             source:             currentToolbar === flyViewToolbar ?
                                     "qrc:/toolbar/MainToolBarIndicators.qml" :
                                     (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
@@ -115,16 +141,23 @@ Rectangle {
 
     //-------------------------------------------------------------------------
     //-- Branding Logo
+    // Scaled with the rest of the toolbar (_fitScale). Hidden only when it still does not fit at the minimum scale.
     Image {
-        anchors.rightMargin:    arLinkIndicator.item.width + ScreenTools.defaultFontPixelHeight
+        id:                     brandingLogo
+        anchors.rightMargin:    _linkMargin + ((_linkWidth + _logoGap) * _fitScale)
         anchors.right:          parent.right
-        anchors.top:            parent.top
-        anchors.bottom:         parent.bottom
-        anchors.margins:        ScreenTools.defaultFontPixelHeight * 0.66
-        visible:                currentToolbar !== planViewToolbar && _activeVehicle && !_communicationLost && x > (toolsFlickable.x + toolsFlickable.contentWidth + ScreenTools.defaultFontPixelWidth)
+        anchors.verticalCenter: parent.verticalCenter
+        width:                  _fullWidth * _fitScale
+        height:                 _fullHeight * _fitScale
+        visible:                _logoWanted &&
+                                (_root.width - anchors.rightMargin - width) >= (toolsFlickable.x + toolsFlickable.contentWidth + _logoMinGap - 1)
         fillMode:               Image.PreserveAspectFit
         source:                 _outdoorPalette ? _brandImageOutdoor : _brandImageIndoor
         mipmap:                 true
+
+        // Full size = same as before: toolbar height minus the link indicator margins, image proportions kept
+        property real   _fullHeight:            _root.height - (_linkMargin * 2)
+        property real   _fullWidth:             implicitHeight > 0 ? _fullHeight * implicitWidth / implicitHeight : 0
 
         property bool   _outdoorPalette:        qgcPal.globalTheme === QGCPalette.Light
         property bool   _corePluginBranding:    QGroundControl.corePlugin.brandImageIndoor.length != 0
@@ -174,7 +207,9 @@ Rectangle {
         anchors.right:      parent.right
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
-        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        anchors.margins:    _linkMargin
+        transformOrigin:    Item.Right
+        scale:              _fitScale
         visible:            !QGroundControl.corePlugin.rajantManager
         source:             QGroundControl.corePlugin.m2Manager ? "qrc:/qml/M2LinkIndicator.qml" : "qrc:/toolbar/ARLinkIndicator.qml"
     }
@@ -185,7 +220,9 @@ Rectangle {
         anchors.right:      parent.right
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
-        anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.66
+        anchors.margins:    _linkMargin
+        transformOrigin:    Item.Right
+        scale:              _fitScale
         visible:            QGroundControl.corePlugin.rajantManager ? true : false
         source:             visible ? "qrc:/toolbar/RajantLinkIndicator.qml" : ""
     }
