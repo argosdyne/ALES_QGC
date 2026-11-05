@@ -19,7 +19,6 @@ class APMFlightModesComponent;
 class APMRadioComponent;
 class APMTuningComponent;
 class APMSafetyComponent;
-class APMMissionComponent;
 class APMSensorsComponent;
 class APMPowerComponent;
 class APMMotorComponent;
@@ -55,7 +54,6 @@ protected:
     APMMotorComponent*          _motorComponent;
     APMRadioComponent*          _radioComponent;
     APMSafetyComponent*         _safetyComponent;
-    APMMissionComponent*        _missionComponent;
     APMSensorsComponent*        _sensorsComponent;
     APMTuningComponent*         _tuningComponent;
     ESP8266Component*           _esp8266Component;

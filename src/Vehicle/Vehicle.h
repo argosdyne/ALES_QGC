@@ -205,7 +205,6 @@ public:
     Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
     Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
     Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
-    Q_PROPERTY(QObject*             missionResetMonitor         READ missionResetMonitor                                            NOTIFY missionResetMonitorChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
@@ -926,9 +925,6 @@ public:
     /// and destroyed when the vehicle goes away.
     void setFirmwarePluginInstanceData(QObject* firmwarePluginInstanceData);
 
-    QObject* missionResetMonitor() const { return _missionResetMonitor; }
-    void setMissionResetMonitor(QObject* monitor);
-
     QString vehicleImageOpaque  () const;
     QString vehicleImageOutline () const;
     QString vehicleImageCompass () const;
@@ -1014,7 +1010,6 @@ signals:
     void vtolInFwdFlightChanged         (bool vtolInFwdFlight);
     void prearmErrorChanged             (const QString& prearmError);
     void soloFirmwareChanged            (bool soloFirmware);
-    void missionResetMonitorChanged     ();
     void defaultCruiseSpeedChanged      (double cruiseSpeed);
     void defaultHoverSpeedChanged       (double hoverSpeed);
     void firmwareTypeChanged            ();
@@ -1253,7 +1248,6 @@ private:
     MAV_TYPE            _vehicleType;
     FirmwarePlugin*     _firmwarePlugin = nullptr;
     QObject*            _firmwarePluginInstanceData = nullptr;
-    QObject*            _missionResetMonitor = nullptr;
     AutoPilotPlugin*    _autopilotPlugin = nullptr;
     MAVLinkProtocol*    _mavlink = nullptr;
     bool                _soloFirmware = false;
