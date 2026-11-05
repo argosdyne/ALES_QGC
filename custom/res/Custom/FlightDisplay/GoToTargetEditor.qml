@@ -142,14 +142,16 @@ Item {
         function onGotoDraftCoordinateChanged() { root.updateCoordinateFields() }
     }
 
-    // 30 character-widths renders at about 230 px on the 432 px mobile reference.
-    implicitWidth: ScreenTools.defaultFontPixelWidth * 30
+    // 40 character-widths renders as the compact ~330 px desktop dialog.
+    implicitWidth: ScreenTools.defaultFontPixelWidth * 40
     implicitHeight: dialog.implicitHeight
 
     Rectangle {
         id: dialog
         anchors.fill: parent
-        implicitHeight: header.height + content.implicitHeight
+        // `content` is anchored below the header with a margin. Include both
+        // the top and bottom padding so wrapped footer text is never clipped.
+        implicitHeight: header.height + content.implicitHeight + root.margin * 2
         color: qgcPal.windowShadeDark
         border.color: qgcPal.text
         border.width: 1
@@ -180,7 +182,7 @@ Item {
             QGCButton {
                 text: qsTr("Cancel")
                 Layout.fillHeight: true
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 6
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 8
                 onClicked: root.mapControl.cancelGotoSelection()
             }
             QGCButton {
@@ -188,7 +190,8 @@ Item {
                 objectName: "gotoExecuteButton"
                 primary: true
                 Layout.fillHeight: true
-                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 5
+                // Keep both actions the same size, as in the Fly dialog design.
+                Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 8
                 // Keep the flight-safety gate intact. Target validation is handled on press
                 // so the operator receives a visible rejection instead of a silent disabled button.
                 enabled: root.mapControl && root.mapControl.gotoAvailable && root.vehicle && root.vehicle.armed && root.vehicle.flying && !root.vehicle.vehicleLinkManager.communicationLost
@@ -208,6 +211,10 @@ Item {
                         map: root.mapControl,
                         altitudeMode: root.altitudeMode,
                         altitudeText: root.targetAltitude + " " + root.altitudeUnits,
+                        targetAltitudeMeters: root.targetAltitudeMeters,
+                        minimumTargetAltitudeMeters: root.minimumAltitudeMeters,
+                        maximumTargetAltitudeMeters: root.maximumAltitudeMeters,
+                        homeAltitudeAMSL: root.homeAltitudeAMSL,
                         gotoSummary: qsTr("Go to location: %1 · ETA %2").arg(root.displayDistance(root.distanceMeters)).arg(root.displayEta(root.etaSeconds))
                     })
                     root.mapControl.hideGotoTargetEditorForConfirmation()
@@ -257,6 +264,7 @@ Item {
                     }
                     QGCLabel {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
                         visible: root.latitudeError.length > 0
                         text: root.latitudeError
                         color: root.validationColor
@@ -289,6 +297,7 @@ Item {
                     }
                     QGCLabel {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
                         visible: root.longitudeError.length > 0
                         text: root.longitudeError
                         color: root.validationColor
@@ -327,6 +336,7 @@ Item {
                     }
                     QGCLabel {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
                         visible: root.altitudeError.length > 0
                         text: root.altitudeError
                         color: root.validationColor
@@ -335,19 +345,26 @@ Item {
                     }
                 }
 
-                QGCLabel { text: qsTr("Altitude reference") }
+                QGCLabel {
+                    text: qsTr("Altitude reference")
+                    Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 15
+                    Layout.preferredHeight: contentHeight
+                    wrapMode: Text.WordWrap
+                }
                 QGCLabel {
                     Layout.fillWidth: true
+                    Layout.preferredHeight: contentHeight
                     text: qsTr("%1 (Application Settings)").arg(QGroundControl.altitudeModeShortDescription(root.altitudeMode))
                     color: qgcPal.buttonText
                     opacity: 0.65
-                    elide: Text.ElideRight
+                    wrapMode: Text.WordWrap
                 }
             }
 
             QGCLabel {
                 visible: root.distanceError.length > 0
                 Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
                 text: root.distanceError
                 color: qgcPal.warningText
                 wrapMode: Text.WordWrap
@@ -356,6 +373,7 @@ Item {
             QGCLabel {
                 visible: root.geoFenceError.length > 0
                 Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
                 text: root.geoFenceError
                 color: qgcPal.warningText
                 wrapMode: Text.WordWrap
@@ -363,6 +381,7 @@ Item {
             }
             QGCLabel {
                 Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
                 text: qsTr("Decimal degrees (WGS84). The altitude reference follows the GCS setting and cannot be changed here.")
                 color: qgcPal.buttonText
                 opacity: 0.65
@@ -371,6 +390,7 @@ Item {
             }
             QGCLabel {
                 Layout.fillWidth: true
+                Layout.preferredHeight: contentHeight
                 text: qsTr("Tip: the same values are prefilled when the dialog is opened from a map tap.")
                 color: qgcPal.buttonText
                 opacity: 0.65

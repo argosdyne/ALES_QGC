@@ -249,7 +249,7 @@ Item {
                 guidedValueSlider.setMaxVal(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()).toFixed(1))
                 guidedValueSlider.setValue(QGroundControl.unitsConversion.metersSecondToAppSettingsSpeedUnits(_activeVehicle.maximumHorizontalSpeedMultirotor()/2).toFixed(1))
             }
-        } else if (actionCode === actionChangeAlt || actionCode === actionOrbit || actionCode === actionGoto || actionCode === actionPause) {
+        } else if (actionCode === actionChangeAlt || actionCode === actionOrbit || actionCode === actionPause) {
             guidedValueSlider.setDisplayText(qsTr("New Alt(rel)"))
             guidedValueSlider.configureAsRelativeAltSliderExp()
         }
