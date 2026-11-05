@@ -28,7 +28,7 @@ Rectangle {
     readonly property var _pages: [
         { title: qsTr("Connection"),    url: "qrc:/qml/LidarConnectionPage.qml" },
         { title: qsTr("Settings"),      url: "qrc:/qml/LidarSettingsPage.qml" },
-        { title: qsTr("Device"),        url: "qrc:/qml/DeviceSettings.qml" }
+        { title: qsTr("Device"),        url: "" }   // Empty for now - Device page content comes in a later story
     ]
 
     property int _currentPage: 0

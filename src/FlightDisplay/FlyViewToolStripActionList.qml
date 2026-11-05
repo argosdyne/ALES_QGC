@@ -7,6 +7,7 @@
  *
  ****************************************************************************/
 
+import QtQml        2.12
 import QtQml.Models 2.12
 
 import QGroundControl           1.0
@@ -66,6 +67,20 @@ ToolStripActionList {
             visible:        QGroundControl.corePlugin.settings.lifeJacketEnable.value &&
                             !(QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.px4Firmware)
             onTriggered:    mainWindow.lifeVestPanelVisible = true
+        },
+        ToolStripAction {
+            id:             lidarToolStripAction
+            text:           qsTr("LiDAR")
+            iconSource:     "/custom/img/png/YSLidar.png"
+            visible:        QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
+            onTriggered:    mainWindow.lidarPanelVisible = !mainWindow.lidarPanelVisible
         }
     ]
+
+    // Highlight [LiDAR] while its panel is open. Set imperatively because ToolStripHoverButton
+    // writes back to checked, which would break a binding.
+    property var _lidarPanelSync: Connections {
+        target: mainWindow
+        function onLidarPanelVisibleChanged() { lidarToolStripAction.checked = mainWindow.lidarPanelVisible }
+    }
 }

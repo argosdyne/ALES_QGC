@@ -762,7 +762,7 @@ Rectangle {
                                     }
                                 }
 
-                                // Shows/hides Select Tool > LiDAR Setup
+                                // Shows/hides Select Tool > LiDAR Setup, Fly View toolstrip [LiDAR], toolbar LiDAR indicator and LiDAR panel
                                 FactCheckBox {
                                     text: qsTr("Enable YellowScan LiDAR")
                                     fact: QGroundControl.corePlugin.settings.ysEnable
