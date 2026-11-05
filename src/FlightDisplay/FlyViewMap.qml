@@ -70,7 +70,7 @@ FlightMap {
     property var    gotoFlownTrack:              []
     property int    gotoProgressAltitudeMode:   QGroundControl.AltitudeModeRelative
     property bool   gotoArrivalConfirmed:       false
-    readonly property bool gotoProgressPaused:   gotoProgressActive && _activeVehicle && _activeVehicle.flightMode === _activeVehicle.pauseFlightMode
+    property bool   gotoProgressPaused:         false
     property string gotoProgressTermination:    ""
     readonly property bool gotoTerminationModeConfirmed: {
         if (!gotoProgressActive || !_activeVehicle || !gotoProgressTermination.length) {
@@ -232,7 +232,9 @@ FlightMap {
     }
 
     function clearGotoProgress() {
+        gotoLocationItem.hide()
         gotoProgressActive = false
+        gotoProgressPaused = false
         gotoProgressCoordinate = QtPositioning.coordinate()
         gotoProgressStartCoordinate = QtPositioning.coordinate()
         gotoFlownTrack = []
@@ -247,6 +249,18 @@ FlightMap {
     function beginGotoTermination(termination) {
         if (gotoProgressActive && !gotoProgressTermination.length) {
             gotoProgressTermination = termination
+        }
+    }
+
+    function pauseGotoProgress() {
+        if (gotoProgressActive) {
+            gotoProgressPaused = true
+        }
+    }
+
+    function resumeGotoProgress() {
+        if (gotoProgressActive) {
+            gotoProgressPaused = false
         }
     }
 
@@ -267,6 +281,7 @@ FlightMap {
         gotoProgressCoordinate = coordinate
         gotoProgressAltitudeMode = altitudeMode
         gotoArrivalConfirmed = false
+        gotoProgressPaused = false
         gotoProgressTermination = ""
         gotoProgressActive = true
         if (globals.guidedControllerFlyView) {
@@ -281,10 +296,9 @@ FlightMap {
     }
     onPipModeChanged: {
         _adjustMapZoomForPipMode()
-        if (pipMode) {
-            cancelGotoSelection()
-            clearGotoProgress()
-        }
+        // Changing the main PiP item is a presentation change only. Keep the
+        // draft, confirmation, and in-progress GoTo state so it is restored
+        // when the operator returns from the camera view to the map.
     }
 
     onGotoTerminationModeConfirmedChanged: {
@@ -318,6 +332,10 @@ FlightMap {
                 beginGotoTermination("land")
             } else if (_activeVehicle.flightMode === _activeVehicle.takeControlFlightMode) {
                 beginGotoTermination("takeControl")
+            } else if (_activeVehicle.flightMode !== _activeVehicle.gotoFlightMode &&
+                       _activeVehicle.flightMode !== _activeVehicle.pauseFlightMode) {
+                // A mode selected outside the GoTo flow supersedes this target.
+                clearGotoProgress()
             }
         }
     }
