@@ -4435,6 +4435,18 @@ void Vehicle::setFirmwarePluginInstanceData(QObject* firmwarePluginInstanceData)
     _firmwarePluginInstanceData = firmwarePluginInstanceData;
 }
 
+void Vehicle::setMissionResetMonitor(QObject* monitor)
+{
+    if (_missionResetMonitor == monitor) {
+        return;
+    }
+    _missionResetMonitor = monitor;
+    if (_missionResetMonitor && _missionResetMonitor->parent() != this) {
+        _missionResetMonitor->setParent(this);
+    }
+    emit missionResetMonitorChanged();
+}
+
 QString Vehicle::missionFlightMode() const
 {
     return _firmwarePlugin->missionFlightMode();

@@ -29368,6 +29368,199 @@ Confirm change?</source>
       <translation>수신:</translation>
     </message>
   </context>
+  <context>
+    <name>APMMissionComponent</name>
+    <message>
+      <source>Mission</source>
+      <translation>미션</translation>
+    </message>
+    <message>
+      <source>Mission options control whether the stored mission is cleared on reboot. The change takes effect after the next reboot.</source>
+      <translation>재부팅 시 저장된 미션을 삭제할지 설정합니다. 변경은 다음 재부팅부터 적용됩니다.</translation>
+    </message>
+    <message>
+      <source>Clear mission on reboot</source>
+      <translation>재부팅 시 미션 자동 삭제</translation>
+    </message>
+    <message>
+      <source>Current value: %1</source>
+      <translation>현재값: %1</translation>
+    </message>
+    <message>
+      <source>Current value: MIS_OPTIONS = %1 (bit0 = %2, bit2 = %3)</source>
+      <translation>현재값: MIS_OPTIONS = %1 (bit0 = %2, bit2 = %3)</translation>
+    </message>
+    <message>
+      <source>Current value: MIS_OPTIONS = %1 (bit0 = %2)</source>
+      <translation>현재값: MIS_OPTIONS = %1 (bit0 = %2)</translation>
+    </message>
+    <message>
+      <source>Current value: MIS_OPTIONS = —</source>
+      <translation>현재값: MIS_OPTIONS = —</translation>
+    </message>
+    <message>
+      <source>MIS_OPTIONS bit0 · Clear Mission on reboot</source>
+      <translation>MIS_OPTIONS bit0 · Clear Mission on reboot</translation>
+    </message>
+    <message>
+      <source>ON: The stored mission is cleared when the vehicle reboots. Re-upload the mission after a reboot.
+OFF: The previous mission is retained after reboot. Verify the mission before starting it.</source>
+      <translation>ON: 기체가 재부팅되면 저장된 미션이 삭제됩니다. 재부팅 후에는 미션을 다시 업로드해야 합니다.
+OFF: 재부팅 후에도 이전 미션이 남아 있습니다. 의도치 않은 미션 수행에 주의하십시오.</translation>
+    </message>
+    <message>
+      <source>The change takes effect after the next reboot.</source>
+      <translation>변경 내용은 다음 재부팅부터 적용됩니다.</translation>
+    </message>
+    <message>
+      <source>Continue mission after landing</source>
+      <translation>착륙 후 미션 계속</translation>
+    </message>
+    <message>
+      <source>MIS_OPTIONS bit2 · ContinueAfterLand</source>
+      <translation>MIS_OPTIONS bit2 · ContinueAfterLand</translation>
+    </message>
+    <message>
+      <source>ON: If the next item after landing is a takeoff, the mission continues.
+OFF: After landing, the vehicle disarms and the mission stops.</source>
+      <translation>ON: 착륙 다음 항목이 이륙이면 미션을 이어서 진행합니다.
+OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
+    </message>
+    <message>
+      <source>Applied.</source>
+      <translation>적용되었습니다.</translation>
+    </message>
+    <message>
+      <source>Clear mission on reboot takes effect after the next reboot.</source>
+      <translation>재부팅 시 삭제는 다음 재부팅부터 적용됩니다.</translation>
+    </message>
+    <message>
+      <source>Continue after land takes effect on the next landing.</source>
+      <translation>착륙 후 계속은 다음 착륙부터 적용됩니다.</translation>
+    </message>
+    <message>
+      <source>Apply</source>
+      <translation>적용</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <source>Applied. The change takes effect after the next reboot.</source>
+      <translation>적용되었습니다. 변경 내용은 다음 재부팅부터 적용됩니다.</translation>
+    </message>
+    <message>
+      <source>Failed to apply the setting. The previous value has been restored.</source>
+      <translation>설정을 적용하지 못했습니다. 이전 값으로 되돌렸습니다.</translation>
+    </message>
+    <message>
+      <source>Cannot be changed while armed.</source>
+      <translation>비행 중(Armed)에는 변경할 수 없습니다.</translation>
+    </message>
+    <message>
+      <source>Could not read MIS_OPTIONS.</source>
+      <translation>MIS_OPTIONS를 읽지 못했습니다.</translation>
+    </message>
+  </context>
+  <context>
+    <name>APMMissionResetMonitor</name>
+    <message>
+      <source>The stored mission is cleared when the vehicle reboots. Re-upload the mission after a reboot.</source>
+      <translation>기체가 재부팅되면 저장된 미션이 삭제됩니다. 재부팅 후에는 미션을 다시 업로드해야 합니다.</translation>
+    </message>
+    <message>
+      <source>The previous mission is retained on the vehicle after reboot. Verify the mission before starting it.</source>
+      <translation>재부팅 후에도 이전 미션이 기체에 남아 있습니다. 미션을 시작하기 전에 미션 내용을 반드시 확인하십시오.</translation>
+    </message>
+    <message>
+      <source>Vehicle reboot detected. Check the mission on the vehicle again.</source>
+      <translation>기체 재부팅이 감지되었습니다. 기체의 미션 상태를 다시 확인하십시오.</translation>
+    </message>
+    <message>
+      <source>A mission transfer is already in progress. The start command was not sent.</source>
+      <translation>미션 전송이 이미 진행 중입니다. 시작 명령은 보내지 않았습니다.</translation>
+    </message>
+    <message>
+      <source>Unable to read the mission from the vehicle. The start command was not sent.</source>
+      <translation>기체의 미션을 읽지 못했습니다. 시작 명령은 보내지 않았습니다.</translation>
+    </message>
+    <message>
+      <source>Diagnosed after flight controller rejection</source>
+      <translation>FC 거부 후 진단</translation>
+    </message>
+    <message>
+      <source>Pre-start check</source>
+      <translation>시작 전 검사</translation>
+    </message>
+    <message>
+      <source>MISSION_COUNT: %1</source>
+      <translation>MISSION_COUNT: %1</translation>
+    </message>
+    <message>
+      <source>Reboot detected: %1</source>
+      <translation>재부팅 감지 시각: %1</translation>
+    </message>
+    <message>
+      <source>Blocked at: %1</source>
+      <translation>차단 단계: %1</translation>
+    </message>
+    <message>
+      <source>Vehicle did not respond</source>
+      <translation>기체가 응답하지 않았습니다</translation>
+    </message>
+    <message>
+      <source>Mission start failed: %1</source>
+      <translation>미션 시작 실패: %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>MissionResetBanner</name>
+    <message>
+      <source>OK</source>
+      <translation>확인</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <source>Review Mission</source>
+      <translation>미션 확인</translation>
+    </message>
+    <message>
+      <source>Settings</source>
+      <translation>설정</translation>
+    </message>
+    <message>
+      <source>Vehicle reboot detected</source>
+      <translation>기체 재부팅이 감지되었습니다</translation>
+    </message>
+    <message>
+      <source>Mission</source>
+      <translation>미션</translation>
+    </message>
+    <message>
+      <source>Mission start failed</source>
+      <translation>미션 시작 실패</translation>
+    </message>
+    <message>
+      <source>No mission items on the vehicle (0).</source>
+      <translation>기체에 미션 아이템이 없습니다 (0개).</translation>
+    </message>
+    <message>
+      <source>Cause: the mission was cleared by a vehicle reboot (MIS_OPTIONS bit0 = 1).</source>
+      <translation>원인: 기체 재부팅으로 미션이 삭제되었습니다 (MIS_OPTIONS bit0 = 1).</translation>
+    </message>
+    <message>
+      <source>Re-upload the mission, then start it.</source>
+      <translation>미션을 다시 업로드한 뒤 시작하십시오.</translation>
+    </message>
+    <message>
+      <source>Upload Mission</source>
+      <translation>미션 업로드</translation>
+    </message>
+  </context>
 </TS>
 
 

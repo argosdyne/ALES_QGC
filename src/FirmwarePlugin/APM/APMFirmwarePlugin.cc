@@ -15,6 +15,8 @@
 #include "APMAirframeComponentController.h"
 #include "APMSensorsComponentController.h"
 #include "APMFollowComponentController.h"
+#include "APMMissionComponentController.h"
+#include "APMMissionResetMonitor.h"
 #include "APMSubMotorComponentController.h"
 #include "MissionManager.h"
 #include "ParameterManager.h"
@@ -28,6 +30,7 @@
 #include "ArduSubFirmwarePlugin.h"
 #include "LinkManager.h"
 
+#include <QPointer>
 #include <QTcpSocket>
 
 QGC_LOGGING_CATEGORY(APMFirmwarePluginLog, "APMFirmwarePluginLog")
@@ -67,6 +70,7 @@ APMFirmwarePlugin::APMFirmwarePlugin(void)
     qmlRegisterType<APMAirframeComponentController>     ("QGroundControl.Controllers", 1, 0, "APMAirframeComponentController");
     qmlRegisterType<APMSensorsComponentController>      ("QGroundControl.Controllers", 1, 0, "APMSensorsComponentController");
     qmlRegisterType<APMFollowComponentController>       ("QGroundControl.Controllers", 1, 0, "APMFollowComponentController");
+    qmlRegisterType<APMMissionComponentController>      ("QGroundControl.Controllers", 1, 0, "APMMissionComponentController");
     qmlRegisterType<APMSubMotorComponentController>     ("QGroundControl.Controllers", 1, 0, "APMSubMotorComponentController");
 }
 
@@ -255,12 +259,18 @@ void APMFirmwarePlugin::_handleOutgoingParamSetThreadSafe(Vehicle* /*vehicle*/, 
     _adjustOutgoingMavlinkMutex.unlock();
 }
 
-bool APMFirmwarePlugin::_handleIncomingStatusText(Vehicle* /*vehicle*/, mavlink_message_t* message)
+bool APMFirmwarePlugin::_handleIncomingStatusText(Vehicle* vehicle, mavlink_message_t* message)
 {
     // APM user facing calibration messages come through as high severity, we need to parse them out
     // and lower the severity on them so that they don't pop in the users face.
 
     QString messageText = _getMessageText(message);
+    if (vehicle) {
+        auto* monitor = qobject_cast<APMMissionResetMonitor*>(vehicle->missionResetMonitor());
+        if (monitor) {
+            monitor->handleStatusText(messageText);
+        }
+    }
     if (messageText.contains("Place vehicle") || messageText.contains("Calibration successful")) {
         _adjustCalibrationMessageSeverity(message);
         return true;
@@ -320,6 +330,13 @@ bool APMFirmwarePlugin::adjustIncomingMavlinkMessage(Vehicle* vehicle, mavlink_m
         instanceData->lastBatteryStatusTime = QTime::currentTime();
     } else if (message->msgid == MAVLINK_MSG_ID_HOME_POSITION && instanceData)  {
         instanceData->lastHomePositionTime = QTime::currentTime();
+    } else if (message->msgid == MAVLINK_MSG_ID_SYSTEM_TIME && message->compid == MAV_COMP_ID_AUTOPILOT1) {
+        auto* monitor = qobject_cast<APMMissionResetMonitor*>(vehicle->missionResetMonitor());
+        if (monitor) {
+            mavlink_system_time_t systemTime;
+            mavlink_msg_system_time_decode(message, &systemTime);
+            monitor->handleSystemTime(systemTime.time_boot_ms);
+        }
     } else {
         // Only translate messages which come from ArduPilot code. All other components are expected to follow current mavlink spec.
         if (_ardupilotComponentMap[vehicle->id()][message->compid]) {
@@ -499,6 +516,12 @@ void APMFirmwarePlugin::initializeVehicle(Vehicle* vehicle)
 
     if (qgcApp()->toolbox()->settingsManager()->videoSettings()->videoSource()->rawValue() == VideoSettings::videoSource3DRSolo) {
         _soloVideoHandshake();
+    }
+
+    if (!vehicle->isOfflineEditingVehicle()
+            && !vehicle->missionResetMonitor()
+            && qobject_cast<ArduCopterFirmwarePlugin*>(vehicle->firmwarePlugin())) {
+        vehicle->setMissionResetMonitor(new APMMissionResetMonitor(vehicle, vehicle));
     }
 }
 
@@ -960,7 +983,27 @@ bool APMFirmwarePlugin::_guidedModeTakeoff(Vehicle* vehicle, double altitudeRel)
     return true;
 }
 
+static void _copterMissionStartResult(void* resultHandlerData, int compId, const mavlink_command_ack_t& ack, Vehicle::MavCmdResultFailureCode_t failureCode)
+{
+    Q_UNUSED(compId)
+    auto* monitor = static_cast<APMMissionResetMonitor*>(resultHandlerData);
+    if (monitor) {
+        monitor->handleMissionStartResult(ack.result, failureCode);
+    }
+}
+
 void APMFirmwarePlugin::startMission(Vehicle* vehicle)
+{
+    auto* monitor = qobject_cast<APMMissionResetMonitor*>(vehicle->missionResetMonitor());
+    // In the air, continue mission only changes to Auto. Do not wait on a mission count.
+    if (monitor && !vehicle->flying()) {
+        monitor->beginMissionStart();
+        return;
+    }
+    startMissionAfterCountCheck(vehicle);
+}
+
+void APMFirmwarePlugin::startMissionAfterCountCheck(Vehicle* vehicle)
 {
     if (vehicle->flying()) {
         // Vehicle already in the air, we just need to switch to auto
@@ -994,10 +1037,33 @@ void APMFirmwarePlugin::startMission(Vehicle* vehicle)
 
     // For non aircraft vehicles, we would be in guided mode, so we need to send the mission start command
     if (!vehicle->fixedWing()) {
-        //Add Delay 3000ms = 3s
-        QTimer::singleShot(3000, qgcApp(), [=]() {
-            vehicle->sendMavCommand(vehicle->defaultComponentId(), MAV_CMD_MISSION_START, true /*show error */);
-        });
+        auto* monitor = qobject_cast<APMMissionResetMonitor*>(vehicle->missionResetMonitor());
+        if (monitor) {
+            QPointer<Vehicle> vehiclePtr(vehicle);
+            //Add Delay 3000ms = 3s
+            QTimer::singleShot(3000, qgcApp(), [vehiclePtr]() {
+                if (!vehiclePtr) {
+                    return;
+                }
+                auto* liveMonitor = qobject_cast<APMMissionResetMonitor*>(vehiclePtr->missionResetMonitor());
+                if (!liveMonitor) {
+                    vehiclePtr->sendMavCommand(vehiclePtr->defaultComponentId(), MAV_CMD_MISSION_START, true /*show error */);
+                    return;
+                }
+                liveMonitor->noteMissionStartCommand();
+                Vehicle::MavCmdAckHandlerInfo_t handlerInfo = {};
+                handlerInfo.resultHandler = &_copterMissionStartResult;
+                handlerInfo.resultHandlerData = liveMonitor;
+                vehiclePtr->sendMavCommandWithHandler(&handlerInfo,
+                                                      vehiclePtr->defaultComponentId(),
+                                                      MAV_CMD_MISSION_START);
+            });
+        } else {
+            //Add Delay 3000ms = 3s
+            QTimer::singleShot(3000, qgcApp(), [=]() {
+                vehicle->sendMavCommand(vehicle->defaultComponentId(), MAV_CMD_MISSION_START, true /*show error */);
+            });
+        }
     }
 }
 
