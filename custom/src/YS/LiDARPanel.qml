@@ -109,10 +109,14 @@ Rectangle {
             return qsTr("Camera settings not read from LiDAR yet")
         }
         if (_ys.embeddedCamera === 0) {
-            return qsTr("Scanner settings in LiDAR Setup")
+            return qsTr("Enable in LiDAR Setup › Settings")
         }
         var mode = _ys.embCamTriggerMode === YSManager.TriggerModeDistance ? qsTr("Distance trigger") : qsTr("Time trigger")
-        return mode + _sep + qsTr("start at %1 m").arg(_ys.embCamInitHeight.toFixed(0)) + _sep + qsTr("scanner settings in LiDAR Setup")
+        var h = _ys.embCamInitHeight
+        // Start height -1 = start immediately. Birdcom returns the LiDAR float as unsigned, so -1 reads back as 0;
+        // 0 m above the acquisition start is the same thing, so <= 0 is shown as immediate.
+        var start = h <= 0 ? qsTr("start immediately") : qsTr("start at %1 m").arg(h.toFixed(1))
+        return mode + _sep + start + _sep + qsTr("edit in LiDAR Setup › Settings")
     }
 
     // Keep clicks off the map below
