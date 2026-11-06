@@ -442,7 +442,7 @@ Item {
             if (!tetherStation || !tetherStation.noPowerPrompt || actionData !== tetherStation.noPowerIncident || !_activeVehicle) return
             confirmDialog.title = actionCode === actionTetherLand ? qsTr("Tether: Land now") : qsTr("Tether: RTL to Station")
             confirmDialog.message = actionCode === actionTetherLand ? qsTr("Land at the current position. Tether power is lost; the drone is on its onboard battery.") : qsTr("Return to Home and land. Verify that Home is the station location.")
-            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || _root.tetherStation.noPowerVehicleNeedsConfirmation || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
             break
         case actionTetherPowerOff:
             if (!tetherStation || !tetherStation.powerOffPending || actionData !== tetherStation.powerOffRequestId) return

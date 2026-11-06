@@ -202,7 +202,6 @@ const char* Vehicle::_terrainFactGroupName =            "terrain";
 const char* Vehicle::_hygrometerFactGroupName =         "hygrometer";
 const char* Vehicle::_generatorFactGroupName =          "generator";
 const char* Vehicle::_efiFactGroupName =                "efi";
-const char* Vehicle::_tetherFactGroupName =             "tether";
 
 // Standard connected vehicle
 Vehicle::Vehicle(LinkInterface*             link,
@@ -269,7 +268,6 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _hygrometerFactGroup          (this)
     , _generatorFactGroup           (this)
     , _efiFactGroup                 (this)
-    , _tetherFactGroup              (this)
     , _terrainFactGroup             (this)
     , _terrainProtocolHandler       (new TerrainProtocolHandler(this, &_terrainFactGroup, this))
 {
@@ -426,7 +424,6 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _distanceSensorFactGroup          (this)
     , _localPositionFactGroup           (this)
     , _localPositionSetpointFactGroup   (this)
-    , _tetherFactGroup                  (this)
 {
     _linkManager = _toolbox->linkManager();
 
@@ -592,7 +589,6 @@ void Vehicle::_commonInit()
     _addFactGroup(&_hygrometerFactGroup,        _hygrometerFactGroupName);
     _addFactGroup(&_generatorFactGroup,         _generatorFactGroupName);
     _addFactGroup(&_efiFactGroup,               _efiFactGroupName);
-    _addFactGroup(&_tetherFactGroup,            _tetherFactGroupName);
     _addFactGroup(&_terrainFactGroup,           _terrainFactGroupName);
 
     // Add firmware-specific fact groups, if provided

@@ -49,7 +49,7 @@ Rectangle {
         Column {
             anchors.verticalCenter: parent.verticalCenter
             QGCLabel {
-                text: station.noPower ? station.powerWatts + " W" : !station.connected ? qsTr("OFF") : (station.linkLost ? qsTr("LOST") : (station.noReply ? qsTr("NO REPLY") : (!station.hasMonitoring ? qsTr("WAIT") : (station.powerOn ? qsTr("ON") : qsTr("OFF")))))
+                text: station.noPower ? station.powerWatts + " W" : station.linkLost ? qsTr("LOST") : station.noReply ? qsTr("NO REPLY") : !station.connected || !station.hasMonitoring ? qsTr("WAIT") : station.powerOn ? qsTr("ON") : qsTr("OFF")
                 color: station.noPower ? root.red : station.connected && station.hasMonitoring && !station.linkLost && !station.noReply ? "white" : root.mutedColor
                 font.pointSize: ScreenTools.smallFontPointSize
             }
