@@ -32,6 +32,7 @@ import QGroundControl.FlightMap         1.0
 Item {    
     id: photoVideoRoot
     implicitHeight: content.implicitHeight    
+
     property bool displayAllowed: true
     property bool gotoEditorVisible: false
     visible:   displayAllowed && !gotoEditorVisible && (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel

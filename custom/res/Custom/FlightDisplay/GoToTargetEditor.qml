@@ -91,11 +91,11 @@ Item {
         }
     }
 
-    function applyCoordinates() {
+    function applyCoordinates(panToTarget) {
         if (!coordinatesValid || distanceError !== "") {
             return false
         }
-        mapControl.setGotoDraftCoordinate(QtPositioning.coordinate(enteredLatitude, enteredLongitude), true)
+        mapControl.setGotoDraftCoordinate(QtPositioning.coordinate(enteredLatitude, enteredLongitude), panToTarget === undefined ? true : panToTarget)
         return true
     }
 
@@ -200,7 +200,7 @@ Item {
                         root.mapControl.showGotoRejection(root.rejectionMessage())
                         return
                     }
-                    if (!root.applyCoordinates()) {
+                    if (!root.applyCoordinates(false)) {
                         return
                     }
                     var target = root.mapControl.gotoDraftCoordinate

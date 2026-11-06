@@ -83,6 +83,18 @@ ApplicationWindow {
         }
     }
 
+    // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
+    property bool               lidarPanelVisible:          false
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        onActiveVehicleChanged: {
+            var s = QGroundControl.corePlugin.settings
+            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue) {
+                mainWindow.lidarPanelVisible = true
+            }
+        }
+    }
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------
@@ -236,6 +248,9 @@ ApplicationWindow {
 
     function showStationSetupTool() {
         showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
+    }
+    function showLidarSetupTool() {
+        showTool(qsTr("LiDAR Setup"), "LidarSetupView.qml", "/res/QGCLogoWhite")
     }
 
     function showAboutTool() {
@@ -561,6 +576,22 @@ ApplicationWindow {
                         onClicked: {
                             toolSelectDialog.close()
                             mainWindow.showStationSetupTool()
+                        }
+                    }
+
+                    SubMenuButton {
+                        id:                 lidarSetupButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("LiDAR Setup")
+                        imageResource:      "/custom/img/png/YSLidar.png"
+                        imageColor:         "transparent"
+                        visible:            QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
+                        onClicked: {
+                            if (!mainWindow.preventViewSwitch()) {
+                                toolSelectDialog.close()
+                                mainWindow.showLidarSetupTool()
+                            }
                         }
                     }
 

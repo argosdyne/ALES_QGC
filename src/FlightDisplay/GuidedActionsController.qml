@@ -113,6 +113,36 @@ Item {
     readonly property int actionChangeSpeed:                25
     readonly property int actionGripper:                    26
     readonly property int actionSetHome:                    27
+    // Deliberately not exposed in the Action menu or joystick assignments.
+    readonly property int actionTetherPowerOff:             28
+    readonly property int actionTetherLand:                 29
+    readonly property int actionTetherRTL:                  30
+    property var tetherStation: QGroundControl.corePlugin.elistairStationManager
+    readonly property var tetherBattery: _activeVehicle && _activeVehicle.batteries.count > 0 ? _activeVehicle.batteries.get(0) : null
+
+    function tetherPowerOffMessage() {
+        var fresh = _activeVehicle && !_activeVehicle.vehicleLinkManager.communicationLost
+        var percent = fresh && tetherBattery ? Number(tetherBattery.percentRemaining.rawValue) : NaN
+        var seconds = fresh && tetherBattery ? Number(tetherBattery.timeRemaining.rawValue) : NaN
+        var level = isFinite(percent) && percent >= 0 && percent <= 100 ? Math.round(percent) + " %" : qsTr("battery level unavailable")
+        var remaining = isFinite(seconds) && seconds > 0 ? qsTr("about %1 min").arg(Math.max(1, Math.round(seconds / 60))) : qsTr("remaining time unavailable")
+        return qsTr("Tether power OFF: the drone will fly on its onboard battery only (%1, %2).").arg(level).arg(remaining)
+    }
+    Connections {
+        target: _root.tetherStation
+        onPowerOffConfirmationRequested: _root.confirmAction(_root.actionTetherPowerOff, _root.tetherStation.powerOffRequestId)
+        onNoPowerActionRequested: _root.confirmAction(rtl ? _root.actionTetherRTL : _root.actionTetherLand, incident)
+    }
+    function cancelTetherPowerOff() {
+        if (tetherStation) tetherStation.cancelPowerOff()
+    }
+    readonly property int actionContinueGoTo:               31
+
+    // The map owns the target and progress state. This reference only connects that state to
+    // the existing guided-action confirmation flow used by the left tool strip.
+    property var gotoProgressMap
+    readonly property bool gotoProgressActive:  gotoProgressMap && gotoProgressMap.gotoProgressActive
+    readonly property bool gotoPaused:          gotoProgressActive && gotoProgressMap.gotoProgressPaused
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost:         _activeVehicle && _activeVehicle.vehicleLinkManager.communicationLost
@@ -131,7 +161,9 @@ Item {
     property bool showRTL:              _guidedActionsEnabled && _vehicleArmed && _activeVehicle.guidedModeSupported && _vehicleFlying && !_vehicleInRTLMode
     property bool showTakeoff:          _guidedActionsEnabled && _activeVehicle.takeoffVehicleSupported && !_vehicleFlying && _canTakeoff
     property bool showLand:             _guidedActionsEnabled && _activeVehicle.guidedModeSupported && _vehicleArmed && !_activeVehicle.fixedWing && !_vehicleInLandMode
-    property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission
+
+    property bool _missionStartBlocked: _activeVehicle && _activeVehicle.missionResetMonitor ? _activeVehicle.missionResetMonitor.startFailureMode !== 0 : false
+    property bool showStartMission:     _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && !_vehicleFlying && _canStartMission && !_missionStartBlocked
     property bool showContinueMission:  _guidedActionsEnabled && _missionAvailable && _vehicleMissionConfirmed && !_missionSyncInProgress && !_missionActive && _vehicleArmed && _vehicleFlying && (_currentMissionIndex < _missionItemCount - 1) && !gotoProgressActive
     property bool showPause:            _guidedActionsEnabled && _vehicleArmed && _activeVehicle.pauseVehicleSupported && _vehicleFlying &&
                                         !(gotoProgressActive ? gotoPaused : _vehiclePaused) && !_fixedWingOnApproach

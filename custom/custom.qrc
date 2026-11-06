@@ -52,6 +52,7 @@
         <file alias="png/ys_enable.png">res/Images/ys_enable.png</file>
         <file alias="png/ys_disable.png">res/Images/ys_disable.png</file>
         <file alias="png/ys_error.png">res/Images/ys_error.png</file>
+        <file alias="png/YSLidar.png">res/Images/YSLidar.png</file>
         <file>res/Images/redWarning.svg</file>
     </qresource>
     <qresource prefix="/qmlimages">
@@ -80,6 +81,11 @@
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
+        <file alias="LidarSetupView.qml">src/YS/LidarSetupView.qml</file>
+        <file alias="LidarConnectionPage.qml">src/YS/LidarConnectionPage.qml</file>
+        <file alias="LidarSettingsPage.qml">src/YS/LidarSettingsPage.qml</file>
+        <file alias="LidarDevicePage.qml">src/YS/LidarDevicePage.qml</file>
+        <file alias="LiDARPanel.qml">src/YS/LiDARPanel.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>
@@ -139,5 +145,6 @@
     <qresource prefix="/toolbar">
         <file alias="GPSIndicator.qml">CustomGPSIndicator.qml</file>
         <file alias="ARLinkIndicator.qml">src/ARLink/ARLinkIndicator.qml</file>
+        <file alias="LiDARIndicator.qml">src/YS/LiDARIndicator.qml</file>
     </qresource>
 </RCC>

@@ -203,16 +203,11 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
-<<<<<<< HEAD
-<<<<<<< HEAD
         displayAllowed:         !mainWindow.tetherPanelVisible
-        gotoEditorVisible:      gotoTargetEditor.visible
-=======
-        gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible
->>>>>>> a66a94f61 (Create Goto information panel)
-=======
+
         gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible || mapControl.gotoConfirmationPending
->>>>>>> 1404c72f2 (Update Goto Panel UI)
+
+
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 

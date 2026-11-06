@@ -675,6 +675,21 @@ Item {
 //    }
 
     //-----------------------------------------------------------
+    // YellowScan LiDAR panel (YS-03, right side). Opened by toolstrip [LiDAR] / toolbar LiDAR indicator.
+    Loader {
+        id:                 lidarPanelLoader
+        anchors.right:      parent.right
+        anchors.top:        parent.top
+        anchors.margins:    _toolsMargin
+        z:                  QGroundControl.zOrderWidgets + 1
+        active:             mainWindow.lidarPanelVisible &&
+                            (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
+        source:             "qrc:/qml/LiDARPanel.qml"
+
+        onLoaded: item.maxHeight = Qt.binding(function() { return _flyViewOverlay.height - (_toolsMargin * 2) })
+    }
+
+    //-----------------------------------------------------------
     // Life Jacket panel (left-anchored, beside the toolStrip)
     Rectangle {
         id:                  lifeVestPanel

@@ -84,6 +84,15 @@ Row {
         }
     }
 
+    // YellowScan LiDAR (custom build only). Shown without a vehicle too, so it can report NO LINK.
+    Loader {
+        anchors.top:        parent.top
+        anchors.bottom:     parent.bottom
+        active:             !!QGroundControl.corePlugin.ysManager
+        source:             "qrc:/toolbar/LiDARIndicator.qml"
+        visible:            item ? item.showIndicator : false
+    }
+
     Repeater {
         model: _activeVehicle ? _activeVehicle.modeIndicators : []
         Loader {
