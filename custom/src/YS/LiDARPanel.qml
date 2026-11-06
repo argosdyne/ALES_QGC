@@ -51,6 +51,15 @@ Rectangle {
 
     Component.onCompleted:      _requestCameraParams()
     on_StatusValidChanged:      _requestCameraParams()
+
+    // New vehicle: YSManager has cleared the old camera parameters, read them again
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        onActiveVehicleChanged: {
+            _cameraParamsRequested = false
+            _requestCameraParams()
+        }
+    }
     on_CameraInstalledChanged:  _requestCameraParams()
 
     function _chipText() {

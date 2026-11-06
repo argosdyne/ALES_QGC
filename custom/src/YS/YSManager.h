@@ -233,7 +233,7 @@ private:
     float _lastCommandParam1{0.0f};
     float _lastCommandParam2{0.0f};
     qint64 _lastCommandMs{-1000};
-    bool _acqStartRequested{false};     // last Start/Stop sent (MAV_CMD_USER_1 p1), read by its COMMAND_ACK
+    QList<bool> _acqRequests;           // Start (true) / Stop (false) sent and not yet ACKed, oldest first
     qint64 _lastSentMs{-1000};
 
     bool _hasPendingControlCommand{false};
