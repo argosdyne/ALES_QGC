@@ -73,6 +73,12 @@ void YSManager::_setActiveVehicle(Vehicle* vehicle)
     // States tied to the previous vehicle no longer apply
     _poweredOff = false;
     _acqTransition = AcqNone;
+    _acqRequests.clear();
+    // Camera parameters belong to the previous vehicle's LiDAR: LiDARPanel reads them again
+    for (bool& received : _paramReceived) {
+        received = false;
+    }
+    emit parameterChanged();
     _refreshLidarState();
 }
 
@@ -190,9 +196,17 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
                                        .arg(_mavResultToString(ack.result));
             emit messageChanged();
 
+            // Birdcom handles Start/Stop one at a time, so ACKs come back in send order:
+            // match this ACK to the oldest Start/Stop not yet ACKed. -1 = unknown (let Get Status decide)
+            int ackedStart = -1;
             if (ack.command == MAV_CMD_USER_1) {
-                // Any reply ends STARTING / STOPPING
-                _acqTransition = AcqNone;
+                if (!_acqRequests.isEmpty()) {
+                    ackedStart = _acqRequests.takeFirst() ? 1 : 0;
+                }
+                // Last outstanding reply ends STARTING / STOPPING
+                if (_acqRequests.isEmpty()) {
+                    _acqTransition = AcqNone;
+                }
             }
             if (ack.command == MAV_CMD_USER_2) {
                 // Birdcom ACKs Power Off with FAILED even on success, so any result counts.
@@ -201,14 +215,11 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
             }
 
             if (ack.command == MAV_CMD_USER_1 && ack.result == MAV_RESULT_ACCEPTED) {
-                const bool startRequested = _acqStartRequested;
-                if (startRequested) {
-                    kGenInfoAcqRunning = true;
-                } else {
-                    kGenInfoAcqRunning = false;
+                if (ackedStart >= 0) {
+                    kGenInfoAcqRunning = (ackedStart == 1);
+                    // Fast-path hint: Get Status does not override it until the LiDAR has had time to update its logging bit
+                    _acqAckHintTimer.start();
                 }
-                // Fast-path hint: Get Status does not override it until the LiDAR has had time to update its logging bit
-                _acqAckHintTimer.start();
                 _lastStatusMs = _statusTimer.elapsed();
                 if (!_statusValid) {
                     _statusValid = true;
@@ -364,8 +375,8 @@ void YSManager::_sendCommand(MAV_CMD command, float param1, float param2)
         return;
     }
     if (command == MAV_CMD_USER_1) {
-        // Only Start/Stop sets this; Get/Set/Power Off sends must not change how the Start/Stop ACK is read
-        _acqStartRequested = param1 > 0.5f;
+        // Only Start/Stop is queued; Get/Set/Power Off sends must not change how the Start/Stop ACK is read
+        _acqRequests.append(param1 > 0.5f);
     }
     _lastReceivedMessage.clear();
     mavlink_message_t msg{};
@@ -585,7 +596,9 @@ void YSManager::testConnection(void)
     emit testChanged();
 
     _testTimer.start();
-    requestStatus();
+    // Not requestStatus(): it resets _pendingParamIndex and would break a parameter Get/Set still in flight
+    _enqueueStatusRequest("YS_STA_00");
+    _enqueueStatusRequest("YS_STA_01");
 }
 
 void YSManager::_testTimeout(void)
@@ -769,6 +782,7 @@ void YSManager::_statusPollTick(void)
 {
     if (_acqTransition != AcqNone && _acqTransitionTimer.elapsed() > kAcqCommandAckTimeoutMs) {
         _acqTransition = AcqNone;
+        _acqRequests.clear();   // ACK lost: later ACKs would be mismatched, Get Status decides instead
     }
 
     // 1 Hz Get Status. Only start a new cycle when the previous one is finished so the queue cannot
