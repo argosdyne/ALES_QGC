@@ -478,6 +478,10 @@ QQmlApplicationEngine* CustomPlugin::createQmlApplicationEngine(QObject* parent)
     _qmlInterface = new CustomQmlInterface(qgcApp(), qgcApp()->toolbox());
     CustomQmlInterface::setInstance(_qmlInterface);
     qmlEngine->rootContext()->setContextProperty("CustomQmlInterface", _qmlInterface);
+    // The NavSight Fly View panel uses this compatibility alias for its
+    // status-severity enum and manager bindings. It is the same instance
+    // exposed by QGroundControl.corePlugin.navSightManager.
+    qmlEngine->rootContext()->setContextProperty("NavSightManager", _navSightManager);
 
     if(_aviatorInterface) {
         qDebug() << "Connect with handleAviatorButton";

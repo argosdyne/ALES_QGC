@@ -114,28 +114,33 @@ Item {
                     { label: "VIS", sourceSet: 2, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 2), color: "#2fad16" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
                     { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "N/A"), active: true, color: "#111111" },
-                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? _navSightManager.navSightStatusText : (_navSightManager ? _navSightManager.lastUpdateLocationResult : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.navSightStatusText.length > 0 || _navSightManager.lastUpdateLocationResult.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityNormal ? "#2fad16" : (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityWarning ? "#B57B20" : "#B04A4A")) : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : "#B57B20")) }
+                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? _navSightManager.navSightStatusText : (_navSightManager ? _navSightManager.lastUpdateLocationResult : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.navSightStatusText.length > 0 || _navSightManager.lastUpdateLocationResult.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityNormal ? "#2fad16" : (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityWarning ? "#B57B20" : "#B04A4A")) : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : "#B57B20")) },
+                    { label: !_navSightManager ? "" : (_navSightManager.outputSignalCommandInProgress ? "CHANGING NAVSIGHT OUTPUT..." : (_navSightManager.navSightOutputState === NavSightManager.NavSightOutputStateDisabled ? "RESUME NAVSIGHT OUTPUT" : "STOP NAVSIGHT OUTPUT")), outputButton: true, active: false, visible: (_navSightManager && _navSightManager.navSightOnline), color: "#5F6A7D" }
                 ]
 
                 Rectangle {
                     id:                         navSightStatusBadge
                     readonly property bool sourceButton: index < 3
+                    readonly property bool outputButton: modelData.outputButton === true
                     readonly property bool sourceSelectionEnabled: sourceButton && _navSightManager
                                                                    && !_navSightManager.ekfSourceChangeInProgress
                                                                    && (modelData.sourceSet === 1
                                                                        || (modelData.sourceSet === 2 && _navSightManager.visualNavigationSourceConfigured)
                                                                        || (modelData.sourceSet === 3 && _navSightManager.deadReckoningSourceConfigured))
+                    readonly property bool outputSelectionEnabled: outputButton && _navSightManager
+                                                                   && !_navSightManager.outputSignalCommandInProgress
+                    readonly property bool buttonEnabled: sourceSelectionEnabled || outputSelectionEnabled
 
                     width:                      navSightStatusBadgeLabel.implicitWidth + ScreenTools.defaultFontPixelWidth
                     height:                     navSightStatusBadgeLabel.implicitHeight + ScreenTools.defaultFontPixelHeight * 0.25
                     radius:                     ScreenTools.defaultFontPixelWidth * 0.25
                     color:                      modelData.active
                                                 ? modelData.color
-                                                : (sourceSelectionEnabled
+                                                : (buttonEnabled
                                                    ? "#111111"
                                                    : Qt.rgba(0.35, 0.38, 0.43, 0.85))
                     visible:                    modelData.visible === undefined || modelData.visible
-                    opacity:                    sourceButton && !sourceSelectionEnabled && !modelData.active ? 0.48 : 1.0
+                    opacity:                    (sourceButton && !sourceSelectionEnabled && !modelData.active) || (outputButton && !outputSelectionEnabled) ? 0.48 : 1.0
                     border.color:               Qt.rgba(1.0, 1.0, 1.0, 0.20)
                     border.width:               1
 
@@ -155,10 +160,84 @@ Item {
                         anchors.rightMargin:     sourceButton ? -ScreenTools.defaultFontPixelWidth * 0.5 : 0
                         anchors.topMargin:       sourceButton ? -ScreenTools.defaultFontPixelHeight * 0.35 : 0
                         anchors.bottomMargin:    sourceButton ? -ScreenTools.defaultFontPixelHeight * 0.35 : 0
-                        enabled:                 navSightStatusBadge.sourceSelectionEnabled
+                        enabled:                 navSightStatusBadge.buttonEnabled
                         hoverEnabled:            enabled
                         cursorShape:             enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked:               _navSightManager.setEkfSourceSet(modelData.sourceSet)
+                        onClicked: {
+                            if (navSightStatusBadge.outputButton) {
+                                if (_navSightManager.navSightOutputState === NavSightManager.NavSightOutputStateDisabled) {
+                                    _navSightManager.setNavSightOutputEnabled(true)
+                                } else if (_activeVehicle && _activeVehicle.flying) {
+                                    navSightOutputConfirmPopup.open()
+                                } else {
+                                    _navSightManager.setNavSightOutputEnabled(false)
+                                }
+                            } else {
+                                _navSightManager.setEkfSourceSet(modelData.sourceSet)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Stopping output while airborne affects the FC's ExternalNav input, so
+    // require a deliberate confirmation. Resuming, and either action on the
+    // ground, remain one-click operations.
+    Popup {
+        id:                         navSightOutputConfirmPopup
+        modal:                     true
+        focus:                     true
+        x:                         Math.round((_flyViewOverlay.width - width) / 2)
+        y:                         ScreenTools.defaultFontPixelHeight * 2
+        width:                     Math.min(_flyViewOverlay.width * 0.55, ScreenTools.defaultFontPixelWidth * 52)
+        padding:                   ScreenTools.defaultFontPixelWidth
+        z:                         100
+
+        background: Rectangle {
+            radius:                 ScreenTools.defaultFontPixelHeight * 0.5
+            color:                  qgcPal.window
+            border.color:           qgcPal.alertBorder
+            border.width:           1
+        }
+
+        contentItem: ColumnLayout {
+            spacing:                ScreenTools.defaultFontPixelHeight * 0.5
+
+            QGCLabel {
+                Layout.fillWidth:   true
+                text:               qsTr("Stop NavSight Output")
+                font.bold:          true
+                font.pointSize:     ScreenTools.mediumFontPointSize
+            }
+
+            QGCLabel {
+                Layout.fillWidth:   true
+                wrapMode:           Text.WordWrap
+                text:               qsTr("Stop NavSight visual-navigation output to the Flight Controller?")
+            }
+
+            QGCLabel {
+                Layout.fillWidth:   true
+                wrapMode:           Text.WordWrap
+                color:              qgcPal.warningText
+                text:               qsTr("Warning: the vehicle is flying. NavSight will keep navigating, but it will stop sending visual-navigation output to the Flight Controller.")
+            }
+
+            RowLayout {
+                Layout.alignment:   Qt.AlignRight
+
+                QGCButton {
+                    text:           qsTr("Cancel")
+                    onClicked:      navSightOutputConfirmPopup.close()
+                }
+
+                QGCButton {
+                    text:           qsTr("Stop Output")
+                    onClicked: {
+                        _navSightManager.setNavSightOutputEnabled(false)
+                        navSightOutputConfirmPopup.close()
                     }
                 }
             }

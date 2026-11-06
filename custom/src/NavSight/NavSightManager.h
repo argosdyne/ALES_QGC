@@ -3,10 +3,14 @@
 #include "QGCMAVLink.h"
 #include "QGCToolbox.h"
 
+#include <QByteArray>
+#include <QBitArray>
 #include <QElapsedTimer>
-#include <QTimer>
+#include <QMap>
 #include <QMetaObject>
+#include <QPointer>
 #include <QStringList>
+#include <QTimer>
 #include <QVector>
 
 class Vehicle;
@@ -29,6 +33,13 @@ public:
     };
     Q_ENUM(NavSightStatusSeverity)
 
+    enum NavSightOutputState {
+        NavSightOutputStateUnknown = 0,
+        NavSightOutputStateEnabled,
+        NavSightOutputStateDisabled,
+    };
+    Q_ENUM(NavSightOutputState)
+
     explicit NavSightManager(QGCApplication* app, QGCToolbox* toolbox);
 
     Q_PROPERTY(bool     navSightOnline                 READ navSightOnline                 NOTIFY navSightStatusChanged)
@@ -46,6 +57,9 @@ public:
     Q_PROPERTY(bool     initialLocationAccepted      READ initialLocationAccepted      NOTIFY navSightStatusChanged)
     Q_PROPERTY(bool     updateLocationInProgress       READ updateLocationInProgress       NOTIFY updateLocationStateChanged)
     Q_PROPERTY(QString  lastUpdateLocationResult       READ lastUpdateLocationResult       NOTIFY updateLocationStateChanged)
+    Q_PROPERTY(int      navSightOutputState            READ navSightOutputState            NOTIFY outputSignalCommandStateChanged)
+    Q_PROPERTY(bool     outputSignalCommandInProgress  READ outputSignalCommandInProgress  NOTIFY outputSignalCommandStateChanged)
+    Q_PROPERTY(QString  lastOutputSignalResult         READ lastOutputSignalResult         NOTIFY outputSignalCommandStateChanged)
     Q_PROPERTY(int      activeEkfSourceSet             READ activeEkfSourceSet             NOTIFY ekfSourceStateChanged)
     Q_PROPERTY(bool     ekfSourceChangeInProgress      READ ekfSourceChangeInProgress      NOTIFY ekfSourceStateChanged)
     // NavSight defaults to sysid 10, but the unit may be configured to use
@@ -71,6 +85,9 @@ public:
     bool initialLocationAccepted() const { return _initialLocationAccepted; }
     bool updateLocationInProgress() const { return _updateLocationInProgress; }
     QString lastUpdateLocationResult() const { return _lastUpdateLocationResult; }
+    int navSightOutputState() const { return _navSightOutputState; }
+    bool outputSignalCommandInProgress() const { return _outputSignalCommandInProgress; }
+    QString lastOutputSignalResult() const { return _lastOutputSignalResult; }
     int activeEkfSourceSet() const { return _activeEkfSourceSet; }
     bool ekfSourceChangeInProgress() const { return _ekfSourceChangeInProgress; }
     int targetSystemId() const { return _navSightSystemId; }
@@ -80,6 +97,9 @@ public:
 
     Q_INVOKABLE bool sendUpdateLocation(double latitude, double longitude);
     Q_INVOKABLE bool setEkfSourceSet(int sourceSet);
+    /// Enables/disables NavSight visual-navigation output to the Flight Controller.
+    /// This is a level command: true sends param1=0 (resume), false sends param1=1 (stop).
+    Q_INVOKABLE bool setNavSightOutputEnabled(bool enabled);
 
     void setToolbox(QGCToolbox* toolbox) override;
 
@@ -87,6 +107,7 @@ signals:
     void navSightStatusChanged();
     void updateLocationStateChanged();
     void ekfSourceStateChanged();
+    void outputSignalCommandStateChanged();
     void updateLocationSent(double latitude, double longitude);
     void externalNavConfigurationChanged();
     void navSightAddressChanged();
@@ -98,6 +119,9 @@ private slots:
     void _checkHeartbeatTimeout();
     void _updateLocationAckTimeout();
     void _ekfSourceAckTimeout();
+    void _outputSignalCommandTimeout();
+    void _schemaFtpTimeout();
+    void _schemaRetryTimeout();
 
 private:
     void _setOffline();
@@ -106,13 +130,49 @@ private:
     bool _queuePendingUpdateLocation();
     void _finishUpdateLocation(const QString& result);
     void _finishEkfSourceSet();
+    bool _queuePendingOutputSignalCommand();
+    void _finishOutputSignalCommand(const QString& result);
+    void _setOutputSignalResult(const QString& result);
+    void _updateOutputStateFromData64();
     void _handleNavSightMessage(const mavlink_message_t& message);
+    void _handleSchemaFtpMessage(const mavlink_message_t& message);
+    void _resetStatusSchemaState();
+    void _startStatusSchemaDownload();
+    void _sendSchemaFtpRequest(uint8_t opcode, uint8_t session, uint32_t offset, uint8_t size, const QByteArray& data = QByteArray());
+    void _handleSchemaFtpFailure(const QString& error);
+    void _finishStatusSchemaDownload();
+    bool _parseStatusSchema(const QByteArray& json, QString* error);
+    void _applyStatusText(const QString& text);
+    void _applyData64Status(const mavlink_data64_t& data64);
+    void _checkStatusTimeout();
     void _refreshExternalNavPositionSourceConfigured();
     void _disconnectExternalNavFactSignals();
     static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
-    static QStringList _decodeStatusBitmask(quint32 statusBitmask);
-    static NavSightStatusSeverity _statusSeverity(quint32 statusBitmask);
+    static quint32 _lowStatusWord(const QByteArray& statusBytes);
+    static NavSightStatusSeverity _statusSeverity(const QStringList& statusNames);
+
+    enum class NavSightStatusSource {
+        None,
+        StatusText,
+        Data64,
+    };
+
+    enum class SchemaFtpState {
+        Idle,
+        Opening,
+        Bursting,
+        Reading,
+        Terminating,
+    };
+
+    struct NavSightStatusSchema {
+        bool valid{false};
+        uint8_t data64Type{0};
+        int payloadLength{16};
+        int bitCount{128};
+        QMap<int, QString> flags;
+    };
 
     bool    _navSightOnline{false};
     double  _navSightConfidence{0.0};
@@ -121,6 +181,9 @@ private:
     QStringList _navSightActiveStatuses;
     QString _navSightDiagnosticText;
     quint32 _navSightStatusBitmask{0};
+    bool    _hasData64Status{false};
+    NavSightStatusSource _navSightStatusSource{NavSightStatusSource::None};
+    bool    _statusTextFallbackActive{true};
     NavSightStatusSeverity _navSightStatusSeverity{NavSightStatusSeverityNone};
     bool    _navSightDeadReckoningActive{false};
     bool    _navSightGpsActive{false};
@@ -132,6 +195,12 @@ private:
     double  _pendingLatitude{0.0};
     double  _pendingLongitude{0.0};
     int     _updateLocationRetryCount{0};
+    NavSightOutputState _navSightOutputState{NavSightOutputStateUnknown};
+    bool    _outputSignalCommandInProgress{false};
+    bool    _outputSignalAckReceived{false};
+    bool    _requestedOutputEnabled{true};
+    int     _outputSignalRetryCount{0};
+    QString _lastOutputSignalResult;
     int     _activeEkfSourceSet{0};
     int     _pendingEkfSourceSet{0};
     bool    _ekfSourceChangeInProgress{false};
@@ -141,19 +210,49 @@ private:
     QVector<QMetaObject::Connection> _externalNavFactConnections;
     Vehicle* _vehicle{nullptr};
     int _navSightSystemId{0}; // Unknown until a component-192 HEARTBEAT is received.
+    QPointer<LinkInterface> _navSightLink;
     QElapsedTimer _lastHeartbeatTimer;
+    QElapsedTimer _lastStatusTimer;
+    quint64 _lastVisionPositionEstimateUsec{0};
     QTimer _heartbeatWatchdog;
     QTimer _updateLocationAckTimer;
     QTimer _ekfSourceAckTimer;
+    QTimer _outputSignalCommandTimer;
+    QTimer _schemaFtpTimer;
+    QTimer _schemaRetryTimer;
+
+    NavSightStatusSchema _statusSchema;
+    SchemaFtpState _schemaFtpState{SchemaFtpState::Idle};
+    QByteArray _schemaDownloadData;
+    QBitArray _schemaDownloadReceived;
+    uint32_t _schemaReadOffset{0};
+    uint8_t _schemaFtpSession{0};
+    uint16_t _schemaExpectedSequence{0};
+    int _schemaRetryCount{0};
+    bool _schemaRequested{false};
+    bool _schemaRejected{false};
 
     static constexpr int kHeartbeatTimeoutMs = 3000;
-    static constexpr quint32 kWaitingForStartMissionMask = 0x00001000u;
-    // NavSight v1.2.X status flags 0 through 30 are carried in HEARTBEAT.custom_mode.
-    static constexpr quint32 kReadyForTakeoffMask = 0x10000000u;
-    static constexpr quint32 kKnownStatusBitsMask = 0x7fffffffu;
+    static constexpr int kStatusStaleTimeoutMs = 10000;
+    static constexpr int kSchemaFtpTimeoutMs = 5000;
+    static constexpr int kSchemaRetryDelayMs = 2000;
+    static constexpr int kMaxSchemaRetries = 3;
+    static constexpr int kMaxSchemaSizeBytes = 64 * 1024;
+    static constexpr uint8_t kFtpPayloadSize = 239;
+    static constexpr uint8_t kFtpOpenFileRO = 4;
+    static constexpr uint8_t kFtpReadFile = 5;
+    static constexpr uint8_t kFtpTerminateSession = 1;
+    static constexpr uint8_t kFtpBurstReadFile = 15;
+    static constexpr uint8_t kFtpAck = 128;
+    static constexpr uint8_t kFtpNak = 129;
+    static constexpr uint8_t kFtpErrUnknownCommand = 7;
     static constexpr int kUpdateLocationAckTimeoutMs = 3000;
     static constexpr int kMaxUpdateLocationRetries = 2;
     static constexpr int kEkfSourceAckTimeoutMs = 3000;
+    static constexpr int kOutputSignalCommandTimeoutMs = 3000;
+    static constexpr int kMaxOutputSignalRetries = 2;
+    static constexpr uint16_t kUpdateLocationCommand = 44444;
+    static constexpr uint16_t kToggleOutputSignalCommand = 44445;
     // NavSight ICD/sequence uses 5; standard MAVLink uses 1 for this result.
     static constexpr uint8_t kNavSightTemporaryRejectedResult = 5;
 };

@@ -5,13 +5,18 @@
 #include "Vehicle.h"
 #include "ParameterManager.h"
 #include "Fact.h"
+#include "LinkInterface.h"
 #include "VehicleLinkManager.h"
 
 #include <QQmlEngine>
 #include <QtQml>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QLoggingCategory>
 
 #include <cmath>
+#include <cstring>
 
 Q_LOGGING_CATEGORY(NavSightManagerLog, "qgc.custom.navsight")
 
@@ -32,6 +37,21 @@ NavSightManager::NavSightManager(QGCApplication* app, QGCToolbox* toolbox)
     _ekfSourceAckTimer.setSingleShot(true);
     connect(&_ekfSourceAckTimer, &QTimer::timeout,
             this, &NavSightManager::_ekfSourceAckTimeout);
+
+    _outputSignalCommandTimer.setInterval(kOutputSignalCommandTimeoutMs);
+    _outputSignalCommandTimer.setSingleShot(true);
+    connect(&_outputSignalCommandTimer, &QTimer::timeout,
+            this, &NavSightManager::_outputSignalCommandTimeout);
+
+    _schemaFtpTimer.setInterval(kSchemaFtpTimeoutMs);
+    _schemaFtpTimer.setSingleShot(true);
+    connect(&_schemaFtpTimer, &QTimer::timeout,
+            this, &NavSightManager::_schemaFtpTimeout);
+
+    _schemaRetryTimer.setInterval(kSchemaRetryDelayMs);
+    _schemaRetryTimer.setSingleShot(true);
+    connect(&_schemaRetryTimer, &QTimer::timeout,
+            this, &NavSightManager::_schemaRetryTimeout);
 }
 
 void NavSightManager::setToolbox(QGCToolbox* toolbox)
@@ -61,6 +81,9 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
     if (_ekfSourceChangeInProgress) {
         qCWarning(NavSightManagerLog) << "EKF source selection cancelled: active vehicle changed";
         _finishEkfSourceSet();
+    }
+    if (_outputSignalCommandInProgress) {
+        _finishOutputSignalCommand(QStringLiteral("NavSight output request cancelled: active vehicle changed"));
     }
 
     if (_vehicle) {
@@ -147,81 +170,31 @@ QString NavSightManager::_mavlinkString(const char* text, int textLength)
     return QString::fromLatin1(bytes).trimmed();
 }
 
-QStringList NavSightManager::_decodeStatusBitmask(quint32 statusBitmask)
+quint32 NavSightManager::_lowStatusWord(const QByteArray& statusBytes)
 {
-    // NavSight v1.2.X statusBitVec bits 0 through 30. Bit 26 was renamed
-    // from BAD_MAVLINK_BAUDRATE in v1.2.4p to BAD_PARAMS.
-    static const char* const statusNames[] = {
-        "NAVIGATION_OK",
-        "NO_CAMERA_LINK",
-        "NO_CAMERA_IMAGE",
-        "NO_CAMERA_CALIB",
-        "CALCULATED_LOCATION_IS_OUT_OF_ORTHO",
-        "NO_TELEMTRY_MESSAGE",
-        "MAVLINK_RATES_LOW",
-        "WARN_LOW_ALT",
-        "WARNING_CAMERA_HIGH_TEMPRATURE",
-        "WARNING_HARD_DISK_80_PERCENTS_FULL",
-        "WARNING_INTERNAL_JETSON_ERROR",
-        "NO_RELEVANT_ORTHOPHOTO_FOUND",
-        "WAITING_FOR_START_MISSION",
-        "REPLACE_CAMERA_USB_PORT",
-        "NO_ORIGIN",
-        "WARN_NO_START",
-        "FILTERING_ACTIVE",
-        "USER_DISABLED_OUTPUT",
-        "GIMBAL_ANGLE_ERROR",
-        "SLAM_FPS_SLOW",
-        "NO_ANCHORS_FOR_TOO_LONG",
-        "RECORDER_IMAGES_NOT_SAVED_TO_DISK",
-        "VIEWER_TOO_SLOW",
-        "CAMERA_FPS_JITTERS",
-        "CAMERA_FPS_SLOW",
-        "SLAM_FPS_JITTERS",
-        "BAD_PARAMS",
-        "REBOOT_FC",
-        "READY_FOR_TAKEOFF",
-        "BAD_MAVLINK_BAUDRATE",
-        "LANDING_IN_PROCESS",
-    };
-
-    QStringList activeStatuses;
-    for (quint32 bit = 0; bit < sizeof(statusNames) / sizeof(statusNames[0]); ++bit) {
-        if ((statusBitmask & (quint32{1} << bit)) != 0) {
-            activeStatuses.append(QString::fromLatin1(statusNames[bit]));
-        }
+    quint32 statusWord = 0;
+    const int byteCount = qMin(statusBytes.size(), static_cast<int>(sizeof(statusWord)));
+    for (int byte = 0; byte < byteCount; ++byte) {
+        statusWord |= quint32(static_cast<uint8_t>(statusBytes.at(byte))) << (byte * 8);
     }
-
-    const quint32 unknownBits = statusBitmask & ~kKnownStatusBitsMask;
-    if (unknownBits != 0) {
-        activeStatuses.append(QStringLiteral("UNKNOWN_STATUS_BITS_0x%1")
-                                  .arg(unknownBits, 8, 16, QLatin1Char('0')).toUpper());
-    }
-
-    return activeStatuses;
+    return statusWord;
 }
 
-NavSightManager::NavSightStatusSeverity NavSightManager::_statusSeverity(quint32 statusBitmask)
+NavSightManager::NavSightStatusSeverity NavSightManager::_statusSeverity(const QStringList& statusNames)
 {
-    // Keep status interpretation with the MAVLink protocol code. QML receives
-    // only the presentation-neutral severity, never protocol bit positions.
-    constexpr quint32 criticalMask = 0x2c000000u; // BAD_PARAMS, REBOOT_FC, BAD_MAVLINK_BAUDRATE
-    constexpr quint32 landingMask = 0x40000000u;  // LANDING_IN_PROCESS
-
-    if ((statusBitmask & criticalMask) != 0) {
+    // The downloadable schema has names but no severity metadata. Keep this
+    // deliberately conservative and independent of any fixed bit position.
+    if (statusNames.contains(QStringLiteral("BAD_PARAMS")) ||
+        statusNames.contains(QStringLiteral("REBOOT_FC")) ||
+        statusNames.contains(QStringLiteral("BAD_MAVLINK_BAUDRATE"))) {
         return NavSightStatusSeverityCritical;
     }
-    if ((statusBitmask & landingMask) != 0) {
-        return NavSightStatusSeverityWarning;
-    }
-    const quint32 normalMask = kReadyForTakeoffMask | quint32{1};
-    if ((statusBitmask & normalMask) != 0 && (statusBitmask & ~normalMask) == 0) {
+    if (statusNames.size() == 1 &&
+        (statusNames.first() == QStringLiteral("NAVIGATION_OK") ||
+         statusNames.first() == QStringLiteral("READY_FOR_TAKEOFF"))) {
         return NavSightStatusSeverityNormal;
     }
-
-    // Preserve the previous panel behavior: any non-navigation status is red
-    // until NavSight provides a complete severity definition for every flag.
-    return statusBitmask == 0 ? NavSightStatusSeverityNone : NavSightStatusSeverityCritical;
+    return statusNames.isEmpty() ? NavSightStatusSeverityNone : NavSightStatusSeverityWarning;
 }
 
 void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
@@ -281,6 +254,11 @@ void NavSightManager::_rawMavlinkMessageReceived(LinkInterface* link, mavlink_me
         return;
     }
 
+    _navSightLink = link;
+    if (message.msgid == MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL) {
+        _handleSchemaFtpMessage(message);
+        return;
+    }
     _handleNavSightMessage(message);
 }
 
@@ -290,28 +268,50 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
         mavlink_command_ack_t ack{};
         mavlink_msg_command_ack_decode(&message, &ack);
 
-        if (!_updateLocationInProgress || ack.command != 44444) {
-            qCDebug(NavSightManagerLog) << "Ignoring NavSight COMMAND_ACK command="
-                                        << ack.command << "result=" << ack.result;
+        if (_updateLocationInProgress && ack.command == kUpdateLocationCommand) {
+            if (ack.result == MAV_RESULT_ACCEPTED) {
+                qCInfo(NavSightManagerLog).nospace()
+                    << "NavSight COMMAND_ACK accepted: source=" << message.sysid << '/' << message.compid
+                    << " command=" << ack.command << " result=" << ack.result;
+                _finishUpdateLocation(QStringLiteral("NavSight location updated"));
+            } else if (ack.result == MAV_RESULT_TEMPORARILY_REJECTED ||
+                       ack.result == kNavSightTemporaryRejectedResult) {
+                const QString status = _navSightStatusText.isEmpty()
+                    ? QStringLiteral("No current NavSight status") : _navSightStatusText;
+                qCWarning(NavSightManagerLog) << "NavSight UPDATE_LOCATION temporarily rejected"
+                                               << "result=" << ack.result << "status=" << status;
+                _finishUpdateLocation(QStringLiteral("NavSight location rejected. %1. Retry after resolving NavSight status.").arg(status));
+            } else {
+                qCWarning(NavSightManagerLog) << "NavSight UPDATE_LOCATION ACK result not handled; waiting for timeout"
+                                               << ack.result;
+            }
             return;
         }
 
-        if (ack.result == MAV_RESULT_ACCEPTED) {
+        if (_outputSignalCommandInProgress && ack.command == kToggleOutputSignalCommand) {
             qCInfo(NavSightManagerLog).nospace()
-                << "NavSight COMMAND_ACK accepted: source=" << message.sysid << '/' << message.compid
+                << "NavSight TOGGLE_OUTPUT_SIGNAL ACK: source=" << message.sysid << '/' << message.compid
                 << " command=" << ack.command << " result=" << ack.result;
-            _finishUpdateLocation(QStringLiteral("NavSight location updated"));
-        } else if (ack.result == MAV_RESULT_TEMPORARILY_REJECTED ||
-                   ack.result == kNavSightTemporaryRejectedResult) {
-            const QString status = _navSightStatusText.isEmpty()
-                ? QStringLiteral("No current NavSight status") : _navSightStatusText;
-            qCWarning(NavSightManagerLog) << "NavSight UPDATE_LOCATION temporarily rejected"
-                                           << "result=" << ack.result << "status=" << status;
-            _finishUpdateLocation(QStringLiteral("NavSight location rejected. %1. Retry after resolving NavSight status.").arg(status));
-        } else {
-            qCWarning(NavSightManagerLog) << "NavSight UPDATE_LOCATION ACK result not handled; waiting for timeout"
-                                           << ack.result;
+            if (ack.result != MAV_RESULT_ACCEPTED) {
+                _finishOutputSignalCommand(QStringLiteral("NavSight output command rejected (result %1)").arg(ack.result));
+                return;
+            }
+
+            _outputSignalAckReceived = true;
+            _setOutputSignalResult(QStringLiteral("NavSight accepted output command; waiting for DATA64 confirmation"));
+            if ((_requestedOutputEnabled && _navSightOutputState == NavSightOutputStateEnabled) ||
+                (!_requestedOutputEnabled && _navSightOutputState == NavSightOutputStateDisabled)) {
+                _finishOutputSignalCommand(_requestedOutputEnabled
+                    ? QStringLiteral("NavSight output resumed")
+                    : QStringLiteral("NavSight output stopped"));
+            } else {
+                _outputSignalCommandTimer.start();
+            }
+            return;
         }
+
+        qCDebug(NavSightManagerLog) << "Ignoring NavSight COMMAND_ACK command="
+                                    << ack.command << "result=" << ack.result;
         return;
     }
 
@@ -320,15 +320,6 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
         mavlink_msg_heartbeat_decode(&message, &heartbeat);
 
         _navSightOnline = true;
-        _navSightStatusBitmask = heartbeat.custom_mode;
-        _navSightActiveStatuses = _decodeStatusBitmask(_navSightStatusBitmask);
-        _navSightStatusText = _navSightActiveStatuses.join(QLatin1Char('-'));
-        _navSightStatusSeverity = _statusSeverity(_navSightStatusBitmask);
-        // v1.2.X explicitly reports READY_FOR_TAKEOFF after a successful
-        // ground UPDATE_LOCATION. Older v1.2.4p units do not have that bit,
-        // so retain the documented WAITING_FOR_START_MISSION fallback.
-        _initialLocationAccepted = (heartbeat.custom_mode & kReadyForTakeoffMask) != 0 ||
-                                   (heartbeat.custom_mode & kWaitingForStartMissionMask) == 0;
         _lastHeartbeatTimer.restart();
         emit navSightStatusChanged();
         qCInfo(NavSightManagerLog).nospace()
@@ -337,8 +328,23 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
             << " base_mode=0x" << Qt::hex << heartbeat.base_mode
             << " custom_mode=0x" << heartbeat.custom_mode << Qt::dec
             << " system_status=" << heartbeat.system_status
+            << " statusSource=" << static_cast<int>(_navSightStatusSource)
             << " status=" << _navSightStatusText
             << " initialLocationAccepted=" << _initialLocationAccepted;
+        return;
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_DATA64) {
+        mavlink_data64_t data64{};
+        mavlink_msg_data64_decode(&message, &data64);
+
+        if (!_statusSchema.valid) {
+            if (!_schemaRequested && !_schemaRejected) {
+                _startStatusSchemaDownload();
+            }
+            return;
+        }
+        _applyData64Status(data64);
         return;
     }
 
@@ -363,15 +369,35 @@ void NavSightManager::_handleNavSightMessage(const mavlink_message_t& message)
     if (message.msgid == MAVLINK_MSG_ID_STATUSTEXT) {
         mavlink_statustext_t statusText{};
         mavlink_msg_statustext_decode(&message, &statusText);
-        // HEARTBEAT.custom_mode is the authoritative public status API. STATUSTEXT
-        // can also carry private diagnostics, so keep it separate from UI status.
         _navSightDiagnosticText = _mavlinkString(statusText.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
-        emit navSightStatusChanged();
+        if (_statusTextFallbackActive) {
+            _applyStatusText(_navSightDiagnosticText);
+        } else {
+            emit navSightStatusChanged();
+        }
         qCInfo(NavSightManagerLog) << "NavSight diagnostic STATUSTEXT:" << _navSightDiagnosticText;
+        return;
+    }
+
+    if (message.msgid == MAVLINK_MSG_ID_VISION_POSITION_ESTIMATE) {
+        mavlink_vision_position_estimate_t estimate{};
+        mavlink_msg_vision_position_estimate_decode(&message, &estimate);
+        if (_lastVisionPositionEstimateUsec != 0 && estimate.usec < _lastVisionPositionEstimateUsec &&
+            _navSightStatusSource == NavSightStatusSource::Data64) {
+            qCInfo(NavSightManagerLog) << "NavSight restart detected from VISION_POSITION_ESTIMATE; accepting STATUSTEXT until next DATA64";
+            _navSightStatusSource = NavSightStatusSource::StatusText;
+            _hasData64Status = false;
+            _statusTextFallbackActive = true;
+            if (!_navSightDiagnosticText.isEmpty()) {
+                _applyStatusText(_navSightDiagnosticText);
+            }
+        }
+        _lastVisionPositionEstimateUsec = estimate.usec;
     }
 }
 void NavSightManager::_checkHeartbeatTimeout()
 {
+    _checkStatusTimeout();
     if (_navSightOnline && _lastHeartbeatTimer.isValid() &&
         _lastHeartbeatTimer.elapsed() > kHeartbeatTimeoutMs) {
         qCWarning(NavSightManagerLog) << "NavSight HEARTBEAT timeout after" << kHeartbeatTimeoutMs << "ms";
@@ -381,7 +407,12 @@ void NavSightManager::_checkHeartbeatTimeout()
 
 void NavSightManager::_setOffline()
 {
+    if (_outputSignalCommandInProgress) {
+        _finishOutputSignalCommand(QStringLiteral("NavSight output request cancelled: NavSight went offline"));
+    }
     _lastHeartbeatTimer.invalidate();
+    _resetStatusSchemaState();
+    _navSightLink = nullptr;
     _navSightOnline = false;
     _navSightConfidence = 0.0;
     _navSightConfidenceValid = false;
@@ -389,6 +420,7 @@ void NavSightManager::_setOffline()
     _navSightActiveStatuses.clear();
     _navSightDiagnosticText.clear();
     _navSightStatusBitmask = 0;
+    _navSightOutputState = NavSightOutputStateUnknown;
     _navSightStatusSeverity = NavSightStatusSeverityNone;
     _navSightDeadReckoningActive = false;
     _navSightGpsActive = false;
@@ -396,6 +428,7 @@ void NavSightManager::_setOffline()
     _initialLocationAccepted = false;
     _setNavSightSystemId(0);
     emit navSightStatusChanged();
+    emit outputSignalCommandStateChanged();
 }
 
 void NavSightManager::_setNavSightSystemId(int systemId)
@@ -405,6 +438,17 @@ void NavSightManager::_setNavSightSystemId(int systemId)
     }
 
     const int previousSystemId = _navSightSystemId;
+    if (previousSystemId != 0 && previousSystemId != systemId) {
+        qCInfo(NavSightManagerLog) << "NavSight sysid changed; resetting DATA64 schema state"
+                                   << previousSystemId << "->" << systemId;
+        _resetStatusSchemaState();
+        if (_updateLocationInProgress) {
+            _finishUpdateLocation(QStringLiteral("NavSight location request cancelled: NavSight address changed"));
+        }
+        if (_outputSignalCommandInProgress) {
+            _finishOutputSignalCommand(QStringLiteral("NavSight output request cancelled: NavSight address changed"));
+        }
+    }
     _navSightSystemId = systemId;
     emit navSightAddressChanged();
 
@@ -414,6 +458,408 @@ void NavSightManager::_setNavSightSystemId(int systemId)
         qCInfo(NavSightManagerLog).nospace()
             << "NavSight address discovered: " << systemId << '/' << kDefaultComponentId
             << " (previous sysid=" << previousSystemId << ")";
+    }
+}
+
+void NavSightManager::_resetStatusSchemaState()
+{
+    _schemaFtpTimer.stop();
+    _schemaRetryTimer.stop();
+    _statusSchema = NavSightStatusSchema{};
+    _schemaFtpState = SchemaFtpState::Idle;
+    _schemaDownloadData.clear();
+    _schemaDownloadReceived.clear();
+    _schemaReadOffset = 0;
+    _schemaFtpSession = 0;
+    _schemaExpectedSequence = 0;
+    _schemaRetryCount = 0;
+    _schemaRequested = false;
+    _schemaRejected = false;
+    _hasData64Status = false;
+    _navSightStatusSource = NavSightStatusSource::None;
+    _statusTextFallbackActive = true;
+    _lastStatusTimer.invalidate();
+    _lastVisionPositionEstimateUsec = 0;
+    _navSightOutputState = NavSightOutputStateUnknown;
+}
+
+void NavSightManager::_startStatusSchemaDownload()
+{
+    if (!_vehicle || !_navSightLink || _navSightSystemId == 0 ||
+        !_vehicle->vehicleLinkManager()->containsLink(_navSightLink)) {
+        qCWarning(NavSightManagerLog) << "NavSight schema download deferred: no active NavSight link/address";
+        return;
+    }
+
+    _schemaRequested = true;
+    _schemaFtpState = SchemaFtpState::Opening;
+    _schemaDownloadData.clear();
+    _schemaDownloadReceived.clear();
+    _schemaReadOffset = 0;
+    _schemaFtpSession = 0;
+    _schemaExpectedSequence = 0;
+    qCInfo(NavSightManagerLog).nospace()
+        << "NavSight schema download started: target=" << _navSightSystemId << '/' << kDefaultComponentId
+        << " path=/navsight_status.json";
+    _sendSchemaFtpRequest(kFtpOpenFileRO, 0, 0, 0, QByteArrayLiteral("/navsight_status.json"));
+}
+
+void NavSightManager::_sendSchemaFtpRequest(uint8_t opcode, uint8_t session, uint32_t offset, uint8_t size, const QByteArray& data)
+{
+    if (!_vehicle || !_navSightLink || !_vehicle->vehicleLinkManager()->containsLink(_navSightLink)) {
+        _handleSchemaFtpFailure(QStringLiteral("NavSight link unavailable"));
+        return;
+    }
+
+    MavlinkFTP::Request request{};
+    request.hdr.seqNumber = static_cast<uint16_t>(_schemaExpectedSequence + 1);
+    _schemaExpectedSequence = static_cast<uint16_t>(_schemaExpectedSequence + 2);
+    request.hdr.session = session;
+    request.hdr.opcode = opcode;
+    request.hdr.size = size == 0 && !data.isEmpty()
+        ? static_cast<uint8_t>(qMin(data.size(), static_cast<int>(sizeof(request.data)))) : size;
+    request.hdr.offset = offset;
+    if (!data.isEmpty()) {
+        std::memcpy(request.data, data.constData(), request.hdr.size);
+    }
+
+    MAVLinkProtocol* protocol = _toolbox->mavlinkProtocol();
+    mavlink_message_t message{};
+    mavlink_msg_file_transfer_protocol_pack_chan(protocol->getSystemId(), protocol->getComponentId(),
+                                                 _navSightLink->mavlinkChannel(), &message,
+                                                 0, static_cast<uint8_t>(_navSightSystemId),
+                                                 static_cast<uint8_t>(kDefaultComponentId),
+                                                 reinterpret_cast<uint8_t*>(&request));
+    _vehicle->sendMessageOnLinkThreadSafe(_navSightLink, message);
+    _schemaFtpTimer.start();
+
+    qCInfo(NavSightManagerLog).nospace()
+        << "NavSight schema FTP tx: opcode=" << static_cast<int>(opcode)
+        << " seq=" << request.hdr.seqNumber << " session=" << static_cast<int>(session)
+        << " offset=" << offset << " size=" << static_cast<int>(request.hdr.size)
+        << " target=" << _navSightSystemId << '/' << kDefaultComponentId;
+}
+
+void NavSightManager::_handleSchemaFtpFailure(const QString& error)
+{
+    _schemaFtpTimer.stop();
+    _schemaFtpState = SchemaFtpState::Idle;
+    qCWarning(NavSightManagerLog) << "NavSight schema FTP failed:" << error
+                                  << "retry=" << _schemaRetryCount << '/' << kMaxSchemaRetries;
+    if (_schemaRetryCount < kMaxSchemaRetries) {
+        ++_schemaRetryCount;
+        _schemaRetryTimer.start();
+    } else {
+        // The next DATA64 starts a fresh round, as specified by NavSight.
+        _schemaRequested = false;
+    }
+}
+
+void NavSightManager::_schemaFtpTimeout()
+{
+    _handleSchemaFtpFailure(QStringLiteral("request timed out"));
+}
+
+void NavSightManager::_schemaRetryTimeout()
+{
+    if (_schemaRequested && !_statusSchema.valid && !_schemaRejected) {
+        _startStatusSchemaDownload();
+    }
+}
+
+void NavSightManager::_handleSchemaFtpMessage(const mavlink_message_t& message)
+{
+    if (_schemaFtpState == SchemaFtpState::Idle) {
+        return;
+    }
+
+    mavlink_file_transfer_protocol_t ftp{};
+    mavlink_msg_file_transfer_protocol_decode(&message, &ftp);
+    if (ftp.target_system != _toolbox->mavlinkProtocol()->getSystemId()) {
+        return;
+    }
+
+    const auto* request = reinterpret_cast<const MavlinkFTP::Request*>(ftp.payload);
+    const uint8_t opcode = request->hdr.opcode;
+    const uint8_t requestedOpcode = request->hdr.req_opcode;
+    const bool isNak = opcode == kFtpNak;
+    const bool isAck = opcode == kFtpAck;
+    if (!isAck && !isNak) {
+        return;
+    }
+
+    const auto sendTerminate = [this]() {
+        _schemaFtpState = SchemaFtpState::Terminating;
+        _sendSchemaFtpRequest(kFtpTerminateSession, _schemaFtpSession, 0, 0);
+    };
+    const auto firstMissingOffset = [this]() -> int {
+        for (int index = 0; index < _schemaDownloadReceived.size(); ++index) {
+            if (!_schemaDownloadReceived.testBit(index)) {
+                return index;
+            }
+        }
+        return -1;
+    };
+
+    if (_schemaFtpState == SchemaFtpState::Bursting && requestedOpcode == kFtpBurstReadFile) {
+        if (request->hdr.session != _schemaFtpSession) {
+            return;
+        }
+        if (isNak) {
+            if (request->hdr.size > 0 && request->data[0] == kFtpErrUnknownCommand) {
+                qCInfo(NavSightManagerLog) << "NavSight schema FTP: BurstRead unsupported; falling back to ReadFile";
+                _schemaFtpState = SchemaFtpState::Reading;
+                _schemaReadOffset = 0;
+                _sendSchemaFtpRequest(kFtpReadFile, _schemaFtpSession, _schemaReadOffset, kFtpPayloadSize);
+            } else {
+                _handleSchemaFtpFailure(QStringLiteral("BurstReadFile NAK"));
+            }
+            return;
+        }
+
+        const uint32_t offset = request->hdr.offset;
+        const uint32_t size = request->hdr.size;
+        if (offset <= static_cast<uint32_t>(_schemaDownloadData.size()) &&
+            size <= static_cast<uint32_t>(_schemaDownloadData.size()) - offset) {
+            std::memcpy(_schemaDownloadData.data() + offset, request->data, size);
+            for (uint32_t index = 0; index < size; ++index) {
+                _schemaDownloadReceived.setBit(static_cast<int>(offset + index));
+            }
+        } else {
+            _handleSchemaFtpFailure(QStringLiteral("BurstReadFile offset/size outside schema file"));
+            return;
+        }
+        _schemaFtpTimer.start();
+        if (request->hdr.burstComplete != 0) {
+            const int missingOffset = firstMissingOffset();
+            if (missingOffset < 0) {
+                sendTerminate();
+            } else {
+                _sendSchemaFtpRequest(kFtpBurstReadFile, _schemaFtpSession,
+                                      static_cast<uint32_t>(missingOffset), kFtpPayloadSize);
+            }
+        }
+        return;
+    }
+
+    if (request->hdr.seqNumber != _schemaExpectedSequence) {
+        qCDebug(NavSightManagerLog) << "Ignoring NavSight schema FTP reply with unexpected sequence"
+                                    << request->hdr.seqNumber << "expected" << _schemaExpectedSequence;
+        return;
+    }
+
+    if (_schemaFtpState == SchemaFtpState::Opening && requestedOpcode == kFtpOpenFileRO) {
+        if (isNak || request->hdr.size < sizeof(uint32_t)) {
+            _handleSchemaFtpFailure(QStringLiteral("OpenFileRO failed"));
+            return;
+        }
+        uint32_t fileSize = 0;
+        std::memcpy(&fileSize, request->data, sizeof(fileSize));
+        if (fileSize > kMaxSchemaSizeBytes) {
+            _handleSchemaFtpFailure(QStringLiteral("schema file exceeds size limit"));
+            return;
+        }
+        _schemaFtpSession = request->hdr.session;
+        _schemaDownloadData = QByteArray(static_cast<int>(fileSize), '\0');
+        _schemaDownloadReceived = QBitArray(static_cast<int>(fileSize), false);
+        _schemaFtpState = SchemaFtpState::Bursting;
+        _sendSchemaFtpRequest(kFtpBurstReadFile, _schemaFtpSession, 0, kFtpPayloadSize);
+        return;
+    }
+
+    if (_schemaFtpState == SchemaFtpState::Reading && requestedOpcode == kFtpReadFile) {
+        if (isNak) {
+            _handleSchemaFtpFailure(QStringLiteral("ReadFile NAK"));
+            return;
+        }
+        const uint32_t offset = request->hdr.offset;
+        const uint32_t size = request->hdr.size;
+        if (request->hdr.session != _schemaFtpSession || offset != _schemaReadOffset ||
+            offset > static_cast<uint32_t>(_schemaDownloadData.size()) ||
+            size > static_cast<uint32_t>(_schemaDownloadData.size()) - offset) {
+            _handleSchemaFtpFailure(QStringLiteral("ReadFile offset/session mismatch"));
+            return;
+        }
+        std::memcpy(_schemaDownloadData.data() + offset, request->data, size);
+        for (uint32_t index = 0; index < size; ++index) {
+            _schemaDownloadReceived.setBit(static_cast<int>(offset + index));
+        }
+        _schemaReadOffset += size;
+        if (size < kFtpPayloadSize || _schemaReadOffset >= static_cast<uint32_t>(_schemaDownloadData.size())) {
+            sendTerminate();
+        } else {
+            _sendSchemaFtpRequest(kFtpReadFile, _schemaFtpSession, _schemaReadOffset, kFtpPayloadSize);
+        }
+        return;
+    }
+
+    if (_schemaFtpState == SchemaFtpState::Terminating && requestedOpcode == kFtpTerminateSession) {
+        if (isNak) {
+            _handleSchemaFtpFailure(QStringLiteral("TerminateSession NAK"));
+            return;
+        }
+        QString error;
+        if (!_parseStatusSchema(_schemaDownloadData, &error)) {
+            qCWarning(NavSightManagerLog) << "NavSight status schema rejected:" << error;
+            _schemaRejected = true;
+            _schemaRequested = false;
+            _finishStatusSchemaDownload();
+            return;
+        }
+        _schemaRequested = false;
+        _schemaRetryCount = 0;
+        _finishStatusSchemaDownload();
+        qCInfo(NavSightManagerLog).nospace()
+            << "NavSight status schema loaded: type=" << _statusSchema.data64Type
+            << " payloadLen=" << _statusSchema.payloadLength
+            << " bitCount=" << _statusSchema.bitCount
+            << " flags=" << _statusSchema.flags.size();
+        return;
+    }
+}
+
+void NavSightManager::_finishStatusSchemaDownload()
+{
+    _schemaFtpTimer.stop();
+    _schemaFtpState = SchemaFtpState::Idle;
+    _schemaDownloadData.clear();
+    _schemaDownloadReceived.clear();
+    _schemaReadOffset = 0;
+    _schemaFtpSession = 0;
+}
+
+bool NavSightManager::_parseStatusSchema(const QByteArray& json, QString* error)
+{
+    QJsonParseError parseError{};
+    const QJsonDocument document = QJsonDocument::fromJson(json, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
+        *error = QStringLiteral("invalid JSON");
+        return false;
+    }
+
+    const QJsonObject root = document.object();
+    if (!root.value(QStringLiteral("message")).isString() ||
+        root.value(QStringLiteral("message")).toString() != QStringLiteral("DATA64")) {
+        *error = QStringLiteral("message must be DATA64");
+        return false;
+    }
+    const QJsonValue byteOrder = root.value(QStringLiteral("byte_order"));
+    if (!byteOrder.isUndefined() && (!byteOrder.isString() || byteOrder.toString() != QStringLiteral("little endian"))) {
+        *error = QStringLiteral("byte_order must be little endian");
+        return false;
+    }
+
+    const auto integerOr = [&root](const QString& key, int fallback) {
+        const QJsonValue value = root.value(key);
+        if (!value.isDouble()) {
+            return fallback;
+        }
+        const double number = value.toDouble();
+        return std::isfinite(number) && std::floor(number) == number ? static_cast<int>(number) : fallback;
+    };
+
+    NavSightStatusSchema schema;
+    schema.data64Type = static_cast<uint8_t>(integerOr(QStringLiteral("data64_type"), 0));
+    schema.payloadLength = qBound(1, integerOr(QStringLiteral("payload_len"), 16), 64);
+    schema.bitCount = qBound(1, integerOr(QStringLiteral("bit_count"), schema.payloadLength * 8), schema.payloadLength * 8);
+
+    const QJsonValue flagsValue = root.value(QStringLiteral("flags"));
+    if (!flagsValue.isObject()) {
+        *error = QStringLiteral("flags must be an object");
+        return false;
+    }
+    const QJsonObject flags = flagsValue.toObject();
+    for (auto iterator = flags.constBegin(); iterator != flags.constEnd(); ++iterator) {
+        const QString key = iterator.key();
+        bool decimalKey = !key.isEmpty();
+        for (const QChar character : key) {
+            if (!character.isDigit()) {
+                decimalKey = false;
+                break;
+            }
+        }
+        bool indexOk = false;
+        const int bit = key.toInt(&indexOk, 10);
+        if (!decimalKey || !indexOk || bit < 0 || bit >= schema.bitCount || !iterator.value().isString()) {
+            continue;
+        }
+        schema.flags.insert(bit, iterator.value().toString());
+    }
+    if (schema.flags.isEmpty()) {
+        *error = QStringLiteral("flags has no usable entries");
+        return false;
+    }
+
+    schema.valid = true;
+    _statusSchema = schema;
+    return true;
+}
+
+void NavSightManager::_applyStatusText(const QString& text)
+{
+    _navSightStatusSource = NavSightStatusSource::StatusText;
+    _hasData64Status = false;
+    _navSightStatusText = text;
+    _navSightActiveStatuses.clear();
+    _navSightStatusBitmask = 0;
+    _navSightStatusSeverity = text.isEmpty() ? NavSightStatusSeverityNone : NavSightStatusSeverityWarning;
+    _lastStatusTimer.restart();
+    emit navSightStatusChanged();
+}
+
+void NavSightManager::_applyData64Status(const mavlink_data64_t& data64)
+{
+    if (data64.type != _statusSchema.data64Type) {
+        qCDebug(NavSightManagerLog) << "Ignoring NavSight DATA64 with schema-mismatched type=" << data64.type;
+        return;
+    }
+
+    // MAVLink 2 may trim trailing zeroes. mavlink_msg_data64_decode zero-fills
+    // the 64-byte array, so the schema payload length is always safe to read.
+    const QByteArray bytes(reinterpret_cast<const char*>(data64.data), _statusSchema.payloadLength);
+    QStringList activeStatuses;
+    for (int bit = 0; bit < _statusSchema.bitCount; ++bit) {
+        if ((static_cast<uint8_t>(bytes.at(bit / 8)) & (uint8_t{1} << (bit % 8))) == 0) {
+            continue;
+        }
+        const QString name = _statusSchema.flags.value(bit, QStringLiteral("BIT_%1").arg(bit));
+        if (name != QStringLiteral("RESERVED")) {
+            activeStatuses.append(name);
+        }
+    }
+
+    _hasData64Status = true;
+    _navSightStatusSource = NavSightStatusSource::Data64;
+    _statusTextFallbackActive = false;
+    _navSightStatusBitmask = _lowStatusWord(bytes);
+    _navSightActiveStatuses = activeStatuses;
+    _navSightStatusText = activeStatuses.join(QLatin1Char('|'));
+    _navSightStatusSeverity = _statusSeverity(activeStatuses);
+    _initialLocationAccepted = activeStatuses.contains(QStringLiteral("READY_FOR_TAKEOFF")) ||
+                               !activeStatuses.contains(QStringLiteral("WAITING_FOR_START"));
+    _lastStatusTimer.restart();
+    _updateOutputStateFromData64();
+    emit navSightStatusChanged();
+    qCInfo(NavSightManagerLog).nospace()
+        << "NavSight DATA64 status accepted: type=" << data64.type
+        << " payloadLen=" << _statusSchema.payloadLength
+        << " status=" << _navSightStatusText;
+}
+
+void NavSightManager::_checkStatusTimeout()
+{
+    if (_navSightStatusSource != NavSightStatusSource::None && _lastStatusTimer.isValid() &&
+        _lastStatusTimer.elapsed() > kStatusStaleTimeoutMs) {
+        qCWarning(NavSightManagerLog) << "NavSight status stale after" << kStatusStaleTimeoutMs << "ms";
+        _navSightStatusSource = NavSightStatusSource::None;
+        _hasData64Status = false;
+        _navSightStatusText = QStringLiteral("NO STATUS");
+        _navSightActiveStatuses.clear();
+        _navSightStatusBitmask = 0;
+        _navSightStatusSeverity = NavSightStatusSeverityNone;
+        _navSightOutputState = NavSightOutputStateUnknown;
+        emit navSightStatusChanged();
+        emit outputSignalCommandStateChanged();
     }
 }
 void NavSightManager::_setUpdateLocationResult(const QString& result)
@@ -439,7 +885,7 @@ bool NavSightManager::_queuePendingUpdateLocation()
     mavlink_command_long_t command{};
     command.target_system = static_cast<uint8_t>(_navSightSystemId);
     command.target_component = static_cast<uint8_t>(kDefaultComponentId);
-    command.command = 44444; // NavSight UPDATE_LOCATION
+    command.command = kUpdateLocationCommand;
     command.confirmation = 0;
     command.param1 = static_cast<float>(_pendingLatitude);
     command.param2 = static_cast<float>(_pendingLongitude);
@@ -497,6 +943,114 @@ void NavSightManager::_updateLocationAckTimeout()
 
     qCWarning(NavSightManagerLog) << "NavSight UPDATE_LOCATION timed out after retries";
     _finishUpdateLocation(QStringLiteral("No NavSight response"));
+}
+
+void NavSightManager::_setOutputSignalResult(const QString& result)
+{
+    _lastOutputSignalResult = result;
+    qCInfo(NavSightManagerLog) << "TOGGLE_OUTPUT_SIGNAL state:" << result
+                               << "pending=" << _outputSignalCommandInProgress
+                               << "retry=" << _outputSignalRetryCount;
+    emit outputSignalCommandStateChanged();
+}
+
+bool NavSightManager::_queuePendingOutputSignalCommand()
+{
+    if (!_vehicle || _navSightSystemId == 0) {
+        return false;
+    }
+
+    SharedLinkInterfacePtr link = _vehicle->vehicleLinkManager()->primaryLink().lock();
+    if (!link) {
+        return false;
+    }
+
+    mavlink_command_long_t command{};
+    command.target_system = static_cast<uint8_t>(_navSightSystemId);
+    command.target_component = static_cast<uint8_t>(kDefaultComponentId);
+    command.command = kToggleOutputSignalCommand;
+    command.confirmation = 0;
+    // This is a level command, not a literal toggle: 0 resumes output and
+    // any non-zero value stops visual-navigation output to the FC.
+    command.param1 = _requestedOutputEnabled ? 0.0f : 1.0f;
+
+    mavlink_message_t message{};
+    MAVLinkProtocol* mavlinkProtocol = _toolbox->mavlinkProtocol();
+    mavlink_msg_command_long_encode(mavlinkProtocol->getSystemId(), mavlinkProtocol->getComponentId(),
+                                    &message, &command);
+    _vehicle->sendMessageOnLinkThreadSafe(link.get(), message);
+    _outputSignalCommandTimer.start();
+
+    qCInfo(NavSightManagerLog).nospace()
+        << "NavSight TOGGLE_OUTPUT_SIGNAL queued: msgid=" << message.msgid
+        << " source=" << mavlinkProtocol->getSystemId() << '/' << mavlinkProtocol->getComponentId()
+        << " target=" << static_cast<int>(command.target_system) << '/' << static_cast<int>(command.target_component)
+        << " command=" << command.command << " confirmation=" << static_cast<int>(command.confirmation)
+        << " param1=" << command.param1
+        << " action=" << (_requestedOutputEnabled ? "resume" : "stop")
+        << " primaryLink=\"" << _vehicle->vehicleLinkManager()->primaryLinkName() << '\"'
+        << " retry=" << _outputSignalRetryCount;
+    return true;
+}
+
+void NavSightManager::_finishOutputSignalCommand(const QString& result)
+{
+    _outputSignalCommandTimer.stop();
+    _outputSignalCommandInProgress = false;
+    _outputSignalAckReceived = false;
+    _outputSignalRetryCount = 0;
+    _setOutputSignalResult(result);
+}
+
+void NavSightManager::_updateOutputStateFromData64()
+{
+    const bool hasOutputFlag = _statusSchema.flags.values().contains(QStringLiteral("USER_DISABLED_OUTPUT"));
+    const NavSightOutputState newState = !hasOutputFlag
+        ? NavSightOutputStateUnknown
+        : (_navSightActiveStatuses.contains(QStringLiteral("USER_DISABLED_OUTPUT"))
+           ? NavSightOutputStateDisabled : NavSightOutputStateEnabled);
+    if (_navSightOutputState != newState) {
+        _navSightOutputState = newState;
+        emit outputSignalCommandStateChanged();
+        qCInfo(NavSightManagerLog) << "NavSight output state from DATA64:"
+                                   << (newState == NavSightOutputStateEnabled ? "enabled"
+                                       : (newState == NavSightOutputStateDisabled ? "disabled" : "unknown"));
+    }
+
+    if (_outputSignalCommandInProgress && _outputSignalAckReceived &&
+        ((_requestedOutputEnabled && newState == NavSightOutputStateEnabled) ||
+         (!_requestedOutputEnabled && newState == NavSightOutputStateDisabled))) {
+        _finishOutputSignalCommand(_requestedOutputEnabled
+            ? QStringLiteral("NavSight output resumed")
+            : QStringLiteral("NavSight output stopped"));
+    }
+}
+
+void NavSightManager::_outputSignalCommandTimeout()
+{
+    if (!_outputSignalCommandInProgress) {
+        return;
+    }
+
+    if (_outputSignalAckReceived) {
+        qCWarning(NavSightManagerLog) << "NavSight output command ACK received but DATA64 confirmation timed out";
+        _finishOutputSignalCommand(QStringLiteral("NavSight accepted output command, but DATA64 confirmation timed out"));
+        return;
+    }
+
+    if (_outputSignalRetryCount < kMaxOutputSignalRetries) {
+        ++_outputSignalRetryCount;
+        _setOutputSignalResult(QStringLiteral("No NavSight output ACK; retrying (%1/%2)")
+                                   .arg(_outputSignalRetryCount).arg(kMaxOutputSignalRetries));
+        if (_queuePendingOutputSignalCommand()) {
+            return;
+        }
+        _finishOutputSignalCommand(QStringLiteral("No primary telemetry link for NavSight output retry"));
+        return;
+    }
+
+    qCWarning(NavSightManagerLog) << "NavSight output command timed out after retries";
+    _finishOutputSignalCommand(QStringLiteral("No NavSight response for output command"));
 }
 
 QString NavSightManager::_ekfSourceSetName(int sourceSet)
@@ -639,5 +1193,54 @@ bool NavSightManager::sendUpdateLocation(double latitude, double longitude)
     }
 
     _setUpdateLocationResult(QStringLiteral("UPDATE_LOCATION sent; awaiting ACK"));
+    return true;
+}
+
+bool NavSightManager::setNavSightOutputEnabled(bool enabled)
+{
+    if (_outputSignalCommandInProgress) {
+        _setOutputSignalResult(QStringLiteral("NavSight output command already pending"));
+        return false;
+    }
+    if (!_vehicle) {
+        qCWarning(NavSightManagerLog) << "NavSight output command rejected locally: no active vehicle";
+        _setOutputSignalResult(QStringLiteral("No active vehicle"));
+        return false;
+    }
+    if (!_navSightOnline || _navSightSystemId == 0) {
+        qCWarning(NavSightManagerLog) << "NavSight output command rejected locally: address has not been discovered";
+        _setOutputSignalResult(QStringLiteral("Waiting for NavSight heartbeat"));
+        return false;
+    }
+    if (!_vehicle->vehicleLinkManager()->primaryLink().lock()) {
+        qCWarning(NavSightManagerLog) << "NavSight output command rejected locally: no primary telemetry link";
+        _setOutputSignalResult(QStringLiteral("No primary telemetry link"));
+        return false;
+    }
+
+    if ((enabled && _navSightOutputState == NavSightOutputStateEnabled) ||
+        (!enabled && _navSightOutputState == NavSightOutputStateDisabled)) {
+        _setOutputSignalResult(enabled
+            ? QStringLiteral("NavSight output is already enabled")
+            : QStringLiteral("NavSight output is already stopped"));
+        return true;
+    }
+
+    _requestedOutputEnabled = enabled;
+    _outputSignalAckReceived = false;
+    _outputSignalRetryCount = 0;
+    _outputSignalCommandInProgress = true;
+    _setOutputSignalResult(enabled
+        ? QStringLiteral("Resuming NavSight output...")
+        : QStringLiteral("Stopping NavSight output..."));
+
+    if (!_queuePendingOutputSignalCommand()) {
+        _finishOutputSignalCommand(QStringLiteral("No primary telemetry link"));
+        return false;
+    }
+
+    _setOutputSignalResult(enabled
+        ? QStringLiteral("Resume output command sent; awaiting ACK")
+        : QStringLiteral("Stop output command sent; awaiting ACK"));
     return true;
 }
