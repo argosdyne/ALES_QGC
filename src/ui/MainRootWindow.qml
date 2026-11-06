@@ -93,7 +93,8 @@ ApplicationWindow {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {
             var s = QGroundControl.corePlugin.settings
-            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue) {
+            // Auto-open must not close an open Tether panel (only a user open does)
+            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue && !mainWindow.tetherPanelVisible) {
                 mainWindow.lidarPanelVisible = true
             }
         }
