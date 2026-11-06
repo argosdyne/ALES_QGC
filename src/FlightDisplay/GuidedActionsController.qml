@@ -132,6 +132,10 @@ Item {
         target: _root.tetherStation
         onPowerOffConfirmationRequested: _root.confirmAction(_root.actionTetherPowerOff, _root.tetherStation.powerOffRequestId)
         onNoPowerActionRequested: _root.confirmAction(rtl ? _root.actionTetherRTL : _root.actionTetherLand, incident)
+        onControlChanged: {
+            if (!_root.tetherStation.powerOffPending && _root._deferredAutomaticActions.length)
+                Qt.callLater(_root.showDeferredAutomaticConfirmation)
+        }
     }
     function cancelTetherPowerOff() {
         if (tetherStation) tetherStation.cancelPowerOff()
@@ -290,7 +294,7 @@ Item {
         }
         _outputState()
         if (showStartMission) {
-            confirmAction(actionStartMission)
+            requestAutomaticConfirmation(actionStartMission)
         }
     }
     onShowContinueMissionChanged: {
@@ -299,12 +303,12 @@ Item {
         }
         _outputState()
         if (showContinueMission) {
-            confirmAction(actionContinueMission)
+            requestAutomaticConfirmation(actionContinueMission)
         }
     }
     onShowContinueGoToChanged: {
         if (showContinueGoTo) {
-            confirmAction(actionContinueGoTo, {
+            requestAutomaticConfirmation(actionContinueGoTo, {
                 "map":        gotoProgressMap,
                 "vehicle":    _activeVehicle,
                 "coordinate": gotoProgressMap.gotoProgressCoordinate
@@ -343,7 +347,7 @@ Item {
     }
     onShowLandAbortChanged: {
         if (showLandAbort) {
-            confirmAction(actionLandAbort)
+            requestAutomaticConfirmation(actionLandAbort)
         }
     }
 
@@ -367,7 +371,7 @@ Item {
 
     Connections {
         target:                     missionController
-        function onResumeMissionUploadFail() { confirmAction(actionResumeMissionUploadFail) }
+        function onResumeMissionUploadFail() { requestAutomaticConfirmation(actionResumeMissionUploadFail) }
     }
 
     Connections {
@@ -404,6 +408,59 @@ Item {
         confirmAction(actionVtolTransitionToMRFlight)
     }
 
+    // Automatic prompts must not replace an operator's pending tether safety decision.
+    // Keep them until the current confirmation closes, then recheck their validity.
+    property var _deferredAutomaticActions: []
+
+    Connections {
+        target: _root.confirmDialog
+        function onVisibleChanged() {
+            if (!_root.confirmDialog.visible) Qt.callLater(_root.showDeferredAutomaticConfirmation)
+        }
+    }
+
+    function tetherConfirmationActive() {
+        return confirmDialog && confirmDialog.visible &&
+                (confirmDialog.action === actionTetherPowerOff ||
+                 confirmDialog.action === actionTetherLand || confirmDialog.action === actionTetherRTL)
+    }
+
+    function requestAutomaticConfirmation(actionCode, actionData, mapIndicator) {
+        if (tetherConfirmationActive() || (tetherStation && tetherStation.powerOffPending)) {
+            var pending = _deferredAutomaticActions.slice()
+            for (var i = pending.length - 1; i >= 0; --i) {
+                if (pending[i].action === actionCode) pending.splice(i, 1)
+            }
+            var request = { "action": actionCode, "data": actionData, "indicator": mapIndicator, "vehicle": _activeVehicle }
+            if (actionCode === actionLandAbort) pending.unshift(request)
+            else pending.push(request)
+            _deferredAutomaticActions = pending
+            return
+        }
+        confirmAction(actionCode, actionData, mapIndicator)
+    }
+
+    function showDeferredAutomaticConfirmation() {
+        if (!confirmDialog || confirmDialog.visible || (tetherStation && tetherStation.powerOffPending)) return
+        var pending = _deferredAutomaticActions.slice()
+        while (pending.length) {
+            var request = pending.shift()
+            _deferredAutomaticActions = pending
+            if (!request.vehicle || request.vehicle !== _activeVehicle) continue
+            if (request.action === actionStartMission && !showStartMission) continue
+            if (request.action === actionContinueMission && !showContinueMission) continue
+            if (request.action === actionLandAbort && !showLandAbort) continue
+            if (request.action === actionContinueGoTo) {
+                if (!showContinueGoTo || !gotoProgressMap || !request.data || request.data.map !== gotoProgressMap) continue
+                var current = gotoProgressMap.gotoProgressCoordinate
+                var original = request.data.coordinate
+                if (!current || !original || current.latitude !== original.latitude || current.longitude !== original.longitude) continue
+            }
+            confirmAction(request.action, request.data, request.indicator)
+            if (confirmDialog.visible) return
+        }
+    }
+
     function closeAll() {
         if (confirmDialog && confirmDialog.action === actionTetherPowerOff && confirmDialog.visible) cancelTetherPowerOff()
         confirmDialog.visible =     false
@@ -423,8 +480,6 @@ Item {
 
     // Called when an action is about to be executed in order to confirm
     function confirmAction(actionCode, actionData, mapIndicator) {
-        // Do not let an automatic mission prompt replace a pending safety confirmation.
-        if (tetherStation && tetherStation.powerOffPending && (actionCode === actionStartMission || actionCode === actionContinueMission)) return
         var showImmediate = true
         closeAll()
         confirmDialog.action = actionCode
@@ -442,7 +497,7 @@ Item {
             if (!tetherStation || !tetherStation.noPowerPrompt || actionData !== tetherStation.noPowerIncident || !_activeVehicle) return
             confirmDialog.title = actionCode === actionTetherLand ? qsTr("Tether: Land now") : qsTr("Tether: RTL to Station")
             confirmDialog.message = actionCode === actionTetherLand ? qsTr("Land at the current position. Tether power is lost; the drone is on its onboard battery.") : qsTr("Return to Home and land. Verify that Home is the station location.")
-            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.noPowerPrompt || _root.tetherStation.noPowerVehicleNeedsConfirmation || actionData !== _root.tetherStation.noPowerIncident || _root.tetherStation.linkLost || _root.tetherStation.noReply || !_root._activeVehicle || _root._activeVehicle.vehicleLinkManager.communicationLost })
             break
         case actionTetherPowerOff:
             if (!tetherStation || !tetherStation.powerOffPending || actionData !== tetherStation.powerOffRequestId) return

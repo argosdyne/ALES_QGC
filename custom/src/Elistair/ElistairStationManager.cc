@@ -31,7 +31,7 @@ constexpr int kLinkLostTimeoutMsecs = 5000;
 TetherFactGroup* activeTetherFactGroup()
 {
     auto* vehicle = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
-    return vehicle ? vehicle->tetherFactGroup() : nullptr;
+    return vehicle ? qobject_cast<TetherFactGroup*>(vehicle->factGroups().value(QStringLiteral("tether"))) : nullptr;
 }
 }
 
@@ -44,7 +44,8 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     // Bind vehicle signals only after startup has returned to the event loop.
     QTimer::singleShot(0, this, [this]() {
         connect(qgcApp()->toolbox()->multiVehicleManager(), &MultiVehicleManager::activeVehicleChanged, this, [this](Vehicle*) {
-            cancelPowerOff(); dismissNoPower(); _noPowerVehicle.clear(); _bindFlightVehicle();
+            _handleActiveVehicleChanged();
+            _bindFlightVehicle();
         });
         _bindFlightVehicle();
     });
@@ -550,20 +551,20 @@ void ElistairStationManager::_readDatagrams()
         if (!sender.isEqual(QHostAddress(_stationAddress), QHostAddress::TolerantConversion) || senderPort != _stationPort) continue;
         if (_decodeConfiguration(frame)) continue;
         if (_decodeMonitoring(frame)) {
-            // Output power is the available indication; it is not authority to
-            // send ON/OFF. The command-known latch remains false until a click.
-            if (!_powerCommandKnown) { _powerOn = _powerWatts > 0; emit controlChanged(); }
             if (_noPower && _decodedIntegrity < 0) {
                 _alarmSummary = tr("CRITICAL: No power in flight (last reported)");
                 emit telemetryChanged();
             }
             _lastMonitoringMsecs = QDateTime::currentMSecsSinceEpoch();
+            const bool firstMonitoring = !_hasMonitoring;
+            const bool wasConfirmed = _negotiation.confirmed;
             _hasMonitoring = true;
             _negotiation.monitoring(_negotiationClock.elapsed(), _safeForDetectionRead());
             _setActiveFrameVersion(_negotiation.active);
-            _lastMonitoringTime = QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss"));
+            const QString monitoringTime = QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss"));
+            const bool timeChanged = _lastMonitoringTime != monitoringTime;
+            _lastMonitoringTime = monitoringTime;
             const bool linkStateChanged = _noReply || _linkLost;
-            _hasMonitoring = true;
             _noReply = false;
             _linkLost = false;
             if (linkStateChanged) {
@@ -571,7 +572,9 @@ void ElistairStationManager::_readDatagrams()
                 _reconnectAttempt = 0;
                 emit connectedChanged();
             }
-            emit connectionStatusChanged();
+            if (firstMonitoring || timeChanged || linkStateChanged || wasConfirmed != _negotiation.confirmed)
+                emit connectionStatusChanged();
+            if (firstMonitoring) emit controlChanged(); // Setpoint availability becomes known on V1.
             _setConnected(_negotiation.confirmed);
             _updateNoPower(_decodedIntegrity);
             _publishTelemetry();
@@ -652,7 +655,10 @@ bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
     _voltage = _u16be(frame, 14);
     _current = _u16be(frame, 16) / 1000.0;
     _appliedTorquePercent = qBound(0, qRound(quint8(frame.at(18)) * 100.0 / 255.0), 100);
-    if (!_torqueRemote && !_torqueCommandKnown) { _torquePercent = _appliedTorquePercent; emit controlChanged(); }
+    if (!_torqueRemote && !_torqueCommandKnown && _torquePercent != _appliedTorquePercent) {
+        _torquePercent = _appliedTorquePercent;
+        emit controlChanged();
+    }
     const auto activeAlarm = [&frame](int offset) { return frame.at(offset) != '0' && frame.at(offset) != 0; };
     const bool alarm = activeAlarm(19) || activeAlarm(20) || activeAlarm(21) || activeAlarm(22) || activeAlarm(23);
     _alarmActive = alarm;
@@ -728,6 +734,42 @@ void ElistairStationManager::dismissNoPower()
     emit noPowerChanged();
 }
 
+void ElistairStationManager::_handleActiveVehicleChanged()
+{
+    cancelPowerOff();
+    if (!_noPower || _noPowerActionSent) return;
+    // Invalidate any slider already open for the previous target, but retain
+    // the incident and its original QPointer. Never silently retarget Land/RTL.
+    ++_noPowerIncident;
+    _noPowerDismissed = false;
+    if (_noPowerFailsafe == 2) _autoLandFailed = true;
+    emit noPowerChanged();
+}
+
+bool ElistairStationManager::noPowerVehicleNeedsConfirmation() const
+{
+    auto* active = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    return _noPower && !_noPowerActionSent && (!_noPowerVehicle || active != _noPowerVehicle);
+}
+
+bool ElistairStationManager::associateNoPowerVehicle(qulonglong incident, Vehicle* candidate)
+{
+    auto* active = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle();
+    const auto age = QDateTime::currentMSecsSinceEpoch() - _lastMonitoringMsecs;
+    if (!_noPower || _noPowerActionSent || incident != _noPowerIncident || !candidate || candidate != active
+        || candidate->vehicleLinkManager()->communicationLost() || !connected() || noReply() || linkLost()
+        || age < 0 || age >= 1000 || _decodedIntegrity != 2) {
+        return _refuseAction(tr("Vehicle association rejected: incident or vehicle changed, or links are unavailable. Check the tethered vehicle and try again."));
+    }
+    _noPowerVehicle = candidate;
+    ++_noPowerIncident; // Old target/incident confirmations can never dispatch.
+    _noPowerDismissed = false;
+    if (_noPowerFailsafe == 2) _autoLandFailed = true;
+    qCWarning(SafeTLog) << "Operator associated no-power incident" << _noPowerIncident << "with vehicle" << candidate->id() << candidate->vehicleUIDStr();
+    emit noPowerChanged();
+    return true; // Association itself never sends Land/RTL or retries Auto land.
+}
+
 void ElistairStationManager::_announceNoPower()
 {
     if (!_noPower) return;
@@ -765,7 +807,7 @@ void ElistairStationManager::_updateNoPower(int integrity)
 
 void ElistairStationManager::requestNoPowerAction(bool rtl)
 {
-    if (noPowerPrompt() && !_noPowerActionSent && _noPowerVehicle && connected() && !noReply() && !linkLost())
+    if (noPowerPrompt() && !_noPowerActionSent && !noPowerVehicleNeedsConfirmation() && _noPowerVehicle && connected() && !noReply() && !linkLost())
         emit noPowerActionRequested(rtl, _noPowerIncident);
     else _refuseAction(tr("Tether action unavailable: check vehicle and station links."));
 }
