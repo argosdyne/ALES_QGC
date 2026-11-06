@@ -45,9 +45,12 @@ void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
 {
     static constexpr qint64 kUdpWriteErrorLogWindowMs = 5000;
     static QHash<QString, UdpWriteErrorLogState> s_udpWriteErrorLogState;
+    static QMutex s_udpWriteErrorLogMutex;
 
     const QString key = QStringLiteral("%1:%2").arg(address.toString()).arg(port);
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    // UDPLink instances run on separate threads and share this log state.
+    QMutexLocker locker(&s_udpWriteErrorLogMutex);
     UdpWriteErrorLogState& state = s_udpWriteErrorLogState[key];
     if (state.lastLogMs != 0 && (now - state.lastLogMs) < kUdpWriteErrorLogWindowMs) {
         state.suppressedCount++;
@@ -57,6 +60,7 @@ void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
     const int suppressedCount = state.suppressedCount;
     state.lastLogMs = now;
     state.suppressedCount = 0;
+    locker.unlock();
 
     qWarning().noquote() << QStringLiteral("Error writing to %1 %2 suppressed=%3")
         .arg(address.toString())
@@ -68,15 +72,19 @@ void logUdpReceiveThrottled(const QString& linkName, quint16 localPort, const QH
 {
     static constexpr qint64 kUdpReceiveLogWindowMs = 5000;
     static QHash<QString, UdpReceiveLogState> s_udpReceiveLogState;
+    static QMutex s_udpReceiveLogMutex;
 
     const QString key = QStringLiteral("%1:%2:%3:%4").arg(linkName).arg(localPort).arg(sender.toString()).arg(senderPort);
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    // Protect both hash insertion and updates through the returned reference.
+    QMutexLocker locker(&s_udpReceiveLogMutex);
     UdpReceiveLogState& state = s_udpReceiveLogState[key];
     if (state.firstLogMs == 0) {
         state.firstLogMs = now;
         state.lastLogMs = now;
         state.packetCount = 1;
         state.byteCount = datagramSize;
+        locker.unlock();
         qCWarning(LinkInterfaceLog) << "UDP receive first packet"
                                     << linkName
                                     << "localPort" << localPort
@@ -89,17 +97,21 @@ void logUdpReceiveThrottled(const QString& linkName, quint16 localPort, const QH
     state.packetCount++;
     state.byteCount += datagramSize;
     if ((now - state.lastLogMs) >= kUdpReceiveLogWindowMs) {
+        const qint64 windowMs = now - state.lastLogMs;
+        const int packetCount = state.packetCount;
+        const qint64 byteCount = state.byteCount;
+        state.lastLogMs = now;
+        state.packetCount = 0;
+        state.byteCount = 0;
+        locker.unlock();
         qCWarning(LinkInterfaceLog) << "UDP receive rate"
                                     << linkName
                                     << "localPort" << localPort
                                     << "sender" << sender.toString()
                                     << "senderPort" << senderPort
-                                    << "windowMs" << (now - state.lastLogMs)
-                                    << "packets" << state.packetCount
-                                    << "bytes" << state.byteCount;
-        state.lastLogMs = now;
-        state.packetCount = 0;
-        state.byteCount = 0;
+                                    << "windowMs" << windowMs
+                                    << "packets" << packetCount
+                                    << "bytes" << byteCount;
     }
 }
 
