@@ -46,6 +46,67 @@ public:
     Q_PROPERTY(QString lastSentMessage         READ lastSentMessage         NOTIFY messageChanged)
     Q_PROPERTY(QString lastReceivedMessage     READ lastReceivedMessage     NOTIFY messageChanged)
 
+    // LiDAR Setup > Connection [Test]
+    enum TestState {
+        TestIdle = 0,
+        TestRunning,
+        TestOk,
+        TestFailed
+    };
+    Q_ENUM(TestState)
+    Q_PROPERTY(int     testState               READ testState               NOTIFY testChanged)
+    Q_PROPERTY(QString testMessage             READ testMessage             NOTIFY testChanged)
+
+    // YS-03 Fly View toolbar indicator / toolstrip / LiDAR panel.
+    // All Get Status bit decoding and state decisions for these live here; QML only displays.
+    enum LidarState {
+        StateDisabled = 0,  // ysEnable off - all LiDAR UI hidden
+        StateNoLink,        // no active vehicle, or vehicle link lost
+        StateNoResponse,    // vehicle link OK but no valid Get Status reply
+        StatePoweredOff,    // Power Off accepted by LiDAR, no status since
+        StateNotReady,      // Get Status OK, one or more pre-checks not met
+        StateReady,         // Get Status OK, all decoded pre-checks met
+        StateStarting,      // Start sent, waiting for COMMAND_ACK
+        StateRecording,     // acquisition running
+        StateStopping       // Stop sent, waiting for COMMAND_ACK
+    };
+    Q_ENUM(LidarState)
+
+    enum PreCheckState {
+        PreCheckOk = 0,
+        PreCheckFail,
+        PreCheckUnknown,    // no valid status, or bit not decoded yet
+        PreCheckNotUsed     // e.g. camera set to None
+    };
+    Q_ENUM(PreCheckState)
+
+    enum UsbState {
+        UsbUnknown = 0,
+        UsbOk,
+        UsbMissing,
+        UsbFull
+    };
+    Q_ENUM(UsbState)
+
+    // embCamTriggerMode values (same order as LiDAR Setup > Device "Emb. Cam. Trigger Mode")
+    enum TriggerMode {
+        TriggerModeTime = 0,
+        TriggerModeDistance = 1
+    };
+    Q_ENUM(TriggerMode)
+
+    Q_PROPERTY(int          lidarState              READ lidarState             NOTIFY lidarStateChanged)
+    /// Six rows: [{ name, state (PreCheckState), detail }] - INS/GNSS, Scanner, System time, USB stick, Camera, Temperature
+    Q_PROPERTY(QVariantList preChecks               READ preChecks              NOTIFY lidarStateChanged)
+    Q_PROPERTY(int          unmetPreCheckCount      READ unmetPreCheckCount     NOTIFY lidarStateChanged)
+    Q_PROPERTY(bool         internalError           READ internalError          NOTIFY lidarStateChanged)
+    Q_PROPERTY(int          usbState                READ usbState               NOTIFY lidarStateChanged)
+    /// HH:mm:ss when the alarm row content (unmet count / internal error) last changed
+    Q_PROPERTY(QString      alarmSinceTime          READ alarmSinceTime         NOTIFY lidarStateChanged)
+    Q_PROPERTY(int          recordingSeconds        READ recordingSeconds       NOTIFY recordingSecondsChanged)
+    Q_PROPERTY(bool         cameraParamsKnown       READ cameraParamsKnown      NOTIFY parameterChanged)
+    Q_PROPERTY(int          statusPollIntervalMs    READ statusPollIntervalMs   CONSTANT)
+
     bool statusValid(void) const { return _statusValid; }
     bool anyError(void) const { return timeNotSet() || scannerNotReady() || insNotLocked() || noUsb() || usbFull() || _insErr || _scnErr || _intErr || _camErr; }
 
@@ -81,12 +142,30 @@ public:
     QString lastSentMessage(void) const { return _lastSentMessage; }
     QString lastReceivedMessage(void) const { return _lastReceivedMessage; }
 
+    int testState(void) const { return _testState; }
+    QString testMessage(void) const { return _testMessage; }
+
+    int          lidarState(void) const { return _lidarState; }
+    QVariantList preChecks(void) const { return _preChecks; }
+    int          unmetPreCheckCount(void) const { return _unmetPreCheckCount; }
+    bool         internalError(void) const { return _statusValid && _intErr != 0; }
+    int          usbState(void) const;
+    QString      alarmSinceTime(void) const { return _alarmSinceTime; }
+    int          recordingSeconds(void) const;
+    bool         cameraParamsKnown(void) const;
+    int          statusPollIntervalMs(void) const { return kStatusPollIntervalMs; }
+
+    /// Sends one Get Status (YS_STA_00 + YS_STA_01) and reports the result through testState/testMessage
+    Q_INVOKABLE void testConnection(void);
+
     Q_INVOKABLE void startAcquisition(void);
     Q_INVOKABLE void stopAcquisition(void);
     Q_INVOKABLE void powerOff(void);
     Q_INVOKABLE void requestStatus(void);
     Q_INVOKABLE void setParameter(int paramIndex, float value);
     Q_INVOKABLE void requestParameter(int paramIndex);
+    /// Reads the embedded camera parameters used by the Fly View LiDAR panel camera summary
+    Q_INVOKABLE void requestCameraParameters(void);
 
     // Overrides from QGCTool
     void setToolbox(QGCToolbox* toolbox) override;
@@ -97,16 +176,24 @@ signals:
     void parameterChanged(void);
     void messageChanged(void);
     void paramSetFailedChanged(void);
+    void testChanged(void);
+    void lidarStateChanged(void);
+    void recordingSecondsChanged(void);
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
     void _mavlinkReceived(const mavlink_message_t& message);
     void _checkStatusTimeout(void);
     void _restorePowerStatus(void);
+    void _testTimeout(void);
+    void _statusPollTick(void);
+    void _refreshLidarState(void);
 
 private:
     static constexpr int kYellowScanSysId = 1;
-    static constexpr int kYellowScanCompId = MAV_COMP_ID_USER1;
+    static constexpr int kYellowScanDefaultCompId = MAV_COMP_ID_USER1;
+    uint8_t _compId(void) const;
+    void _finishTest(TestState state, const QString& message);
     QString _mavResultToString(uint8_t result) const;
     QString _formatMavlinkHex(const mavlink_message_t& message) const;
     void _sendNamedValueInt(const char* name, int32_t value);
@@ -124,6 +211,10 @@ private:
     void _sendCommand(MAV_CMD command, float param1 = 0.0f, float param2 = 0.0f);
     void _flushPendingControlCommand(void);
     void _setParameterValue(int paramIndex, float value);
+    bool _ysEnabled(void) const;
+    bool _cameraInstalled(void) const;
+    LidarState _computeLidarState(void) const;
+    void _rebuildPreChecks(void);
 
     Vehicle* _vehicle{nullptr};
     QElapsedTimer _statusTimer;
@@ -142,6 +233,7 @@ private:
     float _lastCommandParam1{0.0f};
     float _lastCommandParam2{0.0f};
     qint64 _lastCommandMs{-1000};
+    bool _acqStartRequested{false};     // last Start/Stop sent (MAV_CMD_USER_1 p1), read by its COMMAND_ACK
     qint64 _lastSentMs{-1000};
 
     bool _hasPendingControlCommand{false};
@@ -183,6 +275,35 @@ private:
     QString _lastSentMessage;
     QString _lastReceivedMessage;
 
+    QTimer _testTimer;
+    TestState _testState{TestIdle};
+    QString _testMessage;
+    bool _testGotSta00{false};
+    bool _testGotSta01{false};
+    // Get Status = YS_STA_00 then YS_STA_01, each with a 2 s reply window
+    static constexpr int kTestTimeoutMs = 4000;
+
+    // YS-03 state machine
+    enum AcqTransition { AcqNone, AcqStarting, AcqStopping };
+    QTimer        _getStatusPollTimer;
+    LidarState    _lidarState{StateDisabled};
+    QVariantList  _preChecks;
+    int           _unmetPreCheckCount{0};
+    QString       _alarmSinceTime;
+    bool          _poweredOff{false};
+    AcqTransition _acqTransition{AcqNone};
+    QElapsedTimer _acqTransitionTimer;
+    QElapsedTimer _acqAckHintTimer;     // started on an accepted Start/Stop ACK; Get Status does not override the flag until it expires
+    QElapsedTimer _recordingTimer;
+    bool          _wasRecording{false};
+    int           _lastRecordingSeconds{0};
+    bool          _paramReceived[6]{false, false, false, false, false, false};
+
+    // Get Status poll rate required by YS-03 (1 Hz)
+    static constexpr int    kStatusPollIntervalMs = 1000;
+    // How long STARTING / STOPPING is shown when no COMMAND_ACK arrives
+    static constexpr qint64 kAcqCommandAckTimeoutMs = 5000;
+
     static constexpr qint64 kStatusTimeoutMs = 7000;
     static constexpr qint64 kStatusResponseTimeoutMs = 2000;
     static constexpr qint64 kParamResponseTimeoutMs = 2000;
@@ -193,6 +314,9 @@ private:
     static constexpr quint8 kScnInfoNotReady  = 1 << 1;
     static constexpr quint8 kGenInfoNoUsb     = 1 << 0;
     static constexpr quint8 kGenInfoUsbFull   = 1 << 2;
+    static constexpr quint8 kGenInfoDataLogging = 1 << 3;
+    static constexpr quint8 kIntErrOverheat     = 1 << 0;   // internal computer >= 70 C
+    static constexpr quint8 kIntErrTempWarning  = 1 << 1;   // internal computer > 65 C
 
     enum YSParameterIndex {
         ParamScannerHighSensitivity = 0,

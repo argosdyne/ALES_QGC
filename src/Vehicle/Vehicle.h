@@ -206,6 +206,7 @@ public:
     Q_PROPERTY(bool                 linkQualityCritical         READ linkQualityCritical                                            NOTIFY linkQualityCriticalChanged)
     Q_PROPERTY(bool                 parachuteAvailable          READ parachuteAvailable                                             NOTIFY parachuteAvailableChanged)
     Q_PROPERTY(bool                 parachuteEnabled            READ parachuteEnabled                                               NOTIFY parachuteEnabledChanged)
+    Q_PROPERTY(QObject*             missionResetMonitor         READ missionResetMonitor                                            NOTIFY missionResetMonitorChanged)
     Q_PROPERTY(int                  newMessageCount             READ newMessageCount                                                NOTIFY newMessageCountChanged)
     Q_PROPERTY(int                  messageCount                READ messageCount                                                   NOTIFY messageCountChanged)
     Q_PROPERTY(QString              formattedMessages           READ formattedMessages                                              NOTIFY formattedMessagesChanged)
@@ -409,8 +410,9 @@ public:
     /// @return Minumum equivalent airspeed.
     Q_INVOKABLE double minimumEquivalentAirspeed();
 
-    /// Command vehicle to move to specified location (altitude is ignored)
-    Q_INVOKABLE void guidedModeGotoLocation(const QGeoCoordinate& gotoCoord);
+    /// Dispatch GoTo; optionally use gotoCoord.altitude() as AMSL. Values are validated by the editor.
+    /// True means dispatched, not ACKed. Existing one-argument calls keep the current altitude.
+    Q_INVOKABLE bool guidedModeGotoLocation(const QGeoCoordinate& gotoCoord, bool useTargetAltitude = false);
 
     /// Command vehicle to change altitude
     ///     @param altitudeChange If > 0, go up by amount specified, if < 0, go down by amount specified
@@ -928,6 +930,9 @@ public:
     /// and destroyed when the vehicle goes away.
     void setFirmwarePluginInstanceData(QObject* firmwarePluginInstanceData);
 
+    QObject* missionResetMonitor() const { return _missionResetMonitor; }
+    void setMissionResetMonitor(QObject* monitor);
+
     QString vehicleImageOpaque  () const;
     QString vehicleImageOutline () const;
     QString vehicleImageCompass () const;
@@ -1013,6 +1018,7 @@ signals:
     void vtolInFwdFlightChanged         (bool vtolInFwdFlight);
     void prearmErrorChanged             (const QString& prearmError);
     void soloFirmwareChanged            (bool soloFirmware);
+    void missionResetMonitorChanged     ();
     void defaultCruiseSpeedChanged      (double cruiseSpeed);
     void defaultHoverSpeedChanged       (double hoverSpeed);
     void firmwareTypeChanged            ();
@@ -1251,6 +1257,7 @@ private:
     MAV_TYPE            _vehicleType;
     FirmwarePlugin*     _firmwarePlugin = nullptr;
     QObject*            _firmwarePluginInstanceData = nullptr;
+    QObject*            _missionResetMonitor = nullptr;
     AutoPilotPlugin*    _autopilotPlugin = nullptr;
     MAVLinkProtocol*    _mavlink = nullptr;
     bool                _soloFirmware = false;

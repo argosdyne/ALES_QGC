@@ -83,6 +83,18 @@ ApplicationWindow {
         }
     }
 
+    // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
+    property bool               lidarPanelVisible:          false
+    Connections {
+        target: QGroundControl.multiVehicleManager
+        onActiveVehicleChanged: {
+            var s = QGroundControl.corePlugin.settings
+            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue) {
+                mainWindow.lidarPanelVisible = true
+            }
+        }
+    }
+
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
     //-------------------------------------------------------------------------
@@ -179,6 +191,14 @@ ApplicationWindow {
         planView.visible = true
     }
 
+    function showPlanMissionUpload() {
+        showPlanView()
+        var plan = globals.planMasterControllerPlanView
+        if (plan && plan.currentPlanFile !== "" && !plan.dirty) {
+            plan.loadFromFile(plan.currentPlanFile)
+        }
+    }
+
     // show GeoZoneMakeView
     function showGeoZoneMakeView(){
         //viewSwitch(toolbar.planViewToolbar)
@@ -201,12 +221,36 @@ ApplicationWindow {
         showTool(qsTr("Vehicle Setup"), "SetupView.qml", "/qmlimages/Gears.svg")
     }
 
+    function showSetupMission() {
+        showSetupTool()
+        Qt.callLater(_openSetupMissionPanel)
+    }
+
+    function _openSetupMissionPanel() {
+        var setup = toolDrawerLoader.item
+        var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+        if (!setup || !setup.showVehicleComponentPanel || !vehicle || !vehicle.autopilot) {
+            return
+        }
+        var components = vehicle.autopilot.vehicleComponents
+        for (var i = 0; i < components.length; i++) {
+            var setupSource = components[i].setupSource.toString()
+            if (setupSource.indexOf("APMMissionComponent.qml") !== -1) {
+                setup.showVehicleComponentPanel(components[i])
+                return
+            }
+        }
+    }
+
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
     }
 
     function showStationSetupTool() {
         showTool(qsTr("Station Setup"), "ElistairStationSettings.qml", "/res/SafeTStation.svg")
+    }
+    function showLidarSetupTool() {
+        showTool(qsTr("LiDAR Setup"), "LidarSetupView.qml", "/res/QGCLogoWhite")
     }
 
     function showAboutTool() {
@@ -535,6 +579,22 @@ ApplicationWindow {
                         }
                     }
 
+                    SubMenuButton {
+                        id:                 lidarSetupButton
+                        height:             toolSelectDialog._toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("LiDAR Setup")
+                        imageResource:      "/custom/img/png/YSLidar.png"
+                        imageColor:         "transparent"
+                        visible:            QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false
+                        onClicked: {
+                            if (!mainWindow.preventViewSwitch()) {
+                                toolSelectDialog.close()
+                                mainWindow.showLidarSetupTool()
+                            }
+                        }
+                    }
+
                     ColumnLayout {
                         width:                  innerLayout.width
                         spacing:                0
@@ -637,6 +697,11 @@ ApplicationWindow {
         }
     }
 
+
+    MissionResetBanner {
+        width:  0
+        height: 0
+    }
 
     FlyView {
         id:             flightView

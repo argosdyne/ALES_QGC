@@ -6,6 +6,7 @@ add_library(FirmwarePlugin
 	FirmwarePluginManager.cc
 
 	APM/APMFirmwarePlugin.cc
+	APM/APMMissionResetMonitor.cc
 	APM/APMFirmwarePluginFactory.cc
 	APM/APMParameterMetaData.cc
 	APM/ArduCopterFirmwarePlugin.cc

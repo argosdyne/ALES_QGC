@@ -50,6 +50,295 @@ FlightMap {
     property var    rightPanelWidth
     property var    planMasterController
     property bool   pipMode:                    false   // true: map is shown in a small pip mode
+    // A draft is deliberately separate from the existing, commanded GoTo marker.
+    property bool   gotoSelectionEnabled:       false
+    property bool   gotoTargetEditorVisible:    false
+    property bool   gotoEditorHiddenForConfirmation: false
+    property bool   gotoProgressActive:         false
+    property string gotoRejectionMessage:       ""
+    readonly property bool gotoConfirmationPending: !!(globals.guidedControllerFlyView &&
+        globals.guidedControllerFlyView.confirmDialog && globals.guidedControllerFlyView.confirmDialog.visible &&
+        globals.guidedControllerFlyView.confirmDialog.actionData &&
+        globals.guidedControllerFlyView.confirmDialog.actionData.map === _root)
+    property var    gotoDraftCoordinate:        QtPositioning.coordinate()
+    property var    gotoProgressCoordinate:     QtPositioning.coordinate()
+    // Snapshot the vehicle position when this GoTo starts. The progress panel
+    // uses it for the completed Trip distance, not the vehicle's live position.
+    property var    gotoProgressStartCoordinate: QtPositioning.coordinate()
+    // Telemetry-derived points collected only while this GoTo is active. This
+    // keeps the red line scoped to GoTo instead of showing the whole armed-flight track.
+    property var    gotoFlownTrack:              []
+    property int    gotoProgressAltitudeMode:   QGroundControl.AltitudeModeRelative
+    property bool   gotoArrivalConfirmed:       false
+    property bool   gotoProgressPaused:         false
+    property string gotoProgressTermination:    ""
+    readonly property bool gotoTerminationModeConfirmed: {
+        if (!gotoProgressActive || !_activeVehicle || !gotoProgressTermination.length) {
+            return false
+        }
+        if (gotoProgressTermination === "rtl") {
+            return _activeVehicle.flightMode === _activeVehicle.rtlFlightMode ||
+                   _activeVehicle.flightMode === _activeVehicle.smartRTLFlightMode
+        }
+        if (gotoProgressTermination === "land") {
+            return _activeVehicle.flightMode === _activeVehicle.landFlightMode
+        }
+        return gotoProgressTermination === "takeControl" &&
+               _activeVehicle.flightMode === _activeVehicle.takeControlFlightMode
+    }
+    readonly property bool gotoAvailable:       globals.guidedControllerFlyView ? globals.guidedControllerFlyView.showGotoLocation : false
+    readonly property real gotoDraftDistance:   gotoSelectionEnabled && gotoDraftCoordinate.isValid && _activeVehicleCoordinate.isValid ?
+                                                _activeVehicleCoordinate.distanceTo(gotoDraftCoordinate) : NaN
+    readonly property var gotoRemainingRouteTarget: gotoSelectionEnabled ? gotoDraftCoordinate : gotoProgressCoordinate
+    readonly property bool gotoRemainingRouteVisible: _activeVehicleCoordinate.isValid && gotoRemainingRouteTarget.isValid &&
+                                                      (gotoSelectionEnabled || (gotoProgressActive && !gotoArrivalConfirmed))
+    readonly property real gotoRemainingRouteDistance: gotoRemainingRouteVisible ?
+                                                        _activeVehicleCoordinate.distanceTo(gotoRemainingRouteTarget) : NaN
+    readonly property int gotoRemainingDashCount: isFinite(gotoRemainingRouteDistance) && gotoRemainingRouteDistance > 0 ?
+                                                Math.min(48, Math.max(1, Math.ceil(gotoRemainingRouteDistance / 35))) : 0
+
+    function gotoDraftDistanceText() {
+        if (!isFinite(gotoDraftDistance)) {
+            return "--"
+        }
+        return Number(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(gotoDraftDistance)).toFixed(0) +
+                " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
+    }
+
+    function gotoRemainingRouteDistanceText() {
+        if (!isFinite(gotoRemainingRouteDistance)) {
+            return "--"
+        }
+        return Number(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(gotoRemainingRouteDistance)).toFixed(0) +
+                " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
+    }
+
+    function gotoRemainingDashPath(index) {
+        if (!gotoRemainingRouteVisible || gotoRemainingDashCount === 0) {
+            return []
+        }
+        var segmentLength = gotoRemainingRouteDistance / gotoRemainingDashCount
+        var startDistance = index * segmentLength
+        var endDistance = Math.min(gotoRemainingRouteDistance, startDistance + segmentLength * 0.58)
+        var bearing = _activeVehicleCoordinate.azimuthTo(gotoRemainingRouteTarget)
+        return [
+            _activeVehicleCoordinate.atDistanceAndAzimuth(startDistance, bearing),
+            _activeVehicleCoordinate.atDistanceAndAzimuth(endDistance, bearing)
+        ]
+    }
+
+    function _goToTrackCoordinate(coordinate) {
+        return QtPositioning.coordinate(coordinate.latitude, coordinate.longitude, coordinate.altitude)
+    }
+
+    function _appendGoToTrackPoint(coordinate) {
+        if (!gotoProgressActive || !coordinate || !coordinate.isValid) {
+            return
+        }
+        var track = gotoFlownTrack.slice(0)
+        var point = _goToTrackCoordinate(coordinate)
+        if (!track.length || track[track.length - 1].distanceTo(point) > 0.01) {
+            track.push(point)
+            gotoFlownTrack = track
+        }
+    }
+
+    function _updateGoToTrackPoint(coordinate) {
+        if (!gotoProgressActive || !coordinate || !coordinate.isValid) {
+            return
+        }
+        var track = gotoFlownTrack.slice(0)
+        var point = _goToTrackCoordinate(coordinate)
+        // Keep the start point fixed. The next point is continuously updated
+        // until the trajectory sampler detects a change of direction.
+        if (track.length < 2) {
+            track.push(point)
+        } else {
+            track[track.length - 1] = point
+        }
+        gotoFlownTrack = track
+    }
+
+    function beginGotoSelection(coordinate) {
+        if (!gotoAvailable || pipMode || gotoProgressTermination.length) {
+            return
+        }
+        gotoSelectionEnabled = true
+        gotoTargetEditorVisible = true
+        gotoEditorHiddenForConfirmation = false
+        setGotoDraftCoordinate(coordinate, false)
+    }
+
+    function showGotoRejection(message) {
+        gotoRejectionMessage = message
+        gotoRejectionTimer.restart()
+    }
+
+    Timer {
+        id: gotoRejectionTimer
+        interval: 5000
+        repeat: false
+        onTriggered: _root.gotoRejectionMessage = ""
+    }
+
+    onGotoAvailableChanged: {
+        if (!gotoAvailable) {
+            cancelGotoSelection()
+            // A lost data link disables GoTo input, but the in-progress panel must
+            // retain its target and last known values until telemetry returns.
+            if (!(_activeVehicle && _activeVehicle.vehicleLinkManager.communicationLost)) {
+                clearGotoProgress()
+            }
+        }
+    }
+
+    function setGotoDraftCoordinate(coordinate, panToTarget) {
+        if (!gotoAvailable || !gotoSelectionEnabled || gotoConfirmationPending || !coordinate.isValid) {
+            return
+        }
+        if (!gotoDraftCoordinate.isValid || gotoDraftCoordinate.latitude !== coordinate.latitude || gotoDraftCoordinate.longitude !== coordinate.longitude) {
+            gotoDraftCoordinate = QtPositioning.coordinate(coordinate.latitude, coordinate.longitude)
+        }
+        _disableVehicleTracking = true
+        if (panToTarget) {
+            center = gotoDraftCoordinate
+        }
+    }
+
+    function cancelGotoSelection() {
+        if (gotoConfirmationPending && globals.guidedControllerFlyView.confirmDialog.visible) {
+            globals.guidedControllerFlyView.confirmDialog.confirmCancelled()
+        }
+        gotoSelectionEnabled = false
+        gotoTargetEditorVisible = false
+        gotoEditorHiddenForConfirmation = false
+        gotoDraftCoordinate = QtPositioning.coordinate()
+    }
+
+    function hideGotoTargetEditorForConfirmation() {
+        if (gotoSelectionEnabled) {
+            gotoTargetEditorVisible = false
+            gotoEditorHiddenForConfirmation = true
+        }
+    }
+
+    onGotoConfirmationPendingChanged: {
+        // Re-open the editor after cancelling the slide confirmation. A confirmed
+        // action clears the draft in completeGotoSelection instead.
+        if (!gotoConfirmationPending && gotoEditorHiddenForConfirmation && gotoSelectionEnabled) {
+            gotoTargetEditorVisible = true
+            gotoEditorHiddenForConfirmation = false
+        }
+    }
+
+    function clearGotoProgress() {
+        gotoLocationItem.hide()
+        gotoProgressActive = false
+        gotoProgressPaused = false
+        gotoProgressCoordinate = QtPositioning.coordinate()
+        gotoProgressStartCoordinate = QtPositioning.coordinate()
+        gotoFlownTrack = []
+        gotoArrivalConfirmed = false
+        gotoProgressTermination = ""
+        gotoTerminationTimer.stop()
+        if (globals.guidedControllerFlyView) {
+            globals.guidedControllerFlyView.clearGotoProgressMap(_root)
+        }
+    }
+
+    function beginGotoTermination(termination) {
+        if (gotoProgressActive && !gotoProgressTermination.length) {
+            gotoProgressTermination = termination
+        }
+    }
+
+    function pauseGotoProgress() {
+        if (gotoProgressActive) {
+            gotoProgressPaused = true
+        }
+    }
+
+    function resumeGotoProgress() {
+        if (gotoProgressActive) {
+            gotoProgressPaused = false
+        }
+    }
+
+    function confirmGotoArrival() {
+        if (!gotoProgressActive || gotoArrivalConfirmed) {
+            return
+        }
+        gotoArrivalConfirmed = true
+        gotoLocationItem.setArrived()
+    }
+
+    function completeGotoSelection(coordinate, altitudeMode) {
+        gotoLocationItem.show(coordinate)
+        gotoProgressStartCoordinate = _activeVehicle && _activeVehicle.coordinate.isValid ?
+                    QtPositioning.coordinate(_activeVehicle.coordinate.latitude, _activeVehicle.coordinate.longitude) :
+                    QtPositioning.coordinate()
+        gotoFlownTrack = gotoProgressStartCoordinate.isValid ? [gotoProgressStartCoordinate] : []
+        gotoProgressCoordinate = coordinate
+        gotoProgressAltitudeMode = altitudeMode
+        gotoArrivalConfirmed = false
+        gotoProgressPaused = false
+        gotoProgressTermination = ""
+        gotoProgressActive = true
+        if (globals.guidedControllerFlyView) {
+            globals.guidedControllerFlyView.setGotoProgressMap(_root)
+        }
+        cancelGotoSelection()
+    }
+
+    on_ActiveVehicleChanged: {
+        cancelGotoSelection()
+        clearGotoProgress()
+    }
+    onPipModeChanged: {
+        _adjustMapZoomForPipMode()
+        // Changing the main PiP item is a presentation change only. Keep the
+        // draft, confirmation, and in-progress GoTo state so it is restored
+        // when the operator returns from the camera view to the map.
+    }
+
+    onGotoTerminationModeConfirmedChanged: {
+        if (gotoTerminationModeConfirmed) {
+            gotoTerminationTimer.restart()
+        }
+    }
+
+    Timer {
+        id: gotoTerminationTimer
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            if (gotoTerminationModeConfirmed) {
+                gotoLocationItem.hide()
+                clearGotoProgress()
+            }
+        }
+    }
+
+    Connections {
+        target: _activeVehicle
+        function onFlightModeChanged() {
+            if (!gotoProgressActive || gotoProgressTermination.length || !_activeVehicle) {
+                return
+            }
+            if (_activeVehicle.flightMode === _activeVehicle.rtlFlightMode ||
+                    _activeVehicle.flightMode === _activeVehicle.smartRTLFlightMode) {
+                beginGotoTermination("rtl")
+            } else if (_activeVehicle.flightMode === _activeVehicle.landFlightMode) {
+                beginGotoTermination("land")
+            } else if (_activeVehicle.flightMode === _activeVehicle.takeControlFlightMode) {
+                beginGotoTermination("takeControl")
+            } else if (_activeVehicle.flightMode !== _activeVehicle.gotoFlightMode &&
+                       _activeVehicle.flightMode !== _activeVehicle.pauseFlightMode) {
+                // A mode selected outside the GoTo flow supersedes this target.
+                clearGotoProgress()
+            }
+        }
+    }
     property var    toolInsets                          // Insets for the center viewport area
 
     property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
@@ -78,8 +367,6 @@ FlightMap {
         }
         _saveZoomLevelSetting = true
     }
-
-    onPipModeChanged: _adjustMapZoomForPipMode()
 
     onVisibleChanged: {
         if (visible) {
@@ -269,7 +556,9 @@ FlightMap {
         line.width: 3
         line.color: "red"
         z:          QGroundControl.zOrderTrajectoryLines
-        visible:    !pipMode
+        // During GoTo the dedicated overlay below is used, so the pre-GoTo
+        // armed-flight history does not look like part of this command.
+        visible:    !pipMode && !_root.gotoProgressActive
 
         Connections {
             target:                 QGroundControl.multiVehicleManager
@@ -283,6 +572,18 @@ FlightMap {
             onPointAdded:           trajectoryPolyline.addCoordinate(coordinate)
             onUpdateLastPoint:      trajectoryPolyline.replaceCoordinate(trajectoryPolyline.pathLength() - 1, coordinate)
             onPointsCleared:        trajectoryPolyline.path = []
+        }
+    }
+
+    // Reuse Vehicle.trajectoryPoints: its sampler already removes redundant
+    // telemetry points, so this GoTo-only track remains light on the map.
+    Connections {
+        target: _activeVehicle ? _activeVehicle.trajectoryPoints : null
+        function onPointAdded(coordinate) {
+            _root._appendGoToTrackPoint(coordinate)
+        }
+        function onUpdateLastPoint(coordinate) {
+            _root._updateGoToTrackPoint(coordinate)
         }
     }
 
@@ -420,6 +721,80 @@ FlightMap {
         }
     }
 
+    // Actual track travelled after the GoTo was confirmed.
+    MapPolyline {
+        visible: _root.gotoProgressActive && _root.gotoFlownTrack.length > 1
+        z: QGroundControl.zOrderTrajectoryLines
+        line.width: 3
+        line.color: "#e64b4b"
+        path: visible ? _root.gotoFlownTrack : []
+    }
+
+    // QtLocation 5.15 MapPolyline has no dash-style property. Draw short
+    // alternating segments to produce a portable dashed remaining route.
+    MapItemView {
+        model: _root.gotoRemainingDashCount
+        delegate: MapPolyline {
+            visible: _root.gotoRemainingRouteVisible
+            z: QGroundControl.zOrderTrajectoryLines
+            line.width: 2
+            line.color: "white"
+            path: _root.gotoRemainingDashPath(index)
+        }
+    }
+
+    MapQuickItem {
+        id: gotoDraftDistanceLabel
+        visible: _root.gotoRemainingRouteVisible && isFinite(_root.gotoRemainingRouteDistance)
+        z: QGroundControl.zOrderMapItems + 1
+        coordinate: visible ? _activeVehicleCoordinate.atDistanceAndAzimuth(
+                                _root.gotoRemainingRouteDistance / 2,
+                                _activeVehicleCoordinate.azimuthTo(_root.gotoRemainingRouteTarget)) : QtPositioning.coordinate()
+        anchorPoint.x: sourceItem.width / 2
+        anchorPoint.y: sourceItem.height / 2
+        sourceItem: Rectangle {
+            width: distanceLabel.implicitWidth + ScreenTools.defaultFontPixelWidth
+            height: distanceLabel.implicitHeight + ScreenTools.defaultFontPixelHeight / 3
+            color: QGroundControl.globalPalette.windowShadeDark
+            radius: ScreenTools.defaultFontPixelWidth / 3
+            QGCLabel {
+                id: distanceLabel
+                anchors.centerIn: parent
+                text: _root.gotoRemainingRouteDistanceText()
+                color: QGroundControl.globalPalette.primaryButtonText
+                font.bold: true
+                font.pointSize: ScreenTools.smallFontPointSize
+            }
+        }
+    }
+
+    MapQuickItem {
+        id: gotoDraftMarker
+        coordinate: _root.gotoDraftCoordinate
+        visible: _root.gotoSelectionEnabled && _root.gotoDraftCoordinate.isValid
+        z: QGroundControl.zOrderMapItems
+        anchorPoint.x: sourceItem.anchorPointX
+        anchorPoint.y: sourceItem.anchorPointY
+        sourceItem: MissionItemIndexLabel {
+            checked: true
+            index: -1
+            label: qsTr("Go here", "Go to location waypoint")
+        }
+    }
+
+    MissionItemIndicatorDrag {
+        mapControl: _root
+        itemIndicator: gotoDraftMarker
+        itemCoordinate: _root.gotoDraftCoordinate
+        visible: gotoDraftMarker.visible && !_root.gotoConfirmationPending
+        onItemCoordinateChanged: {
+            if (itemCoordinate.isValid) {
+                _root.setGotoDraftCoordinate(itemCoordinate, false)
+            }
+        }
+        onDragStop: itemCoordinate = Qt.binding(function() { return _root.gotoDraftCoordinate })
+    }
+
     // GoTo Location visuals
     MapQuickItem {
         id:             gotoLocationItem
@@ -430,18 +805,10 @@ FlightMap {
         sourceItem: MissionItemIndexLabel {
             checked:    true
             index:      -1
-            label:      qsTr("Go here", "Go to location waypoint")
+            label:      gotoLocationItem.arrived ? qsTr("Arrived") : qsTr("Go here", "Go to location waypoint")
         }
 
-        property bool inGotoFlightMode: _activeVehicle ? _activeVehicle.flightMode === _activeVehicle.gotoFlightMode : false
-
-        onInGotoFlightModeChanged: {
-            if (!inGotoFlightMode && gotoLocationItem.visible) {
-                // Hide goto indicator when vehicle falls out of guided mode
-                gotoLocationItem.visible = false
-            }
-        }
-
+        property bool arrived: false
         Connections {
             target: QGroundControl.multiVehicleManager
             function onActiveVehicleChanged(activeVehicle) {
@@ -453,7 +820,12 @@ FlightMap {
 
         function show(coord) {
             gotoLocationItem.coordinate = coord
+            gotoLocationItem.arrived = false
             gotoLocationItem.visible = true
+        }
+
+        function setArrived() {
+            gotoLocationItem.arrived = true
         }
 
         function hide() {
@@ -461,7 +833,7 @@ FlightMap {
         }
 
         function actionConfirmed() {
-            // We leave the indicator visible. The handling for onInGuidedModeChanged will hide it.
+            // Keep the target visible until GoTo is explicitly replaced or terminated.
         }
 
         function actionCancelled() {
@@ -586,10 +958,13 @@ FlightMap {
         anchors.fill: parent
         
         onClicked: {
+            if (_root.gotoSelectionEnabled) {
+                _root.setGotoDraftCoordinate(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false), false)
+                return
+            }
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
                 (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
                 orbitMapCircle.hide()
-                gotoLocationItem.hide()
                 var clickCoord = _root.toCoordinate(Qt.point(mouse.x, mouse.y), false /* clipToViewPort */)
                 var mapClickMenu = popupMenuComponent.createObject(_root, { coord: clickCoord, contentItemComponent: mapClickMenuComponent })
                 mapClickMenu.setPosition(mouse.x, mouse.y)
@@ -650,13 +1025,12 @@ FlightMap {
             QGCButton {
                 Layout.fillWidth:   true
                 text:               qsTr("Go to location")
-                visible:            globals.guidedControllerFlyView.showGotoLocation
+                visible:            _root.gotoAvailable
                 onClicked: {
                     if (popup.opened) {
                         popup.close()
                     }
-                    gotoLocationItem.show(mapClickCoord)
-                    globals.guidedControllerFlyView.confirmAction(globals.guidedControllerFlyView.actionGoto, mapClickCoord, gotoLocationItem)
+                    _root.beginGotoSelection(mapClickCoord)
                 }
             }
 
