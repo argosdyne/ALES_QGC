@@ -27,6 +27,7 @@ CustomVehicle::CustomVehicle(LinkInterface*             link,
                              JoystickManager*           joystickManager)
     : Vehicle(link, vehicleId, defaultComponentId, firmwareType, vehicleType, firmwarePluginManager, joystickManager)
     , _escFactGroup(this)
+    , _tetherFactGroup(this)
     , _plugin(qobject_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()))
 {
   //  qInfo() << "CutomVehicle Start!!";
@@ -44,6 +45,9 @@ CustomVehicle::CustomVehicle(LinkInterface*             link,
     }
 
     _addFactGroup(&_escFactGroup, _escFactGroupName);
+    // Custom-only metadata/source and one owned instance per live vehicle.
+    // Register through FactGroup so Telemetry Values and CSV enumerate it normally.
+    _addFactGroup(&_tetherFactGroup, QStringLiteral("tether"));
 
     if(_plugin->forceSendRC()) {
        // qInfo() << "CustomVehicle.cc forDceSendRC true";

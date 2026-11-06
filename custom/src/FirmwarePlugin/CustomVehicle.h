@@ -2,6 +2,7 @@
 
 #include "Vehicle.h"
 #include "VehicleESCFactGroup.h"
+#include "TetherFactGroup.h"
 #include <QTimer>
 
 class CustomPlugin;
@@ -53,6 +54,7 @@ public:
 
     Q_PROPERTY(QmlObjectListModel* statusMessages READ statusMessages CONSTANT)
     Q_PROPERTY(FactGroup* esc READ escFactGroup CONSTANT)
+    Q_PROPERTY(FactGroup* tether READ tetherFactGroup CONSTANT)
     Q_PROPERTY(QString mainLinkName READ mainLinkName NOTIFY mainLinkChanged)
     Q_PROPERTY(bool rcOnUDP MEMBER _rcOnUDP NOTIFY rcOnUDPChanged)
     Q_PROPERTY(bool isSecondGPS MEMBER _isSecondGPS NOTIFY isSecondGPSChanged)
@@ -84,6 +86,7 @@ public:
 
     QmlObjectListModel* statusMessages(void) { return &_statusMessages; }
     FactGroup* escFactGroup() { return &_escFactGroup; }
+    TetherFactGroup* tetherFactGroup() { return &_tetherFactGroup; }
     QString mainLinkName();
 
 public slots:
@@ -122,6 +125,7 @@ private:
     QParallelAnimationGroup _group;
     QmlObjectListModel _statusMessages;
     VehicleESCFactGroup _escFactGroup;
+    TetherFactGroup _tetherFactGroup;
     bool _isSecondGPS{false};
     bool _rcInControl{true};
 

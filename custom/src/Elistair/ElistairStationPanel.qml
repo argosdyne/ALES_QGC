@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.4
+import QtQuick.Controls 2.4 as Controls2
 import QtQuick.Dialogs 1.3
 import QtQuick.Layouts 1.12
 
@@ -29,6 +30,30 @@ Rectangle {
     readonly property color lostColor: "#68717b"
     readonly property bool inFlight: station && station.powerOffRequiresConfirmation
     readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    Controls2.Dialog {
+        id: associateVehicleDialog
+        property var candidate: null
+        property real incident: 0
+        parent: Controls2.Overlay.overlay
+        anchors.centerIn: parent
+        width: Math.min(parent.width * 0.85, ScreenTools.defaultFontPixelWidth * 52)
+        implicitHeight: ScreenTools.defaultFontPixelHeight * 14
+        modal: true
+        title: qsTr("Confirm tethered vehicle")
+        standardButtons: Controls2.Dialog.Yes | Controls2.Dialog.No
+        contentItem: QGCLabel {
+            width: associateVehicleDialog.availableWidth
+            wrapMode: Text.WordWrap
+            text: qsTr("Verify that vehicle %1 (UID %2) is physically connected to this tether station. Association does not send Land/RTL; a separate slide confirmation is required.")
+                .arg(associateVehicleDialog.candidate ? associateVehicleDialog.candidate.id : "--")
+                .arg(associateVehicleDialog.candidate ? associateVehicleDialog.candidate.vehicleUIDStr : "--")
+        }
+        onAccepted: {
+            root.station.associateNoPowerVehicle(incident, candidate)
+            candidate = null
+        }
+        onRejected: candidate = null
+    }
     readonly property var droneBattery: flightVehicle && !flightVehicle.vehicleLinkManager.communicationLost && flightVehicle.batteries.count ? flightVehicle.batteries.get(0) : null
     function droneBatteryText() {
         var volts = droneBattery ? Number(droneBattery.voltage.rawValue) : NaN
@@ -250,8 +275,20 @@ Rectangle {
             QGCLabel { Layout.fillWidth: true; text: qsTr("Drone battery: %1").arg(root.droneBatteryText()); color: "white"; wrapMode: Text.WordWrap }
             QGCLabel { text: qsTr("Altitude: %1 m").arg(root.flightVehicle && !root.flightVehicle.vehicleLinkManager.communicationLost ? root.flightVehicle.altitudeRelative.rawValue.toFixed(1) : "--"); color: "white" }
             QGCLabel { visible: station.noPowerPrompt; text: qsTr("SELECT ACTION"); color: root.mutedText }
-            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("Land"); primary: true; enabled: root.controlsAvailable; onClicked: station.requestNoPowerAction(false) }
-            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("RTL to Station"); enabled: root.controlsAvailable; onClicked: station.requestNoPowerAction(true) }
+            QGCLabel { visible: station.noPowerPrompt && station.noPowerVehicleNeedsConfirmation; Layout.fillWidth: true; text: qsTr("Vehicle changed or unavailable. Confirm the tethered vehicle before requesting Land/RTL."); color: root.orange; wrapMode: Text.WordWrap }
+            QGCButton {
+                visible: station.noPowerPrompt && station.noPowerVehicleNeedsConfirmation
+                Layout.fillWidth: true
+                text: qsTr("Confirm tethered vehicle")
+                enabled: root.controlsAvailable && root.flightVehicle && !root.flightVehicle.vehicleLinkManager.communicationLost
+                onClicked: {
+                    associateVehicleDialog.candidate = root.flightVehicle
+                    associateVehicleDialog.incident = station.noPowerIncident
+                    associateVehicleDialog.open()
+                }
+            }
+            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("Land"); primary: true; enabled: root.controlsAvailable && !station.noPowerVehicleNeedsConfirmation; onClicked: station.requestNoPowerAction(false) }
+            QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("RTL to Station"); enabled: root.controlsAvailable && !station.noPowerVehicleNeedsConfirmation; onClicked: station.requestNoPowerAction(true) }
             QGCButton { visible: station.noPowerPrompt; Layout.fillWidth: true; text: qsTr("Continue"); onClicked: station.dismissNoPower() }
             QGCLabel { Layout.fillWidth: true; text: [qsTr("Failsafe: Recommend land"), qsTr("Failsafe: Warn only"), qsTr("Failsafe: Auto land")][station.noPowerFailsafe]; color: root.mutedText; wrapMode: Text.WordWrap }
         }
