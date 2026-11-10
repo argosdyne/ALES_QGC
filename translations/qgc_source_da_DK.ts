@@ -19718,8 +19718,8 @@ Bekræft ændring?</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>Dronen har ikke bestået en pre-arm-kontrol. Løs fejlen for at kunne armere dronen.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>Dronen har ikke bestået en pre-arm-kontrol. &lt;b&gt;Løs fejlen&lt;/b&gt; for at kunne armere dronen.</translation>
     </message>
   </context>
   <context>

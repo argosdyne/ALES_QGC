@@ -17952,8 +17952,8 @@ Confirm change?</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>

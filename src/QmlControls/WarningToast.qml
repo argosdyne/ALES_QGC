@@ -21,7 +21,8 @@ Rectangle {
 
     /// Key phrase shown first, in the strong text color (plain text)
     property string strongText
-    /// Rest of the message (plain text unless textIsRichText)
+    /// Rest of the message (plain text unless textIsRichText). Key phrases marked with <b>...</b> are drawn
+    /// in the strong text color, also in plain text (e.g. marks inside a translated string).
     property string text
     property bool   textIsRichText: false
     property bool   showCloseButton: true
@@ -87,11 +88,15 @@ Rectangle {
             // 25 px as drawn in the Fly view frames (the 609 px component scaled to 677 px; the reported
             // 22.5 px is the unscaled size)
             font.pointSize:     ScreenTools.figmaFontPointSize(25)
-            lineHeight:         1.35
+            // Figma line height 1.35 x font size (a proportional lineHeight would scale Roboto's taller line)
+            lineHeightMode:     Text.FixedHeight
+            lineHeight:         control._px * 25 * 1.35
             color:              qgcPal.warningToastText
             text: {
-                var strong = control.strongText.length ? "<font color=\"" + qgcPal.warningToastTextStrong + "\">" + control._escape(control.strongText) + "</font>" : ""
+                var strongOpen = "<font color=\"" + qgcPal.warningToastTextStrong + "\">"
+                var strong = control.strongText.length ? strongOpen + control._escape(control.strongText) + "</font>" : ""
                 var body = control.textIsRichText ? control.text : control._escape(control.text)
+                body = body.replace(/<b>|&lt;b&gt;/g, strongOpen).replace(/<\/b>|&lt;\/b&gt;/g, "</font>")
                 if (strong.length && body.length) {
                     return strong + " – " + body
                 }

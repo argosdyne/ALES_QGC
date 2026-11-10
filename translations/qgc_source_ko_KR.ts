@@ -19731,8 +19731,8 @@ Confirm change?</source>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>기체가 시동 전 점검에 실패하였습니다. 기체를 시동 걸기 위해 문제를 해결하십시오.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>기체가 시동 전 점검에 실패하였습니다. 기체를 시동 걸기 위해 &lt;b&gt;문제를 해결하십시오&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>

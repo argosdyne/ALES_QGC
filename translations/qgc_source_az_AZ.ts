@@ -17955,8 +17955,8 @@ Dəyişikliyi təsdiq edirsiniz?</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>Aparat əvvəlcədən yoxlanıla bilmədi. Aparatı xodlamaq üçün uğursuzluğu həll edin.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>Aparat əvvəlcədən yoxlanıla bilmədi. Aparatı xodlamaq üçün &lt;b&gt;uğursuzluğu həll edin&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>

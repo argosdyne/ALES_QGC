@@ -17963,8 +17963,8 @@ Confirm change?</source>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>车辆未能进行武装前检查。为了装备车辆，解决故障。</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>车辆未能进行武装前检查。为了装备车辆，&lt;b&gt;解决故障&lt;/b&gt;。</translation>
     </message>
   </context>
   <context>

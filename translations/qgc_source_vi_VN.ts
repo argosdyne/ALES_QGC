@@ -19718,8 +19718,8 @@ Xác nhận thay đổi?</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>Máy bay không qua được kiểm tra Pre-arm. Để Arm máy bay, hãy khắc phục lỗi.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>Máy bay không qua được kiểm tra Pre-arm. Để Arm máy bay, &lt;b&gt;hãy khắc phục lỗi&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>

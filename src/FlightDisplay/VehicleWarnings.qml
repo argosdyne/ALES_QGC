@@ -24,7 +24,8 @@ WarningToast {
     property bool   _noGPSLockVisible:      _activeVehicle && _activeVehicle.requiresGpsFix && !_activeVehicle.coordinate.isValid
     property bool   _prearmErrorVisible:    _activeVehicle && !_activeVehicle.armed && _activeVehicle.prearmError && !_activeVehicle.healthAndArmingCheckReport.supported
     property string _prearmError:           _activeVehicle ? _activeVehicle.prearmError : ""
-    property string _prearmHelp:            qsTr("The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.")
+    // The key phrase is marked with <b> in the (translated) string; WarningToast draws it in the strong color
+    property string _prearmHelp:            qsTr("The vehicle has failed a pre-arm check. In order to arm the vehicle, <b>resolve the failure</b>.")
     property string _bodyText: {
         if (!_prearmErrorVisible) {
             return ""

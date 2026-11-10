@@ -19836,8 +19836,8 @@ Confirm change?</source>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>機体はプリアームチェックに失敗しました。機体をアームさせるためには、不具合を解決してください。</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>機体はプリアームチェックに失敗しました。機体をアームさせるためには、&lt;b&gt;不具合を解決してください&lt;/b&gt;。</translation>
     </message>
   </context>
   <context>

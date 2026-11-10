@@ -19845,8 +19845,8 @@ Confirmar a alteração?</translation>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56"/>
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>A aeronave falhou em uma verificação pré-arm. Para armar a aeronave, resolva a falha.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>A aeronave falhou em uma verificação pré-arm. Para armar a aeronave, &lt;b&gt;resolva a falha&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>

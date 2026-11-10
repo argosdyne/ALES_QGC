@@ -19429,8 +19429,8 @@ Confirm change?</source>
     </message>
     <message>
       <location filename="../src/FlightDisplay/VehicleWarnings.qml" line="56" />
-      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, resolve the failure.</source>
-      <translation>Das Fluggerät hat eine Pre-Arm-Prüfung nicht bestanden. Um das Fluggerät scharfzuschalten, beheben Sie den Fehler.</translation>
+      <source>The vehicle has failed a pre-arm check. In order to arm the vehicle, &lt;b&gt;resolve the failure&lt;/b&gt;.</source>
+      <translation>Das Fluggerät hat eine Pre-Arm-Prüfung nicht bestanden. Um das Fluggerät scharfzuschalten, &lt;b&gt;beheben Sie den Fehler&lt;/b&gt;.</translation>
     </message>
   </context>
   <context>
