@@ -29910,6 +29910,10 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 <context>
   <name>ElistairStationManager</name>
   <message>
+    <source>Vehicle association rejected: incident or vehicle changed, or links are unavailable. Check the tethered vehicle and try again.</source>
+    <translation>기체 연결 확인 거부: 상황 또는 기체가 변경되었거나 통신을 사용할 수 없습니다. 테더에 연결된 기체를 확인하고 다시 시도하세요.</translation>
+  </message>
+  <message>
     <source>Power OFF not sent: confirmation expired or was cancelled. Request it again.</source>
     <translation>전원 OFF 명령 미전송: 확인이 만료되었거나 취소되었습니다. 다시 요청하세요.</translation>
   </message>
@@ -30072,6 +30076,18 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 </context>
 <context>
   <name>ElistairStationPanel</name>
+  <message>
+    <source>Confirm tethered vehicle</source>
+    <translation>테더 연결 기체 확인</translation>
+  </message>
+  <message>
+    <source>Verify that vehicle %1 (UID %2) is physically connected to this tether station. Association does not send Land/RTL; a separate slide confirmation is required.</source>
+    <translation>기체 %1(UID %2)이 이 테더 스테이션에 실제로 연결되어 있는지 확인하세요. 기체 연결 확인만으로 착륙/RTL 명령은 전송되지 않으며, 별도의 슬라이드 확인이 필요합니다.</translation>
+  </message>
+  <message>
+    <source>Vehicle changed or unavailable. Confirm the tethered vehicle before requesting Land/RTL.</source>
+    <translation>기체가 변경되었거나 사용할 수 없습니다. 착륙/RTL을 요청하기 전에 테더에 연결된 기체를 확인하세요.</translation>
+  </message>
   <message>
     <source> left</source>
     <translation> 남음</translation>

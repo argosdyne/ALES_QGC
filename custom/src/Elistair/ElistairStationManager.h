@@ -48,6 +48,7 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(bool alarmActive READ alarmActive NOTIFY telemetryChanged)
     Q_PROPERTY(bool noPower READ noPower NOTIFY noPowerChanged)
     Q_PROPERTY(bool noPowerPrompt READ noPowerPrompt NOTIFY noPowerChanged)
+    Q_PROPERTY(bool noPowerVehicleNeedsConfirmation READ noPowerVehicleNeedsConfirmation NOTIFY noPowerChanged)
     Q_PROPERTY(int noPowerFailsafe READ noPowerFailsafe WRITE setNoPowerFailsafe NOTIFY noPowerChanged)
     Q_PROPERTY(qulonglong noPowerIncident READ noPowerIncident NOTIFY noPowerChanged)
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
@@ -93,6 +94,8 @@ public:
     void setNoPowerFailsafe(int value);
     Q_INVOKABLE void dismissNoPower();
     Q_INVOKABLE void requestNoPowerAction(bool rtl);
+    bool noPowerVehicleNeedsConfirmation() const;
+    Q_INVOKABLE bool associateNoPowerVehicle(qulonglong incident, Vehicle* candidate);
     Q_INVOKABLE bool executeNoPowerAction(qulonglong incident, bool rtl);
     QString lastError() const { return _lastError; }
     QVariantMap stationSettings() const { return _stationSettings; }
@@ -164,6 +167,7 @@ private:
     void _applyPowerOn(bool on);
     bool _canControlPower() const;
     void _bindFlightVehicle();
+    void _handleActiveVehicleChanged();
     void _updateNoPower(int integrity);
     void _announceNoPower();
     bool _noPower = false, _noPowerDismissed = false, _noPowerActionSent = false;

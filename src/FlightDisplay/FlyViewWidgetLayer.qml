@@ -191,7 +191,7 @@ Item {
         anchors.right:              gotoProgressPanel.visible ? gotoProgressPanel.left : parent.right
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
-        visible:                    !mainWindow.tetherPanelVisible && QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
+        visible:                    !mainWindow.tetherPanelVisible && !mainWindow.lidarPanelShown && QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
         availableHeight:            parent.height - y - _toolsMargin
 
         property real rightEdgeTopInset: visible ? parent.width - x : 0
@@ -203,7 +203,7 @@ Item {
         anchors.margins:        _toolsMargin
         anchors.right:          parent.right
         width:                  _rightPanelWidth
-        displayAllowed:         !mainWindow.tetherPanelVisible
+        displayAllowed:         !mainWindow.tetherPanelVisible && !mainWindow.lidarPanelShown
 
         gotoEditorVisible:      gotoTargetEditor.visible || gotoProgressPanel.visible || mapControl.gotoConfirmationPending
 

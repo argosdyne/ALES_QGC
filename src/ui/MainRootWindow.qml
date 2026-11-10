@@ -85,11 +85,16 @@ ApplicationWindow {
 
     // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
     property bool               lidarPanelVisible:          false
+    // LiDAR and Tether panels share the top-right corner: only one is open at a time
+    onLidarPanelVisibleChanged:  if (lidarPanelVisible) tetherPanelVisible = false
+    onTetherPanelVisibleChanged: if (tetherPanelVisible) lidarPanelVisible = false
+    readonly property bool      lidarPanelShown:            lidarPanelVisible && (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {
             var s = QGroundControl.corePlugin.settings
-            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue) {
+            // Auto-open must not close an open Tether panel (only a user open does)
+            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue && !mainWindow.tetherPanelVisible) {
                 mainWindow.lidarPanelVisible = true
             }
         }
