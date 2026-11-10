@@ -21209,8 +21209,8 @@ Confirmar a alteração?</translation>
     <message>
       <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
       <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
-      <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
-      <translation>A aeronave está próxima da GeoZona. Distância: %1M</translation>
+      <source>The distance between the aircraft and &lt;b&gt;GeoZone is close&lt;/b&gt;. Distance: &lt;b&gt;%1 m&lt;/b&gt;</source>
+      <translation>A aeronave está &lt;b&gt;próxima da GeoZona&lt;/b&gt;. Distância: &lt;b&gt;%1 m&lt;/b&gt;</translation>
     </message>
   </context>
   <context>

@@ -877,7 +877,7 @@ void FlightZoneManager::checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneLi
 
                         if (exactDist <= alarmDistance) {
                             anyNear = true;
-                            QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(exactDist, 'f', 0));
+                            QString msg = tr("The distance between the aircraft and <b>GeoZone is close</b>. Distance: <b>%1 m</b>").arg(QString::number(exactDist, 'f', 0));
                             QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
                                 CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                             }, Qt::QueuedConnection);
@@ -960,7 +960,7 @@ void FlightZoneManager::checkDroneAndGeoZone() {
                             if(distance <= alarmDistance) // 지정한 거리값 안에 들어오면 알람을 띄워야됨
                             {
                                 //qInfo() << "Inside Index = " << i;
-                                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(distance, 'f', 0));
+                                QString msg = tr("The distance between the aircraft and <b>GeoZone is close</b>. Distance: <b>%1 m</b>").arg(QString::number(distance, 'f', 0));
                                 //CustomQmlInterface::instance()->geoAwarenessMessage(msg);
 
                                 QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
@@ -1043,7 +1043,7 @@ void FlightZoneManager::checkDistanceDroneAndGeoAwareness(){
                     CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Inside, msg);
                 }, Qt::QueuedConnection);
             } else if (distance <= alarmDistance) {
-                QString msg = tr("The distance between the aircraft and GeoZone is close. Distance : %1M").arg(QString::number(distance, 'f', 0));
+                QString msg = tr("The distance between the aircraft and <b>GeoZone is close</b>. Distance: <b>%1 m</b>").arg(QString::number(distance, 'f', 0));
                 QMetaObject::invokeMethod(CustomQmlInterface::instance(), [msg]() {
                     CustomQmlInterface::instance()->geoAwarenessMessage(GeoAwarenessErrorId::Near, msg);
                 }, Qt::QueuedConnection);

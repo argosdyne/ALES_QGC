@@ -46,6 +46,16 @@ Item {
         return bottom
     }
 
+    /// GeoAwareness message as toast rich text: <b>key phrase</b> in the strong color, the rest in the
+    /// normal toast text color. A message without <b> marks is drawn in the strong color.
+    function _geoAwarenessToastText(context) {
+        var strongOpen = "<font color=\"" + qgcPal.warningToastTextStrong + "\">"
+        if (context.indexOf("<b>") < 0) {
+            return strongOpen + context + "</font>"
+        }
+        return context.replace(/<b>/g, strongOpen).replace(/<\/b>/g, "</font>")
+    }
+
     function _updateWarningToastStackBottom() {
         _systemMessageStackBottom = _repeaterBottom(systemMessageRepeater)
         warningToastStackBottom = Math.max(_systemMessageStackBottom, _repeaterBottom(geoAwarenessMessageRepeater))
@@ -348,10 +358,11 @@ Item {
             // Stacked by CustomQmlInterface, below the Fly view's warning toast and the system messages
             y:              object.geoAwarenessY + Math.max(_flyViewOverlay.warningToastTopInset, _flyViewOverlay._systemMessageStackBottom)
             opacity:        object.geoAwarenessOpacity
-            // Messages may contain <br>. The whole safety message uses the strong text color so it
-            // stays readable; the translated strings do not mark separate key phrases.
+            // Messages may contain <br>. Key phrases are marked with <b> in the (translated) message and
+            // drawn in the strong text color, the rest in the normal text color (Figma frame 16). A message
+            // without marks is drawn entirely in the strong color so it stays readable.
             textIsRichText: true
-            text:           "<font color=\"" + qgcPal.warningToastTextStrong + "\">" + object.geoAwarenessContext + "</font>"
+            text:           _flyViewOverlay._geoAwarenessToastText(object.geoAwarenessContext)
 
             onCloseClicked: object.geoAwarenessCloseItstyle()
 
@@ -370,11 +381,17 @@ Item {
     //-- Status Messages
     Column {
         id: statusMessageCol
-        width: Math.min(parent.width * 0.25, ScreenTools.defaultFontPixelWidth * 40)
+        // Figma "Status Messages" (frame 16): 432 px wide, 16 px from the top, 64 px from the right edge
+        width: Math.min(parent.width * 0.25, ScreenTools.figmaPx * 432)
         anchors.top:        parent.top
-        anchors.topMargin:  ScreenTools.defaultFontPixelWidth
+        anchors.topMargin:  ScreenTools.figmaPx * 16
         anchors.right:      parent.right
-        anchors.rightMargin: ScreenTools.defaultFontPixelWidth
+        anchors.rightMargin: ScreenTools.figmaPx * 64
+
+        // StatusMessage card sizes in Figma design pixels
+        property real _hPadding:    ScreenTools.figmaPx * 14.4
+        property real _vPadding:    ScreenTools.figmaPx * 17.1
+        property real _iconSize:    ScreenTools.figmaPx * 51.3
         Repeater {
             model: _activeVehicle ? _activeVehicle.statusMessages : null
             Rectangle {
@@ -387,7 +404,7 @@ Item {
                 border.width:       1
                 opacity:            object.opacity
                 width:              statusMessageCol.width
-                height:             Math.max(ScreenTools.defaultFontPixelHeight * 1.5, statusTextEdit.height) + ScreenTools.defaultFontPixelHeight
+                height:             Math.max(statusMessageCol._iconSize, statusTextEdit.height) + (statusMessageCol._vPadding * 2)
                 x:                  width + ScreenTools.defaultFontPixelWidth * 2
                 XAnimator {
                     target: statusMessageArea
@@ -399,24 +416,25 @@ Item {
                 Image {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: ScreenTools.defaultFontPixelWidth
-                    width: ScreenTools.defaultFontPixelHeight * 1.5
+                    anchors.leftMargin: statusMessageCol._hPadding
+                    width: statusMessageCol._iconSize
                     height: width
+                    sourceSize.height: height
                     source: object.icon
                 }
 
                 TextEdit {
                     id: statusTextEdit
                     anchors.left:   parent.left
-                    anchors.leftMargin: ScreenTools.defaultFontPixelWidth * 2 + ScreenTools.defaultFontPixelHeight * 1.5
+                    anchors.leftMargin: (statusMessageCol._hPadding * 2) + statusMessageCol._iconSize
                     anchors.verticalCenter: statusMessageArea.verticalCenter
-                    width: statusMessageCol.width - ScreenTools.defaultFontPixelWidth * 2
+                    width: statusMessageCol.width - anchors.leftMargin - statusMessageCol._hPadding
                     readOnly:       true
                     textFormat:     TextEdit.RichText
-                    font.pointSize: ScreenTools.defaultFontPointSize
+                    font.pointSize: ScreenTools.figmaFontPointSize(25.2)
                     font.family:    ScreenTools.demiboldFontFamily
                     wrapMode:       TextEdit.WordWrap
-                    color:          object.color
+                    color:          qgcPal.text     // Figma StatusMessage text: enabled/text (the icon shows the severity)
                     text:           object.context
                 }
             }

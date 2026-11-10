@@ -20930,8 +20930,8 @@ Confirm change?</source>
 <message>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
         <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
-        <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
-        <translation>항공기와 지오존 사이의 거리가 가까워지고 있습니다. 거리: %1M</translation>
+        <source>The distance between the aircraft and &lt;b&gt;GeoZone is close&lt;/b&gt;. Distance: &lt;b&gt;%1 m&lt;/b&gt;</source>
+        <translation>항공기와 지오존 사이의 &lt;b&gt;거리가 가까워지고 있습니다&lt;/b&gt;. 거리: &lt;b&gt;%1 m&lt;/b&gt;</translation>
     </message>
 </context>
 <context>

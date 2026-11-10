@@ -21200,8 +21200,8 @@ Confirm change?</source>
     <message>
       <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="947"/>
       <location filename="../custom/src/MissionManager/FlightZoneManager.cpp" line="1030"/>
-      <source>The distance between the aircraft and GeoZone is close. Distance : %1M</source>
-      <translation>機体がジオゾーンに接近しています。距離 : %1M</translation>
+      <source>The distance between the aircraft and &lt;b&gt;GeoZone is close&lt;/b&gt;. Distance: &lt;b&gt;%1 m&lt;/b&gt;</source>
+      <translation>機体が&lt;b&gt;ジオゾーンに接近しています&lt;/b&gt;。距離: &lt;b&gt;%1 m&lt;/b&gt;</translation>
     </message>
   </context>
   <context>
