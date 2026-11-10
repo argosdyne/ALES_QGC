@@ -21,9 +21,9 @@ import QGroundControl.Palette       1.0
 /// Dialog showing list of available guided actions
 Rectangle {
     id:         _root
-    width:      actionColumn.width  + (_margins * 4)
-    height:     actionColumn.height + (_margins * 4)
-    radius:     _margins / 2
+    width:      actionColumn.width  + (_padding * 2)
+    height:     actionColumn.height + (_padding * 2)
+    radius:     ScreenTools.figmaPx * 12.5
     color:      qgcPal.window
     opacity:    0.9
     visible:    false
@@ -35,9 +35,12 @@ Rectangle {
         visible = true
     }
 
-    property real _margins:             Math.round(ScreenTools.defaultFontPixelHeight * 0.66)
-    property real _actionWidth:         ScreenTools.defaultFontPixelWidth * 25
-    property real _actionHorizSpacing:  ScreenTools.defaultFontPixelHeight * 2
+    // Sizes from the Figma GuidedActionList (frame 05), in design pixels
+    property real _padding:             ScreenTools.figmaPx * 50
+    property real _margins:             ScreenTools.figmaPx * 25     // header to actions
+    property real _actionWidth:         ScreenTools.figmaPx * 360
+    property real _actionHorizSpacing:  ScreenTools.figmaPx * 76
+    property real _actionVertSpacing:   ScreenTools.figmaPx * 19     // message to button
 
     property var _model: [
         {
@@ -91,13 +94,31 @@ Rectangle {
 
     ColumnLayout {
         id:                 actionColumn
-        anchors.margins:    _root._margins
         anchors.centerIn:   parent
         spacing:            _margins
 
-        QGCLabel {
-            text:               qsTr("Select Action")
-            Layout.alignment:   Qt.AlignHCenter
+        // Header: title on the left, close button on the right of the same row
+        RowLayout {
+            Layout.fillWidth:   true
+
+            QGCLabel {
+                text:               qsTr("Select Action")
+                Layout.fillWidth:   true
+            }
+
+            QGCColoredImage {
+                Layout.preferredWidth:  ScreenTools.figmaPx * 34.2
+                Layout.preferredHeight: ScreenTools.figmaPx * 34.2
+                sourceSize.height:      height
+                source:                 "/res/XDelete.svg"
+                fillMode:               Image.PreserveAspectFit
+                color:                  qgcPal.text
+
+                QGCMouseArea {
+                    fillItem:   parent
+                    onClicked:  _root.visible = false
+                }
+            }
         }
 
         QGCFlickable {
@@ -120,7 +141,7 @@ Rectangle {
                     model:  _model
 
                     ColumnLayout {
-                        spacing:            ScreenTools.defaultFontPixelHeight / 2
+                        spacing:            _actionVertSpacing
                         visible:            modelData.visible
                         Layout.fillHeight:  true
 
@@ -138,6 +159,8 @@ Rectangle {
                             id:                 actionButton
                             text:               modelData.title
                             Layout.alignment:   Qt.AlignCenter
+                            Layout.minimumWidth:    ScreenTools.figmaPx * 112   // Figma QGCButton 112 x 76
+                            Layout.minimumHeight:   ScreenTools.figmaPx * 76
 
                             onClicked: {
                                 _root.visible = false
@@ -153,7 +176,7 @@ Rectangle {
                     model:  customManager.actions
 
                     ColumnLayout {
-                        spacing:            ScreenTools.defaultFontPixelHeight / 2
+                        spacing:            _actionVertSpacing
                         visible:            _root.hasCustomActions
                         Layout.fillHeight:  true
 
@@ -171,6 +194,8 @@ Rectangle {
                             id:                 customButton
                             text:               object.label
                             Layout.alignment:   Qt.AlignCenter
+                            Layout.minimumWidth:    ScreenTools.figmaPx * 112
+                            Layout.minimumHeight:   ScreenTools.figmaPx * 76
 
                             onClicked: {
                                 var vehicle = QGroundControl.multiVehicleManager.activeVehicle
@@ -180,23 +205,6 @@ Rectangle {
                     } // ColumnLayout
                 } // Repeater
             }
-        }
-    }
-
-    QGCColoredImage {
-        anchors.margins:    _margins
-        anchors.top:        parent.top
-        anchors.right:      parent.right
-        width:              ScreenTools.defaultFontPixelHeight
-        height:             width
-        sourceSize.height:  width
-        source:             "/res/XDelete.svg"
-        fillMode:           Image.PreserveAspectFit
-        color:              qgcPal.text
-
-        QGCMouseArea {
-            fillItem:   parent
-            onClicked:  _root.visible = false
         }
     }
 }

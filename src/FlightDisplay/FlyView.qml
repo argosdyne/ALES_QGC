@@ -162,7 +162,7 @@ Item {
 
     GuidedActionList {
         id:                         guidedActionList
-        anchors.margins:            _margins
+        anchors.margins:            ScreenTools.figmaPx * 8     // Figma frame 05: 8 px above the bottom
         anchors.bottom:             parent.bottom
         anchors.horizontalCenter:   parent.horizontalCenter
         z:                          QGroundControl.zOrderTopMost
