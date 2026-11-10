@@ -18,18 +18,19 @@ import QGroundControl.Palette       1.0
 
 Rectangle {
     id:                 telemetryPanel
-    height:             telemetryLayout.height + (_toolsMargin * 2)
-    width:              telemetryLayout.width + (_toolsMargin * 2)
+    height:             telemetryLayout.height + (_padding * 2)
+    width:              telemetryLayout.width + (_padding * 2)
     color:              qgcPal.window
-    radius:             ScreenTools.defaultFontPixelWidth / 2
+    radius:             ScreenTools.figmaPx * 8
 
     property bool       bottomMode: true
+    property real       _padding:   ScreenTools.figmaPx * 12    // Figma TelemetryValuesBar padding
 
     DeadMouseArea { anchors.fill: parent }
 
     ColumnLayout {
         id:                 telemetryLayout
-        anchors.margins:    _toolsMargin
+        anchors.margins:    _padding
         anchors.bottom:     parent.bottom
         anchors.left:       parent.left
 

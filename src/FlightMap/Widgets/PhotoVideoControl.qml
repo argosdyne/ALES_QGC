@@ -33,7 +33,18 @@ Item {
     implicitHeight: content.implicitHeight    
     visible:    (_mavlinkCamera || _videoStreamAvailable || _simpleCameraAvailable) && multiVehiclePanelSelector.showSingleVehiclePanel
     property real   _margins:                                   ScreenTools.defaultFontPixelHeight / 2
-    property var    _activeVehicle:                             QGroundControl.multiVehicleManager.activeVehicle
+
+    // Sizes in Figma design pixels ("PhotoVideoControl / New" in the EasyGripper Fly view frames,
+    // ScreenTools.figmaPx = toolbar height / 124)
+    readonly property real _px:                 ScreenTools.figmaPx
+    readonly property real _spacing:            _px * 14
+    readonly property real _roundButtonSize:    _px * 56
+    readonly property real _roundButtonGap:     _px * 71
+    readonly property real _pillInset:          _px * 12
+    readonly property real _captureButtonSize:  _px * 119
+    readonly property real _readoutFontSize:    ScreenTools.figmaFontPointSize(28)  // point size
+
+    property var    _activeVehicle:                            QGroundControl.multiVehicleManager.activeVehicle
     property var    _activePayload:                             PayloadManager.active
     property bool   _usePayload:                                _activePayload && (_activePayload.connected
                                                                     || (PayloadManager.activeType === 1
@@ -522,16 +533,16 @@ Item {
     ColumnLayout {
         id: content
         anchors.fill: parent
-        spacing: ScreenTools.defaultFontPixelHeight * 0.5
+        spacing: _spacing
         // ───────────────────────────────
         // 1. Reset & Setting Button
         RowLayout {
-            spacing: ScreenTools.defaultFontPixelWidth * 6
+            spacing: _roundButtonGap
             Layout.alignment: Qt.AlignHCenter
 
             //Gimbal reset
             Rectangle {
-                height: ScreenTools.defaultFontPixelHeight * 2
+                height: _roundButtonSize
                 width: height
                 radius: width
                 color: "gray"
@@ -544,7 +555,7 @@ Item {
                     anchors.centerIn: parent
                     source: "/res/reset.svg"
                     mipmap: true
-                    height: ScreenTools.defaultFontPixelHeight
+                    height: parent.height * 0.5
                     width: height
                     sourceSize.height: height
                     color: qgcPal.text
@@ -558,7 +569,7 @@ Item {
             }
             //Camera Settings
             Rectangle {
-                height: ScreenTools.defaultFontPixelHeight * 2
+                height: _roundButtonSize
                 width: height
                 radius: width
                 color: "gray"
@@ -567,7 +578,7 @@ Item {
                     anchors.centerIn: parent
                     source: "/res/cameraSetting.svg"
                     mipmap: true
-                    height: ScreenTools.defaultFontPixelHeight
+                    height: parent.height * 0.5
                     width: height
                     sourceSize.height: height
                     color: qgcPal.text
@@ -584,8 +595,8 @@ Item {
         // 2. Photo/Video Switch Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            width: ScreenTools.defaultFontPixelWidth * 16
-            height: width / 2.5
+            width: _px * 190
+            height: _px * 76
             color: qgcPal.windowShadeLight
             radius: height * 0.5
             visible: _showModeIndicator
@@ -598,7 +609,7 @@ Item {
                 color: _modeIndicatorPhotoMode ? qgcPal.windowShadeLight : qgcPal.window
                 radius: height * 0.5
                 anchors.left: parent.left
-                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.margins: _pillInset
 
                 QGCColoredImage {
                     height: parent.height * 0.5
@@ -624,7 +635,7 @@ Item {
                 color: _modeIndicatorPhotoMode ? qgcPal.window : qgcPal.windowShadeLight
                 radius: height * 0.5
                 anchors.right: parent.right
-                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.margins: _pillInset
 
                 QGCColoredImage {
                     height: parent.height * 0.5
@@ -674,11 +685,11 @@ Item {
             id: captureButton
             Layout.alignment: Qt.AlignHCenter
             color: Qt.rgba(0,0,0,0)
-            width: ScreenTools.defaultFontPixelWidth * 10
+            width: _captureButtonSize
             height: width
             radius: width * 0.5
             border.color: qgcPal.buttonText
-            border.width: 3
+            border.width: Math.max(1, _px * 2)
 
             Rectangle {
                 anchors.centerIn: parent
@@ -711,7 +722,7 @@ Item {
                                        ? _mavlinkCamera.recordTimeStr
                                        : "00:00:00")
             color:              (_isGremsyPayload && _payloadRecordingEffective) ? qgcPal.colorRed : qgcPal.text
-            font.pointSize:     ScreenTools.largeFontPointSize
+            font.pointSize:     ScreenTools.figmaFontPointSize(31)
             font.bold:          true
             visible:            _isGremsyPayload
                                     ? !_modeIndicatorPhotoMode
@@ -722,8 +733,8 @@ Item {
         // 5. Zoom in / Zoom Out Button
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
-            width: ScreenTools.defaultFontPixelWidth * 18
-            height: width / 3
+            width: _px * 213
+            height: _px * 71
             color: qgcPal.windowShadeLight
             radius: height * 0.5
             visible: _hasZoom
@@ -736,7 +747,7 @@ Item {
                 color: (zoomInNextVision.pressed || zoomInStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.left: parent.left
-                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.margins: _pillInset
 
                 QGCColoredImage {
                     height: parent.height * 0.5
@@ -814,7 +825,7 @@ Item {
                 Label {
                     anchors.centerIn: parent
                     text: "x" + getZoomValue()
-
+                    font.pointSize: ScreenTools.figmaFontPointSize(21)
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -829,7 +840,7 @@ Item {
                 color: (zoomOutNextVision.pressed || zoomOutStandard.pressed) ? "black" : "gray"
                 radius: height * 0.5
                 anchors.right: parent.right
-                anchors.margins: ScreenTools.defaultFontPixelWidth
+                anchors.margins: _pillInset
 
                 QGCColoredImage {
                     height: parent.height * 0.5
@@ -913,8 +924,8 @@ Item {
             // autopilot, not a reliable gimbal line-of-sight angle.
             visible: !_isNextVisionPayload
             columns: 2
-            columnSpacing: ScreenTools.defaultFontPixelWidth
-            rowSpacing: ScreenTools.defaultFontPixelHeight / 2
+            columnSpacing: _pillInset
+            rowSpacing: _spacing
             Layout.fillWidth: true
 
             QGCLabel {
@@ -922,7 +933,7 @@ Item {
                 //wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.pointSize: _readoutFontSize
                 font.bold: true
             }
 
@@ -931,7 +942,7 @@ Item {
                 //wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.pointSize: _readoutFontSize
                 font.bold: true
             }
 
@@ -946,7 +957,7 @@ Item {
                 }
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.pointSize: _readoutFontSize
                 font.bold: true
             }
 
@@ -962,7 +973,7 @@ Item {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: ScreenTools.defaultFontPixelHeight
+                font.pointSize: _readoutFontSize
                 font.bold: true
             }
         }
@@ -979,18 +990,20 @@ Item {
         // ───────────────────────────────
         // 9. SD card Storage
         RowLayout {
-            spacing: ScreenTools.defaultFontPixelWidth
+            spacing: _pillInset
             Layout.alignment: Qt.AlignHCenter
             Image {
                 source: "/res/SDCard.svg"
-                width: ScreenTools.defaultFontPixelWidth * 2
-                height: ScreenTools.defaultFontPixelWidth * 2
+                Layout.preferredWidth:  _px * 24
+                Layout.preferredHeight: _px * 24
+                sourceSize.height:      _px * 24
+                fillMode:               Image.PreserveAspectFit
                 visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
             }
 
             QGCLabel {
                 text:               _mavlinkCameraSdCardMissing ? qsTr("SD Card Missing") : (_mavlinkCamera ? qsTr("Free Space: ") + _mavlinkCamera.storageFreeStr : "")
-                font.pointSize:     ScreenTools.defaultFontPointSize * 1.2
+                font.pointSize:     ScreenTools.figmaFontPointSize(25)
                 visible:            _mavlinkCameraStorageReady || _mavlinkCameraSdCardMissing
                 Layout.alignment: Qt.AlignVCenter
             }

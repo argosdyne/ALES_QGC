@@ -55,6 +55,18 @@ Item {
 
     property real toolbarHeight:            0
 
+    /// One pixel of the ARGOSDYNE Figma design ("ALES-QGC UI Base"). The design uses a 28 px default
+    /// font and a 124 px toolbar, so a design pixel is the default font pixel size / 28. Multiply design
+    /// pixel values by this so sizes keep the design proportions to the text.
+    readonly property real figmaPx:         (defaultFontPointSize * Screen.logicalPixelDensity * 25.4 / 72) / _figmaDefaultFontPixels
+    readonly property real _figmaDefaultFontPixels: 28
+    readonly property real _figmaToolbarHeight:     124
+
+    /// Font point size for a font of designPixels pixels in the Figma design (see figmaPx)
+    function figmaFontPointSize(designPixels) {
+        return defaultFontPointSize * designPixels / _figmaDefaultFontPixels
+    }
+
     readonly property real smallFontPointRatio:      0.75
     readonly property real mediumFontPointRatio:     1.25
     readonly property real largeFontPointRatio:      1.5
@@ -152,7 +164,9 @@ Item {
             // If using physical sizing takes up too much of the vertical real estate fall back to font based sizing
             minTouchPixels      = defaultFontPixelHeight * 3
         }
-        toolbarHeight           = isMobile ? minTouchPixels : defaultFontPixelHeight * 3
+        // ARGOSDYNE: on desktop the toolbar keeps the Figma proportion to the default font (124 px for a
+        // 28 px font) instead of 3 font heights, which is about 20% lower with the Roboto font
+        toolbarHeight           = isMobile ? minTouchPixels : Math.round(defaultFontPointSize * Screen.logicalPixelDensity * 25.4 / 72 / _figmaDefaultFontPixels * _figmaToolbarHeight)
         toolbarHeight           = toolbarHeight * QGroundControl.corePlugin.options.toolbarHeightMultiplier
     }
 

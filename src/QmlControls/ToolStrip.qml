@@ -20,12 +20,17 @@ Rectangle {
     color:      qgcPal.toolbarBackground
     width:      _idealWidth < repeater.contentWidth ? repeater.contentWidth : _idealWidth
     height:     Math.min(maxHeight, toolStripColumn.height + (flickable.anchors.margins * 2))
-    radius:     ScreenTools.defaultFontPixelWidth / 2
+    radius:     designSize ? _px * 8 : ScreenTools.defaultFontPixelWidth / 2
 
     property alias  model:              repeater.model
     property real   maxHeight           ///< Maximum height for control, determines whether text is hidden to make control shorter
     property alias  title:              titleLabel.text
     property var    fontSize:           ScreenTools.smallFontPointSize
+    /// true: use the sizes of the ARGOSDYNE Figma design (FlyViewToolStrip: 112 px wide, 100 px buttons,
+    /// 21 px labels, 6.4 px margins, 4 px spacing) in ScreenTools.figmaPx units
+    property bool   designSize:         false
+
+    property real   _px:                ScreenTools.figmaPx
 
     property var _dropPanel: dropPanel
 
@@ -39,7 +44,8 @@ Rectangle {
     }
 
     // Ensure we don't get narrower than content
-    property real _idealWidth: (ScreenTools.isMobile ? ScreenTools.minTouchPixels : ScreenTools.defaultFontPixelWidth * 8) + toolStripColumn.anchors.margins * 2
+    property real _idealWidth: designSize ? _px * 111.6 :
+                                            (ScreenTools.isMobile ? ScreenTools.minTouchPixels : ScreenTools.defaultFontPixelWidth * 8) + toolStripColumn.anchors.margins * 2
 
     signal dropped(int index)
 
@@ -49,7 +55,7 @@ Rectangle {
 
     QGCFlickable {
         id:                 flickable
-        anchors.margins:    ScreenTools.defaultFontPixelWidth * 0.4
+        anchors.margins:    designSize ? _px * 6.4 : ScreenTools.defaultFontPixelWidth * 0.4
         anchors.top:        parent.top
         anchors.left:       parent.left
         anchors.right:      parent.right
@@ -62,14 +68,14 @@ Rectangle {
             id:             toolStripColumn
             anchors.left:   parent.left
             anchors.right:  parent.right
-            spacing:        ScreenTools.defaultFontPixelWidth * 0.25
+            spacing:        designSize ? _px * 4 : ScreenTools.defaultFontPixelWidth * 0.25
 
             QGCLabel {
                 id:                     titleLabel
                 anchors.left:           parent.left
                 anchors.right:          parent.right
                 horizontalAlignment:    Text.AlignHCenter
-                font.pointSize:         ScreenTools.smallFontPointSize
+                font.pointSize:         _root.designSize ? ScreenTools.figmaFontPointSize(21) : ScreenTools.smallFontPointSize
                 visible:                title != ""
             }
 
@@ -81,8 +87,8 @@ Rectangle {
                     anchors.left:       toolStripColumn.left
                     anchors.right:      toolStripColumn.right
                     height:             width
-                    radius:             ScreenTools.defaultFontPixelWidth / 2
-                    fontPointSize:      _root.fontSize
+                    radius:             _root.designSize ? _px * 8 : ScreenTools.defaultFontPixelWidth / 2
+                    fontPointSize:      _root.designSize ? ScreenTools.figmaFontPointSize(21) : _root.fontSize
                     toolStripAction:    modelData
                     dropPanel:          _dropPanel
                     onDropped:          _root.dropped(index)

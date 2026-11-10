@@ -28,13 +28,14 @@ Rectangle {
 
     signal closeClicked
 
-    readonly property real _h:          ScreenTools.defaultFontPixelHeight
-    readonly property real _accentWidth: _h * 0.36
-    readonly property real _vPadding:   _h * 0.16
+    // Sizes in Figma design pixels (ScreenTools.figmaPx)
+    readonly property real _px:         ScreenTools.figmaPx
+    readonly property real _accentWidth: _px * 15
+    readonly property real _vPadding:   _px * 6
 
-    implicitWidth:  Math.round(_h * 16)
+    implicitWidth:  Math.round(_px * 677)
     implicitHeight: Math.max(contentRow.implicitHeight, closeButton.height) + (_vPadding * 2)
-    radius:         _h * 0.47
+    radius:         _px * 18
     color:          qgcPal.warningToastAccent
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
@@ -62,13 +63,13 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left:           parent.left
         anchors.right:          parent.right
-        anchors.leftMargin:     control._h * 0.83
+        anchors.leftMargin:     control._px * 31.5
         anchors.rightMargin:    control._vPadding
-        spacing:                control._h * 0.47
+        spacing:                control._px * 18
 
         Image {
-            Layout.preferredWidth:  control._h * 1.26
-            Layout.preferredHeight: control._h * 1.1
+            Layout.preferredWidth:  control._px * 53.4
+            Layout.preferredHeight: control._px * 46.7
             source:                 "/res/WarningToastIcon.svg"
             sourceSize.width:       width
             sourceSize.height:      height
@@ -79,10 +80,14 @@ Rectangle {
             Layout.fillWidth:   true
             wrapMode:           Text.WordWrap
             textFormat:         Text.StyledText
-            font.family:        ScreenTools.demiboldFontFamily
+            // Figma "QGC/Warning": Roboto Bold. The regular family with bold picks the real Bold face;
+            // bold on the Medium (demibold) family would only embolden Medium synthetically.
+            font.family:        ScreenTools.normalFontFamily
             font.bold:          true
-            font.pointSize:     ScreenTools.defaultFontPointSize * 0.8
-            lineHeight:         1.1
+            // 25 px as drawn in the Fly view frames (the 609 px component scaled to 677 px; the reported
+            // 22.5 px is the unscaled size)
+            font.pointSize:     ScreenTools.figmaFontPointSize(25)
+            lineHeight:         1.35
             color:              qgcPal.warningToastText
             text: {
                 var strong = control.strongText.length ? "<font color=\"" + qgcPal.warningToastTextStrong + "\">" + control._escape(control.strongText) + "</font>" : ""
@@ -95,21 +100,21 @@ Rectangle {
         }
 
         Rectangle {
-            Layout.preferredWidth:  Math.max(1, control._h * 0.04)
-            Layout.preferredHeight: control._h * 1.1
+            Layout.preferredWidth:  Math.max(1, control._px * 1.7)
+            Layout.preferredHeight: control._px * 46.7
             color:                  qgcPal.warningToastDivider
             visible:                control.showCloseButton
         }
 
         Item {
             id:                     closeButton
-            Layout.preferredWidth:  control._h * 1.5
-            Layout.preferredHeight: control._h * 1.5
+            Layout.preferredWidth:  control._px * 63.4
+            Layout.preferredHeight: control._px * 63.4
             visible:                control.showCloseButton
 
             Image {
                 anchors.centerIn:   parent
-                width:              control._h * 0.8
+                width:              control._px * 33.4
                 height:             width
                 sourceSize.width:   width
                 sourceSize.height:  height
@@ -117,9 +122,9 @@ Rectangle {
             }
 
             MouseArea {
-                // 2H touch target around the 1.5H button
+                // 76 px touch target around the 63 px button
                 anchors.centerIn:   parent
-                width:              control._h * 2
+                width:              control._px * 76
                 height:             width
                 onClicked:          control.closeClicked()
             }

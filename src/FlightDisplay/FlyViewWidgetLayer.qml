@@ -47,7 +47,10 @@ Item {
     property var    _guidedController:      globals.guidedControllerFlyView
     property real   _margins:               ScreenTools.defaultFontPixelWidth / 2
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
-    property real   _photoVideoPanelPadding: ScreenTools.defaultFontPixelHeight * 0.42
+    // Photo/video panel per Figma (EasyGripper Fly view, design px): panel 356 wide, 16 px translucent
+    // padding and radius, 4 px from the right edge of the view
+    property real   _photoVideoPanelPadding: ScreenTools.figmaPx * 16
+    property real   _photoVideoPanelWidth:   ScreenTools.figmaPx * 356
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
     property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 30
     property alias  _gripperMenu:           gripperOptions
@@ -183,9 +186,9 @@ Item {
     PhotoVideoControl {
         id:                     photoVideoControl
         anchors.margins:        _toolsMargin
-        anchors.rightMargin:    _toolsMargin + (_photoVideoPanelPadding / 2)
+        anchors.rightMargin:    _photoVideoPanelPadding + (ScreenTools.figmaPx * 4)
         anchors.right:          parent.right
-        width:                  _rightPanelWidth
+        width:                  _photoVideoPanelWidth
 
         property real rightEdgeCenterInset: visible ? parent.width - x + _photoVideoPanelPadding : 0
 
@@ -342,9 +345,9 @@ Item {
 
     FlyViewToolStrip {
         id:                     toolStrip
-        anchors.leftMargin:     _toolsMargin + parentToolInsets.leftEdgeCenterInset
-        // Starts below the map scale row at the top of the view
-        anchors.topMargin:      _toolsMargin + parentToolInsets.topEdgeLeftInset + (ScreenTools.defaultFontPixelHeight * 1.2)
+        // Figma: 12 px from the left, 58 px from the top (below the map scale row)
+        anchors.leftMargin:     (ScreenTools.figmaPx * 12) + parentToolInsets.leftEdgeCenterInset
+        anchors.topMargin:      (ScreenTools.figmaPx * 58) + parentToolInsets.topEdgeLeftInset
         anchors.left:           parent.left
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
@@ -365,9 +368,9 @@ Item {
     VehicleWarnings {
         id:                         vehicleWarnings
         anchors.top:                parent.top
-        anchors.topMargin:          ScreenTools.defaultFontPixelHeight * 0.42
+        anchors.topMargin:          ScreenTools.figmaPx * 16
         anchors.horizontalCenter:   parent.horizontalCenter
-        width:                      Math.min(implicitWidth, parent.width - (ScreenTools.defaultFontPixelHeight * 2))
+        width:                      Math.min(implicitWidth, parent.width - (ScreenTools.figmaPx * 48))
         z:                          QGroundControl.zOrderTopMost
     }
 
