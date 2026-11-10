@@ -12,6 +12,7 @@ import QtQuick.Controls         1.2
 
 import QGroundControl               1.0
 import QGroundControl.Controls      1.0
+import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
 import QGroundControl.Palette       1.0
 
@@ -29,6 +30,9 @@ Rectangle {
     property bool _speedSlider:       false
 
     property var sliderValue : valueSlider.value
+
+    // Figma GuidedValueSlider: 8 px padding and spacing, 43 px slider handle
+    property real _padding:     ScreenTools.figmaPx * 8
 
     onSliderValueChanged: {
         valueField.updateFunction(sliderValue)
@@ -90,7 +94,8 @@ Rectangle {
 
     Column {
         id:                 headerColumn
-        anchors.margins:    _margins
+        anchors.margins:    _padding
+        spacing:            _padding
         anchors.top:        parent.top
         anchors.left:       parent.left
         anchors.right:      parent.right
@@ -158,7 +163,8 @@ Rectangle {
 
     QGCSlider {
         id:                 valueSlider
-        anchors.margins:    _margins
+        anchors.margins:    _padding
+        implicitHeight:     ScreenTools.figmaPx * 86.4    // QGCSlider handle = implicitHeight / 2
         anchors.top:        headerColumn.bottom
         anchors.bottom:     parent.bottom
         anchors.left:       parent.left

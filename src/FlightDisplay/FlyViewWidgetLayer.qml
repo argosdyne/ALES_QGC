@@ -35,6 +35,8 @@ Item {
     property var    parentToolInsets
     property var    totalToolInsets:        _totalToolInsets
     property var    mapControl
+    /// The guided value slider is shown at the right edge (the layer's right edge is then its left edge)
+    property bool   guidedValueSliderVisible: false
     /// Bottom of the top-center warning toast, so other toasts can stack below it
     readonly property real warningToastBottom: vehicleWarnings.visible ? vehicleWarnings.y + vehicleWarnings.height : 0
 
@@ -48,7 +50,7 @@ Item {
     property real   _margins:               ScreenTools.defaultFontPixelWidth / 2
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     // Photo/video panel per Figma (EasyGripper Fly view, design px): panel 356 wide, 16 px translucent
-    // padding and radius, 4 px from the right edge of the view
+    // padding and radius, 4 px from the right edge of the view or 12 px from the guided value slider
     property real   _photoVideoPanelPadding: ScreenTools.figmaPx * 16
     property real   _photoVideoPanelWidth:   ScreenTools.figmaPx * 356
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
@@ -186,7 +188,7 @@ Item {
     PhotoVideoControl {
         id:                     photoVideoControl
         anchors.margins:        _toolsMargin
-        anchors.rightMargin:    _photoVideoPanelPadding + (ScreenTools.figmaPx * 4)
+        anchors.rightMargin:    _photoVideoPanelPadding + (ScreenTools.figmaPx * (guidedValueSliderVisible ? 12 : 4))
         anchors.right:          parent.right
         width:                  _photoVideoPanelWidth
 

@@ -18,9 +18,10 @@ import QGroundControl.Palette       1.0
 
 Rectangle {
     id:         _root
-    width:      ScreenTools.defaultFontPixelWidth * 45
+    // Figma GuidedActionConfirm (frame 03): 648 design px wide, 8 px padding and spacing, radius 8
+    width:      ScreenTools.figmaPx * 648
     height:     mainLayout.height + (_margins * 2)
-    radius:     ScreenTools.defaultFontPixelWidth / 2
+    radius:     ScreenTools.figmaPx * 8
     color:      qgcPal.window
     visible:    false
 
@@ -35,7 +36,7 @@ Rectangle {
     property alias  optionText:         optionCheckBox.text
     property alias  optionChecked:      optionCheckBox.checked
 
-    property real _margins:         ScreenTools.defaultFontPixelWidth / 2
+    property real _margins:         ScreenTools.figmaPx * 8
     property bool _emergencyAction: action === guidedController.actionEmergencyStop
 
     Component.onCompleted: guidedController.confirmDialog = this
@@ -106,10 +107,11 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth:   true
-            spacing:            ScreenTools.defaultFontPixelWidth
+            spacing:            ScreenTools.figmaPx * 16
 
             SliderSwitch {
                 id:                 slider
+                Layout.preferredHeight: ScreenTools.figmaPx * 85.5   // knob 78 px (4 px border)
                 confirmText:        ScreenTools.isMobile ? qsTr("Slide to confirm") : qsTr("Slide or hold spacebar")
                 Layout.fillWidth:   true
 

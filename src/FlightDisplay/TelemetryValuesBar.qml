@@ -32,6 +32,7 @@ Rectangle {
         id:                 telemetryLayout
         anchors.margins:    _padding
         anchors.bottom:     parent.bottom
+        spacing:            ScreenTools.figmaPx * 8      // Figma: 8 px between the values and the confirm panel
         anchors.left:       parent.left
 
          RowLayout {

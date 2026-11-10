@@ -197,7 +197,7 @@ Item {
         if (actionCode === actionTakeoff) {
                 guidedValueSlider.setMinVal(_activeVehicle.minimumTakeoffAltitude())
                 guidedValueSlider.setValue(_activeVehicle ? _activeVehicle.minimumTakeoffAltitude() : 0)
-                guidedValueSlider.setDisplayText(qsTr("Height"))
+                guidedValueSlider.setDisplayText(qsTr("Takeoff"))     // Figma frame 03 slider title
         } else if (actionCode === actionChangeSpeed) {
             guidedValueSlider.setIsSpeedSlider(true)
             if (_fixedWing) {

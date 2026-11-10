@@ -91,6 +91,7 @@ Item {
         anchors.right:          guidedValueSlider.visible ? guidedValueSlider.left : parent.right
         z:                      _fullItemZorder + 1
         parentToolInsets:       _toolInsets
+        guidedValueSliderVisible: guidedValueSlider.visible
         mapControl:             _mapControl
         visible:                !QGroundControl.videoManager.fullScreen
     }
@@ -171,14 +172,17 @@ Item {
     //-- Guided value slider (e.g. altitude)
     GuidedValueSlider {
         id:                 guidedValueSlider
-        anchors.margins:    _toolsMargin
-        anchors.topMargin:  _toolsMargin + (ScreenTools.defaultFontPixelHeight * 1.84)
+        // Figma GuidedValueSlider (frame 03): 144 x 839 design px, 12 px from the right edge, 82 px from
+        // the top and 35 px from the bottom of the view, radius 8
+        anchors.rightMargin:    ScreenTools.figmaPx * 12
+        anchors.topMargin:      ScreenTools.figmaPx * 82
+        anchors.bottomMargin:   ScreenTools.figmaPx * 35
         anchors.right:      parent.right
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
         z:                  QGroundControl.zOrderTopMost
-        radius:             ScreenTools.defaultFontPixelWidth / 2
-        width:              ScreenTools.defaultFontPixelWidth * 10
+        radius:             ScreenTools.figmaPx * 8
+        width:              ScreenTools.figmaPx * 144
         color:              qgcPal.window
         visible:            false
     }
