@@ -100,17 +100,21 @@ Item {
         id: vehicleMessagesPopup
 
         Rectangle {
-            width:          mainWindow.width  * 0.666
-            height:         mainWindow.height * 0.666
-            radius:         ScreenTools.defaultFontPixelHeight / 2
+            // Figma "Messages card" (frame 10): the 0.666 x window popup drawn at 0.9, radius 17.1
+            width:          mainWindow.width  * 0.666 * 0.9
+            height:         mainWindow.height * 0.666 * 0.9
+            radius:         ScreenTools.figmaPx * 17.1
             color:          qgcPal.window
             border.color:   qgcPal.text
             property var    _pendingFormattedMessages: []
 
+            // Messages in the fixed font at 23.4 design px (Figma)
+            property string _messageFont: "font-family: '" + ScreenTools.fixedFontFamily + "'; font-size: " + ScreenTools.figmaFontPointSize(23.4).toFixed(1) + "pt;"
+
             function formatMessage(message) {
-                message = message.replace(new RegExp("<#E>", "g"), "color: " + qgcPal.warningText + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
-                message = message.replace(new RegExp("<#I>", "g"), "color: " + qgcPal.warningText + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
-                message = message.replace(new RegExp("<#N>", "g"), "color: " + qgcPal.text + "; font: " + (ScreenTools.defaultFontPointSize.toFixed(0) - 1) + "pt monospace;");
+                message = message.replace(new RegExp("<#E>", "g"), "color: " + qgcPal.warningText + "; " + _messageFont);
+                message = message.replace(new RegExp("<#I>", "g"), "color: " + qgcPal.warningText + "; " + _messageFont);
+                message = message.replace(new RegExp("<#N>", "g"), "color: " + qgcPal.text + "; " + _messageFont);
                 return message;
             }
 
@@ -161,8 +165,8 @@ Item {
             QGCColoredImage {
                 anchors.bottom:     parent.bottom
                 anchors.right:      parent.right
-                anchors.margins:    ScreenTools.defaultFontPixelHeight * 0.5
-                height:             ScreenTools.isMobile ? ScreenTools.defaultFontPixelHeight * 1.5 : ScreenTools.defaultFontPixelHeight
+                anchors.margins:    ScreenTools.figmaPx * 17.9
+                height:             ScreenTools.figmaPx * 51.3
                 width:              height
                 sourceSize.height:   height
                 source:             "/res/TrashDelete.svg"
@@ -188,7 +192,7 @@ Item {
 
             QGCFlickable {
                 id:                 messageFlick
-                anchors.margins:    ScreenTools.defaultFontPixelHeight
+                anchors.margins:    ScreenTools.figmaPx * 33.3
                 anchors.fill:       parent
                 contentHeight:      messageText.height
                 contentWidth:       messageText.width

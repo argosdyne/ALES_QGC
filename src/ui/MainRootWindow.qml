@@ -857,6 +857,8 @@ ApplicationWindow {
                 if((centerX + indicatorPopup.width) > (mainWindow.width - ScreenTools.defaultFontPixelWidth)) {
                     centerX = mainWindow.width - indicatorPopup.width - ScreenTools.defaultFontPixelWidth
                 }
+                // Keep wide popups (e.g. vehicle messages) inside the left edge of the window too
+                centerX = Math.max(centerX, ScreenTools.defaultFontPixelWidth)
                 indicatorPopup.x = centerX
             }
         }
