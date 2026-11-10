@@ -51,6 +51,49 @@ Item {
     property bool   _showTelemetryPanel:    false
     property var    _navSightManager:        QGroundControl.corePlugin.navSightManager
     property bool   _navSightFeatureEnabled: QGroundControl.settingsManager.flyViewSettings.enableNavSight.rawValue
+    // The NAVSIGHT_TOGGLE_OUTPUT_SIGNAL command is retained in the backend,
+    // but is not part of the current operator workflow.
+    readonly property bool _navSightOutputToggleEnabled: false
+
+    function navSightStatusColor() {
+        if (!_navSightManager || !_navSightManager.navSightStatusText.length) {
+            return "#5F6A7D"
+        }
+
+        const flags = _navSightManager.navSightStatusText.split(/[|\-]/)
+        let hasHealthyFlag = false
+        let hasWarningFlag = false
+        let hasUnknownBit = false
+
+        for (let i = 0; i < flags.length; i++) {
+            const flag = flags[i].trim()
+            if (!flag || flag === "NO STATUS") {
+                continue
+            }
+            if (flag.indexOf("BIT_") === 0) {
+                hasUnknownBit = true
+                continue
+            }
+            if (flag.indexOf("BAD_") === 0 || flag.indexOf("NO_CAMERA_") === 0 ||
+                    flag === "STORAGE_ERROR" || flag === "REBOOT_FC") {
+                return "#B04A4A"
+            }
+            if (flag === "NAVIGATION_OK" || flag === "READY_FOR_TAKEOFF" ||
+                    flag === "FILTERING_ACTIVE") {
+                hasHealthyFlag = true
+            } else {
+                hasWarningFlag = true
+            }
+        }
+
+        if (hasWarningFlag) {
+            return "#B57B20"
+        }
+        if (hasUnknownBit || !hasHealthyFlag) {
+            return "#5F6A7D"
+        }
+        return "#2fad16"
+    }
 
     function secondsToHHMMSS(timeS) {
         var sec_num = parseInt(timeS, 10);
@@ -114,8 +157,8 @@ Item {
                     { label: "VIS", sourceSet: 2, active: (_navSightManager && _navSightManager.activeEkfSourceSet === 2), color: "#2fad16" },
                     { label: "loc SRC: " + (_navSightManager ? _navSightManager.navSightLocationSource : "N/A"), active: true, color: "#111111" },
                     { label: "CONF: " + (_navSightManager && _navSightManager.navSightConfidenceValid ? _navSightManager.navSightConfidence.toFixed(1) : "N/A"), active: true, color: "#111111" },
-                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? _navSightManager.navSightStatusText : (_navSightManager ? _navSightManager.lastUpdateLocationResult : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.navSightStatusText.length > 0 || _navSightManager.lastUpdateLocationResult.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityNormal ? "#2fad16" : (_navSightManager.navSightStatusSeverity === NavSightManager.NavSightStatusSeverityWarning ? "#B57B20" : "#B04A4A")) : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : "#B57B20")) },
-                    { label: !_navSightManager ? "" : (_navSightManager.outputSignalCommandInProgress ? "CHANGING NAVSIGHT OUTPUT..." : (_navSightManager.navSightOutputState === NavSightManager.NavSightOutputStateDisabled ? "RESUME NAVSIGHT OUTPUT" : "STOP NAVSIGHT OUTPUT")), outputButton: true, active: false, visible: (_navSightManager && _navSightManager.navSightOnline), color: "#5F6A7D" }
+                    { label: (_navSightManager && _navSightManager.updateLocationInProgress) ? "SENDING NAVSIGHT LOCATION..." : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? _navSightManager.navSightStatusText : (_navSightManager ? _navSightManager.lastUpdateLocationResult : "")), active: true, visible: (_navSightManager && (_navSightManager.updateLocationInProgress || _navSightManager.navSightStatusText.length > 0 || _navSightManager.lastUpdateLocationResult.length > 0)), color: (_navSightManager && _navSightManager.updateLocationInProgress) ? "#B57B20" : (_navSightManager && _navSightManager.navSightStatusText.length > 0 ? navSightStatusColor() : (_navSightManager && _navSightManager.lastUpdateLocationResult === "NavSight location updated" ? "#2fad16" : "#B57B20")) },
+                    { label: !_navSightManager ? "" : (_navSightManager.outputSignalCommandInProgress ? "CHANGING NAVSIGHT OUTPUT..." : (_navSightManager.navSightOutputState === NavSightManager.NavSightOutputStateDisabled ? "RESUME NAVSIGHT OUTPUT" : "STOP NAVSIGHT OUTPUT")), outputButton: true, active: false, visible: (_navSightManager && _navSightManager.navSightOnline && _navSightOutputToggleEnabled), color: "#5F6A7D" }
                 ]
 
                 Rectangle {
@@ -128,6 +171,7 @@ Item {
                                                                        || (modelData.sourceSet === 2 && _navSightManager.visualNavigationSourceConfigured)
                                                                        || (modelData.sourceSet === 3 && _navSightManager.deadReckoningSourceConfigured))
                     readonly property bool outputSelectionEnabled: outputButton && _navSightManager
+                                                                   && _navSightOutputToggleEnabled
                                                                    && !_navSightManager.outputSignalCommandInProgress
                     readonly property bool buttonEnabled: sourceSelectionEnabled || outputSelectionEnabled
 
