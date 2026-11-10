@@ -5,7 +5,7 @@ Last update: 2026-11-10. Read `CLAUDE.md` first (build, tests, architecture, cus
 ## State
 
 - Branch `new_ui_small_icons_easygripper`. Last commit 2026-11-04 (`5a0c869b3`), in sync with origin.
-- 2026-11-10: Figma sizing of the Fly view and frame 16 committed (see "Figma sizing" below). Not pushed yet.
+- 2026-11-10: Figma sizing of the Fly view and frames 16, 03 and 04 committed and pushed to origin (see "Figma sizing" below).
 - Based on `improv_code_quality` (8 commits ahead of `origin/improv_code_quality`). `improv_code_quality` is in PR #298 into `support_multi_langs`.
 - **No PR yet.** Target branch not decided (`improv_code_quality` while PR #298 is open, or `support_multi_langs` after it merges).
 - Design source: Figma "ALES-QGC UI Base", file key `kPAQqtPjr8OKfuPAhtRMMH`, page node 568-2 (EasyGripper 1920x1080). Fly view frames are in section 572:42531 (01–17, 06b), Plan view frames in 568:1369 (01–13), new components in 568:3. Fonts: skill `argosdyne-ui-fonts`.
@@ -28,13 +28,18 @@ Changes:
 
 Verified on this PC (PX4 SITL, software renderer, compared against Figma at the same scale): tool strip, panel, toasts and frame 16 toast match. Unit tests GeoAwarenessAlertTest (13) and UiFontsTest (6) pass. Not verified on screen: the video-stream parts of the panel (mode pill, zoom, storage), PiP, status message cards (SITL sent none).
 
+- Frame 03 (Takeoff confirmation): guided value slider 144 px wide, 12 px from the right, 82 px from the top and 35 px from the bottom, 8 px padding/spacing, 43 px handle (`FlyView.qml`, `GuidedValueSlider.qml`), title "Takeoff" instead of "Height" (`GuidedActionsController.qml`; the GuidedActionsController context already has "Takeoff" translations); the photo/video panel keeps 12 px from the slider (`guidedValueSliderVisible`); GuidedActionConfirm 648 px wide, 8 px padding, 16 px row spacing, 85.5 px slider switch; 8 px between the telemetry values and the confirm panel. Verified against the frame with SITL (mission cleared with pymavlink on udp 14540, then Takeoff in the tool strip). The handle starts at the bottom because the takeoff slider starts at the minimum takeoff altitude (Figma shows it mid-way; behaviour kept).
+
+- Frame 04 (Not ready, pre-arm check failed): the pre-arm help text marks "resolve the failure" with `<b>` (`VehicleWarnings.qml`, 21 `qgc_source_*.ts` files; the translated ones az, da, de, ja, ko, pt, vi, zh were marked by Claude, review them; the unused `qgc_*.ts` catalogs were left alone). `WarningToast` now draws `<b>` marks in the body (plain or rich text) in the strong color, and uses a fixed line height of 1.35 x 25 design px (Figma), not 1.35 x Roboto's line. Verified by forcing the warning with a temporary QML edit (PX4 SITL does not raise it: it uses the health report path, which also turns the toolbar red instead of the Figma/ArduPilot yellow).
+- Frame 02 (Ready To Fly) has no own work: its parts were all covered above; the gimbal readout line height (Roboto ~33 px vs Figma 28 px) makes the panel about 20 design px taller (fix offered, not done).
+
 Next phases (not started): 2) Fly view popups (frames 03, 05, 08–15, 17, 06/06b video main), 3) Plan view frames 01–13.
 
 ## Recent work (newest first)
 
 | Commit | What |
 |---|---|
-| (2026-11-10) | Figma sizing of the main Fly view (design pixel unit, desktop toolbar height, tool strip, photo/video panel, toast, telemetry bar, PiP), frame 16 (GeoAwareness key phrases, status message cards) and this handoff |
+| (2026-11-10) | Frames 03 and 04 (guided slider, takeoff confirm, pre-arm toast emphasis and line height). Earlier the same day: Figma sizing of the main Fly view (design pixel unit, desktop toolbar height, tool strip, photo/video panel, toast, telemetry bar, PiP), frame 16 (GeoAwareness key phrases, status message cards) and this handoff |
 | `5a0c869b3` | Font standard: Roboto / Roboto Medium / Roboto Mono for all languages, Noto Sans KR/JP/SC fallback per UI language (loaded only for that language), NanumGothic and Open Sans removed. Layout follows Roboto metrics, so the UI is about 14% smaller (user choice). Font cache cleared on language change. OFL texts copied next to the executable. `UiFontsTest` added |
 | `30c4da8d4` | Fly view top center: warning toast, then system messages, then GeoAwareness alerts are stacked instead of overlapping (`custom/res/Custom/FlightDisplay/FlyViewOverlay.qml`) |
 | `4d177d938` | SiYi: stop the client thread before changing its IP address |
@@ -45,7 +50,7 @@ Next phases (not started): 2) Fly view popups (frames 03, 05, 08–15, 17, 06/06
 
 ## Open items
 
-1. **Push** the 2026-11-10 commits and continue with phase 2 (Fly view popups).
+1. **Continue** with phase 2 (Fly view popups). Optional: fix the gimbal readout line height (frame 02 panel height).
 2. **GeoZone map polygon colors** come from the zone data; Figma frame 16 shows a no-fly zone as red 30% fill with a 2.55 px red border. Not changed; ask the user whether to force it.
 3. **Roboto Condensed**: measure where labels overflow before deciding whether to use it.
 4. **Android**: Roboto Medium weight and the Figma sizing not verified on a device.
