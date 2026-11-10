@@ -222,7 +222,7 @@ Item {
         id:                     _pipOverlay
         anchors.left:           parent.left
         anchors.bottom:         parent.bottom
-        anchors.margins:        _toolsMargin
+        anchors.margins:        ScreenTools.figmaPx * 12   // Figma frame 06: 12 px from the left and bottom
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
         //item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null

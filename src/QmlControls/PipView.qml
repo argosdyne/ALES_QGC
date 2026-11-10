@@ -164,8 +164,8 @@ Item {
         anchors.right:  parent.right
         anchors.top:    parent.top
         visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
+        height:         ScreenTools.figmaPx * 85.5     // Figma pipResize / pipHide icons
+        width:          ScreenTools.figmaPx * 85.5
         sourceSize.height:  height
     }
 
@@ -196,8 +196,8 @@ Item {
         anchors.left:   parent.left
         anchors.top:    parent.top
         visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse && _pipOrWindowItem.pipState.canWindow
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
+        height:         ScreenTools.figmaPx * 85.5     // Figma pipResize / pipHide icons
+        width:          ScreenTools.figmaPx * 85.5
         sourceSize.height:  height
 
         MouseArea {
@@ -216,8 +216,8 @@ Item {
         anchors.left:   parent.left
         anchors.bottom: parent.bottom
         visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
-        height:         ScreenTools.defaultFontPixelHeight * 2.5
-        width:          ScreenTools.defaultFontPixelHeight * 2.5
+        height:         ScreenTools.figmaPx * 85.5     // Figma pipResize / pipHide icons
+        width:          ScreenTools.figmaPx * 85.5
         sourceSize.height:  height
         MouseArea {
             anchors.fill:   parent

@@ -90,11 +90,15 @@ Item {
             z:              2
             visible:        !_showVideoFrame
 
+            // Figma VideoNoSignal label: 24 x 8 design px padding around a 57 px (large font) line,
+            // radius 8; scaled down with the small font used in the PiP
+            property real _labelScale: useSmallFont ? ScreenTools.smallFontPointSize / ScreenTools.largeFontPointSize : 1
+
             Rectangle {
                 anchors.centerIn:   parent
-                width:              noVideoLabel.contentWidth + ScreenTools.defaultFontPixelHeight
-                height:             noVideoLabel.contentHeight + ScreenTools.defaultFontPixelHeight
-                radius:             ScreenTools.defaultFontPixelWidth / 2
+                width:              noVideoLabel.contentWidth + (ScreenTools.figmaPx * 48 * noVideo._labelScale)
+                height:             ScreenTools.figmaPx * (57 + 16) * noVideo._labelScale
+                radius:             ScreenTools.figmaPx * 8 * noVideo._labelScale
                 color:              "black"
                 opacity:            0.5
             }

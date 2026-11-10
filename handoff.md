@@ -5,7 +5,7 @@ Last update: 2026-11-10. Read `CLAUDE.md` first (build, tests, architecture, cus
 ## State
 
 - Branch `new_ui_small_icons_easygripper`. Last commit 2026-11-04 (`5a0c869b3`), in sync with origin.
-- 2026-11-10: Figma sizing of the Fly view and frames 16, 03, 04 and 05 committed and pushed to origin (see "Figma sizing" below).
+- 2026-11-10: Figma sizing of the Fly view and frames 16, 03, 04, 05 and 06 committed and pushed to origin (see "Figma sizing" below).
 - Based on `improv_code_quality` (8 commits ahead of `origin/improv_code_quality`). `improv_code_quality` is in PR #298 into `support_multi_langs`.
 - **No PR yet.** Target branch not decided (`improv_code_quality` while PR #298 is open, or `support_multi_langs` after it merges).
 - Design source: Figma "ALES-QGC UI Base", file key `kPAQqtPjr8OKfuPAhtRMMH`, page node 568-2 (EasyGripper 1920x1080). Fly view frames are in section 572:42531 (01–17, 06b), Plan view frames in 568:1369 (01–13), new components in 568:3. Fonts: skill `argosdyne-ui-fonts`.
@@ -32,6 +32,7 @@ Verified on this PC (PX4 SITL, software renderer, compared against Figma at the 
 
 - Frame 04 (Not ready, pre-arm check failed): the pre-arm help text marks "resolve the failure" with `<b>` (`VehicleWarnings.qml`, 21 `qgc_source_*.ts` files; the translated ones az, da, de, ja, ko, pt, vi, zh were marked by Claude, review them; the unused `qgc_*.ts` catalogs were left alone). `WarningToast` now draws `<b>` marks in the body (plain or rich text) in the strong color, and uses a fixed line height of 1.35 x 25 design px (Figma), not 1.35 x Roboto's line. Verified by forcing the warning with a temporary QML edit (PX4 SITL does not raise it: it uses the health report path, which also turns the toolbar red instead of the Figma/ArduPilot yellow).
 - Frame 05 (Mission loaded, Action list open): `GuidedActionList.qml` uses the Figma sizes (50 px padding, 25 px header gap, title left with the 34 px close icon on the same row, 360 px action columns 76 px apart, 19 px message-to-button gap, buttons at least 112 x 76, radius 12.5) and sits 8 px above the bottom (`FlyView.qml`). Verified with SITL (mission uploaded with pymavlink `upload_mission.py` on udp 14540, then Action in the tool strip). On the ground PX4 offers only Start Mission (Change Altitude needs flying), so only the single-column layout was seen. The tool strip in this frame is drawn at y = 67 instead of 58 (designer offset); not followed.
+- Frame 06 (Video main, map in PiP), **not verified on screen**: this PC's build has no GStreamer, so video cannot be the main view. Changes: "WAITING FOR VIDEO" label box 24 x 8 design px padding around a 57 px line, radius 8, scaled with the small font in the PiP (`FlightDisplayViewVideo.qml`); PiP icons (resize, hide, pop-out) 85.5 px (`PipView.qml`); PiP 12 px from the left and bottom (`FlyView.qml`). The video-stream panel (mode pill, timer, zoom, storage) already had the Figma sizes. Figma draws that panel 17 px below the vertical center (BG y 189–801); the app centers it.
 - Frame 02 (Ready To Fly) has no own work: its parts were all covered above; the gimbal readout line height (Roboto ~33 px vs Figma 28 px) makes the panel about 20 design px taller (fix offered, not done).
 
 Next phases (not started): 2) Fly view popups (frames 03, 05, 08–15, 17, 06/06b video main), 3) Plan view frames 01–13.
