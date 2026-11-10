@@ -130,25 +130,33 @@ Item {
         Rectangle {
             width:          mainLayout.width   + mainLayout.anchors.margins * 2
             height:         mainLayout.height  + mainLayout.anchors.margins * 2
-            radius:         ScreenTools.defaultFontPixelHeight / 2
+            radius:         ScreenTools.figmaPx * 17.1     // Figma "Battery Status card" (frame 08)
             color:          qgcPal.window
-            border.color:   qgcPal.text                                        
+            border.color:   qgcPal.text
+
+            // Figma toolbar popup cards: 25.2 px text on 34.2 px lines (the standard popup drawn at 0.9)
+            property real _popupFontPointSize:  ScreenTools.figmaFontPointSize(25.2)
+            property real _popupLineHeight:     ScreenTools.figmaPx * 34.2
+
 
             ColumnLayout {
                 id:                 mainLayout
-                anchors.margins:    ScreenTools.defaultFontPixelWidth
+                anchors.margins:    ScreenTools.figmaPx * 14.4
                 anchors.top:        parent.top
                 anchors.right:      parent.right
-                spacing:            ScreenTools.defaultFontPixelHeight
+                spacing:            ScreenTools.figmaPx * 34.2
 
                 QGCLabel {
                     Layout.alignment:   Qt.AlignCenter
                     text:               qsTr("Battery Status")
                     font.family:        ScreenTools.demiboldFontFamily
+                    font.pointSize:     _popupFontPointSize
+                    lineHeightMode:     Text.FixedHeight
+                    lineHeight:         _popupLineHeight
                 }
 
                 RowLayout {
-                    spacing: ScreenTools.defaultFontPixelWidth
+                    spacing: ScreenTools.figmaPx * 14.4
 
                     ColumnLayout {                        
                         Repeater {
@@ -172,14 +180,14 @@ Item {
                                         property var battery: object
                                     }
 
-                                    QGCLabel { text: qsTr("Battery %1").arg(object.id.rawValue) }
-                                    QGCLabel { text: qsTr("Charge State");  visible: true }
-                                    QGCLabel { text: qsTr("Remaining");     visible: true }
-                                    QGCLabel { text: qsTr("Voltage") }
-                                    QGCLabel { text: qsTr("Consumed");      visible: true }
-                                    QGCLabel { text: qsTr("Temperature");   visible: true }
-                                    QGCLabel { text: qsTr("Cycle Count");   visible: true }
-                                    QGCLabel { text: qsTr("Function");      visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Battery %1").arg(object.id.rawValue) }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Charge State");  visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Remaining");     visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Voltage") }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Consumed");      visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Temperature");   visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Cycle Count");   visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Function");      visible: true }
                                 }
                             }
                         }
@@ -207,15 +215,15 @@ Item {
                                         property var battery: object
                                     }
 
-                                    QGCLabel { text: "" }
-                                    QGCLabel { text: object.chargeState.enumStringValue;  visible: true }
-                                    //QGCLabel { text: object.timeRemainingStr.value;       visible: true }
-                                    QGCLabel { text: object.percentRemaining.valueString + " " + object.percentRemaining.units }
-                                    QGCLabel { text: object.voltage.valueString + " " + object.voltage.units }
-                                    QGCLabel { text: object.mahConsumed.valueString + " " + object.mahConsumed.units; visible: true }
-                                    QGCLabel { text: object.temperature.valueString + " " + object.temperature.units; visible: true }
-                                    QGCLabel { text: object.cycleCount.valueString + " " + object.cycleCount.units; visible: true }
-                                    QGCLabel { text: object.function.enumStringValue;     visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: "" }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.chargeState.enumStringValue;  visible: true }
+                                    //QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.timeRemainingStr.value;       visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.percentRemaining.valueString + " " + object.percentRemaining.units }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.voltage.valueString + " " + object.voltage.units }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.mahConsumed.valueString + " " + object.mahConsumed.units; visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.temperature.valueString + " " + object.temperature.units; visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.cycleCount.valueString + " " + object.cycleCount.units; visible: true }
+                                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: object.function.enumStringValue;     visible: true }
                                 }
                             }
                         }

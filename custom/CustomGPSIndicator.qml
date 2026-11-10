@@ -50,15 +50,20 @@ Item {
         id: gpsInfo
 
         Rectangle {
-            width:  gpsCol.width   + ScreenTools.defaultFontPixelWidth  * 3
-            height: gpsCol.height  + ScreenTools.defaultFontPixelHeight * 2
-            radius: ScreenTools.defaultFontPixelHeight * 0.5
+            // Figma "GPS Status card" (frame 09): 21.6 x 34.2 design px padding, radius 17.1
+            width:  gpsCol.width   + (ScreenTools.figmaPx * 21.6 * 2)
+            height: gpsCol.height  + (ScreenTools.figmaPx * 34.2 * 2)
+            radius: ScreenTools.figmaPx * 17.1
             color:  qgcPal.window
             border.color:   qgcPal.text
 
+            // Figma toolbar popup cards: 25.2 px text on 34.2 px lines (the standard popup drawn at 0.9)
+            property real _popupFontPointSize:  ScreenTools.figmaFontPointSize(25.2)
+            property real _popupLineHeight:     ScreenTools.figmaPx * 34.2
+
             Column {
                 id:                 gpsCol
-                spacing:            ScreenTools.defaultFontPixelHeight * 0.5
+                spacing:            ScreenTools.figmaPx * 17.1
                 width:              Math.max(gpsGrid.width, gpsLabel.width)
                 anchors.margins:    ScreenTools.defaultFontPixelHeight
                 anchors.centerIn:   parent
@@ -67,6 +72,9 @@ Item {
                     id:             gpsLabel
                     text:           (_activeVehicle && _activeVehicle.gps.count.value >= 0) ? qsTr("GPS Status") : qsTr("GPS Data Unavailable")
                     font.family:    ScreenTools.demiboldFontFamily
+                    font.pointSize: _popupFontPointSize
+                    lineHeightMode: Text.FixedHeight
+                    lineHeight:     _popupLineHeight
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -74,20 +82,21 @@ Item {
                     id:                 gpsGrid
                     visible:            (_activeVehicle && _activeVehicle.gps.count.value >= 0)
                     anchors.margins:    ScreenTools.defaultFontPixelHeight
-                    columnSpacing:      ScreenTools.defaultFontPixelWidth
+                    columnSpacing:      ScreenTools.figmaPx * 14.4
+                    rowSpacing:         ScreenTools.figmaPx * 4.5
                     anchors.horizontalCenter: parent.horizontalCenter
                     columns: 2
 
-                    QGCLabel { text: qsTr("GPS Count:") }
-                    QGCLabel { text: _activeVehicle ? _activeVehicle.gps.count.valueString : qsTr("N/A", "No data to display") }
-                    QGCLabel { text: qsTr("GPS Lock:") }
-                    QGCLabel { text: _activeVehicle ? _activeVehicle.gps.lock.enumStringValue : qsTr("N/A", "No data to display") }
-                    QGCLabel { text: qsTr("HDOP:") }
-                    QGCLabel { text: _activeVehicle ? _activeVehicle.gps.hdop.valueString : qsTr("--.--", "No data to display") }
-                    QGCLabel { text: qsTr("VDOP:") }
-                    QGCLabel { text: _activeVehicle ? _activeVehicle.gps.vdop.valueString : qsTr("--.--", "No data to display") }
-                    QGCLabel { text: qsTr("Course Over Ground:") }
-                    QGCLabel { text: _activeVehicle ? _activeVehicle.gps.courseOverGround.valueString : qsTr("--.--", "No data to display") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("GPS Count:") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: _activeVehicle ? _activeVehicle.gps.count.valueString : qsTr("N/A", "No data to display") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("GPS Lock:") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: _activeVehicle ? _activeVehicle.gps.lock.enumStringValue : qsTr("N/A", "No data to display") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("HDOP:") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: _activeVehicle ? _activeVehicle.gps.hdop.valueString : qsTr("--.--", "No data to display") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("VDOP:") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: _activeVehicle ? _activeVehicle.gps.vdop.valueString : qsTr("--.--", "No data to display") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: qsTr("Course Over Ground:") }
+                    QGCLabel { font.pointSize: _popupFontPointSize; lineHeightMode: Text.FixedHeight; lineHeight: _popupLineHeight; text: _activeVehicle ? _activeVehicle.gps.courseOverGround.valueString : qsTr("--.--", "No data to display") }
                 }
             }
         }
