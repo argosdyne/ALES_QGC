@@ -2,16 +2,19 @@
 
 #include <QObject>
 #include "SafeTFrameNegotiator.h"
+#include "SafeTFrameExtractor.h"
 #include <QHostAddress>
 #include <QUdpSocket>
+#include <QTcpSocket>
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QVariantMap>
 #include <QPointer>
 class Vehicle;
 
-// SAFE-T Extended V1 UDP client. The control frame is sent at 5 Hz to keep
-// remote authority alive; monitoring frames are decoded into QML properties.
+// SAFE-T client over TCP or UDP (SAFE-T 2.3: TCP 23232 verified on Wi-Fi 192.168.4.1).
+// The control frame is sent at 5 Hz to keep remote authority alive; monitoring
+// frames are decoded into QML properties.
 class ElistairStationManager : public QObject
 {
     Q_OBJECT
@@ -20,6 +23,7 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(bool autoConnect READ autoConnect WRITE setAutoConnect NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString stationAddress READ stationAddress WRITE setStationAddress NOTIFY connectionSettingsChanged)
     Q_PROPERTY(int stationPort READ stationPort WRITE setStationPort NOTIFY connectionSettingsChanged)
+    Q_PROPERTY(QString transport READ transport WRITE setTransport NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString frameVersion READ frameVersion WRITE setFrameVersion NOTIFY connectionSettingsChanged)
     Q_PROPERTY(QString activeFrameVersion READ activeFrameVersion NOTIFY connectionSettingsChanged)
     Q_PROPERTY(bool frameVersionDetected READ frameVersionDetected NOTIFY connectionStatusChanged)
@@ -43,6 +47,7 @@ class ElistairStationManager : public QObject
     Q_PROPERTY(int spoolTemperature READ spoolTemperature NOTIFY telemetryChanged)
     Q_PROPERTY(double voltage READ voltage NOTIFY telemetryChanged)
     Q_PROPERTY(double current READ current NOTIFY telemetryChanged)
+    Q_PROPERTY(int powerSourceVolts READ powerSourceVolts NOTIFY telemetryChanged)
     Q_PROPERTY(int appliedTorquePercent READ appliedTorquePercent NOTIFY telemetryChanged)
     Q_PROPERTY(QString alarmSummary READ alarmSummary NOTIFY telemetryChanged)
     Q_PROPERTY(bool alarmActive READ alarmActive NOTIFY telemetryChanged)
@@ -66,6 +71,7 @@ public:
     void setAutoConnect(bool enabled);
     QString stationAddress() const { return _stationAddress; }
     int stationPort() const { return _stationPort; }
+    QString transport() const { return _useTcp ? QStringLiteral("TCP") : QStringLiteral("UDP"); }
     QString frameVersion() const;
     QString activeFrameVersion() const;
     bool connected() const { return _connected; }
@@ -84,6 +90,7 @@ public:
     int spoolTemperature() const { return _spoolTemperature; }
     double voltage() const { return _voltage; }
     double current() const { return _current; }
+    int powerSourceVolts() const { return _powerSourceVolts; }
     int appliedTorquePercent() const { return _appliedTorquePercent; }
     QString alarmSummary() const { return _alarmSummary; }
     bool alarmActive() const { return _alarmActive || _noPower; }
@@ -105,6 +112,7 @@ public:
 
     void setStationAddress(const QString& address);
     void setStationPort(int port);
+    void setTransport(const QString& transport);
     void setFrameVersion(const QString& version);
     bool powerOffPending() const { return _powerOffPending; }
     qulonglong powerOffRequestId() const { return _powerOffRequestId; }
@@ -138,6 +146,8 @@ signals:
 private slots:
     void _sendControl();
     void _readDatagrams();
+    void _readTcp();
+    void _retryTcp();
     void _checkTimeout();
 
 private:
@@ -152,7 +162,11 @@ private:
     void _setError(const QString& error);
     bool _refuseAction(const QString& reason);
     void _setConnected(bool connected);
-    bool _decodeMonitoring(const QByteArray& frame);
+    bool _decodeMonitoring(const QByteArray& frame, bool bigEndianStandard);
+    void _processBytes(const QByteArray& data);
+    void _openTransport();
+    bool _send(const QByteArray& frame);
+    QString _transportError() const;
     static quint16 _u16be(const QByteArray& data, int offset);
     static quint16 _u16le(const QByteArray& data, int offset);
     void _setActiveFrameVersion(int version);
@@ -181,7 +195,12 @@ private:
     qulonglong _powerOffRequestId = 0;
     QMetaObject::Connection _armedConnection, _flyingConnection, _vehicleLinkConnection;
 
-    QUdpSocket _socket;
+    QUdpSocket _udp;
+    QTcpSocket _tcp;
+    QTimer _tcpRetryTimer;
+    QTimer _tcpConnectTimer;
+    SafeTFrameExtractor _extractor;
+    bool _useTcp = true;
     QTimer _controlTimer;
     QTimer _timeoutTimer;
     QTimer _settingsReconnectTimer;
@@ -193,10 +212,11 @@ private:
     QString _stationAddress;
     bool _enabled = false;
     bool _autoConnect = true;
-    int _stationPort = 7158;
+    int _stationPort = 23232;
     int _configuredFrameVersion = 0; // Auto, Extended V1, Extended V0, Standard
     int _activeFrameVersion = 1;
     qint64 _lastMonitoringMsecs = 0;
+    qint64 _tcpConnectedMsecs = 0;
     qint64 _lastReconnectAttemptMsecs = 0;
     QString _lastMonitoringTime;
     int _reconnectAttempt = 0;
@@ -215,6 +235,7 @@ private:
     int _spoolTemperature = 0;
     double _voltage = 0;
     double _current = 0;
+    int _powerSourceVolts = -1; // Nominal input source, not a measured voltage.
     int _appliedTorquePercent = 0;
     QString _alarmSummary = QStringLiteral("No alarms");
     bool _alarmActive = false;

@@ -65,11 +65,54 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     _noPowerFailsafe = qBound(0, settings.value(QStringLiteral("ElistairStation/noPowerFailsafe"), 0).toInt(), 2);
     _noPowerAlarmTimer.setInterval(15000);
     connect(&_noPowerAlarmTimer, &QTimer::timeout, this, &ElistairStationManager::_announceNoPower);
-    _stationAddress = settings.value(QStringLiteral("ElistairStation/address"), QStringLiteral("127.0.0.1")).toString();
-    _stationPort = settings.value(QStringLiteral("ElistairStation/port"), 7158).toInt();
+    // SAFE-T 2.3 defaults (verified on a real station over Wi-Fi): 192.168.4.1, TCP 23232.
+    // Elistair: Ethernet 192.168.1.120; UDP; port 7158 or 23232 depending on configuration.
+    _stationAddress = settings.value(QStringLiteral("ElistairStation/address"), QStringLiteral("192.168.4.1")).toString();
+    _stationPort = settings.value(QStringLiteral("ElistairStation/port"), 23232).toInt();
+    _useTcp = settings.value(QStringLiteral("ElistairStation/transport"), QStringLiteral("TCP")).toString() != QStringLiteral("UDP");
     _controlTimer.setInterval(kControlIntervalMsecs);
     connect(&_controlTimer, &QTimer::timeout, this, &ElistairStationManager::_sendControl);
-    connect(&_socket, &QUdpSocket::readyRead, this, &ElistairStationManager::_readDatagrams);
+    connect(&_udp, &QUdpSocket::readyRead, this, &ElistairStationManager::_readDatagrams);
+    connect(&_tcp, &QTcpSocket::readyRead, this, &ElistairStationManager::_readTcp);
+    connect(&_tcp, &QTcpSocket::connected, this, [this]() {
+        _tcpConnectTimer.stop();
+        _tcpConnectedMsecs = QDateTime::currentMSecsSinceEpoch();
+        qCInfo(SafeTLog) << "SAFE-T TCP connected" << _stationAddress << _stationPort;
+        // A new stream is a new session: probe the frame version again from Extended V1.
+        _extractor.clear();
+        if (_negotiation.confirmed) { // same rule as a negotiation restart: drop remote authority
+            cancelPowerOff();
+            _powerRemote = _torqueRemote = _powerCommandKnown = _torqueCommandKnown = false;
+            emit controlChanged();
+        }
+        _negotiationClock.restart();
+        _negotiation = SafeTFrameNegotiator(_configuredFrameVersion, 0);
+        _setActiveFrameVersion(_negotiation.active);
+        emit connectionStatusChanged();
+        _sendControl();
+    });
+    connect(&_tcp, &QTcpSocket::disconnected, this, [this]() {
+        if (!_controlTimer.isActive()) return;
+        qCWarning(SafeTLog) << "SAFE-T TCP disconnected; retrying in 2 s";
+        _tcpRetryTimer.start();
+    });
+    connect(&_tcp, &QAbstractSocket::errorOccurred, this, [this](QAbstractSocket::SocketError) {
+        if (!_controlTimer.isActive() || _tcpRetryTimer.isActive()) return;
+        qCWarning(SafeTLog) << "SAFE-T TCP error:" << _tcp.errorString();
+        _tcpConnectTimer.stop();
+        _tcp.abort();
+        _tcpRetryTimer.start();
+    });
+    _tcpRetryTimer.setSingleShot(true);
+    _tcpRetryTimer.setInterval(2000);
+    connect(&_tcpRetryTimer, &QTimer::timeout, this, &ElistairStationManager::_retryTcp);
+    _tcpConnectTimer.setSingleShot(true);
+    _tcpConnectTimer.setInterval(3000);
+    connect(&_tcpConnectTimer, &QTimer::timeout, this, [this]() {
+        qCWarning(SafeTLog) << "SAFE-T TCP connect timed out (3 s); retrying in 2 s";
+        _tcp.abort();
+        _tcpRetryTimer.start();
+    });
     _timeoutTimer.setInterval(250);
     connect(&_timeoutTimer, &QTimer::timeout, this, &ElistairStationManager::_checkTimeout);
     _settingsReconnectTimer.setSingleShot(true);
@@ -131,6 +174,19 @@ void ElistairStationManager::setStationPort(int port)
     if (_controlTimer.isActive()) _settingsReconnectTimer.start();
 }
 
+void ElistairStationManager::setTransport(const QString& transport)
+{
+    const bool tcp = transport.trimmed().toUpper() != QStringLiteral("UDP");
+    if (_useTcp == tcp) return;
+    _updateNoPower(0);
+    cancelPowerOff();
+    _powerCommandKnown = false;
+    _useTcp = tcp;
+    QSettings().setValue(QStringLiteral("ElistairStation/transport"), this->transport());
+    emit connectionSettingsChanged();
+    if (_controlTimer.isActive()) _settingsReconnectTimer.start();
+}
+
 QString ElistairStationManager::frameVersion() const
 {
     static const QStringList names { QStringLiteral("Auto"), QStringLiteral("Extended V1"), QStringLiteral("Extended V0"), QStringLiteral("Standard") };
@@ -178,7 +234,8 @@ void ElistairStationManager::connectStation()
     _settingsResult.clear();
     emit stationSettingsChanged();
     emit settingsTransactionChanged();
-    qCInfo(SafeTLog) << "Connecting SAFE-T station" << _stationAddress << _stationPort;
+    qCInfo(SafeTLog) << "Connecting SAFE-T station" << transport() << _stationAddress << _stationPort;
+    _openTransport();
     const auto started = QDateTime::currentMSecsSinceEpoch();
     _negotiationClock.start();
     _negotiation = SafeTFrameNegotiator(_configuredFrameVersion, 0);
@@ -217,7 +274,11 @@ void ElistairStationManager::disconnectStation()
     if (_configOperation == 2) _settingsResult = tr("Save result unknown. No automatic retry; read settings again to verify.");
     _configOperation = 0;
     emit settingsTransactionChanged();
-    _socket.close();
+    _tcpRetryTimer.stop();
+    _tcpConnectTimer.stop();
+    _tcp.abort();
+    _udp.close();
+    _extractor.clear();
     _updateNoPower(0);
     _hasMonitoring = false;
     _noReply = false;
@@ -363,8 +424,7 @@ void ElistairStationManager::_advanceNegotiation()
     const bool wasConfirmed = _negotiation.confirmed;
     if (_negotiation.tick(_negotiationClock.elapsed(), _safeForDetectionRead())) {
         const auto request = QByteArray::fromHex("a50400000d0a");
-        _socket.writeDatagram(request, QHostAddress(_stationAddress), quint16(_stationPort));
-        qCInfo(SafeTLog) << "SAFE-T detection Config Read (ground verified)";
+        if (_send(request)) qCInfo(SafeTLog) << "SAFE-T detection Config Read (ground verified)";
     }
     _setActiveFrameVersion(_negotiation.active);
     if (wasConfirmed && !_negotiation.confirmed) {
@@ -378,6 +438,9 @@ void ElistairStationManager::_advanceNegotiation()
 void ElistairStationManager::_sendControl()
 {
     if (!_controlTimer.isActive() || _settingsReconnectTimer.isActive()) return;
+    // While TCP is (re)connecting nothing can be sent: keep the negotiation (and its
+    // one-shot detection Config Read) for when the stream is up.
+    if (_useTcp && _tcp.state() != QAbstractSocket::ConnectedState) return;
     _advanceNegotiation();
     const QHostAddress address(_stationAddress);
     if (address.isNull()) return;
@@ -392,9 +455,7 @@ void ElistairStationManager::_sendControl()
     frame.append(char(_crc8(frame.mid(1, 2))));
     frame.append('\r');
     frame.append('\n');
-    if (_socket.writeDatagram(frame, address, static_cast<quint16>(_stationPort)) < 0) {
-        _setError(_socket.errorString());
-    }
+    if (!_send(frame)) _setError(_transportError());
 }
 
 QString ElistairStationManager::_settingsInterlockReason() const
@@ -420,9 +481,9 @@ void ElistairStationManager::_requestConfigRead(int operation)
     const QByteArray request = QByteArray::fromHex("a50400000d0a");
     _configOperation = operation;
     _settingsResult = operation == 3 ? tr("Write acknowledged. Re-reading settings...") : tr("Reading station settings...");
-    if (_socket.writeDatagram(request, QHostAddress(_stationAddress), quint16(_stationPort)) != request.size()) {
+    if (!_send(request)) {
         _configOperation = 0;
-        _settingsResult = _socket.errorString();
+        _settingsResult = _transportError();
     } else _configTimer.start();
     emit settingsTransactionChanged();
 }
@@ -438,7 +499,7 @@ bool ElistairStationManager::writeSettings(const QVariantMap& values)
     auto fail = [this](const QString& text) { _settingsResult = text; emit settingsTransactionChanged(); return false; };
     const auto reason = _settingsInterlockReason();
     if (!reason.isEmpty()) return fail(reason);
-    if (_configSnapshot.size() != 83) return fail(tr("Read station settings before saving."));
+    if (_configSnapshot.size() != 81) return fail(tr("Read station settings before saving."));
     const auto integer = [&values](const char* key, int minimum, int maximum, int& result) {
         bool ok = false;
         const double number = values.value(QString::fromLatin1(key)).toDouble(&ok);
@@ -484,9 +545,9 @@ bool ElistairStationManager::writeSettings(const QVariantMap& values)
     frame[2] = char(_crc8(frame.mid(3, 46))); frame[49] = '\r'; frame[50] = '\n';
     _configOperation = 2;
     _settingsResult = tr("Saving station settings...");
-    if (_socket.writeDatagram(frame, QHostAddress(_stationAddress), quint16(_stationPort)) != frame.size()) {
+    if (!_send(frame)) {
         _configOperation = 0;
-        return fail(tr("Save result unknown: %1").arg(_socket.errorString()));
+        return fail(tr("Save result unknown: %1").arg(_transportError()));
     }
     _configTimer.start();
     emit settingsTransactionChanged();
@@ -497,7 +558,7 @@ bool ElistairStationManager::_decodeConfiguration(const QByteArray& frame)
 {
     if (frame.isEmpty() || (quint8(frame[0]) != 0xa5 && quint8(frame[0]) != 0xd5)) return false;
     if ((_configOperation == 1 || _configOperation == 3 || _negotiation.configPending) && quint8(frame[0]) == 0xa5
-        && frame.size() == 83 && quint8(frame[1]) == 79 && frame[3] == 0 && frame.endsWith("\r\n")
+        && frame.size() == 81 && quint8(frame[1]) == 79 && frame[3] == 0
         && quint8(frame[2]) == _crc8(frame.mid(3, 78))) {
         const bool verified = _configOperation == 3;
         if (_negotiation.configPending) {
@@ -527,8 +588,8 @@ bool ElistairStationManager::_decodeConfiguration(const QByteArray& frame)
         _settingsResult = verified ? tr("Saved and re-read successfully.") : tr("Station settings read successfully.");
         emit stationSettingsChanged();
         emit settingsTransactionChanged();
-    } else if (_configOperation == 2 && quint8(frame[0]) == 0xd5 && frame.size() == 8
-        && quint8(frame[1]) == 4 && frame[3] == 0 && frame.endsWith("\r\n") && quint8(frame[2]) == _crc8(frame.mid(3, 3))) {
+    } else if (_configOperation == 2 && quint8(frame[0]) == 0xd5 && frame.size() == 6
+        && quint8(frame[1]) == 4 && frame[3] == 0 && quint8(frame[2]) == _crc8(frame.mid(3, 3))) {
         _configTimer.stop();
         const int errors = _u16be(frame, 4);
         if (errors) {
@@ -540,17 +601,81 @@ bool ElistairStationManager::_decodeConfiguration(const QByteArray& frame)
     return true;
 }
 
+void ElistairStationManager::_openTransport()
+{
+    _tcpRetryTimer.stop();
+    _tcpConnectTimer.stop();
+    _tcp.abort();
+    _udp.close();
+    _extractor.clear();
+    if (_useTcp) {
+        _tcp.connectToHost(QHostAddress(_stationAddress), quint16(_stationPort));
+        _tcpConnectTimer.start();
+        return;
+    }
+    // Older stations (spec A.17 p.6) do not learn the reply port and answer a fixed
+    // port equal to the station port: listen there, fall back to any port if taken.
+    // Not for a station on this machine (simulator): sharing its port would deliver
+    // its replies back to itself.
+    if (QHostAddress(_stationAddress).isLoopback()) {
+        _udp.bind(QHostAddress(QHostAddress::AnyIPv4), quint16(0));
+    } else if (!_udp.bind(QHostAddress::AnyIPv4, quint16(_stationPort))) {
+        qCWarning(SafeTLog) << "SAFE-T UDP bind to local port" << _stationPort << "failed:" << _udp.errorString() << "- using any port";
+        _udp.bind(QHostAddress(QHostAddress::AnyIPv4), quint16(0));
+    }
+}
+
+void ElistairStationManager::_retryTcp()
+{
+    if (!_controlTimer.isActive() || !_useTcp) return;
+    qCInfo(SafeTLog) << "SAFE-T TCP reconnecting" << _stationAddress << _stationPort;
+    _tcp.abort();
+    _tcp.connectToHost(QHostAddress(_stationAddress), quint16(_stationPort));
+    _tcpConnectTimer.start();
+}
+
+bool ElistairStationManager::_send(const QByteArray& frame)
+{
+    if (_useTcp) return _tcp.state() == QAbstractSocket::ConnectedState && _tcp.write(frame) == frame.size();
+    return _udp.writeDatagram(frame, QHostAddress(_stationAddress), quint16(_stationPort)) == frame.size();
+}
+
+QString ElistairStationManager::_transportError() const
+{
+    if (_useTcp && _tcp.state() != QAbstractSocket::ConnectedState) return tr("TCP not connected to %1:%2").arg(_stationAddress).arg(_stationPort);
+    return _useTcp ? _tcp.errorString() : _udp.errorString();
+}
+
+void ElistairStationManager::_readTcp()
+{
+    _processBytes(_tcp.readAll());
+}
+
 void ElistairStationManager::_readDatagrams()
 {
-    while (_socket.hasPendingDatagrams()) {
-        QByteArray frame;
-        frame.resize(int(_socket.pendingDatagramSize()));
+    while (_udp.hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(int(_udp.pendingDatagramSize()));
         QHostAddress sender;
-        quint16 senderPort = 0;
-        _socket.readDatagram(frame.data(), frame.size(), &sender, &senderPort);
-        if (!sender.isEqual(QHostAddress(_stationAddress), QHostAddress::TolerantConversion) || senderPort != _stationPort) continue;
-        if (_decodeConfiguration(frame)) continue;
-        if (_decodeMonitoring(frame)) {
+        _udp.readDatagram(datagram.data(), datagram.size(), &sender);
+        if (!sender.isEqual(QHostAddress(_stationAddress), QHostAddress::TolerantConversion)) continue;
+        _processBytes(datagram);
+    }
+}
+
+void ElistairStationManager::_processBytes(const QByteArray& data)
+{
+    const int crcErrors = _extractor.crcErrors;
+    const auto frames = _extractor.push(reinterpret_cast<const std::uint8_t*>(data.constData()), std::size_t(data.size()),
+                                        QDateTime::currentMSecsSinceEpoch());
+    if (_extractor.crcErrors != crcErrors) qCWarning(SafeTLog) << "SAFE-T CRC error(s):" << _extractor.crcErrors - crcErrors << "total" << _extractor.crcErrors;
+    for (const auto& parsed : frames) {
+        const QByteArray frame(reinterpret_cast<const char*>(parsed.bytes.data()), int(parsed.bytes.size()));
+        if (parsed.kind == SafeTFrameExtractor::ConfigRead || parsed.kind == SafeTFrameExtractor::ConfigWrite) {
+            _decodeConfiguration(frame);
+            continue;
+        }
+        if (_decodeMonitoring(frame, parsed.bigEndianStandard)) {
             if (_noPower && _decodedIntegrity < 0) {
                 _alarmSummary = tr("CRITICAL: No power in flight (last reported)");
                 emit telemetryChanged();
@@ -612,6 +737,15 @@ void ElistairStationManager::_checkTimeout()
         emit connectedChanged();
         emit connectionStatusChanged();
     }
+    // A stalled TCP stream raises no error: after 5 s without monitoring on a connected
+    // socket, drop it and reconnect (the station may also have accepted another client).
+    if (_useTcp && _tcp.state() == QAbstractSocket::ConnectedState
+        && now - qMax(_lastMonitoringMsecs, _tcpConnectedMsecs) > kLinkLostTimeoutMsecs) {
+        qCWarning(SafeTLog) << "SAFE-T TCP stream silent for" << (now - qMax(_lastMonitoringMsecs, _tcpConnectedMsecs)) << "ms; reconnecting";
+        _tcp.abort();
+        _extractor.clear();
+        _tcpRetryTimer.start();
+    }
     if (linkLost && now - _lastReconnectAttemptMsecs >= 1000) {
         ++_reconnectAttempt;
         _lastReconnectAttemptMsecs = now;
@@ -622,44 +756,52 @@ void ElistairStationManager::_checkTimeout()
     _setConnected(_hasMonitoring && _negotiation.confirmed && !noReply);
 }
 
-bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame)
+bool ElistairStationManager::_decodeMonitoring(const QByteArray& frame, bool bigEndianStandard)
 {
-    // Do not mutate safety state for rejected (including bad-CRC) datagrams.
-    // SAFE-T V2.1/V2.2 Extended Monitoring V1: 0x56, size=23, CRC,
-    // payload (version + bytes 4..24), CR, LF. Multi-byte values are big-endian.
+    // Frames arrive from _extractor already CRC-validated and without CR/LF (core bytes only).
+    // Only the frame type matching the active version is accepted (frame-version negotiation).
+    // SAFE-T Extended Monitoring V1: 0x56, size=23, CRC, payload (version + bytes 4..24).
+    // Multi-byte values are big-endian. Alarm bytes may be raw (0x00..) or ASCII ('0'..).
     if (_activeFrameVersion == FrameVersion::Standard) {
-        if (frame.size() != 13 || quint8(frame.at(0)) != kStandardSync || quint8(frame.at(1)) != 9 || frame.at(11) != '\r' || frame.at(12) != '\n' || quint8(frame.at(10)) != _crc8(frame.mid(2, 8))) return false;
+        if (frame.size() != 11 || quint8(frame.at(0)) != kStandardSync) return false;
+        _powerSourceVolts = -1;
         _decodedIntegrity = -1; // Standard has no fresh integrity report.
         _alarmActive = false;
-        _powerWatts = _u16le(frame, 2); _cableLength = _u16le(frame, 4) / 10.0; _tetherRemaining = qQNaN(); _cableSpeed = quint8(frame.at(6)) / 10.0; _spoolTemperature = qint8(frame.at(7)); _voltage = qQNaN(); _current = qQNaN(); _appliedTorquePercent = 0; _alarmSummary = tr("No alarms (Standard frame)"); emit telemetryChanged(); return true;
+        // Spec §4.1.2 is little-endian; the SAFE-T 2.3 variant (tentative) is big-endian.
+        const auto u16 = [&](int offset) { return bigEndianStandard ? _u16be(frame, offset) : _u16le(frame, offset); };
+        _powerWatts = u16(2); _cableLength = u16(4) / 10.0; _tetherRemaining = qQNaN(); _cableSpeed = quint8(frame.at(6)) / 10.0; _spoolTemperature = qint8(frame.at(7)); _voltage = qQNaN(); _current = qQNaN(); _appliedTorquePercent = 0; _alarmSummary = tr("No alarms (Standard frame)"); emit telemetryChanged(); return true;
     }
     if (_activeFrameVersion == FrameVersion::ExtendedV0) {
-        if (frame.size() != 18 || quint8(frame.at(0)) != kExtendedV0Sync || quint8(frame.at(1)) != 14 || frame.at(16) != '\r' || frame.at(17) != '\n' || quint8(frame.at(2)) != _crc8(frame.mid(3, 13))) return false;
+        if (frame.size() != 16 || quint8(frame.at(0)) != kExtendedV0Sync) return false;
+        _powerSourceVolts = -1;
         _powerWatts = _u16be(frame, 4); _cableLength = _u16be(frame, 6) / 10.0;
         _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[15]);
         _alarmActive = false;
-        for (int i = 12; i <= 15; ++i) _alarmActive |= frame[i] != '0' && frame[i] != 0;
+        for (int i = 12; i <= 15; ++i) _alarmActive |= SafeTNoPowerPolicy::decodeAlarm(frame[i]) != 0;
         _voltage = qQNaN(); _current = qQNaN(); _tetherRemaining = qQNaN(); _appliedTorquePercent = 0;
         _cableSpeed = quint8(frame.at(8)) / 10.0; _spoolTemperature = qint8(frame.at(9));
         _alarmSummary = _decodedIntegrity == 2 ? tr("CRITICAL: No power in flight") : _alarmActive ? tr("SAFE-T alarm active") : tr("Monitoring connected (Extended V0)"); emit telemetryChanged(); return true;
     }
-    if (frame.size() != 27 || quint8(frame.at(0)) != kExtendedV1Sync || quint8(frame.at(1)) != 23 || frame.at(25) != '\r' || frame.at(26) != '\n' || quint8(frame.at(3)) != 0x01) return false;
-    if (quint8(frame.at(2)) != _crc8(frame.mid(3, 22))) return false;
+    if (frame.size() != 25 || quint8(frame.at(0)) != kExtendedV1Sync || quint8(frame.at(3)) != 0x01) return false;
 
     _powerWatts = _u16be(frame, 4);
     _cableLength = _u16be(frame, 6) / 10.0;
-    _tetherRemaining = _u16be(frame, 8) / 10.0;
+    // Bytes 8-9 are the measured (total) tether length; remaining = measured - unwound.
+    _tetherRemaining = qMax(0.0, _u16be(frame, 8) / 10.0 - _cableLength);
     _stationFlightTimeSeconds = quint8(frame.at(12)) * 3600 + quint8(frame.at(13)) * 60;
     _cableSpeed = quint8(frame.at(10)) / 10.0;
     _spoolTemperature = static_cast<qint8>(frame.at(11));
     _voltage = _u16be(frame, 14);
     _current = _u16be(frame, 16) / 1000.0;
+    // V1 byte 24 identifies the nominal AC input source, not a voltage measurement.
+    const quint8 powerSource = quint8(frame.at(24));
+    _powerSourceVolts = powerSource == 0 ? 120 : powerSource == 1 ? 230 : -1;
     _appliedTorquePercent = qBound(0, qRound(quint8(frame.at(18)) * 100.0 / 255.0), 100);
     if (!_torqueRemote && !_torqueCommandKnown && _torquePercent != _appliedTorquePercent) {
         _torquePercent = _appliedTorquePercent;
         emit controlChanged();
     }
-    const auto activeAlarm = [&frame](int offset) { return frame.at(offset) != '0' && frame.at(offset) != 0; };
+    const auto activeAlarm = [&frame](int offset) { return SafeTNoPowerPolicy::decodeAlarm(frame.at(offset)) != 0; };
     const bool alarm = activeAlarm(19) || activeAlarm(20) || activeAlarm(21) || activeAlarm(22) || activeAlarm(23);
     _alarmActive = alarm;
     _decodedIntegrity = SafeTNoPowerPolicy::decodeIntegrity(frame[22]);
