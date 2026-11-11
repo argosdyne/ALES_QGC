@@ -26,6 +26,9 @@ Item {
     property var  _ys:          QGroundControl.corePlugin.ysManager
     property int  _state:       _ys ? _ys.lidarState : YSManager.StateDisabled
     property int  _usb:         _ys ? _ys.usbState : YSManager.UsbUnknown
+    // YS-04 Y-02 ①: a Start rejected by the LiDAR shows CHECK even when all pre-checks pass
+    property bool _check:       _state === YSManager.StateNotReady ||
+                                (_state === YSManager.StateReady && !!mainWindow.lidarAcquisition && mainWindow.lidarAcquisition.startRejected)
 
     QGCPalette { id: qgcPal }
 
@@ -36,6 +39,9 @@ Item {
     }
 
     function _stateText() {
+        if (_check) {
+            return qsTr("CHECK")
+        }
         switch (_state) {
         case YSManager.StateReady:      return qsTr("READY")
         case YSManager.StateNotReady:   return qsTr("CHECK")
@@ -49,6 +55,9 @@ Item {
     }
 
     function _stateColor() {
+        if (_check) {
+            return qgcPal.colorOrange
+        }
         switch (_state) {
         case YSManager.StateReady:      return qgcPal.colorGreen
         case YSManager.StateNotReady:

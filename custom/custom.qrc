@@ -86,6 +86,7 @@
         <file alias="LidarSettingsPage.qml">src/YS/LidarSettingsPage.qml</file>
         <file alias="LidarDevicePage.qml">src/YS/LidarDevicePage.qml</file>
         <file alias="LiDARPanel.qml">src/YS/LiDARPanel.qml</file>
+        <file alias="LiDARAcquisition.qml">src/YS/LiDARAcquisition.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>

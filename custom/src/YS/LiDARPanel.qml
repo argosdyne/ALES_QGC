@@ -3,9 +3,9 @@
  * YS-03 Fly View LiDAR panel (UI Y-01 / Y-02)
  *   ③ header: state chip + subtitle (model · link)
  *   ④ PRE-CHECK: six rows from 1 Hz Get Status
+ *   ⑤ Acquisition Start / Stop (YS-04, Y-02 / Y-03 / Y-03b) - commands and reject handling in LiDARAcquisition.qml
  *   ⑥ camera summary
  *   ⑦ alarm row + LiDAR Setup link
- * Acquisition Start / Stop (⑤) is not part of YS-03.
  * Bit decoding and state decisions are in YSManager; this file only displays them.
  *
  ****************************************************************************/
@@ -37,8 +37,69 @@ Rectangle {
     property real _rowSpacing:      ScreenTools.defaultFontPixelHeight * 0.4
     property string _sep:           " · "
     property bool _cameraParamsRequested: false
+    property var  _acq:             mainWindow.lidarAcquisition
+    property bool _startRejected:   _acq ? _acq.startRejected : false
+    property int  _rejectRow:       _startRejected ? _acq.rejectRowIndex : -1
+    property bool _recording:       _state === YSManager.StateRecording
 
     QGCPalette { id: qgcPal }
+
+    function _hhmmss(totalSeconds) {
+        var h = Math.floor(totalSeconds / 3600)
+        var m = Math.floor((totalSeconds % 3600) / 60)
+        var s = totalSeconds % 60
+        return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s)
+    }
+
+    function _acqStateText() {
+        switch (_state) {
+        case YSManager.StateRecording:  return qsTr("REC %1").arg(_hhmmss(_ys.recordingSeconds))
+        case YSManager.StateStarting:   return qsTr("STARTING")
+        case YSManager.StateStopping:   return qsTr("STOPPING")
+        case YSManager.StateReady:
+        case YSManager.StateNotReady:   return qsTr("IDLE")
+        default:                        return "--"
+        }
+    }
+
+    function _acqStateColor() {
+        switch (_state) {
+        case YSManager.StateRecording:  return qgcPal.colorRed
+        case YSManager.StateStarting:
+        case YSManager.StateStopping:   return qgcPal.colorOrange
+        default:                        return qgcPal.text
+        }
+    }
+
+    function _acqHintText() {
+        if (_startRejected) {
+            // Code 0 = Birdcom sent no Command status byte (see _reasonText in LiDARAcquisition.qml)
+            var head = qsTr("✕ Start rejected by LiDAR")
+            if (_acq.rejectReason !== "") {
+                head += ": " + _acq.rejectReason + " (" + _acq.hexCode(_acq.rejectCode) + ")"
+            } else if (_acq.rejectCode !== 0) {
+                head += " (" + _acq.hexCode(_acq.rejectCode) + ")"
+            }
+            return head + _sep + _acq.rejectTime
+        }
+        if (_recording && _acq && _acq.loggingWarning) {
+            return qsTr("! Data logging not reported by LiDAR")
+        }
+        if (_recording && _acq && _acq.flying) {
+            return qsTr("In flight: Stop → slide to confirm (on ground: immediate)")
+        }
+        if (_recording && _acq && _acq.startedTime !== "") {
+            return qsTr("Started %1").arg(_acq.startedTime) + _sep + qsTr("elapsed time counted by QGC")
+        }
+        return ""
+    }
+
+    function _acqHintColor() {
+        if (_startRejected) {
+            return qgcPal.colorRed
+        }
+        return _recording && _acq && _acq.loggingWarning ? qgcPal.colorOrange : qgcPal.text
+    }
 
     // Camera summary needs the LiDAR-side camera parameters: read them once per panel open,
     // as soon as the LiDAR answers (no retry loop if the LiDAR does not reply to Get Parameter)
@@ -196,11 +257,14 @@ Rectangle {
                     Layout.fillWidth:   true
                     spacing:            ScreenTools.defaultFontPixelWidth
 
+                    // Y-02: the row the Start reject code points to is shown as failed
+                    property bool _failed: modelData.state === YSManager.PreCheckFail || index === _rejectRow
+
                     Rectangle {
                         width:      ScreenTools.defaultFontPixelHeight * 0.6
                         height:     width
                         radius:     width / 2
-                        color:      _dotColor(modelData.state)
+                        color:      parent._failed ? qgcPal.colorOrange : _dotColor(modelData.state)
                     }
 
                     QGCLabel {
@@ -210,10 +274,66 @@ Rectangle {
 
                     QGCLabel {
                         text:       modelData.detail
-                        color:      modelData.state === YSManager.PreCheckFail ? qgcPal.colorOrange : qgcPal.text
-                        opacity:    modelData.state === YSManager.PreCheckFail ? 1.0 : 0.6
+                        color:      parent._failed ? qgcPal.colorOrange : qgcPal.text
+                        opacity:    parent._failed ? 1.0 : 0.6
                     }
                 }
+            }
+
+            Rectangle {
+                Layout.fillWidth:   true
+                height:             1
+                color:              qgcPal.windowShade
+            }
+
+            //-- ⑤ Acquisition Start / Stop
+            RowLayout {
+                Layout.fillWidth: true
+
+                QGCLabel {
+                    text:               qsTr("Acquisition")
+                    font.pointSize:     ScreenTools.mediumFontPointSize
+                    opacity:            0.6
+                    Layout.fillWidth:   true
+                }
+
+                QGCLabel {
+                    text:           _acqStateText()
+                    color:          _acqStateColor()
+                    font.pointSize: ScreenTools.mediumFontPointSize
+                    font.family:    ScreenTools.demiboldFontFamily
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth:   true
+                spacing:            ScreenTools.defaultFontPixelWidth
+
+                // Start only when every pre-check passes (READY); locked while waiting for the ACK
+                QGCButton {
+                    text:               qsTr("Start")
+                    Layout.fillWidth:   true
+                    enabled:            !!_acq && _state === YSManager.StateReady && !_startRejected
+                    primary:            enabled
+                    onClicked:          _acq.start()
+                }
+
+                QGCButton {
+                    text:               qsTr("Stop")
+                    Layout.fillWidth:   true
+                    enabled:            !!_acq && _recording
+                    primary:            enabled
+                    onClicked:          _acq.requestStop()
+                }
+            }
+
+            QGCLabel {
+                Layout.fillWidth:   true
+                text:               _acqHintText()
+                color:              _acqHintColor()
+                opacity:            _startRejected || (_acq && _acq.loggingWarning) ? 1.0 : 0.6
+                wrapMode:           Text.WordWrap
+                visible:            text !== ""
             }
 
             Rectangle {

@@ -89,6 +89,13 @@ ApplicationWindow {
     onLidarPanelVisibleChanged:  if (lidarPanelVisible) tetherPanelVisible = false
     onTetherPanelVisibleChanged: if (tetherPanelVisible) lidarPanelVisible = false
     readonly property bool      lidarPanelShown:            lidarPanelVisible && (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
+    // YS-04 acquisition Start / Stop watcher: kept loaded while the LiDAR panel is closed (ACK, reject, Data logging check)
+    readonly property var       lidarAcquisition:           lidarAcquisitionLoader.item
+    Loader {
+        id:     lidarAcquisitionLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARAcquisition.qml"
+    }
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {
