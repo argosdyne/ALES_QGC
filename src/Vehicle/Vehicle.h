@@ -442,6 +442,10 @@ public:
     /// Command vehicle to kill all motors no matter what state
     Q_INVOKABLE void emergencyStop();
 
+    /// Joystick emergency stop. On ArduPilot this is the RC Motor Emergency Stop
+    /// auxiliary function. Other firmware keeps emergencyStop().
+    void motorEmergencyStop();
+
     /// Command vehicle to abort landing
     Q_INVOKABLE void abortLanding(double climbOutAltitude);
 

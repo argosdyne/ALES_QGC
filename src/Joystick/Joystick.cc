@@ -1143,7 +1143,7 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
-            disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
+            disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::motorEmergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
@@ -1170,7 +1170,7 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             connect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             connect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
-            connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::emergencyStop);
+            connect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::motorEmergencyStop);
             connect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
