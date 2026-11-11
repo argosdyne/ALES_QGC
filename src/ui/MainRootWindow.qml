@@ -96,6 +96,13 @@ ApplicationWindow {
         active: !!QGroundControl.corePlugin.ysManager
         source: "qrc:/qml/LiDARAcquisition.qml"
     }
+    // YS-05 warning / critical / no-response watcher: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarAlerts:                lidarAlertsLoader.item
+    Loader {
+        id:     lidarAlertsLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARAlerts.qml"
+    }
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {

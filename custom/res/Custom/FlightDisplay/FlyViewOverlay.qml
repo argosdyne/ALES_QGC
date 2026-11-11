@@ -690,6 +690,53 @@ Item {
     }
 
     //-----------------------------------------------------------
+    // YellowScan LiDAR status message (YS-05 ⑨): warnings and no response, from LiDARAlerts. Tap to close a warning.
+    Rectangle {
+        id:                     lidarBanner
+        anchors.left:           parent.left
+        anchors.leftMargin:     (parentToolInsets ? parentToolInsets.leftEdgeTopInset : 0) + _toolsMargin
+        anchors.top:            parent.top
+        anchors.topMargin:      (parentToolInsets ? parentToolInsets.topEdgeCenterInset : 0) + _toolsMargin
+        width:                  Math.min(lidarBannerLabel.implicitWidth + lidarBannerDot.width + ScreenTools.defaultFontPixelWidth * 4,
+                                         parent.width - anchors.leftMargin - _toolsMargin - (lidarPanelLoader.item ? lidarPanelLoader.width + _toolsMargin : 0))
+        height:                 lidarBannerLabel.height + ScreenTools.defaultFontPixelHeight
+        color:                  qgcPal.window
+        border.color:           qgcPal.windowShade
+        border.width:           1
+        z:                      QGroundControl.zOrderWidgets + 1
+        visible:                !!mainWindow.lidarAlerts && mainWindow.lidarAlerts.bannerText !== "" &&
+                                (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
+
+        Rectangle {
+            id:                     lidarBannerDot
+            anchors.left:           parent.left
+            anchors.leftMargin:     ScreenTools.defaultFontPixelWidth
+            anchors.verticalCenter: parent.verticalCenter
+            width:                  ScreenTools.defaultFontPixelHeight * 1.5
+            height:                 width
+            radius:                 width / 2
+            color:                  qgcPal.colorOrange
+        }
+
+        QGCLabel {
+            id:                     lidarBannerLabel
+            anchors.left:           lidarBannerDot.right
+            anchors.leftMargin:     ScreenTools.defaultFontPixelWidth
+            anchors.right:          parent.right
+            anchors.rightMargin:    ScreenTools.defaultFontPixelWidth
+            anchors.verticalCenter: parent.verticalCenter
+            text:                   mainWindow.lidarAlerts ? mainWindow.lidarAlerts.bannerText : ""
+            font.family:            ScreenTools.demiboldFontFamily
+            wrapMode:               Text.WordWrap
+        }
+
+        QGCMouseArea {
+            anchors.fill:   parent
+            onClicked:      mainWindow.lidarAlerts.dismissBanner()
+        }
+    }
+
+    //-----------------------------------------------------------
     // Life Jacket panel (left-anchored, beside the toolStrip)
     Rectangle {
         id:                  lifeVestPanel

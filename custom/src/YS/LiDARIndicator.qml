@@ -29,6 +29,12 @@ Item {
     // YS-04 Y-02 ①: a Start rejected by the LiDAR shows CHECK even when all pre-checks pass
     property bool _check:       _state === YSManager.StateNotReady ||
                                 (_state === YSManager.StateReady && !!mainWindow.lidarAcquisition && mainWindow.lidarAcquisition.startRejected)
+    // YS-05: no-reply handling from LiDARAlerts (Y-05 ①: NO LINK after the no-response time)
+    property var  _alerts:      mainWindow.lidarAlerts
+    property bool _noResponse:  !!_alerts && _alerts.noResponse
+    property bool _poweredOff:  !!_alerts && _alerts.poweredOff
+    property bool _delayed:     !!_alerts && _alerts.delayed
+    property bool _usbLow:      !!_alerts && _alerts.usbLow && !_noResponse
 
     QGCPalette { id: qgcPal }
 
@@ -39,6 +45,12 @@ Item {
     }
 
     function _stateText() {
+        if (_noResponse) {
+            return qsTr("NO LINK")
+        }
+        if (_poweredOff) {
+            return qsTr("POWERED OFF")
+        }
         if (_check) {
             return qsTr("CHECK")
         }
@@ -55,7 +67,10 @@ Item {
     }
 
     function _stateColor() {
-        if (_check) {
+        if (_noResponse || _poweredOff) {
+            return qgcPal.colorGrey
+        }
+        if (_check || _delayed) {
             return qgcPal.colorOrange
         }
         switch (_state) {
@@ -70,6 +85,12 @@ Item {
     }
 
     function _usbText() {
+        if (_noResponse) {
+            return "—"
+        }
+        if (_usbLow && _usb === YSManager.UsbOk) {
+            return qsTr("USB LOW")
+        }
         switch (_usb) {
         case YSManager.UsbOk:       return qsTr("USB OK")
         case YSManager.UsbFull:     return qsTr("USB FULL")
@@ -106,7 +127,7 @@ Item {
 
             QGCLabel {
                 text:           _usbText()
-                color:          (_usb === YSManager.UsbFull || _usb === YSManager.UsbMissing) ? qgcPal.colorOrange : qgcPal.buttonText
+                color:          !_noResponse && (_usbLow || _usb === YSManager.UsbFull || _usb === YSManager.UsbMissing) ? qgcPal.colorOrange : qgcPal.buttonText
                 font.pointSize: ScreenTools.smallFontPointSize
             }
         }
