@@ -99,6 +99,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/src/CustomPlugin.h \
     $$PWD/src/Elistair/ElistairStationManager.h \
+    $$PWD/src/Elistair/SafeTFrameExtractor.h \
     $$PWD/src/Elistair/SafeTFrameNegotiator.h \
     $$PWD/src/Elistair/SafeTNoPowerPolicy.h \
     $$PWD/src/Elistair/TetherFactGroup.h \

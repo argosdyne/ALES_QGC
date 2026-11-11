@@ -219,8 +219,15 @@ Rectangle {
                                 QGCTextField { text: "SAFE-T #1"; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 24; Layout.preferredHeight: root.controlHeight }
                                 QGCLabel { text: qsTr("Station IP"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                                 QGCTextField { id: address; validator: RegExpValidator { regExp: /^[0-9.]*$/ } maximumLength: 15; text: station.stationAddress; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 24; Layout.preferredHeight: root.controlHeight; validationError: !root.addressValid; onEditingFinished: root.applyConnectionSettings() }
-                                QGCLabel { text: qsTr("UDP port"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCLabel { text: qsTr("Port"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                                 QGCTextField { id: port; text: station.stationPort; numericValuesOnly: true; validator: IntValidator { bottom: 1; top: 65535 } Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 15; Layout.preferredHeight: root.controlHeight; validationError: !acceptableInput; onEditingFinished: root.applyConnectionSettings() }
+                                QGCLabel { text: qsTr("Transport"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+                                QGCComboBox {
+                                    model: ["TCP", "UDP"]
+                                    currentIndex: station.transport === "UDP" ? 1 : 0
+                                    Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 15; Layout.preferredHeight: root.controlHeight
+                                    onActivated: station.transport = ["TCP", "UDP"][index]
+                                }
                                 QGCLabel { text: qsTr("Frame version"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
                                 QGCComboBox {
                                     model: [qsTr("Auto"), qsTr("Extended V1"), qsTr("Extended V0"), qsTr("Standard")]
@@ -238,8 +245,8 @@ Rectangle {
                                 }
                                 QGCLabel { text: station.connected && station.frameVersionDetected ? qsTr("OK - %1").arg(station.activeFrameVersion) : qsTr("Waiting for station response"); color: root.muted; font.pointSize: ScreenTools.smallFontPointSize }
                             }
-                            QGCLabel { Layout.fillWidth: true; text: qsTr("Ethernet, direct UDP to the station. One station per GCS. On failure, check PC IP, cable and station power."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
-                            QGCLabel { visible: !root.connectionValid; Layout.fillWidth: true; text: qsTr("Enter a valid IPv4 address and UDP port (1–65535)."); color: "#ff5e57"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
+                            QGCLabel { Layout.fillWidth: true; text: qsTr("SAFE-T 2.3: Wi-Fi 192.168.4.1 or Ethernet 192.168.1.120 · TCP or UDP · port 7158 or 23232. One station per GCS. On failure, check the network, IP and station power."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
+                            QGCLabel { visible: !root.connectionValid; Layout.fillWidth: true; text: qsTr("Enter a valid IPv4 address and port (1–65535)."); color: "#ff5e57"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
                             Item { Layout.fillHeight: true }
                         }
                     }

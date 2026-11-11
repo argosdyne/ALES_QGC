@@ -124,7 +124,7 @@ Rectangle {
 
         QGCLabel {
             Layout.fillWidth: true
-            text: qsTr("SAFE-T #1 - %1:%2 - %3").arg(station.stationAddress).arg(station.stationPort).arg(station.frameVersionDetected ? station.activeFrameVersion : qsTr("Not detected"))
+            text: qsTr("SAFE-T #1 - %1:%2 %3 - %4").arg(station.stationAddress).arg(station.stationPort).arg(station.transport).arg(station.frameVersionDetected ? station.activeFrameVersion : qsTr("Not detected"))
             color: mutedText
             font.pointSize: ScreenTools.smallFontPointSize
             elide: Text.ElideRight
@@ -267,6 +267,15 @@ Rectangle {
                 }
             }
         }
+        // Torque commands are refused silently otherwise: say why (link not ready, or the
+        // automatic torque authority was released after a link loss / reconnect).
+        QGCLabel {
+            Layout.fillWidth: true
+            visible: !root.controlsAvailable || !station.torqueRemote
+            text: !root.controlsAvailable ? qsTr("Torque locked until the station link is connected.")
+                                          : qsTr("Turn on Automatic Torque Control to send torque commands.")
+            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
+        }
 
         }
         ColumnLayout {
@@ -302,7 +311,7 @@ Rectangle {
             QGCLabel { text: station.powerWatts.toLocaleString(Qt.locale(), 'f', 0) + " W"; color: station.noPower ? root.danger : "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
             Rectangle { visible: station.powerOn && !station.noPower; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 3.2; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45; radius: height / 2; color: green; QGCLabel { anchors.centerIn: parent; text: qsTr("ON"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.smallFontPointSize } }
         }
-        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.hasMonitoring ? root.measurement(station.voltage) : "—").arg(station.hasMonitoring ? root.measurement(station.current) : "—"); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: station.hasMonitoring && station.powerSourceVolts > 0 ? qsTr("%1 V - %2 A - Input %3 V AC").arg(root.measurement(station.voltage)).arg(root.measurement(station.current)).arg(station.powerSourceVolts) : qsTr("%1 V - %2 A - Input unavailable").arg(station.hasMonitoring ? root.measurement(station.voltage) : "—").arg(station.hasMonitoring ? root.measurement(station.current) : "—"); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
         Rectangle { Layout.fillWidth: true; opacity: root.telemetryOpacity; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.powerWatts, 2500); height: parent.height; radius: parent.radius; color: green } }
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }
