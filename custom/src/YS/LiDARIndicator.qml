@@ -35,6 +35,9 @@ Item {
     property bool _poweredOff:  !!_alerts && _alerts.poweredOff
     property bool _delayed:     !!_alerts && _alerts.delayed
     property bool _usbLow:      !!_alerts && _alerts.usbLow && !_noResponse
+    // YS-08 ①: elapsed time from the Start ACK (LiDARTrackRecorder)
+    property var  _track:           mainWindow.lidarTrack
+    property int  _elapsedSeconds:  _track && _track.running ? _track.elapsedSeconds : (_ys ? _ys.recordingSeconds : 0)
 
     QGCPalette { id: qgcPal }
 
@@ -57,7 +60,7 @@ Item {
         switch (_state) {
         case YSManager.StateReady:      return qsTr("READY")
         case YSManager.StateNotReady:   return qsTr("CHECK")
-        case YSManager.StateRecording:  return qsTr("REC %1").arg(_mmss(_ys.recordingSeconds))
+        case YSManager.StateRecording:  return qsTr("REC %1").arg(_mmss(_elapsedSeconds))
         case YSManager.StateStarting:   return qsTr("STARTING")
         case YSManager.StateStopping:   return qsTr("STOPPING")
         case YSManager.StateNoResponse: return qsTr("NO RESPONSE")

@@ -88,6 +88,7 @@
         <file alias="LiDARPanel.qml">src/YS/LiDARPanel.qml</file>
         <file alias="LiDARAcquisition.qml">src/YS/LiDARAcquisition.qml</file>
         <file alias="LiDARAlerts.qml">src/YS/LiDARAlerts.qml</file>
+        <file alias="LiDARTrackRecorder.qml">src/YS/LiDARTrackRecorder.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>

@@ -103,6 +103,13 @@ ApplicationWindow {
         active: !!QGroundControl.corePlugin.ysManager
         source: "qrc:/qml/LiDARAlerts.qml"
     }
+    // YS-08 elapsed time from the Start ACK and recorded track: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarTrack:                 lidarTrackLoader.item
+    Loader {
+        id:     lidarTrackLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARTrackRecorder.qml"
+    }
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {

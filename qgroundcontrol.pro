@@ -28,6 +28,12 @@ QMAKE_EXT_CPP += .cc
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED
 
+# Fix backslash paths for NDK make which uses bash on Windows (bash treats backslashes as escape chars)
+QMAKE_CC ~= s,\\\\,/,g
+QMAKE_CXX ~= s,\\\\,/,g
+QMAKE_LINK ~= s,\\\\,/,g
+QMAKE_LINK_SHLIB ~= s,\\\\,/,g
+QMAKE_AR ~= s,\\\\,/,g
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")
 }

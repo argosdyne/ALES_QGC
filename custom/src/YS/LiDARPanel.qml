@@ -47,6 +47,15 @@ Rectangle {
     property bool _poweredOff:      !!_alerts && _alerts.poweredOff
     property bool _delayed:         !!_alerts && _alerts.delayed
     property int  _criticalCount:   _alerts ? _alerts.criticalCount : 0
+    // YS-08 ①: elapsed time from the Start ACK (LiDARTrackRecorder)
+    property var  _track:           mainWindow.lidarTrack
+    property bool _trackRunning:    !!_track && _track.running
+    property int  _elapsedSeconds:  _trackRunning ? _track.elapsedSeconds : (_ys ? _ys.recordingSeconds : 0)
+    property string _startedTime:   _trackRunning ? _track.startedTime : (_acq ? _acq.startedTime : "")
+    // YS-08 ④: General info bit 3 (Data logging), same bit as YSManager::kGenInfoDataLogging
+    readonly property int _genInfoDataLoggingBit:   1 << 3
+    readonly property int _rowUsb:                  3   // preChecks row order is fixed in YSManager::_rebuildPreChecks
+    property bool _dataLogging:     _statusValid && _ys && (_ys.genInfo & _genInfoDataLoggingBit) !== 0
 
     QGCPalette { id: qgcPal }
 
@@ -62,7 +71,7 @@ Rectangle {
             return qsTr("UNKNOWN")
         }
         switch (_state) {
-        case YSManager.StateRecording:  return qsTr("REC %1").arg(_hhmmss(_ys.recordingSeconds))
+        case YSManager.StateRecording:  return qsTr("REC %1").arg(_hhmmss(_elapsedSeconds))
         case YSManager.StateStarting:   return qsTr("STARTING")
         case YSManager.StateStopping:   return qsTr("STOPPING")
         case YSManager.StateReady:
@@ -111,8 +120,8 @@ Rectangle {
         if (_recording && _acq && _acq.flying) {
             return qsTr("In flight: Stop → slide to confirm (on ground: immediate)")
         }
-        if (_recording && _acq && _acq.startedTime !== "") {
-            return qsTr("Started %1").arg(_acq.startedTime) + _sep + qsTr("elapsed time counted by QGC")
+        if (_recording && _startedTime !== "") {
+            return qsTr("Started %1").arg(_startedTime) + _sep + qsTr("elapsed time counted by QGC")
         }
         return ""
     }
@@ -314,8 +323,9 @@ Rectangle {
                         opacity:            parent._view.dimmed ? 0.6 : 1.0
                     }
 
+                    // YS-08 ④: USB row also says whether data is being written (Data logging bit)
                     QGCLabel {
-                        text:       parent._view.detail
+                        text:       index === _rowUsb && !parent._view.dimmed && _dataLogging ? parent._view.detail + _sep + qsTr("Logging") : parent._view.detail
                         color:      parent._failed ? qgcPal.colorOrange : qgcPal.text
                         opacity:    parent._failed ? 1.0 : 0.6
                     }
