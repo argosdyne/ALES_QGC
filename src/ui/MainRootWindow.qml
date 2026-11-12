@@ -110,6 +110,13 @@ ApplicationWindow {
         active: !!QGroundControl.corePlugin.ysManager
         source: "qrc:/qml/LiDARTrackRecorder.qml"
     }
+    // YS-09 mission auto Start / Stop at the first / last survey waypoint: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarMissionAuto:           lidarMissionAutoLoader.item
+    Loader {
+        id:     lidarMissionAutoLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARMissionAuto.qml"
+    }
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {
