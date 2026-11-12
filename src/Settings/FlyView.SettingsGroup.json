@@ -137,6 +137,12 @@
     "shortDesc": "Enable NavSight",
     "type":      "bool",
     "default":   false
+},
+{
+    "name":      "showNavSightGpsComparisonTrail",
+    "shortDesc": "Show GPS Comparison Trail in NavSight VIS Mode",
+    "type":      "bool",
+    "default":   false
 }
 ]
 }

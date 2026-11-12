@@ -40,6 +40,7 @@ public:
     DEFINE_SETTINGFACT(enableAudioController)
     DEFINE_SETTINGFACT(enableOpticalFlowController)
     DEFINE_SETTINGFACT(enableNavSight)
+    DEFINE_SETTINGFACT(showNavSightGpsComparisonTrail)
 
     Q_INVOKABLE QString readTextFile(const QString& path);
     Q_INVOKABLE void setFilePathRawValue(QString filePath);

@@ -38,6 +38,7 @@ DECLARE_SETTINGSFACT(FlyViewSettings, onlineLicenseKey)
 DECLARE_SETTINGSFACT(FlyViewSettings, enableAudioController)
 DECLARE_SETTINGSFACT(FlyViewSettings, enableOpticalFlowController)
 DECLARE_SETTINGSFACT(FlyViewSettings, enableNavSight)
+DECLARE_SETTINGSFACT(FlyViewSettings, showNavSightGpsComparisonTrail)
 
 
 QString FlyViewSettings::readTextFile(const QString& path) {

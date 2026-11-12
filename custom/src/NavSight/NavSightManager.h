@@ -6,11 +6,13 @@
 #include <QByteArray>
 #include <QBitArray>
 #include <QElapsedTimer>
+#include <QGeoCoordinate>
 #include <QMap>
 #include <QMetaObject>
 #include <QPointer>
 #include <QStringList>
 #include <QTimer>
+#include <QVariantList>
 #include <QVector>
 
 class Vehicle;
@@ -68,6 +70,9 @@ public:
     Q_PROPERTY(int      targetSystemId                 READ targetSystemId                 NOTIFY navSightAddressChanged)
     Q_PROPERTY(bool     visualNavigationSourceConfigured READ visualNavigationSourceConfigured NOTIFY externalNavConfigurationChanged)
     Q_PROPERTY(bool     deadReckoningSourceConfigured     READ deadReckoningSourceConfigured     NOTIFY externalNavConfigurationChanged)
+    // Raw physical-GPS samples captured only while FC source set 2 (VIS) is
+    // active. This is a comparison overlay, not the vehicle's primary path.
+    Q_PROPERTY(QVariantList gpsComparisonTrajectory READ gpsComparisonTrajectory NOTIFY gpsComparisonTrajectoryChanged)
     Q_PROPERTY(int      targetComponentId              READ targetComponentId              CONSTANT)
 
     bool navSightOnline() const { return _navSightOnline; }
@@ -93,6 +98,7 @@ public:
     int targetSystemId() const { return _navSightSystemId; }
     bool visualNavigationSourceConfigured() const { return _visualNavigationSourceConfigured; }
     bool deadReckoningSourceConfigured() const { return _deadReckoningSourceConfigured; }
+    QVariantList gpsComparisonTrajectory() const { return _gpsComparisonTrajectory; }
     int targetComponentId() const { return kDefaultComponentId; }
 
     Q_INVOKABLE bool sendUpdateLocation(double latitude, double longitude);
@@ -111,6 +117,7 @@ signals:
     void updateLocationSent(double latitude, double longitude);
     void externalNavConfigurationChanged();
     void navSightAddressChanged();
+    void gpsComparisonTrajectoryChanged();
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
@@ -147,6 +154,8 @@ private:
     void _checkStatusTimeout();
     void _refreshExternalNavPositionSourceConfigured();
     void _disconnectExternalNavFactSignals();
+    void _appendGpsComparisonPoint(const mavlink_gps_raw_int_t& gpsRawInt);
+    void _clearGpsComparisonTrajectory();
     static QString _ekfSourceSetName(int sourceSet);
     static QString _mavlinkString(const char* text, int textLength);
     static quint32 _lowStatusWord(const QByteArray& statusBytes);
@@ -207,6 +216,9 @@ private:
     bool    _visualNavigationSourceConfigured{false};
     bool    _deadReckoningSourceConfigured{false};
     QMetaObject::Connection _externalNavParametersReadyConnection;
+    QMetaObject::Connection _vehicleArmedConnection;
+    QMetaObject::Connection _navSightFeatureSettingConnection;
+    QMetaObject::Connection _gpsComparisonSettingConnection;
     QVector<QMetaObject::Connection> _externalNavFactConnections;
     Vehicle* _vehicle{nullptr};
     int _navSightSystemId{0}; // Unknown until a component-192 HEARTBEAT is received.
@@ -214,6 +226,10 @@ private:
     QElapsedTimer _lastHeartbeatTimer;
     QElapsedTimer _lastStatusTimer;
     quint64 _lastVisionPositionEstimateUsec{0};
+    QVariantList _gpsComparisonTrajectory;
+    QGeoCoordinate _lastGpsComparisonPoint;
+    double _lastGpsComparisonAzimuth{0.0};
+    bool _gpsComparisonAzimuthValid{false};
     QTimer _heartbeatWatchdog;
     QTimer _updateLocationAckTimer;
     QTimer _ekfSourceAckTimer;

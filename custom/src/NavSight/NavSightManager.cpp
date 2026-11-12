@@ -5,6 +5,8 @@
 #include "Vehicle.h"
 #include "ParameterManager.h"
 #include "Fact.h"
+#include "SettingsManager.h"
+#include "FlyViewSettings.h"
 #include "LinkInterface.h"
 #include "VehicleLinkManager.h"
 
@@ -14,6 +16,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QLoggingCategory>
+#include <QtMath>
 
 #include <cmath>
 #include <cstring>
@@ -68,6 +71,20 @@ void NavSightManager::setToolbox(QGCToolbox* toolbox)
     _setActiveVehicle(vehicleManager->activeVehicle());
     connect(vehicleManager, &MultiVehicleManager::activeVehicleChanged,
             this, &NavSightManager::_setActiveVehicle);
+    Fact* navSightFeatureSetting = _toolbox->settingsManager()->flyViewSettings()->enableNavSight();
+    _navSightFeatureSettingConnection = connect(navSightFeatureSetting, &Fact::rawValueChanged,
+                                                 this, [this](QVariant enabled) {
+        if (!enabled.toBool()) {
+            _clearGpsComparisonTrajectory();
+        }
+    });
+    Fact* gpsComparisonTrailSetting = _toolbox->settingsManager()->flyViewSettings()->showNavSightGpsComparisonTrail();
+    _gpsComparisonSettingConnection = connect(gpsComparisonTrailSetting, &Fact::rawValueChanged,
+                                               this, [this](QVariant enabled) {
+        if (!enabled.toBool()) {
+            _clearGpsComparisonTrajectory();
+        }
+    });
     _heartbeatWatchdog.start();
 }
 
@@ -92,18 +109,29 @@ void NavSightManager::_setActiveVehicle(Vehicle* vehicle)
     }
 
     disconnect(_externalNavParametersReadyConnection);
+    disconnect(_vehicleArmedConnection);
     _disconnectExternalNavFactSignals();
     _vehicle = vehicle;
     _activeEkfSourceSet = 0;
     _pendingEkfSourceSet = 0;
     _ekfSourceChangeInProgress = false;
     _navSightLocationSource = QStringLiteral("N/A");
+    _clearGpsComparisonTrajectory();
     emit ekfSourceStateChanged();
     _setOffline();
 
     if (_vehicle) {
         connect(_vehicle, &Vehicle::mavlinkMessageReceived,
                 this, &NavSightManager::_mavlinkMessageReceived);
+
+        _vehicleArmedConnection = connect(_vehicle, &Vehicle::armedChanged, this, [this](bool armed) {
+            // Match QGC's primary trajectory lifecycle: begin a fresh
+            // comparison trail for each armed flight, but retain it after
+            // disarm so the operator can review the completed path.
+            if (armed) {
+                _clearGpsComparisonTrajectory();
+            }
+        });
 
         ParameterManager* parameterManager = _vehicle->parameterManager();
         _externalNavParametersReadyConnection = connect(parameterManager, &ParameterManager::parametersReadyChanged,
@@ -214,11 +242,15 @@ void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 
             const int requestedSourceSet = _pendingEkfSourceSet;
             if (ack.result == MAV_RESULT_ACCEPTED) {
+                const bool enteringVisualNavigation = requestedSourceSet == 2 && _activeEkfSourceSet != 2;
                 _activeEkfSourceSet = requestedSourceSet;
                 _navSightLocationSource = _ekfSourceSetName(requestedSourceSet);
                 _navSightDeadReckoningActive = requestedSourceSet == 3;
                 _navSightGpsActive = requestedSourceSet == 1;
                 _navSightVisualNavigationActive = requestedSourceSet == 2;
+                if (enteringVisualNavigation) {
+                    _clearGpsComparisonTrajectory();
+                }
                 emit navSightStatusChanged();
                 qCInfo(NavSightManagerLog) << "FC EKF source set accepted: sourceSet="
                                            << requestedSourceSet << "source=" << _navSightLocationSource;
@@ -231,6 +263,77 @@ void NavSightManager::_mavlinkMessageReceived(const mavlink_message_t& message)
         }
     }
 
+    // GPS_RAW_INT is independent of FC GLOBAL_POSITION_INT. Capture it only
+    // for a VIS flight so it can be shown as a comparison path alongside the
+    // standard FC/EKF trajectory. Ignore NavSight component-192 traffic even
+    // when NavSight shares the vehicle system id.
+    if (message.msgid == MAVLINK_MSG_ID_GPS_RAW_INT && _vehicle &&
+        message.sysid == _vehicle->id() && message.compid != kDefaultComponentId) {
+        mavlink_gps_raw_int_t gpsRawInt{};
+        mavlink_msg_gps_raw_int_decode(&message, &gpsRawInt);
+        _appendGpsComparisonPoint(gpsRawInt);
+    }
+
+}
+
+void NavSightManager::_appendGpsComparisonPoint(const mavlink_gps_raw_int_t& gpsRawInt)
+{
+    const bool comparisonTrailEnabled = _toolbox && _toolbox->settingsManager() &&
+        _toolbox->settingsManager()->flyViewSettings()->enableNavSight()->rawValue().toBool() &&
+        _toolbox->settingsManager()->flyViewSettings()->showNavSightGpsComparisonTrail()->rawValue().toBool();
+    if (!_vehicle || !_vehicle->armed() || _activeEkfSourceSet != 2 ||
+        gpsRawInt.fix_type < GPS_FIX_TYPE_3D_FIX || !comparisonTrailEnabled) {
+        return;
+    }
+
+    const QGeoCoordinate coordinate(gpsRawInt.lat * 1e-7, gpsRawInt.lon * 1e-7, gpsRawInt.alt * 1e-3);
+    if (!coordinate.isValid()) {
+        return;
+    }
+
+    bool trajectoryChanged = false;
+    if (!_lastGpsComparisonPoint.isValid()) {
+        _gpsComparisonTrajectory.append(QVariant::fromValue(coordinate));
+        _lastGpsComparisonPoint = coordinate;
+        trajectoryChanged = true;
+    } else {
+        const double distance = _lastGpsComparisonPoint.distanceTo(coordinate);
+        if (distance <= 2.0) {
+            return;
+        }
+
+        const double azimuth = _lastGpsComparisonPoint.azimuthTo(coordinate);
+        if (!_gpsComparisonAzimuthValid || qAbs(azimuth - _lastGpsComparisonAzimuth) > 1.5) {
+            _gpsComparisonTrajectory.append(QVariant::fromValue(coordinate));
+            _lastGpsComparisonAzimuth = azimuth;
+            _gpsComparisonAzimuthValid = true;
+        } else {
+            _gpsComparisonTrajectory[_gpsComparisonTrajectory.count() - 1] = QVariant::fromValue(coordinate);
+        }
+        _lastGpsComparisonPoint = coordinate;
+        trajectoryChanged = true;
+    }
+
+    if (trajectoryChanged) {
+        // A bounded trail prevents long-running flights from degrading map performance.
+        static constexpr int kMaxGpsComparisonPoints = 2000;
+        if (_gpsComparisonTrajectory.count() > kMaxGpsComparisonPoints) {
+            _gpsComparisonTrajectory.removeFirst();
+        }
+        emit gpsComparisonTrajectoryChanged();
+    }
+}
+
+void NavSightManager::_clearGpsComparisonTrajectory()
+{
+    if (_gpsComparisonTrajectory.isEmpty() && !_lastGpsComparisonPoint.isValid()) {
+        return;
+    }
+
+    _gpsComparisonTrajectory.clear();
+    _lastGpsComparisonPoint = QGeoCoordinate();
+    _gpsComparisonAzimuthValid = false;
+    emit gpsComparisonTrajectoryChanged();
 }
 
 void NavSightManager::_rawMavlinkMessageReceived(LinkInterface* link, mavlink_message_t message)

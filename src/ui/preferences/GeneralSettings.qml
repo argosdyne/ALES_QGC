@@ -462,6 +462,11 @@ Rectangle {
                                     text: qsTr("Enable NavSight")
                                     fact: QGroundControl.settingsManager.flyViewSettings.enableNavSight
                                 }
+                                FactCheckBox {
+                                    text: qsTr("Show GPS Comparison Trail in VIS Mode")
+                                    fact: QGroundControl.settingsManager.flyViewSettings.showNavSightGpsComparisonTrail
+                                    visible: QGroundControl.settingsManager.flyViewSettings.enableNavSight.rawValue
+                                }
                             }
                         }
                     }

@@ -60,6 +60,7 @@ FlightMap {
     property bool   _saveZoomLevelSetting:      true
     property var    _navSightManager:           QGroundControl.corePlugin.navSightManager
     property bool   _navSightFeatureEnabled:    QGroundControl.settingsManager.flyViewSettings.enableNavSight.rawValue
+    property bool   _showNavSightGpsComparisonTrail: _flyViewSettings.showNavSightGpsComparisonTrail.rawValue
 
     function _adjustMapZoomForPipMode() {
         _saveZoomLevelSetting = false
@@ -278,6 +279,20 @@ FlightMap {
             onUpdateLastPoint:      trajectoryPolyline.replaceCoordinate(trajectoryPolyline.pathLength() - 1, coordinate)
             onPointsCleared:        trajectoryPolyline.path = []
         }
+    }
+
+    // The standard red trajectory above follows FC GLOBAL_POSITION_INT. When
+    // VIS is active that is the FC/EKF position fed by NavSight. This blue
+    // line is the independently reported GPS_RAW_INT path for comparison.
+    MapPolyline {
+        id:         gpsComparisonTrajectoryPolyline
+        line.width: 3
+        line.color: "#00B8D4"
+        z:          QGroundControl.zOrderTrajectoryLines
+        visible:    !pipMode && _navSightFeatureEnabled && _showNavSightGpsComparisonTrail && _navSightManager &&
+                    _navSightManager.activeEkfSourceSet === 2 &&
+                    _navSightManager.gpsComparisonTrajectory.length > 0
+        path:       _navSightManager ? _navSightManager.gpsComparisonTrajectory : []
     }
 
     // Add the vehicles to the map
