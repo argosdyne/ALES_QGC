@@ -2404,6 +2404,23 @@ void CodevCameraControl::joystickGimbalCenter()
     _joystickRcPitchPwm = kRcGimbalCenter;
     _joystickRcYawPwm = kRcGimbalCenter;
     _joystickRcStreamTimer.stop();
+    // Digital zoom goes to 1, and optical zoom is commanded to 1x.
+    // The UI follows the camera ACK instead of pretending the lens already moved.
+    // The on-screen gimbal button calls centerGimbal() only.
+    if (_dZoomFact && _dZoomFact->rawValue().toDouble() > 1.01) {
+        _dZoomFact->setRawValue(1.0f);
+    }
+    if (hasZoom()) {
+        _holdZoomStepTimer.stop();
+        _holdZoomDirection = 0;
+        _holdZoomAllowDigital = false;
+        _zoomCatchUpAttempts = 0;
+        _zoomSettleTimer.stop();
+        _commandedRange = 1.0f;
+        _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+        _queueZoomRange(1.0f, "joystickGimbalCenter");
+        _schedulePostZoomSettingsSync();
+    }
     centerGimbal();
     _sendJoystickRcChannels(kRcGimbalCenter, kRcGimbalCenter, _joystickRcZoomPwm, static_cast<uint16_t>(2000));
     QTimer::singleShot(150, this, [this]() {
