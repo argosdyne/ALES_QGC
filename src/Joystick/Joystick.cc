@@ -1585,7 +1585,8 @@ void Joystick::_handleApmRtlButton()
 
 void Joystick::_startApmRtlRepeatBeep()
 {
-    if (!_rtlRepeatSound) {
+    // Disarmed: no repeat beep and no stop beep.
+    if (!_rtlRepeatSound || !_activeVehicle || !_activeVehicle->armed()) {
         return;
     }
     if (_rtlStopSound) {
@@ -1604,6 +1605,10 @@ void Joystick::_playApmRtlStopBeep()
     _apmRtlRepeatBeepOn = false;
     if (_rtlRepeatSound) {
         _rtlRepeatSound->stop();
+    }
+    // Disarmed: no repeat beep and no stop beep.
+    if (!_activeVehicle || !_activeVehicle->armed()) {
+        return;
     }
     if (_rtlStopSound) {
         _rtlStopSound->setLoopCount(1);
