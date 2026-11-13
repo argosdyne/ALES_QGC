@@ -98,7 +98,7 @@ Item {
         visible: vs.present
     }
 
-    //------------------------------------------------------------------ Telemetry bar (x = 448, bottom 24)
+    //------------------------------------------------------------------ Telemetry bar (x = 24, bottom 24)
     STelemetryBar {
         x: SimpleTheme.px(SimpleTheme.telemetryX)
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)

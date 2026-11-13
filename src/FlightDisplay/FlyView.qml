@@ -188,8 +188,9 @@ Item {
 
     FPVOverlay {
         id: _fpvOverlay
-        // Simple UI: the main PiP is bottom-right, so the FPV overlay starts bottom-left
-        x: simpleMode ? Math.round(24 * _simpleScale) : parent.width - _toolsMargin - width
+        // Simple UI: telemetry is bottom-left and the main PiP bottom-right (Figma S04),
+        // so the FPV overlay starts in the free space between them (x 950-1472 on 1920 x 1080)
+        x: simpleMode ? Math.round(950 * _simpleScale + (522 * _simpleScale - width) / 2) : parent.width - _toolsMargin - width
         y: parent.height - (simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin) - height
         z: _pipItemZorder + 1
         pipOverlay: _pipOverlay

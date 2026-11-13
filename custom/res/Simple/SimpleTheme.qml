@@ -40,7 +40,7 @@ QtObject {
     readonly property int actionX:          28
     readonly property int actionY0:         250
     readonly property int actionStep:       200
-    readonly property int telemetryX:       448
+    readonly property int telemetryX:       24      // left = flight, right = camera (decision 2026-11-13)
     readonly property int panelBottomMax:   910
     readonly property int touchMin:         96
 
