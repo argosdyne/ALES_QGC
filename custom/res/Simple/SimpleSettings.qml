@@ -204,6 +204,81 @@ Rectangle {
             // ArduPilot RTL_ALT is in centimetres
             readonly property real _rtlScale: _apm ? 100 : 1
 
+            // Low battery threshold: ArduPilot BATT_LOW_MAH / BATT_CAPACITY or BATT_LOW_VOLT, PX4 BAT_LOW_THR / BAT_CRIT_THR
+            readonly property var _battLowMah:  _apm ? _p("BATT_LOW_MAH")  : null
+            readonly property var _battCap:     _apm ? _p("BATT_CAPACITY") : null
+            readonly property var _battLowVolt: _apm ? _p("BATT_LOW_VOLT") : null
+            readonly property var _batLowThr:   _apm ? null : _p("BAT_LOW_THR")
+            readonly property var _batCritThr:  _apm ? null : _p("BAT_CRIT_THR")
+
+            // Plain-language text for the failsafe actions (value, warn = no protective action)
+            function battAction(f) {
+                if (!f) return { t: "—", warn: false }
+                var v = Number(f.rawValue)
+                if (_apm) {
+                    switch (v) {
+                    case 0: return { t: qsTr("Warning only · keeps flying"), warn: true }
+                    case 1: return { t: qsTr("Land where it is"), warn: false }
+                    case 2: return { t: qsTr("Return home"), warn: false }
+                    case 3: return { t: qsTr("Return home by the flown path"), warn: false }
+                    case 4: return { t: qsTr("Return by the flown path, or land"), warn: false }
+                    case 5: return { t: qsTr("Stop motors (drone falls)"), warn: true }
+                    case 6: return { t: qsTr("Go to the mission landing point, or return home"), warn: false }
+                    case 7: return { t: qsTr("Stop, then land"), warn: false }
+                    }
+                } else {
+                    switch (v) {
+                    case 0: return { t: qsTr("Warning only · keeps flying"), warn: true }
+                    case 2: return { t: qsTr("Land where it is"), warn: false }
+                    case 3: return { t: qsTr("Return home, land if very low"), warn: false }
+                    }
+                }
+                return { t: f.enumStringValue, warn: false }
+            }
+            function linkAction(f) {
+                if (!f) return { t: "—", warn: false }
+                var v = Number(f.rawValue)
+                if (_apm) {
+                    switch (v) {
+                    case 0: return { t: qsTr("Nothing · keeps flying"), warn: true }
+                    case 1: return { t: qsTr("Return home"), warn: false }
+                    case 2: return { t: qsTr("Finish the mission, otherwise return home"), warn: false }
+                    case 3: return { t: qsTr("Land where it is"), warn: false }
+                    case 4: return { t: qsTr("Return home by the flown path"), warn: false }
+                    case 5: return { t: qsTr("Return by the flown path, or land"), warn: false }
+                    case 6: return { t: qsTr("Go to the mission landing point, or return home"), warn: false }
+                    case 7: return { t: qsTr("Stop, then land"), warn: false }
+                    }
+                } else {
+                    switch (v) {
+                    case 0: return { t: qsTr("Nothing · keeps flying"), warn: true }
+                    case 1: return { t: qsTr("Hover in place"), warn: false }
+                    case 2: return { t: qsTr("Return home"), warn: false }
+                    case 3: return { t: qsTr("Land where it is"), warn: false }
+                    case 5: return { t: qsTr("Stop motors (drone falls)"), warn: true }
+                    case 6: return { t: qsTr("Lock motors"), warn: true }
+                    }
+                }
+                return { t: f.enumStringValue, warn: false }
+            }
+            function battThreshold() {
+                if (_apm) {
+                    if (_battLowMah && _battCap && Number(_battLowMah.rawValue) > 0 && Number(_battCap.rawValue) > 0)
+                        return qsTr("Acts when %1 % is left").arg(Math.round(100 * Number(_battLowMah.rawValue) / Number(_battCap.rawValue)))
+                    if (_battLowVolt && Number(_battLowVolt.rawValue) > 0)
+                        return qsTr("Acts below %1 V").arg(Number(_battLowVolt.rawValue).toFixed(1))
+                    return qsTr("No low-battery level set on the drone")
+                }
+                if (_batLowThr && _batCritThr)
+                    return qsTr("Warning at %1 %, action at %2 %").arg(Math.round(100 * Number(_batLowThr.rawValue))).arg(Math.round(100 * Number(_batCritThr.rawValue)))
+                return qsTr("Level set on the drone")
+            }
+            function linkDelay() {
+                var f = _apm ? _p("FS_THR_VALUE") : _p("COM_RC_LOSS_T")
+                if (!_apm && f) return qsTr("After %1 s without signal").arg(Number(f.rawValue).toFixed(1))
+                return qsTr("When the controller signal is lost")
+            }
+
             SText { text: qsTr("Safety"); size: 40; bold: true }
             SText { text: qsTr("What the drone does when something goes wrong. Defaults follow local rules."); size: 24; color: SimpleTheme.textSecondary }
 
@@ -238,12 +313,24 @@ Rectangle {
                 }
             }
             SSettingRow {
-                title: qsTr("When battery is low"); sub: qsTr("Warning at 30 %, action at 20 % · change in Advanced")
-                SText { text: safety._battLow ? safety._battLow.enumStringValue : "—"; size: 28; bold: true }
+                id: battRow
+                readonly property var _a: safety.battAction(safety._battLow)
+                title: qsTr("When battery is low"); sub: safety.battThreshold() + qsTr(" · change in Advanced")
+                SText {
+                    width: SimpleTheme.px(460); horizontalAlignment: Text.AlignRight; wrapMode: Text.WordWrap
+                    text: battRow._a.t; size: 28; bold: true
+                    color: battRow._a.warn ? SimpleTheme.warn : SimpleTheme.textPrimary
+                }
             }
             SSettingRow {
-                title: qsTr("When the radio link is lost"); sub: qsTr("Change in Advanced")
-                SText { text: safety._linkLoss ? safety._linkLoss.enumStringValue : "—"; size: 28; bold: true }
+                id: linkRow
+                readonly property var _a: safety.linkAction(safety._linkLoss)
+                title: qsTr("When the radio link is lost"); sub: safety.linkDelay() + qsTr(" · change in Advanced")
+                SText {
+                    width: SimpleTheme.px(460); horizontalAlignment: Text.AlignRight; wrapMode: Text.WordWrap
+                    text: linkRow._a.t; size: 28; bold: true
+                    color: linkRow._a.warn ? SimpleTheme.warn : SimpleTheme.textPrimary
+                }
             }
         }
     }
