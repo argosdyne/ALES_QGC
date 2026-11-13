@@ -107,8 +107,9 @@ jobs:
           ANDROID_NDK_LATEST_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}"
-          ${{ runner.temp }}\jom\jom -j2
+          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT
+          findstr /n /c:"qrc_custom" Makefile*
+          ${{ runner.temp }}\jom\jom -j1
 
       - name: Save artifact
         uses: actions/upload-artifact@master
