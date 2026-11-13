@@ -156,8 +156,7 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     for (int i = 0; i < Vehicle::cMaxRcChannels; i++) {
         _rcChannelPwm[i] = -1;
     }
-    connect(this, &Joystick::_apmRtlExitRequested, this, &Joystick::_exitApmRtlToFlightModeSwitch);
-    connect(this, &Joystick::_apmRtlBeepRepeatRequested, this, &Joystick::_startApmRtlRepeatBeep);
+    connect(this, &Joystick::_apmRtlButtonPressed, this, &Joystick::_handleApmRtlButton);
     _rtlRepeatSound = new QSoundEffect(this);
     _rtlRepeatSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-repeat")));
     _rtlRepeatSound->setLoopCount(QSoundEffect::Infinite);
@@ -1552,6 +1551,22 @@ void Joystick::_exitApmRtlToFlightModeSwitch()
     _playApmRtlStopBeep();
 }
 
+void Joystick::_handleApmRtlButton()
+{
+    if (!_activeVehicle || !_activeVehicle->apmFirmware() || !_activeVehicle->firmwarePlugin()) {
+        return;
+    }
+    const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
+    // 22876: a press while RTL is already active leaves for the flight-mode switch slot,
+    // whether this button, the GCS, or a failsafe started that RTL.
+    if (_activeVehicle->flightMode() == rtlMode) {
+        _exitApmRtlToFlightModeSwitch();
+        return;
+    }
+    emit setFlightMode(rtlMode);
+    _startApmRtlRepeatBeep();
+}
+
 void Joystick::_startApmRtlRepeatBeep()
 {
     if (!_rtlRepeatSound) {
@@ -1633,14 +1648,10 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
             const bool apmRtl = _activeVehicle->apmFirmware()
                     && _activeVehicle->firmwarePlugin()
                     && action == _activeVehicle->firmwarePlugin()->rtlFlightMode();
-            const bool apmRtlExit = apmRtl && _activeVehicle->flightMode() == action;
-            if (apmRtlExit) {
-                emit _apmRtlExitRequested();
+            if (apmRtl) {
+                emit _apmRtlButtonPressed();
             } else {
                 emit setFlightMode(action);
-                if (apmRtl) {
-                    emit _apmRtlBeepRepeatRequested();
-                }
             }
         }
     } else if(action == _buttonActionContinuousZoomIn || action == _buttonActionContinuousZoomOut) {

@@ -206,8 +206,7 @@ signals:
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
     // Emitted on the joystick thread. The slot runs on the joystick object's thread.
-    void _apmRtlExitRequested       ();
-    void _apmRtlBeepRepeatRequested ();
+    void _apmRtlButtonPressed       ();
     void startContinuousZoom        (int direction);
     void stopContinuousZoom         ();
     void stepZoom                   (int direction);
@@ -401,6 +400,7 @@ private slots:
     void _rcChannelsChanged(int channelCount, int pwmValues[Vehicle::cMaxRcChannels]);
     // APM joystick RTL is a second press, not a switch release. Leave RTL for the
     // flight-mode switch slot (FLTMODE_CH / MODE_CH PWM -> FLTMODEn / MODEn).
+    void _handleApmRtlButton();
     void _exitApmRtlToFlightModeSwitch();
     void _startApmRtlRepeatBeep();
     void _playApmRtlStopBeep();
