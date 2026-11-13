@@ -98,6 +98,16 @@ jobs:
         run: |
           ${SOURCE_DIR}/tools/update_android_manifest_package.sh ${{ github.ref_name }}
 
+      # Qt 5.15.2's androiddeployqt builds against the newest platform in the SDK. The runner's
+      # newest is "android-36-ext19", which breaks build.gradle ("For input string: ext19"), and
+      # Gradle plugin 3.6 cannot use build-tools 31+. Pin platform android-30 and build-tools 30.0.3.
+      # (Runs before Java 11 is set up: the current sdkmanager needs Java 17.)
+      - name: Pin Android SDK platform and build tools
+        run: |
+          call "%ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-30" "build-tools;30.0.3"
+          for /d %%d in ("%ANDROID_SDK_ROOT%\platforms\*") do if /i not "%%~nxd"=="android-30" rmdir /s /q "%%d"
+          dir /b "%ANDROID_SDK_ROOT%\platforms"
+
       # Qt 5.15.2 uses Gradle 5.6.4, which cannot run on the runner's default Java 17
       # ("Could not initialize class org.codehaus.groovy.vmplugin.v7.Java7")
       - name: Setup Java 11
@@ -119,7 +129,7 @@ jobs:
           rem which breaks jom/cmd ('...rcc.exe' -> "filename syntax is incorrect"). Drop those dirs.
           rem ENABLE_VERBOSE_OUTPUT: qmake's "silent" command wrappers also fail under cmd ("&& was unexpected").
           for /f "delims=" %%i in ('powershell -NoProfile -Command "($env:PATH -split ';' | Where-Object { $_ -and -not (Test-Path (Join-Path $_ 'sh.exe')) }) -join ';'"') do set "PATH=%%i"
-          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT
+          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT ANDROID_SDK_BUILD_TOOLS_REVISION=30.0.3
           ${{ runner.temp }}\jom\jom -j2
 
       - name: Save artifact
