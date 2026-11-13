@@ -27,6 +27,7 @@
 #include "QGCPalette.h"
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
+#include "FlyViewSettings.h"
 #include "YS/YSManager.h"
 
 #include "M2Manager.h"
@@ -262,6 +263,12 @@ bool CustomPlugin::overrideSettingsGroupVisibility(QString name)
 bool CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaData& metaData)
 {
     bool parentResult = QGCCorePlugin::adjustSettingMetaData(settingsGroup, metaData);
+
+    // AQGC Simple: default maximum altitude for guided commands is 120 m (decision 2026-11-13)
+    if (settingsGroup == FlyViewSettings::settingsGroup && metaData.name() == FlyViewSettings::guidedMaximumAltitudeName) {
+        metaData.setRawDefaultValue(120);
+        return parentResult;
+    }
 
     if (settingsGroup == AppSettings::settingsGroup) {
         // This tells QGC than when you are creating Plans while not connected to a vehicle

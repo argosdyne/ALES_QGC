@@ -30,6 +30,9 @@ import QGroundControl.Vehicle       1.0
 Item {
     id: _root
 
+    // AQGC Simple UI: hide the classic fly widgets (map, video and PiP stay)
+    property bool simpleMode: false
+
     // These should only be used by MainRootWindow
     property var planController:    _planController
     property var guidedController:  _guidedController
@@ -90,7 +93,7 @@ Item {
         z:                      _fullItemZorder + 1
         parentToolInsets:       _toolInsets
         mapControl:             _mapControl
-        visible:                !QGroundControl.videoManager.fullScreen
+        visible:                !QGroundControl.videoManager.fullScreen && !simpleMode
     }
 
 
@@ -100,7 +103,7 @@ Item {
         z:                  _fullItemZorder + 2
         parentToolInsets:   widgetLayer.totalToolInsets
         mapControl:         _mapControl
-        visible:            _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
+        visible:            _mainWindowIsMap && !simpleMode //!QGroundControl.videoManager.fullScreen
     }
 
     // Development tool for visualizing the insets for a paticular layer, enable if needed
