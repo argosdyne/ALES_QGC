@@ -16,6 +16,7 @@ import QtLocation               5.3
 import QtPositioning            5.3
 import QtQuick.Window           2.2
 import QtQml.Models             2.1
+import QtGraphicalEffects       1.12
 
 import QGroundControl               1.0
 import QGroundControl.Controllers   1.0
@@ -167,17 +168,22 @@ Item {
         pipMode:                !_mainWindowIsMap
         toolInsets:             customOverlay.totalToolInsets
         mapName:                "FlightDisplayView"
+        // Simple UI: rounded PiP corners (Figma S04)
+        layer.enabled:          simpleMode && pipState.state === pipState.pipState
+        layer.effect:           OpacityMask { maskSource: Rectangle { width: mapControl.width; height: mapControl.height; radius: _pipOverlay.simpleRadius } }
     }
 
     FlyViewVideo {
         id: videoControl
+        layer.enabled:          simpleMode && pipState.state === pipState.pipState
+        layer.effect:           OpacityMask { maskSource: Rectangle { width: videoControl.width; height: videoControl.height; radius: _pipOverlay.simpleRadius } }
     }
 
     FlyViewFPVVideo {
         id: fpvVideoControl
         visible: !QGroundControl.settingsManager.videoSettings.disableFPVVideo.value &&
                  !QGroundControl.videoManager.fullScreen  &&
-                 (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._isExpanded : true)
+                 (fpvVideoControl.pipState.state === fpvVideoControl.pipState.pipState ? _pipOverlay._shown : true)
     }
 
     FPVOverlay {
@@ -191,11 +197,26 @@ Item {
         show: true //mapControl.isFlyView
     }
 
+    // AQGC Simple UI: Figma S04 PiP at x 24, bottom 24, 400 x 226 on a 1920 x 1080 screen
+    readonly property real _simpleScale: Math.min(width / 1920, height / 1080)
+
     PipView {
         id:                     _pipOverlay
         anchors.left:           parent.left
         anchors.bottom:         parent.bottom
         anchors.margins:        _toolsMargin
+        anchors.leftMargin:     simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
+        anchors.bottomMargin:   simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
+        _pipSize:               simpleMode ? Math.round(400 * _simpleScale) : parent.width * 0.2
+        simpleStyle:            simpleMode
+        simpleRadius:           Math.round(16 * _simpleScale)
+        simpleBorder:           Math.max(1, Math.round(3 * _simpleScale))
+        simpleLabelHeight:      Math.round(40 * _simpleScale)
+        simpleFontSize:         Math.max(1, Math.round(22 * _simpleScale))
+        simpleItem1Label:       qsTr("Map")
+        simpleItem2Label:       qsTr("Camera")
+        simpleItem1Icon:        "qrc:/simple/icons/map.svg"
+        simpleItem2Icon:        "qrc:/simple/icons/camera.svg"
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
         //item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null

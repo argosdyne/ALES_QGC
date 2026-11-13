@@ -26,6 +26,20 @@ Item {
     property string item1IsFullSettingsKey          // Settings key to save whether item1 was saved in full mode
     property bool   show:                   true
 
+    // AQGC Simple UI style (Figma S04 "PiP · camera view (tap to swap)"): rounded frame, label,
+    // tap to swap only (no resize / pop-out / hide controls). Sizes are in screen pixels.
+    // The view in the PiP is anchored under this item, so its corners are rounded by the owner (FlyView).
+    property bool   simpleStyle:            false
+    property real   simpleRadius:           16
+    property real   simpleBorder:           3
+    property real   simpleLabelHeight:      40
+    property real   simpleFontSize:         22
+    property string simpleItem1Label:       ""
+    property string simpleItem2Label:       ""
+    property string simpleItem1Icon:        ""
+    property string simpleItem2Icon:        ""
+    readonly property bool _shown:          _isExpanded || simpleStyle
+
     readonly property string _pipExpandedSettingsKey: "IsPIPVisible"
 
     property var    _fullItem
@@ -104,14 +118,57 @@ Item {
     Item {
         id:             pipContent
         anchors.fill:   parent
-        visible:        _isExpanded
+        visible:        _shown
         clip:           true
+    }
+
+    // Simple style frame and label
+    Rectangle {
+        anchors.fill:   parent
+        visible:        simpleStyle && _shown
+        color:          "transparent"
+        radius:         simpleRadius
+        border.width:   simpleBorder
+        border.color:   Qt.rgba(0.96, 0.97, 0.97, 0.9)
+    }
+    Rectangle {
+        readonly property bool _isItem1: _pipOrWindowItem === item1
+        readonly property string _label: _isItem1 ? simpleItem1Label : simpleItem2Label
+        readonly property string _icon:  _isItem1 ? simpleItem1Icon  : simpleItem2Icon
+        visible:        simpleStyle && _shown && _label !== ""
+        x:              simpleLabelHeight * 0.3
+        y:              x
+        height:         simpleLabelHeight
+        width:          simpleLabelRow.width + simpleLabelHeight * 0.6
+        radius:         simpleLabelHeight * 0.2
+        color:          Qt.rgba(0.06, 0.07, 0.09, 0.78)
+        Row {
+            id:                 simpleLabelRow
+            anchors.centerIn:   parent
+            spacing:            simpleLabelHeight * 0.2
+            QGCColoredImage {
+                visible:            parent.parent._icon !== ""
+                anchors.verticalCenter: parent.verticalCenter
+                width:              simpleLabelHeight * 0.55
+                height:             width
+                sourceSize.height:  height
+                source:             parent.parent._icon
+                color:              "white"
+            }
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text:               parent.parent._label
+                color:              "white"
+                font.pixelSize:     simpleFontSize
+                font.weight:        Font.Medium
+            }
+        }
     }
 
     MouseArea {
         id:             pipMouseArea
         anchors.fill:   parent
-        enabled:        _isExpanded
+        enabled:        _shown
         preventStealing: true
         hoverEnabled:   true
         onClicked:      _swapPip()
@@ -124,6 +181,7 @@ Item {
         anchors.right:  parent.right
         height:         ScreenTools.minTouchPixels
         width:          height
+        enabled:        !simpleStyle
         preventStealing: true
         cursorShape: Qt.PointingHandCursor
 
@@ -163,7 +221,7 @@ Item {
         mipmap: true
         anchors.right:  parent.right
         anchors.top:    parent.top
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        visible:        !simpleStyle && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
@@ -195,7 +253,7 @@ Item {
         fillMode:       Image.PreserveAspectFit
         anchors.left:   parent.left
         anchors.top:    parent.top
-        visible:        _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse && _pipOrWindowItem.pipState.canWindow
+        visible:        !simpleStyle && _isExpanded && !ScreenTools.isMobile && pipMouseArea.containsMouse && _pipOrWindowItem.pipState.canWindow
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
@@ -215,7 +273,7 @@ Item {
         fillMode:       Image.PreserveAspectFit
         anchors.left:   parent.left
         anchors.bottom: parent.bottom
-        visible:        _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
+        visible:        !simpleStyle && _isExpanded && (ScreenTools.isMobile || pipMouseArea.containsMouse)
         height:         ScreenTools.defaultFontPixelHeight * 2.5
         width:          ScreenTools.defaultFontPixelHeight * 2.5
         sourceSize.height:  height
@@ -232,7 +290,7 @@ Item {
         height:                 ScreenTools.defaultFontPixelHeight * 2
         width:                  ScreenTools.defaultFontPixelHeight * 2
         radius:                 ScreenTools.defaultFontPixelHeight / 3
-        visible:                !_isExpanded
+        visible:                !_shown
         color:                  _fullItem.pipState.isDark ? Qt.rgba(0,0,0,0.75) : Qt.rgba(0,0,0,0.5)
         Image {
             width:              parent.width  * 0.75
