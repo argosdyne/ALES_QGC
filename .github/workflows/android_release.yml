@@ -109,8 +109,9 @@ jobs:
         run: |
           rem qmake switches to Unix shell quoting when sh.exe is on PATH (spec_pre.prf, QMAKE_SH),
           rem which breaks jom/cmd ('...rcc.exe' -> "filename syntax is incorrect"). Drop those dirs.
+          rem ENABLE_VERBOSE_OUTPUT: qmake's "silent" command wrappers also fail under cmd ("&& was unexpected").
           for /f "delims=" %%i in ('powershell -NoProfile -Command "($env:PATH -split ';' | Where-Object { $_ -and -not (Test-Path (Join-Path $_ 'sh.exe')) }) -join ';'"') do set "PATH=%%i"
-          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}"
+          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT
           ${{ runner.temp }}\jom\jom -j2
 
       - name: Save artifact
