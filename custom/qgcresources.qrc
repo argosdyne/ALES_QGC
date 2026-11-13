@@ -107,6 +107,8 @@
 	</qresource>
 	<qresource prefix="/res/audio">
 		<file alias="Alert">../resources/audio/alert.wav</file>
+		<file alias="beep-repeat">../resources/audio/beep-repeat.wav</file>
+		<file alias="beep-stop">../resources/audio/beep-stop.wav</file>
 	</qresource>
 	<qresource prefix="/opengl">
 		<file>../resources/opengl/buglist.json</file>

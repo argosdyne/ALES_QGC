@@ -27,6 +27,8 @@
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
+#include <QSoundEffect>
+#include <QUrl>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <algorithm>
@@ -155,6 +157,15 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
         _rcChannelPwm[i] = -1;
     }
     connect(this, &Joystick::_apmRtlExitRequested, this, &Joystick::_exitApmRtlToFlightModeSwitch);
+    connect(this, &Joystick::_apmRtlBeepRepeatRequested, this, &Joystick::_startApmRtlRepeatBeep);
+    _rtlRepeatSound = new QSoundEffect(this);
+    _rtlRepeatSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-repeat")));
+    _rtlRepeatSound->setLoopCount(QSoundEffect::Infinite);
+    _rtlRepeatSound->setVolume(1.0);
+    _rtlStopSound = new QSoundEffect(this);
+    _rtlStopSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-stop")));
+    _rtlStopSound->setLoopCount(1);
+    _rtlStopSound->setVolume(1.0);
     _buildActionList(_multiVehicleManager->activeVehicle());
     _updateTXModeSettingsKey(_multiVehicleManager->activeVehicle());
     _loadSettings();
@@ -1153,7 +1164,10 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             disconnect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            disconnect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
             disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
+            _silenceApmRtlBeep();
         }
         // Always set up the new vehicle
         _activeVehicle = vehicle;
@@ -1185,6 +1199,8 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             connect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            connect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            connect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
             connect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
         }
     }
@@ -1210,8 +1226,11 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             disconnect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            disconnect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
             disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
         }
+        _silenceApmRtlBeep();
         _exitThread = true;
     }
     _activeVehicle = nullptr;
@@ -1530,6 +1549,61 @@ void Joystick::_exitApmRtlToFlightModeSwitch()
     }
     qCDebug(JoystickLog) << "APM joystick RTL exit to" << modeName << modeParam << "pwm" << pwm;
     emit setFlightMode(modeName);
+    _playApmRtlStopBeep();
+}
+
+void Joystick::_startApmRtlRepeatBeep()
+{
+    if (!_rtlRepeatSound) {
+        return;
+    }
+    if (_rtlStopSound) {
+        _rtlStopSound->stop();
+    }
+    _apmRtlRepeatBeepOn = true;
+    _rtlRepeatSound->setLoopCount(QSoundEffect::Infinite);
+    if (!_rtlRepeatSound->isPlaying()) {
+        _rtlRepeatSound->play();
+    }
+    qCDebug(JoystickLog) << "APM joystick RTL repeat beep started";
+}
+
+void Joystick::_playApmRtlStopBeep()
+{
+    _apmRtlRepeatBeepOn = false;
+    if (_rtlRepeatSound) {
+        _rtlRepeatSound->stop();
+    }
+    if (_rtlStopSound) {
+        _rtlStopSound->setLoopCount(1);
+        _rtlStopSound->play();
+    }
+    qCDebug(JoystickLog) << "APM joystick RTL stop beep";
+}
+
+void Joystick::_silenceApmRtlBeep()
+{
+    _apmRtlRepeatBeepOn = false;
+    if (_rtlRepeatSound) {
+        _rtlRepeatSound->stop();
+    }
+}
+
+void Joystick::_apmRtlBeepFlightModeChanged(const QString& flightMode)
+{
+    if (!_apmRtlRepeatBeepOn || !_activeVehicle || !_activeVehicle->firmwarePlugin()) {
+        return;
+    }
+    if (flightMode != _activeVehicle->firmwarePlugin()->rtlFlightMode()) {
+        _silenceApmRtlBeep();
+    }
+}
+
+void Joystick::_apmRtlBeepArmedChanged(bool armed)
+{
+    if (!armed && _apmRtlRepeatBeepOn) {
+        _silenceApmRtlBeep();
+    }
 }
 
 void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
@@ -1556,14 +1630,17 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
             // A second APM RTL press leaves RTL for the flight-mode switch slot.
             // Button release is ignored so a momentary joystick button stays in RTL.
             // PX4 and every other flight-mode button keep sending that mode.
-            const bool apmRtlExit = _activeVehicle->apmFirmware()
+            const bool apmRtl = _activeVehicle->apmFirmware()
                     && _activeVehicle->firmwarePlugin()
-                    && action == _activeVehicle->firmwarePlugin()->rtlFlightMode()
-                    && _activeVehicle->flightMode() == action;
+                    && action == _activeVehicle->firmwarePlugin()->rtlFlightMode();
+            const bool apmRtlExit = apmRtl && _activeVehicle->flightMode() == action;
             if (apmRtlExit) {
                 emit _apmRtlExitRequested();
             } else {
                 emit setFlightMode(action);
+                if (apmRtl) {
+                    emit _apmRtlBeepRepeatRequested();
+                }
             }
         }
     } else if(action == _buttonActionContinuousZoomIn || action == _buttonActionContinuousZoomOut) {
