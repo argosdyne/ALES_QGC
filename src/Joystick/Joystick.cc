@@ -28,6 +28,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QSoundEffect>
+#include <QTimer>
 #include <QUrl>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -165,6 +166,10 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     _rtlStopSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-stop")));
     _rtlStopSound->setLoopCount(1);
     _rtlStopSound->setVolume(1.0);
+    // Clear a rejected RTL enter request so a later failsafe RTL does not start the beep.
+    _apmRtlBeepPendingTimer = new QTimer(this);
+    _apmRtlBeepPendingTimer->setSingleShot(true);
+    connect(_apmRtlBeepPendingTimer, &QTimer::timeout, this, &Joystick::_clearApmRtlBeepPendingEnter);
     _buildActionList(_multiVehicleManager->activeVehicle());
     _updateTXModeSettingsKey(_multiVehicleManager->activeVehicle());
     _loadSettings();
@@ -1166,6 +1171,8 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
             disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
             disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
+            _apmRtlBeepPendingExit = false;
+            _clearApmRtlBeepPendingEnter();
             _silenceApmRtlBeep();
         }
         // Always set up the new vehicle
@@ -1229,6 +1236,8 @@ void Joystick::stopPolling(void)
             disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
             disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
         }
+        _apmRtlBeepPendingExit = false;
+        _clearApmRtlBeepPendingEnter();
         _silenceApmRtlBeep();
         _exitThread = true;
     }
@@ -1548,7 +1557,6 @@ void Joystick::_exitApmRtlToFlightModeSwitch()
     }
     qCDebug(JoystickLog) << "APM joystick RTL exit to" << modeName << modeParam << "pwm" << pwm;
     emit setFlightMode(modeName);
-    _playApmRtlStopBeep();
 }
 
 void Joystick::_handleApmRtlButton()
@@ -1560,11 +1568,19 @@ void Joystick::_handleApmRtlButton()
     // 22876: a press while RTL is already active leaves for the flight-mode switch slot,
     // whether this button, the GCS, or a failsafe started that RTL.
     if (_activeVehicle->flightMode() == rtlMode) {
+        _clearApmRtlBeepPendingEnter();
+        // Stop beep waits for flightModeChanged away from RTL. A rejected exit stays silent.
+        _apmRtlBeepPendingExit = true;
         _exitApmRtlToFlightModeSwitch();
         return;
     }
+    _apmRtlBeepPendingExit = false;
+    // Repeat beep waits for RTL while armed. Do not start on the press itself.
+    _apmRtlBeepPendingEnter = true;
+    if (_apmRtlBeepPendingTimer) {
+        _apmRtlBeepPendingTimer->start(5000);
+    }
     emit setFlightMode(rtlMode);
-    _startApmRtlRepeatBeep();
 }
 
 void Joystick::_startApmRtlRepeatBeep()
@@ -1604,20 +1620,63 @@ void Joystick::_silenceApmRtlBeep()
     }
 }
 
+void Joystick::_clearApmRtlBeepPendingEnter()
+{
+    _apmRtlBeepPendingEnter = false;
+    if (_apmRtlBeepPendingTimer) {
+        _apmRtlBeepPendingTimer->stop();
+    }
+}
+
 void Joystick::_apmRtlBeepFlightModeChanged(const QString& flightMode)
 {
-    if (!_apmRtlRepeatBeepOn || !_activeVehicle || !_activeVehicle->firmwarePlugin()) {
+    if (!_activeVehicle || !_activeVehicle->firmwarePlugin()) {
         return;
     }
-    if (flightMode != _activeVehicle->firmwarePlugin()->rtlFlightMode()) {
+    const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
+    if (flightMode == rtlMode) {
+        // Entered RTL. Beep only for a joystick enter request while armed.
+        _apmRtlBeepPendingExit = false;
+        if (!_apmRtlBeepPendingEnter) {
+            return;
+        }
+        if (_activeVehicle->armed()) {
+            _clearApmRtlBeepPendingEnter();
+            _startApmRtlRepeatBeep();
+        } else {
+            // Disarmed RTL stays silent. A later arm while still in RTL starts the beep.
+            if (_apmRtlBeepPendingTimer) {
+                _apmRtlBeepPendingTimer->stop();
+            }
+        }
+        return;
+    }
+
+    // Left RTL.
+    _clearApmRtlBeepPendingEnter();
+    if (_apmRtlBeepPendingExit) {
+        _apmRtlBeepPendingExit = false;
+        _playApmRtlStopBeep();
+    } else if (_apmRtlRepeatBeepOn) {
         _silenceApmRtlBeep();
     }
 }
 
 void Joystick::_apmRtlBeepArmedChanged(bool armed)
 {
-    if (!armed && _apmRtlRepeatBeepOn) {
-        _silenceApmRtlBeep();
+    if (!armed) {
+        if (_apmRtlRepeatBeepOn) {
+            _silenceApmRtlBeep();
+        }
+        return;
+    }
+    // Armed while a joystick RTL enter is still pending and the vehicle is already in RTL.
+    if (_apmRtlBeepPendingEnter
+            && _activeVehicle
+            && _activeVehicle->firmwarePlugin()
+            && _activeVehicle->flightMode() == _activeVehicle->firmwarePlugin()->rtlFlightMode()) {
+        _clearApmRtlBeepPendingEnter();
+        _startApmRtlRepeatBeep();
     }
 }
 

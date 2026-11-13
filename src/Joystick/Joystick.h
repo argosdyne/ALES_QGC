@@ -23,6 +23,7 @@
 
 class QSettings;
 class QSoundEffect;
+class QTimer;
 
 // JoystickLog Category declaration moved to QGCLoggingCategory.cc to allow access in Vehicle
 Q_DECLARE_LOGGING_CATEGORY(JoystickValuesLog)
@@ -298,7 +299,12 @@ protected:
     int     _rcChannelPwm[Vehicle::cMaxRcChannels];
     QSoundEffect* _rtlRepeatSound   = nullptr;
     QSoundEffect* _rtlStopSound     = nullptr;
+    QTimer* _apmRtlBeepPendingTimer = nullptr;
     bool    _apmRtlRepeatBeepOn     = false;
+    // Joystick asked for RTL; start repeat only after the vehicle is in RTL and armed.
+    bool    _apmRtlBeepPendingEnter = false;
+    // Joystick asked to leave RTL; play stop beep only after the mode actually leaves RTL.
+    bool    _apmRtlBeepPendingExit  = false;
 
     bool    _pollingStartedForCalibration = false;
     bool    _gimbalAxisActive       = false;    ///< true while an analog gimbal axis is being deflected
@@ -405,6 +411,7 @@ private slots:
     void _startApmRtlRepeatBeep();
     void _playApmRtlStopBeep();
     void _silenceApmRtlBeep();
+    void _clearApmRtlBeepPendingEnter();
     void _apmRtlBeepFlightModeChanged(const QString& flightMode);
     void _apmRtlBeepArmedChanged(bool armed);
 };
