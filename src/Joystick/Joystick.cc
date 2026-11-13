@@ -19,6 +19,7 @@
 #include "QGCToolbox.h"
 #include "SettingsManager.h"
 #include "AppSettings.h"
+#include "ParameterManager.h"
 
 #include <QDateTime>
 #include <QSettings>
@@ -26,6 +27,9 @@
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
+#include <QSoundEffect>
+#include <QTimer>
+#include <QUrl>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <algorithm>
@@ -150,6 +154,22 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
         _rgButtonValues[i] = BUTTON_UP;
         _buttonActionArray.append(nullptr);
     }
+    for (int i = 0; i < Vehicle::cMaxRcChannels; i++) {
+        _rcChannelPwm[i] = -1;
+    }
+    connect(this, &Joystick::_apmRtlButtonPressed, this, &Joystick::_handleApmRtlButton);
+    _rtlRepeatSound = new QSoundEffect(this);
+    _rtlRepeatSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-repeat")));
+    _rtlRepeatSound->setLoopCount(QSoundEffect::Infinite);
+    _rtlRepeatSound->setVolume(1.0);
+    _rtlStopSound = new QSoundEffect(this);
+    _rtlStopSound->setSource(QUrl(QStringLiteral("qrc:/res/audio/beep-stop")));
+    _rtlStopSound->setLoopCount(1);
+    _rtlStopSound->setVolume(1.0);
+    // Clear a rejected RTL enter request so a later failsafe RTL does not start the beep.
+    _apmRtlBeepPendingTimer = new QTimer(this);
+    _apmRtlBeepPendingTimer->setSingleShot(true);
+    connect(_apmRtlBeepPendingTimer, &QTimer::timeout, this, &Joystick::_clearApmRtlBeepPendingEnter);
     _buildActionList(_multiVehicleManager->activeVehicle());
     _updateTXModeSettingsKey(_multiVehicleManager->activeVehicle());
     _loadSettings();
@@ -1148,9 +1168,19 @@ void Joystick::startPolling(Vehicle* vehicle)
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             disconnect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            disconnect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
+            disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
+            _apmRtlBeepPendingExit = false;
+            _clearApmRtlBeepPendingEnter();
+            _silenceApmRtlBeep();
         }
         // Always set up the new vehicle
         _activeVehicle = vehicle;
+        _rcChannelCount = 0;
+        for (int i = 0; i < Vehicle::cMaxRcChannels; i++) {
+            _rcChannelPwm[i] = -1;
+        }
         // If joystick is not calibrated, disable it
         if ( axisCount() != 0 && !_calibrated ) {
             vehicle->setJoystickEnabled(false);
@@ -1175,6 +1205,9 @@ void Joystick::startPolling(Vehicle* vehicle)
             connect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             connect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             connect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            connect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            connect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
+            connect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
         }
     }
     if (!isRunning()) {
@@ -1199,7 +1232,13 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
             disconnect(_activeVehicle, &Vehicle::flightModesChanged, this, &Joystick::_flightModesChanged);
+            disconnect(_activeVehicle, &Vehicle::flightModeChanged, this, &Joystick::_apmRtlBeepFlightModeChanged);
+            disconnect(_activeVehicle, &Vehicle::armedChanged, this, &Joystick::_apmRtlBeepArmedChanged);
+            disconnect(_activeVehicle, &Vehicle::rcChannelsChanged, this, &Joystick::_rcChannelsChanged);
         }
+        _apmRtlBeepPendingExit = false;
+        _clearApmRtlBeepPendingEnter();
+        _silenceApmRtlBeep();
         _exitThread = true;
     }
     _activeVehicle = nullptr;
@@ -1439,6 +1478,213 @@ void Joystick::setCalibrationMode(bool calibrating)
 }
 
 
+void Joystick::_rcChannelsChanged(int channelCount, int pwmValues[Vehicle::cMaxRcChannels])
+{
+    int count = channelCount;
+    if (count < 0) {
+        count = 0;
+    } else if (count > Vehicle::cMaxRcChannels) {
+        count = Vehicle::cMaxRcChannels;
+    }
+    _rcChannelCount = count;
+    for (int i = 0; i < Vehicle::cMaxRcChannels; i++) {
+        _rcChannelPwm[i] = i < _rcChannelCount ? pwmValues[i] : -1;
+    }
+}
+
+void Joystick::_exitApmRtlToFlightModeSwitch()
+{
+    if (!_activeVehicle || !_activeVehicle->apmFirmware() || !_activeVehicle->firmwarePlugin()) {
+        return;
+    }
+    const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
+    if (_activeVehicle->flightMode() != rtlMode) {
+        return;
+    }
+
+    ParameterManager* params = _activeVehicle->parameterManager();
+    if (!params) {
+        return;
+    }
+    const int componentId = FactSystem::defaultComponentId;
+    const bool rover = _activeVehicle->rover();
+    const QString channelParam = rover ? QStringLiteral("MODE_CH") : QStringLiteral("FLTMODE_CH");
+    const QString modePrefix = rover ? QStringLiteral("MODE") : QStringLiteral("FLTMODE");
+
+    // Copter default flight-mode channel is 5. 0 disables the switch and APM stays in RTL.
+    int channelNumber = 5;
+    if (params->parameterExists(componentId, channelParam)) {
+        channelNumber = params->getParameter(componentId, channelParam)->rawValue().toInt();
+    }
+    if (channelNumber <= 0) {
+        qCWarning(JoystickLog) << "APM RTL exit stays in RTL because" << channelParam << "is disabled";
+        return;
+    }
+
+    // No receiver sample, or an unused channel, sits at the radio center. 1500 is FLTMODE4.
+    int pwm = 1500;
+    const int channelIndex = channelNumber - 1;
+    if (channelIndex >= 0 && channelIndex < _rcChannelCount && channelIndex < Vehicle::cMaxRcChannels) {
+        const int received = _rcChannelPwm[channelIndex];
+        if (received > 800 && received < 2200) {
+            pwm = received;
+        }
+    }
+
+    int slot = 6;
+    if (pwm < 1231) {
+        slot = 1;
+    } else if (pwm < 1361) {
+        slot = 2;
+    } else if (pwm < 1491) {
+        slot = 3;
+    } else if (pwm < 1621) {
+        slot = 4;
+    } else if (pwm < 1750) {
+        slot = 5;
+    }
+
+    const QString modeParam = QStringLiteral("%1%2").arg(modePrefix).arg(slot);
+    if (!params->parameterExists(componentId, modeParam)) {
+        qCWarning(JoystickLog) << "APM RTL exit mode parameter missing" << modeParam;
+        return;
+    }
+    const int modeNumber = params->getParameter(componentId, modeParam)->rawValue().toInt();
+    const QString modeName = _activeVehicle->firmwarePlugin()->flightMode(MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, static_cast<uint32_t>(modeNumber));
+    if (modeName.isEmpty() || modeName == QLatin1String("Unknown")) {
+        qCWarning(JoystickLog) << "APM RTL exit mode is unknown" << modeParam << modeNumber;
+        return;
+    }
+    qCDebug(JoystickLog) << "APM joystick RTL exit to" << modeName << modeParam << "pwm" << pwm;
+    emit setFlightMode(modeName);
+}
+
+void Joystick::_handleApmRtlButton()
+{
+    if (!_activeVehicle || !_activeVehicle->apmFirmware() || !_activeVehicle->firmwarePlugin()) {
+        return;
+    }
+    const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
+    // 22876: a press while RTL is already active leaves for the flight-mode switch slot,
+    // whether this button, the GCS, or a failsafe started that RTL.
+    if (_activeVehicle->flightMode() == rtlMode) {
+        _clearApmRtlBeepPendingEnter();
+        // Stop beep waits for flightModeChanged away from RTL. A rejected exit stays silent.
+        _apmRtlBeepPendingExit = true;
+        _exitApmRtlToFlightModeSwitch();
+        return;
+    }
+    _apmRtlBeepPendingExit = false;
+    // Repeat beep waits for RTL while armed. Do not start on the press itself.
+    _apmRtlBeepPendingEnter = true;
+    if (_apmRtlBeepPendingTimer) {
+        _apmRtlBeepPendingTimer->start(5000);
+    }
+    emit setFlightMode(rtlMode);
+}
+
+void Joystick::_startApmRtlRepeatBeep()
+{
+    // Disarmed: no repeat beep and no stop beep.
+    if (!_rtlRepeatSound || !_activeVehicle || !_activeVehicle->armed()) {
+        return;
+    }
+    if (_rtlStopSound) {
+        _rtlStopSound->stop();
+    }
+    _apmRtlRepeatBeepOn = true;
+    _rtlRepeatSound->setLoopCount(QSoundEffect::Infinite);
+    if (!_rtlRepeatSound->isPlaying()) {
+        _rtlRepeatSound->play();
+    }
+    qCDebug(JoystickLog) << "APM joystick RTL repeat beep started";
+}
+
+void Joystick::_playApmRtlStopBeep()
+{
+    _apmRtlRepeatBeepOn = false;
+    if (_rtlRepeatSound) {
+        _rtlRepeatSound->stop();
+    }
+    // Disarmed: no repeat beep and no stop beep.
+    if (!_activeVehicle || !_activeVehicle->armed()) {
+        return;
+    }
+    if (_rtlStopSound) {
+        _rtlStopSound->setLoopCount(1);
+        _rtlStopSound->play();
+    }
+    qCDebug(JoystickLog) << "APM joystick RTL stop beep";
+}
+
+void Joystick::_silenceApmRtlBeep()
+{
+    _apmRtlRepeatBeepOn = false;
+    if (_rtlRepeatSound) {
+        _rtlRepeatSound->stop();
+    }
+}
+
+void Joystick::_clearApmRtlBeepPendingEnter()
+{
+    _apmRtlBeepPendingEnter = false;
+    if (_apmRtlBeepPendingTimer) {
+        _apmRtlBeepPendingTimer->stop();
+    }
+}
+
+void Joystick::_apmRtlBeepFlightModeChanged(const QString& flightMode)
+{
+    if (!_activeVehicle || !_activeVehicle->firmwarePlugin()) {
+        return;
+    }
+    const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
+    if (flightMode == rtlMode) {
+        // Entered RTL. Beep only for a joystick enter request while armed.
+        _apmRtlBeepPendingExit = false;
+        if (!_apmRtlBeepPendingEnter) {
+            return;
+        }
+        if (_activeVehicle->armed()) {
+            _clearApmRtlBeepPendingEnter();
+            _startApmRtlRepeatBeep();
+        } else {
+            // Disarmed RTL stays silent. A later arm while still in RTL starts the beep.
+            if (_apmRtlBeepPendingTimer) {
+                _apmRtlBeepPendingTimer->stop();
+            }
+        }
+        return;
+    }
+
+    // Left RTL.
+    _clearApmRtlBeepPendingEnter();
+    if (_apmRtlBeepPendingExit) {
+        _apmRtlBeepPendingExit = false;
+        _playApmRtlStopBeep();
+    } else if (_apmRtlRepeatBeepOn) {
+        _silenceApmRtlBeep();
+    }
+}
+
+void Joystick::_apmRtlBeepArmedChanged(bool armed)
+{
+    if (!armed) {
+        if (_apmRtlRepeatBeepOn) {
+            _silenceApmRtlBeep();
+        }
+        return;
+    }
+    // Armed while a joystick RTL enter is still pending and the vehicle is already in RTL.
+    if (_apmRtlBeepPendingEnter
+            && _activeVehicle
+            && _activeVehicle->firmwarePlugin()
+            && _activeVehicle->flightMode() == _activeVehicle->firmwarePlugin()->rtlFlightMode()) {
+        _clearApmRtlBeepPendingEnter();
+        _startApmRtlRepeatBeep();
+    }
+}
+
 void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
 {
     // TEMP DIAGNOSTIC (remove after): surfaces which action reached here and the gating state.
@@ -1459,7 +1705,19 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
     } else if (action == _buttonActionVTOLMultiRotor) {
         if (buttonDown) emit setVtolInFwdFlight(false);
     } else if (_activeVehicle->flightModes().contains(action)) {
-        if (buttonDown) emit setFlightMode(action);
+        if (buttonDown) {
+            // A second APM RTL press leaves RTL for the flight-mode switch slot.
+            // Button release is ignored so a momentary joystick button stays in RTL.
+            // PX4 and every other flight-mode button keep sending that mode.
+            const bool apmRtl = _activeVehicle->apmFirmware()
+                    && _activeVehicle->firmwarePlugin()
+                    && action == _activeVehicle->firmwarePlugin()->rtlFlightMode();
+            if (apmRtl) {
+                emit _apmRtlButtonPressed();
+            } else {
+                emit setFlightMode(action);
+            }
+        }
     } else if(action == _buttonActionContinuousZoomIn || action == _buttonActionContinuousZoomOut) {
         if (buttonDown) {
             emit startContinuousZoom(action == _buttonActionContinuousZoomIn ? 1 : -1);
