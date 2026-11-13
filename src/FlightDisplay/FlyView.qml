@@ -188,8 +188,9 @@ Item {
 
     FPVOverlay {
         id: _fpvOverlay
-        x: parent.width - _toolsMargin - width
-        y: parent.height - _toolsMargin - height
+        // Simple UI: the main PiP is bottom-right, so the FPV overlay starts bottom-left
+        x: simpleMode ? Math.round(24 * _simpleScale) : parent.width - _toolsMargin - width
+        y: parent.height - (simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin) - height
         z: _pipItemZorder + 1
         pipOverlay: _pipOverlay
         item1: fpvVideoControl
@@ -197,15 +198,16 @@ Item {
         show: true //mapControl.isFlyView
     }
 
-    // AQGC Simple UI: Figma S04 PiP at x 24, bottom 24, 400 x 226 on a 1920 x 1080 screen
+    // AQGC Simple UI: Figma S04 PiP bottom-right (right 24, bottom 24, 400 x 226 on a 1920 x 1080 screen)
     readonly property real _simpleScale: Math.min(width / 1920, height / 1080)
 
     PipView {
         id:                     _pipOverlay
-        anchors.left:           parent.left
+        anchors.left:           simpleMode ? undefined : parent.left
+        anchors.right:          simpleMode ? parent.right : undefined
         anchors.bottom:         parent.bottom
         anchors.margins:        _toolsMargin
-        anchors.leftMargin:     simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
+        anchors.rightMargin:    simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
         anchors.bottomMargin:   simpleMode ? Math.round(24 * _simpleScale) : _toolsMargin
         _pipSize:               simpleMode ? Math.round(400 * _simpleScale) : parent.width * 0.2
         simpleStyle:            simpleMode

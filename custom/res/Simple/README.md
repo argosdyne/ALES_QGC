@@ -12,7 +12,7 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | Place | Change |
 |---|---|
 | `src/ui/MainRootWindow.qml` | `simpleUI = !corePlugin.showAdvancedUI`. Loads `qrc:/simple/SimpleRoot.qml` on top of the views when `simpleUI`; hides the classic toolbar; shows a "Lock and return to Simple" button in Advanced mode. |
-| `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: x 24, bottom 24, 400 × 226 (scaled from 1920 × 1080), rounded corners. |
+| `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: bottom-right (right 24, bottom 24), 400 × 226 (scaled from 1920 × 1080), rounded corners. The FPV overlay starts bottom-left. |
 | `src/QmlControls/PipView.qml` | `simpleStyle`: frame, "Camera" / "Map" label, tap to swap only (no resize, pop-out or hide buttons). |
 | `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. |
 | `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
