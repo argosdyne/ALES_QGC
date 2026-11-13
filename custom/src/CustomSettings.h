@@ -27,6 +27,7 @@ public:
 
     // Simple UI (AQGC Simple)
     DEFINE_SETTINGFACT(simpleAdminPin)
+    DEFINE_SETTINGFACT(simpleWelcomeShown)
     DEFINE_SETTINGFACT(simpleLargeText)
     DEFINE_SETTINGFACT(simpleStartScreen)
     DEFINE_SETTINGFACT(simpleProductProfile)

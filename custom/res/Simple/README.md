@@ -11,12 +11,12 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 
 | Place | Change |
 |---|---|
-| `src/ui/MainRootWindow.qml` | `simpleUI = !corePlugin.showAdvancedUI`. Loads `qrc:/simple/SimpleRoot.qml` on top of the views when `simpleUI`; hides the classic toolbar; shows a "Lock and return to Simple" button in Advanced mode. |
+| `src/ui/MainRootWindow.qml` | `simpleUI = !corePlugin.showAdvancedUI`. Skips the classic first-run prompts in Simple UI (the welcome replaces them). Loads `qrc:/simple/SimpleRoot.qml` on top of the views when `simpleUI`; hides the classic toolbar; shows a "Lock and return to Simple" button in Advanced mode. |
 | `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: bottom-right (right 24, bottom 24), 400 × 226 (scaled from 1920 × 1080), rounded corners. The FPV overlay starts between the telemetry bar and the PiP. Layout: telemetry bar bottom-left (x 24), PiP bottom-right. |
 | `src/QmlControls/PipView.qml` | `simpleStyle`: frame, "Camera" / "Map" label, tap to swap only (no resize, pop-out or hide buttons). |
 | `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. |
-| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
-| `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). |
+| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
+| `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
 | `src/comm/MockLink.cc` | Accepts `PARAM_REQUEST_LIST` sent to `MAV_COMP_ID_AUTOPILOT1` (this fork sends it there), so the debug mock vehicle no longer asserts. |
 
@@ -32,7 +32,8 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 
 | File | Figma | Purpose |
 |---|---|---|
-| `SimpleRoot.qml` | — | Pages (fly / plan / settings), menu, PIN, navigation functions |
+| `SimpleRoot.qml` | — | Pages (fly / plan / settings), menu, PIN, first-start welcome, navigation functions |
+| `SimpleWelcome.qml` | S57 | First start: language and units (Metric / Imperial). Replaces the classic "Measurement Units" and "Vehicle Information" prompts |
 | `SimpleVehicleState.qml` | 02 Flows › C | One place for vehicle state used by all state rules |
 | `SimpleFlyOverlay.qml` | S01–S05, S33, S34, S37 | Top bar, left actions by state, camera rail, telemetry, banners, sheets |
 | `SimpleTopBar.qml` | ui/TopBar | Menu, flight status, flight mode, 4 chips, messages |
@@ -49,7 +50,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
 | `SimplePlanCheck.qml` | S39 | Check before sending, send progress |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
-| `S*.qml` | 99 Components | Buttons, chips, segmented, stepper, toggle, slide confirm, panel, banner |
+| `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, slide confirm, panel, banner |
 
 ## Run with a mock vehicle (debug build)
 
@@ -63,7 +64,9 @@ starts an ArduCopter MockLink so every screen can be checked without a drone. No
 - Add files to `custom/custom.qrc` (prefix `/simple`) when you add QML or icons here.
 - The mock vehicle cannot switch to Guided/Auto, so take off and start mission end with
   "Vehicle failed to change mode". The commands are sent correctly; test flight states on SITL or a drone.
-- The first start shows the classic "Measurement Units" and "Vehicle Information" first-run dialogs.
+- The first start shows the Simple welcome (S57). To see it again, delete `simpleWelcomeShown` from the settings file.
+- Units need an app restart for data that already exists (QGC behaviour). The Simple UI hides the classic
+  "requires restart" popup and shows a plain hint instead.
 
 ## v1 scope and what is left for v2
 

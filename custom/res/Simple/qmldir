@@ -30,3 +30,5 @@ SimpleSettings 1.0 SimpleSettings.qml
 SimpleTakeoffSheet 1.0 SimpleTakeoffSheet.qml
 SimpleTopBar 1.0 SimpleTopBar.qml
 SimpleVehicleState 1.0 SimpleVehicleState.qml
+SComboBox 1.0 SComboBox.qml
+SimpleWelcome 1.0 SimpleWelcome.qml

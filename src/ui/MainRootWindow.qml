@@ -38,8 +38,11 @@ ApplicationWindow {
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
 
-        // Start the sequence of first run prompt(s)
-        firstRunPromptManager.nextPrompt()
+        // Start the sequence of first run prompt(s).
+        // The Simple UI shows its own first-start welcome (SimpleWelcome.qml) instead.
+        if (!mainWindow.simpleUI) {
+            firstRunPromptManager.nextPrompt()
+        }
     }
 
     QtObject {

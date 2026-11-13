@@ -175,6 +175,8 @@
         <file alias="SimplePlanWizard.qml">res/Simple/SimplePlanWizard.qml</file>
         <file alias="SimplePreflightSheet.qml">res/Simple/SimplePreflightSheet.qml</file>
         <file alias="SimpleRoot.qml">res/Simple/SimpleRoot.qml</file>
+        <file alias="SComboBox.qml">res/Simple/SComboBox.qml</file>
+        <file alias="SimpleWelcome.qml">res/Simple/SimpleWelcome.qml</file>
         <file alias="SimpleSettings.qml">res/Simple/SimpleSettings.qml</file>
         <file alias="SimpleTakeoffSheet.qml">res/Simple/SimpleTakeoffSheet.qml</file>
         <file alias="SimpleTheme.qml">res/Simple/SimpleTheme.qml</file>

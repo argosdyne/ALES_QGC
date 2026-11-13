@@ -102,6 +102,12 @@
     "default":          "000000"
 },
 {
+    "name":             "simpleWelcomeShown",
+    "shortDesc":        "Simple UI: first-start welcome (language & units) has been completed",
+    "type":             "bool",
+    "default":          false
+},
+{
     "name":             "simpleLargeText",
     "shortDesc":        "Simple UI: larger text on flight screens",
     "type":             "bool",

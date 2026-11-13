@@ -107,55 +107,22 @@ Rectangle {
             SText { text: qsTr("Language, units and how the app looks and sounds."); size: 24; color: SimpleTheme.textSecondary }
             SSettingRow {
                 title: qsTr("Language"); sub: qsTr("Restart the app after changing the language")
-                ComboBox {
-                    id: langBox
-                    width: SimpleTheme.px(338); height: SimpleTheme.px(80)
+                SComboBox {
                     model: page._app.qLocaleLanguage.enumStrings
                     currentIndex: page._app.qLocaleLanguage.enumIndex
-                    font.pixelSize: SimpleTheme.fs(26)
                     onActivated: page._app.qLocaleLanguage.value = page._app.qLocaleLanguage.enumValues[index]
-                    background: Rectangle {
-                        radius: SimpleTheme.px(16)
-                        color:  SimpleTheme.surfaceControl
-                        border.width: SimpleTheme.px(2)
-                        border.color: langBox.visualFocus ? SimpleTheme.info : SimpleTheme.line
-                    }
-                    contentItem: SText {
-                        leftPadding: SimpleTheme.px(20)
-                        rightPadding: SimpleTheme.px(56)
-                        text: langBox.displayText
-                        size: 26
-                        verticalAlignment: Text.AlignVCenter
-                        elide: Text.ElideRight
-                    }
-                    indicator: SIcon {
-                        x: langBox.width - width - SimpleTheme.px(18)
-                        anchors.verticalCenter: parent.verticalCenter
-                        name: "chevron"; size: 28; rotation: 90
-                        color: SimpleTheme.textSecondary
-                    }
-                    delegate: ItemDelegate {
-                        width: langBox.width
-                        height: SimpleTheme.px(64)
-                        highlighted: langBox.highlightedIndex === index
-                        background: Rectangle { color: highlighted ? SimpleTheme.brandGreenDark : SimpleTheme.surfaceRaised }
-                        contentItem: SText { text: modelData; size: 24; verticalAlignment: Text.AlignVCenter; leftPadding: SimpleTheme.px(8) }
-                    }
-                    popup.background: Rectangle { color: SimpleTheme.surfaceRaised; radius: SimpleTheme.px(12); border.color: SimpleTheme.line }
                 }
             }
             SSettingRow {
-                title: qsTr("Units"); sub: qsTr("Height, distance and speed")
+                id: unitsRow
+                property bool _restart: false
+                title: qsTr("Units")
+                sub: _restart ? qsTr("Restart alesQGC to show the new units everywhere") : qsTr("Height, distance, speed, area and temperature")
                 SSegmented {
                     designWidth: 338
                     model: [qsTr("Metric"), qsTr("Imperial")]
                     currentIndex: page._units.horizontalDistanceUnits.rawValue === 1 ? 0 : 1
-                    onActivated: {
-                        var metric = index === 0
-                        page._units.horizontalDistanceUnits.rawValue = metric ? 1 : 0
-                        page._units.verticalDistanceUnits.rawValue   = metric ? 1 : 0
-                        page._units.speedUnits.rawValue              = metric ? 1 : 2
-                    }
+                    onActivated: if (SimpleTheme.applyUnitSystem(page._units, index === 0)) unitsRow._restart = true
                 }
             }
             SSettingRow {

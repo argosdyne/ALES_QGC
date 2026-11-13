@@ -45,4 +45,27 @@ QtObject {
     readonly property int touchMin:         96
 
     function withAlpha(c, a) { var q = Qt.lighter(c, 1.0); return Qt.rgba(q.r, q.g, q.b, a) }
+
+    // Unit system used by Settings › General and the first-start welcome (S57).
+    // Metric: m, m, ha, m/s, °C · Imperial: ft, ft, acres, mph, °F (UnitsSettings enum values)
+    // The classic "requires restart" popup is suppressed; callers show their own plain hint.
+    // Returns true when something changed.
+    function applyUnitSystem(units, metric) {
+        var rg = [ [units.horizontalDistanceUnits, metric ? 1 : 0],
+                   [units.verticalDistanceUnits,   metric ? 1 : 0],
+                   [units.areaUnits,               metric ? 3 : 4],
+                   [units.speedUnits,              metric ? 1 : 2],
+                   [units.temperatureUnits,        metric ? 0 : 1] ]
+        var changed = false
+        for (var i = 0; i < rg.length; i++) {
+            var f = rg[i][0]
+            if (f.rawValue !== rg[i][1]) {
+                f._setIgnoreQGCRebootRequired(true)
+                f.rawValue = rg[i][1]
+                f._setIgnoreQGCRebootRequired(false)
+                changed = true
+            }
+        }
+        return changed
+    }
 }

@@ -274,7 +274,8 @@ bool CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
         // This tells QGC than when you are creating Plans while not connected to a vehicle
         // the specific firmware/vehicle the plan is for.
         if (metaData.name() == AppSettings::offlineEditingFirmwareClassName) {
-            metaData.setRawDefaultValue(QGCMAVLink::FirmwareClassPX4);
+            // ARGOSDYNE drones run ArduPilot (decision 2026-11-14)
+            metaData.setRawDefaultValue(QGCMAVLink::FirmwareClassArduPilot);
             return false;
         } else if (metaData.name() == AppSettings::offlineEditingVehicleClassName) {
             metaData.setRawDefaultValue(QGCMAVLink::VehicleClassMultiRotor);

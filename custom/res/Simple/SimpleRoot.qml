@@ -90,4 +90,11 @@ Item {
         anchors.fill: parent
         onAccepted: simpleRoot._unlocked(purpose)
     }
+
+    // S57 first-start welcome (language & units) — shown once, replaces the classic first-run prompts
+    Loader {
+        anchors.fill: parent
+        active: !QGroundControl.corePlugin.settings.simpleWelcomeShown.rawValue
+        sourceComponent: Component { SimpleWelcome { } }
+    }
 }
