@@ -59,7 +59,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 
 - Fonts (`fonts/`, in `custom.qrc` under `/simple/fonts/`): Roboto Regular / Medium / Bold (v2.138, Apache 2.0)
   and Noto Sans KR Regular / Medium / Bold (OFL 1.1). Noto Sans KR is subset to Latin, punctuation, Hangul
-  syllables and jamo (no Hanja) to keep the app small (≈ 2 MB per weight). Licence files are next to the fonts.
+  syllables and jamo (no Hanja except 日本語 for the language list) to keep the app small (≈ 2 MB per weight). Licence files are next to the fonts.
 - All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). In Korean, Latin letters and digits stay
   Roboto and Hangul falls back to Noto Sans KR (`QFont::insertSubstitutions`). Roboto Medium may register as its own
   family "Roboto Medium" (Windows); `SimpleTheme.fontFamilyMedium` handles that.
@@ -71,6 +71,11 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
   QGroundControl, Qt third-party parts, GStreamer/GLib, OpenSSL, SDL2, fonts, …) from `licenses/index.json`, with
   full texts. Windows installs the same files in `<install dir>\licenses`. How to regenerate: `licenses/README.md`.
 - Add a language: copy the file as `qgc_simple_<locale>.ts`; the loader picks it up by locale name.
+
+## Tests
+
+`custom/tests/simple/` — static checks (translations, resources, fonts, Korean label widths) and Qt Quick unit tests
+(theme, PIN, vehicle state rules, controls). See its README.
 
 ## Run with a mock vehicle (debug build)
 

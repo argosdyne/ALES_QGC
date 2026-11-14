@@ -40,7 +40,10 @@ Rectangle {
             drag.minimumX: SimpleTheme.px(6)
             drag.maximumX: slide.width - knob.width - SimpleTheme.px(6)
             onReleased: {
-                if (knob.x >= drag.drag.maximumX - SimpleTheme.px(8)) {
+                // Confirm only after a real slide: the track must leave room to move (a too-narrow
+                // track would otherwise confirm on a plain tap) and the knob must reach the end.
+                var travel = drag.drag.maximumX - drag.drag.minimumX
+                if (travel > SimpleTheme.px(40) && knob.x >= drag.drag.maximumX - SimpleTheme.px(8)) {
                     slide.confirmed()
                 }
                 slide.reset()

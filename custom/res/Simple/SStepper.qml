@@ -16,6 +16,7 @@ Row {
     spacing: SimpleTheme.px(8)
 
     function _set(v) {
+        if (!isFinite(v)) return            // ignore NaN / Infinity from callers
         v = Math.max(from, Math.min(to, v))
         v = Number(v.toFixed(decimals))
         if (v !== value) { value = v; edited(v) }

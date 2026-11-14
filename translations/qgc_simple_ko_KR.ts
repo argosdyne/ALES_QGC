@@ -788,7 +788,7 @@
     </message>
     <message>
         <source>Imperial</source>
-        <translation>야드파운드법</translation>
+        <translation>야드파운드</translation>
     </message>
     <message>
         <source>Text size</source>
@@ -1160,7 +1160,7 @@
     </message>
     <message>
         <source>Metric: m, m/s, ha, °C · Imperial: ft, mph, acres, °F</source>
-        <translation>미터법: m, m/s, ha, °C · 야드파운드법: ft, mph, acre, °F</translation>
+        <translation>미터법: m, m/s, ha, °C · 야드파운드: ft, mph, acre, °F</translation>
     </message>
     <message>
         <source>Metric</source>
@@ -1168,7 +1168,7 @@
     </message>
     <message>
         <source>Imperial</source>
-        <translation>야드파운드법</translation>
+        <translation>야드파운드</translation>
     </message>
     <message>
         <source>A drone is connected: restart alesQGC after Start to show the new units everywhere.</source>
