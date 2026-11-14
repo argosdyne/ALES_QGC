@@ -85,18 +85,41 @@ jobs:
       - name: Create build directory
         run: mkdir ${{ runner.temp }}\shadow_build_dir
 
+      # GStreamer for video. src/VideoReceiver/VideoReceiver.pri links the 1.22 libraries (e.g. pcre2),
+      # so CI uses the same 1.22.12 build as developers, and points qmake at it with GSTREAMER_ROOT_ANDROID.
       - name: Install gstreamer
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ runner.temp }}
         run: |
-          curl -L -o gstreamer-1.0-android-universal-1.18.6.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.18.6/gstreamer-1.0-android-universal-1.18.6.tar.xz
-          mkdir gstreamer-1.0-android-universal-1.18.6
-          tar -xf gstreamer-1.0-android-universal-1.18.6.tar.xz -C gstreamer-1.0-android-universal-1.18.6
+          curl -fL -o gstreamer-1.0-android-universal-1.22.12.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.22.12/gstreamer-1.0-android-universal-1.22.12.tar.xz || exit /b 1
+          mkdir gstreamer-1.0-android-universal-1.22.12
+          tar -xf gstreamer-1.0-android-universal-1.22.12.tar.xz -C gstreamer-1.0-android-universal-1.22.12 || exit /b 1
+          dir /b gstreamer-1.0-android-universal-1.22.12
+          if not exist gstreamer-1.0-android-universal-1.22.12\arm64\lib\libgstreamer-1.0.a exit /b 1
+          if not exist gstreamer-1.0-android-universal-1.22.12\armv7\lib\libgstreamer-1.0.a exit /b 1
 
       - name: Update android manifest
         if: github.ref_name != 'Stable'
         shell: bash
         run: |
           ${SOURCE_DIR}/tools/update_android_manifest_package.sh ${{ github.ref_name }}
+
+      # Qt 5.15.2's androiddeployqt builds against the newest platform in the SDK. The runner's
+      # newest is "android-36-ext19", which breaks build.gradle ("For input string: ext19"), and
+      # Gradle plugin 3.6 cannot use build-tools 31+. Pin platform android-30 and build-tools 30.0.3.
+      # (Runs before Java 11 is set up: the current sdkmanager needs Java 17.)
+      - name: Pin Android SDK platform and build tools
+        run: |
+          call "%ANDROID_SDK_ROOT%\cmdline-tools\latest\bin\sdkmanager.bat" "platforms;android-30" "build-tools;30.0.3"
+          for /d %%d in ("%ANDROID_SDK_ROOT%\platforms\*") do if /i not "%%~nxd"=="android-30" rmdir /s /q "%%d"
+          dir /b "%ANDROID_SDK_ROOT%\platforms"
+
+      # Qt 5.15.2 uses Gradle 5.6.4, which cannot run on the runner's default Java 17
+      # ("Could not initialize class org.codehaus.groovy.vmplugin.v7.Java7")
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
 
       - name: Build
         working-directory: ${{ runner.temp }}\shadow_build_dir
@@ -107,7 +130,14 @@ jobs:
           ANDROID_NDK_LATEST_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
           ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}"
+          rem qmake switches to Unix shell quoting when sh.exe is on PATH (spec_pre.prf, QMAKE_SH),
+          rem which breaks jom/cmd ('...rcc.exe' -> "filename syntax is incorrect"). Drop those dirs.
+          rem ENABLE_VERBOSE_OUTPUT: qmake's "silent" command wrappers also fail under cmd ("&& was unexpected").
+          set "GSTREAMER_ROOT_ANDROID=${{ runner.temp }}\gstreamer-1.0-android-universal-1.22.12"
+          set "GSTREAMER_ROOT_ANDROID=%GSTREAMER_ROOT_ANDROID:\=/%"
+          echo GSTREAMER_ROOT_ANDROID=%GSTREAMER_ROOT_ANDROID%
+          for /f "delims=" %%i in ('powershell -NoProfile -Command "($env:PATH -split ';' | Where-Object { $_ -and -not (Test-Path (Join-Path $_ 'sh.exe')) }) -join ';'"') do set "PATH=%%i"
+          qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT ANDROID_SDK_BUILD_TOOLS_REVISION=30.0.3
           ${{ runner.temp }}\jom\jom -j2
 
       - name: Save artifact

@@ -50,6 +50,12 @@ WindowsBuild {
         QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$COPY_FILE\" \"$$DESTDIR\"
     }
 
+    # Third-party notices (custom/res/Simple/licenses, also shown in Settings > About > Legal & licenses).
+    # Copied to <install dir>\licenses; the NSIS installer packs everything in DESTDIR.
+    QMAKE_POST_LINK += $$escape_expand(\\n) if not exist \"$$DESTDIR\\licenses\" mkdir \"$$DESTDIR\\licenses\"
+    LICENSE_DIR_WIN = $$replace(SOURCE_DIR, "/", "\\")\\custom\\res\\Simple\\licenses
+    QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$LICENSE_DIR_WIN\\*.txt\" \"$$DESTDIR\\licenses\"
+
     ReleaseBuild {
         # Copy Visual Studio DLLs
         # Note that this is only done for release because the debugging versions of these DLLs cannot be redistributed.

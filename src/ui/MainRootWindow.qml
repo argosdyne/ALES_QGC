@@ -38,8 +38,11 @@ ApplicationWindow {
             height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
         }
 
-        // Start the sequence of first run prompt(s)
-        firstRunPromptManager.nextPrompt()
+        // Start the sequence of first run prompt(s).
+        // The Simple UI shows its own first-start welcome (SimpleWelcome.qml) instead.
+        if (!mainWindow.simpleUI) {
+            firstRunPromptManager.nextPrompt()
+        }
     }
 
     QtObject {
@@ -101,6 +104,9 @@ ApplicationWindow {
     }
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
+
+    /// AQGC Simple UI is the default; the classic UI is shown in Advanced mode (admin PIN)
+    readonly property bool      simpleUI:                   !QGroundControl.corePlugin.showAdvancedUI
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables
@@ -477,7 +483,7 @@ ApplicationWindow {
     header: MainToolBar {
         id:         toolbar
         height:     ScreenTools.toolbarHeight
-        visible:    !(QGroundControl.videoManager.fullScreen && flightView.visible)
+        visible:    !mainWindow.simpleUI && !(QGroundControl.videoManager.fullScreen && flightView.visible)
     }
 
     footer: LogReplayStatusBar {
@@ -711,12 +717,50 @@ ApplicationWindow {
     FlyView {
         id:             flightView
         anchors.fill:   parent
+        simpleMode:     mainWindow.simpleUI
     }
 
     PlanView {
         id:             planView
         anchors.fill:   parent
         visible:        false
+        simpleMode:     mainWindow.simpleUI
+    }
+
+    //-------------------------------------------------------------------------
+    /// AQGC Simple UI (custom/res/Simple). Shown when Advanced mode is off; Advanced = classic alesQGC UI.
+    Loader {
+        id:             simpleUILoader
+        anchors.fill:   parent
+        z:              QGroundControl.zOrderTopMost
+        active:         mainWindow.simpleUI
+        source:         "qrc:/simple/SimpleRoot.qml"
+    }
+
+    // In Advanced mode: one tap back to the Simple UI (Figma S44 "Lock and return to Simple")
+    Rectangle {
+        visible:                    !mainWindow.simpleUI
+        anchors.bottom:             parent.bottom
+        anchors.right:              parent.right
+        anchors.margins:            ScreenTools.defaultFontPixelHeight * 0.5
+        z:                          QGroundControl.zOrderTopMost
+        width:                      backToSimpleLabel.width + ScreenTools.defaultFontPixelWidth * 3
+        height:                     ScreenTools.defaultFontPixelHeight * 2
+        radius:                     height / 2
+        color:                      "#0c8062"
+        QGCLabel {
+            id:                 backToSimpleLabel
+            anchors.centerIn:   parent
+            text:               qsTr("Lock and return to Simple")
+            color:              "white"
+        }
+        MouseArea {
+            anchors.fill:   parent
+            onClicked: {
+                QGroundControl.corePlugin.showAdvancedUI = false
+                toolDrawer.visible = false
+            }
+        }
     }
 
     FlightZoneManager {

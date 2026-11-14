@@ -94,6 +94,52 @@
     "enumStrings":      "Manual only",
     "enumValues":       "0",
     "default":          0
+},
+{
+    "name":             "simpleAdminPin",
+    "shortDesc":        "Admin PIN to unlock Advanced mode (Simple UI)",
+    "type":             "string",
+    "default":          "000000"
+},
+{
+    "name":             "simpleAdminFailures",
+    "shortDesc":        "Simple UI: wrong admin PIN entries since the last correct one (kept over restarts)",
+    "type":             "uint32",
+    "default":          0
+},
+{
+    "name":             "simpleAdminLockUntil",
+    "shortDesc":        "Simple UI: admin PIN locked until this time (ms since 1970, 0 = not locked; kept over restarts)",
+    "type":             "double",
+    "default":          0
+},
+{
+    "name":             "simpleWelcomeShown",
+    "shortDesc":        "Simple UI: first-start welcome (language & units) has been completed",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "simpleLargeText",
+    "shortDesc":        "Simple UI: larger text on flight screens",
+    "type":             "bool",
+    "default":          false
+},
+{
+    "name":             "simpleStartScreen",
+    "shortDesc":        "Simple UI: screen shown at start",
+    "type":             "uint32",
+    "enumStrings":      "Fly,Plan",
+    "enumValues":       "0,1",
+    "default":          0
+},
+{
+    "name":             "simpleProductProfile",
+    "shortDesc":        "Simple UI: product profile",
+    "type":             "uint32",
+    "enumStrings":      "Inspection / Surveillance,Mapping,Tether,Cleaning",
+    "enumValues":       "0,1,2,3",
+    "default":          0
 }
 ]
 }

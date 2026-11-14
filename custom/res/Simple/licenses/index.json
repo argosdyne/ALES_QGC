@@ -1,0 +1,156 @@
+[
+ {
+  "name": "QGroundControl",
+  "version": "",
+  "license": "Apache License 2.0",
+  "used": "Base of alesQGC",
+  "file": "QGroundControl.txt"
+ },
+ {
+  "name": "Qt (third-party parts)",
+  "version": "5.15.2",
+  "license": "MIT, BSD, zlib, FreeType, IJG, libpng, Boost, ISC, Unicode, …",
+  "used": "Qt is used under the Qt Commercial License",
+  "file": "Qt-third-party.txt"
+ },
+ {
+  "name": "GStreamer, GLib, libiconv, gettext (libintl)",
+  "version": "1.22.12 (Android) · 1.18.1 (Windows)",
+  "license": "GNU LGPL 2.1",
+  "used": "Video",
+  "file": "GStreamer.txt"
+ },
+ {
+  "name": "ORC (Oil Runtime Compiler)",
+  "version": "0.4",
+  "license": "BSD 2-clause",
+  "used": "Video (Android)",
+  "file": "orc.txt"
+ },
+ {
+  "name": "PCRE2",
+  "version": "10.42",
+  "license": "BSD 3-clause",
+  "used": "Video (Android, GLib)",
+  "file": "PCRE2.txt"
+ },
+ {
+  "name": "libffi",
+  "version": "3.4",
+  "license": "MIT",
+  "used": "Video (Android, GLib)",
+  "file": "libffi.txt"
+ },
+ {
+  "name": "Graphene",
+  "version": "1.10",
+  "license": "MIT",
+  "used": "Video (Android)",
+  "file": "graphene.txt"
+ },
+ {
+  "name": "libjpeg-turbo",
+  "version": "2.1",
+  "license": "IJG, BSD 3-clause, zlib",
+  "used": "Video (Android)",
+  "file": "libjpeg-turbo.txt"
+ },
+ {
+  "name": "libpng",
+  "version": "1.6",
+  "license": "libpng License",
+  "used": "Video (Android)",
+  "file": "libpng.txt"
+ },
+ {
+  "name": "bzip2",
+  "version": "1.0.8",
+  "license": "bzip2 License (BSD-like)",
+  "used": "Video (Android)",
+  "file": "bzip2.txt"
+ },
+ {
+  "name": "OpenSSL",
+  "version": "1.1.1",
+  "license": "OpenSSL License and SSLeay License",
+  "used": "Secure connections (Windows DLLs, Android libs)",
+  "file": "OpenSSL.txt"
+ },
+ {
+  "name": "SDL2",
+  "version": "2.0",
+  "license": "zlib License",
+  "used": "Joystick and gamepad",
+  "file": "SDL2.txt"
+ },
+ {
+  "name": "zlib",
+  "version": "1.2.3 (Windows) · system (Android)",
+  "license": "zlib License",
+  "used": "Compression",
+  "file": "zlib.txt"
+ },
+ {
+  "name": "Eigen",
+  "version": "3",
+  "license": "Mozilla Public License 2.0",
+  "used": "Math (header-only)",
+  "file": "Eigen.txt"
+ },
+ {
+  "name": "Shapelib",
+  "version": "",
+  "license": "MIT (or LGPL)",
+  "used": "Shapefile import",
+  "file": "shapelib.txt"
+ },
+ {
+  "name": "XZ Embedded",
+  "version": "",
+  "license": "Public domain",
+  "used": "Decompression",
+  "file": "xz-embedded.txt"
+ },
+ {
+  "name": "libevents",
+  "version": "",
+  "license": "BSD 3-clause",
+  "used": "Vehicle events",
+  "file": "libevents.txt"
+ },
+ {
+  "name": "qmdnsengine",
+  "version": "",
+  "license": "MIT",
+  "used": "Network discovery",
+  "file": "qmdnsengine.txt"
+ },
+ {
+  "name": "MAVLink C library (generated)",
+  "version": "v2.0",
+  "license": "MIT",
+  "used": "Drone communication",
+  "file": "MAVLink.txt"
+ },
+ {
+  "name": "PX4 GPS Drivers",
+  "version": "",
+  "license": "BSD 3-clause",
+  "used": "RTK GPS",
+  "file": "PX4-GpsDrivers.txt"
+ },
+ {
+  "name": "Roboto",
+  "version": "2.138",
+  "license": "Apache License 2.0",
+  "used": "Font",
+  "file": "Roboto.txt"
+ },
+ {
+  "name": "Noto Sans KR",
+  "version": "2.004",
+  "license": "SIL Open Font License 1.1",
+  "used": "Font (Korean, subset)",
+  "file": "NotoSansKR.txt"
+ }
+]

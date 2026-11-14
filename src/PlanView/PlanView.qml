@@ -30,6 +30,9 @@ Item {
 
     property bool planControlColapsed: false
 
+    // AQGC Simple UI: hide the classic plan editor panels (map and mission visuals stay)
+    property bool simpleMode: false
+
     readonly property int   _decimalPlaces:             8
     readonly property real  _margin:                    ScreenTools.defaultFontPixelHeight * 0.5
     readonly property real  _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
@@ -563,6 +566,7 @@ Item {
         // Left tool strip
         ToolStrip {
             id:                 toolStrip
+            visible:            !simpleMode
             anchors.margins:    _toolsMargin
             anchors.left:       parent.left
             anchors.top:        parent.top
@@ -1166,6 +1170,7 @@ Item {
         // Right pane for mission editing controls
         Rectangle {
             id:                 rightPanel
+            visible:            !simpleMode
             height:             parent.height
             width:              _rightPanelWidth
             color:              qgcPal.window
@@ -1179,6 +1184,7 @@ Item {
         Item {
             anchors.fill:           rightPanel
             anchors.topMargin:      _toolsMargin
+            visible:                !simpleMode
             DeadMouseArea {
                 anchors.fill:   parent
             }
@@ -1324,7 +1330,7 @@ Item {
             anchors.bottom:     parent.bottom
             height:             ScreenTools.defaultFontPixelHeight * 7
             missionController:  _missionController
-            visible:            _internalVisible && _editingLayer === _layerMission && QGroundControl.corePlugin.options.showMissionStatus
+            visible:            _internalVisible && _editingLayer === _layerMission && QGroundControl.corePlugin.options.showMissionStatus && !simpleMode
 
             onSetCurrentSeqNum: _missionController.setCurrentPlanViewSeqNum(seqNum, true)
 
@@ -1338,6 +1344,7 @@ Item {
 
         MapScale {
             id:                     mapScale
+            visible:                !simpleMode
             anchors.margins:        _toolsMargin
             anchors.bottom:         terrainStatus.visible ? terrainStatus.top : parent.bottom
             anchors.left:           toolStrip.y + toolStrip.height + _toolsMargin > mapScale.y ? toolStrip.right: parent.left
