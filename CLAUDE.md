@@ -36,6 +36,8 @@ Reply to the user in Korean unless they write in English.
 - Settings › Safety (2026-11-14): failsafe actions in plain words; no-protection values in orange; battery level from the drone.
 - First start (2026-11-14, S57): one welcome screen (language + Metric/Imperial); classic QGC first-run prompts are
   not shown. Planning vehicle without a drone = **ArduPilot multicopter**. Company drones run ArduPilot.
+- Fonts (2026-11-14): Roboto + Noto Sans KR are bundled and registered in both modes (classic UI does not use Roboto).
+  Licence notices: Settings › About › Legal & licenses and `<install dir>\licenses` (Windows installer).
 - `guidedMaximumAltitude` default 120 m. "EasyGripper" is the smart-controller name, not a payload (use "Winch").
 
 ## Build and run
