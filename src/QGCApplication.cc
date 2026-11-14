@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QFontDatabase>
+#include <QFont>
 #include <QQuickWindow>
 #include <QQuickImageProvider>
 #include <QQuickStyle>
@@ -416,6 +417,27 @@ void QGCApplication::setLanguage()
             qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
         }
     }
+    //-- Simple UI fonts (Roboto; Noto Sans KR for Hangul, see custom/res/Simple/fonts)
+    static bool simpleFontsLoaded = false;
+    if (!simpleFontsLoaded) {
+        simpleFontsLoaded = true;
+        const char* simpleFonts[] = { "Roboto-Regular.ttf", "Roboto-Medium.ttf", "Roboto-Bold.ttf",
+                                      "NotoSansKR-Regular.otf", "NotoSansKR-Medium.otf", "NotoSansKR-Bold.otf" };
+        for (const char* font : simpleFonts) {
+            if (QFontDatabase::addApplicationFont(QStringLiteral(":/simple/fonts/") + QLatin1String(font)) < 0) {
+                qCWarning(LocalizationLog) << "Could not load Simple UI font" << font;
+            }
+        }
+    }
+    // Latin and digits stay Roboto; Hangul falls back to Noto Sans KR
+    if (_locale.language() == QLocale::Korean) {
+        QFont::insertSubstitutions(QStringLiteral("Roboto"),        { QStringLiteral("Noto Sans KR") });
+        QFont::insertSubstitutions(QStringLiteral("Roboto Medium"), { QStringLiteral("Noto Sans KR Medium"), QStringLiteral("Noto Sans KR") });
+    } else {
+        QFont::removeSubstitutions(QStringLiteral("Roboto"));
+        QFont::removeSubstitutions(QStringLiteral("Roboto Medium"));
+    }
+
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
     _app->removeTranslator(&_qgcTranslatorJSON);
     _app->removeTranslator(&_qgcTranslatorSourceCode);

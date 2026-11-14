@@ -6,7 +6,7 @@ Text {
     property bool   bold:   false
     property bool   medium: false
     color:              SimpleTheme.textPrimary
-    font.family:        SimpleTheme.fontFamily
+    font.family:        (medium && !bold) ? SimpleTheme.fontFamilyMedium : SimpleTheme.fontFamily
     font.pixelSize:     SimpleTheme.fs(size)
     font.weight:        bold ? Font.Bold : (medium ? Font.Medium : Font.Normal)
     elide:              Text.ElideRight

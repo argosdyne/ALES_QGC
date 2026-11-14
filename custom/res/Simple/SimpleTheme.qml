@@ -32,8 +32,11 @@ QtObject {
     readonly property color textLink:       "#7ab0ff"
     readonly property color textDanger:     "#ff7a80"
 
-    // Fonts (design: Roboto UI, Noto Sans KR for Korean — bundled fonts are a v2 item)
-    readonly property string fontFamily:    "Roboto"
+    // Fonts: Roboto, bundled in fonts/ and registered in QGCApplication::setLanguage().
+    // Korean: Hangul falls back to Noto Sans KR (QFont substitution); Latin and digits stay Roboto.
+    // Some platforms register Roboto Medium as its own family "Roboto Medium".
+    readonly property string fontFamily:        "Roboto"
+    readonly property string fontFamilyMedium:  Qt.fontFamilies().indexOf("Roboto Medium") >= 0 ? "Roboto Medium" : "Roboto"
 
     // Layout rules (design px) — see Figma 00 Overview §8
     readonly property int topBarHeight:     104

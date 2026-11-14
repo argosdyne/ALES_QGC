@@ -226,5 +226,11 @@
         <file alias="icons/undo.svg">res/Simple/icons/undo.svg</file>
         <file alias="icons/video.svg">res/Simple/icons/video.svg</file>
         <file alias="icons/warn.svg">res/Simple/icons/warn.svg</file>
+        <file alias="fonts/Roboto-Regular.ttf">res/Simple/fonts/Roboto-Regular.ttf</file>
+        <file alias="fonts/Roboto-Medium.ttf">res/Simple/fonts/Roboto-Medium.ttf</file>
+        <file alias="fonts/Roboto-Bold.ttf">res/Simple/fonts/Roboto-Bold.ttf</file>
+        <file alias="fonts/NotoSansKR-Regular.otf">res/Simple/fonts/NotoSansKR-Regular.otf</file>
+        <file alias="fonts/NotoSansKR-Medium.otf">res/Simple/fonts/NotoSansKR-Medium.otf</file>
+        <file alias="fonts/NotoSansKR-Bold.otf">res/Simple/fonts/NotoSansKR-Bold.otf</file>
     </qresource>
 </RCC>
