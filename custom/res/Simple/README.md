@@ -18,6 +18,8 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
 | `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
+| `src/QGCApplication.cc` | `setLanguage()`: registers the Simple UI fonts (`fonts/`), maps Roboto → Noto Sans KR for Hangul when the language is Korean, loads the Simple UI translation `:/i18n/qgc_simple_<locale>.qm`. |
+| `src/Settings/AppSettings.cc` | In Simple UI a language change is applied at once (`setLanguage()`); Advanced mode still needs a restart. |
 | `src/comm/MockLink.cc` | Accepts `PARAM_REQUEST_LIST` sent to `MAV_COMP_ID_AUTOPILOT1` (this fork sends it there), so the debug mock vehicle no longer asserts. |
 
 The Simple UI does not duplicate flight logic. It calls the existing controllers:
@@ -52,6 +54,20 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
 | `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, slide confirm, panel, banner |
 
+## Fonts and translations
+
+- Fonts (`fonts/`, in `custom.qrc` under `/simple/fonts/`): Roboto Regular / Medium / Bold (v2.138, Apache 2.0)
+  and Noto Sans KR Regular / Medium / Bold (OFL 1.1). Noto Sans KR is subset to Latin, punctuation, Hangul
+  syllables and jamo (no Hanja) to keep the app small (≈ 2 MB per weight). Licence files are next to the fonts.
+- All Simple UI text uses `SText` → `SimpleTheme.fontFamily` ("Roboto"). In Korean, Latin letters and digits stay
+  Roboto and Hangul falls back to Noto Sans KR (`QFont::insertSubstitutions`). Roboto Medium may register as its own
+  family "Roboto Medium" (Windows); `SimpleTheme.fontFamilyMedium` handles that.
+- Translations: `translations/qgc_simple_ko_KR.ts` (contexts = QML file names). It is built by the existing
+  `TRANSLATIONS += translations/qgc_*.ts` + `embed_translations` rule. It also holds the Simple-only strings in core
+  files (`FlyView`: Map / Camera, `MainRootWindow`: Lock and return to Simple). After changing text, update it with
+  `lupdate custom/res/Simple -ts translations/qgc_simple_ko_KR.ts` (keep the two core contexts) and translate in Qt Linguist.
+- Add a language: copy the file as `qgc_simple_<locale>.ts`; the loader picks it up by locale name.
+
 ## Run with a mock vehicle (debug build)
 
 ```
@@ -82,4 +98,5 @@ Planned for v2 (designed in Figma, not implemented):
 - Map tap menu / Go here, change altitude, obstacle stop (S35, S36, S38)
 - Video main view and waiting state (S18, S49), tether power lost, LiDAR start rejected (S50, S51)
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed
-- Bundled fonts (Roboto, Noto Sans KR), Korean strings, automatic flight-zone check in S39
+- Automatic flight-zone check in S39
+- More languages (de, fr, ja: Noto Sans JP) — Korean and bundled fonts are done

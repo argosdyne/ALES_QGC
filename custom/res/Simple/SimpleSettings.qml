@@ -106,7 +106,7 @@ Rectangle {
             SText { text: qsTr("General"); size: 40; bold: true }
             SText { text: qsTr("Language, units and how the app looks and sounds."); size: 24; color: SimpleTheme.textSecondary }
             SSettingRow {
-                title: qsTr("Language"); sub: qsTr("Restart the app after changing the language")
+                title: qsTr("Language"); sub: qsTr("Changes now · Advanced mode screens after a restart")
                 SComboBox {
                     model: page._app.qLocaleLanguage.enumStrings
                     currentIndex: page._app.qLocaleLanguage.enumIndex

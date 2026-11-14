@@ -11,6 +11,8 @@
 #include "QGCPalette.h"
 #include "QGCApplication.h"
 #include "ParameterManager.h"
+#include "QGCToolbox.h"
+#include "QGCCorePlugin.h"
 
 #ifdef __android__
 #include "AndroidInterface.h"
@@ -261,6 +263,11 @@ DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, qLocaleLanguage)
 
 void AppSettings::_qLocaleLanguageChanged()
 {
+    // Simple UI: apply the new language now (its screens only use qsTr). Advanced mode keeps the restart.
+    QGCToolbox* toolbox = qgcApp()->toolbox();
+    if (toolbox && toolbox->corePlugin() && !toolbox->corePlugin()->showAdvancedUI()) {
+        qgcApp()->setLanguage();
+    }
     emit languageChangeRequiresRestart();
 }
 

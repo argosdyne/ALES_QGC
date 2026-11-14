@@ -439,6 +439,7 @@ void QGCApplication::setLanguage()
     }
 
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
+    _app->removeTranslator(&_qgcTranslatorSimple);
     _app->removeTranslator(&_qgcTranslatorJSON);
     _app->removeTranslator(&_qgcTranslatorSourceCode);
     _app->removeTranslator(&_qgcTranslatorQtLibs);
@@ -458,6 +459,11 @@ void QGCApplication::setLanguage()
             _app->installTranslator(&_qgcTranslatorJSON);
         } else {
             qCWarning(LocalizationLog) << "Error loading json localization for" << _locale.name();
+        }
+        if(_qgcTranslatorSimple.load(_locale, QLatin1String("qgc_simple_"), "", ":/i18n")) {
+            _app->installTranslator(&_qgcTranslatorSimple);
+        } else {
+            qCDebug(LocalizationLog) << "No Simple UI localization for" << _locale.name();
         }
     }
     if(_qmlAppEngine)

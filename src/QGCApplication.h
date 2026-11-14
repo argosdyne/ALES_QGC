@@ -222,6 +222,7 @@ private:
     QTranslator         _qgcTranslatorSourceCode;           ///< translations for source code C++/Qml
     QTranslator         _qgcTranslatorJSON;                 ///< translations for json files
     QTranslator         _qgcTranslatorQtLibs;               ///< tranlsations for Qt libraries
+    QTranslator         _qgcTranslatorSimple;               ///< translations for the Simple UI (custom/res/Simple)
     QLocale             _locale;
     bool                _error                  = false;
     QElapsedTimer       _msecsElapsedTime;
