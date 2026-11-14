@@ -85,12 +85,17 @@ jobs:
       - name: Create build directory
         run: mkdir ${{ runner.temp }}\shadow_build_dir
 
+      # GStreamer for video. src/VideoReceiver/VideoReceiver.pri links the 1.22 libraries (e.g. pcre2),
+      # so CI uses the same 1.22.12 build as developers, and points qmake at it with GSTREAMER_ROOT_ANDROID.
       - name: Install gstreamer
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ runner.temp }}
         run: |
-          curl -L -o gstreamer-1.0-android-universal-1.18.6.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.18.6/gstreamer-1.0-android-universal-1.18.6.tar.xz
-          mkdir gstreamer-1.0-android-universal-1.18.6
-          tar -xf gstreamer-1.0-android-universal-1.18.6.tar.xz -C gstreamer-1.0-android-universal-1.18.6
+          curl -fL -o gstreamer-1.0-android-universal-1.22.12.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.22.12/gstreamer-1.0-android-universal-1.22.12.tar.xz || exit /b 1
+          mkdir gstreamer-1.0-android-universal-1.22.12
+          tar -xf gstreamer-1.0-android-universal-1.22.12.tar.xz -C gstreamer-1.0-android-universal-1.22.12 || exit /b 1
+          dir /b gstreamer-1.0-android-universal-1.22.12
+          if not exist gstreamer-1.0-android-universal-1.22.12\arm64\lib\libgstreamer-1.0.a exit /b 1
+          if not exist gstreamer-1.0-android-universal-1.22.12\armv7\lib\libgstreamer-1.0.a exit /b 1
 
       - name: Update android manifest
         if: github.ref_name != 'Stable'
@@ -128,6 +133,9 @@ jobs:
           rem qmake switches to Unix shell quoting when sh.exe is on PATH (spec_pre.prf, QMAKE_SH),
           rem which breaks jom/cmd ('...rcc.exe' -> "filename syntax is incorrect"). Drop those dirs.
           rem ENABLE_VERBOSE_OUTPUT: qmake's "silent" command wrappers also fail under cmd ("&& was unexpected").
+          set "GSTREAMER_ROOT_ANDROID=${{ runner.temp }}\gstreamer-1.0-android-universal-1.22.12"
+          set "GSTREAMER_ROOT_ANDROID=%GSTREAMER_ROOT_ANDROID:\=/%"
+          echo GSTREAMER_ROOT_ANDROID=%GSTREAMER_ROOT_ANDROID%
           for /f "delims=" %%i in ('powershell -NoProfile -Command "($env:PATH -split ';' | Where-Object { $_ -and -not (Test-Path (Join-Path $_ 'sh.exe')) }) -join ';'"') do set "PATH=%%i"
           qmake -r ${{ env.SOURCE_DIR }}\qgroundcontrol.pro -spec android-clang CONFIG+=${{ env.BUILD_TYPE }} CONFIG+=installer CONFIG-=qtquickcompiler ANDROID_ABIS="${{ matrix.eabi }}" DEFINES+=ENABLE_VERBOSE_OUTPUT ANDROID_SDK_BUILD_TOOLS_REVISION=30.0.3
           ${{ runner.temp }}\jom\jom -j2
