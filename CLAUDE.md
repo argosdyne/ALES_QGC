@@ -61,7 +61,8 @@ Reply to the user in Korean unless they write in English.
 
 1. Verify v1 on a real device (user is testing the CI APK / installer) and SITL: flying, paused, returning, landing,
    link lost, low battery. Fix what the user reports.
-2. v2: Korean strings + bundled fonts (Roboto, Noto Sans KR) → remaining Settings categories (Connection, Payloads,
+2. v2: ~~Korean strings + bundled fonts~~ (done 2026-11-14: `translations/qgc_simple_ko_KR.ts`, `custom/res/Simple/fonts/`;
+   check Korean label overflow on the device) → remaining Settings categories (Connection, Payloads,
    Remote ID, Map & flight zones; S22, S46, S47, S52–S56) → fly screen (video main S18/S49, map controls S30,
    map tap menu S35/S36/S38, payload panels) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed.
