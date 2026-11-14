@@ -55,7 +55,7 @@ Rectangle {
                 ]
                 Rectangle {
                     width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18)
-                    color: page.category === modelData.key ? SimpleTheme.brandGreen : "transparent"
+                    color: (page.category === modelData.key || (modelData.key === "about" && page.category === "licenses")) ? SimpleTheme.brandGreen : "transparent"
                     Row {
                         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                         spacing: SimpleTheme.px(18)
@@ -94,6 +94,7 @@ Rectangle {
             sourceComponent: page.category === "general" ? generalComp
                            : page.category === "safety"  ? safetyComp
                            : page.category === "about"   ? aboutComp
+                           : page.category === "licenses" ? licensesComp
                            : laterComp
         }
     }
@@ -315,6 +316,79 @@ Rectangle {
                 sub: vs.present ? (vs.vehicle.vehicleTypeString + " · " + vs.vehicle.firmwareTypeString + " " + vs.vehicle.firmwareMajorVersion + "." + vs.vehicle.firmwareMinorVersion + "." + vs.vehicle.firmwarePatchVersion) : qsTr("Not connected")
             }
             SSettingRow { title: qsTr("Contact support"); sub: qsTr("WhatsApp or e-mail · Mon–Fri 09:00–18:00 KST") }
+            SSettingRow {
+                title: qsTr("Legal & licenses"); sub: qsTr("Open-source licenses: QGroundControl, Roboto, Noto Sans KR")
+                clickable: true
+                onClicked: page.category = "licenses"
+                SIcon { name: "chevron"; size: 40; opacity: 0.7 }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------ Legal & licenses (S48 › licenses)
+    // Licence texts are bundled in custom.qrc under /simple/licenses/ (offline). Windows installs them in licenses\.
+    Component {
+        id: licensesComp
+        Column {
+            spacing: SimpleTheme.px(16)
+            SButton { designHeight: 80; kind: "ghost"; icon: "back"; text: qsTr("About & support"); textSize: 26; onClicked: page.category = "about" }
+            SText { text: qsTr("Legal & licenses"); size: 40; bold: true }
+            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("alesQGC uses this open-source software. Tap an item to show the full license."); size: 24; color: SimpleTheme.textSecondary }
+            Repeater {
+                model: [
+                    { name: "QGroundControl", license: "Apache 2.0 / GPLv3", file: "QGroundControl-COPYING.md" },
+                    { name: "Roboto",         license: "Apache 2.0",         file: "LICENSE-Roboto.txt" },
+                    { name: "Noto Sans KR",   license: "SIL Open Font License 1.1", file: "LICENSE-NotoSansKR.txt" }
+                ]
+                Rectangle {
+                    id: lic
+                    property bool   open: false
+                    property string body: ""
+                    width: parent.width
+                    height: licCol.height + SimpleTheme.px(36)
+                    radius: SimpleTheme.px(20)
+                    color: SimpleTheme.surfaceRaised
+                    Column {
+                        id: licCol
+                        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                        anchors.margins: SimpleTheme.px(18); anchors.leftMargin: SimpleTheme.px(28)
+                        spacing: SimpleTheme.px(12)
+                        Item {
+                            width: parent.width; height: Math.max(SimpleTheme.px(80), head.implicitHeight)
+                            Column {
+                                id: head
+                                anchors.left: parent.left; anchors.right: chev.left; anchors.verticalCenter: parent.verticalCenter
+                                SText { width: parent.width; text: modelData.name; size: 30; medium: true }
+                                SText { width: parent.width; text: modelData.license; size: 24; color: SimpleTheme.textSecondary }
+                            }
+                            SIcon { id: chev; name: "chevron"; size: 40; opacity: 0.7; rotation: lic.open ? 90 : 0
+                                    anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    lic.open = !lic.open
+                                    if (lic.open && lic.body === "") {
+                                        var xhr = new XMLHttpRequest()
+                                        xhr.onreadystatechange = function() {
+                                            if (xhr.readyState === XMLHttpRequest.DONE) lic.body = xhr.responseText
+                                        }
+                                        xhr.open("GET", "qrc:/simple/licenses/" + modelData.file)
+                                        xhr.send()
+                                    }
+                                }
+                            }
+                        }
+                        SText {
+                            visible: lic.open
+                            width: parent.width - SimpleTheme.px(10)
+                            wrapMode: Text.Wrap; elide: Text.ElideNone
+                            verticalAlignment: Text.AlignTop
+                            textFormat: Text.PlainText
+                            text: lic.body; size: 20; color: SimpleTheme.textSecondary
+                        }
+                    }
+                }
+            }
         }
     }
 

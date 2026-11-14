@@ -983,6 +983,18 @@
         <translation>WhatsApp 또는 이메일 · 월–금 09:00–18:00 (KST)</translation>
     </message>
     <message>
+        <source>Legal &amp; licenses</source>
+        <translation>법적 고지 및 라이선스</translation>
+    </message>
+    <message>
+        <source>Open-source licenses: QGroundControl, Roboto, Noto Sans KR</source>
+        <translation>오픈소스 라이선스: QGroundControl, Roboto, Noto Sans KR</translation>
+    </message>
+    <message>
+        <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
+        <translation>alesQGC는 다음 오픈소스 소프트웨어를 사용합니다. 항목을 누르면 라이선스 전문을 볼 수 있습니다.</translation>
+    </message>
+    <message>
         <source>Coming in the next version</source>
         <translation>다음 버전에서 제공</translation>
     </message>

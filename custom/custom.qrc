@@ -232,5 +232,8 @@
         <file alias="fonts/NotoSansKR-Regular.otf">res/Simple/fonts/NotoSansKR-Regular.otf</file>
         <file alias="fonts/NotoSansKR-Medium.otf">res/Simple/fonts/NotoSansKR-Medium.otf</file>
         <file alias="fonts/NotoSansKR-Bold.otf">res/Simple/fonts/NotoSansKR-Bold.otf</file>
+        <file alias="licenses/QGroundControl-COPYING.md">../COPYING.md</file>
+        <file alias="licenses/LICENSE-Roboto.txt">res/Simple/fonts/LICENSE-Roboto.txt</file>
+        <file alias="licenses/LICENSE-NotoSansKR.txt">res/Simple/fonts/LICENSE-NotoSansKR.txt</file>
     </qresource>
 </RCC>

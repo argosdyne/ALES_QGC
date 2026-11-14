@@ -18,8 +18,9 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
 | `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
-| `src/QGCApplication.cc` | `setLanguage()`: registers the Simple UI fonts (`fonts/`), maps Roboto → Noto Sans KR for Hangul when the language is Korean, loads the Simple UI translation `:/i18n/qgc_simple_<locale>.qm`. |
+| `src/QGCApplication.cc` | `setLanguage()`: registers the Simple UI fonts (`fonts/`), maps Roboto → Noto Sans KR for Hangul when the language is Korean, loads the Simple UI translation `:/i18n/qgc_simple_<locale>.qm`. Font registration runs in both modes (decision 2026-11-14): the classic UI never uses Roboto, so Advanced looks the same. |
 | `src/Settings/AppSettings.cc` | In Simple UI a language change is applied at once (`setLanguage()`); Advanced mode still needs a restart. |
+| `QGCPostLinkCommon.pri` | Windows: copies the licence texts (`COPYING.md`, font licences) to `<install dir>\licenses`, so the NSIS installer ships them. |
 | `src/comm/MockLink.cc` | Accepts `PARAM_REQUEST_LIST` sent to `MAV_COMP_ID_AUTOPILOT1` (this fork sends it there), so the debug mock vehicle no longer asserts. |
 
 The Simple UI does not duplicate flight logic. It calls the existing controllers:
@@ -66,6 +67,9 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
   `TRANSLATIONS += translations/qgc_*.ts` + `embed_translations` rule. It also holds the Simple-only strings in core
   files (`FlyView`: Map / Camera, `MainRootWindow`: Lock and return to Simple). After changing text, update it with
   `lupdate custom/res/Simple -ts translations/qgc_simple_ko_KR.ts` (keep the two core contexts) and translate in Qt Linguist.
+- Licence notices: Settings › About & support › Legal & licenses (S48) shows QGroundControl, Roboto and Noto Sans KR
+  with the full texts from `qrc:/simple/licenses/`. Add a row to the model in `SimpleSettings.qml` (and the file to
+  `custom.qrc` and the Windows list in `QGCPostLinkCommon.pri`) when you bundle more third-party files.
 - Add a language: copy the file as `qgc_simple_<locale>.ts`; the loader picks it up by locale name.
 
 ## Run with a mock vehicle (debug build)

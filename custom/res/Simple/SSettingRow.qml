@@ -8,12 +8,21 @@ Rectangle {
     property string sub:    ""
     property bool   locked: false
     property string lockReason: ""
+    property bool   clickable: false        // whole row opens a sub-page (chevron rows, Figma S48)
     default property alias control: ctl.data
+    signal clicked()
 
     width:  parent ? parent.width : 0
     height: Math.max(SimpleTheme.px(116), txt.implicitHeight + SimpleTheme.px(36))
     radius: SimpleTheme.px(20)
-    color:  SimpleTheme.surfaceRaised
+    color:  rowMouse.pressed ? Qt.darker(SimpleTheme.surfaceRaised, 1.25) : SimpleTheme.surfaceRaised
+
+    MouseArea {
+        id: rowMouse
+        anchors.fill: parent
+        enabled: row.clickable && !row.locked
+        onClicked: row.clicked()
+    }
 
     Column {
         id: txt
