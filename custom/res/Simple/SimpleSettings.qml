@@ -317,7 +317,7 @@ Rectangle {
             }
             SSettingRow { title: qsTr("Contact support"); sub: qsTr("WhatsApp or e-mail · Mon–Fri 09:00–18:00 KST") }
             SSettingRow {
-                title: qsTr("Legal & licenses"); sub: qsTr("Open-source licenses: QGroundControl, Roboto, Noto Sans KR")
+                title: qsTr("Legal & licenses"); sub: qsTr("Open-source licenses: QGroundControl, Qt, GStreamer, fonts and more")
                 clickable: true
                 onClicked: page.category = "licenses"
                 SIcon { name: "chevron"; size: 40; opacity: 0.7 }
@@ -326,20 +326,29 @@ Rectangle {
     }
 
     //------------------------------------------------------------------ Legal & licenses (S48 › licenses)
-    // Licence texts are bundled in custom.qrc under /simple/licenses/ (offline). Windows installs them in licenses\.
+    // Notices are bundled in custom.qrc under /simple/licenses/ (offline); the list is licenses/index.json.
+    // Windows installs the same texts in <install dir>\licenses. See custom/res/Simple/licenses/README.md.
     Component {
         id: licensesComp
         Column {
+            id: licPage
+            property var items: []
             spacing: SimpleTheme.px(16)
+            Component.onCompleted: {
+                var xhr = new XMLHttpRequest()
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        try { licPage.items = JSON.parse(xhr.responseText) } catch (e) { licPage.items = [] }
+                    }
+                }
+                xhr.open("GET", "qrc:/simple/licenses/index.json")
+                xhr.send()
+            }
             SButton { designHeight: 80; kind: "ghost"; icon: "back"; text: qsTr("About & support"); textSize: 26; onClicked: page.category = "about" }
             SText { text: qsTr("Legal & licenses"); size: 40; bold: true }
             SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("alesQGC uses this open-source software. Tap an item to show the full license."); size: 24; color: SimpleTheme.textSecondary }
             Repeater {
-                model: [
-                    { name: "QGroundControl", license: "Apache 2.0 / GPLv3", file: "QGroundControl-COPYING.md" },
-                    { name: "Roboto",         license: "Apache 2.0",         file: "LICENSE-Roboto.txt" },
-                    { name: "Noto Sans KR",   license: "SIL Open Font License 1.1", file: "LICENSE-NotoSansKR.txt" }
-                ]
+                model: licPage.items
                 Rectangle {
                     id: lic
                     property bool   open: false
@@ -359,7 +368,8 @@ Rectangle {
                                 id: head
                                 anchors.left: parent.left; anchors.right: chev.left; anchors.verticalCenter: parent.verticalCenter
                                 SText { width: parent.width; text: modelData.name; size: 30; medium: true }
-                                SText { width: parent.width; text: modelData.license; size: 24; color: SimpleTheme.textSecondary }
+                                SText { width: parent.width; text: (modelData.version ? modelData.version + " · " : "") + modelData.license; size: 24; color: SimpleTheme.textSecondary }
+                                SText { width: parent.width; text: modelData.used; size: 22; color: SimpleTheme.textTertiary; visible: text !== "" }
                             }
                             SIcon { id: chev; name: "chevron"; size: 40; opacity: 0.7; rotation: lic.open ? 90 : 0
                                     anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter }

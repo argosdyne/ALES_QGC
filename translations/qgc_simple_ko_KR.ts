@@ -987,8 +987,8 @@
         <translation>법적 고지 및 라이선스</translation>
     </message>
     <message>
-        <source>Open-source licenses: QGroundControl, Roboto, Noto Sans KR</source>
-        <translation>오픈소스 라이선스: QGroundControl, Roboto, Noto Sans KR</translation>
+        <source>Open-source licenses: QGroundControl, Qt, GStreamer, fonts and more</source>
+        <translation>오픈소스 라이선스: QGroundControl, Qt, GStreamer, 폰트 등</translation>
     </message>
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>

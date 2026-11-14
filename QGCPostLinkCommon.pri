@@ -50,16 +50,11 @@ WindowsBuild {
         QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$COPY_FILE\" \"$$DESTDIR\"
     }
 
-    # Simple UI: open-source licence texts (also shown in Settings > About > Legal & licenses).
+    # Third-party notices (custom/res/Simple/licenses, also shown in Settings > About > Legal & licenses).
     # Copied to <install dir>\licenses; the NSIS installer packs everything in DESTDIR.
-    LICENSE_FILE_LIST = \
-        $$SOURCE_DIR\\COPYING.md \
-        $$SOURCE_DIR\\custom\\res\\Simple\\fonts\\LICENSE-Roboto.txt \
-        $$SOURCE_DIR\\custom\\res\\Simple\\fonts\\LICENSE-NotoSansKR.txt
     QMAKE_POST_LINK += $$escape_expand(\\n) if not exist \"$$DESTDIR\\licenses\" mkdir \"$$DESTDIR\\licenses\"
-    for(LICENSE_FILE, LICENSE_FILE_LIST) {
-        QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$LICENSE_FILE\" \"$$DESTDIR\\licenses\"
-    }
+    LICENSE_DIR_WIN = $$replace(SOURCE_DIR, "/", "\\")\\custom\\res\\Simple\\licenses
+    QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$LICENSE_DIR_WIN\\*.txt\" \"$$DESTDIR\\licenses\"
 
     ReleaseBuild {
         # Copy Visual Studio DLLs

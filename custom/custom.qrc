@@ -232,8 +232,28 @@
         <file alias="fonts/NotoSansKR-Regular.otf">res/Simple/fonts/NotoSansKR-Regular.otf</file>
         <file alias="fonts/NotoSansKR-Medium.otf">res/Simple/fonts/NotoSansKR-Medium.otf</file>
         <file alias="fonts/NotoSansKR-Bold.otf">res/Simple/fonts/NotoSansKR-Bold.otf</file>
-        <file alias="licenses/QGroundControl-COPYING.md">../COPYING.md</file>
-        <file alias="licenses/LICENSE-Roboto.txt">res/Simple/fonts/LICENSE-Roboto.txt</file>
-        <file alias="licenses/LICENSE-NotoSansKR.txt">res/Simple/fonts/LICENSE-NotoSansKR.txt</file>
+        <file alias="licenses/index.json">res/Simple/licenses/index.json</file>
+        <file alias="licenses/QGroundControl.txt">res/Simple/licenses/QGroundControl.txt</file>
+        <file alias="licenses/Qt-third-party.txt">res/Simple/licenses/Qt-third-party.txt</file>
+        <file alias="licenses/GStreamer.txt">res/Simple/licenses/GStreamer.txt</file>
+        <file alias="licenses/orc.txt">res/Simple/licenses/orc.txt</file>
+        <file alias="licenses/PCRE2.txt">res/Simple/licenses/PCRE2.txt</file>
+        <file alias="licenses/libffi.txt">res/Simple/licenses/libffi.txt</file>
+        <file alias="licenses/graphene.txt">res/Simple/licenses/graphene.txt</file>
+        <file alias="licenses/libjpeg-turbo.txt">res/Simple/licenses/libjpeg-turbo.txt</file>
+        <file alias="licenses/libpng.txt">res/Simple/licenses/libpng.txt</file>
+        <file alias="licenses/bzip2.txt">res/Simple/licenses/bzip2.txt</file>
+        <file alias="licenses/OpenSSL.txt">res/Simple/licenses/OpenSSL.txt</file>
+        <file alias="licenses/SDL2.txt">res/Simple/licenses/SDL2.txt</file>
+        <file alias="licenses/zlib.txt">res/Simple/licenses/zlib.txt</file>
+        <file alias="licenses/Eigen.txt">res/Simple/licenses/Eigen.txt</file>
+        <file alias="licenses/shapelib.txt">res/Simple/licenses/shapelib.txt</file>
+        <file alias="licenses/xz-embedded.txt">res/Simple/licenses/xz-embedded.txt</file>
+        <file alias="licenses/libevents.txt">res/Simple/licenses/libevents.txt</file>
+        <file alias="licenses/qmdnsengine.txt">res/Simple/licenses/qmdnsengine.txt</file>
+        <file alias="licenses/MAVLink.txt">res/Simple/licenses/MAVLink.txt</file>
+        <file alias="licenses/PX4-GpsDrivers.txt">res/Simple/licenses/PX4-GpsDrivers.txt</file>
+        <file alias="licenses/Roboto.txt">res/Simple/licenses/Roboto.txt</file>
+        <file alias="licenses/NotoSansKR.txt">res/Simple/licenses/NotoSansKR.txt</file>
     </qresource>
 </RCC>
