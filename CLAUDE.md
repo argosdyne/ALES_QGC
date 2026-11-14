@@ -61,6 +61,9 @@ Reply to the user in Korean unless they write in English.
 - Android CI on the Windows runner: Git's `sh.exe` must be off PATH before qmake; build with `ENABLE_VERBOSE_OUTPUT`
   (qmake `silent` breaks under cmd); Gradle 5.6.4 needs Java 11; androiddeployqt needs a pinned SDK platform.
 
+- Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
+  without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
+
 ## Next steps (agreed order)
 
 1. Verify v1 on a real device (user is testing the CI APK / installer) and SITL: flying, paused, returning, landing,
