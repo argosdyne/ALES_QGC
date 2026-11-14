@@ -17,8 +17,20 @@ TestCase {
     SignalSpy { id: spy; signalName: "accepted" }
 
     property var dlg: null
+    readonly property var st: QGroundControl.corePlugin.settings
+    function resetSettings() {
+        st.simpleAdminPin.rawValue = "000000"
+        st.simpleAdminFailures.rawValue = 0
+        st.simpleAdminLockUntil.rawValue = 0
+    }
+    // New dialog instance = what the app does after a restart (state comes only from the settings)
+    function restart() {
+        var d = createTemporaryObject(dlgComp, root)
+        spy.target = d; spy.clear(); d.open("advanced")
+        return d
+    }
     function init() {
-        QGroundControl.corePlugin.settings.simpleAdminPin.rawValue = "000000"
+        resetSettings()
         dlg = createTemporaryObject(dlgComp, root)
         spy.target = dlg; spy.clear()
         dlg.open("advanced")
@@ -87,18 +99,79 @@ TestCase {
         type("0000001")   // 7th press goes to a fresh entry after the accept
         compare(spy.count, 1)
     }
-    function test_stored_pin_wrong_length() {
-        QGroundControl.corePlugin.settings.simpleAdminPin.rawValue = "1234"
-        type("123400"); compare(spy.count, 0)
-        // A PIN that is not 6 digits can never be entered: documents the risk if the setting is edited by hand
-        expectFail("", "4-digit stored PIN cannot be typed on a 6-digit keypad")
-        type("1234"); compare(spy.count, 1)
+    function test_invalid_stored_pin_falls_back_to_default_data() {
+        return [ { tag: "4 digits", v: "1234" }, { tag: "7 digits", v: "1234567" }, { tag: "letters", v: "abc 한글" },
+                 { tag: "empty", v: "" }, { tag: "number 0", v: 0 }, { tag: "spaces", v: " 12345" },
+                 { tag: "undefined", v: undefined } ]
     }
-    function test_stored_pin_numeric_type() {
-        QGroundControl.corePlugin.settings.simpleAdminPin.rawValue = 0   // e.g. settings file holds a number
-        type("000000")
-        expectFail("", "numeric 0 becomes \"0\", so 000000 is refused")
+    function test_invalid_stored_pin_falls_back_to_default(d) {
+        st.simpleAdminPin.rawValue = d.v
+        var x = restart()
+        compare(String(st.simpleAdminPin.rawValue), "000000", "damaged PIN is reset in the settings")
+        for (var i = 0; i < 6; i++) x._press("0")
+        compare(spy.count, 1, "default PIN opens Advanced mode")
+    }
+    function test_numeric_six_digit_pin_still_works() {
+        st.simpleAdminPin.rawValue = 482915      // stored as a number
+        var x = restart()
+        "482915".split("").forEach(function(c) { x._press(c) })
         compare(spy.count, 1)
+    }
+    // ---- lock kept over restarts
+    function test_lock_survives_restart() {
+        for (var i = 0; i < 5; i++) type("111111")
+        verify(Number(st.simpleAdminLockUntil.rawValue) > Date.now(), "lock end time stored")
+        var x = restart()
+        verify(x.locked, "a new instance (restart) is still locked")
+        "000000".split("").forEach(function(c) { x._press(c) })
+        compare(spy.count, 0, "correct PIN refused after restart while locked")
+        verify(x.error.indexOf("5") >= 0, "shows the minutes left: " + x.error)
+    }
+    function test_failures_survive_restart() {
+        for (var i = 0; i < 3; i++) type("111111")
+        compare(Number(st.simpleAdminFailures.rawValue), 3)
+        var x = restart()
+        compare(x.failures, 3)
+        "222222".split("").forEach(function(c) { x._press(c) })
+        verify(x.error.indexOf("1") >= 0, "1 try left: " + x.error)
+        "333333".split("").forEach(function(c) { x._press(c) })
+        verify(x.locked, "restarting does not give 5 new tries")
+    }
+    function test_expired_lock_cleared_on_restart() {
+        st.simpleAdminFailures.rawValue = 5
+        st.simpleAdminLockUntil.rawValue = Date.now() - 1000
+        var x = restart()
+        verify(!x.locked); compare(x.failures, 0)
+        compare(Number(st.simpleAdminLockUntil.rawValue), 0)
+        "000000".split("").forEach(function(c) { x._press(c) })
+        compare(spy.count, 1)
+    }
+    function test_clock_set_back_caps_lock() {
+        st.simpleAdminFailures.rawValue = 5
+        st.simpleAdminLockUntil.rawValue = Date.now() + 24 * 3600 * 1000   // clock was a day ahead when locking
+        var x = restart()
+        verify(x.locked)
+        verify(Number(st.simpleAdminLockUntil.rawValue) <= Date.now() + 5 * 60 * 1000 + 50, "never longer than 5 min")
+    }
+    function test_count_reached_without_stored_lock() {
+        st.simpleAdminFailures.rawValue = 5          // app killed between the two writes
+        st.simpleAdminLockUntil.rawValue = 0
+        var x = restart()
+        verify(x.locked)
+    }
+    function test_garbage_lock_values() {
+        st.simpleAdminFailures.rawValue = "abc"
+        st.simpleAdminLockUntil.rawValue = "xyz"
+        var x = restart()
+        verify(!x.locked); compare(x.failures, 0)
+        st.simpleAdminFailures.rawValue = -7
+        x = restart(); compare(x.failures, 0)
+        st.simpleAdminFailures.rawValue = 999
+        x = restart(); verify(x.locked, "huge count is treated as the limit")
+    }
+    function test_correct_pin_clears_stored_count() {
+        type("111111"); type("000000")
+        compare(Number(st.simpleAdminFailures.rawValue), 0)
     }
     function test_open_resets_entry_but_not_failures() {
         type("111111"); type("12")
@@ -109,6 +182,7 @@ TestCase {
     function test_random_presses_invariants() {
         var keys = ["0","1","2","3","4","5","6","7","8","9","back"]
         for (var run = 0; run < 300; run++) {
+            resetSettings()
             var d = createTemporaryObject(dlgComp, root); spy.target = d; spy.clear(); d.open("advanced")
             var typed = ""
             for (var i = 0; i < 40; i++) {
@@ -117,6 +191,7 @@ TestCase {
                 d._press(k)
                 verify(d.entered.length <= 6, "entry never longer than 6")
                 verify(d.failures <= 5, "failures capped at 5")
+                compare(Number(st.simpleAdminFailures.rawValue), d.failures, "stored count follows the dialog")
                 if (d.locked) verify(d.entered === "", "no entry while locked")
                 if (spy.count > 0) { compare(before + k, "000000", "accepted only on the exact PIN"); break }
             }

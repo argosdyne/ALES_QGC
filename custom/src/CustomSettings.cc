@@ -21,6 +21,8 @@ DECLARE_SETTINGSFACT(CustomSettings, ysCamera)
 DECLARE_SETTINGSFACT(CustomSettings, ysMissionStartStop)
 
 DECLARE_SETTINGSFACT(CustomSettings, simpleAdminPin)
+DECLARE_SETTINGSFACT(CustomSettings, simpleAdminFailures)
+DECLARE_SETTINGSFACT(CustomSettings, simpleAdminLockUntil)
 DECLARE_SETTINGSFACT(CustomSettings, simpleWelcomeShown)
 DECLARE_SETTINGSFACT(CustomSettings, simpleLargeText)
 DECLARE_SETTINGSFACT(CustomSettings, simpleStartScreen)

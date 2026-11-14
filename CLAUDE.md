@@ -30,6 +30,8 @@ Reply to the user in Korean unless they write in English.
 ## Decisions so far (do not change without asking)
 
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
+  The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
+  not 6 digits is reset to the default (2026-11-14).
 - Fly screen layout (2026-11-13): **left = flight** (action buttons x 28; telemetry bar x 24, bottom 24),
   **right = camera** (camera rail → Payloads; video PiP bottom-right 400 × 226, tap to swap map/video).
   Map controls (S30) sit left of the PiP; compass/attitude in video-main (S18/S49) sit right of the telemetry bar.

@@ -15,7 +15,7 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: bottom-right (right 24, bottom 24), 400 × 226 (scaled from 1920 × 1080), rounded corners. The FPV overlay starts between the telemetry bar and the PiP. Layout: telemetry bar bottom-left (x 24), PiP bottom-right. |
 | `src/QmlControls/PipView.qml` | `simpleStyle`: frame, "Camera" / "Map" label, tap to swap only (no resize, pop-out or hide buttons). |
 | `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. |
-| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
+| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleAdminFailures`, `simpleAdminLockUntil`, `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
 | `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
 | `src/QGCApplication.cc` | `setLanguage()`: registers the Simple UI fonts (`fonts/`), maps Roboto → Noto Sans KR for Hangul when the language is Korean, loads the Simple UI translation `:/i18n/qgc_simple_<locale>.qm`. Font registration runs in both modes (decision 2026-11-14): the classic UI never uses Roboto, so Advanced looks the same. |
@@ -48,7 +48,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleMessages.qml` | S29 | Message history |
 | `SimpleCameraRail.qml` | ui/CameraRail | Photo/video, shutter, gimbal angle |
 | `SimpleMenuDrawer.qml` | S06 | Menu |
-| `SimplePinDialog.qml` | S12 | Admin PIN, 5 wrong tries = 5 min lock |
+| `SimplePinDialog.qml` | S12 | Admin PIN, 5 wrong tries = 5 min lock (kept over restarts; invalid stored PIN → default) |
 | `SimpleSettings.qml` | S09, S45, S48 | Settings with 7 categories |
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
 | `SimplePlanCheck.qml` | S39 | Check before sending, send progress |

@@ -7,7 +7,9 @@ QtObject {
     property QtObject corePlugin: QtObject {
         property bool showAdvancedUI: false
         property QtObject settings: QtObject {
-            property QtObject simpleAdminPin: QtObject { property var rawValue: "000000" }
+            property QtObject simpleAdminPin:       QtObject { property var rawValue: "000000" }
+            property QtObject simpleAdminFailures:  QtObject { property var rawValue: 0 }
+            property QtObject simpleAdminLockUntil: QtObject { property var rawValue: 0 }
         }
     }
     property QtObject settingsManager: QtObject {

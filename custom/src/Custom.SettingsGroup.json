@@ -102,6 +102,18 @@
     "default":          "000000"
 },
 {
+    "name":             "simpleAdminFailures",
+    "shortDesc":        "Simple UI: wrong admin PIN entries since the last correct one (kept over restarts)",
+    "type":             "uint32",
+    "default":          0
+},
+{
+    "name":             "simpleAdminLockUntil",
+    "shortDesc":        "Simple UI: admin PIN locked until this time (ms since 1970, 0 = not locked; kept over restarts)",
+    "type":             "double",
+    "default":          0
+},
+{
     "name":             "simpleWelcomeShown",
     "shortDesc":        "Simple UI: first-start welcome (language & units) has been completed",
     "type":             "bool",

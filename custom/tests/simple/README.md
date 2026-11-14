@@ -20,4 +20,4 @@ Notes
 - `TestCase` is invisible, so components that receive mouse input are created under the visible root `Item`.
 - Drag the slide-to-confirm with coordinates of the track (`sl`), not of the knob: `mouseDrag` re-maps item
   coordinates after each move, so dragging a moving item travels about twice the distance.
-- `XFAIL` cases document known risks (a stored PIN that is not six digits cannot be entered).
+- PIN tests create a new dialog instance to simulate an app restart (state comes only from the settings).

@@ -1,5 +1,7 @@
 /****************************************************************************
  * AQGC Simple UI — S12 admin PIN (6 digits, 5 wrong tries = 5 min lock)
+ * The wrong-try count and the lock end time are stored in the settings, so restarting the app
+ * does not clear the lock. A stored PIN that is not exactly 6 digits is replaced by the default.
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -15,26 +17,78 @@ Item {
     property string error:      ""
     signal accepted(string purpose)
 
-    readonly property string _pin: String(QGroundControl.corePlugin.settings.simpleAdminPin.rawValue)
+    readonly property int    maxTries:      5
+    readonly property real   lockMs:        5 * 60 * 1000
+    readonly property string defaultPin:    "000000"
+    readonly property var    _s:            QGroundControl.corePlugin.settings
+    readonly property string _pin:          validPin(String(_s.simpleAdminPin.rawValue)) ? String(_s.simpleAdminPin.rawValue) : defaultPin
 
-    function open(p) { purpose = p || "advanced"; entered = ""; error = ""; opened = true }
+    function validPin(p)  { return /^[0-9]{6}$/.test(p) }
+    function _now()       { return Date.now() }      // tests override this
+
+    function open(p) { purpose = p || "advanced"; entered = ""; error = ""; _refreshLock(); opened = true }
     function close() { opened = false }
+
+    // Restore the lock from the settings. A lock end time further away than lockMs means the clock was
+    // set back: never lock longer than lockMs from now.
+    function _refreshLock() {
+        var until = Number(_s.simpleAdminLockUntil.rawValue) || 0
+        var now = _now()
+        if (until > now + lockMs) {
+            until = now + lockMs
+            _s.simpleAdminLockUntil.rawValue = until
+        }
+        if (until > now) {
+            locked = true
+            lockTimer.interval = Math.max(1, until - now)
+            lockTimer.restart()
+            error = qsTr("Too many wrong PINs — try again in %1 min").arg(Math.ceil((until - now) / 60000))
+        } else if (locked || until > 0) {
+            _unlock()
+        }
+    }
+    function _unlock() {
+        lockTimer.stop()
+        locked = false; failures = 0; error = ""
+        _s.simpleAdminFailures.rawValue = 0
+        _s.simpleAdminLockUntil.rawValue = 0
+    }
     function _press(d) {
         if (locked) return
         if (d === "back") { entered = entered.slice(0, -1); return }
         if (entered.length >= 6) return
         entered += d
         if (entered.length === 6) {
-            if (entered === _pin) { failures = 0; close(); accepted(purpose) }
-            else {
+            if (entered === _pin) {
+                failures = 0; _s.simpleAdminFailures.rawValue = 0
+                close(); accepted(purpose)
+            } else {
                 failures++
+                _s.simpleAdminFailures.rawValue = failures
                 entered = ""
-                if (failures >= 5) { locked = true; lockTimer.start(); error = qsTr("Too many wrong PINs — try again in 5 minutes") }
-                else error = qsTr("Wrong PIN — %1 tries left").arg(5 - failures)
+                if (failures >= maxTries) {
+                    _s.simpleAdminLockUntil.rawValue = _now() + lockMs
+                    _refreshLock()
+                } else {
+                    error = qsTr("Wrong PIN — %1 tries left").arg(maxTries - failures)
+                }
             }
         }
     }
-    Timer { id: lockTimer; interval: 5 * 60 * 1000; onTriggered: { dlg.locked = false; dlg.failures = 0; dlg.error = "" } }
+    Component.onCompleted: {
+        // A hand-edited or damaged PIN (not 6 digits) would lock everyone out: fall back to the default
+        if (!validPin(String(_s.simpleAdminPin.rawValue))) {
+            console.warn("SimplePinDialog: stored admin PIN is not 6 digits, reset to default")
+            _s.simpleAdminPin.rawValue = defaultPin
+        }
+        failures = Math.min(maxTries, Math.max(0, Number(_s.simpleAdminFailures.rawValue) || 0))
+        _refreshLock()
+        if (failures >= maxTries && !locked) {          // count reached but no lock stored (e.g. app killed in between)
+            _s.simpleAdminLockUntil.rawValue = _now() + lockMs
+            _refreshLock()
+        }
+    }
+    Timer { id: lockTimer; interval: 5 * 60 * 1000; onTriggered: dlg._unlock() }
 
     visible: opened
     Rectangle { anchors.fill: parent; color: SimpleTheme.withAlpha("black", 0.6); MouseArea { anchors.fill: parent; onClicked: dlg.close() } }

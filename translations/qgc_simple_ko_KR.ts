@@ -391,8 +391,8 @@
 <context>
     <name>SimplePinDialog</name>
     <message>
-        <source>Too many wrong PINs — try again in 5 minutes</source>
-        <translation>PIN을 여러 번 틀렸습니다 — 5분 뒤 다시 시도하세요</translation>
+        <source>Too many wrong PINs — try again in %1 min</source>
+        <translation>PIN을 여러 번 틀렸습니다 — %1분 뒤 다시 시도하세요</translation>
     </message>
     <message>
         <source>Wrong PIN — %1 tries left</source>
