@@ -439,7 +439,7 @@
     </message>
     <message>
         <source>Area mapping (more in next version)</source>
-        <translation>영역 매핑 (다음 버전에서 추가)</translation>
+        <translation>영역 매핑 (그 밖의 작업은 다음 버전)</translation>
     </message>
     <message>
         <source>Saved missions</source>
@@ -480,6 +480,10 @@
     <message>
         <source>Setup, parameters, tools · PIN</source>
         <translation>기체 설정, 파라미터, 도구 · PIN</translation>
+    </message>
+    <message>
+        <source>Download maps before you go</source>
+        <translation>나가기 전에 지도를 내려받기</translation>
     </message>
 </context>
 <context>
