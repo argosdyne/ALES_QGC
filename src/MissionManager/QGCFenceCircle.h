@@ -40,6 +40,7 @@ public:
     Q_PROPERTY(QString zoneName     MEMBER _zoneName    NOTIFY zoneInfoChanged)
     Q_PROPERTY(int     zoneClass    MEMBER _zoneClass   NOTIFY zoneInfoChanged)
     Q_PROPERTY(QString zoneDetail   MEMBER _zoneDetail  NOTIFY zoneInfoChanged)
+    Q_PROPERTY(bool    zoneNoEntry  MEMBER _zoneNoEntry NOTIFY zoneInfoChanged)   ///< my zone "do not enter"
 
 
     /// Saves the QGCFenceCircle to the json object.
@@ -105,6 +106,7 @@ public:
     QString _zoneName;
     int     _zoneClass = 0;
     QString _zoneDetail;
+    bool    _zoneNoEntry = false;
 private:
 
     static const int _jsonCurrentVersion = 1;

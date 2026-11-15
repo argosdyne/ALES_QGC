@@ -28,7 +28,11 @@ SPanel {
         { ok: !vs.ridAvailable || vs.ridGood, warn: !vs.ridAvailable, title: qsTr("Remote ID"),
           detail: !vs.ridAvailable ? qsTr("Not enabled on this tablet") : vs.ridGood ? qsTr("Broadcasting")
                 : !vs.rid.commsGood ? qsTr("No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.")
-                : (vs.rid.armStatusError !== "" ? vs.rid.armStatusError : qsTr("The Remote ID module is not ready")) }
+                : (vs.rid.armStatusError !== "" ? vs.rid.armStatusError : qsTr("The Remote ID module is not ready")) },
+        { ok: !vs.zoneBlocked, warn: vs.zoneCaution, title: qsTr("Flight zones"),
+          detail: !vs.zoneHere || vs.zoneHere.zoneClass === 0 ? qsTr("No restricted zone here")
+                : vs.zoneBlocked ? qsTr("The drone is in a no-fly zone (%1). Move to another place to take off.").arg(vs.zoneHere.zoneName)
+                : qsTr("The drone is in a zone that needs care (%1). Check that you may fly here.").arg(vs.zoneHere.zoneName) }
     ]
 
     Column {

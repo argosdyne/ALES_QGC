@@ -49,8 +49,19 @@ QtObject {
     readonly property bool   homeSet:       present && vehicle.homePosition.isValid
     readonly property bool   sensorsOk:     present && (vehicle.readyToFlyAvailable ? vehicle.readyToFly : vehicle.sensorsUnhealthyBits === 0)
     // Remote ID blocks take-off when it is turned on (Settings › Remote ID) but the module is not broadcasting (S02, S47)
+    // Flight zones (decision 2026-11-15): taking off inside a prohibited zone or a "do not enter" zone is blocked;
+    // authorisation and warn-only zones are a caution. Checked once a second (2D, FlightZoneManager.zoneAt).
+    property var             zoneHere:      null
+    readonly property bool   zoneBlocked:   !!zoneHere && (zoneHere.zoneClass === 1 || zoneHere.noEntry)
+    readonly property bool   zoneCaution:   !!zoneHere && !zoneBlocked && (zoneHere.zoneClass === 2 || zoneHere.zoneClass === 4)
+    property Timer _zoneTimer: Timer {
+        interval: 1000; repeat: true; triggeredOnStart: true
+        running: present && !armed && typeof mainWindow !== "undefined" && !!mainWindow.flightZoneManager
+        onTriggered: zoneHere = vehicle.coordinate.isValid ? mainWindow.flightZoneManager.zoneAt(vehicle.coordinate) : null
+        onRunningChanged: if (!running) zoneHere = null
+    }
     readonly property bool   readyToTakeOff: connected && !armed && sensorsOk && gpsLock >= 3 && (isNaN(batteryPct) || batteryPct > 30)
-                                             && (!ridAvailable || ridGood)
+                                             && (!ridAvailable || ridGood) && !zoneBlocked
 
     // Overall state name used by the UI rules
     readonly property string state: !present ? "disconnected"

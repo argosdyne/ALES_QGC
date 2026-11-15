@@ -84,6 +84,10 @@ public:
     Q_INVOKABLE void deleteZoneData();
     /// Modification time of the zone file in use (invalid if none)
     Q_INVOKABLE QDateTime zoneFileTime() const;
+    /// Most restrictive zone that contains the point (2D): { zoneClass, zoneName, noEntry } (zoneClass 0 = none)
+    Q_INVOKABLE QVariantMap zoneAt(const QGeoCoordinate& coordinate);
+    /// Most restrictive zone touched by the polyline (list of QGeoCoordinate, 2D): same map as zoneAt
+    Q_INVOKABLE QVariantMap zoneOnPath(const QVariantList& path);
 
     //Check zoom value
     void checkCurrentZoomValue();

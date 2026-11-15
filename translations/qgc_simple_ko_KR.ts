@@ -609,6 +609,26 @@
         <source>Sent — go to Fly</source>
         <translation>전송 완료 — 비행 화면으로</translation>
     </message>
+    <message>
+        <source>No restricted zone on the route</source>
+        <translation>경로에 제한 구역 없음</translation>
+    </message>
+    <message>
+        <source>No zone data — check the zones yourself</source>
+        <translation>구역 데이터 없음 — 구역을 직접 확인하세요</translation>
+    </message>
+    <message>
+        <source>The route enters a no-fly zone (%1). Move the area.</source>
+        <translation>경로가 비행 금지 구역(%1)에 들어갑니다. 영역을 옮기세요.</translation>
+    </message>
+    <message>
+        <source>Information zone on the route (%1)</source>
+        <translation>경로에 정보 구역(%1)이 있음</translation>
+    </message>
+    <message>
+        <source>The route touches %1. Check that you may fly there.</source>
+        <translation>경로가 %1에 걸칩니다. 비행해도 되는지 확인하세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimplePlanWizard</name>
@@ -842,6 +862,22 @@
     <message>
         <source>The Remote ID module is not ready</source>
         <translation>Remote ID 모듈이 준비되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>Flight zones</source>
+        <translation>비행 구역</translation>
+    </message>
+    <message>
+        <source>No restricted zone here</source>
+        <translation>이곳에는 제한 구역이 없음</translation>
+    </message>
+    <message>
+        <source>The drone is in a no-fly zone (%1). Move to another place to take off.</source>
+        <translation>드론이 비행 금지 구역(%1) 안에 있습니다. 다른 곳으로 옮겨 이륙하세요.</translation>
+    </message>
+    <message>
+        <source>The drone is in a zone that needs care (%1). Check that you may fly here.</source>
+        <translation>드론이 주의가 필요한 구역(%1) 안에 있습니다. 이곳에서 비행해도 되는지 확인하세요.</translation>
     </message>
 </context>
 <context>

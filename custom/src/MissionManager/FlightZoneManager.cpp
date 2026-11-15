@@ -29,6 +29,9 @@
 #include "JsonHelper.h"
 #include "FlyViewSettings.h"
 #include "QGCApplication.h"
+#include <QLineF>
+#include "QGCFenceCircle.h"
+#include "QGCFencePolygon.h"
 #include "QGCCorePlugin.h"
 #include "AudioOutput.h"
 #include "QGroundControlQmlGlobal.h"
@@ -2362,3 +2365,115 @@ void FlightZoneManager::_setZoneStatus(int level, double distance, const QString
             : (prohibited ? tr("Prohibited zone ahead") : tr("Flight zone ahead")));
     }
 }
+
+// ---------------------------------------------------------------------------------------------- AQGC Simple UI checks
+// 2D checks for S02 (drone position) and S39 (mission path). Order: prohibited / no-entry my zone, authorisation,
+// warn-only my zone, information. noEntry marks a "do not enter" zone (red like prohibited).
+
+static int aqgcCheckRank(int cls, bool noEntry) { return (cls == 1 || noEntry) ? 0 : cls == 2 ? 1 : cls == 4 ? 2 : 3; }
+
+static QPolygonF aqgcPolygonF(const QGCFencePolygon* p)
+{
+    QPolygonF poly;
+    for (const QGeoCoordinate& c : p->coordinateList()) {
+        poly << QPointF(c.longitude(), c.latitude());
+    }
+    return poly;
+}
+
+static bool aqgcSegmentTouchesPolygon(const QPolygonF& poly, const QPointF& a, const QPointF& b)
+{
+    if (poly.size() < 3) return false;
+    if (poly.containsPoint(a, Qt::OddEvenFill) || poly.containsPoint(b, Qt::OddEvenFill)) return true;
+    const QLineF seg(a, b);
+    for (int i = 0; i < poly.size(); ++i) {
+        const QLineF edge(poly[i], poly[(i + 1) % poly.size()]);
+        QPointF ip;
+        if (seg.intersects(edge, &ip) == QLineF::BoundedIntersection) return true;
+    }
+    return false;
+}
+
+static double aqgcSegmentDistanceToPoint(const QGeoCoordinate& a, const QGeoCoordinate& b, const QGeoCoordinate& p)
+{
+    // local flat approximation (fine for zone sized distances)
+    const double k = std::cos(p.latitude() * M_PI / 180.0);
+    const QPointF A((a.longitude() - p.longitude()) * k * 111320.0, (a.latitude() - p.latitude()) * 111320.0);
+    const QPointF B((b.longitude() - p.longitude()) * k * 111320.0, (b.latitude() - p.latitude()) * 111320.0);
+    const QPointF d = B - A;
+    const double len2 = d.x() * d.x() + d.y() * d.y();
+    double t = len2 > 0 ? -(A.x() * d.x() + A.y() * d.y()) / len2 : 0;
+    t = std::max(0.0, std::min(1.0, t));
+    const QPointF q = A + t * d;
+    return std::sqrt(q.x() * q.x() + q.y() * q.y());
+}
+
+static QVariantMap aqgcZoneResult(QObject* z)
+{
+    QVariantMap m;
+    m["zoneClass"] = z ? z->property("zoneClass").toInt() : 0;
+    m["zoneName"]  = z ? z->property("zoneName").toString() : QString();
+    m["noEntry"]   = z ? z->property("zoneNoEntry").toBool() : false;
+    return m;
+}
+
+QVariantMap FlightZoneManager::zoneAt(const QGeoCoordinate& coordinate)
+{
+    QObject* best = nullptr;
+    int bestRank = 99;
+    if (coordinate.isValid()) {
+        const QPointF pt(coordinate.longitude(), coordinate.latitude());
+        for (int i = 0; i < _polygons.count(); ++i) {
+            auto* p = qobject_cast<QGCFencePolygon*>(_polygons.get(i));
+            if (!p || !aqgcPolygonF(p).containsPoint(pt, Qt::OddEvenFill)) continue;
+            const int r = aqgcCheckRank(p->property("zoneClass").toInt(), p->property("zoneNoEntry").toBool());
+            if (r < bestRank) { bestRank = r; best = p; }
+        }
+        for (int i = 0; i < _circles.count(); ++i) {
+            auto* ci = qobject_cast<QGCFenceCircle*>(_circles.get(i));
+            if (!ci || ci->center().distanceTo(coordinate) > ci->radius()->rawValue().toDouble()) continue;
+            const int r = aqgcCheckRank(ci->property("zoneClass").toInt(), ci->property("zoneNoEntry").toBool());
+            if (r < bestRank) { bestRank = r; best = ci; }
+        }
+    }
+    return aqgcZoneResult(best);
+}
+
+QVariantMap FlightZoneManager::zoneOnPath(const QVariantList& path)
+{
+    QList<QGeoCoordinate> pts;
+    for (const QVariant& v : path) {
+        const QGeoCoordinate c = v.value<QGeoCoordinate>();
+        if (c.isValid()) pts << c;
+    }
+    QObject* best = nullptr;
+    int bestRank = 99;
+    for (int i = 0; i < _polygons.count(); ++i) {
+        auto* p = qobject_cast<QGCFencePolygon*>(_polygons.get(i));
+        if (!p) continue;
+        const int r = aqgcCheckRank(p->property("zoneClass").toInt(), p->property("zoneNoEntry").toBool());
+        if (r >= bestRank) continue;
+        const QPolygonF poly = aqgcPolygonF(p);
+        bool hit = false;
+        for (int j = 0; j < pts.size() && !hit; ++j) {
+            const QPointF a(pts[j].longitude(), pts[j].latitude());
+            const QPointF b = j + 1 < pts.size() ? QPointF(pts[j + 1].longitude(), pts[j + 1].latitude()) : a;
+            hit = aqgcSegmentTouchesPolygon(poly, a, b);
+        }
+        if (hit) { bestRank = r; best = p; }
+    }
+    for (int i = 0; i < _circles.count(); ++i) {
+        auto* ci = qobject_cast<QGCFenceCircle*>(_circles.get(i));
+        if (!ci) continue;
+        const int r = aqgcCheckRank(ci->property("zoneClass").toInt(), ci->property("zoneNoEntry").toBool());
+        if (r >= bestRank) continue;
+        const double rad = ci->radius()->rawValue().toDouble();
+        for (int j = 0; j < pts.size(); ++j) {
+            const QGeoCoordinate& a = pts[j];
+            const QGeoCoordinate& b = j + 1 < pts.size() ? pts[j + 1] : pts[j];
+            if (aqgcSegmentDistanceToPoint(a, b, ci->center()) <= rad) { bestRank = r; best = ci; break; }
+        }
+    }
+    return aqgcZoneResult(best);
+}
+

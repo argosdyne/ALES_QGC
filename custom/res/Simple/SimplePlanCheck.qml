@@ -18,6 +18,20 @@ SPanel {
     readonly property var  _mission:    plan ? plan.missionController : null
     readonly property real _alt:        survey && survey.cameraCalc ? survey.cameraCalc.distanceToSurface.rawValue : 0
     readonly property real _maxDist:    _mission ? _mission.missionMaxTelemetry : 0
+    // Flight zones on the route (decision 2026-11-15): prohibited / "do not enter" = blocked, others = caution
+    readonly property var  _zm:         typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
+    readonly property var  _zone: {
+        if (!_zm || !visible) return { zoneClass: 0, zoneName: "", noEntry: false }
+        var path = []
+        if (vs.present && vs.vehicle.homePosition.isValid) path.push(vs.vehicle.homePosition)
+        var t = survey ? survey.visualTransectPoints : []
+        for (var i = 0; i < t.length; i++) path.push(t[i])
+        _zm.polygons.count; _zm.circles.count       // re-check when the zone data changes
+        return _zm.zoneOnPath(path)
+    }
+    readonly property int  _zoneLvl:    !_zm ? 1 : (_zone.zoneClass === 1 || _zone.noEntry) ? 2
+                                        : (_zone.zoneClass === 2 || _zone.zoneClass === 4) ? 1
+                                        : _zone.zoneClass === 3 ? 0 : (_zm.polygons.count + _zm.circles.count > 0 ? 0 : 1)
     readonly property int  _batteries:  _mission ? _mission.batteriesRequired : -1
     property bool _sent: false
 
@@ -34,7 +48,12 @@ SPanel {
         { lvl: _alt > maxAlt ? 2 : 0, t: qsTr("Height"), d: qsTr("%1 m (limit %2 m)").arg(Math.round(_alt)).arg(maxAlt) },
         { lvl: _maxDist > _distLimit ? 2 : 0, t: qsTr("Distance"), d: qsTr("Farthest point %1 m (limit %2 m)").arg(Math.round(_maxDist)).arg(Math.round(_distLimit)) },
         { lvl: _batteries > 1 ? 1 : 0, t: qsTr("Battery"), d: _batteries > 1 ? qsTr("Needs %1 batteries — the drone returns to swap").arg(_batteries) : _batteries === 1 ? qsTr("Fits one battery") : qsTr("Not estimated for this drone") },
-        { lvl: 1, t: qsTr("Flight zones"), d: qsTr("Check the zones on the map yourself") },
+        { lvl: _zoneLvl, t: qsTr("Flight zones"),
+          d: !_zm ? qsTr("Check the zones on the map yourself")
+           : _zone.zoneClass === 0 ? (_zm.polygons.count + _zm.circles.count > 0 ? qsTr("No restricted zone on the route") : qsTr("No zone data — check the zones yourself"))
+           : _zoneLvl === 2 ? qsTr("The route enters a no-fly zone (%1). Move the area.").arg(_zone.zoneName)
+           : _zone.zoneClass === 3 ? qsTr("Information zone on the route (%1)").arg(_zone.zoneName)
+           : qsTr("The route touches %1. Check that you may fly there.").arg(_zone.zoneName) },
         { lvl: vs.connected ? 0 : 2, t: qsTr("Drone"), d: vs.connected ? qsTr("Connected") : qsTr("Not connected — the mission stays on this tablet") }
     ]
     readonly property bool _blocked: { for (var i = 0; i < _checks.length; i++) if (_checks[i].lvl === 2) return true; return false }
