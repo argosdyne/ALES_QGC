@@ -962,6 +962,10 @@ FlightMap {
                 _root.setGotoDraftCoordinate(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false), false)
                 return
             }
+            // Simple UI has no map tap menu yet (Figma S35, v2): a tap on the map does nothing.
+            if (mainWindow.simpleUI) {
+                return
+            }
             if (!globals.guidedControllerFlyView.guidedUIVisible && 
                 (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit || globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome || globals.guidedControllerFlyView.showSetEstimatorOrigin)) {
                 orbitMapCircle.hide()
@@ -979,6 +983,9 @@ FlightMap {
         Popup {
             id: mapClickMenu
             modal: true
+
+            // Created with createObject() on every tap: free it when it closes.
+            onClosed: destroy()
 
             property var coord
             property var contentItemComponent
