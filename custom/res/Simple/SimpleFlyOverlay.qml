@@ -269,6 +269,23 @@ Item {
             title: qsTr("Radio signal lost — the drone follows its failsafe (usually Return home)")
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
         }
+        // Flight zones (Figma S15): near = orange, inside = red; voice from FlightZoneManager. Only while the drone flies.
+        SBanner {
+            readonly property var  _z: typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
+            readonly property int  _lvl: _z && vs.present && vs.state !== "ground" ? _z.zoneLevel : 0
+            readonly property string _kind: !_z ? "" : _z.zoneStatusClass === 1 ? qsTr("Prohibited zone")
+                                            : _z.zoneStatusClass === 2 ? qsTr("Authorisation zone")
+                                            : _z.zoneStatusClass === 4 ? qsTr("My zone") : qsTr("Flight zone")
+            readonly property string _dist: _z ? Math.round(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(_z.zoneDistance))
+                                                 + " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString : ""
+            visible: _lvl > 0
+            level: _lvl === 2 ? "danger" : "warn"; icon: "warn"
+            title: _lvl === 2 ? qsTr("Inside: %1").arg(_kind) : qsTr("%1 %2 ahead").arg(_kind).arg(_dist)
+            detail: (_z && _z.zoneStatusName !== "" ? _z.zoneStatusName + " · " : "")
+                    + (_lvl === 2 ? qsTr("Leave the zone: return home or fly back out.") : qsTr("Turn back or stop."))
+            actionText: _lvl === 2 ? qsTr("Return home") : ""
+            onAction: fly.openSheet("rtl")
+        }
         // Battery warning (decision 2026-11-15): flying at 30 % or less shows a banner, not only the orange chip.
         // At 20 % or less while the drone is not yet returning, it turns red. Returning has its own banner below.
         SBanner {

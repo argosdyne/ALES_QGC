@@ -358,6 +358,38 @@
         <source>Bring the drone back while there is enough battery.</source>
         <translation>배터리가 충분할 때 드론을 돌아오게 하세요.</translation>
     </message>
+    <message>
+        <source>Prohibited zone</source>
+        <translation>금지 구역</translation>
+    </message>
+    <message>
+        <source>Authorisation zone</source>
+        <translation>승인 필요 구역</translation>
+    </message>
+    <message>
+        <source>My zone</source>
+        <translation>내 구역</translation>
+    </message>
+    <message>
+        <source>Flight zone</source>
+        <translation>비행 구역</translation>
+    </message>
+    <message>
+        <source>Inside: %1</source>
+        <translation>%1 안에 있음</translation>
+    </message>
+    <message>
+        <source>%1 %2 ahead</source>
+        <translation>%2 앞 %1</translation>
+    </message>
+    <message>
+        <source>Leave the zone: return home or fly back out.</source>
+        <translation>구역을 벗어나세요: 귀환하거나 되돌아 나가세요.</translation>
+    </message>
+    <message>
+        <source>Turn back or stop.</source>
+        <translation>되돌아가거나 멈추세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -2501,6 +2533,22 @@
     <message>
         <source>The file cannot be copied to the app folder.</source>
         <translation>파일을 앱 폴더로 복사할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Inside a prohibited zone</source>
+        <translation>금지 구역 안에 있습니다</translation>
+    </message>
+    <message>
+        <source>Inside a flight zone</source>
+        <translation>비행 구역 안에 있습니다</translation>
+    </message>
+    <message>
+        <source>Prohibited zone ahead</source>
+        <translation>앞에 금지 구역이 있습니다</translation>
+    </message>
+    <message>
+        <source>Flight zone ahead</source>
+        <translation>앞에 비행 구역이 있습니다</translation>
     </message>
 </context>
 </TS>

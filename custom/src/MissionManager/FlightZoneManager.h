@@ -57,6 +57,16 @@ public:
 
     Q_PROPERTY(QmlObjectListModel*  polygons                READ polygons                                           CONSTANT)
     Q_PROPERTY(QmlObjectListModel*  circles                 READ circles                                            CONSTANT)
+    // AQGC Simple UI: result of the last distance check (S15 banner). zoneLevel: 0 clear, 1 near (within the
+    // alarm distance), 2 inside; zoneDistance in metres (level 1); zoneStatusClass as QGCFencePolygon::zoneClass
+    Q_PROPERTY(int     zoneLevel        READ zoneLevel          NOTIFY zoneStatusChanged)
+    Q_PROPERTY(double  zoneDistance     READ zoneDistance       NOTIFY zoneStatusChanged)
+    Q_PROPERTY(QString zoneStatusName   READ zoneStatusName     NOTIFY zoneStatusChanged)
+    Q_PROPERTY(int     zoneStatusClass  READ zoneStatusClass    NOTIFY zoneStatusChanged)
+    int     zoneLevel       () const { return _zoneLevel; }
+    double  zoneDistance    () const { return _zoneDistance; }
+    QString zoneStatusName  () const { return _zoneStatusName; }
+    int     zoneStatusClass () const { return _zoneStatusClass; }
     Q_PROPERTY(bool reduceVerticesEnabled READ reduceVerticesEnabled WRITE setReduceVerticesEnabled NOTIFY reduceVerticesEnabledChanged)
     Q_PROPERTY(bool useOverlapDuplicateCheck READ useOverlapDuplicateCheck WRITE setUseOverlapDuplicateCheck NOTIFY useOverlapDuplicateCheckChanged)
 
@@ -136,6 +146,7 @@ public:
     bool useOverlapDuplicateCheck() const { return _useOverlapDuplicateCheck; }
     void setUseOverlapDuplicateCheck(bool v) { if (_useOverlapDuplicateCheck == v) return; _useOverlapDuplicateCheck = v; emit useOverlapDuplicateCheckChanged(); }
 signals:
+    void zoneStatusChanged();
     void reduceVerticesEnabledChanged();
     void useOverlapDuplicateCheckChanged();
 
@@ -193,6 +204,13 @@ private:
     QGCPositionManager* qgcpositionManager;
     bool _oneTime = false;
     bool _isGroundHazard = false;
+
+    // AQGC Simple UI zone status
+    void    _setZoneStatus(int level, double distance, const QString& name, int zoneClass);
+    int     _zoneLevel = 0;
+    double  _zoneDistance = 0;
+    QString _zoneStatusName;
+    int     _zoneStatusClass = 0;
 };
 
 class FlightValidTime {
