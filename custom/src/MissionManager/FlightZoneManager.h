@@ -48,6 +48,11 @@ public:
     }
 };
 
+// AQGC Simple UI: name / class of each polyhedron used by the distance check (parallel to the polyhedron list).
+// noEntry = My zone "do not enter"; amsl = the height band is above mean sea level (ED-318 AMSL / WGS84),
+// otherwise above the take-off point; warn = the zone's own warning distance (0 = app setting).
+struct AqgcZoneMeta { QString name; int cls = 0; double warn = 0; bool noEntry = false; bool amsl = false; };
+
 class FlightZoneManager : public QObject
 {
     Q_OBJECT
@@ -63,6 +68,14 @@ public:
     Q_PROPERTY(double  zoneDistance     READ zoneDistance       NOTIFY zoneStatusChanged)
     Q_PROPERTY(QString zoneStatusName   READ zoneStatusName     NOTIFY zoneStatusChanged)
     Q_PROPERTY(int     zoneStatusClass  READ zoneStatusClass    NOTIFY zoneStatusChanged)
+    Q_PROPERTY(bool    zoneStatusNoEntry READ zoneStatusNoEntry NOTIFY zoneStatusChanged)
+    /// Last problem reading the zone data (file or online), empty when the last load worked
+    Q_PROPERTY(QString zoneError        READ zoneError          NOTIFY zoneErrorChanged)
+    /// My zones as last loaded (same list as myZones(), without reading the file)
+    Q_PROPERTY(QVariantList myZoneList  READ myZoneList         NOTIFY myZonesChanged)
+    bool    zoneStatusNoEntry() const { return _zoneStatusNoEntry; }
+    QString zoneError       () const { return _zoneError; }
+    QVariantList myZoneList () const { return _myZoneCache; }
     int     zoneLevel       () const { return _zoneLevel; }
     double  zoneDistance    () const { return _zoneDistance; }
     QString zoneStatusName  () const { return _zoneStatusName; }
@@ -125,9 +138,8 @@ public:
 
     void updateGeoAwareness();
 
-    void checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList,
-                                  double lat, double lon, double alt,
-                                  double alarmDistance);
+    void checkDroneAndGeoZoneSafe(const QList<Polyhedron>& zoneList, const QList<AqgcZoneMeta>& meta,
+                                  double lat, double lon, double alt, double alarmDistance);
 
     void checkDroneAndGeoZoneSafe(double lat, double lon, double alt, double alarmDistance);
 
@@ -139,7 +151,7 @@ public:
 
     Point_3 approximatePolyhedronCenter(const Polyhedron& poly);
 
-    void generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons);
+    void generateNoFlyZones(QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedPolygons, QList<AqgcZoneMeta> metas = {});
 
     void autoDeleteUSBFile();
 
@@ -160,6 +172,7 @@ public:
     void setUseOverlapDuplicateCheck(bool v) { if (_useOverlapDuplicateCheck == v) return; _useOverlapDuplicateCheck = v; emit useOverlapDuplicateCheckChanged(); }
 signals:
     void zoneStatusChanged();
+    void zoneErrorChanged();
     void myZonesChanged();
     void reduceVerticesEnabledChanged();
     void useOverlapDuplicateCheckChanged();
@@ -220,8 +233,16 @@ private:
     bool _isGroundHazard = false;
 
     // AQGC Simple UI zone status
-    void    _setZoneStatus(int level, double distance, const QString& name, int zoneClass);
+    void    _setZoneStatus(int level, double distance, const QString& name, int zoneClass, bool noEntry);
     void    _loadMyZones();
+    void    _reloadMyZones();           ///< replace only the My zones (map, polyhedra), keep the official data
+    void    _removeOfficialZones();     ///< remove the official data, keep the My zones
+    int     _officialPolygonCount();
+    void    _setZoneError(const QString& error);
+    bool    _zoneStatusNoEntry = false;
+    int     _spokenRank = 99;           ///< strongest warning spoken since the drone was clear
+    QString _zoneError;
+    QVariantList _myZoneCache;
     int     _zoneLevel = 0;
     double  _zoneDistance = 0;
     QString _zoneStatusName;

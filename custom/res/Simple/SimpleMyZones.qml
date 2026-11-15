@@ -22,7 +22,7 @@ Rectangle {
 
     readonly property var  _mgr:    mainWindow.flightZoneManager
     readonly property bool _locked: !!vs && !!vs.vehicle && vs.vehicle.armed
-    property var    zones:   []          // list as returned by FlightZoneManager.myZones()
+    property var    zones:   []          // FlightZoneManager.myZoneList (as last loaded)
     property int    editIndex: -2        // -2 list, -1 new zone, >= 0 editing zones[editIndex]
     readonly property bool editing: editIndex > -2
 
@@ -35,7 +35,7 @@ Rectangle {
     property real   zWarn:   30
 
     MouseArea { anchors.fill: parent }   // keep taps off the pages below
-    Component.onCompleted: zones = _mgr.myZones()
+    Component.onCompleted: zones = _mgr.myZoneList
 
     // ---- drone fence (5b): "do not enter" zones go to the ArduPilot fence as exclusion polygons
     readonly property int  _noEntryCount: { var n = 0; for (var i = 0; i < zones.length; i++) if (zones[i].noEntry) n++; return n }
@@ -43,7 +43,7 @@ Rectangle {
     readonly property var  _plan:  globals.planMasterControllerFlyView
     readonly property var  _fence: _plan ? _plan.geoFenceController : null
     property bool confirmUpload: false
-    property string uploadState: ""      // "" | "sending" | "done"
+    property string uploadState: ""      // "" | "sending" | "done" | "busy" | "failed"
     // FactPanelController binds to the vehicle when created: only once the parameters are ready
     Loader { id: fpc; active: !!mz.vs && mz.vs.paramsReady; sourceComponent: Component { FactPanelController { } } }
     function _fact(name) { return fpc.item && fpc.item.parameterExists(-1, name) ? fpc.item.getParameterFact(-1, name, false) : null }
@@ -57,6 +57,8 @@ Rectangle {
     }
     function upload() {
         confirmUpload = false
+        // nothing changes on the drone unless the fence can be sent now (e.g. not while it is still being loaded)
+        if (!_fence || _fence.syncInProgress) { uploadState = "busy"; return }
         // fence off before: turn on the polygon fence only (FENCE_TYPE 7 would also turn on the circle and the
         // altitude fence); fence already on: add the polygon to what is there
         if (_fEnable && _fEnable.rawValue === 0) {
@@ -65,9 +67,10 @@ Rectangle {
         } else if (_fType && (_fType.rawValue & 4) === 0) {
             _fType.rawValue = _fType.rawValue | 4
         }
-        _mgr.uploadMyZonesFence(_fence)
-        uploadState = "sending"
+        uploadState = _mgr.uploadMyZonesFence(_fence) >= 0 ? "sending" : "busy"
+        if (uploadState === "sending") uploadTimeout.restart()
     }
+    Timer { id: uploadTimeout; interval: 20000; onTriggered: if (mz.uploadState === "sending") mz.uploadState = "failed" }
     Connections {
         target: mz._fence
         function onSyncInProgressChanged() { if (mz.uploadState === "sending" && !mz._fence.syncInProgress) mz.uploadState = "done" }
@@ -89,11 +92,11 @@ Rectangle {
         var z = { name: nameField.currentText.trim() !== "" ? nameField.currentText.trim() : zName,
                   noEntry: zNoEntry, floor: zFloor, ceiling: zCeiling, warnDistance: zWarn, path: corners }
         if (editIndex >= 0) list[editIndex] = z; else list.push(z)
-        if (_mgr.saveMyZones(list)) { zones = _mgr.myZones(); editIndex = -2 }
+        if (_mgr.saveMyZones(list)) { zones = _mgr.myZoneList; editIndex = -2 }
     }
     function remove(i) {
         var list = zones.slice(); list.splice(i, 1)
-        if (_mgr.saveMyZones(list)) zones = _mgr.myZones()
+        if (_mgr.saveMyZones(list)) zones = _mgr.myZoneList
     }
     function addCorner(c) { var a = corners.slice(); a.push(c); corners = a }
     function moveCorner(i, c) { var a = corners.slice(); a[i] = c; corners = a }
@@ -305,8 +308,11 @@ Rectangle {
             SText {
                 visible: mz.uploadState !== ""
                 width: parent.width; wrapMode: Text.WordWrap; size: 24
-                color: mz.uploadState === "done" ? SimpleTheme.ok : SimpleTheme.textSecondary
-                text: mz.uploadState === "done" ? qsTr("Uploaded to the drone.") : qsTr("Uploading…")
+                color: mz.uploadState === "done" ? SimpleTheme.ok : mz.uploadState === "sending" ? SimpleTheme.textSecondary : SimpleTheme.textDanger
+                text: mz.uploadState === "done" ? qsTr("Uploaded to the drone.")
+                    : mz.uploadState === "sending" ? qsTr("Uploading…")
+                    : mz.uploadState === "busy" ? qsTr("The drone is still sending its mission or fence. Try again in a moment.")
+                    : qsTr("The drone did not confirm the fence. Check the connection and try again.")
             }
             // inline confirm (Figma rule: confirm changes to the drone)
             Rectangle {

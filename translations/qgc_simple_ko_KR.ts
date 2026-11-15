@@ -390,6 +390,10 @@
         <source>Turn back or stop.</source>
         <translation>되돌아가거나 멈추세요.</translation>
     </message>
+    <message>
+        <source>No-entry zone</source>
+        <translation>진입 금지 구역</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -2602,6 +2606,30 @@
         <source>Warn only</source>
         <translation>경고만</translation>
     </message>
+    <message>
+        <source>The zone server sent data that cannot be read.</source>
+        <translation>구역 서버가 읽을 수 없는 데이터를 보냈습니다.</translation>
+    </message>
+    <message>
+        <source>The zone server refused the API key.</source>
+        <translation>구역 서버가 API 키를 거부했습니다.</translation>
+    </message>
+    <message>
+        <source>Zones cannot be downloaded: %1</source>
+        <translation>구역을 받을 수 없습니다: %1</translation>
+    </message>
+    <message>
+        <source>The zone file cannot be opened: %1</source>
+        <translation>구역 파일을 열 수 없습니다: %1</translation>
+    </message>
+    <message>
+        <source>The zone file is not valid GeoJSON: %1</source>
+        <translation>구역 파일이 올바른 GeoJSON이 아닙니다: %1</translation>
+    </message>
+    <message>
+        <source>heights above sea level</source>
+        <translation>높이는 해발 기준</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMyZones</name>
@@ -2788,6 +2816,14 @@
     <message>
         <source>Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.</source>
         <translation>'진입 금지' 구역 %1개를 드론에 올릴까요? 드론의 배제 영역을 바꾸고, 원형·고도·포함 펜스는 그대로 둡니다.</translation>
+    </message>
+    <message>
+        <source>The drone is still sending its mission or fence. Try again in a moment.</source>
+        <translation>드론이 아직 미션이나 펜스를 보내는 중입니다. 잠시 뒤 다시 시도하세요.</translation>
+    </message>
+    <message>
+        <source>The drone did not confirm the fence. Check the connection and try again.</source>
+        <translation>드론이 펜스를 확인하지 않았습니다. 연결을 확인하고 다시 시도하세요.</translation>
     </message>
 </context>
 </TS>

@@ -1054,7 +1054,7 @@ Rectangle {
                 readonly property bool _online:  _fly.dataType.rawValue === 1
                 readonly property string _file:  String(_fly.filePath.rawValue)
                 readonly property string _name:  baseName(_file).replace(/\.(geo)?json$/i, "")
-                readonly property int  _count:   _mgr ? _mgr.polygons.count + _mgr.circles.count : 0
+                readonly property int  _count:   _mgr ? _mgr.polygons.count + _mgr.circles.count - _mgr.myZoneList.length : 0   // official zones only
                 readonly property bool _armed:   !!page.vs && !!page.vs.vehicle && page.vs.vehicle.armed
                 property string error: ""
                 property string errorFile: ""
@@ -1139,6 +1139,12 @@ Rectangle {
                         SButton { id: errBtn; anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                                   designHeight: 72; textSize: 26; icon: "folder"; text: qsTr("Choose file"); enabled_: !zones._armed; onClicked: zones.chooseFile() }
                     }
+                    // loading problem (file or online), e.g. no internet or the API key was refused
+                    SText {
+                        visible: !!zones._mgr && zones._mgr.zoneError !== ""
+                        width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textDanger
+                        text: zones._mgr ? zones._mgr.zoneError : ""
+                    }
                     // online
                     SSettingRow {
                         visible: zones._online
@@ -1156,7 +1162,7 @@ Rectangle {
                         }
                     }
                     SSettingRow {
-                        readonly property var _mine: { zones._count; zones._rev; return zones._mgr ? zones._mgr.myZones() : [] }
+                        readonly property var _mine: zones._mgr ? zones._mgr.myZoneList : []
                         readonly property int _noEntry: { var n = 0; for (var i = 0; i < _mine.length; i++) if (_mine[i].noEntry) n++; return n }
                         title: qsTr("My zones")
                         sub: _mine.length === 0 ? qsTr("Zones you draw: do not enter or warn only")

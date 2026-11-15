@@ -48,6 +48,7 @@ Item {
     // 3 information = blue, 4 my zone = white); Layers › Flight zones hides them
     readonly property bool _simple:     typeof mainWindow !== "undefined" && mainWindow.simpleUI
     readonly property bool _shown:      !_simple || mainWindow.simpleShowFlightZones
+    // same values as SimpleTheme.danger / warn / textPrimary / info (core QML cannot import the Simple theme)
     function _simpleColor(zoneClass) {
         return zoneClass === 1 ? "#c9353d" : zoneClass === 2 ? "#f5a524" : zoneClass === 4 ? "#f4f6f8" : "#2a68cc"
     }

@@ -23,9 +23,11 @@ SPanel {
     readonly property var  _zone: {
         if (!_zm || !visible) return { zoneClass: 0, zoneName: "", noEntry: false }
         var path = []
-        if (vs.present && vs.vehicle.homePosition.isValid) path.push(vs.vehicle.homePosition)
+        var home = vs.present && vs.vehicle.homePosition.isValid ? vs.vehicle.homePosition : null
+        if (home) path.push(home)
         var t = survey ? survey.visualTransectPoints : []
         for (var i = 0; i < t.length; i++) path.push(t[i])
+        if (home && path.length > 1) path.push(home)       // the way back home at the end (RTL)
         _zm.polygons.count; _zm.circles.count       // re-check when the zone data changes
         return _zm.zoneOnPath(path)
     }

@@ -148,8 +148,8 @@ Item {
             x: SimpleTheme.px(18); y: SimpleTheme.px(14)
             spacing: SimpleTheme.px(8)
             Repeater {
-                model: { mc._zoneCount; var m = [[qsTr("Prohibited"), "#c9353d"], [qsTr("Authorisation required"), "#f5a524"], [qsTr("Information"), "#2a68cc"]]
-                         if (mc._zones && mc._zones.myZones().length > 0) m.push([qsTr("My zones"), "#c9353d", true]); return m }
+                model: { var m = [[qsTr("Prohibited"), SimpleTheme.danger], [qsTr("Authorisation required"), SimpleTheme.warn], [qsTr("Information"), SimpleTheme.info]]
+                         if (mc._zones && mc._zones.myZoneList.length > 0) m.push([qsTr("My zones"), SimpleTheme.danger, true]); return m }
                 Row {
                     spacing: SimpleTheme.px(10)
                     Rectangle {

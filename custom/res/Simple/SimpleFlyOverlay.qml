@@ -274,6 +274,7 @@ Item {
             readonly property var  _z: typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
             readonly property int  _lvl: _z && vs.present && vs.state !== "ground" ? _z.zoneLevel : 0
             readonly property string _kind: !_z ? "" : _z.zoneStatusClass === 1 ? qsTr("Prohibited zone")
+                                            : _z.zoneStatusNoEntry ? qsTr("No-entry zone")
                                             : _z.zoneStatusClass === 2 ? qsTr("Authorisation zone")
                                             : _z.zoneStatusClass === 4 ? qsTr("My zone") : qsTr("Flight zone")
             readonly property string _dist: _z ? Math.round(QGroundControl.unitsConversion.metersToAppSettingsHorizontalDistanceUnits(_z.zoneDistance))
