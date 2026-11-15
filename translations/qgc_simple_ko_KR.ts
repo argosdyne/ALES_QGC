@@ -1390,6 +1390,98 @@
         <source>Remote ID is off. This app no longer sends Remote ID data.</source>
         <translation>Remote ID를 껐습니다. 이 앱은 더 이상 Remote ID 데이터를 보내지 않습니다.</translation>
     </message>
+    <message>
+        <source>Map style, maps saved for offline use and flight zone data.</source>
+        <translation>지도 스타일, 오프라인용으로 저장한 지도, 비행 구역 데이터.</translation>
+    </message>
+    <message>
+        <source>Map style</source>
+        <translation>지도 스타일</translation>
+    </message>
+    <message>
+        <source>Current: %1 %2</source>
+        <translation>현재: %1 %2</translation>
+    </message>
+    <message>
+        <source>Satellite</source>
+        <translation>위성</translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation>일반</translation>
+    </message>
+    <message>
+        <source>Hybrid</source>
+        <translation>위성+도로</translation>
+    </message>
+    <message>
+        <source>OFFLINE MAPS</source>
+        <translation>오프라인 지도</translation>
+    </message>
+    <message>
+        <source>Download new area</source>
+        <translation>새 지역 다운로드</translation>
+    </message>
+    <message>
+        <source>No maps saved for offline use yet. Download an area before flying where there is no internet.</source>
+        <translation>오프라인용으로 저장한 지도가 아직 없습니다. 인터넷이 없는 곳에서 비행하기 전에 지역을 다운로드하세요.</translation>
+    </message>
+    <message>
+        <source>Delete this map? This cannot be undone.</source>
+        <translation>이 지도를 삭제할까요? 되돌릴 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Deleting…</source>
+        <translation>삭제 중…</translation>
+    </message>
+    <message>
+        <source>%1 · saved %2</source>
+        <translation>%1 · %2 저장</translation>
+    </message>
+    <message>
+        <source>Downloading… %1 %</source>
+        <translation>다운로드 중… %1 %</translation>
+    </message>
+    <message>
+        <source>Stopped at %1 % · %2 tiles could not be downloaded</source>
+        <translation>%1 %에서 멈춤 · 타일 %2개를 받지 못했습니다</translation>
+    </message>
+    <message>
+        <source>Paused at %1 %</source>
+        <translation>%1 %에서 일시정지</translation>
+    </message>
+    <message>
+        <source>Resume</source>
+        <translation>이어 받기</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>Keep</source>
+        <translation>유지</translation>
+    </message>
+    <message>
+        <source>FLIGHT ZONE DATA (ED-269)</source>
+        <translation>비행 구역 데이터 (ED-269)</translation>
+    </message>
+    <message>
+        <source>Official flight zones</source>
+        <translation>공식 비행 구역</translation>
+    </message>
+    <message>
+        <source>Import zone files (ED-269), show them on the map and warn near them · next version</source>
+        <translation>구역 파일(ED-269)을 가져와 지도에 표시하고 가까워지면 경고 · 다음 버전</translation>
+    </message>
+    <message>
+        <source>My zones</source>
+        <translation>내 구역</translation>
+    </message>
+    <message>
+        <source>Zones you draw: do not enter or warn only · next version</source>
+        <translation>직접 그린 구역: 진입 금지 또는 경고만 · 다음 버전</translation>
+    </message>
 </context>
 <context>
     <name>SimpleTakeoffSheet</name>
@@ -1565,6 +1657,77 @@
     <message>
         <source>Start</source>
         <translation>시작</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMapDownload</name>
+    <message>
+        <source>Enter a name</source>
+        <translation>이름을 입력하세요</translation>
+    </message>
+    <message>
+        <source>A saved map already has this name</source>
+        <translation>같은 이름의 저장된 지도가 있습니다</translation>
+    </message>
+    <message>
+        <source>Map &amp; flight zones</source>
+        <translation>지도와 비행 구역</translation>
+    </message>
+    <message>
+        <source>Download new area</source>
+        <translation>새 지역 다운로드</translation>
+    </message>
+    <message>
+        <source>Move and zoom the map so the area fits the frame</source>
+        <translation>지역이 틀 안에 들어오도록 지도를 움직이고 확대하세요</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>area</source>
+        <translation>지역</translation>
+    </message>
+    <message>
+        <source>Detail</source>
+        <translation>상세도</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>표준</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>높음</translation>
+    </message>
+    <message>
+        <source>Buildings and small paths. Needs much more space.</source>
+        <translation>건물과 작은 길까지. 용량이 훨씬 많이 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Roads, fields and large buildings.</source>
+        <translation>도로, 들판, 큰 건물.</translation>
+    </message>
+    <message>
+        <source>SIZE</source>
+        <translation>용량</translation>
+    </message>
+    <message>
+        <source>MAP TILES</source>
+        <translation>지도 타일</translation>
+    </message>
+    <message>
+        <source>Area too large. Zoom in or choose Standard detail.</source>
+        <translation>지역이 너무 넓습니다. 확대하거나 표준 상세도를 고르세요.</translation>
+    </message>
+    <message>
+        <source>Free space on this device: %1</source>
+        <translation>이 기기의 남은 공간: %1</translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation>다운로드</translation>
     </message>
 </context>
 </TS>

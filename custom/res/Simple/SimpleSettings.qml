@@ -11,6 +11,7 @@ Rectangle {
     id: page
     property var    vs
     property string category: "general"
+    property bool   mapDownload: false     // S46 › Download new area (full screen)
     color: SimpleTheme.bgBase
 
     MouseArea { anchors.fill: parent }
@@ -94,6 +95,7 @@ Rectangle {
             sourceComponent: page.category === "general" ? generalComp
                            : page.category === "safety"  ? safetyComp
                            : page.category === "connection" ? connectionComp
+                           : page.category === "maps"    ? mapsComp
                            : page.category === "rid"     ? ridComp
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
@@ -916,6 +918,139 @@ Rectangle {
         }
     }
 
+    //------------------------------------------------------------------ Map & flight zones (S46)
+    // Map style: flightMapSettings provider/type (types from mapEngineManager.mapTypeList). Offline maps: QGC map cache
+    // (mapEngineManager.tileSets). Flight zone data (ED-269) and My zones (S32) are not in the app yet (decision 2026-11-15:
+    // separate task with a design review), so their rows say "next version".
+    Component {
+        id: mapsComp
+        Column {
+            id: maps
+            spacing: SimpleTheme.px(16)
+            readonly property var _fm:  QGroundControl.settingsManager.flightMapSettings
+            readonly property var _mgr: QGroundControl.mapEngineManager
+            readonly property var _types: _mgr.mapTypeList(_fm.mapProvider.value)
+            function typeFor(kind) {
+                var re = kind === 0 ? /satellite/i : kind === 1 ? /(road|street)/i : /hybrid/i
+                for (var i = 0; i < _types.length; i++) if (re.test(_types[i])) return _types[i]
+                return ""
+            }
+            readonly property int _cur: { var t = String(_fm.mapType.value); return t === typeFor(0) ? 0 : t === typeFor(1) ? 1 : t === typeFor(2) ? 2 : -1 }
+            // QGC adds a terrain set "<name> Elevation" to every download: hide it and delete it with its map
+            function userSet(o) { return !!o && !o.defaultSet && o.mapTypeStr !== QGroundControl.elevationProviderName }
+            function deleteSet(ts) {
+                var companion = ts.name + " Elevation", m = _mgr.tileSets, extra = []
+                for (var i = 0; i < m.count; i++) { var o = m.get(i); if (o && o.name === companion && o.mapTypeStr === QGroundControl.elevationProviderName) extra.push(o) }
+                _mgr.deleteTileSet(ts)
+                for (var j = 0; j < extra.length; j++) _mgr.deleteTileSet(extra[j])
+            }
+            Component.onCompleted: _mgr.loadTileSets()
+
+            SText { text: qsTr("Map & flight zones"); size: 40; bold: true }
+            SText { text: qsTr("Map style, maps saved for offline use and flight zone data."); size: 24; color: SimpleTheme.textSecondary }
+
+            SSettingRow {
+                title: qsTr("Map style")
+                sub: maps._cur < 0 ? qsTr("Current: %1 %2").arg(maps._fm.mapProvider.value).arg(maps._fm.mapType.value) : ""
+                SSegmented {
+                    designWidth: 420
+                    model: [qsTr("Satellite"), qsTr("Street"), qsTr("Hybrid")]
+                    currentIndex: maps._cur
+                    onActivated: {
+                        var t = maps.typeFor(index)
+                        if (t !== "") maps._fm.mapType.value = t
+                        currentIndex = Qt.binding(function() { return maps._cur })
+                    }
+                }
+            }
+
+            // ---- offline maps
+            Item {
+                width: parent.width; height: SimpleTheme.px(80)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("OFFLINE MAPS"); size: 24; medium: true; color: SimpleTheme.textTertiary }
+                SButton {
+                    anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                    designHeight: 72; textSize: 26; icon: "plus"; text: qsTr("Download new area")
+                    onClicked: page.mapDownload = true
+                }
+            }
+            SText {
+                visible: maps._userSets === 0
+                width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                text: qsTr("No maps saved for offline use yet. Download an area before flying where there is no internet.")
+            }
+            readonly property int _userSets: {
+                var n = 0, m = _mgr.tileSets
+                for (var i = 0; i < m.count; i++) { if (maps.userSet(m.get(i))) n++ }
+                return n
+            }
+            Repeater {
+                model: maps._mgr.tileSets
+                Rectangle {
+                    id: setRow
+                    readonly property var  ts: object
+                    readonly property int  pct: ts && ts.totalTileCount > 0 ? Math.min(100, Math.round(100 * ts.savedTileCount / ts.totalTileCount)) : 0
+                    property bool confirmDel: false
+                    visible: maps.userSet(ts)
+                    width: parent.width
+                    height: visible ? Math.max(SimpleTheme.px(100), setCol.height + SimpleTheme.px(32)) : 0
+                    radius: SimpleTheme.px(20)
+                    color: confirmDel ? SimpleTheme.withAlpha(SimpleTheme.danger, 0.16) : SimpleTheme.surfaceRaised
+                    SIcon {
+                        id: setIcon
+                        anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(24); anchors.verticalCenter: parent.verticalCenter
+                        name: setRow.ts && setRow.ts.downloading ? "download" : "map"; size: 40
+                        color: setRow.ts && setRow.ts.downloading ? SimpleTheme.textLink : SimpleTheme.textPrimary
+                    }
+                    Column {
+                        id: setCol
+                        anchors.left: setIcon.right; anchors.leftMargin: SimpleTheme.px(20)
+                        anchors.right: setBtns.left; anchors.rightMargin: SimpleTheme.px(16)
+                        anchors.verticalCenter: parent.verticalCenter
+                        SText { width: parent.width; text: setRow.ts ? setRow.ts.name : ""; size: 30; medium: true }
+                        SText {
+                            width: parent.width; wrapMode: Text.WordWrap; size: 24
+                            color: setRow.confirmDel ? SimpleTheme.textDanger : setRow.ts && setRow.ts.downloading ? SimpleTheme.textLink : SimpleTheme.textSecondary
+                            text: !setRow.ts ? ""
+                                : setRow.confirmDel ? qsTr("Delete this map? This cannot be undone.")
+                                : setRow.ts.deleting ? qsTr("Deleting…")
+                                : setRow.ts.complete ? (Qt.formatDate(setRow.ts.creationDate, "yyyy-MM-dd") !== ""   // new sets get their date on the next load
+                                                        ? qsTr("%1 · saved %2").arg(setRow.ts.savedTileSizeStr).arg(Qt.formatDate(setRow.ts.creationDate, "yyyy-MM-dd"))
+                                                        : setRow.ts.savedTileSizeStr)
+                                : setRow.ts.downloading ? qsTr("Downloading… %1 %").arg(setRow.pct)
+                                : setRow.ts.errorCount > 0 ? qsTr("Stopped at %1 % · %2 tiles could not be downloaded").arg(setRow.pct).arg(setRow.ts.errorCountStr)
+                                : qsTr("Paused at %1 %").arg(setRow.pct)
+                        }
+                    }
+                    Row {
+                        id: setBtns
+                        anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
+                        spacing: SimpleTheme.px(12)
+                        visible: !!setRow.ts && !setRow.ts.deleting
+                        SButton { visible: !setRow.confirmDel && !!setRow.ts && setRow.ts.downloading; designHeight: 72; textSize: 26; text: qsTr("Cancel"); onClicked: setRow.ts.cancelDownloadTask() }
+                        SButton { visible: !setRow.confirmDel && !!setRow.ts && !setRow.ts.downloading && !setRow.ts.complete; designHeight: 72; textSize: 26; text: qsTr("Resume"); onClicked: setRow.ts.resumeDownloadTask() }
+                        SButton { visible: !setRow.confirmDel && !!setRow.ts && !setRow.ts.downloading; designHeight: 72; textSize: 26; kind: "danger"; icon: "trash"; text: qsTr("Delete"); onClicked: setRow.confirmDel = true }
+                        SButton { visible: setRow.confirmDel; designHeight: 72; textSize: 26; text: qsTr("Keep"); onClicked: setRow.confirmDel = false }
+                        SButton { visible: setRow.confirmDel; designHeight: 72; textSize: 26; kind: "danger"; icon: "trash"; text: qsTr("Delete"); onClicked: { setRow.confirmDel = false; maps.deleteSet(setRow.ts) } }
+                    }
+                }
+            }
+
+            // ---- flight zones (next version)
+            SText { text: qsTr("FLIGHT ZONE DATA (ED-269)"); size: 24; medium: true; color: SimpleTheme.textTertiary; topPadding: SimpleTheme.px(8) }
+            SSettingRow {
+                title: qsTr("Official flight zones")
+                sub: qsTr("Import zone files (ED-269), show them on the map and warn near them · next version")
+                SIcon { name: "globe"; size: 40; opacity: 0.5 }
+            }
+            SSettingRow {
+                title: qsTr("My zones")
+                sub: qsTr("Zones you draw: do not enter or warn only · next version")
+                SIcon { name: "pin"; size: 40; opacity: 0.5 }
+            }
+        }
+    }
+
     //------------------------------------------------------------------ Not yet in v1
     Component {
         id: laterComp
@@ -925,5 +1060,13 @@ Rectangle {
             SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S46, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
             SButton { kind: "primary"; icon: "lock"; text: qsTr("Open Advanced settings"); onClicked: simpleRoot.requestAdvanced("settings") }
         }
+    }
+
+    // S46 › Download new area (full screen over the settings page)
+    Loader {
+        anchors.fill: parent
+        z: 100
+        active: page.mapDownload
+        sourceComponent: Component { SimpleMapDownload { onCloseRequested: page.mapDownload = false } }
     }
 }
