@@ -59,10 +59,20 @@ WindowsBuild {
     ReleaseBuild {
         # Copy Visual Studio DLLs
         # Note that this is only done for release because the debugging versions of these DLLs cannot be redistributed.
-        QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$SOURCE_DIR\\libs\\Microsoft\\windows\\msvcp140.dll\"  \"$$DESTDIR\"
-        QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$SOURCE_DIR\\libs\\Microsoft\\windows\\msvcp140_1.dll\"  \"$$DESTDIR\"
-        QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$SOURCE_DIR\\libs\\Microsoft\\windows\\vcruntime140.dll\"  \"$$DESTDIR\"
-        QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$SOURCE_DIR\\libs\\Microsoft\\windows\\vcruntime140_1.dll\"  \"$$DESTDIR\"
+        # The runtime must not be older than the compiler: code built with MSVC 14.40+ (VS 17.10+) crashes in
+        # std::mutex with an older msvcp140.dll (access violation in MSVCP140.dll). So the DLLs come from the
+        # redist folder of the Visual Studio that builds (VCToolsRedistDir, set by vcvars); libs\Microsoft\windows
+        # is only the fallback when that variable is not set.
+        VC_CRT_DIR = $$(VCToolsRedistDir)
+        isEmpty(VC_CRT_DIR) {
+            VC_CRT_DIR = $$SOURCE_DIR\\libs\\Microsoft\\windows
+            message("VCToolsRedistDir not set: VC runtime copied from libs/Microsoft/windows (may be older than the compiler)")
+        } else {
+            VC_CRT_DIR = $${VC_CRT_DIR}x64\\Microsoft.VC143.CRT
+        }
+        for(VC_DLL, $$list(msvcp140.dll msvcp140_1.dll vcruntime140.dll vcruntime140_1.dll)) {
+            QMAKE_POST_LINK += $$escape_expand(\\n) $$QMAKE_COPY \"$$VC_CRT_DIR\\$$VC_DLL\"  \"$$DESTDIR\"
+        }
     }
 
     DEPLOY_TARGET = $$shell_quote($$shell_path($$DESTDIR\\$${TARGET}.exe))
