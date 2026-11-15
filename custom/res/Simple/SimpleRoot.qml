@@ -5,6 +5,7 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
+import QGroundControl.Payload 1.0
 import "."
 
 Item {
@@ -51,6 +52,10 @@ Item {
     }
 
     Component.onCompleted: {
+        // Settings › Payloads › gimbal speed is an app setting; the payload controllers keep it only in memory
+        var gs = Number(_custom.simpleGimbalSpeed.rawValue)
+        if (PayloadManager.gremsy)     PayloadManager.gremsy.speedDegPerSec = [35, 70, 105][gs]
+        if (PayloadManager.nextvision) PayloadManager.nextvision.speedOffset = [200, 400, 500][gs]
         if (_custom.simpleStartScreen.rawValue === 1) showPlan()
         else showFly()
         // Developer aid (debug builds only): start an ArduCopter mock vehicle with --simple-mock

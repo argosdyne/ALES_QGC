@@ -48,6 +48,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleMessages.qml` | S29 | Message history |
 | `SimpleCameraRail.qml` | ui/CameraRail | Photo/video, shutter, gimbal angle |
 | `SimpleMenuDrawer.qml` | S06 | Menu |
+| `SimplePayloadSettings.qml` | S52–S55 | Settings › Payloads: list and pages for YellowScan (`corePlugin.ysManager`), tether SAFE-T (`corePlugin.elistairStationManager`), camera & gimbal (`PayloadManager`, `videoSettings.rtspUrl`, FC mount parameters) |
 | `SimplePinDialog.qml` | S12 | Admin PIN, 5 wrong tries = 5 min lock (kept over restarts; invalid stored PIN → default) |
 | `SimpleSettings.qml` | S09, S22, S45, S46, S47, S48 | Settings with 7 categories. Map & flight zones (S46): map style from `mapEngineManager.mapTypeList`, offline map list (`tileSets`) with cancel / resume / delete. Remote ID (S47): QGC `RemoteIDManager` + `remoteIDSettings`; Save turns Remote ID on; EU operator number checked with the secret part, only 16 characters saved. Connection (S22): Enpulse radio through `CustomQmlInterface.arManager` (band change sets air then ground unit and restarts both, on the ground only; Restart radio = ground unit), RTK through the alesQGC NTRIP client (`CustomQmlInterface.codevRTCMManager`, setting `rtcmSource`) |
 | `SimpleMapDownload.qml` | S46 | Download new area: map with a frame, name, detail (zoom 17/19), size estimate, tile limit; `mapEngineManager.updateForCurrentView` + `startDownload` |
@@ -103,7 +104,7 @@ flight mode, chip details, messages, camera rail, menu, admin PIN → Advanced, 
 Planned for v2 (designed in Figma, not implemented):
 
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
-- Settings: Payloads (S52–S56); flight zone data ED-269 and My zones (S46 rows, S32)
+- Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
 - Payloads panel and devices (S10, S11, S13, S16, S17), camera settings sheet (S43)
 - Map tap menu / Go here, change altitude, obstacle stop (S35, S36, S38)
 - Video main view and waiting state (S18, S49), tether power lost, LiDAR start rejected (S50, S51)

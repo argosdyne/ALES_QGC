@@ -1730,4 +1730,487 @@
         <translation>다운로드</translation>
     </message>
 </context>
+<context>
+    <name>SimplePayloadSettings</name>
+    <message>
+        <source>% of the station's maximum power</source>
+        <translation>스테이션 최대 전력 대비 %</translation>
+    </message>
+    <message>
+        <source>IP address of the camera on the drone's network</source>
+        <translation>드론 네트워크에서 카메라의 IP 주소</translation>
+    </message>
+    <message>
+        <source>The tablet must be on the station's network (e.g. 192.168.0.10)</source>
+        <translation>태블릿이 스테이션 네트워크에 있어야 합니다(예: 192.168.0.10)</translation>
+    </message>
+    <message>
+        <source>%1 flights in total</source>
+        <translation>총 %1회 비행</translation>
+    </message>
+    <message>
+        <source>%1 m</source>
+        <translation>%1 m</translation>
+    </message>
+    <message>
+        <source>%1 of %2 h</source>
+        <translation>%2시간 중 %1시간</translation>
+    </message>
+    <message>
+        <source>%1 s</source>
+        <translation>%1초</translation>
+    </message>
+    <message>
+        <source>ALARMS (SAVED IN STATION)</source>
+        <translation>경보 (스테이션에 저장)</translation>
+    </message>
+    <message>
+        <source>Allowed 0–100 %</source>
+        <translation>0–100 % 사이로 입력</translation>
+    </message>
+    <message>
+        <source>Allowed 0–200 m</source>
+        <translation>0–200 m 사이로 입력</translation>
+    </message>
+    <message>
+        <source>Anti-entrapment</source>
+        <translation>걸림 방지</translation>
+    </message>
+    <message>
+        <source>Asks the LiDAR for its status once</source>
+        <translation>LiDAR에 상태를 한 번 요청합니다</translation>
+    </message>
+    <message>
+        <source>Auto land</source>
+        <translation>자동 착륙</translation>
+    </message>
+    <message>
+        <source>CAMERA</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>Cable end alert</source>
+        <translation>케이블 끝 경고</translation>
+    </message>
+    <message>
+        <source>Cable length</source>
+        <translation>케이블 길이</translation>
+    </message>
+    <message>
+        <source>Camera &amp; gimbal</source>
+        <translation>카메라와 짐벌</translation>
+    </message>
+    <message>
+        <source>Camera type on this drone</source>
+        <translation>이 드론의 카메라 종류</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Cannot connect — check the address and the network</source>
+        <translation>연결할 수 없습니다 — 주소와 네트워크를 확인하세요</translation>
+    </message>
+    <message>
+        <source>Cannot connect</source>
+        <translation>연결 안 됨</translation>
+    </message>
+    <message>
+        <source>Change on the ground (motors off)</source>
+        <translation>지상에서(모터 정지) 바꾸세요</translation>
+    </message>
+    <message>
+        <source>Changed only by an administrator in Advanced › Station Setup</source>
+        <translation>관리자만 고급 › 스테이션 설정에서 바꿀 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Computer temperature</source>
+        <translation>내부 컴퓨터 온도</translation>
+    </message>
+    <message>
+        <source>Connect the drone to change this</source>
+        <translation>바꾸려면 드론을 연결하세요</translation>
+    </message>
+    <message>
+        <source>Connect the drone to set the tilt limits.</source>
+        <translation>기울기 한계를 정하려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Connect the station to change its settings</source>
+        <translation>설정을 바꾸려면 스테이션을 연결하세요</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Connected · power off</source>
+        <translation>연결됨 · 전원 꺼짐</translation>
+    </message>
+    <message>
+        <source>Connected · power on</source>
+        <translation>연결됨 · 전원 켜짐</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Connecting…</source>
+        <translation>연결 중…</translation>
+    </message>
+    <message>
+        <source>DEVICE</source>
+        <translation>장치</translation>
+    </message>
+    <message>
+        <source>Devices the drone carries. Tap one to set it up.</source>
+        <translation>드론에 실린 장비입니다. 눌러서 설정하세요.</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>연결 끊기</translation>
+    </message>
+    <message>
+        <source>Drone not connected</source>
+        <translation>드론 연결 안 됨</translation>
+    </message>
+    <message>
+        <source>EMBEDDED CAMERA (SAVED IN LIDAR)</source>
+        <translation>내장 카메라 (LiDAR에 저장)</translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation>빠름</translation>
+    </message>
+    <message>
+        <source>Filled in automatically when the camera connects.</source>
+        <translation>카메라가 연결되면 자동으로 채워집니다.</translation>
+    </message>
+    <message>
+        <source>For tethered flights</source>
+        <translation>유선 비행용</translation>
+    </message>
+    <message>
+        <source>From the LiDAR panel on the flight screen · automatic start on survey lines: next version</source>
+        <translation>비행 화면의 LiDAR 패널에서 · 측량 라인 자동 시작: 다음 버전</translation>
+    </message>
+    <message>
+        <source>From where recording starts</source>
+        <translation>기록을 시작하는 높이</translation>
+    </message>
+    <message>
+        <source>GIMBAL</source>
+        <translation>짐벌</translation>
+    </message>
+    <message>
+        <source>Gimbal speed</source>
+        <translation>짐벌 속도</translation>
+    </message>
+    <message>
+        <source>Gremsy Lynx</source>
+        <translation>Gremsy Lynx</translation>
+    </message>
+    <message>
+        <source>Highest tilt</source>
+        <translation>최고 기울기</translation>
+    </message>
+    <message>
+        <source>How fast the gimbal turns with the on-screen controls</source>
+        <translation>화면 조작으로 짐벌이 도는 속도</translation>
+    </message>
+    <message>
+        <source>If ground power is lost</source>
+        <translation>지상 전원이 끊기면</translation>
+    </message>
+    <message>
+        <source>Keep on — stops the winch if the cable snags</source>
+        <translation>켜 두세요 — 케이블이 걸리면 윈치를 멈춥니다</translation>
+    </message>
+    <message>
+        <source>Level = 0°</source>
+        <translation>수평 = 0°</translation>
+    </message>
+    <message>
+        <source>Link lost</source>
+        <translation>링크 끊김</translation>
+    </message>
+    <message>
+        <source>Locked while flying (station power above 200 W)</source>
+        <translation>비행 중 잠금(스테이션 전력 200 W 초과)</translation>
+    </message>
+    <message>
+        <source>Locked while the motors are on</source>
+        <translation>모터가 켜져 있는 동안 잠금</translation>
+    </message>
+    <message>
+        <source>Locked: the station reports no power</source>
+        <translation>잠금: 스테이션이 전원 없음을 알림</translation>
+    </message>
+    <message>
+        <source>Look down when mapping and gimbal calibration: next version. Servo channels, PWM limits and stabilisation are in Advanced › Vehicle setup › Camera.</source>
+        <translation>매핑 시 수직 촬영과 짐벌 보정: 다음 버전. 서보 채널, PWM 범위, 안정화는 고급 › 기체 설정 › 카메라에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Lowest tilt</source>
+        <translation>최저 기울기</translation>
+    </message>
+    <message>
+        <source>MAINTENANCE</source>
+        <translation>정비</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>수동</translation>
+    </message>
+    <message>
+        <source>Megaphone, searchlight, winch, cleaning</source>
+        <translation>확성기, 서치라이트, 윈치, 세척 장치</translation>
+    </message>
+    <message>
+        <source>Metres before the cable runs out</source>
+        <translation>케이블이 끝나기 전 남은 거리(m)</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>모델</translation>
+    </message>
+    <message>
+        <source>Network address</source>
+        <translation>네트워크 주소</translation>
+    </message>
+    <message>
+        <source>NextVision</source>
+        <translation>NextVision</translation>
+    </message>
+    <message>
+        <source>No reply</source>
+        <translation>응답 없음</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>보통</translation>
+    </message>
+    <message>
+        <source>Not available</source>
+        <translation>사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결 안 됨</translation>
+    </message>
+    <message>
+        <source>Not read</source>
+        <translation>읽지 않음</translation>
+    </message>
+    <message>
+        <source>Not ready</source>
+        <translation>준비 안 됨</translation>
+    </message>
+    <message>
+        <source>Not used</source>
+        <translation>사용 안 함</translation>
+    </message>
+    <message>
+        <source>OK · S/N %1</source>
+        <translation>정상 · S/N %1</translation>
+    </message>
+    <message>
+        <source>OK · connected</source>
+        <translation>정상 · 연결됨</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>정상</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켜짐</translation>
+    </message>
+    <message>
+        <source>Payloads</source>
+        <translation>페이로드</translation>
+    </message>
+    <message>
+        <source>Pick it here — the LiDAR cannot report it</source>
+        <translation>여기서 고르세요 — LiDAR가 알려 주지 않습니다</translation>
+    </message>
+    <message>
+        <source>Power alert</source>
+        <translation>전력 경고</translation>
+    </message>
+    <message>
+        <source>Power off LiDAR</source>
+        <translation>LiDAR 전원 끄기</translation>
+    </message>
+    <message>
+        <source>Power off sent. Turn it on again with the button on the drone.</source>
+        <translation>전원 끄기를 보냈습니다. 다시 켜려면 드론의 버튼을 누르세요.</translation>
+    </message>
+    <message>
+        <source>Power off</source>
+        <translation>전원 끄기</translation>
+    </message>
+    <message>
+        <source>Power off…</source>
+        <translation>전원 끄기…</translation>
+    </message>
+    <message>
+        <source>Powered off</source>
+        <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+        <source>Problem</source>
+        <translation>문제 있음</translation>
+    </message>
+    <message>
+        <source>Read from the LiDAR. Changing these needs Set Parameter support in the companion board (not yet available).</source>
+        <translation>LiDAR에서 읽은 값입니다. 바꾸려면 컴패니언 보드의 Set Parameter 지원이 필요합니다(아직 없음).</translation>
+    </message>
+    <message>
+        <source>Read from the station</source>
+        <translation>스테이션에서 읽음</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>준비됨</translation>
+    </message>
+    <message>
+        <source>Recommend landing</source>
+        <translation>착륙 권고</translation>
+    </message>
+    <message>
+        <source>Recording</source>
+        <translation>기록 중</translation>
+    </message>
+    <message>
+        <source>Restart needs the button on the drone</source>
+        <translation>다시 켜려면 드론의 버튼이 필요합니다</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Scanner sensitivity and pattern (Mapper+ only), MAVLink and timing are in Advanced › LiDAR Setup.</source>
+        <translation>스캐너 감도와 패턴(Mapper+ 전용), MAVLink, 시간 설정은 고급 › LiDAR 설정에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Shows the LiDAR panel and checks in flight</source>
+        <translation>비행 중 LiDAR 패널과 점검을 표시합니다</translation>
+    </message>
+    <message>
+        <source>Since last service</source>
+        <translation>마지막 정비 후</translation>
+    </message>
+    <message>
+        <source>Slow</source>
+        <translation>느림</translation>
+    </message>
+    <message>
+        <source>Start at height</source>
+        <translation>시작 높이</translation>
+    </message>
+    <message>
+        <source>Start recording</source>
+        <translation>기록 시작</translation>
+    </message>
+    <message>
+        <source>Station IP</source>
+        <translation>스테이션 IP</translation>
+    </message>
+    <message>
+        <source>Straight down = −90°</source>
+        <translation>수직 아래 = −90°</translation>
+    </message>
+    <message>
+        <source>Take a photo every</source>
+        <translation>촬영 간격</translation>
+    </message>
+    <message>
+        <source>Take photos</source>
+        <translation>사진 촬영</translation>
+    </message>
+    <message>
+        <source>Talking to the station…</source>
+        <translation>스테이션과 통신 중…</translation>
+    </message>
+    <message>
+        <source>Test connection</source>
+        <translation>연결 시험</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>시험</translation>
+    </message>
+    <message>
+        <source>Testing…</source>
+        <translation>시험 중…</translation>
+    </message>
+    <message>
+        <source>Tether station (SAFE-T)</source>
+        <translation>유선 스테이션 (SAFE-T)</translation>
+    </message>
+    <message>
+        <source>Tether support is not available</source>
+        <translation>유선 지원을 사용할 수 없습니다</translation>
+    </message>
+    <message>
+        <source>The LiDAR reports only OK or a warning</source>
+        <translation>LiDAR는 정상 또는 경고만 알립니다</translation>
+    </message>
+    <message>
+        <source>Their settings come with the flight-screen payload panels · next version</source>
+        <translation>설정은 비행 화면 페이로드 패널과 함께 · 다음 버전</translation>
+    </message>
+    <message>
+        <source>These settings need station frame version Extended V1 · see Advanced › Station Setup</source>
+        <translation>이 설정은 스테이션 프레임 버전 Extended V1이 필요합니다 · 고급 › 스테이션 설정 참고</translation>
+    </message>
+    <message>
+        <source>This drone has no gimbal tilt limit parameters.</source>
+        <translation>이 드론에는 짐벌 기울기 한계 파라미터가 없습니다.</translation>
+    </message>
+    <message>
+        <source>USB stick</source>
+        <translation>USB 메모리</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>알 수 없음</translation>
+    </message>
+    <message>
+        <source>Use YellowScan LiDAR</source>
+        <translation>YellowScan LiDAR 사용</translation>
+    </message>
+    <message>
+        <source>Use tether station</source>
+        <translation>유선 스테이션 사용</translation>
+    </message>
+    <message>
+        <source>Video stream (RTSP)</source>
+        <translation>영상 주소 (RTSP)</translation>
+    </message>
+    <message>
+        <source>Warn only</source>
+        <translation>경고만</translation>
+    </message>
+    <message>
+        <source>Winch protection, control timing, frame version and Wi-Fi are in Advanced › Station Setup.</source>
+        <translation>윈치 보호, 제어 주기, 프레임 버전, Wi-Fi는 고급 › 스테이션 설정에 있습니다.</translation>
+    </message>
+    <message>
+        <source>YellowScan LiDAR</source>
+        <translation>YellowScan LiDAR</translation>
+    </message>
+</context>
 </TS>

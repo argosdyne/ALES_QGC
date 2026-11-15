@@ -23,6 +23,7 @@ SimpleMapDownload 1.0 SimpleMapDownload.qml
 SimpleMenuDrawer 1.0 SimpleMenuDrawer.qml
 SimpleMessages 1.0 SimpleMessages.qml
 SimpleModeSheet 1.0 SimpleModeSheet.qml
+SimplePayloadSettings 1.0 SimplePayloadSettings.qml
 SimplePinDialog 1.0 SimplePinDialog.qml
 SimplePlanCheck 1.0 SimplePlanCheck.qml
 SimplePlanWizard 1.0 SimplePlanWizard.qml

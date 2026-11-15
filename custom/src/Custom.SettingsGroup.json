@@ -134,6 +134,14 @@
     "default":          0
 },
 {
+    "name":             "simpleGimbalSpeed",
+    "shortDesc":        "Simple UI: gimbal speed (applied to the Gremsy / NextVision payload controller)",
+    "type":             "uint32",
+    "enumStrings":      "Slow,Normal,Fast",
+    "enumValues":       "0,1,2",
+    "default":          1
+},
+{
     "name":             "simpleProductProfile",
     "shortDesc":        "Simple UI: product profile",
     "type":             "uint32",

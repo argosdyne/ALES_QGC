@@ -26,6 +26,7 @@ DECLARE_SETTINGSFACT(CustomSettings, simpleAdminLockUntil)
 DECLARE_SETTINGSFACT(CustomSettings, simpleWelcomeShown)
 DECLARE_SETTINGSFACT(CustomSettings, simpleLargeText)
 DECLARE_SETTINGSFACT(CustomSettings, simpleStartScreen)
+DECLARE_SETTINGSFACT(CustomSettings, simpleGimbalSpeed)
 DECLARE_SETTINGSFACT(CustomSettings, simpleProductProfile)
 
 DECLARE_SETTINGSFACT_NO_FUNC(CustomSettings, teamMode)

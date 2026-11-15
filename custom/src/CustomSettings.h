@@ -32,5 +32,6 @@ public:
     DEFINE_SETTINGFACT(simpleWelcomeShown)
     DEFINE_SETTINGFACT(simpleLargeText)
     DEFINE_SETTINGFACT(simpleStartScreen)
+    DEFINE_SETTINGFACT(simpleGimbalSpeed)
     DEFINE_SETTINGFACT(simpleProductProfile)
 };

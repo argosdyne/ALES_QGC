@@ -96,6 +96,7 @@ Rectangle {
                            : page.category === "safety"  ? safetyComp
                            : page.category === "connection" ? connectionComp
                            : page.category === "maps"    ? mapsComp
+                           : page.category === "payloads" ? payloadsComp
                            : page.category === "rid"     ? ridComp
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
@@ -916,6 +917,12 @@ Rectangle {
                 }
             }
         }
+    }
+
+    //------------------------------------------------------------------ Payloads (S52–S55): see SimplePayloadSettings.qml
+    Component {
+        id: payloadsComp
+        SimplePayloadSettings { vs: page.vs }
     }
 
     //------------------------------------------------------------------ Map & flight zones (S46)
