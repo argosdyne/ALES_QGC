@@ -8,6 +8,7 @@ import "."
 Rectangle {
     id: rail
     property var vehicle: null
+    property bool blocked: false        // S49 waiting for video: photo and record are greyed
     readonly property var  _mgr:    vehicle ? vehicle.cameraManager : null
     readonly property var  _cam:    _mgr && _mgr.cameras.count > 0 ? _mgr.cameras.get(_mgr.currentCamera) : null
     readonly property bool _video:  _cam ? _cam.cameraMode === 1 : false
@@ -26,7 +27,7 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         y: SimpleTheme.px(20)
         spacing: SimpleTheme.px(18)
-        opacity: rail._cam ? 1 : 0.4
+        opacity: rail._cam && !rail.blocked ? 1 : 0.4
 
         // Photo / Video
         Rectangle {
@@ -43,7 +44,7 @@ Rectangle {
                         SIcon { anchors.centerIn: parent; name: modelData; size: 40; color: (index === 1) === rail._video ? SimpleTheme.bgBase : SimpleTheme.textPrimary }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: !!rail._cam && (index === 1) !== rail._video
+                            enabled: !!rail._cam && !rail.blocked && (index === 1) !== rail._video
                             onClicked: rail._cam.toggleMode()
                         }
                     }
@@ -64,7 +65,7 @@ Rectangle {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: !!rail._cam
+                enabled: !!rail._cam && !rail.blocked
                 onClicked: {
                     if (!rail._video) rail._cam.takePhoto()
                     else if (rail._rec) rail._cam.stopVideo()

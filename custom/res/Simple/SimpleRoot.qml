@@ -48,7 +48,11 @@ Item {
     // Layer rule 1: critical alerts bring the user back to the fly screen
     Connections {
         target: vs
-        function onCriticalChanged() { if (vs.critical && simpleRoot.page !== "fly") simpleRoot.showFly() }
+        function onCriticalChanged() {
+            if (!vs.critical) return
+            QGroundControl.videoManager.fullScreen = false     // never hide an alert behind full-screen video
+            if (simpleRoot.page !== "fly") simpleRoot.showFly()
+        }
     }
 
     Component.onCompleted: {
@@ -68,7 +72,7 @@ Item {
     SimpleFlyOverlay {
         id: flyOverlay
         anchors.fill: parent
-        visible: simpleRoot.page === "fly"
+        visible: simpleRoot.page === "fly" && !QGroundControl.videoManager.fullScreen   // S18: double-tap video = full screen
         vs: vs
     }
     SimplePlanWizard {

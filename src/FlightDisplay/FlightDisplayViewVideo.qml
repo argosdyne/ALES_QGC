@@ -90,7 +90,15 @@ Item {
             z:              2
             visible:        !_showVideoFrame
 
+            // AQGC Simple UI: plain dark background, the Simple overlay shows "Waiting for video" (S49)
             Rectangle {
+                anchors.fill:   parent
+                visible:        mainWindow.simpleUI
+                color:          "#0f1216"
+            }
+
+            Rectangle {
+                visible:            !mainWindow.simpleUI
                 anchors.centerIn:   parent
                 width:              noVideoLabel.contentWidth + ScreenTools.defaultFontPixelHeight
                 height:             noVideoLabel.contentHeight + ScreenTools.defaultFontPixelHeight
@@ -101,6 +109,7 @@ Item {
 
             QGCLabel {
                 id:                 noVideoLabel
+                visible:            !mainWindow.simpleUI
                 text:               QGroundControl.settingsManager.videoSettings.streamEnabled.rawValue ? qsTr("WAITING FOR VIDEO") : qsTr("VIDEO DISABLED")
                 font.family:        ScreenTools.demiboldFontFamily
                 color:              "white"

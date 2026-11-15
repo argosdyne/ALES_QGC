@@ -45,6 +45,9 @@ Item {
     }
 
     property bool   _mainWindowIsMap:       mapControl.pipState.state === mapControl.pipState.fullState
+
+    // AQGC Simple UI: S49 "Show map instead" swaps the PiP back to the map
+    function simpleShowMap() { if (!_mainWindowIsMap) _pipOverlay._swapPip() }
     property bool   _isFullWindowItemDark:  _mainWindowIsMap ? mapControl.isSatelliteMap : true
     property var    _activeVehicle:         globals.activeVehicle ? globals.activeVehicle : QGroundControl.multiVehicleManager.activeVehicle
     property var    _missionController:     _planController.missionController

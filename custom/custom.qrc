@@ -150,7 +150,9 @@
     <qresource prefix="/simple">
         <file alias="SActionButton.qml">res/Simple/SActionButton.qml</file>
         <file alias="SBanner.qml">res/Simple/SBanner.qml</file>
+        <file alias="SAttitude.qml">res/Simple/SAttitude.qml</file>
         <file alias="SButton.qml">res/Simple/SButton.qml</file>
+        <file alias="SCompass.qml">res/Simple/SCompass.qml</file>
         <file alias="SChip.qml">res/Simple/SChip.qml</file>
         <file alias="SIcon.qml">res/Simple/SIcon.qml</file>
         <file alias="SPanel.qml">res/Simple/SPanel.qml</file>

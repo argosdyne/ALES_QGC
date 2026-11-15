@@ -282,6 +282,82 @@
         <source>Slide to start</source>
         <translation>밀어서 시작</translation>
     </message>
+    <message>
+        <source>REC %1</source>
+        <translation>녹화 %1</translation>
+    </message>
+    <message>
+        <source>%1 left</source>
+        <translation>%1 남음</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>줌</translation>
+    </message>
+    <message>
+        <source>Pitch %1° · Yaw %2°</source>
+        <translation>피치 %1° · 요 %2°</translation>
+    </message>
+    <message>
+        <source>No video — flight is not affected</source>
+        <translation>영상 없음 — 비행에는 영향 없음</translation>
+    </message>
+    <message>
+        <source>Waiting for video…</source>
+        <translation>영상 연결 대기 중…</translation>
+    </message>
+    <message>
+        <source>The drone keeps flying normally. Check the camera and the video link, or use the map.</source>
+        <translation>드론은 정상적으로 계속 비행합니다. 카메라와 영상 링크를 확인하거나 지도를 사용하세요.</translation>
+    </message>
+    <message>
+        <source>The camera is starting. This usually takes about 10 seconds.</source>
+        <translation>카메라가 시작되는 중입니다. 보통 10초쯤 걸립니다.</translation>
+    </message>
+    <message>
+        <source>Camera %1 connected</source>
+        <translation>카메라 %1 연결됨</translation>
+    </message>
+    <message>
+        <source>Camera not reported by the drone</source>
+        <translation>드론이 카메라를 알려 주지 않음</translation>
+    </message>
+    <message>
+        <source>Video link connected · waiting for the first picture</source>
+        <translation>영상 링크 연결됨 · 첫 화면 대기 중</translation>
+    </message>
+    <message>
+        <source>Video link: searching</source>
+        <translation>영상 링크: 찾는 중</translation>
+    </message>
+    <message>
+        <source>Show map instead</source>
+        <translation>지도 보기</translation>
+    </message>
+    <message>
+        <source>Video help</source>
+        <translation>영상 도움말</translation>
+    </message>
+    <message>
+        <source>1. Camera: powered on and its cable plugged in.  2. Video link: the radio is connected (Settings › Connection).  3. Video address: Settings › Payloads › Camera &amp; gimbal. Error details are in the messages (bell).</source>
+        <translation>1. 카메라: 전원이 켜져 있고 케이블이 꽂혀 있는지.  2. 영상 링크: 무선기가 연결되어 있는지(설정 › 연결).  3. 영상 주소: 설정 › 페이로드 › 카메라와 짐벌. 오류 내용은 알림(종)에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Battery very low (%1 %) — return home now</source>
+        <translation>배터리 매우 부족 (%1 %) — 지금 귀환하세요</translation>
+    </message>
+    <message>
+        <source>Battery low (%1 %) — plan to return home</source>
+        <translation>배터리 부족 (%1 %) — 귀환을 준비하세요</translation>
+    </message>
+    <message>
+        <source>About %1 of flight left.</source>
+        <translation>비행 가능 시간 약 %1 남음.</translation>
+    </message>
+    <message>
+        <source>Bring the drone back while there is enough battery.</source>
+        <translation>배터리가 충분할 때 드론을 돌아오게 하세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
