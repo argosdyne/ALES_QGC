@@ -21,10 +21,14 @@ Item {
     function closeSheet() { sheet = "" }
     function openSheet(name) { sheet = name }
 
-    // Layer rule 1: a critical alert closes confirm sheets
+    // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
+    function _closeConfirmSheet() {
+        if ((vs.critical || vs.lost) && (fly.sheet === "takeoff" || fly.sheet === "mission" || fly.sheet === "rtl" || fly.sheet === "land")) fly.closeSheet()
+    }
     Connections {
         target: vs
-        function onCriticalChanged() { if (vs.critical && (fly.sheet === "takeoff" || fly.sheet === "mission" || fly.sheet === "rtl" || fly.sheet === "land")) fly.closeSheet() }
+        function onCriticalChanged() { fly._closeConfirmSheet() }
+        function onLostChanged()     { fly._closeConfirmSheet() }
     }
 
     function _act(code, data, value, option) {

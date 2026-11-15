@@ -17,7 +17,15 @@ Item {
     readonly property var _cam:     survey ? survey.cameraCalc : null
     readonly property real _maxAlt: Number(QGroundControl.settingsManager.flyViewSettings.guidedMaximumAltitude.rawValue)
 
+    property bool interrupted: false        // set when a critical alert took the user to the fly screen
+
     function start() {
+        // Back after a critical alert (02 Flows D): continue the mission being edited, do not start a new one
+        if (interrupted) {
+            interrupted = false
+            var s = _findSurvey()
+            if (s && step !== "choose") { survey = s; return }
+        }
         step = "choose"
         survey = null
     }

@@ -51,6 +51,7 @@ Item {
         function onCriticalChanged() {
             if (!vs.critical) return
             QGroundControl.videoManager.fullScreen = false     // never hide an alert behind full-screen video
+            if (simpleRoot.page === "plan") planWizard.interrupted = true
             if (simpleRoot.page !== "fly") simpleRoot.showFly()
         }
     }
