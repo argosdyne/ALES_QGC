@@ -1234,7 +1234,9 @@ Item {
                     anchors.fill:       parent
                     spacing:            ScreenTools.defaultFontPixelHeight / 4
                     orientation:        ListView.Vertical
-                    model:              _missionController.visualItems
+                    // Simple UI: the classic editors are hidden there, and building them for every new item took
+                    // ~4 s with ~2,000 flight zones loaded (area mapping open); no editors in Simple mode
+                    model:              simpleMode ? null : _missionController.visualItems
                     cacheBuffer:        Math.max(height * 2, 0)
                     clip:               true
                     currentIndex:       _missionController.currentPlanViewSeqNum

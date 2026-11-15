@@ -75,6 +75,11 @@ Item {
     }
 
     function addToolbarVisuals() {
+        // Simple UI: the area-mapping screen (S08) has its own controls; the classic Basic / Circular /
+        // Trace / Load KML/SHP strip is not shown (KML import comes with Saved missions, S24)
+        if (typeof mainWindow !== "undefined" && mainWindow.simpleUI) {
+            return
+        }
         if (_objMgrToolVisuals.empty) {
             var toolbar = _objMgrToolVisuals.createObject(toolbarComponent, mapControl)
             toolbar.z = QGroundControl.zOrderWidgets
