@@ -106,6 +106,10 @@ Reply to the user in Korean unless they write in English.
 - Windows release: the VC runtime DLLs must not be older than the compiler (MSVC 14.40+ code crashes in std::mutex with an
   older msvcp140.dll). Post-link copies them from `VCToolsRedistDir`; the installer installs them next to the exe.
 - Bing tiles: imagery is requested with en-US (ko-KR returns empty tiles from zoom 16); road tiles use the dynamic endpoint.
+- Performance (2026-11-16): in Simple mode the hidden classic mission editor list (PlanView) and GeoZoneMakeView
+  (MainRootWindow, Loader built on first Advanced use) are not created. Start-up is ~7.5 s; the rest is framework
+  start-up (C++ init, QML load, ~3 s before the first frame) and needs a native profiler (WPR, admin) to go further.
+  Beta tag `simple_ui_v1_2026111501` = 23d510eff (before these two commits).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
 
