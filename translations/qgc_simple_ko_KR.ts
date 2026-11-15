@@ -2721,5 +2721,73 @@
         <source>Add at least 3 corners.</source>
         <translation>꼭짓점을 3개 이상 추가하세요.</translation>
     </message>
+    <message>
+        <source>only reports the breach</source>
+        <translation>경계를 넘었다고 알리기만 합니다</translation>
+    </message>
+    <message>
+        <source>lands</source>
+        <translation>착륙합니다</translation>
+    </message>
+    <message>
+        <source>brakes, or lands</source>
+        <translation>정지하거나 착륙합니다</translation>
+    </message>
+    <message>
+        <source>returns on its own path, or lands</source>
+        <translation>지나온 길로 돌아오거나 착륙합니다</translation>
+    </message>
+    <message>
+        <source>returns home, or lands</source>
+        <translation>홈으로 돌아오거나 착륙합니다</translation>
+    </message>
+    <message>
+        <source>DRONE FENCE</source>
+        <translation>드론 펜스</translation>
+    </message>
+    <message>
+        <source>Connect the drone to upload the 'do not enter' zones to its fence.</source>
+        <translation>드론을 연결하면 '진입 금지' 구역을 드론 펜스로 올릴 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>The fence can be uploaded only on the ground with the motors off.</source>
+        <translation>펜스는 지상에서 모터가 꺼져 있을 때만 올릴 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>This drone has no fence parameters.</source>
+        <translation>이 드론에는 펜스 파라미터가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Polygon fence on. At a zone edge the drone %1.</source>
+        <translation>폴리곤 펜스 켜짐. 구역 경계에서 드론은 %1.</translation>
+    </message>
+    <message>
+        <source>The drone's polygon fence is off.</source>
+        <translation>드론의 폴리곤 펜스가 꺼져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Uploaded to the drone.</source>
+        <translation>드론에 올렸습니다.</translation>
+    </message>
+    <message>
+        <source>Uploading…</source>
+        <translation>올리는 중…</translation>
+    </message>
+    <message>
+        <source>Upload</source>
+        <translation>올리기</translation>
+    </message>
+    <message>
+        <source>Upload to drone (%1 zones)</source>
+        <translation>드론에 올리기 (구역 %1개)</translation>
+    </message>
+    <message>
+        <source>Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).</source>
+        <translation>'진입 금지' 구역 %1개를 드론에 올릴까요? 드론 펜스가 꺼져 있어 폴리곤 펜스만 켭니다(FENCE_ENABLE = 1, FENCE_TYPE = 폴리곤).</translation>
+    </message>
+    <message>
+        <source>Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.</source>
+        <translation>'진입 금지' 구역 %1개를 드론에 올릴까요? 드론의 배제 영역을 바꾸고, 원형·고도·포함 펜스는 그대로 둡니다.</translation>
+    </message>
 </context>
 </TS>

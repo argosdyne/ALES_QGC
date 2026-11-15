@@ -11,6 +11,7 @@ import QtLocation 5.3
 import QtPositioning 5.3
 import QGroundControl 1.0
 import QGroundControl.FlightMap 1.0
+import QGroundControl.FactSystem 1.0
 import "."
 
 Rectangle {
@@ -35,6 +36,42 @@ Rectangle {
 
     MouseArea { anchors.fill: parent }   // keep taps off the pages below
     Component.onCompleted: zones = _mgr.myZones()
+
+    // ---- drone fence (5b): "do not enter" zones go to the ArduPilot fence as exclusion polygons
+    readonly property int  _noEntryCount: { var n = 0; for (var i = 0; i < zones.length; i++) if (zones[i].noEntry) n++; return n }
+    readonly property bool _canUpload: !!vs && vs.connected && !vs.armed && vs.paramsReady
+    readonly property var  _plan:  globals.planMasterControllerFlyView
+    readonly property var  _fence: _plan ? _plan.geoFenceController : null
+    property bool confirmUpload: false
+    property string uploadState: ""      // "" | "sending" | "done"
+    // FactPanelController binds to the vehicle when created: only once the parameters are ready
+    Loader { id: fpc; active: !!mz.vs && mz.vs.paramsReady; sourceComponent: Component { FactPanelController { } } }
+    function _fact(name) { return fpc.item && fpc.item.parameterExists(-1, name) ? fpc.item.getParameterFact(-1, name, false) : null }
+    readonly property var  _fEnable: _fact("FENCE_ENABLE")
+    readonly property var  _fType:   _fact("FENCE_TYPE")
+    readonly property var  _fAction: _fact("FENCE_ACTION")
+    readonly property bool _polygonOn: !!_fEnable && !!_fType && _fEnable.rawValue > 0 && (_fType.rawValue & 4) !== 0
+    function actionText(a) {
+        return a === 0 ? qsTr("only reports the breach") : a === 2 ? qsTr("lands") : a === 4 ? qsTr("brakes, or lands")
+             : (a === 3 || a === 5) ? qsTr("returns on its own path, or lands") : qsTr("returns home, or lands")
+    }
+    function upload() {
+        confirmUpload = false
+        // fence off before: turn on the polygon fence only (FENCE_TYPE 7 would also turn on the circle and the
+        // altitude fence); fence already on: add the polygon to what is there
+        if (_fEnable && _fEnable.rawValue === 0) {
+            if (_fType) _fType.rawValue = 4
+            _fEnable.rawValue = 1
+        } else if (_fType && (_fType.rawValue & 4) === 0) {
+            _fType.rawValue = _fType.rawValue | 4
+        }
+        _mgr.uploadMyZonesFence(_fence)
+        uploadState = "sending"
+    }
+    Connections {
+        target: mz._fence
+        function onSyncInProgressChanged() { if (mz.uploadState === "sending" && !mz._fence.syncInProgress) mz.uploadState = "done" }
+    }
 
     function startEdit(i) {
         editIndex = i
@@ -252,6 +289,52 @@ Rectangle {
                 }
             }
             SButton { kind: "primary"; icon: "plus"; text: qsTr("New zone"); enabled_: !mz._locked; onClicked: mz.startEdit(-1) }
+
+            // ---- drone fence
+            Rectangle { width: parent.width; height: SimpleTheme.px(1); color: SimpleTheme.line }
+            SText { text: qsTr("DRONE FENCE"); size: 24; medium: true; color: SimpleTheme.textTertiary }
+            SText {
+                width: parent.width; wrapMode: Text.WordWrap; size: 24
+                color: mz._canUpload ? SimpleTheme.textPrimary : SimpleTheme.textSecondary
+                text: !mz.vs || !mz.vs.connected ? qsTr("Connect the drone to upload the 'do not enter' zones to its fence.")
+                    : mz.vs.armed ? qsTr("The fence can be uploaded only on the ground with the motors off.")
+                    : !mz._fEnable ? qsTr("This drone has no fence parameters.")
+                    : mz._polygonOn ? qsTr("Polygon fence on. At a zone edge the drone %1.").arg(mz.actionText(mz._fAction ? mz._fAction.rawValue : 1))
+                    : qsTr("The drone's polygon fence is off.")
+            }
+            SText {
+                visible: mz.uploadState !== ""
+                width: parent.width; wrapMode: Text.WordWrap; size: 24
+                color: mz.uploadState === "done" ? SimpleTheme.ok : SimpleTheme.textSecondary
+                text: mz.uploadState === "done" ? qsTr("Uploaded to the drone.") : qsTr("Uploading…")
+            }
+            // inline confirm (Figma rule: confirm changes to the drone)
+            Rectangle {
+                visible: mz.confirmUpload
+                width: parent.width; height: confirmCol.height + SimpleTheme.px(32)
+                radius: SimpleTheme.px(16); color: SimpleTheme.withAlpha(SimpleTheme.warn, 0.14)
+                border.width: SimpleTheme.px(2); border.color: SimpleTheme.warn
+                Column {
+                    id: confirmCol
+                    x: SimpleTheme.px(18); y: SimpleTheme.px(16); width: parent.width - SimpleTheme.px(36)
+                    spacing: SimpleTheme.px(12)
+                    SText { width: parent.width; wrapMode: Text.WordWrap; size: 24
+                            text: (mz._fEnable && mz._fEnable.rawValue === 0
+                                   ? qsTr("Upload %1 'do not enter' zones to the drone? The drone's fence is off: only the polygon fence is turned on (FENCE_ENABLE = 1, FENCE_TYPE = polygon).")
+                                   : qsTr("Upload %1 'do not enter' zones to the drone? They replace the exclusion areas on the drone; the circle, altitude and inclusion fences stay as they are.")).arg(mz._noEntryCount) }
+                    Row {
+                        spacing: SimpleTheme.px(12)
+                        SButton { designHeight: 72; textSize: 24; text: qsTr("Cancel"); onClicked: mz.confirmUpload = false }
+                        SButton { designHeight: 72; textSize: 24; kind: "primary"; text: qsTr("Upload"); onClicked: mz.upload() }
+                    }
+                }
+            }
+            SButton {
+                visible: !mz.confirmUpload
+                icon: "download"; text: qsTr("Upload to drone (%1 zones)").arg(mz._noEntryCount)
+                enabled_: mz._canUpload && !!mz._fEnable && mz.uploadState !== "sending"
+                onClicked: mz.confirmUpload = true
+            }
         }
 
         // ---- zone settings (S32)

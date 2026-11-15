@@ -29,6 +29,7 @@
 #include "JsonHelper.h"
 #include "FlyViewSettings.h"
 #include "QGCApplication.h"
+#include "GeoFenceController.h"
 #include <QLineF>
 #include "QGCFenceCircle.h"
 #include "QGCFencePolygon.h"
@@ -2589,3 +2590,36 @@ void FlightZoneManager::_loadMyZones()
     }
 }
 
+int FlightZoneManager::applyMyZonesToFence(QObject* geoFenceController)
+{
+    auto* fence = qobject_cast<GeoFenceController*>(geoFenceController);
+    if (!fence) return -1;
+    QmlObjectListModel* polys = fence->polygons();
+    for (int i = polys->count() - 1; i >= 0; --i) {
+        auto* p = qobject_cast<QGCFencePolygon*>(polys->get(i));
+        if (p && !p->inclusion()) {
+            fence->deletePolygon(i);
+        }
+    }
+    int n = 0;
+    for (const QVariant& zv : myZones()) {
+        const QVariantMap z = zv.toMap();
+        if (!z.value("noEntry").toBool()) continue;
+        auto* p = new QGCFencePolygon(false /* exclusion */, fence);
+        for (const QVariant& pv : z.value("path").toList()) {
+            p->appendVertex(pv.value<QGeoCoordinate>());
+        }
+        polys->append(p);
+        ++n;
+    }
+    return n;
+}
+
+int FlightZoneManager::uploadMyZonesFence(QObject* geoFenceController)
+{
+    const int n = applyMyZonesToFence(geoFenceController);
+    if (n >= 0) {
+        qobject_cast<GeoFenceController*>(geoFenceController)->sendToVehicle();
+    }
+    return n;
+}

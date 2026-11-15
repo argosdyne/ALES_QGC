@@ -111,7 +111,11 @@ SPanel {
             visible: !chk._sent
             enabled_: !chk._blocked && chk.plan && !chk.plan.syncInProgress
             text: qsTr("Send to drone")
-            onClicked: chk.plan.sendToVehicle()
+            onClicked: {
+                // the drone fence is sent with the plan: keep the "do not enter" My zones in it (decision 2026-11-15)
+                if (chk._zm) chk._zm.applyMyZonesToFence(chk.plan.geoFenceController)
+                chk.plan.sendToVehicle()
+            }
         }
         SButton {
             width: parent.width

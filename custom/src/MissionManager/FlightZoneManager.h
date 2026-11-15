@@ -92,6 +92,11 @@ public:
     Q_INVOKABLE QVariantList myZones();
     /// Saves My zones (same list) and reloads the map / warnings
     Q_INVOKABLE bool saveMyZones(const QVariantList& zones);
+    /// Puts the "do not enter" My zones into a GeoFenceController as exclusion polygons (replacing the exclusion
+    /// polygons it has; inclusion polygons and circles stay). The caller sends it to the drone. Returns the count.
+    Q_INVOKABLE int applyMyZonesToFence(QObject* geoFenceController);
+    /// applyMyZonesToFence() and send the fence to the drone (the fence only, not the mission)
+    Q_INVOKABLE int uploadMyZonesFence(QObject* geoFenceController);
 
     //Check zoom value
     void checkCurrentZoomValue();
