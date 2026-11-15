@@ -21,12 +21,19 @@ QString BingRoadMapProvider::_getURL(const int x, const int y, const int zoom, Q
     return RoadMapUrl.arg(QString::number(_getServerNum(x, y, 4)), key, _versionBingMaps, _language);
 }
 
+// Bing returns an empty "no imagery" tile for the Korean market (mkt=ko-KR) from zoom 16 up, so
+// aerial / hybrid tiles over Korea were blank on Korean PCs. The imagery and labels are the same for en-US.
+static QString _imageryMarket(const QString& language)
+{
+    return language.startsWith(QStringLiteral("ko"), Qt::CaseInsensitive) ? QStringLiteral("en-US") : language;
+}
+
 static const QString SatteliteMapUrl = QStringLiteral("http://ecn.t%1.tiles.virtualearth.net/tiles/a%2.jpeg?g=%3&mkt=%4");
 
 QString BingSatelliteMapProvider::_getURL(const int x, const int y, const int zoom, QNetworkAccessManager* networkManager) {
     Q_UNUSED(networkManager)
     const QString key = _tileXYToQuadKey(x, y, zoom);
-    return SatteliteMapUrl.arg(QString::number(_getServerNum(x, y, 4)) ,key ,_versionBingMaps ,_language);
+    return SatteliteMapUrl.arg(QString::number(_getServerNum(x, y, 4)) ,key ,_versionBingMaps ,_imageryMarket(_language));
 }
 
 static const QString HybridMapUrl = QStringLiteral("http://ecn.t%1.tiles.virtualearth.net/tiles/h%2.jpeg?g=%3&mkt=%4");
@@ -34,6 +41,6 @@ static const QString HybridMapUrl = QStringLiteral("http://ecn.t%1.tiles.virtual
 QString BingHybridMapProvider::_getURL(const int x, const int y, const int zoom, QNetworkAccessManager* networkManager) {
     Q_UNUSED(networkManager)
     const QString key = _tileXYToQuadKey(x, y, zoom);
-    return HybridMapUrl.arg(QString::number(_getServerNum(x, y, 4)), key, _versionBingMaps, _language);
+    return HybridMapUrl.arg(QString::number(_getServerNum(x, y, 4)), key, _versionBingMaps, _imageryMarket(_language));
 }
 
