@@ -8,11 +8,18 @@ Column {
     property string label:      ""
     property string text:       ""
     property bool   password:   false
-    property bool   numeric:    false
+    property bool   numeric:    false       // whole numbers 0-65535 (port)
+    property bool   decimal:    false       // signed decimal (coordinates, altitude)
     property string placeholder: ""
     property bool   enabled_:   true
     property real   designWidth: 300
+    property bool   error:      false       // red border (Figma S47 operator number check)
+    property int    maximumLength: 32767
+    readonly property alias currentText: input.text   // live text while typing
     signal edited(string text)
+    // Show tf.text again (typing breaks the input's binding); also follows later changes of tf.text
+    function reset() { input.text = tf.text }
+    onTextChanged: input.text = tf.text
 
     width:   SimpleTheme.px(designWidth)
     spacing: SimpleTheme.px(8)
@@ -23,8 +30,8 @@ Column {
         width: parent.width; height: SimpleTheme.px(72)
         radius: SimpleTheme.px(14)
         color: SimpleTheme.surfaceControl
-        border.width: input.activeFocus ? SimpleTheme.px(2) : 0
-        border.color: SimpleTheme.brandGreen
+        border.width: tf.error || input.activeFocus ? SimpleTheme.px(2) : 0
+        border.color: tf.error ? SimpleTheme.danger : SimpleTheme.brandGreen
         TextInput {
             id: input
             anchors.fill: parent
@@ -38,11 +45,13 @@ Column {
             font.pixelSize: SimpleTheme.fs(26)
             echoMode: tf.password ? TextInput.Password : TextInput.Normal
             passwordCharacter: "•"
-            inputMethodHints: tf.numeric ? Qt.ImhDigitsOnly : (tf.password ? Qt.ImhSensitiveData | Qt.ImhNoPredictiveText : Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase)
-            validator: tf.numeric ? portValidator : null
+            inputMethodHints: tf.numeric ? Qt.ImhDigitsOnly : tf.decimal ? Qt.ImhFormattedNumbersOnly : (tf.password ? Qt.ImhSensitiveData | Qt.ImhNoPredictiveText : Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase)
+            validator: tf.numeric ? portValidator : tf.decimal ? decimalValidator : null
             text: tf.text
+            maximumLength: tf.maximumLength
             onEditingFinished: if (text !== tf.text) tf.edited(text)
             IntValidator { id: portValidator; bottom: 0; top: 65535 }
+            DoubleValidator { id: decimalValidator; notation: DoubleValidator.StandardNotation; locale: "C" }
         }
         SText {
             visible: input.text === "" && !input.activeFocus && tf.placeholder !== ""

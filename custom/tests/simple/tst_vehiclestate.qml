@@ -147,8 +147,9 @@ TestCase {
     function test_remote_id() {
         compare(s.ridLevel, "off", "Remote ID disabled in settings")
         QGroundControl.settingsManager.remoteIDSettings.enable.rawValue = true
-        compare(s.ridLevel, "ok")
-        v.remoteIDManager.commsGood = false; compare(s.ridLevel, "danger")
+        compare(s.ridLevel, "ok"); verify(s.readyToTakeOff, "broadcasting: take-off allowed")
+        v.remoteIDManager.commsGood = false; compare(s.ridLevel, "danger"); verify(!s.readyToTakeOff, "Remote ID on but not broadcasting blocks take-off")
+        v.remoteIDManager.commsGood = true
         QGroundControl.settingsManager.remoteIDSettings.enable.rawValue = false
     }
     function test_no_battery() {

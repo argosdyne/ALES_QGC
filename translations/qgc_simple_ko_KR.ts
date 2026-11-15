@@ -723,6 +723,14 @@
         <source>Fix the red items to take off</source>
         <translation>이륙하려면 빨간 항목을 해결하세요</translation>
     </message>
+    <message>
+        <source>No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.</source>
+        <translation>드론에서 Remote ID 모듈을 찾지 못했습니다. 이곳에서 필요하지 않으면 설정 › Remote ID에서 끄세요.</translation>
+    </message>
+    <message>
+        <source>The Remote ID module is not ready</source>
+        <translation>Remote ID 모듈이 준비되지 않았습니다</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSettings</name>
@@ -1007,8 +1015,8 @@
         <translation>다음 버전에서 제공</translation>
     </message>
     <message>
-        <source>This settings page is designed (Figma S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings.</source>
-        <translation>이 설정 화면은 디자인이 끝났으며(Figma S46, S47, S52–S56) 버전 2에서 추가됩니다. 그때까지는 고급 › 애플리케이션 설정을 사용하세요.</translation>
+        <source>This settings page is designed (Figma S46, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings.</source>
+        <translation>이 설정 화면은 디자인이 끝났으며(Figma S46, S52–S56) 버전 2에서 추가됩니다. 그때까지는 고급 › 애플리케이션 설정을 사용하세요.</translation>
     </message>
     <message>
         <source>Open Advanced settings</source>
@@ -1213,6 +1221,174 @@
     <message>
         <source>Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)</source>
         <translation>카메라·페이로드 네트워크 설정은 설정 › 페이로드로 옮겼습니다(감지된 페이로드는 자동 연결).</translation>
+    </message>
+    <message>
+        <source>Required in the EU</source>
+        <translation>EU에서는 필수입니다</translation>
+    </message>
+    <message>
+        <source>Enter the full number: 16 characters, a dash and the 3 secret characters (for example FIN87astrdge12k8-xyz). Only the first 16 are saved.</source>
+        <translation>전체 번호를 입력하세요: 16자, 대시, 비밀 3자(예: FIN87astrdge12k8-xyz). 앞 16자만 저장됩니다.</translation>
+    </message>
+    <message>
+        <source>The number starts with the 3-letter country code in capitals, for example FIN</source>
+        <translation>번호는 대문자 3자리 국가 코드로 시작합니다(예: FIN)</translation>
+    </message>
+    <message>
+        <source>The saved number did not pass the check. Enter it again.</source>
+        <translation>저장된 번호가 검사를 통과하지 못했습니다. 다시 입력하세요.</translation>
+    </message>
+    <message>
+        <source>The check character does not match. Check the number for typos.</source>
+        <translation>검사 문자가 맞지 않습니다. 오타가 없는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Saved. This app now sends Remote ID data to the drone.</source>
+        <translation>저장했습니다. 이제 이 앱이 Remote ID 데이터를 드론에 보냅니다.</translation>
+    </message>
+    <message>
+        <source>Required in the EU and many other countries. The drone broadcasts this while flying.</source>
+        <translation>EU와 여러 나라에서 필수입니다. 드론이 비행 중에 이 정보를 송출합니다.</translation>
+    </message>
+    <message>
+        <source>Remote ID module</source>
+        <translation>Remote ID 모듈</translation>
+    </message>
+    <message>
+        <source>Connect the drone to check the module</source>
+        <translation>모듈을 확인하려면 드론을 연결하세요</translation>
+    </message>
+    <message>
+        <source>No module found on the drone</source>
+        <translation>드론에서 모듈을 찾지 못했습니다</translation>
+    </message>
+    <message>
+        <source>Detected · ID %1</source>
+        <translation>감지됨 · ID %1</translation>
+    </message>
+    <message>
+        <source>Detected</source>
+        <translation>감지됨</translation>
+    </message>
+    <message>
+        <source>this app is not sending data yet, save below</source>
+        <translation>이 앱은 아직 데이터를 보내지 않습니다. 아래에서 저장하세요</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>감지 안 됨</translation>
+    </message>
+    <message>
+        <source>Not ready</source>
+        <translation>준비 안 됨</translation>
+    </message>
+    <message>
+        <source>Broadcasting</source>
+        <translation>송출 중</translation>
+    </message>
+    <message>
+        <source>Operator registration number</source>
+        <translation>운영자 등록번호</translation>
+    </message>
+    <message>
+        <source>From your national aviation authority. Type the full number with the 3 secret characters; only the first 16 are saved.</source>
+        <translation>국가 항공 당국에서 받은 번호입니다. 비밀 3자까지 전체를 입력하세요. 앞 16자만 저장됩니다.</translation>
+    </message>
+    <message>
+        <source>Optional in the US. Sent with the Remote ID data when filled in.</source>
+        <translation>미국에서는 선택 사항입니다. 입력하면 Remote ID 데이터와 함께 보냅니다.</translation>
+    </message>
+    <message>
+        <source>Saved and checked · secret characters are not stored</source>
+        <translation>저장·검사 완료 · 비밀 문자는 저장하지 않음</translation>
+    </message>
+    <message>
+        <source>Region rules</source>
+        <translation>지역 규칙</translation>
+    </message>
+    <message>
+        <source>Sets the message format the drone sends</source>
+        <translation>드론이 보내는 메시지 형식을 정합니다</translation>
+    </message>
+    <message>
+        <source>EU</source>
+        <translation>EU</translation>
+    </message>
+    <message>
+        <source>US</source>
+        <translation>미국</translation>
+    </message>
+    <message>
+        <source>Pilot location</source>
+        <translation>조종자 위치</translation>
+    </message>
+    <message>
+        <source>The US rules use the tablet's live position</source>
+        <translation>미국 규칙은 태블릿의 실시간 위치를 씁니다</translation>
+    </message>
+    <message>
+        <source>Where your position is taken from</source>
+        <translation>조종자 위치를 어디서 가져올지</translation>
+    </message>
+    <message>
+        <source>Tablet GPS</source>
+        <translation>태블릿 GPS</translation>
+    </message>
+    <message>
+        <source>Fixed point</source>
+        <translation>고정점</translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation>위도</translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation>경도</translation>
+    </message>
+    <message>
+        <source>Altitude (m)</source>
+        <translation>고도(m)</translation>
+    </message>
+    <message>
+        <source>Emergency status</source>
+        <translation>비상 상태</translation>
+    </message>
+    <message>
+        <source>Connect the drone to use this</source>
+        <translation>사용하려면 드론을 연결하세요</translation>
+    </message>
+    <message>
+        <source>Others see 'emergency' now. Turn off when the emergency is over.</source>
+        <translation>지금 다른 사람에게 '비상'으로 보입니다. 비상이 끝나면 끄세요.</translation>
+    </message>
+    <message>
+        <source>Turn on in an emergency. Others see 'emergency' until you turn it off.</source>
+        <translation>비상시에 켜세요. 끌 때까지 다른 사람에게 '비상'으로 보입니다.</translation>
+    </message>
+    <message>
+        <source>Save Remote ID settings first</source>
+        <translation>먼저 Remote ID 설정을 저장하세요</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Enter a valid fixed point to save</source>
+        <translation>저장하려면 올바른 고정점을 입력하세요</translation>
+    </message>
+    <message>
+        <source>Fix the operator number to save</source>
+        <translation>저장하려면 운영자 번호를 고치세요</translation>
+    </message>
+    <message>
+        <source>Turn off Remote ID</source>
+        <translation>Remote ID 끄기</translation>
+    </message>
+    <message>
+        <source>Remote ID is off. This app no longer sends Remote ID data.</source>
+        <translation>Remote ID를 껐습니다. 이 앱은 더 이상 Remote ID 데이터를 보내지 않습니다.</translation>
     </message>
 </context>
 <context>

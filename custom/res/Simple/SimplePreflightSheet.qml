@@ -11,7 +11,8 @@ SPanel {
     signal takeoffRequested()
 
     width:  SimpleTheme.px(980)
-    height: SimpleTheme.px(820)
+    // grows with wrapped item details; SPanel body margins: top 112, bottom 24
+    height: Math.max(SimpleTheme.px(820), listCol.implicitHeight + SimpleTheme.px(136))
     title: qsTr("Pre-flight check")
     titleIcon: "check"
 
@@ -25,17 +26,20 @@ SPanel {
           detail: vs.sensorsOk ? qsTr("All sensors healthy") : (vs.vehicle && vs.vehicle.prearmError !== "" ? vs.vehicle.prearmError : qsTr("A sensor needs attention")) , fix: !vs.sensorsOk },
         { ok: vs.homeSet, warn: false, title: qsTr("Home point"), detail: vs.homeSet ? qsTr("Set at the take-off position") : qsTr("Set automatically once GPS is good") },
         { ok: !vs.ridAvailable || vs.ridGood, warn: !vs.ridAvailable, title: qsTr("Remote ID"),
-          detail: !vs.ridAvailable ? qsTr("Not enabled on this tablet") : vs.ridGood ? qsTr("Broadcasting") : (vs.rid ? vs.rid.armStatusError : "") }
+          detail: !vs.ridAvailable ? qsTr("Not enabled on this tablet") : vs.ridGood ? qsTr("Broadcasting")
+                : !vs.rid.commsGood ? qsTr("No Remote ID module found on the drone. If it is not required here, turn it off in Settings › Remote ID.")
+                : (vs.rid.armStatusError !== "" ? vs.rid.armStatusError : qsTr("The Remote ID module is not ready")) }
     ]
 
     Column {
-        anchors.fill: parent
+        id: listCol
+        anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
         spacing: SimpleTheme.px(10)
         Repeater {
             model: sheet._items
             Rectangle {
                 width: parent.width
-                height: SimpleTheme.px(86)
+                height: Math.max(SimpleTheme.px(86), itemText.implicitHeight + SimpleTheme.px(24))   // long details wrap
                 radius: SimpleTheme.px(16)
                 color: modelData.ok ? (modelData.warn ? SimpleTheme.withAlpha(SimpleTheme.warn, 0.14) : SimpleTheme.surfaceRaised) : SimpleTheme.withAlpha(SimpleTheme.danger, 0.16)
                 border.width: modelData.ok && !modelData.warn ? 0 : SimpleTheme.px(2)
@@ -47,11 +51,12 @@ SPanel {
                     color: modelData.ok ? (modelData.warn ? SimpleTheme.warn : SimpleTheme.ok) : SimpleTheme.textDanger
                 }
                 Column {
+                    id: itemText
                     anchors.left: ic.right; anchors.leftMargin: SimpleTheme.px(16)
                     anchors.right: fixBtn.visible ? fixBtn.left : parent.right; anchors.rightMargin: SimpleTheme.px(16)
                     anchors.verticalCenter: parent.verticalCenter
                     SText { width: parent.width; text: modelData.title; size: 28; medium: true }
-                    SText { width: parent.width; text: modelData.detail; size: 22; color: SimpleTheme.textSecondary }
+                    SText { width: parent.width; text: modelData.detail; size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap }
                 }
                 SButton {
                     id: fixBtn

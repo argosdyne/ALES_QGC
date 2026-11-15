@@ -48,7 +48,9 @@ QtObject {
     // Pre-flight readiness (S02)
     readonly property bool   homeSet:       present && vehicle.homePosition.isValid
     readonly property bool   sensorsOk:     present && (vehicle.readyToFlyAvailable ? vehicle.readyToFly : vehicle.sensorsUnhealthyBits === 0)
+    // Remote ID blocks take-off when it is turned on (Settings › Remote ID) but the module is not broadcasting (S02, S47)
     readonly property bool   readyToTakeOff: connected && !armed && sensorsOk && gpsLock >= 3 && (isNaN(batteryPct) || batteryPct > 30)
+                                             && (!ridAvailable || ridGood)
 
     // Overall state name used by the UI rules
     readonly property string state: !present ? "disconnected"

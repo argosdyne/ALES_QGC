@@ -94,6 +94,7 @@ Rectangle {
             sourceComponent: page.category === "general" ? generalComp
                            : page.category === "safety"  ? safetyComp
                            : page.category === "connection" ? connectionComp
+                           : page.category === "rid"     ? ridComp
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
                            : laterComp
@@ -610,6 +611,212 @@ Rectangle {
         }
     }
 
+    //------------------------------------------------------------------ Remote ID (S47)
+    // QGC RemoteIDManager + remoteIDSettings (same calls as Advanced › Remote ID). Decisions 2026-11-15: regions EU and US
+    // only (Korea hidden until its format is supported); the EU operator number is entered in full with the 3 secret
+    // characters, checked, and only the public 16 are saved; emergency is a manual switch. Save turns Remote ID on.
+    Component {
+        id: ridComp
+        Column {
+            id: rid
+            spacing: SimpleTheme.px(16)
+            readonly property var  _set:     QGroundControl.settingsManager.remoteIDSettings
+            readonly property var  _veh:     QGroundControl.multiVehicleManager.activeVehicle
+            readonly property var  _mgr:     _veh ? _veh.remoteIDManager : (QGroundControl.multiVehicleManager.offlineEditingVehicle ? QGroundControl.multiVehicleManager.offlineEditingVehicle.remoteIDManager : null)
+            readonly property bool _enabled: !!_set.enable.rawValue
+            readonly property bool _comms:   !!_veh && !!_veh.remoteIDManager && _veh.remoteIDManager.commsGood
+            readonly property bool _armOk:   _comms && _veh.remoteIDManager.armStatusGood
+            readonly property bool _emerg:   !!_veh && !!_veh.remoteIDManager && _veh.remoteIDManager.emergencyDeclared
+
+            // Draft (applied on Save)
+            property int    dRegion:   Number(_set.region.rawValue)          // 0 FAA (US), 1 EU
+            property int    dLocation: Number(_set.locationType.rawValue)    // 1 tablet GPS (live), 2 fixed
+            property string dLat:      _set.latitudeFixed.valueString
+            property string dLon:      _set.longitudeFixed.valueString
+            property string dAlt:      _set.altitudeFixed.valueString
+            property bool   idEdited:  false
+            property string savedMsg:  ""
+            readonly property string _storedId: _set.operatorID.rawValue.toString()
+
+            // EU operator number check (EN 4709-002: country code, 12 characters, check character, dash, 3 secret)
+            function euIdProblem(t) {
+                if (t === "") return qsTr("Required in the EU")
+                var dash = t.indexOf("-") >= 0
+                if (!((t.length === 20 && dash) || (t.length === 19 && !dash)))
+                    return qsTr("Enter the full number: 16 characters, a dash and the 3 secret characters (for example FIN87astrdge12k8-xyz). Only the first 16 are saved.")
+                if (!/^[A-Z]{3}/.test(t)) return qsTr("The number starts with the 3-letter country code in capitals, for example FIN")
+                return ""   // checksum is checked by RemoteIDManager (operatorIDValid)
+            }
+            readonly property string idText:   idField.currentText
+            readonly property bool   _idSaved: !idEdited && idText === _storedId && _storedId !== ""
+            readonly property string idError:  dRegion !== 1 ? ""
+                                             : _idSaved ? (_set.operatorIDValid.rawValue ? "" : qsTr("The saved number did not pass the check. Enter it again."))
+                                             : euIdProblem(idText) !== "" ? euIdProblem(idText)
+                                             : _set.operatorIDValid.rawValue ? "" : qsTr("The check character does not match. Check the number for typos.")
+            readonly property bool fixedOk: dLocation !== 2 || (dLat !== "" && dLon !== "" && Math.abs(Number(dLat)) <= 90 && Math.abs(Number(dLon)) <= 180 && !(Number(dLat) === 0 && Number(dLon) === 0))
+            readonly property bool canSave: idError === "" && fixedOk
+
+            function save() {
+                if (!canSave) return
+                _set.region.rawValue = dRegion
+                _set.locationType.rawValue = dRegion === 0 ? 1 : dLocation          // US: tablet GPS only
+                if (dRegion === 1 && dLocation === 2) {
+                    _set.latitudeFixed.rawValue = Number(dLat); _set.longitudeFixed.rawValue = Number(dLon); _set.altitudeFixed.rawValue = Number(dAlt === "" ? 0 : dAlt)
+                }
+                if (idEdited || idText !== _storedId) {
+                    if (_mgr) _mgr.checkOperatorID(idText)
+                    _set.operatorID.rawValue = idText
+                }
+                _set.sendOperatorID.rawValue = dRegion === 0 && idText !== ""   // EU always sends it
+                if (_mgr) _mgr.setOperatorID()                                   // EU: keeps only the public 16 characters
+                _set.enable.rawValue = true
+                idEdited = false
+                idField.text = Qt.binding(function() { return rid._storedId })
+                idField.reset()                                                  // never keep the secret characters on screen
+                savedMsg = qsTr("Saved. This app now sends Remote ID data to the drone.")
+                savedTimer.restart()
+            }
+            Timer { id: savedTimer; interval: 6000; onTriggered: rid.savedMsg = "" }
+
+            SText { text: qsTr("Remote ID"); size: 40; bold: true }
+            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("Required in the EU and many other countries. The drone broadcasts this while flying."); size: 24; color: SimpleTheme.textSecondary }
+
+            // Module status
+            SSettingRow {
+                title: qsTr("Remote ID module")
+                sub: !rid._veh ? qsTr("Connect the drone to check the module")
+                   : !rid._comms ? qsTr("No module found on the drone")
+                   : !rid._armOk ? rid._veh.remoteIDManager.armStatusError
+                   : (rid._set.basicID.valueString !== "" ? qsTr("Detected · ID %1").arg(rid._set.basicID.valueString) : qsTr("Detected"))
+                     + (rid._enabled ? "" : " · " + qsTr("this app is not sending data yet, save below"))
+                Rectangle {
+                    readonly property color _c: !rid._veh ? SimpleTheme.surfaceControl : !rid._comms ? SimpleTheme.danger : rid._armOk && rid._enabled ? SimpleTheme.ok : SimpleTheme.warn
+                    height: SimpleTheme.px(48); radius: SimpleTheme.px(12)
+                    width: ridPill.implicitWidth + SimpleTheme.px(28)
+                    color: _c
+                    SText {
+                        id: ridPill; anchors.centerIn: parent; size: 24; medium: true
+                        color: rid._veh && rid._comms && (rid._armOk ? rid._enabled : true) ? SimpleTheme.bgBase : SimpleTheme.textPrimary
+                        text: !rid._veh ? qsTr("Not connected") : !rid._comms ? qsTr("Not detected") : !rid._armOk ? qsTr("Not ready") : rid._enabled ? qsTr("Broadcasting") : qsTr("Off")
+                    }
+                }
+            }
+
+            // Operator registration number
+            Rectangle {
+                width: parent.width; height: opCol.height + SimpleTheme.px(44)
+                radius: SimpleTheme.px(20); color: SimpleTheme.surfaceRaised
+                Column {
+                    id: opCol
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                    anchors.margins: SimpleTheme.px(22); anchors.leftMargin: SimpleTheme.px(28)
+                    spacing: SimpleTheme.px(12)
+                    SText { text: qsTr("Operator registration number"); size: 30; medium: true }
+                    SText {
+                        width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                        text: rid.dRegion === 1 ? qsTr("From your national aviation authority. Type the full number with the 3 secret characters; only the first 16 are saved.")
+                                                : qsTr("Optional in the US. Sent with the Remote ID data when filled in.")
+                    }
+                    STextField {
+                        id: idField
+                        designWidth: 620; maximumLength: 20
+                        placeholder: rid.dRegion === 1 ? "FIN87astrdge12k8-xyz" : ""
+                        text: rid._storedId
+                        error: rid.idError !== "" && (rid.idEdited || rid._idSaved)
+                        onCurrentTextChanged: {
+                            if (currentText !== rid._storedId) {
+                                rid.idEdited = true
+                                if (rid._mgr) rid._mgr.checkOperatorID(currentText)   // sets operatorIDValid (EU checksum)
+                            }
+                        }
+                    }
+                    SText {
+                        visible: idField.error
+                        width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textDanger
+                        text: rid.idError
+                    }
+                    SText {
+                        visible: rid._idSaved && rid.idError === "" && rid.dRegion === 1
+                        size: 22; color: SimpleTheme.ok
+                        text: qsTr("Saved and checked · secret characters are not stored")
+                    }
+                }
+            }
+
+            SSettingRow {
+                title: qsTr("Region rules"); sub: qsTr("Sets the message format the drone sends")
+                SSegmented {
+                    designWidth: 300
+                    model: [qsTr("EU"), qsTr("US")]
+                    currentIndex: rid.dRegion === 1 ? 0 : 1
+                    onActivated: {
+                        rid.dRegion = index === 0 ? 1 : 0
+                        if (rid.dRegion === 0) rid.dLocation = 1
+                        currentIndex = Qt.binding(function() { return rid.dRegion === 1 ? 0 : 1 })
+                    }
+                }
+            }
+            SSettingRow {
+                title: qsTr("Pilot location"); sub: rid.dRegion === 0 ? qsTr("The US rules use the tablet's live position") : qsTr("Where your position is taken from")
+                SSegmented {
+                    designWidth: 360
+                    opacity: rid.dRegion === 0 ? 0.4 : 1
+                    enabled: rid.dRegion === 1
+                    model: [qsTr("Tablet GPS"), qsTr("Fixed point")]
+                    currentIndex: rid.dLocation === 2 ? 1 : 0
+                    onActivated: {
+                        rid.dLocation = index === 1 ? 2 : 1
+                        currentIndex = Qt.binding(function() { return rid.dLocation === 2 ? 1 : 0 })
+                    }
+                }
+            }
+            Flow {
+                visible: rid.dRegion === 1 && rid.dLocation === 2
+                width: parent.width
+                spacing: SimpleTheme.px(14)
+                STextField { designWidth: 260; label: qsTr("Latitude");  decimal: true; text: rid.dLat; error: !rid.fixedOk; onEdited: rid.dLat = text }
+                STextField { designWidth: 260; label: qsTr("Longitude"); decimal: true; text: rid.dLon; error: !rid.fixedOk; onEdited: rid.dLon = text }
+                STextField { designWidth: 200; label: qsTr("Altitude (m)"); decimal: true; text: rid.dAlt; onEdited: rid.dAlt = text }
+            }
+            SSettingRow {
+                title: qsTr("Emergency status")
+                sub: !rid._veh ? qsTr("Connect the drone to use this")
+                   : rid._emerg ? qsTr("Others see 'emergency' now. Turn off when the emergency is over.")
+                   : qsTr("Turn on in an emergency. Others see 'emergency' until you turn it off.")
+                locked: !rid._veh || !rid._enabled; lockReason: !rid._veh ? qsTr("Connect the drone to use this") : qsTr("Save Remote ID settings first")
+                SToggle {
+                    id: emergToggle
+                    checked: rid._emerg
+                    onToggled: {
+                        if (rid._veh) rid._veh.remoteIDManager.setEmergency(emergToggle.checked)
+                        emergToggle.checked = Qt.binding(function() { return rid._emerg })
+                    }
+                }
+            }
+            Row {
+                spacing: SimpleTheme.px(20)
+                SButton { kind: "primary"; text: qsTr("Save"); enabled_: rid.canSave; onClicked: rid.save() }
+                // Not in Figma: way back for places/drones without Remote ID (Save turns it on and it then gates take-off)
+                SButton {
+                    visible: rid._enabled; kind: "ghost"; text: qsTr("Turn off Remote ID")
+                    onClicked: {
+                        rid._set.enable.rawValue = false
+                        if (rid._emerg) rid._veh.remoteIDManager.setEmergency(false)
+                        rid.savedMsg = qsTr("Remote ID is off. This app no longer sends Remote ID data.")
+                        savedTimer.restart()
+                    }
+                }
+                SText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: rid.savedMsg !== "" || !rid.canSave
+                    size: 24
+                    color: rid.savedMsg !== "" ? SimpleTheme.ok : SimpleTheme.textSecondary
+                    text: rid.savedMsg !== "" ? rid.savedMsg : !rid.fixedOk ? qsTr("Enter a valid fixed point to save") : qsTr("Fix the operator number to save")
+                }
+            }
+        }
+    }
+
     //------------------------------------------------------------------ About & support (S48, basic)
     Component {
         id: aboutComp
@@ -715,7 +922,7 @@ Rectangle {
         Column {
             spacing: SimpleTheme.px(20)
             SText { text: qsTr("Coming in the next version"); size: 40; bold: true }
-            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
+            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S46, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
             SButton { kind: "primary"; icon: "lock"; text: qsTr("Open Advanced settings"); onClicked: simpleRoot.requestAdvanced("settings") }
         }
     }
