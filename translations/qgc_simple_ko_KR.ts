@@ -223,6 +223,10 @@
         <translation>귀환 중</translation>
     </message>
     <message>
+        <source>Pause stops the drone in place.</source>
+        <translation>일시정지는 드론을 그 자리에 멈춥니다.</translation>
+    </message>
+    <message>
         <source>Pause stops the drone in place. Land lands here.</source>
         <translation>일시정지는 드론을 그 자리에 멈춥니다. 착륙은 이 자리에 내립니다.</translation>
     </message>
@@ -257,6 +261,10 @@
     <message>
         <source>The drone takes off and flies the mission on the map. It returns home when the mission ends.</source>
         <translation>드론이 이륙해 지도의 임무를 비행합니다. 임무가 끝나면 귀환합니다.</translation>
+    </message>
+    <message>
+        <source>You can stop it any time with Pause.</source>
+        <translation>언제든 일시정지로 멈출 수 있습니다.</translation>
     </message>
     <message>
         <source>You can stop it any time with Pause. Return-home altitude: Settings › Safety</source>

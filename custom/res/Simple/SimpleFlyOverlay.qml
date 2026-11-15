@@ -121,7 +121,7 @@ Item {
             visible: vs.state === "returning"
             level: "warn"; icon: vs.landing ? "land" : "home"
             title: vs.landing ? qsTr("Landing") : (!isNaN(vs.batteryPct) && vs.batteryPct <= 20 ? qsTr("Battery low — returning home") : qsTr("Returning home"))
-            detail: qsTr("Pause stops the drone in place. Land lands here.")
+            detail: vs.landing ? qsTr("Pause stops the drone in place.") : qsTr("Pause stops the drone in place. Land lands here.")
         }
         SBanner {
             visible: vs.paused
@@ -171,7 +171,7 @@ Item {
         detail: fly.sheet === "rtl" ? qsTr("The drone climbs to the return-home altitude, flies back to the home point and lands.")
               : fly.sheet === "land" ? qsTr("The drone descends and lands straight below its current position.")
               : qsTr("The drone takes off and flies the mission on the map. It returns home when the mission ends.")
-        note:   qsTr("You can stop it any time with Pause. Return-home altitude: Settings › Safety")
+        note:   fly.sheet === "land" ? qsTr("You can stop it any time with Pause.") : qsTr("You can stop it any time with Pause. Return-home altitude: Settings › Safety")
         slideText: fly.sheet === "rtl" ? qsTr("Slide to return home") : fly.sheet === "land" ? qsTr("Slide to land") : qsTr("Slide to start")
         onCloseRequested: fly.closeSheet()
         onConfirmed: {
