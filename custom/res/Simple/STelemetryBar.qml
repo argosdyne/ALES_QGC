@@ -7,6 +7,7 @@ import "."
 Rectangle {
     id: tb
     property var vehicle: null
+    property bool stale: false      // QA F4: link lost -> the values are the last ones received, not live
 
     function _fact(f, digits) {
         if (!vehicle || !f) return { v: "—", u: "" }
@@ -24,6 +25,16 @@ Rectangle {
     height: SimpleTheme.px(120)
     radius: SimpleTheme.px(20)
     color:  SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
+    border.width: stale ? SimpleTheme.px(2) : 0
+    border.color: SimpleTheme.danger
+    Rectangle {
+        visible: tb.stale
+        anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16)
+        anchors.top: parent.top; anchors.topMargin: -height / 2
+        width: staleText.implicitWidth + SimpleTheme.px(20); height: SimpleTheme.px(32); radius: height / 2
+        color: SimpleTheme.danger
+        SText { id: staleText; anchors.centerIn: parent; size: 18; medium: true; text: qsTr("Last received values") }
+    }
 
     Row {
         anchors.fill: parent
@@ -39,7 +50,7 @@ Rectangle {
                     SText { text: modelData.label; size: 22; medium: true; color: SimpleTheme.textSecondary }
                     Row {
                         spacing: SimpleTheme.px(6)
-                        SText { id: v; text: modelData.val.v; size: 40; bold: true }
+                        SText { id: v; text: modelData.val.v; size: 40; bold: true; color: tb.stale ? SimpleTheme.textTertiary : SimpleTheme.textPrimary }
                         SText { text: modelData.val.u; size: 22; color: SimpleTheme.textSecondary; anchors.baseline: v.baseline }
                     }
                 }

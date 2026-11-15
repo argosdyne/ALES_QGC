@@ -63,6 +63,16 @@ QtObject {
     readonly property bool   readyToTakeOff: connected && !armed && sensorsOk && gpsLock >= 3 && (isNaN(batteryPct) || batteryPct > 30)
                                              && (!ridAvailable || ridGood) && !zoneBlocked
 
+    // QA F5: the drone's last warning (STATUSTEXT, severity WARNING or worse) in the last 60 s, e.g. why it lands
+    property string recentWarning: ""
+    property Timer _warnTimer: Timer { interval: 60000; onTriggered: recentWarning = "" }
+    property Connections _warnConn: Connections {
+        target: present ? vehicle : null
+        function onTextMessageReceived(uasid, componentid, severity, text, description) {
+            if (severity <= 4 && text !== "" && text.indexOf("PreArm") !== 0) { recentWarning = text; _warnTimer.restart() }
+        }
+    }
+
     // Overall state name used by the UI rules
     readonly property string state: !present ? "disconnected"
                                   : lost ? "lost"

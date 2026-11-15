@@ -160,6 +160,10 @@ Item {
                     SText { text: modelData[0]; size: 24 }
                 }
             }
+            SText {     // QA F9: zones hidden while zoomed out (same rule as FlightZoneManagerGeoFenceMapVisuals)
+                visible: !!mc._zones && mc._zones.polygons.count > 300 && !!mc.map && mc.map.zoomLevel < 13
+                text: qsTr("Zoom in to see the zones"); size: 20; color: SimpleTheme.warn
+            }
         }
     }
 

@@ -25,7 +25,14 @@ Item {
         border.color: SimpleTheme.line
         SIcon { anchors.centerIn: parent; name: control.icon; size: 48 }
     }
+    Rectangle {     // QA F1: backing so the label stays readable on a bright map
+        anchors.centerIn: label
+        width: label.implicitWidth + SimpleTheme.px(16); height: label.implicitHeight + SimpleTheme.px(4)
+        radius: height / 2
+        color: SimpleTheme.withAlpha(SimpleTheme.bgBase, 0.6)
+    }
     SText {
+        id: label
         anchors.top: circle.bottom
         anchors.topMargin: SimpleTheme.px(8)
         anchors.horizontalCenter: parent.horizontalCenter

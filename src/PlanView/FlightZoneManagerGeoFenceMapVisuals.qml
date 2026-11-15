@@ -47,7 +47,9 @@ Item {
     // AQGC Simple UI (Figma S15): zones in three colours by class (1 prohibited = red, 2 authorisation = orange,
     // 3 information = blue, 4 my zone = white); Layers › Flight zones hides them
     readonly property bool _simple:     typeof mainWindow !== "undefined" && mainWindow.simpleUI
-    readonly property bool _shown:      !_simple || mainWindow.simpleShowFlightZones
+    // QA F9: with many zones (> 300) they are hidden below zoom 13 in Simple mode, so panning stays smooth
+    readonly property bool _tooMany:    _simple && _polygons.count > 300 && !!map && map.zoomLevel < 13
+    readonly property bool _shown:      !_simple || (mainWindow.simpleShowFlightZones && !_tooMany)
     // same values as SimpleTheme.danger / warn / textPrimary / info (core QML cannot import the Simple theme)
     function _simpleColor(zoneClass) {
         return zoneClass === 1 ? "#c9353d" : zoneClass === 2 ? "#f5a524" : zoneClass === 4 ? "#f4f6f8" : "#2a68cc"

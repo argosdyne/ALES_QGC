@@ -37,6 +37,10 @@
         <source>FLIGHT TIME</source>
         <translation>비행 시간</translation>
     </message>
+    <message>
+        <source>Last received values</source>
+        <translation>마지막으로 받은 값</translation>
+    </message>
 </context>
 <context>
     <name>SimpleChipDetail</name>
@@ -393,6 +397,14 @@
     <message>
         <source>No-entry zone</source>
         <translation>진입 금지 구역</translation>
+    </message>
+    <message>
+        <source>Drone: %1</source>
+        <translation>드론: %1</translation>
+    </message>
+    <message>
+        <source>Land lands here.</source>
+        <translation>착륙을 누르면 이 자리에 착륙합니다.</translation>
     </message>
 </context>
 <context>
@@ -2562,6 +2574,10 @@
     <message>
         <source>%1 zones overlap here — the most restrictive one is shown first.</source>
         <translation>구역 %1개가 겹쳐 있습니다 — 가장 엄격한 구역을 먼저 보여 줍니다.</translation>
+    </message>
+    <message>
+        <source>Zoom in to see the zones</source>
+        <translation>확대하면 구역이 보입니다</translation>
     </message>
 </context>
 <context>

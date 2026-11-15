@@ -83,7 +83,7 @@ Item {
         }
         SActionButton {
             visible: (vs.state === "flying" && !vs.paused) || vs.state === "returning" || vs.state === "lost"
-            enabled_: vs.state !== "lost" && _veh && _veh.pauseVehicleSupported
+            enabled_: vs.state !== "lost" && _veh && _veh.pauseVehicleSupported && vs.gpsLock >= 3   // QA F6
             text: qsTr("Pause"); icon: "pause"
             onClicked: fly._act(fly._guided.actionPause)
         }
@@ -105,6 +105,7 @@ Item {
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         vehicle: fly._veh
         visible: vs.present
+        stale: vs.lost
     }
 
     //------------------------------------------------------------------ Video main (S18) and waiting for video (S49)
@@ -303,7 +304,10 @@ Item {
             visible: vs.state === "returning"
             level: "warn"; icon: vs.landing ? "land" : "home"
             title: vs.landing ? qsTr("Landing") : (!isNaN(vs.batteryPct) && vs.batteryPct <= 20 ? qsTr("Battery low — returning home") : qsTr("Returning home"))
-            detail: vs.landing ? qsTr("Pause stops the drone in place.") : qsTr("Pause stops the drone in place. Land lands here.")
+            detail: [vs.recentWarning !== "" ? qsTr("Drone: %1").arg(vs.recentWarning) : "",          // QA F5: why it returns / lands
+                     vs.gpsLock < 3 ? (vs.landing ? "" : qsTr("Land lands here."))                         // QA F6: no pause without GPS
+                     : vs.landing ? qsTr("Pause stops the drone in place.") : qsTr("Pause stops the drone in place. Land lands here.")]
+                    .filter(function(t) { return t !== "" }).join(" · ")
         }
         SBanner {
             visible: vs.paused
