@@ -60,6 +60,11 @@ Reply to the user in Korean unless they write in English.
   data management, in-flight warnings (Simple banner, not the classic GeoAwareness popup) and checks in S02 / plan check,
   and My zones (S32). Data: GeoJSON file import and Altitude Angel online (license key). Build on the existing
   `FlightZoneManager` (custom/src/MissionManager) and GeoZone tools; Figma first.
+  Done 2026-11-15: a prohibited zone or a "do not enter" My zone blocks take-off (S02) and plan sending (S39);
+  authorisation / warn-only zones are a caution. My zones are stored in `<GeoZone>/MyZones` (the `Custom` folder is
+  auto-deleted after 24 h). "Do not enter" zones go to the ArduPilot fence as exclusion polygons; if the fence was off
+  only the polygon fence is turned on (FENCE_TYPE = 4), because FENCE_TYPE 7 also enables the circle/altitude fences.
+  Test zones near the SITL home: `custom/tests/simple/zones/`.
 - ArduPilot parameter documentation (2026-11-15, licence option B): only one file, generated from the company firmware
   (Z01.07.00EASA) with ArduPilot param_parse.py, is bundled for all Copter versions; the ArduPilot-Parameter-Repository
   files are no longer compiled in (Plane/Rover/Sub: no documentation). Listed as GPLv3 in the notices. Regenerate with
@@ -105,7 +110,7 @@ Reply to the user in Korean unless they write in English.
 2. v2: ~~Korean strings + bundled fonts~~ (done 2026-11-14: `translations/qgc_simple_ko_KR.ts`, `custom/res/Simple/fonts/`;
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
-   map tap menu S35/S36/S38, payload panels) → **flight zones** (map, S46 data, warnings/checks, My zones S32) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   map tap menu S35/S36/S38, payload panels) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: Google Play needs a higher target SDK than android-30 (decision pending); the signed Android release
    path (push to `Argos_Stable4.4` with keystore secret) is untested; remote branch `ci/android-diagnose` can be deleted.
