@@ -13,12 +13,14 @@ BingMapProvider::BingMapProvider(const QString &imageFormat, const quint32 avera
                                  const QGeoMapType::MapStyle mapType, QObject* parent)
     : MapProvider(QStringLiteral("https://www.bing.com/maps/"), imageFormat, averageSize, mapType, parent) {}
 
-static const QString RoadMapUrl = QStringLiteral("http://ecn.t%1.tiles.virtualearth.net/tiles/r%2.png?g=%3&mkt=%4");
+// The legacy road tiles (ecn.tN.tiles.virtualearth.net/tiles/r...) carry only place names over Korea and are
+// empty from zoom 17, so the road map was blank there. The dynamic tiles (as used by bing.com) draw roads everywhere.
+static const QString RoadMapUrl = QStringLiteral("https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/%1?mkt=%2&it=G,L&shading=hill&og=2500&n=z");
 
 QString BingRoadMapProvider::_getURL(const int x, const int y, const int zoom, QNetworkAccessManager* networkManager) {
     Q_UNUSED(networkManager)
     const QString key = _tileXYToQuadKey(x, y, zoom);
-    return RoadMapUrl.arg(QString::number(_getServerNum(x, y, 4)), key, _versionBingMaps, _language);
+    return RoadMapUrl.arg(key, _language);
 }
 
 // Bing returns an empty "no imagery" tile for the Korean market (mkt=ko-KR) from zoom 16 up, so
