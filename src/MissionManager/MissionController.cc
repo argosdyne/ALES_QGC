@@ -180,7 +180,11 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
     // Fly view always reloads on a successful read.
     // Plan view reloads when a load was requested, the editor is already empty,
     // or the vehicle has no flyable mission, so the plan list is cleared too.
-    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || !_vehicleHasFlyableMission()) {
+    // Simple UI: a plan being edited and not yet sent (dirty) is not replaced by an empty vehicle
+    // mission. Otherwise every ground re-read (link restored, drone power cycle) wiped the area the
+    // user was drawing. A plan that was sent is still cleared as before. Advanced mode is unchanged.
+    const bool keepUnsentSimplePlan = !_flyView && dirty() && !qgcApp()->toolbox()->corePlugin()->showAdvancedUI();
+    if (_flyView || removeAllRequested || _itemsRequested || isEmpty() || (!_vehicleHasFlyableMission() && !keepUnsentSimplePlan)) {
         // Fly Mode (accept if):
         //      - Always accepts new items from the vehicle so Fly view is kept up to date
         // Edit Mode (accept if):

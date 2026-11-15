@@ -19,6 +19,19 @@ Item {
 
     property bool interrupted: false        // set when a critical alert took the user to the fly screen
 
+    // The plan can be replaced underneath (e.g. loaded from the drone): never keep editing a survey that
+    // is no longer in the mission — pick up the new one, or start again from the task choice.
+    Connections {
+        target: wiz._mission
+        function onVisualItemsChanged() {
+            if (!wiz.survey) return
+            var s = wiz._findSurvey()
+            if (s === wiz.survey) return
+            wiz.survey = s
+            if (!s) wiz.step = "choose"
+        }
+    }
+
     function start() {
         // Back after a critical alert (02 Flows D): continue the mission being edited, do not start a new one
         if (interrupted) {
