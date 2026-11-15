@@ -35,6 +35,12 @@ public:
 
     Q_PROPERTY(double strokeOpacity READ strokeOpacity WRITE setstrokeOpacity NOTIFY strokeOpcaityChanged)
 
+    // Flight zone data (FlightZoneManager): name, class and details shown by the AQGC Simple UI
+    // zoneClass: 0 = unknown, 1 = prohibited, 2 = authorisation required, 3 = information, 4 = my zone
+    Q_PROPERTY(QString zoneName     MEMBER _zoneName    NOTIFY zoneInfoChanged)
+    Q_PROPERTY(int     zoneClass    MEMBER _zoneClass   NOTIFY zoneInfoChanged)
+    Q_PROPERTY(QString zoneDetail   MEMBER _zoneDetail  NOTIFY zoneInfoChanged)
+
     /// Saves the QGCFencePolygon to the json object.
     ///     @param json Json object to save to
     void saveToJson(QJsonObject& json);
@@ -78,6 +84,7 @@ signals:
     void inclusionGroupChanged(int inclusionGroup);
     void colorInclusionChanged ();
     void strokeOpcaityChanged();
+    void zoneInfoChanged();
 
 private slots:
     void _setDirty(void);
@@ -95,6 +102,12 @@ private:
     QColor _colorInclusion;
 
     double _strokeOpacity;
+
+public:
+    QString _zoneName;
+    int     _zoneClass = 0;
+    QString _zoneDetail;
+private:
 
     static const int _jsonCurrentVersion = 1;
 

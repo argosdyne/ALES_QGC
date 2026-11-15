@@ -22,6 +22,9 @@
 #include <climits>
 #include <memory>
 #include <QVariantMap>
+#include "SettingsManager.h"
+#include <QJsonParseError>
+#include <QFileInfo>
 
 #include "JsonHelper.h"
 #include "FlyViewSettings.h"
@@ -40,6 +43,45 @@
 #include <CGAL/AABB_traits_3.h>
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
 #include <iostream>
+
+// AQGC Simple UI: zone name / class / details for the Simple map legend, zone details and warnings.
+// ED-318 / ED-269: properties.restriction (PROHIBITED, REQ_AUTHORISATION, CONDITIONAL, NO_RESTRICTION) and name.
+// Altitude Angel: properties.category / detailedCategory / name. Unknown = information (3).
+static int aqgcZoneClass(const QJsonObject& props)
+{
+    const QString r = props.value("restriction").toString().toUpper();
+    if (r.contains("PROHIBIT")) return 1;
+    if (r.contains("AUTHORI") || r.contains("CONDITIONAL")) return 2;
+    if (r.contains("NO_RESTRICTION")) return 3;
+    const QString c = (props.value("category").toString() + " " + props.value("detailedCategory").toString()
+                       + " " + props.value("type").toString()).toLower();
+    if (c.contains("prohibit") || c.contains("no-fly") || c.contains("nofly") || c.contains("forbidden")) return 1;
+    if (c.contains("restrict") || c.contains("controlled") || c.contains("airport") || c.contains("aerodrome")
+            || c.contains("danger") || c.contains("military") || c.contains("ctr") || c.contains("atz")) return 2;
+    return 3;
+}
+static void aqgcSetZoneInfo(QObject* shape, const QJsonObject& props, const QString& id)
+{
+    if (!shape) return;
+    QString name = props.value("name").toString();
+    if (name.isEmpty()) name = props.value("Name").toString();
+    if (name.isEmpty()) name = props.value("title").toString();
+    if (name.isEmpty()) name = id;
+    QStringList detail;
+    const QString authority = props.value("zoneAuthority").isArray()
+            ? props.value("zoneAuthority").toArray().at(0).toObject().value("name").toString()
+            : props.value("authority").toString();
+    if (!authority.isEmpty()) detail << authority;
+    const QString reason = props.value("reason").isArray()
+            ? props.value("reason").toArray().at(0).toString() : props.value("reason").toString();
+    if (!reason.isEmpty()) detail << reason;
+    const QString category = props.value("detailedCategory").toString().isEmpty()
+            ? props.value("category").toString() : props.value("detailedCategory").toString();
+    if (!category.isEmpty()) detail << category;
+    shape->setProperty("zoneName",   name);
+    shape->setProperty("zoneClass",  aqgcZoneClass(props));
+    shape->setProperty("zoneDetail", detail.join(QStringLiteral(" · ")));
+}
 #include <fstream>
 #include <cmath>
 #include <QDir>
@@ -1616,13 +1658,14 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
         double altitudeFloor = 0.0;
         double altitudeCeiling = 99999.0;
 
-        if(layer.isEmpty()){
+        if (!layer.isEmpty()) {     // was "layer.isEmpty()": the ED-318 height band was never read
+            const double unit = layer.value("uom").toString().toLower() == "ft" ? 0.3048 : 1.0;
             if (layer.contains("lower") && layer.value("lower").isDouble()) {
-                altitudeFloor = layer.value("lower").toDouble();
+                altitudeFloor = layer.value("lower").toDouble() * unit;
             }
 
             if (layer.contains("upper") && layer.value("upper").isDouble()) {
-                altitudeCeiling = layer.value("upper").toDouble();
+                altitudeCeiling = layer.value("upper").toDouble() * unit;
             }
         }
 
@@ -1643,6 +1686,9 @@ void FlightZoneManager::processJsonFile(const QString& filePath) {
             if (!id.isEmpty()) {
                 poly->setObjectName(id);
             }
+            poly->setAltitudeMin(altitudeFloor);
+            poly->setAltitudeMax(altitudeCeiling);
+            aqgcSetZoneInfo(poly, properties, id);
             return poly;
         };
 
@@ -1854,6 +1900,8 @@ void FlightZoneManager::logGeoMemoryUsage(const QString& label)
 void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
 {
     QList<std::tuple<QList<QGeoCoordinate>, QString, QString, QString>> parsedPolygons; // 마지막 QString: id
+    QHash<QString, QJsonObject> zonePropsById;                  // AQGC Simple UI: zone name / class
+    QHash<QString, QPair<double, double>> zoneBandById;         // floor / ceiling (m)
     QList<std::tuple<QGeoCoordinate, double, QString, QString, QString>> parsedCircles; // 마지막 QString: id
 
     QList<std::tuple<QList<QGeoCoordinate>, double, double>> parsedNoFlyZone;
@@ -1926,6 +1974,8 @@ void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
                 // qInfo() << "Polygons altitudeFloor === " << floorMeters;
                 // qInfo() << "Polygons altitudeCeiliing === " << ceilingMeters;
                 parsedPolygons.append(std::make_tuple(polygon, strokeColor, strokeOpacity, id));
+                zonePropsById.insert(id, properties);
+                zoneBandById.insert(id, qMakePair(floorMeters, ceilingMeters));
 
                 // Add CreatePolyhedron
                 parsedNoFlyZone.append(std::make_tuple(polygon, floorMeters, ceilingMeters));
@@ -2032,6 +2082,11 @@ void FlightZoneManager::processJsonFile(const QJsonDocument& jsonDoc)
                     polygon->appendVertex(coord);
                 polygon->setcolorInclusion(strokeColor);
                 polygon->setstrokeOpacity(strokeOpacity.toDouble() / 2);
+                aqgcSetZoneInfo(polygon, zonePropsById.value(id), id);
+                if (zoneBandById.contains(id)) {
+                    polygon->setAltitudeMin(zoneBandById.value(id).first);
+                    polygon->setAltitudeMax(zoneBandById.value(id).second);
+                }
                 _polygons.append(polygon);
                 qInfo() << "_polygons count == " << _polygons.count();
             }
@@ -2168,34 +2223,81 @@ void FlightZoneManager::getOnlineGeoJsonData() {
     calculateCornerCoordinates(mapCoord.latitude(), mapCoord.longitude(), zoom, rootWindowWidth, rootWindowHeight);
 }
 
+// ---------------------------------------------------------------------------------------------- AQGC Simple UI (S46)
 
+static QString aqgcOfficialZoneDir()
+{
+    return qgcApp()->toolbox()->settingsManager()->appSettings()->geoZoneSavePath() + QStringLiteral("/Official");
+}
 
+void FlightZoneManager::reload()
+{
+    removeAll();
+    start();
+}
 
+QString FlightZoneManager::importZoneFile(const QString& path)
+{
+    const QString src = path.startsWith(QStringLiteral("file:")) ? QUrl(path).toLocalFile() : path;
+    QFile file(src);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return tr("The file cannot be opened.");
+    }
+    const QByteArray data = file.readAll();
+    file.close();
 
+    QJsonParseError err;
+    const QJsonDocument doc = QJsonDocument::fromJson(data, &err);
+    if (doc.isNull() || !doc.isObject()) {
+        return tr("This is not a GeoJSON file (%1).").arg(err.errorString());
+    }
+    const QJsonArray features = doc.object().value("features").toArray();
+    int areas = 0;
+    for (const QJsonValue& f : features) {
+        const QString t = f.toObject().value("geometry").toObject().value("type").toString();
+        if (t == QStringLiteral("Polygon") || t == QStringLiteral("MultiPolygon")) {
+            areas++;
+        }
+    }
+    if (areas == 0) {
+        return tr("The file has no zone areas (GeoJSON Polygon or MultiPolygon features).");
+    }
 
+    QDir().mkpath(aqgcOfficialZoneDir());
+    const QString dst = aqgcOfficialZoneDir() + QStringLiteral("/") + QFileInfo(src).fileName();
+    if (QFileInfo(src).absoluteFilePath() != QFileInfo(dst).absoluteFilePath()) {
+        QFile::remove(dst);
+        if (!QFile::copy(src, dst)) {
+            return tr("The file cannot be copied to the app folder.");
+        }
+    }
+    QFile(dst).setFileTime(QDateTime::currentDateTime(), QFileDevice::FileModificationTime);   // "updated" date
 
+    // remove the previous imported file if it was another one in the same folder
+    const QString previous = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    if (!previous.isEmpty() && QFileInfo(previous).absolutePath() == QFileInfo(dst).absolutePath()
+            && QFileInfo(previous).absoluteFilePath() != QFileInfo(dst).absoluteFilePath()) {
+        QFile::remove(previous);
+    }
+    _settingsManager->flyViewSettings()->filePath()->setRawValue(dst);
+    _settingsManager->flyViewSettings()->dataType()->setRawValue(0);
+    reload();
+    return QString();
+}
 
+void FlightZoneManager::deleteZoneData()
+{
+    const QString current = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    if (!current.isEmpty() && QFileInfo(current).absolutePath() == QFileInfo(aqgcOfficialZoneDir() + "/x").absolutePath()) {
+        QFile::remove(current);
+    }
+    _settingsManager->flyViewSettings()->filePath()->setRawValue(QString());
+    removeAll();
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+QDateTime FlightZoneManager::zoneFileTime() const
+{
+    const QString current = _settingsManager->flyViewSettings()->filePath()->rawValueString();
+    const QFileInfo fi(current);
+    return fi.exists() ? fi.lastModified() : QDateTime();
+}

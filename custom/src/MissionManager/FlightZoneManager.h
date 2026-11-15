@@ -64,6 +64,17 @@ public:
     void start();
     Q_INVOKABLE void updatePolygonVisibility();
 
+    // AQGC Simple UI (Settings › Map & flight zones, S46)
+    /// Reads the zone data again (file or online, flyViewSettings.dataType)
+    Q_INVOKABLE void reload();
+    /// Checks a GeoJSON zone file (ED-318 or Altitude Angel style), copies it to <GeoZone>/Official, uses it and
+    /// reloads. Returns an empty string or the reason it was not imported (the current data is then unchanged).
+    Q_INVOKABLE QString importZoneFile(const QString& path);
+    /// Deletes an imported zone file (only from <GeoZone>/Official) and clears the zones from the map
+    Q_INVOKABLE void deleteZoneData();
+    /// Modification time of the zone file in use (invalid if none)
+    Q_INVOKABLE QDateTime zoneFileTime() const;
+
     //Check zoom value
     void checkCurrentZoomValue();
 

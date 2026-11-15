@@ -13,6 +13,10 @@ TS = os.path.join(ROOT, 'translations', 'qgc_simple_ko_KR.ts')
 QRC = os.path.join(ROOT, 'custom', 'custom.qrc')
 CORE_CTX = {'FlyView': os.path.join(ROOT, 'src', 'FlightDisplay', 'FlyView.qml'),
             'MainRootWindow': os.path.join(ROOT, 'src', 'ui', 'MainRootWindow.qml')}
+# C++ classes whose tr() strings the Simple UI shows (translated in qgc_simple_ko_KR.ts)
+CPP_CTX = {'FlightZoneManager': os.path.join(ROOT, 'custom', 'src', 'MissionManager', 'FlightZoneManager.cpp')}
+QSTR_PATTERN_CPP = r'\btr\(\s*"((?:[^"\\]|\\.)*)"\s*\)'
+TR = re.compile(QSTR_PATTERN_CPP)
 
 fails, warns = [], []
 def fail(area, msg): fails.append((area, msg))
@@ -56,9 +60,14 @@ def check_translations():
         for s in ts.get(ctx, {}):
             if s not in qml_strings(path):
                 fail('ts', 'core context %s: source %r not found in %s' % (ctx, s, os.path.basename(path)))
+    for ctx, path in CPP_CTX.items():       # only the strings already in the .ts must still exist in the source
+        src = set(TR.findall(open(path, encoding='utf-8').read()))
+        for s in ts.get(ctx, {}):
+            if s not in src:
+                warn('ts', 'stale entry %s: %r (text changed or removed in C++)' % (ctx, s))
     # no stale entries
     for ctx, msgs in ts.items():
-        if ctx in CORE_CTX:
+        if ctx in CORE_CTX or ctx in CPP_CTX:
             continue
         for s in msgs:
             if s not in used.get(ctx, set()):

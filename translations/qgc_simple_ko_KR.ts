@@ -1543,24 +1543,100 @@
         <translation>유지</translation>
     </message>
     <message>
-        <source>FLIGHT ZONE DATA (ED-269)</source>
-        <translation>비행 구역 데이터 (ED-269)</translation>
-    </message>
-    <message>
-        <source>Official flight zones</source>
-        <translation>공식 비행 구역</translation>
-    </message>
-    <message>
-        <source>Import zone files (ED-269), show them on the map and warn near them · next version</source>
-        <translation>구역 파일(ED-269)을 가져와 지도에 표시하고 가까워지면 경고 · 다음 버전</translation>
-    </message>
-    <message>
         <source>My zones</source>
         <translation>내 구역</translation>
     </message>
     <message>
-        <source>Zones you draw: do not enter or warn only · next version</source>
-        <translation>직접 그린 구역: 진입 금지 또는 경고만 · 다음 버전</translation>
+        <source>Choose a flight zone file</source>
+        <translation>비행 구역 파일 선택</translation>
+    </message>
+    <message>
+        <source>Zone files (*.geojson *.json)</source>
+        <translation>구역 파일 (*.geojson *.json)</translation>
+    </message>
+    <message>
+        <source>FLIGHT ZONE DATA</source>
+        <translation>비행 구역 데이터</translation>
+    </message>
+    <message>
+        <source>Zone source</source>
+        <translation>구역 데이터 출처</translation>
+    </message>
+    <message>
+        <source>Zones for the visible map area, downloaded while you move the map</source>
+        <translation>보이는 지도 범위의 구역을 지도를 움직일 때마다 받아 옵니다</translation>
+    </message>
+    <message>
+        <source>A GeoJSON file (ED-318 or Altitude Angel format) saved in the app</source>
+        <translation>앱에 저장한 GeoJSON 파일 (ED-318 또는 Altitude Angel 형식)</translation>
+    </message>
+    <message>
+        <source>Locked while the motors are running</source>
+        <translation>모터가 돌고 있는 동안 잠김</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>파일</translation>
+    </message>
+    <message>
+        <source>Online</source>
+        <translation>온라인</translation>
+    </message>
+    <message>
+        <source>Updated %1 · %2 zones · %3</source>
+        <translation>갱신 %1 · 구역 %2개 · %3</translation>
+    </message>
+    <message>
+        <source>shown on map</source>
+        <translation>지도에 표시</translation>
+    </message>
+    <message>
+        <source>hidden on map (Layers)</source>
+        <translation>지도에서 숨김 (레이어)</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>교체</translation>
+    </message>
+    <message>
+        <source>No flight zone file</source>
+        <translation>비행 구역 파일 없음</translation>
+    </message>
+    <message>
+        <source>Import the zone file of the country where you fly. Zones are shown on the map and the app warns near them.</source>
+        <translation>비행하는 나라의 구역 파일을 가져오세요. 구역이 지도에 표시되고 가까워지면 앱이 경고합니다.</translation>
+    </message>
+    <message>
+        <source>Choose file</source>
+        <translation>파일 선택</translation>
+    </message>
+    <message>
+        <source>Import failed</source>
+        <translation>가져오기 실패</translation>
+    </message>
+    <message>
+        <source>%1: %2 Nothing was changed.</source>
+        <translation>%1: %2 기존 데이터는 바뀌지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Altitude Angel</source>
+        <translation>Altitude Angel</translation>
+    </message>
+    <message>
+        <source>%1 zones in the visible map area · needs internet</source>
+        <translation>보이는 지도 범위의 구역 %1개 · 인터넷 필요</translation>
+    </message>
+    <message>
+        <source>API key</source>
+        <translation>API 키</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>다시 받기</translation>
+    </message>
+    <message>
+        <source>Zones you draw: do not enter or warn only · coming with the next step</source>
+        <translation>직접 그리는 구역: 진입 금지 또는 경고만 · 다음 단계에서 추가</translation>
     </message>
 </context>
 <context>
@@ -2338,6 +2414,93 @@
     <message>
         <source>No offline maps (Settings › Map &amp; flight zones)</source>
         <translation>오프라인 지도 없음 (설정 › 지도 및 비행 구역)</translation>
+    </message>
+    <message>
+        <source>Flight zones</source>
+        <translation>비행 구역</translation>
+    </message>
+    <message>
+        <source>%1 zones loaded</source>
+        <translation>구역 %1개</translation>
+    </message>
+    <message>
+        <source>No zone data (Settings › Map &amp; flight zones)</source>
+        <translation>구역 데이터 없음 (설정 › 지도 및 비행 구역)</translation>
+    </message>
+    <message>
+        <source>Prohibited</source>
+        <translation>금지</translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation>승인 필요</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>정보</translation>
+    </message>
+    <message>
+        <source>My zone</source>
+        <translation>내 구역</translation>
+    </message>
+    <message>
+        <source>My zones</source>
+        <translation>내 구역</translation>
+    </message>
+    <message>
+        <source>Ground</source>
+        <translation>지면</translation>
+    </message>
+    <message>
+        <source>%1 and up</source>
+        <translation>%1 이상</translation>
+    </message>
+    <message>
+        <source>Altitude Angel (online)</source>
+        <translation>Altitude Angel (온라인)</translation>
+    </message>
+    <message>
+        <source>Zone details</source>
+        <translation>구역 정보</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>높이</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>세부</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>출처</translation>
+    </message>
+    <message>
+        <source>%1 zones overlap here — the most restrictive one is shown first.</source>
+        <translation>구역 %1개가 겹쳐 있습니다 — 가장 엄격한 구역을 먼저 보여 줍니다.</translation>
+    </message>
+</context>
+<context>
+    <name>FlightZoneManager</name>
+    <message>
+        <source>The file cannot be opened.</source>
+        <translation>파일을 열 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>This is not a GeoJSON file (%1).</source>
+        <translation>GeoJSON 파일이 아닙니다 (%1).</translation>
+    </message>
+    <message>
+        <source>The file has no zone areas (GeoJSON Polygon or MultiPolygon features).</source>
+        <translation>파일에 구역 영역이 없습니다 (GeoJSON Polygon 또는 MultiPolygon).</translation>
+    </message>
+    <message>
+        <source>The file cannot be copied to the app folder.</source>
+        <translation>파일을 앱 폴더로 복사할 수 없습니다.</translation>
     </message>
 </context>
 </TS>

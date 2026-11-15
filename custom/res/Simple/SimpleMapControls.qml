@@ -22,6 +22,52 @@ Item {
     readonly property var  _gcs:  QGroundControl.qgcPositionManger ? QGroundControl.qgcPositionManger.gcsPosition : QtPositioning.coordinate()
     readonly property bool _vehOk: !!vehicle && vehicle.coordinate.isValid
     readonly property string _trailKey: "SimpleShowFlightTrail"
+    // flight zones (FlightZoneManager, colours and visibility in FlightZoneManagerGeoFenceMapVisuals)
+    readonly property var  _zones:      typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
+    readonly property int  _zoneCount:  _zones ? _zones.polygons.count + _zones.circles.count : 0
+    readonly property bool _zonesShown: typeof mainWindow !== "undefined" && mainWindow.simpleShowFlightZones
+    function setZones(on) { mainWindow.simpleShowFlightZones = on; QGroundControl.saveBoolGlobalSetting("SimpleShowFlightZones", on) }
+
+    // S15 zone details: zones under a map tap, most restrictive first (prohibited, authorisation, my zone, information)
+    property var tappedZones: []
+    function _rank(c) { return c === 1 ? 0 : c === 2 ? 1 : c === 4 ? 2 : 3 }
+    function zonesAt(coord) {
+        var out = []
+        if (!_zones || !coord || !coord.isValid) return out
+        for (var i = 0; i < _zones.polygons.count; i++) {
+            var p = _zones.polygons.get(i)
+            if (p && p.containsCoordinate(coord)) out.push(p)
+        }
+        for (var j = 0; j < _zones.circles.count; j++) {
+            var c = _zones.circles.get(j)
+            if (c && c.center.distanceTo(coord) <= Number(c.radius.rawValue)) out.push(c)
+        }
+        out.sort(function(a, b) { return mc._rank(a.zoneClass) - mc._rank(b.zoneClass) })
+        return out
+    }
+    Connections {
+        target: mc.map
+        function onSimpleMapClicked(coordinate) {
+            if (!mc.visible || !mc._zonesShown) return
+            mc.layersOpen = false
+            mc.tappedZones = mc.zonesAt(coordinate)
+        }
+    }
+    function className(c) {
+        return c === 1 ? qsTr("Prohibited") : c === 2 ? qsTr("Authorisation required") : c === 4 ? qsTr("My zone") : qsTr("Information")
+    }
+    function classColor(c) { return c === 1 ? SimpleTheme.danger : c === 2 ? SimpleTheme.warn : c === 4 ? SimpleTheme.surfaceControl : SimpleTheme.info }
+    function heightText(z) {
+        var u = QGroundControl.unitsConversion.appSettingsVerticalDistanceUnitsString
+        function h(m) { return Math.round(QGroundControl.unitsConversion.metersToAppSettingsVerticalDistanceUnits(m)) + " " + u }
+        var lo = z.altitudeMin > 0 ? h(z.altitudeMin) : qsTr("Ground")
+        return z.altitudeMax >= 99999 ? qsTr("%1 and up").arg(lo) : lo + " – " + h(z.altitudeMax)
+    }
+    readonly property string sourceText: {
+        if (mc._fly.dataType.rawValue === 1) return qsTr("Altitude Angel (online)")
+        var f = String(mc._fly.filePath.rawValue)
+        return f.substring(Math.max(f.lastIndexOf("/"), f.lastIndexOf("\\")) + 1)
+    }
 
     function typeFor(kind) {
         var types = _mgr.mapTypeList(_fm.mapProvider.value)
@@ -46,7 +92,7 @@ Item {
         _mgr.loadTileSets()
         if (map) map.simpleShowTrail = QGroundControl.loadBoolGlobalSetting(_trailKey, true)
     }
-    onVisibleChanged: if (!visible) layersOpen = false
+    onVisibleChanged: if (!visible) { layersOpen = false; tappedZones = [] }
 
     // ---------------------------------------------------------------- scale bar (top left)
     Rectangle {
@@ -85,6 +131,35 @@ Item {
             text: _u === "m" && scale._len >= 1000 ? (scale._len / 1000) + " km" : scale._len + " " + _u
         }
         Rectangle { id: scaleBar; x: SimpleTheme.px(14); y: SimpleTheme.px(40); width: Math.round(scale._barPx); height: SimpleTheme.px(4); color: SimpleTheme.textPrimary }
+    }
+
+    // ---------------------------------------------------------------- flight zone legend (Figma S15)
+    // Figma has it at x 24 above the telemetry bar; it moves right of the action buttons (x 190) so that it
+    // does not cover the third action button in flight.
+    Rectangle {
+        visible: mc._zonesShown && mc._zoneCount > 0
+        x: SimpleTheme.px(190)
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(1080 - 936 + 16)
+        width: legendCol.width + SimpleTheme.px(36); height: legendCol.height + SimpleTheme.px(28)
+        radius: SimpleTheme.px(18)
+        color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
+        Column {
+            id: legendCol
+            x: SimpleTheme.px(18); y: SimpleTheme.px(14)
+            spacing: SimpleTheme.px(8)
+            Repeater {
+                model: [[qsTr("Prohibited"), "#c9353d"], [qsTr("Authorisation required"), "#f5a524"], [qsTr("Information"), "#2a68cc"]]
+                Row {
+                    spacing: SimpleTheme.px(10)
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: SimpleTheme.px(28); height: SimpleTheme.px(18); radius: SimpleTheme.px(4)
+                        color: SimpleTheme.withAlpha(modelData[1], 0.6); border.width: SimpleTheme.px(2); border.color: modelData[1]
+                    }
+                    SText { text: modelData[0]; size: 24 }
+                }
+            }
+        }
     }
 
     // ---------------------------------------------------------------- button column (left of the PiP)
@@ -195,6 +270,12 @@ Item {
             }
 
             LayerRow {
+                title: qsTr("Flight zones")
+                sub: mc._zoneCount > 0 ? qsTr("%1 zones loaded").arg(mc._zoneCount) : qsTr("No zone data (Settings › Map & flight zones)")
+                checked: mc._zonesShown
+                onToggled: mc.setZones(on)
+            }
+            LayerRow {
                 title: qsTr("Flight trail"); sub: qsTr("Where the drone has flown")
                 checked: !!mc.map && mc.map.simpleShowTrail
                 onToggled: mc.setTrail(on)
@@ -214,6 +295,63 @@ Item {
                     text: mc._offlineSets > 0 ? (mc._offlineSets === 1 ? qsTr("Offline map: 1 area downloaded") : qsTr("Offline maps: %1 areas downloaded").arg(mc._offlineSets))
                                               : qsTr("No offline maps (Settings › Map & flight zones)")
                 }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- S15 zone details (tap on a zone)
+    Rectangle {
+        id: zoneDetails
+        readonly property var zone: mc.tappedZones.length > 0 ? mc.tappedZones[0] : null
+        visible: !!zone
+        x: SimpleTheme.px(1336); y: SimpleTheme.px(300)
+        width: SimpleTheme.px(560); height: zcol.height + SimpleTheme.px(50)
+        radius: SimpleTheme.px(28)
+        color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.96)
+        border.width: SimpleTheme.px(1); border.color: SimpleTheme.line
+        MouseArea { anchors.fill: parent }
+        Column {
+            id: zcol
+            x: SimpleTheme.px(29); y: SimpleTheme.px(25)
+            width: parent.width - SimpleTheme.px(58)
+            spacing: SimpleTheme.px(12)
+            Item {
+                width: parent.width; height: SimpleTheme.px(40)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Zone details"); size: 32; bold: true }
+                SIcon {
+                    anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; name: "close"; size: 40
+                    MouseArea { anchors.fill: parent; anchors.margins: -SimpleTheme.px(16); onClicked: mc.tappedZones = [] }
+                }
+            }
+            Rectangle {
+                width: chipText.implicitWidth + SimpleTheme.px(28); height: SimpleTheme.px(40); radius: SimpleTheme.px(14)
+                color: zoneDetails.zone ? mc.classColor(zoneDetails.zone.zoneClass) : "transparent"
+                SText { id: chipText; anchors.centerIn: parent; size: 24
+                        color: zoneDetails.zone && zoneDetails.zone.zoneClass === 2 ? SimpleTheme.bgBase : SimpleTheme.textPrimary
+                        text: zoneDetails.zone ? mc.className(zoneDetails.zone.zoneClass) : "" }
+            }
+            Repeater {
+                model: zoneDetails.zone ? [
+                    [qsTr("Name"),    zoneDetails.zone.zoneName],
+                    [qsTr("Height"),  mc.heightText(zoneDetails.zone)],
+                    [qsTr("Details"), zoneDetails.zone.zoneDetail],
+                    [qsTr("Source"),  zoneDetails.zone.zoneClass === 4 ? qsTr("My zones") : mc.sourceText]
+                ] : []
+                Item {
+                    visible: modelData[1] !== ""
+                    width: zcol.width; height: visible ? Math.max(SimpleTheme.px(28), val.height) : 0
+                    SText { text: modelData[0]; size: 24; color: SimpleTheme.textSecondary }
+                    SText {
+                        id: val; anchors.right: parent.right
+                        width: parent.width * 0.62; horizontalAlignment: Text.AlignRight; wrapMode: Text.WordWrap
+                        text: modelData[1]; size: 24
+                    }
+                }
+            }
+            SText {
+                visible: mc.tappedZones.length > 1
+                width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textTertiary
+                text: qsTr("%1 zones overlap here — the most restrictive one is shown first.").arg(mc.tappedZones.length)
             }
         }
     }

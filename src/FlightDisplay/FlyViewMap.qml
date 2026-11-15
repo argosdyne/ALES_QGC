@@ -351,6 +351,7 @@ FlightMap {
     property real   _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
     property bool   simpleShowTrail:            true    // AQGC Simple UI: S30 Layers › Flight trail
+    signal simpleMapClicked(var coordinate)             // AQGC Simple UI: map tap (S15 zone details)
     property bool   _keepMapCenteredOnVehicle:  _flyViewSettings.keepMapCenteredOnVehicle.rawValue
 
     property bool   _disableVehicleTracking:    false
@@ -963,8 +964,9 @@ FlightMap {
                 _root.setGotoDraftCoordinate(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false), false)
                 return
             }
-            // Simple UI has no map tap menu yet (Figma S35, v2): a tap on the map does nothing.
+            // Simple UI has no map tap menu yet (Figma S35, v2); a tap shows flight zone details (S15).
             if (mainWindow.simpleUI) {
+                _root.simpleMapClicked(_root.toCoordinate(Qt.point(mouse.x, mouse.y), false))
                 return
             }
             if (!globals.guidedControllerFlyView.guidedUIVisible && 

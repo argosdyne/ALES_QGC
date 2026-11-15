@@ -5,6 +5,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.4
 import QGroundControl 1.0
 import QGroundControl.FactSystem 1.0
+import QGroundControl.Controls 1.0
 import "."
 
 Rectangle {
@@ -927,8 +928,7 @@ Rectangle {
 
     //------------------------------------------------------------------ Map & flight zones (S46)
     // Map style: flightMapSettings provider/type (types from mapEngineManager.mapTypeList). Offline maps: QGC map cache
-    // (mapEngineManager.tileSets). Flight zone data (ED-269) and My zones (S32) are not in the app yet (decision 2026-11-15:
-    // separate task with a design review), so their rows say "next version".
+    // (mapEngineManager.tileSets). Flight zone data: see the section below (decision 2026-11-15).
     Component {
         id: mapsComp
         Column {
@@ -1043,17 +1043,123 @@ Rectangle {
                 }
             }
 
-            // ---- flight zones (next version)
-            SText { text: qsTr("FLIGHT ZONE DATA (ED-269)"); size: 24; medium: true; color: SimpleTheme.textTertiary; topPadding: SimpleTheme.px(8) }
-            SSettingRow {
-                title: qsTr("Official flight zones")
-                sub: qsTr("Import zone files (ED-269), show them on the map and warn near them · next version")
-                SIcon { name: "globe"; size: 40; opacity: 0.5 }
-            }
-            SSettingRow {
-                title: qsTr("My zones")
-                sub: qsTr("Zones you draw: do not enter or warn only · next version")
-                SIcon { name: "pin"; size: 40; opacity: 0.5 }
+            // ---- flight zone data (decision 2026-11-15): GeoJSON file (ED-318 / Altitude Angel style) or Altitude Angel
+            // online, through the existing FlightZoneManager. Changes are locked while the motors run (Figma G-01b rule).
+            Item {
+                id: zones
+                width: parent.width; height: zoneCol.height
+                readonly property var  _mgr:     mainWindow.flightZoneManager
+                readonly property var  _fly:     QGroundControl.settingsManager.flyViewSettings
+                readonly property bool _online:  _fly.dataType.rawValue === 1
+                readonly property string _file:  String(_fly.filePath.rawValue)
+                readonly property string _name:  baseName(_file).replace(/\.(geo)?json$/i, "")
+                readonly property int  _count:   _mgr ? _mgr.polygons.count + _mgr.circles.count : 0
+                readonly property bool _armed:   !!page.vs && !!page.vs.vehicle && page.vs.vehicle.armed
+                property string error: ""
+                property string errorFile: ""
+                property bool   confirmDel: false
+                property int    _rev: 0             // re-read the file date after import / delete
+                readonly property var  _date: { _rev; _count; return _mgr ? _mgr.zoneFileTime() : null }
+                readonly property bool _hasFile: !_online && _file !== "" && !!_date && !isNaN(_date.getTime())
+                function baseName(f) { f = String(f); return f.substring(Math.max(f.lastIndexOf("/"), f.lastIndexOf("\\")) + 1) }
+                function chooseFile() { zoneFileDialog.openForLoad() }
+                function setSource(online) { if (online !== _online) { _fly.dataType.rawValue = online ? 1 : 0; _mgr.reload(); _rev++ } }
+
+                QGCFileDialog {
+                    id: zoneFileDialog
+                    title: qsTr("Choose a flight zone file")
+                    folder: QGroundControl.settingsManager.appSettings.geoZoneSavePath
+                    nameFilters: [qsTr("Zone files (*.geojson *.json)")]
+                    selectExisting: true
+                    onAcceptedForLoad: {
+                        zones.error = zones._mgr.importZoneFile(file)
+                        zones.errorFile = zones.baseName(file)
+                        zones._rev++
+                        close()
+                    }
+                }
+
+                Column {
+                    id: zoneCol
+                    width: parent.width
+                    spacing: SimpleTheme.px(16)
+                    SText { text: qsTr("FLIGHT ZONE DATA"); size: 24; medium: true; color: SimpleTheme.textTertiary; topPadding: SimpleTheme.px(8) }
+                    SSettingRow {
+                        title: qsTr("Zone source")
+                        sub: zones._online ? qsTr("Zones for the visible map area, downloaded while you move the map")
+                                           : qsTr("A GeoJSON file (ED-318 or Altitude Angel format) saved in the app")
+                        locked: zones._armed; lockReason: qsTr("Locked while the motors are running")
+                        SSegmented {
+                            designWidth: 420
+                            model: [qsTr("File"), qsTr("Online")]
+                            currentIndex: zones._online ? 1 : 0
+                            onActivated: { zones.setSource(index === 1); currentIndex = Qt.binding(function() { return zones._online ? 1 : 0 }) }
+                        }
+                    }
+                    // file in use
+                    SSettingRow {
+                        visible: zones._hasFile
+                        title: zones._name
+                        sub: qsTr("Updated %1 · %2 zones · %3").arg(zones._hasFile ? Qt.formatDate(zones._date, "yyyy-MM-dd") : "—").arg(zones._count)
+                             .arg(mainWindow.simpleShowFlightZones ? qsTr("shown on map") : qsTr("hidden on map (Layers)"))
+                        locked: zones._armed; lockReason: qsTr("Locked while the motors are running")
+                        Row {
+                            spacing: SimpleTheme.px(12)
+                            SButton { visible: !zones.confirmDel; designHeight: 72; textSize: 26; icon: "folder"; text: qsTr("Replace"); onClicked: zones.chooseFile() }
+                            SButton { visible: !zones.confirmDel; designHeight: 72; textSize: 26; kind: "danger"; icon: "trash"; text: qsTr("Delete"); onClicked: zones.confirmDel = true }
+                            SButton { visible: zones.confirmDel; designHeight: 72; textSize: 26; text: qsTr("Keep"); onClicked: zones.confirmDel = false }
+                            SButton { visible: zones.confirmDel; designHeight: 72; textSize: 26; kind: "danger"; icon: "trash"; text: qsTr("Delete")
+                                      onClicked: { zones.confirmDel = false; zones._mgr.deleteZoneData(); zones._rev++ } }
+                        }
+                    }
+                    // no file yet
+                    SSettingRow {
+                        visible: !zones._online && !zones._hasFile
+                        title: qsTr("No flight zone file")
+                        sub: qsTr("Import the zone file of the country where you fly. Zones are shown on the map and the app warns near them.")
+                        locked: zones._armed; lockReason: qsTr("Locked while the motors are running")
+                        SButton { designHeight: 72; textSize: 26; icon: "folder"; text: qsTr("Choose file"); onClicked: zones.chooseFile() }
+                    }
+                    // import failed (Figma S46: red row, the reason, nothing changed)
+                    Rectangle {
+                        visible: zones.error !== ""
+                        width: parent.width; height: errCol.height + SimpleTheme.px(36)
+                        radius: SimpleTheme.px(16); color: SimpleTheme.withAlpha(SimpleTheme.danger, 0.12)
+                        border.width: SimpleTheme.px(2); border.color: SimpleTheme.danger
+                        SIcon { x: SimpleTheme.px(24); anchors.verticalCenter: parent.verticalCenter; name: "warn"; size: 40; color: SimpleTheme.textDanger }
+                        Column {
+                            id: errCol
+                            x: SimpleTheme.px(88); anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width - SimpleTheme.px(88) - errBtn.width - SimpleTheme.px(44)
+                            SText { text: qsTr("Import failed"); size: 28; medium: true }
+                            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textDanger
+                                    text: qsTr("%1: %2 Nothing was changed.").arg(zones.errorFile).arg(zones.error) }
+                        }
+                        SButton { id: errBtn; anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
+                                  designHeight: 72; textSize: 26; icon: "folder"; text: qsTr("Choose file"); enabled_: !zones._armed; onClicked: zones.chooseFile() }
+                    }
+                    // online
+                    SSettingRow {
+                        visible: zones._online
+                        title: qsTr("Altitude Angel")
+                        sub: qsTr("%1 zones in the visible map area · needs internet").arg(zones._count)
+                        locked: zones._armed; lockReason: qsTr("Locked while the motors are running")
+                        Row {
+                            spacing: SimpleTheme.px(12)
+                            STextField {
+                                designWidth: 360; label: qsTr("API key"); password: true
+                                text: zones._fly.onlineLicenseKey.rawValue
+                                onEdited: { zones._fly.onlineLicenseKey.rawValue = text; zones._mgr.reload() }
+                            }
+                            SButton { designHeight: 72; textSize: 26; text: qsTr("Reload"); onClicked: zones._mgr.reload() }
+                        }
+                    }
+                    SSettingRow {
+                        title: qsTr("My zones")
+                        sub: qsTr("Zones you draw: do not enter or warn only · coming with the next step")
+                        SIcon { name: "pin"; size: 40; opacity: 0.5 }
+                    }
+                }
             }
         }
     }

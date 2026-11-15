@@ -107,6 +107,9 @@ ApplicationWindow {
 
     /// AQGC Simple UI is the default; the classic UI is shown in Advanced mode (admin PIN)
     readonly property bool      simpleUI:                   !QGroundControl.corePlugin.showAdvancedUI
+    // AQGC Simple UI: Layers › Flight zones (S30 / S15), saved as SimpleShowFlightZones
+    property bool               simpleShowFlightZones:      QGroundControl.loadBoolGlobalSetting("SimpleShowFlightZones", true)
+    readonly property var       flightZoneManager:          _flightzoneManager
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables

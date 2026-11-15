@@ -28,6 +28,7 @@ Item {
     property color  borderColor: "red"
     property color  interiorColor: "red"
     property real   interiorOpacity: 0.35
+    property bool   shown:          true    ///< false hides the polygon (AQGC Simple UI: Layers › Flight zones)
 
     // Single MapPolygon for the given path; no extra visuals to keep memory low
     MapPolygon {
@@ -37,7 +38,7 @@ Item {
         border.color:   borderColor
         border.width:   borderWidth
         path:           mapPolygon ? mapPolygon.path : []
-        visible:        mapPolygon && path.length >= 3
+        visible:        shown && mapPolygon && path.length >= 3
         z:              _root.z
 
         Component.onCompleted: {
