@@ -47,12 +47,19 @@ Reply to the user in Korean unless they write in English.
   "Turn off Remote ID" (not in Figma) is the way back for places or drones without Remote ID.
 - Settings › Map & flight zones (2026-11-15, S46): map style and offline maps done. "Download new area" uses the visible map
   inside a frame (not a drawn rectangle) and the existing QGC download; the companion "<name> Elevation" set is hidden and
-  deleted with its map. Flight zone data (ED-269) and My zones (S32) do not exist in the app yet (GeoZone only stores a
-  file path) and are a separate task with a design review first.
+  deleted with its map. Flight zone data (ED-269) and My zones (S32) are not in the Simple UI yet (the classic GeoAwareness `FlightZoneManager` reads GeoJSON from a
+  file or Altitude Angel) and are a separate task (scope decided 2026-11-15, see "Flight zones" below).
 - Settings › Payloads (2026-11-15, S52–S55): YellowScan, camera & gimbal, tether station on existing managers. LiDAR camera
   values are read-only (companion board lacks Set Parameter); tether no-power action is shown, changed only in Advanced;
   gimbal tilt limits write FC mount parameters on the ground; gimbal speed is the app setting `simpleGimbalSpeed`.
   S56 cards (megaphone, searchlight, winch, cleaning) come with the fly-screen payload panels.
+- Map controls (2026-11-15, S30): button column left of the PiP (Layers, Drone, Me, zoom); scale bar top left under the menu
+  (x 180, y 130). Layers: map style, flight trail (`SimpleShowFlightTrail`), keep drone in view, offline map status.
+  The "Flight zones" switch appears with the flight zone work.
+- Flight zones (2026-11-15, user: do it before Plan): full scope = zones on the Simple map + Layers switch, Settings S46
+  data management, in-flight warnings (Simple banner, not the classic GeoAwareness popup) and checks in S02 / plan check,
+  and My zones (S32). Data: GeoJSON file import and Altitude Angel online (license key). Build on the existing
+  `FlightZoneManager` (custom/src/MissionManager) and GeoZone tools; Figma first.
 - ArduPilot parameter documentation (2026-11-15, licence option B): only one file, generated from the company firmware
   (Z01.07.00EASA) with ArduPilot param_parse.py, is bundled for all Copter versions; the ArduPilot-Parameter-Repository
   files are no longer compiled in (Plane/Rover/Sub: no documentation). Listed as GPLv3 in the notices. Regenerate with
@@ -97,8 +104,8 @@ Reply to the user in Korean unless they write in English.
    link lost, low battery. Fix what the user reports.
 2. v2: ~~Korean strings + bundled fonts~~ (done 2026-11-14: `translations/qgc_simple_ko_KR.ts`, `custom/res/Simple/fonts/`;
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
-   S56 with the payload panels; flight zones ED-269 + My zones S32 after a design review) → fly screen (video main S18/S49, map controls S30,
-   map tap menu S35/S36/S38, payload panels) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
+   map tap menu S35/S36/S38, payload panels) → **flight zones** (map, S46 data, warnings/checks, My zones S32) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: Google Play needs a higher target SDK than android-30 (decision pending); the signed Android release
    path (push to `Argos_Stable4.4` with keystore secret) is untested; remote branch `ci/android-diagnose` can be deleted.

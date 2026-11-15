@@ -191,6 +191,14 @@ Item {
         SAttitude { roll: fly._veh ? Number(fly._veh.roll.rawValue) : NaN; pitch: fly._veh ? Number(fly._veh.pitch.rawValue) : NaN }
     }
 
+    // S30: map controls left of the PiP, Layers panel, scale bar (hidden while the video is the main view)
+    SimpleMapControls {
+        anchors.fill: parent
+        visible: !fly.videoMain && typeof flightView !== "undefined"
+        map: typeof flightView !== "undefined" ? flightView.simpleMap : null
+        vehicle: fly._veh
+    }
+
     // S49: waiting for video / no video (flight controls stay as they are)
     Column {
         id: waitPanel

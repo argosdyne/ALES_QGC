@@ -350,6 +350,7 @@ FlightMap {
     property real   _toolButtonTopMargin:       parent.height - mainWindow.height + (ScreenTools.defaultFontPixelHeight / 2)
     property real   _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
     property var    _flyViewSettings:           QGroundControl.settingsManager.flyViewSettings
+    property bool   simpleShowTrail:            true    // AQGC Simple UI: S30 Layers › Flight trail
     property bool   _keepMapCenteredOnVehicle:  _flyViewSettings.keepMapCenteredOnVehicle.rawValue
 
     property bool   _disableVehicleTracking:    false
@@ -558,7 +559,7 @@ FlightMap {
         z:          QGroundControl.zOrderTrajectoryLines
         // During GoTo the dedicated overlay below is used, so the pre-GoTo
         // armed-flight history does not look like part of this command.
-        visible:    !pipMode && !_root.gotoProgressActive
+        visible:    !pipMode && !_root.gotoProgressActive && _root.simpleShowTrail
 
         Connections {
             target:                 QGroundControl.multiVehicleManager

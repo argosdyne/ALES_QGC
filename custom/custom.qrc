@@ -171,6 +171,7 @@
         <file alias="SimpleConnectCard.qml">res/Simple/SimpleConnectCard.qml</file>
         <file alias="SimpleFlyOverlay.qml">res/Simple/SimpleFlyOverlay.qml</file>
         <file alias="SimpleMapDownload.qml">res/Simple/SimpleMapDownload.qml</file>
+        <file alias="SimpleMapControls.qml">res/Simple/SimpleMapControls.qml</file>
         <file alias="SimpleMenuDrawer.qml">res/Simple/SimpleMenuDrawer.qml</file>
         <file alias="SimpleMessages.qml">res/Simple/SimpleMessages.qml</file>
         <file alias="SimpleModeSheet.qml">res/Simple/SimpleModeSheet.qml</file>

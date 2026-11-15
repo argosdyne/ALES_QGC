@@ -444,6 +444,10 @@
         <source>Clear</source>
         <translation>모두 지우기</translation>
     </message>
+    <message>
+        <source>No messages</source>
+        <translation>메시지 없음</translation>
+    </message>
 </context>
 <context>
     <name>SimpleModeSheet</name>
@@ -2287,6 +2291,53 @@
     <message>
         <source>YellowScan LiDAR</source>
         <translation>YellowScan LiDAR</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMapControls</name>
+    <message>
+        <source>Map</source>
+        <translation>지도</translation>
+    </message>
+    <message>
+        <source>Satellite</source>
+        <translation>위성</translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation>일반</translation>
+    </message>
+    <message>
+        <source>Hybrid</source>
+        <translation>위성+도로</translation>
+    </message>
+    <message>
+        <source>Flight trail</source>
+        <translation>비행 궤적</translation>
+    </message>
+    <message>
+        <source>Where the drone has flown</source>
+        <translation>드론이 지나온 길</translation>
+    </message>
+    <message>
+        <source>Keep drone in view</source>
+        <translation>드론 따라가기</translation>
+    </message>
+    <message>
+        <source>Map follows the drone</source>
+        <translation>지도가 드론을 따라 움직임</translation>
+    </message>
+    <message>
+        <source>Offline map: 1 area downloaded</source>
+        <translation>오프라인 지도: 1개 지역 저장됨</translation>
+    </message>
+    <message>
+        <source>Offline maps: %1 areas downloaded</source>
+        <translation>오프라인 지도: %1개 지역 저장됨</translation>
+    </message>
+    <message>
+        <source>No offline maps (Settings › Map &amp; flight zones)</source>
+        <translation>오프라인 지도 없음 (설정 › 지도 및 비행 구역)</translation>
     </message>
 </context>
 </TS>
