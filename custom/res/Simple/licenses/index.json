@@ -133,6 +133,13 @@
   "file": "MAVLink.txt"
  },
  {
+  "name": "ArduPilot parameter documentation",
+  "version": "Z01.07.00EASA (ArduPilot 4.5.1)",
+  "license": "GNU GPL v3",
+  "used": "Parameter names and descriptions in Advanced mode",
+  "file": "ArduPilot-Parameters.txt"
+ },
+ {
   "name": "PX4 GPS Drivers",
   "version": "",
   "license": "BSD 3-clause",

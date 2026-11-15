@@ -102,6 +102,14 @@ add('qmdnsengine.txt', 'qmdnsengine', '', 'MIT', 'Network discovery', head('qmdn
 add('MAVLink.txt', 'MAVLink C library (generated)', 'v2.0', 'MIT', 'Drone communication',
     head('MAVLink C library v2 (generated code)', '', 'MIT (MAVLink generator output exception)',
          'Copyright (c) MAVLink Development Team. Source: https://github.com/mavlink/c_library_v2') + MAV_MIT)
+# ArduPilot parameter documentation: generated from the ARGOSDYNE ArduCopter firmware (decision 2026-11-15, option B);
+# only this one file is bundled (custom/res/ParameterMetaData, see custom/tools/params/README.md)
+add('ArduPilot-Parameters.txt', 'ArduPilot parameter documentation', 'Z01.07.00EASA (ArduPilot 4.5.1)', 'GNU GPL v3',
+    'Parameter names and descriptions in Advanced mode',
+    head('ArduPilot parameter documentation (ArduCopter)', 'Z01.07.00EASA / ArduPilot 4.5.1', 'GNU General Public License v3',
+         'Generated with ArduPilot Tools/autotest/param_metadata/param_parse.py from the ARGOSDYNE ArduCopter firmware source '
+         '(ArduPilot fork, https://github.com/ArduPilot/ardupilot). The source code of that firmware is available from ARGOSDYNE.')
+    + lic('GPL-3.0.txt'))
 add('PX4-GpsDrivers.txt', 'PX4 GPS Drivers', '', 'BSD 3-clause', 'RTK GPS', head('PX4 GPS Drivers', '', 'BSD 3-clause') + lic('gpsdrivers.txt'))
 
 # --- Fonts --------------------------------------------------------------------------------------

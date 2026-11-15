@@ -150,6 +150,12 @@ void APMParameterMetaData::loadParameterFactMetaDataFile(const QString& metaData
 
     qCDebug(APMParameterMetaDataLog) << "Loading parameter meta data:" << metaDataFile;
 
+    // ARGOSDYNE: only Copter documentation is bundled; other vehicle types have none (no file, not an error)
+    if (metaDataFile.isEmpty()) {
+        qCDebug(APMParameterMetaDataLog) << "No parameter meta data for this vehicle type";
+        return;
+    }
+
     QFile xmlFile(metaDataFile);
     Q_ASSERT(xmlFile.exists());
 
