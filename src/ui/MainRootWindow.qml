@@ -43,7 +43,12 @@ ApplicationWindow {
         if (!mainWindow.simpleUI) {
             firstRunPromptManager.nextPrompt()
         }
+        // Classic GeoZoneMakeView only when Advanced mode is used (see _geoZoneMakeView below)
+        if (!mainWindow.simpleUI) {
+            _geoZoneMakeViewKeep = true
+        }
     }
+    onSimpleUIChanged: if (!simpleUI) _geoZoneMakeViewKeep = true
 
     QtObject {
         id: firstRunPromptManager
@@ -216,6 +221,7 @@ ApplicationWindow {
     // show GeoZoneMakeView
     function showGeoZoneMakeView(){
         //viewSwitch(toolbar.planViewToolbar)
+        _geoZoneMakeViewKeep = true
         _geoZoneMakeView.visible = true
     }
 
@@ -774,11 +780,19 @@ ApplicationWindow {
             }
         }
 
-    GeoZoneMakeView {
+    // GeoZoneMakeView (classic tool, opened from the Advanced fly tool strip) builds its own map and plan
+    // controller and took ~4-5 s of the start. Simple UI: created only once Advanced mode is used; in Advanced
+    // mode it is created at start (window onCompleted) as before. Kept once created. A plain binding on
+    // simpleUI is not used: it can read false while the window is still being created.
+    // viewSwitch / showGeoZoneMakeView use .visible.
+    Loader {
         id: _geoZoneMakeView
         anchors.fill: parent
         visible: false
+        active: _geoZoneMakeViewKeep
+        sourceComponent: Component { GeoZoneMakeView { } }
     }
+    property bool _geoZoneMakeViewKeep: false
 
     Drawer {
         id:             toolDrawer
