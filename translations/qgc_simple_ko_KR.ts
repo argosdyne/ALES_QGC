@@ -1007,12 +1007,212 @@
         <translation>다음 버전에서 제공</translation>
     </message>
     <message>
-        <source>This settings page is designed (Figma S22, S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings.</source>
-        <translation>이 설정 화면은 디자인이 끝났으며(Figma S22, S46, S47, S52–S56) 버전 2에서 추가됩니다. 그때까지는 고급 › 애플리케이션 설정을 사용하세요.</translation>
+        <source>This settings page is designed (Figma S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings.</source>
+        <translation>이 설정 화면은 디자인이 끝났으며(Figma S46, S47, S52–S56) 버전 2에서 추가됩니다. 그때까지는 고급 › 애플리케이션 설정을 사용하세요.</translation>
     </message>
     <message>
         <source>Open Advanced settings</source>
         <translation>고급 설정 열기</translation>
+    </message>
+    <message>
+        <source>2.4 GHz</source>
+        <translation>2.4 GHz</translation>
+    </message>
+    <message>
+        <source>5.8 GHz</source>
+        <translation>5.8 GHz</translation>
+    </message>
+    <message>
+        <source>Band unknown</source>
+        <translation>대역 알 수 없음</translation>
+    </message>
+    <message>
+        <source>Changing both radios to 2.4 GHz. The link drops and comes back in about a minute.</source>
+        <translation>두 무선기를 2.4 GHz로 바꾸는 중입니다. 링크가 끊겼다가 1분쯤 뒤 다시 연결됩니다.</translation>
+    </message>
+    <message>
+        <source>Changing both radios to 5.8 GHz. The link drops and comes back in about a minute.</source>
+        <translation>두 무선기를 5.8 GHz로 바꾸는 중입니다. 링크가 끊겼다가 1분쯤 뒤 다시 연결됩니다.</translation>
+    </message>
+    <message>
+        <source>Fill in server, mountpoint, user and password, then turn this on.</source>
+        <translation>서버, 마운트포인트, 사용자, 비밀번호를 입력한 뒤 켜세요.</translation>
+    </message>
+    <message>
+        <source>Could not log in. Check server, port, mountpoint, user and password. Trying again every 5 s.</source>
+        <translation>로그인하지 못했습니다. 서버, 포트, 마운트포인트, 사용자, 비밀번호를 확인하세요. 5초마다 다시 시도합니다.</translation>
+    </message>
+    <message>
+        <source>Retrying…</source>
+        <translation>다시 시도 중…</translation>
+    </message>
+    <message>
+        <source>Radio link and RTK correction. Payload settings are under Payloads.</source>
+        <translation>무선 링크와 RTK 보정. 페이로드 설정은 페이로드에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Radio link · M2</source>
+        <translation>무선 링크 · M2</translation>
+    </message>
+    <message>
+        <source>Radio link · DoodleLabs</source>
+        <translation>무선 링크 · DoodleLabs</translation>
+    </message>
+    <message>
+        <source>Radio link · Enpulse</source>
+        <translation>무선 링크 · Enpulse</translation>
+    </message>
+    <message>
+        <source>Pairing…</source>
+        <translation>페어링 중…</translation>
+    </message>
+    <message>
+        <source>No radio</source>
+        <translation>무선기 없음</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Not paired</source>
+        <translation>페어링 안 됨</translation>
+    </message>
+    <message>
+        <source>Radio settings for this radio are in Advanced.</source>
+        <translation>이 무선기의 설정은 고급 모드에 있습니다.</translation>
+    </message>
+    <message>
+        <source>No radio found. Check that the controller is on and its radio is connected.</source>
+        <translation>무선기를 찾지 못했습니다. 조종기가 켜져 있고 무선기가 연결되어 있는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Pairing… Keep the drone close and turned on.</source>
+        <translation>페어링 중… 드론을 가까이 두고 켜 두세요.</translation>
+    </message>
+    <message>
+        <source>signal %1 dB</source>
+        <translation>신호 %1 dB</translation>
+    </message>
+    <message>
+        <source>drone radio paired</source>
+        <translation>드론 무선기 페어링됨</translation>
+    </message>
+    <message>
+        <source>drone radio not paired</source>
+        <translation>드론 무선기 페어링 안 됨</translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation>대역</translation>
+    </message>
+    <message>
+        <source>Pair new radio</source>
+        <translation>새 무선기 페어링</translation>
+    </message>
+    <message>
+        <source>Restart radio</source>
+        <translation>무선기 재시작</translation>
+    </message>
+    <message>
+        <source>Change both radios to 2.4 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
+        <translation>두 무선기를 2.4 GHz로 바꿀까요? 드론과 조종기의 무선기가 재시작되며 링크가 1분쯤 끊깁니다.</translation>
+    </message>
+    <message>
+        <source>Change both radios to 5.8 GHz? The drone and controller restart their radios. The link is lost for about a minute.</source>
+        <translation>두 무선기를 5.8 GHz로 바꿀까요? 드론과 조종기의 무선기가 재시작되며 링크가 1분쯤 끊깁니다.</translation>
+    </message>
+    <message>
+        <source>Pair a new radio? The current pairing ends. Put the drone's radio in pairing mode within 1 minute.</source>
+        <translation>새 무선기를 페어링할까요? 현재 페어링이 해제됩니다. 1분 안에 드론 무선기를 페어링 모드로 두세요.</translation>
+    </message>
+    <message>
+        <source>Restart the controller radio? The link is lost for about a minute.</source>
+        <translation>조종기 무선기를 재시작할까요? 링크가 1분쯤 끊깁니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Pair</source>
+        <translation>페어링</translation>
+    </message>
+    <message>
+        <source>Restart</source>
+        <translation>재시작</translation>
+    </message>
+    <message>
+        <source>Change band</source>
+        <translation>대역 변경</translation>
+    </message>
+    <message>
+        <source>Restarting the controller radio. The link comes back in about a minute.</source>
+        <translation>조종기 무선기를 재시작하는 중입니다. 1분쯤 뒤 링크가 다시 연결됩니다.</translation>
+    </message>
+    <message>
+        <source>Change radio settings on the ground (motors off)</source>
+        <translation>무선기 설정은 지상에서(모터 정지) 바꾸세요</translation>
+    </message>
+    <message>
+        <source>RTK correction · NTRIP</source>
+        <translation>RTK 보정 · NTRIP</translation>
+    </message>
+    <message>
+        <source>RTK fixed</source>
+        <translation>RTK 고정</translation>
+    </message>
+    <message>
+        <source>RTK float</source>
+        <translation>RTK 플로트</translation>
+    </message>
+    <message>
+        <source>Logging in…</source>
+        <translation>로그인 중…</translation>
+    </message>
+    <message>
+        <source>Correction on · no RTK yet</source>
+        <translation>보정 켜짐 · 아직 RTK 아님</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
+    </message>
+    <message>
+        <source>Correction comes from a serial port. Change this in Advanced.</source>
+        <translation>보정 데이터를 시리얼 포트에서 받고 있습니다. 고급 모드에서 바꾸세요.</translation>
+    </message>
+    <message>
+        <source>Server</source>
+        <translation>서버</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>포트</translation>
+    </message>
+    <message>
+        <source>Mountpoint</source>
+        <translation>마운트포인트</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>사용자</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>비밀번호</translation>
+    </message>
+    <message>
+        <source>Use RTK correction</source>
+        <translation>RTK 보정 사용</translation>
+    </message>
+    <message>
+        <source>Turn on RTK correction to enter the NTRIP server.</source>
+        <translation>NTRIP 서버를 입력하려면 RTK 보정을 켜세요.</translation>
+    </message>
+    <message>
+        <source>Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)</source>
+        <translation>카메라·페이로드 네트워크 설정은 설정 › 페이로드로 옮겼습니다(감지된 페이로드는 자동 연결).</translation>
     </message>
 </context>
 <context>

@@ -49,11 +49,11 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleCameraRail.qml` | ui/CameraRail | Photo/video, shutter, gimbal angle |
 | `SimpleMenuDrawer.qml` | S06 | Menu |
 | `SimplePinDialog.qml` | S12 | Admin PIN, 5 wrong tries = 5 min lock (kept over restarts; invalid stored PIN → default) |
-| `SimpleSettings.qml` | S09, S45, S48 | Settings with 7 categories |
+| `SimpleSettings.qml` | S09, S22, S45, S48 | Settings with 7 categories. Connection (S22): Enpulse radio through `CustomQmlInterface.arManager` (band change sets air then ground unit and restarts both, on the ground only; Restart radio = ground unit), RTK through the alesQGC NTRIP client (`CustomQmlInterface.codevRTCMManager`, setting `rtcmSource`) |
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
 | `SimplePlanCheck.qml` | S39 | Check before sending, send progress |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
-| `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, slide confirm, panel, banner |
+| `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, text field, slide confirm, panel, banner |
 
 ## Fonts and translations
 
@@ -102,7 +102,7 @@ flight mode, chip details, messages, camera rail, menu, admin PIN → Advanced, 
 Planned for v2 (designed in Figma, not implemented):
 
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
-- Settings: Map & flight zones, Connection, Payloads, Remote ID (S22, S46, S47, S52–S56)
+- Settings: Map & flight zones, Payloads, Remote ID (S46, S47, S52–S56)
 - Payloads panel and devices (S10, S11, S13, S16, S17), camera settings sheet (S43)
 - Map tap menu / Go here, change altitude, obstacle stop (S35, S36, S38)
 - Video main view and waiting state (S18, S49), tether power lost, LiDAR start rejected (S50, S51)

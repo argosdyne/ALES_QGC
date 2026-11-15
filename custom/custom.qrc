@@ -160,6 +160,7 @@
         <file alias="SSlideConfirm.qml">res/Simple/SSlideConfirm.qml</file>
         <file alias="SStepper.qml">res/Simple/SStepper.qml</file>
         <file alias="STelemetryBar.qml">res/Simple/STelemetryBar.qml</file>
+        <file alias="STextField.qml">res/Simple/STextField.qml</file>
         <file alias="SText.qml">res/Simple/SText.qml</file>
         <file alias="SToggle.qml">res/Simple/SToggle.qml</file>
         <file alias="SimpleCameraRail.qml">res/Simple/SimpleCameraRail.qml</file>

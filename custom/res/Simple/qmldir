@@ -11,6 +11,7 @@ SSettingRow 1.0 SSettingRow.qml
 SSlideConfirm 1.0 SSlideConfirm.qml
 SStepper 1.0 SStepper.qml
 STelemetryBar 1.0 STelemetryBar.qml
+STextField 1.0 STextField.qml
 SText 1.0 SText.qml
 SToggle 1.0 SToggle.qml
 SimpleCameraRail 1.0 SimpleCameraRail.qml

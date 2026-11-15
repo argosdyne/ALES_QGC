@@ -93,6 +93,7 @@ Rectangle {
             width: content.width
             sourceComponent: page.category === "general" ? generalComp
                            : page.category === "safety"  ? safetyComp
+                           : page.category === "connection" ? connectionComp
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
                            : laterComp
@@ -303,6 +304,312 @@ Rectangle {
         }
     }
 
+    //------------------------------------------------------------------ Connection (S22): radio link + RTK correction
+    // Radio: Enpulse via CustomQmlInterface.arManager (same calls as Advanced › Enpulse). Band change sets the air unit,
+    // then the ground unit, then restarts air and ground (decision 2026-11-15); only on the ground with motors off.
+    // RTK: alesQGC NTRIP client (CustomQmlInterface.codevRTCMManager, setting rtcmSource 0 off / 1 NTRIP / 2 serial port).
+    Component {
+        id: connectionComp
+        Column {
+            id: conn
+            spacing: SimpleTheme.px(16)
+
+            // ---- radio
+            readonly property var  _ar:       typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.arManager : null
+            readonly property bool _m2:       !!QGroundControl.corePlugin.m2Manager
+            readonly property bool _doodle:   !!_ar && _ar.version === "DoodleLabs ubus"
+            readonly property bool _paired:   !!_ar && !!_ar.connected
+            readonly property bool _mounted:  !!_ar && (_doodle ? _paired : !!_ar.mounted)
+            readonly property bool _pairing:  !!_ar && !!_ar.binding
+            readonly property bool _onGround: !vs.armed
+            readonly property bool _canRadio: !_m2 && !_doodle && _mounted && !_pairing && _onGround
+            readonly property var  _is24:     _ar ? _ar.is24G : undefined
+            readonly property string _band:   _is24 === true ? qsTr("2.4 GHz") : _is24 === false ? qsTr("5.8 GHz") : qsTr("Band unknown")
+            readonly property real _rssi:     _ar && _ar.rssiA !== undefined && Number(_ar.rssiA) > 0 ? Number(_ar.rssiA) : NaN
+            property string confirm:  ""        // "" | "band24" | "band58" | "restart" | "pair"
+            property string radioMsg: ""        // shown after an action, cleared by a timer
+            property int    _step:    0
+            property bool   _to24:    false
+
+            function applyBand(to24) {
+                _to24 = to24; _step = 0
+                if (to24) _ar.enableRemote24G(); else _ar.enableRemote58G()
+                bandSeq.start()
+                radioMsg = to24 ? qsTr("Changing both radios to 2.4 GHz. The link drops and comes back in about a minute.")
+                                : qsTr("Changing both radios to 5.8 GHz. The link drops and comes back in about a minute.")
+                msgTimer.restart()
+            }
+            Timer {
+                id: bandSeq; interval: 800; repeat: true
+                onTriggered: {
+                    conn._step++
+                    if (conn._step === 1)      { if (conn._to24) conn._ar.enable24G(); else conn._ar.enable58G() }
+                    else if (conn._step === 2) conn._ar.restartRemoteDevice()
+                    else                       { conn._ar.restartDevice(); stop() }
+                }
+            }
+            Timer { id: msgTimer; interval: 90000; onTriggered: conn.radioMsg = "" }
+
+            // ---- RTK correction
+            readonly property var  _srcFact:  page._custom.rtcmSource
+            readonly property int  _srcType:  _srcFact ? Number(_srcFact.rawValue) : 0
+            readonly property var  _src:      _srcType === 1 && typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.codevRTCMManager.rtcmSource : null
+            readonly property bool _loggedIn: !!_src && !!_src.isLogIn
+            readonly property bool _loggingIn: !!_src && !!_src.isLogIning
+            readonly property string _mp:     !_src ? "" : (_src.mountpointManual.rawValue ? _src.mountpointManualValue.valueString : _src.mountpoint.valueString)
+            readonly property bool _complete: !!_src && _src.host.valueString !== "" && _mp !== "" && _src.user.valueString !== "" && _src.passwd.valueString !== ""
+            property bool   _tried:  false
+            property string rtkMsg:  ""
+            property bool   rtkErr:  false
+            property bool   needFill: false     // tried to turn on with empty fields; hint until they are filled
+            // The user's choice: on = keep the NTRIP client logged in. The client retries every 5 s after a failure.
+            property bool   want:    false
+            Component.onCompleted: want = _loggedIn || _loggingIn
+
+            function rtkOn() {
+                if (_srcType !== 1) _srcFact.rawValue = 1          // creates the NTRIP client synchronously
+                var s = CustomQmlInterface.codevRTCMManager.rtcmSource
+                if (!s) return
+                if (!_complete) { rtkErr = false; needFill = true; rtkMsg = ""; want = false; return }
+                rtkMsg = ""; rtkErr = false; needFill = false; _tried = true; want = true
+                s.logIn()
+            }
+            function rtkOff() {
+                _tried = false; rtkMsg = ""; rtkErr = false; want = false
+                if (_src && (_src.isLogIn || _src.isLogIning)) _src.logOut()
+            }
+            function setField(fact, value) {
+                fact.value = value
+                if (_loggedIn) { _src.logOut(); reLogin.restart() }   // apply the change: log in again
+            }
+            Timer { id: reLogin; interval: 600; onTriggered: if (conn._src && conn._complete) { conn._tried = true; conn._src.logIn() } }
+            Connections {
+                target: conn._src
+                ignoreUnknownSignals: true
+                function onIsLogIningChanged() {
+                    if (conn._src && !conn._src.isLogIning && !conn._src.isLogIn && conn._tried && conn.want) {
+                        conn.rtkMsg = qsTr("Could not log in. Check server, port, mountpoint, user and password. Trying again every 5 s.")
+                        conn.rtkErr = true
+                    }
+                }
+                function onIsLogInChanged() {
+                    if (conn._src && conn._src.isLogIn) { conn.rtkMsg = ""; conn.rtkErr = false }
+                }
+            }
+
+            SText { text: qsTr("Connection"); size: 40; bold: true }
+            SText { text: qsTr("Radio link and RTK correction. Payload settings are under Payloads."); size: 24; color: SimpleTheme.textSecondary }
+
+            // ------------------------------------------------ Radio link card
+            Rectangle {
+                width: parent.width
+                height: radioCol.height + SimpleTheme.px(48)
+                radius: SimpleTheme.px(20)
+                color: SimpleTheme.surfaceRaised
+                Column {
+                    id: radioCol
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                    anchors.margins: SimpleTheme.px(24); anchors.leftMargin: SimpleTheme.px(28)
+                    spacing: SimpleTheme.px(14)
+                    Item {
+                        width: parent.width; height: SimpleTheme.px(52)
+                        SText {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: conn._m2 ? qsTr("Radio link · M2") : conn._doodle ? qsTr("Radio link · DoodleLabs") : qsTr("Radio link · Enpulse")
+                            size: 30; medium: true
+                        }
+                        Rectangle {
+                            readonly property color _c: conn._pairing ? SimpleTheme.info : !conn._mounted ? SimpleTheme.surfaceControl : conn._paired ? SimpleTheme.ok : SimpleTheme.warn
+                            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                            height: SimpleTheme.px(48); radius: SimpleTheme.px(12)
+                            width: radioPill.implicitWidth + SimpleTheme.px(28)
+                            color: _c
+                            visible: !conn._m2
+                            SText {
+                                id: radioPill; anchors.centerIn: parent; size: 24; medium: true
+                                color: conn._mounted && conn._paired && !conn._pairing ? SimpleTheme.bgBase : SimpleTheme.textPrimary
+                                text: conn._pairing ? qsTr("Pairing…") : !conn._mounted ? qsTr("No radio") : conn._paired ? qsTr("Connected") : qsTr("Not paired")
+                            }
+                        }
+                    }
+                    SText {
+                        width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                        text: conn._m2 ? qsTr("Radio settings for this radio are in Advanced.")
+                            : !conn._mounted ? qsTr("No radio found. Check that the controller is on and its radio is connected.")
+                            : conn._pairing ? qsTr("Pairing… Keep the drone close and turned on.")
+                            : conn._band + (isNaN(conn._rssi) ? "" : " · " + qsTr("signal %1 dB").arg(-Math.round(conn._rssi)))
+                              + " · " + (conn._paired ? qsTr("drone radio paired") : qsTr("drone radio not paired"))
+                    }
+                    Flow {
+                        width: parent.width
+                        spacing: SimpleTheme.px(14)
+                        visible: !conn._m2 && !conn._doodle && conn.confirm === ""
+                        Item {
+                            width: bandLabel.implicitWidth + SimpleTheme.px(14); height: SimpleTheme.px(72)
+                            SText { id: bandLabel; anchors.verticalCenter: parent.verticalCenter; text: qsTr("Band"); size: 26; color: SimpleTheme.textSecondary }
+                        }
+                        SSegmented {
+                            designWidth: 300
+                            opacity: conn._canRadio && conn._paired ? 1 : 0.4
+                            enabled: conn._canRadio && conn._paired
+                            model: [qsTr("2.4 GHz"), qsTr("5.8 GHz")]
+                            currentIndex: conn._is24 === true ? 0 : conn._is24 === false ? 1 : -1
+                            onActivated: {
+                                var want24 = index === 0
+                                if (conn._is24 !== want24) conn.confirm = want24 ? "band24" : "band58"
+                                // keep showing the radio's real band until the change is confirmed and applied
+                                currentIndex = Qt.binding(function() { return conn._is24 === true ? 0 : conn._is24 === false ? 1 : -1 })
+                            }
+                        }
+                        SButton { designHeight: 72; textSize: 26; text: qsTr("Pair new radio"); enabled_: conn._canRadio; onClicked: if (enabled_) conn.confirm = "pair" }
+                        SButton { designHeight: 72; textSize: 26; text: qsTr("Restart radio");  enabled_: conn._canRadio; onClicked: if (enabled_) conn.confirm = "restart" }
+                    }
+                    // Confirm in place (destructive radio actions drop the link)
+                    Rectangle {
+                        visible: conn.confirm !== ""
+                        width: parent.width; height: confirmCol.height + SimpleTheme.px(36)
+                        radius: SimpleTheme.px(16)
+                        color: SimpleTheme.withAlpha(SimpleTheme.warn, 0.18)
+                        Column {
+                            id: confirmCol
+                            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: SimpleTheme.px(18)
+                            spacing: SimpleTheme.px(14)
+                            SText {
+                                width: parent.width; wrapMode: Text.WordWrap; size: 26
+                                text: conn.confirm === "band24" ? qsTr("Change both radios to 2.4 GHz? The drone and controller restart their radios. The link is lost for about a minute.")
+                                    : conn.confirm === "band58" ? qsTr("Change both radios to 5.8 GHz? The drone and controller restart their radios. The link is lost for about a minute.")
+                                    : conn.confirm === "pair"   ? qsTr("Pair a new radio? The current pairing ends. Put the drone's radio in pairing mode within 1 minute.")
+                                    : qsTr("Restart the controller radio? The link is lost for about a minute.")
+                            }
+                            Row {
+                                spacing: SimpleTheme.px(14)
+                                SButton { designHeight: 72; textSize: 26; text: qsTr("Cancel"); onClicked: conn.confirm = "" }
+                                SButton {
+                                    designHeight: 72; textSize: 26; kind: "primary"
+                                    enabled_: conn._canRadio
+                                    text: conn.confirm === "pair" ? qsTr("Pair") : conn.confirm === "restart" ? qsTr("Restart") : qsTr("Change band")
+                                    onClicked: {
+                                        if (!enabled_) return
+                                        var c = conn.confirm; conn.confirm = ""
+                                        if (c === "band24" || c === "band58") conn.applyBand(c === "band24")
+                                        else if (c === "pair") { conn._ar.pair(); conn.radioMsg = ""; }
+                                        else { conn._ar.restartDevice(); conn.radioMsg = qsTr("Restarting the controller radio. The link comes back in about a minute."); msgTimer.restart() }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    SText {
+                        visible: conn.radioMsg !== "" || (!conn._onGround && !conn._m2 && conn._mounted)
+                        width: parent.width; wrapMode: Text.WordWrap; size: 22
+                        color: conn.radioMsg !== "" ? SimpleTheme.textSecondary : SimpleTheme.warn
+                        text: conn.radioMsg !== "" ? conn.radioMsg : qsTr("Change radio settings on the ground (motors off)")
+                    }
+                }
+            }
+
+            // ------------------------------------------------ RTK correction card
+            Rectangle {
+                width: parent.width
+                height: rtkCol.height + SimpleTheme.px(48)
+                radius: SimpleTheme.px(20)
+                color: SimpleTheme.surfaceRaised
+                Column {
+                    id: rtkCol
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+                    anchors.margins: SimpleTheme.px(24); anchors.leftMargin: SimpleTheme.px(28)
+                    spacing: SimpleTheme.px(16)
+                    Item {
+                        width: parent.width; height: SimpleTheme.px(52)
+                        SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("RTK correction · NTRIP"); size: 30; medium: true }
+                        Rectangle {
+                            readonly property int _lock: vs.gpsLock
+                            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                            height: SimpleTheme.px(48); radius: SimpleTheme.px(12)
+                            width: rtkPill.implicitWidth + SimpleTheme.px(28)
+                            readonly property bool _retry: conn.want && !conn._loggedIn && !conn._loggingIn
+                            color: _lock >= 6 ? SimpleTheme.ok : _lock === 5 ? SimpleTheme.warn : _retry ? SimpleTheme.warn
+                                 : conn._loggingIn || conn._loggedIn ? SimpleTheme.info : SimpleTheme.surfaceControl
+                            SText {
+                                id: rtkPill; anchors.centerIn: parent; size: 24; medium: true
+                                color: parent._lock >= 5 || parent._retry ? SimpleTheme.bgBase : SimpleTheme.textPrimary
+                                text: parent._lock >= 6 ? qsTr("RTK fixed") : parent._lock === 5 ? qsTr("RTK float")
+                                    : conn._loggingIn ? qsTr("Logging in…") : conn._loggedIn ? qsTr("Correction on · no RTK yet")
+                                    : parent._retry ? qsTr("Retrying…") : qsTr("Off")
+                            }
+                        }
+                    }
+                    SText {
+                        visible: conn._srcType === 2
+                        width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                        text: qsTr("Correction comes from a serial port. Change this in Advanced.")
+                    }
+                    Flow {
+                        visible: conn._srcType !== 2
+                        width: parent.width
+                        spacing: SimpleTheme.px(14)
+                        STextField {
+                            designWidth: 360; label: qsTr("Server"); placeholder: "ntrip.example.net"
+                            enabled_: !!conn._src; text: conn._src ? conn._src.host.valueString : ""
+                            onEdited: conn.setField(conn._src.host, text)
+                        }
+                        STextField {
+                            designWidth: 120; label: qsTr("Port"); numeric: true; placeholder: "2101"
+                            enabled_: !!conn._src; text: conn._src ? conn._src.port.valueString : ""
+                            onEdited: conn.setField(conn._src.port, text)
+                        }
+                        STextField {
+                            designWidth: 220; label: qsTr("Mountpoint")
+                            enabled_: !!conn._src; text: conn._mp
+                            onEdited: { conn._src.mountpointManual.value = true; conn.setField(conn._src.mountpointManualValue, text) }
+                        }
+                        STextField {
+                            designWidth: 180; label: qsTr("User")
+                            enabled_: !!conn._src; text: conn._src ? conn._src.user.valueString : ""
+                            onEdited: conn.setField(conn._src.user, text)
+                        }
+                        STextField {
+                            designWidth: 180; label: qsTr("Password"); password: true
+                            enabled_: !!conn._src; text: conn._src ? conn._src.passwd.valueString : ""
+                            onEdited: conn.setField(conn._src.passwd, text)
+                        }
+                    }
+                    Row {
+                        visible: conn._srcType !== 2
+                        spacing: SimpleTheme.px(20)
+                        SToggle {
+                            id: rtkToggle
+                            anchors.verticalCenter: parent.verticalCenter
+                            checked: conn.want
+                            onToggled: {
+                                if (rtkToggle.checked) conn.rtkOn(); else conn.rtkOff()
+                                rtkToggle.checked = Qt.binding(function() { return conn.want })   // SToggle sets checked itself on tap
+                            }
+                        }
+                        SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Use RTK correction"); size: 26 }
+                    }
+                    SText {
+                        visible: conn._srcType !== 2 && (conn.rtkMsg !== "" || !conn._src || (conn.needFill && !conn._complete))
+                        width: parent.width; wrapMode: Text.WordWrap; size: 22
+                        color: conn.rtkErr ? SimpleTheme.textDanger : SimpleTheme.textSecondary
+                        text: conn.rtkMsg !== "" ? conn.rtkMsg
+                            : !conn._src ? qsTr("Turn on RTK correction to enter the NTRIP server.")
+                            : qsTr("Fill in server, mountpoint, user and password, then turn this on.")
+                    }
+                }
+            }
+
+            // ------------------------------------------------ Payloads moved
+            SSettingRow {
+                title: qsTr("Payloads")
+                sub: qsTr("Camera and payload network settings moved to Settings › Payloads (detected payloads connect automatically)")
+                clickable: true
+                onClicked: page.category = "payloads"
+                SIcon { name: "chevron"; size: 40; opacity: 0.7 }
+            }
+        }
+    }
+
     //------------------------------------------------------------------ About & support (S48, basic)
     Component {
         id: aboutComp
@@ -408,7 +715,7 @@ Rectangle {
         Column {
             spacing: SimpleTheme.px(20)
             SText { text: qsTr("Coming in the next version"); size: 40; bold: true }
-            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S22, S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
+            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S46, S47, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
             SButton { kind: "primary"; icon: "lock"; text: qsTr("Open Advanced settings"); onClicked: simpleRoot.requestAdvanced("settings") }
         }
     }
