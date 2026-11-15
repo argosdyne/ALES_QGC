@@ -148,13 +148,14 @@ Item {
             x: SimpleTheme.px(18); y: SimpleTheme.px(14)
             spacing: SimpleTheme.px(8)
             Repeater {
-                model: [[qsTr("Prohibited"), "#c9353d"], [qsTr("Authorisation required"), "#f5a524"], [qsTr("Information"), "#2a68cc"]]
+                model: { mc._zoneCount; var m = [[qsTr("Prohibited"), "#c9353d"], [qsTr("Authorisation required"), "#f5a524"], [qsTr("Information"), "#2a68cc"]]
+                         if (mc._zones && mc._zones.myZones().length > 0) m.push([qsTr("My zones"), "#c9353d", true]); return m }
                 Row {
                     spacing: SimpleTheme.px(10)
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         width: SimpleTheme.px(28); height: SimpleTheme.px(18); radius: SimpleTheme.px(4)
-                        color: SimpleTheme.withAlpha(modelData[1], 0.6); border.width: SimpleTheme.px(2); border.color: modelData[1]
+                        color: SimpleTheme.withAlpha(modelData[1], 0.6); border.width: SimpleTheme.px(2); border.color: modelData[2] ? SimpleTheme.textPrimary : modelData[1]
                     }
                     SText { text: modelData[0]; size: 24 }
                 }

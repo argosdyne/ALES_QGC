@@ -23,6 +23,7 @@ SimpleConnectCard 1.0 SimpleConnectCard.qml
 SimpleFlyOverlay 1.0 SimpleFlyOverlay.qml
 SimpleMapDownload 1.0 SimpleMapDownload.qml
 SimpleMapControls 1.0 SimpleMapControls.qml
+SimpleMyZones 1.0 SimpleMyZones.qml
 SimpleMenuDrawer 1.0 SimpleMenuDrawer.qml
 SimpleMessages 1.0 SimpleMessages.qml
 SimpleModeSheet 1.0 SimpleModeSheet.qml

@@ -1703,8 +1703,16 @@
         <translation>다시 받기</translation>
     </message>
     <message>
-        <source>Zones you draw: do not enter or warn only · coming with the next step</source>
-        <translation>직접 그리는 구역: 진입 금지 또는 경고만 · 다음 단계에서 추가</translation>
+        <source>Zones you draw: do not enter or warn only</source>
+        <translation>직접 그리는 구역: 진입 금지 또는 경고만</translation>
+    </message>
+    <message>
+        <source>%1 zones you drew · %2 do not enter, %3 warn only</source>
+        <translation>직접 그린 구역 %1개 · 진입 금지 %2, 경고만 %3</translation>
+    </message>
+    <message>
+        <source>Edit on map</source>
+        <translation>지도에서 편집</translation>
     </message>
 </context>
 <context>
@@ -2585,6 +2593,133 @@
     <message>
         <source>Flight zone ahead</source>
         <translation>앞에 비행 구역이 있습니다</translation>
+    </message>
+    <message>
+        <source>Do not enter</source>
+        <translation>진입 금지</translation>
+    </message>
+    <message>
+        <source>Warn only</source>
+        <translation>경고만</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMyZones</name>
+    <message>
+        <source>My zone %1</source>
+        <translation>내 구역 %1</translation>
+    </message>
+    <message>
+        <source>Settings</source>
+        <translation>설정</translation>
+    </message>
+    <message>
+        <source>New flight zone</source>
+        <translation>새 비행 구역</translation>
+    </message>
+    <message>
+        <source>Edit flight zone</source>
+        <translation>비행 구역 편집</translation>
+    </message>
+    <message>
+        <source>My flight zones</source>
+        <translation>내 비행 구역</translation>
+    </message>
+    <message>
+        <source>Map &amp; flight zones › My zones</source>
+        <translation>지도 및 비행 구역 › 내 구역</translation>
+    </message>
+    <message>
+        <source>Add corner</source>
+        <translation>꼭짓점 추가</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>되돌리기</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>지우기</translation>
+    </message>
+    <message>
+        <source>Locked while the motors are running.</source>
+        <translation>모터가 돌고 있는 동안 잠김.</translation>
+    </message>
+    <message>
+        <source>Tap the map to add corners, drag a corner to move it. Official zones cannot be edited.</source>
+        <translation>지도를 탭해 꼭짓점을 추가하고, 꼭짓점을 끌어 옮기세요. 공식 구역은 편집할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>%1 zones you drew</source>
+        <translation>직접 그린 구역 %1개</translation>
+    </message>
+    <message>
+        <source>Draw a zone the drone must not enter (for example a building or a crowd area) or a zone to be warned about.</source>
+        <translation>드론이 들어가면 안 되는 구역(예: 건물, 사람이 많은 곳)이나 경고를 받을 구역을 그리세요.</translation>
+    </message>
+    <message>
+        <source>Do not enter</source>
+        <translation>진입 금지</translation>
+    </message>
+    <message>
+        <source>Warn only</source>
+        <translation>경고만</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>편집</translation>
+    </message>
+    <message>
+        <source>Keep</source>
+        <translation>유지</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>New zone</source>
+        <translation>새 구역</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>What happens near this zone</source>
+        <translation>이 구역 근처에서의 동작</translation>
+    </message>
+    <message>
+        <source>From height</source>
+        <translation>시작 높이</translation>
+    </message>
+    <message>
+        <source>Up to height</source>
+        <translation>끝 높이</translation>
+    </message>
+    <message>
+        <source>Warn when closer than</source>
+        <translation>경고 거리</translation>
+    </message>
+    <message>
+        <source>'Do not enter' blocks take-off and plan sending inside the zone, and goes to the drone's fence when it is uploaded — the drone stops at the edge.</source>
+        <translation>'진입 금지'는 구역 안에서 이륙과 계획 전송을 막고, 드론 펜스로 올리면 드론이 구역 경계에서 멈춥니다.</translation>
+    </message>
+    <message>
+        <source>'Warn only' shows an orange warning and speaks when the drone comes closer than the warning distance.</source>
+        <translation>'경고만'은 드론이 경고 거리보다 가까워지면 주황 경고를 보여 주고 음성으로 알립니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Save zone</source>
+        <translation>구역 저장</translation>
+    </message>
+    <message>
+        <source>Add at least 3 corners.</source>
+        <translation>꼭짓점을 3개 이상 추가하세요.</translation>
     </message>
 </context>
 </TS>

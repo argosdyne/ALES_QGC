@@ -13,6 +13,7 @@ Rectangle {
     property var    vs
     property string category: "general"
     property bool   mapDownload: false     // S46 › Download new area (full screen)
+    property bool   myZones:     false     // S32 › My flight zones (full screen)
     color: SimpleTheme.bgBase
 
     MouseArea { anchors.fill: parent }
@@ -1155,9 +1156,12 @@ Rectangle {
                         }
                     }
                     SSettingRow {
+                        readonly property var _mine: { zones._count; zones._rev; return zones._mgr ? zones._mgr.myZones() : [] }
+                        readonly property int _noEntry: { var n = 0; for (var i = 0; i < _mine.length; i++) if (_mine[i].noEntry) n++; return n }
                         title: qsTr("My zones")
-                        sub: qsTr("Zones you draw: do not enter or warn only · coming with the next step")
-                        SIcon { name: "pin"; size: 40; opacity: 0.5 }
+                        sub: _mine.length === 0 ? qsTr("Zones you draw: do not enter or warn only")
+                                                : qsTr("%1 zones you drew · %2 do not enter, %3 warn only").arg(_mine.length).arg(_noEntry).arg(_mine.length - _noEntry)
+                        SButton { designHeight: 72; textSize: 26; icon: "pin"; text: qsTr("Edit on map"); onClicked: page.myZones = true }
                     }
                 }
             }
@@ -1181,5 +1185,12 @@ Rectangle {
         z: 100
         active: page.mapDownload
         sourceComponent: Component { SimpleMapDownload { onCloseRequested: page.mapDownload = false } }
+    }
+    // S32 › My flight zones (full screen over the settings page)
+    Loader {
+        anchors.fill: parent
+        z: 100
+        active: page.myZones
+        sourceComponent: Component { SimpleMyZones { vs: page.vs; onCloseRequested: page.myZones = false } }
     }
 }

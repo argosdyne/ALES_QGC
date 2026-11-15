@@ -88,6 +88,10 @@ public:
     Q_INVOKABLE QVariantMap zoneAt(const QGeoCoordinate& coordinate);
     /// Most restrictive zone touched by the polyline (list of QGeoCoordinate, 2D): same map as zoneAt
     Q_INVOKABLE QVariantMap zoneOnPath(const QVariantList& path);
+    /// My zones (S32): list of { name, noEntry, warnDistance, floor, ceiling, path: [QGeoCoordinate] }
+    Q_INVOKABLE QVariantList myZones();
+    /// Saves My zones (same list) and reloads the map / warnings
+    Q_INVOKABLE bool saveMyZones(const QVariantList& zones);
 
     //Check zoom value
     void checkCurrentZoomValue();
@@ -151,6 +155,7 @@ public:
     void setUseOverlapDuplicateCheck(bool v) { if (_useOverlapDuplicateCheck == v) return; _useOverlapDuplicateCheck = v; emit useOverlapDuplicateCheckChanged(); }
 signals:
     void zoneStatusChanged();
+    void myZonesChanged();
     void reduceVerticesEnabledChanged();
     void useOverlapDuplicateCheckChanged();
 
@@ -211,6 +216,7 @@ private:
 
     // AQGC Simple UI zone status
     void    _setZoneStatus(int level, double distance, const QString& name, int zoneClass);
+    void    _loadMyZones();
     int     _zoneLevel = 0;
     double  _zoneDistance = 0;
     QString _zoneStatusName;

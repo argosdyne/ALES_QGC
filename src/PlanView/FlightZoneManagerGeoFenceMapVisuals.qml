@@ -51,9 +51,9 @@ Item {
     function _simpleColor(zoneClass) {
         return zoneClass === 1 ? "#c9353d" : zoneClass === 2 ? "#f5a524" : zoneClass === 4 ? "#f4f6f8" : "#2a68cc"
     }
-    function _simpleFill(zoneClass) {     // Figma: zone colour at 22 % (border stays opaque)
-        var c = Qt.lighter(_simpleColor(zoneClass), 1.0)
-        return Qt.rgba(c.r, c.g, c.b, 0.22)
+    function _simpleFill(zoneClass, noEntry) {     // Figma: zone colour at 22 % (border stays opaque)
+        var c = Qt.lighter(zoneClass === 4 ? (noEntry ? "#c9353d" : "#f5a524") : _simpleColor(zoneClass), 1.0)
+        return Qt.rgba(c.r, c.g, c.b, zoneClass === 4 ? 0.3 : 0.22)
     }
 
     function addPolygon(inclusionPolygon) {
@@ -120,7 +120,7 @@ Item {
             mapPolygon:     object
             borderWidth:    _simple ? 3 : (object.inclusion ? _borderWidthInclusion : _borderWidthExclusion)
             borderColor:    _simple ? _simpleColor(object.zoneClass) : object.colorInclusion
-            interiorColor:  _simple ? _simpleFill(object.zoneClass) : object.colorInclusion
+            interiorColor:  _simple ? _simpleFill(object.zoneClass, object.zoneNoEntry) : object.colorInclusion
             interiorOpacity: _simple ? 1 : object.strokeOpacity
             shown:          _shown
         }
