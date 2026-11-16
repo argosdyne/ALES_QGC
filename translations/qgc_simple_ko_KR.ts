@@ -3568,4 +3568,86 @@
         <translation>%1초 눌러 놓기</translation>
     </message>
 </context>
+<context>
+    <name>SimpleCameraRail</name>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleCameraSheet</name>
+    <message>
+        <source>%1 free</source>
+        <translation>%1 남음</translation>
+    </message>
+    <message>
+        <source>Auto photos</source>
+        <translation>자동 촬영</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>밝기</translation>
+    </message>
+    <message>
+        <source>Camera settings</source>
+        <translation>카메라 설정</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>Every 2 s</source>
+        <translation>2초마다</translation>
+    </message>
+    <message>
+        <source>Every 5 s</source>
+        <translation>5초마다</translation>
+    </message>
+    <message>
+        <source>Exposure (EV)</source>
+        <translation>노출 (EV)</translation>
+    </message>
+    <message>
+        <source>Grid lines</source>
+        <translation>격자</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>모드</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>끔</translation>
+    </message>
+    <message>
+        <source>Photo</source>
+        <translation>사진</translation>
+    </message>
+    <message>
+        <source>Resolution, file format, format SD card: Advanced mode ›</source>
+        <translation>해상도, 파일 형식, SD 포맷: Advanced 모드 ›</translation>
+    </message>
+    <message>
+        <source>SD card</source>
+        <translation>SD 카드</translation>
+    </message>
+    <message>
+        <source>Show on video</source>
+        <translation>영상에 표시</translation>
+    </message>
+    <message>
+        <source>The drone reports no camera with settings. Camera &amp; gimbal payloads are set up in Settings › Payloads.</source>
+        <translation>드론이 설정 가능한 카메라를 알려 오지 않았습니다. 카메라·짐벌 페이로드는 설정 › 페이로드에서 설정합니다.</translation>
+    </message>
+    <message>
+        <source>Thermal palette</source>
+        <translation>열화상 팔레트</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>영상</translation>
+    </message>
+</context>
 </TS>

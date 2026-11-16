@@ -28,6 +28,7 @@ SimpleMyZones 1.0 SimpleMyZones.qml
 SimpleAltitudeSheet 1.0 SimpleAltitudeSheet.qml
 SHoldButton 1.0 SHoldButton.qml
 SPayloadCard 1.0 SPayloadCard.qml
+SimpleCameraSheet 1.0 SimpleCameraSheet.qml
 SimplePayloadPanel 1.0 SimplePayloadPanel.qml
 SimpleGoHereCard 1.0 SimpleGoHereCard.qml
 SimpleCoordSheet 1.0 SimpleCoordSheet.qml

@@ -30,7 +30,7 @@ Item {
         target: fly._map
         function onSimpleMapClicked(coordinate) {
             if (!vs.present || fly.videoMain || fly.sheet !== "") return
-            if (fly.payloadsOpen) { fly.payloadsOpen = false; return }   // a map tap first closes the Payloads panel
+            if (fly.payloadsOpen || fly.cameraOpen) { fly.payloadsOpen = false; fly.cameraOpen = false; return }   // a map tap first closes the panel
             mapControls.tappedZones = []
             fly.openTapMenu(coordinate)
         }
@@ -54,6 +54,7 @@ Item {
 
     // S10 Payloads panel (not a dimmed sheet, like the S35 menu)
     property bool payloadsOpen: false
+    property bool cameraOpen: false      // S43 camera settings (same place as the Payloads panel; never both)
 
     // Tether station confirmations (S16 power off in flight, S50 no-power Land / Return to station).
     // The classic confirm dialog lives in the hidden classic widget layer, so Simple shows its own slide sheets.
@@ -155,6 +156,8 @@ Item {
         vehicle: fly._veh
         visible: vs.present
         blocked: fly.waitingVideo
+        settingsOpen: fly.cameraOpen
+        onSettingsClicked: { fly.closeTapMenu(); fly.payloadsOpen = false; fly.cameraOpen = !fly.cameraOpen }
     }
 
     // S10: Payloads button under the camera rail (badge = connected payloads) and the panel left of the rail
@@ -177,7 +180,7 @@ Item {
             color: SimpleTheme.brandGreen
             SText { anchors.centerIn: parent; text: payloadPanel.count; size: 22; bold: true }
         }
-        MouseArea { anchors.fill: parent; onClicked: { fly.closeTapMenu(); fly.payloadsOpen = !fly.payloadsOpen } }
+        MouseArea { anchors.fill: parent; onClicked: { fly.closeTapMenu(); fly.cameraOpen = false; fly.payloadsOpen = !fly.payloadsOpen } }
     }
     SimplePayloadPanel {
         id: payloadPanel
@@ -188,6 +191,15 @@ Item {
         vs: fly.vs
         onCloseRequested: fly.payloadsOpen = false
         onLidarRefused: { fly.lidarRefusal = reason; lidarRefusalTimer.restart() }
+    }
+    SimpleCameraSheet {
+        visible: fly.cameraOpen && vs.present
+        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
+        y: topBar.height + SimpleTheme.px(16)
+        maxHeight: SimpleTheme.px(810) - y
+        vehicle: fly._veh
+        onCloseRequested: fly.cameraOpen = false
+        onAdvancedRequested: { fly.cameraOpen = false; simpleRoot.requestAdvanced("advanced") }
     }
 
     //------------------------------------------------------------------ Telemetry bar (x = 24, bottom 24)
@@ -291,7 +303,7 @@ Item {
         id: mapControls
         anchors.fill: parent
         tapMenuEnabled: vs.present
-        visible: !fly.videoMain && !fly.payloadsOpen && typeof flightView !== "undefined"
+        visible: !fly.videoMain && !fly.payloadsOpen && !fly.cameraOpen && typeof flightView !== "undefined"
         map: typeof flightView !== "undefined" ? flightView.simpleMap : null
         vehicle: fly._veh
     }

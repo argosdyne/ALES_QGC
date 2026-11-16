@@ -44,6 +44,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleCoordSheet.qml` | S35 | Latitude / longitude input (red when out of range) |
 | `SimpleGoHereCard.qml` | S36 | Go here progress card (Change target · Stop; stopped: Continue · Cancel), arrival (2 m, < 0.3 m/s, 2 s), obstacle state (OBSTACLE_DISTANCE ≤ 3 m) for the banners |
 | `SimplePayloadPanel.qml` | S10, S16, S17, S51 | Payloads panel (button under the camera rail, badge = count). Cards from the existing managers only: tether (`elistairStationManager`: power, automatic torque, telemetry), YellowScan (`ysManager`: checks, start, hold to stop; not ready → S51 banner), megaphone (`vehicle.audioControl`, clip 1–11 play / stop), searchlight (`missionController.setSearchlight`), winch (`vehicle.sendGripperAction`, hold 2 s to release), life jacket (`deployLifeVest`, hold 2 s). Cards appear with the classic switches (`enableAudioController`, `lifeJacketEnable`, GRIP_ENABLE, tether `enabled`, `ysEnable`). S50 banner and the tether slide sheets are in `SimpleFlyOverlay.qml` |
+| `SimpleCameraSheet.qml` | S43 | Camera settings from the rail "Camera" button (MAVLink camera `QGCCameraControl`): streams, photo / video, auto photos off / 2 s / 5 s (time lapse; no distance shooting), EV (`EO_EV`/`CAM_EV`), thermal palette (`IR_PALETTE`), grid lines, SD free space. Same place as the Payloads panel |
 | `SimplePayloadPrefs.qml` | S56 | Singleton (Qt.labs.settings `SimplePayloads`): megaphone, searchlight, winch, cleaning values. Used today: winch hold time, stop clip / searchlight off on landing; the rest is kept until the devices accept it. The S56 pages are in `SimplePayloadSettings.qml` |
 | `SPayloadCard.qml`, `SHoldButton.qml` | 99 Components | Payload card (header + status pill + body), hold-to-run button |
 | `SimpleAltitudeSheet.qml` | S38 | Tap ALTITUDE in flight: 5 m steps (hold to repeat), presets, change in green / orange, slide; `actionChangeAlt`. Not during mission / return / landing (`showChangeAlt`) |
@@ -113,7 +114,7 @@ Planned for v2 (designed in Figma, not implemented):
 
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
-- Tether / cleaning product profiles (S11 chips and telemetry, S13), camera settings sheet (S43)
+- Tether / cleaning product profiles (S11 chips and telemetry, S13)
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed
 - Automatic flight-zone check in S39
 - More languages (de, fr, ja: Noto Sans JP) — Korean and bundled fonts are done
