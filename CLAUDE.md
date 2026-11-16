@@ -69,6 +69,13 @@ Reply to the user in Korean unless they write in English.
   (Z01.07.00EASA) with ArduPilot param_parse.py, is bundled for all Copter versions; the ArduPilot-Parameter-Repository
   files are no longer compiled in (Plane/Rover/Sub: no documentation). Listed as GPLv3 in the notices. Regenerate with
   `custom/tools/params/generate.sh` after a firmware release.
+- Map tap menu / Go here / change altitude (2026-11-16, S35/S36/S38): with a drone connected a map tap opens the S35 menu;
+  zones under the tap are one row with Details → S15 (without a drone a tap still opens S15). Go here sends the classic
+  `actionGoto` with the classic GoTo editor data, so progress, arrival and termination stay in FlyViewMap. Refused in red
+  inside or across a prohibited / no-entry zone, outside the geofence or beyond `maxGoToLocationDistance`. Ground height
+  at the tap is not shown (no terrain query in the app). S38 opens from ALTITUDE only when the classic `showChangeAlt`
+  allows it (not during mission / return / landing). SITL: Go here height is above home; flying west of the SITL home
+  towards rising ground (Inwangsan) ran into the terrain.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
 - Link lost (2026-11-15, 02 Flows D): critical (forced back to the fly screen) only in flight (last known state armed or
   flying). On the ground Plan / Settings stay open, the status chip turns red. An unsent Simple plan is not replaced by an
@@ -110,6 +117,10 @@ Reply to the user in Korean unless they write in English.
   (MainRootWindow, Loader built on first Advanced use) are not created. Start-up is ~7.5 s; the rest is framework
   start-up (C++ init, QML load, ~3 s before the first frame) and needs a native profiler (WPR, admin) to go further.
   Beta tags: `simple_ui_v1_2026111501` = 23d510eff (before these two commits); `simple_ui_v1_2026111601` = 3bc7e150a (with them, CI APK / installer).
+- Local tools kept in the session scratchpad (%TEMP%\claude\...) are partly deleted by Windows temp cleanup: after a
+  reboot Qt lost its ANGLE DLLs and QML/JS files (QtTest TestCase.qml missing → test runner exits 1 with no output) and
+  the GStreamer folder (D:) was gone. Reinstall Qt with aqtinstall over it and recreate `subst Q:` for the repo.
+  In .bat files quote `-o "file,txt"` (cmd splits arguments at commas).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
 
@@ -120,7 +131,8 @@ Reply to the user in Korean unless they write in English.
 2. v2: ~~Korean strings + bundled fonts~~ (done 2026-11-14: `translations/qgc_simple_ko_KR.ts`, `custom/res/Simple/fonts/`;
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
-   map tap menu S35/S36/S38, payload panels) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   ~~map tap menu S35/S36/S38~~ (2026-11-16), payload panels) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
-3. Open items: Google Play needs a higher target SDK than android-30 (decision pending); the signed Android release
-   path (push to `Argos_Stable4.4` with keystore secret) is untested; remote branch `ci/android-diagnose` can be deleted.
+3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
+   checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
+   S38 "apply to the rest of the mission" (Figma) needs a decision: ArduPilot's altitude change switches to Guided.
