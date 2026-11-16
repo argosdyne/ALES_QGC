@@ -3033,6 +3033,10 @@
         <source>Slide to go</source>
         <translation>밀어서 이동</translation>
     </message>
+    <message>
+        <source>Height is above the home point, not above the ground. Check for hills and buildings on the way.</source>
+        <translation>높이는 지면이 아니라 홈 위치 기준입니다. 경로에 언덕이나 건물이 없는지 확인하세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapTapMenu</name>

@@ -107,6 +107,18 @@ SPanel {
                                        : qsTr("This drone cannot detect obstacles. Check that the way is clear.")
             }
         }
+        // terrain (decision 2026-11-16): the height is above home, the app has no ground height along the way
+        Row {
+            width: parent.width
+            spacing: SimpleTheme.px(10)
+            SIcon { id: terrainIcon; name: "warn"; size: 28; color: SimpleTheme.warn }
+            SText {
+                width: parent.width - terrainIcon.width - parent.spacing
+                wrapMode: Text.WordWrap
+                size: 22; color: SimpleTheme.warn
+                text: qsTr("Height is above the home point, not above the ground. Check for hills and buildings on the way.")
+            }
+        }
         SSlideConfirm {
             id: slider
             width: parent.width

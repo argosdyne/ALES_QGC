@@ -74,7 +74,8 @@ Reply to the user in Korean unless they write in English.
   `actionGoto` with the classic GoTo editor data, so progress, arrival and termination stay in FlyViewMap. Refused in red
   inside or across a prohibited / no-entry zone, outside the geofence or beyond `maxGoToLocationDistance`. Ground height
   at the tap is not shown (no terrain query in the app). S38 opens from ALTITUDE only when the classic `showChangeAlt`
-  allows it (not during mission / return / landing). SITL: Go here height is above home; flying west of the SITL home
+  allows it (not during mission / return / landing; user kept this 2026-11-16, no "apply to the rest of the mission").
+  The Go here sheet warns that the height is above home, not the ground (user 2026-11-16). SITL: Go here height is above home; flying west of the SITL home
   towards rising ground (Inwangsan) ran into the terrain.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
 - Link lost (2026-11-15, 02 Flows D): critical (forced back to the fly screen) only in flight (last known state armed or
@@ -135,4 +136,3 @@ Reply to the user in Korean unless they write in English.
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
-   S38 "apply to the rest of the mission" (Figma) needs a decision: ArduPilot's altitude change switches to Guided.
