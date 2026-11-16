@@ -81,6 +81,16 @@ SPanel {
     property bool playing: false
     property string hookState: ""       // "" | hooked | released
 
+    // S56: stop the clip / turn the searchlight off when the drone lands (SimplePayloadPrefs)
+    Connections {
+        target: pp.vs
+        function onLandingChanged() {
+            if (!pp.vs || !pp.vs.landing) return
+            if (SimplePayloadPrefs.megaphoneStopOnLanding && pp.playing && pp.hasAudio) { pp._veh.audioControl._stopAudio(); pp.playing = false }
+            if (SimplePayloadPrefs.lightOffOnLanding && pp.hasBirdCom && pp._mc.slStatus === 1) pp._mc.setSearchlight(0)
+        }
+    }
+
     onVisibleChanged: if (visible && hasBirdCom) _mc.getSearchlight()
 
     property real maxHeight: SimpleTheme.px(690)
@@ -294,7 +304,8 @@ SPanel {
                 spacing: SimpleTheme.px(12)
                 SButton { designHeight: 88; textSize: 26; text: qsTr("Hook"); icon: "hook"
                           onClicked: { pp._veh.sendGripperAction(1); pp.hookState = "hooked" } }    // Vehicle.Gripper_grab
-                SHoldButton { designHeight: 88; text: qsTr("Hold 2 s to release"); enabled_: wc.canRelease
+                SHoldButton { designHeight: 88; holdMs: SimplePayloadPrefs.winchHoldMs; enabled_: wc.canRelease
+                              text: qsTr("Hold %1 s to release").arg(Math.round(SimplePayloadPrefs.winchHoldMs / 1000))
                               onActivated: { pp._veh.sendGripperAction(0); pp.hookState = "released" } }  // Vehicle.Gripper_release
             }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary; visible: !wc.canRelease; text: qsTr("Release works in flight, or on the ground with the motors stopped.") }

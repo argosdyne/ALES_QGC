@@ -5,7 +5,8 @@
  *   Tether      QGroundControl.corePlugin.elistairStationManager                 (Advanced › Station Setup)
  *   Camera      PayloadManager (Gremsy Lynx / NextVision) + videoSettings.rtspUrl (Advanced › Payload)
  *   Gimbal tilt FC mount parameters MNT1_PITCH_MIN/MAX (deg) or MNT_ANGMIN/MAX_TIL (cdeg), ground only
- * Megaphone, searchlight, winch and cleaning settings (S56) come with their fly-screen panels.
+ * Megaphone, searchlight, winch and cleaning device (S56): values in SimplePayloadPrefs (kept in the app, decision
+ * 2026-11-16); "Use" switches are the classic ones (flyViewSettings.enableAudioController, settings.lifeJacketEnable).
  ****************************************************************************/
 import QtQuick 2.12
 import Qt.labs.settings 1.0
@@ -17,7 +18,7 @@ import "."
 Column {
     id: pl
     property var    vs
-    property string view: "list"        // list | lidar | tether | camera
+    property string view: "list"        // list | lidar | tether | camera | megaphone | searchlight | winch | cleaning
     spacing: SimpleTheme.px(16)
 
     readonly property var _custom: QGroundControl.corePlugin.settings
@@ -51,6 +52,14 @@ Column {
         if (_st.connected && _st.hasMonitoring) return { t: _st.powerOn ? qsTr("Connected · power on") : qsTr("Connected · power off"), l: "ok" }
         if (_st.connected || _st.noReply) return { t: qsTr("No reply"), l: "warn" }
         return { t: qsTr("Not connected"), l: "off" }
+    }
+    readonly property var _fly: QGroundControl.settingsManager.flyViewSettings
+    readonly property var _veh: vs ? vs.vehicle : null
+    function megaphoneStatus() { return _fly.enableAudioController.rawValue ? { t: qsTr("On"), l: "ok" } : { t: qsTr("Off"), l: "off" } }
+    function lightStatus()     { return _custom.lifeJacketEnable.rawValue ? { t: qsTr("On"), l: "ok" } : { t: qsTr("Off"), l: "off" } }
+    function winchStatus() {
+        if (!_veh || !vs.paramsReady) return { t: qsTr("Drone not connected"), l: "off" }
+        return _veh.hasGripper ? { t: qsTr("Fitted"), l: "ok" } : { t: qsTr("Not fitted"), l: "off" }
     }
     function cameraStatus() {
         if (!_cam) return { t: qsTr("Not available"), l: "off" }
@@ -108,7 +117,9 @@ Column {
 
     Loader {
         width: parent.width
-        sourceComponent: pl.view === "lidar" ? lidarComp : pl.view === "tether" ? tetherComp : pl.view === "camera" ? cameraComp : listComp
+        sourceComponent: pl.view === "lidar" ? lidarComp : pl.view === "tether" ? tetherComp : pl.view === "camera" ? cameraComp
+                       : pl.view === "megaphone" ? megaphoneComp : pl.view === "searchlight" ? lightComp
+                       : pl.view === "winch" ? winchComp : pl.view === "cleaning" ? cleaningComp : listComp
     }
 
     //------------------------------------------------------------------ S52 list
@@ -125,10 +136,17 @@ Column {
                     { key: "camera", icon: "camera", title: qsTr("Camera & gimbal"),
                       sub: pl._cam ? (pl._cam.displayName + (pl._cam.ip !== "" ? " · " + pl._cam.ip : "")) : "" },
                     { key: "tether", icon: "power",  title: qsTr("Tether station (SAFE-T)"),
-                      sub: pl._st ? pl._st.stationAddress : "" }
+                      sub: pl._st ? pl._st.stationAddress : "" },
+                    { key: "megaphone",   icon: "speaker", title: qsTr("Megaphone"),       sub: qsTr("Clips stored on the speaker") },
+                    { key: "searchlight", icon: "light",   title: qsTr("Searchlight"),     sub: qsTr("BirdCom searchlight and life jacket") },
+                    { key: "winch",       icon: "hook",    title: qsTr("Winch"),           sub: qsTr("Hook for drops") },
+                    { key: "cleaning",    icon: "grid",    title: qsTr("Cleaning device"), sub: qsTr("Not supported by this app yet") }
                 ]
                 Rectangle {
-                    readonly property var _s: modelData.key === "lidar" ? pl.lidarStatus() : modelData.key === "tether" ? pl.tetherStatus() : pl.cameraStatus()
+                    readonly property var _s: modelData.key === "lidar" ? pl.lidarStatus() : modelData.key === "tether" ? pl.tetherStatus()
+                                            : modelData.key === "megaphone" ? pl.megaphoneStatus() : modelData.key === "searchlight" ? pl.lightStatus()
+                                            : modelData.key === "winch" ? pl.winchStatus() : modelData.key === "cleaning" ? { t: qsTr("Not detected"), l: "off" }
+                                            : pl.cameraStatus()
                     width: parent.width; height: SimpleTheme.px(116); radius: SimpleTheme.px(20)
                     color: rowMouse.pressed ? Qt.darker(SimpleTheme.surfaceRaised, 1.25) : SimpleTheme.surfaceRaised
                     MouseArea { id: rowMouse; anchors.fill: parent; onClicked: pl.view = modelData.key }
@@ -142,11 +160,6 @@ Column {
                     Pill { id: pill; anchors.right: chev.left; anchors.rightMargin: SimpleTheme.px(14); anchors.verticalCenter: parent.verticalCenter; text: parent._s.t; level: parent._s.l }
                     SIcon { id: chev; name: "chevron"; size: 40; opacity: 0.7; anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter }
                 }
-            }
-            SSettingRow {
-                title: qsTr("Megaphone, searchlight, winch, cleaning")
-                sub: qsTr("Their settings come with the flight-screen payload panels · next version")
-                SIcon { name: "grid"; size: 40; opacity: 0.5 }
             }
         }
     }
@@ -464,6 +477,163 @@ Column {
             }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
                     text: qsTr("Look down when mapping and gimbal calibration: next version. Servo channels, PWM limits and stabilisation are in Advanced › Vehicle setup › Camera.") }
+        }
+    }
+
+    //------------------------------------------------------------------ S56 megaphone · searchlight · winch · cleaning
+    // (separate Column pages, no inline component with a default alias: see CLAUDE.md gotcha)
+
+    Component {
+        id: megaphoneComp
+        Column {
+            spacing: SimpleTheme.px(16)
+            BackButton { }
+            Item {
+                width: parent.width; height: SimpleTheme.px(60)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Megaphone"); size: 40; bold: true }
+                Pill { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: pl.megaphoneStatus().t; level: pl.megaphoneStatus().l }
+            }
+            Card {
+                CardRow {
+                    title: qsTr("Use megaphone"); sub: qsTr("Shows the megaphone card on the flight screen")
+                    SToggle { id: megaToggle; checked: !!pl._fly.enableAudioController.rawValue
+                              onToggled: { pl._fly.enableAudioController.rawValue = megaToggle.checked
+                                           megaToggle.checked = Qt.binding(function() { return !!pl._fly.enableAudioController.rawValue }) } }
+                }
+                CardRow {
+                    title: qsTr("Max volume *")
+                    SStepper { value: SimplePayloadPrefs.megaphoneMaxVolume; from: 10; to: 100; step: 10; unit: "%"
+                               onEdited: SimplePayloadPrefs.megaphoneMaxVolume = value }
+                }
+                CardRow {
+                    title: qsTr("Speech language *"); sub: qsTr("For typed messages")
+                    SSegmented { designWidth: 300; model: [qsTr("English"), qsTr("Korean")]; currentIndex: SimplePayloadPrefs.megaphoneLanguage
+                                 onActivated: SimplePayloadPrefs.megaphoneLanguage = index }
+                }
+                CardRow {
+                    title: qsTr("Stop sound on landing")
+                    SToggle { id: muteToggle; checked: SimplePayloadPrefs.megaphoneStopOnLanding
+                              onToggled: { SimplePayloadPrefs.megaphoneStopOnLanding = muteToggle.checked
+                                           muteToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.megaphoneStopOnLanding }) } }
+                }
+            }
+            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                    text: qsTr("Values marked * are kept in the app and used once the device accepts them.") }
+        }
+    }
+
+    Component {
+        id: lightComp
+        Column {
+            spacing: SimpleTheme.px(16)
+            BackButton { }
+            Item {
+                width: parent.width; height: SimpleTheme.px(60)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Searchlight"); size: 40; bold: true }
+                Pill { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: pl.lightStatus().t; level: pl.lightStatus().l }
+            }
+            Card {
+                CardRow {
+                    title: qsTr("Use BirdCom searchlight"); sub: qsTr("Also shows the life jacket drop on the flight screen")
+                    SToggle { id: lightToggle; checked: !!pl._custom.lifeJacketEnable.rawValue
+                              onToggled: { pl._custom.lifeJacketEnable.rawValue = lightToggle.checked
+                                           lightToggle.checked = Qt.binding(function() { return !!pl._custom.lifeJacketEnable.rawValue }) } }
+                }
+                CardRow {
+                    title: qsTr("Max brightness *")
+                    SStepper { value: SimplePayloadPrefs.lightMaxBrightness; from: 10; to: 100; step: 10; unit: "%"
+                               onEdited: SimplePayloadPrefs.lightMaxBrightness = value }
+                }
+                CardRow {
+                    title: qsTr("Allow strobe *")
+                    SToggle { id: strobeToggle; checked: SimplePayloadPrefs.lightStrobe
+                              onToggled: { SimplePayloadPrefs.lightStrobe = strobeToggle.checked
+                                           strobeToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.lightStrobe }) } }
+                }
+                CardRow {
+                    title: qsTr("Turn off on landing")
+                    SToggle { id: offToggle; checked: SimplePayloadPrefs.lightOffOnLanding
+                              onToggled: { SimplePayloadPrefs.lightOffOnLanding = offToggle.checked
+                                           offToggle.checked = Qt.binding(function() { return SimplePayloadPrefs.lightOffOnLanding }) } }
+                }
+            }
+            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                    text: qsTr("Values marked * are kept in the app and used once the device accepts them.") }
+        }
+    }
+
+    Component {
+        id: winchComp
+        Column {
+            id: wcol
+            spacing: SimpleTheme.px(16)
+            // test release only on the ground with the motors off (S56); in flight it is on the flight screen
+            readonly property bool canTest: !!pl._veh && pl.vs.paramsReady && pl._veh.hasGripper && !pl.vs.armed
+            property string tested: ""
+            BackButton { }
+            Item {
+                width: parent.width; height: SimpleTheme.px(60)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Winch"); size: 40; bold: true }
+                Pill { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: pl.winchStatus().t; level: pl.winchStatus().l }
+            }
+            Card {
+                CardRow {
+                    title: qsTr("Fitted"); sub: qsTr("Set on the drone (parameter GRIP_ENABLE) · Advanced › Parameters")
+                    SText { text: pl._veh && pl.vs.paramsReady ? (pl._veh.hasGripper ? qsTr("Yes") : qsTr("No")) : "—"; size: 28; bold: true }
+                }
+                CardRow {
+                    title: qsTr("Hold to release"); sub: qsTr("How long Release must be held on the flight screen")
+                    SSegmented { designWidth: 300; model: ["1 s", "2 s", "3 s"]; currentIndex: Math.round(SimplePayloadPrefs.winchHoldMs / 1000) - 1
+                                 onActivated: SimplePayloadPrefs.winchHoldMs = (index + 1) * 1000 }
+                }
+                CardRow {
+                    title: qsTr("Lowering speed *")
+                    SSegmented { designWidth: 300; model: [qsTr("Slow"), qsTr("Normal"), qsTr("Fast")]; currentIndex: SimplePayloadPrefs.winchSpeed
+                                 onActivated: SimplePayloadPrefs.winchSpeed = index }
+                }
+                CardRow {
+                    title: qsTr("Test release")
+                    sub: wcol.tested !== "" ? wcol.tested : qsTr("Hook opens · on the ground, motors off")
+                    SButton { designHeight: 72; textSize: 26; text: qsTr("Test"); enabled_: wcol.canTest
+                              onClicked: if (wcol.canTest) { pl._veh.sendGripperAction(0); wcol.tested = qsTr("Release sent to the drone") } }
+                }
+            }
+            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                    text: qsTr("Values marked * are kept in the app and used once the device accepts them.") }
+        }
+    }
+
+    Component {
+        id: cleaningComp
+        Column {
+            spacing: SimpleTheme.px(16)
+            BackButton { }
+            Item {
+                width: parent.width; height: SimpleTheme.px(60)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Cleaning device"); size: 40; bold: true }
+                Pill { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: qsTr("Not detected"); level: "off" }
+            }
+            Card {
+                opacity: 0.45
+                CardRow {
+                    title: qsTr("Spray pressure *")
+                    SSegmented { designWidth: 300; model: [qsTr("Low"), qsTr("Mid"), qsTr("High")]; currentIndex: SimplePayloadPrefs.cleanPressure
+                                 onActivated: SimplePayloadPrefs.cleanPressure = index }
+                }
+                CardRow {
+                    title: qsTr("Distance to wall *")
+                    SStepper { value: SimplePayloadPrefs.cleanWallDistance; from: 2.0; to: 5.0; step: 0.5; decimals: 1; unit: "m"
+                               onEdited: SimplePayloadPrefs.cleanWallDistance = value }
+                }
+                CardRow {
+                    title: qsTr("Auto stop at"); sub: qsTr("Safety limit, fixed")
+                    SText { text: SimplePayloadPrefs.cleanAutoStop.toFixed(1) + " m"; size: 28; bold: true; color: SimpleTheme.textSecondary }
+                }
+            }
+            SText {
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                text: qsTr("No cleaning device is connected. The card becomes active when the app supports the device.")
+            }
         }
     }
 }

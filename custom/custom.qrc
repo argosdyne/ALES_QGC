@@ -176,6 +176,7 @@
         <file alias="SimpleAltitudeSheet.qml">res/Simple/SimpleAltitudeSheet.qml</file>
         <file alias="SHoldButton.qml">res/Simple/SHoldButton.qml</file>
         <file alias="SPayloadCard.qml">res/Simple/SPayloadCard.qml</file>
+        <file alias="SimplePayloadPrefs.qml">res/Simple/SimplePayloadPrefs.qml</file>
         <file alias="SimplePayloadPanel.qml">res/Simple/SimplePayloadPanel.qml</file>
         <file alias="SimpleGoHereCard.qml">res/Simple/SimpleGoHereCard.qml</file>
         <file alias="SimpleCoordSheet.qml">res/Simple/SimpleCoordSheet.qml</file>

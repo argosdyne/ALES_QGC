@@ -2596,6 +2596,174 @@
         <source>YellowScan LiDAR</source>
         <translation>YellowScan LiDAR</translation>
     </message>
+    <message>
+        <source>Allow strobe *</source>
+        <translation>스트로브 허용 *</translation>
+    </message>
+    <message>
+        <source>Also shows the life jacket drop on the flight screen</source>
+        <translation>비행 화면에 구명조끼 투하도 표시합니다</translation>
+    </message>
+    <message>
+        <source>Auto stop at</source>
+        <translation>자동 정지 거리</translation>
+    </message>
+    <message>
+        <source>BirdCom searchlight and life jacket</source>
+        <translation>BirdCom 서치라이트와 구명조끼</translation>
+    </message>
+    <message>
+        <source>Cleaning device</source>
+        <translation>세척 장치</translation>
+    </message>
+    <message>
+        <source>Clips stored on the speaker</source>
+        <translation>스피커에 저장된 클립</translation>
+    </message>
+    <message>
+        <source>Distance to wall *</source>
+        <translation>벽면 거리 *</translation>
+    </message>
+    <message>
+        <source>English</source>
+        <translation>영어</translation>
+    </message>
+    <message>
+        <source>Fitted</source>
+        <translation>장착됨</translation>
+    </message>
+    <message>
+        <source>For typed messages</source>
+        <translation>입력한 메시지용</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>높음</translation>
+    </message>
+    <message>
+        <source>Hold to release</source>
+        <translation>놓기 누름 시간</translation>
+    </message>
+    <message>
+        <source>Hook for drops</source>
+        <translation>투하용 고리</translation>
+    </message>
+    <message>
+        <source>Hook opens · on the ground, motors off</source>
+        <translation>고리가 열립니다 · 지상, 모터 정지 상태</translation>
+    </message>
+    <message>
+        <source>How long Release must be held on the flight screen</source>
+        <translation>비행 화면에서 놓기를 눌러야 하는 시간</translation>
+    </message>
+    <message>
+        <source>Korean</source>
+        <translation>한국어</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>낮음</translation>
+    </message>
+    <message>
+        <source>Lowering speed *</source>
+        <translation>내리기 속도 *</translation>
+    </message>
+    <message>
+        <source>Max brightness *</source>
+        <translation>최대 밝기 *</translation>
+    </message>
+    <message>
+        <source>Max volume *</source>
+        <translation>최대 음량 *</translation>
+    </message>
+    <message>
+        <source>Megaphone</source>
+        <translation>확성기</translation>
+    </message>
+    <message>
+        <source>Mid</source>
+        <translation>중간</translation>
+    </message>
+    <message>
+        <source>No cleaning device is connected. The card becomes active when the app supports the device.</source>
+        <translation>연결된 세척 장치가 없습니다. 앱이 장치를 지원하면 카드가 활성화됩니다.</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>아니요</translation>
+    </message>
+    <message>
+        <source>Not detected</source>
+        <translation>감지 안 됨</translation>
+    </message>
+    <message>
+        <source>Not fitted</source>
+        <translation>장착 안 됨</translation>
+    </message>
+    <message>
+        <source>Not supported by this app yet</source>
+        <translation>이 앱에서는 아직 지원하지 않음</translation>
+    </message>
+    <message>
+        <source>Release sent to the drone</source>
+        <translation>드론에 놓기 명령을 보냈습니다</translation>
+    </message>
+    <message>
+        <source>Safety limit, fixed</source>
+        <translation>안전 한계, 고정값</translation>
+    </message>
+    <message>
+        <source>Searchlight</source>
+        <translation>서치라이트</translation>
+    </message>
+    <message>
+        <source>Set on the drone (parameter GRIP_ENABLE) · Advanced › Parameters</source>
+        <translation>드론에서 설정(파라미터 GRIP_ENABLE) · Advanced › Parameters</translation>
+    </message>
+    <message>
+        <source>Shows the megaphone card on the flight screen</source>
+        <translation>비행 화면에 확성기 카드를 표시합니다</translation>
+    </message>
+    <message>
+        <source>Speech language *</source>
+        <translation>음성 언어 *</translation>
+    </message>
+    <message>
+        <source>Spray pressure *</source>
+        <translation>분사 압력 *</translation>
+    </message>
+    <message>
+        <source>Stop sound on landing</source>
+        <translation>착륙 시 소리 끄기</translation>
+    </message>
+    <message>
+        <source>Test release</source>
+        <translation>놓기 시험</translation>
+    </message>
+    <message>
+        <source>Turn off on landing</source>
+        <translation>착륙 시 끄기</translation>
+    </message>
+    <message>
+        <source>Use BirdCom searchlight</source>
+        <translation>BirdCom 서치라이트 사용</translation>
+    </message>
+    <message>
+        <source>Use megaphone</source>
+        <translation>확성기 사용</translation>
+    </message>
+    <message>
+        <source>Values marked * are kept in the app and used once the device accepts them.</source>
+        <translation>* 표시 값은 앱에 저장되며, 장비가 받을 수 있게 되면 적용됩니다.</translation>
+    </message>
+    <message>
+        <source>Winch</source>
+        <translation>윈치</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>예</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapControls</name>
@@ -3394,6 +3562,10 @@
     <message>
         <source>applied %1 %</source>
         <translation>적용 %1 %</translation>
+    </message>
+    <message>
+        <source>Hold %1 s to release</source>
+        <translation>%1초 눌러 놓기</translation>
     </message>
 </context>
 </TS>
