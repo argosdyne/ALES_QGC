@@ -81,6 +81,9 @@ Reply to the user in Korean unless they write in English.
   today (megaphone = clip 1–11 play/stop, searchlight on/off, winch = gripper hook / hold-2-s release, life jacket drop,
   tether, YellowScan). Volume, brightness and winch lower/raise are not in the app (no commands). Tether power-off in
   flight and no-power Land / To station use Simple slide sheets: the classic confirm dialog sits in the hidden widget layer.
+- Settings › Payloads S56 (2026-11-16, user: "Figma as is, kept in the app"): megaphone, searchlight, winch, cleaning pages;
+  values in `SimplePayloadPrefs` (marked * when no device command exists yet). Used today: winch hold time, ground test
+  release (motors off), stop clip / searchlight off on landing. "Use" switches = enableAudioController / lifeJacketEnable.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
 - Link lost (2026-11-15, 02 Flows D): critical (forced back to the fly screen) only in flight (last known state armed or
   flying). On the ground Plan / Settings stay open, the status chip turns red. An unsent Simple plan is not replaced by an
@@ -141,7 +144,7 @@ Reply to the user in Korean unless they write in English.
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
    ~~map tap menu S35/S36/S38~~ (2026-11-16), ~~payload panel S10/S16/S17/S50/S51~~ (2026-11-16); next: S43 camera
-   settings, S56 cards, tether / cleaning profiles S11/S13) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   settings, tether / cleaning profiles S11/S13; ~~S56 cards~~ 2026-11-16) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
