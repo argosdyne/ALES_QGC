@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S64 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S69 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -140,6 +140,17 @@ Reply to the user in Korean unless they write in English.
   (Fly screen, Video, Plan, Data & logs, Devices). Not carried over: MAVLink Console (no ArduPilot shell), GeoTag Images
   (PX4 logs only), brand image, Palette Test / Mock Link / Debug (debug builds only). The classic screens stay reachable as
   "Classic alesQGC screens" until every screen is redesigned. Waiting for the user's review before code.
+- Cybersecurity, CE RED 3.3(d)(e) / EN 18031 (2026-11-16, user: put it in Figma so AQGC can apply it). Figma S65 Security &
+  privacy (data on this device, Delete my data S67, location sharing off, signed app, security updates period, report a
+  security issue, security log), S66 Link security (MAVLink signing, radio password, radio encryption, RTSP / NTRIP /
+  Altitude Angel status), S68 Firmware (signed files only, no downgrade), S69 Devices (open services, default off),
+  entry points S22 card, S27 "Link protection" row, S48 "Security, privacy & legal". Rules: 00 Overview §10.
+  Found in the code (fix with this work, do not copy the values anywhere):
+  hard-coded NTRIP caster account in `custom/src/RTCM/NTRIPRTCMSource.cpp` (`get_caster_xml`); Doodle Labs radio login with the
+  factory account and TLS peer verification off in `custom/src/ARLink/ARManager.cpp`; NTRIP user/password and API keys
+  stored in plain QSettings and NTRIP sent over plain TCP with Basic auth; no MAVLink 2 signing in this QGC
+  (ArduPilot supports it via SETUP_SIGNING). No "skip password" option anywhere (EN 18031 restriction). Values on the
+  S65 mock (support period, security contact) are examples: the company must set them.
 - Tests (2026-11-15): flight-state and memory tests run on ArduPilot SITL — company firmware Z01.07.00EASA
   (`~/APM4.5/build/sitl/bin/arducopter` in WSL Ubuntu-22.04; do not build or edit that tree). MockLink only for quick UI checks.
 - `guidedMaximumAltitude` default 120 m. "EasyGripper" is the smart-controller name, not a payload (use "Winch").
