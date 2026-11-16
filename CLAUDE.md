@@ -120,6 +120,11 @@ Reply to the user in Korean unless they write in English.
   vehicle); a Simple mission-complete screen is not designed yet. Saved-missions preview: one controller reused
   (a new one per selection leaked ~7 MB), files over 500 items or damaged files are not loaded. Opening a
   3000-waypoint mission still takes ~3 GB (classic visuals). Corridor default 2 x 110 m (inside a 300 m fence).
+  Mission load leak fixed (2026-11-16): loading a plan or a vehicle mission deleted only the old list, not its items
+  (parent = master controller): ~1.5 MB per load. Now deleteListAndContents (core MissionController, both modes).
+  The YellowScan Init Path visual threw a TypeError on every load (createObject without a component): removed.
+  After the fix: 120 opens +~0.4 MB each, QObject count unchanged (17087) over the run, so the rest is caches
+  (map tiles etc.), not objects.
   sitl.py pos: the GCS heartbeat (system 255) is forwarded on TCP 5762, filter by the vehicle system id.
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.

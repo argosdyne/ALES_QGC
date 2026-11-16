@@ -121,7 +121,7 @@ Rectangle {
             color: SimpleTheme.surfaceRaised
             SIcon { anchors.centerIn: parent; name: "bell"; size: 40 }
             Rectangle {
-                visible: vs.present && bar._veh.newMessageCount > 0
+                visible: vs.present && !!bar._veh && bar._veh.newMessageCount > 0
                 anchors.right: parent.right; anchors.top: parent.top; anchors.margins: -SimpleTheme.px(4)
                 width: SimpleTheme.px(30); height: width; radius: width / 2
                 color: bar._veh && bar._veh.messageTypeError ? SimpleTheme.danger : SimpleTheme.warn
