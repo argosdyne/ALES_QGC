@@ -109,7 +109,7 @@ Reply to the user in Korean unless they write in English.
 - Performance (2026-11-16): in Simple mode the hidden classic mission editor list (PlanView) and GeoZoneMakeView
   (MainRootWindow, Loader built on first Advanced use) are not created. Start-up is ~7.5 s; the rest is framework
   start-up (C++ init, QML load, ~3 s before the first frame) and needs a native profiler (WPR, admin) to go further.
-  Beta tag `simple_ui_v1_2026111501` = 23d510eff (before these two commits).
+  Beta tags: `simple_ui_v1_2026111501` = 23d510eff (before these two commits); `simple_ui_v1_2026111601` = 3bc7e150a (with them, CI APK / installer).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
 
