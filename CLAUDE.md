@@ -108,6 +108,15 @@ Reply to the user in Korean unless they write in English.
   global setting (`CameraCalc.isYSLidar` = last choice, not per survey): a file is LiDAR only by its Init Path items.
   Every transect item (survey, corridor, Init Path) has `surveyAreaPolygon`; only a survey has `gridAngle`.
   Core fix (MissionController load): an Init Path (saved as type "CorridorScan") is loaded as Init Path again, not as a corridor.
+- Verification 2026-11-16 (heavy / light / abnormal / random / SITL):
+  Company firmware accepts DO_SET_ROI (201) but refuses ROI_LOCATION (195), ROI_NONE (197) and ROI_WPNEXT_OFFSET (196):
+  structure scans for ArduPilot use one DO_SET_ROI per layer at the structure centre and DO_SET_ROI 0,0,0 to end it
+  (core StructureScanComplexItem, both modes). The Simple check shows a refused upload (MissionController
+  sendToVehicleFinished). The classic "Flight Plan complete" popup is not shown in Simple mode (plan stays on the
+  vehicle); a Simple mission-complete screen is not designed yet. Saved-missions preview: one controller reused
+  (a new one per selection leaked ~7 MB), files over 500 items or damaged files are not loaded. Opening a
+  3000-waypoint mission still takes ~3 GB (classic visuals). Corridor default 2 x 110 m (inside a 300 m fence).
+  sitl.py pos: the GCS heartbeat (system 255) is forwarded on TCP 5762, filter by the vehicle system id.
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
