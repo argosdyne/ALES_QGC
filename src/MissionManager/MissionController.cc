@@ -899,6 +899,16 @@ bool MissionController::_loadJsonMissionFileV2(const QJsonObject& json, QmlObjec
                 nextSequenceNumber = structureItem->lastSequenceNumber() + 1;
                 qCDebug(MissionControllerLog) << "Structure Scan load complete: nextSequenceNumber" << nextSequenceNumber;
                 visualItems->append(structureItem);
+            } else if (complexItemType == YellowScanInitPathComplexItem::jsonComplexItemTypeValue
+                       && itemObject.contains(YellowScanInitPathComplexItem::turnRadiusName)) {
+                // YellowScan Init Path is saved with the CorridorScan type: tell it apart by its own keys,
+                // or a saved LiDAR mission would come back with a corridor scan in place of the init path
+                YellowScanInitPathComplexItem* initPathItem = new YellowScanInitPathComplexItem(_masterController, _flyView, QString() /* kmlFile */);
+                if (!initPathItem->load(itemObject, nextSequenceNumber++, errorString)) {
+                    return false;
+                }
+                nextSequenceNumber = initPathItem->lastSequenceNumber() + 1;
+                visualItems->append(initPathItem);
             } else if (complexItemType == CorridorScanComplexItem::jsonComplexItemTypeValue) {
                 qCDebug(MissionControllerLog) << "Loading Corridor Scan: nextSequenceNumber" << nextSequenceNumber;
                 CorridorScanComplexItem* corridorItem = new CorridorScanComplexItem(_masterController, _flyView, QString() /* kmlFile */);
