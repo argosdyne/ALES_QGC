@@ -29,13 +29,9 @@ Item {
 
         //androidFileDialog.open()
 
+        // Open one dialog only (the second, older call here opened a second dialog on top of the first)
         if (_mobileDlg && folder.length !== 0) {
             mobileFileOpenDialogComponent.createObject(mainWindow).open()
-        } else {
-            fullFileDialog.open()
-        }
-        if (_mobileDlg && folder.length !== 0) {
-            mainWindow.showComponentDialog(mobileFileOpenDialog, title, mainWindow.showDialogDefaultWidth, StandardButton.Cancel)
         } else {
             fullFileDialog.open()
         }

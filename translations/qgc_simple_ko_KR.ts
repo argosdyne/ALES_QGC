@@ -622,24 +622,12 @@
         <translation>임무 계획</translation>
     </message>
     <message>
-        <source>Area mapping (more in next version)</source>
-        <translation>영역 매핑 (그 밖의 작업은 다음 버전)</translation>
-    </message>
-    <message>
         <source>Saved missions</source>
         <translation>저장된 임무</translation>
     </message>
     <message>
-        <source>Next version · Advanced › Plan</source>
-        <translation>다음 버전 · 고급 › 계획</translation>
-    </message>
-    <message>
         <source>Offline maps</source>
         <translation>오프라인 지도</translation>
-    </message>
-    <message>
-        <source>Next version · Advanced › Settings</source>
-        <translation>다음 버전 · 고급 › 설정</translation>
     </message>
     <message>
         <source>Settings</source>
@@ -865,10 +853,6 @@
         <translation>어떤 작업을 할까요?</translation>
     </message>
     <message>
-        <source>New mission</source>
-        <translation>새 임무</translation>
-    </message>
-    <message>
         <source>Draw area</source>
         <translation>영역 그리기</translation>
     </message>
@@ -977,10 +961,6 @@
         <translation>점 추가</translation>
     </message>
     <message>
-        <source>%1 · changed</source>
-        <translation>%1 · 변경됨</translation>
-    </message>
-    <message>
         <source>A mission with this name exists and will be replaced.</source>
         <translation>같은 이름의 미션이 있어 덮어씁니다.</translation>
     </message>
@@ -1023,6 +1003,26 @@
     <message>
         <source>e.g. Field A survey</source>
         <translation>예: A 구역 측량</translation>
+    </message>
+    <message>
+        <source>Only .plan and .kml files can be imported. Save a KMZ as KML in Google Earth first.</source>
+        <translation>.plan과 .kml 파일만 가져올 수 있습니다. KMZ는 Google Earth에서 KML로 저장하세요.</translation>
+    </message>
+    <message>
+        <source>Replace the plan being edited?</source>
+        <translation>편집 중인 계획을 바꿀까요?</translation>
+    </message>
+    <message>
+        <source>Slide to replace</source>
+        <translation>밀어서 바꾸기</translation>
+    </message>
+    <message>
+        <source>The current plan is not saved on this tablet. It is replaced by the mission you open.</source>
+        <translation>지금 계획은 이 태블릿에 저장되지 않았습니다. 여는 미션으로 바뀝니다.</translation>
+    </message>
+    <message>
+        <source>To keep it, close this and use Save first.</source>
+        <translation>남기려면 이 창을 닫고 먼저 저장하세요.</translation>
     </message>
 </context>
 <context>
@@ -2505,10 +2505,6 @@
         <translation>수동</translation>
     </message>
     <message>
-        <source>Megaphone, searchlight, winch, cleaning</source>
-        <translation>확성기, 서치라이트, 윈치, 세척 장치</translation>
-    </message>
-    <message>
         <source>Metres before the cable runs out</source>
         <translation>케이블이 끝나기 전 남은 거리(m)</translation>
     </message>
@@ -2703,10 +2699,6 @@
     <message>
         <source>The LiDAR reports only OK or a warning</source>
         <translation>LiDAR는 정상 또는 경고만 알립니다</translation>
-    </message>
-    <message>
-        <source>Their settings come with the flight-screen payload panels · next version</source>
-        <translation>설정은 비행 화면 페이로드 패널과 함께 · 다음 버전</translation>
     </message>
     <message>
         <source>These settings need station frame version Extended V1 · see Advanced › Station Setup</source>
@@ -3552,10 +3544,6 @@
         <translation>2초 눌러 구명조끼 투하</translation>
     </message>
     <message>
-        <source>Hold 2 s to release</source>
-        <translation>2초 눌러 놓기</translation>
-    </message>
-    <message>
         <source>Hold 2 s to stop</source>
         <translation>2초 눌러 정지</translation>
     </message>
@@ -4047,10 +4035,6 @@
         <translation>파일 가져오기</translation>
     </message>
     <message>
-        <source>Import: .plan (QGC) · .kml / .kmz with an area (Google Earth)</source>
-        <translation>가져오기: .plan (QGC) · 영역이 있는 .kml / .kmz (Google Earth)</translation>
-    </message>
-    <message>
         <source>Loading…</source>
         <translation>불러오는 중…</translation>
     </message>
@@ -4109,6 +4093,22 @@
     <message>
         <source>Waypoint flight</source>
         <translation>웨이포인트 비행</translation>
+    </message>
+    <message>
+        <source>%1 min</source>
+        <translation>%1분</translation>
+    </message>
+    <message>
+        <source>Import: .plan (QGC) · .kml with an area (Google Earth)</source>
+        <translation>가져오기: .plan (QGC) · 영역이 있는 .kml (Google Earth)</translation>
+    </message>
+    <message>
+        <source>No mission name contains “%1”.</source>
+        <translation>“%1”이(가) 들어간 미션이 없습니다.</translation>
+    </message>
+    <message>
+        <source>This file could not be read.</source>
+        <translation>이 파일을 읽을 수 없습니다.</translation>
     </message>
 </context>
 </TS>

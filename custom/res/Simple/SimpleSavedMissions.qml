@@ -1,11 +1,15 @@
 /****************************************************************************
  * AQGC Simple UI — S24 saved missions: list (.plan files in Settings › mission save path), preview, Open · Rename ·
  * Export · Delete, Import file (.plan, .kml/.kmz) and New mission.
- * - List: FolderListModel (newest first) with a search field. A one-line summary per file is cached in the app
- *   settings (category SimpleMissions) when a mission is saved here or previewed — files are not all parsed.
- * - Preview: the selected file is loaded into its own PlanMasterController (never the one used for editing/sending),
- *   shown on a small map with the classic mission visuals and summarised.
- * - Rename = save under the new name + delete the old file (there is no rename call in QGC).
+ * - List: FolderListModel (newest first); the search is a file-name filter. The numbers of a summary (kind, area,
+ *   points, time, photos) are cached in the app settings (SimpleMissions/summaries2) when a mission is saved or
+ *   previewed — files are not all parsed. The text is made when shown (current language and units).
+ * - Preview: the selected file is loaded into its own offline PlanMasterController (startStaticActiveVehicle(null):
+ *   it never follows the drone), shown on a small map with the classic mission visuals. It is rebuilt for every
+ *   selection and every time the page is shown again.
+ * - Rename = save under the new name + delete the old file (there is no rename call in QGC); only when the preview
+ *   really loaded the file. Export = a copy through the file dialog.
+ * - On Android the (mobile) file dialog only lists one folder: import and export use the Download folder.
  * Opening and importing are done by SimplePlanWizard (signals), so the editors get the mission.
  ****************************************************************************/
 import QtQuick 2.12
@@ -34,22 +38,31 @@ Rectangle {
     property string selected: ""            // full path of the selected file
     property string message: ""             // import result shown under the search field (set by the wizard)
     property string search: ""
+    property bool   _rebuild: false
+    readonly property var  _units:  QGroundControl.unitsConversion
+    readonly property bool _metric: _units.appSettingsHorizontalDistanceUnitsString === "m"
+    readonly property string ioFolder: Qt.platform.os === "android" ? "/storage/emulated/0/Download" : dir
 
-    // translated words for MissionInfo.summary()
+    // translated words and unit formatting for MissionInfo.text()
     readonly property var words: ({
         area: qsTr("Area mapping"), waypoint: qsTr("Waypoint flight"), corridor: qsTr("Corridor mapping"),
         structure: qsTr("Structure scan"), mission: qsTr("Mission"), photos: qsTr("%1 photos"),
-        points: qsTr("%1 points"), items: qsTr("%1 items")
+        points: qsTr("%1 points"), items: qsTr("%1 items"), minutes: qsTr("%1 min"),
+        fmtArea: function(m2) { return sm._metric ? (m2 / 10000).toFixed(1) + " ha" : (m2 / 4046.86).toFixed(1) + " ac" },
+        fmtDist: function(m)  { return sm._metric ? (m / 1000).toFixed(1) + " km" : (m / 1609.34).toFixed(1) + " mi" }
     })
+    function summaryText(info) { return MissionInfo.text(info, words) }
 
-    // summaries cache: { "<file name>": { kind, text } }
-    Settings { id: cache; category: "SimpleMissions"; property string summaries: "{}" }
-    function cached(name) { try { var m = JSON.parse(cache.summaries); return m[name] || null } catch (e) { return null } }
+    // summary numbers cache: { "<file name>": MissionInfo.info() }, parsed once
+    Settings { id: cache; category: "SimpleMissions"; property string summaries2: "{}" }
+    property var cacheMap: ({})
+    Component.onCompleted: { try { cacheMap = JSON.parse(cache.summaries2) } catch (e) { cacheMap = {} } }
+    function cached(name) { return cacheMap[name] || null }
     function setCached(name, info) {
-        var m = {}
-        try { m = JSON.parse(cache.summaries) } catch (e) { }
+        var m = Object.assign({}, cacheMap)
         if (info) m[name] = info; else delete m[name]
-        cache.summaries = JSON.stringify(m)
+        cacheMap = m
+        cache.summaries2 = JSON.stringify(m)
     }
     function baseName(path) { var n = String(path).replace(/\\/g, "/"); n = n.substring(n.lastIndexOf("/") + 1); return n.replace(/\.plan$/i, "") }
 
@@ -58,17 +71,12 @@ Rectangle {
     FolderListModel {
         id: files
         folder: sm.dir === "" ? "" : (sm.dir.charAt(0) === "/" ? "file://" : "file:///") + sm.dir
-        nameFilters: ["*.plan"]
+        // the search is a file-name filter (no hidden rows, no gaps)
+        nameFilters: [sm.search === "" ? "*.plan" : "*" + sm.search.replace(/[*?\[\]]/g, "") + "*.plan"]
         showDirs: false
         sortField: FolderListModel.Time
     }
     function refresh() { var f = files.folder; files.folder = ""; files.folder = f }
-    function visibleCount() {
-        var n = 0
-        for (var i = 0; i < files.count; i++) if (matches(files.get(i, "fileName"))) n++
-        return n
-    }
-    function matches(name) { return sm.search === "" || String(name).toLowerCase().indexOf(sm.search.toLowerCase()) >= 0 }
 
     //---------------------------------------------------------------- header
     Rectangle {
@@ -88,7 +96,7 @@ Rectangle {
         Row {
             anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
             spacing: SimpleTheme.px(14)
-            SButton { designHeight: 80; textSize: 26; text: qsTr("Import file"); onClicked: { fileDialog.forExport = false; fileDialog.nameFilters = ["*.plan", "*.kml", "*.kmz"]; fileDialog.title = qsTr("Import a mission"); fileDialog.openForLoad() } }
+            SButton { designHeight: 80; textSize: 26; text: qsTr("Import file"); onClicked: { fileDialog.forExport = false; fileDialog.nameFilters = ["*.plan", "*.kml"]; fileDialog.title = qsTr("Import a mission"); fileDialog.openForLoad() } }
             SButton { designHeight: 80; textSize: 26; kind: "primary"; text: qsTr("New mission"); onClicked: sm.newRequested() }
         }
     }
@@ -109,7 +117,8 @@ Rectangle {
         SText {
             visible: list.count === 0
             width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
-            text: qsTr("No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.")
+            text: sm.search !== "" ? qsTr("No mission name contains “%1”.").arg(sm.search)
+                                   : qsTr("No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.")
         }
     }
     ListView {
@@ -121,10 +130,8 @@ Rectangle {
         spacing: SimpleTheme.px(12)
         model: files
         delegate: Rectangle {
-            readonly property bool _show: sm.matches(fileName)
-            readonly property var _info: { cache.summaries; return sm.cached(fileName) }
-            visible: _show
-            width: list.width; height: _show ? SimpleTheme.px(104) : 0
+            readonly property var _info: sm.cacheMap[fileName] || null
+            width: list.width; height: SimpleTheme.px(104)
             radius: SimpleTheme.px(18)
             color: sm.selected === filePath ? SimpleTheme.withAlpha(SimpleTheme.brandGreen, 0.18) : SimpleTheme.surfaceRaised
             border.width: sm.selected === filePath ? SimpleTheme.px(2) : 0; border.color: SimpleTheme.brandGreen
@@ -138,7 +145,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 SText { width: parent.width; text: sm.baseName(fileName); size: 28; bold: true }
                 SText { width: parent.width; size: 22; color: SimpleTheme.textSecondary
-                        text: parent.parent._info ? parent.parent._info.text : qsTr("Tap to see the details") }
+                        text: parent.parent._info ? sm.summaryText(parent.parent._info) : qsTr("Tap to see the details") }
             }
             SText { id: dateText; anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                     text: Qt.formatDate(fileModified, "yyyy-MM-dd"); size: 22; color: SimpleTheme.textSecondary }
@@ -158,27 +165,35 @@ Rectangle {
         // the preview controller is rebuilt for each selected file
         Loader {
             id: ctrlLoader
-            active: sm.selected !== "" && sm.visible
+            active: sm.selected !== "" && sm.visible && !sm._rebuild
             sourceComponent: Component {
                 PlanMasterController {
-                    flyView: false
-                    Component.onCompleted: { start(); loadFromFile(sm.selected) }
+                    // offline (no active vehicle): the preview never switches to the drone's mission
+                    Component.onCompleted: { startStaticActiveVehicle(null, false); loadFromFile(sm.selected) }
                 }
             }
-            onActiveChanged: if (active) previewTimer.restart()
+            onActiveChanged: { previewBox.info = null; if (active) previewTimer.restart() }
         }
-        Connections { target: sm; function onSelectedChanged() { ctrlLoader.active = false; ctrlLoader.active = sm.selected !== "" && sm.visible } }
+        // a new selection rebuilds the preview (the active binding stays intact)
+        Connections { target: sm; function onSelectedChanged() { sm._rebuild = true; Qt.callLater(function() { sm._rebuild = false }) } }
         readonly property var ctrl: ctrlLoader.item
         readonly property var mission: ctrl ? ctrl.missionController : null
+        // the file really loaded (currentPlanFile is set only on success) — rename / export only then
+        readonly property bool loaded: !!ctrl && ctrl.currentPlanFile !== "" && !!mission && mission.visualItems.count > 1
         property var info: null
         // give the controller a moment to compute distance / time, then summarise, cache and fit the map
         Timer {
             id: previewTimer; interval: 400
             onTriggered: {
                 if (!previewBox.mission) return
-                previewBox.info = MissionInfo.summary(previewBox.mission, sm.words)
-                sm.setCached(sm.baseName(sm.selected) + ".plan", previewBox.info)
-                var pts = MissionInfo.outline(previewBox.mission)
+                if (!previewBox.loaded) return
+                var inf = MissionInfo.info(previewBox.mission)
+                // the offline preview controller does not compute the flight time: keep the one cached at save time
+                var old = sm.cached(sm.baseName(sm.selected) + ".plan")
+                if (!(inf.timeSec > 0) && old && old.timeSec > 0) inf.timeSec = old.timeSec
+                previewBox.info = inf
+                sm.setCached(sm.baseName(sm.selected) + ".plan", inf)
+                var pts = MissionInfo.route(previewBox.mission)
                 if (pts.length > 0) {
                     var minLat = 90, maxLat = -90, minLon = 180, maxLon = -180
                     for (var i = 0; i < pts.length; i++) {
@@ -217,18 +232,19 @@ Rectangle {
             }
             SText { width: parent.width; text: sm.baseName(sm.selected); size: 32; bold: true }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
-                    text: previewBox.info ? previewBox.info.text : qsTr("Loading…") }
+                    text: previewBox.info ? sm.summaryText(previewBox.info)
+                        : previewBox.ctrl && !previewBox.loaded && !previewTimer.running ? qsTr("This file could not be read.") : qsTr("Loading…") }
             Row {
                 spacing: SimpleTheme.px(12)
                 SButton { kind: "primary"; text: qsTr("Open"); onClicked: sm.openRequested(sm.selected) }
-                SButton { text: qsTr("Rename"); onClicked: { renameField.text = sm.baseName(sm.selected); renameField.reset(); renameSheet.visible = true } }
-                SButton { text: qsTr("Export"); onClicked: { fileDialog.forExport = true; fileDialog.nameFilters = ["*.plan"]; fileDialog.title = qsTr("Export a copy"); fileDialog.openForSave() } }
+                SButton { text: qsTr("Rename"); enabled_: previewBox.loaded; onClicked: { renameField.text = sm.baseName(sm.selected); renameField.reset(); renameSheet.visible = true } }
+                SButton { text: qsTr("Export"); enabled_: previewBox.loaded; onClicked: { fileDialog.forExport = true; fileDialog.nameFilters = ["*.plan"]; fileDialog.title = qsTr("Export a copy"); fileDialog.openForSave() } }
                 SButton { kind: "danger"; text: qsTr("Delete"); onClicked: deleteSheet.visible = true }
             }
             Row {
                 spacing: SimpleTheme.px(10)
                 SIcon { name: "info"; size: 28; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-                SText { text: qsTr("Import: .plan (QGC) · .kml / .kmz with an area (Google Earth)"); size: 22; color: SimpleTheme.textSecondary }
+                SText { text: qsTr("Import: .plan (QGC) · .kml with an area (Google Earth)"); size: 22; color: SimpleTheme.textSecondary }
             }
         }
     }
@@ -255,10 +271,10 @@ Rectangle {
             SText { visible: renameSheet._taken; text: qsTr("A mission with this name already exists."); size: 22; color: SimpleTheme.textDanger }
             SButton {
                 kind: "primary"; text: qsTr("Rename")
-                enabled_: renameSheet._new !== "" && !renameSheet._taken && /^[^\\/:*?"<>|]+$/.test(renameSheet._new) && !!previewBox.ctrl
+                enabled_: renameSheet._new !== "" && !renameSheet._taken && /^[^\\/:*?"<>|]+$/.test(renameSheet._new) && previewBox.loaded
                 onClicked: {
                     var oldPath = sm.selected, newPath = sm.dir + "/" + renameSheet._new + ".plan"
-                    if (newPath === oldPath) { renameSheet.visible = false; return }
+                    if (newPath === oldPath || !previewBox.loaded) { renameSheet.visible = false; return }
                     previewBox.ctrl.saveToFile(newPath)
                     if (fdc.fileExists(newPath)) {
                         var info = sm.cached(sm.baseName(oldPath) + ".plan")
@@ -296,8 +312,8 @@ Rectangle {
     QGCFileDialog {
         id: fileDialog
         property bool forExport: false
-        folder: sm.dir
+        folder: sm.ioFolder
         onAcceptedForLoad: { close(); sm.importRequested(file) }
-        onAcceptedForSave: { if (forExport && previewBox.ctrl) previewBox.ctrl.saveToFile(file); close(); sm.refresh() }
+        onAcceptedForSave: { if (forExport && previewBox.loaded) previewBox.ctrl.saveToFile(file); close(); sm.refresh() }
     }
 }

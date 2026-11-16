@@ -1,71 +1,106 @@
-// AQGC Simple UI — kind and one-line summary of a mission (S24 saved missions, S07/S08/S23 save), from a
-// MissionController. Kinds: area (survey), corridor, structure, waypoint (only simple items), other.
+// AQGC Simple UI — kind, numbers and one-line summary of a mission (S24 saved missions, plan save / open), from a
+// MissionController. Kinds:
+//   area      one survey + only take-off / land / return items (what Plan › Area mapping makes)
+//   waypoint  only take-off, waypoints (NAV_WAYPOINT 16) and land / return (what Plan › Waypoint flight makes)
+//   corridor  one corridor scan + only take-off / land / return;  structure  likewise with a structure scan
+//   other     anything else (mixed or special items): it is opened in the S39 check only, never in an editor
 .pragma library
+
+var _frame = [22, 20, 21]          // NAV_TAKEOFF, NAV_RETURN_TO_LAUNCH, NAV_LAND
 
 function kindOf(mission) {
     if (!mission) return "other"
     var items = mission.visualItems
-    var hasWp = false, other = false
-    for (var i = 0; i < items.count; i++) {
+    var complexKind = "", complexCount = 0, wp = 0
+    for (var i = 1; i < items.count; i++) {          // 0 = mission settings item
         var it = items.get(i)
         if (!it) continue
-        if (it.surveyAreaPolygon !== undefined) return "area"
-        if (it.corridorPolyline !== undefined) return "corridor"
-        if (it.structureHeight !== undefined) return "structure"
-        if (it.isSimpleItem && it.command === 16) hasWp = true
-        else if (!it.isSimpleItem && i > 0) other = true
+        if (it.isSimpleItem) {
+            if (it.command === 16) wp++
+            else if (_frame.indexOf(it.command) < 0) return "other"
+        } else {
+            complexCount++
+            complexKind = it.surveyAreaPolygon !== undefined ? "area" : it.corridorPolyline !== undefined ? "corridor"
+                        : it.structureHeight !== undefined ? "structure" : "unknown"
+        }
     }
-    return hasWp && !other ? "waypoint" : "other"
+    if (complexCount === 0) return wp > 0 ? "waypoint" : "other"
+    if (complexCount === 1 && wp === 0 && complexKind !== "unknown") return complexKind
+    return "other"
 }
 
-function _minutes(sec) { return !sec || isNaN(sec) ? "" : Math.max(1, Math.round(sec / 60)) + " min" }
-
-// T: translated strings from the caller (QML qsTr): area, waypoint, corridor, structure, mission, photos, points, items
-function summary(mission, T) {
+// numbers only (cached by the saved-missions page; text is made when shown, in the current language and units)
+function info(mission) {
     var kind = kindOf(mission)
-    var parts = []
+    var r = { kind: kind, areaM2: NaN, photos: 0, points: 0, distM: mission ? mission.missionDistance : NaN,
+              timeSec: mission ? mission.missionTime : NaN, items: 0 }
+    if (!mission) return r
     var items = mission.visualItems
-    if (kind === "area") {
+    r.items = Math.max(0, items.count - 1)
+    for (var i = 1; i < items.count; i++) {
+        var it = items.get(i)
+        if (!it) continue
+        if (it.isSimpleItem && it.command === 16) r.points++
+        if (it.surveyAreaPolygon !== undefined) { r.areaM2 = it.coveredArea; r.photos = it.cameraShots }
+        else if (it.cameraShots !== undefined && it.cameraShots > 0) r.photos += it.cameraShots
+    }
+    return r
+}
+
+// T: from the caller (QML): words area, waypoint, corridor, structure, mission, photos "%1 photos", points "%1 points",
+// items "%1 items", minutes "%1 min", and functions fmtArea(m2), fmtDist(m)
+function text(r, T) {
+    if (!r) return ""
+    var parts = []
+    if (r.kind === "area") {
         parts.push(T.area)
-        for (var i = 0; i < items.count; i++) {
-            var it = items.get(i)
-            if (it && it.surveyAreaPolygon !== undefined) {
-                parts.push((it.coveredArea / 10000).toFixed(1) + " ha")
-                if (it.cameraShots > 0) parts.push(T.photos.replace("%1", it.cameraShots))
-                break
-            }
-        }
-    } else if (kind === "waypoint") {
-        var n = 0
-        for (var j = 0; j < items.count; j++) { var w = items.get(j); if (w && w.isSimpleItem && w.command === 16) n++ }
-        parts.push(T.waypoint)
-        parts.push(T.points.replace("%1", n))
-    } else if (kind === "corridor") {
-        parts.push(T.corridor)
-        parts.push((mission.missionDistance / 1000).toFixed(1) + " km")
-    } else if (kind === "structure") {
+        if (isFinite(r.areaM2)) parts.push(T.fmtArea(r.areaM2))
+    } else if (r.kind === "waypoint") {
+        parts.push(T.waypoint); parts.push(T.points.replace("%1", r.points))
+    } else if (r.kind === "corridor") {
+        parts.push(T.corridor); if (isFinite(r.distM)) parts.push(T.fmtDist(r.distM))
+    } else if (r.kind === "structure") {
         parts.push(T.structure)
     } else {
-        parts.push(T.mission)
-        parts.push(T.items.replace("%1", Math.max(0, items.count - 1)))
+        parts.push(T.mission); parts.push(T.items.replace("%1", r.items))
     }
-    var m = _minutes(mission.missionTime)
-    if (m !== "") parts.splice(kind === "area" ? 2 : parts.length, 0, m)
-    return { kind: kind, text: parts.join(" · ") }
+    if (isFinite(r.timeSec) && r.timeSec > 0) parts.push(T.minutes.replace("%1", Math.max(1, Math.round(r.timeSec / 60))))
+    if (r.photos > 0) parts.push(T.photos.replace("%1", r.photos))
+    return parts.join(" · ")
 }
 
-// coordinates that outline the mission (for the map preview and the S39 check route)
-function outline(mission) {
+// every coordinate the drone flies to or around (S39 check route, map preview): survey transects, corridor / structure
+// outlines and all simple items with a coordinate
+function route(mission) {
     var pts = []
+    if (!mission) return pts
     var items = mission.visualItems
     for (var i = 1; i < items.count; i++) {
         var it = items.get(i)
         if (!it) continue
-        var poly = it.surveyAreaPolygon !== undefined ? it.surveyAreaPolygon : it.corridorPolyline !== undefined ? it.corridorPolyline : null
-        if (poly && poly.path) { for (var k = 0; k < poly.path.length; k++) pts.push(poly.path[k]) }
-        else if (it.specifiesCoordinate && it.coordinate && it.coordinate.isValid) pts.push(it.coordinate)
+        var t = it.visualTransectPoints
+        if (t && t.length > 0) { for (var k = 0; k < t.length; k++) pts.push(t[k]); continue }
+        var poly = it.corridorPolyline !== undefined ? it.corridorPolyline : it.structurePolygon !== undefined ? it.structurePolygon
+                 : it.surveyAreaPolygon !== undefined ? it.surveyAreaPolygon : null
+        if (poly && poly.path && poly.path.length > 0) { for (var j = 0; j < poly.path.length; j++) pts.push(poly.path[j]); continue }
+        if (it.specifiesCoordinate && it.coordinate && it.coordinate.isValid) pts.push(it.coordinate)
     }
     return pts
+}
+
+// highest planned height above home over all items (simple altitudes, survey / corridor distance to surface, structure top)
+function maxHeight(mission) {
+    var m = 0
+    if (!mission) return m
+    var items = mission.visualItems
+    for (var i = 1; i < items.count; i++) {
+        var it = items.get(i)
+        if (!it) continue
+        if (it.isSimpleItem && it.specifiesAltitude && it.altitude) m = Math.max(m, Number(it.altitude.rawValue))
+        if (it.cameraCalc && it.cameraCalc.distanceToSurface) m = Math.max(m, Number(it.cameraCalc.distanceToSurface.rawValue))
+        if (it.topFlightAlt !== undefined) m = Math.max(m, Number(it.topFlightAlt))
+    }
+    return m
 }
 
 function iconFor(kind) {

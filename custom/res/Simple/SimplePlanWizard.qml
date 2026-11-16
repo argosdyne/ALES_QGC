@@ -49,6 +49,7 @@ Item {
             if (s && step !== "choose") { survey = s; return }
         }
         step = "choose"
+        kind = "area"
         survey = null
     }
 
@@ -63,6 +64,7 @@ Item {
     }
 
     function createAreaMapping() {
+        kind = "area"
         _plan.removeAll()
         var c = planView.mapCenter()
         _mission.insertTakeoffItem(c, 1, false)
@@ -95,6 +97,16 @@ Item {
         if (wpEditor) wpEditor.addMode = true
     }
     // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
+    // The plan being edited is replaced by Open / Import: ask first when it is not saved on this tablet.
+    property var _pending: null
+    function _hasUnsavedPlan() { return !!_plan && _plan.currentPlanFile === "" && _mission.visualItems.count > 2 }
+    function requestOpen(path)   { if (_hasUnsavedPlan()) { _pending = { open: path }; replaceSheet.visible = true } else openFile(path) }
+    function requestImport(path) { if (_hasUnsavedPlan()) { _pending = { imp: path }; replaceSheet.visible = true } else importFile(path) }
+    function _runPending() {
+        var p = _pending; _pending = null
+        if (p && p.open) openFile(p.open)
+        else if (p && p.imp) importFile(p.imp)
+    }
     function openFile(path) {
         _plan.loadFromFile(path)
         _plan.fitViewportToItems()
@@ -106,15 +118,21 @@ Item {
         else if (k === "waypoint") { survey = null; kind = "waypoint"; step = "edit"; wpEditor.addMode = false }
         else { survey = null; kind = "other"; step = "check" }
     }
-    // S24 import: .plan as is; .kml/.kmz with an area become an area mapping (lines: corridor mapping, later version)
+    // S24 import: .plan as is; a .kml with an area becomes an area mapping (lines: corridor mapping, later version).
+    // KMZ is not read by the classic shape loader (it only takes names ending in lower-case .kml / .shp).
     function importFile(path) {
-        var lower = String(path).toLowerCase()
-        if (/\.plan$/.test(lower)) { openFile(path); return }
+        var name = String(path)
+        if (/\.plan$/i.test(name)) { openFile(path); return }
+        if (!/\.kml$/.test(name)) {
+            savedPage.message = qsTr("Only .plan and .kml files can be imported. Save a KMZ as KML in Google Earth first.")
+            return
+        }
         _plan.removeAll()
         var c = planView.mapCenter()
         _mission.insertTakeoffItem(c, 1, false)
         var item = _mission.insertComplexMissionItemFromKMLOrSHP(_mission.surveyComplexItemName, path, 2, true)
-        if (!item) {
+        // the survey is created even when the file has no polygon: check the area
+        if (!item || !item.surveyAreaPolygon || item.surveyAreaPolygon.count < 3) {
             _plan.removeAll()
             savedPage.message = qsTr("No area found in this file. Lines (corridors) come with corridor mapping.")
             return
@@ -127,7 +145,7 @@ Item {
     function saveAs(name) {
         var path = QGroundControl.settingsManager.appSettings.missionSavePath + "/" + name + ".plan"
         _plan.saveToFile(path)
-        savedPage.setCached(name + ".plan", MissionInfo.summary(_mission, savedPage.words))
+        savedPage.setCached(name + ".plan", MissionInfo.info(_mission))
         savedPage.refresh()
     }
     readonly property string _planName: _plan && _plan.currentPlanFile !== "" ? savedPage.baseName(_plan.currentPlanFile) : ""
@@ -141,22 +159,16 @@ Item {
         }
     }
     // route and highest point for the S39 check
-    readonly property var _route: kind === "waypoint" ? wpEditor.wps.map(function(w) { return w.coordinate })
-                                : kind === "other" && step === "check" ? MissionInfo.outline(_mission) : null
+    // S39 check: every coordinate and the highest point of the whole mission (not only the survey or the waypoints)
+    readonly property var _route: {
+        if (step !== "check" || !_mission) return null
+        var dep = _mission.visualItems.count
+        return MissionInfo.route(_mission)
+    }
     readonly property real _routeHeight: {
-        if (kind === "area") return NaN
-        var m = 0
-        if (kind === "waypoint") {
-            for (var i = 0; i < wpEditor.wps.length; i++) m = Math.max(m, Number(wpEditor.wps[i].altitude.rawValue))
-        } else if (_mission && step === "check") {
-            for (var j = 1; j < _mission.visualItems.count; j++) {
-                var it = _mission.visualItems.get(j)
-                if (it && it.specifiesAltitude && it.altitude) m = Math.max(m, Number(it.altitude.rawValue))
-                if (it && it.topFlightAlt !== undefined) m = Math.max(m, it.topFlightAlt)
-                if (it && it.cameraCalc && it.cameraCalc.distanceToSurface) m = Math.max(m, Number(it.cameraCalc.distanceToSurface.rawValue))
-            }
-        }
-        return m
+        if (step !== "check" || !_mission) return NaN
+        var dep = _mission.visualItems.count
+        return MissionInfo.maxHeight(_mission)
     }
 
     function _fmtTime(sec) {
@@ -186,8 +198,7 @@ Item {
                             : wiz.kind === "other" ? qsTr("Saved mission") : qsTr("Area mapping"); size: 34; bold: true }
                 SText { size: 22; color: SimpleTheme.textSecondary
                         text: wiz.step === "choose" ? qsTr("What do you want to do?")
-                            : wiz._planName === "" ? qsTr("New mission · not saved")
-                            : wiz._plan.dirty ? qsTr("%1 · changed").arg(wiz._planName) : wiz._planName }
+                            : wiz._planName === "" ? qsTr("New mission · not saved") : wiz._planName }
             }
         }
         Row {
@@ -380,8 +391,8 @@ Item {
         visible: wiz.step === "saved"
         onBackRequested: simpleRoot.showFly()
         onNewRequested: { message = ""; wiz.step = "choose" }
-        onOpenRequested: { message = ""; wiz.openFile(file) }
-        onImportRequested: { message = ""; wiz.importFile(file) }
+        onOpenRequested: { message = ""; wiz.requestOpen(file) }
+        onImportRequested: { message = ""; wiz.requestImport(file) }
     }
 
     // save under a name (S24)
@@ -416,5 +427,24 @@ Item {
                 onClicked: { wiz.saveAs(saveSheet._name); saveSheet.visible = false }
             }
         }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        visible: replaceSheet.visible
+        color: SimpleTheme.withAlpha("black", 0.45)
+        MouseArea { anchors.fill: parent; onClicked: { replaceSheet.visible = false; wiz._pending = null } }
+    }
+    SimpleConfirmSheet {
+        id: replaceSheet
+        visible: false
+        anchors.centerIn: parent
+        icon: "warn"
+        title: qsTr("Replace the plan being edited?")
+        detail: qsTr("The current plan is not saved on this tablet. It is replaced by the mission you open.")
+        note: qsTr("To keep it, close this and use Save first.")
+        slideText: qsTr("Slide to replace")
+        onCloseRequested: { visible = false; wiz._pending = null }
+        onConfirmed: { visible = false; wiz._runPending() }
     }
 }
