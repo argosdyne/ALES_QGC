@@ -194,7 +194,9 @@ void MissionController::_newMissionItemsAvailableFromVehicle(bool removeAllReque
         //      - The vehicle has no flyable mission, so the plan list is cleared
 
         _deinitAllVisualItems();
-        _visualItems->deleteLater();
+        // AQGC: delete the old items too (their QObject parent is the master controller, so deleting only the
+        // list kept them alive for the life of the controller: about 1.5 MB per mission load, 2026-11-16)
+        _visualItems->deleteListAndContents();
         _visualItems  = nullptr;
         _settingsItem = nullptr;
         _takeoffMissionItem = nullptr;
@@ -1044,7 +1046,8 @@ void MissionController::_initLoadedVisualItems(QmlObjectListModel* loadedVisualI
 {
     if (_visualItems) {
         _deinitAllVisualItems();
-        _visualItems->deleteLater();
+        // AQGC: delete the replaced items with the list (see _newMissionItemsAvailableFromVehicle)
+        _visualItems->deleteListAndContents();
     }
     _settingsItem = nullptr;
     _takeoffMissionItem = nullptr;

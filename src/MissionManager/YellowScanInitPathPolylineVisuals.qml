@@ -46,10 +46,9 @@ Item {
     readonly property string _corridorToolsText:    qsTr("Polyline Tools")
     readonly property string _traceText:            qsTr("Click in the map to add vertices. Click 'Done Tracing' when finished.")
 
+    // AQGC: the Init Path has no common polyline visual (the flown path is drawn by the item visuals). The old call
+    // createObject(mapControl, true) had no component: it threw a TypeError on every load and stopped onCompleted.
     function _addCommonVisuals() {
-        if (_objMgrCommonVisuals.empty) {
-            _objMgrCommonVisuals.createObject(mapControl, true)
-        }
     }
 
     function _addInteractiveVisuals() {
