@@ -32,8 +32,8 @@ Reply to the user in Korean unless they write in English.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
-  (`custom/src/SimplePinHash.h`, salted, 20000 rounds); a plain PIN is hashed on start, so an older build that finds the
-  hash resets the PIN to 000000. Change PIN: Advanced › Settings › General (current → new → again, 000000 refused).
+  (`custom/src/SimplePinHash.h`, salted, 10000 rounds, canonical form only); a plain PIN is hashed on start, so an
+  older build that finds the hash resets the PIN to 000000 (tell testers before they install an older beta). Change PIN: Advanced › Settings › General (current → new → again, 000000 refused).
 - Fly screen layout (2026-11-13): **left = flight** (action buttons x 28; telemetry bar x 24, bottom 24),
   **right = camera** (camera rail → Payloads; video PiP bottom-right 400 × 226, tap to swap map/video).
   Map controls (S30) sit left of the PiP; compass/attitude in video-main (S18/S49) sit right of the telemetry bar.
@@ -88,7 +88,7 @@ Reply to the user in Korean unless they write in English.
   release (motors off), stop clip / searchlight off on landing. "Use" switches = enableAudioController / lifeJacketEnable.
 - Camera settings S43 (2026-11-16): "Camera" button at the bottom of the camera rail; sheet in the Payloads panel place.
   MAVLink camera only; auto photos = time lapse 2 s / 5 s (no distance shooting in the camera protocol); no photo-count estimate.
-- Tether profile S11 (2026-11-16): product profile "Tether" (combo in Advanced › General, the only core UI change) + SAFE-T
+- Tether profile S11 (2026-11-16): product profile "Tether" (combo in Advanced › General; with "Change PIN" the only Simple rows in a core settings page) + SAFE-T
   station on. The station reports no maximum cable length and no tension value: cable = out / station length alarm
   (`stationSettings.lengthAlarm`), tension = SAFE-T alarm state. Ground power must be on to take off (S16). No voice yet.
 - Waypoint flight S23 (2026-11-16): take-off → points → RTL; map taps reach the wizard through `PlanView.simpleMapClicked`
