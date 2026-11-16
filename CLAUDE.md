@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S57 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S64 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -29,6 +29,9 @@ Reply to the user in Korean unless they write in English.
 
 ## Decisions so far (do not change without asking)
 
+- **Changed 2026-11-16 (user): no PIN for Advanced mode.** The Advanced mode switch in the menu turns it on at once;
+  "Return to Simple" in the S44 panel turns it off. S12 (PIN) and Change PIN are not used any more; remove the PIN
+  dialog, `SimplePinHash.h` use and the Change PIN row when the code follows Figma. The text below is the old rule.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
@@ -130,6 +133,12 @@ Reply to the user in Korean unless they write in English.
 - Advanced mode redesign (2026-11-15): the classic screens (fly, plan, settings) will be redesigned in the Simple UI
   design system (layouts, not only colours/fonts). Start **after** the Settings v2 screens; Figma design first.
   Until then Advanced mode stays the classic UI.
+  2026-11-16 (user): option A = one app, the same screen frames; Advanced mode adds items to the Simple UI (Figma 02 Flows
+  "E. 고급 모드 구성"). Figma drafts S58–S64: Vehicle setup summary / sensors, Parameters, Analyze tools (Log download,
+  Vibration; MAVLink Inspector and App log only behind a "Developer tools" switch), Settings gets 5 Advanced categories
+  (Fly screen, Video, Plan, Data & logs, Devices). Not carried over: MAVLink Console (no ArduPilot shell), GeoTag Images
+  (PX4 logs only), brand image, Palette Test / Mock Link / Debug (debug builds only). The classic screens stay reachable as
+  "Classic alesQGC screens" until every screen is redesigned. Waiting for the user's review before code.
 - Tests (2026-11-15): flight-state and memory tests run on ArduPilot SITL — company firmware Z01.07.00EASA
   (`~/APM4.5/build/sitl/bin/arducopter` in WSL Ubuntu-22.04; do not build or edit that tree). MockLink only for quick UI checks.
 - `guidedMaximumAltitude` default 120 m. "EasyGripper" is the smart-controller name, not a payload (use "Winch").
