@@ -77,6 +77,10 @@ Reply to the user in Korean unless they write in English.
   allows it (not during mission / return / landing; user kept this 2026-11-16, no "apply to the rest of the mission").
   The Go here sheet warns that the height is above home, not the ground (user 2026-11-16). SITL: Go here height is above home; flying west of the SITL home
   towards rising ground (Inwangsan) ran into the terrain.
+- Payloads panel (2026-11-16, S10/S16/S17/S50/S51): button under the camera rail; cards only for what the drone accepts
+  today (megaphone = clip 1–11 play/stop, searchlight on/off, winch = gripper hook / hold-2-s release, life jacket drop,
+  tether, YellowScan). Volume, brightness and winch lower/raise are not in the app (no commands). Tether power-off in
+  flight and no-power Land / To station use Simple slide sheets: the classic confirm dialog sits in the hidden widget layer.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
 - Link lost (2026-11-15, 02 Flows D): critical (forced back to the fly screen) only in flight (last known state armed or
   flying). On the ground Plan / Settings stay open, the status chip turns red. An unsent Simple plan is not replaced by an
@@ -118,10 +122,14 @@ Reply to the user in Korean unless they write in English.
   (MainRootWindow, Loader built on first Advanced use) are not created. Start-up is ~7.5 s; the rest is framework
   start-up (C++ init, QML load, ~3 s before the first frame) and needs a native profiler (WPR, admin) to go further.
   Beta tags: `simple_ui_v1_2026111501` = 23d510eff (before these two commits); `simple_ui_v1_2026111601` = 3bc7e150a (with them, CI APK / installer).
-- Local tools kept in the session scratchpad (%TEMP%\claude\...) are partly deleted by Windows temp cleanup: after a
-  reboot Qt lost its ANGLE DLLs and QML/JS files (QtTest TestCase.qml missing → test runner exits 1 with no output) and
-  the GStreamer folder (D:) was gone. Reinstall Qt with aqtinstall over it and recreate `subst Q:` for the repo.
-  In .bat files quote `-o "file,txt"` (cmd splits arguments at commas).
+- Local build/test environment: `C:\Users\jsh06\aqgc-build` (Qt 5.15.2 via aqtinstall, jom, `build_rel.bat`, `tests.bat`,
+  `test1.bat <file>`, `ui.ps1` UI driver incl. `hold`, `sitl.sh` + `sitl.py`, `payloadtest.ps1`, settings backup).
+  Keep nothing durable in `%TEMP%\claude\...`: it was wiped twice on 2026-11-16. The repo is built through `subst Q:`
+  (recreate after a reboot). The app connects to SITL over TCP 5763 (a new exe path gets no inbound UDP 14550 through the
+  firewall). In .bat files quote `-o "file,txt"` (cmd splits arguments at commas).
+- Qt 5.15 QML: an inline `component X:` with a `default property alias` inside an SPanel-based file overflowed the stack
+  on creation (0xC00000FD). Put such components in their own .qml file (`SPayloadCard.qml`).
+- `vehicle.hasGripper` is CONSTANT but reads GRIP_ENABLE: bind it together with `paramsReady`, or it stays false.
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
 
@@ -132,7 +140,8 @@ Reply to the user in Korean unless they write in English.
 2. v2: ~~Korean strings + bundled fonts~~ (done 2026-11-14: `translations/qgc_simple_ko_KR.ts`, `custom/res/Simple/fonts/`;
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
-   ~~map tap menu S35/S36/S38~~ (2026-11-16), payload panels) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   ~~map tap menu S35/S36/S38~~ (2026-11-16), ~~payload panel S10/S16/S17/S50/S51~~ (2026-11-16); next: S43 camera
+   settings, S56 cards, tether / cleaning profiles S11/S13) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
