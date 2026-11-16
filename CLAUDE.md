@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S69 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S80 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -139,7 +139,12 @@ Reply to the user in Korean unless they write in English.
   Vibration; MAVLink Inspector and App log only behind a "Developer tools" switch), Settings gets 5 Advanced categories
   (Fly screen, Video, Plan, Data & logs, Devices). Not carried over: MAVLink Console (no ArduPilot shell), GeoTag Images
   (PX4 logs only), brand image, Palette Test / Mock Link / Debug (debug builds only). The classic screens stay reachable as
-  "Classic alesQGC screens" until every screen is redesigned. Waiting for the user's review before code.
+  "Classic alesQGC screens" until every screen is redesigned. User reviewed S58–S69 and asked for the rest
+  (2026-11-16): S70–S77 Vehicle setup (Frame, Radio, Flight modes, Power, Motors, Safety all failsafes, Tuning, Gimbal),
+  S78 fly screen in Advanced mode ("Advanced" badge, More sheet: Arm on the ground, Emergency stop hold 3 s, Change speed,
+  Set home here, raw messages; 6 extra values left of the PiP), S79 all flight modes (plain name + ArduPilot name in
+  Advanced only), S80 mission editor (Mission / Fence / Rally tabs; only commands the company firmware accepts).
+  Open question in the S76 note: Tuning sliders locked in flight (classic allows in-flight tuning) — ask the user.
 - Cybersecurity, CE RED 3.3(d)(e) / EN 18031 (2026-11-16, user: put it in Figma so AQGC can apply it). Figma S65 Security &
   privacy (data on this device, Delete my data S67, location sharing off, signed app, security updates period, report a
   security issue, security log), S66 Link security (MAVLink signing, radio password, radio encryption, RTSP / NTRIP /
