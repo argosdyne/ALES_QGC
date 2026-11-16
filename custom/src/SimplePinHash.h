@@ -6,7 +6,8 @@
  * 32-byte key). A 6-digit PIN has only 10^6 values, so the hash does not make a copied settings file safe
  * against a determined attacker; it keeps the PIN from being read in the settings file and makes each guess
  * cost the PBKDF2 work.
- * A stored plain 6-digit PIN (older versions) is still accepted by check(); the dialog then stores the hash.
+ * check() accepts only the hash form: the dialog replaces a plain 6-digit PIN (older versions) by its hash when
+ * it is created, before any check.
  ****************************************************************************/
 #pragma once
 
@@ -18,9 +19,12 @@
 #include <QString>
 #include <QStringList>
 
+#include <iterator>
+
 namespace SimplePinHash {
 
-static const int kIterations = 20000;
+// ~10 ms on a desktop, a few 100 ms at most on a tablet (runs on the GUI thread once per entered PIN)
+static const int kIterations = 10000;
 
 inline QString hashWithSalt(const QString& pin, const QByteArray& salt, int iterations)
 {
@@ -31,11 +35,9 @@ inline QString hashWithSalt(const QString& pin, const QByteArray& salt, int iter
 
 inline QString hash(const QString& pin)
 {
-    QByteArray salt(16, Qt::Uninitialized);
-    for (int i = 0; i < salt.size(); i++) {
-        salt[i] = static_cast<char>(QRandomGenerator::system()->bounded(256));
-    }
-    return hashWithSalt(pin, salt, kIterations);
+    quint32 words[4];
+    QRandomGenerator::system()->generate(std::begin(words), std::end(words));
+    return hashWithSalt(pin, QByteArray(reinterpret_cast<const char*>(words), sizeof(words)), kIterations);
 }
 
 inline bool isPlainPin(const QString& stored)
@@ -46,7 +48,8 @@ inline bool isPlainPin(const QString& stored)
 
 inline bool isHash(const QString& stored)
 {
-    static const QRegularExpression re(QStringLiteral("^pbkdf2-sha256\\$([0-9]{1,7})\\$([0-9a-f]{32})\\$([0-9a-f]{64})$"));
+    // canonical form only (no leading zero), so a value that passes here is one hashWithSalt() can produce
+    static const QRegularExpression re(QStringLiteral("^pbkdf2-sha256\\$([1-9][0-9]{3,6})\\$([0-9a-f]{32})\\$([0-9a-f]{64})$"));
     const QRegularExpressionMatch m = re.match(stored);
     if (!m.hasMatch()) {
         return false;
@@ -70,13 +73,7 @@ inline bool sameText(const QString& a, const QString& b)
 
 inline bool check(const QString& pin, const QString& stored)
 {
-    if (!isPlainPin(pin)) {
-        return false;
-    }
-    if (isPlainPin(stored)) {
-        return sameText(pin, stored);
-    }
-    if (!isHash(stored)) {
+    if (!isPlainPin(pin) || !isHash(stored)) {
         return false;
     }
     const QStringList parts = stored.split(QLatin1Char('$'));

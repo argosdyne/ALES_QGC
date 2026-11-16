@@ -67,9 +67,32 @@ TestCase {
         compare(spy.count, 1); compare(dlg.failures, 0)
     }
     function test_custom_pin() {
-        QGroundControl.corePlugin.settings.simpleAdminPin.rawValue = "482915"
+        st.simpleAdminPin.rawValue = cp.simplePinHash("482915")
         type("000000"); compare(spy.count, 0)
         type("482915"); compare(spy.count, 1)
+    }
+    // review: a plain PIN is only taken over when a dialog starts (hashed); check() itself never accepts plain text
+    function test_plain_stored_value_not_accepted_by_check() {
+        verify(!cp.simplePinCheck("482915", "482915"))
+    }
+    // review: a value that looks like a hash but can never match (leading zero) is not a valid hash -> default
+    function test_noncanonical_hash_resets_to_default() {
+        var h = cp.simplePinHash("482915").split("$")
+        verify(!cp.simplePinIsHash(h[0] + "$0" + h[1] + "$" + h[2] + "$" + h[3]))
+        st.simpleAdminPin.rawValue = h[0] + "$0" + h[1] + "$" + h[2] + "$" + h[3]
+        var x = restart()
+        verify(cp.simplePinCheck("000000", stored()), "reset to the default PIN")
+    }
+    // review: wrong tries made in another dialog instance count in this one too
+    function test_failures_shared_between_instances() {
+        var other = restart()
+        "111111".split("").forEach(function(c) { other._press(c) })
+        "111111".split("").forEach(function(c) { other._press(c) })
+        compare(Number(st.simpleAdminFailures.rawValue), 2)
+        dlg.open("advanced")
+        compare(dlg.failures, 2, "re-read on open")
+        type("222222")
+        compare(Number(st.simpleAdminFailures.rawValue), 3, "not reset to 1 by the stale count")
     }
     // ---- lock
     function test_five_wrong_locks() {
@@ -116,7 +139,7 @@ TestCase {
         compare(spy.count, 1, "default PIN opens Advanced mode")
     }
     function test_numeric_six_digit_pin_still_works() {
-        st.simpleAdminPin.rawValue = 482915      // stored as a number
+        st.simpleAdminPin.rawValue = 482915      // stored as a number (older version, plain)
         var x = restart()
         "482915".split("").forEach(function(c) { x._press(c) })
         compare(spy.count, 1)
@@ -140,7 +163,7 @@ TestCase {
         verify(a !== b, "random salt")
         verify(cp.simplePinCheck("123456", a) && cp.simplePinCheck("123456", b))
         verify(!cp.simplePinCheck("123457", a))
-        verify(/^pbkdf2-sha256\$20000\$[0-9a-f]{32}\$[0-9a-f]{64}$/.test(a), a)
+        verify(/^pbkdf2-sha256\$10000\$[0-9a-f]{32}\$[0-9a-f]{64}$/.test(a), a)
     }
     function test_check_rejects_bad_input() {
         var h = cp.simplePinHash("123456")
@@ -258,7 +281,7 @@ TestCase {
     // ---- random / stress
     function test_random_presses_invariants() {
         var keys = ["0","1","2","3","4","5","6","7","8","9","back"]
-        for (var run = 0; run < 80; run++) {     // each run hashes (PBKDF2): keep the count moderate
+        for (var run = 0; run < 150; run++) {     // each run hashes (PBKDF2 10000): 150 keeps the suite near 1 min
             resetSettings()
             var d = createTemporaryObject(dlgComp, root); spy.target = d; spy.clear(); d.open("advanced")
             var typed = ""

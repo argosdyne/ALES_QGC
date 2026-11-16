@@ -40,6 +40,8 @@ Item {
     // Restore the lock from the settings. A lock end time further away than lockMs means the clock was
     // set back: never lock longer than lockMs from now.
     function _refreshLock() {
+        // another dialog instance (Simple root / Advanced settings popup) may have counted wrong tries meanwhile
+        failures = Math.min(maxTries, Math.max(0, Number(_s.simpleAdminFailures.rawValue) || 0))
         var until = Number(_s.simpleAdminLockUntil.rawValue) || 0
         var now = _now()
         if (until > now + lockMs) {

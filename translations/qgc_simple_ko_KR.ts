@@ -4338,4 +4338,23 @@
         <translation>간격</translation>
     </message>
 </context>
+<context>
+    <name>GeneralSettings</name>
+    <message>
+        <source>Simple UI admin PIN</source>
+        <translation>간편 UI 관리자 PIN</translation>
+    </message>
+    <message>
+        <source>Change PIN</source>
+        <translation>PIN 변경</translation>
+    </message>
+    <message>
+        <source>PIN changed</source>
+        <translation>PIN이 변경되었습니다</translation>
+    </message>
+    <message>
+        <source>Simple UI product profile</source>
+        <translation>간편 UI 제품 프로파일</translation>
+    </message>
+</context>
 </TS>

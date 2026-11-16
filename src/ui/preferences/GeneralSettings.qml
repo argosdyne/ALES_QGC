@@ -810,7 +810,11 @@ Rectangle {
                                     QGCLabel { text: qsTr("Simple UI admin PIN") }
                                     QGCButton {
                                         text: qsTr("Change PIN")
-                                        onClicked: { simplePinLoader.active = true; simplePinLoader.item.open("change") }
+                                        onClicked: {
+                                            simplePinLoader.active = true
+                                            if (simplePinLoader.item) simplePinLoader.item.open("change")
+                                            else console.warn("GeneralSettings: SimplePinPopup did not load")
+                                        }
                                     }
                                     QGCLabel { id: simplePinDone; visible: false; text: qsTr("PIN changed") }
                                     Timer { id: simplePinDoneTimer; interval: 5000; onTriggered: simplePinDone.visible = false }
