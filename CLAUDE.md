@@ -211,5 +211,7 @@ Reply to the user in Korean unless they write in English.
    ~~change admin PIN and store it hashed~~ (2026-11-16) → Advanced mode redesign in the Simple design system (Figma first).
 3. **Next code task (user 2026-11-16): MAVLink 2 signing + CE RED security fixes** — read
    `custom/docs/TASK-security-mavlink-signing.md` (design, hook points, SITL checks, tests). Also remove the Advanced PIN.
+   Then the **Advanced mode redesign** (Figma S44, S58–S80): read `custom/docs/TASK-advanced-mode-redesign.md`
+   (screen list with node ids, classic controllers to reuse, order, tests).
 4. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
