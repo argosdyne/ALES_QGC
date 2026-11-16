@@ -144,7 +144,9 @@ Reply to the user in Korean unless they write in English.
   S78 fly screen in Advanced mode ("Advanced" badge, More sheet: Arm on the ground, Emergency stop hold 3 s, Change speed,
   Set home here, raw messages; 6 extra values left of the PiP), S79 all flight modes (plain name + ArduPilot name in
   Advanced only), S80 mission editor (Mission / Fence / Rally tabs; only commands the company firmware accepts).
-  Open question in the S76 note: Tuning sliders locked in flight (classic allows in-flight tuning) — ask the user.
+  Tuning in flight is allowed (user 2026-11-16: pilots tune while flying): S76 shows an orange "In flight: each change is
+  sent at once" banner, small steps only, and "Undo changes in this flight" (back to the values at arming). All other
+  Vehicle setup categories stay locked while armed.
 - Cybersecurity, CE RED 3.3(d)(e) / EN 18031 (2026-11-16, user: put it in Figma so AQGC can apply it). Figma S65 Security &
   privacy (data on this device, Delete my data S67, location sharing off, signed app, security updates period, report a
   security issue, security log), S66 Link security (MAVLink signing, radio password, radio encryption, RTSP / NTRIP /
