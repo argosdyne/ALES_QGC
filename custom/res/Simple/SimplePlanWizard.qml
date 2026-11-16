@@ -1,5 +1,5 @@
 /****************************************************************************
- * AQGC Simple UI — Plan in 3 steps (Figma S07 choose task · S08 area mapping · S39 check & send)
+ * AQGC Simple UI — Plan in 3 steps (Figma S07 choose task · S08 area mapping / S23 waypoint flight · S39 check & send)
  * Uses the classic PlanView map and PlanMasterController underneath (its panels are hidden in Simple mode).
  ****************************************************************************/
 import QtQuick 2.12
@@ -10,6 +10,7 @@ Item {
     id: wiz
     property var    vs
     property string step:   "choose"        // choose | edit | check
+    property string kind:   "area"          // area (S08) | waypoint (S23)
     property var    survey: null
 
     readonly property var _plan:    planView._planMasterController
@@ -24,6 +25,11 @@ Item {
     Connections {
         target: wiz._mission
         function onVisualItemsChanged() {
+            if (wiz.kind === "waypoint") {
+                // a plan replaced underneath (only the settings item left): start again from the task choice
+                if (wiz.step !== "choose" && wiz._mission.visualItems.count <= 1) wiz.step = "choose"
+                return
+            }
             if (!wiz.survey) return
             var s = wiz._findSurvey()
             if (s === wiz.survey) return
@@ -36,6 +42,7 @@ Item {
         // Back after a critical alert (02 Flows D): continue the mission being edited, do not start a new one
         if (interrupted) {
             interrupted = false
+            if (kind === "waypoint" && step !== "choose" && _mission && _mission.visualItems.count > 2) return
             var s = _findSurvey()
             if (s && step !== "choose") { survey = s; return }
         }
@@ -73,6 +80,34 @@ Item {
         step = "edit"
     }
 
+    // S23: take-off → (points added on the map) → return home (RTL = MAV_CMD_NAV_RETURN_TO_LAUNCH 20)
+    function createWaypointFlight() {
+        _plan.removeAll()
+        var c = planView.mapCenter()
+        _mission.insertTakeoffItem(c, 1, false)
+        var rtl = _mission.insertSimpleMissionItem(c, 2, false)
+        if (rtl) rtl.command = 20
+        survey = null
+        kind = "waypoint"
+        step = "edit"
+        if (wpEditor) wpEditor.addMode = true
+    }
+    // a map tap while editing a waypoint flight adds a point
+    Connections {
+        target: typeof planView !== "undefined" ? planView : null
+        function onSimpleMapClicked(coordinate) {
+            if (wiz.visible && wiz.step === "edit" && wiz.kind === "waypoint") wpEditor.addPoint(coordinate)
+        }
+    }
+    // route and highest point for the S39 check
+    readonly property var _route: kind !== "waypoint" ? null : wpEditor.wps.map(function(w) { return w.coordinate })
+    readonly property real _routeHeight: {
+        if (kind !== "waypoint") return NaN
+        var m = 0
+        for (var i = 0; i < wpEditor.wps.length; i++) m = Math.max(m, Number(wpEditor.wps[i].altitude.rawValue))
+        return m
+    }
+
     function _fmtTime(sec) {
         if (!sec || isNaN(sec)) return "—"
         var m = Math.round(sec / 60)
@@ -95,7 +130,7 @@ Item {
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
-                SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : qsTr("Area mapping"); size: 34; bold: true }
+                SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight") : qsTr("Area mapping"); size: 34; bold: true }
                 SText { text: wiz.step === "choose" ? qsTr("What do you want to do?") : qsTr("New mission"); size: 22; color: SimpleTheme.textSecondary }
             }
         }
@@ -104,7 +139,7 @@ Item {
             anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
             spacing: SimpleTheme.px(10)
             Repeater {
-                model: [qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
+                model: [wiz.kind === "waypoint" ? qsTr("Add points") : qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
                 Rectangle {
                     id: stepItem
                     readonly property int cur: wiz.step === "check" ? 2 : 1
@@ -141,7 +176,7 @@ Item {
             Repeater {
                 model: [
                     { key: "area",      icon: "grid",      title: qsTr("Area mapping"),      sub: qsTr("Photos of a field or site for a 2D map or 3D model"), ok: true },
-                    { key: "waypoint",  icon: "pin",       title: qsTr("Waypoint flight"),   sub: qsTr("Fly through points you tap on the map"),            ok: false },
+                    { key: "waypoint",  icon: "pin",       title: qsTr("Waypoint flight"),   sub: qsTr("Fly through points you tap on the map"),            ok: true },
                     { key: "corridor",  icon: "corridor",  title: qsTr("Corridor mapping"),  sub: qsTr("Road, canal or power line"),                         ok: false },
                     { key: "structure", icon: "structure", title: qsTr("Structure scan"),    sub: qsTr("Circles around a tower or building"),               ok: false },
                     { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: false },
@@ -159,7 +194,8 @@ Item {
                         SText { text: modelData.title; size: 32; bold: true }
                         SText { width: parent.width; text: modelData.ok ? modelData.sub : qsTr("Next version"); size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap }
                     }
-                    MouseArea { anchors.fill: parent; enabled: modelData.ok; onClicked: wiz.createAreaMapping() }
+                    MouseArea { anchors.fill: parent; enabled: modelData.ok
+                                onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight() : wiz.createAreaMapping() }
                 }
             }
         }
@@ -168,7 +204,7 @@ Item {
     //------------------------------------------------------------------ S08 settings panel (map editing happens on the PlanView map below)
     SPanel {
         id: settingsPanel
-        visible: wiz.step === "edit" && !!wiz.survey
+        visible: wiz.step === "edit" && wiz.kind === "area" && !!wiz.survey
         closable: false
         x: parent.width - width - SimpleTheme.px(24)
         y: header.height + SimpleTheme.px(24)
@@ -235,7 +271,7 @@ Item {
     }
 
     Rectangle {
-        visible: wiz.step === "edit"
+        visible: wiz.step === "edit" && wiz.kind === "area"
         x: SimpleTheme.px(24); anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         width: hintRow.implicitWidth + SimpleTheme.px(40); height: SimpleTheme.px(64); radius: SimpleTheme.px(16)
         color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
@@ -248,6 +284,18 @@ Item {
         }
     }
 
+    //------------------------------------------------------------------ S23 waypoint flight
+    SimpleWaypointEditor {
+        id: wpEditor
+        anchors.fill: parent
+        visible: wiz.step === "edit" && wiz.kind === "waypoint"
+        plan: wiz._plan
+        map: typeof planView !== "undefined" ? planView.simpleMap : null
+        maxAlt: wiz._maxAlt
+        topInset: header.height
+        onNextRequested: wiz.step = "check"
+    }
+
     //------------------------------------------------------------------ S39 check & send
     SimplePlanCheck {
         visible: wiz.step === "check"
@@ -257,7 +305,9 @@ Item {
         height: parent.height - y - SimpleTheme.px(24)
         vs: wiz.vs
         plan: wiz._plan
-        survey: wiz.survey
+        survey: wiz.kind === "area" ? wiz.survey : null
+        route: wiz._route
+        routeHeight: wiz._routeHeight
         maxAlt: wiz._maxAlt
     }
 }

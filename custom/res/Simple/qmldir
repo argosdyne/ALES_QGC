@@ -30,6 +30,7 @@ SHoldButton 1.0 SHoldButton.qml
 SPayloadCard 1.0 SPayloadCard.qml
 SimpleCameraSheet 1.0 SimpleCameraSheet.qml
 SimpleTetherCard 1.0 SimpleTetherCard.qml
+SimpleWaypointEditor 1.0 SimpleWaypointEditor.qml
 SimplePayloadPanel 1.0 SimplePayloadPanel.qml
 SimpleGoHereCard 1.0 SimpleGoHereCard.qml
 SimpleCoordSheet 1.0 SimpleCoordSheet.qml

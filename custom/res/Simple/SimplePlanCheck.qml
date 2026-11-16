@@ -11,12 +11,14 @@ SPanel {
     property var  vs
     property var  plan
     property var  survey
+    property var  route: null           // S23: waypoint coordinates (instead of the survey transects)
+    property real routeHeight: NaN      // S23: highest waypoint (instead of the survey height)
     property real maxAlt: 120
     closable: false
     title: qsTr("Check before sending")
 
     readonly property var  _mission:    plan ? plan.missionController : null
-    readonly property real _alt:        survey && survey.cameraCalc ? survey.cameraCalc.distanceToSurface.rawValue : 0
+    readonly property real _alt:        isFinite(routeHeight) ? routeHeight : survey && survey.cameraCalc ? survey.cameraCalc.distanceToSurface.rawValue : 0
     readonly property real _maxDist:    _mission ? _mission.missionMaxTelemetry : 0
     // Flight zones on the route (decision 2026-11-15): prohibited / "do not enter" = blocked, others = caution
     readonly property var  _zm:         typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
@@ -25,7 +27,7 @@ SPanel {
         var path = []
         var home = vs.present && vs.vehicle.homePosition.isValid ? vs.vehicle.homePosition : null
         if (home) path.push(home)
-        var t = survey ? survey.visualTransectPoints : []
+        var t = route ? route : survey ? survey.visualTransectPoints : []
         for (var i = 0; i < t.length; i++) path.push(t[i])
         if (home && path.length > 1) path.push(home)       // the way back home at the end (RTL)
         _zm.polygons.count; _zm.circles.count       // re-check when the zone data changes

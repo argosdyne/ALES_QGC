@@ -964,6 +964,10 @@
         <source>Drag the corners to fit the area. Tap an edge midpoint to add a corner.</source>
         <translation>꼭짓점을 끌어 영역에 맞추세요. 변의 가운데 점을 누르면 꼭짓점이 추가됩니다.</translation>
     </message>
+    <message>
+        <source>Add points</source>
+        <translation>점 추가</translation>
+    </message>
 </context>
 <context>
     <name>SimplePreflightSheet</name>
@@ -3811,6 +3815,117 @@
     <message>
         <source>alarm %1 m</source>
         <translation>경보 %1 m</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleWaypointEditor</name>
+    <message>
+        <source>&lt;1 min</source>
+        <translation>1분 미만</translation>
+    </message>
+    <message>
+        <source>Add point</source>
+        <translation>점 추가</translation>
+    </message>
+    <message>
+        <source>At this point</source>
+        <translation>이 지점에서</translation>
+    </message>
+    <message>
+        <source>Delete point</source>
+        <translation>점 삭제</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation>방향</translation>
+    </message>
+    <message>
+        <source>Drone faces</source>
+        <translation>기수 방향</translation>
+    </message>
+    <message>
+        <source>Fixed direction</source>
+        <translation>고정 방향</translation>
+    </message>
+    <message>
+        <source>Height is above the take-off point · max %1 m.</source>
+        <translation>높이는 이륙 지점 기준 · 최대 %1 m.</translation>
+    </message>
+    <message>
+        <source>Height profile</source>
+        <translation>높이 프로파일</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>높이</translation>
+    </message>
+    <message>
+        <source>Next point</source>
+        <translation>다음 점</translation>
+    </message>
+    <message>
+        <source>Next: check &amp; send</source>
+        <translation>다음: 점검 및 전송</translation>
+    </message>
+    <message>
+        <source>No point yet</source>
+        <translation>아직 점이 없음</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Photo</source>
+        <translation>사진</translation>
+    </message>
+    <message>
+        <source>Point %1: too close to the ground</source>
+        <translation>점 %1: 지면에 너무 가까움</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>속도</translation>
+    </message>
+    <message>
+        <source>Start video</source>
+        <translation>영상 시작</translation>
+    </message>
+    <message>
+        <source>Stop video</source>
+        <translation>영상 정지</translation>
+    </message>
+    <message>
+        <source>Tap the map to add points. Drag a point to move it.</source>
+        <translation>지도를 탭해 점을 추가하세요. 점을 끌어 옮길 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>되돌리기</translation>
+    </message>
+    <message>
+        <source>Wait here</source>
+        <translation>대기 시간</translation>
+    </message>
+    <message>
+        <source>Point %1 (%2 of %3)</source>
+        <translation>점 %1 (%3개 중 %2번째)</translation>
+    </message>
+    <message>
+        <source>about %1 min</source>
+        <translation>약 %1분</translation>
+    </message>
+    <message>
+        <source>batteries: %1</source>
+        <translation>배터리 %1개</translation>
+    </message>
+    <message>
+        <source>battery not estimated</source>
+        <translation>배터리 추정 불가</translation>
+    </message>
+    <message>
+        <source>route %1 km · %2 · %3</source>
+        <translation>경로 %1 km · %2 · %3</translation>
     </message>
 </context>
 </TS>

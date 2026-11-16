@@ -14,7 +14,7 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | `src/ui/MainRootWindow.qml` | `simpleUI = !corePlugin.showAdvancedUI`. Skips the classic first-run prompts in Simple UI (the welcome replaces them). Loads `qrc:/simple/SimpleRoot.qml` on top of the views when `simpleUI`; hides the classic toolbar; shows a "Lock and return to Simple" button in Advanced mode. |
 | `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: bottom-right (right 24, bottom 24), 400 × 226 (scaled from 1920 × 1080), rounded corners. The FPV overlay starts between the telemetry bar and the PiP. Layout: telemetry bar bottom-left (x 24), PiP bottom-right. |
 | `src/QmlControls/PipView.qml` | `simpleStyle`: frame, "Camera" / "Map" label, tap to swap only (no resize, pop-out or hide buttons). |
-| `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. |
+| `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. In Simple mode a map tap is sent as `simpleMapClicked(coordinate)` (S23) and `simpleMap` exposes the map. |
 | `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleAdminFailures`, `simpleAdminLockUntil`, `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (Tether = S11 fly screen; chosen in Advanced › General). |
 | `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
@@ -63,6 +63,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleSettings.qml` | S09, S22, S45, S46, S47, S48 | Settings with 7 categories. Map & flight zones (S46): map style from `mapEngineManager.mapTypeList`, offline map list (`tileSets`) with cancel / resume / delete. Remote ID (S47): QGC `RemoteIDManager` + `remoteIDSettings`; Save turns Remote ID on; EU operator number checked with the secret part, only 16 characters saved. Connection (S22): Enpulse radio through `CustomQmlInterface.arManager` (band change sets air then ground unit and restarts both, on the ground only; Restart radio = ground unit), RTK through the alesQGC NTRIP client (`CustomQmlInterface.codevRTCMManager`, setting `rtcmSource`) |
 | `SimpleMapDownload.qml` | S46 | Download new area: map with a frame, name, detail (zoom 17/19), size estimate, tile limit; `mapEngineManager.updateForCurrentView` + `startDownload` |
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
+| `SimpleWaypointEditor.qml` | S23 | Waypoint flight on the PlanView map: take-off → points → return home (RTL). Map tap with "Add point" on adds a point before the return (`PlanView.simpleMapClicked`), Undo, point panel (height, speed, wait = param1 "Hold", action = `cameraSection.cameraAction`, yaw when the firmware uses it), height labels, height profile with the ground (`terrainAltitude`). The point controls are rebuilt for each selected point (the S* controls break their bindings when edited) |
 | `SimplePlanCheck.qml` | S39 | Check before sending, send progress |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
 | `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, text field, slide confirm, panel, banner |
@@ -113,7 +114,7 @@ flight mode, chip details, messages, camera rail, menu, admin PIN → Advanced, 
 
 Planned for v2 (designed in Figma, not implemented):
 
-- Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
+- Plan: corridor, structure, LiDAR survey; saved missions (S24, S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
 - Cleaning product profile (S13): no cleaning device support in the app yet
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed

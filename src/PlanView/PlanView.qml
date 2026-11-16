@@ -32,6 +32,9 @@ Item {
 
     // AQGC Simple UI: hide the classic plan editor panels (map and mission visuals stay)
     property bool simpleMode: false
+    // AQGC Simple UI (S23 waypoint flight): in Simple mode a map tap is handed to the Simple wizard
+    signal simpleMapClicked(var coordinate)
+    readonly property var simpleMap: editorMap
 
     readonly property int   _decimalPlaces:             8
     readonly property real  _margin:                    ScreenTools.defaultFontPixelHeight * 0.5
@@ -405,6 +408,10 @@ Item {
                     coordinate.longitude = coordinate.longitude.toFixed(_decimalPlaces)
                     coordinate.altitude = coordinate.altitude.toFixed(_decimalPlaces)
 
+                    if (simpleMode) {
+                        simpleMapClicked(coordinate)
+                        return
+                    }
                     switch (_editingLayer) {
                     case _layerMission:
                         if (addWaypointRallyPointAction.checked) {
