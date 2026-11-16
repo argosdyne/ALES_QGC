@@ -101,6 +101,11 @@ Reply to the user in Korean unless they write in English.
   in Advanced › Plan). Structure presets rectangle / circle / draw (taps); an opened file keeps its outline (no preset).
   The YellowScan "Init Path" item also has a corridor line (it has `turnRadius`): it is never a corridor kind. A QGeoCoordinate
   property read in QML is a live reference: copy it (`QtPositioning.coordinate(lat, lon)`) before changing its source.
+- LiDAR S42 (2026-11-16): take-off → Init Path → YellowScan survey → Init Path → land. Point density is not shown (no
+  scanner data); line spacing instead. The classic YellowScan choice saves the camera as "Manual" and keeps YellowScan in a
+  global setting (`CameraCalc.isYSLidar` = last choice, not per survey): a file is LiDAR only by its Init Path items.
+  Every transect item (survey, corridor, Init Path) has `surveyAreaPolygon`; only a survey has `gridAngle`.
+  Core fix (MissionController load): an Init Path (saved as type "CorridorScan") is loaded as Init Path again, not as a corridor.
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
@@ -163,7 +168,7 @@ Reply to the user in Korean unless they write in English.
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
    ~~map tap menu S35/S36/S38~~ (2026-11-16), ~~payload panel S10/S16/S17/S50/S51~~ (2026-11-16),
-   ~~S56 cards~~, ~~S43 camera settings~~ (2026-11-16); ~~tether profile S11~~ (2026-11-16); S13 cleaning waits for device support) → ~~flight zones~~ (done 2026-11-15) → Plan (~~waypoint S23~~, ~~saved missions S24~~, ~~corridor S40 / structure S41~~ 2026-11-16, LiDAR S42) →
+   ~~S56 cards~~, ~~S43 camera settings~~ (2026-11-16); ~~tether profile S11~~ (2026-11-16); S13 cleaning waits for device support) → ~~flight zones~~ (done 2026-11-15) → Plan (~~waypoint S23~~, ~~saved missions S24~~, ~~corridor S40 / structure S41 / LiDAR S42~~ 2026-11-16) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
