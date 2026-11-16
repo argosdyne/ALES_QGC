@@ -4,13 +4,15 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
+import QGroundControl.Controllers 1.0
 import "."
+import "SimpleMissionInfo.js" as MissionInfo
 
 Item {
     id: wiz
     property var    vs
-    property string step:   "choose"        // choose | edit | check
-    property string kind:   "area"          // area (S08) | waypoint (S23)
+    property string step:   "choose"        // choose | saved (S24) | edit | check
+    property string kind:   "area"          // area (S08) | waypoint (S23) | other (opened file of another kind: check only)
     property var    survey: null
 
     readonly property var _plan:    planView._planMasterController
@@ -92,6 +94,45 @@ Item {
         step = "edit"
         if (wpEditor) wpEditor.addMode = true
     }
+    // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
+    function openFile(path) {
+        _plan.loadFromFile(path)
+        _plan.fitViewportToItems()
+        _routeToEditor()
+    }
+    function _routeToEditor() {
+        var k = MissionInfo.kindOf(_mission)
+        if (k === "area") { survey = _findSurvey(); kind = "area"; step = "edit" }
+        else if (k === "waypoint") { survey = null; kind = "waypoint"; step = "edit"; wpEditor.addMode = false }
+        else { survey = null; kind = "other"; step = "check" }
+    }
+    // S24 import: .plan as is; .kml/.kmz with an area become an area mapping (lines: corridor mapping, later version)
+    function importFile(path) {
+        var lower = String(path).toLowerCase()
+        if (/\.plan$/.test(lower)) { openFile(path); return }
+        _plan.removeAll()
+        var c = planView.mapCenter()
+        _mission.insertTakeoffItem(c, 1, false)
+        var item = _mission.insertComplexMissionItemFromKMLOrSHP(_mission.surveyComplexItemName, path, 2, true)
+        if (!item) {
+            _plan.removeAll()
+            savedPage.message = qsTr("No area found in this file. Lines (corridors) come with corridor mapping.")
+            return
+        }
+        _mission.insertLandItem(c, 3, false)
+        if (item.cameraCalc) item.cameraCalc.distanceToSurface.rawValue = Math.min(80, _maxAlt)
+        _plan.fitViewportToItems()
+        survey = item; kind = "area"; step = "edit"
+    }
+    function saveAs(name) {
+        var path = QGroundControl.settingsManager.appSettings.missionSavePath + "/" + name + ".plan"
+        _plan.saveToFile(path)
+        savedPage.setCached(name + ".plan", MissionInfo.summary(_mission, savedPage.words))
+        savedPage.refresh()
+    }
+    readonly property string _planName: _plan && _plan.currentPlanFile !== "" ? savedPage.baseName(_plan.currentPlanFile) : ""
+    QGCFileDialogController { id: wizFdc }
+
     // a map tap while editing a waypoint flight adds a point
     Connections {
         target: typeof planView !== "undefined" ? planView : null
@@ -100,11 +141,21 @@ Item {
         }
     }
     // route and highest point for the S39 check
-    readonly property var _route: kind !== "waypoint" ? null : wpEditor.wps.map(function(w) { return w.coordinate })
+    readonly property var _route: kind === "waypoint" ? wpEditor.wps.map(function(w) { return w.coordinate })
+                                : kind === "other" && step === "check" ? MissionInfo.outline(_mission) : null
     readonly property real _routeHeight: {
-        if (kind !== "waypoint") return NaN
+        if (kind === "area") return NaN
         var m = 0
-        for (var i = 0; i < wpEditor.wps.length; i++) m = Math.max(m, Number(wpEditor.wps[i].altitude.rawValue))
+        if (kind === "waypoint") {
+            for (var i = 0; i < wpEditor.wps.length; i++) m = Math.max(m, Number(wpEditor.wps[i].altitude.rawValue))
+        } else if (_mission && step === "check") {
+            for (var j = 1; j < _mission.visualItems.count; j++) {
+                var it = _mission.visualItems.get(j)
+                if (it && it.specifiesAltitude && it.altitude) m = Math.max(m, Number(it.altitude.rawValue))
+                if (it && it.topFlightAlt !== undefined) m = Math.max(m, it.topFlightAlt)
+                if (it && it.cameraCalc && it.cameraCalc.distanceToSurface) m = Math.max(m, Number(it.cameraCalc.distanceToSurface.rawValue))
+            }
+        }
         return m
     }
 
@@ -117,6 +168,7 @@ Item {
     //------------------------------------------------------------------ Header with steps
     Rectangle {
         id: header
+        visible: wiz.step !== "saved"
         width: parent.width; height: SimpleTheme.px(104)
         color: SimpleTheme.surfaceGlass
         MouseArea { anchors.fill: parent }
@@ -125,19 +177,28 @@ Item {
             spacing: SimpleTheme.px(20)
             SButton {
                 designHeight: 80; icon: "back"; textSize: 26
-                text: wiz.step === "check" ? qsTr("Settings") : qsTr("Fly")
-                onClicked: wiz.step === "check" ? wiz.step = "edit" : simpleRoot.showFly()
+                text: wiz.step === "check" ? (wiz.kind === "other" ? qsTr("Saved missions") : qsTr("Settings")) : qsTr("Fly")
+                onClicked: wiz.step === "check" ? wiz.step = (wiz.kind === "other" ? "saved" : "edit") : simpleRoot.showFly()
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
-                SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight") : qsTr("Area mapping"); size: 34; bold: true }
-                SText { text: wiz.step === "choose" ? qsTr("What do you want to do?") : qsTr("New mission"); size: 22; color: SimpleTheme.textSecondary }
+                SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight")
+                            : wiz.kind === "other" ? qsTr("Saved mission") : qsTr("Area mapping"); size: 34; bold: true }
+                SText { size: 22; color: SimpleTheme.textSecondary
+                        text: wiz.step === "choose" ? qsTr("What do you want to do?")
+                            : wiz._planName === "" ? qsTr("New mission · not saved")
+                            : wiz._plan.dirty ? qsTr("%1 · changed").arg(wiz._planName) : wiz._planName }
             }
         }
         Row {
             visible: wiz.step !== "choose"
             anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
             spacing: SimpleTheme.px(10)
+            // S24: save the mission being edited
+            SButton {
+                designHeight: 60; textSize: 24; icon: "folder"; text: qsTr("Save")
+                onClicked: { saveField.text = wiz._planName; saveField.reset(); saveSheet.visible = true }
+            }
             Repeater {
                 model: [wiz.kind === "waypoint" ? qsTr("Add points") : qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
                 Rectangle {
@@ -180,7 +241,7 @@ Item {
                     { key: "corridor",  icon: "corridor",  title: qsTr("Corridor mapping"),  sub: qsTr("Road, canal or power line"),                         ok: false },
                     { key: "structure", icon: "structure", title: qsTr("Structure scan"),    sub: qsTr("Circles around a tower or building"),               ok: false },
                     { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: false },
-                    { key: "open",      icon: "folder",    title: qsTr("Open saved mission"), sub: qsTr("From this tablet or a KML file"),                  ok: false }
+                    { key: "open",      icon: "folder",    title: qsTr("Open saved mission"), sub: qsTr("From this tablet or a KML file"),                  ok: true }
                 ]
                 Rectangle {
                     width: SimpleTheme.px(500); height: SimpleTheme.px(260); radius: SimpleTheme.px(24)
@@ -195,7 +256,8 @@ Item {
                         SText { width: parent.width; text: modelData.ok ? modelData.sub : qsTr("Next version"); size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap }
                     }
                     MouseArea { anchors.fill: parent; enabled: modelData.ok
-                                onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight() : wiz.createAreaMapping() }
+                                onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight()
+                                         : modelData.key === "open" ? wiz.step = "saved" : wiz.createAreaMapping() }
                 }
             }
         }
@@ -309,5 +371,50 @@ Item {
         route: wiz._route
         routeHeight: wiz._routeHeight
         maxAlt: wiz._maxAlt
+    }
+
+    //------------------------------------------------------------------ S24 saved missions
+    SimpleSavedMissions {
+        id: savedPage
+        anchors.fill: parent
+        visible: wiz.step === "saved"
+        onBackRequested: simpleRoot.showFly()
+        onNewRequested: { message = ""; wiz.step = "choose" }
+        onOpenRequested: { message = ""; wiz.openFile(file) }
+        onImportRequested: { message = ""; wiz.importFile(file) }
+    }
+
+    // save under a name (S24)
+    Rectangle {
+        anchors.fill: parent
+        visible: saveSheet.visible
+        color: SimpleTheme.withAlpha("black", 0.45)
+        MouseArea { anchors.fill: parent; onClicked: saveSheet.visible = false }
+    }
+    SPanel {
+        id: saveSheet
+        visible: false
+        anchors.centerIn: parent
+        width: SimpleTheme.px(820); height: SimpleTheme.px(400)
+        title: qsTr("Save mission"); titleIcon: "folder"
+        onCloseRequested: visible = false
+        readonly property string _name: saveField.currentText.trim()
+        readonly property bool _valid: _name !== "" && /^[^\\/:*?"<>|]+$/.test(_name)
+        readonly property bool _exists: _valid && wizFdc.fileExists(QGroundControl.settingsManager.appSettings.missionSavePath + "/" + _name + ".plan")
+        Column {
+            anchors.fill: parent; spacing: SimpleTheme.px(18)
+            STextField { id: saveField; designWidth: 764; label: qsTr("Name"); placeholder: qsTr("e.g. Field A survey") }
+            SText {
+                width: parent.width; wrapMode: Text.WordWrap; size: 22
+                color: saveSheet._exists ? SimpleTheme.warn : SimpleTheme.textSecondary
+                text: saveSheet._exists ? qsTr("A mission with this name exists and will be replaced.")
+                                        : qsTr("Saved on this tablet · Plan › Open saved mission")
+            }
+            SButton {
+                kind: "primary"; text: saveSheet._exists ? qsTr("Replace") : qsTr("Save")
+                enabled_: saveSheet._valid
+                onClicked: { wiz.saveAs(saveSheet._name); saveSheet.visible = false }
+            }
+        }
     }
 }

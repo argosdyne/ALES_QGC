@@ -46,8 +46,8 @@ Item {
             Repeater {
                 model: [
                     { key: "fly",      icon: "map",      title: qsTr("Fly"),              sub: qsTr("Map, camera and flight controls"),           enabled: true },
-                    { key: "plan",     icon: "plan",     title: qsTr("Plan a mission"),   sub: qsTr("Area mapping (more in next version)"), enabled: true },
-                    { key: "saved",    icon: "folder",   title: qsTr("Saved missions"),   sub: qsTr("Next version · Advanced › Plan"),  enabled: false },
+                    { key: "plan",     icon: "plan",     title: qsTr("Plan a mission"),   sub: qsTr("Area mapping, waypoint flight"), enabled: true },
+                    { key: "saved",    icon: "folder",   title: qsTr("Saved missions"),   sub: qsTr("Open, import, rename, delete"),  enabled: true },
                     { key: "maps",     icon: "download", title: qsTr("Offline maps"),     sub: qsTr("Download maps before you go"),            enabled: true },
                     { key: "settings", icon: "sliders",  title: qsTr("Settings"),         sub: qsTr("Safety, units, language"),                   enabled: true },
                     { key: "help",     icon: "help",     title: qsTr("Help & support"),   sub: qsTr("Versions, manual, contact"),                 enabled: true }
@@ -74,6 +74,7 @@ Item {
                             drawer.close()
                             if (modelData.key === "fly")            simpleRoot.showFly()
                             else if (modelData.key === "plan")      simpleRoot.showPlan()
+                            else if (modelData.key === "saved")     simpleRoot.showSaved()              // S24 saved missions
                             else if (modelData.key === "maps")      simpleRoot.showSettings("maps")     // S46 offline maps
                             else if (modelData.key === "settings")  simpleRoot.showSettings("general")
                             else if (modelData.key === "help")      simpleRoot.showSettings("about")

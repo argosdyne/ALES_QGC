@@ -64,6 +64,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleMapDownload.qml` | S46 | Download new area: map with a frame, name, detail (zoom 17/19), size estimate, tile limit; `mapEngineManager.updateForCurrentView` + `startDownload` |
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
 | `SimpleWaypointEditor.qml` | S23 | Waypoint flight on the PlanView map: take-off → points → return home (RTL). Map tap with "Add point" on adds a point before the return (`PlanView.simpleMapClicked`), Undo, point panel (height, speed, wait = param1 "Hold", action = `cameraSection.cameraAction`, yaw when the firmware uses it), height labels, height profile with the ground (`terrainAltitude`). The point controls are rebuilt for each selected point (the S* controls break their bindings when edited) |
+| `SimpleSavedMissions.qml`, `SimpleMissionInfo.js` | S24 | Saved missions (Menu › Saved missions, S07 card): .plan files in the mission save path (FolderListModel, newest first, search), summaries cached in the app settings (`SimpleMissions`), preview of the selected file in its own PlanMasterController (map + summary), Open (wizard routes to the S08 / S23 editor or the S39 check), Rename (save as + delete), Export (file dialog), Delete (slide), Import (.plan; .kml/.kmz area → area mapping). Save from the editor header. `SimpleMissionInfo.js`: mission kind, summary, outline |
 | `SimplePlanCheck.qml` | S39 | Check before sending, send progress |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
 | `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, text field, slide confirm, panel, banner |
@@ -114,7 +115,7 @@ flight mode, chip details, messages, camera rail, menu, admin PIN → Advanced, 
 
 Planned for v2 (designed in Figma, not implemented):
 
-- Plan: corridor, structure, LiDAR survey; saved missions (S24, S40–S42)
+- Plan: corridor, structure, LiDAR survey (S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
 - Cleaning product profile (S13): no cleaning device support in the app yet
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed

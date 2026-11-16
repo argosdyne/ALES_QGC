@@ -30,6 +30,10 @@ Item {
         planWizard.start()
         mainWindow.showPlanView()
     }
+    function showSaved() {          // S24 saved missions
+        showPlan()
+        planWizard.step = "saved"
+    }
     function showSettings(category) {
         page = "settings"
         settingsPage.category = category ? category : "general"

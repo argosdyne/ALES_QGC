@@ -3,7 +3,7 @@
 | Level | What | How to run |
 |---|---|---|
 | Static (no Qt) | Translations (coverage, placeholders, stale entries), `custom.qrc` / `qmldir` / icons, licence index, font glyph coverage, Korean label widths measured with the bundled fonts | `python custom/tests/simple/static_checks.py` (needs `pip install fonttools`) |
-| Unit (Qt Quick Test) | `SimpleTheme` (px/fs, unit system), `SimplePinDialog` (PIN, 5-try lock), `SimpleVehicleState` (state rules, boundaries), S35/S38 (`SimpleMapTapMenu` Go here rules, `SimpleCoordSheet`, `SimpleAltitudeSheet` steps and limits), S10 (`SimplePayloadPanel` cards, `SHoldButton`), controls (stepper, slide-to-confirm, segmented, toggle, button, setting row). Each has basic, boundary, abnormal, random and stress cases | see below |
+| Unit (Qt Quick Test) | `SimpleTheme` (px/fs, unit system), `SimplePinDialog` (PIN, 5-try lock), `SimpleVehicleState` (state rules, boundaries), S35/S38 (`SimpleMapTapMenu` Go here rules, `SimpleCoordSheet`, `SimpleAltitudeSheet` steps and limits), S10 (`SimplePayloadPanel` cards, `SHoldButton`), S24 (`SimpleMissionInfo.js`), controls (stepper, slide-to-confirm, segmented, toggle, button, setting row). Each has basic, boundary, abnormal, random and stress cases | see below |
 
 Unit tests use test doubles in `mock/` for the `QGroundControl` QML modules and a small runner (`main.cpp`) that sets
 the `globals` context property like `MainRootWindow` does.

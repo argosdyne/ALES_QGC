@@ -669,6 +669,14 @@
         <source>Download maps before you go</source>
         <translation>나가기 전에 지도를 내려받기</translation>
     </message>
+    <message>
+        <source>Area mapping, waypoint flight</source>
+        <translation>면적 매핑, 웨이포인트 비행</translation>
+    </message>
+    <message>
+        <source>Open, import, rename, delete</source>
+        <translation>열기, 가져오기, 이름 변경, 삭제</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMessages</name>
@@ -967,6 +975,54 @@
     <message>
         <source>Add points</source>
         <translation>점 추가</translation>
+    </message>
+    <message>
+        <source>%1 · changed</source>
+        <translation>%1 · 변경됨</translation>
+    </message>
+    <message>
+        <source>A mission with this name exists and will be replaced.</source>
+        <translation>같은 이름의 미션이 있어 덮어씁니다.</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>New mission · not saved</source>
+        <translation>새 미션 · 저장 안 됨</translation>
+    </message>
+    <message>
+        <source>No area found in this file. Lines (corridors) come with corridor mapping.</source>
+        <translation>이 파일에 영역이 없습니다. 선(회랑)은 회랑 매핑과 함께 지원됩니다.</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>덮어쓰기</translation>
+    </message>
+    <message>
+        <source>Save mission</source>
+        <translation>미션 저장</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Saved mission</source>
+        <translation>저장된 미션</translation>
+    </message>
+    <message>
+        <source>Saved missions</source>
+        <translation>저장된 미션</translation>
+    </message>
+    <message>
+        <source>Saved on this tablet · Plan › Open saved mission</source>
+        <translation>이 태블릿에 저장 · 계획 › 저장된 미션 열기</translation>
+    </message>
+    <message>
+        <source>e.g. Field A survey</source>
+        <translation>예: A 구역 측량</translation>
     </message>
 </context>
 <context>
@@ -3926,6 +3982,133 @@
     <message>
         <source>route %1 km · %2 · %3</source>
         <translation>경로 %1 km · %2 · %3</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSavedMissions</name>
+    <message>
+        <source>%1 items</source>
+        <translation>항목 %1개</translation>
+    </message>
+    <message>
+        <source>%1 missions on this tablet</source>
+        <translation>이 태블릿의 미션 %1개</translation>
+    </message>
+    <message>
+        <source>%1 photos</source>
+        <translation>사진 %1장</translation>
+    </message>
+    <message>
+        <source>%1 points</source>
+        <translation>점 %1개</translation>
+    </message>
+    <message>
+        <source>A mission already sent to the drone stays on the drone.</source>
+        <translation>이미 드론에 보낸 미션은 드론에 남아 있습니다.</translation>
+    </message>
+    <message>
+        <source>A mission with this name already exists.</source>
+        <translation>같은 이름의 미션이 이미 있습니다.</translation>
+    </message>
+    <message>
+        <source>Area mapping</source>
+        <translation>면적 매핑</translation>
+    </message>
+    <message>
+        <source>Corridor mapping</source>
+        <translation>회랑 매핑</translation>
+    </message>
+    <message>
+        <source>Delete “%1”?</source>
+        <translation>“%1”을(를) 삭제할까요?</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>Export a copy</source>
+        <translation>사본 내보내기</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>내보내기</translation>
+    </message>
+    <message>
+        <source>Fly</source>
+        <translation>비행</translation>
+    </message>
+    <message>
+        <source>Import a mission</source>
+        <translation>미션 가져오기</translation>
+    </message>
+    <message>
+        <source>Import file</source>
+        <translation>파일 가져오기</translation>
+    </message>
+    <message>
+        <source>Import: .plan (QGC) · .kml / .kmz with an area (Google Earth)</source>
+        <translation>가져오기: .plan (QGC) · 영역이 있는 .kml / .kmz (Google Earth)</translation>
+    </message>
+    <message>
+        <source>Loading…</source>
+        <translation>불러오는 중…</translation>
+    </message>
+    <message>
+        <source>Mission</source>
+        <translation>미션</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>New mission</source>
+        <translation>새 미션</translation>
+    </message>
+    <message>
+        <source>No saved missions yet. Save a mission from the plan screen, or import a .plan or .kml file.</source>
+        <translation>저장된 미션이 없습니다. 계획 화면에서 저장하거나 .plan / .kml 파일을 가져오세요.</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>열기</translation>
+    </message>
+    <message>
+        <source>Rename mission</source>
+        <translation>미션 이름 변경</translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation>이름 변경</translation>
+    </message>
+    <message>
+        <source>Saved missions</source>
+        <translation>저장된 미션</translation>
+    </message>
+    <message>
+        <source>Search missions</source>
+        <translation>미션 검색</translation>
+    </message>
+    <message>
+        <source>Slide to delete</source>
+        <translation>밀어서 삭제</translation>
+    </message>
+    <message>
+        <source>Structure scan</source>
+        <translation>구조물 스캔</translation>
+    </message>
+    <message>
+        <source>Tap to see the details</source>
+        <translation>탭하면 자세히 보기</translation>
+    </message>
+    <message>
+        <source>The mission file is removed from this tablet. This cannot be undone.</source>
+        <translation>이 태블릿에서 미션 파일을 지웁니다. 되돌릴 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Waypoint flight</source>
+        <translation>웨이포인트 비행</translation>
     </message>
 </context>
 </TS>
