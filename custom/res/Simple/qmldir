@@ -25,6 +25,9 @@ SimpleMapDownload 1.0 SimpleMapDownload.qml
 SimpleMapControls 1.0 SimpleMapControls.qml
 SimpleMyZones 1.0 SimpleMyZones.qml
 SimpleAltitudeSheet 1.0 SimpleAltitudeSheet.qml
+SHoldButton 1.0 SHoldButton.qml
+SPayloadCard 1.0 SPayloadCard.qml
+SimplePayloadPanel 1.0 SimplePayloadPanel.qml
 SimpleGoHereCard 1.0 SimpleGoHereCard.qml
 SimpleCoordSheet 1.0 SimpleCoordSheet.qml
 SimpleGoHereSheet 1.0 SimpleGoHereSheet.qml

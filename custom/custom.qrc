@@ -174,6 +174,9 @@
         <file alias="SimpleMapControls.qml">res/Simple/SimpleMapControls.qml</file>
         <file alias="SimpleMyZones.qml">res/Simple/SimpleMyZones.qml</file>
         <file alias="SimpleAltitudeSheet.qml">res/Simple/SimpleAltitudeSheet.qml</file>
+        <file alias="SHoldButton.qml">res/Simple/SHoldButton.qml</file>
+        <file alias="SPayloadCard.qml">res/Simple/SPayloadCard.qml</file>
+        <file alias="SimplePayloadPanel.qml">res/Simple/SimplePayloadPanel.qml</file>
         <file alias="SimpleGoHereCard.qml">res/Simple/SimpleGoHereCard.qml</file>
         <file alias="SimpleCoordSheet.qml">res/Simple/SimpleCoordSheet.qml</file>
         <file alias="SimpleGoHereSheet.qml">res/Simple/SimpleGoHereSheet.qml</file>
@@ -225,6 +228,11 @@
         <file alias="icons/minus.svg">res/Simple/icons/minus.svg</file>
         <file alias="icons/pause.svg">res/Simple/icons/pause.svg</file>
         <file alias="icons/pin.svg">res/Simple/icons/pin.svg</file>
+        <file alias="icons/lifevest.svg">res/Simple/icons/lifevest.svg</file>
+        <file alias="icons/tether.svg">res/Simple/icons/tether.svg</file>
+        <file alias="icons/hook.svg">res/Simple/icons/hook.svg</file>
+        <file alias="icons/light.svg">res/Simple/icons/light.svg</file>
+        <file alias="icons/speaker.svg">res/Simple/icons/speaker.svg</file>
         <file alias="icons/plan.svg">res/Simple/icons/plan.svg</file>
         <file alias="icons/play.svg">res/Simple/icons/play.svg</file>
         <file alias="icons/plus.svg">res/Simple/icons/plus.svg</file>

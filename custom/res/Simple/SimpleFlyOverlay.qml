@@ -30,11 +30,12 @@ Item {
         target: fly._map
         function onSimpleMapClicked(coordinate) {
             if (!vs.present || fly.videoMain || fly.sheet !== "") return
+            if (fly.payloadsOpen) { fly.payloadsOpen = false; return }   // a map tap first closes the Payloads panel
             mapControls.tappedZones = []
             fly.openTapMenu(coordinate)
         }
     }
-    onVideoMainChanged: if (videoMain) closeTapMenu()
+    onVideoMainChanged: if (videoMain) { closeTapMenu(); payloadsOpen = false }
 
     // short message at the bottom centre (S36: arrived, Go here not sent, choose a new target)
     function toast(text, level) {
@@ -44,8 +45,30 @@ Item {
         toastTimer.restart()
     }
 
-    function closeSheet() { sheet = "" }
+    // closing the tether power-off sheet without the slide cancels the station's pending request
+    function closeSheet() {
+        if (sheet === "tetheroff" && _guided) _guided.cancelTetherPowerOff()
+        sheet = ""
+    }
     function openSheet(name) { sheet = name }
+
+    // S10 Payloads panel (not a dimmed sheet, like the S35 menu)
+    property bool payloadsOpen: false
+
+    // Tether station confirmations (S16 power off in flight, S50 no-power Land / Return to station).
+    // The classic confirm dialog lives in the hidden classic widget layer, so Simple shows its own slide sheets.
+    readonly property var _st: QGroundControl.corePlugin.elistairStationManager
+    property bool tetherRtl: false
+    property var  tetherIncident: 0
+    Connections {
+        target: fly._st
+        function onPowerOffConfirmationRequested() { fly.openSheet("tetheroff") }
+        function onNoPowerActionRequested(rtl, incident) { fly.tetherRtl = rtl; fly.tetherIncident = incident; fly.openSheet("tethernp") }
+    }
+
+    // S51: LiDAR start refused (shown for 10 s)
+    property string lidarRefusal: ""
+    Timer { id: lidarRefusalTimer; interval: 10000; onTriggered: fly.lidarRefusal = "" }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
     function _closeConfirmSheet() {
@@ -132,6 +155,39 @@ Item {
         vehicle: fly._veh
         visible: vs.present
         blocked: fly.waitingVideo
+    }
+
+    // S10: Payloads button under the camera rail (badge = connected payloads) and the panel left of the rail
+    Rectangle {
+        id: payloadsBtn
+        visible: vs.present && payloadPanel.count > 0
+        anchors.horizontalCenter: rail.horizontalCenter
+        y: rail.y + rail.height + SimpleTheme.px(16)
+        width: rail.width; height: SimpleTheme.px(124); radius: SimpleTheme.px(28)
+        color: fly.payloadsOpen ? SimpleTheme.withAlpha(SimpleTheme.brandGreen, 0.35) : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
+        border.width: SimpleTheme.px(3); border.color: fly.payloadsOpen ? SimpleTheme.ok : SimpleTheme.line
+        Column {
+            anchors.centerIn: parent
+            SIcon { anchors.horizontalCenter: parent.horizontalCenter; name: "plus"; size: 44 }
+            SText { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("Payloads"); size: 20 }
+        }
+        Rectangle {
+            anchors.right: parent.right; anchors.top: parent.top; anchors.margins: -SimpleTheme.px(6)
+            width: SimpleTheme.px(40); height: width; radius: width / 2
+            color: SimpleTheme.brandGreen
+            SText { anchors.centerIn: parent; text: payloadPanel.count; size: 22; bold: true }
+        }
+        MouseArea { anchors.fill: parent; onClicked: { fly.closeTapMenu(); fly.payloadsOpen = !fly.payloadsOpen } }
+    }
+    SimplePayloadPanel {
+        id: payloadPanel
+        visible: fly.payloadsOpen && vs.present
+        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
+        y: topBar.height + SimpleTheme.px(16)
+        maxHeight: SimpleTheme.px(810) - y          // above the video PiP (top at 830)
+        vs: fly.vs
+        onCloseRequested: fly.payloadsOpen = false
+        onLidarRefused: { fly.lidarRefusal = reason; lidarRefusalTimer.restart() }
     }
 
     //------------------------------------------------------------------ Telemetry bar (x = 24, bottom 24)
@@ -235,7 +291,7 @@ Item {
         id: mapControls
         anchors.fill: parent
         tapMenuEnabled: vs.present
-        visible: !fly.videoMain && typeof flightView !== "undefined"
+        visible: !fly.videoMain && !fly.payloadsOpen && typeof flightView !== "undefined"
         map: typeof flightView !== "undefined" ? flightView.simpleMap : null
         vehicle: fly._veh
     }
@@ -339,6 +395,32 @@ Item {
             level: "danger"; icon: "signal"
             title: qsTr("Radio signal lost — the drone follows its failsafe (usually Return home)")
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
+        }
+        // S50 tether power lost (classic SAFE-T no-power rules: failsafe 0 recommend land, 1 warn only, 2 auto land)
+        SBanner {
+            readonly property bool _ask: fly._st && fly._st.noPowerPrompt && !fly._st.noPowerVehicleNeedsConfirmation
+            visible: !!fly._st && fly._st.noPower
+            level: "danger"; icon: "tether"
+            title: qsTr("Tether power lost — the drone is on its onboard battery")
+            detail: !fly._st ? "" : fly._st.noPowerVehicleNeedsConfirmation ? qsTr("Confirm the tethered drone in the Advanced tether panel first.")
+                  : fly._st.noPowerFailsafe === 2 ? qsTr("The drone lands by itself. Keep the area below clear.")
+                  : fly._st.noPowerFailsafe === 1 ? qsTr("Check the generator and the ground unit. Land if power does not return.")
+                  : qsTr("Landing is recommended. Keep the area below clear.")
+            actions: _ask ? [qsTr("Land"), qsTr("To station"), qsTr("Continue")] : []
+            onActionAt: {
+                if (index === 0) fly._st.requestNoPowerAction(false)
+                else if (index === 1) fly._st.requestNoPowerAction(true)
+                else fly._st.dismissNoPower()
+            }
+        }
+        // S51 LiDAR start refused
+        SBanner {
+            visible: fly.lidarRefusal !== ""
+            level: "warn"; icon: "lidar"
+            title: qsTr("LiDAR can't start recording")
+            detail: fly.lidarRefusal
+            actionText: qsTr("OK")
+            onAction: fly.lidarRefusal = ""
         }
         // S36 obstacle during Go here (classic G-05 stopped / G-06 going around)
         SBanner {
@@ -524,6 +606,38 @@ Item {
             fly.closeSheet()
             if (fly._map) fly._map.center = coordinate
             fly.openTapMenu(coordinate)
+        }
+    }
+    // S16 tether power off in flight / S50 no-power action: slide to confirm (classic SAFE-T confirmations)
+    SimpleConfirmSheet {
+        visible: fly.sheet === "tetheroff"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        icon: "power"
+        title: qsTr("Turn tether power off?")
+        detail: fly._guided && fly.sheet === "tetheroff" ? fly._guided.tetherPowerOffMessage() : ""
+        note: qsTr("The drone may fall if its battery is too low.")
+        slideText: qsTr("Slide to turn power off")
+        onCloseRequested: fly.closeSheet()
+        onConfirmed: {
+            fly._act(fly._guided.actionTetherPowerOff, fly._st.powerOffRequestId)
+            fly.sheet = ""
+        }
+    }
+    SimpleConfirmSheet {
+        visible: fly.sheet === "tethernp"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        icon: fly.tetherRtl ? "home" : "land"
+        title: fly.tetherRtl ? qsTr("Return to the tether station") : qsTr("Land now")
+        detail: fly.tetherRtl ? qsTr("Tether power is lost. The drone flies back to the station on its onboard battery and lands.")
+                              : qsTr("Tether power is lost. The drone lands at its current position on its onboard battery.")
+        note: qsTr("Keep the area below clear.")
+        slideText: fly.tetherRtl ? qsTr("Slide to return") : qsTr("Slide to land")
+        onCloseRequested: fly.closeSheet()
+        onConfirmed: {
+            fly._act(fly.tetherRtl ? fly._guided.actionTetherRTL : fly._guided.actionTetherLand, fly.tetherIncident)
+            fly.closeSheet()
         }
     }
     SimpleAltitudeSheet {

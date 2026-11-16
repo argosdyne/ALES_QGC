@@ -462,6 +462,82 @@
         <source>Home point sent to the drone</source>
         <translation>홈 위치를 드론에 보냈습니다</translation>
     </message>
+    <message>
+        <source>LiDAR can't start recording</source>
+        <translation>LiDAR 기록을 시작할 수 없음</translation>
+    </message>
+    <message>
+        <source>Check the generator and the ground unit. Land if power does not return.</source>
+        <translation>발전기와 지상 유닛을 점검하세요. 전원이 돌아오지 않으면 착륙하세요.</translation>
+    </message>
+    <message>
+        <source>Confirm the tethered drone in the Advanced tether panel first.</source>
+        <translation>먼저 Advanced 테더 패널에서 연결된 드론을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <source>Keep the area below clear.</source>
+        <translation>아래쪽을 비워 두세요.</translation>
+    </message>
+    <message>
+        <source>Land now</source>
+        <translation>지금 착륙</translation>
+    </message>
+    <message>
+        <source>Landing is recommended. Keep the area below clear.</source>
+        <translation>착륙을 권장합니다. 아래쪽을 비워 두세요.</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>확인</translation>
+    </message>
+    <message>
+        <source>Payloads</source>
+        <translation>페이로드</translation>
+    </message>
+    <message>
+        <source>Return to the tether station</source>
+        <translation>테더 스테이션으로 복귀</translation>
+    </message>
+    <message>
+        <source>Slide to return</source>
+        <translation>밀어서 복귀</translation>
+    </message>
+    <message>
+        <source>Slide to turn power off</source>
+        <translation>밀어서 전원 끄기</translation>
+    </message>
+    <message>
+        <source>Tether power is lost. The drone flies back to the station on its onboard battery and lands.</source>
+        <translation>테더 전원이 끊겼습니다. 드론이 내장 배터리로 스테이션까지 돌아와 착륙합니다.</translation>
+    </message>
+    <message>
+        <source>Tether power is lost. The drone lands at its current position on its onboard battery.</source>
+        <translation>테더 전원이 끊겼습니다. 드론이 내장 배터리로 지금 위치에 착륙합니다.</translation>
+    </message>
+    <message>
+        <source>Tether power lost — the drone is on its onboard battery</source>
+        <translation>테더 전원 상실 — 드론이 내장 배터리로 비행 중</translation>
+    </message>
+    <message>
+        <source>The drone lands by itself. Keep the area below clear.</source>
+        <translation>드론이 스스로 착륙합니다. 아래쪽을 비워 두세요.</translation>
+    </message>
+    <message>
+        <source>The drone may fall if its battery is too low.</source>
+        <translation>배터리가 부족하면 드론이 추락할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>To station</source>
+        <translation>스테이션으로</translation>
+    </message>
+    <message>
+        <source>Turn tether power off?</source>
+        <translation>테더 전원을 끌까요?</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -3123,6 +3199,201 @@
     <message>
         <source>Type latitude / longitude</source>
         <translation>위도 / 경도 입력</translation>
+    </message>
+</context>
+<context>
+    <name>SimplePayloadPanel</name>
+    <message>
+        <source>%1 W · cable %2 m · spool %3 °C</source>
+        <translation>%1 W · 케이블 %2 m · 스풀 %3 °C</translation>
+    </message>
+    <message>
+        <source>%1 of 11</source>
+        <translation>11개 중 %1번</translation>
+    </message>
+    <message>
+        <source>Automatic torque</source>
+        <translation>자동 토크</translation>
+    </message>
+    <message>
+        <source>Cleaning</source>
+        <translation>세척</translation>
+    </message>
+    <message>
+        <source>Clip %1</source>
+        <translation>클립 %1</translation>
+    </message>
+    <message>
+        <source>Drone not connected</source>
+        <translation>드론 연결 안 됨</translation>
+    </message>
+    <message>
+        <source>Hold 2 s to drop the life jacket</source>
+        <translation>2초 눌러 구명조끼 투하</translation>
+    </message>
+    <message>
+        <source>Hold 2 s to release</source>
+        <translation>2초 눌러 놓기</translation>
+    </message>
+    <message>
+        <source>Hold 2 s to stop</source>
+        <translation>2초 눌러 정지</translation>
+    </message>
+    <message>
+        <source>Hook</source>
+        <translation>걸기</translation>
+    </message>
+    <message>
+        <source>Hooked</source>
+        <translation>걸림</translation>
+    </message>
+    <message>
+        <source>INS not locked — fly the init path first</source>
+        <translation>INS 미고정 — 먼저 초기화 경로를 비행하세요</translation>
+    </message>
+    <message>
+        <source>Inspection / Surveillance</source>
+        <translation>점검 / 감시</translation>
+    </message>
+    <message>
+        <source>Life jacket</source>
+        <translation>구명조끼</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>조명</translation>
+    </message>
+    <message>
+        <source>Link lost</source>
+        <translation>연결 끊김</translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation>매핑</translation>
+    </message>
+    <message>
+        <source>Megaphone</source>
+        <translation>확성기</translation>
+    </message>
+    <message>
+        <source>No payload connected. Payloads are set up in Settings › Payloads.</source>
+        <translation>연결된 페이로드가 없습니다. 페이로드는 설정 › 페이로드에서 설정합니다.</translation>
+    </message>
+    <message>
+        <source>No power</source>
+        <translation>전원 없음</translation>
+    </message>
+    <message>
+        <source>No reply</source>
+        <translation>응답 없음</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>연결 안 됨</translation>
+    </message>
+    <message>
+        <source>Not ready</source>
+        <translation>준비 안 됨</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켜짐</translation>
+    </message>
+    <message>
+        <source>Payloads</source>
+        <translation>페이로드</translation>
+    </message>
+    <message>
+        <source>Playing</source>
+        <translation>재생 중</translation>
+    </message>
+    <message>
+        <source>Power off</source>
+        <translation>전원 끄기</translation>
+    </message>
+    <message>
+        <source>Power on</source>
+        <translation>전원 켜기</translation>
+    </message>
+    <message>
+        <source>Powered off</source>
+        <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+        <source>Profile: %1 · %2 connected</source>
+        <translation>프로파일: %1 · %2개 연결됨</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>준비됨</translation>
+    </message>
+    <message>
+        <source>Recording %1</source>
+        <translation>기록 중 %1</translation>
+    </message>
+    <message>
+        <source>Release works in flight, or on the ground with the motors stopped.</source>
+        <translation>놓기는 비행 중이나, 지상에서 모터가 멈춘 상태에서만 됩니다.</translation>
+    </message>
+    <message>
+        <source>Released</source>
+        <translation>놓음</translation>
+    </message>
+    <message>
+        <source>Searchlight</source>
+        <translation>서치라이트</translation>
+    </message>
+    <message>
+        <source>Start recording</source>
+        <translation>기록 시작</translation>
+    </message>
+    <message>
+        <source>Starting…</source>
+        <translation>시작 중…</translation>
+    </message>
+    <message>
+        <source>Stopping…</source>
+        <translation>정지 중…</translation>
+    </message>
+    <message>
+        <source>Tether station</source>
+        <translation>테더 스테이션</translation>
+    </message>
+    <message>
+        <source>Tether</source>
+        <translation>테더</translation>
+    </message>
+    <message>
+        <source>The LiDAR is not ready yet</source>
+        <translation>LiDAR가 아직 준비되지 않았습니다</translation>
+    </message>
+    <message>
+        <source>The speaker does not report back: the status only shows that the command was sent.</source>
+        <translation>스피커는 상태를 알려 주지 않습니다. 표시는 명령을 보냈다는 뜻입니다.</translation>
+    </message>
+    <message>
+        <source>Turn the power on before take-off.</source>
+        <translation>이륙 전에 전원을 켜세요.</translation>
+    </message>
+    <message>
+        <source>Waiting for the station…</source>
+        <translation>스테이션 응답 대기 중…</translation>
+    </message>
+    <message>
+        <source>Winch</source>
+        <translation>윈치</translation>
+    </message>
+    <message>
+        <source>YellowScan LiDAR</source>
+        <translation>YellowScan LiDAR</translation>
+    </message>
+    <message>
+        <source>applied %1 %</source>
+        <translation>적용 %1 %</translation>
     </message>
 </context>
 </TS>

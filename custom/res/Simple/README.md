@@ -43,6 +43,8 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleGoHereSheet.qml` | S35 | Go here confirm: height, distance / time, obstacle detection, slide. Sends `actionGoto` with the classic GoTo editor data, so the classic FlyViewMap GoTo state drives progress |
 | `SimpleCoordSheet.qml` | S35 | Latitude / longitude input (red when out of range) |
 | `SimpleGoHereCard.qml` | S36 | Go here progress card (Change target · Stop; stopped: Continue · Cancel), arrival (2 m, < 0.3 m/s, 2 s), obstacle state (OBSTACLE_DISTANCE ≤ 3 m) for the banners |
+| `SimplePayloadPanel.qml` | S10, S16, S17, S51 | Payloads panel (button under the camera rail, badge = count). Cards from the existing managers only: tether (`elistairStationManager`: power, automatic torque, telemetry), YellowScan (`ysManager`: checks, start, hold to stop; not ready → S51 banner), megaphone (`vehicle.audioControl`, clip 1–11 play / stop), searchlight (`missionController.setSearchlight`), winch (`vehicle.sendGripperAction`, hold 2 s to release), life jacket (`deployLifeVest`, hold 2 s). Cards appear with the classic switches (`enableAudioController`, `lifeJacketEnable`, GRIP_ENABLE, tether `enabled`, `ysEnable`). S50 banner and the tether slide sheets are in `SimpleFlyOverlay.qml` |
+| `SPayloadCard.qml`, `SHoldButton.qml` | 99 Components | Payload card (header + status pill + body), hold-to-run button |
 | `SimpleAltitudeSheet.qml` | S38 | Tap ALTITUDE in flight: 5 m steps (hold to repeat), presets, change in green / orange, slide; `actionChangeAlt`. Not during mission / return / landing (`showChangeAlt`) |
 | `SimpleTopBar.qml` | ui/TopBar | Menu, flight status, flight mode, 4 chips, messages |
 | `SimplePreflightSheet.qml` | S02 | Plain-language pre-flight check |
@@ -110,8 +112,7 @@ Planned for v2 (designed in Figma, not implemented):
 
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
-- Payloads panel and devices (S10, S11, S13, S16, S17), camera settings sheet (S43)
-- Video main view and waiting state (S18, S49), tether power lost, LiDAR start rejected (S50, S51)
+- Tether / cleaning product profiles (S11 chips and telemetry, S13), camera settings sheet (S43)
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed
 - Automatic flight-zone check in S39
 - More languages (de, fr, ja: Noto Sans JP) — Korean and bundled fonts are done

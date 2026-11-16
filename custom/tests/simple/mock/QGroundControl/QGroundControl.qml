@@ -10,7 +10,12 @@ QtObject {
             property QtObject simpleAdminPin:       QtObject { property var rawValue: "000000" }
             property QtObject simpleAdminFailures:  QtObject { property var rawValue: 0 }
             property QtObject simpleAdminLockUntil: QtObject { property var rawValue: 0 }
+            property QtObject lifeJacketEnable:     QtObject { property var rawValue: false }
+            property QtObject ysEnable:             QtObject { property var rawValue: false }
+            property QtObject simpleProductProfile: QtObject { property var rawValue: 0 }
         }
+        property var elistairStationManager: null
+        property var ysManager: null
     }
     property QtObject settingsManager: QtObject {
         property QtObject remoteIDSettings: QtObject {
@@ -22,6 +27,7 @@ QtObject {
             property QtObject guidedMaximumAltitude:   QtObject { property var rawValue: 120 }
             property QtObject maxGoToLocationDistance: QtObject { property var rawValue: 1000 }
             property QtObject gotoAltitudeReference:   QtObject { property var rawValue: 0 }
+            property QtObject enableAudioController:   QtObject { property var rawValue: false }
         }
         property QtObject appSettings: QtObject {
             property QtObject offlineEditingHoverSpeed:   QtObject { property var rawValue: 5 }
