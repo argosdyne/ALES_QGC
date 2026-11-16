@@ -734,6 +734,38 @@
         <source>The app returns to Simple mode when it restarts.</source>
         <translation>앱을 다시 시작하면 간편 모드로 돌아옵니다.</translation>
     </message>
+    <message>
+        <source>Choose a PIN other than %1</source>
+        <translation>%1 말고 다른 PIN을 정하세요</translation>
+    </message>
+    <message>
+        <source>The PINs do not match — enter the new PIN again</source>
+        <translation>PIN이 서로 다릅니다 — 새 PIN을 다시 입력하세요</translation>
+    </message>
+    <message>
+        <source>New admin PIN</source>
+        <translation>새 관리자 PIN</translation>
+    </message>
+    <message>
+        <source>New PIN again</source>
+        <translation>새 PIN 다시 입력</translation>
+    </message>
+    <message>
+        <source>Current admin PIN</source>
+        <translation>현재 관리자 PIN</translation>
+    </message>
+    <message>
+        <source>6 digits. Write it down: without it Advanced mode cannot be opened.</source>
+        <translation>6자리. 적어 두세요: 잊으면 고급 모드를 열 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Enter the new PIN once more.</source>
+        <translation>새 PIN을 한 번 더 입력하세요.</translation>
+    </message>
+    <message>
+        <source>Enter the current PIN to change it.</source>
+        <translation>바꾸려면 현재 PIN을 입력하세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimplePlanCheck</name>

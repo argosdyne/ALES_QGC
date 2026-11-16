@@ -28,6 +28,7 @@
 #include "M2Manager.h"
 #include "RajantManager.h"
 #include "ElistairStationManager.h"
+#include "SimplePinHash.h"
 
 class CustomOptions;
 class CustomPlugin;
@@ -101,6 +102,11 @@ public:
 
     Q_PROPERTY(CustomSettings* settings READ settings CONSTANT)
     CustomSettings* settings(){ return _settings; }
+
+    // Simple UI admin PIN (S12): PBKDF2 hash with a random salt, see SimplePinHash.h
+    Q_INVOKABLE QString simplePinHash      (const QString& pin) const { return SimplePinHash::hash(pin); }
+    Q_INVOKABLE bool    simplePinCheck     (const QString& pin, const QString& stored) const { return SimplePinHash::check(pin, stored); }
+    Q_INVOKABLE bool    simplePinIsHash    (const QString& stored) const { return SimplePinHash::isHash(stored); }
 
     SiYiManager* siyiManager(){return _siyiManager;};
     CodevSettings* codevSettings() { return _codevSettings; }

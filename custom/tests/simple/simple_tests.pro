@@ -3,6 +3,7 @@
 TEMPLATE = app
 TARGET   = tst_simple
 CONFIG  += warn_on qmltestcase console
+QT      += network        # QPasswordDigestor (SimplePinHash.h)
 SOURCES += main.cpp
 OTHER_FILES += $$files(tst_*.qml) $$files(mock/*, true)
 # Icons, fonts and licence files the components load from qrc:/simple/

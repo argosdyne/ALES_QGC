@@ -1,4 +1,4 @@
-// SimplePinDialog (S12): 6-digit admin PIN, 5 wrong tries = 5 min lock
+// SimplePinDialog (S12): 6-digit admin PIN, 5 wrong tries = 5 min lock, hashed storage, change PIN
 import QtQuick 2.12
 import QtTest 1.12
 import QGroundControl 1.0
@@ -15,6 +15,9 @@ TestCase {
 
     Component { id: dlgComp; SimplePinDialog { width: 1920; height: 1080 } }
     SignalSpy { id: spy; signalName: "accepted" }
+    SignalSpy { id: changedSpy; signalName: "pinChanged" }
+    readonly property var cp: QGroundControl.corePlugin
+    function stored() { return String(st.simpleAdminPin.rawValue) }
 
     property var dlg: null
     readonly property var st: QGroundControl.corePlugin.settings
@@ -107,7 +110,8 @@ TestCase {
     function test_invalid_stored_pin_falls_back_to_default(d) {
         st.simpleAdminPin.rawValue = d.v
         var x = restart()
-        compare(String(st.simpleAdminPin.rawValue), "000000", "damaged PIN is reset in the settings")
+        verify(cp.simplePinIsHash(stored()), "damaged PIN is reset (as a hash) in the settings: " + stored())
+        verify(cp.simplePinCheck("000000", stored()), "reset to the default PIN")
         for (var i = 0; i < 6; i++) x._press("0")
         compare(spy.count, 1, "default PIN opens Advanced mode")
     }
@@ -117,6 +121,79 @@ TestCase {
         "482915".split("").forEach(function(c) { x._press(c) })
         compare(spy.count, 1)
     }
+    // ---- hashed storage
+    function test_plain_pin_is_replaced_by_hash() {
+        st.simpleAdminPin.rawValue = "482915"            // older version: plain text
+        var x = restart()
+        verify(cp.simplePinIsHash(stored()), "migrated: " + stored())
+        verify(stored().indexOf("482915") < 0, "the PIN is not readable in the settings")
+        "000000".split("").forEach(function(c) { x._press(c) }); compare(spy.count, 0)
+        "482915".split("").forEach(function(c) { x._press(c) }); compare(spy.count, 1, "same PIN still opens")
+    }
+    function test_default_is_stored_hashed() {
+        restart()
+        verify(cp.simplePinIsHash(stored()))
+        verify(stored().indexOf("000000") < 0)
+    }
+    function test_hash_is_salted() {
+        var a = cp.simplePinHash("123456"), b = cp.simplePinHash("123456")
+        verify(a !== b, "random salt")
+        verify(cp.simplePinCheck("123456", a) && cp.simplePinCheck("123456", b))
+        verify(!cp.simplePinCheck("123457", a))
+        verify(/^pbkdf2-sha256\$20000\$[0-9a-f]{32}\$[0-9a-f]{64}$/.test(a), a)
+    }
+    function test_check_rejects_bad_input() {
+        var h = cp.simplePinHash("123456")
+        verify(!cp.simplePinCheck("12345", h), "5 digits")
+        verify(!cp.simplePinCheck("1234567", h), "7 digits")
+        verify(!cp.simplePinCheck("12345a", h), "letter")
+        verify(!cp.simplePinCheck("123456", h.replace(/.$/, h.slice(-1) === "0" ? "1" : "0")), "changed key")
+        verify(!cp.simplePinCheck("123456", "pbkdf2-sha256$1$" + h.split("$")[2] + "$" + h.split("$")[3]), "1 iteration is not a valid hash")
+        verify(!cp.simplePinIsHash("pbkdf2-sha256$20000$zz$00"), "bad format")
+    }
+    // ---- change PIN (Advanced › Settings)
+    function change(x, cur, nw, again) {
+        x.open("change")
+        cur.split("").forEach(function(c) { x._press(c) })
+        if (nw) nw.split("").forEach(function(c) { x._press(c) })
+        if (again) again.split("").forEach(function(c) { x._press(c) })
+    }
+    function test_change_pin() {
+        changedSpy.target = dlg; changedSpy.clear()
+        change(dlg, "000000", "731904", "731904")
+        compare(changedSpy.count, 1); compare(spy.count, 0, "change does not open Advanced mode"); verify(!dlg.opened)
+        verify(stored().indexOf("731904") < 0, "new PIN stored hashed")
+        var x = restart()
+        "000000".split("").forEach(function(c) { x._press(c) }); compare(spy.count, 0, "old PIN refused")
+        "731904".split("").forEach(function(c) { x._press(c) }); compare(spy.count, 1, "new PIN opens")
+    }
+    function test_change_wrong_current_counts_as_failure() {
+        changedSpy.target = dlg; changedSpy.clear()
+        change(dlg, "111111")
+        compare(dlg.stage, "enter"); compare(dlg.failures, 1)
+        for (var i = 0; i < 4; i++) "111111".split("").forEach(function(c) { dlg._press(c) })
+        verify(dlg.locked, "wrong current PINs lock like Advanced mode entry")
+        compare(changedSpy.count, 0)
+    }
+    function test_change_mismatch_and_default_refused() {
+        changedSpy.target = dlg; changedSpy.clear()
+        change(dlg, "000000", "000000")
+        compare(dlg.stage, "new", "default PIN refused as new PIN"); verify(dlg.error !== "")
+        "222333".split("").forEach(function(c) { dlg._press(c) }); compare(dlg.stage, "confirm")
+        "222334".split("").forEach(function(c) { dlg._press(c) })
+        compare(dlg.stage, "new", "mismatch: back to the new PIN"); compare(changedSpy.count, 0)
+        verify(cp.simplePinCheck("000000", stored()), "PIN unchanged after a mismatch")
+        "222333".split("").forEach(function(c) { dlg._press(c) }); "222333".split("").forEach(function(c) { dlg._press(c) })
+        compare(changedSpy.count, 1)
+        verify(cp.simplePinCheck("222333", stored()))
+    }
+    function test_change_cancel_keeps_pin() {
+        change(dlg, "000000", "555")
+        dlg.close()
+        compare(dlg.stage, "enter"); compare(dlg._newPin, "")
+        verify(cp.simplePinCheck("000000", stored()))
+    }
+
     // ---- lock kept over restarts
     function test_lock_survives_restart() {
         for (var i = 0; i < 5; i++) type("111111")
@@ -181,7 +258,7 @@ TestCase {
     // ---- random / stress
     function test_random_presses_invariants() {
         var keys = ["0","1","2","3","4","5","6","7","8","9","back"]
-        for (var run = 0; run < 300; run++) {
+        for (var run = 0; run < 80; run++) {     // each run hashes (PBKDF2): keep the count moderate
             resetSettings()
             var d = createTemporaryObject(dlgComp, root); spy.target = d; spy.clear(); d.open("advanced")
             var typed = ""

@@ -6,6 +6,10 @@ QtObject {
     property string qgcVersion: "V0.0.0-test"
     property QtObject corePlugin: QtObject {
         property bool showAdvancedUI: false
+        // CustomPlugin PIN helpers (SimplePinHash.h via the test runner)
+        function simplePinHash(p)      { return simplePin.hash(String(p)) }
+        function simplePinCheck(p, st) { return simplePin.check(String(p), String(st)) }
+        function simplePinIsHash(st)   { return simplePin.isHash(String(st)) }
         property QtObject settings: QtObject {
             property QtObject simpleAdminPin:       QtObject { property var rawValue: "000000" }
             property QtObject simpleAdminFailures:  QtObject { property var rawValue: 0 }

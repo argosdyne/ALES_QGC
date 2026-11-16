@@ -26,6 +26,18 @@ import QGroundControl.SettingsManager       1.0
 
 Rectangle {
     id:                 _root
+
+    // AQGC Simple UI: admin PIN dialog for "Change PIN" (created on first use; a modal popup over the window)
+    Loader {
+        id: simplePinLoader
+        active: false
+        source: "qrc:/simple/SimplePinPopup.qml"
+        Connections {
+            target: simplePinLoader.item
+            ignoreUnknownSignals: true
+            function onPinChanged() { simplePinDone.visible = true; simplePinDoneTimer.restart() }
+        }
+    }
     color:              qgcPal.window
     anchors.fill:       parent
     anchors.margins:    ScreenTools.defaultFontPixelWidth
@@ -789,6 +801,19 @@ Rectangle {
                                         fact: QGroundControl.corePlugin.settings.simpleProductProfile
                                         indexModel: false
                                     }
+                                }
+
+                                // AQGC Simple UI: change the admin PIN (Figma S12: only here, in Advanced mode).
+                                // The Simple PIN dialog (current → new → again) is shown over the whole window.
+                                RowLayout {
+                                    spacing: ScreenTools.defaultFontPixelWidth
+                                    QGCLabel { text: qsTr("Simple UI admin PIN") }
+                                    QGCButton {
+                                        text: qsTr("Change PIN")
+                                        onClicked: { simplePinLoader.active = true; simplePinLoader.item.open("change") }
+                                    }
+                                    QGCLabel { id: simplePinDone; visible: false; text: qsTr("PIN changed") }
+                                    Timer { id: simplePinDoneTimer; interval: 5000; onTriggered: simplePinDone.visible = false }
                                 }
 
                                 FactCheckBox {

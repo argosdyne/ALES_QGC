@@ -59,7 +59,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleCameraRail.qml` | ui/CameraRail | Photo/video, shutter, gimbal angle |
 | `SimpleMenuDrawer.qml` | S06 | Menu |
 | `SimplePayloadSettings.qml` | S52–S55 | Settings › Payloads: list and pages for YellowScan (`corePlugin.ysManager`), tether SAFE-T (`corePlugin.elistairStationManager`), camera & gimbal (`PayloadManager`, `videoSettings.rtspUrl`, FC mount parameters) |
-| `SimplePinDialog.qml` | S12 | Admin PIN, 5 wrong tries = 5 min lock (kept over restarts; invalid stored PIN → default) |
+| `SimplePinDialog.qml`, `SimplePinPopup.qml`, `../../src/SimplePinHash.h` | S12 | Admin PIN, 5 wrong tries = 5 min lock (kept over restarts; invalid stored PIN → default). Stored as a PBKDF2-SHA256 hash (`corePlugin.simplePinHash / simplePinCheck / simplePinIsHash`; a plain PIN from an older version is hashed on start). Change PIN (current → new → again) from Advanced › Settings › General (`SimplePinPopup`: a modal popup, because the classic settings page is itself in a popup) |
 | `SimpleSettings.qml` | S09, S22, S45, S46, S47, S48 | Settings with 7 categories. Map & flight zones (S46): map style from `mapEngineManager.mapTypeList`, offline map list (`tileSets`) with cancel / resume / delete. Remote ID (S47): QGC `RemoteIDManager` + `remoteIDSettings`; Save turns Remote ID on; EU operator number checked with the secret part, only 16 characters saved. Connection (S22): Enpulse radio through `CustomQmlInterface.arManager` (band change sets air then ground unit and restarts both, on the ground only; Restart radio = ground unit), RTK through the alesQGC NTRIP client (`CustomQmlInterface.codevRTCMManager`, setting `rtcmSource`) |
 | `SimpleMapDownload.qml` | S46 | Download new area: map with a frame, name, detail (zoom 17/19), size estimate, tile limit; `mapEngineManager.updateForCurrentView` + `startDownload` |
 | `SimplePlanWizard.qml` | S07, S08 | Choose task, area mapping settings |
@@ -118,6 +118,6 @@ Planned for v2 (designed in Figma, not implemented):
 
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
 - Cleaning product profile (S13): no cleaning device support in the app yet
-- Advanced menu panel (S44) and change admin PIN; store the PIN hashed
+- Advanced menu panel (S44; its "4–8 digits" differs from the 6-digit PIN decision)
 - Automatic flight-zone check in S39
 - More languages (de, fr, ja: Noto Sans JP) — Korean and bundled fonts are done
