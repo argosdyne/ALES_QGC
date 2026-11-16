@@ -4174,6 +4174,10 @@
         <source>LiDAR survey</source>
         <translation>LiDAR 측량</translation>
     </message>
+    <message>
+        <source>%1 items — too many to preview here. Open shows the whole mission.</source>
+        <translation>항목 %1개 — 여기서 미리 보기에는 너무 많습니다. 열면 전체 미션이 보입니다.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleScanSettings</name>

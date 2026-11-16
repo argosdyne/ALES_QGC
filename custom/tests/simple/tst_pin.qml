@@ -217,6 +217,50 @@ TestCase {
         verify(cp.simplePinCheck("000000", stored()))
     }
 
+    // ---- user scenarios
+    // light user: opens Advanced mode once with the default PIN, nothing else
+    function test_scenario_light_user() {
+        var x = restart()
+        "000000".split("").forEach(function(c) { x._press(c) })
+        compare(spy.count, 1); compare(Number(st.simpleAdminFailures.rawValue), 0)
+        verify(cp.simplePinIsHash(stored()))
+    }
+    // heavy user: changes the PIN many times, mistypes sometimes, restarts the app in between
+    function test_scenario_heavy_user() {
+        var pin = "000000", x = restart()
+        changedSpy.target = x
+        for (var round = 0; round < 12; round++) {
+            var next = String(100000 + Math.floor(Math.random() * 899999))
+            if (round % 3 === 1) {                          // one wrong current PIN first
+                x.open("change"); "999999".split("").forEach(function(c) { x._press(c) })
+                if (pin === "999999") continue
+                verify(x.failures >= 1)
+                x.close()
+            }
+            changedSpy.clear()
+            change(x, pin, next, next)
+            compare(changedSpy.count, 1, "round " + round)
+            pin = next
+            compare(Number(st.simpleAdminFailures.rawValue), 0, "a correct current PIN clears the count")
+            if (round % 4 === 3) { x = restart(); changedSpy.target = x }      // app restart
+        }
+        x = restart(); spy.clear()
+        pin.split("").forEach(function(c) { x._press(c) })
+        compare(spy.count, 1, "the last PIN opens Advanced mode")
+    }
+    // a user who forgot the PIN: locked, waits, still locked after a restart, then the lock ends
+    function test_scenario_forgot_pin() {
+        st.simpleAdminPin.rawValue = cp.simplePinHash("246810")
+        var x = restart()
+        for (var i = 0; i < 5; i++) "123456".split("").forEach(function(c) { x._press(c) })
+        verify(x.locked)
+        x = restart(); verify(x.locked, "restart does not unlock")
+        st.simpleAdminLockUntil.rawValue = Date.now() - 1          // 5 minutes later
+        x = restart(); verify(!x.locked)
+        "246810".split("").forEach(function(c) { x._press(c) })
+        compare(spy.count, 1)
+    }
+
     // ---- lock kept over restarts
     function test_lock_survives_restart() {
         for (var i = 0; i < 5; i++) type("111111")

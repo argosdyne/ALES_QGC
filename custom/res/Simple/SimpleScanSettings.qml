@@ -62,7 +62,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 5; from: 10; to: sp.maxAlt
                     value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 80
-                    onEdited: sp._cam.distanceToSurface.rawValue = value }
+                    onEdited: sp._cam.distanceToSurface.rawValue = value; objectName: "dist" }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
@@ -76,7 +76,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 10; from: 10; to: 300
                     value: Math.round(sp._v("corridorWidth"))
-                    onEdited: sp.item.corridorWidth.rawValue = value }
+                    onEdited: sp.item.corridorWidth.rawValue = value; objectName: "width" }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
@@ -88,6 +88,7 @@ SPanel {
                 designWidth: 544
                 model: [qsTr("Standard · 2D map"), qsTr("High · 3D model")]
                 currentIndex: sp._cam && sp._cam.frontalOverlap.rawValue >= 80 ? 1 : 0
+                objectName: "overlap"
                 onActivated: { sp._cam.frontalOverlap.rawValue = index === 1 ? 80 : 70; sp._cam.sideOverlap.rawValue = index === 1 ? 70 : 60 }
             }
         }
@@ -104,7 +105,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 5; from: 20; to: sp.maxAlt
                     value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 60
-                    onEdited: { sp._cam.distanceToSurface.rawValue = value; sp.ysEdited() } }
+                    objectName: "dist"; onEdited: { sp._cam.distanceToSurface.rawValue = value; sp.ysEdited() } }
             }
             SText {
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
@@ -117,13 +118,14 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m/s"; step: 1; from: 2; to: 15
                     value: sp._speed ? Math.round(sp._speed.flightSpeed.rawValue) : 8
-                    onEdited: { sp._speed.specifyFlightSpeed = true; sp._speed.flightSpeed.rawValue = value } }
+                    objectName: "speed"; onEdited: { sp._speed.specifyFlightSpeed = true; sp._speed.flightSpeed.rawValue = value } }
             }
             SText { text: qsTr("Line overlap"); size: 24; color: SimpleTheme.textSecondary }
             SSegmented {
                 designWidth: 544
                 model: [qsTr("50 % · Standard"), qsTr("70 % · Dense")]
                 currentIndex: sp._cam && sp._cam.yellowScanOverlapFact.rawValue >= 60 ? 1 : 0
+                objectName: "ysOverlap"
                 onActivated: { sp._cam.yellowScanOverlapFact.rawValue = index === 1 ? 70 : 50; sp.ysEdited() }
             }
             Item {
@@ -133,7 +135,7 @@ SPanel {
                     SText { text: qsTr("Init path before and after"); size: 24; color: SimpleTheme.textPrimary }
                     SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("Figure 8 to settle the INS (required for good data)"); size: 21; color: SimpleTheme.textTertiary }
                 }
-                SToggle { id: ipToggle; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                SToggle { id: ipToggle; objectName: "initPaths"; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                           checked: sp.initPaths
                           onToggled: { sp.initPathsRequested(ipToggle.checked); ipToggle.checked = Qt.binding(function() { return sp.initPaths }) } }
             }
@@ -160,6 +162,7 @@ SPanel {
                 designWidth: 544
                 model: [qsTr("Rectangle"), qsTr("Circle"), qsTr("Draw")]
                 currentIndex: sp.shape === "circle" ? 1 : sp.shape === "draw" ? 2 : sp.shape === "rectangle" ? 0 : -1
+                objectName: "shape"
                 onActivated: sp.shapeRequested(index === 1 ? "circle" : index === 2 ? "draw" : "rectangle")
             }
             Item {
@@ -168,7 +171,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 1; from: 3; to: 100
                     value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 15
-                    onEdited: sp._cam.distanceToSurface.rawValue = value }
+                    onEdited: sp._cam.distanceToSurface.rawValue = value; objectName: "dist" }
             }
             SText {
                 visible: !!sp._cam && sp._cam.distanceToSurface.rawValue < 10
@@ -181,7 +184,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 1; from: 2; to: Math.max(2, Math.round(sp._v("structureHeight")) - 1)
                     value: Math.round(sp._v("scanBottomAlt"))
-                    onEdited: sp.item.scanBottomAlt.rawValue = value }
+                    onEdited: sp.item.scanBottomAlt.rawValue = value; objectName: "bottom" }
             }
             Item {
                 width: parent.width; height: SimpleTheme.px(76)
@@ -189,7 +192,7 @@ SPanel {
                 SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                     unit: "m"; step: 1; from: Math.round(sp._v("scanBottomAlt")) + 1; to: sp.maxAlt
                     value: Math.round(sp._v("structureHeight"))
-                    onEdited: sp.item.structureHeight.rawValue = value }
+                    onEdited: sp.item.structureHeight.rawValue = value; objectName: "top" }
             }
             Item {
                 width: parent.width; height: SimpleTheme.px(56)
@@ -203,6 +206,7 @@ SPanel {
                 designWidth: 544
                 model: [qsTr("At structure"), qsTr("Slightly down · −15°")]
                 currentIndex: sp._v("gimbalPitch") < -5 ? 1 : 0
+                objectName: "camera"
                 onActivated: sp.item.gimbalPitch.rawValue = index === 1 ? -15 : 0
             }
         }

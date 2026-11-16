@@ -50,14 +50,14 @@ function info(mission) {
         if (!it) continue
         if (it.isSimpleItem && it.command === 16) r.points++
         // corridor: the line length (missionDistance of a file preview counts from a home position it does not have)
-        if (kind === "corridor" && it.corridorPolyline !== undefined && it.corridorPolyline.path) {
+        if (kind === "corridor" && it.corridorPolyline && it.corridorPolyline.path) {
             var p = it.corridorPolyline.path, d = 0
             for (var k = 1; k < p.length; k++) d += p[k - 1].distanceTo(p[k])
             r.distM = d
         }
         if (it.gridAngle !== undefined) { r.areaM2 = it.coveredArea; r.photos = kind === "lidar" ? 0 : it.cameraShots }
         else if (kind === "lidar") continue             // LiDAR: no photos (the camera trigger is the scanner's)
-        else if (it.cameraShots !== undefined && it.cameraShots > 0) r.photos += it.cameraShots
+        else if (it.cameraShots !== undefined && it.cameraShots > 0 && it.turnRadius === undefined) r.photos += it.cameraShots   // an Init Path takes no photos
     }
     return r
 }

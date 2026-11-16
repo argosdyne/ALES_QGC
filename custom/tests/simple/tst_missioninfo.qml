@@ -96,6 +96,64 @@ TestCase {
         compare(MissionInfo.maxHeight(mission([settingsItem, survey([], 95)])), 95)
         compare(MissionInfo.maxHeight(mission([settingsItem, { isSimpleItem: false, topFlightAlt: 110 }])), 110)
     }
+    // ---- abnormal: damaged or unexpected items (a broken .plan, a plan from another QGC)
+    function test_abnormal_items() {
+        var odd = [null, undefined, {}, { isSimpleItem: true }, { isSimpleItem: true, command: "16" },
+                   { isSimpleItem: false, corridorPolyline: null }, { isSimpleItem: false, gridAngle: null, cameraCalc: null },
+                   { isSimpleItem: true, command: 16, specifiesCoordinate: true, coordinate: null },
+                   { isSimpleItem: true, command: 16, specifiesAltitude: true, altitude: null },
+                   { isSimpleItem: false, corridorPolyline: { path: null }, turnRadius: {} }]
+        for (var i = 0; i < odd.length; i++) {
+            var m = mission([settingsItem, odd[i]])
+            var k = MissionInfo.kindOf(m)
+            verify(["area", "waypoint", "corridor", "structure", "lidar", "other"].indexOf(k) >= 0, "kind " + k + " for item " + i)
+            MissionInfo.text(MissionInfo.info(m), words)
+            MissionInfo.route(m)
+            verify(isFinite(MissionInfo.maxHeight(m)) || isNaN(MissionInfo.maxHeight(m)) === false, "height for item " + i)
+        }
+    }
+    // ---- random: any mix of items gives a known kind, and the editor kinds keep their rules
+    function randomItem() {
+        var r = Math.random()
+        if (r < 0.45) return simple([22, 20, 21, 16, 16, 16, 19, 82, 183][Math.floor(Math.random() * 9)], Math.random() * 200, coord(Math.random(), Math.random()))
+        if (r < 0.60) return survey([coord(1, 1)], Math.random() * 150)
+        if (r < 0.72) return { isSimpleItem: false, corridorPolyline: { path: [] }, surveyAreaPolygon: { path: [] } }
+        if (r < 0.84) return { isSimpleItem: false, structureHeight: { rawValue: 30 }, topFlightAlt: Math.random() * 100 }
+        if (r < 0.96) return { isSimpleItem: false, corridorPolyline: { path: [] }, turnRadius: { rawValue: 10 }, surveyAreaPolygon: { path: [] } }
+        return null
+    }
+    function test_random_missions() {
+        for (var run = 0; run < 3000; run++) {
+            var items = [settingsItem], n = Math.floor(Math.random() * 8)
+            for (var i = 0; i < n; i++) items.push(randomItem())
+            var m = mission(items, Math.random() * 3000, Math.random() * 9000)
+            var k = MissionInfo.kindOf(m)
+            var complex = 0, ip = 0, wp = 0, other = 0
+            for (var j = 1; j < items.length; j++) {
+                var it = items[j]; if (!it) continue
+                if (it.isSimpleItem) { if (it.command === 16) wp++; else if ([22, 20, 21].indexOf(it.command) < 0) other++ }
+                else if (it.turnRadius !== undefined) ip++
+                else complex++
+            }
+            if (k === "waypoint") verify(complex === 0 && ip === 0 && other === 0 && wp > 0, "waypoint rule, run " + run)
+            if (k === "area" || k === "corridor" || k === "structure") verify(complex === 1 && ip === 0 && wp === 0 && other === 0, k + " rule, run " + run)
+            if (k === "lidar") verify(complex === 1 && ip > 0 && wp === 0 && other === 0, "lidar rule, run " + run)
+            var t = MissionInfo.text(MissionInfo.info(m), words)
+            verify(typeof t === "string" && t.length > 0, "summary text, run " + run)
+            verify(MissionInfo.maxHeight(m) >= 0, "height, run " + run)
+        }
+    }
+    // ---- stress: a heavy user's long mission (several thousand items) stays quick
+    function test_stress_big_mission() {
+        var items = [settingsItem]
+        for (var i = 0; i < 5000; i++) items.push(simple(16, i % 120, coord(i * 1e-5, 0)))
+        var m = mission(items, 99999, 99999)
+        var t0 = Date.now()
+        for (var r = 0; r < 20; r++) { MissionInfo.kindOf(m); MissionInfo.info(m); MissionInfo.route(m); MissionInfo.maxHeight(m) }
+        var ms = Date.now() - t0
+        compare(MissionInfo.kindOf(m), "waypoint"); compare(MissionInfo.route(m).length, 5000); compare(MissionInfo.maxHeight(m), 119)
+        verify(ms < 5000, "20 rounds over 5000 items took " + ms + " ms")
+    }
     function test_icons() {
         compare(MissionInfo.iconFor("area"), "grid")
         compare(MissionInfo.iconFor("waypoint"), "pin")

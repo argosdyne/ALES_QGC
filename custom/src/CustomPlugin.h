@@ -29,6 +29,10 @@
 #include "RajantManager.h"
 #include "ElistairStationManager.h"
 #include "SimplePinHash.h"
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class CustomOptions;
 class CustomPlugin;
@@ -107,6 +111,20 @@ public:
     Q_INVOKABLE QString simplePinHash      (const QString& pin) const { return SimplePinHash::hash(pin); }
     Q_INVOKABLE bool    simplePinCheck     (const QString& pin, const QString& stored) const { return SimplePinHash::check(pin, stored); }
     Q_INVOKABLE bool    simplePinIsHash    (const QString& stored) const { return SimplePinHash::isHash(stored); }
+    // Simple UI saved missions (S24): number of mission items in a .plan, or -1 when the file cannot be read
+    // (not a JSON object, fileType not "Plan", no "mission" object with an "items" array, empty or over 20 MB).
+    // The preview loads only readable files of moderate size (the classic loader shows its own error popup).
+    Q_INVOKABLE int     simplePlanItemCount(const QString& path) const {
+        QFile f(path);
+        if (f.size() <= 0 || f.size() > 20 * 1024 * 1024 || !f.open(QIODevice::ReadOnly)) return -1;
+        QJsonParseError err;
+        const QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &err);
+        if (err.error != QJsonParseError::NoError || !doc.isObject()) return -1;
+        const QJsonObject o = doc.object();
+        const QJsonValue items = o.value(QStringLiteral("mission")).toObject().value(QStringLiteral("items"));
+        if (o.value(QStringLiteral("fileType")).toString() != QStringLiteral("Plan") || !items.isArray()) return -1;
+        return items.toArray().count();
+    }
 
     SiYiManager* siyiManager(){return _siyiManager;};
     CodevSettings* codevSettings() { return _codevSettings; }

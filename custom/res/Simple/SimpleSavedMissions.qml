@@ -4,9 +4,10 @@
  * - List: FolderListModel (newest first); the search is a file-name filter. The numbers of a summary (kind, area,
  *   points, time, photos) are cached in the app settings (SimpleMissions/summaries2) when a mission is saved or
  *   previewed — files are not all parsed. The text is made when shown (current language and units).
- * - Preview: the selected file is loaded into its own offline PlanMasterController (startStaticActiveVehicle(null):
- *   it never follows the drone), shown on a small map with the classic mission visuals. It is rebuilt for every
- *   selection and every time the page is shown again.
+ * - Preview: the selected file is loaded into an offline PlanMasterController of its own (startStaticActiveVehicle(null):
+ *   it never follows the drone), shown on a small map with the classic mission visuals. One controller is made on
+ *   the first selection and kept: creating and deleting a controller for every selection left about 7 MB each time
+ *   (heavy-user test 2026-11-16). Files that cannot be read or have more than maxPreviewItems items are not loaded.
  * - Rename = save under the new name + delete the old file (there is no rename call in QGC); only when the preview
  *   really loaded the file. Export = a copy through the file dialog.
  * - On Android the (mobile) file dialog only lists one folder: import and export use the Download folder.
@@ -36,9 +37,16 @@ Rectangle {
 
     readonly property string dir: QGroundControl.settingsManager.appSettings.missionSavePath
     property string selected: ""            // full path of the selected file
+    // mission items in the file, -1 = cannot be read (corePlugin.simplePlanItemCount)
+    function _itemCount(path) {
+        var cp = QGroundControl.corePlugin
+        return !cp || cp.simplePlanItemCount === undefined ? 0 : cp.simplePlanItemCount(path)
+    }
+    // the preview controller needs about 0.3 MB per item: a longer mission is shown only when opened
+    readonly property int maxPreviewItems: 500
     property string message: ""             // import result shown under the search field (set by the wizard)
     property string search: ""
-    property bool   _rebuild: false
+    property bool   _previewUsed: false      // the preview controller exists from the first selection on
     readonly property var  _units:  QGroundControl.unitsConversion
     readonly property bool _metric: _units.appSettingsHorizontalDistanceUnitsString === "m"
     readonly property string ioFolder: Qt.platform.os === "android" ? "/storage/emulated/0/Download" : dir
@@ -162,21 +170,40 @@ Rectangle {
         height: pcol.height + SimpleTheme.px(48)
         radius: SimpleTheme.px(24); color: SimpleTheme.surfaceRaised
 
-        // the preview controller is rebuilt for each selected file
+        // one preview controller, kept (see the header); a damaged file is not loaded (the classic loader would show
+        // its own error popup over the Simple UI)
         Loader {
             id: ctrlLoader
-            active: sm.selected !== "" && sm.visible && !sm._rebuild
+            active: sm._previewUsed
             sourceComponent: Component {
                 PlanMasterController {
                     // offline (no active vehicle): the preview never switches to the drone's mission
-                    Component.onCompleted: { startStaticActiveVehicle(null, false); loadFromFile(sm.selected) }
+                    Component.onCompleted: startStaticActiveVehicle(null, false)
                 }
             }
-            onActiveChanged: { previewBox.info = null; if (active) previewTimer.restart() }
+            onLoaded: previewBox.reload()
         }
-        // a new selection rebuilds the preview (the active binding stays intact)
-        Connections { target: sm; function onSelectedChanged() { sm._rebuild = true; Qt.callLater(function() { sm._rebuild = false }) } }
+        function reload() {
+            info = null; routePath = []; previewTimer.stop()
+            fileItems = sm.selected !== "" ? sm._itemCount(sm.selected) : 0
+            if (sm.selected !== "") sm._previewUsed = true
+            if (!ctrl) return
+            if (sm.selected !== "" && readable && !tooLarge) { ctrl.loadFromFile(sm.selected); previewTimer.restart() }
+            else ctrl.removeAll()
+        }
+        Connections {
+            target: sm
+            function onSelectedChanged() { Qt.callLater(previewBox.reload) }
+            function onVisibleChanged()  { if (sm.visible) Qt.callLater(previewBox.reload) }   // the file may have changed
+        }
+        property int fileItems: 0
+        readonly property bool readable: fileItems >= 0
+        readonly property bool tooLarge: fileItems > sm.maxPreviewItems
         readonly property var ctrl: ctrlLoader.item
+        // many items (a heavy user's long mission): one route line instead of a map visual per item
+        readonly property int  maxItemVisuals: 150
+        readonly property bool bigMission: !!mission && mission.visualItems.count > maxItemVisuals
+        property var routePath: []
         readonly property var mission: ctrl ? ctrl.missionController : null
         // the file really loaded (currentPlanFile is set only on success) — rename / export only then
         readonly property bool loaded: !!ctrl && ctrl.currentPlanFile !== "" && !!mission && mission.visualItems.count > 1
@@ -194,6 +221,7 @@ Rectangle {
                 previewBox.info = inf
                 sm.setCached(sm.baseName(sm.selected) + ".plan", inf)
                 var pts = MissionInfo.route(previewBox.mission)
+                previewBox.routePath = previewBox.bigMission ? pts : []
                 if (pts.length > 0) {
                     var minLat = 90, maxLat = -90, minLon = 180, maxLon = -180
                     for (var i = 0; i < pts.length; i++) {
@@ -220,8 +248,13 @@ Rectangle {
                     anchors.fill: parent
                     mapName: "simpleMissionPreview"
                     gesture.enabled: false
+                    MapPolyline {
+                        visible: previewBox.bigMission
+                        line.width: SimpleTheme.px(4); line.color: SimpleTheme.brandGreen
+                        path: previewBox.routePath
+                    }
                     Repeater {
-                        model: previewBox.mission ? previewBox.mission.visualItems : 0
+                        model: previewBox.mission && !previewBox.bigMission ? previewBox.mission.visualItems : 0
                         delegate: MissionItemMapVisual {
                             map: previewMap
                             interactive: false
@@ -233,10 +266,11 @@ Rectangle {
             SText { width: parent.width; text: sm.baseName(sm.selected); size: 32; bold: true }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
                     text: previewBox.info ? sm.summaryText(previewBox.info)
-                        : previewBox.ctrl && !previewBox.loaded && !previewTimer.running ? qsTr("This file could not be read.") : qsTr("Loading…") }
+                        : previewBox.readable && previewBox.tooLarge ? qsTr("%1 items — too many to preview here. Open shows the whole mission.").arg(previewBox.fileItems)
+                        : !previewBox.readable || (previewBox.ctrl && !previewBox.loaded && !previewTimer.running) ? qsTr("This file could not be read.") : qsTr("Loading…") }
             Row {
                 spacing: SimpleTheme.px(12)
-                SButton { kind: "primary"; text: qsTr("Open"); onClicked: sm.openRequested(sm.selected) }
+                SButton { kind: "primary"; text: qsTr("Open"); enabled_: previewBox.readable; onClicked: sm.openRequested(sm.selected) }
                 SButton { text: qsTr("Rename"); enabled_: previewBox.loaded; onClicked: { renameField.text = sm.baseName(sm.selected); renameField.reset(); renameSheet.visible = true } }
                 SButton { text: qsTr("Export"); enabled_: previewBox.loaded; onClicked: { fileDialog.forExport = true; fileDialog.nameFilters = ["*.plan"]; fileDialog.title = qsTr("Export a copy"); fileDialog.openForSave() } }
                 SButton { kind: "danger"; text: qsTr("Delete"); onClicked: deleteSheet.visible = true }
