@@ -3,6 +3,7 @@
  * Sits on top of the classic FlyView (map, video PiP); the classic widgets are hidden in Simple mode.
  ****************************************************************************/
 import QtQuick 2.12
+import QtQuick.Shapes 1.12
 import QtPositioning 5.12
 import QGroundControl 1.0
 import "."
@@ -129,7 +130,7 @@ Item {
             onClicked: fly._act(fly._guided.actionContinueMission)
         }
         SActionButton {
-            visible: vs.state === "flying" || vs.state === "lost"
+            visible: (vs.state === "flying" && !vs.tethered) || vs.state === "lost"
             enabled_: vs.state !== "lost"
             text: qsTr("Return home"); icon: "home"
             onClicked: fly.openSheet("rtl")
@@ -141,10 +142,40 @@ Item {
             onClicked: fly.openSheet("land")
         }
         SActionButton {
-            visible: (vs.state === "flying" && !vs.paused) || vs.state === "returning" || vs.state === "lost"
+            visible: (vs.state === "flying" && !vs.paused && !vs.tethered) || vs.state === "returning" || vs.state === "lost"
             enabled_: vs.state !== "lost" && _veh && _veh.pauseVehicleSupported && vs.gpsLock >= 3   // QA F6
             text: qsTr("Pause"); icon: "pause"
             onClicked: fly._act(fly._guided.actionPause)
+        }
+        // S11 tether: height - / + in 5 m steps (classic change altitude); + is off near the cable limit
+        Column {
+            id: tetherHeight
+            visible: vs.tethered && vs.state === "flying"
+            readonly property bool _can: !!fly._guided && fly._guided.showChangeAlt
+            readonly property real _alt: fly._veh ? Number(fly._veh.altitudeRelative.rawValue) : NaN
+            readonly property real _min: Number(QGroundControl.settingsManager.flyViewSettings.guidedMinimumAltitude.rawValue)
+            readonly property real _max: Number(QGroundControl.settingsManager.flyViewSettings.guidedMaximumAltitude.rawValue)
+            readonly property bool _cableNear: isFinite(tetherCard.cableRatio) && tetherCard.cableRatio >= 0.9
+            spacing: SimpleTheme.px(8)
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: SimpleTheme.px(128); height: hcol.height + SimpleTheme.px(24); radius: width / 2
+                color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
+                Column {
+                    id: hcol
+                    anchors.horizontalCenter: parent.horizontalCenter; y: SimpleTheme.px(12)
+                    spacing: SimpleTheme.px(6)
+                    SRoundIconButton { designWidth: 104; designHeight: 104; radius: width / 2; icon: "plus"
+                        enabled_: tetherHeight._can && !tetherHeight._cableNear && tetherHeight._alt + 5 <= tetherHeight._max
+                        onClicked: fly._act(fly._guided.actionChangeAlt, null, 5) }
+                    SText { anchors.horizontalCenter: parent.horizontalCenter; size: 28; bold: true
+                            text: isFinite(tetherHeight._alt) ? Math.round(tetherHeight._alt) + " m" : "—" }
+                    SRoundIconButton { designWidth: 104; designHeight: 104; radius: width / 2; icon: "minus"
+                        enabled_: tetherHeight._can && tetherHeight._alt - 5 >= tetherHeight._min
+                        onClicked: fly._act(fly._guided.actionChangeAlt, null, -5) }
+                }
+            }
+            SText { anchors.horizontalCenter: parent.horizontalCenter; text: qsTr("Height"); size: 24; medium: true }
         }
     }
 
@@ -209,6 +240,7 @@ Item {
         vehicle: fly._veh
         visible: vs.present
         stale: vs.lost
+        tether: vs.tethered ? fly._st : null     // S11: CABLE OUT and TENSION instead of DISTANCE and SPEED
         // S38: tap ALTITUDE in flight (not during a mission, return or landing: classic showChangeAlt)
         altitudeTappable: vs.state === "flying" && !!fly._guided && fly._guided.showChangeAlt
         onAltitudeClicked: { fly.closeTapMenu(); fly.openSheet("altitude") }
@@ -322,6 +354,46 @@ Item {
     // keep the "Arrived" pin a few seconds, then clear the Go here target from the map
     Timer { id: arrivedClear; interval: 5000; onTriggered: if (fly._map && fly._map.gotoArrivalConfirmed) fly._map.clearGotoProgress() }
 
+    // S11 tether card (left of the camera rail; hidden while the Payloads panel or camera settings are open)
+    SimpleTetherCard {
+        id: tetherCard
+        visible: vs.tethered && vs.present && !fly.payloadsOpen && !fly.cameraOpen
+        anchors.right: rail.left; anchors.rightMargin: SimpleTheme.px(16)
+        y: topBar.height + SimpleTheme.px(16)
+        vs: fly.vs
+    }
+    // S11 cable reach on the map: dashed circle around the home point (station) with the cable out as radius
+    Item {
+        id: cableCircle
+        anchors.fill: parent
+        readonly property var  _home: fly._veh ? fly._veh.homePosition : QtPositioning.coordinate()
+        readonly property real _r: fly._st && fly._st.hasMonitoring ? Number(fly._st.cableLength) : 0
+        visible: vs.tethered && vs.state !== "ground" && !fly.videoMain && !!fly._map && _home.isValid && _r > 1
+        readonly property var _geo: {
+            if (!visible) return { x: 0, y: 0, r: 0 }
+            var dep = fly._map.center.latitude + fly._map.center.longitude + fly._map.zoomLevel + fly._map.bearing + fly._map.width
+            var c = fly._map.fromCoordinate(_home, false)
+            var e = fly._map.fromCoordinate(_home.atDistanceAndAzimuth(_r, 90), false)
+            return { x: c.x, y: c.y, r: Math.sqrt((e.x - c.x) * (e.x - c.x) + (e.y - c.y) * (e.y - c.y)) }
+        }
+        Shape {
+            anchors.fill: parent
+            ShapePath {
+                strokeColor: SimpleTheme.info; strokeWidth: SimpleTheme.px(3); fillColor: "transparent"
+                strokeStyle: ShapePath.DashLine; dashPattern: [4, 3]
+                startX: cableCircle._geo.x + cableCircle._geo.r; startY: cableCircle._geo.y
+                PathAngleArc { centerX: cableCircle._geo.x; centerY: cableCircle._geo.y
+                               radiusX: cableCircle._geo.r; radiusY: cableCircle._geo.r; startAngle: 0; sweepAngle: 360 }
+            }
+        }
+        SText {
+            x: cableCircle._geo.x + cableCircle._geo.r * 0.71 + SimpleTheme.px(8)
+            y: cableCircle._geo.y + cableCircle._geo.r * 0.71
+            text: qsTr("Cable %1 m").arg(Math.round(cableCircle._r)); size: 24; medium: true
+            style: Text.Outline; styleColor: SimpleTheme.bgBase
+        }
+    }
+
     // S35: map tap menu
     SimpleMapTapMenu {
         anchors.fill: parent
@@ -434,6 +506,21 @@ Item {
             actionText: qsTr("OK")
             onAction: fly.lidarRefusal = ""
         }
+        // S11 tether alarms in flight: SAFE-T alarm (tension / station) and cable near the station's length alarm
+        SBanner {
+            visible: vs.tethered && vs.flying && !!fly._st && fly._st.alarmActive && !fly._st.noPower
+            level: "danger"; icon: "tether"
+            title: qsTr("Tether alarm — %1").arg(fly._st ? fly._st.alarmSummary : "")
+            detail: qsTr("Check the cable and the station. Land if the alarm stays.")
+            actionText: qsTr("Land")
+            onAction: fly.openSheet("land")
+        }
+        SBanner {
+            visible: vs.tethered && vs.flying && isFinite(tetherCard.cableRatio) && tetherCard.cableRatio >= 0.9
+            level: "warn"; icon: "tether"
+            title: qsTr("Cable near its limit (%1 of %2 m)").arg(fly._st ? Math.round(fly._st.cableLength) : 0).arg(Math.round(tetherCard.lengthAlarm))
+            detail: qsTr("Height + is off. Lower the drone or come closer to the station.")
+        }
         // S36 obstacle during Go here (classic G-05 stopped / G-06 going around)
         SBanner {
             visible: goCard.obstacleStopped && vs.state === "flying"
@@ -477,13 +564,17 @@ Item {
         // At 20 % or less while the drone is not yet returning, it turns red. Returning has its own banner below.
         SBanner {
             visible: vs.state === "flying" && !vs.paused && !isNaN(vs.batteryPct) && vs.batteryPct <= 30
-            level: vs.batteryPct <= 20 ? "danger" : "warn"; icon: "battery"
-            title: vs.batteryPct <= 20 ? qsTr("Battery very low (%1 %) — return home now").arg(Math.round(vs.batteryPct))
-                                       : qsTr("Battery low (%1 %) — plan to return home").arg(Math.round(vs.batteryPct))
+            readonly property real _red: vs.tethered ? 15 : 20
+            level: vs.batteryPct <= _red ? "danger" : "warn"; icon: "battery"
+            title: vs.tethered ? (vs.batteryPct <= _red ? qsTr("Backup battery very low (%1 %) — land now").arg(Math.round(vs.batteryPct))
+                                                        : qsTr("Backup battery low (%1 %)").arg(Math.round(vs.batteryPct)))
+                 : vs.batteryPct <= _red ? qsTr("Battery very low (%1 %) — return home now").arg(Math.round(vs.batteryPct))
+                                         : qsTr("Battery low (%1 %) — plan to return home").arg(Math.round(vs.batteryPct))
             // batteryTime is "--:--:--" when the drone does not report it
-            detail: /[1-9]/.test(vs.batteryTime) ? qsTr("About %1 of flight left.").arg(vs.batteryTime) : qsTr("Bring the drone back while there is enough battery.")
-            actionText: qsTr("Return home")
-            onAction: fly.openSheet("rtl")
+            detail: vs.tethered ? qsTr("Check the ground power. The backup battery keeps the drone up only for a short time.")
+                  : /[1-9]/.test(vs.batteryTime) ? qsTr("About %1 of flight left.").arg(vs.batteryTime) : qsTr("Bring the drone back while there is enough battery.")
+            actionText: vs.tethered ? qsTr("Land") : qsTr("Return home")
+            onAction: fly.openSheet(vs.tethered ? "land" : "rtl")
         }
         SBanner {
             visible: vs.state === "returning"

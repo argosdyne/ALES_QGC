@@ -152,6 +152,32 @@ TestCase {
         v.remoteIDManager.commsGood = true
         QGroundControl.settingsManager.remoteIDSettings.enable.rawValue = false
     }
+    // ---- S11/S16 tether profile: ground power gates take-off; chip text and level
+    Component {
+        id: stationComp
+        QtObject {
+            property bool enabled: true; property bool connected: true; property bool hasMonitoring: true
+            property bool powerOn: true; property bool noPower: false; property bool linkLost: false; property real powerWatts: 900
+        }
+    }
+    function test_tether_profile() {
+        var st = createTemporaryObject(stationComp, tc)
+        QGroundControl.corePlugin.elistairStationManager = st
+        verify(!s.tethered, "profile not Tether: classic rules")
+        QGroundControl.corePlugin.settings.simpleProductProfile.rawValue = 2
+        verify(s.tethered); verify(s.tetherPowerOk); compare(s.tetherText, "Power OK"); compare(s.tetherLevel, "ok")
+        verify(s.readyToTakeOff, "power on: take-off allowed")
+        st.powerOn = false
+        compare(s.tetherText, "Power off"); compare(s.tetherLevel, "warn"); verify(!s.readyToTakeOff, "power off blocks take-off (S16)")
+        st.powerOn = true; st.noPower = true
+        compare(s.tetherText, "No power"); compare(s.tetherLevel, "danger"); verify(!s.readyToTakeOff)
+        st.noPower = false; st.linkLost = true; st.connected = false
+        compare(s.tetherText, "Station lost"); verify(!s.readyToTakeOff)
+        st.linkLost = false; st.connected = true; st.enabled = false
+        verify(!s.tethered, "station switched off: classic rules"); verify(s.readyToTakeOff)
+        QGroundControl.corePlugin.settings.simpleProductProfile.rawValue = 0
+        QGroundControl.corePlugin.elistairStationManager = null
+    }
     function test_no_battery() {
         v.batteries.count = 0
         compare(s.batteryLevel, "off"); compare(s.batteryTime, ""); verify(s.readyToTakeOff)

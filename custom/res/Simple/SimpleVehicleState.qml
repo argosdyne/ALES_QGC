@@ -60,8 +60,18 @@ QtObject {
         onTriggered: zoneHere = vehicle.coordinate.isValid ? mainWindow.flightZoneManager.zoneAt(vehicle.coordinate) : null
         onRunningChanged: if (!running) zoneHere = null
     }
+    // Tether profile (S11/S16): product profile "Tether" (set in Advanced › General) with the SAFE-T station switched on.
+    // Ground power must be on before take-off (S16).
+    readonly property var    tetherStation: QGroundControl.corePlugin.elistairStationManager
+    readonly property bool   tetherProfile: Number(QGroundControl.corePlugin.settings.simpleProductProfile.rawValue) === 2
+    readonly property bool   tethered:      tetherProfile && !!tetherStation && tetherStation.enabled
+    readonly property bool   tetherPowerOk: tethered && tetherStation.connected && tetherStation.hasMonitoring && tetherStation.powerOn && !tetherStation.noPower
+    readonly property string tetherLevel:   !tethered ? "off" : tetherPowerOk ? "ok" : tetherStation.noPower || tetherStation.linkLost ? "danger" : "warn"
+    readonly property string tetherText:    !tethered ? "" : tetherStation.noPower ? qsTr("No power") : tetherStation.linkLost ? qsTr("Station lost")
+                                          : !(tetherStation.connected && tetherStation.hasMonitoring) ? qsTr("No station") : tetherStation.powerOn ? qsTr("Power OK") : qsTr("Power off")
+
     readonly property bool   readyToTakeOff: connected && !armed && sensorsOk && gpsLock >= 3 && (isNaN(batteryPct) || batteryPct > 30)
-                                             && (!ridAvailable || ridGood) && !zoneBlocked
+                                             && (!ridAvailable || ridGood) && !zoneBlocked && (!tethered || tetherPowerOk)
 
     // QA F5: the drone's last warning (STATUSTEXT, severity WARNING or worse) in the last 60 s, e.g. why it lands
     property string recentWarning: ""

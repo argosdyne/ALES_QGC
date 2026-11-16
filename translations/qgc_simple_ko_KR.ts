@@ -41,6 +41,22 @@
         <source>Last received values</source>
         <translation>마지막으로 받은 값</translation>
     </message>
+    <message>
+        <source>Alarm</source>
+        <translation>경보</translation>
+    </message>
+    <message>
+        <source>CABLE OUT</source>
+        <translation>케이블</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>정상</translation>
+    </message>
+    <message>
+        <source>TENSION</source>
+        <translation>장력</translation>
+    </message>
 </context>
 <context>
     <name>SimpleChipDetail</name>
@@ -538,6 +554,42 @@
         <source>Turn tether power off?</source>
         <translation>테더 전원을 끌까요?</translation>
     </message>
+    <message>
+        <source>Backup battery low (%1 %)</source>
+        <translation>예비 배터리 부족 (%1 %)</translation>
+    </message>
+    <message>
+        <source>Backup battery very low (%1 %) — land now</source>
+        <translation>예비 배터리 매우 부족 (%1 %) — 지금 착륙하세요</translation>
+    </message>
+    <message>
+        <source>Cable %1 m</source>
+        <translation>케이블 %1 m</translation>
+    </message>
+    <message>
+        <source>Cable near its limit (%1 of %2 m)</source>
+        <translation>케이블 한계 근접 (%2 m 중 %1 m)</translation>
+    </message>
+    <message>
+        <source>Check the cable and the station. Land if the alarm stays.</source>
+        <translation>케이블과 스테이션을 확인하세요. 경보가 계속되면 착륙하세요.</translation>
+    </message>
+    <message>
+        <source>Check the ground power. The backup battery keeps the drone up only for a short time.</source>
+        <translation>지상 전원을 확인하세요. 예비 배터리로는 잠시만 떠 있을 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Height + is off. Lower the drone or come closer to the station.</source>
+        <translation>높이 +는 꺼집니다. 드론을 낮추거나 스테이션 쪽으로 가까이 오세요.</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>높이</translation>
+    </message>
+    <message>
+        <source>Tether alarm — %1</source>
+        <translation>테더 경보 — %1</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -1030,6 +1082,18 @@
     <message>
         <source>The drone is in a zone that needs care (%1). Check that you may fly here.</source>
         <translation>드론이 주의가 필요한 구역(%1) 안에 있습니다. 이곳에서 비행해도 되는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>%1 — turn the tether power on in the Payloads panel</source>
+        <translation>%1 — 페이로드 패널에서 테더 전원을 켜세요</translation>
+    </message>
+    <message>
+        <source>Ground unit on · %1 W</source>
+        <translation>지상 유닛 켜짐 · %1 W</translation>
+    </message>
+    <message>
+        <source>Tether power</source>
+        <translation>테더 전원</translation>
     </message>
 </context>
 <context>
@@ -1956,6 +2020,14 @@
         <source>Remote ID</source>
         <translation>Remote ID</translation>
     </message>
+    <message>
+        <source>Flying · tethered</source>
+        <translation>비행 중 · 테더</translation>
+    </message>
+    <message>
+        <source>Ground unit</source>
+        <translation>지상 유닛</translation>
+    </message>
 </context>
 <context>
     <name>SimpleVehicleState</name>
@@ -1994,6 +2066,26 @@
     <message>
         <source>Fair</source>
         <translation>보통</translation>
+    </message>
+    <message>
+        <source>No power</source>
+        <translation>전원 없음</translation>
+    </message>
+    <message>
+        <source>No station</source>
+        <translation>스테이션 없음</translation>
+    </message>
+    <message>
+        <source>Power OK</source>
+        <translation>전원 정상</translation>
+    </message>
+    <message>
+        <source>Power off</source>
+        <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+        <source>Station lost</source>
+        <translation>스테이션 끊김</translation>
     </message>
 </context>
 <context>
@@ -3648,6 +3740,77 @@
     <message>
         <source>Video</source>
         <translation>영상</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleTetherCard</name>
+    <message>
+        <source>Alarm</source>
+        <translation>경보</translation>
+    </message>
+    <message>
+        <source>Backup battery</source>
+        <translation>예비 배터리</translation>
+    </message>
+    <message>
+        <source>Cable out</source>
+        <translation>풀린 케이블</translation>
+    </message>
+    <message>
+        <source>Caution</source>
+        <translation>주의</translation>
+    </message>
+    <message>
+        <source>Check</source>
+        <translation>확인 필요</translation>
+    </message>
+    <message>
+        <source>Ground power</source>
+        <translation>지상 전원</translation>
+    </message>
+    <message>
+        <source>Lost</source>
+        <translation>끊김</translation>
+    </message>
+    <message>
+        <source>No data</source>
+        <translation>데이터 없음</translation>
+    </message>
+    <message>
+        <source>Normal</source>
+        <translation>정상</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켜짐</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>전력</translation>
+    </message>
+    <message>
+        <source>Spool temperature</source>
+        <translation>스풀 온도</translation>
+    </message>
+    <message>
+        <source>Station lost</source>
+        <translation>스테이션 끊김</translation>
+    </message>
+    <message>
+        <source>Tension</source>
+        <translation>장력</translation>
+    </message>
+    <message>
+        <source>Tether</source>
+        <translation>테더</translation>
+    </message>
+    <message>
+        <source>alarm %1 m</source>
+        <translation>경보 %1 m</translation>
     </message>
 </context>
 </TS>

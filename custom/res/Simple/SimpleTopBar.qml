@@ -23,7 +23,7 @@ Rectangle {
         case "disconnected":    return qsTr("Not connected")
         case "lost":            return qsTr("Signal lost")
         case "returning":       return vs.landing ? qsTr("Landing") : qsTr("Returning home")
-        case "flying":          return vs.paused ? qsTr("Paused · hovering") : vs.missionActive ? qsTr("Flying · mission") : qsTr("Flying")
+        case "flying":          return vs.paused ? qsTr("Paused · hovering") : vs.missionActive ? qsTr("Flying · mission") : vs.tethered ? qsTr("Flying · tethered") : qsTr("Flying")
         default:                return vs.readyToTakeOff ? qsTr("Ready to fly") : qsTr("1 item to fix")
         }
     }
@@ -87,11 +87,12 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         spacing: SimpleTheme.px(12)
 
+        // S11: in the tether profile the battery chip shows the ground power (the drone battery is the backup)
         SChip {
-            icon: "battery"
-            level: vs.batteryLevel
-            value: isNaN(vs.batteryPct) ? "—" : Math.round(vs.batteryPct) + "%"
-            label: vs.batteryTime !== "" ? "≈ " + vs.batteryTime : qsTr("Battery")
+            icon: vs.tethered ? "tether" : "battery"
+            level: vs.tethered ? vs.tetherLevel : vs.batteryLevel
+            value: vs.tethered ? vs.tetherText : isNaN(vs.batteryPct) ? "—" : Math.round(vs.batteryPct) + "%"
+            label: vs.tethered ? qsTr("Ground unit") : vs.batteryTime !== "" ? "≈ " + vs.batteryTime : qsTr("Battery")
             onClicked: bar.chipClicked("battery")
         }
         SChip {

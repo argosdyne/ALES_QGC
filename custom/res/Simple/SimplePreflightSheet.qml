@@ -33,7 +33,10 @@ SPanel {
           detail: !vs.zoneHere || vs.zoneHere.zoneClass === 0 ? qsTr("No restricted zone here")
                 : vs.zoneBlocked ? qsTr("The drone is in a no-fly zone (%1). Move to another place to take off.").arg(vs.zoneHere.zoneName)
                 : qsTr("The drone is in a zone that needs care (%1). Check that you may fly here.").arg(vs.zoneHere.zoneName) }
-    ]
+    ].concat(vs.tethered ? [
+        { ok: vs.tetherPowerOk, warn: false, title: qsTr("Tether power"),
+          detail: vs.tetherPowerOk ? qsTr("Ground unit on · %1 W").arg(Math.round(vs.tetherStation.powerWatts))
+                : qsTr("%1 — turn the tether power on in the Payloads panel").arg(vs.tetherText) } ] : [])
 
     Column {
         id: listCol

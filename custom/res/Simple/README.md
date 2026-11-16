@@ -15,7 +15,7 @@ shown in **Advanced mode**, unlocked with the admin PIN.
 | `src/FlightDisplay/FlyView.qml` | `simpleMode` property hides the classic fly widgets. Map, video and PiP stay. In Simple mode the PiP follows Figma S04: bottom-right (right 24, bottom 24), 400 × 226 (scaled from 1920 × 1080), rounded corners. The FPV overlay starts between the telemetry bar and the PiP. Layout: telemetry bar bottom-left (x 24), PiP bottom-right. |
 | `src/QmlControls/PipView.qml` | `simpleStyle`: frame, "Camera" / "Map" label, tap to swap only (no resize, pop-out or hide buttons). |
 | `src/PlanView/PlanView.qml` | `simpleMode` property hides the tool strip, right panel, terrain status and map scale. Map and mission visuals stay, so the survey polygon is edited on the classic map. |
-| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleAdminFailures`, `simpleAdminLockUntil`, `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (not used yet). |
+| `custom/src/Custom.SettingsGroup.json` | New settings: `simpleAdminPin` (default `000000`), `simpleAdminFailures`, `simpleAdminLockUntil`, `simpleWelcomeShown`, `simpleLargeText`, `simpleStartScreen`, `simpleProductProfile` (Tether = S11 fly screen; chosen in Advanced › General). |
 | `custom/src/CustomPlugin.cc` | `guidedMaximumAltitude` default = 120 m (decision 2026-11-13). Planning vehicle without a drone = ArduPilot multicopter (decision 2026-11-14). |
 | `custom/custom.qrc` | Prefix `/simple`: all files in this folder and `icons/` (exported from Figma). |
 | `src/QGCApplication.cc` | `setLanguage()`: registers the Simple UI fonts (`fonts/`), maps Roboto → Noto Sans KR for Hangul when the language is Korean, loads the Simple UI translation `:/i18n/qgc_simple_<locale>.qm`. Font registration runs in both modes (decision 2026-11-14): the classic UI never uses Roboto, so Advanced looks the same. |
@@ -44,6 +44,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleCoordSheet.qml` | S35 | Latitude / longitude input (red when out of range) |
 | `SimpleGoHereCard.qml` | S36 | Go here progress card (Change target · Stop; stopped: Continue · Cancel), arrival (2 m, < 0.3 m/s, 2 s), obstacle state (OBSTACLE_DISTANCE ≤ 3 m) for the banners |
 | `SimplePayloadPanel.qml` | S10, S16, S17, S51 | Payloads panel (button under the camera rail, badge = count). Cards from the existing managers only: tether (`elistairStationManager`: power, automatic torque, telemetry), YellowScan (`ysManager`: checks, start, hold to stop; not ready → S51 banner), megaphone (`vehicle.audioControl`, clip 1–11 play / stop), searchlight (`missionController.setSearchlight`), winch (`vehicle.sendGripperAction`, hold 2 s to release), life jacket (`deployLifeVest`, hold 2 s). Cards appear with the classic switches (`enableAudioController`, `lifeJacketEnable`, GRIP_ENABLE, tether `enabled`, `ysEnable`). S50 banner and the tether slide sheets are in `SimpleFlyOverlay.qml` |
+| `SimpleTetherCard.qml` | S11 | Tether profile card (profile "Tether" in Advanced › General + station on): cable out / station length alarm, tension = SAFE-T alarm state, ground power, backup battery, power, spool temperature. The other S11 changes (ground-power chip, CABLE OUT / TENSION telemetry, Land + height −/+, cable circle, alarms, S16 take-off gate) are in `SimpleTopBar`, `STelemetryBar`, `SimpleFlyOverlay`, `SimpleVehicleState`, `SimplePreflightSheet` |
 | `SimpleCameraSheet.qml` | S43 | Camera settings from the rail "Camera" button (MAVLink camera `QGCCameraControl`): streams, photo / video, auto photos off / 2 s / 5 s (time lapse; no distance shooting), EV (`EO_EV`/`CAM_EV`), thermal palette (`IR_PALETTE`), grid lines, SD free space. Same place as the Payloads panel |
 | `SimplePayloadPrefs.qml` | S56 | Singleton (Qt.labs.settings `SimplePayloads`): megaphone, searchlight, winch, cleaning values. Used today: winch hold time, stop clip / searchlight off on landing; the rest is kept until the devices accept it. The S56 pages are in `SimplePayloadSettings.qml` |
 | `SPayloadCard.qml`, `SHoldButton.qml` | 99 Components | Payload card (header + status pill + body), hold-to-run button |
@@ -114,7 +115,7 @@ Planned for v2 (designed in Figma, not implemented):
 
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
-- Tether / cleaning product profiles (S11 chips and telemetry, S13)
+- Cleaning product profile (S13): no cleaning device support in the app yet
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed
 - Automatic flight-zone check in S39
 - More languages (de, fr, ja: Noto Sans JP) — Korean and bundled fonts are done

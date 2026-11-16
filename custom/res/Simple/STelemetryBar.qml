@@ -16,7 +16,15 @@ Rectangle {
         var raw = Number(f.value)
         return { v: isNaN(raw) ? "—" : raw.toFixed(digits), u: f.units }
     }
-    readonly property var _items: [
+    // S11 tether profile: CABLE OUT and TENSION (SAFE-T alarm state; the station reports no tension value) instead of
+    // DISTANCE and SPEED
+    property var tether: null
+    readonly property var _items: tether ? [
+        { label: qsTr("ALTITUDE"),    val: _fact(vehicle ? vehicle.altitudeRelative : null, 1) },
+        { label: qsTr("CABLE OUT"),   val: { v: tether.hasMonitoring ? Number(tether.cableLength).toFixed(0) : "—", u: "m" } },
+        { label: qsTr("TENSION"),     val: { v: !tether.hasMonitoring ? "—" : tether.alarmActive ? qsTr("Alarm") : qsTr("Normal"), u: "" } },
+        { label: qsTr("FLIGHT TIME"), val: { v: vehicle ? vehicle.getFact("flightTime").valueString : "00:00:00", u: "" } }
+    ] : [
         { label: qsTr("ALTITUDE"),    val: _fact(vehicle ? vehicle.altitudeRelative : null, 1) },
         { label: qsTr("DISTANCE"),    val: _fact(vehicle ? vehicle.distanceToHome : null, 0) },
         { label: qsTr("SPEED"),       val: _fact(vehicle ? vehicle.groundSpeed : null, 1) },
