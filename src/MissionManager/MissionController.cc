@@ -2433,6 +2433,7 @@ bool MissionController::showPlanFromManagerVehicle (void)
 
 void MissionController::_managerSendComplete(bool error)
 {
+    emit sendToVehicleFinished(error);
     // Fly view always reloads on send complete
     if (!error && _flyView) {
         showPlanFromManagerVehicle();

@@ -40,7 +40,9 @@ Item {
             _vehicleWasArmed = true
             _vehicleWasInMissionFlightMode = _vehicleInMissionFlightMode
         } else {
-            if (_showMissionCompleteDialog) {
+            // AQGC Simple UI: the classic popup is made on mainWindow, so it would show over the Simple screens.
+            // In Simple mode the plan simply stays on the vehicle (the classic "Leave plan on vehicle").
+            if (_showMissionCompleteDialog && !mainWindow.simpleUI) {
                 missionCompleteDialogComponent.createObject(mainWindow).open()
             }
             _vehicleWasArmed = false

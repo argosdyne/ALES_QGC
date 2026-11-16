@@ -38,6 +38,8 @@ SPanel {
                                         : _zone.zoneClass === 3 ? 0 : (_zm.polygons.count + _zm.circles.count > 0 ? 0 : 1)
     readonly property int  _batteries:  _mission ? _mission.batteriesRequired : -1
     property bool _sent: false
+    property bool _sendFailed: false        // the drone refused the mission (e.g. a command it does not support)
+    property bool _missionOk: false
 
     // FactPanelController binds to the active vehicle when it is created, so create it only once
     // the vehicle's parameters are ready (and again for a new vehicle).
@@ -62,10 +64,15 @@ SPanel {
     ]
     readonly property bool _blocked: { for (var i = 0; i < _checks.length; i++) if (_checks[i].lvl === 2) return true; return false }
 
-    onVisibleChanged: if (visible) _sent = false
+    onVisibleChanged: if (visible) { _sent = false; _sendFailed = false; _missionOk = false }
     Connections {
         target: chk.plan
-        function onSyncInProgressChanged() { if (chk.plan && !chk.plan.syncInProgress && chk.visible) chk._sent = true }
+        // fence and rally points follow the mission: "sent" only when everything ended and the mission was accepted
+        function onSyncInProgressChanged() { if (chk.plan && !chk.plan.syncInProgress && chk.visible && chk._missionOk) chk._sent = true }
+    }
+    Connections {
+        target: chk.plan ? chk.plan.missionController : null
+        function onSendToVehicleFinished(error) { chk._missionOk = !error; chk._sendFailed = error }
     }
 
     Column {
@@ -108,6 +115,8 @@ SPanel {
             width: parent.width; height: SimpleTheme.px(14); radius: height / 2; color: SimpleTheme.surfaceControl
             Rectangle { width: parent.width * (chk._mission ? chk._mission.progressPct : 0); height: parent.height; radius: height / 2; color: SimpleTheme.brandGreen }
         }
+        SText { visible: chk._sendFailed; width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textDanger
+                text: qsTr("The drone did not accept the mission. Check the message, change the mission and send again.") }
         SText { visible: chk._blocked && !chk._sent; width: parent.width; wrapMode: Text.WordWrap; text: qsTr("Fix the red items before sending."); size: 22; color: SimpleTheme.textDanger }
         SButton {
             width: parent.width
@@ -118,6 +127,7 @@ SPanel {
             onClicked: {
                 // the drone fence is sent with the plan: keep the "do not enter" My zones in it (decision 2026-11-15)
                 if (chk._zm) chk._zm.applyMyZonesToFence(chk.plan.geoFenceController)
+                chk._sendFailed = false; chk._missionOk = false
                 chk.plan.sendToVehicle()
             }
         }

@@ -340,9 +340,10 @@ Item {
         if (scanItem && k === "corridor") {
             if (scanItem.corridorPolyline.count < 2) {
                 scanItem.corridorPolyline.clear()
-                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(150, 250))
+                // 2 x 110 m: with the turns the farthest point stays inside a 300 m geofence (like the area default)
+                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(110, 250))
                 scanItem.corridorPolyline.appendVertex(c)
-                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(150, 60))
+                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(110, 60))
             }
             scanItem.corridorWidth.rawValue = 40
             if (scanItem.cameraCalc) scanItem.cameraCalc.distanceToSurface.rawValue = Math.min(80, _maxAlt)
