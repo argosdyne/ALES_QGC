@@ -1079,6 +1079,7 @@ bool MissionController::load(const QJsonObject& json, QString& errorString)
 
     if (!_loadJsonMissionFileV2(json, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
     _initLoadedVisualItems(loadedVisualItems);
@@ -1102,6 +1103,7 @@ bool MissionController::loadJsonFile(QFile& file, QString& errorString)
     QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);
     if (!_loadItemsFromJson(json, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
 
@@ -1122,6 +1124,7 @@ bool MissionController::loadTextFile(QFile& file, QString& errorString)
     QmlObjectListModel* loadedVisualItems = new QmlObjectListModel(this);
     if (!_loadTextMissionFile(stream, loadedVisualItems, errorStr)) {
         errorString = errorMessage.arg(errorStr);
+        loadedVisualItems->deleteListAndContents();     // AQGC: items loaded before the error (parent = master controller)
         return false;
     }
 

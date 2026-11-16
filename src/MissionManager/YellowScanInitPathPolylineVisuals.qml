@@ -46,10 +46,9 @@ Item {
     readonly property string _corridorToolsText:    qsTr("Polyline Tools")
     readonly property string _traceText:            qsTr("Click in the map to add vertices. Click 'Done Tracing' when finished.")
 
-    // AQGC: the Init Path has no common polyline visual (the flown path is drawn by the item visuals). The old call
-    // createObject(mapControl, true) had no component: it threw a TypeError on every load and stopped onCompleted.
-    function _addCommonVisuals() {
-    }
+    // AQGC: the Init Path has no common polyline visual (the flown path is drawn by the item visuals). The old
+    // _addCommonVisuals() called createObject(mapControl, true) without a component: a TypeError on every load that
+    // also stopped onCompleted. It is removed with its object manager.
 
     function _addInteractiveVisuals() {
         if (_objMgrInteractiveVisuals.empty) {
@@ -132,14 +131,13 @@ Item {
     }
 
     Component.onCompleted: {
-        _addCommonVisuals()
         if (interactive) {
             _addInteractiveVisuals()
         }        
     }
-    Component.onDestruction: mapPolyline.traceMode = false
+    // the item (and its polyline) can be deleted before this visual when the mission is replaced
+    Component.onDestruction: if (mapPolyline) mapPolyline.traceMode = false
 
-    QGCDynamicObjectManager { id: _objMgrCommonVisuals }
     QGCDynamicObjectManager { id: _objMgrInteractiveVisuals }
     QGCDynamicObjectManager { id: _objMgrTraceVisuals }
 

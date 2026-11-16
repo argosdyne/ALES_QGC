@@ -32,6 +32,8 @@ Item {
     Connections {
         target: wiz._mission
         function onVisualItemsChanged() {
+            // S42: Init Path items are really deleted when the mission is replaced: redraw the figure 8 for the new ones
+            if (wiz.kind === "lidar") Qt.callLater(function() { wiz._ipCount = wiz._initPaths().length; wiz._drawInitPaths() })
             if (wiz.kind === "waypoint") {
                 // a plan replaced underneath (only the settings item left): start again from the task choice
                 if (wiz.step !== "choose" && wiz._mission.visualItems.count <= 1) wiz.step = "choose"
