@@ -89,6 +89,10 @@ Reply to the user in Korean unless they write in English.
 - Tether profile S11 (2026-11-16): product profile "Tether" (combo in Advanced › General, the only core UI change) + SAFE-T
   station on. The station reports no maximum cable length and no tension value: cable = out / station length alarm
   (`stationSettings.lengthAlarm`), tension = SAFE-T alarm state. Ground power must be on to take off (S16). No voice yet.
+- Waypoint flight S23 (2026-11-16): take-off → points → RTL; map taps reach the wizard through `PlanView.simpleMapClicked`
+  (Simple mode only). ArduPilot ignores waypoint yaw (WP_YAW_BEHAVIOR), so "Drone faces" stays hidden. Known: the first map
+  tap after the app's first visit to Plan is lost (map start-up); later taps are fine. S* steppers / segmented controls
+  break their binding when edited — rebuild them (Loader) when the edited object changes.
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
@@ -151,7 +155,7 @@ Reply to the user in Korean unless they write in English.
    check Korean label overflow on the device) → remaining Settings categories (~~Connection S22~~, ~~Remote ID S47~~, ~~Map & offline maps S46~~, ~~Payloads S52–S55~~ done 2026-11-15;
    S56 with the payload panels) → fly screen (~~video main S18/S49~~, ~~map controls S30~~,
    ~~map tap menu S35/S36/S38~~ (2026-11-16), ~~payload panel S10/S16/S17/S50/S51~~ (2026-11-16),
-   ~~S56 cards~~, ~~S43 camera settings~~ (2026-11-16); ~~tether profile S11~~ (2026-11-16); S13 cleaning waits for device support) → ~~flight zones~~ (done 2026-11-15) → Plan (waypoint, saved missions, corridor/structure/LiDAR) →
+   ~~S56 cards~~, ~~S43 camera settings~~ (2026-11-16); ~~tether profile S11~~ (2026-11-16); S13 cleaning waits for device support) → ~~flight zones~~ (done 2026-11-15) → Plan (~~waypoint S23~~ 2026-11-16, saved missions S24, corridor/structure/LiDAR) →
    change admin PIN and store it hashed → Advanced mode redesign in the Simple design system (Figma first).
 3. Open items: the signed Android release path (push to `Argos_Stable4.4` with keystore secret) is untested (the user
    checks the keystore). No Google Play upload (2026-11-16), so target SDK android-30 stays. `ci/android-diagnose` deleted.
