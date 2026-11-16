@@ -52,6 +52,16 @@ TestCase {
         compare(MissionInfo.text(MissionInfo.info(mission([settingsItem, { isSimpleItem: false, corridorPolyline: { path: [] } }], 0, 2100)), words),
                 "Corridor mapping · 2.1 km")
     }
+    // S42: the YellowScan "Init Path" item has a corridor line too, but is not a corridor mapping
+    function test_init_path_is_not_corridor() {
+        compare(MissionInfo.kindOf(mission([settingsItem, simple(22), { isSimpleItem: false, corridorPolyline: { path: [] }, turnRadius: { rawValue: 30 } }, simple(20)])), "other")
+    }
+    // S41: the structure's entrance height counts, the distance to the structure does not
+    function test_structure_height() {
+        var st = { isSimpleItem: false, structureHeight: { rawValue: 45 }, topFlightAlt: 44, entranceAlt: { rawValue: 50 },
+                   cameraCalc: { distanceToSurface: { rawValue: 90 } } }
+        compare(MissionInfo.maxHeight(mission([settingsItem, st])), 50)
+    }
     function test_empty() {
         compare(MissionInfo.kindOf(mission([settingsItem])), "other")
         compare(MissionInfo.kindOf(null), "other")

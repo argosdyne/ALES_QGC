@@ -3,6 +3,7 @@
  * Uses the classic PlanView map and PlanMasterController underneath (its panels are hidden in Simple mode).
  ****************************************************************************/
 import QtQuick 2.12
+import QtPositioning 5.3
 import QGroundControl 1.0
 import QGroundControl.Controllers 1.0
 import "."
@@ -12,7 +13,9 @@ Item {
     id: wiz
     property var    vs
     property string step:   "choose"        // choose | saved (S24) | edit | check
-    property string kind:   "area"          // area (S08) | waypoint (S23) | other (opened file of another kind: check only)
+    property string kind:   "area"          // area (S08) | waypoint (S23) | corridor (S40) | structure (S41) | other (check only)
+    property var    scanItem: null          // corridor / structure complex item being edited
+    property string shape:  "rectangle"     // structure outline: rectangle | circle | draw | custom (opened file)
     property var    survey: null
 
     readonly property var _plan:    planView._planMasterController
@@ -30,6 +33,11 @@ Item {
             if (wiz.kind === "waypoint") {
                 // a plan replaced underneath (only the settings item left): start again from the task choice
                 if (wiz.step !== "choose" && wiz._mission.visualItems.count <= 1) wiz.step = "choose"
+                return
+            }
+            if (wiz.kind === "corridor" || wiz.kind === "structure") {
+                var f = wiz._findScan(wiz.kind)
+                if (f !== wiz.scanItem) { wiz.scanItem = f; if (!f && wiz.step !== "choose") wiz.step = "choose" }
                 return
             }
             if (!wiz.survey) return
@@ -51,6 +59,7 @@ Item {
         step = "choose"
         kind = "area"
         survey = null
+        scanItem = null
     }
 
     function _findSurvey() {
@@ -114,7 +123,8 @@ Item {
     }
     function _routeToEditor() {
         var k = MissionInfo.kindOf(_mission)
-        if (k === "area") { survey = _findSurvey(); kind = "area"; step = "edit" }
+        if (k === "corridor" || k === "structure") { survey = null; kind = k; scanItem = _findScan(k); shape = "custom"; _editScan(); step = "edit"; return }
+        if (k === "area") { survey = _findSurvey(); kind = "area"; if (survey) _mission.setCurrentPlanViewSeqNum(survey.sequenceNumber, true); step = "edit" }
         else if (k === "waypoint") { survey = null; kind = "waypoint"; step = "edit"; wpEditor.addMode = false }
         else { survey = null; kind = "other"; step = "check" }
     }
@@ -155,7 +165,16 @@ Item {
     Connections {
         target: typeof planView !== "undefined" ? planView : null
         function onSimpleMapClicked(coordinate) {
-            if (wiz.visible && wiz.step === "edit" && wiz.kind === "waypoint") wpEditor.addPoint(coordinate)
+            if (!wiz.visible || wiz.step !== "edit") return
+            if (wiz.kind === "waypoint") wpEditor.addPoint(coordinate)
+            // S40: a tap adds a point at the end of the corridor line
+            else if (wiz.kind === "corridor" && wiz.scanItem) wiz.scanItem.corridorPolyline.appendVertex(coordinate)
+            // S41 "Draw": taps outline the structure (the first tap starts a new outline)
+            else if (wiz.kind === "structure" && wiz.scanItem && wiz.shape === "draw") {
+                var poly = wiz.scanItem.structurePolygon
+                if (wiz._drawFresh) { poly.clear(); wiz._drawFresh = false }
+                poly.appendVertex(coordinate)
+            }
         }
     }
     // route and highest point for the S39 check
@@ -169,6 +188,71 @@ Item {
         if (step !== "check" || !_mission) return NaN
         var dep = _mission.visualItems.count
         return MissionInfo.maxHeight(_mission)
+    }
+
+    // S40 / S41: take-off → corridor or structure scan → return home
+    function _findScan(k) {
+        if (!_mission) return null
+        for (var i = 0; i < _mission.visualItems.count; i++) {
+            var it = _mission.visualItems.get(i)
+            if (!it) continue
+            if (k === "corridor" && it.corridorPolyline !== undefined && it.turnRadius === undefined) return it
+            if (k === "structure" && it.structureHeight !== undefined) return it
+        }
+        return null
+    }
+    function _createScan(k) {
+        kind = k
+        survey = null
+        _plan.removeAll()
+        var c = planView.mapCenter()
+        _mission.insertTakeoffItem(c, 1, false)
+        var item = _mission.insertComplexMissionItem(k === "corridor" ? _mission.corridorScanComplexItemName : _mission.structureScanComplexItemName, c, 2, true)
+        var rtl = _mission.insertSimpleMissionItem(c, 3, false)
+        if (rtl) rtl.command = 20
+        scanItem = item ? item : _findScan(k)
+        if (scanItem && k === "corridor") {
+            if (scanItem.corridorPolyline.count < 2) {
+                scanItem.corridorPolyline.clear()
+                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(150, 250))
+                scanItem.corridorPolyline.appendVertex(c)
+                scanItem.corridorPolyline.appendVertex(c.atDistanceAndAzimuth(150, 60))
+            }
+            scanItem.corridorWidth.rawValue = 40
+            if (scanItem.cameraCalc) scanItem.cameraCalc.distanceToSurface.rawValue = Math.min(80, _maxAlt)
+        } else if (scanItem) {
+            setShape("rectangle")
+            if (scanItem.cameraCalc) scanItem.cameraCalc.distanceToSurface.rawValue = 15
+            scanItem.scanBottomAlt.rawValue = 5
+            scanItem.structureHeight.rawValue = Math.min(45, _maxAlt)
+            scanItem.entranceAlt.rawValue = Math.min(Number(scanItem.entranceAlt.rawValue), _maxAlt)
+        }
+        _editScan()
+        _plan.fitViewportToItems()
+        step = "edit"
+    }
+    // the classic map shows the drag handles of the current item only
+    function _editScan() { if (scanItem) _mission.setCurrentPlanViewSeqNum(scanItem.sequenceNumber, true) }
+    property bool _drawFresh: false
+    function setShape(sh) {
+        shape = sh
+        if (!scanItem || kind !== "structure") return
+        var poly = scanItem.structurePolygon
+        if (sh === "draw") { _drawFresh = true; return }
+        // copy: a QML value-type reference would read the (cleared) centre again
+        var pc = poly.center
+        var c = poly.count >= 3 ? QtPositioning.coordinate(pc.latitude, pc.longitude) : planView.mapCenter()
+        poly.clear()
+        if (sh === "circle") {
+            for (var a = 0; a < 360; a += 30) poly.appendVertex(c.atDistanceAndAzimuth(12, a))
+        } else {
+            // 30 m x 20 m
+            var d = Math.sqrt(15 * 15 + 10 * 10), b = Math.atan2(15, 10) * 180 / Math.PI
+            poly.appendVertex(c.atDistanceAndAzimuth(d, -b))
+            poly.appendVertex(c.atDistanceAndAzimuth(d, b))
+            poly.appendVertex(c.atDistanceAndAzimuth(d, 180 - b))
+            poly.appendVertex(c.atDistanceAndAzimuth(d, 180 + b))
+        }
     }
 
     function _fmtTime(sec) {
@@ -195,6 +279,7 @@ Item {
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight")
+                            : wiz.kind === "corridor" ? qsTr("Corridor mapping") : wiz.kind === "structure" ? qsTr("Structure scan")
                             : wiz.kind === "other" ? qsTr("Saved mission") : qsTr("Area mapping"); size: 34; bold: true }
                 SText { size: 22; color: SimpleTheme.textSecondary
                         text: wiz.step === "choose" ? qsTr("What do you want to do?")
@@ -211,7 +296,8 @@ Item {
                 onClicked: { saveField.text = wiz._planName; saveField.reset(); saveSheet.visible = true }
             }
             Repeater {
-                model: [wiz.kind === "waypoint" ? qsTr("Add points") : qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
+                model: [wiz.kind === "waypoint" ? qsTr("Add points") : wiz.kind === "corridor" ? qsTr("Draw line")
+                        : wiz.kind === "structure" ? qsTr("Select structure") : qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
                 Rectangle {
                     id: stepItem
                     readonly property int cur: wiz.step === "check" ? 2 : 1
@@ -249,8 +335,8 @@ Item {
                 model: [
                     { key: "area",      icon: "grid",      title: qsTr("Area mapping"),      sub: qsTr("Photos of a field or site for a 2D map or 3D model"), ok: true },
                     { key: "waypoint",  icon: "pin",       title: qsTr("Waypoint flight"),   sub: qsTr("Fly through points you tap on the map"),            ok: true },
-                    { key: "corridor",  icon: "corridor",  title: qsTr("Corridor mapping"),  sub: qsTr("Road, canal or power line"),                         ok: false },
-                    { key: "structure", icon: "structure", title: qsTr("Structure scan"),    sub: qsTr("Circles around a tower or building"),               ok: false },
+                    { key: "corridor",  icon: "corridor",  title: qsTr("Corridor mapping"),  sub: qsTr("Road, canal or power line"),                         ok: true },
+                    { key: "structure", icon: "structure", title: qsTr("Structure scan"),    sub: qsTr("Circles around a tower or building"),               ok: true },
                     { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: false },
                     { key: "open",      icon: "folder",    title: qsTr("Open saved mission"), sub: qsTr("From this tablet or a KML file"),                  ok: true }
                 ]
@@ -268,7 +354,9 @@ Item {
                     }
                     MouseArea { anchors.fill: parent; enabled: modelData.ok
                                 onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight()
-                                         : modelData.key === "open" ? wiz.step = "saved" : wiz.createAreaMapping() }
+                                         : modelData.key === "open" ? wiz.step = "saved"
+                                         : modelData.key === "corridor" || modelData.key === "structure" ? wiz._createScan(modelData.key)
+                                         : wiz.createAreaMapping() }
                 }
             }
         }
@@ -344,7 +432,7 @@ Item {
     }
 
     Rectangle {
-        visible: wiz.step === "edit" && wiz.kind === "area"
+        visible: wiz.step === "edit" && (wiz.kind === "area" || wiz.kind === "corridor" || wiz.kind === "structure")
         x: SimpleTheme.px(24); anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         width: hintRow.implicitWidth + SimpleTheme.px(40); height: SimpleTheme.px(64); radius: SimpleTheme.px(16)
         color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
@@ -353,8 +441,27 @@ Item {
             anchors.centerIn: parent
             spacing: SimpleTheme.px(12)
             SIcon { name: "info"; size: 32; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-            SText { text: qsTr("Drag the corners to fit the area. Tap an edge midpoint to add a corner."); size: 24; color: SimpleTheme.textSecondary }
+            SText { size: 24; color: SimpleTheme.textSecondary
+                    text: wiz.kind === "corridor" ? qsTr("Tap the map to add points · drag a point to move it")
+                        : wiz.kind === "structure" ? (wiz.shape === "draw" ? qsTr("Tap around the structure to outline it") : qsTr("Drag the corners to fit the structure, or pick a shape"))
+                        : qsTr("Drag the corners to fit the area. Tap an edge midpoint to add a corner.") }
         }
+    }
+
+    //------------------------------------------------------------------ S40 corridor / S41 structure settings
+    SimpleScanSettings {
+        visible: wiz.step === "edit" && (wiz.kind === "corridor" || wiz.kind === "structure") && !!wiz.scanItem
+        x: parent.width - width - SimpleTheme.px(24)
+        y: header.height + SimpleTheme.px(24)
+        width: SimpleTheme.px(620)
+        height: parent.height - y - SimpleTheme.px(24)
+        kind: wiz.kind
+        item: wiz.scanItem
+        mission: wiz._mission
+        maxAlt: wiz._maxAlt
+        shape: wiz.shape
+        onShapeRequested: wiz.setShape(shape)
+        onNextRequested: wiz.step = "check"
     }
 
     //------------------------------------------------------------------ S23 waypoint flight

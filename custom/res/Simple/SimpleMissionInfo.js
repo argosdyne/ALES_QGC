@@ -20,7 +20,9 @@ function kindOf(mission) {
             else if (_frame.indexOf(it.command) < 0) return "other"
         } else {
             complexCount++
-            complexKind = it.surveyAreaPolygon !== undefined ? "area" : it.corridorPolyline !== undefined ? "corridor"
+            // YellowScan "Init Path" also has a corridor line (with turnRadius): not a corridor mapping
+            complexKind = it.surveyAreaPolygon !== undefined ? "area"
+                        : it.corridorPolyline !== undefined && it.turnRadius === undefined ? "corridor"
                         : it.structureHeight !== undefined ? "structure" : "unknown"
         }
     }
@@ -97,8 +99,11 @@ function maxHeight(mission) {
         var it = items.get(i)
         if (!it) continue
         if (it.isSimpleItem && it.specifiesAltitude && it.altitude) m = Math.max(m, Number(it.altitude.rawValue))
-        if (it.cameraCalc && it.cameraCalc.distanceToSurface) m = Math.max(m, Number(it.cameraCalc.distanceToSurface.rawValue))
+        // survey / corridor: distance to the ground = height; structure scan: it is the distance to the structure
+        if (it.cameraCalc && it.cameraCalc.distanceToSurface && it.structureHeight === undefined)
+            m = Math.max(m, Number(it.cameraCalc.distanceToSurface.rawValue))
         if (it.topFlightAlt !== undefined) m = Math.max(m, Number(it.topFlightAlt))
+        if (it.entranceAlt !== undefined && it.entranceAlt) m = Math.max(m, Number(it.entranceAlt.rawValue))
     }
     return m
 }

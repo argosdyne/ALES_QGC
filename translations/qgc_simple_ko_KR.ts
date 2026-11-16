@@ -1024,6 +1024,26 @@
         <source>To keep it, close this and use Save first.</source>
         <translation>남기려면 이 창을 닫고 먼저 저장하세요.</translation>
     </message>
+    <message>
+        <source>Draw line</source>
+        <translation>선 그리기</translation>
+    </message>
+    <message>
+        <source>Select structure</source>
+        <translation>구조물 선택</translation>
+    </message>
+    <message>
+        <source>Tap the map to add points · drag a point to move it</source>
+        <translation>지도를 탭해 점 추가 · 점을 끌어 이동</translation>
+    </message>
+    <message>
+        <source>Tap around the structure to outline it</source>
+        <translation>구조물 둘레를 탭해 외곽을 그리세요</translation>
+    </message>
+    <message>
+        <source>Drag the corners to fit the structure, or pick a shape</source>
+        <translation>모서리를 끌어 구조물에 맞추거나 모양을 고르세요</translation>
+    </message>
 </context>
 <context>
     <name>SimplePreflightSheet</name>
@@ -4109,6 +4129,125 @@
     <message>
         <source>This file could not be read.</source>
         <translation>이 파일을 읽을 수 없습니다.</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleScanSettings</name>
+    <message>
+        <source>&lt;1 min</source>
+        <translation>&lt;1분</translation>
+    </message>
+    <message>
+        <source>%1 min</source>
+        <translation>%1분</translation>
+    </message>
+    <message>
+        <source>Flight height</source>
+        <translation>비행 높이</translation>
+    </message>
+    <message>
+        <source>Photo detail ≈ %1 per pixel · limited to %2 m</source>
+        <translation>사진 해상도 ≈ 픽셀당 %1 · 최대 %2 m</translation>
+    </message>
+    <message>
+        <source>Limited to %1 m (maximum altitude)</source>
+        <translation>최대 %1 m (최대 고도)</translation>
+    </message>
+    <message>
+        <source>Corridor width</source>
+        <translation>회랑 폭</translation>
+    </message>
+    <message>
+        <source>Strip mapped on both sides of the line (%1 m each side)</source>
+        <translation>선 양쪽을 매핑합니다 (한쪽 %1 m)</translation>
+    </message>
+    <message>
+        <source>Image overlap</source>
+        <translation>사진 중첩</translation>
+    </message>
+    <message>
+        <source>Standard · 2D map</source>
+        <translation>표준 · 2D 지도</translation>
+    </message>
+    <message>
+        <source>High · 3D model</source>
+        <translation>높음 · 3D 모델</translation>
+    </message>
+    <message>
+        <source>Structure outline</source>
+        <translation>구조물 외곽</translation>
+    </message>
+    <message>
+        <source>Rectangle</source>
+        <translation>사각형</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>원형</translation>
+    </message>
+    <message>
+        <source>Draw</source>
+        <translation>그리기</translation>
+    </message>
+    <message>
+        <source>Distance from structure</source>
+        <translation>구조물과의 거리</translation>
+    </message>
+    <message>
+        <source>Closer than 10 m: the drone may touch the structure in wind.</source>
+        <translation>10 m보다 가까우면 바람에 드론이 구조물에 닿을 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Bottom height</source>
+        <translation>아래 높이</translation>
+    </message>
+    <message>
+        <source>Top height</source>
+        <translation>위 높이</translation>
+    </message>
+    <message>
+        <source>Layers</source>
+        <translation>층 수</translation>
+    </message>
+    <message>
+        <source>Calculated from the camera and overlap (one circle per layer)</source>
+        <translation>카메라와 중첩으로 계산 (층마다 한 바퀴)</translation>
+    </message>
+    <message>
+        <source>Camera points</source>
+        <translation>카메라 방향</translation>
+    </message>
+    <message>
+        <source>At structure</source>
+        <translation>구조물 정면</translation>
+    </message>
+    <message>
+        <source>Slightly down · −15°</source>
+        <translation>약간 아래 · −15°</translation>
+    </message>
+    <message>
+        <source>FLIGHT TIME</source>
+        <translation>비행 시간</translation>
+    </message>
+    <message>
+        <source>PHOTOS</source>
+        <translation>사진</translation>
+    </message>
+    <message>
+        <source>BATTERIES</source>
+        <translation>배터리</translation>
+    </message>
+    <message>
+        <source>LAYERS</source>
+        <translation>층</translation>
+    </message>
+    <message>
+        <source>LENGTH</source>
+        <translation>길이</translation>
+    </message>
+    <message>
+        <source>Next: check &amp; send</source>
+        <translation>다음: 확인 및 전송</translation>
     </message>
 </context>
 </TS>
