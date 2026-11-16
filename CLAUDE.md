@@ -20,6 +20,8 @@ Reply to the user in Korean unless they write in English.
    and keep code and Figma consistent. When Figma text and screens disagree, ask the user.
 2. Keep Simple UI code in `custom/res/Simple/`. Changes to core QGC files stay small and are guarded by
    `simpleMode` / `mainWindow.simpleUI`, so Advanced mode (classic alesQGC) behaves as before.
+   Exception (user 2026-11-17): fixes of real bugs in core QGC code (e.g. the mission-load leak, ArduPilot structure-scan
+   ROI, Init Path loading) may apply to both modes, unguarded. Keep them small, in their own commit, and say so.
 3. New QML or icon files must be added to `custom/custom.qrc` (prefix `/simple`) **and** `custom/res/Simple/qmldir`.
 4. Do not duplicate flight logic: call `GuidedActionsController.executeAction()`, `PlanMasterController`,
    and FC parameters via `FactPanelController`.
