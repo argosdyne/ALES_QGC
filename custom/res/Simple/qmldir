@@ -24,6 +24,11 @@ SimpleFlyOverlay 1.0 SimpleFlyOverlay.qml
 SimpleMapDownload 1.0 SimpleMapDownload.qml
 SimpleMapControls 1.0 SimpleMapControls.qml
 SimpleMyZones 1.0 SimpleMyZones.qml
+SimpleAltitudeSheet 1.0 SimpleAltitudeSheet.qml
+SimpleGoHereCard 1.0 SimpleGoHereCard.qml
+SimpleCoordSheet 1.0 SimpleCoordSheet.qml
+SimpleGoHereSheet 1.0 SimpleGoHereSheet.qml
+SimpleMapTapMenu 1.0 SimpleMapTapMenu.qml
 SimpleMenuDrawer 1.0 SimpleMenuDrawer.qml
 SimpleMessages 1.0 SimpleMessages.qml
 SimpleModeSheet 1.0 SimpleModeSheet.qml

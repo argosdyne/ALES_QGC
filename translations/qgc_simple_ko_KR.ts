@@ -406,6 +406,62 @@
         <source>Land lands here.</source>
         <translation>착륙을 누르면 이 자리에 착륙합니다.</translation>
     </message>
+    <message>
+        <source>Tap the map to choose a new point</source>
+        <translation>지도를 탭해 새 지점을 고르세요</translation>
+    </message>
+    <message>
+        <source>Arrived — holding position</source>
+        <translation>도착 — 제자리 유지 중</translation>
+    </message>
+    <message>
+        <source>Obstacle %1 ahead — drone stopped</source>
+        <translation>%1 앞 장애물 — 정지함</translation>
+    </message>
+    <message>
+        <source>Choose what to do. The drone keeps holding until you choose.</source>
+        <translation>어떻게 할지 고르세요. 고를 때까지 드론은 제자리에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Go around</source>
+        <translation>피해 가기</translation>
+    </message>
+    <message>
+        <source>Hold here</source>
+        <translation>여기서 대기</translation>
+    </message>
+    <message>
+        <source>Obstacle %1 ahead — going around it</source>
+        <translation>%1 앞 장애물 — 피해 가는 중</translation>
+    </message>
+    <message>
+        <source>The drone finds its own way to the point. Stop on the card holds it in place.</source>
+        <translation>드론이 스스로 길을 찾아 지점으로 갑니다. 카드의 정지를 누르면 제자리에 멈춥니다.</translation>
+    </message>
+    <message>
+        <source>Go here stopped. Continue or Cancel on the card below.</source>
+        <translation>여기로 이동이 멈췄습니다. 아래 카드에서 계속 또는 취소를 고르세요.</translation>
+    </message>
+    <message>
+        <source>The drone did not take Go here. Try again.</source>
+        <translation>드론이 여기로 이동 명령을 받지 않았습니다. 다시 시도하세요.</translation>
+    </message>
+    <message>
+        <source>Set as home point</source>
+        <translation>홈 위치로 설정</translation>
+    </message>
+    <message>
+        <source>Return home and failsafe returns will fly to this point instead of the take-off point.</source>
+        <translation>귀환과 페일세이프 귀환 시 이륙 지점 대신 이 지점으로 돌아옵니다.</translation>
+    </message>
+    <message>
+        <source>Slide to set home here</source>
+        <translation>밀어서 여기를 홈으로 설정</translation>
+    </message>
+    <message>
+        <source>Home point sent to the drone</source>
+        <translation>홈 위치를 드론에 보냈습니다</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -2844,6 +2900,225 @@
     <message>
         <source>The drone did not confirm the fence. Check the connection and try again.</source>
         <translation>드론이 펜스를 확인하지 않았습니다. 연결을 확인하고 다시 시도하세요.</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleAltitudeSheet</name>
+    <message>
+        <source>Change altitude</source>
+        <translation>고도 변경</translation>
+    </message>
+    <message>
+        <source>now %1</source>
+        <translation>현재 %1</translation>
+    </message>
+    <message>
+        <source>Height above the home point · allowed %1 – %2 %3 · the drone then holds position</source>
+        <translation>홈 위치 기준 높이 · 허용 %1 – %2 %3 · 변경 후 제자리 유지</translation>
+    </message>
+    <message>
+        <source>Already at %1 %2</source>
+        <translation>이미 %1 %2입니다</translation>
+    </message>
+    <message>
+        <source>Slide to change to %1 %2</source>
+        <translation>밀어서 %1 %2로 변경</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleCoordSheet</name>
+    <message>
+        <source>Enter coordinates</source>
+        <translation>좌표 입력</translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation>위도</translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation>경도</translation>
+    </message>
+    <message>
+        <source>Latitude must be between -90 and 90.</source>
+        <translation>위도는 -90에서 90 사이여야 합니다.</translation>
+    </message>
+    <message>
+        <source>Longitude must be between -180 and 180.</source>
+        <translation>경도는 -180에서 180 사이여야 합니다.</translation>
+    </message>
+    <message>
+        <source>Decimal degrees, for example 37.5665 and 126.9780.</source>
+        <translation>십진수 도 단위, 예: 37.5665, 126.9780</translation>
+    </message>
+    <message>
+        <source>Show on map</source>
+        <translation>지도에 표시</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleGoHereCard</name>
+    <message>
+        <source>Stopped</source>
+        <translation>정지됨</translation>
+    </message>
+    <message>
+        <source>Going to point</source>
+        <translation>지점으로 이동 중</translation>
+    </message>
+    <message>
+        <source>%1 left</source>
+        <translation>%1 남음</translation>
+    </message>
+    <message>
+        <source>obstacle detection on</source>
+        <translation>장애물 감지 켜짐</translation>
+    </message>
+    <message>
+        <source>no obstacle detection</source>
+        <translation>장애물 감지 없음</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <source>Change target</source>
+        <translation>목표 변경</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>정지</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleGoHereSheet</name>
+    <message>
+        <source>%1 s</source>
+        <translation>%1초</translation>
+    </message>
+    <message>
+        <source>%1 min %2 s</source>
+        <translation>%1분 %2초</translation>
+    </message>
+    <message>
+        <source>Go here</source>
+        <translation>여기로 이동</translation>
+    </message>
+    <message>
+        <source>Height above home</source>
+        <translation>홈 기준 높이</translation>
+    </message>
+    <message>
+        <source>Now %1 · allowed %2 – %3</source>
+        <translation>현재 %1 · 허용 %2 – %3</translation>
+    </message>
+    <message>
+        <source>The drone flies straight to the pin (%1, about %2) and holds position there.</source>
+        <translation>드론이 핀까지 곧장 날아가(%1, 약 %2) 그 자리에서 대기합니다.</translation>
+    </message>
+    <message>
+        <source>Obstacle detection on — the drone stops in front of obstacles.</source>
+        <translation>장애물 감지 켜짐 — 장애물 앞에서 멈춥니다.</translation>
+    </message>
+    <message>
+        <source>This drone cannot detect obstacles. Check that the way is clear.</source>
+        <translation>이 드론은 장애물을 감지하지 못합니다. 경로에 장애물이 없는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Slide to go</source>
+        <translation>밀어서 이동</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMapTapMenu</name>
+    <message>
+        <source>No drone connected</source>
+        <translation>연결된 드론 없음</translation>
+    </message>
+    <message>
+        <source>Not available while the signal is lost</source>
+        <translation>신호가 끊긴 동안 사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Available after take-off</source>
+        <translation>이륙 후 사용 가능</translation>
+    </message>
+    <message>
+        <source>Not available now</source>
+        <translation>지금은 사용할 수 없음</translation>
+    </message>
+    <message>
+        <source>Drone position unknown</source>
+        <translation>드론 위치를 알 수 없음</translation>
+    </message>
+    <message>
+        <source>Inside %1 — the drone may not fly there</source>
+        <translation>%1 안 — 드론이 갈 수 없는 곳입니다</translation>
+    </message>
+    <message>
+        <source>a prohibited zone</source>
+        <translation>금지 구역</translation>
+    </message>
+    <message>
+        <source>The way crosses %1 — choose another point</source>
+        <translation>경로가 %1을(를) 지납니다 — 다른 지점을 고르세요</translation>
+    </message>
+    <message>
+        <source>Too far — Go here reaches up to %1</source>
+        <translation>너무 멂 — 여기로 이동은 최대 %1까지</translation>
+    </message>
+    <message>
+        <source>%1 away · %2°</source>
+        <translation>%1 거리 · %2°</translation>
+    </message>
+    <message>
+        <source>Prohibited</source>
+        <translation>금지</translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation>승인 필요</translation>
+    </message>
+    <message>
+        <source>My zone</source>
+        <translation>내 구역</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>정보</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>세부</translation>
+    </message>
+    <message>
+        <source>Go here</source>
+        <translation>여기로 이동</translation>
+    </message>
+    <message>
+        <source>Fly to this point at %1</source>
+        <translation>%1 높이로 이 지점까지 비행</translation>
+    </message>
+    <message>
+        <source>Set as home point</source>
+        <translation>홈 위치로 설정</translation>
+    </message>
+    <message>
+        <source>Return home will come here</source>
+        <translation>귀환하면 여기로 돌아옵니다</translation>
+    </message>
+    <message>
+        <source>Enter coordinates…</source>
+        <translation>좌표 입력…</translation>
+    </message>
+    <message>
+        <source>Type latitude / longitude</source>
+        <translation>위도 / 경도 입력</translation>
     </message>
 </context>
 </TS>

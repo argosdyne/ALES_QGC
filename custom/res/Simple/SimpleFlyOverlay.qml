@@ -1,8 +1,9 @@
 /****************************************************************************
- * AQGC Simple UI — fly screen overlay (Figma S01–S05, S10 basic, S18 rail, S25–S29, S33, S34, S37)
+ * AQGC Simple UI — fly screen overlay (Figma S01–S05, S10 basic, S18 rail, S25–S29, S33–S38)
  * Sits on top of the classic FlyView (map, video PiP); the classic widgets are hidden in Simple mode.
  ****************************************************************************/
 import QtQuick 2.12
+import QtPositioning 5.12
 import QGroundControl 1.0
 import "."
 
@@ -15,20 +16,50 @@ Item {
     readonly property real _H:      height
 
     // which sheet/panel is open: "" | preflight | takeoff | rtl | land | mode | chip | messages
+    //                            | gohere | coords | sethome | altitude (S35, S38)
     property string sheet:      ""
     property string chipKind:   ""
+
+    // S35 map tap menu (not a dimmed sheet: the map stays usable, a new tap moves the pin)
+    property var  tapCoord:     QtPositioning.coordinate()
+    property var  tapZones:     []
+    readonly property var _map: typeof flightView !== "undefined" ? flightView.simpleMap : null
+    function closeTapMenu() { tapCoord = QtPositioning.coordinate(); tapZones = [] }
+    function openTapMenu(coord) { tapCoord = coord; tapZones = mapControls.zonesShownAt(coord) }
+    Connections {
+        target: fly._map
+        function onSimpleMapClicked(coordinate) {
+            if (!vs.present || fly.videoMain || fly.sheet !== "") return
+            mapControls.tappedZones = []
+            fly.openTapMenu(coordinate)
+        }
+    }
+    onVideoMainChanged: if (videoMain) closeTapMenu()
+
+    // short message at the bottom centre (S36: arrived, Go here not sent, choose a new target)
+    function toast(text, level) {
+        toastBox.text = text
+        toastBox.level = level === undefined ? "info" : level
+        toastBox.visible = true
+        toastTimer.restart()
+    }
 
     function closeSheet() { sheet = "" }
     function openSheet(name) { sheet = name }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
     function _closeConfirmSheet() {
-        if ((vs.critical || vs.lost) && (fly.sheet === "takeoff" || fly.sheet === "mission" || fly.sheet === "rtl" || fly.sheet === "land")) fly.closeSheet()
+        if ((vs.critical || vs.lost) && (fly.sheet === "takeoff" || fly.sheet === "mission" || fly.sheet === "rtl" || fly.sheet === "land"
+                                         || fly.sheet === "gohere" || fly.sheet === "sethome" || fly.sheet === "altitude")) fly.closeSheet()
+        // Go here / change altitude only while flying (not returning, landing or on the ground)
+        if (vs.state !== "flying" && (fly.sheet === "gohere" || fly.sheet === "altitude")) fly.closeSheet()
     }
     Connections {
         target: vs
         function onCriticalChanged() { fly._closeConfirmSheet() }
         function onLostChanged()     { fly._closeConfirmSheet() }
+        function onStateChanged()    { fly._closeConfirmSheet() }
+        function onPresentChanged()  { if (!vs.present) fly.closeTapMenu() }
     }
 
     function _act(code, data, value, option) {
@@ -110,6 +141,9 @@ Item {
         vehicle: fly._veh
         visible: vs.present
         stale: vs.lost
+        // S38: tap ALTITUDE in flight (not during a mission, return or landing: classic showChangeAlt)
+        altitudeTappable: vs.state === "flying" && !!fly._guided && fly._guided.showChangeAlt
+        onAltitudeClicked: { fly.closeTapMenu(); fly.openSheet("altitude") }
     }
 
     //------------------------------------------------------------------ Video main (S18) and waiting for video (S49)
@@ -198,10 +232,42 @@ Item {
 
     // S30: map controls left of the PiP, Layers panel, scale bar (hidden while the video is the main view)
     SimpleMapControls {
+        id: mapControls
         anchors.fill: parent
+        tapMenuEnabled: vs.present
         visible: !fly.videoMain && typeof flightView !== "undefined"
         map: typeof flightView !== "undefined" ? flightView.simpleMap : null
         vehicle: fly._veh
+    }
+
+    // S36: Go here in progress — above the telemetry bar, left of the map controls
+    SimpleGoHereCard {
+        id: goCard
+        anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(1920 - 1366)
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24 + 120 + 16)
+        visible: active && vs.present && !fly.videoMain
+        map: fly._map
+        vehicle: fly._veh
+        onChangeTargetRequested: fly.toast(qsTr("Tap the map to choose a new point"))
+        onArrived: { fly.toast(qsTr("Arrived — holding position"), "ok"); arrivedClear.restart() }
+    }
+    // keep the "Arrived" pin a few seconds, then clear the Go here target from the map
+    Timer { id: arrivedClear; interval: 5000; onTriggered: if (fly._map && fly._map.gotoArrivalConfirmed) fly._map.clearGotoProgress() }
+
+    // S35: map tap menu
+    SimpleMapTapMenu {
+        anchors.fill: parent
+        visible: fly.tapCoord.isValid && vs.present && !fly.videoMain && fly.sheet === ""
+        map: fly._map
+        vs: fly.vs
+        coordinate: fly.tapCoord
+        zones: fly.tapZones
+        bottomLimit: height - SimpleTheme.px(24 + 120 + 16)
+        onCloseRequested: fly.closeTapMenu()
+        onGoHereRequested: fly.openSheet("gohere")
+        onSetHomeRequested: fly.openSheet("sethome")
+        onCoordinatesRequested: fly.openSheet("coords")
+        onZoneDetailsRequested: { mapControls.showZonesAt(coordinate); fly.closeTapMenu() }
     }
 
     // S49: waiting for video / no video (flight controls stay as they are)
@@ -274,6 +340,27 @@ Item {
             title: qsTr("Radio signal lost — the drone follows its failsafe (usually Return home)")
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
         }
+        // S36 obstacle during Go here (classic G-05 stopped / G-06 going around)
+        SBanner {
+            visible: goCard.obstacleStopped && vs.state === "flying"
+            level: "warn"; icon: "warn"
+            title: qsTr("Obstacle %1 ahead — drone stopped").arg(goCard.hDist(goCard.obstacleM))
+            detail: qsTr("Choose what to do. The drone keeps holding until you choose.")
+            readonly property var _codes: goCard.obstacleOn ? ["around", "rtl", "hold"] : ["rtl", "hold"]
+            actions: goCard.obstacleOn ? [qsTr("Go around"), qsTr("Return home"), qsTr("Hold here")] : [qsTr("Return home"), qsTr("Hold here")]
+            onActionAt: {
+                var c = _codes[index]
+                if (c === "around") goCard.goAround()
+                else if (c === "rtl") fly.openSheet("rtl")
+                else goCard.stop()
+            }
+        }
+        SBanner {
+            visible: goCard.obstacleAvoiding && vs.state === "flying"
+            level: "info"; icon: "warn"
+            title: qsTr("Obstacle %1 ahead — going around it").arg(goCard.hDist(goCard.obstacleM))
+            detail: qsTr("The drone finds its own way to the point. Stop on the card holds it in place.")
+        }
         // Flight zones (Figma S15): near = orange, inside = red; voice from FlightZoneManager. Only while the drone flies.
         SBanner {
             readonly property var  _z: typeof mainWindow !== "undefined" ? mainWindow.flightZoneManager : null
@@ -317,7 +404,9 @@ Item {
             visible: vs.paused
             level: "info"; icon: "pause"
             title: qsTr("Paused — holding position")
-            detail: vs.hasMission ? qsTr("Mission paused. Resume continues from the current waypoint.") : qsTr("Use Return home or Land, or change the flight mode.")
+            detail: vs.hasMission ? qsTr("Mission paused. Resume continues from the current waypoint.")
+                  : goCard.paused ? qsTr("Go here stopped. Continue or Cancel on the card below.")
+                  : qsTr("Use Return home or Land, or change the flight mode.")
             actionText: vs.hasMission ? qsTr("Resume mission") : ""
             onAction: fly._act(fly._guided.actionContinueMission)
         }
@@ -391,5 +480,74 @@ Item {
         y: topBar.height + SimpleTheme.px(16)
         vehicle: fly._veh
         onCloseRequested: fly.closeSheet()
+    }
+
+    //------------------------------------------------------------------ S35 / S38 sheets
+    SimpleGoHereSheet {
+        visible: fly.sheet === "gohere"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        vehicle: fly._veh
+        map: fly._map
+        coordinate: fly.tapCoord
+        onCloseRequested: fly.closeSheet()
+        onSent: {
+            fly.closeSheet()
+            if (ok) fly.closeTapMenu()
+            else fly.toast(qsTr("The drone did not take Go here. Try again."), "danger")
+        }
+    }
+    SimpleConfirmSheet {
+        visible: fly.sheet === "sethome"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        icon: "home"
+        title: qsTr("Set as home point")
+        detail: qsTr("Return home and failsafe returns will fly to this point instead of the take-off point.")
+        note: fly.tapCoord.isValid ? fly.tapCoord.latitude.toFixed(6) + ", " + fly.tapCoord.longitude.toFixed(6) : ""
+        slideText: qsTr("Slide to set home here")
+        onCloseRequested: fly.closeSheet()
+        onConfirmed: {
+            fly._act(fly._guided.actionSetHome, fly.tapCoord)
+            fly.closeSheet()
+            fly.closeTapMenu()
+            fly.toast(qsTr("Home point sent to the drone"), "ok")
+        }
+    }
+    SimpleCoordSheet {
+        visible: fly.sheet === "coords"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        start: fly.tapCoord
+        onCloseRequested: fly.closeSheet()
+        onAccepted: {
+            fly.closeSheet()
+            if (fly._map) fly._map.center = coordinate
+            fly.openTapMenu(coordinate)
+        }
+    }
+    SimpleAltitudeSheet {
+        visible: fly.sheet === "altitude"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(40)
+        vehicle: fly._veh
+        onCloseRequested: fly.closeSheet()
+        onConfirmed: { fly._act(fly._guided.actionChangeAlt, null, changeM); fly.closeSheet() }
+    }
+
+    //------------------------------------------------------------------ Toast
+    Rectangle {
+        id: toastBox
+        property string text:  ""
+        property string level: "info"   // info | ok | danger
+        visible: false
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24 + 120 + 16 + 104 + 16)
+        width: toastText.implicitWidth + SimpleTheme.px(56); height: SimpleTheme.px(72); radius: height / 2
+        color: level === "danger" ? SimpleTheme.danger : level === "ok" ? SimpleTheme.brandGreen : SimpleTheme.withAlpha(SimpleTheme.surfaceRaised, 0.97)
+        border.width: level === "info" ? SimpleTheme.px(1) : 0; border.color: SimpleTheme.line
+        SText { id: toastText; anchors.centerIn: parent; text: toastBox.text; size: 26; medium: true }
+        Timer { id: toastTimer; interval: 4000; onTriggered: toastBox.visible = false }
+        MouseArea { anchors.fill: parent; onClicked: toastBox.visible = false }
     }
 }

@@ -8,6 +8,8 @@ Rectangle {
     id: tb
     property var vehicle: null
     property bool stale: false      // QA F4: link lost -> the values are the last ones received, not live
+    property bool altitudeTappable: false   // S38: tap ALTITUDE to change the altitude in flight
+    signal altitudeClicked()
 
     function _fact(f, digits) {
         if (!vehicle || !f) return { v: "—", u: "" }
@@ -44,10 +46,15 @@ Rectangle {
             Item {
                 width: (tb.width - SimpleTheme.px(28)) / 4
                 height: tb.height
+                MouseArea { anchors.fill: parent; enabled: index === 0 && tb.altitudeTappable; onClicked: tb.altitudeClicked() }
                 Rectangle { visible: index > 0; width: 1; height: parent.height * 0.5; anchors.verticalCenter: parent.verticalCenter; color: SimpleTheme.line; x: -SimpleTheme.px(14) }
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
-                    SText { text: modelData.label; size: 22; medium: true; color: SimpleTheme.textSecondary }
+                    Row {
+                        spacing: SimpleTheme.px(6)
+                        SText { text: modelData.label; size: 22; medium: true; color: SimpleTheme.textSecondary }
+                        SIcon { visible: index === 0 && tb.altitudeTappable; name: "chevron"; size: 20; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                    }
                     Row {
                         spacing: SimpleTheme.px(6)
                         SText { id: v; text: modelData.val.v; size: 40; bold: true; color: tb.stale ? SimpleTheme.textTertiary : SimpleTheme.textPrimary }

@@ -45,11 +45,16 @@ Item {
         out.sort(function(a, b) { return mc._rank(a.zoneClass) - mc._rank(b.zoneClass) })
         return out
     }
+    // A map tap opens the S35 menu (SimpleFlyOverlay) when a drone is connected; the menu lists the zones under
+    // the tap and its "Details" calls showZonesAt(). Without a drone a tap shows the zone details directly.
+    function zonesShownAt(coord) { return mc._zonesShown ? mc.zonesAt(coord) : [] }
+    function showZonesAt(coord) { mc.layersOpen = false; mc.tappedZones = mc.zonesShownAt(coord) }
+    property bool tapMenuEnabled: false
     Connections {
         target: mc.map
         function onSimpleMapClicked(coordinate) {
-            if (!mc.visible || !mc._zonesShown) return
             mc.layersOpen = false
+            if (!mc.visible || mc.tapMenuEnabled || !mc._zonesShown) return
             mc.tappedZones = mc.zonesAt(coordinate)
         }
     }

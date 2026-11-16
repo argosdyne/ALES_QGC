@@ -12,6 +12,7 @@ public slots:
     {
         auto* globals = new QQmlPropertyMap(engine);
         globals->insert(QStringLiteral("planMasterControllerFlyView"), QVariant());
+        globals->insert(QStringLiteral("guidedControllerFlyView"), QVariant());    // tests set a double (S35 Go here)
         engine->rootContext()->setContextProperty(QStringLiteral("globals"), globals);
     }
 };

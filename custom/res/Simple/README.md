@@ -38,7 +38,12 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleRoot.qml` | — | Pages (fly / plan / settings), menu, PIN, first-start welcome, navigation functions |
 | `SimpleWelcome.qml` | S57 | First start: language and units (Metric / Imperial). Replaces the classic "Measurement Units" and "Vehicle Information" prompts |
 | `SimpleVehicleState.qml` | 02 Flows › C | One place for vehicle state used by all state rules |
-| `SimpleFlyOverlay.qml` | S01–S05, S33, S34, S37 | Top bar, left actions by state, camera rail, telemetry, banners, sheets |
+| `SimpleFlyOverlay.qml` | S01–S05, S33–S38 | Top bar, left actions by state, camera rail, telemetry, banners, sheets, map tap menu, toast |
+| `SimpleMapTapMenu.qml` | S35 | Map tap: pin + Go here / Set as home point / Enter coordinates; zones under the tap (Details → S15). Go here only in flight; refused in red inside or across a prohibited / no-entry zone (`FlightZoneManager.zoneAt` / `zoneOnPath`), outside the geofence (`goToTargetBlockReason`) or beyond `maxGoToLocationDistance` |
+| `SimpleGoHereSheet.qml` | S35 | Go here confirm: height, distance / time, obstacle detection, slide. Sends `actionGoto` with the classic GoTo editor data, so the classic FlyViewMap GoTo state drives progress |
+| `SimpleCoordSheet.qml` | S35 | Latitude / longitude input (red when out of range) |
+| `SimpleGoHereCard.qml` | S36 | Go here progress card (Change target · Stop; stopped: Continue · Cancel), arrival (2 m, < 0.3 m/s, 2 s), obstacle state (OBSTACLE_DISTANCE ≤ 3 m) for the banners |
+| `SimpleAltitudeSheet.qml` | S38 | Tap ALTITUDE in flight: 5 m steps (hold to repeat), presets, change in green / orange, slide; `actionChangeAlt`. Not during mission / return / landing (`showChangeAlt`) |
 | `SimpleTopBar.qml` | ui/TopBar | Menu, flight status, flight mode, 4 chips, messages |
 | `SimplePreflightSheet.qml` | S02 | Plain-language pre-flight check |
 | `SimpleTakeoffSheet.qml` | S03 | Height presets + slide to take off |
@@ -97,7 +102,7 @@ starts an ArduCopter MockLink so every screen can be checked without a drone. No
 
 ## v1 scope and what is left for v2
 
-In v1: fly screen with state rules, pre-flight check, take-off / start mission / return home / land / pause,
+In v1: fly screen with state rules, map tap menu / Go here / change altitude (S35, S36, S38; 2026-11-16), pre-flight check, take-off / start mission / return home / land / pause,
 flight mode, chip details, messages, camera rail, menu, admin PIN → Advanced, Settings
 (General, Safety, About), Plan (area mapping → check & send).
 
@@ -106,7 +111,6 @@ Planned for v2 (designed in Figma, not implemented):
 - Plan: waypoint, corridor, structure, LiDAR survey; saved missions (S23, S24, S40–S42)
 - Settings: payload cards S56 (with the payload panels); flight zone data ED-269 and My zones (S46 rows, S32)
 - Payloads panel and devices (S10, S11, S13, S16, S17), camera settings sheet (S43)
-- Map tap menu / Go here, change altitude, obstacle stop (S35, S36, S38)
 - Video main view and waiting state (S18, S49), tether power lost, LiDAR start rejected (S50, S51)
 - Advanced menu panel (S44) and change admin PIN; store the PIN hashed
 - Automatic flight-zone check in S39

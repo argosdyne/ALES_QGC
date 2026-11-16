@@ -11,7 +11,9 @@ Rectangle {
     property string title:      ""
     property string detail:     ""
     property string actionText: ""
+    property var    actions:    []      // several choices (S36 obstacle: Go around · Return home · Hold here); the last one is light
     signal action()
+    signal actionAt(int index)
 
     width:  SimpleTheme.px(1395)
     height: SimpleTheme.px(120)
@@ -28,7 +30,7 @@ Rectangle {
     }
     Column {
         anchors.left: ic.right; anchors.leftMargin: SimpleTheme.px(22)
-        anchors.right: btn.visible ? btn.left : parent.right; anchors.rightMargin: SimpleTheme.px(22)
+        anchors.right: btn.visible ? btn.left : multi.visible ? multi.left : parent.right; anchors.rightMargin: SimpleTheme.px(22)
         anchors.verticalCenter: parent.verticalCenter
         SText { width: parent.width; text: bn.title; size: 32; bold: true; color: bn._fg }
         SText { width: parent.width; text: bn.detail; size: 24; color: bn._fg; visible: text !== "" }
@@ -44,5 +46,23 @@ Rectangle {
         text: bn.actionText
         textSize: 26
         onClicked: bn.action()
+    }
+    Row {
+        id: multi
+        visible: bn.actions.length > 0
+        anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20)
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: SimpleTheme.px(16)
+        Repeater {
+            model: bn.actions
+            SButton {
+                readonly property bool _last: index === bn.actions.length - 1
+                designHeight: 80; textSize: 26
+                fillColor: _last ? SimpleTheme.textPrimary : SimpleTheme.withAlpha(SimpleTheme.bgBase, 0.85)
+                textColor: _last ? SimpleTheme.bgBase : SimpleTheme.textPrimary
+                text: modelData
+                onClicked: bn.actionAt(index)
+            }
+        }
     }
 }
