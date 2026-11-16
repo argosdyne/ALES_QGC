@@ -1,11 +1,13 @@
 /****************************************************************************
- * AQGC Simple UI — settings panel for corridor mapping (S40) and structure scan (S41).
+ * AQGC Simple UI — settings panel for corridor mapping (S40), structure scan (S41) and LiDAR survey (S42).
  * The shapes are edited on the classic PlanView map (corridor line / structure outline visuals: drag points,
  * tap a midpoint to add one). Taps on the map are handled by SimplePlanWizard (add a line point / outline point).
  *   corridor  : height (cameraCalc.distanceToSurface), width (corridorWidth), overlap (frontal / side)
  *   structure : shape preset (rectangle / circle / draw), distance from the structure (cameraCalc.distanceToSurface,
  *               caution under 10 m), bottom (scanBottomAlt) and top (structureHeight, ≤ max altitude), layers (as
  *               calculated, read-only), camera points (gimbalPitch 0 / -15)
+ *   lidar     : height (line spacing from height, line overlap and the scanner FOV: ysEdited → wizard ysCalc), speed
+ *               (mission settings item flight speed), line overlap 50 / 70 %, init path before and after (on / off)
  * More options stay in Advanced › Plan (classic editors).
  ****************************************************************************/
 import QtQuick 2.12
@@ -14,13 +16,18 @@ import "."
 
 SPanel {
     id: sp
-    property string kind:    "corridor"     // corridor | structure
+    property string kind:    "corridor"     // corridor | structure | lidar
     property var    item:    null           // CorridorScanComplexItem / StructureScanComplexItem
     property var    mission: null
     property real   maxAlt:  120
     property string shape:   "rectangle"    // structure: rectangle | circle | draw | custom (none selected)
     signal nextRequested()
     signal shapeRequested(string shape)
+    property bool   initPaths: false        // lidar: init path items are in the mission
+    signal initPathsRequested(bool on)
+    signal ysEdited()                       // lidar: height or overlap changed → recalculate the line spacing
+    readonly property var _speed: mission && mission.visualItems.count > 0 && mission.visualItems.get(0).speedSection
+                                  ? mission.visualItems.get(0).speedSection : null
 
     readonly property var _cam: item ? item.cameraCalc : null
     // the item can be of the other kind for a moment while kind / item change
@@ -40,7 +47,7 @@ SPanel {
         id: body
         width: parent.width
         active: !!sp.item
-        sourceComponent: sp.kind === "structure" ? structureComp : corridorComp
+        sourceComponent: sp.kind === "structure" ? structureComp : sp.kind === "lidar" ? lidarComp : corridorComp
     }
     Connections { target: sp; function onItemChanged() { body.active = false; body.active = !!sp.item } }
 
@@ -82,6 +89,63 @@ SPanel {
                 model: [qsTr("Standard · 2D map"), qsTr("High · 3D model")]
                 currentIndex: sp._cam && sp._cam.frontalOverlap.rawValue >= 80 ? 1 : 0
                 onActivated: { sp._cam.frontalOverlap.rawValue = index === 1 ? 80 : 70; sp._cam.sideOverlap.rawValue = index === 1 ? 70 : 60 }
+            }
+        }
+    }
+
+    Component {
+        id: lidarComp
+        Column {
+            width: body.width
+            spacing: SimpleTheme.px(12)
+            Item {
+                width: parent.width; height: SimpleTheme.px(76)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Flight height"); size: 24; color: SimpleTheme.textSecondary }
+                SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                    unit: "m"; step: 5; from: 20; to: sp.maxAlt
+                    value: sp._cam ? Math.round(sp._cam.distanceToSurface.rawValue) : 60
+                    onEdited: { sp._cam.distanceToSurface.rawValue = value; sp.ysEdited() } }
+            }
+            SText {
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
+                text: qsTr("Line spacing %1 m · limited to %2 m").arg(sp._cam ? Math.round(sp._cam.adjustedFootprintSide.rawValue) : "—").arg(sp.maxAlt)
+            }
+            Item {
+                visible: !!sp._speed
+                width: parent.width; height: SimpleTheme.px(76)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Speed"); size: 24; color: SimpleTheme.textSecondary }
+                SStepper { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                    unit: "m/s"; step: 1; from: 2; to: 15
+                    value: sp._speed ? Math.round(sp._speed.flightSpeed.rawValue) : 8
+                    onEdited: { sp._speed.specifyFlightSpeed = true; sp._speed.flightSpeed.rawValue = value } }
+            }
+            SText { text: qsTr("Line overlap"); size: 24; color: SimpleTheme.textSecondary }
+            SSegmented {
+                designWidth: 544
+                model: [qsTr("50 % · Standard"), qsTr("70 % · Dense")]
+                currentIndex: sp._cam && sp._cam.yellowScanOverlapFact.rawValue >= 60 ? 1 : 0
+                onActivated: { sp._cam.yellowScanOverlapFact.rawValue = index === 1 ? 70 : 50; sp.ysEdited() }
+            }
+            Item {
+                width: parent.width; height: SimpleTheme.px(96)
+                Column {
+                    anchors.left: parent.left; anchors.right: ipToggle.left; anchors.verticalCenter: parent.verticalCenter
+                    SText { text: qsTr("Init path before and after"); size: 24; color: SimpleTheme.textPrimary }
+                    SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("Figure 8 to settle the INS (required for good data)"); size: 21; color: SimpleTheme.textTertiary }
+                }
+                SToggle { id: ipToggle; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                          checked: sp.initPaths
+                          onToggled: { sp.initPathsRequested(ipToggle.checked); ipToggle.checked = Qt.binding(function() { return sp.initPaths }) } }
+            }
+            SText {
+                visible: !sp.initPaths
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.warn
+                text: qsTr("Without the init path the LiDAR data may be poor.")
+            }
+            SText {
+                visible: !!sp.mission && sp.mission.batteriesRequired > 1
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.warn
+                text: qsTr("Needs %1 batteries — plan a battery change.").arg(sp.mission ? sp.mission.batteriesRequired : 0)
             }
         }
     }
@@ -154,9 +218,11 @@ SPanel {
             Repeater {
                 model: [
                     { l: qsTr("FLIGHT TIME"), v: sp._fmtTime(sp.mission ? sp.mission.missionTime : 0) },
-                    { l: qsTr("PHOTOS"),      v: sp.item && sp.item.cameraShots !== undefined ? String(sp.item.cameraShots) : "—" },
+                    sp.kind === "lidar" ? { l: qsTr("AREA"), v: sp.item && sp.item.coveredArea !== undefined ? (sp.item.coveredArea / 10000).toFixed(1) + " ha" : "—" }
+                                        : { l: qsTr("PHOTOS"), v: sp.item && sp.item.cameraShots !== undefined ? String(sp.item.cameraShots) : "—" },
                     { l: qsTr("BATTERIES"),   v: sp.mission && sp.mission.batteriesRequired > 0 ? String(sp.mission.batteriesRequired) : "—" },
-                    sp.kind === "structure" ? { l: qsTr("LAYERS"), v: sp.item ? (sp.item && sp.item.layers ? sp.item.layers.valueString : "—") : "—" }
+                    sp.kind === "lidar" ? { l: qsTr("SPACING"), v: sp._cam ? Math.round(sp._cam.adjustedFootprintSide.rawValue) + " m" : "—" }
+                  : sp.kind === "structure" ? { l: qsTr("LAYERS"), v: sp.item ? (sp.item && sp.item.layers ? sp.item.layers.valueString : "—") : "—" }
                                             : { l: qsTr("LENGTH"), v: (sp.lineLength / 1000).toFixed(1) + " km" }
                 ]
                 Column {

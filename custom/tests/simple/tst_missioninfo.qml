@@ -7,7 +7,7 @@ TestCase {
     name: "SimpleMissionInfo"
 
     readonly property var words: ({ area: "Area mapping", waypoint: "Waypoint flight", corridor: "Corridor mapping",
-                                    structure: "Structure scan", mission: "Mission", photos: "%1 photos",
+                                    structure: "Structure scan", lidar: "LiDAR survey", mission: "Mission", photos: "%1 photos",
                                     points: "%1 points", items: "%1 items", minutes: "%1 min",
                                     fmtArea: function(m2) { return (m2 / 10000).toFixed(1) + " ha" },
                                     fmtDist: function(m) { return (m / 1000).toFixed(1) + " km" } })
@@ -24,7 +24,7 @@ TestCase {
                  specifiesAltitude: alt !== undefined, altitude: { rawValue: alt === undefined ? 0 : alt } }
     }
     function survey(transects, h) {
-        return { isSimpleItem: false, surveyAreaPolygon: { path: [], count: 4 }, coveredArea: 42000, cameraShots: 312,
+        return { isSimpleItem: false, surveyAreaPolygon: { path: [], count: 4 }, gridAngle: { rawValue: 0 }, coveredArea: 42000, cameraShots: 312,
                  visualTransectPoints: transects || [], cameraCalc: { distanceToSurface: { rawValue: h === undefined ? 80 : h } } }
     }
 
@@ -47,14 +47,32 @@ TestCase {
         compare(MissionInfo.kindOf(mission([settingsItem, simple(22), { isSimpleItem: false }, simple(20)])), "other", "unknown complex")
     }
     function test_corridor_and_structure() {
+        compare(MissionInfo.kindOf(mission([settingsItem, simple(22), { isSimpleItem: false, corridorPolyline: { path: [] }, surveyAreaPolygon: { path: [] } }, simple(20)])),
+                "corridor", "a corridor also has surveyAreaPolygon")
         compare(MissionInfo.kindOf(mission([settingsItem, simple(22), { isSimpleItem: false, corridorPolyline: { path: [] } }, simple(20)])), "corridor")
         compare(MissionInfo.kindOf(mission([settingsItem, { isSimpleItem: false, structureHeight: { rawValue: 30 } }])), "structure")
-        compare(MissionInfo.text(MissionInfo.info(mission([settingsItem, { isSimpleItem: false, corridorPolyline: { path: [] } }], 0, 2100)), words),
-                "Corridor mapping · 2.1 km")
+        var pt = function(m) { return { m: m, distanceTo: function(o) { return Math.abs(o.m - this.m) } } }
+        compare(MissionInfo.text(MissionInfo.info(mission([settingsItem, { isSimpleItem: false, corridorPolyline: { path: [pt(0), pt(1500), pt(2100)] } }], 0, 9e6)), words),
+                "Corridor mapping · 2.1 km", "line length, not the mission distance")
     }
     // S42: the YellowScan "Init Path" item has a corridor line too, but is not a corridor mapping
     function test_init_path_is_not_corridor() {
         compare(MissionInfo.kindOf(mission([settingsItem, simple(22), { isSimpleItem: false, corridorPolyline: { path: [] }, turnRadius: { rawValue: 30 } }, simple(20)])), "other")
+    }
+    // S42: a YellowScan survey with init paths before and after is a LiDAR survey (no photo count)
+    function test_lidar() {
+        var ys = survey(); ys.cameraCalc.isYSLidar = true
+        // like the C++ items: every transect item also has surveyAreaPolygon and coveredArea
+        var ip = function() { return { isSimpleItem: false, corridorPolyline: { path: [] }, turnRadius: { rawValue: 10 },
+                                       surveyAreaPolygon: { path: [] }, coveredArea: 0, cameraShots: 5 } }
+        var m = mission([settingsItem, simple(22), ip(), ys, ip(), simple(21)], 600)
+        compare(MissionInfo.kindOf(m), "lidar")
+        compare(MissionInfo.text(MissionInfo.info(m), words), "LiDAR survey · 4.2 ha · 10 min")
+        // the file keeps no YellowScan mark (classic: camera "Manual"): without init paths it is an area mapping
+        compare(MissionInfo.kindOf(mission([settingsItem, simple(22), ys, simple(21)])), "area", "without init paths")
+        compare(MissionInfo.kindOf(mission([settingsItem, simple(22), ip(), simple(16), simple(21)])), "other", "init path with waypoints")
+        compare(MissionInfo.kindOf(mission([settingsItem, simple(22), ip(), simple(21)])), "other", "init path alone")
+        compare(MissionInfo.iconFor("lidar"), "lidar")
     }
     // S41: the structure's entrance height counts, the distance to the structure does not
     function test_structure_height() {

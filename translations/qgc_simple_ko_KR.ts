@@ -1044,6 +1044,14 @@
         <source>Drag the corners to fit the structure, or pick a shape</source>
         <translation>모서리를 끌어 구조물에 맞추거나 모양을 고르세요</translation>
     </message>
+    <message>
+        <source>Turn on YellowScan in Settings › Payloads</source>
+        <translation>설정 › 페이로드에서 YellowScan을 켜세요</translation>
+    </message>
+    <message>
+        <source>Drag the corners to fit the site · the init path is added automatically</source>
+        <translation>모서리를 끌어 현장에 맞추세요 · 초기화 경로는 자동으로 추가됩니다</translation>
+    </message>
 </context>
 <context>
     <name>SimplePreflightSheet</name>
@@ -4130,6 +4138,10 @@
         <source>This file could not be read.</source>
         <translation>이 파일을 읽을 수 없습니다.</translation>
     </message>
+    <message>
+        <source>LiDAR survey</source>
+        <translation>LiDAR 측량</translation>
+    </message>
 </context>
 <context>
     <name>SimpleScanSettings</name>
@@ -4248,6 +4260,50 @@
     <message>
         <source>Next: check &amp; send</source>
         <translation>다음: 확인 및 전송</translation>
+    </message>
+    <message>
+        <source>Line spacing %1 m · limited to %2 m</source>
+        <translation>라인 간격 %1 m · 최대 %2 m</translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation>속도</translation>
+    </message>
+    <message>
+        <source>Line overlap</source>
+        <translation>라인 중첩</translation>
+    </message>
+    <message>
+        <source>50 % · Standard</source>
+        <translation>50 % · 표준</translation>
+    </message>
+    <message>
+        <source>70 % · Dense</source>
+        <translation>70 % · 조밀</translation>
+    </message>
+    <message>
+        <source>Init path before and after</source>
+        <translation>앞뒤 초기화 경로</translation>
+    </message>
+    <message>
+        <source>Figure 8 to settle the INS (required for good data)</source>
+        <translation>INS 안정화를 위한 8자 비행 (좋은 데이터에 필요)</translation>
+    </message>
+    <message>
+        <source>Without the init path the LiDAR data may be poor.</source>
+        <translation>초기화 경로가 없으면 LiDAR 데이터 품질이 떨어질 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Needs %1 batteries — plan a battery change.</source>
+        <translation>배터리 %1개 필요 — 배터리 교체를 계획하세요.</translation>
+    </message>
+    <message>
+        <source>AREA</source>
+        <translation>면적</translation>
+    </message>
+    <message>
+        <source>SPACING</source>
+        <translation>간격</translation>
     </message>
 </context>
 </TS>

@@ -46,7 +46,7 @@ Rectangle {
     // translated words and unit formatting for MissionInfo.text()
     readonly property var words: ({
         area: qsTr("Area mapping"), waypoint: qsTr("Waypoint flight"), corridor: qsTr("Corridor mapping"),
-        structure: qsTr("Structure scan"), mission: qsTr("Mission"), photos: qsTr("%1 photos"),
+        structure: qsTr("Structure scan"), lidar: qsTr("LiDAR survey"), mission: qsTr("Mission"), photos: qsTr("%1 photos"),
         points: qsTr("%1 points"), items: qsTr("%1 items"), minutes: qsTr("%1 min"),
         fmtArea: function(m2) { return sm._metric ? (m2 / 10000).toFixed(1) + " ha" : (m2 / 4046.86).toFixed(1) + " ac" },
         fmtDist: function(m)  { return sm._metric ? (m / 1000).toFixed(1) + " km" : (m / 1609.34).toFixed(1) + " mi" }

@@ -4,6 +4,7 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QtPositioning 5.3
+import QtLocation 5.3
 import QGroundControl 1.0
 import QGroundControl.Controllers 1.0
 import "."
@@ -13,7 +14,8 @@ Item {
     id: wiz
     property var    vs
     property string step:   "choose"        // choose | saved (S24) | edit | check
-    property string kind:   "area"          // area (S08) | waypoint (S23) | corridor (S40) | structure (S41) | other (check only)
+    property string kind:   "area"          // area (S08) | waypoint (S23) | corridor (S40) | structure (S41) | lidar (S42) | other (check only)
+    readonly property bool _ysOn: !!QGroundControl.corePlugin.settings && !!QGroundControl.corePlugin.settings.ysEnable.rawValue
     property var    scanItem: null          // corridor / structure complex item being edited
     property string shape:  "rectangle"     // structure outline: rectangle | circle | draw | custom (opened file)
     property var    survey: null
@@ -60,6 +62,8 @@ Item {
         kind = "area"
         survey = null
         scanItem = null
+        _ipCount = 0
+        _drawInitPaths()
     }
 
     function _findSurvey() {
@@ -67,7 +71,8 @@ Item {
         var items = _mission.visualItems
         for (var i = 0; i < items.count; i++) {
             var it = items.get(i)
-            if (it.surveyAreaPolygon !== undefined && it.cameraCalc !== undefined) return it
+            // only a survey has gridAngle (corridor and init path items also have surveyAreaPolygon)
+            if (it && it.gridAngle !== undefined && it.cameraCalc !== undefined) return it
         }
         return null
     }
@@ -90,6 +95,7 @@ Item {
         }
         if (item && item.cameraCalc) item.cameraCalc.distanceToSurface.rawValue = Math.min(80, _maxAlt)
         survey = item ? item : _findSurvey()
+        _plan.fitViewportToItems()
         step = "edit"
     }
 
@@ -124,6 +130,9 @@ Item {
     function _routeToEditor() {
         var k = MissionInfo.kindOf(_mission)
         if (k === "corridor" || k === "structure") { survey = null; kind = k; scanItem = _findScan(k); shape = "custom"; _editScan(); step = "edit"; return }
+        if (k === "lidar") { survey = _findSurvey(); kind = "lidar"; _ipCount = _initPaths().length; _drawInitPaths()
+                             if (survey && !survey.cameraCalc.isYSLidar) { _ysSelect(survey.cameraCalc); ysCalc() }
+                             if (survey) _mission.setCurrentPlanViewSeqNum(survey.sequenceNumber, true); step = "edit"; return }
         if (k === "area") { survey = _findSurvey(); kind = "area"; if (survey) _mission.setCurrentPlanViewSeqNum(survey.sequenceNumber, true); step = "edit" }
         else if (k === "waypoint") { survey = null; kind = "waypoint"; step = "edit"; wpEditor.addMode = false }
         else { survey = null; kind = "other"; step = "check" }
@@ -189,6 +198,123 @@ Item {
         var dep = _mission.visualItems.count
         return MissionInfo.maxHeight(_mission)
     }
+
+    // S42: area survey with the YellowScan "camera" (line spacing from height, line overlap and scanner FOV)
+    // and a figure-8 Init Path before and after it (YellowScanInitPathComplexItem, settles the INS)
+    function createLidarSurvey() {
+        createAreaMapping()
+        kind = "lidar"
+        var cc = survey ? survey.cameraCalc : null
+        if (!cc) return
+        _ysSelect(cc)
+        cc.distanceToSurface.rawValue = Math.min(60, _maxAlt)
+        cc.yellowScanOverlapFact.rawValue = 50
+        ysCalc()
+        setInitPaths(true)
+        _plan.fitViewportToItems()
+    }
+    // choose the YellowScan "camera" (the classic turns it into Manual and remembers YellowScan in CameraCalc.isYSLidar)
+    function _ysSelect(cc) {
+        var brands = cc.cameraBrandList, b = ""
+        for (var i = 0; i < brands.length; i++) if (String(brands[i]).indexOf("Yellow") >= 0) b = brands[i]
+        if (b !== "") {
+            cc.cameraBrand = b
+            var models = cc.cameraModelList, m = models.length > 0 ? models[0] : ""
+            for (var j = 0; j < models.length; j++) if (String(models[j]).indexOf("Ultra") >= 0) m = models[j]
+            if (m !== "") cc.cameraModel = m
+        }
+    }
+    // line spacing from height + line overlap + FOV (the classic "Calculate" with spacing as the result)
+    function ysCalc() {
+        var cc = survey ? survey.cameraCalc : null
+        if (!cc || !cc.isYSLidar || !(cc.distanceToSurface.rawValue > 0)) return
+        cc.isYSAltitudeUse.rawValue = true
+        cc.isYSOverlapUse.rawValue = true
+        cc.isYSFOVuse.rawValue = true
+        cc.isYSSpacingUse.rawValue = false
+        cc.yellowScanCalculate()
+        _placeInitPaths()
+    }
+    function _initPaths() {
+        var r = []
+        if (!_mission) return r
+        for (var i = 1; i < _mission.visualItems.count; i++) {
+            var it = _mission.visualItems.get(i)
+            if (it && it.corridorPolyline !== undefined && it.turnRadius !== undefined) r.push(i)
+        }
+        return r
+    }
+    readonly property bool hasInitPaths: _ipCount > 0
+    property int _ipCount: 0
+    function setInitPaths(on) {
+        var idx = _initPaths()
+        if (!on) {
+            for (var i = idx.length - 1; i >= 0; i--) _mission.removeVisualItem(idx[i])
+        } else if (idx.length === 0 && survey) {
+            var si = -1
+            for (var k = 1; k < _mission.visualItems.count; k++) if (_mission.visualItems.get(k) === survey) si = k
+            if (si < 0) return
+            _mission.insertComplexMissionItem("Init Path", survey.coordinate, si, false)
+            _mission.insertComplexMissionItem("Init Path", survey.exitCoordinate, si + 2, false)
+            _placeInitPaths()
+        }
+        _ipCount = _initPaths().length
+        _drawInitPaths()
+        if (survey) _mission.setCurrentPlanViewSeqNum(survey.sequenceNumber, true)
+    }
+    // S42 note: the classic Init Path visual shows only its base line — draw the flown figure 8 on the map
+    property var _ipLines: []
+    function _drawInitPaths() {
+        var map = planView.simpleMap
+        for (var i = 0; i < _ipLines.length; i++) { if (map) map.removeMapItem(_ipLines[i]); _ipLines[i].destroy() }
+        var lines = []
+        var idx = kind === "lidar" ? _initPaths() : []
+        for (var k = 0; k < idx.length && map; k++) {
+            var l = ipLineComp.createObject(map, { ip: _mission.visualItems.get(idx[k]) })
+            map.addMapItem(l)
+            lines.push(l)
+        }
+        _ipLines = lines
+    }
+    Component {
+        id: ipLineComp
+        MapPolyline {
+            property var ip: null
+            visible: wiz.visible && wiz.kind === "lidar"
+            line.width: SimpleTheme.px(5)
+            line.color: SimpleTheme.warn
+            path: ip ? ip.visualTransectPoints : []
+        }
+    }
+    // before: at the survey entry, after: at its exit, along the grid lines, at the survey height
+    function _placeInitPaths() {
+        var idx = _initPaths()
+        _ipCount = idx.length
+        if (!survey || idx.length !== 2) return
+        var az = Number(survey.gridAngle.rawValue)
+        _setInit(_mission.visualItems.get(idx[0]), survey.coordinate, az)
+        _setInit(_mission.visualItems.get(idx[1]), survey.exitCoordinate, az)
+    }
+    function _setInit(ip, at, az) {
+        if (!at || !at.isValid) return
+        var c = QtPositioning.coordinate(at.latitude, at.longitude)
+        var p = ip.corridorPolyline.path
+        var e = c.atDistanceAndAzimuth(30, az)
+        if (p.length !== 2 || p[0].distanceTo(c) > 0.5 || p[1].distanceTo(e) > 0.5) {
+            ip.corridorPolyline.clear()
+            ip.corridorPolyline.appendVertex(c)
+            ip.corridorPolyline.appendVertex(e)
+        }
+        if (ip.cameraCalc) ip.cameraCalc.distanceToSurface.rawValue = survey.cameraCalc.distanceToSurface.rawValue
+    }
+    // the init paths follow the survey when its area or lines change
+    Connections {
+        target: wiz.kind === "lidar" ? wiz.survey : null
+        ignoreUnknownSignals: true
+        function onCoordinateChanged()     { ipTimer.restart() }
+        function onExitCoordinateChanged() { ipTimer.restart() }
+    }
+    Timer { id: ipTimer; interval: 300; onTriggered: wiz._placeInitPaths() }
 
     // S40 / S41: take-off → corridor or structure scan → return home
     function _findScan(k) {
@@ -280,6 +406,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight")
                             : wiz.kind === "corridor" ? qsTr("Corridor mapping") : wiz.kind === "structure" ? qsTr("Structure scan")
+                            : wiz.kind === "lidar" ? qsTr("LiDAR survey")
                             : wiz.kind === "other" ? qsTr("Saved mission") : qsTr("Area mapping"); size: 34; bold: true }
                 SText { size: 22; color: SimpleTheme.textSecondary
                         text: wiz.step === "choose" ? qsTr("What do you want to do?")
@@ -337,7 +464,8 @@ Item {
                     { key: "waypoint",  icon: "pin",       title: qsTr("Waypoint flight"),   sub: qsTr("Fly through points you tap on the map"),            ok: true },
                     { key: "corridor",  icon: "corridor",  title: qsTr("Corridor mapping"),  sub: qsTr("Road, canal or power line"),                         ok: true },
                     { key: "structure", icon: "structure", title: qsTr("Structure scan"),    sub: qsTr("Circles around a tower or building"),               ok: true },
-                    { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: false },
+                    { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: wiz._ysOn,
+                      off: qsTr("Turn on YellowScan in Settings › Payloads") },
                     { key: "open",      icon: "folder",    title: qsTr("Open saved mission"), sub: qsTr("From this tablet or a KML file"),                  ok: true }
                 ]
                 Rectangle {
@@ -350,12 +478,13 @@ Item {
                         spacing: SimpleTheme.px(12)
                         SIcon { name: modelData.icon; size: 64; color: modelData.ok ? SimpleTheme.ok : SimpleTheme.textSecondary }
                         SText { text: modelData.title; size: 32; bold: true }
-                        SText { width: parent.width; text: modelData.ok ? modelData.sub : qsTr("Next version"); size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap }
+                        SText { width: parent.width; text: modelData.ok ? modelData.sub : modelData.off ? modelData.off : qsTr("Next version"); size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap }
                     }
                     MouseArea { anchors.fill: parent; enabled: modelData.ok
                                 onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight()
                                          : modelData.key === "open" ? wiz.step = "saved"
                                          : modelData.key === "corridor" || modelData.key === "structure" ? wiz._createScan(modelData.key)
+                                         : modelData.key === "lidar" ? wiz.createLidarSurvey()
                                          : wiz.createAreaMapping() }
                 }
             }
@@ -432,7 +561,7 @@ Item {
     }
 
     Rectangle {
-        visible: wiz.step === "edit" && (wiz.kind === "area" || wiz.kind === "corridor" || wiz.kind === "structure")
+        visible: wiz.step === "edit" && (wiz.kind === "area" || wiz.kind === "corridor" || wiz.kind === "structure" || wiz.kind === "lidar")
         x: SimpleTheme.px(24); anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
         width: hintRow.implicitWidth + SimpleTheme.px(40); height: SimpleTheme.px(64); radius: SimpleTheme.px(16)
         color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
@@ -444,20 +573,25 @@ Item {
             SText { size: 24; color: SimpleTheme.textSecondary
                     text: wiz.kind === "corridor" ? qsTr("Tap the map to add points · drag a point to move it")
                         : wiz.kind === "structure" ? (wiz.shape === "draw" ? qsTr("Tap around the structure to outline it") : qsTr("Drag the corners to fit the structure, or pick a shape"))
+                        : wiz.kind === "lidar" && wiz.hasInitPaths ? qsTr("Drag the corners to fit the site · the init path is added automatically")
                         : qsTr("Drag the corners to fit the area. Tap an edge midpoint to add a corner.") }
         }
     }
 
     //------------------------------------------------------------------ S40 corridor / S41 structure settings
     SimpleScanSettings {
-        visible: wiz.step === "edit" && (wiz.kind === "corridor" || wiz.kind === "structure") && !!wiz.scanItem
+        visible: wiz.step === "edit" && ((wiz.kind === "corridor" || wiz.kind === "structure") && !!wiz.scanItem
+                                          || wiz.kind === "lidar" && !!wiz.survey)
         x: parent.width - width - SimpleTheme.px(24)
         y: header.height + SimpleTheme.px(24)
         width: SimpleTheme.px(620)
         height: parent.height - y - SimpleTheme.px(24)
         kind: wiz.kind
-        item: wiz.scanItem
+        item: wiz.kind === "lidar" ? wiz.survey : wiz.scanItem
         mission: wiz._mission
+        initPaths: wiz.hasInitPaths
+        onInitPathsRequested: wiz.setInitPaths(on)
+        onYsEdited: wiz.ysCalc()
         maxAlt: wiz._maxAlt
         shape: wiz.shape
         onShapeRequested: wiz.setShape(shape)
@@ -485,7 +619,7 @@ Item {
         height: parent.height - y - SimpleTheme.px(24)
         vs: wiz.vs
         plan: wiz._plan
-        survey: wiz.kind === "area" ? wiz.survey : null
+        survey: wiz.kind === "area" || wiz.kind === "lidar" ? wiz.survey : null
         route: wiz._route
         routeHeight: wiz._routeHeight
         maxAlt: wiz._maxAlt
