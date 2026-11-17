@@ -226,7 +226,8 @@ void NTRIPRTCMSource::get_caster_xml() {
     qCDebug(NTRIPRTCMSourceLog) << "get caster xml : " << url;
     QNetworkAccessManager manager;
     QNetworkRequest request(url);
-    request.setRawHeader("Authorization", "Basic " + QByteArray("MP16804:746zew").toBase64());
+    // AQGC (CE RED / EN 18031, 2026-11-17): no built-in caster account. The source table is public; the user's own
+    // NTRIP account is only sent when connecting to a mountpoint (_sendNTRIP1_0Request).
     QNetworkReply* reply = manager.get(request);
 
     QEventLoop loop;
@@ -491,7 +492,8 @@ void NTRIPRTCMSource::_onSocketConnected()
     request += QString("\r\n");
 
     _tcpSocket->write(request.toUtf8());
-    qCDebug(NTRIPRTCMSourceLog) << "Authorization...\n\r" << request;
+    // never log the request: it carries the Basic credentials (EN 18031)
+    qCDebug(NTRIPRTCMSourceLog) << "NTRIP request sent for mountpoint" << mountPoint << (username.isEmpty() ? "without" : "with") << "login";
 }
 
 void NTRIPRTCMSource::_onSocketReplied()
