@@ -58,7 +58,7 @@ Rectangle {
                 ]
                 Rectangle {
                     width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18)
-                    color: (page.category === modelData.key || (modelData.key === "about" && page.category === "licenses")
+                    color: (page.category === modelData.key || (modelData.key === "about" && (page.category === "licenses" || page.category === "privacy"))
                             || (modelData.key === "connection" && page.category === "linksec")) ? SimpleTheme.brandGreen : "transparent"
                     Row {
                         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
@@ -104,6 +104,7 @@ Rectangle {
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
                            : page.category === "linksec" ? linkSecComp
+                           : page.category === "privacy" ? privacyComp
                            : laterComp
         }
     }
@@ -860,13 +861,20 @@ Rectangle {
                 sub: vs.present ? (vs.vehicle.vehicleTypeString + " · " + vs.vehicle.firmwareTypeString + " " + vs.vehicle.firmwareMajorVersion + "." + vs.vehicle.firmwareMinorVersion + "." + vs.vehicle.firmwarePatchVersion) : qsTr("Not connected")
             }
             SSettingRow { title: qsTr("Contact support"); sub: qsTr("WhatsApp or e-mail · Mon–Fri 09:00–18:00 KST") }
+            // S48 last row → S65 (security, privacy, delete my data, security log, legal & licenses)
             SSettingRow {
-                title: qsTr("Legal & licenses"); sub: qsTr("Open-source licenses: QGroundControl, Qt, GStreamer, fonts and more")
-                clickable: true
-                onClicked: page.category = "licenses"
+                title: qsTr("Security, privacy & legal"); sub: qsTr("Data on this tablet, delete my data, security log, open-source licenses")
+                clickable: true; objectName: "privacyRow"
+                onClicked: page.category = "privacy"
                 SIcon { name: "chevron"; size: 40; opacity: 0.7 }
             }
         }
+    }
+
+    //------------------------------------------------------------------ S65 Security & privacy (+ S67, security log)
+    Component {
+        id: privacyComp
+        SimpleSecurityPrivacy { onBackRequested: page.category = "about"; onLicensesRequested: page.category = "licenses" }
     }
 
     //------------------------------------------------------------------ Legal & licenses (S48 › licenses)
@@ -888,7 +896,7 @@ Rectangle {
                 xhr.open("GET", "qrc:/simple/licenses/index.json")
                 xhr.send()
             }
-            SButton { designHeight: 80; kind: "ghost"; icon: "back"; text: qsTr("About & support"); textSize: 26; onClicked: page.category = "about" }
+            SButton { designHeight: 80; kind: "ghost"; icon: "back"; text: qsTr("Security & privacy"); textSize: 26; onClicked: page.category = "privacy" }
             SText { text: qsTr("Legal & licenses"); size: 40; bold: true }
             SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("alesQGC uses this open-source software. Tap an item to show the full license."); size: 24; color: SimpleTheme.textSecondary }
             Repeater {

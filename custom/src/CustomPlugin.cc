@@ -20,6 +20,7 @@
 
 #include "CustomPlugin.h"
 #include "LinkSecurity.h"
+#include "PrivacyData.h"
 
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
@@ -158,6 +159,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     }
     setShowAdvancedUI(_settings->simpleAdvancedMode()->rawValue().toBool());
     _linkSecurity = new LinkSecurity(this);
+    _privacyData = new PrivacyData(static_cast<LinkSecurity*>(_linkSecurity), this);
 
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
@@ -292,6 +294,12 @@ bool CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
     }
 
     if (settingsGroup == AppSettings::settingsGroup) {
+        // CE RED / privacy by default (Figma S65, 2026-11-17): the tablet position is not sent to the drone unless the
+        // user turns "Share this device's location" on (QGC default: in Follow Me mode). Both modes.
+        if (metaData.name() == AppSettings::followTargetName) {
+            metaData.setRawDefaultValue(0);
+            return parentResult;
+        }
         // This tells QGC than when you are creating Plans while not connected to a vehicle
         // the specific firmware/vehicle the plan is for.
         if (metaData.name() == AppSettings::offlineEditingFirmwareClassName) {

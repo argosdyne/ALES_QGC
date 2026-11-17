@@ -2051,6 +2051,18 @@
         <source>Company key</source>
         <translation>회사 키</translation>
     </message>
+    <message>
+        <source>Security, privacy &amp; legal</source>
+        <translation>보안, 개인정보 및 법적 고지</translation>
+    </message>
+    <message>
+        <source>Data on this tablet, delete my data, security log, open-source licenses</source>
+        <translation>이 태블릿의 데이터, 내 데이터 삭제, 보안 로그, 오픈소스 라이선스</translation>
+    </message>
+    <message>
+        <source>Security &amp; privacy</source>
+        <translation>보안 및 개인정보</translation>
+    </message>
 </context>
 <context>
     <name>SimpleTakeoffSheet</name>
@@ -4583,6 +4595,221 @@
     <message>
         <source>Off</source>
         <translation>꺼짐</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSecurityPrivacy</name>
+    <message>
+        <source>radio password</source>
+        <translation>무선 장치 비밀번호</translation>
+    </message>
+    <message>
+        <source>map tokens</source>
+        <translation>지도 토큰</translation>
+    </message>
+    <message>
+        <source>link key</source>
+        <translation>링크 키</translation>
+    </message>
+    <message>
+        <source>Nothing stored</source>
+        <translation>저장된 항목 없음</translation>
+    </message>
+    <message>
+        <source>stored in the app's private storage</source>
+        <translation>앱 전용 저장소에 보관</translation>
+    </message>
+    <message>
+        <source>stored encrypted</source>
+        <translation>암호화하여 보관</translation>
+    </message>
+    <message>
+        <source>Flight logs</source>
+        <translation>비행 로그</translation>
+    </message>
+    <message>
+        <source>%1 files · %2</source>
+        <translation>파일 %1개 · %2</translation>
+    </message>
+    <message>
+        <source>Videos and photos</source>
+        <translation>영상 및 사진</translation>
+    </message>
+    <message>
+        <source>Saved missions</source>
+        <translation>저장된 미션</translation>
+    </message>
+    <message>
+        <source>%1 missions · %2</source>
+        <translation>미션 %1개 · %2</translation>
+    </message>
+    <message>
+        <source>Map cache</source>
+        <translation>지도 캐시</translation>
+    </message>
+    <message>
+        <source>%1 areas · %2</source>
+        <translation>지역 %1개 · %2</translation>
+    </message>
+    <message>
+        <source>Accounts and keys</source>
+        <translation>계정 및 키</translation>
+    </message>
+    <message>
+        <source>No security events yet</source>
+        <translation>아직 보안 이벤트가 없습니다</translation>
+    </message>
+    <message>
+        <source>Last: %1</source>
+        <translation>최근: %1</translation>
+    </message>
+    <message>
+        <source>About &amp; support</source>
+        <translation>정보 및 지원</translation>
+    </message>
+    <message>
+        <source>Security &amp; privacy</source>
+        <translation>보안 및 개인정보</translation>
+    </message>
+    <message>
+        <source>DATA ON THIS DEVICE</source>
+        <translation>이 기기의 데이터</translation>
+    </message>
+    <message>
+        <source>Delete my data…</source>
+        <translation>내 데이터 삭제…</translation>
+    </message>
+    <message>
+        <source>Open folder</source>
+        <translation>폴더 열기</translation>
+    </message>
+    <message>
+        <source>Deleted. Restart the app to finish: the app settings are cleared at the next start.</source>
+        <translation>삭제했습니다. 앱을 다시 시작하면 마무리됩니다: 앱 설정은 다음 시작 때 지워집니다.</translation>
+    </message>
+    <message>
+        <source>The selected data was deleted from this tablet.</source>
+        <translation>선택한 데이터를 이 태블릿에서 지웠습니다.</translation>
+    </message>
+    <message>
+        <source>THIS APP</source>
+        <translation>이 앱</translation>
+    </message>
+    <message>
+        <source>Signed by %1</source>
+        <translation>%1 서명</translation>
+    </message>
+    <message>
+        <source>App signature</source>
+        <translation>앱 서명</translation>
+    </message>
+    <message>
+        <source>Installer and app checked by Windows / Android</source>
+        <translation>설치 파일과 앱을 Windows / Android가 확인</translation>
+    </message>
+    <message>
+        <source>Android checks the app signature when it is installed</source>
+        <translation>Android가 설치할 때 앱 서명을 확인합니다</translation>
+    </message>
+    <message>
+        <source>This build has no code signature (test build). Install only builds from ARGOSDYNE.</source>
+        <translation>이 빌드에는 코드 서명이 없습니다(시험 빌드). ARGOSDYNE가 배포한 빌드만 설치하세요.</translation>
+    </message>
+    <message>
+        <source>The signature of this app is not valid. Reinstall it from ARGOSDYNE.</source>
+        <translation>이 앱의 서명이 유효하지 않습니다. ARGOSDYNE에서 받은 파일로 다시 설치하세요.</translation>
+    </message>
+    <message>
+        <source>Checking…</source>
+        <translation>확인 중…</translation>
+    </message>
+    <message>
+        <source>Verified</source>
+        <translation>확인됨</translation>
+    </message>
+    <message>
+        <source>Android</source>
+        <translation>Android</translation>
+    </message>
+    <message>
+        <source>Not signed</source>
+        <translation>서명 없음</translation>
+    </message>
+    <message>
+        <source>Not valid</source>
+        <translation>유효하지 않음</translation>
+    </message>
+    <message>
+        <source>Security updates</source>
+        <translation>보안 업데이트</translation>
+    </message>
+    <message>
+        <source>Support period not set yet</source>
+        <translation>지원 기간 미설정</translation>
+    </message>
+    <message>
+        <source>PRIVACY</source>
+        <translation>개인정보</translation>
+    </message>
+    <message>
+        <source>Share this device's location</source>
+        <translation>이 기기의 위치 공유</translation>
+    </message>
+    <message>
+        <source>Sends the tablet position to the drone (follow me). Off unless you turn it on.</source>
+        <translation>태블릿 위치를 드론에 보냅니다(팔로우 미). 켜지 않으면 꺼져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Report a security issue</source>
+        <translation>보안 문제 신고</translation>
+    </message>
+    <message>
+        <source>Security contact not set yet</source>
+        <translation>보안 연락처 미설정</translation>
+    </message>
+    <message>
+        <source>Security log</source>
+        <translation>보안 로그</translation>
+    </message>
+    <message>
+        <source>Legal &amp; licenses</source>
+        <translation>법적 고지 및 라이선스</translation>
+    </message>
+    <message>
+        <source>Open-source licenses</source>
+        <translation>오픈소스 라이선스</translation>
+    </message>
+    <message>
+        <source>Security events on this tablet, newest first: keys and passwords, refused keys, radio certificate, deleted data. Secrets are never written here.</source>
+        <translation>이 태블릿의 보안 이벤트(최신순): 키와 비밀번호, 거부된 키, 무선 장치 인증서, 삭제한 데이터. 비밀 값은 기록하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Delete my data</source>
+        <translation>내 데이터 삭제</translation>
+    </message>
+    <message>
+        <source>Choose what to delete from this tablet. Data on the drone is not deleted.</source>
+        <translation>이 태블릿에서 지울 항목을 고르세요. 드론에 있는 데이터는 지워지지 않습니다.</translation>
+    </message>
+    <message>
+        <source>App settings</source>
+        <translation>앱 설정</translation>
+    </message>
+    <message>
+        <source>Back to the first-start screen</source>
+        <translation>첫 시작 화면으로 돌아감</translation>
+    </message>
+    <message>
+        <source>This cannot be undone. Deleting accounts and keys also unpairs the drone link.</source>
+        <translation>되돌릴 수 없습니다. 계정 및 키를 지우면 드론 링크 연결(키)도 해제됩니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Delete selected (%1)</source>
+        <translation>선택 항목 삭제 (%1)</translation>
     </message>
 </context>
 </TS>

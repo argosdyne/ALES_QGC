@@ -12,6 +12,7 @@
 #include <QSslSocket>              // secure network
 #include <QCryptographicHash>
 #include <QSslCertificate>
+#include "SecurityLog.h"
 #include "SecureStore.h"
 
 // Doodle Labs factory login (the radio's default): used only until a own password is set (S66, EN 18031)
@@ -507,6 +508,7 @@ void ARManager::_handleDoodleReply(QNetworkReply* reply)  // response processing
         _doodlePendingPassword.fill(QChar(0)); _doodlePendingPassword.clear();
         _doodlePwResult = ok ? QStringLiteral("ok") : QStringLiteral("failed");
         qCInfo(ARManagerLog) << "[Doodle API] password change" << (ok ? "done" : "refused");
+        SecurityLog::write(QStringLiteral("Radio"), ok ? QStringLiteral("radio password changed") : QStringLiteral("radio refused the new password"));
         emit doodleSecurityChanged();
         reply->deleteLater();
         return;
@@ -763,6 +765,7 @@ void ARManager::_doodleSslErrors(QNetworkReply* reply, const QList<QSslError>& e
     if (pinned.isEmpty()) {
         SecureStore::put(pinName, digest);  // trust on first use
         qCInfo(ARManagerLog) << "[Doodle API] radio certificate pinned";
+        SecurityLog::write(QStringLiteral("Radio"), QStringLiteral("radio certificate stored (first connection)"));
         reply->ignoreSslErrors(errors);
         return;
     }
@@ -773,7 +776,11 @@ void ARManager::_doodleSslErrors(QNetworkReply* reply, const QList<QSslError>& e
     }
     // another certificate at the radio address: refuse (someone in between, or the radio was replaced)
     qCWarning(ARManagerLog) << "[Doodle API] radio certificate changed: connection refused";
-    if (!_doodleCertMismatch) { _doodleCertMismatch = true; emit doodleSecurityChanged(); }
+    if (!_doodleCertMismatch) {
+        _doodleCertMismatch = true;
+        SecurityLog::write(QStringLiteral("Radio"), QStringLiteral("radio certificate changed: connection refused"));
+        emit doodleSecurityChanged();
+    }
 }
 
 void ARManager::changeDoodlePassword(const QString& newPassword)

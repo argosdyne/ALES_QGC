@@ -48,6 +48,7 @@ SimplePreflightSheet 1.0 SimplePreflightSheet.qml
 SimpleRoot 1.0 SimpleRoot.qml
 SimpleSettings 1.0 SimpleSettings.qml
 SimpleLinkSecurity 1.0 SimpleLinkSecurity.qml
+SimpleSecurityPrivacy 1.0 SimpleSecurityPrivacy.qml
 SStatusChip 1.0 SStatusChip.qml
 SimpleTakeoffSheet 1.0 SimpleTakeoffSheet.qml
 SimpleTopBar 1.0 SimpleTopBar.qml

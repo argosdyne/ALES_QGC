@@ -107,6 +107,9 @@ public:
     // AQGC: MAVLink signing key pairing for the Simple UI (Figma S66 / S22 / S27), LinkSecurity
     Q_PROPERTY(QObject* linkSecurity READ linkSecurity CONSTANT)
     QObject* linkSecurity() { return _linkSecurity; }
+    // AQGC: data on this device for S65 Security & privacy / S67 Delete my data, PrivacyData
+    Q_PROPERTY(QObject* privacyData READ privacyData CONSTANT)
+    QObject* privacyData() { return _privacyData; }
     CustomSettings* settings(){ return _settings; }
 
     // Simple UI saved missions (S24): number of mission items in a .plan, or -1 when the file cannot be read
@@ -174,6 +177,7 @@ private:
     RajantManager* _rajantManager = nullptr;
     ElistairStationManager* _elistairStationManager = nullptr;
     QObject*                _linkSecurity = nullptr;
+    QObject*                _privacyData = nullptr;
     QStringList             _rajantCandidates;
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";
