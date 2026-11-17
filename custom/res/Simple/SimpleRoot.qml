@@ -41,6 +41,8 @@ Item {
     // Advanced › Analyze tools (S61–S63)
     function showAnalyze() { page = "analyze" }
     function showParameters() { page = "params" }      // S60
+    function showVehicleSetup(category) { page = "setup"; vehicleSetupCategory = category ? category : "summary" }   // S58
+    property string vehicleSetupCategory: "summary"
     function openMenu() { menu.open() }
 
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
@@ -56,7 +58,8 @@ Item {
         QGroundControl.corePlugin.advancedMode = true
         QGroundControl.corePlugin.showAdvancedUI = true      // this Simple root is unloaded now
         mainWindow.showFlyView()
-        if (what === "setup")           mainWindow.showSetupTool()
+        if (what.indexOf("setup:") === 0) mainWindow.showSetupComponent(what.substring(6))   // one classic setup page
+        else if (what === "setup")      mainWindow.showSetupTool()
         else if (what === "parameters") mainWindow.showSetupParameters()
         else if (what === "analyze")    mainWindow.showAnalyzeTool()
         else if (what === "settings")   mainWindow.showSettingsTool()
@@ -110,6 +113,11 @@ Item {
         anchors.fill: parent
         active: simpleRoot.page === "analyze"
         sourceComponent: Component { SimpleAnalyze { } }
+    }
+    Loader {
+        anchors.fill: parent
+        active: simpleRoot.page === "setup"
+        sourceComponent: Component { SimpleVehicleSetup { category: simpleRoot.vehicleSetupCategory } }
     }
     Loader {
         anchors.fill: parent

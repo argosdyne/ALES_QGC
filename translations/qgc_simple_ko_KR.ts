@@ -5342,4 +5342,303 @@
         <translation>기본값으로</translation>
     </message>
 </context>
+<context>
+    <name>SimpleVehicleSetup</name>
+    <message>
+        <source>Summary</source>
+        <translation>요약</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>프레임</translation>
+    </message>
+    <message>
+        <source>Sensors</source>
+        <translation>센서</translation>
+    </message>
+    <message>
+        <source>Radio</source>
+        <translation>조종기</translation>
+    </message>
+    <message>
+        <source>Flight modes</source>
+        <translation>비행 모드</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>전원</translation>
+    </message>
+    <message>
+        <source>Motors</source>
+        <translation>모터</translation>
+    </message>
+    <message>
+        <source>Safety</source>
+        <translation>안전</translation>
+    </message>
+    <message>
+        <source>Tuning</source>
+        <translation>튜닝</translation>
+    </message>
+    <message>
+        <source>Gimbal</source>
+        <translation>짐벌</translation>
+    </message>
+    <message>
+        <source>Firmware</source>
+        <translation>펌웨어</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Vehicle setup</source>
+        <translation>기체 설정</translation>
+    </message>
+    <message>
+        <source>Connect the drone to set it up.</source>
+        <translation>기체를 설정하려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Reading the parameters from the drone…</source>
+        <translation>드론에서 파라미터를 읽는 중…</translation>
+    </message>
+    <message>
+        <source>Check each part before the first flight. Orange items need setup. Setup is locked while the drone is flying.</source>
+        <translation>첫 비행 전에 각 부분을 확인하세요. 주황 항목은 설정이 필요합니다. 비행 중에는 설정이 잠깁니다.</translation>
+    </message>
+    <message>
+        <source>Compass, accelerometer and level done</source>
+        <translation>나침반, 가속도계, 수평 완료</translation>
+    </message>
+    <message>
+        <source>Compass and accelerometer done · level not done</source>
+        <translation>나침반, 가속도계 완료 · 수평 미완료</translation>
+    </message>
+    <message>
+        <source>Compass or accelerometer needs calibration</source>
+        <translation>나침반 또는 가속도계 보정 필요</translation>
+    </message>
+    <message>
+        <source>Sticks calibrated</source>
+        <translation>스틱 보정됨</translation>
+    </message>
+    <message>
+        <source>Calibrate the sticks</source>
+        <translation>스틱을 보정하세요</translation>
+    </message>
+    <message>
+        <source>6 modes on channel %1 · %2 first</source>
+        <translation>채널 %1에 모드 6개 · 첫 모드 %2</translation>
+    </message>
+    <message>
+        <source>now</source>
+        <translation>현재</translation>
+    </message>
+    <message>
+        <source>Test each motor after a repair</source>
+        <translation>수리 후 모터를 하나씩 시험하세요</translation>
+    </message>
+    <message>
+        <source>Low battery: %1 · Link lost: %2</source>
+        <translation>배터리 부족: %1 · 링크 끊김: %2</translation>
+    </message>
+    <message>
+        <source>Factory tuning · changes allowed in flight</source>
+        <translation>공장 튜닝 · 비행 중 변경 가능</translation>
+    </message>
+    <message>
+        <source>No gimbal set</source>
+        <translation>짐벌 설정 없음</translation>
+    </message>
+    <message>
+        <source>update from a PC with USB</source>
+        <translation>PC에서 USB로 업데이트</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Needs setup</source>
+        <translation>설정 필요</translation>
+    </message>
+    <message>
+        <source>PC only</source>
+        <translation>PC 전용</translation>
+    </message>
+    <message>
+        <source>Optional</source>
+        <translation>선택</translation>
+    </message>
+    <message>
+        <source>Firmware is updated from a PC with a USB cable.</source>
+        <translation>펌웨어는 PC에서 USB 케이블로 업데이트합니다.</translation>
+    </message>
+    <message>
+        <source>Connect the drone with USB, propellers off. The firmware page opens in the classic screens for now.</source>
+        <translation>프로펠러를 떼고 드론을 USB로 연결하세요. 펌웨어 화면은 당분간 기존 화면에서 열립니다.</translation>
+    </message>
+    <message>
+        <source>This part opens in the classic screens until its new screen is ready.</source>
+        <translation>새 화면이 준비될 때까지 이 부분은 기존 화면에서 열립니다.</translation>
+    </message>
+    <message>
+        <source>Open %1 (classic)</source>
+        <translation>%1 열기 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Compass</source>
+        <translation>나침반</translation>
+    </message>
+    <message>
+        <source>Not calibrated</source>
+        <translation>보정 안 됨</translation>
+    </message>
+    <message>
+        <source>Done %1</source>
+        <translation>완료 %1</translation>
+    </message>
+    <message>
+        <source>Done · date unknown</source>
+        <translation>완료 · 날짜 모름</translation>
+    </message>
+    <message>
+        <source>%n compass(es)</source>
+        <translation>나침반 %n개</translation>
+    </message>
+    <message>
+        <source>Calibrate</source>
+        <translation>보정</translation>
+    </message>
+    <message>
+        <source>Accelerometer</source>
+        <translation>가속도계</translation>
+    </message>
+    <message>
+        <source>Level horizon</source>
+        <translation>수평 맞추기</translation>
+    </message>
+    <message>
+        <source>Not done · do it after the accelerometer, on a level surface</source>
+        <translation>미완료 · 가속도계 보정 후 평평한 곳에서 하세요</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>시작</translation>
+    </message>
+    <message>
+        <source>Barometer</source>
+        <translation>기압계</translation>
+    </message>
+    <message>
+        <source>Sets the altitude reading to 0 where the drone stands</source>
+        <translation>드론이 있는 곳의 고도 값을 0으로 맞춥니다</translation>
+    </message>
+    <message>
+        <source>Motor interference</source>
+        <translation>모터 간섭</translation>
+    </message>
+    <message>
+        <source>Measures compass error from the motors (CompassMot). Propellers off</source>
+        <translation>모터가 나침반에 주는 오차를 잽니다(CompassMot). 프로펠러를 떼세요</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>장착 방향</translation>
+    </message>
+    <message>
+        <source>Board: %1 · Compass 1: %2</source>
+        <translation>보드: %1 · 나침반 1: %2</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>변경</translation>
+    </message>
+    <message>
+        <source>Calibrate on the ground with the motors off. Each step shows how to hold the drone.</source>
+        <translation>지상에서 모터를 끄고 보정하세요. 단계마다 드론을 드는 방법이 나옵니다.</translation>
+    </message>
+    <message>
+        <source>Hold the drone away from metal and turn it slowly around every axis until the bar is full.</source>
+        <translation>금속에서 떨어진 곳에서 드론을 들고, 막대가 찰 때까지 모든 축으로 천천히 돌리세요.</translation>
+    </message>
+    <message>
+        <source>Hold the drone still in the position shown, then press Next. Six positions in total.</source>
+        <translation>그림의 자세로 드론을 가만히 두고 다음을 누르세요. 모두 6가지 자세입니다.</translation>
+    </message>
+    <message>
+        <source>Place the drone on a level surface and do not touch it.</source>
+        <translation>드론을 평평한 곳에 두고 건드리지 마세요.</translation>
+    </message>
+    <message>
+        <source>Keep the drone still.</source>
+        <translation>드론을 움직이지 마세요.</translation>
+    </message>
+    <message>
+        <source>Level</source>
+        <translation>수평</translation>
+    </message>
+    <message>
+        <source>Left side</source>
+        <translation>왼쪽 아래</translation>
+    </message>
+    <message>
+        <source>Right side</source>
+        <translation>오른쪽 아래</translation>
+    </message>
+    <message>
+        <source>Nose down</source>
+        <translation>기수 아래</translation>
+    </message>
+    <message>
+        <source>Nose up</source>
+        <translation>기수 위</translation>
+    </message>
+    <message>
+        <source>Upside down</source>
+        <translation>뒤집기</translation>
+    </message>
+    <message>
+        <source>Calibration done. Restart the drone to use it.</source>
+        <translation>보정 완료. 적용하려면 드론을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Done.</source>
+        <translation>완료.</translation>
+    </message>
+    <message>
+        <source>Calibration cancelled. Nothing was changed.</source>
+        <translation>보정을 취소했습니다. 바뀐 것은 없습니다.</translation>
+    </message>
+    <message>
+        <source>Calibration failed. Try again away from metal and wind.</source>
+        <translation>보정 실패. 금속과 바람을 피해 다시 하세요.</translation>
+    </message>
+    <message>
+        <source>Calibration failed. Hold each position still until the next one is asked, then try again.</source>
+        <translation>보정 실패. 다음 자세를 요청할 때까지 각 자세를 가만히 유지하고 다시 하세요.</translation>
+    </message>
+    <message>
+        <source>Calibration failed. Keep the drone still and try again.</source>
+        <translation>보정 실패. 드론을 움직이지 말고 다시 하세요.</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>다음</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Restart the drone</source>
+        <translation>드론 다시 시작</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
 </TS>

@@ -262,6 +262,23 @@ ApplicationWindow {
         }
     }
 
+    // AQGC Vehicle setup (S58): open one classic setup page, e.g. "APMPowerComponent", until its new screen exists
+    function showSetupComponent(qmlName) {
+        showSetupTool()
+        Qt.callLater(function() {
+            var setup = toolDrawerLoader.item
+            var vehicle = QGroundControl.multiVehicleManager.activeVehicle
+            if (!setup || !setup.showVehicleComponentPanel || !vehicle || !vehicle.autopilot) return
+            var components = vehicle.autopilot.vehicleComponents
+            for (var i = 0; i < components.length; i++) {
+                if (components[i].setupSource.toString().indexOf(qmlName) !== -1) {
+                    setup.showVehicleComponentPanel(components[i])
+                    return
+                }
+            }
+        })
+    }
+
     // AQGC S44 › Parameters (classic page until S60 exists)
     function showSetupParameters() {
         showSetupTool()
