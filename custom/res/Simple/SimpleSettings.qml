@@ -58,7 +58,8 @@ Rectangle {
                 ]
                 Rectangle {
                     width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18)
-                    color: (page.category === modelData.key || (modelData.key === "about" && page.category === "licenses")) ? SimpleTheme.brandGreen : "transparent"
+                    color: (page.category === modelData.key || (modelData.key === "about" && page.category === "licenses")
+                            || (modelData.key === "connection" && page.category === "linksec")) ? SimpleTheme.brandGreen : "transparent"
                     Row {
                         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                         spacing: SimpleTheme.px(18)
@@ -102,6 +103,7 @@ Rectangle {
                            : page.category === "rid"     ? ridComp
                            : page.category === "about"   ? aboutComp
                            : page.category === "licenses" ? licensesComp
+                           : page.category === "linksec" ? linkSecComp
                            : laterComp
         }
     }
@@ -613,7 +615,27 @@ Rectangle {
                 onClicked: page.category = "payloads"
                 SIcon { name: "chevron"; size: 40; opacity: 0.7 }
             }
+
+            // ------------------------------------------------ S22 Link security card → S66
+            SSettingRow {
+                readonly property var _sec: QGroundControl.corePlugin.linkSecurity
+                readonly property int _st: _sec ? _sec.activeState : -1
+                title: qsTr("Link security")
+                sub: !_sec ? "" : _st === 2 ? qsTr("Drone link protected — open Link security")
+                   : _st === 3 ? qsTr("Key mismatch: this app and the drone use different keys — open Link security")
+                   : _sec.hasKey ? qsTr("A key is set · this drone link is not protected yet — open Link security")
+                   : qsTr("Drone link not protected (no key) — open Link security")
+                clickable: true
+                onClicked: page.category = "linksec"
+                SIcon { name: "chevron"; size: 40; opacity: 0.7 }
+            }
         }
+    }
+
+    //------------------------------------------------------------------ S66 Link security
+    Component {
+        id: linkSecComp
+        SimpleLinkSecurity { onBackRequested: page.category = "connection" }
     }
 
     //------------------------------------------------------------------ Remote ID (S47)

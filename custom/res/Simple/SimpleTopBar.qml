@@ -107,6 +107,9 @@ Rectangle {
             level: vs.linkLevel
             value: vs.linkText
             label: qsTr("Link")
+            // S66: a paired fleet (key set) and this drone link not protected
+            readonly property var _sec: QGroundControl.corePlugin.linkSecurity
+            dot: vs.present && !!_sec && _sec.hasKey && _sec.activeState !== 2
             onClicked: bar.chipClicked("link")
         }
         SChip {

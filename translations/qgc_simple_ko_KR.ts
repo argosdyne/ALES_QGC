@@ -168,6 +168,22 @@
         <source>Missing or invalid</source>
         <translation>없거나 잘못됨</translation>
     </message>
+    <message>
+        <source>Signed (MAVLink)</source>
+        <translation>서명됨 (MAVLink)</translation>
+    </message>
+    <message>
+        <source>Key mismatch</source>
+        <translation>키 불일치</translation>
+    </message>
+    <message>
+        <source>Not protected</source>
+        <translation>보호 안 됨</translation>
+    </message>
+    <message>
+        <source>Link protection</source>
+        <translation>링크 보호</translation>
+    </message>
 </context>
 <context>
     <name>SimpleConnectCard</name>
@@ -1994,6 +2010,26 @@
     <message>
         <source>Edit on map</source>
         <translation>지도에서 편집</translation>
+    </message>
+    <message>
+        <source>Link security</source>
+        <translation>링크 보안</translation>
+    </message>
+    <message>
+        <source>Drone link protected — open Link security</source>
+        <translation>드론 링크 보호됨 — 링크 보안 열기</translation>
+    </message>
+    <message>
+        <source>Key mismatch: this app and the drone use different keys — open Link security</source>
+        <translation>키 불일치: 앱과 드론의 키가 다릅니다 — 링크 보안 열기</translation>
+    </message>
+    <message>
+        <source>A key is set · this drone link is not protected yet — open Link security</source>
+        <translation>키가 설정됨 · 이 드론 링크는 아직 보호되지 않음 — 링크 보안 열기</translation>
+    </message>
+    <message>
+        <source>Drone link not protected (no key) — open Link security</source>
+        <translation>드론 링크 보호 안 됨 (키 없음) — 링크 보안 열기</translation>
     </message>
 </context>
 <context>
@@ -4292,6 +4328,153 @@
     <message>
         <source>Simple UI product profile</source>
         <translation>간편 UI 제품 프로파일</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleLinkSecurity</name>
+    <message>
+        <source>Protected</source>
+        <translation>보호됨</translation>
+    </message>
+    <message>
+        <source>Key mismatch</source>
+        <translation>키 불일치</translation>
+    </message>
+    <message>
+        <source>Key set</source>
+        <translation>키 설정됨</translation>
+    </message>
+    <message>
+        <source>No key</source>
+        <translation>키 없음</translation>
+    </message>
+    <message>
+        <source>Not protected</source>
+        <translation>보호 안 됨</translation>
+    </message>
+    <message>
+        <source>Connect the drone first.</source>
+        <translation>먼저 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Land and turn the motors off first.</source>
+        <translation>먼저 착륙하고 모터를 끄세요.</translation>
+    </message>
+    <message>
+        <source>Connect the drone with a USB cable to set the key. Over the radio the key would travel unprotected.</source>
+        <translation>키를 설정하려면 드론을 USB 케이블로 연결하세요. 무선으로 보내면 키가 보호되지 않은 채 전달됩니다.</translation>
+    </message>
+    <message>
+        <source>The drone accepted the key. This link is now protected.</source>
+        <translation>드론이 키를 받았습니다. 이제 이 링크는 보호됩니다.</translation>
+    </message>
+    <message>
+        <source>The drone did not accept the key. Check the firmware supports MAVLink signing and try again over USB.</source>
+        <translation>드론이 키를 받지 않았습니다. 펌웨어가 MAVLink 서명을 지원하는지 확인하고 USB로 다시 시도하세요.</translation>
+    </message>
+    <message>
+        <source>The drone did not accept the new key, so the app went back to the old key.</source>
+        <translation>드론이 새 키를 받지 않아 앱이 이전 키로 되돌렸습니다.</translation>
+    </message>
+    <message>
+        <source>The key was removed from the drone and from this app.</source>
+        <translation>드론과 이 앱에서 키를 지웠습니다.</translation>
+    </message>
+    <message>
+        <source>The key was deleted from this app. Paired drones must be paired again.</source>
+        <translation>이 앱에서 키를 지웠습니다. 연결했던 드론은 다시 키를 설정해야 합니다.</translation>
+    </message>
+    <message>
+        <source>Connection</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Link security</source>
+        <translation>링크 보안</translation>
+    </message>
+    <message>
+        <source>How the links to the drone and to online services are protected. Orange = not protected.</source>
+        <translation>드론과 온라인 서비스로 가는 링크가 어떻게 보호되는지 보여 줍니다. 주황 = 보호 안 됨.</translation>
+    </message>
+    <message>
+        <source>Drone control link · MAVLink</source>
+        <translation>드론 제어 링크 · MAVLink</translation>
+    </message>
+    <message>
+        <source>Signed with a key shared by this app and the drone · key %1, set %2</source>
+        <translation>이 앱과 드론이 함께 쓰는 키로 서명 · 키 %1, 설정 %2</translation>
+    </message>
+    <message>
+        <source>No key yet: anyone on the radio network could send commands to the drone.</source>
+        <translation>아직 키가 없습니다: 무선 네트워크의 누구나 드론에 명령을 보낼 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Change key</source>
+        <translation>키 변경</translation>
+    </message>
+    <message>
+        <source>Set key</source>
+        <translation>키 설정</translation>
+    </message>
+    <message>
+        <source>This drone uses another key and ignores this app's commands. Change or remove its key with the tablet that paired it, or reset the drone's key over USB.</source>
+        <translation>이 드론은 다른 키를 써서 이 앱의 명령을 무시합니다. 키를 설정한 태블릿으로 키를 바꾸거나 지우거나, USB로 드론의 키를 초기화하세요.</translation>
+    </message>
+    <message>
+        <source>Waiting for the drone to answer with the new key…</source>
+        <translation>드론이 새 키로 응답하기를 기다리는 중…</translation>
+    </message>
+    <message>
+        <source>A new key is sent to this drone and used from now on. Other drones paired with the old key must be paired again.</source>
+        <translation>새 키를 이 드론에 보내고 앞으로 그 키를 씁니다. 이전 키로 연결했던 다른 드론은 다시 키를 설정해야 합니다.</translation>
+    </message>
+    <message>
+        <source>A new key is made on this tablet and sent to the drone. From then on the drone only obeys this app (and others with the same key).</source>
+        <translation>이 태블릿에서 새 키를 만들어 드론에 보냅니다. 그 뒤로 드론은 이 앱(과 같은 키를 가진 앱)의 명령만 따릅니다.</translation>
+    </message>
+    <message>
+        <source>Send a new key</source>
+        <translation>새 키 보내기</translation>
+    </message>
+    <message>
+        <source>Send the key</source>
+        <translation>키 보내기</translation>
+    </message>
+    <message>
+        <source>Remove key</source>
+        <translation>키 지우기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Video stream · RTSP</source>
+        <translation>영상 스트림 · RTSP</translation>
+    </message>
+    <message>
+        <source>Camera video is not encrypted between the drone and this app</source>
+        <translation>드론과 이 앱 사이의 카메라 영상은 암호화되지 않습니다</translation>
+    </message>
+    <message>
+        <source>Not encrypted</source>
+        <translation>암호화 안 됨</translation>
+    </message>
+    <message>
+        <source>RTK correction · NTRIP</source>
+        <translation>RTK 보정 · NTRIP</translation>
+    </message>
+    <message>
+        <source>User name and password are sent without encryption (NTRIP 1)</source>
+        <translation>사용자 이름과 비밀번호가 암호화 없이 전송됩니다 (NTRIP 1)</translation>
+    </message>
+    <message>
+        <source>Flight zone service · Altitude Angel</source>
+        <translation>비행 구역 서비스 · Altitude Angel</translation>
+    </message>
+    <message>
+        <source>HTTPS · server certificate checked</source>
+        <translation>HTTPS · 서버 인증서 확인</translation>
     </message>
 </context>
 </TS>

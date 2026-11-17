@@ -6,6 +6,15 @@ QtObject {
     property string qgcVersion: "V0.0.0-test"
     property QtObject corePlugin: QtObject {
         property bool showAdvancedUI: false
+        // S66 link security (LinkSecurity) double
+        property QtObject linkSecurity: QtObject {
+            property bool hasKey: false; property string fingerprint: ""; property string keyDate: ""
+            property int activeState: -1; property string pairBlock: "novehicle"; property bool busy: false
+            property string result: ""; property int pairCalls: 0; property int removeCalls: 0
+            function pair() { pairCalls++ }
+            function removeKey() { removeCalls++ }
+            function forgetLocalKey() {}
+        }
         property QtObject settings: QtObject {
             property QtObject lifeJacketEnable:     QtObject { property var rawValue: false }
             property QtObject ysEnable:             QtObject { property var rawValue: false }

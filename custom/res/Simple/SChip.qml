@@ -8,6 +8,7 @@ Rectangle {
     property string value:  ""
     property string label:  ""
     property string level:  "ok"
+    property bool   dot:    false       // small orange dot (e.g. link not protected while a signing key exists, S66)
     signal clicked()
 
     readonly property color _levelColor: level === "danger" ? SimpleTheme.danger
@@ -37,6 +38,12 @@ Rectangle {
             SText { text: chip.value; size: 28; bold: true }
             SText { text: chip.label; size: 22; color: chip.level === "danger" ? SimpleTheme.textPrimary : SimpleTheme.textSecondary }
         }
+    }
+    Rectangle {
+        visible: chip.dot
+        width: SimpleTheme.px(16); height: width; radius: width / 2
+        color: SimpleTheme.warn
+        anchors.right: parent.right; anchors.top: parent.top; anchors.margins: SimpleTheme.px(8)
     }
     MouseArea { anchors.fill: parent; onClicked: chip.clicked() }
 }

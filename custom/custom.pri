@@ -90,6 +90,7 @@ SOURCES += \
     $$PWD/src/SiYi/SiYiTransmitter.cc \
     $$PWD/src/codevsettings.cpp \
     $$PWD/src/CustomSettings.cc \
+    $$PWD/src/LinkSecurity.cc \
     $$PWD/src/ARLink/ARConnection.cpp \
     $$PWD/src/ARLink/ARManager.cpp \
     $$PWD/src/CustomQmlInterface.cc \
@@ -114,6 +115,7 @@ HEADERS += \
     $$PWD/src/SiYi/SiYiTransmitter.h \
     $$PWD/src/codevsettings.h \
     $$PWD/src/CustomSettings.h \
+    $$PWD/src/LinkSecurity.h \
     $$PWD/src/lockedqueue.h \
     $$PWD/src/ARLink/ARConnection.h \
     $$PWD/src/ARLink/ARManager.h \

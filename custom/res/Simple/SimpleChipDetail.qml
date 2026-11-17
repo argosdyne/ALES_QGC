@@ -2,6 +2,7 @@
  * AQGC Simple UI — S25/S26/S27/S14 chip details: values in plain words, raw value in one grey line
  ****************************************************************************/
 import QtQuick 2.12
+import QGroundControl 1.0
 import "."
 
 SPanel {
@@ -14,6 +15,11 @@ SPanel {
     titleIcon: kind === "battery" ? "battery" : kind === "gps" ? "gps" : kind === "link" ? "signal" : "rid"
 
     readonly property var _b: vs.battery
+    readonly property var _sec: QGroundControl.corePlugin.linkSecurity
+    function _protText() { var st = _sec ? _sec.activeState : -1
+        return st === 2 ? qsTr("Signed (MAVLink)") : st === 3 ? qsTr("Key mismatch") : st < 0 ? "—" : qsTr("Not protected") }
+    function _protColor() { var st = _sec ? _sec.activeState : -1
+        return st === 2 ? SimpleTheme.ok : st === 3 ? SimpleTheme.textDanger : st < 0 ? SimpleTheme.textPrimary : SimpleTheme.warn }
     readonly property var _rows: {
         if (kind === "battery") return [
             [qsTr("Remaining"), isNaN(vs.batteryPct) ? "—" : Math.round(vs.batteryPct) + " %"],
@@ -29,6 +35,8 @@ SPanel {
             [qsTr("Signal"), vs.linkText],
             [qsTr("RSSI"), vs.rssi >= 0 ? vs.rssi + " %" : qsTr("not reported")],
             [qsTr("Distance to drone"), vs.present ? vs.vehicle.distanceToGCS.valueString + " " + vs.vehicle.distanceToGCS.units : "—"],
+            // S27: MAVLink 2 signing state of this link (S66)
+            [qsTr("Link protection"), _protText(), _protColor()],
             [qsTr("If the link is lost"), qsTr("Drone follows its failsafe (Settings › Safety)")]]
         return [
             [qsTr("Status"), !vs.ridAvailable ? qsTr("Not enabled") : vs.ridGood ? qsTr("Broadcasting") : qsTr("Check")],
@@ -45,7 +53,7 @@ SPanel {
             Item {
                 width: col.width; height: SimpleTheme.px(44)
                 SText { text: modelData[0]; size: 24; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
-                SText { text: modelData[1]; size: 26; bold: true; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; width: Math.min(implicitWidth, col.width * 0.6); horizontalAlignment: Text.AlignRight }
+                SText { text: modelData[1]; size: 26; bold: true; color: modelData[2] !== undefined ? modelData[2] : SimpleTheme.textPrimary; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; width: Math.min(implicitWidth, col.width * 0.6); horizontalAlignment: Text.AlignRight }
             }
         }
     }

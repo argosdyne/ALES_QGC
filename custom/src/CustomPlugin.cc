@@ -18,6 +18,7 @@
 #include "MAVLinkLogManager.h"
 
 #include "CustomPlugin.h"
+#include "LinkSecurity.h"
 
 #include "MultiVehicleManager.h"
 #include "QGCApplication.h"
@@ -153,6 +154,7 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
         old.endGroup();
     }
     setShowAdvancedUI(_settings->simpleAdvancedMode()->rawValue().toBool());
+    _linkSecurity = new LinkSecurity(this);
 
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
