@@ -90,6 +90,26 @@ Rules for all screens: 00 Overview §8 (sizes, touch targets, colours) and §10 
 Per screen: build → check against the Figma frame (screenshot at 1920 × 1080 and 1280 × 720) → SITL where it talks to
 the FC → update CLAUDE.md (decision/gotcha) → push → CI → PR #311 description.
 
+## Step 8 (user 2026-11-18): replace the remaining classic screens, then remove "Classic alesQGC screens"
+
+Figma done 2026-11-18 (`01 Screens`, each with a UX note under it): S81 `158:42563`, S82 `158:42738`, S83 `158:42905`,
+S84 `158:43058`, S85 `159:42807`, S86 `159:42963`, S87 `159:43117`, S88 `160:43006`, S89 `160:43161`, S90 `160:43332`.
+S59 CompassMot subtitle fixed (propellers on and flipped, not off). Then code, one small commit each. Places that still
+open a classic page (checked against the code 2026-11-18):
+
+| # | Where (code) | Classic use today | New screen |
+|---|---|---|---|
+| 1 | S44 "More settings" (`SimpleMenuDrawer.qml`) | classic Settings tool | open Simple Settings at the ADVANCED MODE categories (S64, no new frame) |
+| 2 | Radio S71 (`SimpleSetupRadio.qml`) | stick calibration, channel reverse | S81 Stick calibration (step sheet), S82 Channel reverse (in S71) |
+| 3 | Power S73 (`SimpleSetupPower.qml`) | ESC calibration | S83 ESC calibration (step sheet) |
+| 4 | Safety S75 (`SimpleSetupSafety.qml`) | pre-arm checks (ARMING_CHECK) | S84 Pre-arm checks (bitmask list) |
+| 5 | Sensors S59 (`SimpleVehicleSetup.qml`) | CompassMot, orientation | S85 Motor interference (CompassMot), S86 Orientation |
+| 6 | Firmware S68 (`SimpleVehicleSetup.qml`) | classic firmware page | S68 (already in Figma, `119:39511`) |
+| 7 | Parameters S60 More (`SimpleParameters.qml`) | load from file | S87 Load / save parameter file (file list + diff) |
+| 8 | Analyze S63 (`SimpleAnalyze.qml`) | inspector charts, log categories | S88 Inspector chart, S89 Log categories |
+| 9 | Data & logs S64 (`SimpleAdvancedSettings.qml`) | save folder | S90 Folder picker |
+| 10 | S44 "Classic alesQGC screens" | whole classic UI | remove the item when 1–9 are done (keep the classic code; ask before deleting code) |
+
 ## Tests
 
 - Simple tests (`custom/tests/simple/README.md`): mode switch without PIN, state after restart, every Advanced entry

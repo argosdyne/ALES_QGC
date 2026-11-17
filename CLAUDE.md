@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S80 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S90 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -74,8 +74,7 @@ Reply to the user in Korean unless they write in English.
   telemetry bar, all flight modes in `SimpleModeSheet.qml` (vehicle.flightModes only; names as the APM plugin reports
   them, e.g. "Altitude Hold", "Position Hold", "Smart RTL"), mission editor `SimpleMissionEditor.qml` (Plan card in
   Advanced mode; PlanView.simpleSetEditingLayer switches the classic mission / fence / rally layer). New items go after
-  the selected one, never before the take-off. All Advanced redesign screens (S44, S58–S80) now exist; the classic
-  screens stay reachable from S44 until the user decides to remove them (step 8: ask first).
+  the selected one, never before the take-off. All Advanced redesign screens (S44, S58–S80) now exist; **user 2026-11-18 (step 8): build new screens for every remaining classic use too (list and S81+ numbers in TASK-advanced-mode-redesign.md "Step 8"), then remove the S44 classic item** (keep the classic code; ask before deleting it).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash

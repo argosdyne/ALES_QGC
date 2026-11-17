@@ -181,6 +181,7 @@ Item {
                             if (modelData.key === "analyze")    { simpleRoot.showAnalyze(); return }      // S61–S63
                             if (modelData.key === "parameters") { simpleRoot.showParameters(); return }   // S60
                             if (modelData.key === "setup")      { simpleRoot.showVehicleSetup(); return }   // S58
+                            if (modelData.key === "settings")   { simpleRoot.showSettings("flyscreen"); return } // S64 ADVANCED MODE categories
                             simpleRoot.openClassic(modelData.key === "classic" ? "fly" : modelData.key)
                         }
                     }
