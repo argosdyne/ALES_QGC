@@ -9,6 +9,7 @@
  *   @author Gus Grubba <gus@auterion.com>
  */
 
+#include "SettingsFact.h"
 #include <QtQml>
 #include <QQmlEngine>
 #include <QDateTime>
@@ -133,6 +134,8 @@ void CustomPlugin::setSlaveMode(bool mode)
 void CustomPlugin::setToolbox(QGCToolbox* toolbox)
 {
     QGCCorePlugin::setToolbox(toolbox);
+    // CE RED / EN 18031: plain passwords and keys of older builds go to the secure store (SettingsFact)
+    SettingsFact::moveSecretsToSecureStore();
 
     _siyiManager->setToolbox(toolbox);
     _ysManager->setToolbox(toolbox);

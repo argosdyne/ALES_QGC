@@ -11,8 +11,54 @@
 #include "SettingsFact.h"
 #include "QGCCorePlugin.h"
 #include "QGCApplication.h"
+#include "SecureStore.h"
 
 #include <QSettings>
+
+// AQGC (CE RED 3.3(d)/(e), EN 18031, 2026-11-17): passwords, licence keys and tokens are kept in SecureStore
+// (Windows DPAPI) under "<group>/<name>", not as plain text in the settings file. A plain value left by an older
+// build is moved there once. Both modes.
+static bool _isSecretSetting(const QString& name)
+{
+    static const QStringList secrets = { "passwd", "otaPassword", "onlineLicenseKey", "mapboxToken", "esriToken", "vworldToken" };
+    return secrets.contains(name);
+}
+
+static QString _secretName(const QString& group, const QString& name)
+{
+    return group.isEmpty() ? name : group + "/" + name;
+}
+
+// settings must be in the group; moves a plain value (if any) into the secure store and removes it from the file
+static void _moveSecret(QSettings& settings, const QString& group, const QString& name)
+{
+    if (!settings.contains(name)) {
+        return;
+    }
+    const QString secretName = _secretName(group, name);
+    const QString plain = settings.value(name).toString();
+    if (!plain.isEmpty() && !SecureStore::contains(secretName)) {
+        SecureStore::put(secretName, plain.toUtf8());
+    }
+    settings.remove(name);
+}
+
+void SettingsFact::moveSecretsToSecureStore(void)
+{
+    QSettings settings;
+    for (const QString& group : settings.childGroups()) {
+        if (group == QStringLiteral("SecureStore")) {
+            continue;
+        }
+        settings.beginGroup(group);
+        for (const QString& key : settings.childKeys()) {
+            if (_isSecretSetting(key)) {
+                _moveSecret(settings, group, key);
+            }
+        }
+        settings.endGroup();
+    }
+}
 
 SettingsFact::SettingsFact(QObject* parent)
     : Fact(parent)
@@ -44,7 +90,13 @@ SettingsFact::SettingsFact(QString settingsGroup, FactMetaData* metaData, QObjec
             if (_visible) {
                 QVariant typedValue;
                 QString errorString;
-                metaData->convertAndValidateRaw(settings.value(_name, rawDefaultValue), true /* conertOnly */, typedValue, errorString);
+                QVariant stored = settings.value(_name, rawDefaultValue);
+                if (_isSecretSetting(_name)) {
+                    const QString secretName = _secretName(_settingsGroup, _name);
+                    _moveSecret(settings, _settingsGroup, _name);
+                    stored = SecureStore::contains(secretName) ? QVariant(QString::fromUtf8(SecureStore::get(secretName))) : rawDefaultValue;
+                }
+                metaData->convertAndValidateRaw(stored, true /* conertOnly */, typedValue, errorString);
                 _rawValue = typedValue;
             } else {
                 // Setting is not visible, force to default value always
@@ -78,6 +130,18 @@ void SettingsFact::_rawValueChanged(QVariant value)
 
     if (!_settingsGroup.isEmpty()) {
         settings.beginGroup(_settingsGroup);
+    }
+
+    if (_isSecretSetting(_name)) {
+        const QString secretName = _secretName(_settingsGroup, _name);
+        const QString text = value.toString();
+        if (text.isEmpty()) {
+            SecureStore::remove(secretName);
+        } else {
+            SecureStore::put(secretName, text.toUtf8());
+        }
+        settings.remove(_name);
+        return;
     }
 
     settings.setValue(_name, value);
