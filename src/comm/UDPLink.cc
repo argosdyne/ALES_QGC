@@ -16,8 +16,6 @@
 #include <QNetworkInterface>
 #include <iostream>
 #include <QHostInfo>
-#include <QDateTime>
-#include <QHash>
 
 #include "UDPLink.h"
 #include "QGC.h"
@@ -26,96 +24,6 @@
 #include "AutoConnectSettings.h"
 
 static const char* kZeroconfRegistration = "_qgroundcontrol._udp";
-
-namespace {
-
-struct UdpWriteErrorLogState {
-    qint64 lastLogMs = 0;
-    int suppressedCount = 0;
-};
-
-struct UdpReceiveLogState {
-    qint64 firstLogMs = 0;
-    qint64 lastLogMs = 0;
-    int packetCount = 0;
-    qint64 byteCount = 0;
-};
-
-void logUdpWriteErrorThrottled(const QHostAddress& address, quint16 port)
-{
-    static constexpr qint64 kUdpWriteErrorLogWindowMs = 5000;
-    static QHash<QString, UdpWriteErrorLogState> s_udpWriteErrorLogState;
-    static QMutex s_udpWriteErrorLogMutex;
-
-    const QString key = QStringLiteral("%1:%2").arg(address.toString()).arg(port);
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    // UDPLink instances run on separate threads and share this log state.
-    QMutexLocker locker(&s_udpWriteErrorLogMutex);
-    UdpWriteErrorLogState& state = s_udpWriteErrorLogState[key];
-    if (state.lastLogMs != 0 && (now - state.lastLogMs) < kUdpWriteErrorLogWindowMs) {
-        state.suppressedCount++;
-        return;
-    }
-
-    const int suppressedCount = state.suppressedCount;
-    state.lastLogMs = now;
-    state.suppressedCount = 0;
-    locker.unlock();
-
-    qWarning().noquote() << QStringLiteral("Error writing to %1 %2 suppressed=%3")
-        .arg(address.toString())
-        .arg(port)
-        .arg(suppressedCount);
-}
-
-void logUdpReceiveThrottled(const QString& linkName, quint16 localPort, const QHostAddress& sender, quint16 senderPort, qint64 datagramSize)
-{
-    static constexpr qint64 kUdpReceiveLogWindowMs = 5000;
-    static QHash<QString, UdpReceiveLogState> s_udpReceiveLogState;
-    static QMutex s_udpReceiveLogMutex;
-
-    const QString key = QStringLiteral("%1:%2:%3:%4").arg(linkName).arg(localPort).arg(sender.toString()).arg(senderPort);
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    // Protect both hash insertion and updates through the returned reference.
-    QMutexLocker locker(&s_udpReceiveLogMutex);
-    UdpReceiveLogState& state = s_udpReceiveLogState[key];
-    if (state.firstLogMs == 0) {
-        state.firstLogMs = now;
-        state.lastLogMs = now;
-        state.packetCount = 1;
-        state.byteCount = datagramSize;
-        locker.unlock();
-        qCWarning(LinkInterfaceLog) << "UDP receive first packet"
-                                    << linkName
-                                    << "localPort" << localPort
-                                    << "sender" << sender.toString()
-                                    << "senderPort" << senderPort
-                                    << "bytes" << datagramSize;
-        return;
-    }
-
-    state.packetCount++;
-    state.byteCount += datagramSize;
-    if ((now - state.lastLogMs) >= kUdpReceiveLogWindowMs) {
-        const qint64 windowMs = now - state.lastLogMs;
-        const int packetCount = state.packetCount;
-        const qint64 byteCount = state.byteCount;
-        state.lastLogMs = now;
-        state.packetCount = 0;
-        state.byteCount = 0;
-        locker.unlock();
-        qCWarning(LinkInterfaceLog) << "UDP receive rate"
-                                    << linkName
-                                    << "localPort" << localPort
-                                    << "sender" << sender.toString()
-                                    << "senderPort" << senderPort
-                                    << "windowMs" << windowMs
-                                    << "packets" << packetCount
-                                    << "bytes" << byteCount;
-    }
-}
-
-}
 
 static bool is_ip(const QString& address)
 {
@@ -256,7 +164,14 @@ void UDPLink::_writeDataGram(const QByteArray data, const UDPCLient* target)
 {
     //qDebug() << "UDP Out" << target->address << target->port;
     if(_socket->writeDatagram(data, target->address, target->port) < 0) {
-        logUdpWriteErrorThrottled(target->address, target->port);
+        // Keep error reporting bounded without retaining state for each peer.
+        if (!_writeErrorLogTimer.isValid() || _writeErrorLogTimer.hasExpired(5000)) {
+            _writeErrorLogTimer.start();
+            qCWarning(LinkInterfaceLog) << "UDP writeDatagram failed"
+                                        << _config->name()
+                                        << "target" << target->address << target->port
+                                        << "error" << _socket->errorString();
+        }
     }
 }
 
@@ -282,7 +197,6 @@ void UDPLink::readBytes()
                                         << "error" << _socket->errorString();
             break;
         }
-        logUdpReceiveThrottled(_config->name(), _udpConfig->localPort(), sender, senderPort, slen);
         databuffer.append(datagram);
         //-- Wait a bit before sending it over
         if (databuffer.size() > 10 * 1024) {

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QString>
+#include <QElapsedTimer>
 #include <QList>
 #include <QMap>
 #include <QMutex>
@@ -129,6 +130,7 @@ private:
     QUdpSocket*         _socket;
     UDPConfiguration*   _udpConfig;
     bool                _connectState;
+    QElapsedTimer       _writeErrorLogTimer;
     QList<UDPCLient*>   _sessionTargets;
     QMutex              _sessionTargetsMutex;
     QList<QHostAddress> _localAddresses;
