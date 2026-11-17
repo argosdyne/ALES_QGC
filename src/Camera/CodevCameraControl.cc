@@ -961,6 +961,10 @@ bool CodevCameraControl::incomingParameter(Fact* pFact, QVariant& newValue)
 
 bool CodevCameraControl::takePhoto()
 {
+    if (storageStatus() == STORAGE_EMPTY) {
+        qCDebug(CodevCameraLog) << "takePhoto blocked: SD card missing";
+        return false;
+    }
     qCDebug(CodevCameraLog) << "takePhoto()";
     //-- Check if camera can capture photos or if it can capture it while in Video Mode
     if(!capturesPhotos()) {
@@ -1016,6 +1020,10 @@ bool CodevCameraControl::stopTakePhoto()
 
 bool CodevCameraControl::startVideo()
 {
+    if (storageStatus() == STORAGE_EMPTY) {
+        qCDebug(CodevCameraLog) << "startVideo blocked: SD card missing";
+        return false;
+    }
     if(!_resetting) {
         qCDebug(CodevCameraLog) << "startVideo()";
         //-- Check if camera can capture videos or if it can capture it while in Photo Mode
