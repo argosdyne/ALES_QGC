@@ -156,6 +156,13 @@ Reply to the user in Korean unless they write in English.
   script into the build dir before qmake). `simple_ui_*` tags are Daily builds with no GitHub Release; `v*` stay Stable.
   The old key is in git history: the user revokes it at Altitude Angel. S65 support period / security contact: "not set"
   (user 2026-11-17) until the company gives the values.
+  S65 / S67 done 2026-11-17 (`SimpleSecurityPrivacy.qml`, `custom/src/PrivacyData`, core `src/Utilities/SecurityLog`):
+  data sizes (logs = Telemetry + Logs + CrashLogs, media = Video + Photo, missions = .plan count), map cache = default
+  tile set (deleting it clears all cached tiles incl. saved areas), accounts = SecureStore names (+ link key); delete runs
+  in a worker thread and keeps the folders; "accounts" keeps radio certificate pins; "App settings" =
+  deleteAllSettingsNextBoot (restart). Windows signature = WinVerifyTrust (local and CI builds are unsigned → orange).
+  Location sharing = followTarget (on = 2, Follow Me only), default now 0 in both modes. UI tests of S67 must use a
+  scratch `savePath` (the real one is the user's OneDrive folder) and must not tick Map cache (shared real cache).
   Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
   max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
@@ -235,6 +242,10 @@ Reply to the user in Korean unless they write in English.
 - Qt 5.15 QML: an inline `component X:` with a `default property alias` inside an SPanel-based file overflowed the stack
   on creation (0xC00000FD). Put such components in their own .qml file (`SPayloadCard.qml`).
 - `vehicle.hasGripper` is CONSTANT but reads GRIP_ENABLE: bind it together with `paramsReady`, or it stays false.
+- After changing `CustomPlugin.h` (members), delete `QGCToolbox.obj` in the build dir before a local build: the toolbox
+  creates the plugin through `#include CUSTOMHEADER` (a macro), which qmake's dependency scan does not follow, so the
+  old object keeps the old class size → heap corruption at start (0xC0000374). CI builds are clean, not affected.
+- The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
 
