@@ -279,11 +279,13 @@ Rectangle {
                             }
                             QGCLabel { text: qsTr("Options: Warn only - Recommend land - Auto land"); color: root.muted; font.pointSize: ScreenTools.smallFontPointSize }
                             RowLayout {
-                                QGCLabel { text: qsTr("Torque presets"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+                                enabled: false
+                                opacity: 0.5
+                                QGCLabel { text: qsTr("Torque presets"); color: root.muted; font.pointSize: ScreenTools.defaultFontPointSize }
                                 Item { Layout.fillWidth: true }
-                                Repeater { model: [0, 30, 100]; delegate: QGCButton { text: modelData + " %"; Layout.preferredHeight: root.controlHeight; onClicked: { station.setTorqueRemote(true); station.setTorquePercent(modelData) } } }
+                                Repeater { model: [0, 30, 100]; delegate: QGCButton { text: modelData + " %"; Layout.preferredHeight: root.controlHeight } }
                             }
-                            QGCLabel { Layout.fillWidth: true; text: qsTr("Values apply immediately and are kept after restart."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
+                            QGCLabel { Layout.fillWidth: true; text: qsTr("Torque presets are disabled. Use the Tether panel to adjust torque."); color: root.muted; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize }
                             Item { Layout.fillHeight: true }
                         }
                     }

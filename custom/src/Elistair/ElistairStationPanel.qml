@@ -29,6 +29,14 @@ Rectangle {
     readonly property real telemetryOpacity: station && station.linkLost ? 0.48 : 1.0
     readonly property color lostColor: "#68717b"
     readonly property bool inFlight: station && station.powerOffRequiresConfirmation
+    // A UI default is not a station command; only explicit clicks send a setpoint.
+    property int torqueLevel: 0
+    function selectTorqueLevel(level) {
+        if (!root.controlsAvailable || !station.torqueRemote)
+            return
+        root.torqueLevel = Math.max(0, Math.min(10, level))
+        station.setTorquePercent(root.torqueLevel * 10)
+    }
     readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
     Controls2.Dialog {
         id: associateVehicleDialog
@@ -225,45 +233,52 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            QGCLabel { text: qsTr("Torque"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
+            QGCLabel { text: qsTr("Set %1 / 10").arg(root.torqueLevel); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel {
-                text: qsTr("set %1% - applied %2%").arg(station.torqueSetpointAvailable ? station.torquePercent : "—").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
+                text: qsTr("applied %1%").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
                 color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize
             }
         }
 
-        Slider {
-            id: torqueSlider
+        Item {
+            id: torqueSteps
             Layout.fillWidth: true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.15
-            from: 0; to: 100; stepSize: 1
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.2
             enabled: root.controlsAvailable && station.torqueRemote
-            opacity: station.torqueRemote ? 1.0 : 0.55
-            value: station.torquePercent
-            onMoved: station.setTorquePercent(Math.round(value))
-            background: Rectangle {
-                x: torqueSlider.leftPadding; y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: torqueSlider.availableWidth; height: ScreenTools.defaultFontPixelHeight * 0.24; radius: height / 2; color: "#69717b"
-                Rectangle { width: torqueSlider.visualPosition * parent.width; height: parent.height; radius: parent.radius; color: root.blue }
+            opacity: enabled ? 1.0 : 0.55
+            Rectangle {
+                x: ScreenTools.defaultFontPixelHeight * 0.55; width: parent.width - 2 * x
+                anchors.verticalCenter: parent.verticalCenter; height: 3; color: "#69717b"
+                Rectangle { width: parent.width * root.torqueLevel / 10; height: parent.height; color: root.blue }
             }
-            handle: Rectangle {
-                x: torqueSlider.leftPadding + torqueSlider.visualPosition * (torqueSlider.availableWidth - width)
-                y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: ScreenTools.defaultFontPixelHeight * 1.15; height: width; radius: width / 2; color: "#4c5660"; border.color: "white"; border.width: 1
+            Repeater {
+                model: 11
+                delegate: Item {
+                    width: torqueSteps.width / 11; height: torqueSteps.height
+                    x: index * (torqueSteps.width - width) / 10
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: root.torqueLevel === index ? ScreenTools.defaultFontPixelHeight : ScreenTools.defaultFontPixelHeight * 0.4
+                        height: width; radius: width / 2
+                        color: root.torqueLevel === index ? root.backgroundColor : (index < root.torqueLevel ? root.blue : "#69717b")
+                        border.color: root.blue; border.width: root.torqueLevel === index ? 2 : 0
+                    }
+                    MouseArea { anchors.fill: parent; onClicked: root.selectTorqueLevel(index) }
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true; spacing: ScreenTools.defaultFontPixelWidth * 0.7
             Repeater {
-                model: [0, 30, 100]
+                model: ["‹", "value", "›"]
                 delegate: Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
-                    color: !station.torqueRemote ? "#59616b" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#48525d")
-                    border.color: !station.torqueRemote ? "#6d7681" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#69717b"); border.width: 1
-                    QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
-                    MouseArea { anchors.fill: parent; enabled: root.controlsAvailable && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }
+                    color: !root.controlsAvailable || !station.torqueRemote ? "#59616b" : "#48525d"
+                    border.color: "#69717b"; border.width: 1
+                    QGCLabel { anchors.centerIn: parent; text: modelData === "value" ? root.torqueLevel : modelData; color: root.controlsAvailable && station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
+                    MouseArea { anchors.fill: parent; enabled: modelData !== "value" && root.controlsAvailable && station.torqueRemote; onClicked: root.selectTorqueLevel(root.torqueLevel + (index === 0 ? -1 : 1)) }
                 }
             }
         }
