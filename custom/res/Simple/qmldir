@@ -52,6 +52,15 @@ SimpleSecurityPrivacy 1.0 SimpleSecurityPrivacy.qml
 SimpleAnalyze 1.0 SimpleAnalyze.qml
 SimpleParameters 1.0 SimpleParameters.qml
 SimpleVehicleSetup 1.0 SimpleVehicleSetup.qml
+SFactField 1.0 SFactField.qml
+SimpleSetupModes 1.0 SimpleSetupModes.qml
+SimpleSetupSafety 1.0 SimpleSetupSafety.qml
+SimpleSetupPower 1.0 SimpleSetupPower.qml
+SimpleSetupRadio 1.0 SimpleSetupRadio.qml
+SimpleSetupGimbal 1.0 SimpleSetupGimbal.qml
+SimpleSetupTuning 1.0 SimpleSetupTuning.qml
+SimpleSetupFrame 1.0 SimpleSetupFrame.qml
+SimpleSetupMotors 1.0 SimpleSetupMotors.qml
 SStatusChip 1.0 SStatusChip.qml
 SimpleTakeoffSheet 1.0 SimpleTakeoffSheet.qml
 SimpleTopBar 1.0 SimpleTopBar.qml

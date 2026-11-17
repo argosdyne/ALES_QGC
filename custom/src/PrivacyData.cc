@@ -261,6 +261,12 @@ void PrivacyData::deleteData(const QStringList& keys)
     _deleteWatcher.setFuture(QtConcurrent::run(deleteFolders, dirs));
 }
 
+void PrivacyData::logEvent(const QString& source, const QString& text)
+{
+    SecurityLog::write(source, text);
+    reloadSecurityLog();
+}
+
 void PrivacyData::clearResult()
 {
     if (!_result.isEmpty()) {

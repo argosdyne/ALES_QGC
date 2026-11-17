@@ -5641,4 +5641,652 @@
         <translation>닫기</translation>
     </message>
 </context>
+<context>
+    <name>SimpleSetupModes</name>
+    <message>
+        <source>Manual (self-level)</source>
+        <translation>수동 (자동 수평)</translation>
+    </message>
+    <message>
+        <source>Acro (no self-level)</source>
+        <translation>곡예 (수평 유지 없음)</translation>
+    </message>
+    <message>
+        <source>Altitude hold</source>
+        <translation>고도 유지</translation>
+    </message>
+    <message>
+        <source>Mission</source>
+        <translation>임무</translation>
+    </message>
+    <message>
+        <source>Guided by the app</source>
+        <translation>앱 유도</translation>
+    </message>
+    <message>
+        <source>Position hold</source>
+        <translation>위치 유지</translation>
+    </message>
+    <message>
+        <source>Return home</source>
+        <translation>귀환</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>선회</translation>
+    </message>
+    <message>
+        <source>Land</source>
+        <translation>착륙</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>드리프트</translation>
+    </message>
+    <message>
+        <source>Sport</source>
+        <translation>스포츠</translation>
+    </message>
+    <message>
+        <source>AutoTune</source>
+        <translation>자동 튜닝</translation>
+    </message>
+    <message>
+        <source>Position hold (pilot)</source>
+        <translation>위치 유지 (조종사)</translation>
+    </message>
+    <message>
+        <source>Brake</source>
+        <translation>정지</translation>
+    </message>
+    <message>
+        <source>Return the way it came</source>
+        <translation>온 길로 귀환</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>따라가기</translation>
+    </message>
+    <message>
+        <source>Return after mission</source>
+        <translation>임무 후 귀환</translation>
+    </message>
+    <message>
+        <source>Flight modes</source>
+        <translation>비행 모드</translation>
+    </message>
+    <message>
+        <source>The six positions of the mode switch (channel %1). The current position is highlighted.</source>
+        <translation>모드 스위치의 6개 위치(채널 %1)입니다. 지금 위치가 강조됩니다.</translation>
+    </message>
+    <message>
+        <source>Position %1</source>
+        <translation>위치 %1</translation>
+    </message>
+    <message>
+        <source>PWM %1 +</source>
+        <translation>PWM %1 +</translation>
+    </message>
+    <message>
+        <source>PWM %1 – %2</source>
+        <translation>PWM %1 – %2</translation>
+    </message>
+    <message>
+        <source>Now</source>
+        <translation>현재</translation>
+    </message>
+    <message>
+        <source>ArduPilot: %1</source>
+        <translation>ArduPilot: %1</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>변경</translation>
+    </message>
+    <message>
+        <source>The switch is on position %1 now: the drone changes to the new mode at once.</source>
+        <translation>스위치가 지금 위치 %1에 있습니다: 드론이 바로 새 모드로 바뀝니다.</translation>
+    </message>
+    <message>
+        <source>Change now</source>
+        <translation>지금 바꾸기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupSafety</name>
+    <message>
+        <source>Low battery</source>
+        <translation>배터리 부족</translation>
+    </message>
+    <message>
+        <source>%1 or %2 left</source>
+        <translation>남은 양 %1 또는 %2</translation>
+    </message>
+    <message>
+        <source>Critical battery</source>
+        <translation>배터리 위험</translation>
+    </message>
+    <message>
+        <source>Controller signal lost</source>
+        <translation>조종기 신호 끊김</translation>
+    </message>
+    <message>
+        <source>Throttle below %1</source>
+        <translation>스로틀 %1 미만</translation>
+    </message>
+    <message>
+        <source>Ground station link lost</source>
+        <translation>지상국 링크 끊김</translation>
+    </message>
+    <message>
+        <source>After %1 without the app</source>
+        <translation>앱과 %1 동안 끊기면</translation>
+    </message>
+    <message>
+        <source>When the app link is lost</source>
+        <translation>앱 링크가 끊기면</translation>
+    </message>
+    <message>
+        <source>Navigation error (EKF)</source>
+        <translation>항법 오류 (EKF)</translation>
+    </message>
+    <message>
+        <source>Position estimate is not good</source>
+        <translation>위치 추정이 나쁨</translation>
+    </message>
+    <message>
+        <source>Geofence</source>
+        <translation>지오펜스</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
+    </message>
+    <message>
+        <source>Circle %1 · ceiling %2</source>
+        <translation>원형 %1 · 최고 고도 %2</translation>
+    </message>
+    <message>
+        <source>Pre-arm checks</source>
+        <translation>시동 전 점검</translation>
+    </message>
+    <message>
+        <source>The drone refuses to start when a check fails</source>
+        <translation>점검에 실패하면 드론이 시동을 거부합니다</translation>
+    </message>
+    <message>
+        <source>Crash check</source>
+        <translation>충돌 감지</translation>
+    </message>
+    <message>
+        <source>Stops the motors after a crash</source>
+        <translation>충돌 후 모터를 멈춥니다</translation>
+    </message>
+    <message>
+        <source>Safety</source>
+        <translation>안전</translation>
+    </message>
+    <message>
+        <source>All failsafe settings. Settings › Safety shows the main ones in plain words.</source>
+        <translation>모든 고장 대응 설정입니다. 설정 › 안전에는 주요 항목이 쉬운 말로 있습니다.</translation>
+    </message>
+    <message>
+        <source>All on</source>
+        <translation>모두 켜짐</translation>
+    </message>
+    <message>
+        <source>Some off</source>
+        <translation>일부 꺼짐</translation>
+    </message>
+    <message>
+        <source>No protection</source>
+        <translation>보호 없음</translation>
+    </message>
+    <message>
+        <source>Change (classic)</source>
+        <translation>변경 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>변경</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupPower</name>
+    <message>
+        <source>Power</source>
+        <translation>전원</translation>
+    </message>
+    <message>
+        <source>Battery monitor and ESCs. Low and critical levels are set in Safety.</source>
+        <translation>배터리 측정과 ESC입니다. 부족·위험 기준은 안전에서 설정합니다.</translation>
+    </message>
+    <message>
+        <source>Battery monitor</source>
+        <translation>배터리 측정</translation>
+    </message>
+    <message>
+        <source>How the drone measures the battery</source>
+        <translation>드론이 배터리를 재는 방식</translation>
+    </message>
+    <message>
+        <source>Capacity</source>
+        <translation>용량</translation>
+    </message>
+    <message>
+        <source>Full battery capacity</source>
+        <translation>배터리 가득 찬 용량</translation>
+    </message>
+    <message>
+        <source>Voltage calibration</source>
+        <translation>전압 보정</translation>
+    </message>
+    <message>
+        <source>Drone reads %1 V. Measure the battery and enter the real value.</source>
+        <translation>드론 측정값 %1 V. 배터리를 직접 재서 실제 값을 넣으세요.</translation>
+    </message>
+    <message>
+        <source>Calibrate</source>
+        <translation>보정</translation>
+    </message>
+    <message>
+        <source>Voltage multiplier set to %1.</source>
+        <translation>전압 배율을 %1(으)로 맞췄습니다.</translation>
+    </message>
+    <message>
+        <source>Current sensor</source>
+        <translation>전류 센서</translation>
+    </message>
+    <message>
+        <source>Amps per volt of the power module</source>
+        <translation>전원 모듈의 볼트당 암페어</translation>
+    </message>
+    <message>
+        <source>ESC calibration</source>
+        <translation>ESC 보정</translation>
+    </message>
+    <message>
+        <source>Propellers off, battery connected. Only after replacing ESCs.</source>
+        <translation>프로펠러를 떼고 배터리를 연결하세요. ESC를 바꾼 뒤에만 합니다.</translation>
+    </message>
+    <message>
+        <source>Start (classic)</source>
+        <translation>시작 (기존 화면)</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupRadio</name>
+    <message>
+        <source>Roll</source>
+        <translation>롤</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation>피치</translation>
+    </message>
+    <message>
+        <source>Throttle</source>
+        <translation>스로틀</translation>
+    </message>
+    <message>
+        <source>Yaw</source>
+        <translation>요</translation>
+    </message>
+    <message>
+        <source>ch %1</source>
+        <translation>채널 %1</translation>
+    </message>
+    <message>
+        <source>Mode switch · ch %1</source>
+        <translation>모드 스위치 · 채널 %1</translation>
+    </message>
+    <message>
+        <source>Ch %1 · %2</source>
+        <translation>채널 %1 · %2</translation>
+    </message>
+    <message>
+        <source>Ch %1</source>
+        <translation>채널 %1</translation>
+    </message>
+    <message>
+        <source>Radio</source>
+        <translation>조종기</translation>
+    </message>
+    <message>
+        <source>Move each stick and switch to check it. The company controller is calibrated at the factory: calibrate only after a repair or with a new controller.</source>
+        <translation>스틱과 스위치를 하나씩 움직여 확인하세요. 회사 조종기는 출고 때 보정되어 있어, 수리 후나 새 조종기일 때만 보정하세요.</translation>
+    </message>
+    <message>
+        <source>No controller signal yet. Turn on the controller.</source>
+        <translation>아직 조종기 신호가 없습니다. 조종기를 켜세요.</translation>
+    </message>
+    <message>
+        <source>Calibrate sticks (classic)</source>
+        <translation>스틱 보정 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Reverse a channel (classic)</source>
+        <translation>채널 반전 (기존 화면)</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupGimbal</name>
+    <message>
+        <source>None</source>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>Channel %1</source>
+        <translation>채널 %1</translation>
+    </message>
+    <message>
+        <source>Gimbal</source>
+        <translation>짐벌</translation>
+    </message>
+    <message>
+        <source>Gimbal connection and limits. Speed and tilt range for pilots are in Settings › Payloads.</source>
+        <translation>짐벌 연결과 한계입니다. 조종사용 속도와 기울기 범위는 설정 › 페이로드에 있습니다.</translation>
+    </message>
+    <message>
+        <source>Gimbal type</source>
+        <translation>짐벌 종류</translation>
+    </message>
+    <message>
+        <source>How the drone talks to the gimbal. Changing it needs a drone restart.</source>
+        <translation>드론이 짐벌과 통신하는 방식. 바꾸면 드론을 다시 시작해야 합니다.</translation>
+    </message>
+    <message>
+        <source>Tilt control</source>
+        <translation>기울기 조작</translation>
+    </message>
+    <message>
+        <source>Controller channel that moves the camera up and down</source>
+        <translation>카메라를 위아래로 움직이는 조종기 채널</translation>
+    </message>
+    <message>
+        <source>Tilt range</source>
+        <translation>기울기 범위</translation>
+    </message>
+    <message>
+        <source>Lowest and highest angle</source>
+        <translation>가장 낮은 각도와 가장 높은 각도</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>~</translation>
+    </message>
+    <message>
+        <source>Pan control</source>
+        <translation>좌우 회전 조작</translation>
+    </message>
+    <message>
+        <source>Turn left and right</source>
+        <translation>좌우로 돌리기</translation>
+    </message>
+    <message>
+        <source>Keep the camera level</source>
+        <translation>카메라 수평 유지</translation>
+    </message>
+    <message>
+        <source>Gimbal holds its angle when the drone tilts</source>
+        <translation>드론이 기울어도 짐벌이 각도를 유지합니다</translation>
+    </message>
+    <message>
+        <source>No gimbal is set. Choose the gimbal type above, then restart the drone.</source>
+        <translation>설정된 짐벌이 없습니다. 위에서 짐벌 종류를 고르고 드론을 다시 시작하세요.</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupTuning</name>
+    <message>
+        <source>Tuning</source>
+        <translation>튜닝</translation>
+    </message>
+    <message>
+        <source>Factory tuning fits the company drones. Change it only after a payload or frame change.</source>
+        <translation>공장 튜닝은 회사 드론에 맞춰져 있습니다. 페이로드나 프레임을 바꾼 뒤에만 바꾸세요.</translation>
+    </message>
+    <message>
+        <source>In flight: each change is sent at once. Change in small steps and watch the drone.</source>
+        <translation>비행 중: 변경은 즉시 전송됩니다. 조금씩 바꾸며 드론을 지켜보세요.</translation>
+    </message>
+    <message>
+        <source>Undo changes in this flight</source>
+        <translation>이번 비행의 변경 되돌리기</translation>
+    </message>
+    <message>
+        <source>Roll and pitch response</source>
+        <translation>롤·피치 반응</translation>
+    </message>
+    <message>
+        <source>How quickly the drone follows the sticks</source>
+        <translation>드론이 스틱을 따라오는 빠르기</translation>
+    </message>
+    <message>
+        <source>Yaw response</source>
+        <translation>요 반응</translation>
+    </message>
+    <message>
+        <source>How quickly the drone turns</source>
+        <translation>드론이 도는 빠르기</translation>
+    </message>
+    <message>
+        <source>Climb response</source>
+        <translation>상승 반응</translation>
+    </message>
+    <message>
+        <source>How quickly height changes</source>
+        <translation>고도가 바뀌는 빠르기</translation>
+    </message>
+    <message>
+        <source>Softer</source>
+        <translation>부드럽게</translation>
+    </message>
+    <message>
+        <source>Sharper</source>
+        <translation>날카롭게</translation>
+    </message>
+    <message>
+        <source>Hover throttle</source>
+        <translation>호버 스로틀</translation>
+    </message>
+    <message>
+        <source>Learned in flight</source>
+        <translation>비행 중 학습됨</translation>
+    </message>
+    <message>
+        <source>Learned</source>
+        <translation>학습됨</translation>
+    </message>
+    <message>
+        <source>AutoTune</source>
+        <translation>자동 튜닝</translation>
+    </message>
+    <message>
+        <source>Tunes in flight on a calm day: fly in Altitude hold, then hold the AutoTune switch until it finishes (about 5 min per axis).</source>
+        <translation>바람 없는 날 비행 중에 튜닝합니다: 고도 유지로 비행한 뒤, 끝날 때까지 자동 튜닝 스위치를 켜 두세요(축마다 약 5분).</translation>
+    </message>
+    <message>
+        <source>Roll</source>
+        <translation>롤</translation>
+    </message>
+    <message>
+        <source>Pitch</source>
+        <translation>피치</translation>
+    </message>
+    <message>
+        <source>Yaw</source>
+        <translation>요</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation>강도</translation>
+    </message>
+    <message>
+        <source>Switch</source>
+        <translation>스위치</translation>
+    </message>
+    <message>
+        <source>Channel %1</source>
+        <translation>채널 %1</translation>
+    </message>
+    <message>
+        <source>No switch set (Radio › channel options)</source>
+        <translation>스위치 설정 없음 (조종기 › 채널 기능)</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupFrame</name>
+    <message>
+        <source>Quadcopter X</source>
+        <translation>쿼드콥터 X</translation>
+    </message>
+    <message>
+        <source>4 motors · AQUILA-2, AQUILA-3F</source>
+        <translation>모터 4개 · AQUILA-2, AQUILA-3F</translation>
+    </message>
+    <message>
+        <source>Quadcopter +</source>
+        <translation>쿼드콥터 +</translation>
+    </message>
+    <message>
+        <source>4 motors</source>
+        <translation>모터 4개</translation>
+    </message>
+    <message>
+        <source>Hexacopter X</source>
+        <translation>헥사콥터 X</translation>
+    </message>
+    <message>
+        <source>6 motors</source>
+        <translation>모터 6개</translation>
+    </message>
+    <message>
+        <source>Octocopter X</source>
+        <translation>옥토콥터 X</translation>
+    </message>
+    <message>
+        <source>8 motors</source>
+        <translation>모터 8개</translation>
+    </message>
+    <message>
+        <source>Y6</source>
+        <translation>Y6</translation>
+    </message>
+    <message>
+        <source>6 motors, coaxial</source>
+        <translation>모터 6개, 동축</translation>
+    </message>
+    <message>
+        <source>X8</source>
+        <translation>X8</translation>
+    </message>
+    <message>
+        <source>8 motors, coaxial</source>
+        <translation>모터 8개, 동축</translation>
+    </message>
+    <message>
+        <source>Frame</source>
+        <translation>프레임</translation>
+    </message>
+    <message>
+        <source>The frame type must match the drone. Changing it restarts the drone.</source>
+        <translation>프레임 종류는 드론과 같아야 합니다. 바꾸면 드론이 다시 시작합니다.</translation>
+    </message>
+    <message>
+        <source>Now</source>
+        <translation>현재</translation>
+    </message>
+    <message>
+        <source>Restart needed</source>
+        <translation>다시 시작 필요</translation>
+    </message>
+    <message>
+        <source>Change the frame to %1 and restart the drone now? A wrong frame makes the drone flip at take-off.</source>
+        <translation>프레임을 %1(으)로 바꾸고 지금 드론을 다시 시작할까요? 프레임이 틀리면 이륙할 때 드론이 뒤집힙니다.</translation>
+    </message>
+    <message>
+        <source>After choosing another frame the drone restarts and the motors must be tested (Motors).</source>
+        <translation>다른 프레임을 고르면 드론이 다시 시작하며, 모터를 시험해야 합니다(모터).</translation>
+    </message>
+    <message>
+        <source>Apply and restart</source>
+        <translation>적용하고 다시 시작</translation>
+    </message>
+    <message>
+        <source>Change and restart</source>
+        <translation>바꾸고 다시 시작</translation>
+    </message>
+    <message>
+        <source>Frame saved. The drone restarts; then test each motor in Motors.</source>
+        <translation>프레임을 저장했습니다. 드론이 다시 시작하면 모터에서 모터를 하나씩 시험하세요.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupMotors</name>
+    <message>
+        <source>Motors</source>
+        <translation>모터</translation>
+    </message>
+    <message>
+        <source>Spin one motor at a time to check the order and direction.</source>
+        <translation>모터를 하나씩 돌려 순서와 방향을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Remove all propellers before testing. Motors spin at the throttle set below.</source>
+        <translation>시험 전에 프로펠러를 모두 떼세요. 모터는 아래 스로틀로 돕니다.</translation>
+    </message>
+    <message>
+        <source>▲ Front</source>
+        <translation>▲ 앞</translation>
+    </message>
+    <message>
+        <source>Motor %1 spinning · %2 s</source>
+        <translation>모터 %1 회전 중 · %2초</translation>
+    </message>
+    <message>
+        <source>Propellers removed</source>
+        <translation>프로펠러 제거함</translation>
+    </message>
+    <message>
+        <source>Required before any motor spins</source>
+        <translation>모터를 돌리기 전에 꼭 확인</translation>
+    </message>
+    <message>
+        <source>Throttle</source>
+        <translation>스로틀</translation>
+    </message>
+    <message>
+        <source>Spin time</source>
+        <translation>회전 시간</translation>
+    </message>
+    <message>
+        <source>Motor %1</source>
+        <translation>모터 %1</translation>
+    </message>
+    <message>
+        <source>Test all in order</source>
+        <translation>순서대로 모두 시험</translation>
+    </message>
+    <message>
+        <source>If the order or a direction is wrong, check the frame (Frame) or the motor wiring.</source>
+        <translation>순서나 방향이 틀리면 프레임(프레임) 설정이나 모터 배선을 확인하세요.</translation>
+    </message>
+</context>
 </TS>

@@ -41,6 +41,8 @@ public:
     Q_INVOKABLE void openFolder         ();
     Q_INVOKABLE void reloadSecurityLog  ();
     Q_INVOKABLE void clearResult        ();
+    /// one line in the security log (e.g. tuning changed in flight, S76); never pass a secret
+    Q_INVOKABLE void logEvent           (const QString& source, const QString& text);
 
     bool        busy        () const { return _busy; }
     QVariantMap sizes       () const { return _sizes; }

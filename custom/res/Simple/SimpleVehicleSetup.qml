@@ -1,6 +1,6 @@
 /****************************************************************************
  * AQGC Simple UI — Vehicle setup (Advanced mode): S58 Summary (Figma 111:38761) and S59 Sensors (112:38882), 2026-11-17.
- * Frame like Settings (S09). Categories without a new screen yet open the classic setup page of that part.
+ * Frame like Settings (S09). S70–S77 are in SimpleSetup*.qml; Firmware (S68) opens the classic page for now.
  * While the drone is armed only Summary and Tuning can be opened (Tuning in flight: S76).
  * Sensors use the classic APMSensorsComponentController (created once the parameters are ready); the calibration
  * sheet gives it the items it drives (status log append(), progress value, Next / Cancel enabled, help text).
@@ -40,8 +40,11 @@ Rectangle {
         { key: "firmware", icon: "download", t: qsTr("Firmware"),     classic: "" }
     ]
     function catOf(key) { for (var i = 0; i < cats.length; i++) if (cats[i].key === key) return cats[i]; return cats[0] }
-    function locked(key) { return _armed && key !== "summary" && key !== "tuning" }
-    on_ArmedChanged: if (locked(category) && !calRunning) category = "summary"
+    // A motor test makes ArduPilot report "armed" while a motor spins: Motors is locked only when the drone flies.
+    readonly property bool _flying: !!_veh && _veh.flying
+    function locked(key) { return key === "motors" ? _flying : (_armed && key !== "summary" && key !== "tuning") }
+    on_ArmedChanged:  if (locked(category) && !calRunning) category = "summary"
+    on_FlyingChanged: if (locked(category) && !calRunning) category = "summary"
 
     // Header
     Rectangle {
@@ -100,7 +103,12 @@ Rectangle {
         anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(40)
         anchors.top: header.bottom; anchors.topMargin: SimpleTheme.px(40)
         anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
-        sourceComponent: vsp.category === "summary" ? summaryComp : vsp.category === "sensors" ? sensorsComp : classicComp
+        sourceComponent: vsp.category === "summary" ? summaryComp : vsp.category === "sensors" ? sensorsComp
+                       : vsp.category === "modes"   ? modesComp   : vsp.category === "safety" ? safetyComp
+                       : vsp.category === "power"   ? powerComp   : vsp.category === "radio"  ? radioComp
+                       : vsp.category === "gimbal"  ? gimbalComp  : vsp.category === "tuning" ? tuningComp
+                       : vsp.category === "frame"   ? frameComp   : vsp.category === "motors" ? motorsComp
+                       : classicComp
     }
 
     // shared: read parameters (FactPanelController), last calibration dates
@@ -194,6 +202,16 @@ Rectangle {
             }
         }
     }
+
+    // S70–S77 (own files)
+    Component { id: modesComp;  SimpleSetupModes  { } }
+    Component { id: safetyComp; SimpleSetupSafety { } }
+    Component { id: powerComp;  SimpleSetupPower  { } }
+    Component { id: radioComp;  SimpleSetupRadio  { } }
+    Component { id: gimbalComp; SimpleSetupGimbal { } }
+    Component { id: tuningComp; SimpleSetupTuning { } }
+    Component { id: frameComp;  SimpleSetupFrame  { } }
+    Component { id: motorsComp; SimpleSetupMotors { } }
 
     //================================================================== classic page for a category (until its screen exists)
     Component {

@@ -204,6 +204,15 @@
         <file alias="SimpleAnalyze.qml">res/Simple/SimpleAnalyze.qml</file>
         <file alias="SimpleParameters.qml">res/Simple/SimpleParameters.qml</file>
         <file alias="SimpleVehicleSetup.qml">res/Simple/SimpleVehicleSetup.qml</file>
+        <file alias="SFactField.qml">res/Simple/SFactField.qml</file>
+        <file alias="SimpleSetupModes.qml">res/Simple/SimpleSetupModes.qml</file>
+        <file alias="SimpleSetupSafety.qml">res/Simple/SimpleSetupSafety.qml</file>
+        <file alias="SimpleSetupPower.qml">res/Simple/SimpleSetupPower.qml</file>
+        <file alias="SimpleSetupRadio.qml">res/Simple/SimpleSetupRadio.qml</file>
+        <file alias="SimpleSetupGimbal.qml">res/Simple/SimpleSetupGimbal.qml</file>
+        <file alias="SimpleSetupTuning.qml">res/Simple/SimpleSetupTuning.qml</file>
+        <file alias="SimpleSetupFrame.qml">res/Simple/SimpleSetupFrame.qml</file>
+        <file alias="SimpleSetupMotors.qml">res/Simple/SimpleSetupMotors.qml</file>
         <file alias="SStatusChip.qml">res/Simple/SStatusChip.qml</file>
         <file alias="SimpleTakeoffSheet.qml">res/Simple/SimpleTakeoffSheet.qml</file>
         <file alias="SimpleTheme.qml">res/Simple/SimpleTheme.qml</file>
