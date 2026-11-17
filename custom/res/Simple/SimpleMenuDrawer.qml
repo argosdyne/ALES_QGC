@@ -178,7 +178,8 @@ Item {
                         onClicked: {
                             if (modelData.key === "profile") { drawer.profileOpen = !drawer.profileOpen; return }
                             drawer.close()
-                            if (modelData.key === "analyze") { simpleRoot.showAnalyze(); return }      // S61–S63
+                            if (modelData.key === "analyze")    { simpleRoot.showAnalyze(); return }      // S61–S63
+                            if (modelData.key === "parameters") { simpleRoot.showParameters(); return }   // S60
                             simpleRoot.openClassic(modelData.key === "classic" ? "fly" : modelData.key)
                         }
                     }

@@ -14,7 +14,6 @@ import "."
 
 Rectangle {
     id: an
-    property var    vs
     property string category: "logs"
     color: SimpleTheme.bgBase
     MouseArea { anchors.fill: parent }

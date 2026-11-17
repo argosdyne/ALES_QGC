@@ -5103,4 +5103,243 @@
         <translation>로그 범주 고르기 (기존 화면)</translation>
     </message>
 </context>
+<context>
+    <name>SimpleParameters</name>
+    <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation>파라미터</translation>
+    </message>
+    <message>
+        <source>Connect the drone to see its parameters.</source>
+        <translation>파라미터를 보려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Reading the parameters from the drone…</source>
+        <translation>드론에서 파라미터를 읽는 중…</translation>
+    </message>
+    <message>
+        <source>Attitude estimate</source>
+        <translation>자세 추정</translation>
+    </message>
+    <message>
+        <source>Arming checks</source>
+        <translation>시동 점검</translation>
+    </message>
+    <message>
+        <source>Attitude control</source>
+        <translation>자세 제어</translation>
+    </message>
+    <message>
+        <source>Battery</source>
+        <translation>배터리</translation>
+    </message>
+    <message>
+        <source>Board</source>
+        <translation>보드</translation>
+    </message>
+    <message>
+        <source>Compass</source>
+        <translation>나침반</translation>
+    </message>
+    <message>
+        <source>Position estimate (EKF3)</source>
+        <translation>위치 추정 (EKF3)</translation>
+    </message>
+    <message>
+        <source>Geofence</source>
+        <translation>지오펜스</translation>
+    </message>
+    <message>
+        <source>Flight modes</source>
+        <translation>비행 모드</translation>
+    </message>
+    <message>
+        <source>Failsafe</source>
+        <translation>페일세이프</translation>
+    </message>
+    <message>
+        <source>GPS</source>
+        <translation>GPS</translation>
+    </message>
+    <message>
+        <source>Inertial sensors</source>
+        <translation>관성 센서</translation>
+    </message>
+    <message>
+        <source>Landing</source>
+        <translation>착륙</translation>
+    </message>
+    <message>
+        <source>Logging</source>
+        <translation>로그 기록</translation>
+    </message>
+    <message>
+        <source>Gimbal mount</source>
+        <translation>짐벌 마운트</translation>
+    </message>
+    <message>
+        <source>Motors</source>
+        <translation>모터</translation>
+    </message>
+    <message>
+        <source>Pilot input</source>
+        <translation>조종 입력</translation>
+    </message>
+    <message>
+        <source>Position control</source>
+        <translation>위치 제어</translation>
+    </message>
+    <message>
+        <source>Radio channels</source>
+        <translation>조종기 채널</translation>
+    </message>
+    <message>
+        <source>Return home</source>
+        <translation>귀환</translation>
+    </message>
+    <message>
+        <source>Serial ports</source>
+        <translation>시리얼 포트</translation>
+    </message>
+    <message>
+        <source>Servo outputs</source>
+        <translation>서보 출력</translation>
+    </message>
+    <message>
+        <source>Terrain</source>
+        <translation>지형</translation>
+    </message>
+    <message>
+        <source>Waypoints</source>
+        <translation>웨이포인트</translation>
+    </message>
+    <message>
+        <source>%1 saved. Restart the drone to use the new value.</source>
+        <translation>%1 저장함. 새 값을 쓰려면 드론을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>%1 saved on the drone.</source>
+        <translation>%1 드론에 저장함.</translation>
+    </message>
+    <message>
+        <source>All parameters</source>
+        <translation>전체 파라미터</translation>
+    </message>
+    <message>
+        <source>Changed from default</source>
+        <translation>기본값과 다른 값</translation>
+    </message>
+    <message>
+        <source>Search name or description</source>
+        <translation>이름이나 설명으로 찾기</translation>
+    </message>
+    <message>
+        <source>Save to file</source>
+        <translation>파일로 저장</translation>
+    </message>
+    <message>
+        <source>Saved: %1</source>
+        <translation>저장함: %1</translation>
+    </message>
+    <message>
+        <source>More</source>
+        <translation>더 보기</translation>
+    </message>
+    <message>
+        <source>Read again from the drone</source>
+        <translation>드론에서 다시 읽기</translation>
+    </message>
+    <message>
+        <source>Restart the drone</source>
+        <translation>드론 다시 시작</translation>
+    </message>
+    <message>
+        <source>Restart sent to the drone.</source>
+        <translation>드론에 다시 시작 명령을 보냈습니다.</translation>
+    </message>
+    <message>
+        <source>Reset all to defaults…</source>
+        <translation>모두 기본값으로…</translation>
+    </message>
+    <message>
+        <source>Load from file (classic)</source>
+        <translation>파일에서 불러오기 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Reset every parameter to its default? Calibrations and setup are lost; the drone needs a restart.</source>
+        <translation>모든 파라미터를 기본값으로 되돌릴까요? 보정과 설정이 사라지고 드론을 다시 시작해야 합니다.</translation>
+    </message>
+    <message>
+        <source>Motors are running: a wrong value can make the drone unsafe now. Changes are sent at once.</source>
+        <translation>모터가 돌고 있습니다: 잘못된 값은 지금 바로 위험할 수 있습니다. 변경은 즉시 전송됩니다.</translation>
+    </message>
+    <message>
+        <source>A wrong value can make the drone unsafe. Changes are sent to the drone at once.</source>
+        <translation>잘못된 값은 드론을 위험하게 만들 수 있습니다. 변경은 드론에 즉시 전송됩니다.</translation>
+    </message>
+    <message>
+        <source>Reset all</source>
+        <translation>모두 되돌리기</translation>
+    </message>
+    <message>
+        <source>All parameters reset. Restart the drone.</source>
+        <translation>모든 파라미터를 되돌렸습니다. 드론을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>값</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>설명</translation>
+    </message>
+    <message>
+        <source>No parameter differs from its default.</source>
+        <translation>기본값과 다른 파라미터가 없습니다.</translation>
+    </message>
+    <message>
+        <source>No parameters found.</source>
+        <translation>찾은 파라미터가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Choose a parameter to see and change it.</source>
+        <translation>보고 바꿀 파라미터를 고르세요.</translation>
+    </message>
+    <message>
+        <source>Range %1 – %2 %3</source>
+        <translation>범위 %1 – %2 %3</translation>
+    </message>
+    <message>
+        <source>default %1</source>
+        <translation>기본값 %1</translation>
+    </message>
+    <message>
+        <source>step %1</source>
+        <translation>단계 %1</translation>
+    </message>
+    <message>
+        <source>needs a drone restart</source>
+        <translation>드론 다시 시작 필요</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>기본값으로</translation>
+    </message>
+</context>
 </TS>

@@ -40,6 +40,7 @@ Item {
     }
     // Advanced › Analyze tools (S61–S63)
     function showAnalyze() { page = "analyze" }
+    function showParameters() { page = "params" }      // S60
     function openMenu() { menu.open() }
 
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
@@ -108,7 +109,12 @@ Item {
     Loader {
         anchors.fill: parent
         active: simpleRoot.page === "analyze"
-        sourceComponent: Component { SimpleAnalyze { vs: vs } }
+        sourceComponent: Component { SimpleAnalyze { } }
+    }
+    Loader {
+        anchors.fill: parent
+        active: simpleRoot.page === "params"
+        sourceComponent: Component { SimpleParameters { } }
     }
 
     //------------------------------------------------------------------ Global layers
