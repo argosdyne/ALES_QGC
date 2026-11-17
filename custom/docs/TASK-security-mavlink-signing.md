@@ -1,5 +1,9 @@
 # Task: MAVLink 2 signing in alesQGC (+ the other CE RED / EN 18031 items)
 
+**Status 2026-11-17:** MAVLink signing done (commits 53681aca4 core, 9b72e32ac Simple UI; see CLAUDE.md for the
+SITL facts). Open: S67 "Delete my data" calls `linkSecurity.forgetLocalKey()` (exists, no UI yet), S65 security log
+row, Android Keystore for the key, and "Other CE RED items" 1-5 below.
+
 Hand-off note for a Claude Code session (written 2026-11-16 by the claude.ai session that drew the Figma screens).
 Read `CLAUDE.md` first. Reply to the user in Korean. **Figma is the source of truth**; if this note and Figma disagree,
 ask the user.

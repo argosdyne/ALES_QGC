@@ -130,6 +130,19 @@ Reply to the user in Korean unless they write in English.
   After the fix: 120 opens +~0.4 MB each, QObject count unchanged (17087) over the run, so the rest is caches
   (map tiles etc.), not objects.
   sitl.py pos: the GCS heartbeat (system 255) is forwarded on TCP 5762, filter by the vehicle system id.
+- MAVLink 2 signing (2026-11-17, core `src/comm/MAVLinkSigning` + `custom/src/LinkSecurity`, Simple S66/S22/S27):
+  company firmware on SITL accepts an unsigned SETUP_SIGNING only while it has no key (any port; it then applies to
+  all links); changing or removing a key needs SETUP_SIGNING signed with the old key; unsigned commands are then
+  ignored on the TCP ports. The SITL signing clock falls behind real time (155-290 s seen): the library receive
+  check drops a new stream more than 60 s old, so our receive path checks only the key (signature hash) and drops
+  unsigned / wrong-key packets itself once protected (accept_unsigned_callback always true). Library gotchas: it
+  checks a signature only when the callback refuses the packet; packing does not fill msg.ck (the parser does);
+  outgoing timestamps only grow by 1 per packet unless updated (we follow the wall clock). Pairing only over a
+  serial (USB) link or TCP to 127.0.0.1 (SITL); a UDP link is refused (keys never over the radio). For SITL tests
+  set `[LinkManager] autoConnectUDP=false` or the UDP link becomes primary. pymavlink scripts (aqgc-build folder):
+  signtest.py, keyswap.py, inject.py, otherkey.py, whichkey.py.
+  Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
+  max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
@@ -222,7 +235,7 @@ Reply to the user in Korean unless they write in English.
    ~~change admin PIN and store it hashed~~ (2026-11-16) → Advanced mode redesign in the Simple design system (Figma first).
 3. **Confirmed 2026-11-17 (user: "인계 문서대로 모두"): do both hand-off tasks, including the changes to the classic
    Advanced UI (PIN removal + state kept, S44 / S58–S80 redesign) — an agreed exception to rule 2.**
-   **Next code task (user 2026-11-16): MAVLink 2 signing + CE RED security fixes** — read
+   **Next code task (user 2026-11-16): MAVLink 2 signing (done 2026-11-17) + CE RED security fixes** — read
    `custom/docs/TASK-security-mavlink-signing.md` (design, hook points, SITL checks, tests). Also remove the Advanced PIN.
    Then the **Advanced mode redesign** (Figma S44, S58–S80): read `custom/docs/TASK-advanced-mode-redesign.md`
    (screen list with node ids, classic controllers to reuse, order, tests).
