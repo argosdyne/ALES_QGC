@@ -444,6 +444,7 @@ INCLUDEPATH += \
     src/Audio \
     src/OpticalFlow \
     src/comm \
+    src/Utilities \
     src/input \
     src/lib/qmapcontrol \
     src/uas \
@@ -805,6 +806,7 @@ HEADERS += \
     src/comm/LogReplayLink.h \
     src/comm/MAVLinkProtocol.h \
     src/comm/MAVLinkSigning.h \
+    src/Utilities/SecureStore.h \
     src/comm/QGCMAVLink.h \
     src/comm/TCPLink.h \
     src/comm/UDPLink.h \
@@ -1084,6 +1086,7 @@ SOURCES += \
     src/comm/LogReplayLink.cc \
     src/comm/MAVLinkProtocol.cc \
     src/comm/MAVLinkSigning.cc \
+    src/Utilities/SecureStore.cc \
     src/comm/QGCMAVLink.cc \
     src/comm/TCPLink.cc \
     src/comm/UDPLink.cc \

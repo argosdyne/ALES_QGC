@@ -17,10 +17,7 @@
 #include <cstring>
 #include <iterator>
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include <wincrypt.h>
-#endif
+#include "SecureStore.h"
 
 // Qt logging category (not the QGC registry) so the Simple UI test runner can build this file alone
 Q_LOGGING_CATEGORY(MAVLinkSigningLog, "MAVLinkSigningLog")
@@ -66,25 +63,6 @@ namespace {
         return std::memcmp(signature, psig + 7, 6) == 0;
     }
 
-#ifdef Q_OS_WIN
-    QByteArray protectBytes(const QByteArray& plain, bool encrypt)
-    {
-        DATA_BLOB in;
-        in.pbData = reinterpret_cast<BYTE*>(const_cast<char*>(plain.constData()));
-        in.cbData = static_cast<DWORD>(plain.size());
-        DATA_BLOB out = {};
-        const BOOL ok = encrypt
-            ? CryptProtectData(&in, L"alesQGC MAVLink signing key", nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &out)
-            : CryptUnprotectData(&in, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &out);
-        if (!ok) {
-            return QByteArray();
-        }
-        QByteArray result(reinterpret_cast<const char*>(out.pbData), static_cast<int>(out.cbData));
-        SecureZeroMemory(out.pbData, out.cbData);
-        LocalFree(out.pbData);
-        return result;
-    }
-#endif
 }
 
 static bool configureChannel(uint8_t chan, const QByteArray& key);
@@ -349,11 +327,9 @@ void MAVLinkSigning::_loadKey()
         return;
     }
     QByteArray key;
-#ifdef Q_OS_WIN
-    if (protect == QStringLiteral("dpapi")) {
-        key = protectBytes(stored, false);
+    if (protect == QStringLiteral("dpapi") && SecureStore::osProtected()) {
+        key = SecureStore::unprotect(stored);
     }
-#endif
     if (protect == QStringLiteral("none")) {
         key = stored;
     }
@@ -369,10 +345,10 @@ void MAVLinkSigning::_saveKey()
 {
     QByteArray stored;
     QString protect;
-#ifdef Q_OS_WIN
-    stored = protectBytes(_key, true);
-    protect = QStringLiteral("dpapi");
-#endif
+    if (SecureStore::osProtected()) {
+        stored = SecureStore::protect(_key);
+        protect = QStringLiteral("dpapi");
+    }
     if (stored.isEmpty()) {
         // TODO(AQGC): Android Keystore. Until then the key is in the app-private settings (per-app storage, no keystore).
         stored = _key;
