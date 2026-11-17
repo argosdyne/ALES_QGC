@@ -42,6 +42,11 @@ Reply to the user in Korean unless they write in English.
   every core guard that checks showAdvancedUI keeps meaning "Simple screens hidden"). Items open classic pages via
   `simpleRoot.openClassic(setup|parameters|analyze|settings|fly)`; classic pages have "Close classic screens" in the
   tool header (the tool Drawer covers normal items, even with a high z). Product profile is chosen inside S44.
+  Analyze tools S61–S63 done 2026-11-17 (`SimpleAnalyze.qml`, root page "analyze", Loader: controllers only while
+  open). Gotchas: compare LogDownloadController status texts with qsTranslate("LogDownloadController", …) (the app
+  shows them translated); the MAVLink Inspector fills field values only for `activeSystem.selected`, so select by
+  setting it; the App log (debugMessageModel) records only enabled log categories (all off by default). Inspector
+  charts stay in the classic inspector for now (QtCharts). Developer tools switch = setting simpleDeveloperTools.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
