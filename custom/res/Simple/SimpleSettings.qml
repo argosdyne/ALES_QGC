@@ -620,8 +620,11 @@ Rectangle {
             SSettingRow {
                 readonly property var _sec: QGroundControl.corePlugin.linkSecurity
                 readonly property int _st: _sec ? _sec.activeState : -1
+                // Doodle Labs radio still on the factory password (Figma S22 card)
+                readonly property var  _ar: typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.arManager : null
+                readonly property bool _factory: !!_ar && _ar.version === "DoodleLabs ubus" && _ar.doodleFactoryPassword
                 title: qsTr("Link security")
-                sub: !_sec ? "" : _st === 2 ? qsTr("Drone link protected — open Link security")
+                sub: !_sec ? "" : _factory ? qsTr("Radio factory password still in use — open Link security") : _st === 2 ? qsTr("Drone link protected — open Link security")
                    : _st === 3 ? qsTr("Key mismatch: this app and the drone use different keys — open Link security")
                    : _sec.hasKey ? qsTr("A key is set · this drone link is not protected yet — open Link security")
                    : qsTr("Drone link not protected (no key) — open Link security")

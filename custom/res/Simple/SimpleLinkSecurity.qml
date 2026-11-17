@@ -5,7 +5,9 @@
  *   to the drone only over a USB cable (or a link to this PC, SITL), drone disarmed. Set / change / remove.
  * - Video stream (RTSP): not encrypted (information, blue). RTK correction (NTRIP 1): not encrypted (orange).
  *   Flight zone service (Altitude Angel): HTTPS, certificate checked.
- * Radio password / radio encryption rows come with the radio (Doodle Labs) security work.
+ * - Radio password / radio encryption (Doodle Labs radios via ARManager, 2026-11-17, not tested on a radio yet):
+ *   orange "Change needed" while the factory password still logs in; Change (on the ground) sets a new password on
+ *   the radio (ubus rpc-sys password_set) and keeps it in the secure store. A changed radio certificate is refused (red).
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -20,6 +22,11 @@ Column {
     readonly property bool _key:   !!_sec && _sec.hasKey
     readonly property int  _state: _sec ? _sec.activeState : -1
     property string confirm: ""            // "" | "set" | "remove"
+    readonly property var  _ar:     typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.arManager : null
+    readonly property bool _doodle: !!_ar && _ar.version === "DoodleLabs ubus"
+    readonly property var  _veh:    QGroundControl.multiVehicleManager.activeVehicle
+    readonly property bool _onGround: !_veh || !_veh.armed
+    property bool radioEdit: false
 
     // chip for the drone link: no drone / protected / not protected / key mismatch
     readonly property var _chip: _state === 2 ? { t: qsTr("Protected"), l: "ok" }
@@ -116,6 +123,99 @@ Column {
                 }
             }
         }
+    }
+
+    // ---- radio password (Doodle Labs)
+    Rectangle {
+        visible: ls._doodle
+        width: parent.width; height: radioCol.height + SimpleTheme.px(40)
+        radius: SimpleTheme.px(20); color: SimpleTheme.surfaceRaised
+        Column {
+            id: radioCol
+            anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+            anchors.margins: SimpleTheme.px(20); anchors.leftMargin: SimpleTheme.px(28)
+            spacing: SimpleTheme.px(14)
+            Item {
+                width: parent.width; height: Math.max(SimpleTheme.px(80), rpText.height)
+                SIcon { id: rpIcon; name: "lock"; size: 40; anchors.verticalCenter: parent.verticalCenter }
+                Column {
+                    id: rpText
+                    anchors.left: rpIcon.right; anchors.leftMargin: SimpleTheme.px(22)
+                    anchors.right: rpChip.left; anchors.rightMargin: SimpleTheme.px(16)
+                    anchors.verticalCenter: parent.verticalCenter
+                    SText { width: parent.width; text: qsTr("Radio password"); size: 30; medium: true }
+                    SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                            text: !ls._ar ? ""
+                                : ls._ar.doodleCertMismatch ? qsTr("The radio showed a different certificate, so the app does not log in. Check the radio before flying.")
+                                : ls._ar.doodleFactoryPassword ? qsTr("Radio login · the factory password is still in use")
+                                : qsTr("Radio login · own password set") }
+                }
+                SStatusChip { id: rpChip; anchors.right: rpBtn.left; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
+                              text: ls._ar && ls._ar.doodleCertMismatch ? qsTr("Certificate changed") : ls._ar && ls._ar.doodleFactoryPassword ? qsTr("Change needed") : qsTr("Protected")
+                              level: ls._ar && ls._ar.doodleCertMismatch ? "danger" : ls._ar && ls._ar.doodleFactoryPassword ? "warn" : "ok" }
+                SButton {
+                    id: rpBtn
+                    anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                    kind: ls._ar && ls._ar.doodleFactoryPassword ? "primary" : "secondary"
+                    text: qsTr("Change")
+                    enabled_: !!ls._ar && !ls._ar.doodleCertMismatch && ls._onGround && ls._ar.doodlePasswordResult !== "busy"
+                    onClicked: ls.radioEdit = !ls.radioEdit
+                }
+            }
+            SText { visible: !ls._onGround; width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                    text: qsTr("Change the radio password on the ground (motors off).") }
+            SText { visible: !!ls._ar && ls._ar.doodlePasswordResult !== ""
+                    width: parent.width; wrapMode: Text.WordWrap; size: 22
+                    color: !ls._ar ? SimpleTheme.textSecondary : ls._ar.doodlePasswordResult === "ok" ? SimpleTheme.ok
+                         : ls._ar.doodlePasswordResult === "failed" ? SimpleTheme.textDanger : SimpleTheme.textSecondary
+                    text: !ls._ar ? ""
+                        : ls._ar.doodlePasswordResult === "ok" ? qsTr("The radio uses the new password. It is kept in this tablet's secure store.")
+                        : ls._ar.doodlePasswordResult === "failed" ? qsTr("The radio did not take the new password. The old password still works.")
+                        : qsTr("Sending the new password to the radio…") }
+            Column {
+                visible: ls.radioEdit
+                width: parent.width
+                spacing: SimpleTheme.px(12)
+                Rectangle { width: parent.width; height: 1; color: SimpleTheme.line }
+                Row {
+                    spacing: SimpleTheme.px(14)
+                    STextField { id: pw1; designWidth: 360; label: qsTr("New password"); password: true }
+                    STextField { id: pw2; designWidth: 360; label: qsTr("New password again"); password: true }
+                }
+                SText { width: parent.width; wrapMode: Text.WordWrap; size: 22
+                        color: (pw1.currentText.length > 0 && pw1.currentText.length < 8) || (pw2.currentText.length > 0 && pw1.currentText !== pw2.currentText)
+                               ? SimpleTheme.textDanger : SimpleTheme.textSecondary
+                        text: pw1.currentText.length > 0 && pw1.currentText.length < 8 ? qsTr("At least 8 characters.")
+                            : pw2.currentText.length > 0 && pw1.currentText !== pw2.currentText ? qsTr("The two passwords are not the same.")
+                            : qsTr("At least 8 characters. Write it down: the radio's web page uses it too.") }
+                Row {
+                    spacing: SimpleTheme.px(14)
+                    SButton { kind: "primary"; text: qsTr("Save on the radio")
+                              enabled_: pw1.currentText.length >= 8 && pw1.currentText === pw2.currentText && ls._onGround
+                              onClicked: { ls._ar.changeDoodlePassword(pw1.currentText); ls.radioEdit = false } }
+                    SButton { text: qsTr("Cancel"); onClicked: ls.radioEdit = false }
+                }
+            }
+        }
+    }
+
+    // ---- radio encryption (as the radio reports it)
+    Rectangle {
+        visible: ls._doodle && ls._ar.doodleEncryption !== ""
+        width: ls.width; height: Math.max(SimpleTheme.px(104), encText.height + SimpleTheme.px(36))
+        radius: SimpleTheme.px(20); color: SimpleTheme.surfaceRaised
+        SIcon { id: encIcon; name: "signal"; size: 40; anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(28); anchors.verticalCenter: parent.verticalCenter }
+        Column {
+            id: encText
+            anchors.left: encIcon.right; anchors.leftMargin: SimpleTheme.px(22)
+            anchors.right: encChip.left; anchors.rightMargin: SimpleTheme.px(16)
+            anchors.verticalCenter: parent.verticalCenter
+            SText { width: parent.width; text: qsTr("Radio encryption"); size: 30; medium: true }
+            SText { width: parent.width; text: qsTr("As reported by the radio"); size: 22; color: SimpleTheme.textSecondary }
+        }
+        SStatusChip { id: encChip; anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(28); anchors.verticalCenter: parent.verticalCenter
+                      text: !ls._doodle ? "" : ls._ar.doodleEncryption === "aes" ? qsTr("AES on") : ls._ar.doodleEncryption === "on" ? qsTr("On") : qsTr("Off")
+                      level: ls._doodle && ls._ar.doodleEncryption === "off" ? "warn" : "ok" }
     }
 
     // ---- other links (information)

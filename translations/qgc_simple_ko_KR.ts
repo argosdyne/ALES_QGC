@@ -2031,6 +2031,10 @@
         <source>Drone link not protected (no key) — open Link security</source>
         <translation>드론 링크 보호 안 됨 (키 없음) — 링크 보안 열기</translation>
     </message>
+    <message>
+        <source>Radio factory password still in use — open Link security</source>
+        <translation>무선 장치 공장 비밀번호 사용 중 — 링크 보안 열기</translation>
+    </message>
 </context>
 <context>
     <name>SimpleTakeoffSheet</name>
@@ -4475,6 +4479,94 @@
     <message>
         <source>HTTPS · server certificate checked</source>
         <translation>HTTPS · 서버 인증서 확인</translation>
+    </message>
+    <message>
+        <source>Radio password</source>
+        <translation>무선 장치 비밀번호</translation>
+    </message>
+    <message>
+        <source>The radio showed a different certificate, so the app does not log in. Check the radio before flying.</source>
+        <translation>무선 장치가 다른 인증서를 보여 앱이 로그인하지 않습니다. 비행 전에 무선 장치를 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Radio login · the factory password is still in use</source>
+        <translation>무선 장치 로그인 · 아직 공장 비밀번호를 사용 중</translation>
+    </message>
+    <message>
+        <source>Radio login · own password set</source>
+        <translation>무선 장치 로그인 · 자체 비밀번호 설정됨</translation>
+    </message>
+    <message>
+        <source>Certificate changed</source>
+        <translation>인증서 바뀜</translation>
+    </message>
+    <message>
+        <source>Change needed</source>
+        <translation>변경 필요</translation>
+    </message>
+    <message>
+        <source>Change</source>
+        <translation>변경</translation>
+    </message>
+    <message>
+        <source>Change the radio password on the ground (motors off).</source>
+        <translation>무선 장치 비밀번호는 지상에서(모터 꺼짐) 바꾸세요.</translation>
+    </message>
+    <message>
+        <source>The radio uses the new password. It is kept in this tablet's secure store.</source>
+        <translation>무선 장치가 새 비밀번호를 사용합니다. 비밀번호는 이 태블릿의 보안 저장소에 보관됩니다.</translation>
+    </message>
+    <message>
+        <source>The radio did not take the new password. The old password still works.</source>
+        <translation>무선 장치가 새 비밀번호를 받지 않았습니다. 이전 비밀번호가 그대로 유효합니다.</translation>
+    </message>
+    <message>
+        <source>Sending the new password to the radio…</source>
+        <translation>새 비밀번호를 무선 장치로 보내는 중…</translation>
+    </message>
+    <message>
+        <source>New password</source>
+        <translation>새 비밀번호</translation>
+    </message>
+    <message>
+        <source>New password again</source>
+        <translation>새 비밀번호 다시 입력</translation>
+    </message>
+    <message>
+        <source>At least 8 characters.</source>
+        <translation>8자 이상이어야 합니다.</translation>
+    </message>
+    <message>
+        <source>The two passwords are not the same.</source>
+        <translation>두 비밀번호가 같지 않습니다.</translation>
+    </message>
+    <message>
+        <source>At least 8 characters. Write it down: the radio's web page uses it too.</source>
+        <translation>8자 이상. 적어 두세요: 무선 장치 웹 페이지도 이 비밀번호를 씁니다.</translation>
+    </message>
+    <message>
+        <source>Save on the radio</source>
+        <translation>무선 장치에 저장</translation>
+    </message>
+    <message>
+        <source>Radio encryption</source>
+        <translation>무선 암호화</translation>
+    </message>
+    <message>
+        <source>As reported by the radio</source>
+        <translation>무선 장치가 보고한 상태</translation>
+    </message>
+    <message>
+        <source>AES on</source>
+        <translation>AES 켜짐</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>켜짐</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>꺼짐</translation>
     </message>
 </context>
 </TS>
