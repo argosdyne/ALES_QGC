@@ -10,8 +10,9 @@ Item 3 (1415abbb1): SettingsFact keeps passwd, otaPassword, onlineLicenseKey, ma
 SecureStore as "<group>/<name>" (NTRIP group is "RTCM"); plain values are moved at start. Altitude Angel key (user
 2026-11-17, option B(a)): removed from `FlyView.SettingsGroup.json` (f0be95cd4); only tagged CI builds carry it (f1fced8a5). Item 4: no TLS
 switch (the company caster is plain NTRIP 1).
-Item 5: S65 / S67 + security log done (36e160450 core, c27ca118e Simple UI). Open: S68 Firmware, S69 Devices,
-Android Keystore for SecureStore.
+Item 5: S65 / S67 + security log done (36e160450 core, c27ca118e Simple UI). S69 defaults done (f5ef125a8; screen with
+S64). S68: firmware signing comes later (user 2026-11-17), so no signature check yet; screen with Vehicle setup.
+Open: Android Keystore for SecureStore.
 
 Hand-off note for a Claude Code session (written 2026-11-16 by the claude.ai session that drew the Figma screens).
 Read `CLAUDE.md` first. Reply to the user in Korean. **Figma is the source of truth**; if this note and Figma disagree,

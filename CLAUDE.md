@@ -163,6 +163,12 @@ Reply to the user in Korean unless they write in English.
   deleteAllSettingsNextBoot (restart). Windows signature = WinVerifyTrust (local and CI builds are unsigned → orange).
   Location sharing = followTarget (on = 2, Follow Me only), default now 0 in both modes. UI tests of S67 must use a
   scratch `savePath` (the real one is the user's OneDrive folder) and must not tick Map cache (shared real cache).
+  S68 Firmware = FC (ArduCopter) firmware over USB from the PC. User 2026-11-17: the company will sign firmware
+  (ArduPilot secure boot) but not now → no signature check yet; S68 is built with Vehicle setup and shows the check as
+  not available; add it (company public key, signed .apj) when the firmware team signs releases.
+  S69 defaults done (f5ef125a8): RTK base (USB) and Zero-Conf auto-connect off by default. Open ports today: drone link
+  UDP 14550/14520/14530 (14530 = NextVision LTE), M2 radio discovery UDP 10010 (closes when found). S69 screen comes
+  with the Advanced Settings categories (S64).
   Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
   max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
