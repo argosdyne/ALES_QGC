@@ -630,6 +630,34 @@ void CodevCameraControl::centerGimbal()
         0,0,0,0,0,0,1);
 }
 
+void CodevCameraControl::resetGimbalAndZoom()
+{
+    if (!_vehicle) {
+        return;
+    }
+
+    centerGimbal();
+    if (!_isR3CameraModel(modelName())) {
+        return;
+    }
+
+    stopZoom();
+    _zoomSettleTimer.stop();
+
+    if (_dZoomFact) {
+        _dZoomFact->setRawValue(1.0f);
+    }
+
+    if (hasZoom()) {
+        // Send a real optical reset; confirmed zoom follows the camera ACK.
+        _commandedRange = 1.0f;
+        _zoomCatchUpAttempts = 0;
+        _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+        _queueZoomRange(1.0f, "resetGimbalAndZoom");
+        _schedulePostZoomSettingsSync();
+    }
+}
+
 void CodevCameraControl::syncZoomUiAfterReset()
 {
     _setTrustedOpticalRange(1.0f);
