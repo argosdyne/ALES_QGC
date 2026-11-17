@@ -47,6 +47,12 @@ Reply to the user in Korean unless they write in English.
   shows them translated); the MAVLink Inspector fills field values only for `activeSystem.selected`, so select by
   setting it; the App log (debugMessageModel) records only enabled log categories (all off by default). Inspector
   charts stay in the classic inspector for now (QtCharts). Developer tools switch = setting simpleDeveloperTools.
+  Parameters S60 done 2026-11-17 (`SimpleParameters.qml`, root page "params"). The bundled ArduPilot parameter
+  documentation has no default values, so "Changed from default" is hidden (the classic "modified only" is empty too);
+  it needs defaults (e.g. ArduPilot MAVFTP param download with defaults) — ask before adding. ParameterEditorController
+  splits groups into Standard / Advanced: groups are merged by name in QML; `QmlObjectListModel.get()` of a category's
+  groups returned the category itself at the last index (skip items without `facts`). A page root must not declare
+  `property var vs` and be created with `vs: vs` (binding loop).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash

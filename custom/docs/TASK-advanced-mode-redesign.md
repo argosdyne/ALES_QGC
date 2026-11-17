@@ -33,7 +33,9 @@ ask the user. Each screen in Figma has a Korean UX note right under it (implemen
 - 2026-11-17: step 1 (no PIN, kept over restarts) and step 2 (S44 panel, 31d3022d0) done. Items open the classic pages
   until their new screen exists. S69 security defaults done (f5ef125a8); S68 signature check waits for signed firmware.
 - 2026-11-17: step 3 Analyze tools S61 / S62 / S63 done (6305b7191 core progress, 1ad4c6983), tested on SITL.
-  Open in S63: charts (classic inspector for now). Next: step 4 Parameters S60.
+  Open in S63: charts (classic inspector for now).
+- 2026-11-17: step 4 Parameters S60 done (f441a0420), tested on SITL. Open: "Changed from default" needs defaults (none
+  in the bundled ArduPilot documentation); Load from file = classic page. Next: step 5 Vehicle setup S58 → S59 ….
 
 ## Screens (Figma file `p7d3GuBZaJNSj8zpBUlaSj`, page `01 Screens`)
 
