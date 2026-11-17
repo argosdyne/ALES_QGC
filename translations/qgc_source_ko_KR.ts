@@ -30081,6 +30081,14 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 <context>
   <name>ElistairStationPanel</name>
   <message>
+    <source>Set %1 / 10</source>
+    <translation>설정 %1 / 10</translation>
+  </message>
+  <message>
+    <source>applied %1%</source>
+    <translation>적용 %1%</translation>
+  </message>
+  <message>
     <source>Confirm tethered vehicle</source>
     <translation>테더 연결 기체 확인</translation>
   </message>
@@ -30259,6 +30267,10 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 </context>
 <context>
   <name>ElistairStationSettings</name>
+  <message>
+    <source>Torque presets are disabled. Use the Tether panel to adjust torque.</source>
+    <translation>토크 프리셋은 비활성화되었습니다. 테더 패널에서 토크를 조절하세요.</translation>
+  </message>
   <message>
     <source>  Last read: </source>
     <translation>  마지막 읽기: </translation>
