@@ -4,13 +4,22 @@ Hand-off note for a Claude Code session (written 2026-11-16 by the claude.ai ses
 Read `CLAUDE.md` first. Reply to the user in Korean. **Figma is the source of truth**; if this note and Figma disagree,
 ask the user. Each screen in Figma has a Korean UX note right under it (implementation details, parameter names).
 
-## Decisions (user, 2026-11-16)
+## Decisions (user, 2026-11-16; confirmed again 2026-11-17: "인계 문서대로 모두" — this redesign replaces the classic
+## Advanced UI step by step, an agreed exception to CLAUDE.md rule 2)
 
 - **Option A**: one app, the same screen frames as the Simple UI. Advanced mode *adds* items to the Simple screens;
   there is no second app layout. Map of what goes where: Figma page `02 Flows`, frame "E. 고급 모드 구성" (node `115:2`).
 - **No PIN.** The menu switch "Advanced mode" (S06) turns it on at once and opens the Advanced panel (S44);
   "Return to Simple" turns it off. **The last state is kept over app restarts.** Remove the S12 PIN dialog, the
   PIN hashing (`custom/src/SimplePinHash.h` use) and the Change PIN row; keep the settings keys only if needed to migrate.
+  Everything to remove (checked against the code 2026-11-17): `custom/res/Simple/SimplePinDialog.qml`,
+  `SimplePinPopup.qml` and their `custom.qrc` / `qmldir` entries; the PIN dialog use in `SimpleRoot.qml`;
+  `custom/src/SimplePinHash.h` (+ `custom.pri`) and the `simplePinHash/Check/IsHash` invokables in `CustomPlugin.h`;
+  the "Simple UI admin PIN · Change PIN" row and its Loader in `src/ui/preferences/GeneralSettings.qml`;
+  settings `simpleAdminPin`, `simpleAdminFailures`, `simpleAdminLockUntil` (`Custom.SettingsGroup.json` /
+  `CustomSettings`) — delete the stored values once; tests `tst_pin.qml`, the `simplePin` helper in
+  `custom/tests/simple/main.cpp`, the mock functions and `QT += network` in `simple_tests.pro`; Korean strings
+  (`SimplePinDialog`, `GeneralSettings` PIN rows) in `translations/qgc_simple_ko_KR.ts`.
 - Analysis tools: Log download and Vibration always; **MAVLink Inspector and App log only behind a "Developer tools"
   switch** (default off). **Not carried over**: MAVLink Console (ArduPilot has no shell), GeoTag Images (reads PX4 logs
   only), brand image, Palette Test / Mock Link / Debug (debug builds only), Taisync / Microhard / M2Link.

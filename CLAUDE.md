@@ -218,7 +218,9 @@ Reply to the user in Korean unless they write in English.
    ~~map tap menu S35/S36/S38~~ (2026-11-16), ~~payload panel S10/S16/S17/S50/S51~~ (2026-11-16),
    ~~S56 cards~~, ~~S43 camera settings~~ (2026-11-16); ~~tether profile S11~~ (2026-11-16); S13 cleaning waits for device support) → ~~flight zones~~ (done 2026-11-15) → Plan (~~waypoint S23~~, ~~saved missions S24~~, ~~corridor S40 / structure S41 / LiDAR S42~~ 2026-11-16) →
    ~~change admin PIN and store it hashed~~ (2026-11-16) → Advanced mode redesign in the Simple design system (Figma first).
-3. **Next code task (user 2026-11-16): MAVLink 2 signing + CE RED security fixes** — read
+3. **Confirmed 2026-11-17 (user: "인계 문서대로 모두"): do both hand-off tasks, including the changes to the classic
+   Advanced UI (PIN removal + state kept, S44 / S58–S80 redesign) — an agreed exception to rule 2.**
+   **Next code task (user 2026-11-16): MAVLink 2 signing + CE RED security fixes** — read
    `custom/docs/TASK-security-mavlink-signing.md` (design, hook points, SITL checks, tests). Also remove the Advanced PIN.
    Then the **Advanced mode redesign** (Figma S44, S58–S80): read `custom/docs/TASK-advanced-mode-redesign.md`
    (screen list with node ids, classic controllers to reuse, order, tests).

@@ -127,5 +127,5 @@ Done = S66 MAVLink row, S22 card, S27 row and the fly-screen dot work as in Figm
 ## Also pending (same branch, coordinate)
 
 - No PIN for Advanced mode (user 2026-11-16): remove the S12 PIN dialog, `SimplePinHash.h` use and the Change PIN row;
-  the Advanced mode state is kept over restarts. See CLAUDE.md "Decisions".
-- Advanced mode redesign S58–S64 is drawn but waits for the user's review before code.
+  the Advanced mode state is kept over restarts. Full list of files: `TASK-advanced-mode-redesign.md` › Decisions.
+- Advanced mode redesign S44, S58–S80: confirmed for code by the user 2026-11-17 ("인계 문서대로 모두"), after this task.
