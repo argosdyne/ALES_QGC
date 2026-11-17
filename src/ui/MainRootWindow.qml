@@ -746,7 +746,7 @@ ApplicationWindow {
         source:         "qrc:/simple/SimpleRoot.qml"
     }
 
-    // In Advanced mode: one tap back to the Simple UI (Figma S44 "Lock and return to Simple")
+    // In Advanced mode: one tap back to the Simple UI (Figma S44 "Return to Simple"; no PIN since 2026-11-16)
     Rectangle {
         visible:                    !mainWindow.simpleUI
         anchors.bottom:             parent.bottom
@@ -760,7 +760,7 @@ ApplicationWindow {
         QGCLabel {
             id:                 backToSimpleLabel
             anchors.centerIn:   parent
-            text:               qsTr("Lock and return to Simple")
+            text:               qsTr("Return to Simple")
             color:              "white"
         }
         MouseArea {

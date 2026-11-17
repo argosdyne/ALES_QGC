@@ -96,22 +96,10 @@
     "default":          0
 },
 {
-    "name":             "simpleAdminPin",
-    "shortDesc":        "Admin PIN to unlock Advanced mode (Simple UI)",
-    "type":             "string",
-    "default":          "000000"
-},
-{
-    "name":             "simpleAdminFailures",
-    "shortDesc":        "Simple UI: wrong admin PIN entries since the last correct one (kept over restarts)",
-    "type":             "uint32",
-    "default":          0
-},
-{
-    "name":             "simpleAdminLockUntil",
-    "shortDesc":        "Simple UI: admin PIN locked until this time (ms since 1970, 0 = not locked; kept over restarts)",
-    "type":             "double",
-    "default":          0
+    "name":             "simpleAdvancedMode",
+    "shortDesc":        "Simple UI: Advanced mode was on when the app closed (no PIN; the last mode is kept over restarts)",
+    "type":             "bool",
+    "default":          false
 },
 {
     "name":             "simpleWelcomeShown",

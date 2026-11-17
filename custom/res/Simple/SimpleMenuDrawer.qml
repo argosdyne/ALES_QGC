@@ -85,7 +85,7 @@ Item {
 
             Rectangle { width: parent.width; height: 1; color: SimpleTheme.line }
 
-            // Advanced mode (admin PIN)
+            // Advanced mode (no PIN, Figma S44)
             Rectangle {
                 width: parent.width; height: SimpleTheme.px(96); radius: SimpleTheme.px(18)
                 color: SimpleTheme.surfaceRaised
@@ -96,7 +96,7 @@ Item {
                     Column {
                         anchors.verticalCenter: parent.verticalCenter
                         SText { text: qsTr("Advanced mode"); size: 30; medium: true }
-                        SText { text: qsTr("Setup, parameters, tools · PIN"); size: 22; color: SimpleTheme.textSecondary; width: SimpleTheme.px(340); elide: Text.ElideRight }
+                        SText { text: qsTr("Setup, parameters, tools"); size: 22; color: SimpleTheme.textSecondary; width: SimpleTheme.px(340); elide: Text.ElideRight }
                     }
                 }
                 SToggle { anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter; checked: false; enabled: false }

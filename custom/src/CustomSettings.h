@@ -26,9 +26,7 @@ public:
     DEFINE_SETTINGFACT(ysMissionStartStop)
 
     // Simple UI (AQGC Simple)
-    DEFINE_SETTINGFACT(simpleAdminPin)
-    DEFINE_SETTINGFACT(simpleAdminFailures)
-    DEFINE_SETTINGFACT(simpleAdminLockUntil)
+    DEFINE_SETTINGFACT(simpleAdvancedMode)
     DEFINE_SETTINGFACT(simpleWelcomeShown)
     DEFINE_SETTINGFACT(simpleLargeText)
     DEFINE_SETTINGFACT(simpleStartScreen)

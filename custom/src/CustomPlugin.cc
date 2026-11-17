@@ -142,6 +142,18 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
     _settings = new CustomSettings(this);
     _codevRTCMManager->setToolbox(toolbox);
 
+    // AQGC Simple UI: no PIN for Advanced mode, the last mode is kept over restarts (user 2026-11-16, Figma S44).
+    // Remove the values of the old admin PIN once.
+    {
+        QSettings old;
+        old.beginGroup(QStringLiteral("Custom"));
+        old.remove(QStringLiteral("simpleAdminPin"));
+        old.remove(QStringLiteral("simpleAdminFailures"));
+        old.remove(QStringLiteral("simpleAdminLockUntil"));
+        old.endGroup();
+    }
+    setShowAdvancedUI(_settings->simpleAdvancedMode()->rawValue().toBool());
+
     // Allows us to be notified when the user goes in/out out advanced mode
     connect(qgcApp()->toolbox()->corePlugin(), &QGCCorePlugin::showAdvancedUIChanged, this, &CustomPlugin::_advancedChanged);
 
@@ -165,6 +177,10 @@ void CustomPlugin::_advancedChanged(bool changed)
 {
     // Firmware Upgrade page is only show in Advanced mode
     emit _options->showFirmwareUpgradeChanged(changed);
+    // AQGC Simple UI: keep the mode for the next start
+    if (_settings) {
+        _settings->simpleAdvancedMode()->setRawValue(changed);
+    }
 }
 
 //-----------------------------------------------------------------------------

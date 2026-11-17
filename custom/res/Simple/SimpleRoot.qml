@@ -40,8 +40,9 @@ Item {
     }
     function openMenu() { menu.open() }
 
-    // Advanced (admin PIN). purpose: advanced | setup | settings
-    function requestAdvanced(purpose) { pin.open(purpose) }
+    // Advanced mode: no PIN (user 2026-11-16, Figma S44); the mode is kept over restarts (CustomPlugin).
+    // purpose: advanced | setup | settings
+    function requestAdvanced(purpose) { _unlocked(purpose) }
     function _unlocked(purpose) {
         QGroundControl.corePlugin.showAdvancedUI = true
         mainWindow.showFlyView()
@@ -98,11 +99,6 @@ Item {
         id: menu
         anchors.fill: parent
         vs: vs
-    }
-    SimplePinDialog {
-        id: pin
-        anchors.fill: parent
-        onAccepted: simpleRoot._unlocked(purpose)
     }
 
     // S57 first-start welcome (language & units) — shown once, replaces the classic first-run prompts

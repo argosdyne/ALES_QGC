@@ -42,8 +42,6 @@ SimpleMenuDrawer 1.0 SimpleMenuDrawer.qml
 SimpleMessages 1.0 SimpleMessages.qml
 SimpleModeSheet 1.0 SimpleModeSheet.qml
 SimplePayloadSettings 1.0 SimplePayloadSettings.qml
-SimplePinDialog 1.0 SimplePinDialog.qml
-SimplePinPopup 1.0 SimplePinPopup.qml
 SimplePlanCheck 1.0 SimplePlanCheck.qml
 SimplePlanWizard 1.0 SimplePlanWizard.qml
 SimplePreflightSheet 1.0 SimplePreflightSheet.qml

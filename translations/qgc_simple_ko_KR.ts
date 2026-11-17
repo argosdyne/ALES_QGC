@@ -15,8 +15,8 @@
 <context>
     <name>MainRootWindow</name>
     <message>
-        <source>Lock and return to Simple</source>
-        <translation>잠그고 간편 모드로</translation>
+        <source>Return to Simple</source>
+        <translation>간편 모드로 돌아가기</translation>
     </message>
 </context>
 <context>
@@ -650,8 +650,8 @@
         <translation>고급 모드</translation>
     </message>
     <message>
-        <source>Setup, parameters, tools · PIN</source>
-        <translation>기체 설정, 파라미터, 도구 · PIN</translation>
+        <source>Setup, parameters, tools</source>
+        <translation>기체 설정, 파라미터, 도구</translation>
     </message>
     <message>
         <source>Download maps before you go</source>
@@ -706,65 +706,6 @@
     <message>
         <source>Other flight modes are available in Advanced mode.</source>
         <translation>다른 비행 모드는 고급 모드에서 쓸 수 있습니다.</translation>
-    </message>
-</context>
-<context>
-    <name>SimplePinDialog</name>
-    <message>
-        <source>Too many wrong PINs — try again in %1 min</source>
-        <translation>PIN을 여러 번 틀렸습니다 — %1분 뒤 다시 시도하세요</translation>
-    </message>
-    <message>
-        <source>Wrong PIN — %1 tries left</source>
-        <translation>PIN이 틀렸습니다 — %1회 남음</translation>
-    </message>
-    <message>
-        <source>Enter admin PIN</source>
-        <translation>관리자 PIN 입력</translation>
-    </message>
-    <message>
-        <source>Vehicle setup needs Advanced mode.</source>
-        <translation>기체 설정은 고급 모드에서 합니다.</translation>
-    </message>
-    <message>
-        <source>Advanced mode shows all alesQGC screens.</source>
-        <translation>고급 모드에서는 alesQGC의 모든 화면을 볼 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>The app returns to Simple mode when it restarts.</source>
-        <translation>앱을 다시 시작하면 간편 모드로 돌아옵니다.</translation>
-    </message>
-    <message>
-        <source>Choose a PIN other than %1</source>
-        <translation>%1 말고 다른 PIN을 정하세요</translation>
-    </message>
-    <message>
-        <source>The PINs do not match — enter the new PIN again</source>
-        <translation>PIN이 서로 다릅니다 — 새 PIN을 다시 입력하세요</translation>
-    </message>
-    <message>
-        <source>New admin PIN</source>
-        <translation>새 관리자 PIN</translation>
-    </message>
-    <message>
-        <source>New PIN again</source>
-        <translation>새 PIN 다시 입력</translation>
-    </message>
-    <message>
-        <source>Current admin PIN</source>
-        <translation>현재 관리자 PIN</translation>
-    </message>
-    <message>
-        <source>6 digits. Write it down: without it Advanced mode cannot be opened.</source>
-        <translation>6자리. 적어 두세요: 잊으면 고급 모드를 열 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Enter the new PIN once more.</source>
-        <translation>새 PIN을 한 번 더 입력하세요.</translation>
-    </message>
-    <message>
-        <source>Enter the current PIN to change it.</source>
-        <translation>바꾸려면 현재 PIN을 입력하세요.</translation>
     </message>
 </context>
 <context>
@@ -860,6 +801,10 @@
     <message>
         <source>The route touches %1. Check that you may fly there.</source>
         <translation>경로가 %1에 걸칩니다. 비행해도 되는지 확인하세요.</translation>
+    </message>
+    <message>
+        <source>The drone did not accept the mission. Check the message, change the mission and send again.</source>
+        <translation>드론이 미션을 받지 않았습니다. 메시지를 확인하고 미션을 고친 뒤 다시 보내세요.</translation>
     </message>
 </context>
 <context>
@@ -4344,18 +4289,6 @@
 </context>
 <context>
     <name>GeneralSettings</name>
-    <message>
-        <source>Simple UI admin PIN</source>
-        <translation>간편 UI 관리자 PIN</translation>
-    </message>
-    <message>
-        <source>Change PIN</source>
-        <translation>PIN 변경</translation>
-    </message>
-    <message>
-        <source>PIN changed</source>
-        <translation>PIN이 변경되었습니다</translation>
-    </message>
     <message>
         <source>Simple UI product profile</source>
         <translation>간편 UI 제품 프로파일</translation>

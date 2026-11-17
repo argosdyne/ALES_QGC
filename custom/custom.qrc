@@ -192,8 +192,6 @@
         <file alias="SimpleMessages.qml">res/Simple/SimpleMessages.qml</file>
         <file alias="SimpleModeSheet.qml">res/Simple/SimpleModeSheet.qml</file>
         <file alias="SimplePayloadSettings.qml">res/Simple/SimplePayloadSettings.qml</file>
-        <file alias="SimplePinDialog.qml">res/Simple/SimplePinDialog.qml</file>
-        <file alias="SimplePinPopup.qml">res/Simple/SimplePinPopup.qml</file>
         <file alias="SimplePlanCheck.qml">res/Simple/SimplePlanCheck.qml</file>
         <file alias="SimplePlanWizard.qml">res/Simple/SimplePlanWizard.qml</file>
         <file alias="SimplePreflightSheet.qml">res/Simple/SimplePreflightSheet.qml</file>

@@ -33,8 +33,10 @@ Reply to the user in Korean unless they write in English.
 
 - **Changed 2026-11-16 (user): no PIN for Advanced mode.** The Advanced mode switch in the menu turns it on at once;
   "Return to Simple" in the S44 panel turns it off. The last state (Simple or Advanced) is kept when the app
-  restarts (user 2026-11-16; the old rule returned to Simple on restart). S12 (PIN) and Change PIN are not used any more; remove the PIN
-  dialog, `SimplePinHash.h` use and the Change PIN row when the code follows Figma. The text below is the old rule.
+  restarts (user 2026-11-16; the old rule returned to Simple on restart). Done 2026-11-17: the PIN dialog, hashing and
+  Change PIN row are removed; the mode is the setting `simpleAdvancedMode` (CustomPlugin restores it at start and saves
+  every change; the old `simpleAdmin*` values are deleted once). Until the S44 panel exists, Advanced = classic screens
+  with "Return to Simple" bottom right. The text below is the old rule (history only).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash

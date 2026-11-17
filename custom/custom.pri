@@ -114,7 +114,6 @@ HEADERS += \
     $$PWD/src/SiYi/SiYiTransmitter.h \
     $$PWD/src/codevsettings.h \
     $$PWD/src/CustomSettings.h \
-    $$PWD/src/SimplePinHash.h \
     $$PWD/src/lockedqueue.h \
     $$PWD/src/ARLink/ARConnection.h \
     $$PWD/src/ARLink/ARManager.h \

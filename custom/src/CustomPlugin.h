@@ -28,7 +28,6 @@
 #include "M2Manager.h"
 #include "RajantManager.h"
 #include "ElistairStationManager.h"
-#include "SimplePinHash.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -107,10 +106,6 @@ public:
     Q_PROPERTY(CustomSettings* settings READ settings CONSTANT)
     CustomSettings* settings(){ return _settings; }
 
-    // Simple UI admin PIN (S12): PBKDF2 hash with a random salt, see SimplePinHash.h
-    Q_INVOKABLE QString simplePinHash      (const QString& pin) const { return SimplePinHash::hash(pin); }
-    Q_INVOKABLE bool    simplePinCheck     (const QString& pin, const QString& stored) const { return SimplePinHash::check(pin, stored); }
-    Q_INVOKABLE bool    simplePinIsHash    (const QString& stored) const { return SimplePinHash::isHash(stored); }
     // Simple UI saved missions (S24): number of mission items in a .plan, or -1 when the file cannot be read
     // (not a JSON object, fileType not "Plan", no "mission" object with an "items" array, empty or over 20 MB).
     // The preview loads only readable files of moderate size (the classic loader shows its own error popup).
