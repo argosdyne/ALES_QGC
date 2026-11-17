@@ -95,3 +95,12 @@ bool SecureStore::contains(const QString& name)
     settings.endGroup();
     return has;
 }
+
+QStringList SecureStore::names()
+{
+    QSettings settings;
+    settings.beginGroup(QString::fromLatin1(kGroup));
+    const QStringList keys = settings.allKeys();
+    settings.endGroup();
+    return keys;
+}

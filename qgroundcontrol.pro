@@ -70,7 +70,7 @@ LinuxBuild {
 WindowsBuild {
     RC_ICONS = resources/icons/qgroundcontrol.ico
     CONFIG += resources_big
-    LIBS += -lCrypt32     # AQGC: DPAPI for the MAVLink signing key (src/comm/MAVLinkSigning.cc)
+    LIBS += -lCrypt32 -lWintrust     # AQGC: DPAPI (SecureStore), app signature check (custom PrivacyData)
 }
 
 #
@@ -807,6 +807,7 @@ HEADERS += \
     src/comm/MAVLinkProtocol.h \
     src/comm/MAVLinkSigning.h \
     src/Utilities/SecureStore.h \
+    src/Utilities/SecurityLog.h \
     src/comm/QGCMAVLink.h \
     src/comm/TCPLink.h \
     src/comm/UDPLink.h \
@@ -1087,6 +1088,7 @@ SOURCES += \
     src/comm/MAVLinkProtocol.cc \
     src/comm/MAVLinkSigning.cc \
     src/Utilities/SecureStore.cc \
+    src/Utilities/SecurityLog.cc \
     src/comm/QGCMAVLink.cc \
     src/comm/TCPLink.cc \
     src/comm/UDPLink.cc \

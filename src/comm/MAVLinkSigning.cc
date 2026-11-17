@@ -3,6 +3,7 @@
  ****************************************************************************/
 
 #include "MAVLinkSigning.h"
+#include "SecurityLog.h"
 #include <QLoggingCategory>
 
 #include <QCryptographicHash>
@@ -28,7 +29,6 @@ namespace {
     const char*     kProtectKey = "protect";
     const char*     kDateKey    = "date";
     const qint64    kEpoch2015Ms = Q_INT64_C(1420070400000);    // 2015-01-01 00:00:00 UTC
-    const qint64    kLogMaxBytes = 1024 * 1024;
 
     mavlink_signing_t           s_signing[MAVLINK_COMM_NUM_BUFFERS];
     mavlink_signing_streams_t   s_streams;
@@ -368,21 +368,11 @@ void MAVLinkSigning::_saveKey()
 
 QString MAVLinkSigning::securityLogPath() const
 {
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/security.log");
+    return SecurityLog::path();
 }
 
 void MAVLinkSigning::logEvent(const QString& text)
 {
-    const QString path = securityLogPath();
-    QDir().mkpath(QFileInfo(path).absolutePath());
-    if (QFileInfo(path).size() > kLogMaxBytes) {
-        QFile::remove(path + QStringLiteral(".1"));
-        QFile::rename(path, path + QStringLiteral(".1"));
-    }
-    QFile file(path);
-    if (file.open(QIODevice::Append | QIODevice::Text)) {
-        QTextStream out(&file);
-        out << QDateTime::currentDateTime().toString(Qt::ISODate) << " MAVLink signing: " << text << "\n";
-    }
+    SecurityLog::write(QStringLiteral("MAVLink signing"), text);
     qCDebug(MAVLinkSigningLog) << text;
 }

@@ -7,6 +7,7 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
 
 namespace SecureStore {
     /// true when values are protected by the OS (Windows DPAPI); false = app-private settings only
@@ -15,6 +16,7 @@ namespace SecureStore {
     QByteArray  get         (const QString& name);          ///< empty when missing or unreadable
     void        remove      (const QString& name);
     bool        contains    (const QString& name);
+    QStringList names       ();                             ///< stored names (never the values)
 
     // raw DPAPI helpers (Windows; elsewhere they return the input / empty)
     QByteArray  protect     (const QByteArray& plain);
