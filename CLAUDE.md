@@ -146,6 +146,9 @@ Reply to the user in Korean unless they write in English.
   group SecureStore; Android = plain, TODO Keystore). Doodle Labs radio: TLS verification on with a trust-on-first-use
   certificate pin (`doodlePin/<ip>`; a changed certificate is refused, S66 red), own password (S66 Change, ground only,
   min 8, ubus rpc-sys password_set) kept in SecureStore `doodle/<ip>`, factory password as fallback; not tested on a radio.
+  Settings facts named passwd / otaPassword / onlineLicenseKey / mapboxToken / esriToken / vworldToken live in
+  SecureStore ("<group>/<name>", SettingsFact; NTRIP group = "RTCM"), moved from the ini at start. Facts are created
+  lazily (the NTRIP source only while RTK is on): test with values in the ini, not only through the UI.
   Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
   max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column

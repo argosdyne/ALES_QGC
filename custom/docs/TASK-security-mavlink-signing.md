@@ -6,6 +6,10 @@ row, Android Keystore for the key, and "Other CE RED items" 3-5 below.
 Done 2026-11-17: item 1 (3851bb2e8, the user changes the account password at the provider: it stays in git history),
 `src/Utilities/SecureStore` (DPAPI, 65ba15a6d), item 2 (a8bd0f21d: TOFU certificate pin `doodlePin/<ip>`, own radio
 password via ubus `rpc-sys password_set` kept in SecureStore `doodle/<ip>`, S66 radio rows; not tested on a radio).
+Item 3 (1415abbb1): SettingsFact keeps passwd, otaPassword, onlineLicenseKey, mapboxToken, esriToken, vworldToken in
+SecureStore as "<group>/<name>" (NTRIP group is "RTCM"); plain values are moved at start. Open: the Altitude Angel
+licence key is also the built-in default in `FlyView.SettingsGroup.json` (decision for the user). Item 4: no TLS
+switch (the company caster is plain NTRIP 1).
 
 Hand-off note for a Claude Code session (written 2026-11-16 by the claude.ai session that drew the Figma screens).
 Read `CLAUDE.md` first. Reply to the user in Korean. **Figma is the source of truth**; if this note and Figma disagree,
