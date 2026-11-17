@@ -175,12 +175,16 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
 
     static MAVLinkProtocol* mavlink = qgcApp()->toolbox()->mavlinkProtocol();
     if(count >= 14) {
+        // AQGC: pack on the primary link channel so the packet is MAVLink-signed when the link uses signing
+        SharedLinkInterfacePtr signLink = vehicleLinkManager()->primaryLink().lock();
+        const uint8_t packChan = signLink ? signLink->mavlinkChannel() : static_cast<uint8_t>(MAVLINK_COMM_0);
         mavlink_message_t msg;
         if(_plugin->slaveMode()) {
             //qInfo() << "_plugin->slaveMode()";
-            mavlink_msg_rc_channels_override_pack(
+            mavlink_msg_rc_channels_override_pack_chan(
                 static_cast<uint8_t>(mavlink->getSystemId()),
                 static_cast<uint8_t>(mavlink->getComponentId()),
+                packChan,
                 &msg,
                 static_cast<uint8_t>(id()),
                 0,
@@ -210,9 +214,10 @@ void CustomVehicle::_sendRcChannelValues(const quint16* channels, int count)
             rc_channels.time_boot_ms = static_cast<uint32_t>(QGC::groundTimeMilliseconds());
             rc_channels.chancount = static_cast<uint8_t>(count);
             rc_channels.rssi = 255;
-            mavlink_msg_rc_channels_encode(
+            mavlink_msg_rc_channels_encode_chan(
                 static_cast<uint8_t>(mavlink->getSystemId()),
                 static_cast<uint8_t>(mavlink->getComponentId()),
+                packChan,
                 &msg,
                 &rc_channels);
         }

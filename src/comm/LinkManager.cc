@@ -43,6 +43,7 @@
 #include <qmdnsengine/mdns.h>
 #include <qmdnsengine/server.h>
 #include <qmdnsengine/service.h>
+#include "MAVLinkSigning.h"
 
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
@@ -910,6 +911,7 @@ uint8_t LinkManager::allocateMavlinkChannel(void)
                 mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
             }
             _mavlinkChannelsUsedBitMask |= 1 << mavlinkChannel;
+            MAVLinkSigning::initChannel(mavlinkChannel);    // AQGC: sign / check with the app key (after the reset)
             qCDebug(LinkManagerLog) << "allocateMavlinkChannel" << mavlinkChannel;
             return mavlinkChannel;
         }
@@ -925,6 +927,7 @@ void LinkManager::freeMavlinkChannel(uint8_t channel)
         return;
     }
     _mavlinkChannelsUsedBitMask &= ~(1 << channel);
+    MAVLinkSigning::clearChannel(channel);              // AQGC
 }
 
 LogReplayLink* LinkManager::startLogReplay(const QString& logFile)
