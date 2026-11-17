@@ -31,6 +31,7 @@
 #include "CodevRTCMManager.h"
 #include "CustomSettings.h"
 #include "FlyViewSettings.h"
+#include "AutoConnectSettings.h"
 #include "YS/YSManager.h"
 
 #include "M2Manager.h"
@@ -290,6 +291,15 @@ bool CustomPlugin::adjustSettingMetaData(const QString& settingsGroup, FactMetaD
     // AQGC Simple: default maximum altitude for guided commands is 120 m (decision 2026-11-13)
     if (settingsGroup == FlyViewSettings::settingsGroup && metaData.name() == FlyViewSettings::guidedMaximumAltitudeName) {
         metaData.setRawDefaultValue(120);
+        return parentResult;
+    }
+
+    // CE RED / EN 18031, Figma S69 Devices (2026-11-17): network services and external devices are off unless needed.
+    // On by default: drone link UDP and USB auto-connect. Off: RTK base station (USB) and Zero-Conf (mDNS listener
+    // that connects to any MAVLink service announced on the network). Both modes; a saved choice is kept.
+    if (settingsGroup == AutoConnectSettings::settingsGroup
+            && (metaData.name() == AutoConnectSettings::autoConnectRTKGPSName || metaData.name() == AutoConnectSettings::autoConnectZeroConfName)) {
+        metaData.setRawDefaultValue(false);
         return parentResult;
     }
 
