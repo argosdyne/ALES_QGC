@@ -2,7 +2,10 @@
 
 **Status 2026-11-17:** MAVLink signing done (commits 53681aca4 core, 9b72e32ac Simple UI; see CLAUDE.md for the
 SITL facts). Open: S67 "Delete my data" calls `linkSecurity.forgetLocalKey()` (exists, no UI yet), S65 security log
-row, Android Keystore for the key, and "Other CE RED items" 1-5 below.
+row, Android Keystore for the key, and "Other CE RED items" 3-5 below.
+Done 2026-11-17: item 1 (3851bb2e8, the user changes the account password at the provider: it stays in git history),
+`src/Utilities/SecureStore` (DPAPI, 65ba15a6d), item 2 (a8bd0f21d: TOFU certificate pin `doodlePin/<ip>`, own radio
+password via ubus `rpc-sys password_set` kept in SecureStore `doodle/<ip>`, S66 radio rows; not tested on a radio).
 
 Hand-off note for a Claude Code session (written 2026-11-16 by the claude.ai session that drew the Figma screens).
 Read `CLAUDE.md` first. Reply to the user in Korean. **Figma is the source of truth**; if this note and Figma disagree,

@@ -141,6 +141,11 @@ Reply to the user in Korean unless they write in English.
   serial (USB) link or TCP to 127.0.0.1 (SITL); a UDP link is refused (keys never over the radio). For SITL tests
   set `[LinkManager] autoConnectUDP=false` or the UDP link becomes primary. pymavlink scripts (aqgc-build folder):
   signtest.py, keyswap.py, inject.py, otherkey.py, whichkey.py.
+  CE RED items 1-2 done 2026-11-17: no built-in NTRIP caster account (the provider password must be changed; it is in
+  git history), no credential logging; secrets go to `src/Utilities/SecureStore` (Windows DPAPI, base64 in QSettings
+  group SecureStore; Android = plain, TODO Keystore). Doodle Labs radio: TLS verification on with a trust-on-first-use
+  certificate pin (`doodlePin/<ip>`; a changed certificate is refused, S66 red), own password (S66 Change, ground only,
+  min 8, ubus rpc-sys password_set) kept in SecureStore `doodle/<ip>`, factory password as fallback; not tested on a radio.
   Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
   max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
