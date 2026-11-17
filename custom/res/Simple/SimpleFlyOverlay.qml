@@ -147,6 +147,13 @@ Item {
             text: qsTr("Pause"); icon: "pause"
             onClicked: fly._act(fly._guided.actionPause)
         }
+        // S78 Advanced mode: More actions (arm on the ground, emergency stop, speed, set home, raw messages)
+        SActionButton {
+            visible: QGroundControl.corePlugin.advancedMode
+            objectName: "moreActions"
+            text: qsTr("More"); icon: "menu"
+            onClicked: fly.openSheet("more")
+        }
         // S11 tether: height - / + in 5 m steps (classic change altitude); + is off near the cable limit
         Column {
             id: tetherHeight
@@ -231,6 +238,38 @@ Item {
         vehicle: fly._veh
         onCloseRequested: fly.cameraOpen = false
         onAdvancedRequested: { fly.cameraOpen = false; simpleRoot.requestAdvanced("advanced") }
+    }
+
+    //------------------------------------------------------------------ S78 Advanced: six more values, right of the telemetry bar
+    Rectangle {
+        id: advValues
+        visible: QGroundControl.corePlugin.advancedMode && vs.present && !fly.videoMain
+        x: SimpleTheme.px(SimpleTheme.telemetryX + 902 + 16)
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24)
+        width: SimpleTheme.px(408); height: SimpleTheme.px(148)
+        radius: SimpleTheme.px(20); color: SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.92)
+        readonly property var v: fly._veh
+        readonly property var b: v && v.batteries.count > 0 ? v.batteries.get(0) : null
+        readonly property var items: !v ? [] : [
+            { k: qsTr("V.SPEED"),     t: (Number(v.climbRate.rawValue) >= 0 ? "+" : "") + Number(v.climbRate.rawValue).toFixed(1) + " " + v.climbRate.units },
+            { k: qsTr("HEADING"),     t: Math.round(Number(v.heading.rawValue)) + "°" },
+            { k: qsTr("SATS · HDOP"), t: v.gps.count.valueString + " · " + Number(v.gps.hdop.rawValue).toFixed(1) },
+            { k: qsTr("BATTERY"),     t: b ? Number(b.voltage.rawValue).toFixed(1) + " V" : "—" },
+            { k: qsTr("CURRENT"),     t: b ? Number(b.current.rawValue).toFixed(1) + " A" : "—" },
+            { k: qsTr("TO NEXT WP"),  t: isFinite(Number(v.distanceToNextWP.rawValue)) && Number(v.distanceToNextWP.rawValue) > 0 ? Math.round(Number(v.distanceToNextWP.rawValue)) + " m" : "—" }
+        ]
+        Grid {
+            anchors.centerIn: parent
+            columns: 3; columnSpacing: SimpleTheme.px(14); rowSpacing: SimpleTheme.px(8)
+            Repeater {
+                model: advValues.items
+                Column {
+                    width: SimpleTheme.px(122)
+                    SText { text: modelData.k; size: 18; medium: true; color: SimpleTheme.textSecondary }
+                    SText { text: modelData.t; size: 26; bold: true }
+                }
+            }
+        }
     }
 
     //------------------------------------------------------------------ Telemetry bar (x = 24, bottom 24)
@@ -649,6 +688,16 @@ Item {
         visible: fly.sheet === "mode"
         anchors.centerIn: parent
         vehicle: fly._veh
+        onCloseRequested: fly.closeSheet()
+        onRtlRequested:   fly.openSheet("rtl")       // S79: same slide-to-confirm as Simple
+        onLandRequested:  fly.openSheet("land")
+    }
+    // S78 Advanced: More actions
+    SimpleMoreSheet {
+        visible: fly.sheet === "more"
+        anchors.centerIn: parent
+        vs: fly.vs
+        guided: fly._guided
         onCloseRequested: fly.closeSheet()
     }
     SimpleChipDetail {

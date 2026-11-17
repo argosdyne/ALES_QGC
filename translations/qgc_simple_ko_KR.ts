@@ -610,6 +610,34 @@
         <source>Tether alarm — %1</source>
         <translation>테더 경보 — %1</translation>
     </message>
+    <message>
+        <source>More</source>
+        <translation>더 보기</translation>
+    </message>
+    <message>
+        <source>V.SPEED</source>
+        <translation>수직 속도</translation>
+    </message>
+    <message>
+        <source>HEADING</source>
+        <translation>방향</translation>
+    </message>
+    <message>
+        <source>SATS · HDOP</source>
+        <translation>위성 · HDOP</translation>
+    </message>
+    <message>
+        <source>BATTERY</source>
+        <translation>배터리</translation>
+    </message>
+    <message>
+        <source>CURRENT</source>
+        <translation>전류</translation>
+    </message>
+    <message>
+        <source>TO NEXT WP</source>
+        <translation>다음 지점까지</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -806,6 +834,166 @@
     <message>
         <source>Other flight modes are available in Advanced mode.</source>
         <translation>다른 비행 모드는 고급 모드에서 쓸 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Flight mode · all modes</source>
+        <translation>비행 모드 · 전체</translation>
+    </message>
+    <message>
+        <source>HOLDS POSITION (GPS)</source>
+        <translation>위치 유지 (GPS)</translation>
+    </message>
+    <message>
+        <source>Holds its place when you let go</source>
+        <translation>스틱을 놓으면 그 자리에 머뭅니다</translation>
+    </message>
+    <message>
+        <source>Position hold (pilot)</source>
+        <translation>위치 유지 (조종사)</translation>
+    </message>
+    <message>
+        <source>Like position hold, with direct stick feel</source>
+        <translation>위치 유지와 같지만 스틱 반응이 직접적입니다</translation>
+    </message>
+    <message>
+        <source>Brake</source>
+        <translation>정지</translation>
+    </message>
+    <message>
+        <source>Stops at once and holds</source>
+        <translation>바로 멈추고 머뭅니다</translation>
+    </message>
+    <message>
+        <source>HEIGHT ONLY — DRIFTS WITH WIND</source>
+        <translation>높이만 유지 — 바람에 흘러감</translation>
+    </message>
+    <message>
+        <source>Holds height, not position</source>
+        <translation>높이만 유지하고 위치는 유지하지 않습니다</translation>
+    </message>
+    <message>
+        <source>Stabilize</source>
+        <translation>수동 (자동 수평)</translation>
+    </message>
+    <message>
+        <source>No height or position hold</source>
+        <translation>높이·위치 유지 없음</translation>
+    </message>
+    <message>
+        <source>EXPERT</source>
+        <translation>전문가</translation>
+    </message>
+    <message>
+        <source>Acro</source>
+        <translation>곡예</translation>
+    </message>
+    <message>
+        <source>Rate control, no self-levelling</source>
+        <translation>각속도 조종, 자동 수평 없음</translation>
+    </message>
+    <message>
+        <source>Sport</source>
+        <translation>스포츠</translation>
+    </message>
+    <message>
+        <source>Rate control with height hold</source>
+        <translation>각속도 조종 + 높이 유지</translation>
+    </message>
+    <message>
+        <source>Drift</source>
+        <translation>드리프트</translation>
+    </message>
+    <message>
+        <source>Car-like turns, no position hold</source>
+        <translation>자동차처럼 선회, 위치 유지 없음</translation>
+    </message>
+    <message>
+        <source>AUTOMATIC</source>
+        <translation>자동</translation>
+    </message>
+    <message>
+        <source>Mission</source>
+        <translation>임무</translation>
+    </message>
+    <message>
+        <source>Flies the mission on the drone</source>
+        <translation>드론에 있는 임무를 비행합니다</translation>
+    </message>
+    <message>
+        <source>Guided</source>
+        <translation>앱 유도</translation>
+    </message>
+    <message>
+        <source>Goes where the app sends it</source>
+        <translation>앱이 보낸 곳으로 갑니다</translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation>따라가기</translation>
+    </message>
+    <message>
+        <source>Follows this device</source>
+        <translation>이 기기를 따라갑니다</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>선회</translation>
+    </message>
+    <message>
+        <source>Circles around a point</source>
+        <translation>한 점 주위를 돕니다</translation>
+    </message>
+    <message>
+        <source>ZigZag</source>
+        <translation>지그재그</translation>
+    </message>
+    <message>
+        <source>Flies back and forth between two points</source>
+        <translation>두 점 사이를 오갑니다</translation>
+    </message>
+    <message>
+        <source>RETURN AND LAND</source>
+        <translation>귀환 및 착륙</translation>
+    </message>
+    <message>
+        <source>Return home</source>
+        <translation>귀환</translation>
+    </message>
+    <message>
+        <source>Climbs, flies home, lands</source>
+        <translation>올라가서 홈으로 날아가 착륙합니다</translation>
+    </message>
+    <message>
+        <source>Smart return</source>
+        <translation>온 길로 귀환</translation>
+    </message>
+    <message>
+        <source>Flies back the way it came</source>
+        <translation>왔던 길로 돌아갑니다</translation>
+    </message>
+    <message>
+        <source>Return after mission</source>
+        <translation>임무 후 귀환</translation>
+    </message>
+    <message>
+        <source>Goes to the mission's landing</source>
+        <translation>임무의 착륙 지점으로 갑니다</translation>
+    </message>
+    <message>
+        <source>Land</source>
+        <translation>착륙</translation>
+    </message>
+    <message>
+        <source>Lands where it is</source>
+        <translation>그 자리에 착륙합니다</translation>
+    </message>
+    <message>
+        <source>OTHER</source>
+        <translation>기타</translation>
+    </message>
+    <message>
+        <source>No GPS hold. Tap again to change.</source>
+        <translation>GPS 유지 없음. 바꾸려면 한 번 더 누르세요.</translation>
     </message>
 </context>
 <context>
@@ -2264,6 +2452,10 @@
     <message>
         <source>Ground unit</source>
         <translation>지상 유닛</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>고급</translation>
     </message>
 </context>
 <context>
@@ -6770,6 +6962,89 @@
     <message>
         <source>Product</source>
         <translation>제품 기능</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMoreSheet</name>
+    <message>
+        <source>More actions</source>
+        <translation>더 보기</translation>
+    </message>
+    <message>
+        <source>Arm motors</source>
+        <translation>모터 시동</translation>
+    </message>
+    <message>
+        <source>On the ground only · motors spin at idle</source>
+        <translation>지상에서만 · 모터가 공회전합니다</translation>
+    </message>
+    <message>
+        <source>Hold to arm</source>
+        <translation>눌러서 시동</translation>
+    </message>
+    <message>
+        <source>Emergency stop</source>
+        <translation>긴급 정지</translation>
+    </message>
+    <message>
+        <source>Motors off at once — the drone falls. Hold 3 s.</source>
+        <translation>모터가 즉시 꺼집니다 — 드론이 떨어집니다. 3초 누르세요.</translation>
+    </message>
+    <message>
+        <source>Hold 3 s to stop the motors</source>
+        <translation>3초 눌러 모터 정지</translation>
+    </message>
+    <message>
+        <source>Change speed</source>
+        <translation>속도 변경</translation>
+    </message>
+    <message>
+        <source>Horizontal speed for this flight</source>
+        <translation>이번 비행의 수평 속도</translation>
+    </message>
+    <message>
+        <source>In flight, not during a mission</source>
+        <translation>비행 중, 임무 중이 아닐 때</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Set home here</source>
+        <translation>여기를 홈으로</translation>
+    </message>
+    <message>
+        <source>Return home goes to the drone's position now</source>
+        <translation>귀환하면 지금 드론 위치로 옵니다</translation>
+    </message>
+    <message>
+        <source>Set home here…</source>
+        <translation>여기를 홈으로…</translation>
+    </message>
+    <message>
+        <source>Set home</source>
+        <translation>홈 설정</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Messages (raw)</source>
+        <translation>메시지 (원문)</translation>
+    </message>
+    <message>
+        <source>Flight controller messages as sent</source>
+        <translation>비행 제어기가 보낸 그대로의 메시지</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>보기</translation>
     </message>
 </context>
 </TS>

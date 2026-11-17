@@ -75,7 +75,18 @@ Rectangle {
             Column {
                 id: modeCol
                 SText { text: qsTr("FLIGHT MODE"); size: 22; medium: true; color: SimpleTheme.textSecondary }
-                SText { text: vs.mode; size: 26; bold: true }
+                Row {
+                    spacing: SimpleTheme.px(10)
+                    SText { text: vs.mode; size: 26; bold: true }
+                    // S78: Advanced mode badge next to the flight mode
+                    Rectangle {
+                        visible: QGroundControl.corePlugin.advancedMode
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: advBadge.width + SimpleTheme.px(20); height: SimpleTheme.px(34); radius: height / 2
+                        color: SimpleTheme.withAlpha(SimpleTheme.brandGreen, 0.35); border.width: SimpleTheme.px(2); border.color: SimpleTheme.brandGreen
+                        SText { id: advBadge; anchors.centerIn: parent; text: qsTr("Advanced"); size: 18; bold: true }
+                    }
+                }
             }
             MouseArea { anchors.fill: parent; onClicked: bar.modeClicked() }
         }

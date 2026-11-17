@@ -41,6 +41,7 @@ SimpleMapTapMenu 1.0 SimpleMapTapMenu.qml
 SimpleMenuDrawer 1.0 SimpleMenuDrawer.qml
 SimpleMessages 1.0 SimpleMessages.qml
 SimpleModeSheet 1.0 SimpleModeSheet.qml
+SimpleMoreSheet 1.0 SimpleMoreSheet.qml
 SimplePayloadSettings 1.0 SimplePayloadSettings.qml
 SimplePlanCheck 1.0 SimplePlanCheck.qml
 SimplePlanWizard 1.0 SimplePlanWizard.qml
