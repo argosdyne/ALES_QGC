@@ -35,6 +35,10 @@ Item {
     // AQGC Simple UI (S23 waypoint flight): in Simple mode a map tap is handed to the Simple wizard
     signal simpleMapClicked(var coordinate)
     readonly property var simpleMap: editorMap
+    // AQGC S80 (Simple mission editor, Advanced mode): mission | fence | rally, same layers as the hidden classic tab bar
+    function simpleSetEditingLayer(layer) {
+        layerTabBar.currentIndex = layer === "fence" ? 1 : layer === "rally" ? 2 : 0
+    }
 
     readonly property int   _decimalPlaces:             8
     readonly property real  _margin:                    ScreenTools.defaultFontPixelHeight * 0.5

@@ -14,7 +14,7 @@ Item {
     id: wiz
     property var    vs
     property string step:   "choose"        // choose | saved (S24) | edit | check
-    property string kind:   "area"          // area (S08) | waypoint (S23) | corridor (S40) | structure (S41) | lidar (S42) | other (check only)
+    property string kind:   "area"          // area (S08) | waypoint (S23) | corridor (S40) | structure (S41) | lidar (S42) | editor (S80, Advanced) | other (check only)
     readonly property bool _ysOn: !!QGroundControl.corePlugin.settings && !!QGroundControl.corePlugin.settings.ysEnable.rawValue
     property var    scanItem: null          // corridor / structure complex item being edited
     property string shape:  "rectangle"     // structure outline: rectangle | circle | draw | custom (opened file)
@@ -113,6 +113,18 @@ Item {
         step = "edit"
         if (wpEditor) wpEditor.addMode = true
     }
+    // S80 (Advanced mode): the mission editor works on the mission being planned; a new one starts as take-off, return home
+    function openEditor() {
+        if (_mission.visualItems.count <= 1) {
+            var c = planView.mapCenter()
+            _mission.insertTakeoffItem(c, 1, false)
+            var rtl = _mission.insertSimpleMissionItem(c, 2, false)
+            if (rtl) rtl.command = 20
+        }
+        survey = null
+        kind = "editor"
+        step = "edit"
+    }
     // S24: open a saved mission in the matching editor (area, waypoint) or straight in the check (other kinds)
     // The plan being edited is replaced by Open / Import: ask first when it is not saved on this tablet.
     property var _pending: null
@@ -178,6 +190,7 @@ Item {
         function onSimpleMapClicked(coordinate) {
             if (!wiz.visible || wiz.step !== "edit") return
             if (wiz.kind === "waypoint") wpEditor.addPoint(coordinate)
+            else if (wiz.kind === "editor") missionEditor.mapClicked(coordinate)
             // S40: a tap adds a point at the end of the corridor line
             else if (wiz.kind === "corridor" && wiz.scanItem) wiz.scanItem.corridorPolyline.appendVertex(coordinate)
             // S41 "Draw": taps outline the structure (the first tap starts a new outline)
@@ -408,6 +421,7 @@ Item {
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 SText { text: wiz.step === "choose" ? qsTr("Plan a mission") : wiz.kind === "waypoint" ? qsTr("Waypoint flight")
+                            : wiz.kind === "editor" ? qsTr("Mission editor")
                             : wiz.kind === "corridor" ? qsTr("Corridor mapping") : wiz.kind === "structure" ? qsTr("Structure scan")
                             : wiz.kind === "lidar" ? qsTr("LiDAR survey")
                             : wiz.kind === "other" ? qsTr("Saved mission") : qsTr("Area mapping"); size: 34; bold: true }
@@ -426,7 +440,7 @@ Item {
                 onClicked: { saveField.text = wiz._planName; saveField.reset(); saveSheet.visible = true }
             }
             Repeater {
-                model: [wiz.kind === "waypoint" ? qsTr("Add points") : wiz.kind === "corridor" ? qsTr("Draw line")
+                model: [wiz.kind === "waypoint" || wiz.kind === "editor" ? qsTr("Add points") : wiz.kind === "corridor" ? qsTr("Draw line")
                         : wiz.kind === "structure" ? qsTr("Select structure") : qsTr("Draw area"), qsTr("Settings"), qsTr("Check & send")]
                 Rectangle {
                     id: stepItem
@@ -470,7 +484,8 @@ Item {
                     { key: "lidar",     icon: "lidar",     title: qsTr("LiDAR survey"),      sub: qsTr("YellowScan with init path"),                        ok: wiz._ysOn,
                       off: qsTr("Turn on YellowScan in Settings › Payloads") },
                     { key: "open",      icon: "folder",    title: qsTr("Open saved mission"), sub: qsTr("From this tablet or a KML file"),                  ok: true }
-                ]
+                ].concat(QGroundControl.corePlugin.advancedMode ? [
+                    { key: "editor",    icon: "sliders",   title: qsTr("Mission editor"),    sub: qsTr("Every item, fence and rally points (Advanced)"),     ok: true } ] : [])
                 Rectangle {
                     width: SimpleTheme.px(500); height: SimpleTheme.px(260); radius: SimpleTheme.px(24)
                     color: SimpleTheme.surfaceRaised
@@ -485,6 +500,7 @@ Item {
                     }
                     MouseArea { anchors.fill: parent; enabled: modelData.ok
                                 onClicked: modelData.key === "waypoint" ? wiz.createWaypointFlight()
+                                         : modelData.key === "editor" ? wiz.openEditor()
                                          : modelData.key === "open" ? wiz.step = "saved"
                                          : modelData.key === "corridor" || modelData.key === "structure" ? wiz._createScan(modelData.key)
                                          : modelData.key === "lidar" ? wiz.createLidarSurvey()
@@ -611,6 +627,18 @@ Item {
         maxAlt: wiz._maxAlt
         topInset: header.height
         onNextRequested: wiz.step = "check"
+    }
+
+    //------------------------------------------------------------------ S80 mission editor (Advanced mode)
+    SimpleMissionEditor {
+        id: missionEditor
+        anchors.fill: parent
+        visible: wiz.step === "edit" && wiz.kind === "editor"
+        plan: wiz._plan
+        map: typeof planView !== "undefined" ? planView.simpleMap : null
+        topInset: header.height
+        onNextRequested: wiz.step = "check"
+        onVisibleChanged: if (!visible && typeof planView !== "undefined" && planView.simpleSetEditingLayer) planView.simpleSetEditingLayer("mission")
     }
 
     //------------------------------------------------------------------ S39 check & send

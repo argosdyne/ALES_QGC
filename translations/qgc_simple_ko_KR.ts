@@ -1317,6 +1317,14 @@
         <source>Drag the corners to fit the site · the init path is added automatically</source>
         <translation>모서리를 끌어 현장에 맞추세요 · 초기화 경로는 자동으로 추가됩니다</translation>
     </message>
+    <message>
+        <source>Mission editor</source>
+        <translation>임무 편집기</translation>
+    </message>
+    <message>
+        <source>Every item, fence and rally points (Advanced)</source>
+        <translation>모든 항목, 펜스, 집결점 (고급)</translation>
+    </message>
 </context>
 <context>
     <name>SimplePreflightSheet</name>
@@ -7045,6 +7053,173 @@
     <message>
         <source>Show</source>
         <translation>보기</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleMissionEditor</name>
+    <message>
+        <source>Waypoint</source>
+        <translation>웨이포인트</translation>
+    </message>
+    <message>
+        <source>Take off</source>
+        <translation>이륙</translation>
+    </message>
+    <message>
+        <source>Land</source>
+        <translation>착륙</translation>
+    </message>
+    <message>
+        <source>Return home</source>
+        <translation>귀환</translation>
+    </message>
+    <message>
+        <source>Hover for a time</source>
+        <translation>일정 시간 정지 비행</translation>
+    </message>
+    <message>
+        <source>Circle (turns)</source>
+        <translation>선회 (바퀴 수)</translation>
+    </message>
+    <message>
+        <source>Hover until next command</source>
+        <translation>다음 명령까지 정지 비행</translation>
+    </message>
+    <message>
+        <source>Wait</source>
+        <translation>대기</translation>
+    </message>
+    <message>
+        <source>Change speed</source>
+        <translation>속도 변경</translation>
+    </message>
+    <message>
+        <source>Point camera at (ROI)</source>
+        <translation>카메라 지향 (ROI)</translation>
+    </message>
+    <message>
+        <source>Jump to item</source>
+        <translation>항목으로 이동</translation>
+    </message>
+    <message>
+        <source>Take photo</source>
+        <translation>사진 촬영</translation>
+    </message>
+    <message>
+        <source>Photos every distance</source>
+        <translation>거리마다 사진</translation>
+    </message>
+    <message>
+        <source>Start video</source>
+        <translation>영상 시작</translation>
+    </message>
+    <message>
+        <source>Stop video</source>
+        <translation>영상 정지</translation>
+    </message>
+    <message>
+        <source>Gimbal angle</source>
+        <translation>짐벌 각도</translation>
+    </message>
+    <message>
+        <source>Gripper</source>
+        <translation>그리퍼</translation>
+    </message>
+    <message>
+        <source>Set servo</source>
+        <translation>서보 설정</translation>
+    </message>
+    <message>
+        <source>Tap map to add</source>
+        <translation>지도를 눌러 추가</translation>
+    </message>
+    <message>
+        <source>Adding points</source>
+        <translation>점 추가 중</translation>
+    </message>
+    <message>
+        <source>Add point</source>
+        <translation>점 추가</translation>
+    </message>
+    <message>
+        <source>Mission (%1)</source>
+        <translation>임무 (%1)</translation>
+    </message>
+    <message>
+        <source>Fence</source>
+        <translation>펜스</translation>
+    </message>
+    <message>
+        <source>Rally points</source>
+        <translation>집결점</translation>
+    </message>
+    <message>
+        <source>Item %1 · %2</source>
+        <translation>항목 %1 · %2</translation>
+    </message>
+    <message>
+        <source>Command</source>
+        <translation>명령</translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>고도</translation>
+    </message>
+    <message>
+        <source>above home</source>
+        <translation>홈 기준</translation>
+    </message>
+    <message>
+        <source>A pattern made with the mission wizards. Change its area or settings there; here it can be deleted.</source>
+        <translation>임무 마법사로 만든 패턴입니다. 영역이나 설정은 마법사에서 바꾸고, 여기서는 지울 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Inclusion: the drone stays inside. Exclusion: the drone stays out. Drag the corners on the map. My zones (Map &amp; flight zones) are added when the mission is sent.</source>
+        <translation>포함: 드론이 안에 머뭅니다. 제외: 드론이 들어가지 않습니다. 지도에서 모서리를 끌어 바꾸세요. 내 구역(지도 및 비행 구역)은 임무를 보낼 때 더해집니다.</translation>
+    </message>
+    <message>
+        <source>Polygon</source>
+        <translation>다각형</translation>
+    </message>
+    <message>
+        <source>Circle</source>
+        <translation>원</translation>
+    </message>
+    <message>
+        <source>Polygon %1 · %2 corners</source>
+        <translation>다각형 %1 · 모서리 %2개</translation>
+    </message>
+    <message>
+        <source>Inclusion</source>
+        <translation>포함</translation>
+    </message>
+    <message>
+        <source>Exclusion</source>
+        <translation>제외</translation>
+    </message>
+    <message>
+        <source>Circle %1 · %2 m</source>
+        <translation>원 %1 · %2 m</translation>
+    </message>
+    <message>
+        <source>No fence in this mission.</source>
+        <translation>이 임무에는 펜스가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Safe places to return to instead of home. Tap the map to add one; drag it on the map to move it.</source>
+        <translation>홈 대신 돌아갈 안전한 장소입니다. 지도를 눌러 추가하고, 끌어서 옮기세요.</translation>
+    </message>
+    <message>
+        <source>Point %1 · %2, %3</source>
+        <translation>지점 %1 · %2, %3</translation>
+    </message>
+    <message>
+        <source>No rally points.</source>
+        <translation>집결점이 없습니다.</translation>
+    </message>
+    <message>
+        <source>Check &amp; send</source>
+        <translation>확인 및 전송</translation>
     </message>
 </context>
 </TS>
