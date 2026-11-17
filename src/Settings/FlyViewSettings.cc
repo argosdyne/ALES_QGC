@@ -12,6 +12,10 @@
 #include <QQmlEngine>
 #include <QtQml>
 
+#ifdef AQGC_HAS_AA_KEY
+#include "aqgc_aa_key.h"     // generated in the build directory, see custom/custom.pri
+#endif
+
 DECLARE_SETTINGGROUP(FlyView, "FlyView")
 {
     qmlRegisterUncreatableType<FlyViewSettings>("QGroundControl.SettingsManager", 1, 0, "FlyViewSettings", "Reference only"); \
@@ -59,3 +63,28 @@ void FlyViewSettings:: setOnlineLicenseKeyRawValue(QString lisencekey){
     onlineLicenseKey()->setRawValue(lisencekey);
 }
 
+bool FlyViewSettings::builtInAltitudeAngelKey() const
+{
+#ifdef AQGC_HAS_AA_KEY
+    return true;
+#else
+    return false;
+#endif
+}
+
+QString FlyViewSettings::altitudeAngelKey()
+{
+    const QString own = onlineLicenseKey()->rawValueString();
+    if (!own.isEmpty()) {
+        return own;
+    }
+#ifdef AQGC_HAS_AA_KEY
+    QByteArray key(static_cast<int>(sizeof(kAqgcAAKeyData)), char(0));
+    for (int i = 0; i < key.size(); i++) {
+        key[i] = static_cast<char>(kAqgcAAKeyData[i] ^ kAqgcAAKeyMask[i]);
+    }
+    return QString::fromUtf8(key);
+#else
+    return QString();
+#endif
+}

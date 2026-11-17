@@ -126,7 +126,7 @@
     "name": "onlineLicenseKey",
     "shortDesc": "GeoAwareness online license key",
     "type": "string",
-    "default": "OMe8U1SkKWyT-zBz90_ECAGdVvvD7TvGxMsbDtN50"
+    "default": ""
 },
 {
     "name":      "enableAudioController",

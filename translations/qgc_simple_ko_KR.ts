@@ -2035,6 +2035,22 @@
         <source>Radio factory password still in use — open Link security</source>
         <translation>무선 장치 공장 비밀번호 사용 중 — 링크 보안 열기</translation>
     </message>
+    <message>
+        <source>%1 zones in the visible map area · needs internet · your API key</source>
+        <translation>보이는 지도 영역의 구역 %1개 · 인터넷 필요 · 직접 입력한 API 키</translation>
+    </message>
+    <message>
+        <source>%1 zones in the visible map area · needs internet · company key</source>
+        <translation>보이는 지도 영역의 구역 %1개 · 인터넷 필요 · 회사 키</translation>
+    </message>
+    <message>
+        <source>Enter an Altitude Angel API key to load the zones</source>
+        <translation>구역을 불러오려면 Altitude Angel API 키를 입력하세요</translation>
+    </message>
+    <message>
+        <source>Company key</source>
+        <translation>회사 키</translation>
+    </message>
 </context>
 <context>
     <name>SimpleTakeoffSheet</name>

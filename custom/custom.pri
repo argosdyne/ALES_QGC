@@ -1,5 +1,15 @@
 message("Adding Custom Plugin")
 
+#-- Altitude Angel API key (CE RED / EN 18031, 2026-11-17): not in the repository. Tagged CI builds write
+#   aqgc_aa_key.h into the build directory (custom/tools/aakey/gen_aa_key.ps1, GitHub secret ALTITUDE_ANGEL_KEY).
+exists($$OUT_PWD/aqgc_aa_key.h) {
+    message("Altitude Angel key: built in")
+    DEFINES     += AQGC_HAS_AA_KEY
+    INCLUDEPATH += $$OUT_PWD
+} else {
+    message("Altitude Angel key: not built in (the user enters one in Settings)")
+}
+
 #-- Version control
 #   Major and minor versions are defined here (manually)
 

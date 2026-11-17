@@ -1174,12 +1174,17 @@ Rectangle {
                     SSettingRow {
                         visible: zones._online
                         title: qsTr("Altitude Angel")
-                        sub: qsTr("%1 zones in the visible map area · needs internet").arg(zones._count)
+                        // own key (secure store) or the company key built into tagged CI builds (never shown)
+                        readonly property bool _ownKey: String(zones._fly.onlineLicenseKey.rawValue) !== ""
+                        sub: _ownKey ? qsTr("%1 zones in the visible map area · needs internet · your API key").arg(zones._count)
+                           : zones._fly.builtInAltitudeAngelKey ? qsTr("%1 zones in the visible map area · needs internet · company key").arg(zones._count)
+                           : qsTr("Enter an Altitude Angel API key to load the zones")
                         locked: zones._armed; lockReason: qsTr("Locked while the motors are running")
                         Row {
                             spacing: SimpleTheme.px(12)
                             STextField {
                                 designWidth: 360; label: qsTr("API key"); password: true
+                                placeholder: zones._fly.builtInAltitudeAngelKey ? qsTr("Company key") : ""
                                 text: zones._fly.onlineLicenseKey.rawValue
                                 onEdited: { zones._fly.onlineLicenseKey.rawValue = text; zones._mgr.reload() }
                             }
