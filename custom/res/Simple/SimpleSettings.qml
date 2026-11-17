@@ -12,6 +12,8 @@ Rectangle {
     id: page
     property var    vs
     property string category: "general"
+    readonly property bool _adv: QGroundControl.corePlugin.advancedMode
+    on_AdvChanged: if (!_adv && ["flyscreen", "video", "plan", "datalogs", "devices"].indexOf(category) >= 0) category = "general"
     property bool   mapDownload: false     // S46 › Download new area (full screen)
     property bool   myZones:     false     // S32 › My flight zones (full screen)
     color: SimpleTheme.bgBase
@@ -57,7 +59,7 @@ Rectangle {
                     { key: "about",      icon: "help",    title: qsTr("About & support") }
                 ]
                 Rectangle {
-                    width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18)
+                    width: parent.width; height: SimpleTheme.px(page._adv ? 72 : 88); radius: SimpleTheme.px(18)
                     color: (page.category === modelData.key || (modelData.key === "about" && (page.category === "licenses" || page.category === "privacy"))
                             || (modelData.key === "connection" && page.category === "linksec")) ? SimpleTheme.brandGreen : "transparent"
                     Row {
@@ -71,6 +73,7 @@ Rectangle {
             }
             Rectangle { width: parent.width; height: 1; color: SimpleTheme.line }
             Rectangle {
+                visible: !QGroundControl.corePlugin.advancedMode
                 width: parent.width; height: SimpleTheme.px(88); radius: SimpleTheme.px(18); color: "transparent"
                 Row {
                     anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
@@ -79,6 +82,33 @@ Rectangle {
                     SText { text: qsTr("Advanced"); size: 30; medium: true; color: SimpleTheme.textTertiary; anchors.verticalCenter: parent.verticalCenter }
                 }
                 MouseArea { anchors.fill: parent; onClicked: simpleRoot.requestAdvanced("advanced") }
+            }
+            // Advanced mode: five more categories in the same frame (Figma S64 / S69, option A)
+            Row {
+                visible: QGroundControl.corePlugin.advancedMode
+                x: SimpleTheme.px(20); height: SimpleTheme.px(52); spacing: SimpleTheme.px(12)
+                SIcon { name: "layers"; size: 28; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                SText { text: qsTr("ADVANCED MODE"); size: 20; medium: true; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+            }
+            Repeater {
+                model: QGroundControl.corePlugin.advancedMode ? [
+                    { key: "flyscreen", icon: "drone",    title: qsTr("Fly screen") },
+                    { key: "video",     icon: "video",    title: qsTr("Video") },
+                    { key: "plan",      icon: "plan",     title: qsTr("Plan") },
+                    { key: "datalogs",  icon: "folder",   title: qsTr("Data & logs") },
+                    { key: "devices",   icon: "gps",      title: qsTr("Devices") }
+                ] : []
+                Rectangle {
+                    width: parent.width; height: SimpleTheme.px(72); radius: SimpleTheme.px(18)
+                    color: page.category === modelData.key ? SimpleTheme.brandGreen : "transparent"
+                    Row {
+                        anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
+                        spacing: SimpleTheme.px(18)
+                        SIcon { name: modelData.icon; size: 36; anchors.verticalCenter: parent.verticalCenter }
+                        SText { text: modelData.title; size: 28; medium: true; anchors.verticalCenter: parent.verticalCenter }
+                    }
+                    MouseArea { anchors.fill: parent; onClicked: page.category = modelData.key }
+                }
             }
         }
     }
@@ -105,6 +135,7 @@ Rectangle {
                            : page.category === "licenses" ? licensesComp
                            : page.category === "linksec" ? linkSecComp
                            : page.category === "privacy" ? privacyComp
+                           : ["flyscreen", "video", "plan", "datalogs", "devices"].indexOf(page.category) >= 0 ? advSettingsComp
                            : laterComp
         }
     }
@@ -869,6 +900,12 @@ Rectangle {
                 SIcon { name: "chevron"; size: 40; opacity: 0.7 }
             }
         }
+    }
+
+    //------------------------------------------------------------------ ADVANCED MODE categories (S64, S69)
+    Component {
+        id: advSettingsComp
+        SimpleAdvancedSettings { category: page.category }
     }
 
     //------------------------------------------------------------------ S65 Security & privacy (+ S67, security log)

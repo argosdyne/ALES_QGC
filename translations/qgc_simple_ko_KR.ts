@@ -2147,6 +2147,26 @@
         <source>Security &amp; privacy</source>
         <translation>보안 및 개인정보</translation>
     </message>
+    <message>
+        <source>ADVANCED MODE</source>
+        <translation>고급 모드</translation>
+    </message>
+    <message>
+        <source>Fly screen</source>
+        <translation>비행 화면</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>영상</translation>
+    </message>
+    <message>
+        <source>Data &amp; logs</source>
+        <translation>데이터 및 로그</translation>
+    </message>
+    <message>
+        <source>Devices</source>
+        <translation>장치</translation>
+    </message>
 </context>
 <context>
     <name>SimpleTakeoffSheet</name>
@@ -6287,6 +6307,469 @@
     <message>
         <source>If the order or a direction is wrong, check the frame (Frame) or the motor wiring.</source>
         <translation>순서나 방향이 틀리면 프레임(프레임) 설정이나 모터 배선을 확인하세요.</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleAdvancedSettings</name>
+    <message>
+        <source>Video</source>
+        <translation>영상</translation>
+    </message>
+    <message>
+        <source>Where the video comes from and how recordings are kept.</source>
+        <translation>영상을 어디서 받고 녹화를 어떻게 보관할지 정합니다.</translation>
+    </message>
+    <message>
+        <source>Video source</source>
+        <translation>영상 원본</translation>
+    </message>
+    <message>
+        <source>RTSP for company cameras</source>
+        <translation>회사 카메라는 RTSP</translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation>RTSP</translation>
+    </message>
+    <message>
+        <source>UDP</source>
+        <translation>UDP</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation>TCP</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>끔</translation>
+    </message>
+    <message>
+        <source>RTSP address</source>
+        <translation>RTSP 주소</translation>
+    </message>
+    <message>
+        <source>Filled in by the payload profile; change only for another camera</source>
+        <translation>페이로드 설정이 채웁니다. 다른 카메라일 때만 바꾸세요</translation>
+    </message>
+    <message>
+        <source>UDP port</source>
+        <translation>UDP 포트</translation>
+    </message>
+    <message>
+        <source>Port the video arrives on</source>
+        <translation>영상이 들어오는 포트</translation>
+    </message>
+    <message>
+        <source>TCP address</source>
+        <translation>TCP 주소</translation>
+    </message>
+    <message>
+        <source>Address of the video server</source>
+        <translation>영상 서버 주소</translation>
+    </message>
+    <message>
+        <source>Low latency</source>
+        <translation>저지연</translation>
+    </message>
+    <message>
+        <source>Less delay, may stutter on a weak link</source>
+        <translation>지연이 줄지만 약한 링크에서는 끊길 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Recording format</source>
+        <translation>녹화 형식</translation>
+    </message>
+    <message>
+        <source>Format of recordings made by the app</source>
+        <translation>앱이 녹화하는 파일 형식</translation>
+    </message>
+    <message>
+        <source>Storage limit</source>
+        <translation>저장 한도</translation>
+    </message>
+    <message>
+        <source>Oldest recordings are deleted above this size</source>
+        <translation>이 크기를 넘으면 오래된 녹화부터 지웁니다</translation>
+    </message>
+    <message>
+        <source>No limit</source>
+        <translation>한도 없음</translation>
+    </message>
+    <message>
+        <source>Second video (FPV)</source>
+        <translation>두 번째 영상 (FPV)</translation>
+    </message>
+    <message>
+        <source>Show the FPV camera stream as well</source>
+        <translation>FPV 카메라 영상도 보여 줍니다</translation>
+    </message>
+    <message>
+        <source>FPV address</source>
+        <translation>FPV 주소</translation>
+    </message>
+    <message>
+        <source>Stream address of the FPV camera</source>
+        <translation>FPV 카메라 영상 주소</translation>
+    </message>
+    <message>
+        <source>Fly screen</source>
+        <translation>비행 화면</translation>
+    </message>
+    <message>
+        <source>Checks before take-off, the map and the instruments.</source>
+        <translation>이륙 전 점검, 지도, 계기 표시입니다.</translation>
+    </message>
+    <message>
+        <source>Pre-flight checklist</source>
+        <translation>비행 전 체크리스트</translation>
+    </message>
+    <message>
+        <source>Show the checklist before take-off</source>
+        <translation>이륙 전에 체크리스트를 보여 줍니다</translation>
+    </message>
+    <message>
+        <source>Checklist must be done</source>
+        <translation>체크리스트 필수</translation>
+    </message>
+    <message>
+        <source>Take-off waits until every item is ticked</source>
+        <translation>모든 항목을 체크해야 이륙할 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Keep the map on the drone</source>
+        <translation>지도를 드론에 맞춤</translation>
+    </message>
+    <message>
+        <source>The map follows the drone</source>
+        <translation>지도가 드론을 따라갑니다</translation>
+    </message>
+    <message>
+        <source>On-screen sticks</source>
+        <translation>화면 스틱</translation>
+    </message>
+    <message>
+        <source>Virtual joystick for flying without a controller</source>
+        <translation>조종기 없이 조종하는 가상 조이스틱</translation>
+    </message>
+    <message>
+        <source>Throttle stick returns to the middle</source>
+        <translation>스로틀 스틱 가운데 복귀</translation>
+    </message>
+    <message>
+        <source>On-screen throttle centres itself</source>
+        <translation>화면 스로틀이 가운데로 돌아옵니다</translation>
+    </message>
+    <message>
+        <source>Compass: nose up</source>
+        <translation>나침반: 기수 위</translation>
+    </message>
+    <message>
+        <source>The compass turns, the drone symbol points up</source>
+        <translation>나침반이 돌고 드론 기호는 위를 향합니다</translation>
+    </message>
+    <message>
+        <source>Extra compass marks</source>
+        <translation>나침반 추가 표시</translation>
+    </message>
+    <message>
+        <source>Home and next waypoint on the compass</source>
+        <translation>나침반에 홈과 다음 웨이포인트 표시</translation>
+    </message>
+    <message>
+        <source>Go here: maximum distance</source>
+        <translation>여기로 이동: 최대 거리</translation>
+    </message>
+    <message>
+        <source>Farther taps are refused</source>
+        <translation>더 먼 곳은 거부합니다</translation>
+    </message>
+    <message>
+        <source>Go here: height reference</source>
+        <translation>여기로 이동: 높이 기준</translation>
+    </message>
+    <message>
+        <source>What the Go here height is measured from</source>
+        <translation>이동 높이의 기준</translation>
+    </message>
+    <message>
+        <source>Custom actions</source>
+        <translation>사용자 동작</translation>
+    </message>
+    <message>
+        <source>Extra buttons from a file (classic screens)</source>
+        <translation>파일에서 읽는 추가 버튼 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Plan</source>
+        <translation>계획</translation>
+    </message>
+    <message>
+        <source>Defaults for new missions.</source>
+        <translation>새 임무의 기본값입니다.</translation>
+    </message>
+    <message>
+        <source>Default mission height</source>
+        <translation>기본 임무 높이</translation>
+    </message>
+    <message>
+        <source>Height of new waypoints</source>
+        <translation>새 웨이포인트의 높이</translation>
+    </message>
+    <message>
+        <source>Take-off item not required</source>
+        <translation>이륙 항목 없이 허용</translation>
+    </message>
+    <message>
+        <source>Allow missions without a take-off item (not recommended)</source>
+        <translation>이륙 항목이 없는 임무도 허용 (권장하지 않음)</translation>
+    </message>
+    <message>
+        <source>Wait at each item (condition gate)</source>
+        <translation>항목마다 대기 (조건 게이트)</translation>
+    </message>
+    <message>
+        <source>Use CONDITION_GATE between items</source>
+        <translation>항목 사이에 CONDITION_GATE 사용</translation>
+    </message>
+    <message>
+        <source>Show mission progress</source>
+        <translation>임무 진행 표시</translation>
+    </message>
+    <message>
+        <source>Item status during a mission (classic plan screen)</source>
+        <translation>임무 중 항목 상태 (기존 계획 화면)</translation>
+    </message>
+    <message>
+        <source>Data &amp; logs</source>
+        <translation>데이터 및 로그</translation>
+    </message>
+    <message>
+        <source>What the app saves on this tablet.</source>
+        <translation>앱이 이 태블릿에 저장하는 것입니다.</translation>
+    </message>
+    <message>
+        <source>Save telemetry logs</source>
+        <translation>텔레메트리 로그 저장</translation>
+    </message>
+    <message>
+        <source>Keeps a log of each flight</source>
+        <translation>비행마다 로그를 남깁니다</translation>
+    </message>
+    <message>
+        <source>Also on the ground</source>
+        <translation>지상에서도</translation>
+    </message>
+    <message>
+        <source>Save logs when the motors were not started</source>
+        <translation>모터를 돌리지 않았을 때도 로그를 저장합니다</translation>
+    </message>
+    <message>
+        <source>CSV log</source>
+        <translation>CSV 로그</translation>
+    </message>
+    <message>
+        <source>Also save the main values as a spreadsheet file</source>
+        <translation>주요 값을 표 파일로도 저장합니다</translation>
+    </message>
+    <message>
+        <source>Save folder</source>
+        <translation>저장 폴더</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <translation>미설정</translation>
+    </message>
+    <message>
+        <source>Change (classic)</source>
+        <translation>변경 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Save to SD card</source>
+        <translation>SD 카드에 저장</translation>
+    </message>
+    <message>
+        <source>Use the SD card for logs and media</source>
+        <translation>로그와 미디어를 SD 카드에 저장합니다</translation>
+    </message>
+    <message>
+        <source>Reset all settings</source>
+        <translation>모든 설정 초기화</translation>
+    </message>
+    <message>
+        <source>All settings are cleared at the next start. Restart the app.</source>
+        <translation>다음 시작 때 모든 설정이 지워집니다. 앱을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Back to the first-start screen at the next start</source>
+        <translation>다음 시작 때 첫 시작 화면으로 돌아갑니다</translation>
+    </message>
+    <message>
+        <source>Reset…</source>
+        <translation>초기화…</translation>
+    </message>
+    <message>
+        <source>Reset at next start</source>
+        <translation>다음 시작 때 초기화</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Undo</source>
+        <translation>되돌리기</translation>
+    </message>
+    <message>
+        <source>UDP %1 (drone link)</source>
+        <translation>UDP %1 (드론 링크)</translation>
+    </message>
+    <message>
+        <source>USB auto-connect</source>
+        <translation>USB 자동 연결</translation>
+    </message>
+    <message>
+        <source>MAVLink forwarding</source>
+        <translation>MAVLink 전달</translation>
+    </message>
+    <message>
+        <source>NMEA UDP %1</source>
+        <translation>NMEA UDP %1</translation>
+    </message>
+    <message>
+        <source>ADSB server</source>
+        <translation>ADSB 서버</translation>
+    </message>
+    <message>
+        <source>RTK base</source>
+        <translation>RTK 기지국</translation>
+    </message>
+    <message>
+        <source>Zero-Conf</source>
+        <translation>Zero-Conf</translation>
+    </message>
+    <message>
+        <source>Devices</source>
+        <translation>장치</translation>
+    </message>
+    <message>
+        <source>Network services and external devices. Turn on only what you use — each service opens a port that other devices on the network can reach.</source>
+        <translation>네트워크 서비스와 외부 장치입니다. 쓰는 것만 켜세요 — 서비스마다 네트워크의 다른 기기가 접근할 수 있는 포트를 엽니다.</translation>
+    </message>
+    <message>
+        <source>Open now: %1. Everything else is off.</source>
+        <translation>지금 열림: %1. 나머지는 꺼져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Nothing is open.</source>
+        <translation>열린 것이 없습니다.</translation>
+    </message>
+    <message>
+        <source>Drone link · UDP %1</source>
+        <translation>드론 링크 · UDP %1</translation>
+    </message>
+    <message>
+        <source>Needed for the Enpulse radio and SITL. Connects to drones on this network.</source>
+        <translation>Enpulse 무선 장치와 SITL에 필요합니다. 이 네트워크의 드론에 연결합니다.</translation>
+    </message>
+    <message>
+        <source>Forward MAVLink to another app</source>
+        <translation>MAVLink를 다른 앱으로 전달</translation>
+    </message>
+    <message>
+        <source>Sends all drone data to %1</source>
+        <translation>드론 데이터를 모두 %1(으)로 보냅니다</translation>
+    </message>
+    <message>
+        <source>Sends all drone data to a second address. Off by default.</source>
+        <translation>드론 데이터를 모두 두 번째 주소로 보냅니다. 기본은 꺼짐.</translation>
+    </message>
+    <message>
+        <source>Forward to</source>
+        <translation>전달 주소</translation>
+    </message>
+    <message>
+        <source>host:port, e.g. localhost:14445</source>
+        <translation>호스트:포트, 예 localhost:14445</translation>
+    </message>
+    <message>
+        <source>NMEA GPS input · UDP</source>
+        <translation>NMEA GPS 입력 · UDP</translation>
+    </message>
+    <message>
+        <source>Position from an external GPS receiver.</source>
+        <translation>외부 GPS 수신기의 위치.</translation>
+    </message>
+    <message>
+        <source>NMEA UDP port</source>
+        <translation>NMEA UDP 포트</translation>
+    </message>
+    <message>
+        <source>Port the GPS sends to</source>
+        <translation>GPS가 보내는 포트</translation>
+    </message>
+    <message>
+        <source>ADSB traffic server · TCP</source>
+        <translation>ADSB 항공기 서버 · TCP</translation>
+    </message>
+    <message>
+        <source>Aircraft positions from a local ADSB receiver.</source>
+        <translation>가까운 ADSB 수신기의 항공기 위치.</translation>
+    </message>
+    <message>
+        <source>Address and port</source>
+        <translation>주소와 포트</translation>
+    </message>
+    <message>
+        <source>RTK base station · USB</source>
+        <translation>RTK 기지국 · USB</translation>
+    </message>
+    <message>
+        <source>Base receiver for RTK correction (survey-in).</source>
+        <translation>RTK 보정용 기지국 수신기 (서베이 인).</translation>
+    </message>
+    <message>
+        <source>Survey-in accuracy</source>
+        <translation>서베이 인 정확도</translation>
+    </message>
+    <message>
+        <source>The base starts sending when it is this accurate</source>
+        <translation>이 정확도에 도달하면 기지국이 보내기 시작합니다</translation>
+    </message>
+    <message>
+        <source>Survey-in time</source>
+        <translation>서베이 인 시간</translation>
+    </message>
+    <message>
+        <source>Shortest time the base measures</source>
+        <translation>기지국이 측정하는 최소 시간</translation>
+    </message>
+    <message>
+        <source>Serial auto-connect · USB</source>
+        <translation>시리얼 자동 연결 · USB</translation>
+    </message>
+    <message>
+        <source>Connects to a flight controller or radio plugged in by USB.</source>
+        <translation>USB로 꽂은 비행 제어기나 무선 장치에 연결합니다.</translation>
+    </message>
+    <message>
+        <source>Zero-Conf · mDNS</source>
+        <translation>Zero-Conf · mDNS</translation>
+    </message>
+    <message>
+        <source>Connects to any MAVLink service announced on the network. Off by default.</source>
+        <translation>네트워크에 알려진 MAVLink 서비스에 자동 연결합니다. 기본은 꺼짐.</translation>
+    </message>
+    <message>
+        <source>M2 radio discovery · UDP 10010</source>
+        <translation>M2 무선 장치 찾기 · UDP 10010</translation>
+    </message>
+    <message>
+        <source>Listens for an M2 radio and closes when it is found. Always on.</source>
+        <translation>M2 무선 장치를 기다리다 찾으면 닫힙니다. 항상 켜짐.</translation>
+    </message>
+    <message>
+        <source>Product</source>
+        <translation>제품 기능</translation>
     </message>
 </context>
 </TS>

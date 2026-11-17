@@ -53,6 +53,8 @@ SimpleAnalyze 1.0 SimpleAnalyze.qml
 SimpleParameters 1.0 SimpleParameters.qml
 SimpleVehicleSetup 1.0 SimpleVehicleSetup.qml
 SFactField 1.0 SFactField.qml
+SFactToggle 1.0 SFactToggle.qml
+SimpleAdvancedSettings 1.0 SimpleAdvancedSettings.qml
 SimpleSetupModes 1.0 SimpleSetupModes.qml
 SimpleSetupSafety 1.0 SimpleSetupSafety.qml
 SimpleSetupPower 1.0 SimpleSetupPower.qml

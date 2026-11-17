@@ -205,6 +205,8 @@
         <file alias="SimpleParameters.qml">res/Simple/SimpleParameters.qml</file>
         <file alias="SimpleVehicleSetup.qml">res/Simple/SimpleVehicleSetup.qml</file>
         <file alias="SFactField.qml">res/Simple/SFactField.qml</file>
+        <file alias="SFactToggle.qml">res/Simple/SFactToggle.qml</file>
+        <file alias="SimpleAdvancedSettings.qml">res/Simple/SimpleAdvancedSettings.qml</file>
         <file alias="SimpleSetupModes.qml">res/Simple/SimpleSetupModes.qml</file>
         <file alias="SimpleSetupSafety.qml">res/Simple/SimpleSetupSafety.qml</file>
         <file alias="SimpleSetupPower.qml">res/Simple/SimpleSetupPower.qml</file>
