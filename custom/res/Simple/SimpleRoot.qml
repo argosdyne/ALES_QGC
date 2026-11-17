@@ -38,6 +38,8 @@ Item {
         page = "settings"
         settingsPage.category = category ? category : "general"
     }
+    // Advanced › Analyze tools (S61–S63)
+    function showAnalyze() { page = "analyze" }
     function openMenu() { menu.open() }
 
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
@@ -101,6 +103,12 @@ Item {
         anchors.fill: parent
         visible: simpleRoot.page === "settings"
         vs: vs
+    }
+    // Advanced mode pages: created only while open (their controllers talk to the drone)
+    Loader {
+        anchors.fill: parent
+        active: simpleRoot.page === "analyze"
+        sourceComponent: Component { SimpleAnalyze { vs: vs } }
     }
 
     //------------------------------------------------------------------ Global layers

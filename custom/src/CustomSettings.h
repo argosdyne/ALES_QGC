@@ -32,4 +32,5 @@ public:
     DEFINE_SETTINGFACT(simpleStartScreen)
     DEFINE_SETTINGFACT(simpleGimbalSpeed)
     DEFINE_SETTINGFACT(simpleProductProfile)
+    DEFINE_SETTINGFACT(simpleDeveloperTools)
 };

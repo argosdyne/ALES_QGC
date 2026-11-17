@@ -201,6 +201,7 @@
         <file alias="SimpleSettings.qml">res/Simple/SimpleSettings.qml</file>
         <file alias="SimpleLinkSecurity.qml">res/Simple/SimpleLinkSecurity.qml</file>
         <file alias="SimpleSecurityPrivacy.qml">res/Simple/SimpleSecurityPrivacy.qml</file>
+        <file alias="SimpleAnalyze.qml">res/Simple/SimpleAnalyze.qml</file>
         <file alias="SStatusChip.qml">res/Simple/SStatusChip.qml</file>
         <file alias="SimpleTakeoffSheet.qml">res/Simple/SimpleTakeoffSheet.qml</file>
         <file alias="SimpleTheme.qml">res/Simple/SimpleTheme.qml</file>

@@ -4896,4 +4896,211 @@
         <translation>선택 항목 삭제 (%1)</translation>
     </message>
 </context>
+<context>
+    <name>SimpleAnalyze</name>
+    <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Analyze tools</source>
+        <translation>분석 도구</translation>
+    </message>
+    <message>
+        <source>Log download</source>
+        <translation>로그 다운로드</translation>
+    </message>
+    <message>
+        <source>Vibration</source>
+        <translation>진동</translation>
+    </message>
+    <message>
+        <source>Developer tools</source>
+        <translation>개발자 도구</translation>
+    </message>
+    <message>
+        <source>MAVLink Inspector</source>
+        <translation>MAVLink Inspector</translation>
+    </message>
+    <message>
+        <source>App log</source>
+        <translation>앱 로그</translation>
+    </message>
+    <message>
+        <source>Flight logs saved on the drone. Download them for service or after an incident. A USB cable is faster than the radio.</source>
+        <translation>드론에 저장된 비행 로그입니다. 정비나 사고 후 확인을 위해 내려받으세요. 무선보다 USB 케이블이 빠릅니다.</translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation>새로 고침</translation>
+    </message>
+    <message>
+        <source>Download selected (%1)</source>
+        <translation>선택 항목 받기 (%1)</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Erase all logs</source>
+        <translation>로그 모두 지우기</translation>
+    </message>
+    <message>
+        <source>Erase all %1 logs on the drone? Logs not downloaded are lost.</source>
+        <translation>드론의 로그 %1개를 모두 지울까요? 받지 않은 로그는 사라집니다.</translation>
+    </message>
+    <message>
+        <source>Erase all</source>
+        <translation>모두 지우기</translation>
+    </message>
+    <message>
+        <source>Log</source>
+        <translation>로그</translation>
+    </message>
+    <message>
+        <source>Date and time</source>
+        <translation>날짜와 시간</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>크기</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>상태</translation>
+    </message>
+    <message>
+        <source>Connect the drone to see its logs.</source>
+        <translation>로그를 보려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Reading the list of logs…</source>
+        <translation>로그 목록을 읽는 중…</translation>
+    </message>
+    <message>
+        <source>No logs on the drone.</source>
+        <translation>드론에 로그가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Downloaded</source>
+        <translation>받음</translation>
+    </message>
+    <message>
+        <source>Downloading %1 %</source>
+        <translation>받는 중 %1 %</translation>
+    </message>
+    <message>
+        <source>Saved to %1. To send a log to ARGOSDYNE support, use Help &amp; support.</source>
+        <translation>저장 위치: %1. ARGOSDYNE 지원팀에 로그를 보내려면 도움말 및 지원을 이용하세요.</translation>
+    </message>
+    <message>
+        <source>Hover for 30 seconds, then read the values. Check after changing propellers, motors or the payload.</source>
+        <translation>30초 동안 호버링한 뒤 값을 읽으세요. 프로펠러, 모터, 페이로드를 바꾼 뒤에 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Connect the drone</source>
+        <translation>드론을 연결하세요</translation>
+    </message>
+    <message>
+        <source>Vibration is OK</source>
+        <translation>진동 정상</translation>
+    </message>
+    <message>
+        <source>Check the vibration</source>
+        <translation>진동을 확인하세요</translation>
+    </message>
+    <message>
+        <source>Vibration too high</source>
+        <translation>진동이 너무 큼</translation>
+    </message>
+    <message>
+        <source>Values come from the flight controller.</source>
+        <translation>값은 비행 제어기에서 받습니다.</translation>
+    </message>
+    <message>
+        <source>All axes below 30 m/s² · no clipping</source>
+        <translation>모든 축 30 m/s² 미만 · 클리핑 없음</translation>
+    </message>
+    <message>
+        <source>An axis is above 60 m/s²: do not fly; check propellers, motors and mounts.</source>
+        <translation>60 m/s²를 넘는 축이 있습니다: 비행하지 말고 프로펠러, 모터, 마운트를 점검하세요.</translation>
+    </message>
+    <message>
+        <source>The accelerometer clipped: check for loose parts.</source>
+        <translation>가속도계가 한계에 닿았습니다: 헐거운 부품을 점검하세요.</translation>
+    </message>
+    <message>
+        <source>An axis is above 30 m/s²: check propellers and mounts.</source>
+        <translation>30 m/s²를 넘는 축이 있습니다: 프로펠러와 마운트를 점검하세요.</translation>
+    </message>
+    <message>
+        <source>X axis</source>
+        <translation>X축</translation>
+    </message>
+    <message>
+        <source>Y axis</source>
+        <translation>Y축</translation>
+    </message>
+    <message>
+        <source>Z axis</source>
+        <translation>Z축</translation>
+    </message>
+    <message>
+        <source>30 check</source>
+        <translation>30 점검</translation>
+    </message>
+    <message>
+        <source>60 too high</source>
+        <translation>60 과다</translation>
+    </message>
+    <message>
+        <source>Clipping</source>
+        <translation>클리핑</translation>
+    </message>
+    <message>
+        <source>Times the accelerometer hit its limit. A number that keeps rising means a loose part.</source>
+        <translation>가속도계가 측정 한계에 닿은 횟수입니다. 숫자가 계속 늘면 헐거운 부품이 있다는 뜻입니다.</translation>
+    </message>
+    <message>
+        <source>Accel %1: %2</source>
+        <translation>가속도계 %1: %2</translation>
+    </message>
+    <message>
+        <source>For developers and service. Read only: nothing here changes the drone.</source>
+        <translation>개발자와 정비용입니다. 읽기 전용: 여기서 드론을 바꾸는 것은 없습니다.</translation>
+    </message>
+    <message>
+        <source>Connect the drone to see its messages.</source>
+        <translation>메시지를 보려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>%1 · system %2, component %3</source>
+        <translation>%1 · 시스템 %2, 컴포넌트 %3</translation>
+    </message>
+    <message>
+        <source>Charts (classic inspector)</source>
+        <translation>차트 (기존 Inspector)</translation>
+    </message>
+    <message>
+        <source>Saved: %1</source>
+        <translation>저장함: %1</translation>
+    </message>
+    <message>
+        <source>Messages of this app since it started (newest at the bottom). Secrets are never written to it.</source>
+        <translation>앱이 시작된 뒤의 메시지(최신은 아래). 비밀 값은 기록하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Save to file</source>
+        <translation>파일로 저장</translation>
+    </message>
+    <message>
+        <source>No messages yet. The app records only the log categories that are turned on (all are off by default).</source>
+        <translation>아직 메시지가 없습니다. 앱은 켜 둔 로그 범주만 기록합니다(기본은 모두 꺼짐).</translation>
+    </message>
+    <message>
+        <source>Choose log categories (classic)</source>
+        <translation>로그 범주 고르기 (기존 화면)</translation>
+    </message>
+</context>
 </TS>

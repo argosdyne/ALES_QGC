@@ -177,9 +177,9 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             if (modelData.key === "profile") { drawer.profileOpen = !drawer.profileOpen; return }
-                            var what = modelData.key === "classic" ? "fly" : modelData.key
                             drawer.close()
-                            simpleRoot.openClassic(what)
+                            if (modelData.key === "analyze") { simpleRoot.showAnalyze(); return }      // S61–S63
+                            simpleRoot.openClassic(modelData.key === "classic" ? "fly" : modelData.key)
                         }
                     }
                     SIcon { id: advIcon; name: modelData.icon; size: 40; anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(22); anchors.verticalCenter: parent.verticalCenter }

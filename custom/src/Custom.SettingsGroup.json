@@ -136,6 +136,12 @@
     "enumStrings":      "Inspection / Surveillance,Mapping,Tether,Cleaning",
     "enumValues":       "0,1,2,3",
     "default":          0
+},
+{
+    "name":             "simpleDeveloperTools",
+    "shortDesc":        "Simple UI: show the developer tools (MAVLink Inspector, App log) in Analyze tools (S63)",
+    "type":             "bool",
+    "default":          false
 }
 ]
 }
