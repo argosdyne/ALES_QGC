@@ -149,6 +149,13 @@ Reply to the user in Korean unless they write in English.
   Settings facts named passwd / otaPassword / onlineLicenseKey / mapboxToken / esriToken / vworldToken live in
   SecureStore ("<group>/<name>", SettingsFact; NTRIP group = "RTCM"), moved from the ini at start. Facts are created
   lazily (the NTRIP source only while RTK is on): test with values in the ini, not only through the UI.
+  Altitude Angel key (user 2026-11-17, option B(a)): not in the repo. Only tag builds (`v*`, `simple_ui_*`) carry it:
+  CI runs `custom/tools/aakey/gen_aa_key.ps1` (env AQGC_AA_KEY from the secret ALTITUDE_ANGEL_KEY) → `aqgc_aa_key.h` in
+  the build dir (XOR-masked) → custom.pri defines AQGC_HAS_AA_KEY. `FlyViewSettings::altitudeAngelKey()` = own key, else
+  built-in; no key = no request. PR / branch / local builds have no key (enter one in S46, or set AQGC_AA_KEY and run the
+  script into the build dir before qmake). `simple_ui_*` tags are Daily builds with no GitHub Release; `v*` stay Stable.
+  The old key is in git history: the user revokes it at Altitude Angel. S65 support period / security contact: "not set"
+  (user 2026-11-17) until the company gives the values.
   Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
   max(selected, PILOT_TKOFF_ALT or 10 m)).
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
