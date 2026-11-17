@@ -28,6 +28,11 @@ ask the user. Each screen in Figma has a Korean UX note right under it (implemen
 - The classic screens stay reachable as **"Classic alesQGC screens (temporary)"** in the S44 panel until every screen
   here is built. Do not remove the classic code.
 
+## Status
+
+- 2026-11-17: step 1 (no PIN, kept over restarts) and step 2 (S44 panel, 31d3022d0) done. Items open the classic pages
+  until their new screen exists. S69 security defaults done (f5ef125a8); S68 signature check waits for signed firmware.
+
 ## Screens (Figma file `p7d3GuBZaJNSj8zpBUlaSj`, page `01 Screens`)
 
 Link format: `https://www.figma.com/design/p7d3GuBZaJNSj8zpBUlaSj/AQGC-simpler?node-id=<id with - instead of :>`

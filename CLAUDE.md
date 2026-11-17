@@ -35,8 +35,13 @@ Reply to the user in Korean unless they write in English.
   "Return to Simple" in the S44 panel turns it off. The last state (Simple or Advanced) is kept when the app
   restarts (user 2026-11-16; the old rule returned to Simple on restart). Done 2026-11-17: the PIN dialog, hashing and
   Change PIN row are removed; the mode is the setting `simpleAdvancedMode` (CustomPlugin restores it at start and saves
-  every change; the old `simpleAdmin*` values are deleted once). Until the S44 panel exists, Advanced = classic screens
-  with "Return to Simple" bottom right. The text below is the old rule (history only).
+  every change; the old `simpleAdmin*` values are deleted once). The text below is the old rule (history only).
+  S44 done 2026-11-17 (31d3022d0): Advanced mode = Simple screens + S44 panel (menu switch on → panel next to the menu).
+  `corePlugin.advancedMode` (C++ CustomPlugin, saved as simpleAdvancedMode) is the mode; `showAdvancedUI` now only
+  means "classic screens shown" (S44 › Classic or an item whose new screen does not exist yet; not restored at start;
+  every core guard that checks showAdvancedUI keeps meaning "Simple screens hidden"). Items open classic pages via
+  `simpleRoot.openClassic(setup|parameters|analyze|settings|fly)`; classic pages have "Close classic screens" in the
+  tool header (the tool Drawer covers normal items, even with a high z). Product profile is chosen inside S44.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
