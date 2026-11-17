@@ -60,6 +60,12 @@ Reply to the user in Korean unless they write in English.
   only for the compass (classic too). A failed accelerometer calibration clears the SITL accel offsets (pre-arm
   fails): restart SITL (`sitl.sh run` wipes with -w). Other categories open their classic page via
   `simpleRoot.openClassic("setup:<ComponentQml>")` → MainRootWindow.showSetupComponent().
+  S70–S77 done 2026-11-17 (`SimpleSetup*.qml`, shared `SFactField.qml`). Gotchas: the app translates ArduPilot enum
+  strings (flight modes show "원형"), so plain / ArduPilot names are looked up by mode number; a motor test makes
+  ArduPilot report armed for the spin, so Motors is locked only while flying (not on armed) and "test all" ignores
+  that short armed state. Still classic: pre-arm checks, ESC calibration, stick calibration / reversing, motor
+  interference, orientation, firmware. ArduPilot has no cell-count parameter (Figma S73 "Cells" not shown).
+  Tuning changes go to the security log (PrivacyData.logEvent).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
