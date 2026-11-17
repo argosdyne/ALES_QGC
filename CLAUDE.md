@@ -53,6 +53,13 @@ Reply to the user in Korean unless they write in English.
   splits groups into Standard / Advanced: groups are merged by name in QML; `QmlObjectListModel.get()` of a category's
   groups returned the category itself at the last index (skip items without `facts`). A page root must not declare
   `property var vs` and be created with `vs: vs` (binding loop).
+  Vehicle setup S58 / S59 done 2026-11-17 (`SimpleVehicleSetup.qml`, root page "setup"). APMSensorsComponentController
+  needs items it drives: statusLog with append(), progressBar.value, nextButton / cancelButton `enabled`,
+  orientationCalAreaHelpText.text. Every calibration end re-enables the buttons first (setAllCalButtonsEnabled(true));
+  success = calibrationComplete (level / barometer end with "success, show log" and keep progress 0). Cancel works
+  only for the compass (classic too). A failed accelerometer calibration clears the SITL accel offsets (pre-arm
+  fails): restart SITL (`sitl.sh run` wipes with -w). Other categories open their classic page via
+  `simpleRoot.openClassic("setup:<ComponentQml>")` → MainRootWindow.showSetupComponent().
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash

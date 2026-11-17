@@ -35,7 +35,10 @@ ask the user. Each screen in Figma has a Korean UX note right under it (implemen
 - 2026-11-17: step 3 Analyze tools S61 / S62 / S63 done (6305b7191 core progress, 1ad4c6983), tested on SITL.
   Open in S63: charts (classic inspector for now).
 - 2026-11-17: step 4 Parameters S60 done (f441a0420), tested on SITL. Open: "Changed from default" needs defaults (none
-  in the bundled ArduPilot documentation); Load from file = classic page. Next: step 5 Vehicle setup S58 → S59 ….
+  in the bundled ArduPilot documentation); Load from file = classic page.
+- 2026-11-17: step 5 started: S58 Summary + S59 Sensors done (SITL). Motor interference / orientation and all other
+  categories open their classic page for now. Next: S72 Flight modes, S75 Safety, S73 Power, S71 Radio, S77 Gimbal,
+  S76 Tuning, S70 Frame, S74 Motors.
 
 ## Screens (Figma file `p7d3GuBZaJNSj8zpBUlaSj`, page `01 Screens`)
 
