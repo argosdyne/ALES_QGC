@@ -195,6 +195,8 @@ Reply to the user in Korean unless they write in English.
   (MainRootWindow, Loader built on first Advanced use) are not created. Start-up is ~7.5 s; the rest is framework
   start-up (C++ init, QML load, ~3 s before the first frame) and needs a native profiler (WPR, admin) to go further.
   Beta tags: `simple_ui_v1_2026111501` = 23d510eff (before these two commits); `simple_ui_v1_2026111601` = 3bc7e150a (with them, CI APK / installer).
+  Team release (2026-11-17): `simple_ui_v1_2026111701` = 6c9f22a11, files + Korean release notes in
+  `AQGC_Simple/builds/simple_ui_v1_2026111701/` (no GitHub Release: the repo is public; user shares the files).
 - Local build/test environment: `C:\Users\jsh06\aqgc-build` (Qt 5.15.2 via aqtinstall, jom, `build_rel.bat`, `tests.bat`,
   `test1.bat <file>`, `ui.ps1` UI driver incl. `hold`, `sitl.sh` + `sitl.py`, `payloadtest.ps1`, settings backup).
   Keep nothing durable in `%TEMP%\claude\...`: it was wiped twice on 2026-11-16. The repo is built through `subst Q:`
