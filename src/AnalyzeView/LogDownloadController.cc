@@ -306,6 +306,9 @@ void LogDownloadController::_updateDataRate(void)
                                                         QGCMapEngine::bigSizeToString(_downloadData->rate_avg));
 
         _downloadData->entry->setStatus(status);
+        if (_downloadData->entry->size() > 0) {
+            _downloadData->entry->setProgress(qMin(1.0, static_cast<qreal>(_downloadData->written) / _downloadData->entry->size()));
+        }
         _downloadData->elapsed.start();
     }
 }
@@ -364,6 +367,7 @@ LogDownloadController::_logData(UASInterface* uas, uint32_t ofs, uint16_t id, ui
             //-- Do we have it all?
             if(_logComplete()) {
                 _downloadData->entry->setStatus(tr("Downloaded"));
+                _downloadData->entry->setProgress(1.0);
                 //-- Check for more
                 _receivedAllData();
             } else if (_chunkComplete()) {
