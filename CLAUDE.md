@@ -69,6 +69,13 @@ Reply to the user in Korean unless they write in English.
   Settings ADVANCED MODE categories done 2026-11-17 (`SimpleAdvancedSettings.qml`): Video, Devices (S69) as drawn;
   Fly screen, Plan, Data & logs follow the S64 UX note (not drawn in Figma). Video source values are the English
   strings of VideoSettings ("RTSP Video Stream" …, "Video Stream Disabled"); maxVideoSize is MB (shown in GB).
+  Fly S78 / S79 and Plan S80 done 2026-11-17: Advanced badge, More sheet (`SimpleMoreSheet.qml`: arm on the ground,
+  emergency stop hold 3 s, change speed, set home, raw messages via GuidedActionsController), six values right of the
+  telemetry bar, all flight modes in `SimpleModeSheet.qml` (vehicle.flightModes only; names as the APM plugin reports
+  them, e.g. "Altitude Hold", "Position Hold", "Smart RTL"), mission editor `SimpleMissionEditor.qml` (Plan card in
+  Advanced mode; PlanView.simpleSetEditingLayer switches the classic mission / fence / rally layer). New items go after
+  the selected one, never before the take-off. All Advanced redesign screens (S44, S58–S80) now exist; the classic
+  screens stay reachable from S44 until the user decides to remove them (step 8: ask first).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
