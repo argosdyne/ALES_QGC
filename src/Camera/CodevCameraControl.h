@@ -375,6 +375,12 @@ private:
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     QTimer _postZoomSettingsSyncTimer;
     QTimer _zoomSettleTimer;
+    QTimer _zoomResetTimeoutTimer;
+    bool _zoomResetPending{false};
+    bool _zoomResetAcked{false};
+    void _cancelZoomReset();
+    bool _handleZoomResetReport(float reported);
+    void _onZoomResetTimeout();
     void _onZoomHoldReleased();
     void _sendZoomSettle();
     bool _hasPendingZoomCommand() const;

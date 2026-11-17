@@ -137,6 +137,7 @@ static constexpr qint64 kZoomStepDebounceMs = 150;
 static constexpr int kHoldZoomStepIntervalMs = 150;
 static constexpr qint64 kZoomSettingsSyncSuppressMs = 800;
 static constexpr int kPostZoomSettingsSyncDelayMs = 1000;
+static constexpr int kZoomResetTravelTimeoutMs = 10000;
 static constexpr qint64 kFreshCameraReportMaxAgeMs = 5000;
 static constexpr int kMaxZoomStepsInFlight = 2;
 static constexpr int kMaxZoomCatchUpAttempts = 3;
@@ -277,6 +278,10 @@ CodevCameraControl::CodevCameraControl(const mavlink_camera_information_t *info,
     _postZoomSettingsSyncTimer.setSingleShot(true);
     _postZoomSettingsSyncTimer.setInterval(kPostZoomSettingsSyncDelayMs);
     connect(&_postZoomSettingsSyncTimer, &QTimer::timeout, this, &CodevCameraControl::_requestCameraSettings);
+
+    _zoomResetTimeoutTimer.setSingleShot(true);
+    _zoomResetTimeoutTimer.setInterval(kZoomResetTravelTimeoutMs);
+    connect(&_zoomResetTimeoutTimer, &QTimer::timeout, this, &CodevCameraControl::_onZoomResetTimeout);
 
     _zoomSettleTimer.setSingleShot(true);
     _zoomSettleTimer.setInterval(kZoomSettleResendDelayMs);
@@ -641,25 +646,70 @@ void CodevCameraControl::resetGimbalAndZoom()
         return;
     }
 
+    _cancelZoomReset();
     stopZoom();
     _zoomSettleTimer.stop();
+    _postZoomSettingsSyncTimer.stop();
 
     if (_dZoomFact) {
         _dZoomFact->setRawValue(1.0f);
     }
 
     if (hasZoom()) {
-        // Send a real optical reset; confirmed zoom follows the camera ACK.
+        // An ACK accepts the target; CAMERA_SETTINGS confirms lens travel ended.
+        _zoomResetPending = true;
+        _zoomResetAcked = false;
         _commandedRange = 1.0f;
         _zoomCatchUpAttempts = 0;
-        _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
         _queueZoomRange(1.0f, "resetGimbalAndZoom");
-        _schedulePostZoomSettingsSync();
     }
+}
+
+void CodevCameraControl::_cancelZoomReset()
+{
+    if (!_zoomResetPending) {
+        return;
+    }
+    _zoomResetPending = false;
+    _zoomResetAcked = false;
+    _zoomResetTimeoutTimer.stop();
+    _postZoomSettingsSyncTimer.stop();
+    _zoomSettingsSyncSuppressUntilMs = 0;
+}
+
+bool CodevCameraControl::_handleZoomResetReport(float reported)
+{
+    if (!_zoomResetPending) {
+        return false;
+    }
+    if (_zoomResetAcked && reported <= 1.1f) {
+        _cancelZoomReset();
+        _opticalRangeBootstrapped = true;
+        _pendingDownwardReport = -1;
+        _zoomCatchUpAttempts = 0;
+        _adoptCameraReportedOptical(1.0f, "reset-complete");
+        _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
+    }
+    // Intermediate reports must not replace RANGE 1 or enter idle catch-up.
+    return true;
+}
+
+void CodevCameraControl::_onZoomResetTimeout()
+{
+    if (!_zoomResetPending) {
+        return;
+    }
+    qCWarning(CodevCameraLog) << "Zoom reset travel timed out; reading actual lens position";
+    _cancelZoomReset();
+    _opticalRangeBootstrapped = false;
+    _pendingDownwardReport = -1;
+    _zoomCatchUpAttempts = 0;
+    _requestCameraSettings();
 }
 
 void CodevCameraControl::syncZoomUiAfterReset()
 {
+    _cancelZoomReset();
     _setTrustedOpticalRange(1.0f);
     _lastAckedOpticalRange = 1.0f;
     _commandedRange = 1.0f;
@@ -1186,7 +1236,7 @@ bool CodevCameraControl::_isZoomHoldActive() const
 
 void CodevCameraControl::_schedulePostZoomSettingsSync()
 {
-    if (!hasZoom()) {
+    if (!hasZoom() || (_zoomResetPending && !_zoomResetAcked)) {
         return;
     }
     _postZoomSettingsSyncTimer.start();
@@ -1323,6 +1373,7 @@ void CodevCameraControl::setZoomLevel(qreal level)
         stepZoom(0);
         return;
     }
+    _cancelZoomReset();
     const float snapped = static_cast<float>(qBound(1, qRound(level), qRound(_maxOpticalX)));
     _zoomSettingsSyncSuppressUntilMs = QDateTime::currentMSecsSinceEpoch() + kZoomSettingsSyncSuppressMs;
     // UI (_opticalRange) follows on ACK, like every other RANGE command.
@@ -1421,6 +1472,7 @@ QStringList CodevCameraControl::activeSettings()
 
 void CodevCameraControl::_clearCameraDefinitionState()
 {
+    _cancelZoomReset();
     qCDebug(CodevCameraLog) << "[CodevCamera]"
             << "clearing Codev camera definition state for compId" << compID();
 
@@ -1676,6 +1728,11 @@ bool CodevCameraControl::_consumeQueuedCommandAck(int ackCompId, const mavlink_c
 void CodevCameraControl::_onZoomRangeAck(float value, uint8_t result)
 {
     if (result == MAV_RESULT_ACCEPTED || result == MAV_RESULT_IN_PROGRESS) {
+        if (_zoomResetPending && !_zoomResetAcked && qAbs(value - 1.0f) < 0.01f) {
+            _zoomResetAcked = true;
+            _zoomResetTimeoutTimer.start();
+            _schedulePostZoomSettingsSync();
+        }
         // The camera accepted this target: this is the moment the UI advances.
         _lastAckedOpticalRange = value;
         _setTrustedOpticalRange(value);
@@ -1691,6 +1748,11 @@ void CodevCameraControl::_onZoomRangeAck(float value, uint8_t result)
 
 void CodevCameraControl::_onZoomRangeFailed(float value)
 {
+    if (_zoomResetPending && qAbs(value - 1.0f) < 0.01f) {
+        _cancelZoomReset();
+        _opticalRangeBootstrapped = false;
+        _schedulePostZoomSettingsSync();
+    }
     if (_hasPendingZoomCommand()) {
         return;
     }
@@ -2138,7 +2200,9 @@ void CodevCameraControl::handleSettings(const mavlink_camera_settings_t& setting
         const bool suppressSync = _zoomSettingsSyncSuppressUntilMs > 0
                                   && nowMs < _zoomSettingsSyncSuppressUntilMs;
 
-        if (!_opticalRangeBootstrapped) {
+        if (_handleZoomResetReport(reported)) {
+            // Reset owns zoom synchronization until the lens reaches 1x.
+        } else if (!_opticalRangeBootstrapped) {
             _setTrustedOpticalRange(reported);
             _lastAckedOpticalRange = _opticalRange;
             _commandedRange = _opticalRange;
@@ -2256,6 +2320,7 @@ void CodevCameraControl::_applyOpticalZoomStep(int direction, const char* source
         return;
     }
     
+    _cancelZoomReset();
     _rebaseOnFreshCameraReport(sourceTag);
     _zoomCatchUpAttempts = 0;
     _zoomSettleTimer.stop();
@@ -2332,6 +2397,7 @@ void CodevCameraControl::_applyZoomStep(int direction, bool allowDigital, const 
         return;
     }
 
+    _cancelZoomReset();
     const double dMin = _dZoomFact ? _dZoomFact->cookedMin().toDouble() : 1.0;
     const double dMax = _dZoomFact ? _dZoomFact->cookedMax().toDouble() : 1.0;
     const double dInc = _dZoomFact ? _dZoomFact->cookedIncrement() : 0.2;
@@ -2732,6 +2798,10 @@ void CodevCameraControl::_sendMavCommandAgain()
                                   << "queueSize" << _mavCommandQueue.count();
         _mavCommandAckTimer.stop();
         _mavCommandQueue.clear();
+        if (_zoomResetPending) {
+            _cancelZoomReset();
+            _opticalRangeBootstrapped = false;
+        }
         return;
     }
 
@@ -2939,6 +3009,17 @@ void CodevCameraControl::_requestCaptureStatus()
 
 void CodevCameraControl::_requestCameraSettings()
 {
+    if (_zoomResetPending) {
+        if (!_zoomResetAcked) {
+            return;
+        }
+        _schedulePostZoomSettingsSync();
+        for (const MavCommandQueueEntry_t& entry : _mavCommandQueue) {
+            if (entry.command == MAV_CMD_REQUEST_CAMERA_SETTINGS) {
+                return;
+            }
+        }
+    }
     qCDebug(CodevCameraLog) << "_requestCameraSettings()";
     sendMavCommand(
         MAV_CMD_REQUEST_CAMERA_SETTINGS,        // command id
