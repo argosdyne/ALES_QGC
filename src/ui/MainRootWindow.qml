@@ -262,6 +262,15 @@ ApplicationWindow {
         }
     }
 
+    // AQGC S44 › Parameters (classic page until S60 exists)
+    function showSetupParameters() {
+        showSetupTool()
+        Qt.callLater(function() {
+            var setup = toolDrawerLoader.item
+            if (setup && setup.showParametersPanel) setup.showParametersPanel()
+        })
+    }
+
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
     }
@@ -737,7 +746,7 @@ ApplicationWindow {
     }
 
     //-------------------------------------------------------------------------
-    /// AQGC Simple UI (custom/res/Simple). Shown when Advanced mode is off; Advanced = classic alesQGC UI.
+    /// AQGC Simple UI (custom/res/Simple). Hidden only while the classic alesQGC screens are open (S44 › Classic).
     Loader {
         id:             simpleUILoader
         anchors.fill:   parent
@@ -746,7 +755,9 @@ ApplicationWindow {
         source:         "qrc:/simple/SimpleRoot.qml"
     }
 
-    // In Advanced mode: one tap back to the Simple UI (Figma S44 "Return to Simple"; no PIN since 2026-11-16)
+    // Classic screens (opened from S44, temporary): one tap back to the new screens. Advanced mode stays on;
+    // "Return to Simple" in S44 turns it off.
+    // (The classic tool pages are a Drawer above this: they have their own button in their header.)
     Rectangle {
         visible:                    !mainWindow.simpleUI
         anchors.bottom:             parent.bottom
@@ -760,7 +771,7 @@ ApplicationWindow {
         QGCLabel {
             id:                 backToSimpleLabel
             anchors.centerIn:   parent
-            text:               qsTr("Return to Simple")
+            text:               qsTr("Close classic screens")
             color:              "white"
         }
         MouseArea {
@@ -870,6 +881,30 @@ ApplicationWindow {
                 width:              (backTextLabel.x + backTextLabel.width) - backIcon.x
                 onClicked: {
                     toolDrawer.visible      = false
+                }
+            }
+
+            // AQGC (S44): classic pages opened from the Advanced panel → back to the new screens in one tap
+            Rectangle {
+                anchors.right:          parent.right
+                anchors.rightMargin:    ScreenTools.defaultFontPixelWidth
+                anchors.verticalCenter: parent.verticalCenter
+                width:                  closeClassicLabel.width + ScreenTools.defaultFontPixelWidth * 3
+                height:                 ScreenTools.defaultFontPixelHeight * 2
+                radius:                 height / 2
+                color:                  "#0c8062"
+                QGCLabel {
+                    id:                 closeClassicLabel
+                    anchors.centerIn:   parent
+                    text:               qsTr("Close classic screens")
+                    color:              "white"
+                }
+                MouseArea {
+                    anchors.fill:   parent
+                    onClicked: {
+                        toolDrawer.visible = false
+                        QGroundControl.corePlugin.showAdvancedUI = false
+                    }
                 }
             }
         }

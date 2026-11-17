@@ -61,6 +61,11 @@ Rectangle {
         summaryButton.checked = true
     }
 
+    // AQGC S44 › Parameters
+    function showParametersPanel() {
+        if (parametersButton.visible) showPanel(parametersButton, "SetupParameterEditor.qml")
+    }
+
     function showPanel(button, qmlSource) {
         if (mainWindow.preventViewSwitch()) {
             return
@@ -296,6 +301,7 @@ Rectangle {
             }
 
             SubMenuButton {
+                id:                 parametersButton
                 setupIndicator:     false
                 exclusiveGroup:     setupButtonGroup
                 visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&

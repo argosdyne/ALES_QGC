@@ -158,7 +158,9 @@ void CustomPlugin::setToolbox(QGCToolbox* toolbox)
         old.remove(QStringLiteral("simpleAdminLockUntil"));
         old.endGroup();
     }
-    setShowAdvancedUI(_settings->simpleAdvancedMode()->rawValue().toBool());
+    // Advanced mode is restored; the classic screens are not (they open from S44 only)
+    _advancedMode = _settings->simpleAdvancedMode()->rawValue().toBool();
+    setShowAdvancedUI(false);
     _linkSecurity = new LinkSecurity(this);
     _privacyData = new PrivacyData(static_cast<LinkSecurity*>(_linkSecurity), this);
 
@@ -185,10 +187,25 @@ void CustomPlugin::_advancedChanged(bool changed)
 {
     // Firmware Upgrade page is only show in Advanced mode
     emit _options->showFirmwareUpgradeChanged(changed);
-    // AQGC Simple UI: keep the mode for the next start
-    if (_settings) {
-        _settings->simpleAdvancedMode()->setRawValue(changed);
+    // the classic screens belong to Advanced mode
+    if (changed && !_advancedMode) {
+        setAdvancedMode(true);
     }
+}
+
+void CustomPlugin::setAdvancedMode(bool on)
+{
+    if (!on && showAdvancedUI()) {
+        setShowAdvancedUI(false);       // "Return to Simple" also closes the classic screens
+    }
+    if (on == _advancedMode) {
+        return;
+    }
+    _advancedMode = on;
+    if (_settings) {
+        _settings->simpleAdvancedMode()->setRawValue(on);     // kept for the next start
+    }
+    emit advancedModeChanged();
 }
 
 //-----------------------------------------------------------------------------

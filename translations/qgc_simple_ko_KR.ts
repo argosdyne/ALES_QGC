@@ -18,6 +18,10 @@
         <source>Return to Simple</source>
         <translation>간편 모드로 돌아가기</translation>
     </message>
+    <message>
+        <source>Close classic screens</source>
+        <translation>기존 화면 닫기</translation>
+    </message>
 </context>
 <context>
     <name>STelemetryBar</name>
@@ -680,6 +684,86 @@
     <message>
         <source>Open, import, rename, delete</source>
         <translation>열기, 가져오기, 이름 변경, 삭제</translation>
+    </message>
+    <message>
+        <source>Inspection / Surveillance</source>
+        <translation>점검 / 감시</translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <translation>매핑</translation>
+    </message>
+    <message>
+        <source>Tether</source>
+        <translation>테더</translation>
+    </message>
+    <message>
+        <source>Cleaning</source>
+        <translation>세척</translation>
+    </message>
+    <message>
+        <source>On · tools for setup and service</source>
+        <translation>켜짐 · 설정과 정비 도구</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>고급</translation>
+    </message>
+    <message>
+        <source>Setup, service and expert tools</source>
+        <translation>설정, 정비, 전문가 도구</translation>
+    </message>
+    <message>
+        <source>Vehicle setup</source>
+        <translation>기체 설정</translation>
+    </message>
+    <message>
+        <source>Frame, sensors, radio, flight modes, power</source>
+        <translation>프레임, 센서, 조종기, 비행 모드, 전원</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation>파라미터</translation>
+    </message>
+    <message>
+        <source>All flight controller parameters</source>
+        <translation>비행 제어기 파라미터 전체</translation>
+    </message>
+    <message>
+        <source>Analyze tools</source>
+        <translation>분석 도구</translation>
+    </message>
+    <message>
+        <source>Log download, vibration, developer tools</source>
+        <translation>로그 다운로드, 진동, 개발자 도구</translation>
+    </message>
+    <message>
+        <source>More settings</source>
+        <translation>추가 설정</translation>
+    </message>
+    <message>
+        <source>Fly screen, video, plan, data &amp; logs, devices</source>
+        <translation>비행 화면, 영상, 계획, 데이터 및 로그, 장치</translation>
+    </message>
+    <message>
+        <source>Product profile</source>
+        <translation>제품 프로파일</translation>
+    </message>
+    <message>
+        <source>%1 · change</source>
+        <translation>%1 · 변경</translation>
+    </message>
+    <message>
+        <source>Classic alesQGC screens</source>
+        <translation>기존 alesQGC 화면</translation>
+    </message>
+    <message>
+        <source>Until every screen is redesigned (temporary)</source>
+        <translation>모든 화면을 새로 만들 때까지 (임시)</translation>
+    </message>
+    <message>
+        <source>Return to Simple</source>
+        <translation>간편 모드로 돌아가기</translation>
     </message>
 </context>
 <context>

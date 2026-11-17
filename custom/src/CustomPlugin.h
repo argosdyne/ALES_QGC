@@ -81,6 +81,12 @@ public:
     void setCoachMode(const bool& coachMode);
 
     Q_PROPERTY(bool slaveMode READ slaveMode WRITE setSlaveMode NOTIFY slaveModeChanged)
+    /// AQGC (Figma S44 / 02 Flows E, 2026-11-17): Advanced mode = Simple screens + the Advanced panel and items.
+    /// Kept over restarts (setting simpleAdvancedMode). showAdvancedUI now only means "classic alesQGC screens
+    /// are shown" (opened from S44, not kept over restarts); turning Advanced mode off also closes them.
+    Q_PROPERTY(bool advancedMode READ advancedMode WRITE setAdvancedMode NOTIFY advancedModeChanged)
+    bool advancedMode() const { return _advancedMode; }
+    void setAdvancedMode(bool on);
     bool slaveMode() { return _slaveMode; }
     void setSlaveMode(bool mode);
     bool forceSendRC() { return _forceSendRC; }
@@ -148,6 +154,7 @@ public:
 signals:
     void rcChannelValuesChanged(const quint16* channels, int count);
     void slaveModeChanged(bool slaveMode);
+    void advancedModeChanged();
     void m2ManagerChanged               ();
     void rajantManagerChanged           ();
 
@@ -178,6 +185,7 @@ private:
     ElistairStationManager* _elistairStationManager = nullptr;
     QObject*                _linkSecurity = nullptr;
     QObject*                _privacyData = nullptr;
+    bool                    _advancedMode = false;
     QStringList             _rajantCandidates;
     QTcpSocket* _rajantProbeSocket = nullptr;
     QString                 _rajantPassword = "breadcrumb-admin";

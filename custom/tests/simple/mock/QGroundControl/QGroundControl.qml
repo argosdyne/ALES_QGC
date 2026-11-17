@@ -6,6 +6,7 @@ QtObject {
     property string qgcVersion: "V0.0.0-test"
     property QtObject corePlugin: QtObject {
         property bool showAdvancedUI: false
+        property bool advancedMode: false
         // S66 link security (LinkSecurity) double
         property QtObject linkSecurity: QtObject {
             property bool hasKey: false; property string fingerprint: ""; property string keyDate: ""
