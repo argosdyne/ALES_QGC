@@ -87,10 +87,19 @@ jobs:
 
       # GStreamer for video. src/VideoReceiver/VideoReceiver.pri links the 1.22 libraries (e.g. pcre2),
       # so CI uses the same 1.22.12 build as developers, and points qmake at it with GSTREAMER_ROOT_ANDROID.
+      # the 419 MB download from gstreamer.freedesktop.org often breaks off: keep it in the Actions cache and resume / retry
+      - name: Cache gstreamer
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\gstreamer-1.0-android-universal-1.22.12.tar.xz
+          key: gstreamer-android-universal-1.22.12
+
       - name: Install gstreamer
         working-directory: ${{ runner.temp }}
         run: |
-          curl -fL -o gstreamer-1.0-android-universal-1.22.12.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.22.12/gstreamer-1.0-android-universal-1.22.12.tar.xz || exit /b 1
+          if not exist gstreamer-1.0-android-universal-1.22.12.tar.xz (
+            curl -fL --retry 8 --retry-delay 10 --retry-all-errors -C - -o gstreamer-1.0-android-universal-1.22.12.tar.xz https://gstreamer.freedesktop.org/data/pkg/android/1.22.12/gstreamer-1.0-android-universal-1.22.12.tar.xz || exit /b 1
+          )
           mkdir gstreamer-1.0-android-universal-1.22.12
           tar -xf gstreamer-1.0-android-universal-1.22.12.tar.xz -C gstreamer-1.0-android-universal-1.22.12 || exit /b 1
           dir /b gstreamer-1.0-android-universal-1.22.12
