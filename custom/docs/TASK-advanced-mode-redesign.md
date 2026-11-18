@@ -110,6 +110,10 @@ open a classic page (checked against the code 2026-11-18):
 | 9 | Data & logs S64 (`SimpleAdvancedSettings.qml`) | save folder | S90 Folder picker |
 | 10 | S44 "Classic alesQGC screens" | whole classic UI | remove the item when 1–9 are done (keep the classic code; ask before deleting code) |
 
+**Status 2026-11-18: items 1–10 done** (S68 too). Tested on SITL: S81 (with rcsweep.py), S82, S83 start / cancel, S84,
+S85 (live values; SITL throttle stays 0), S86, S87 save / load / send, S88, S89, S90 navigation, S68 page (no board to
+flash), More settings. Not tested: ESC battery cycle and firmware install on hardware.
+
 ## Tests
 
 - Simple tests (`custom/tests/simple/README.md`): mode switch without PIN, state after restart, every Advanced entry

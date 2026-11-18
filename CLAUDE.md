@@ -75,6 +75,17 @@ Reply to the user in Korean unless they write in English.
   them, e.g. "Altitude Hold", "Position Hold", "Smart RTL"), mission editor `SimpleMissionEditor.qml` (Plan card in
   Advanced mode; PlanView.simpleSetEditingLayer switches the classic mission / fence / rally layer). New items go after
   the selected one, never before the take-off. All Advanced redesign screens (S44, S58–S80) now exist; **user 2026-11-18 (step 8): build new screens for every remaining classic use too (list and S81+ numbers in TASK-advanced-mode-redesign.md "Step 8"), then remove the S44 classic item** (keep the classic code; ask before deleting it).
+  Step 8 done 2026-11-18 (Figma S81–S90 + S68 notes; code): S81 stick calibration (`SimpleRadioCal.qml`: the app records
+  centre / min / max itself, not the classic step machine; only channels with range > 200 are written; throttle trim =
+  min), S82 channel reverse (RCn_REVERSED, throttle only back to normal), S83 ESC calibration (`SimpleEscCal.qml` in the
+  Vehicle setup root), S84 pre-arm checks (`SimplePrearmChecks.qml`), S85 CompassMot + S86 orientation (sheets in
+  `SimpleVehicleSetup.qml`; core `APMSensorsComponentController` now exposes COMPASSMOT_STATUS: compassMotThrottle /
+  Current / Interference, compass 1 only), S87 parameter file (`SimpleParamFile.qml`), S88 inspector chart (QML Canvas),
+  S89 log categories, S90 save folder (`SimpleFolderPicker.qml`, PrivacyData drives / folderInfo / makeFolder), S68
+  firmware (`SimpleSetupFirmware.qml`, signature and downgrade shown "not checked yet"). S44 "More settings" opens
+  Settings › Fly screen; the "Classic alesQGC screens" item and `SimpleRoot.openClassic()` are removed (requestAdvanced
+  routes to the Simple screens). The classic QML/C++ stays in the app (not reachable from the Simple UI any more).
+  Shared `SSheet.qml` (modal sheet, scrolls when taller than the window) and `SNotice.qml`.
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
@@ -289,6 +300,14 @@ Reply to the user in Korean unless they write in English.
 - After changing `CustomPlugin.h` (members), delete `QGCToolbox.obj` in the build dir before a local build: the toolbox
   creates the plugin through `#include CUSTOMHEADER` (a macro), which qmake's dependency scan does not follow, so the
   old object keeps the old class size → heap corruption at start (0xC0000374). CI builds are clean, not affected.
+- Step 8 SITL notes (2026-11-18): RC_CHANNELS_OVERRIDE from system 255 on TCP 5762 moves the RC_CHANNELS values the app
+  sees (`aqgc-build/rcsweep.py`), good for S81; CompassMot ignores it (throttle stays 0 %) and the company SITL then
+  dies with a floating point exception when CompassMot ends — restart SITL after an S85 test. A parameter set by
+  another tool (sitl.py set) did not always reach the app's cached value: compare parameter files against a fresh
+  app start. A Row child sized from the Row (`MouseArea { width: parent.width }` inside a Row) made a polish() loop
+  that hung the app: put such MouseAreas next to the Row with anchors.fill. A Loader that holds a fact must not
+  depend on the sheet's `visible` when onClosed still needs the fact (ESC_CALIBRATION reset). Strings with \" in
+  qsTr() fail the static translation check: use “ ” quotes.
 - The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.
