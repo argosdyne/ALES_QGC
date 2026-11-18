@@ -29,6 +29,8 @@ Item {
     property var parentToolInsets                       // These insets tell you what screen real estate is available for positioning the controls in your overlay
     property var totalToolInsets:   _totalToolInsets    // The insets updated for the custom overlay additions
     property var mapControl
+    // Keep all system warnings visible below the persistent SAFE-T banner.
+    property real tetherCriticalBannerOffset: 0
 
     readonly property string noGPS:         qsTr("NO GPS")
     readonly property real   indicatorValueWidth:   ScreenTools.defaultFontPixelWidth * 7
@@ -232,7 +234,7 @@ Item {
             border.width:       1
             opacity:            object.opacity
             x:                  Math.round((mainWindow.width - width) * 0.5)
-            y:                  object.y
+            y:                  object.y + _flyViewOverlay.tetherCriticalBannerOffset
 
             Image {
                 anchors.verticalCenter: parent.verticalCenter
