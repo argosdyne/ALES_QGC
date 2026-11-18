@@ -70,6 +70,11 @@ public:
     
     Q_PROPERTY(bool waitingForCancel                        MEMBER _waitingForCancel                        NOTIFY waitingForCancelChanged)
 
+    // CompassMot live values (COMPASSMOT_STATUS; ArduPilot reports compass 1 only). -1 = nothing received yet.
+    Q_PROPERTY(double compassMotThrottle                    MEMBER _compassMotThrottle                      NOTIFY compassMotStatusChanged)
+    Q_PROPERTY(double compassMotCurrent                     MEMBER _compassMotCurrent                       NOTIFY compassMotStatusChanged)
+    Q_PROPERTY(double compassMotInterference                MEMBER _compassMotInterference                  NOTIFY compassMotStatusChanged)
+
     Q_PROPERTY(bool compass1CalSucceeded                    READ compass1CalSucceeded                       NOTIFY compass1CalSucceededChanged)
     Q_PROPERTY(bool compass2CalSucceeded                    READ compass2CalSucceeded                       NOTIFY compass2CalSucceededChanged)
     Q_PROPERTY(bool compass3CalSucceeded                    READ compass3CalSucceeded                       NOTIFY compass3CalSucceededChanged)
@@ -121,6 +126,7 @@ signals:
     void orientationCalSidesRotateChanged       (void);
     void resetStatusTextArea                    (void);
     void waitingForCancelChanged                (void);
+    void compassMotStatusChanged                (void);
     void setupNeededChanged                     (void);
     void calibrationComplete                    (CalType_t calType);
     void compass1CalSucceededChanged            (bool compass1CalSucceeded);
@@ -205,6 +211,10 @@ private:
     bool _orientationCalTailDownSideRotate;
     
     bool _waitingForCancel;
+
+    double _compassMotThrottle      = -1;   ///< percent
+    double _compassMotCurrent       = -1;   ///< A
+    double _compassMotInterference  = -1;   ///< percent
 
     bool _restoreCompassCalFitness;
     float _previousCompassCalFitness;

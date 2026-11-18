@@ -358,6 +358,8 @@ void APMSensorsComponentController::calibrateAccel(bool doSimpleAccelCal)
 void APMSensorsComponentController::calibrateMotorInterference(void)
 {
     _calTypeInProgress = CalTypeCompassMot;
+    _compassMotThrottle = _compassMotCurrent = _compassMotInterference = -1;
+    emit compassMotStatusChanged();
     _vehicle->vehicleLinkManager()->setCommunicationLostEnabled(false);
     _startLogCalibration();
     _appendStatusLog(tr("Raise the throttle slowly to between 50% ~ 75% (the props will spin!) for 5 ~ 10 seconds."));
@@ -706,6 +708,16 @@ void APMSensorsComponentController::_mavlinkMessageReceived(LinkInterface* link,
         break;
     case MAVLINK_MSG_ID_COMMAND_LONG:
         _handleCommandLong(message);
+        break;
+    case MAVLINK_MSG_ID_COMPASSMOT_STATUS:
+        if (_calTypeInProgress == CalTypeCompassMot) {
+            mavlink_compassmot_status_t st;
+            mavlink_msg_compassmot_status_decode(&message, &st);
+            _compassMotThrottle     = st.throttle / 10.0;     // 0..1000 → %
+            _compassMotCurrent      = st.current;
+            _compassMotInterference = st.interference;
+            emit compassMotStatusChanged();
+        }
         break;
     }
 }
