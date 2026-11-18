@@ -13,13 +13,6 @@
     </message>
 </context>
 <context>
-    <name>MainRootWindow</name>
-    <message>
-        <source>Close classic screens</source>
-        <translation>기존 화면 닫기</translation>
-    </message>
-</context>
-<context>
     <name>STelemetryBar</name>
     <message>
         <source>ALTITUDE</source>
@@ -5972,6 +5965,10 @@
         <source>After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).</source>
         <translation>바꾼 뒤에는 드론을 다시 시작하고 나침반과 가속도계를 다시 보정하세요 (센서).</translation>
     </message>
+    <message>
+        <source>Mission</source>
+        <translation>임무</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>
@@ -8397,6 +8394,81 @@
     <message>
         <source>Start</source>
         <translation>시작</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupMission</name>
+    <message>
+        <source>Mission</source>
+        <translation>임무</translation>
+    </message>
+    <message>
+        <source>What the drone does with its mission after a restart or a landing.</source>
+        <translation>드론이 다시 켜지거나 착륙한 뒤 임무를 어떻게 할지 정합니다.</translation>
+    </message>
+    <message>
+        <source>Locked while the drone is armed.</source>
+        <translation>시동 중에는 잠깁니다.</translation>
+    </message>
+    <message>
+        <source>Clear the mission when the drone restarts</source>
+        <translation>드론이 다시 켜지면 임무 지우기</translation>
+    </message>
+    <message>
+        <source>On: send the mission again after every restart. Off: the old mission stays — check it before you start. Takes effect after the next restart.</source>
+        <translation>켜짐: 다시 켤 때마다 임무를 다시 보내세요. 꺼짐: 이전 임무가 남으니 시작 전에 확인하세요. 다음에 다시 켤 때부터 적용됩니다.</translation>
+    </message>
+    <message>
+        <source>Continue the mission after landing</source>
+        <translation>착륙 후 임무 계속</translation>
+    </message>
+    <message>
+        <source>On: if the next item after a landing is a take-off, the mission goes on. Off: the drone stops and disarms after landing.</source>
+        <translation>켜짐: 착륙 다음 항목이 이륙이면 임무를 이어 갑니다. 꺼짐: 착륙 후 멈추고 시동을 끕니다.</translation>
+    </message>
+    <message>
+        <source>Changed. Press Apply to send it to the drone.</source>
+        <translation>바뀌었습니다. 적용을 눌러 드론에 보내세요.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Sending…</source>
+        <translation>보내는 중…</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>적용</translation>
+    </message>
+    <message>
+        <source>Applied.</source>
+        <translation>적용했습니다.</translation>
+    </message>
+    <message>
+        <source>Clearing on restart changes after the next restart.</source>
+        <translation>다시 켤 때 지우기는 다음에 다시 켤 때부터 바뀝니다.</translation>
+    </message>
+    <message>
+        <source>Continue after landing changes at the next landing.</source>
+        <translation>착륙 후 계속은 다음 착륙부터 바뀝니다.</translation>
+    </message>
+    <message>
+        <source>Could not apply the setting. The previous value is back.</source>
+        <translation>설정을 적용하지 못했습니다. 이전 값으로 되돌렸습니다.</translation>
+    </message>
+    <message>
+        <source>Could not read MIS_OPTIONS from the drone.</source>
+        <translation>드론에서 MIS_OPTIONS를 읽지 못했습니다.</translation>
+    </message>
+    <message>
+        <source>Current value: MIS_OPTIONS = %1</source>
+        <translation>현재 값: MIS_OPTIONS = %1</translation>
+    </message>
+    <message>
+        <source>Reading MIS_OPTIONS…</source>
+        <translation>MIS_OPTIONS 읽는 중…</translation>
     </message>
 </context>
 </TS>

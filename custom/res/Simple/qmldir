@@ -85,3 +85,4 @@ SimpleSetupFirmware 1.0 SimpleSetupFirmware.qml
 SimpleMissionResult 1.0 SimpleMissionResult.qml
 SimpleManualLinks 1.0 SimpleManualLinks.qml
 SimpleGamepad 1.0 SimpleGamepad.qml
+SimpleSetupMission 1.0 SimpleSetupMission.qml

@@ -218,6 +218,7 @@
         <file alias="SimpleMissionResult.qml">res/Simple/SimpleMissionResult.qml</file>
         <file alias="SimpleManualLinks.qml">res/Simple/SimpleManualLinks.qml</file>
         <file alias="SimpleGamepad.qml">res/Simple/SimpleGamepad.qml</file>
+        <file alias="SimpleSetupMission.qml">res/Simple/SimpleSetupMission.qml</file>
         <file alias="SimpleSetupFirmware.qml">res/Simple/SimpleSetupFirmware.qml</file>
         <file alias="SimpleFolderPicker.qml">res/Simple/SimpleFolderPicker.qml</file>
         <file alias="SimpleInspectorChart.qml">res/Simple/SimpleInspectorChart.qml</file>

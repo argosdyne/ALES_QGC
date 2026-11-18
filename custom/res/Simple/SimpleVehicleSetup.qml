@@ -26,7 +26,14 @@ Rectangle {
     readonly property bool _armed: !!_veh && _veh.armed
     property bool calRunning: false      // no category change during a calibration
 
-    // category → new screen or the classic page (component QML name)
+    // Mission (S97) only when the firmware has MIS_OPTIONS: same rule as the APM plugin (APMMissionComponent exists)
+    readonly property bool _hasMission: {
+        if (!_ready || !_veh.autopilot) return false
+        var c = _veh.autopilot.vehicleComponents
+        for (var i = 0; i < c.length; i++) if (c[i].setupSource.toString().indexOf("APMMissionComponent") >= 0) return true
+        return false
+    }
+    // category → new screen (classic: component QML name, used for the setup state)
     readonly property var cats: [
         { key: "summary",  icon: "info",     t: qsTr("Summary") },
         { key: "frame",    icon: "drone",    t: qsTr("Frame"),        classic: "APMAirframeComponent" },
@@ -36,6 +43,7 @@ Rectangle {
         { key: "power",    icon: "battery",  t: qsTr("Power"),        classic: "APMPowerComponent" },
         { key: "motors",   icon: "power",    t: qsTr("Motors"),       classic: "APMMotorComponent" },
         { key: "safety",   icon: "home",     t: qsTr("Safety"),       classic: "APMSafetyComponent" },
+        { key: "mission",  icon: "plan",     t: qsTr("Mission"),      classic: "APMMissionComponent" },
         { key: "tuning",   icon: "undo",     t: qsTr("Tuning"),       classic: "APMTuningComponent" },
         { key: "gimbal",   icon: "gimbal",   t: qsTr("Gimbal"),       classic: "APMCameraComponent" },
         { key: "firmware", icon: "download", t: qsTr("Firmware"),     classic: "" }
@@ -73,7 +81,8 @@ Rectangle {
             Repeater {
                 model: vsp.cats
                 Rectangle {
-                    width: parent.width; height: SimpleTheme.px(76); radius: SimpleTheme.px(16)
+                    visible: modelData.key !== "mission" || vsp._hasMission
+                    width: parent.width; height: visible ? SimpleTheme.px(70) : 0; radius: SimpleTheme.px(16)
                     color: vsp.category === modelData.key ? SimpleTheme.brandGreen : "transparent"
                     opacity: vsp.locked(modelData.key) || (vsp.calRunning && vsp.category !== modelData.key) ? 0.4 : 1
                     Row {
@@ -109,6 +118,7 @@ Rectangle {
                        : vsp.category === "power"   ? powerComp   : vsp.category === "radio"  ? radioComp
                        : vsp.category === "gimbal"  ? gimbalComp  : vsp.category === "tuning" ? tuningComp
                        : vsp.category === "frame"   ? frameComp   : vsp.category === "motors" ? motorsComp
+                       : vsp.category === "mission" ? missionComp
                        : firmwareComp
     }
 
@@ -217,6 +227,7 @@ Rectangle {
 
     //================================================================== S68 Firmware
     Component { id: firmwareComp; SimpleSetupFirmware { } }
+    Component { id: missionComp; SimpleSetupMission { } }
 
     //================================================================== S59 Sensors
     Component {
