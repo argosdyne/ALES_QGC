@@ -1,9 +1,10 @@
 /****************************************************************************
  * AQGC Simple UI — S60 Parameters (Advanced mode, Figma 112:39099, 2026-11-17). Frame like Settings (S09).
  * Classic ParameterEditorController (FactPanelController: created only after the parameters are ready).
- * Left: All parameters · Changed from default · parameter groups with counts. Right: search, Save to file, More
- * (Refresh, Restart drone, Reset all to defaults, Load from file = classic page), orange warning, table (orange
- * dot = changed from default) and the edit panel (number with −/+, list, bitmask, text; Save, Reset to default).
+ * Left: All parameters · Differs from reference · parameter groups with counts. Right: search, Save to file, More
+ * (Refresh, Restart drone, Reset all to defaults, Load from file = S87), orange warning, table (orange dot = differs
+ * from the company reference, SimpleReference) and the edit panel (number with −/+, list, bitmask, text; Save,
+ * Reset to reference). Reference decision 2026-11-18: AQUILA-3F file for every drone, per-unit values not compared.
  * Every change is sent to the drone at once (as in the classic editor).
  ****************************************************************************/
 import QtQuick 2.12
@@ -97,29 +98,31 @@ Rectangle {
                 return out
             }
             readonly property int total: { var n = 0; for (var i = 0; i < groups.length; i++) n += groups[i].count; return n }
-            // defaults come from the parameter documentation; the bundled ArduPilot file has none
-            readonly property var defaultsInfo: {
+            // facts that differ from the company reference (SimpleReference; per-unit values are not compared)
+            readonly property var refDiffs: {
                 rev
-                var n = 0, any = false
+                var out = []
+                if (!SimpleReference.loaded) return out
                 for (var i = 0; i < groups.length; i++) {
                     for (var l = 0; l < groups[i].lists.length; l++) {
                         var f = groups[i].lists[l]
                         for (var j = 0; j < f.count; j++) {
                             var o = f.get(j)
-                            if (o && o.defaultValueAvailable) { any = true; if (!o.valueEqualsDefault) n++ }
+                            if (o && o.name !== undefined && SimpleReference.differs(o)) out.push(o)
                         }
                     }
                 }
-                return { any: any, changed: n }
+                out.sort(function(a, b) { return a.name.localeCompare(b.name) })
+                return out
             }
-            readonly property int changed: defaultsInfo.changed
+            readonly property int changed: refDiffs.length
 
             function show(m) {
                 mode = String(m)
                 search.reset()
                 groupFacts = []
                 if (mode === "all")          { ctl.showModifiedOnly = false; ctl.searchText = "." }
-                else if (mode === "changed") { ctl.searchText = ""; ctl.showModifiedOnly = true }
+                else if (mode === "changed") { ctl.showModifiedOnly = false; ctl.searchText = "."; groupFacts = refDiffs.slice() }
                 else {
                     var g = groups[Number(mode)], arr = []
                     for (var l = 0; l < g.lists.length; l++) for (var j = 0; j < g.lists[l].count; j++) { var o = g.lists[l].get(j); if (o && o.name !== undefined) arr.push(o) }
@@ -143,7 +146,8 @@ Rectangle {
                 note = fact.vehicleRebootRequired ? qsTr("%1 saved. Restart the drone to use the new value.").arg(fact.name) : qsTr("%1 saved on the drone.").arg(fact.name)
                 rev++
             }
-            Component.onCompleted: show(defaultsInfo.any && defaultsInfo.changed > 0 ? "changed" : "all")
+            Component.onCompleted: show(changed > 0 ? "changed" : "all")
+            onRefDiffsChanged: if (mode === "changed") groupFacts = refDiffs.slice()
             Connections { target: ctl; function onParametersChanged() { ed.rev++ } }
 
             // ---------------- categories
@@ -157,7 +161,7 @@ Rectangle {
                     clip: true
                     spacing: SimpleTheme.px(4)
                     model: [{ key: "all", t: qsTr("All parameters"), n: ed.total }]
-                           .concat(ed.defaultsInfo.any ? [{ key: "changed", t: qsTr("Changed from default"), n: ed.changed }] : [])
+                           .concat(SimpleReference.loaded ? [{ key: "changed", t: qsTr("Differs from reference"), n: ed.changed }] : [])
                            .concat(ed.groups.map(function(g, i) { return { key: String(i), t: ed.plainNames[g.name] ? g.name + " · " + ed.plainNames[g.name] : g.name, n: g.count } }))
                     delegate: Rectangle {
                         width: ListView.view.width; height: SimpleTheme.px(76); radius: SimpleTheme.px(16)
@@ -276,12 +280,12 @@ Rectangle {
                         anchors.bottomMargin: SimpleTheme.px(8)
                         clip: true
                         // a merged group shows its own list; all / changed / search use the controller's list
-                        model: ed.groupFacts.length > 0 && search.currentText === "" ? ed.groupFacts : ctl.parameters
+                        model: (ed.groupFacts.length > 0 || ed.mode === "changed") && search.currentText === "" ? ed.groupFacts : ctl.parameters
                         delegate: Rectangle {
                             width: ListView.view.width; height: SimpleTheme.px(76)
                             readonly property var object: typeof modelData !== "undefined" && modelData && modelData.name !== undefined ? modelData : model.object
                             color: ed.fact === object ? SimpleTheme.surfaceControl : "transparent"
-                            readonly property bool _changed: object.defaultValueAvailable && !object.valueEqualsDefault
+                            readonly property bool _changed: { ed.rev; return SimpleReference.differs(object) }
                             Rectangle { visible: parent._changed; x: SimpleTheme.px(10); anchors.verticalCenter: parent.verticalCenter
                                         width: SimpleTheme.px(10); height: width; radius: width / 2; color: SimpleTheme.warn }
                             Row {
@@ -296,7 +300,7 @@ Rectangle {
                             MouseArea { anchors.fill: parent; onClicked: ed.select(object) }
                         }
                         SText { visible: list.count === 0; anchors.centerIn: parent; size: 24; color: SimpleTheme.textSecondary
-                                text: ed.mode === "changed" && search.currentText === "" ? qsTr("No parameter differs from its default.") : qsTr("No parameters found.") }
+                                text: ed.mode === "changed" && search.currentText === "" ? qsTr("Every compared value matches the %1 reference.").arg(SimpleReference.product) : qsTr("No parameters found.") }
                     }
                 }
 
@@ -378,7 +382,7 @@ Rectangle {
                                 width: parent.width; wrapMode: Text.WordWrap; size: 20; color: SimpleTheme.textSecondary
                                 text: !ed.fact ? "" : [
                                     (!ed.fact.minIsDefaultForType || !ed.fact.maxIsDefaultForType) ? qsTr("Range %1 – %2 %3").arg(ed.fact.minString).arg(ed.fact.maxString).arg(ed.fact.units) : "",
-                                    ed.fact.defaultValueAvailable ? qsTr("default %1").arg(ed.fact.defaultValueString) : "",
+                                    SimpleReference.text(ed.fact) !== "" ? qsTr("reference %1 (%2)").arg(SimpleReference.text(ed.fact)).arg(SimpleReference.product) : "",
                                     ed.fact.enumStrings.length === 0 && ed.fact.bitmaskStrings.length === 0 && !ed.fact.typeIsString ? qsTr("step %1").arg(ed.stepOf(ed.fact)) : "",
                                     ed.fact.vehicleRebootRequired ? qsTr("needs a drone restart") : ""
                                 ].filter(function(s) { return s !== "" }).join(" · ")
@@ -390,10 +394,10 @@ Rectangle {
                                 onClicked: ed.apply(valField.currentText)
                             }
                             SButton {
-                                visible: !!ed.fact && ed.fact.defaultValueAvailable
-                                width: parent.width; text: qsTr("Reset to default")
-                                enabled_: !!ed.fact && !ed.fact.valueEqualsDefault
-                                onClicked: { ed.apply(ed.fact.defaultValue); ed.select(ed.fact) }
+                                visible: !!ed.fact && SimpleReference.refValue(ed.fact.name) !== undefined
+                                width: parent.width; text: qsTr("Reset to reference"); objectName: "paramResetRef"
+                                enabled_: { ed.rev; return !!ed.fact && SimpleReference.differs(ed.fact) }
+                                onClicked: { ed.apply(SimpleReference.refValue(ed.fact.name)); ed.select(ed.fact) }
                             }
                         }
                     }

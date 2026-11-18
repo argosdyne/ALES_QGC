@@ -2,8 +2,10 @@
  * AQGC Simple UI — S84 Vehicle setup › Safety › Pre-arm checks (Figma 158:43058, 2026-11-18).
  * ARMING_CHECK bitmask: bit value 1 = "All". The item names come from the bundled parameter documentation
  * (fact.bitmaskStrings / bitmaskValues), shown with plain names where known. Turning one item off while "All" is on
- * writes the sum of the other items. "All" on writes 1. A value of 0 (no checks) needs a red confirm first.
- * Every change goes to the security log.
+ * writes the sum of the other items. A value of 0 (no checks) needs a red confirm first. Every change goes to the
+ * security log. Baseline (user 2026-11-18) = the company reference (SimpleReference, ARMING_CHECK 32254 on AQUILA-3F):
+ * checks the reference leaves off are normal; only checks off beyond the reference are orange. The top switch
+ * "Company setting" writes the reference value (1 = All when there is no reference).
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -22,6 +24,11 @@ SSheet {
 
     readonly property int  value: fact ? Number(fact.rawValue) : 0
     readonly property bool all: (value & 1) === 1
+    readonly property var  bits: fact ? fact.bitmaskValues : []
+    readonly property int  missing: fact ? SimpleReference.armingMissing(value, bits) : 0     // on in the reference, off here
+    readonly property bool company: !!fact && missing === 0
+    readonly property int  refValue: SimpleReference.armingReference()
+    function inReference(bit) { return (SimpleReference.armingEffective(refValue, bits) & bit) !== 0 }
     readonly property var  items: {
         var r = []
         if (!fact) return r
@@ -31,8 +38,7 @@ SSheet {
     }
     readonly property var offNames: {
         var r = []
-        if (all) return r
-        for (var i = 0; i < items.length; i++) if ((value & items[i].bit) === 0) r.push(items[i].name)
+        for (var i = 0; i < items.length; i++) if ((missing & items[i].bit) !== 0) r.push(items[i].name)
         return r
     }
     function plain(bit, docName) {
@@ -65,10 +71,14 @@ SSheet {
 
     Item {
         width: pa.innerWidth; height: SimpleTheme.px(72)
-        SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("All checks (recommended)"); size: 28; bold: true }
+        Column {
+            anchors.verticalCenter: parent.verticalCenter
+            SText { text: qsTr("Company setting (recommended)"); size: 28; bold: true }
+            SText { text: pa.all ? qsTr("All checks on") : qsTr("%1 reference").arg(SimpleReference.product); size: 20; color: SimpleTheme.textSecondary }
+        }
         SToggle { objectName: "prearmAll"; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-                  checked: pa.all; enabled: !pa.all && !pa.armed; opacity: enabled || pa.all ? 1 : 0.4
-                  onToggled: { if (checked) pa.write(1, "All on"); checked = Qt.binding(function() { return pa.all }) } }
+                  checked: pa.company; enabled: !pa.company && !pa.armed; opacity: enabled || pa.company ? 1 : 0.4
+                  onToggled: { if (checked) pa.write(pa.refValue, "Company setting"); checked = Qt.binding(function() { return pa.company }) } }
     }
     Rectangle {
         width: pa.innerWidth; height: grid.height + SimpleTheme.px(16); radius: SimpleTheme.px(20)
@@ -81,8 +91,12 @@ SSheet {
                 model: pa.items
                 Item {
                     width: (pa.innerWidth - SimpleTheme.px(80)) / 2; height: SimpleTheme.px(64)
-                    SText { anchors.left: parent.left; anchors.right: t.left; anchors.rightMargin: SimpleTheme.px(8); anchors.verticalCenter: parent.verticalCenter
-                            text: modelData.name; size: 24; elide: Text.ElideRight }
+                    Column {
+                        anchors.left: parent.left; anchors.right: t.left; anchors.rightMargin: SimpleTheme.px(8); anchors.verticalCenter: parent.verticalCenter
+                        SText { width: parent.width; text: modelData.name; size: 24; elide: Text.ElideRight
+                                color: (pa.missing & modelData.bit) !== 0 ? SimpleTheme.warn : SimpleTheme.textPrimary }
+                        SText { visible: !pa.inReference(modelData.bit); text: qsTr("Off in the company setting"); size: 18; color: SimpleTheme.textTertiary }
+                    }
                     SToggle { id: t; objectName: "prearm_" + modelData.bit; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                               scale: 0.8; transformOrigin: Item.Right
                               checked: pa.isOn(modelData.bit); enabled: !pa.armed
@@ -92,7 +106,7 @@ SSheet {
         }
     }
     SNotice { visible: pa.offNames.length > 0 && pa.value !== 0; level: "warn"
-              text: qsTr("%n check(s) off: %1. Turn them back on before normal flights.", "", pa.offNames.length).arg(pa.offNames.join(", ")) }
+              text: qsTr("%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.", "", pa.offNames.length).arg(pa.offNames.join(", ")) }
     SNotice { visible: pa.value === 0 && !!pa.fact; level: "danger"; text: qsTr("No checks: the drone starts even with a fault.") }
     SNotice { visible: pa.armed; level: "danger"; text: qsTr("The drone is armed. Stop the motors first.") }
     Column {

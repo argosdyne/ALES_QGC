@@ -5462,10 +5462,6 @@
         <translation>전체 파라미터</translation>
     </message>
     <message>
-        <source>Changed from default</source>
-        <translation>기본값과 다른 값</translation>
-    </message>
-    <message>
         <source>Search name or description</source>
         <translation>이름이나 설명으로 찾기</translation>
     </message>
@@ -5496,10 +5492,6 @@
     <message>
         <source>Reset all to defaults…</source>
         <translation>모두 기본값으로…</translation>
-    </message>
-    <message>
-        <source>Load from file (classic)</source>
-        <translation>파일에서 불러오기 (기존 화면)</translation>
     </message>
     <message>
         <source>Reset every parameter to its default? Calibrations and setup are lost; the drone needs a restart.</source>
@@ -5538,10 +5530,6 @@
         <translation>설명</translation>
     </message>
     <message>
-        <source>No parameter differs from its default.</source>
-        <translation>기본값과 다른 파라미터가 없습니다.</translation>
-    </message>
-    <message>
         <source>No parameters found.</source>
         <translation>찾은 파라미터가 없습니다.</translation>
     </message>
@@ -5552,10 +5540,6 @@
     <message>
         <source>Range %1 – %2 %3</source>
         <translation>범위 %1 – %2 %3</translation>
-    </message>
-    <message>
-        <source>default %1</source>
-        <translation>기본값 %1</translation>
     </message>
     <message>
         <source>step %1</source>
@@ -5570,12 +5554,24 @@
         <translation>저장</translation>
     </message>
     <message>
-        <source>Reset to default</source>
-        <translation>기본값으로</translation>
-    </message>
-    <message>
         <source>Load from file…</source>
         <translation>파일에서 불러오기…</translation>
+    </message>
+    <message>
+        <source>Differs from reference</source>
+        <translation>기준값과 다름</translation>
+    </message>
+    <message>
+        <source>Every compared value matches the %1 reference.</source>
+        <translation>비교한 값이 모두 %1 기준값과 같습니다.</translation>
+    </message>
+    <message>
+        <source>reference %1 (%2)</source>
+        <translation>기준값 %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Reset to reference</source>
+        <translation>기준값으로 되돌리기</translation>
     </message>
 </context>
 <context>
@@ -5709,22 +5705,6 @@
         <translation>선택</translation>
     </message>
     <message>
-        <source>Firmware is updated from a PC with a USB cable.</source>
-        <translation>펌웨어는 PC에서 USB 케이블로 업데이트합니다.</translation>
-    </message>
-    <message>
-        <source>Connect the drone with USB, propellers off. The firmware page opens in the classic screens for now.</source>
-        <translation>프로펠러를 떼고 드론을 USB로 연결하세요. 펌웨어 화면은 당분간 기존 화면에서 열립니다.</translation>
-    </message>
-    <message>
-        <source>This part opens in the classic screens until its new screen is ready.</source>
-        <translation>새 화면이 준비될 때까지 이 부분은 기존 화면에서 열립니다.</translation>
-    </message>
-    <message>
-        <source>Open %1 (classic)</source>
-        <translation>%1 열기 (기존 화면)</translation>
-    </message>
-    <message>
         <source>Compass</source>
         <translation>나침반</translation>
     </message>
@@ -5775,10 +5755,6 @@
     <message>
         <source>Motor interference</source>
         <translation>모터 간섭</translation>
-    </message>
-    <message>
-        <source>Measures compass error from the motors (CompassMot). Propellers off</source>
-        <translation>모터가 나침반에 주는 오차를 잽니다(CompassMot). 프로펠러를 떼세요</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -6191,10 +6167,6 @@
         <translation>보호 없음</translation>
     </message>
     <message>
-        <source>Change (classic)</source>
-        <translation>변경 (기존 화면)</translation>
-    </message>
-    <message>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
@@ -6205,6 +6177,10 @@
     <message>
         <source>None</source>
         <translation>없음</translation>
+    </message>
+    <message>
+        <source>Company setting</source>
+        <translation>회사 설정</translation>
     </message>
 </context>
 <context>
@@ -7623,14 +7599,6 @@
         <translation>FFT</translation>
     </message>
     <message>
-        <source>All checks (recommended)</source>
-        <translation>모든 점검 (권장)</translation>
-    </message>
-    <message>
-        <source>%n check(s) off: %1. Turn them back on before normal flights.</source>
-        <translation>꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</translation>
-    </message>
-    <message>
         <source>No checks: the drone starts even with a fault.</source>
         <translation>점검 없음: 고장이 있어도 드론이 시동됩니다.</translation>
     </message>
@@ -7653,6 +7621,26 @@
     <message>
         <source>Done</source>
         <translation>완료</translation>
+    </message>
+    <message>
+        <source>Company setting (recommended)</source>
+        <translation>회사 설정 (권장)</translation>
+    </message>
+    <message>
+        <source>All checks on</source>
+        <translation>모든 점검 켜짐</translation>
+    </message>
+    <message>
+        <source>%1 reference</source>
+        <translation>%1 기준값</translation>
+    </message>
+    <message>
+        <source>Off in the company setting</source>
+        <translation>회사 설정에서도 꺼짐</translation>
+    </message>
+    <message>
+        <source>%n check(s) off that the company setting has on: %1. Turn them back on before normal flights.</source>
+        <translation>회사 설정에서는 켜져 있는데 꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</translation>
     </message>
 </context>
 <context>

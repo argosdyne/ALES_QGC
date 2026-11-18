@@ -50,7 +50,8 @@ Flickable {
             model: sf.rows
             Rectangle {
                 readonly property bool _noProtect: modelData.arm ? false : (modelData.actOff ? sf.off(modelData.actOff) : sf.off(modelData.act))
-                readonly property bool _allChecks: !!sf.p("ARMING_CHECK") && (Number(sf.p("ARMING_CHECK").rawValue) & 1) === 1
+                // pre-arm: the company reference is "normal" (SimpleReference, user 2026-11-18)
+                readonly property bool _allChecks: !!sf.p("ARMING_CHECK") && SimpleReference.armingMissing(sf.p("ARMING_CHECK").rawValue, sf.p("ARMING_CHECK").bitmaskValues) === 0
                 readonly property bool _noChecks: !!sf.p("ARMING_CHECK") && Number(sf.p("ARMING_CHECK").rawValue) === 0
                 width: col.width; height: rc.height + SimpleTheme.px(28); radius: SimpleTheme.px(18)
                 color: SimpleTheme.surfaceRaised
@@ -70,7 +71,7 @@ Flickable {
                         SStatusChip {
                             id: chip
                             anchors.right: btn.left; anchors.rightMargin: SimpleTheme.px(14); anchors.verticalCenter: parent.verticalCenter
-                            text: modelData.arm ? (parent.parent.parent._allChecks ? qsTr("All on") : parent.parent.parent._noChecks ? qsTr("None") : qsTr("Some off"))
+                            text: modelData.arm ? (parent.parent.parent._allChecks ? (Number(sf.p("ARMING_CHECK").rawValue) & 1 ? qsTr("All on") : qsTr("Company setting")) : parent.parent.parent._noChecks ? qsTr("None") : qsTr("Some off"))
                                 : parent.parent.parent._noProtect ? qsTr("No protection") : sf.e(modelData.act)
                             level: modelData.arm ? (parent.parent.parent._allChecks ? "ok" : parent.parent.parent._noChecks ? "danger" : "warn") : parent.parent.parent._noProtect ? "warn" : "info"
                         }

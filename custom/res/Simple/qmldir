@@ -1,5 +1,6 @@
 singleton SimpleTheme 1.0 SimpleTheme.qml
 singleton SimplePayloadPrefs 1.0 SimplePayloadPrefs.qml
+singleton SimpleReference 1.0 SimpleReference.qml
 SActionButton 1.0 SActionButton.qml
 SBanner 1.0 SBanner.qml
 SAttitude 1.0 SAttitude.qml
