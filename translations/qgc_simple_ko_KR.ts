@@ -778,14 +778,6 @@
         <translation>%1 · 변경</translation>
     </message>
     <message>
-        <source>Classic alesQGC screens</source>
-        <translation>기존 alesQGC 화면</translation>
-    </message>
-    <message>
-        <source>Until every screen is redesigned (temporary)</source>
-        <translation>모든 화면을 새로 만들 때까지 (임시)</translation>
-    </message>
-    <message>
         <source>Return to Simple</source>
         <translation>간편 모드로 돌아가기</translation>
     </message>
@@ -1688,10 +1680,6 @@
         <translation>배터리가 부족할 때</translation>
     </message>
     <message>
-        <source> · change in Advanced</source>
-        <translation> · 고급 모드에서 변경</translation>
-    </message>
-    <message>
         <source>When the radio link is lost</source>
         <translation>무선 링크가 끊겼을 때</translation>
     </message>
@@ -1730,18 +1718,6 @@
     <message>
         <source>alesQGC uses this open-source software. Tap an item to show the full license.</source>
         <translation>alesQGC는 다음 오픈소스 소프트웨어를 사용합니다. 항목을 누르면 라이선스 전문을 볼 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>Coming in the next version</source>
-        <translation>다음 버전에서 제공</translation>
-    </message>
-    <message>
-        <source>This settings page is designed (Figma S46, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings.</source>
-        <translation>이 설정 화면은 디자인이 끝났으며(Figma S46, S52–S56) 버전 2에서 추가됩니다. 그때까지는 고급 › 애플리케이션 설정을 사용하세요.</translation>
-    </message>
-    <message>
-        <source>Open Advanced settings</source>
-        <translation>고급 설정 열기</translation>
     </message>
     <message>
         <source>2.4 GHz</source>
@@ -1806,10 +1782,6 @@
     <message>
         <source>Not paired</source>
         <translation>페어링 안 됨</translation>
-    </message>
-    <message>
-        <source>Radio settings for this radio are in Advanced.</source>
-        <translation>이 무선기의 설정은 고급 모드에 있습니다.</translation>
     </message>
     <message>
         <source>No radio found. Check that the controller is on and its radio is connected.</source>
@@ -1906,10 +1878,6 @@
     <message>
         <source>Off</source>
         <translation>꺼짐</translation>
-    </message>
-    <message>
-        <source>Correction comes from a serial port. Change this in Advanced.</source>
-        <translation>보정 데이터를 시리얼 포트에서 받고 있습니다. 고급 모드에서 바꾸세요.</translation>
     </message>
     <message>
         <source>Server</source>
@@ -2358,6 +2326,62 @@
     <message>
         <source>Devices</source>
         <translation>장치</translation>
+    </message>
+    <message>
+        <source> · change in Vehicle setup › Safety</source>
+        <translation> · 기체 설정 › 안전에서 변경</translation>
+    </message>
+    <message>
+        <source> · change in Advanced mode › Vehicle setup › Safety</source>
+        <translation> · 고급 모드 › 기체 설정 › 안전에서 변경</translation>
+    </message>
+    <message>
+        <source>This app does not change the settings of the M2 radio.</source>
+        <translation>이 앱에서는 M2 무선기 설정을 바꾸지 않습니다.</translation>
+    </message>
+    <message>
+        <source>RTK correction · Serial port</source>
+        <translation>RTK 보정 · 시리얼 포트</translation>
+    </message>
+    <message>
+        <source>Receiving · no RTK yet</source>
+        <translation>수신 중 · 아직 RTK 아님</translation>
+    </message>
+    <message>
+        <source>No data from the port</source>
+        <translation>포트에서 데이터 없음</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>소스</translation>
+    </message>
+    <message>
+        <source>NTRIP server</source>
+        <translation>NTRIP 서버</translation>
+    </message>
+    <message>
+        <source>Serial port</source>
+        <translation>시리얼 포트</translation>
+    </message>
+    <message>
+        <source>Correction comes from a GNSS receiver on a serial port. Turn on Advanced mode to change this.</source>
+        <translation>보정 데이터가 시리얼 포트의 GNSS 수신기에서 옵니다. 바꾸려면 고급 모드를 켜세요.</translation>
+    </message>
+    <message>
+        <source>No serial port found</source>
+        <translation>시리얼 포트 없음</translation>
+    </message>
+    <message>
+        <source>Speed (baud)</source>
+        <translation>속도 (baud)</translation>
+    </message>
+    <message>
+        <source>Turn this on to choose the port. Correction data from the GNSS receiver is sent to the drone.</source>
+        <translation>켜면 포트를 고를 수 있습니다. GNSS 수신기의 보정 데이터를 드론으로 보냅니다.</translation>
+    </message>
+    <message>
+        <source>Correction data comes from a GNSS receiver on this port and is sent to the drone.</source>
+        <translation>이 포트의 GNSS 수신기에서 받은 보정 데이터를 드론으로 보냅니다.</translation>
     </message>
 </context>
 <context>
@@ -5295,10 +5319,6 @@
         <translation>%1 · 시스템 %2, 컴포넌트 %3</translation>
     </message>
     <message>
-        <source>Charts (classic inspector)</source>
-        <translation>차트 (기존 Inspector)</translation>
-    </message>
-    <message>
         <source>Saved: %1</source>
         <translation>저장함: %1</translation>
     </message>
@@ -5313,10 +5333,6 @@
     <message>
         <source>No messages yet. The app records only the log categories that are turned on (all are off by default).</source>
         <translation>아직 메시지가 없습니다. 앱은 켜 둔 로그 범주만 기록합니다(기본은 모두 꺼짐).</translation>
-    </message>
-    <message>
-        <source>Choose log categories (classic)</source>
-        <translation>로그 범주 고르기 (기존 화면)</translation>
     </message>
     <message>
         <source>Chart</source>
@@ -6242,10 +6258,6 @@
         <translation>프로펠러를 떼고 배터리를 연결하세요. ESC를 바꾼 뒤에만 합니다.</translation>
     </message>
     <message>
-        <source>Start (classic)</source>
-        <translation>시작 (기존 화면)</translation>
-    </message>
-    <message>
         <source>Propellers off. Only after replacing ESCs.</source>
         <translation>프로펠러를 떼고, ESC를 바꾼 뒤에만 하세요.</translation>
     </message>
@@ -6299,14 +6311,6 @@
     <message>
         <source>No controller signal yet. Turn on the controller.</source>
         <translation>아직 조종기 신호가 없습니다. 조종기를 켜세요.</translation>
-    </message>
-    <message>
-        <source>Calibrate sticks (classic)</source>
-        <translation>스틱 보정 (기존 화면)</translation>
-    </message>
-    <message>
-        <source>Reverse a channel (classic)</source>
-        <translation>채널 반전 (기존 화면)</translation>
     </message>
     <message>
         <source>Calibrate sticks</source>
@@ -6832,10 +6836,6 @@
         <translation>사용자 동작</translation>
     </message>
     <message>
-        <source>Extra buttons from a file (classic screens)</source>
-        <translation>파일에서 읽는 추가 버튼 (기존 화면)</translation>
-    </message>
-    <message>
         <source>Plan</source>
         <translation>계획</translation>
     </message>
@@ -6866,14 +6866,6 @@
     <message>
         <source>Use CONDITION_GATE between items</source>
         <translation>항목 사이에 CONDITION_GATE 사용</translation>
-    </message>
-    <message>
-        <source>Show mission progress</source>
-        <translation>임무 진행 표시</translation>
-    </message>
-    <message>
-        <source>Item status during a mission (classic plan screen)</source>
-        <translation>임무 중 항목 상태 (기존 계획 화면)</translation>
     </message>
     <message>
         <source>Data &amp; logs</source>
@@ -6914,10 +6906,6 @@
     <message>
         <source>Not set</source>
         <translation>미설정</translation>
-    </message>
-    <message>
-        <source>Change (classic)</source>
-        <translation>변경 (기존 화면)</translation>
     </message>
     <message>
         <source>Save to SD card</source>
@@ -7111,6 +7099,46 @@
         <source>Change</source>
         <translation>변경</translation>
     </message>
+    <message>
+        <source>Extra buttons in Fly › More actions, from a file</source>
+        <translation>비행 › 더 보기에 파일로 정한 버튼 추가</translation>
+    </message>
+    <message>
+        <source>Actions file</source>
+        <translation>동작 파일</translation>
+    </message>
+    <message>
+        <source>Put a .json file in %1</source>
+        <translation>%1에 .json 파일을 넣으세요</translation>
+    </message>
+    <message>
+        <source>%n action(s) loaded</source>
+        <translation>동작 %n개 불러옴</translation>
+    </message>
+    <message>
+        <source>No actions in this file (check the file format)</source>
+        <translation>이 파일에 동작이 없습니다 (파일 형식 확인)</translation>
+    </message>
+    <message>
+        <source>No file</source>
+        <translation>파일 없음</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>다시 읽기</translation>
+    </message>
+    <message>
+        <source>USB gamepad</source>
+        <translation>USB 게임패드</translation>
+    </message>
+    <message>
+        <source>%1 · fly with a gamepad instead of the on-screen sticks</source>
+        <translation>%1 · 화면 스틱 대신 게임패드로 조종</translation>
+    </message>
+    <message>
+        <source>Fly with a gamepad instead of the on-screen sticks. None found.</source>
+        <translation>화면 스틱 대신 게임패드로 조종합니다. 연결된 게임패드 없음.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMoreSheet</name>
@@ -7193,6 +7221,22 @@
     <message>
         <source>Show</source>
         <translation>보기</translation>
+    </message>
+    <message>
+        <source>Custom actions</source>
+        <translation>사용자 동작</translation>
+    </message>
+    <message>
+        <source>From the actions file · %n button(s)</source>
+        <translation>동작 파일 · 버튼 %n개</translation>
+    </message>
+    <message>
+        <source>Send “%1” to the drone now?</source>
+        <translation>지금 드론에 “%1”을(를) 보낼까요?</translation>
+    </message>
+    <message>
+        <source>Send</source>
+        <translation>보내기</translation>
     </message>
 </context>
 <context>
@@ -8063,6 +8107,296 @@
     <message>
         <source>Continue from waypoint %1</source>
         <translation>웨이포인트 %1부터 이어서</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleManualLinks</name>
+    <message>
+        <source>UDP</source>
+        <translation>UDP</translation>
+    </message>
+    <message>
+        <source>TCP</source>
+        <translation>TCP</translation>
+    </message>
+    <message>
+        <source>Serial</source>
+        <translation>시리얼</translation>
+    </message>
+    <message>
+        <source>listen %1</source>
+        <translation>수신 %1</translation>
+    </message>
+    <message>
+        <source>send to %1</source>
+        <translation>보낼 곳 %1</translation>
+    </message>
+    <message>
+        <source>connects when the app starts</source>
+        <translation>앱 시작 시 연결</translation>
+    </message>
+    <message>
+        <source>Manual connections</source>
+        <translation>수동 연결</translation>
+    </message>
+    <message>
+        <source>ADVANCED MODE</source>
+        <translation>고급 모드</translation>
+    </message>
+    <message>
+        <source>For links that do not connect by themselves: telemetry radio on a serial port, SITL or another ground station over TCP / UDP.</source>
+        <translation>스스로 연결되지 않는 링크용입니다: 시리얼 포트의 텔레메트리 무선기, SITL, TCP / UDP로 연결하는 다른 지상국.</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>연결됨</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>연결 끊기</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>편집</translation>
+    </message>
+    <message>
+        <source>Add connection</source>
+        <translation>연결 추가</translation>
+    </message>
+    <message>
+        <source>Edit connection</source>
+        <translation>연결 편집</translation>
+    </message>
+    <message>
+        <source>Saved on this tablet. The drone link still connects by itself — add a connection only for other links.</source>
+        <translation>이 태블릿에 저장됩니다. 드론 링크는 지금처럼 자동으로 연결되니, 다른 링크에만 연결을 추가하세요.</translation>
+    </message>
+    <message>
+        <source>Serial port</source>
+        <translation>시리얼 포트</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>이름</translation>
+    </message>
+    <message>
+        <source>e.g. Telemetry radio</source>
+        <translation>예: 텔레메트리 무선기</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>종류</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>포트</translation>
+    </message>
+    <message>
+        <source>No serial port found</source>
+        <translation>시리얼 포트 없음</translation>
+    </message>
+    <message>
+        <source>Speed (baud)</source>
+        <translation>속도 (baud)</translation>
+    </message>
+    <message>
+        <source>Listening port</source>
+        <translation>수신 포트</translation>
+    </message>
+    <message>
+        <source>Send to (optional)</source>
+        <translation>보낼 곳 (선택)</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>host:port, e.g. 192.168.1.20:14550</source>
+        <translation>호스트:포트, 예: 192.168.1.20:14550</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>추가</translation>
+    </message>
+    <message>
+        <source>Server address</source>
+        <translation>서버 주소</translation>
+    </message>
+    <message>
+        <source>Connect when the app starts</source>
+        <translation>앱 시작 시 연결</translation>
+    </message>
+    <message>
+        <source>Delete “%1”? A running connection is closed first.</source>
+        <translation>“%1”을(를) 삭제할까요? 연결 중이면 먼저 끊습니다.</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>삭제</translation>
+    </message>
+    <message>
+        <source>Delete…</source>
+        <translation>삭제…</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Save and connect</source>
+        <translation>저장 후 연결</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleGamepad</name>
+    <message>
+        <source>Devices</source>
+        <translation>장치</translation>
+    </message>
+    <message>
+        <source>USB gamepad</source>
+        <translation>USB 게임패드</translation>
+    </message>
+    <message>
+        <source>Fly with a USB or Bluetooth gamepad instead of the on-screen sticks. The radio controller stays the main control.</source>
+        <translation>화면 스틱 대신 USB 또는 블루투스 게임패드로 조종합니다. 주 조종은 계속 조종기입니다.</translation>
+    </message>
+    <message>
+        <source>No gamepad found. Plug one in by USB or pair it by Bluetooth.</source>
+        <translation>게임패드가 없습니다. USB로 꽂거나 블루투스로 연결하세요.</translation>
+    </message>
+    <message>
+        <source>Buttons only</source>
+        <translation>버튼만</translation>
+    </message>
+    <message>
+        <source>Calibrated</source>
+        <translation>보정됨</translation>
+    </message>
+    <message>
+        <source>Not calibrated</source>
+        <translation>보정 안 됨</translation>
+    </message>
+    <message>
+        <source>Gamepad</source>
+        <translation>게임패드</translation>
+    </message>
+    <message>
+        <source>Use the gamepad for this drone</source>
+        <translation>이 드론에 게임패드 사용</translation>
+    </message>
+    <message>
+        <source>· connect a drone first</source>
+        <translation>· 먼저 드론을 연결하세요</translation>
+    </message>
+    <message>
+        <source>· calibrate first</source>
+        <translation>· 먼저 보정하세요</translation>
+    </message>
+    <message>
+        <source>· turns the on-screen sticks off</source>
+        <translation>· 화면 스틱은 꺼집니다</translation>
+    </message>
+    <message>
+        <source>Axes (move the sticks)</source>
+        <translation>축 (스틱을 움직여 보세요)</translation>
+    </message>
+    <message>
+        <source>Axis %1</source>
+        <translation>축 %1</translation>
+    </message>
+    <message>
+        <source>Calibrate sticks…</source>
+        <translation>스틱 보정…</translation>
+    </message>
+    <message>
+        <source>Throttle</source>
+        <translation>스로틀</translation>
+    </message>
+    <message>
+        <source>Centre = hover</source>
+        <translation>가운데 = 호버</translation>
+    </message>
+    <message>
+        <source>Full range</source>
+        <translation>전체 범위</translation>
+    </message>
+    <message>
+        <source>Buttons</source>
+        <translation>버튼</translation>
+    </message>
+    <message>
+        <source>Press a button to find it in the list. Actions are sent only while the gamepad is in use.</source>
+        <translation>버튼을 누르면 목록에서 표시됩니다. 동작은 게임패드를 사용 중일 때만 보냅니다.</translation>
+    </message>
+    <message>
+        <source>Calibrate gamepad sticks</source>
+        <translation>게임패드 스틱 보정</translation>
+    </message>
+    <message>
+        <source>Choose the stick layout, press Start and move the sticks as shown. Keep the gamepad still between steps.</source>
+        <translation>스틱 배치를 고르고 시작을 누른 뒤 그림대로 스틱을 움직이세요. 단계 사이에는 게임패드를 가만히 두세요.</translation>
+    </message>
+    <message>
+        <source>Stick layout</source>
+        <translation>스틱 배치</translation>
+    </message>
+    <message>
+        <source>Mode 1</source>
+        <translation>모드 1</translation>
+    </message>
+    <message>
+        <source>Mode 2</source>
+        <translation>모드 2</translation>
+    </message>
+    <message>
+        <source>Mode 3</source>
+        <translation>모드 3</translation>
+    </message>
+    <message>
+        <source>Mode 4</source>
+        <translation>모드 4</translation>
+    </message>
+    <message>
+        <source>Left stick</source>
+        <translation>왼쪽 스틱</translation>
+    </message>
+    <message>
+        <source>Right stick</source>
+        <translation>오른쪽 스틱</translation>
+    </message>
+    <message>
+        <source>Press Start.</source>
+        <translation>시작을 누르세요.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>건너뛰기</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>다음</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>시작</translation>
     </message>
 </context>
 </TS>

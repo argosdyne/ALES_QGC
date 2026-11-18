@@ -13,7 +13,7 @@ Rectangle {
     property var    vs
     property string category: "general"
     readonly property bool _adv: QGroundControl.corePlugin.advancedMode
-    on_AdvChanged: if (!_adv && ["flyscreen", "video", "plan", "datalogs", "devices"].indexOf(category) >= 0) category = "general"
+    on_AdvChanged: if (!_adv && ["flyscreen", "video", "plan", "datalogs", "devices", "gamepad"].indexOf(category) >= 0) category = "general"
     property bool   mapDownload: false     // S46 › Download new area (full screen)
     property bool   myZones:     false     // S32 › My flight zones (full screen)
     color: SimpleTheme.bgBase
@@ -100,7 +100,7 @@ Rectangle {
                 ] : []
                 Rectangle {
                     width: parent.width; height: SimpleTheme.px(72); radius: SimpleTheme.px(18)
-                    color: page.category === modelData.key ? SimpleTheme.brandGreen : "transparent"
+                    color: page.category === modelData.key || (modelData.key === "devices" && page.category === "gamepad") ? SimpleTheme.brandGreen : "transparent"
                     Row {
                         anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(20); anchors.verticalCenter: parent.verticalCenter
                         spacing: SimpleTheme.px(18)
@@ -135,8 +135,9 @@ Rectangle {
                            : page.category === "licenses" ? licensesComp
                            : page.category === "linksec" ? linkSecComp
                            : page.category === "privacy" ? privacyComp
+                           : page.category === "gamepad" ? gamepadComp
                            : ["flyscreen", "video", "plan", "datalogs", "devices"].indexOf(page.category) >= 0 ? advSettingsComp
-                           : laterComp
+                           : generalComp
         }
     }
 
@@ -324,7 +325,8 @@ Rectangle {
             SSettingRow {
                 id: battRow
                 readonly property var _a: safety.battAction(safety._battLow)
-                title: qsTr("When battery is low"); sub: safety.battThreshold() + qsTr(" · change in Advanced")
+                title: qsTr("When battery is low"); sub: safety.battThreshold() + (page._adv ? qsTr(" · change in Vehicle setup › Safety") : qsTr(" · change in Advanced mode › Vehicle setup › Safety"))
+                clickable: page._adv; onClicked: simpleRoot.showVehicleSetup("safety")
                 SText {
                     width: SimpleTheme.px(460); horizontalAlignment: Text.AlignRight; wrapMode: Text.WordWrap
                     text: battRow._a.t; size: 28; bold: true
@@ -334,7 +336,8 @@ Rectangle {
             SSettingRow {
                 id: linkRow
                 readonly property var _a: safety.linkAction(safety._linkLoss)
-                title: qsTr("When the radio link is lost"); sub: safety.linkDelay() + qsTr(" · change in Advanced")
+                title: qsTr("When the radio link is lost"); sub: safety.linkDelay() + (page._adv ? qsTr(" · change in Vehicle setup › Safety") : qsTr(" · change in Advanced mode › Vehicle setup › Safety"))
+                clickable: page._adv; onClicked: simpleRoot.showVehicleSetup("safety")
                 SText {
                     width: SimpleTheme.px(460); horizontalAlignment: Text.AlignRight; wrapMode: Text.WordWrap
                     text: linkRow._a.t; size: 28; bold: true
@@ -394,6 +397,28 @@ Rectangle {
             readonly property var  _srcFact:  page._custom.rtcmSource
             readonly property int  _srcType:  _srcFact ? Number(_srcFact.rawValue) : 0
             readonly property var  _src:      _srcType === 1 && typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.codevRTCMManager.rtcmSource : null
+            // serial port source (S93, Advanced mode): SerialPortRTCMSource opens the port by itself every 3 s
+            readonly property var  _ser:      _srcType === 2 && typeof CustomQmlInterface !== "undefined" ? CustomQmlInterface.codevRTCMManager.rtcmSource : null
+            readonly property bool _receiving: !!_ser && !!_ser.streaming
+            property int  srcChoice: _srcType === 2 ? 1 : 0       // 0 NTRIP, 1 serial port (kept while correction is off)
+            function serialOn(on) {
+                if (on) {
+                    if (_src && (_src.isLogIn || _src.isLogIning)) _src.logOut()
+                    want = false
+                    _srcFact.rawValue = 2                          // creates the serial source synchronously
+                    var s = CustomQmlInterface.codevRTCMManager.rtcmSource
+                    var ports = QGroundControl.linkManager.serialPorts
+                    if (s && s.port.valueString === "" && ports.length) s.port.value = ports[0]
+                } else {
+                    _srcFact.rawValue = 0
+                }
+            }
+            function chooseSource(i) {
+                if (i === srcChoice) return
+                if (_srcType === 2) _srcFact.rawValue = 0          // switching turns correction off
+                else rtkOff()
+                srcChoice = i
+            }
             readonly property bool _loggedIn: !!_src && !!_src.isLogIn
             readonly property bool _loggingIn: !!_src && !!_src.isLogIning
             readonly property string _mp:     !_src ? "" : (_src.mountpointManual.rawValue ? _src.mountpointManualValue.valueString : _src.mountpoint.valueString)
@@ -474,7 +499,7 @@ Rectangle {
                     }
                     SText {
                         width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
-                        text: conn._m2 ? qsTr("Radio settings for this radio are in Advanced.")
+                        text: conn._m2 ? qsTr("This app does not change the settings of the M2 radio.")
                             : !conn._mounted ? qsTr("No radio found. Check that the controller is on and its radio is connected.")
                             : conn._pairing ? qsTr("Pairing… Keep the drone close and turned on.")
                             : conn._band + (isNaN(conn._rssi) ? "" : " · " + qsTr("signal %1 dB").arg(-Math.round(conn._rssi)))
@@ -561,13 +586,14 @@ Rectangle {
                     spacing: SimpleTheme.px(16)
                     Item {
                         width: parent.width; height: SimpleTheme.px(52)
-                        SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("RTK correction · NTRIP"); size: 30; medium: true }
+                        SText { anchors.verticalCenter: parent.verticalCenter; size: 30; medium: true
+                                text: conn.srcChoice === 1 ? qsTr("RTK correction · Serial port") : qsTr("RTK correction · NTRIP") }
                         Rectangle {
                             readonly property int _lock: vs.gpsLock
                             anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                             height: SimpleTheme.px(48); radius: SimpleTheme.px(12)
                             width: rtkPill.implicitWidth + SimpleTheme.px(28)
-                            readonly property bool _retry: conn.want && !conn._loggedIn && !conn._loggingIn
+                            readonly property bool _retry: (conn.want && !conn._loggedIn && !conn._loggingIn) || (!!conn._ser && !conn._receiving)
                             color: _lock >= 6 ? SimpleTheme.ok : _lock === 5 ? SimpleTheme.warn : _retry ? SimpleTheme.warn
                                  : conn._loggingIn || conn._loggedIn ? SimpleTheme.info : SimpleTheme.surfaceControl
                             SText {
@@ -575,17 +601,89 @@ Rectangle {
                                 color: parent._lock >= 5 || parent._retry ? SimpleTheme.bgBase : SimpleTheme.textPrimary
                                 text: parent._lock >= 6 ? qsTr("RTK fixed") : parent._lock === 5 ? qsTr("RTK float")
                                     : conn._loggingIn ? qsTr("Logging in…") : conn._loggedIn ? qsTr("Correction on · no RTK yet")
+                                    : conn._receiving ? qsTr("Receiving · no RTK yet") : conn._ser ? qsTr("No data from the port")
                                     : parent._retry ? qsTr("Retrying…") : qsTr("Off")
                             }
                         }
                     }
+                    // Source: NTRIP server | Serial port (Advanced mode only, Figma S93)
+                    Row {
+                        visible: page._adv
+                        spacing: SimpleTheme.px(16)
+                        SText { text: qsTr("Source"); size: 24; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                        SSegmented {
+                            designWidth: 420
+                            model: [qsTr("NTRIP server"), qsTr("Serial port")]
+                            currentIndex: conn.srcChoice
+                            opacity: conn._onGround ? 1 : 0.4
+                            enabled: conn._onGround
+                            onActivated: { conn.chooseSource(index); currentIndex = Qt.binding(function() { return conn.srcChoice }) }
+                        }
+                    }
                     SText {
-                        visible: conn._srcType === 2
+                        visible: conn.srcChoice === 1 && !page._adv
                         width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
-                        text: qsTr("Correction comes from a serial port. Change this in Advanced.")
+                        text: qsTr("Correction comes from a GNSS receiver on a serial port. Turn on Advanced mode to change this.")
+                    }
+                    Row {
+                        visible: conn.srcChoice === 1 && page._adv
+                        spacing: SimpleTheme.px(20)
+                        Column {
+                            spacing: SimpleTheme.px(4)
+                            SText { text: qsTr("Port"); size: 22; medium: true; color: SimpleTheme.textSecondary }
+                            SComboBox {
+                                designWidth: 520
+                                readonly property var ports: {
+                                    var l = QGroundControl.linkManager.serialPorts.slice()
+                                    if (conn._ser && conn._ser.port.valueString !== "" && l.indexOf(conn._ser.port.valueString) < 0) l.push(conn._ser.port.valueString)
+                                    return l
+                                }
+                                // names as the system shows them (COM4 · description), same order as serialPorts
+                                readonly property var names: {
+                                    var d = QGroundControl.linkManager.serialPortStrings, n = []
+                                    for (var i = 0; i < ports.length; i++) n.push(i < d.length && d[i] !== "" ? d[i] : String(ports[i]))
+                                    return n
+                                }
+                                enabled: !!conn._ser && ports.length > 0
+                                opacity: enabled ? 1 : 0.5
+                                model: ports.length ? names : [qsTr("No serial port found")]
+                                currentIndex: conn._ser ? Math.max(0, ports.indexOf(conn._ser.port.valueString)) : 0
+                                onActivated: if (conn._ser && index < ports.length) conn._ser.port.value = ports[index]
+                            }
+                        }
+                        Column {
+                            spacing: SimpleTheme.px(4)
+                            SText { text: qsTr("Speed (baud)"); size: 22; medium: true; color: SimpleTheme.textSecondary }
+                            SComboBox {
+                                readonly property var bauds: ["4800", "9600", "19200", "38400", "57600", "115200"]
+                                designWidth: 240
+                                enabled: !!conn._ser
+                                opacity: enabled ? 1 : 0.5
+                                model: bauds
+                                currentIndex: conn._ser ? Math.max(0, bauds.indexOf(conn._ser.baud.valueString)) : 5
+                                onActivated: if (conn._ser) conn._ser.baud.value = parseInt(bauds[index])
+                            }
+                        }
+                    }
+                    Row {
+                        visible: conn.srcChoice === 1 && page._adv
+                        spacing: SimpleTheme.px(20)
+                        SToggle {
+                            id: serToggle
+                            anchors.verticalCenter: parent.verticalCenter
+                            checked: !!conn._ser
+                            onToggled: { conn.serialOn(serToggle.checked); serToggle.checked = Qt.binding(function() { return !!conn._ser }) }
+                        }
+                        SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Use RTK correction"); size: 26 }
+                    }
+                    SText {
+                        visible: conn.srcChoice === 1 && page._adv
+                        width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                        text: !conn._ser ? qsTr("Turn this on to choose the port. Correction data from the GNSS receiver is sent to the drone.")
+                                         : qsTr("Correction data comes from a GNSS receiver on this port and is sent to the drone.")
                     }
                     Flow {
-                        visible: conn._srcType !== 2
+                        visible: conn.srcChoice === 0
                         width: parent.width
                         spacing: SimpleTheme.px(14)
                         STextField {
@@ -615,7 +713,7 @@ Rectangle {
                         }
                     }
                     Row {
-                        visible: conn._srcType !== 2
+                        visible: conn.srcChoice === 0
                         spacing: SimpleTheme.px(20)
                         SToggle {
                             id: rtkToggle
@@ -629,7 +727,7 @@ Rectangle {
                         SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Use RTK correction"); size: 26 }
                     }
                     SText {
-                        visible: conn._srcType !== 2 && (conn.rtkMsg !== "" || !conn._src || (conn.needFill && !conn._complete))
+                        visible: conn.srcChoice === 0 && (conn.rtkMsg !== "" || !conn._src || (conn.needFill && !conn._complete))
                         width: parent.width; wrapMode: Text.WordWrap; size: 22
                         color: conn.rtkErr ? SimpleTheme.textDanger : SimpleTheme.textSecondary
                         text: conn.rtkMsg !== "" ? conn.rtkMsg
@@ -664,7 +762,21 @@ Rectangle {
                 onClicked: page.category = "linksec"
                 SIcon { name: "chevron"; size: 40; opacity: 0.7 }
             }
+
+            // ------------------------------------------------ S93 Manual connections (Advanced mode, replaces Comm Links)
+            Loader {
+                width: parent.width
+                active: page._adv
+                visible: active
+                sourceComponent: Component { SimpleManualLinks {} }
+            }
         }
+    }
+
+    //------------------------------------------------------------------ S95 USB gamepad (Advanced mode › Devices)
+    Component {
+        id: gamepadComp
+        SimpleGamepad { onBackRequested: page.category = "devices" }
     }
 
     //------------------------------------------------------------------ S66 Link security
@@ -905,7 +1017,7 @@ Rectangle {
     //------------------------------------------------------------------ ADVANCED MODE categories (S64, S69)
     Component {
         id: advSettingsComp
-        SimpleAdvancedSettings { category: page.category }
+        SimpleAdvancedSettings { category: page.category; onOpenCategory: page.category = key }
     }
 
     //------------------------------------------------------------------ S65 Security & privacy (+ S67, security log)
@@ -1246,17 +1358,6 @@ Rectangle {
                     }
                 }
             }
-        }
-    }
-
-    //------------------------------------------------------------------ Not yet in v1
-    Component {
-        id: laterComp
-        Column {
-            spacing: SimpleTheme.px(20)
-            SText { text: qsTr("Coming in the next version"); size: 40; bold: true }
-            SText { width: parent.width; wrapMode: Text.WordWrap; text: qsTr("This settings page is designed (Figma S46, S52–S56) and will be added in version 2. Until then use Advanced › Application Settings."); size: 26; color: SimpleTheme.textSecondary }
-            SButton { kind: "primary"; icon: "lock"; text: qsTr("Open Advanced settings"); onClicked: simpleRoot.requestAdvanced("settings") }
         }
     }
 

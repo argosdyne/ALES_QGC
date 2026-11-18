@@ -3,10 +3,13 @@
  * Arm motors (on the ground only, no take-off: service / tests), Emergency stop (hold 3 s, motors off at once — the
  * drone falls), Change speed, Set home here, Messages (raw flight controller text). Every action goes through the
  * classic GuidedActionsController (executeAction), as in the classic fly view.
+ * S96 (Figma 169:45516, 2026-11-18): Custom actions from the file set in Settings › Fly screen (CustomActionManager,
+ * same as the classic action list); each button asks once, then CustomAction.sendTo(vehicle).
  ****************************************************************************/
 import QtQuick 2.12
 import QtPositioning 5.12
 import QGroundControl 1.0
+import QGroundControl.Controllers 1.0
 import "."
 
 SPanel {
@@ -17,9 +20,13 @@ SPanel {
     title: qsTr("More actions")
     width: SimpleTheme.px(720)
     height: Math.min(SimpleTheme.px(880), col.height + SimpleTheme.px(130))
-    property string open: ""            // "" | arm | speed | home | messages
+    property string open: ""            // "" | arm | speed | home | custom | messages
+    property int    customAsk: -1       // custom action waiting for "Send"
     property real   speed: 5
-    onVisibleChanged: open = ""
+    onVisibleChanged: { open = ""; customAsk = -1 }
+
+    CustomActionManager { id: customManager }
+    readonly property bool hasCustom: !!QGroundControl.settingsManager.flyViewSettings.enableCustomActions.rawValue && customManager.hasActions
 
     function act(code, data, value) { if (guided) guided.executeAction(code, data === undefined ? null : data, value === undefined ? 0 : value, false) }
 
@@ -111,6 +118,65 @@ SPanel {
                         SButton { visible: more.open === "home"; designHeight: 72; textSize: 24; kind: "primary"; text: qsTr("Set home")
                                   onClicked: { var c = more._veh.coordinate; more.act(more.guided.actionSetHome, QtPositioning.coordinate(c.latitude, c.longitude, c.altitude)); more.open = "" } }
                         SButton { visible: more.open === "home"; designHeight: 72; textSize: 24; text: qsTr("Cancel"); onClicked: more.open = "" }
+                    }
+                }
+            }
+            // Custom actions (S96)
+            Rectangle {
+                visible: more.hasCustom
+                width: col.width; height: visible ? caCol.height + SimpleTheme.px(28) : 0; radius: SimpleTheme.px(18); color: SimpleTheme.surfaceRaised
+                Column {
+                    id: caCol
+                    x: SimpleTheme.px(24); y: SimpleTheme.px(14); width: parent.width - SimpleTheme.px(48)
+                    spacing: SimpleTheme.px(10)
+                    Item {
+                        width: parent.width; height: SimpleTheme.px(64)
+                        Column {
+                            anchors.verticalCenter: parent.verticalCenter
+                            SText { text: qsTr("Custom actions"); size: 28; medium: true }
+                            SText { text: qsTr("From the actions file · %n button(s)", "", customManager.actions.count); size: 22; color: SimpleTheme.textSecondary }
+                        }
+                        SButton { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; designHeight: 64; textSize: 22
+                                  text: more.open === "custom" ? qsTr("Close") : qsTr("Show")
+                                  onClicked: { more.customAsk = -1; more.open = more.open === "custom" ? "" : "custom" } }
+                    }
+                    Flow {
+                        visible: more.open === "custom"
+                        width: parent.width
+                        spacing: SimpleTheme.px(12)
+                        Repeater {
+                            model: customManager.actions
+                            SButton {
+                                designHeight: 64; textSize: 22
+                                text: object.label
+                                enabled_: !!more._veh
+                                kind: more.customAsk === index ? "primary" : "secondary"
+                                onClicked: if (enabled_) more.customAsk = index
+                            }
+                        }
+                    }
+                    Rectangle {
+                        visible: more.open === "custom" && more.customAsk >= 0
+                        width: parent.width; height: askCol.height + SimpleTheme.px(24); radius: SimpleTheme.px(14)
+                        color: SimpleTheme.withAlpha(SimpleTheme.warn, 0.18)
+                        Column {
+                            id: askCol
+                            x: SimpleTheme.px(16); y: SimpleTheme.px(12); width: parent.width - SimpleTheme.px(32)
+                            spacing: SimpleTheme.px(10)
+                            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; medium: true
+                                    text: more.customAsk >= 0 && more.customAsk < customManager.actions.count
+                                          ? qsTr("Send “%1” to the drone now?").arg(customManager.actions.get(more.customAsk).label) : "" }
+                            Row {
+                                spacing: SimpleTheme.px(12)
+                                SButton { designHeight: 60; textSize: 22; text: qsTr("Cancel"); onClicked: more.customAsk = -1 }
+                                SButton { designHeight: 60; textSize: 22; kind: "primary"; text: qsTr("Send"); enabled_: !!more._veh
+                                          onClicked: {
+                                              if (!enabled_ || more.customAsk < 0) return
+                                              customManager.actions.get(more.customAsk).sendTo(more._veh)
+                                              more.customAsk = -1
+                                          } }
+                            }
+                        }
                     }
                 }
             }

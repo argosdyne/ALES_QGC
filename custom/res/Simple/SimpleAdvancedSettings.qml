@@ -5,12 +5,15 @@
  * Devices (S69): every service that opens a port or connects by itself, off unless needed (CE RED / EN 18031).
  ****************************************************************************/
 import QtQuick 2.12
+import Qt.labs.folderlistmodel 2.12
 import QGroundControl 1.0
+import QGroundControl.Controllers 1.0
 import "."
 
 Column {
     id: adv
     property string category: "video"
+    signal openCategory(string key)       // sub-pages of the Settings frame (S95 gamepad)
     spacing: SimpleTheme.px(14)
 
     readonly property var _sm:    QGroundControl.settingsManager
@@ -102,7 +105,53 @@ Column {
             SSettingRow { title: qsTr("Extra compass marks"); sub: qsTr("Home and next waypoint on the compass"); SFactToggle { fact: adv._fly.showAdditionalIndicatorsCompass } }
             SSettingRow { title: qsTr("Go here: maximum distance"); sub: qsTr("Farther taps are refused"); SFactField { fact: adv._fly.maxGoToLocationDistance; step: 100; decimals: 0; designWidth: 380 } }
             SSettingRow { title: qsTr("Go here: height reference"); sub: qsTr("What the Go here height is measured from"); SFactField { fact: adv._fly.gotoAltitudeReference; designWidth: 380 } }
-            SSettingRow { title: qsTr("Custom actions"); sub: qsTr("Extra buttons from a file (classic screens)"); SFactToggle { fact: adv._fly.enableCustomActions } }
+            // Custom actions (S96): buttons in Fly › More actions, from a .json file in the CustomActions folder
+            SSettingRow { title: qsTr("Custom actions"); sub: qsTr("Extra buttons in Fly › More actions, from a file"); SFactToggle { fact: adv._fly.enableCustomActions } }
+            SSettingRow {
+                id: caRow
+                visible: !!adv._fly.enableCustomActions.rawValue
+                readonly property string dir: adv._app.customActionsSavePath
+                readonly property string file: String(adv._fly.customActionDefinitions.rawValue)
+                readonly property var names: {
+                    var l = []
+                    for (var i = 0; i < caFiles.count; i++) l.push(caFiles.get(i, "fileName"))
+                    var cur = file.replace(/\\/g, "/").split("/").pop()
+                    if (file !== "" && l.indexOf(cur) < 0) l.push(cur)
+                    return l
+                }
+                function pathOf(name) { return (dir.charAt(dir.length - 1) === "/" ? dir : dir + "/") + name }
+                // no file chosen yet: use the first .json in the folder (as the classic page did on tablets)
+                function autoPick() {
+                    if (adv._fly.enableCustomActions.rawValue && file === "" && caFiles.count > 0)
+                        adv._fly.customActionDefinitions.rawValue = pathOf(caFiles.get(0, "fileName"))
+                }
+                onVisibleChanged: autoPick()
+                title: qsTr("Actions file")
+                sub: caRow.file === "" ? qsTr("Put a .json file in %1").arg(caRow.dir)
+                   : caManager.hasActions ? qsTr("%n action(s) loaded", "", caManager.actions.count)
+                   : qsTr("No actions in this file (check the file format)")
+                FolderListModel {
+                    id: caFiles
+                    folder: caRow.dir === "" ? "" : (caRow.dir.charAt(0) === "/" ? "file://" : "file:///") + caRow.dir
+                    nameFilters: ["*.json"]; showDirs: false; showDotAndDotDot: false
+                    sortField: FolderListModel.Name
+                    onCountChanged: caRow.autoPick()
+                }
+                CustomActionManager { id: caManager }
+                Row {
+                    spacing: SimpleTheme.px(10)
+                    SComboBox {
+                        designWidth: 360
+                        anchors.verticalCenter: parent.verticalCenter
+                        enabled: caRow.names.length > 0
+                        model: caRow.names.length ? caRow.names : [qsTr("No file")]
+                        currentIndex: Math.max(0, caRow.names.indexOf(caRow.file.replace(/\\/g, "/").split("/").pop()))
+                        onActivated: if (index < caRow.names.length) adv._fly.customActionDefinitions.rawValue = caRow.pathOf(caRow.names[index])
+                    }
+                    SButton { designHeight: 64; textSize: 22; text: qsTr("Reload"); anchors.verticalCenter: parent.verticalCenter
+                              onClicked: adv._fly.customActionDefinitions.valueChanged(adv._fly.customActionDefinitions.rawValue) }
+                }
+            }
         }
     }
 
@@ -116,7 +165,6 @@ Column {
             SSettingRow { title: qsTr("Default mission height"); sub: qsTr("Height of new waypoints"); SFactField { fact: adv._app.defaultMissionItemAltitude; step: 5; decimals: 0; designWidth: 380 } }
             SSettingRow { title: qsTr("Take-off item not required"); sub: qsTr("Allow missions without a take-off item (not recommended)"); SFactToggle { fact: adv._plan.takeoffItemNotRequired } }
             SSettingRow { title: qsTr("Wait at each item (condition gate)"); sub: qsTr("Use CONDITION_GATE between items"); SFactToggle { fact: adv._plan.useConditionGate } }
-            SSettingRow { title: qsTr("Show mission progress"); sub: qsTr("Item status during a mission (classic plan screen)"); SFactToggle { fact: adv._plan.showMissionItemStatus } }
         }
     }
 
@@ -205,6 +253,14 @@ Column {
                           SFactField { fact: adv._rtk.surveyInMinObservationDuration; designWidth: 380 } }
             SSettingRow { title: qsTr("Serial auto-connect · USB"); sub: qsTr("Connects to a flight controller or radio plugged in by USB.")
                           SToggle { id: serT; checked: dv.serialOn; onToggled: { dv.setSerial(checked); serT.checked = Qt.binding(function() { return dv.serialOn }) } } }
+            SSettingRow {
+                readonly property var _joy: typeof joystickManager !== "undefined" ? joystickManager.activeJoystick : null
+                title: qsTr("USB gamepad")
+                sub: _joy ? qsTr("%1 · fly with a gamepad instead of the on-screen sticks").arg(_joy.name) : qsTr("Fly with a gamepad instead of the on-screen sticks. None found.")
+                clickable: true
+                onClicked: adv.openCategory("gamepad")
+                SIcon { name: "chevron"; size: 40; opacity: 0.7 }
+            }
             SSettingRow { title: qsTr("Zero-Conf · mDNS"); sub: qsTr("Connects to any MAVLink service announced on the network. Off by default."); SFactToggle { fact: adv._auto.autoConnectZeroConf } }
             SSettingRow { title: qsTr("M2 radio discovery · UDP 10010"); sub: qsTr("Listens for an M2 radio and closes when it is found. Always on.")
                           SStatusChip { text: qsTr("Product"); level: "info" } }
