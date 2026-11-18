@@ -60,7 +60,11 @@ Item {
         if (_usePayload) {
             _activePayload.gimbalHome()
         } else if (_mavlinkCamera) {
-            _mavlinkCamera.centerGimbal()
+            if (typeof _mavlinkCamera.resetGimbalAndZoom === "function") {
+                _mavlinkCamera.resetGimbalAndZoom()
+            } else {
+                _mavlinkCamera.centerGimbal()
+            }
         }
     }
 
