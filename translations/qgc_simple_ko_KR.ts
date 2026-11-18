@@ -6753,26 +6753,6 @@
         <translation>비행 화면</translation>
     </message>
     <message>
-        <source>Checks before take-off, the map and the instruments.</source>
-        <translation>이륙 전 점검, 지도, 계기 표시입니다.</translation>
-    </message>
-    <message>
-        <source>Pre-flight checklist</source>
-        <translation>비행 전 체크리스트</translation>
-    </message>
-    <message>
-        <source>Show the checklist before take-off</source>
-        <translation>이륙 전에 체크리스트를 보여 줍니다</translation>
-    </message>
-    <message>
-        <source>Checklist must be done</source>
-        <translation>체크리스트 필수</translation>
-    </message>
-    <message>
-        <source>Take-off waits until every item is ticked</source>
-        <translation>모든 항목을 체크해야 이륙할 수 있습니다</translation>
-    </message>
-    <message>
         <source>Keep the map on the drone</source>
         <translation>지도를 드론에 맞춤</translation>
     </message>
@@ -6795,22 +6775,6 @@
     <message>
         <source>On-screen throttle centres itself</source>
         <translation>화면 스로틀이 가운데로 돌아옵니다</translation>
-    </message>
-    <message>
-        <source>Compass: nose up</source>
-        <translation>나침반: 기수 위</translation>
-    </message>
-    <message>
-        <source>The compass turns, the drone symbol points up</source>
-        <translation>나침반이 돌고 드론 기호는 위를 향합니다</translation>
-    </message>
-    <message>
-        <source>Extra compass marks</source>
-        <translation>나침반 추가 표시</translation>
-    </message>
-    <message>
-        <source>Home and next waypoint on the compass</source>
-        <translation>나침반에 홈과 다음 웨이포인트 표시</translation>
     </message>
     <message>
         <source>Go here: maximum distance</source>
@@ -7135,6 +7099,10 @@
     <message>
         <source>Fly with a gamepad instead of the on-screen sticks. None found.</source>
         <translation>화면 스틱 대신 게임패드로 조종합니다. 연결된 게임패드 없음.</translation>
+    </message>
+    <message>
+        <source>The map, on-screen sticks, Go here and extra buttons.</source>
+        <translation>지도, 화면 스틱, 여기로 이동, 추가 버튼입니다.</translation>
     </message>
 </context>
 <context>

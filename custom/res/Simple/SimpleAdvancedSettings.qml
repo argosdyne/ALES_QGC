@@ -93,16 +93,11 @@ Column {
         Column {
             spacing: SimpleTheme.px(14)
             SText { text: qsTr("Fly screen"); size: 40; bold: true }
-            SText { text: qsTr("Checks before take-off, the map and the instruments."); size: 24; color: SimpleTheme.textSecondary }
-            SSettingRow { title: qsTr("Pre-flight checklist"); sub: qsTr("Show the checklist before take-off"); SFactToggle { fact: adv._app.useChecklist } }
-            SSettingRow { visible: !!adv._app.useChecklist.rawValue; title: qsTr("Checklist must be done"); sub: qsTr("Take-off waits until every item is ticked")
-                          SFactToggle { fact: adv._app.enforceChecklist } }
+            SText { text: qsTr("The map, on-screen sticks, Go here and extra buttons."); size: 24; color: SimpleTheme.textSecondary }
             SSettingRow { title: qsTr("Keep the map on the drone"); sub: qsTr("The map follows the drone"); SFactToggle { fact: adv._fly.keepMapCenteredOnVehicle } }
             SSettingRow { title: qsTr("On-screen sticks"); sub: qsTr("Virtual joystick for flying without a controller"); SFactToggle { fact: adv._app.virtualJoystick } }
             SSettingRow { visible: !!adv._app.virtualJoystick.rawValue; title: qsTr("Throttle stick returns to the middle"); sub: qsTr("On-screen throttle centres itself")
                           SFactToggle { fact: adv._app.virtualJoystickAutoCenterThrottle } }
-            SSettingRow { title: qsTr("Compass: nose up"); sub: qsTr("The compass turns, the drone symbol points up"); SFactToggle { fact: adv._fly.lockNoseUpCompass } }
-            SSettingRow { title: qsTr("Extra compass marks"); sub: qsTr("Home and next waypoint on the compass"); SFactToggle { fact: adv._fly.showAdditionalIndicatorsCompass } }
             SSettingRow { title: qsTr("Go here: maximum distance"); sub: qsTr("Farther taps are refused"); SFactField { fact: adv._fly.maxGoToLocationDistance; step: 100; decimals: 0; designWidth: 380 } }
             SSettingRow { title: qsTr("Go here: height reference"); sub: qsTr("What the Go here height is measured from"); SFactField { fact: adv._fly.gotoAltitudeReference; designWidth: 380 } }
             // Custom actions (S96): buttons in Fly › More actions, from a .json file in the CustomActions folder

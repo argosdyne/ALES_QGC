@@ -70,6 +70,11 @@ Item {
     }
 
     Component.onCompleted: {
+        // The classic pre-flight checklist popup is gone with the classic fly widgets (2026-11-18); S02 is the
+        // checklist. A checklist switched on earlier would block take-off in GuidedActionsController: turn it off.
+        var app = QGroundControl.settingsManager.appSettings
+        if (app.useChecklist.rawValue) app.useChecklist.rawValue = false
+        if (app.enforceChecklist.rawValue) app.enforceChecklist.rawValue = false
         // Settings › Payloads › gimbal speed is an app setting; the payload controllers keep it only in memory
         var gs = Number(_custom.simpleGimbalSpeed.rawValue)
         if (PayloadManager.gremsy)     PayloadManager.gremsy.speedDegPerSec = [35, 70, 105][gs]
