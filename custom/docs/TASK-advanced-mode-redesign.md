@@ -150,11 +150,15 @@ marks (classic compass only), "Show mission progress".
 | D1 | 403f7edb0 | 129 QML files nothing can load (reachability from MainRootWindow, Simple, unit tests, C++ / JSON URLs) |
 
 Open (ask the user): classic pages still named by C++ (APM setup pages, settings / analyze pages, mission item
-editors, toolbar indicators) stay until the C++ references are cut (D2). Settings still only in deleted / unreachable
-classic pages — the Simple screens point to "Advanced ›" for them: YellowScan LiDAR setup (scanner sensitivity and
-pattern, MAVLink, timing), SAFE-T station setup (frame version, winch protection, control timing, Wi-Fi, admin
-items), camera resolution / file format / SD card format, gimbal servo channels / PWM / stabilisation; ArduPilot
-Remote Support (log forwarding to the ArduPilot support server).
+editors, toolbar indicators) stay until the C++ references are cut (D2).
+
+Classic-only settings (user 2026-11-18: "Build camera and gimbal screens; drop the rest"):
+| Item | Result |
+|---|---|
+| Camera resolution / file format / SD card format / reset | S100 `SimpleCameraAll.qml` (Figma 175:46891), from S43 "More camera settings ›" |
+| Gimbal servo outputs / PWM / reverse, roll and pan ranges, start-up mode | S101 in `SimpleSetupGimbal.qml` (Figma 176:47788) |
+| YellowScan LiDAR setup, SAFE-T station setup, ArduPilot Remote Support | dropped; the "Advanced ›" hints are removed |
+| SAFE-T "confirm the tethered drone" (classic tether panel, removed in stage B) | S50 banner action "Yes, this drone" (`associateNoPowerVehicle`) |
 
 ## Tests
 
