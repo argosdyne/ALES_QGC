@@ -204,6 +204,8 @@ signals:
 
     void axisFrequencyHzChanged     ();
     void buttonFrequencyHzChanged   ();
+    // Emitted on the joystick thread. The slot runs on the joystick object's thread.
+    void _apmRtlExitRequested       ();
     void startContinuousZoom        (int direction);
     void stopContinuousZoom         ();
     void stepZoom                   (int direction);
@@ -291,6 +293,8 @@ protected:
     float   _axisFrequencyHz        = _defaultAxisFrequencyHz;
     float   _buttonFrequencyHz      = _defaultButtonFrequencyHz;
     Vehicle* _activeVehicle         = nullptr;
+    int     _rcChannelCount         = 0;
+    int     _rcChannelPwm[Vehicle::cMaxRcChannels];
 
     bool    _pollingStartedForCalibration = false;
     bool    _gimbalAxisActive       = false;    ///< true while an analog gimbal axis is being deflected
@@ -389,4 +393,8 @@ private slots:
     void _activeVehicleChanged(Vehicle* activeVehicle);
     void _vehicleCountChanged(int count);
     void _flightModesChanged();
+    void _rcChannelsChanged(int channelCount, int pwmValues[Vehicle::cMaxRcChannels]);
+    // APM joystick RTL is a second press, not a switch release. Leave RTL for the
+    // flight-mode switch slot (FLTMODE_CH / MODE_CH PWM -> FLTMODEn / MODEn).
+    void _exitApmRtlToFlightModeSwitch();
 };
