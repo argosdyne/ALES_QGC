@@ -145,6 +145,7 @@ public:
     bool hasTrackingRectangle() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_RECTANGLE; }
     bool hasTrackingGeoStatus() { return _info.flags & CAMERA_CAP_FLAGS_HAS_TRACKING_GEO_STATUS; }
     Q_INVOKABLE void centerGimbal();
+    Q_INVOKABLE void resetGimbalAndZoom();
     Q_INVOKABLE void syncZoomUiAfterReset();
 
     Q_INVOKABLE void setSpotTempPoint(float x, float y);
@@ -374,6 +375,12 @@ private:
     qint64 _zoomSettingsSyncSuppressUntilMs{0};
     QTimer _postZoomSettingsSyncTimer;
     QTimer _zoomSettleTimer;
+    QTimer _zoomResetTimeoutTimer;
+    bool _zoomResetPending{false};
+    bool _zoomResetAcked{false};
+    void _cancelZoomReset();
+    bool _handleZoomResetReport(float reported);
+    void _onZoomResetTimeout();
     void _onZoomHoldReleased();
     void _sendZoomSettle();
     bool _hasPendingZoomCommand() const;

@@ -524,11 +524,6 @@ void TransectStyleComplexItem::_rebuildTransects(void)
 {
     qInfo() << "rebuildTransects";
     qInfo() << "_cameraBrand = " << _cameraCalc._cameraBrand;
-    if(_cameraCalc._cameraBrand == "Yellow Scan" || _cameraCalc._cameraBrand == "Green Valley"){
-        qInfo() << "transects is ys lidar";
-        return;
-    }
-
     if (_ignoreRecalc) {
         return;
     }

@@ -3468,6 +3468,24 @@ void Vehicle::emergencyStop()
                 21196.0f);  // Magic number for emergency stop
 }
 
+void Vehicle::motorEmergencyStop()
+{
+    if (!apmFirmware()) {
+        emergencyStop();
+        return;
+    }
+
+    // ArduPilot RCn_OPTION 31, Motor Emergency Stop, switch high.
+    // MAV_CMD_DO_AUX_FUNCTION is 218. The switch level high value is 2.
+    // The default MAVLink dialect in this tree does not always define those names.
+    sendMavCommand(
+                _defaultComponentId,
+                static_cast<MAV_CMD>(218),
+                true,        // show error if fails
+                31.0f,
+                2.0f);
+}
+
 void Vehicle::landingGearDeploy()
 {
     sendMavCommand(
