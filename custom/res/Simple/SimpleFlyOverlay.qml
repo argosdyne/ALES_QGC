@@ -513,6 +513,8 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         y: topBar.height + SimpleTheme.px(24)
         spacing: SimpleTheme.px(12)
+        // S91 / S92 mission result after landing (replaces the classic "Flight Plan complete" popup)
+        SimpleMissionResult { id: missionResult; vs: fly.vs; onToast: fly.toast(text) }
         SBanner {
             visible: vs.state === "lost"
             level: "danger"; icon: "signal"

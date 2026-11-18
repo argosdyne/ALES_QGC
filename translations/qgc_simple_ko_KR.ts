@@ -8002,4 +8002,79 @@
         <translation>설치 중에는 드론을 분리하지 마세요. 전원이 끊기면 다시 연결해 한 번 더 설치하세요.</translation>
     </message>
 </context>
+<context>
+    <name>SimpleMissionResult</name>
+    <message>
+        <source>Mission</source>
+        <translation>미션</translation>
+    </message>
+    <message>
+        <source>Mission complete</source>
+        <translation>미션 완료</translation>
+    </message>
+    <message>
+        <source>Mission not finished</source>
+        <translation>미션 미완료</translation>
+    </message>
+    <message>
+        <source>%1 · stopped after waypoint %2</source>
+        <translation>%1 · 웨이포인트 %2 뒤에 멈춤</translation>
+    </message>
+    <message>
+        <source>FLIGHT TIME</source>
+        <translation>비행 시간</translation>
+    </message>
+    <message>
+        <source>DISTANCE</source>
+        <translation>거리</translation>
+    </message>
+    <message>
+        <source>PHOTOS</source>
+        <translation>사진</translation>
+    </message>
+    <message>
+        <source>BATTERY</source>
+        <translation>배터리</translation>
+    </message>
+    <message>
+        <source>Flight log saved.</source>
+        <translation>비행 로그를 저장했습니다.</translation>
+    </message>
+    <message>
+        <source>Ready: the next flight starts at waypoint %1.</source>
+        <translation>준비됨: 다음 비행은 웨이포인트 %1부터 시작합니다.</translation>
+    </message>
+    <message>
+        <source>The mission stays on the drone: Start mission flies it again.</source>
+        <translation>미션은 드론에 남아 있습니다: 미션 시작으로 다시 비행합니다.</translation>
+    </message>
+    <message>
+        <source>Next flight can continue from waypoint %1 (photos already taken are kept).</source>
+        <translation>다음 비행에서 웨이포인트 %1부터 이어서 할 수 있습니다 (찍은 사진은 그대로 남습니다).</translation>
+    </message>
+    <message>
+        <source>Remove mission from drone</source>
+        <translation>드론에서 미션 지우기</translation>
+    </message>
+    <message>
+        <source>Remove from drone</source>
+        <translation>드론에서 지우기</translation>
+    </message>
+    <message>
+        <source>Mission removed from the drone</source>
+        <translation>드론에서 미션을 지웠습니다</translation>
+    </message>
+    <message>
+        <source>Keep as is</source>
+        <translation>그대로 두기</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+    <message>
+        <source>Continue from waypoint %1</source>
+        <translation>웨이포인트 %1부터 이어서</translation>
+    </message>
+</context>
 </TS>

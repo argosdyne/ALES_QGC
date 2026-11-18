@@ -213,6 +213,7 @@
         <file alias="SimpleSetupSafety.qml">res/Simple/SimpleSetupSafety.qml</file>
         <file alias="SimpleSetupPower.qml">res/Simple/SimpleSetupPower.qml</file>
         <file alias="SimpleSetupRadio.qml">res/Simple/SimpleSetupRadio.qml</file>
+        <file alias="SimpleMissionResult.qml">res/Simple/SimpleMissionResult.qml</file>
         <file alias="SimpleSetupFirmware.qml">res/Simple/SimpleSetupFirmware.qml</file>
         <file alias="SimpleFolderPicker.qml">res/Simple/SimpleFolderPicker.qml</file>
         <file alias="SimpleInspectorChart.qml">res/Simple/SimpleInspectorChart.qml</file>

@@ -81,3 +81,4 @@ SimpleLogCategories 1.0 SimpleLogCategories.qml
 SimpleInspectorChart 1.0 SimpleInspectorChart.qml
 SimpleFolderPicker 1.0 SimpleFolderPicker.qml
 SimpleSetupFirmware 1.0 SimpleSetupFirmware.qml
+SimpleMissionResult 1.0 SimpleMissionResult.qml
