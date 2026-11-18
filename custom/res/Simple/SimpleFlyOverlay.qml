@@ -237,7 +237,6 @@ Item {
         maxHeight: SimpleTheme.px(810) - y
         vehicle: fly._veh
         onCloseRequested: fly.cameraOpen = false
-        onAdvancedRequested: { fly.cameraOpen = false; simpleRoot.requestAdvanced("advanced") }
     }
 
     //------------------------------------------------------------------ S78 Advanced: six more values, right of the telemetry bar

@@ -496,10 +496,6 @@
         <translation>발전기와 지상 유닛을 점검하세요. 전원이 돌아오지 않으면 착륙하세요.</translation>
     </message>
     <message>
-        <source>Confirm the tethered drone in the Advanced tether panel first.</source>
-        <translation>먼저 Advanced 테더 패널에서 연결된 드론을 확인하세요.</translation>
-    </message>
-    <message>
         <source>Continue</source>
         <translation>계속</translation>
     </message>
@@ -626,6 +622,18 @@
     <message>
         <source>TO NEXT WP</source>
         <translation>다음 지점까지</translation>
+    </message>
+    <message>
+        <source>Is drone %1 the one on this tether? Check it, then confirm. Confirming sends nothing to the drone.</source>
+        <translation>테더에 연결된 드론이 %1번 드론인가요? 확인한 뒤 눌러 주세요. 드론에는 아무 명령도 보내지 않습니다.</translation>
+    </message>
+    <message>
+        <source>The drone on the tether is not connected. Land it with its own controls.</source>
+        <translation>테더에 연결된 드론이 연결되어 있지 않습니다. 드론 조종기로 착륙시키세요.</translation>
+    </message>
+    <message>
+        <source>Yes, this drone</source>
+        <translation>예, 이 드론입니다</translation>
     </message>
 </context>
 <context>
@@ -2751,10 +2759,6 @@
         <translation>지상에서(모터 정지) 바꾸세요</translation>
     </message>
     <message>
-        <source>Changed only by an administrator in Advanced › Station Setup</source>
-        <translation>관리자만 고급 › 스테이션 설정에서 바꿀 수 있습니다</translation>
-    </message>
-    <message>
         <source>Computer temperature</source>
         <translation>내부 컴퓨터 온도</translation>
     </message>
@@ -2877,10 +2881,6 @@
     <message>
         <source>Locked: the station reports no power</source>
         <translation>잠금: 스테이션이 전원 없음을 알림</translation>
-    </message>
-    <message>
-        <source>Look down when mapping and gimbal calibration: next version. Servo channels, PWM limits and stabilisation are in Advanced › Vehicle setup › Camera.</source>
-        <translation>매핑 시 수직 촬영과 짐벌 보정: 다음 버전. 서보 채널, PWM 범위, 안정화는 고급 › 기체 설정 › 카메라에 있습니다.</translation>
     </message>
     <message>
         <source>Lowest tilt</source>
@@ -3023,10 +3023,6 @@
         <translation>저장</translation>
     </message>
     <message>
-        <source>Scanner sensitivity and pattern (Mapper+ only), MAVLink and timing are in Advanced › LiDAR Setup.</source>
-        <translation>스캐너 감도와 패턴(Mapper+ 전용), MAVLink, 시간 설정은 고급 › LiDAR 설정에 있습니다.</translation>
-    </message>
-    <message>
         <source>Shows the LiDAR panel and checks in flight</source>
         <translation>비행 중 LiDAR 패널과 점검을 표시합니다</translation>
     </message>
@@ -3091,10 +3087,6 @@
         <translation>LiDAR는 정상 또는 경고만 알립니다</translation>
     </message>
     <message>
-        <source>These settings need station frame version Extended V1 · see Advanced › Station Setup</source>
-        <translation>이 설정은 스테이션 프레임 버전 Extended V1이 필요합니다 · 고급 › 스테이션 설정 참고</translation>
-    </message>
-    <message>
         <source>This drone has no gimbal tilt limit parameters.</source>
         <translation>이 드론에는 짐벌 기울기 한계 파라미터가 없습니다.</translation>
     </message>
@@ -3121,10 +3113,6 @@
     <message>
         <source>Warn only</source>
         <translation>경고만</translation>
-    </message>
-    <message>
-        <source>Winch protection, control timing, frame version and Wi-Fi are in Advanced › Station Setup.</source>
-        <translation>윈치 보호, 제어 주기, 프레임 버전, Wi-Fi는 고급 › 스테이션 설정에 있습니다.</translation>
     </message>
     <message>
         <source>YellowScan LiDAR</source>
@@ -3357,6 +3345,18 @@
     <message>
         <source>Connect the drone to change these settings.</source>
         <translation>이 설정을 바꾸려면 드론을 연결하세요.</translation>
+    </message>
+    <message>
+        <source>These settings need station frame version Extended V1</source>
+        <translation>이 설정은 스테이션 프레임 버전 Extended V1에서만 바꿀 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Set on the station by an administrator</source>
+        <translation>관리자가 스테이션에서 설정합니다</translation>
+    </message>
+    <message>
+        <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
+        <translation>짐벌 종류, 서보 출력, 각도 범위: 기체 설정 › 짐벌 ›</translation>
     </message>
 </context>
 <context>
@@ -4216,10 +4216,6 @@
         <translation>사진</translation>
     </message>
     <message>
-        <source>Resolution, file format, format SD card: Advanced mode ›</source>
-        <translation>해상도, 파일 형식, SD 포맷: Advanced 모드 ›</translation>
-    </message>
-    <message>
         <source>SD card</source>
         <translation>SD 카드</translation>
     </message>
@@ -4238,6 +4234,10 @@
     <message>
         <source>Video</source>
         <translation>영상</translation>
+    </message>
+    <message>
+        <source>More camera settings ›</source>
+        <translation>카메라 설정 더 보기 ›</translation>
     </message>
 </context>
 <context>
@@ -6464,6 +6464,62 @@
         <source>No gimbal is set. Choose the gimbal type above, then restart the drone.</source>
         <translation>설정된 짐벌이 없습니다. 위에서 짐벌 종류를 고르고 드론을 다시 시작하세요.</translation>
     </message>
+    <message>
+        <source>Output %1</source>
+        <translation>출력 %1</translation>
+    </message>
+    <message>
+        <source>Restart the drone to use the new gimbal type or outputs.</source>
+        <translation>새 짐벌 종류나 출력을 쓰려면 드론을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>Roll range</source>
+        <translation>롤 범위</translation>
+    </message>
+    <message>
+        <source>Left and right tilt of the camera</source>
+        <translation>카메라의 좌우 기울기</translation>
+    </message>
+    <message>
+        <source>Pan range</source>
+        <translation>팬 범위</translation>
+    </message>
+    <message>
+        <source>SERVO OUTPUTS — which drone output drives each axis, its PWM range and direction</source>
+        <translation>서보 출력 — 축마다 쓰는 드론 출력, PWM 범위, 방향</translation>
+    </message>
+    <message>
+        <source>Tilt servo</source>
+        <translation>틸트 서보</translation>
+    </message>
+    <message>
+        <source>Roll servo</source>
+        <translation>롤 서보</translation>
+    </message>
+    <message>
+        <source>Pan servo</source>
+        <translation>팬 서보</translation>
+    </message>
+    <message>
+        <source>Output · PWM range · reverse</source>
+        <translation>출력 · PWM 범위 · 반전</translation>
+    </message>
+    <message>
+        <source>Not connected to a drone output</source>
+        <translation>드론 출력에 연결되지 않음</translation>
+    </message>
+    <message>
+        <source>Reverse</source>
+        <translation>반전</translation>
+    </message>
+    <message>
+        <source>At start-up</source>
+        <translation>시작할 때</translation>
+    </message>
+    <message>
+        <source>Where the gimbal points when the drone starts</source>
+        <translation>드론이 시작할 때 짐벌이 향하는 방향</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupTuning</name>
@@ -8497,6 +8553,141 @@
     <message>
         <source>Reading MIS_OPTIONS…</source>
         <translation>MIS_OPTIONS 읽는 중…</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleCameraAll</name>
+    <message>
+        <source>All camera settings</source>
+        <translation>카메라 전체 설정</translation>
+    </message>
+    <message>
+        <source>What the camera reports — the list differs by camera.</source>
+        <translation>카메라가 알려 주는 설정입니다. 카메라마다 목록이 다릅니다.</translation>
+    </message>
+    <message>
+        <source>Camera %1</source>
+        <translation>카메라 %1</translation>
+    </message>
+    <message>
+        <source>firmware %1</source>
+        <translation>펌웨어 %1</translation>
+    </message>
+    <message>
+        <source>The drone reports no camera with settings.</source>
+        <translation>드론에 설정할 수 있는 카메라가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>PHOTO &amp; VIDEO</source>
+        <translation>사진 및 동영상</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation>화면</translation>
+    </message>
+    <message>
+        <source>Thermal view</source>
+        <translation>열화상 보기</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>끔</translation>
+    </message>
+    <message>
+        <source>Blend</source>
+        <translation>겹치기</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>전체</translation>
+    </message>
+    <message>
+        <source>Picture in picture</source>
+        <translation>화면 속 화면</translation>
+    </message>
+    <message>
+        <source>How much of the thermal picture shows</source>
+        <translation>열화상이 보이는 정도</translation>
+    </message>
+    <message>
+        <source>Video fit</source>
+        <translation>영상 맞춤</translation>
+    </message>
+    <message>
+        <source>How the video fills the screen</source>
+        <translation>영상을 화면에 맞추는 방식</translation>
+    </message>
+    <message>
+        <source>SD CARD</source>
+        <translation>SD 카드</translation>
+    </message>
+    <message>
+        <source>No SD card</source>
+        <translation>SD 카드 없음</translation>
+    </message>
+    <message>
+        <source>SD card not formatted</source>
+        <translation>SD 카드가 포맷되지 않음</translation>
+    </message>
+    <message>
+        <source>%1 free of %2</source>
+        <translation>%2 중 %1 남음</translation>
+    </message>
+    <message>
+        <source>%1 free</source>
+        <translation>%1 남음</translation>
+    </message>
+    <message>
+        <source>Stop recording and photos first</source>
+        <translation>먼저 녹화와 촬영을 멈추세요</translation>
+    </message>
+    <message>
+        <source>Format SD card…</source>
+        <translation>SD 카드 포맷…</translation>
+    </message>
+    <message>
+        <source>Camera settings back to factory values</source>
+        <translation>카메라 설정을 공장 값으로 되돌리기</translation>
+    </message>
+    <message>
+        <source>Reset camera…</source>
+        <translation>카메라 초기화…</translation>
+    </message>
+    <message>
+        <source>Erase all photos and videos on the camera's SD card? This cannot be undone.</source>
+        <translation>카메라 SD 카드의 사진과 동영상을 모두 지울까요? 되돌릴 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Set every camera setting back to its factory value?</source>
+        <translation>카메라 설정을 모두 공장 값으로 되돌릴까요?</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Erase SD card</source>
+        <translation>SD 카드 지우기</translation>
+    </message>
+    <message>
+        <source>Reset camera</source>
+        <translation>카메라 초기화</translation>
+    </message>
+    <message>
+        <source>Formatting the SD card…</source>
+        <translation>SD 카드를 포맷하는 중…</translation>
+    </message>
+    <message>
+        <source>Camera settings reset.</source>
+        <translation>카메라 설정을 초기화했습니다.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
     </message>
 </context>
 </TS>

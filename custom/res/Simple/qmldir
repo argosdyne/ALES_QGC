@@ -30,6 +30,7 @@ SimpleAltitudeSheet 1.0 SimpleAltitudeSheet.qml
 SHoldButton 1.0 SHoldButton.qml
 SPayloadCard 1.0 SPayloadCard.qml
 SimpleCameraSheet 1.0 SimpleCameraSheet.qml
+SimpleCameraAll 1.0 SimpleCameraAll.qml
 SimpleTetherCard 1.0 SimpleTetherCard.qml
 SimpleWaypointEditor 1.0 SimpleWaypointEditor.qml
 SimpleScanSettings 1.0 SimpleScanSettings.qml

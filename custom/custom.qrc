@@ -156,6 +156,7 @@
         <file alias="SPayloadCard.qml">res/Simple/SPayloadCard.qml</file>
         <file alias="SimplePayloadPrefs.qml">res/Simple/SimplePayloadPrefs.qml</file>
         <file alias="SimpleCameraSheet.qml">res/Simple/SimpleCameraSheet.qml</file>
+        <file alias="SimpleCameraAll.qml">res/Simple/SimpleCameraAll.qml</file>
         <file alias="SimpleTetherCard.qml">res/Simple/SimpleTetherCard.qml</file>
         <file alias="SimpleWaypointEditor.qml">res/Simple/SimpleWaypointEditor.qml</file>
         <file alias="SimpleScanSettings.qml">res/Simple/SimpleScanSettings.qml</file>

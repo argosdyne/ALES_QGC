@@ -7,7 +7,8 @@
  *              camera protocol, so it is not offered here (decision 2026-11-16, Figma S43 note)
  *   Brightness camera definition parameter EO_EV (or CAM_EV); thermal stream: palette IR_PALETTE instead
  *   Grid lines videoSettings.gridLines
- * SD card free space from the camera. Resolution, file format and SD format stay in Advanced mode.
+ * SD card free space from the camera. Everything else (resolution, file format, SD format, reset): S100 "More camera
+ * settings ›" (SimpleCameraAll.qml, 2026-11-18).
  * Same place and size as the Payloads panel (S10); the two are never open together.
  ****************************************************************************/
 import QtQuick 2.12
@@ -17,7 +18,6 @@ import "."
 SPanel {
     id: cs
     property var vehicle: null
-    signal advancedRequested()
 
     readonly property var  _mgr:    vehicle ? vehicle.cameraManager : null
     readonly property var  _cam:    _mgr && _mgr.cameras.count > 0 ? _mgr.cameras.get(_mgr.currentCamera) : null
@@ -56,6 +56,8 @@ SPanel {
     height: Math.min(col.height + SimpleTheme.px(136), maxHeight)
     title:  qsTr("Camera settings")
     titleIcon: "camera"
+
+    SimpleCameraAll { id: allSettings; vehicle: cs.vehicle }
 
     Flickable {
         anchors.fill: parent
@@ -175,9 +177,10 @@ SPanel {
                 }
             }
             SText {
+                visible: !!cs._cam
                 width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textLink
-                text: qsTr("Resolution, file format, format SD card: Advanced mode ›")
-                MouseArea { anchors.fill: parent; onClicked: cs.advancedRequested() }
+                text: qsTr("More camera settings ›")
+                MouseArea { anchors.fill: parent; onClicked: allSettings.open() }
             }
         }
     }

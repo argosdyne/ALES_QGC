@@ -1,9 +1,9 @@
 /****************************************************************************
  * AQGC Simple UI — Settings › Payloads: list (S52) and details for YellowScan LiDAR (S53), tether station
  * SAFE-T (S54) and camera & gimbal (S55). Uses the existing managers only (decision 2026-11-15):
- *   YellowScan  QGroundControl.corePlugin.ysManager + corePlugin.settings ys*      (Advanced › LiDAR Setup)
- *   Tether      QGroundControl.corePlugin.elistairStationManager                 (Advanced › Station Setup)
- *   Camera      PayloadManager (Gremsy Lynx / NextVision) + videoSettings.rtspUrl (Advanced › Payload)
+ *   YellowScan  QGroundControl.corePlugin.ysManager + corePlugin.settings ys*
+ *   Tether      QGroundControl.corePlugin.elistairStationManager
+ *   Camera      PayloadManager (Gremsy Lynx / NextVision) + videoSettings.rtspUrl
  *   Gimbal tilt FC mount parameters MNT1_PITCH_MIN/MAX (deg) or MNT_ANGMIN/MAX_TIL (cdeg), ground only
  * Vision LiDAR (S99, 2026-11-18): BirdCom obstacle sensor (MAVLink component 111) through the fly-view
  *   MissionController calls of the removed classic Plan tool-strip panel (EN_VISIONLIDAR, EN_VL_VALUE, VL_OBA_MODE, VL_DIST).
@@ -255,8 +255,6 @@ Column {
                     text: qsTr("Read from the LiDAR. Changing these needs Set Parameter support in the companion board (not yet available).")
                 }
             }
-            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                    text: qsTr("Scanner sensitivity and pattern (Mapper+ only), MAVLink and timing are in Advanced › LiDAR Setup.") }
         }
     }
 
@@ -275,7 +273,7 @@ Column {
                 if (!pl._st.connected || pl._st.linkLost || !pl._st.hasMonitoring) return qsTr("Connect the station to change its settings")
                 if (pl._st.powerWatts > 200) return qsTr("Locked while flying (station power above 200 W)")
                 if (pl._st.noPower) return qsTr("Locked: the station reports no power")
-                if (pl._st.activeFrameVersion !== "Extended V1") return qsTr("These settings need station frame version Extended V1 · see Advanced › Station Setup")
+                if (pl._st.activeFrameVersion !== "Extended V1") return qsTr("These settings need station frame version Extended V1")
                 return ""
             }
             readonly property bool locked: lockReason !== ""
@@ -298,7 +296,7 @@ Column {
             Connections { target: pl._st; ignoreUnknownSignals: true; function onStationSettingsChanged() { if (!tt.dirty) tt.load() } }
             Component.onCompleted: { load(); if (pl._st && !locked && !pl._st.settingsBusy) pl._st.readSettings() }
             onLockedChanged: if (!locked && pl._st && !pl._st.settingsBusy && !dirty) pl._st.readSettings()
-            Settings { id: maint; category: "SafeTMaintenance"; property int intervalHours: 100 }   // same as Advanced › Station Setup
+            Settings { id: maint; category: "SafeTMaintenance"; property int intervalHours: 100 }   // same key as the removed classic Station Setup
             readonly property real _maintRatio: _set.maintenanceHours === undefined ? -1 : _set.maintenanceHours / maint.intervalHours
 
             BackButton { }
@@ -337,7 +335,7 @@ Column {
                 }
                 CardRow {
                     title: qsTr("If ground power is lost")
-                    sub: qsTr("Changed only by an administrator in Advanced › Station Setup")
+                    sub: qsTr("Set on the station by an administrator")
                     SText { text: !pl._st ? "—" : [qsTr("Recommend landing"), qsTr("Warn only"), qsTr("Auto land")][pl._st.noPowerFailsafe] || "—"; size: 26; bold: true }
                 }
             }
@@ -387,8 +385,6 @@ Column {
                         : pl._st && pl._st.settingsResult !== "" ? pl._st.settingsResult : ""
                 }
             }
-            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                    text: qsTr("Winch protection, control timing, frame version and Wi-Fi are in Advanced › Station Setup.") }
         }
     }
 
@@ -484,8 +480,12 @@ Column {
                     }
                 }
             }
-            SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textTertiary
-                    text: qsTr("Look down when mapping and gimbal calibration: next version. Servo channels, PWM limits and stabilisation are in Advanced › Vehicle setup › Camera.") }
+            SText {
+                visible: QGroundControl.corePlugin.advancedMode
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textLink
+                text: qsTr("Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›")
+                MouseArea { anchors.fill: parent; onClicked: simpleRoot.showVehicleSetup("gimbal") }
+            }
         }
     }
 
