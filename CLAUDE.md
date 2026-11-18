@@ -86,7 +86,8 @@ Reply to the user in Korean unless they write in English.
   Settings › Fly screen; the "Classic alesQGC screens" item and `SimpleRoot.openClassic()` are removed (requestAdvanced
   routes to the Simple screens). The classic QML/C++ stays in the app (not reachable from the Simple UI any more).
   Shared `SSheet.qml` (modal sheet, scrolls when taller than the window) and `SNotice.qml`.
-  **Company reference parameters (user 2026-11-18, not built yet; after the mission-complete screen):**
+  **Company reference parameters (user 2026-11-18, done 2026-11-18, `SimpleReference.qml` singleton; the qrc reads the
+  docs file directly as `/simple/reference/AQUILA-3F.param`):**
   `docs/REF_45_SC_AQ3F_reference.param` (AQUILA-3F, 1010 values, "NAME,value") → bundle in the app and use it for
   S60 "Changed from default" = "differs from the company reference" (show the reference value, "reset to reference");
   leave out per-unit values (compass / accel / gyro / baro offsets and scales, RCn_MIN/MAX/TRIM, AHRS_TRIM, device
@@ -227,8 +228,9 @@ Reply to the user in Korean unless they write in English.
   S69 defaults done (f5ef125a8): RTK base (USB) and Zero-Conf auto-connect off by default. Open ports today: drone link
   UDP 14550/14520/14530 (14530 = NextVision LTE), M2 radio discovery UDP 10010 (closes when found). S69 screen comes
   with the Advanced Settings categories (S64).
-  Take-off check (SITL, not signing): "Take off 10 m" climbed to ~29 m; to look at (APM plugin uses
-  max(selected, PILOT_TKOFF_ALT or 10 m)).
+  Take-off check (resolved 2026-11-18): "Take off 10 m" climbed to ~35 m only in SITL: `SIM_BATT_VOLTAGE 25.2`
+  (6S, set for the battery %) doubled the simulated motor thrust (SITL frame is 3S). The app sends 10 m correctly.
+  `aqgc-build/aqgc-sitl.parm` now uses 12.6 V with BATT_PCT_VMIN/VMAX 10.5/13.0 (test only); take-off peaks at 10.0 m.
 - QML: a child with vertical anchors (e.g. `MouseArea { anchors.fill: parent }`) inside a Column disables the Column
   (warning only in the app log) — wrap such a column in an Item. Check the app log for `qrc:/simple/` warnings after a build.
 - Battery warning (2026-11-15): in flight at 30 % or less a banner is shown (red at 20 % or less if not yet returning).
@@ -317,6 +319,8 @@ Reply to the user in Korean unless they write in English.
   that hung the app: put such MouseAreas next to the Row with anchors.fill. A Loader that holds a fact must not
   depend on the sheet's `visible` when onClosed still needs the fact (ESC_CALIBRATION reset). Strings with \" in
   qsTr() fail the static translation check: use “ ” quotes.
+- QML (Qt 5.15): a RegExp kept in a `property var` is not a RegExp any more (TypeError on .test): keep it inside a
+  function. Do not name a QML function `valueOf` (or other Object.prototype names): calls resolve to the built-in.
 - The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).
 - Local build on Windows: nmake/jom rules break when the source path has spaces ("code review") — build from a path
   without spaces (e.g. a directory junction). Tests: `custom/tests/simple/README.md`.

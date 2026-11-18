@@ -34,6 +34,8 @@ ask the user. Each screen in Figma has a Korean UX note right under it (implemen
   until their new screen exists. S69 security defaults done (f5ef125a8); S68 signature check waits for signed firmware.
 - 2026-11-17: step 3 Analyze tools S61 / S62 / S63 done (6305b7191 core progress, 1ad4c6983), tested on SITL.
   Open in S63: charts (classic inspector for now).
+- 2026-11-18: S60 compares with the company reference (AQUILA-3F file, SimpleReference): "Differs from reference",
+  "Reset to reference"; S84 / S75 treat the reference ARMING_CHECK as normal.
 - 2026-11-17: step 4 Parameters S60 done (f441a0420), tested on SITL. Open: "Changed from default" needs defaults (none
   in the bundled ArduPilot documentation); Load from file = classic page.
 - 2026-11-17: step 5 started: S58 Summary + S59 Sensors done (SITL). Motor interference / orientation and all other
