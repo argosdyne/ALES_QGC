@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S92 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S96 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -319,6 +319,14 @@ Reply to the user in Korean unless they write in English.
   that hung the app: put such MouseAreas next to the Row with anchors.fill. A Loader that holds a fact must not
   depend on the sheet's `visible` when onClosed still needs the fact (ESC_CALIBRATION reset). Strings with \" in
   qsTr() fail the static translation check: use “ ” quotes.
+- Step 9 (user 2026-11-18, "권고한 순서대로"): before deleting classic code, the classic-only features get Simple
+  screens: S93 / S94 manual connections + RTK serial source, S95 USB gamepad, S96 custom actions (done 2026-11-18, see
+  TASK-advanced-mode-redesign.md "Step 9"). Rajant radio settings: waiting for the user. Then delete classic UI in stages
+  (ask first). The app's own TCP / UDP links: `linkManager.createConfiguration` → edit copy → `endCreateConfiguration`
+  (new) or `endConfigurationEditing` (deletes the copy); a cancelled copy must be deleted with
+  `cancelConfigurationEditing`. Custom action tests: point `savePath` in the ini to a scratch folder (restore the backup
+  after), never the real OneDrive folder. ui.ps1 `key <vk> [n]` sends key presses (8 = backspace; WM_CHAR backspace
+  does not delete in a TextInput).
 - QML (Qt 5.15): a RegExp kept in a `property var` is not a RegExp any more (TypeError on .test): keep it inside a
   function. Do not name a QML function `valueOf` (or other Object.prototype names): calls resolve to the built-in.
 - The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).

@@ -116,6 +116,26 @@ open a classic page (checked against the code 2026-11-18):
 S85 (live values; SITL throttle stays 0), S86, S87 save / load / send, S88, S89, S90 navigation, S68 page (no board to
 flash), More settings. Not tested: ESC battery cycle and firmware install on hardware.
 
+## Step 9 (user 2026-11-18): classic-only features into the Simple UI, then remove the classic UI in stages
+
+Before any classic code is deleted, every feature that only exists in the classic screens gets a Simple screen
+(Figma first). Figma 2026-11-18: S93 `169:44870` Connection in Advanced mode (RTK source NTRIP / serial port, Manual
+connections card), S94 `169:45075` Add / edit connection sheet, S95 `169:45278` Devices › USB gamepad, S96 `169:45516`
+More actions › Custom actions (UX notes `169:46530`, `169:46533`, `169:46536`, `169:46539`).
+
+| # | Classic use | New place | Status |
+|---|---|---|---|
+| 1 | Comm Links (manual serial / UDP / TCP links) | S93 / S94 `SimpleManualLinks.qml` in Settings › Connection (Advanced mode) | done, SITL TCP 5763 add / connect / disconnect / edit / delete |
+| 2 | RTK correction from a serial port | S93 RTK card: Source NTRIP server / Serial port, port + baud (SerialPortRTCMSource) | done (port opens; no RTK receiver to test data) |
+| 3 | Joystick setup | S95 `SimpleGamepad.qml` (Settings › Devices › USB gamepad, calibration sheet = JoystickConfigController) | done, "no gamepad" page only — test with a real gamepad |
+| 4 | Custom actions buttons | S96: More actions card + Settings › Fly screen "Actions file" (CustomActions folder) | done, SITL DO_SET_SERVO → servo 9 = 1900 |
+| 5 | Rajant radio settings | — | asked the user (still needed?) |
+| 6 | Dead-end hints | Safety battery / link rows → Vehicle setup › Safety; M2 note; RTK serial note; "Show mission progress" row removed (no effect in Simple mode); unused "Coming in the next version" page removed | done |
+
+Then (step 9b, ask first): delete the classic toolbar, setup / settings / analyze pages, fly widgets and Plan edit
+panels in small commits (SITL + CI after each). Keep MainRootWindow, FlyView / PlanView, GuidedActionsController,
+PlanMasterController and the C++ controllers.
+
 ## Tests
 
 - Simple tests (`custom/tests/simple/README.md`): mode switch without PIN, state after restart, every Advanced entry
