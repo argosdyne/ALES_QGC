@@ -74,6 +74,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleInspectorChart.qml` | S88 | MAVLink Inspector chart: 2 fields, 10 / 30 / 60 s, QML Canvas (no QtCharts) |
 | `SimpleLogCategories.qml` | S89 | App log categories: common groups + all categories (QGroundControl.setCategoryLoggingOn) |
 | `SimpleFolderPicker.qml` | S90 | Save folder picker (desktop): drives, path bar, folders, new folder; helpers in `PrivacyData` (drives, folderInfo, makeFolder) |
+| `SimpleMissionResult.qml` | S91 / S92 | Mission result card after landing (replaces the classic "Flight Plan complete" popup): flight time, distance, photos, battery; Remove from drone, Keep, Continue from waypoint N (actionResumeMission) |
 | `SSheet.qml`, `SNotice.qml` | S67 / S81–S90 | Shared centred modal sheet (scrolls when taller than the window) and notice box |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
 | `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, text field, slide confirm, panel, banner |

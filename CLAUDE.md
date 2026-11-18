@@ -10,7 +10,7 @@ Reply to the user in Korean unless they write in English.
 | Branch | `feature/aqgc-simple-v1` (from `Argos_Stable4.4` 4c5330c6). Push here; never push to `Argos_Stable4.4`. |
 | Pull request | Draft PR #311 → `Argos_Stable4.4`. **Do not merge.** v2 is done by Claude first, then developers take over. |
 | Simple UI code | `custom/res/Simple/` — read `custom/res/Simple/README.md` first (wiring, files, mock run, v2 list) |
-| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S90 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
+| Design (source of truth) | Figma file **AQGC-simpler**, key `p7d3GuBZaJNSj8zpBUlaSj`. Pages: `00 Overview` (§8 design rules), `01 Screens` (S01–S92 + UX notes), `02 Flows` (navigation, task flows, state rules), `03 Proto` (layout comparisons), `99 Components` |
 | Review deck | `AGD-PRS-ALQGC-100_AQGC-UI-단순화-검토회의` (D08), not in this repo |
 | Status doc | claude.ai project "개발 문서 및 User Manual 작성" → `claude/aqgc-simple-ui-v1-status.md` |
 
@@ -86,6 +86,14 @@ Reply to the user in Korean unless they write in English.
   Settings › Fly screen; the "Classic alesQGC screens" item and `SimpleRoot.openClassic()` are removed (requestAdvanced
   routes to the Simple screens). The classic QML/C++ stays in the app (not reachable from the Simple UI any more).
   Shared `SSheet.qml` (modal sheet, scrolls when taller than the window) and `SNotice.qml`.
+  **Company reference parameters (user 2026-11-18, not built yet; after the mission-complete screen):**
+  `docs/REF_45_SC_AQ3F_reference.param` (AQUILA-3F, 1010 values, "NAME,value") → bundle in the app and use it for
+  S60 "Changed from default" = "differs from the company reference" (show the reference value, "reset to reference");
+  leave out per-unit values (compass / accel / gyro / baro offsets and scales, RCn_MIN/MAX/TRIM, AHRS_TRIM, device
+  IDs, ~104). Apply to every connected ArduCopter (screen says "Reference: AQUILA-3F"; per-product files later).
+  S84: the reference ARMING_CHECK = 32254 (rangefinder, camera, aux auth, visual odometry, FFT, airspeed off) is
+  normal: green "Company setting"; orange only for checks off beyond the reference; the "All checks" switch becomes
+  "Company setting". Reference also has FS_GCS_ENABLE 0, FENCE_ENABLE 0, BATT_MONITOR 3 (voltage only).
 - Simple UI is the default; Advanced mode = classic UI, admin PIN 6 digits (default `000000`), 5 wrong tries = 5 min lock.
   The try count and lock are kept over restarts (`simpleAdminFailures`, `simpleAdminLockUntil`); a stored PIN that is
   not 6 digits is reset to the default (2026-11-14). Since 2026-11-16 the PIN is stored as a PBKDF2-SHA256 hash
@@ -170,7 +178,8 @@ Reply to the user in Korean unless they write in English.
   structure scans for ArduPilot use one DO_SET_ROI per layer at the structure centre and DO_SET_ROI 0,0,0 to end it
   (core StructureScanComplexItem, both modes). The Simple check shows a refused upload (MissionController
   sendToVehicleFinished). The classic "Flight Plan complete" popup is not shown in Simple mode (plan stays on the
-  vehicle); a Simple mission-complete screen is not designed yet. Saved-missions preview: one controller reused
+  vehicle); since 2026-11-18 the Simple S91 / S92 mission result card (`SimpleMissionResult.qml`, Figma 165:43128 /
+  165:44101) replaces it: same trigger (armed in mission mode → disarmed), S92 when showResumeMission (Continue = actionResumeMission). Saved-missions preview: one controller reused
   (a new one per selection leaked ~7 MB), files over 500 items or damaged files are not loaded. Opening a
   3000-waypoint mission still takes ~3 GB (classic visuals). Corridor default 2 x 110 m (inside a 300 m fence).
   Mission load leak fixed (2026-11-16): loading a plan or a vehicle mission deleted only the old list, not its items
