@@ -2,7 +2,8 @@
  * AQGC Simple UI — S73 Vehicle setup › Power (Figma 127:40027, 2026-11-17).
  * BATT_MONITOR, BATT_CAPACITY, voltage calibration (enter the measured voltage: BATT_VOLT_MULT is scaled, as in the
  * classic page), BATT_AMP_PERVLT. ArduPilot has no cell-count parameter: the Figma "Cells" row is not shown.
- * ESC calibration opens the classic Power page (it needs the propellers-off check and a battery cycle).
+ * ESC calibration = S83 sheet (SimpleEscCal.qml in the Vehicle setup root: it must outlive this page while the
+ * battery is unplugged); the page only asks for it (escCalRequested).
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -20,6 +21,7 @@ Flickable {
     readonly property var  batt: _veh && _veh.batteries.count > 0 ? _veh.batteries.get(0) : null
     readonly property real reading: batt ? Number(batt.voltage.rawValue) : 0
     property string calMsg: ""
+    signal escCalRequested()
 
     Column {
         id: col
@@ -58,8 +60,9 @@ Flickable {
         SSettingRow { title: qsTr("Current sensor"); sub: qsTr("Amps per volt of the power module"); visible: !!pw.p("BATT_AMP_PERVLT")
                       SFactField { fact: pw.p("BATT_AMP_PERVLT"); step: 0.1 } }
         SSettingRow {
-            title: qsTr("ESC calibration"); sub: qsTr("Propellers off, battery connected. Only after replacing ESCs.")
-            SButton { designHeight: 72; textSize: 24; text: qsTr("Start (classic)"); onClicked: simpleRoot.openClassic("setup:APMPowerComponent") }
+            visible: !!pw.p("ESC_CALIBRATION")
+            title: qsTr("ESC calibration"); sub: qsTr("Propellers off. Only after replacing ESCs.")
+            SButton { objectName: "escStart"; designHeight: 72; textSize: 24; text: qsTr("Start"); onClicked: pw.escCalRequested() }
         }
     }
 }

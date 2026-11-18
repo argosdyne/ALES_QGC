@@ -15,10 +15,6 @@
 <context>
     <name>MainRootWindow</name>
     <message>
-        <source>Return to Simple</source>
-        <translation>간편 모드로 돌아가기</translation>
-    </message>
-    <message>
         <source>Close classic screens</source>
         <translation>기존 화면 닫기</translation>
     </message>
@@ -5322,6 +5318,22 @@
         <source>Choose log categories (classic)</source>
         <translation>로그 범주 고르기 (기존 화면)</translation>
     </message>
+    <message>
+        <source>Chart</source>
+        <translation>차트</translation>
+    </message>
+    <message>
+        <source>Chart (%1)</source>
+        <translation>차트 (%1)</translation>
+    </message>
+    <message>
+        <source>Log categories</source>
+        <translation>로그 분류</translation>
+    </message>
+    <message>
+        <source>Choose log categories</source>
+        <translation>로그 분류 고르기</translation>
+    </message>
 </context>
 <context>
     <name>SimpleParameters</name>
@@ -5560,6 +5572,10 @@
     <message>
         <source>Reset to default</source>
         <translation>기본값으로</translation>
+    </message>
+    <message>
+        <source>Load from file…</source>
+        <translation>파일에서 불러오기…</translation>
     </message>
 </context>
 <context>
@@ -5860,6 +5876,110 @@
         <source>Close</source>
         <translation>닫기</translation>
     </message>
+    <message>
+        <source>Measures compass error from the motors (CompassMot). Propellers on and flipped, drone tied down</source>
+        <translation>모터로 생기는 나침반 오차를 잽니다 (CompassMot). 프로펠러를 뒤집어 끼우고 드론을 고정</translation>
+    </message>
+    <message>
+        <source>Step 1 of 3 · Prepare the drone. The motors will spin.</source>
+        <translation>1/3단계 · 드론을 준비하세요. 모터가 돕니다.</translation>
+    </message>
+    <message>
+        <source>Step 2 of 3 · Raise the throttle slowly to 75 %, hold 5 seconds, then lower it to zero.</source>
+        <translation>2/3단계 · 스로틀을 75 %까지 천천히 올려 5초 유지한 뒤 0으로 내리세요.</translation>
+    </message>
+    <message>
+        <source>Step 3 of 3 · Result. The correction is saved on the drone.</source>
+        <translation>3/3단계 · 결과. 보정값은 드론에 저장됐습니다.</translation>
+    </message>
+    <message>
+        <source>Propellers on, flipped and moved one place round the frame: the drone pushes into the ground</source>
+        <translation>프로펠러를 뒤집어 한 칸씩 옮겨 끼움: 드론이 땅 쪽으로 눌림</translation>
+    </message>
+    <message>
+        <source>Drone tied down so it cannot move</source>
+        <translation>드론이 움직이지 않게 고정함</translation>
+    </message>
+    <message>
+        <source>Controller on, throttle at zero</source>
+        <translation>조종기 켜짐, 스로틀 0</translation>
+    </message>
+    <message>
+        <source>No current sensor: the result follows the throttle only and is less exact.</source>
+        <translation>전류 센서가 없습니다: 스로틀만으로 계산해 덜 정확합니다.</translation>
+    </message>
+    <message>
+        <source>Throttle</source>
+        <translation>스로틀</translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation>전류</translation>
+    </message>
+    <message>
+        <source>Interference · compass 1</source>
+        <translation>간섭 · 나침반 1</translation>
+    </message>
+    <message>
+        <source>Under 30 % is good. 30–60 % is acceptable. Over 60 %: move the compass or the GPS mast away from power wires.</source>
+        <translation>30 % 미만은 좋음, 30–60 %는 허용. 60 %를 넘으면 나침반이나 GPS 마스트를 전원선에서 멀리 옮기세요.</translation>
+    </message>
+    <message>
+        <source>The drone sent no measurement. Raise the throttle higher next time and keep it there for 5 seconds.</source>
+        <translation>드론이 측정값을 보내지 않았습니다. 다음에는 스로틀을 더 올려 5초 유지하세요.</translation>
+    </message>
+    <message>
+        <source>Propellers are on and flipped: the drone pushes into the ground. Keep it tied down and stand back.</source>
+        <translation>프로펠러가 뒤집혀 끼워져 드론이 땅 쪽으로 눌립니다. 고정한 채 물러서세요.</translation>
+    </message>
+    <message>
+        <source>Stop and save</source>
+        <translation>멈추고 저장</translation>
+    </message>
+    <message>
+        <source>Measuring…</source>
+        <translation>측정 중…</translation>
+    </message>
+    <message>
+        <source>Only change this when the flight controller or a compass is mounted turned. The arrow on the board points to the front.</source>
+        <translation>비행 컨트롤러나 나침반을 돌려서 단 경우에만 바꾸세요. 보드의 화살표가 앞쪽입니다.</translation>
+    </message>
+    <message>
+        <source>Flight controller</source>
+        <translation>비행 컨트롤러</translation>
+    </message>
+    <message>
+        <source>Compass 1</source>
+        <translation>나침반 1</translation>
+    </message>
+    <message>
+        <source>Compass 2</source>
+        <translation>나침반 2</translation>
+    </message>
+    <message>
+        <source>Compass 3</source>
+        <translation>나침반 3</translation>
+    </message>
+    <message>
+        <source>internal</source>
+        <translation>내장</translation>
+    </message>
+    <message>
+        <source>external</source>
+        <translation>외장</translation>
+    </message>
+    <message>
+        <source>Used</source>
+        <translation>사용 중</translation>
+    </message>
+    <message>
+        <source>Internal compasses follow the flight controller.</source>
+        <translation>내장 나침반은 비행 컨트롤러 방향을 따릅니다.</translation>
+    </message>
+    <message>
+        <source>After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).</source>
+        <translation>바꾼 뒤에는 드론을 다시 시작하고 나침반과 가속도계를 다시 보정하세요 (센서).</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupModes</name>
@@ -6082,6 +6202,10 @@
         <source>Change</source>
         <translation>변경</translation>
     </message>
+    <message>
+        <source>None</source>
+        <translation>없음</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupPower</name>
@@ -6145,6 +6269,14 @@
         <source>Start (classic)</source>
         <translation>시작 (기존 화면)</translation>
     </message>
+    <message>
+        <source>Propellers off. Only after replacing ESCs.</source>
+        <translation>프로펠러를 떼고, ESC를 바꾼 뒤에만 하세요.</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>시작</translation>
+    </message>
 </context>
 <context>
     <name>SimpleSetupRadio</name>
@@ -6199,6 +6331,34 @@
     <message>
         <source>Reverse a channel (classic)</source>
         <translation>채널 반전 (기존 화면)</translation>
+    </message>
+    <message>
+        <source>Calibrate sticks</source>
+        <translation>스틱 보정</translation>
+    </message>
+    <message>
+        <source>Reverse a channel…</source>
+        <translation>채널 반전…</translation>
+    </message>
+    <message>
+        <source>Reverse a channel</source>
+        <translation>채널 반전</translation>
+    </message>
+    <message>
+        <source>Turn on when a bar moves the wrong way. Check the bar after each change.</source>
+        <translation>막대가 반대로 움직이면 켜세요. 바꿀 때마다 막대를 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Reversed</source>
+        <translation>반전됨</translation>
+    </message>
+    <message>
+        <source>Do not reverse throttle on the drone side. Fix it on the controller.</source>
+        <translation>스로틀은 드론 쪽에서 반전하지 마세요. 조종기에서 고치세요.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
     </message>
 </context>
 <context>
@@ -6971,6 +7131,10 @@
         <source>Product</source>
         <translation>제품 기능</translation>
     </message>
+    <message>
+        <source>Change</source>
+        <translation>변경</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMoreSheet</name>
@@ -7220,6 +7384,622 @@
     <message>
         <source>Check &amp; send</source>
         <translation>확인 및 전송</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleRadioCal</name>
+    <message>
+        <source>Calibrate sticks</source>
+        <translation>스틱 보정</translation>
+    </message>
+    <message>
+        <source>Ch %1</source>
+        <translation>채널 %1</translation>
+    </message>
+    <message>
+        <source>Step 1 of 3 · Put both sticks in the centre and the throttle all the way down. Leave the switches where they are.</source>
+        <translation>1/3단계 · 두 스틱을 가운데에 두고 스로틀은 맨 아래로 내리세요. 스위치는 그대로 두세요.</translation>
+    </message>
+    <message>
+        <source>Step 2 of 3 · Move both sticks to every corner and all switches to every position. The bars grow while you move.</source>
+        <translation>2/3단계 · 두 스틱을 모든 모서리로, 모든 스위치를 모든 위치로 움직이세요. 움직이는 동안 막대가 늘어납니다.</translation>
+    </message>
+    <message>
+        <source>Step 3 of 3 · Check the values. Channels you did not move keep their old values.</source>
+        <translation>3/3단계 · 값을 확인하세요. 움직이지 않은 채널은 이전 값을 유지합니다.</translation>
+    </message>
+    <message>
+        <source>Saved %n channel(s).</source>
+        <translation>채널 %n개를 저장했습니다.</translation>
+    </message>
+    <message>
+        <source>Nothing moved: no values changed.</source>
+        <translation>움직인 채널이 없어 값을 바꾸지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>not moved</source>
+        <translation>움직이지 않음</translation>
+    </message>
+    <message>
+        <source>Throttle has not reached the top yet. Push it all the way up once.</source>
+        <translation>스로틀이 아직 맨 위에 닿지 않았습니다. 한 번 끝까지 올리세요.</translation>
+    </message>
+    <message>
+        <source>Small range on: %1. Move it to both ends.</source>
+        <translation>범위가 좁음: %1. 양 끝까지 움직이세요.</translation>
+    </message>
+    <message>
+        <source>Minimum · centre · maximum. The throttle centre is its minimum.</source>
+        <translation>최소 · 가운데 · 최대. 스로틀의 가운데 값은 최소값입니다.</translation>
+    </message>
+    <message>
+        <source>The drone is armed. Stop the motors first.</source>
+        <translation>드론 시동이 켜져 있습니다. 먼저 모터를 멈추세요.</translation>
+    </message>
+    <message>
+        <source>The motors stay off. The drone must not be armed.</source>
+        <translation>모터는 돌지 않습니다. 드론 시동이 꺼져 있어야 합니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>다음</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleEscCal</name>
+    <message>
+        <source>ESC calibration</source>
+        <translation>ESC 보정</translation>
+    </message>
+    <message>
+        <source>Only after replacing ESCs. Takes about 2 minutes.</source>
+        <translation>ESC를 바꾼 뒤에만 하세요. 약 2분 걸립니다.</translation>
+    </message>
+    <message>
+        <source>Propellers removed</source>
+        <translation>프로펠러 제거함</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>확인함</translation>
+    </message>
+    <message>
+        <source>Tap to confirm. All propellers must be off.</source>
+        <translation>눌러서 확인하세요. 프로펠러를 모두 떼야 합니다.</translation>
+    </message>
+    <message>
+        <source>Unplug the battery and USB</source>
+        <translation>배터리와 USB 분리</translation>
+    </message>
+    <message>
+        <source>The drone turns off. Wait 5 seconds.</source>
+        <translation>드론이 꺼집니다. 5초 기다리세요.</translation>
+    </message>
+    <message>
+        <source>Plug the battery in again</source>
+        <translation>배터리 다시 연결</translation>
+    </message>
+    <message>
+        <source>You hear a tone, then one beep per cell, then one long beep.</source>
+        <translation>신호음이 나고, 셀마다 짧은 소리가 난 뒤 긴 소리가 한 번 납니다.</translation>
+    </message>
+    <message>
+        <source>Unplug and start normally</source>
+        <translation>분리한 뒤 평소대로 시작</translation>
+    </message>
+    <message>
+        <source>The app shows “ESC calibration done” after the restart.</source>
+        <translation>다시 시작하면 앱에 “ESC 보정 완료”가 표시됩니다.</translation>
+    </message>
+    <message>
+        <source>ESC calibration done.</source>
+        <translation>ESC 보정 완료.</translation>
+    </message>
+    <message>
+        <source>The drone did not calibrate the ESCs. The setting is back to off. Try again and keep the battery in until the long beep.</source>
+        <translation>드론이 ESC를 보정하지 않았습니다. 설정을 끔으로 되돌렸습니다. 긴 소리가 날 때까지 배터리를 꽂아 둔 채 다시 해 보세요.</translation>
+    </message>
+    <message>
+        <source>This drone has no ESC calibration setting.</source>
+        <translation>이 드론에는 ESC 보정 설정이 없습니다.</translation>
+    </message>
+    <message>
+        <source>Keep hands away from the motors while the battery is plugged in.</source>
+        <translation>배터리가 연결된 동안 모터에서 손을 떼세요.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>시작</translation>
+    </message>
+    <message>
+        <source>Waiting for the drone…</source>
+        <translation>드론을 기다리는 중…</translation>
+    </message>
+    <message>
+        <source>I heard the long beep</source>
+        <translation>긴 소리를 들었음</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+</context>
+<context>
+    <name>SimplePrearmChecks</name>
+    <message>
+        <source>Pre-arm checks</source>
+        <translation>시동 전 점검</translation>
+    </message>
+    <message>
+        <source>The drone refuses to start when a check fails. Keep all on for normal flights.</source>
+        <translation>점검에 실패하면 드론이 시동을 거부합니다. 평소 비행에서는 모두 켜 두세요.</translation>
+    </message>
+    <message>
+        <source>Barometer</source>
+        <translation>기압계</translation>
+    </message>
+    <message>
+        <source>Compass</source>
+        <translation>나침반</translation>
+    </message>
+    <message>
+        <source>GPS lock</source>
+        <translation>GPS 수신</translation>
+    </message>
+    <message>
+        <source>Inertial sensors</source>
+        <translation>관성 센서</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation>파라미터</translation>
+    </message>
+    <message>
+        <source>Radio (RC)</source>
+        <translation>조종기 (RC)</translation>
+    </message>
+    <message>
+        <source>Board voltage</source>
+        <translation>보드 전압</translation>
+    </message>
+    <message>
+        <source>Battery level</source>
+        <translation>배터리 잔량</translation>
+    </message>
+    <message>
+        <source>Logging</source>
+        <translation>로그 기록</translation>
+    </message>
+    <message>
+        <source>Safety switch</source>
+        <translation>안전 스위치</translation>
+    </message>
+    <message>
+        <source>GPS configuration</source>
+        <translation>GPS 설정</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation>시스템</translation>
+    </message>
+    <message>
+        <source>Mission</source>
+        <translation>미션</translation>
+    </message>
+    <message>
+        <source>Rangefinder</source>
+        <translation>거리 센서</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>Auxiliary authorisation</source>
+        <translation>보조 승인</translation>
+    </message>
+    <message>
+        <source>Visual odometry</source>
+        <translation>영상 위치 추정</translation>
+    </message>
+    <message>
+        <source>FFT</source>
+        <translation>FFT</translation>
+    </message>
+    <message>
+        <source>All checks (recommended)</source>
+        <translation>모든 점검 (권장)</translation>
+    </message>
+    <message>
+        <source>%n check(s) off: %1. Turn them back on before normal flights.</source>
+        <translation>꺼진 점검 %n개: %1. 평소 비행 전에 다시 켜세요.</translation>
+    </message>
+    <message>
+        <source>No checks: the drone starts even with a fault.</source>
+        <translation>점검 없음: 고장이 있어도 드론이 시동됩니다.</translation>
+    </message>
+    <message>
+        <source>The drone is armed. Stop the motors first.</source>
+        <translation>드론 시동이 켜져 있습니다. 먼저 모터를 멈추세요.</translation>
+    </message>
+    <message>
+        <source>Turn off every check? The drone will start even with a broken sensor or no GPS.</source>
+        <translation>모든 점검을 끌까요? 센서가 고장 나거나 GPS가 없어도 드론이 시동됩니다.</translation>
+    </message>
+    <message>
+        <source>Keep this check on</source>
+        <translation>이 점검 유지</translation>
+    </message>
+    <message>
+        <source>Turn all off</source>
+        <translation>모두 끄기</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleParamFile</name>
+    <message>
+        <source>Load parameters from a file</source>
+        <translation>파일에서 파라미터 불러오기</translation>
+    </message>
+    <message>
+        <source>Save parameters to a file</source>
+        <translation>파라미터를 파일로 저장</translation>
+    </message>
+    <message>
+        <source>Pick a file saved with “Save to file”. Only the values that differ are sent.</source>
+        <translation>“파일로 저장”으로 만든 파일을 고르세요. 다른 값만 보냅니다.</translation>
+    </message>
+    <message>
+        <source>All values of the drone are saved in the parameters folder of this tablet.</source>
+        <translation>드론의 모든 값을 이 태블릿의 파라미터 폴더에 저장합니다.</translation>
+    </message>
+    <message>
+        <source>This file cannot be read.</source>
+        <translation>이 파일을 읽을 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>%n value(s) sent to the drone.</source>
+        <translation>값 %n개를 드론에 보냈습니다.</translation>
+    </message>
+    <message>
+        <source>No parameter files yet. Use “Save to file” first.</source>
+        <translation>아직 파라미터 파일이 없습니다. 먼저 “파일로 저장”을 쓰세요.</translation>
+    </message>
+    <message>
+        <source>%n value(s) differ</source>
+        <translation>다른 값 %n개</translation>
+    </message>
+    <message>
+        <source>Same as the drone</source>
+        <translation>드론과 같음</translation>
+    </message>
+    <message>
+        <source>Now → In file</source>
+        <translation>현재 → 파일</translation>
+    </message>
+    <message>
+        <source>not on drone</source>
+        <translation>드론에 없음</translation>
+    </message>
+    <message>
+        <source>This file is from another drone. Tick only the values you are sure about.</source>
+        <translation>다른 드론의 파일입니다. 확실한 값만 선택하세요.</translation>
+    </message>
+    <message>
+        <source>The drone uses the new values at once. Check the flight with care after loading.</source>
+        <translation>드론은 새 값을 바로 씁니다. 불러온 뒤에는 비행을 조심해서 확인하세요.</translation>
+    </message>
+    <message>
+        <source>The drone is armed. Stop the motors first.</source>
+        <translation>드론 시동이 켜져 있습니다. 먼저 모터를 멈추세요.</translation>
+    </message>
+    <message>
+        <source>File name</source>
+        <translation>파일 이름</translation>
+    </message>
+    <message>
+        <source>Folder: %1</source>
+        <translation>폴더: %1</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>저장</translation>
+    </message>
+    <message>
+        <source>Send %n value(s)</source>
+        <translation>값 %n개 보내기</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleLogCategories</name>
+    <message>
+        <source>Log categories</source>
+        <translation>로그 분류</translation>
+    </message>
+    <message>
+        <source>Choose what the app writes to the App log. More categories make the log longer and the app a little slower.</source>
+        <translation>앱 로그에 기록할 내용을 고르세요. 분류가 많으면 로그가 길어지고 앱이 조금 느려집니다.</translation>
+    </message>
+    <message>
+        <source>Vehicle link</source>
+        <translation>드론 연결</translation>
+    </message>
+    <message>
+        <source>Mission upload</source>
+        <translation>미션 전송</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation>파라미터</translation>
+    </message>
+    <message>
+        <source>Video</source>
+        <translation>영상</translation>
+    </message>
+    <message>
+        <source>Payloads</source>
+        <translation>탑재 장비</translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation>카메라</translation>
+    </message>
+    <message>
+        <source>RTK / GPS</source>
+        <translation>RTK / GPS</translation>
+    </message>
+    <message>
+        <source>Search categories</source>
+        <translation>분류 검색</translation>
+    </message>
+    <message>
+        <source>Show common groups</source>
+        <translation>자주 쓰는 묶음 보기</translation>
+    </message>
+    <message>
+        <source>Show all %1 categories</source>
+        <translation>분류 %1개 모두 보기</translation>
+    </message>
+    <message>
+        <source>Turn all off</source>
+        <translation>모두 끄기</translation>
+    </message>
+    <message>
+        <source>Categories are kept after a restart. The log can contain locations; it stays on this tablet.</source>
+        <translation>분류는 다시 시작해도 유지됩니다. 로그에는 위치가 들어갈 수 있으며 이 태블릿에만 남습니다.</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>완료</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleInspectorChart</name>
+    <message>
+        <source>Chart</source>
+        <translation>차트</translation>
+    </message>
+    <message>
+        <source>%1 · from the drone, %2 values per second</source>
+        <translation>%1 · 드론에서 초당 %2개</translation>
+    </message>
+    <message>
+        <source>Tick “Chart” on a field to add it (max 2)</source>
+        <translation>필드의 “차트”를 선택해 추가하세요 (최대 2개)</translation>
+    </message>
+    <message>
+        <source>No field chosen</source>
+        <translation>선택한 필드 없음</translation>
+    </message>
+    <message>
+        <source>Scale: auto</source>
+        <translation>눈금: 자동</translation>
+    </message>
+    <message>
+        <source>Resume</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation>일시 정지</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>닫기</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleFolderPicker</name>
+    <message>
+        <source>Save folder</source>
+        <translation>저장 폴더</translation>
+    </message>
+    <message>
+        <source>Logs, missions, parameters and photos are saved in folders inside this one. Files already saved stay where they are.</source>
+        <translation>로그, 미션, 파라미터, 사진은 이 폴더 안의 폴더에 저장됩니다. 이미 저장된 파일은 그대로 남습니다.</translation>
+    </message>
+    <message>
+        <source>Free: %1 GB</source>
+        <translation>남은 공간: %1 GB</translation>
+    </message>
+    <message>
+        <source>Free: %1 MB</source>
+        <translation>남은 공간: %1 MB</translation>
+    </message>
+    <message>
+        <source>This PC</source>
+        <translation>내 PC</translation>
+    </message>
+    <message>
+        <source>Up one level</source>
+        <translation>한 단계 위로</translation>
+    </message>
+    <message>
+        <source>Used now</source>
+        <translation>지금 사용 중</translation>
+    </message>
+    <message>
+        <source>+ New folder</source>
+        <translation>+ 새 폴더</translation>
+    </message>
+    <message>
+        <source>Folder name</source>
+        <translation>폴더 이름</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>만들기</translation>
+    </message>
+    <message>
+        <source>This folder cannot be made here.</source>
+        <translation>여기에는 이 폴더를 만들 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>The app cannot write in this folder. Pick another one.</source>
+        <translation>앱이 이 폴더에 쓸 수 없습니다. 다른 폴더를 고르세요.</translation>
+    </message>
+    <message>
+        <source>Use</source>
+        <translation>사용</translation>
+    </message>
+    <message>
+        <source>Use “%1”</source>
+        <translation>“%1” 사용</translation>
+    </message>
+</context>
+<context>
+    <name>SimpleSetupFirmware</name>
+    <message>
+        <source>Choose a firmware file</source>
+        <translation>펌웨어 파일 선택</translation>
+    </message>
+    <message>
+        <source>Firmware files (*.apj)</source>
+        <translation>펌웨어 파일 (*.apj)</translation>
+    </message>
+    <message>
+        <source>Firmware</source>
+        <translation>펌웨어</translation>
+    </message>
+    <message>
+        <source>Connect the drone with USB, propellers off. Only firmware from ARGOSDYNE support can be installed.</source>
+        <translation>프로펠러를 떼고 드론을 USB로 연결하세요. ARGOSDYNE 지원팀의 펌웨어만 설치할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Firmware is updated from a PC with a USB cable.</source>
+        <translation>펌웨어는 PC에서 USB 케이블로 업데이트합니다.</translation>
+    </message>
+    <message>
+        <source>Installed · %1 %2.%3.%4</source>
+        <translation>설치됨 · %1 %2.%3.%4</translation>
+    </message>
+    <message>
+        <source>Installed · drone not connected</source>
+        <translation>설치됨 · 드론 연결 안 됨</translation>
+    </message>
+    <message>
+        <source>Signature check on the drone (secure boot): not set up yet</source>
+        <translation>드론의 서명 검사 (보안 부트): 아직 설정 안 됨</translation>
+    </message>
+    <message>
+        <source>Not checked</source>
+        <translation>검사 안 함</translation>
+    </message>
+    <message>
+        <source>Update file · %1</source>
+        <translation>업데이트 파일 · %1</translation>
+    </message>
+    <message>
+        <source>No update file chosen</source>
+        <translation>업데이트 파일을 고르지 않음</translation>
+    </message>
+    <message>
+        <source>Signature and version are not checked yet: install only files from ARGOSDYNE support.</source>
+        <translation>서명과 버전은 아직 검사하지 않습니다: ARGOSDYNE 지원팀의 파일만 설치하세요.</translation>
+    </message>
+    <message>
+        <source>Get the file from ARGOSDYNE support, then choose it here.</source>
+        <translation>ARGOSDYNE 지원팀에서 파일을 받은 뒤 여기서 고르세요.</translation>
+    </message>
+    <message>
+        <source>Signature not checked</source>
+        <translation>서명 검사 안 함</translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>설치</translation>
+    </message>
+    <message>
+        <source>Older versions</source>
+        <translation>이전 버전</translation>
+    </message>
+    <message>
+        <source>Blocked once the firmware files carry a signed version number</source>
+        <translation>펌웨어 파일에 서명된 버전 번호가 들어가면 막힙니다</translation>
+    </message>
+    <message>
+        <source>Not checked yet</source>
+        <translation>아직 검사 안 함</translation>
+    </message>
+    <message>
+        <source>Choose file…</source>
+        <translation>파일 선택…</translation>
+    </message>
+    <message>
+        <source>Unplug the USB cable, wait 2 seconds and plug it in again.</source>
+        <translation>USB 케이블을 뽑고 2초 뒤 다시 꽂으세요.</translation>
+    </message>
+    <message>
+        <source>Installing. Do not unplug the drone.</source>
+        <translation>설치 중입니다. 드론을 분리하지 마세요.</translation>
+    </message>
+    <message>
+        <source>Firmware installed. The drone restarts.</source>
+        <translation>펌웨어를 설치했습니다. 드론이 다시 시작합니다.</translation>
+    </message>
+    <message>
+        <source>Install failed. Plug the drone straight into a USB port of the PC (no hub) and try again.</source>
+        <translation>설치에 실패했습니다. 드론을 허브 없이 PC의 USB 포트에 바로 꽂고 다시 해 보세요.</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>취소</translation>
+    </message>
+    <message>
+        <source>Do not unplug the drone while installing. If the power is lost, plug it in again and install once more.</source>
+        <translation>설치 중에는 드론을 분리하지 마세요. 전원이 끊기면 다시 연결해 한 번 더 설치하세요.</translation>
     </message>
 </context>
 </TS>

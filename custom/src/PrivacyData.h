@@ -44,6 +44,11 @@ public:
     /// one line in the security log (e.g. tuning changed in flight, S76); never pass a secret
     Q_INVOKABLE void logEvent           (const QString& source, const QString& text);
 
+    // S90 save-folder picker (desktop): drive roots, folder state, new folder
+    Q_INVOKABLE QStringList drives      () const;
+    Q_INVOKABLE QVariantMap folderInfo  (const QString& path) const;    ///< exists, writable, freeBytes, parent ("" at a root)
+    Q_INVOKABLE QString     makeFolder  (const QString& parent, const QString& name) const;   ///< new path, "" on failure
+
     bool        busy        () const { return _busy; }
     QVariantMap sizes       () const { return _sizes; }
     QStringList accounts    () const { return _accounts; }

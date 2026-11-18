@@ -2,7 +2,7 @@
  * AQGC Simple UI — S75 Vehicle setup › Safety, all failsafes (Figma 128:39889, 2026-11-17).
  * Battery (two levels), controller signal, ground station link, navigation (EKF), geofence (circle / ceiling),
  * pre-arm checks, crash check. A row opens its values in place; an action of 0 ("none" / disabled) is orange.
- * Pre-arm checks are changed in the classic Safety page (a reason is asked there in a later version).
+ * Pre-arm checks = S84 sheet (SimplePrearmChecks.qml, ARMING_CHECK bitmask).
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -50,7 +50,8 @@ Flickable {
             model: sf.rows
             Rectangle {
                 readonly property bool _noProtect: modelData.arm ? false : (modelData.actOff ? sf.off(modelData.actOff) : sf.off(modelData.act))
-                readonly property bool _allChecks: !!sf.p("ARMING_CHECK") && Number(sf.p("ARMING_CHECK").rawValue) === 1
+                readonly property bool _allChecks: !!sf.p("ARMING_CHECK") && (Number(sf.p("ARMING_CHECK").rawValue) & 1) === 1
+                readonly property bool _noChecks: !!sf.p("ARMING_CHECK") && Number(sf.p("ARMING_CHECK").rawValue) === 0
                 width: col.width; height: rc.height + SimpleTheme.px(28); radius: SimpleTheme.px(18)
                 color: SimpleTheme.surfaceRaised
                 Column {
@@ -69,13 +70,14 @@ Flickable {
                         SStatusChip {
                             id: chip
                             anchors.right: btn.left; anchors.rightMargin: SimpleTheme.px(14); anchors.verticalCenter: parent.verticalCenter
-                            text: modelData.arm ? (parent.parent.parent._allChecks ? qsTr("All on") : qsTr("Some off"))
+                            text: modelData.arm ? (parent.parent.parent._allChecks ? qsTr("All on") : parent.parent.parent._noChecks ? qsTr("None") : qsTr("Some off"))
                                 : parent.parent.parent._noProtect ? qsTr("No protection") : sf.e(modelData.act)
-                            level: modelData.arm ? (parent.parent.parent._allChecks ? "ok" : "warn") : parent.parent.parent._noProtect ? "warn" : "info"
+                            level: modelData.arm ? (parent.parent.parent._allChecks ? "ok" : parent.parent.parent._noChecks ? "danger" : "warn") : parent.parent.parent._noProtect ? "warn" : "info"
                         }
                         SButton { id: btn; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; designHeight: 64; textSize: 22
-                                  text: modelData.arm ? qsTr("Change (classic)") : sf.open === modelData.key ? qsTr("Close") : qsTr("Change")
-                                  onClicked: modelData.arm ? simpleRoot.openClassic("setup:APMSafetyComponent") : (sf.open = sf.open === modelData.key ? "" : modelData.key) }
+                                  objectName: "safetyChange_" + modelData.key
+                                  text: modelData.arm ? qsTr("Change") : sf.open === modelData.key ? qsTr("Close") : qsTr("Change")
+                                  onClicked: modelData.arm ? prearm.open() : (sf.open = sf.open === modelData.key ? "" : modelData.key) }
                     }
                     Column {
                         visible: sf.open === modelData.key
@@ -99,5 +101,12 @@ Flickable {
                 }
             }
         }
+    }
+
+    //================================================================== S84 Pre-arm checks
+    SimplePrearmChecks {
+        id: prearm
+        fact: sf.p("ARMING_CHECK")
+        armed: !!QGroundControl.multiVehicleManager.activeVehicle && QGroundControl.multiVehicleManager.activeVehicle.armed
     }
 }

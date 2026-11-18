@@ -1,6 +1,7 @@
 /****************************************************************************
  * AQGC Simple UI — Vehicle setup (Advanced mode): S58 Summary (Figma 111:38761) and S59 Sensors (112:38882), 2026-11-17.
- * Frame like Settings (S09). S70–S77 are in SimpleSetup*.qml; Firmware (S68) opens the classic page for now.
+ * Frame like Settings (S09). S70–S77 and S68 Firmware are in SimpleSetup*.qml (no classic page is opened any more).
+ * Sensors: S85 motor interference (CompassMot, live COMPASSMOT_STATUS) and S86 orientation sheets (2026-11-18).
  * While the drone is armed only Summary and Tuning can be opened (Tuning in flight: S76).
  * Sensors use the classic APMSensorsComponentController (created once the parameters are ready); the calibration
  * sheet gives it the items it drives (status log append(), progress value, Next / Cancel enabled, help text).
@@ -89,7 +90,7 @@ Rectangle {
     }
 
     SText {
-        visible: !vsp._ready
+        visible: !vsp._ready && vsp.category !== "firmware"
         anchors.centerIn: parent
         text: !vsp._veh ? qsTr("Connect the drone to set it up.") : qsTr("Reading the parameters from the drone…")
         size: 30; color: SimpleTheme.textSecondary
@@ -98,7 +99,7 @@ Rectangle {
     // Content (needs the parameters)
     Loader {
         id: content
-        active: vsp._ready
+        active: vsp._ready || vsp.category === "firmware"      // firmware works without a drone link (USB bootloader)
         anchors.left: catPanel.right; anchors.leftMargin: SimpleTheme.px(60)
         anchors.right: parent.right; anchors.rightMargin: SimpleTheme.px(40)
         anchors.top: header.bottom; anchors.topMargin: SimpleTheme.px(40)
@@ -108,7 +109,7 @@ Rectangle {
                        : vsp.category === "power"   ? powerComp   : vsp.category === "radio"  ? radioComp
                        : vsp.category === "gimbal"  ? gimbalComp  : vsp.category === "tuning" ? tuningComp
                        : vsp.category === "frame"   ? frameComp   : vsp.category === "motors" ? motorsComp
-                       : classicComp
+                       : firmwareComp
     }
 
     // shared: read parameters (FactPanelController), last calibration dates
@@ -206,33 +207,16 @@ Rectangle {
     // S70–S77 (own files)
     Component { id: modesComp;  SimpleSetupModes  { } }
     Component { id: safetyComp; SimpleSetupSafety { } }
-    Component { id: powerComp;  SimpleSetupPower  { } }
+    Component { id: powerComp;  SimpleSetupPower  { onEscCalRequested: escCal.open() } }
+    SimpleEscCal { id: escCal }      // S83: outlives the Power page while the drone is unplugged
     Component { id: radioComp;  SimpleSetupRadio  { } }
     Component { id: gimbalComp; SimpleSetupGimbal { } }
     Component { id: tuningComp; SimpleSetupTuning { } }
     Component { id: frameComp;  SimpleSetupFrame  { } }
     Component { id: motorsComp; SimpleSetupMotors { } }
 
-    //================================================================== classic page for a category (until its screen exists)
-    Component {
-        id: classicComp
-        Column {
-            spacing: SimpleTheme.px(18)
-            readonly property var c: vsp.catOf(vsp.category)
-            SText { text: c.t; size: 40; bold: true }
-            SText { width: parent.width; wrapMode: Text.WordWrap; size: 26; color: SimpleTheme.textSecondary
-                    text: vsp.category === "firmware"
-                          ? (Qt.platform.os === "android" ? qsTr("Firmware is updated from a PC with a USB cable.")
-                                                          : qsTr("Connect the drone with USB, propellers off. The firmware page opens in the classic screens for now."))
-                          : qsTr("This part opens in the classic screens until its new screen is ready.") }
-            SButton {
-                visible: vsp.category !== "firmware" || Qt.platform.os !== "android"
-                kind: "primary"; icon: "chevron"
-                text: qsTr("Open %1 (classic)").arg(c.t)
-                onClicked: simpleRoot.openClassic(vsp.category === "firmware" ? "setup" : "setup:" + c.classic)
-            }
-        }
-    }
+    //================================================================== S68 Firmware
+    Component { id: firmwareComp; SimpleSetupFirmware { } }
 
     //================================================================== S59 Sensors
     Component {
@@ -269,6 +253,7 @@ Rectangle {
                 else if (kind === "baro")  ctl.calibratePressure()
             }
             function finished() {
+                if (motSheet.phase === 1) { motSheet.phase = 2; vsp.calRunning = false; return }
                 var ok = okSeen || progress.value >= 1
                 result = ok ? "ok" : (cancelAsked ? "cancelled" : "failed")
                 if (ok) {
@@ -293,10 +278,10 @@ Rectangle {
                 { key: "baro",    icon: "undo",  t: qsTr("Barometer"),
                   s: qsTr("Sets the altitude reading to 0 where the drone stands"), st: "optional", btn: qsTr("Start") },
                 { key: "mot",     icon: "power", t: qsTr("Motor interference"),
-                  s: qsTr("Measures compass error from the motors (CompassMot). Propellers off"), st: motDone ? "done" : "optional", btn: qsTr("Start"), classic: true },
+                  s: qsTr("Measures compass error from the motors (CompassMot). Propellers on and flipped, drone tied down"), st: motDone ? "done" : "optional", btn: qsTr("Start"), sheet: "mot" },
                 { key: "orient",  icon: "undo",  t: qsTr("Orientation"),
                   s: qsTr("Board: %1 · Compass 1: %2").arg(p("AHRS_ORIENTATION") ? p("AHRS_ORIENTATION").enumOrValueString : "—").arg(p("COMPASS_ORIENT") ? p("COMPASS_ORIENT").enumOrValueString : "—"),
-                  st: "done", btn: qsTr("Change"), classic: true }
+                  st: "done", btn: qsTr("Change"), sheet: "orient" }
             ]
 
             Column {
@@ -331,9 +316,147 @@ Rectangle {
                             kind: modelData.st === "needs" ? "primary" : "secondary"
                             text: modelData.btn
                             enabled_: !vsp._armed && !vsp.calRunning
-                            onClicked: modelData.classic ? simpleRoot.openClassic("setup:APMSensorsComponent") : sn.start(modelData.key)
+                            onClicked: modelData.sheet === "mot" ? motSheet.open() : modelData.sheet === "orient" ? orientSheet.open() : sn.start(modelData.key)
                         }
                     }
+                }
+            }
+
+            //================================================================== S85 Motor interference (CompassMot)
+            SSheet {
+                id: motSheet
+                title: qsTr("Motor interference")
+                steps: 3; step: Math.min(2, phase)
+                designWidth: 1000
+                property int  phase: 0          // 0 prepare · 1 measuring · 2 result
+                property var  checks: [false, false, false]
+                readonly property bool allChecked: checks[0] && checks[1] && checks[2]
+                readonly property bool noCurrent: { var m = sn.p("BATT_MONITOR"); return !m || [0, 3].indexOf(Number(m.rawValue)) >= 0 }
+                property real lastInterference: -1
+                subtitle: phase === 0 ? qsTr("Step 1 of 3 · Prepare the drone. The motors will spin.")
+                        : phase === 1 ? qsTr("Step 2 of 3 · Raise the throttle slowly to 75 %, hold 5 seconds, then lower it to zero.")
+                        : qsTr("Step 3 of 3 · Result. The correction is saved on the drone.")
+                onAboutToShow: { phase = 0; checks = [false, false, false]; lastInterference = -1 }
+                Connections { target: ctl; function onCompassMotStatusChanged() { if (ctl.compassMotInterference >= 0) motSheet.lastInterference = ctl.compassMotInterference } }
+
+                Repeater {
+                    model: motSheet.phase === 0 ? [qsTr("Propellers on, flipped and moved one place round the frame: the drone pushes into the ground"),
+                                                   qsTr("Drone tied down so it cannot move"),
+                                                   qsTr("Controller on, throttle at zero")] : []
+                    Item {
+                        width: motSheet.innerWidth; height: Math.max(SimpleTheme.px(64), ct.height + SimpleTheme.px(16))
+                        Rectangle { id: cb; width: SimpleTheme.px(40); height: width; radius: SimpleTheme.px(8); anchors.verticalCenter: parent.verticalCenter
+                                    color: motSheet.checks[index] ? SimpleTheme.brandGreen : "transparent"
+                                    border.width: SimpleTheme.px(3); border.color: motSheet.checks[index] ? SimpleTheme.brandGreen : SimpleTheme.textSecondary
+                                    SIcon { anchors.centerIn: parent; name: "check"; size: 30; visible: !!motSheet.checks[index] } }
+                        SText { id: ct; anchors.left: cb.right; anchors.leftMargin: SimpleTheme.px(20); anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                                text: modelData; size: 26; wrapMode: Text.WordWrap }
+                        MouseArea { anchors.fill: parent; objectName: "motCheck_" + index
+                                    onClicked: { var c = motSheet.checks.slice(); c[index] = !c[index]; motSheet.checks = c } }
+                    }
+                }
+                SNotice { visible: motSheet.phase === 0 && motSheet.noCurrent; level: "warn"
+                          text: qsTr("No current sensor: the result follows the throttle only and is less exact.") }
+                Rectangle {
+                    visible: motSheet.phase >= 1
+                    width: motSheet.innerWidth; height: motCol.height + SimpleTheme.px(40); radius: SimpleTheme.px(20)
+                    color: SimpleTheme.surfaceControl
+                    Column {
+                        id: motCol
+                        x: SimpleTheme.px(24); y: SimpleTheme.px(20); width: parent.width - SimpleTheme.px(48)
+                        spacing: SimpleTheme.px(14)
+                        Repeater {
+                            model: [
+                                { t: qsTr("Throttle"), v: ctl.compassMotThrottle, u: "%", max: 100, show: motSheet.phase === 1, intf: false },
+                                { t: qsTr("Current"), v: ctl.compassMotCurrent, u: "A", max: 40, show: motSheet.phase === 1, intf: false },
+                                { t: qsTr("Interference · compass 1"), v: motSheet.phase === 2 ? motSheet.lastInterference : ctl.compassMotInterference, u: "%", max: 100, show: true, intf: true }
+                            ]
+                            Item {
+                                visible: modelData.show
+                                width: motCol.width; height: SimpleTheme.px(48)
+                                readonly property real val: modelData.v
+                                SText { width: SimpleTheme.px(330); anchors.verticalCenter: parent.verticalCenter; text: modelData.t; size: 24 }
+                                Item {
+                                    x: SimpleTheme.px(340); width: parent.width - SimpleTheme.px(500); height: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
+                                    Rectangle { anchors.fill: parent; radius: height / 2; color: SimpleTheme.surfaceRaised }
+                                    Rectangle { visible: parent.parent.val >= 0; height: parent.height; radius: height / 2
+                                                width: parent.width * Math.max(0.01, Math.min(1, parent.parent.val / modelData.max))
+                                                color: !modelData.intf ? SimpleTheme.brandGreen : parent.parent.val > 60 ? SimpleTheme.danger : parent.parent.val > 30 ? SimpleTheme.warn : SimpleTheme.ok }
+                                }
+                                SText { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; size: 26; bold: true
+                                        text: parent.val >= 0 ? (modelData.u === "A" ? parent.val.toFixed(1) : Math.round(parent.val)) + " " + modelData.u : "—" }
+                            }
+                        }
+                    }
+                }
+                SText { visible: motSheet.phase >= 1; width: motSheet.innerWidth; size: 22; color: SimpleTheme.textSecondary; wrapMode: Text.WordWrap
+                        text: qsTr("Under 30 % is good. 30–60 % is acceptable. Over 60 %: move the compass or the GPS mast away from power wires.") }
+                SNotice { visible: motSheet.phase === 2 && motSheet.lastInterference < 0; level: "warn"
+                          text: qsTr("The drone sent no measurement. Raise the throttle higher next time and keep it there for 5 seconds.") }
+                SNotice { visible: motSheet.phase <= 1; level: "danger"
+                          text: qsTr("Propellers are on and flipped: the drone pushes into the ground. Keep it tied down and stand back.") }
+                Row {
+                    spacing: SimpleTheme.px(12)
+                    SButton { objectName: "motCancel"; visible: motSheet.phase !== 1; width: (motSheet.innerWidth - parent.spacing) / 2; designHeight: 72; textSize: 26
+                              text: motSheet.phase === 2 ? qsTr("Close") : qsTr("Cancel"); onClicked: motSheet.close() }
+                    SButton { objectName: "motStop"; visible: motSheet.phase === 1; width: (motSheet.innerWidth - parent.spacing) / 2; designHeight: 72; textSize: 26
+                              kind: "danger"; text: qsTr("Stop and save"); onClicked: ctl.nextClicked() }
+                    SButton {
+                        objectName: "motStart"
+                        width: (motSheet.innerWidth - parent.spacing) / 2; designHeight: 72; textSize: 26
+                        kind: motSheet.phase === 1 ? "secondary" : "primary"
+                        enabled_: motSheet.phase === 0 ? motSheet.allChecked && !vsp._armed && !vsp.calRunning : motSheet.phase === 2
+                        text: motSheet.phase === 0 ? qsTr("Start") : motSheet.phase === 1 ? qsTr("Measuring…") : qsTr("Done")
+                        onClicked: {
+                            if (motSheet.phase === 0) { sn.okSeen = false; sn.cancelAsked = false; motSheet.phase = 1; vsp.calRunning = true; ctl.calibrateMotorInterference() }
+                            else motSheet.close()
+                        }
+                    }
+                }
+            }
+
+            //================================================================== S86 Orientation
+            SSheet {
+                id: orientSheet
+                title: qsTr("Orientation")
+                subtitle: qsTr("Only change this when the flight controller or a compass is mounted turned. The arrow on the board points to the front.")
+                designWidth: 900
+                closeOnOutside: true
+                property bool changed: false
+                onAboutToShow: changed = false
+                Repeater {
+                    model: [
+                        { t: qsTr("Flight controller"), p: "AHRS_ORIENTATION", use: "", ext: "" },
+                        { t: qsTr("Compass 1"), p: "COMPASS_ORIENT",  use: "COMPASS_USE",  ext: "COMPASS_EXTERNAL" },
+                        { t: qsTr("Compass 2"), p: "COMPASS_ORIENT2", use: "COMPASS_USE2", ext: "COMPASS_EXTERN2" },
+                        { t: qsTr("Compass 3"), p: "COMPASS_ORIENT3", use: "COMPASS_USE3", ext: "COMPASS_EXTERN3" }
+                    ]
+                    Column {
+                        id: oc
+                        readonly property var f: sn.p(modelData.p)
+                        readonly property var ext: modelData.ext !== "" ? sn.p(modelData.ext) : null
+                        readonly property bool internal: !!ext && Number(ext.rawValue) === 0
+                        readonly property bool used: modelData.use !== "" && !!sn.p(modelData.use) && Number(sn.p(modelData.use).rawValue) !== 0
+                        visible: !!f
+                        width: orientSheet.innerWidth; spacing: SimpleTheme.px(8)
+                        Row {
+                            spacing: SimpleTheme.px(12)
+                            SText { anchors.verticalCenter: parent.verticalCenter; size: 26; medium: true
+                                    text: modelData.t + (oc.ext ? " · " + (oc.internal ? qsTr("internal") : qsTr("external")) : "") }
+                            SStatusChip { visible: oc.used; anchors.verticalCenter: parent.verticalCenter; text: qsTr("Used"); level: "ok" }
+                        }
+                        SFactField { fact: oc.f; designWidth: 820; enabled_: !vsp._armed && !oc.internal; opacity: oc.internal ? 0.4 : 1 }
+                        Connections { target: oc.f; ignoreUnknownSignals: true; function onRawValueChanged() { if (orientSheet.visible) orientSheet.changed = true } }
+                        SText { visible: oc.internal; size: 20; color: SimpleTheme.textSecondary; text: qsTr("Internal compasses follow the flight controller.") }
+                    }
+                }
+                SNotice { level: "info"; text: qsTr("After a change, restart the drone and calibrate the compass and the accelerometer again (Sensors).") }
+                Row {
+                    spacing: SimpleTheme.px(12)
+                    SButton { width: (orientSheet.innerWidth - parent.spacing) / 2; designHeight: 72; textSize: 26; text: qsTr("Close"); onClicked: orientSheet.close() }
+                    SButton { objectName: "orientRestart"; width: (orientSheet.innerWidth - parent.spacing) / 2; designHeight: 72; textSize: 26; kind: "primary"
+                              enabled_: orientSheet.changed && !vsp._armed; text: qsTr("Restart the drone")
+                              onClicked: { vsp._veh.rebootVehicle(); orientSheet.close() } }
                 }
             }
 

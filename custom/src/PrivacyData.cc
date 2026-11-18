@@ -17,7 +17,9 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QSettings>
+#include <QStorageInfo>
 #include <QUrl>
 #include <QtConcurrent>
 
@@ -298,4 +300,42 @@ void PrivacyData::_setBusy(bool busy)
         _busy = busy;
         emit busyChanged();
     }
+}
+
+//-----------------------------------------------------------------------------
+// S90 save-folder picker
+
+QStringList PrivacyData::drives() const
+{
+    QStringList r;
+    for (const QFileInfo& fi : QDir::drives()) {
+        r << QDir::fromNativeSeparators(fi.absoluteFilePath());
+    }
+    return r;
+}
+
+QVariantMap PrivacyData::folderInfo(const QString& path) const
+{
+    QVariantMap m;
+    QFileInfo fi(path);
+    m["exists"]   = fi.exists() && fi.isDir();
+    m["writable"] = fi.exists() && fi.isDir() && fi.isWritable();
+    QStorageInfo st(path);
+    m["freeBytes"] = st.isValid() ? static_cast<double>(st.bytesAvailable()) : -1.0;
+    QDir d(path);
+    m["parent"] = d.isRoot() ? QString() : QDir::fromNativeSeparators(QFileInfo(d.absolutePath()).absolutePath());
+    return m;
+}
+
+QString PrivacyData::makeFolder(const QString& parent, const QString& name) const
+{
+    const QString clean = name.trimmed();
+    if (clean.isEmpty() || clean.contains(QRegularExpression(QStringLiteral("[\\\\/:*?\"<>|]"))) || clean == "." || clean == "..") {
+        return QString();
+    }
+    QDir d(parent);
+    if (!d.exists() || !d.mkdir(clean)) {
+        return QString();
+    }
+    return QDir::fromNativeSeparators(d.absoluteFilePath(clean));
 }

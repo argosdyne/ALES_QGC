@@ -133,8 +133,10 @@ Column {
             SSettingRow { title: qsTr("Save telemetry logs"); sub: qsTr("Keeps a log of each flight"); SFactToggle { fact: adv._app.telemetrySave } }
             SSettingRow { visible: !!adv._app.telemetrySave.rawValue; title: qsTr("Also on the ground"); sub: qsTr("Save logs when the motors were not started"); SFactToggle { fact: adv._app.telemetrySaveNotArmed } }
             SSettingRow { title: qsTr("CSV log"); sub: qsTr("Also save the main values as a spreadsheet file"); SFactToggle { fact: adv._app.saveCsvTelemetry } }
-            SSettingRow { title: qsTr("Save folder"); sub: String(adv._app.savePath.rawValue) !== "" ? String(adv._app.savePath.rawValue) : qsTr("Not set")
-                          SButton { designHeight: 64; textSize: 22; text: qsTr("Change (classic)"); onClicked: simpleRoot.openClassic("settings") } }
+            SSettingRow { visible: Qt.platform.os !== "android" && Qt.platform.os !== "ios"
+                          title: qsTr("Save folder"); sub: String(adv._app.savePath.rawValue) !== "" ? String(adv._app.savePath.rawValue) : qsTr("Not set")
+                          SButton { objectName: "saveFolderChange"; designHeight: 64; textSize: 22; text: qsTr("Change"); onClicked: folderPicker.openAt(adv._app.savePath.rawValue) } }
+            SimpleFolderPicker { id: folderPicker; fact: adv._app.savePath }     // S90
             SSettingRow { visible: Qt.platform.os === "android"; title: qsTr("Save to SD card"); sub: qsTr("Use the SD card for logs and media"); SFactToggle { fact: adv._app.androidSaveToSDCard } }
             SSettingRow {
                 title: qsTr("Reset all settings"); sub: dl.resetDone ? qsTr("All settings are cleared at the next start. Restart the app.") : qsTr("Back to the first-start screen at the next start")

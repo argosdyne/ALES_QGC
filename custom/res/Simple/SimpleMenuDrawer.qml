@@ -1,7 +1,7 @@
 /****************************************************************************
  * AQGC Simple UI — S06 menu drawer + S44 Advanced panel (Figma 36:34086, 2026-11-17)
- * Advanced mode (no PIN, kept over restarts) keeps the Simple screens and adds the Advanced panel. Its items open
- * the classic alesQGC pages until the new screens (S58–S80) exist; "Classic alesQGC screens" is temporary.
+ * Advanced mode (no PIN, kept over restarts) keeps the Simple screens and adds the Advanced panel. Every item opens a
+ * Simple screen (S58–S90); the temporary "Classic alesQGC screens" item was removed on 2026-11-18 (step 8).
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
@@ -165,8 +165,7 @@ Item {
                     { key: "analyze",    icon: "folder",  t: qsTr("Analyze tools"),  s: qsTr("Log download, vibration, developer tools"), warn: false },
                     { key: "settings",   icon: "sliders", t: qsTr("More settings"),  s: qsTr("Fly screen, video, plan, data & logs, devices"), warn: false },
                     { key: "profile",    icon: "grid",    t: qsTr("Product profile"), warn: false,
-                      s: qsTr("%1 · change").arg(drawer._profileNames[Math.max(0, Math.min(3, Number(QGroundControl.corePlugin.settings.simpleProductProfile.rawValue)))]) },
-                    { key: "classic",    icon: "info",    t: qsTr("Classic alesQGC screens"), s: qsTr("Until every screen is redesigned (temporary)"), warn: false }
+                      s: qsTr("%1 · change").arg(drawer._profileNames[Math.max(0, Math.min(3, Number(QGroundControl.corePlugin.settings.simpleProductProfile.rawValue)))]) }
                 ]
                 Rectangle {
                     objectName: "adv_" + modelData.key
@@ -182,7 +181,6 @@ Item {
                             if (modelData.key === "parameters") { simpleRoot.showParameters(); return }   // S60
                             if (modelData.key === "setup")      { simpleRoot.showVehicleSetup(); return }   // S58
                             if (modelData.key === "settings")   { simpleRoot.showSettings("flyscreen"); return } // S64 ADVANCED MODE categories
-                            simpleRoot.openClassic(modelData.key === "classic" ? "fly" : modelData.key)
                         }
                     }
                     SIcon { id: advIcon; name: modelData.icon; size: 40; anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(22); anchors.verticalCenter: parent.verticalCenter }

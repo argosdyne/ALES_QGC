@@ -47,22 +47,15 @@ Item {
 
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
     // (2026-11-17): Advanced mode keeps the Simple screens and adds the Advanced panel in the menu.
-    // purpose: advanced (open the S44 panel) | setup | parameters | analyze | settings (classic pages for now)
+    // purpose: advanced (open the S44 panel) | setup | parameters | analyze | settings — all are Simple screens now
+    // (step 8, 2026-11-18: the S44 "Classic alesQGC screens" item is removed; the classic code stays in the app).
     function requestAdvanced(purpose) {
         QGroundControl.corePlugin.advancedMode = true
-        if (purpose === "advanced") { menu.open(); menu.advancedOpen = true; return }
-        openClassic(purpose)
-    }
-    // Classic alesQGC screens (temporary, until each S58–S80 screen exists). Closing them returns here.
-    function openClassic(what) {
-        QGroundControl.corePlugin.advancedMode = true
-        QGroundControl.corePlugin.showAdvancedUI = true      // this Simple root is unloaded now
-        mainWindow.showFlyView()
-        if (what.indexOf("setup:") === 0) mainWindow.showSetupComponent(what.substring(6))   // one classic setup page
-        else if (what === "setup")      mainWindow.showSetupTool()
-        else if (what === "parameters") mainWindow.showSetupParameters()
-        else if (what === "analyze")    mainWindow.showAnalyzeTool()
-        else if (what === "settings")   mainWindow.showSettingsTool()
+        if (purpose === "advanced")        { menu.open(); menu.advancedOpen = true }
+        else if (purpose === "setup")      showVehicleSetup()
+        else if (purpose === "parameters") showParameters()
+        else if (purpose === "analyze")    showAnalyze()
+        else if (purpose === "settings")   showSettings("flyscreen")
     }
 
     // Layer rule 1: critical alerts bring the user back to the fly screen

@@ -1,10 +1,12 @@
 /****************************************************************************
  * AQGC Simple UI — S71 Vehicle setup › Radio (Figma 127:39657, 2026-11-17).
  * Live channel bars (RCChannelMonitorController): name from RCMAP_*, the mode channel and RCx_OPTION, PWM value,
- * centre line at 1500. Calibrate sticks / reverse a channel open the classic Radio page (the company controller is
- * calibrated at the factory: only after a repair or a new controller).
+ * centre line at 1500. Calibrate sticks = S81 sheet (SimpleRadioCal.qml), reverse a channel = S82 sheet (RCn_REVERSED,
+ * throttle can only be turned back to normal). The company controller is calibrated at the factory: only after a
+ * repair or with a new controller.
  ****************************************************************************/
 import QtQuick 2.12
+import QtQuick.Controls 2.12
 import QGroundControl 1.0
 import QGroundControl.FactSystem 1.0
 import QGroundControl.Controllers 1.0
@@ -67,8 +69,54 @@ Flickable {
         }
         Row {
             spacing: SimpleTheme.px(12)
-            SButton { kind: "primary"; text: qsTr("Calibrate sticks (classic)"); onClicked: simpleRoot.openClassic("setup:RadioComponent") }
-            SButton { text: qsTr("Reverse a channel (classic)"); onClicked: simpleRoot.openClassic("setup:RadioComponent") }
+            SButton { objectName: "radioCalibrate"; kind: "primary"; text: qsTr("Calibrate sticks"); onClicked: calSheet.open() }
+            SButton { objectName: "radioReverse"; text: qsTr("Reverse a channel…"); onClicked: revSheet.open() }
         }
+    }
+
+    readonly property var _veh: QGroundControl.multiVehicleManager.activeVehicle
+    readonly property int throttleCh: { var f = p("RCMAP_THROTTLE"); return f ? Number(f.rawValue) - 1 : 2 }
+
+    //================================================================== S81 Calibrate sticks
+    SimpleRadioCal {
+        id: calSheet
+        page: rd
+        values: rd.values
+        count: rd.count
+        armed: !!rd._veh && rd._veh.armed
+        throttleCh: rd.throttleCh
+    }
+
+    //================================================================== S82 Reverse a channel
+    SSheet {
+        id: revSheet
+        title: qsTr("Reverse a channel")
+        subtitle: qsTr("Turn on when a bar moves the wrong way. Check the bar after each change.")
+        designWidth: 860
+        closeOnOutside: true
+        Repeater {
+            model: rd.count
+            Item {
+                width: revSheet.innerWidth; height: SimpleTheme.px(72)
+                readonly property var fact: rd.p("RC" + (index + 1) + "_REVERSED")
+                readonly property bool on: !!fact && Number(fact.rawValue) === 1
+                readonly property bool thr: index === rd.throttleCh
+                visible: !!fact && (rd.values[index] > 0 || on)     // only channels with a signal (or already reversed)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: rd.nameOf(index); size: 28; medium: true }
+                SStatusChip { visible: parent.on; anchors.right: tg.left; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr("Reversed"); level: "info" }
+                SToggle {
+                    id: tg
+                    objectName: "rev_" + (index + 1)
+                    anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                    checked: parent.on
+                    opacity: parent.thr && !parent.on ? 0.4 : 1
+                    enabled: !(parent.thr && !parent.on) && !(rd._veh && rd._veh.armed)
+                    onToggled: { parent.fact.rawValue = checked ? 1 : 0; checked = Qt.binding(function() { return parent.on }) }
+                }
+            }
+        }
+        SNotice { level: "warn"; text: qsTr("Do not reverse throttle on the drone side. Fix it on the controller.") }
+        SButton { width: revSheet.innerWidth; designHeight: 72; textSize: 26; kind: "primary"; text: qsTr("Done"); onClicked: revSheet.close() }
     }
 }

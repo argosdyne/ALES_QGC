@@ -213,6 +213,16 @@
         <file alias="SimpleSetupSafety.qml">res/Simple/SimpleSetupSafety.qml</file>
         <file alias="SimpleSetupPower.qml">res/Simple/SimpleSetupPower.qml</file>
         <file alias="SimpleSetupRadio.qml">res/Simple/SimpleSetupRadio.qml</file>
+        <file alias="SimpleSetupFirmware.qml">res/Simple/SimpleSetupFirmware.qml</file>
+        <file alias="SimpleFolderPicker.qml">res/Simple/SimpleFolderPicker.qml</file>
+        <file alias="SimpleInspectorChart.qml">res/Simple/SimpleInspectorChart.qml</file>
+        <file alias="SimpleLogCategories.qml">res/Simple/SimpleLogCategories.qml</file>
+        <file alias="SimpleParamFile.qml">res/Simple/SimpleParamFile.qml</file>
+        <file alias="SimplePrearmChecks.qml">res/Simple/SimplePrearmChecks.qml</file>
+        <file alias="SimpleEscCal.qml">res/Simple/SimpleEscCal.qml</file>
+        <file alias="SimpleRadioCal.qml">res/Simple/SimpleRadioCal.qml</file>
+        <file alias="SNotice.qml">res/Simple/SNotice.qml</file>
+        <file alias="SSheet.qml">res/Simple/SSheet.qml</file>
         <file alias="SimpleSetupGimbal.qml">res/Simple/SimpleSetupGimbal.qml</file>
         <file alias="SimpleSetupTuning.qml">res/Simple/SimpleSetupTuning.qml</file>
         <file alias="SimpleSetupFrame.qml">res/Simple/SimpleSetupFrame.qml</file>

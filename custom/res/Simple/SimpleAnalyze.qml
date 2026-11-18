@@ -4,7 +4,8 @@
  * - S61 Log download: classic LogDownloadController (list, download selected to the log folder, erase all).
  * - S62 Vibration: vehicle.vibration (30 = check, 60 = too high, clipping counts).
  * - Developer tools switch (setting simpleDeveloperTools, default off): S63 MAVLink Inspector (read only, classic
- *   MAVLinkInspectorController; charts stay in the classic inspector for now) and App log (debugMessageModel).
+ *   MAVLinkInspectorController; S88 chart sheet SimpleInspectorChart.qml) and App log (debugMessageModel;
+ *   S89 log categories sheet SimpleLogCategories.qml).
  ****************************************************************************/
 import QtQuick 2.12
 import QtQuick.Controls 2.4
@@ -371,6 +372,21 @@ Rectangle {
             // the controller fills field values only for the message selected on the system
             readonly property int sel: _sys ? _sys.selected : 0
             readonly property var _msg: _sys && _sys.messages.count > 0 ? _sys.messages.get(Math.max(0, Math.min(sel, _sys.messages.count - 1))) : null
+            // S88: fields ticked "Chart" (max 2) of the selected message
+            property var picks: []
+            onSelChanged: picks = []
+            function picked(name) { return picks.some(function(p) { return p.name === name }) }
+            function togglePick(name, obj) {
+                if (picked(name)) picks = picks.filter(function(p) { return p.name !== name })
+                else if (picks.length < 2) picks = picks.concat([{ name: name, obj: obj }])
+            }
+            SimpleInspectorChart {
+                id: chartSheet
+                messageName: ins._msg ? ins._msg.name : ""
+                rateHz: ins._msg ? ins._msg.messageHz : 0
+                fields: ins.picks
+                onRemoveField: ins.picks = ins.picks.filter(function(p) { return p.name !== name })
+            }
 
             Column {
                 id: insHead
@@ -435,16 +451,31 @@ Rectangle {
                     delegate: Item {
                         width: ListView.view.width; height: SimpleTheme.px(60)
                         SText { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; text: object.name; size: 22; color: SimpleTheme.textSecondary }
-                        SText { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: object.value; size: 24; bold: true
-                                width: parent.width * 0.6; horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft }
+                        SText { anchors.right: pickBox.left; anchors.rightMargin: SimpleTheme.px(16); anchors.verticalCenter: parent.verticalCenter; text: object.value; size: 24; bold: true
+                                width: parent.width * 0.5; horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft }
+                        Row {
+                            id: pickBox
+                            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                            spacing: SimpleTheme.px(8)
+                            opacity: object.selectable ? 1 : 0
+                            readonly property bool on: ins.picked(object.name)
+                            Rectangle { width: SimpleTheme.px(34); height: width; radius: SimpleTheme.px(8); anchors.verticalCenter: parent.verticalCenter
+                                        color: pickBox.on ? SimpleTheme.brandGreen : "transparent"
+                                        border.width: SimpleTheme.px(3); border.color: pickBox.on ? SimpleTheme.brandGreen : SimpleTheme.textSecondary
+                                        SIcon { anchors.centerIn: parent; name: "check"; size: 26; visible: pickBox.on } }
+                            SText { text: qsTr("Chart"); size: 20; color: SimpleTheme.textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                        // outside the Row: a child sized from the Row made a polish() loop (app hung, 2026-11-18)
+                        MouseArea { anchors.fill: pickBox; anchors.margins: -SimpleTheme.px(10); enabled: object.selectable; onClicked: ins.togglePick(object.name, object) }
                     }
                 }
                 SButton {
                     id: chartBtn
                     anchors.left: parent.left; anchors.leftMargin: SimpleTheme.px(24); anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(18)
                     designHeight: 72; textSize: 24; icon: "layers"
-                    text: qsTr("Charts (classic inspector)")
-                    onClicked: simpleRoot.openClassic("analyze")
+                    objectName: "inspChart"
+                    text: ins.picks.length > 0 ? qsTr("Chart (%1)").arg(ins.picks.length) : qsTr("Chart")
+                    onClicked: chartSheet.open()
                 }
             }
         }
@@ -456,6 +487,7 @@ Rectangle {
         Item {
             id: al
             property string saved: ""
+            SimpleLogCategories { id: logCats }     // S89
             Column {
                 id: alHead
                 width: parent.width
@@ -463,9 +495,15 @@ Rectangle {
                 SText { text: qsTr("App log"); size: 40; bold: true }
                 Item {
                     width: parent.width; height: SimpleTheme.px(80)
-                    SText { anchors.verticalCenter: parent.verticalCenter; width: parent.width - saveBtn.width - SimpleTheme.px(20)
+                    SText { anchors.verticalCenter: parent.verticalCenter; width: parent.width - saveBtn.width - catBtn.width - SimpleTheme.px(40)
                             wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
                             text: al.saved !== "" ? qsTr("Saved: %1").arg(al.saved) : qsTr("Messages of this app since it started (newest at the bottom). Secrets are never written to it.") }
+                    SButton {
+                        id: catBtn
+                        anchors.right: saveBtn.left; anchors.rightMargin: SimpleTheme.px(12); anchors.verticalCenter: parent.verticalCenter
+                        designHeight: 72; textSize: 24; icon: "sliders"; text: qsTr("Log categories"); objectName: "logCategoriesTop"
+                        onClicked: logCats.open()
+                    }
                     SButton {
                         id: saveBtn
                         anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
@@ -481,7 +519,7 @@ Rectangle {
             Rectangle {
                 anchors.top: alHead.bottom; anchors.topMargin: SimpleTheme.px(12); anchors.bottom: parent.bottom
                 width: parent.width; radius: SimpleTheme.px(18); color: SimpleTheme.surfaceRaised
-                // the log keeps only the categories turned on in the classic logging page (all off by default)
+                // the log keeps only the categories turned on (S89; all off by default)
                 Column {
                     visible: logView.count === 0
                     anchors.centerIn: parent
@@ -490,7 +528,7 @@ Rectangle {
                     SText { width: parent.width; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter; size: 24; color: SimpleTheme.textSecondary
                             text: qsTr("No messages yet. The app records only the log categories that are turned on (all are off by default).") }
                     SButton { anchors.horizontalCenter: parent.horizontalCenter; designHeight: 72; textSize: 24; icon: "sliders"
-                              text: qsTr("Choose log categories (classic)"); onClicked: simpleRoot.openClassic("analyze") }
+                              text: qsTr("Choose log categories"); objectName: "logCategories"; onClicked: logCats.open() }
                 }
                 ListView {
                     id: logView

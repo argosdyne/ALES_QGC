@@ -53,6 +53,12 @@ Rectangle {
         Item {
             id: ed
             ParameterEditorController { id: ctl }
+            SimpleParamFile {                      // S87
+                id: paramFile
+                editor: ctl
+                armed: !!pp._veh && pp._veh.armed
+                onSaved: ed.note = qsTr("Saved: %1").arg(path)
+            }
 
             // left list: "all" | "changed" | group index (groups of the same name in Standard / Advanced are merged)
             property string mode: "all"
@@ -192,12 +198,8 @@ Rectangle {
                         anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                         spacing: SimpleTheme.px(12)
                         SButton {
-                            designHeight: 80; textSize: 26; icon: "download"; text: qsTr("Save to file")
-                            onClicked: {
-                                var f = QGroundControl.settingsManager.appSettings.parameterSavePath + "/" + Qt.formatDateTime(new Date(), "yyyy-MM-dd_hh-mm-ss") + ".params"
-                                ctl.saveToFile(f)
-                                ed.note = qsTr("Saved: %1").arg(f)
-                            }
+                            designHeight: 80; textSize: 26; icon: "download"; text: qsTr("Save to file"); objectName: "paramSave"
+                            onClicked: paramFile.openSave()
                         }
                         SButton { designHeight: 80; textSize: 26; icon: "sliders"; text: qsTr("More"); objectName: "paramMore"; onClicked: ed.moreOpen = !ed.moreOpen }
                     }
@@ -219,8 +221,8 @@ Rectangle {
                                   enabled_: !!pp._veh && !pp._veh.armed; onClicked: { ed.moreOpen = false; pp._veh.rebootVehicle(); ed.note = qsTr("Restart sent to the drone.") } }
                         SButton { width: parent.width; designHeight: 76; textSize: 24; kind: "danger"; text: qsTr("Reset all to defaults…")
                                   enabled_: !!pp._veh && !pp._veh.armed; onClicked: { ed.moreOpen = false; ed.confirm = "resetall" } }
-                        SButton { width: parent.width; designHeight: 76; textSize: 24; text: qsTr("Load from file (classic)")
-                                  onClicked: { ed.moreOpen = false; simpleRoot.openClassic("parameters") } }
+                        SButton { width: parent.width; designHeight: 76; textSize: 24; text: qsTr("Load from file…"); objectName: "paramLoad"
+                                  onClicked: { ed.moreOpen = false; paramFile.openLoad() } }
                     }
                 }
                 // warning / confirmation

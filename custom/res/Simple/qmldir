@@ -71,3 +71,13 @@ SimpleTopBar 1.0 SimpleTopBar.qml
 SimpleVehicleState 1.0 SimpleVehicleState.qml
 SComboBox 1.0 SComboBox.qml
 SimpleWelcome 1.0 SimpleWelcome.qml
+SSheet 1.0 SSheet.qml
+SNotice 1.0 SNotice.qml
+SimpleRadioCal 1.0 SimpleRadioCal.qml
+SimpleEscCal 1.0 SimpleEscCal.qml
+SimplePrearmChecks 1.0 SimplePrearmChecks.qml
+SimpleParamFile 1.0 SimpleParamFile.qml
+SimpleLogCategories 1.0 SimpleLogCategories.qml
+SimpleInspectorChart 1.0 SimpleInspectorChart.qml
+SimpleFolderPicker 1.0 SimpleFolderPicker.qml
+SimpleSetupFirmware 1.0 SimpleSetupFirmware.qml
