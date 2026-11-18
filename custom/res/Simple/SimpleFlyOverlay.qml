@@ -521,17 +521,29 @@ Item {
             detail: qsTr("Move closer or raise the controller antenna. Controls return when the signal is back.")
         }
         // S50 tether power lost (classic SAFE-T no-power rules: failsafe 0 recommend land, 1 warn only, 2 auto land)
+        // The active drone changed (or was not known) since the incident: the pilot first confirms that the drone on
+        // screen is the one on the tether (classic ElistairStationPanel "Confirm tethered vehicle"; sends nothing).
         SBanner {
             readonly property bool _ask: fly._st && fly._st.noPowerPrompt && !fly._st.noPowerVehicleNeedsConfirmation
+            readonly property bool _confirm: !!fly._st && fly._st.noPowerPrompt && fly._st.noPowerVehicleNeedsConfirmation
+                                             && !!fly._veh && !fly._veh.vehicleLinkManager.communicationLost
             visible: !!fly._st && fly._st.noPower
             level: "danger"; icon: "tether"
             title: qsTr("Tether power lost — the drone is on its onboard battery")
-            detail: !fly._st ? "" : fly._st.noPowerVehicleNeedsConfirmation ? qsTr("Confirm the tethered drone in the Advanced tether panel first.")
+            detail: !fly._st ? "" : fly._st.noPowerVehicleNeedsConfirmation
+                    ? (_confirm ? qsTr("Is drone %1 the one on this tether? Check it, then confirm. Confirming sends nothing to the drone.").arg(fly._veh.id)
+                                : qsTr("The drone on the tether is not connected. Land it with its own controls."))
                   : fly._st.noPowerFailsafe === 2 ? qsTr("The drone lands by itself. Keep the area below clear.")
                   : fly._st.noPowerFailsafe === 1 ? qsTr("Check the generator and the ground unit. Land if power does not return.")
                   : qsTr("Landing is recommended. Keep the area below clear.")
-            actions: _ask ? [qsTr("Land"), qsTr("To station"), qsTr("Continue")] : []
+            actions: _ask ? [qsTr("Land"), qsTr("To station"), qsTr("Continue")]
+                   : _confirm ? [qsTr("Yes, this drone"), qsTr("Continue")] : []
             onActionAt: {
+                if (_confirm) {
+                    if (index === 0) fly._st.associateNoPowerVehicle(fly._st.noPowerIncident, fly._veh)
+                    else fly._st.dismissNoPower()
+                    return
+                }
                 if (index === 0) fly._st.requestNoPowerAction(false)
                 else if (index === 1) fly._st.requestNoPowerAction(true)
                 else fly._st.dismissNoPower()
