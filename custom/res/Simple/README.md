@@ -78,6 +78,7 @@ The Simple UI does not duplicate flight logic. It calls the existing controllers
 | `SimpleReference.qml` | S60, S84 | Singleton: company reference parameters (`docs/REF_45_SC_AQ3F_reference.param`, AQUILA-3F) for every drone; per-unit values (calibration, RC ranges, IDs, statistics) are not compared; ARMING_CHECK helpers |
 | `SimpleManualLinks.qml` | S93 / S94 | Settings › Connection, Advanced mode: saved serial / UDP / TCP links (LinkManager), Connect / Disconnect / Edit, add / edit sheet |
 | `SimpleGamepad.qml` | S95 | Settings › Devices › USB gamepad: use for this drone, live axes and buttons, button actions, throttle mode, calibration sheet (JoystickConfigController) |
+| `SimpleSetupMission.qml` | S97 | Vehicle setup › Mission: MIS_OPTIONS clear on restart / continue after landing (APMMissionComponentController); only when the firmware has MIS_OPTIONS |
 | `SSheet.qml`, `SNotice.qml` | S67 / S81–S90 | Shared centred modal sheet (scrolls when taller than the window) and notice box |
 | `SimpleTheme.qml` | Variables "AQGC Simple" | Colors, sizes, `px()` / `fs()` scaling from 1920×1080 |
 | `S*.qml` | 99 Components | Buttons, chips, segmented, combo box, stepper, toggle, text field, slide confirm, panel, banner |

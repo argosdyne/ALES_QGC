@@ -321,8 +321,12 @@ Reply to the user in Korean unless they write in English.
   qsTr() fail the static translation check: use “ ” quotes.
 - Step 9 (user 2026-11-18, "권고한 순서대로"): before deleting classic code, the classic-only features get Simple
   screens: S93 / S94 manual connections + RTK serial source, S95 USB gamepad, S96 custom actions (done 2026-11-18, see
-  TASK-advanced-mode-redesign.md "Step 9"). Rajant radio settings: waiting for the user. Then delete classic UI in stages
-  (ask first). The app's own TCP / UDP links: `linkManager.createConfiguration` → edit copy → `endCreateConfiguration`
+  TASK-advanced-mode-redesign.md "Step 9"). Rajant radio settings: not needed (user 2026-11-18). Classic UI removal
+  (user 2026-11-18 "go to step 2"): stages A–C + D1 done (TASK "Step 9" table) with S97 Mission options, S98 on-screen
+  sticks, S99 Vision LiDAR. `mainWindow.simpleUI` is now a constant true and the classic screens cannot be opened.
+  The build compiles **custom/qgroundcontrol.qrc** (hand-edited; do not regenerate it with custom/updateqrc.py, it
+  would drop the Elistair entries); edit it together with the root qgroundcontrol.qrc and the exclusion list. QML
+  modules also need their qmldir lines removed. APM / PX4 setup pages live in src/FirmwarePlugin/*/…Resources.qrc. The app's own TCP / UDP links: `linkManager.createConfiguration` → edit copy → `endCreateConfiguration`
   (new) or `endConfigurationEditing` (deletes the copy); a cancelled copy must be deleted with
   `cancelConfigurationEditing`. Custom action tests: point `savePath` in the ini to a scratch folder (restore the backup
   after), never the real OneDrive folder. ui.ps1 `key <vk> [n]` sends key presses (8 = backspace; WM_CHAR backspace

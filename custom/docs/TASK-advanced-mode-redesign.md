@@ -129,12 +129,32 @@ More actions › Custom actions (UX notes `169:46530`, `169:46533`, `169:46536`,
 | 2 | RTK correction from a serial port | S93 RTK card: Source NTRIP server / Serial port, port + baud (SerialPortRTCMSource) | done (port opens; no RTK receiver to test data) |
 | 3 | Joystick setup | S95 `SimpleGamepad.qml` (Settings › Devices › USB gamepad, calibration sheet = JoystickConfigController) | done, "no gamepad" page only — test with a real gamepad |
 | 4 | Custom actions buttons | S96: More actions card + Settings › Fly screen "Actions file" (CustomActions folder) | done, SITL DO_SET_SERVO → servo 9 = 1900 |
-| 5 | Rajant radio settings | — | asked the user (still needed?) |
+| 5 | Rajant radio settings | — | not needed (user 2026-11-18) |
 | 6 | Dead-end hints | Safety battery / link rows → Vehicle setup › Safety; M2 note; RTK serial note; "Show mission progress" row removed (no effect in Simple mode); unused "Coming in the next version" page removed | done |
 
-Then (step 9b, ask first): delete the classic toolbar, setup / settings / analyze pages, fly widgets and Plan edit
-panels in small commits (SITL + CI after each). Keep MainRootWindow, FlyView / PlanView, GuidedActionsController,
-PlanMasterController and the C++ controllers.
+Then (step 9b, user 2026-11-18 "go to step 2"): delete the classic UI in small commits (SITL + CI after each). Keep
+MainRootWindow, FlyView / PlanView, GuidedActionsController, PlanMasterController and the C++ controllers.
+
+Found while removing (each got a Simple screen first, Figma first): S97 `171:45927` Vehicle setup › Mission
+(MIS_OPTIONS, was the classic APMMissionComponent page), S98 `172:45972` on-screen sticks on the Simple fly screen
+(the setting did nothing while the sticks sat in the hidden classic layer), S99 `173:46862` Settings › Payloads ›
+Vision LiDAR (BirdCom obstacle sensor, was a panel in the classic Plan tool strip). Removed dead Simple settings:
+pre-flight checklist (classic popup; switched off once at start, it could block take-off), compass nose-up / extra
+marks (classic compass only), "Show mission progress".
+
+| Stage | Commit | What |
+|---|---|---|
+| A | 4517d1d2a | MainRootWindow shell: toolbar, tool dialog / drawer, About, close-classic buttons, GeoZoneMakeView, windowed Analyze, first-run prompts. `simpleUI` is a constant `true`. showSetupTool (APM plugin, setup incomplete) does nothing; showSetupMission → S97 |
+| B | b3a572c52 | FlyView: classic widget layer + custom overlay + classic tether notice / panel. The guided controller's GuidedActionConfirm stays hidden (same behaviour) |
+| C | 23cc56619 | PlanView: tool strip, right panel (layers, item editors, fence / rally editors), Vision LiDAR panel, status, map scale |
+| D1 | 403f7edb0 | 129 QML files nothing can load (reachability from MainRootWindow, Simple, unit tests, C++ / JSON URLs) |
+
+Open (ask the user): classic pages still named by C++ (APM setup pages, settings / analyze pages, mission item
+editors, toolbar indicators) stay until the C++ references are cut (D2). Settings still only in deleted / unreachable
+classic pages — the Simple screens point to "Advanced ›" for them: YellowScan LiDAR setup (scanner sensitivity and
+pattern, MAVLink, timing), SAFE-T station setup (frame version, winch protection, control timing, Wi-Fi, admin
+items), camera resolution / file format / SD card format, gimbal servo channels / PWM / stabilisation; ArduPilot
+Remote Support (log forwarding to the ArduPilot support server).
 
 ## Tests
 
