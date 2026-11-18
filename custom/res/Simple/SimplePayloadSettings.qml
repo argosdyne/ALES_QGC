@@ -5,6 +5,8 @@
  *   Tether      QGroundControl.corePlugin.elistairStationManager                 (Advanced › Station Setup)
  *   Camera      PayloadManager (Gremsy Lynx / NextVision) + videoSettings.rtspUrl (Advanced › Payload)
  *   Gimbal tilt FC mount parameters MNT1_PITCH_MIN/MAX (deg) or MNT_ANGMIN/MAX_TIL (cdeg), ground only
+ * Vision LiDAR (S99, 2026-11-18): BirdCom obstacle sensor (MAVLink component 111) through the fly-view
+ *   MissionController calls of the removed classic Plan tool-strip panel (EN_VISIONLIDAR, EN_VL_VALUE, VL_OBA_MODE, VL_DIST).
  * Megaphone, searchlight, winch and cleaning device (S56): values in SimplePayloadPrefs (kept in the app, decision
  * 2026-11-16); "Use" switches are the classic ones (flyViewSettings.enableAudioController, settings.lifeJacketEnable).
  ****************************************************************************/
@@ -18,7 +20,7 @@ import "."
 Column {
     id: pl
     property var    vs
-    property string view: "list"        // list | lidar | tether | camera | megaphone | searchlight | winch | cleaning
+    property string view: "list"        // list | lidar | tether | camera | visionlidar | megaphone | searchlight | winch | cleaning
     spacing: SimpleTheme.px(16)
 
     readonly property var _custom: QGroundControl.corePlugin.settings
@@ -56,6 +58,12 @@ Column {
     readonly property var _fly: QGroundControl.settingsManager.flyViewSettings
     readonly property var _veh: vs ? vs.vehicle : null
     function megaphoneStatus() { return _fly.enableAudioController.rawValue ? { t: qsTr("On"), l: "ok" } : { t: qsTr("Off"), l: "off" } }
+    readonly property var _mc: globals.planMasterControllerFlyView ? globals.planMasterControllerFlyView.missionController : null
+    function visionStatus() {
+        if (!_veh) return { t: qsTr("Drone not connected"), l: "off" }
+        if (!_mc || _mc.visionLidarEnabled !== 1) return { t: qsTr("Off"), l: "off" }
+        return _mc.vlOBAValue === 0 ? { t: qsTr("On · stop"), l: "ok" } : { t: qsTr("On · avoid"), l: "ok" }
+    }
     function lightStatus()     { return _custom.lifeJacketEnable.rawValue ? { t: qsTr("On"), l: "ok" } : { t: qsTr("Off"), l: "off" } }
     function winchStatus() {
         if (!_veh || !vs.paramsReady) return { t: qsTr("Drone not connected"), l: "off" }
@@ -118,7 +126,7 @@ Column {
     Loader {
         width: parent.width
         sourceComponent: pl.view === "lidar" ? lidarComp : pl.view === "tether" ? tetherComp : pl.view === "camera" ? cameraComp
-                       : pl.view === "megaphone" ? megaphoneComp : pl.view === "searchlight" ? lightComp
+                       : pl.view === "visionlidar" ? visionComp : pl.view === "megaphone" ? megaphoneComp : pl.view === "searchlight" ? lightComp
                        : pl.view === "winch" ? winchComp : pl.view === "cleaning" ? cleaningComp : listComp
     }
 
@@ -137,6 +145,7 @@ Column {
                       sub: pl._cam ? (pl._cam.displayName + (pl._cam.ip !== "" ? " · " + pl._cam.ip : "")) : "" },
                     { key: "tether", icon: "power",  title: qsTr("Tether station (SAFE-T)"),
                       sub: pl._st ? pl._st.stationAddress : "" },
+                    { key: "visionlidar", icon: "locate",  title: qsTr("Vision LiDAR"),    sub: qsTr("BirdCom obstacle detection") },
                     { key: "megaphone",   icon: "speaker", title: qsTr("Megaphone"),       sub: qsTr("Clips stored on the speaker") },
                     { key: "searchlight", icon: "light",   title: qsTr("Searchlight"),     sub: qsTr("BirdCom searchlight and life jacket") },
                     { key: "winch",       icon: "hook",    title: qsTr("Winch"),           sub: qsTr("Hook for drops") },
@@ -145,7 +154,7 @@ Column {
                 Rectangle {
                     readonly property var _s: modelData.key === "lidar" ? pl.lidarStatus() : modelData.key === "tether" ? pl.tetherStatus()
                                             : modelData.key === "megaphone" ? pl.megaphoneStatus() : modelData.key === "searchlight" ? pl.lightStatus()
-                                            : modelData.key === "winch" ? pl.winchStatus() : modelData.key === "cleaning" ? { t: qsTr("Not detected"), l: "off" }
+                                            : modelData.key === "winch" ? pl.winchStatus() : modelData.key === "visionlidar" ? pl.visionStatus() : modelData.key === "cleaning" ? { t: qsTr("Not detected"), l: "off" }
                                             : pl.cameraStatus()
                     width: parent.width; height: SimpleTheme.px(116); radius: SimpleTheme.px(20)
                     color: rowMouse.pressed ? Qt.darker(SimpleTheme.surfaceRaised, 1.25) : SimpleTheme.surfaceRaised
@@ -519,6 +528,77 @@ Column {
             }
             SText { width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
                     text: qsTr("Values marked * are kept in the app and used once the device accepts them.") }
+        }
+    }
+
+    //------------------------------------------------------------------ S99 Vision LiDAR (obstacle detection)
+    Component {
+        id: visionComp
+        Column {
+            id: vl
+            spacing: SimpleTheme.px(16)
+            readonly property var  _mc: pl._mc
+            readonly property bool _on: !!_mc && _mc.visionLidarEnabled === 1
+            readonly property bool _canSend: !!pl._veh && !!_mc
+            property real distM: _mc && _mc.vlValue > 0 ? _mc.vlValue / 100 : 15     // classic default 1500 cm
+            Component.onCompleted: if (_mc && pl._veh) _mc.getVisionLidarState()
+            // The switches show what the sensor reports. No answer within 3 s after a change: say so.
+            property bool noReply: false
+            Timer { id: vlWait; interval: 3000; onTriggered: vl.noReply = true }
+            function sent() { noReply = false; vlWait.restart() }
+            Connections {
+                target: vl._mc
+                ignoreUnknownSignals: true
+                function onVisionLidarEnabledChanged() { vlWait.stop(); vl.noReply = false }
+                function onVlOBAValueChanged()         { vlWait.stop(); vl.noReply = false }
+                function onVlValueChanged()            { vlWait.stop(); vl.noReply = false }
+            }
+            BackButton { }
+            Item {
+                width: parent.width; height: SimpleTheme.px(60)
+                SText { anchors.verticalCenter: parent.verticalCenter; text: qsTr("Vision LiDAR"); size: 40; bold: true }
+                Pill { anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: pl.visionStatus().t; level: pl.visionStatus().l }
+            }
+            SText { width: parent.width; wrapMode: Text.WordWrap; size: 24; color: SimpleTheme.textSecondary
+                    text: qsTr("BirdCom obstacle sensor. The drone stops when something is closer than the detection distance.") }
+            Card {
+                opacity: vl._canSend ? 1 : 0.5
+                CardRow {
+                    title: qsTr("Use obstacle detection"); sub: qsTr("Turns the sensor on in the drone")
+                    SToggle { id: vlOn; checked: vl._on
+                              onToggled: {
+                                  if (vl._canSend) {
+                                      if (vlOn.checked) { vl._mc.setVisionLidar(1); vl._mc.setVisionLidarValue(1); vl._mc.getVisionLidarOBAMode() }
+                                      else              { vl._mc.setVisionLidarValue(0); vl._mc.setVisionLidar(0) }
+                                      vl.sent()
+                                  }
+                                  vlOn.checked = Qt.binding(function() { return vl._on })
+                              } }
+                }
+                CardRow {
+                    title: qsTr("Stop at obstacles"); sub: qsTr("On: the drone stops and holds. Off: the drone tries to fly around (not used on company drones).")
+                    opacity: vl._on ? 1 : 0.4
+                    SToggle { id: vlStop; checked: !!vl._mc && vl._mc.vlOBAValue === 0
+                              onToggled: {
+                                  if (vl._canSend && vl._on) { vl._mc.setVisionLidarOBAMode(vlStop.checked ? 0 : 1); vl.sent() }
+                                  vlStop.checked = Qt.binding(function() { return !!vl._mc && vl._mc.vlOBAValue === 0 })
+                              } }
+                }
+                CardRow {
+                    title: qsTr("Detection distance"); sub: qsTr("0.2 – 50 m")
+                    opacity: vl._on ? 1 : 0.4
+                    SStepper { value: vl.distM; from: 0.2; to: 50; step: 0.5; decimals: 1; unit: "m"; enabled_: vl._on && vl._canSend
+                               onEdited: { vl.distM = value; vl._mc.setVisionLidarDistance(Math.round(value * 100)); vl.sent() } }
+                }
+                CardRow {
+                    title: qsTr("Distance set in the sensor"); sub: qsTr("What the sensor reports back")
+                    SText { text: vl._mc && vl._mc.vlValue > 0 ? (vl._mc.vlValue / 100).toFixed(1) + " m" : "—"; size: 30; bold: true }
+                }
+            }
+            SNotice { visible: vl.noReply && !!pl._veh; width: parent.width; level: "warn"
+                      text: qsTr("No reply from the Vision LiDAR. Check that it is fitted and powered.") }
+            SText { visible: !pl._veh; width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                    text: qsTr("Connect the drone to change these settings.") }
         }
     }
 

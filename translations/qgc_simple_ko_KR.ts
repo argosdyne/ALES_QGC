@@ -3298,6 +3298,66 @@
         <source>Yes</source>
         <translation>예</translation>
     </message>
+    <message>
+        <source>On · stop</source>
+        <translation>켜짐 · 정지</translation>
+    </message>
+    <message>
+        <source>On · avoid</source>
+        <translation>켜짐 · 회피</translation>
+    </message>
+    <message>
+        <source>Vision LiDAR</source>
+        <translation>Vision LiDAR</translation>
+    </message>
+    <message>
+        <source>BirdCom obstacle detection</source>
+        <translation>BirdCom 장애물 감지</translation>
+    </message>
+    <message>
+        <source>BirdCom obstacle sensor. The drone stops when something is closer than the detection distance.</source>
+        <translation>BirdCom 장애물 센서입니다. 감지 거리보다 가까이 무언가 있으면 드론이 멈춥니다.</translation>
+    </message>
+    <message>
+        <source>Use obstacle detection</source>
+        <translation>장애물 감지 사용</translation>
+    </message>
+    <message>
+        <source>Turns the sensor on in the drone</source>
+        <translation>드론의 센서를 켭니다</translation>
+    </message>
+    <message>
+        <source>Stop at obstacles</source>
+        <translation>장애물 앞에서 정지</translation>
+    </message>
+    <message>
+        <source>On: the drone stops and holds. Off: the drone tries to fly around (not used on company drones).</source>
+        <translation>켜짐: 드론이 멈춰 제자리를 유지합니다. 꺼짐: 피해서 비행하려 합니다(회사 기체에서는 쓰지 않음).</translation>
+    </message>
+    <message>
+        <source>Detection distance</source>
+        <translation>감지 거리</translation>
+    </message>
+    <message>
+        <source>0.2 – 50 m</source>
+        <translation>0.2 – 50 m</translation>
+    </message>
+    <message>
+        <source>Distance set in the sensor</source>
+        <translation>센서에 설정된 거리</translation>
+    </message>
+    <message>
+        <source>What the sensor reports back</source>
+        <translation>센서가 알려 준 값</translation>
+    </message>
+    <message>
+        <source>No reply from the Vision LiDAR. Check that it is fitted and powered.</source>
+        <translation>Vision LiDAR에서 응답이 없습니다. 장착과 전원을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Connect the drone to change these settings.</source>
+        <translation>이 설정을 바꾸려면 드론을 연결하세요.</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMapControls</name>
