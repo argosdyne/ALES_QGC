@@ -212,7 +212,7 @@ Item {
                     if(_camera.thermalMode === QGCCameraControl.THERMAL_PIP) {
                         anchors.centerIn    = undefined
                         anchors.top         = parent.top
-                        anchors.topMargin   = mainWindow.header.height + (ScreenTools.defaultFontPixelHeight * 0.5)
+                        anchors.topMargin   = Math.round(mainWindow.height * 104 / 1080) + (ScreenTools.defaultFontPixelHeight * 0.5)   // below the Simple top bar (no classic toolbar)
                         anchors.left        = parent.left
                         anchors.leftMargin  = ScreenTools.defaultFontPixelWidth * 12
                     } else {
