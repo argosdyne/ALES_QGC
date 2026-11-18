@@ -59,33 +59,13 @@
         <file alias="PaperPlane.svg">res/Images/CustomVehicleIcon.svg</file>
     </qresource>
     <qresource prefix="/Custom/Widgets">
-        <file alias="Custom/Widgets/CustomArtificialHorizon.qml">res/Custom/Widgets/CustomArtificialHorizon.qml</file>
-        <file alias="Custom/Widgets/CustomAttitudeWidget.qml">res/Custom/Widgets/CustomAttitudeWidget.qml</file>
-        <file alias="Custom/Widgets/CustomIconButton.qml">res/Custom/Widgets/CustomIconButton.qml</file>
-        <file alias="Custom/Widgets/CustomOnOffSwitch.qml">res/Custom/Widgets/CustomOnOffSwitch.qml</file>
-        <file alias="Custom/Widgets/CustomQuickButton.qml">res/Custom/Widgets/CustomQuickButton.qml</file>
         <file alias="Custom/Widgets/CustomSignalStrength.qml">res/Custom/Widgets/CustomSignalStrength.qml</file>
-        <file alias="Custom/Widgets/CustomToolBarButton.qml">res/Custom/Widgets/CustomToolBarButton.qml</file>
-        <file alias="Custom/Widgets/CustomVehicleButton.qml">res/Custom/Widgets/CustomVehicleButton.qml</file>
         <file alias="Custom/Widgets/qmldir">res/Custom/Widgets/qmldir</file>
-        <file alias="Custom/Widgets/CustomDelayButton.qml">res/Custom/Widgets/CustomDelayButton.qml</file>
         <file alias="Custom/Widgets/CustomBusyIndicator.qml">res/Custom/Widgets/CustomBusyIndicator.qml</file>
-        <file alias="Custom/Widgets/CustomVehicleAttitude.qml">res/Custom/Widgets/CustomVehicleAttitude.qml</file>
     </qresource>
     <qresource prefix="/qml">
-        <file alias="GoToTargetEditor.qml">res/Custom/FlightDisplay/GoToTargetEditor.qml</file>
-        <file alias="GoToAltitudeSlider.qml">res/Custom/FlightDisplay/GoToAltitudeSlider.qml</file>
-        <file alias="GoToProgressPanel.qml">res/Custom/FlightDisplay/GoToProgressPanel.qml</file>
-        <file alias="QGroundControl/FlightDisplay/FlyViewCustomLayer.qml">res/Custom/FlightDisplay/FlyViewOverlay.qml</file>
-        <file alias="CustomCameraControl.qml">CustomCameraControl.qml</file>
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
-        <file alias="QGroundControl/FlightDisplay/FlyViewVideoSiYiController.qml">FlyViewVideoSiYiController.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
-        <file alias="LidarSetupView.qml">src/YS/LidarSetupView.qml</file>
-        <file alias="LidarConnectionPage.qml">src/YS/LidarConnectionPage.qml</file>
-        <file alias="LidarSettingsPage.qml">src/YS/LidarSettingsPage.qml</file>
-        <file alias="LidarDevicePage.qml">src/YS/LidarDevicePage.qml</file>
-        <file alias="LiDARPanel.qml">src/YS/LiDARPanel.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>
@@ -144,8 +124,6 @@
     </qresource>
     <qresource prefix="/toolbar">
         <file alias="GPSIndicator.qml">CustomGPSIndicator.qml</file>
-        <file alias="ARLinkIndicator.qml">src/ARLink/ARLinkIndicator.qml</file>
-        <file alias="LiDARIndicator.qml">src/YS/LiDARIndicator.qml</file>
     </qresource>
     <qresource prefix="/simple">
         <file alias="SActionButton.qml">res/Simple/SActionButton.qml</file>
