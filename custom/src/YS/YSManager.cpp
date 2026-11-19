@@ -240,6 +240,9 @@ void YSManager::_mavlinkReceived(const mavlink_message_t& message)
             }
 
             if (ack.command == MAV_CMD_USER_1 && ack.result != MAV_RESULT_ACCEPTED) {
+                // YellowScan Command status byte (0x01-0x0B) if Birdcom sends it; 0 = not sent / unknown
+                _acqRejectCode = static_cast<int>(ack.result_param2);
+                emit acqRejectCodeChanged();
                 _refreshLidarState();
             }
 

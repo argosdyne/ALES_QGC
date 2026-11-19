@@ -1952,6 +1952,66 @@
       <source>Disable,NTRIP,SerialPort</source>
       <translation>비활성화,NTRIP,시리얼 포트</translation>
     </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysEnable].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Enable YellowScan LiDAR</source>
+      <translation>YellowScan LiDAR 사용</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysOpenPanelOnConnect].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Open LiDAR panel on connect</source>
+      <translation>연결 시 LiDAR 패널 열기</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysModel].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>YellowScan LiDAR model</source>
+      <translation>YellowScan LiDAR 모델</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysLink].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>YellowScan LiDAR link path</source>
+      <translation>YellowScan LiDAR 연결 경로</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysLink].enumStrings, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Companion - UART 115200</source>
+      <translation>컴패니언 - UART 115200</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysMavCompId].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>YellowScan LiDAR MAVLink component id</source>
+      <translation>YellowScan LiDAR MAVLink 컴포넌트 ID</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysCamera].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>YellowScan LiDAR camera</source>
+      <translation>YellowScan LiDAR 카메라</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysCamera].enumStrings, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>None,RGB 8 MP (embedded)</source>
+      <translation>없음,RGB 8 MP (내장)</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysMissionStartStop].shortDesc, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>LiDAR acquisition start / stop during mission</source>
+      <translation>미션 중 LiDAR 수집 시작 / 중지</translation>
+    </message>
+    <message>
+      <extracomment>.QGC.MetaData.Facts[ysMissionStartStop].enumStrings, </extracomment>
+      <location filename="../custom/src/Custom.SettingsGroup.json"/>
+      <source>Manual only,Auto</source>
+      <translation>수동 전용,자동</translation>
+    </message>
   </context>
   <context>
     <name>Codev.SettingsGroup.json</name>

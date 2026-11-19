@@ -91,8 +91,8 @@
     "name":             "ysMissionStartStop",
     "shortDesc":        "LiDAR acquisition start / stop during mission",
     "type":             "uint32",
-    "enumStrings":      "Manual only",
-    "enumValues":       "0",
+    "enumStrings":      "Manual only,Auto",
+    "enumValues":       "0,1",
     "default":          0
 }
 ]

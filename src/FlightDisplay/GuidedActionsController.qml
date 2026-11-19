@@ -141,6 +141,9 @@ Item {
         if (tetherStation) tetherStation.cancelPowerOff()
     }
     readonly property int actionContinueGoTo:               31
+    // YS-04 in-flight LiDAR Stop, opened from the LiDAR panel. Not in the Action menu or joystick assignments.
+    readonly property int actionLidarStop:                  32
+    readonly property var lidarAcquisition:                 mainWindow.lidarAcquisition
 
     // The map owns the target and progress state. This reference only connects that state to
     // the existing guided-action confirmation flow used by the left tool strip.
@@ -505,6 +508,12 @@ Item {
             confirmDialog.message = Qt.binding(function() { return _root.tetherPowerOffMessage() })
             confirmDialog.hideTrigger = Qt.binding(function() { return !_root.tetherStation.powerOffPending || !_root.tetherStation.hasMonitoring || _root.tetherStation.linkLost || !_root.tetherStation.powerRemote })
             break
+        case actionLidarStop:
+            if (!lidarAcquisition || !lidarAcquisition.recording) return
+            confirmDialog.title = qsTr("Stop LiDAR")
+            confirmDialog.message = Qt.binding(function() { return _root.lidarAcquisition ? _root.lidarAcquisition.stopConfirmMessage() : "" })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !_root.lidarAcquisition || !_root.lidarAcquisition.recording })
+            break
         case actionArm:
             if (_vehicleFlying || !_guidedActionsEnabled) {
                 return
@@ -678,6 +687,9 @@ Item {
             break
         case actionTetherPowerOff:
             if (tetherStation) tetherStation.confirmPowerOff(actionData)
+            break
+        case actionLidarStop:
+            if (lidarAcquisition) lidarAcquisition.stop()
             break
         case actionRTL:
             if (gotoProgressActive) {

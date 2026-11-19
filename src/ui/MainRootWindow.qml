@@ -89,6 +89,34 @@ ApplicationWindow {
     onLidarPanelVisibleChanged:  if (lidarPanelVisible) tetherPanelVisible = false
     onTetherPanelVisibleChanged: if (tetherPanelVisible) lidarPanelVisible = false
     readonly property bool      lidarPanelShown:            lidarPanelVisible && (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
+    // YS-04 acquisition Start / Stop watcher: kept loaded while the LiDAR panel is closed (ACK, reject, Data logging check)
+    readonly property var       lidarAcquisition:           lidarAcquisitionLoader.item
+    Loader {
+        id:     lidarAcquisitionLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARAcquisition.qml"
+    }
+    // YS-05 warning / critical / no-response watcher: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarAlerts:                lidarAlertsLoader.item
+    Loader {
+        id:     lidarAlertsLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARAlerts.qml"
+    }
+    // YS-08 elapsed time from the Start ACK and recorded track: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarTrack:                 lidarTrackLoader.item
+    Loader {
+        id:     lidarTrackLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARTrackRecorder.qml"
+    }
+    // YS-09 mission auto Start / Stop at the first / last survey waypoint: kept loaded while the LiDAR panel is closed
+    readonly property var       lidarMissionAuto:           lidarMissionAutoLoader.item
+    Loader {
+        id:     lidarMissionAutoLoader
+        active: !!QGroundControl.corePlugin.ysManager
+        source: "qrc:/qml/LiDARMissionAuto.qml"
+    }
     Connections {
         target: QGroundControl.multiVehicleManager
         onActiveVehicleChanged: {
@@ -850,6 +878,35 @@ ApplicationWindow {
         }
     }
 
+    // YS LiDAR critical messages share the critical popup but are not kept in the vehicle message list,
+    // so instead of being dropped they are queued while the popup is open or the video is fullscreen
+    property var _lidarCriticalQueue: []
+
+    function showLiDARCriticalMessage(message) {
+        if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            if (_lidarCriticalQueue.indexOf(message) === -1) {
+                _lidarCriticalQueue.push(message)
+            }
+        } else {
+            showCriticalVehicleMessage(message)
+        }
+    }
+
+    // indicatorPopup is left open: it may be the message list dropped by the popup just closed
+    function _showNextLiDARCriticalMessage() {
+        if (_lidarCriticalQueue.length === 0 || criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            return
+        }
+        criticalVehicleMessagePopup.criticalVehicleMessage      = _lidarCriticalQueue.shift()
+        criticalVehicleMessagePopup.dropMessageIndicatorOnClose = false
+        criticalVehicleMessagePopup.open()
+    }
+
+    Connections {
+        target:             QGroundControl.videoManager
+        onFullScreenChanged: Qt.callLater(_showNextLiDARCriticalMessage)
+    }
+
     Popup {
         id:                 criticalVehicleMessagePopup
         y:                  ScreenTools.defaultFontPixelHeight
@@ -862,6 +919,9 @@ ApplicationWindow {
 
         property alias  criticalVehicleMessage:        criticalVehicleMessageText.text
         property bool   dropMessageIndicatorOnClose:   false
+
+        // After the click handler has dropped the message indicator, if it had to
+        onClosed: Qt.callLater(_showNextLiDARCriticalMessage)
 
         background: Rectangle {
             anchors.fill:   parent

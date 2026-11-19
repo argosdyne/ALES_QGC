@@ -721,6 +721,33 @@ FlightMap {
         }
     }
 
+    // YS-08 ⑨ LiDAR recorded track: one red line per Start / Stop segment (LiDARTrackRecorder)
+    MapItemView {
+        model: mainWindow.lidarTrack ? mainWindow.lidarTrack.segments : []
+        delegate: MapPolyline {
+            visible:    !pipMode
+            z:          QGroundControl.zOrderTrajectoryLines
+            line.width: 5
+            line.color: "red"
+            path:       modelData
+        }
+    }
+
+    MapPolyline {
+        id:         lidarLiveTrack
+        visible:    !pipMode && !!mainWindow.lidarTrack && mainWindow.lidarTrack.running
+        z:          QGroundControl.zOrderTrajectoryLines
+        line.width: 5
+        line.color: "red"
+        Component.onCompleted: path = mainWindow.lidarTrack ? mainWindow.lidarTrack.currentSegment : []
+
+        Connections {
+            target:             mainWindow.lidarTrack
+            onSegmentStarted:   lidarLiveTrack.path = []
+            onPointAdded:       lidarLiveTrack.addCoordinate(coordinate)
+        }
+    }
+
     // Actual track travelled after the GoTo was confirmed.
     MapPolyline {
         visible: _root.gotoProgressActive && _root.gotoFlownTrack.length > 1
