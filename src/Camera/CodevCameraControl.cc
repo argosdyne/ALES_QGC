@@ -982,7 +982,7 @@ bool CodevCameraControl::takePhoto()
                 0,                                                                          // Reserved (Set to 0)
                 static_cast<float>(_photoMode == PHOTO_CAPTURE_SINGLE ? 0 : _photoLapse),   // Duration between two consecutive pictures (in seconds--ignored if single image)
                 _photoMode == PHOTO_CAPTURE_SINGLE ? 1 : _photoLapseCount,                  // Number of images to capture total - 0 for unlimited capture
-                static_cast<float>(_photoIndex+1));
+                NAN);                                                                      // Codev requires NaN for capture param4
             _setPhotoStatus(PHOTO_CAPTURE_IN_PROGRESS);
             _captureInfoRetries = 0;
             //-- Capture local image as well
@@ -1923,6 +1923,11 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
 {
     mavlink_camera_tracking_image_status_t tracking_image_status;
     memcpy(&tracking_image_status, tis, sizeof(tracking_image_status));
+    // Codev firmware reports mode 3 with rectangle coordinates. Normalize it
+    // before both the Codev coordinate handling and the base-class overlay.
+    if (tracking_image_status.tracking_mode == 3) {
+        tracking_image_status.tracking_mode = CAMERA_TRACKING_MODE_RECTANGLE;
+    }
     // qInfo() << "Tracking image status:"
     //         << "status" << tracking_image_status.tracking_status
     //         << "mode" << tracking_image_status.tracking_mode
@@ -1951,7 +1956,7 @@ void CodevCameraControl::handleTrackingImageStatus(const mavlink_camera_tracking
             changed = true;
         }
     } else if(tracking_image_status.tracking_status == 1) {
-        if(_trackingImageStatus.tracking_mode == 2) {
+        if(tracking_image_status.tracking_mode == CAMERA_TRACKING_MODE_RECTANGLE) {
             float offset_x = 0.0f;
             float offset_y = 0.0f;
             if(_dZoomFact) {

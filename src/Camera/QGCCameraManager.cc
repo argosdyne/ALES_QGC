@@ -769,7 +769,7 @@ QGCCameraManager::_handleCameraInfo(const mavlink_message_t& message, LinkInterf
             return;
         }
         QString vendor = incomingVendor;
-        if (vendor.toUpper().compare("CODEV") == 0) {
+        if (vendor.toUpper().compare("CODEV") == 0 || vendor.toUpper().compare("NURLMCH") == 0) {
             qCInfo(CameraManagerLog) << "[CameraFlow]"
                     << "creating CodevCameraControl from CAMERA_INFORMATION"
                     << "compId" << message.compid;

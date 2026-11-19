@@ -135,7 +135,8 @@ static QString _cameraDefinitionFileNameFromUrl(const QString& url)
 static QString _cameraDefinitionCacheFileName(const QString& url, const QString& vendor, const QString& modelName, int version)
 {
     const QString urlFileName = _cameraDefinitionFileNameFromUrl(url);
-    const bool isCodevCamera = vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0;
+    const bool isCodevCamera = vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 ||
+                              vendor.compare(QStringLiteral("NURLMCH"), Qt::CaseInsensitive) == 0;
     if (!urlFileName.isEmpty() && (!isCodevCamera || urlFileName.compare(QStringLiteral("caminfo.xml"), Qt::CaseInsensitive) != 0)) {
         return urlFileName;
     }
@@ -273,7 +274,8 @@ QGCCameraControl::QGCCameraControl(const mavlink_camera_information_t *info, Veh
                           _cameraDefinitionCacheFileName(definitionUri, _vendor, _modelName, ver));
     if(info->cam_definition_uri[0] != 0) {
 
-        const bool deferForStreamUri = _vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 &&
+        const bool deferForStreamUri = (_vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 ||
+                                        _vendor.compare(QStringLiteral("NURLMCH"), Qt::CaseInsensitive) == 0) &&
                                        QUrl(definitionUri).host() == QStringLiteral("127.0.0.1");
         if (deferForStreamUri) {
             _deferredDefinitionUri = definitionUri;
@@ -2187,7 +2189,8 @@ void QGCCameraControl::_checkRtspChangeAndInvalidateCache(const QString& streamU
         return;
     }
 
-    if (_vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0) {
+    if (_vendor.compare(QStringLiteral("Codev"), Qt::CaseInsensitive) == 0 ||
+        _vendor.compare(QStringLiteral("NURLMCH"), Qt::CaseInsensitive) == 0) {
         const QString codevFileName = _codevCameraDefinitionFileNameFromRtsp(streamUri);
         if (codevFileName.isEmpty()) {
             return;
