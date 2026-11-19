@@ -1,6 +1,6 @@
 # 작업 인계 (handoff) — AQGC Simple UI
 
-다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-18 기준**입니다.
+다른 PC에서 이어서 작업하기 위한 현황 정리입니다. **2026-11-19 기준**입니다.
 작업 규칙과 결정 사항의 원본은 `CLAUDE.md`, 고급 모드 개편 기록은 `custom/docs/TASK-advanced-mode-redesign.md`,
 화면별 파일 목록은 `custom/res/Simple/README.md`입니다. 이 문서는 그 위에 "지금 어디까지 왔고 무엇이 남았는지"만 적습니다.
 
@@ -27,7 +27,19 @@
 - 새 QML 파일은 `custom/custom.qrc`(prefix `/simple`)와 `custom/res/Simple/qmldir` 두 곳에 등록.
 - 빌드가 실제로 쓰는 qrc는 **`custom/qgroundcontrol.qrc`**(손으로 고친 파일). `custom/updateqrc.py`로 다시 만들지 마세요.
 
-## 2. 2026-11-18 세션에서 한 일
+## 2. 2026-11-19 세션에서 한 일
+
+| 커밋 | 내용 |
+|---|---|
+| `b918c52e5` `a04d43456` `bc7e41c94` | 3장 B 정리: 재시작 토스트, mainWindow 패널 플래그 삭제, CodevCameraVisual TypeError |
+| `13502145f` `0d908aa8a` | #316 cherry-pick(SD 카드 없으면 촬영 거부) + 카메라 레일 SD 상태 표시(Figma 99 Components) |
+| `c2270766d` | `Argos_Stable4.4` 병합(#312, #316–#320), 지운 클래식 파일 9개 충돌은 삭제·우리 쪽 유지 |
+| `956a8791f` | YellowScan LiDAR 2단계(Figma S102, S103 + S17/S51/S53 노트), SITL + 가짜 LiDAR 시험 |
+
+- 리뷰·인계서 AGD-DEV-ALQGC-401(D01, Claude Docs) 작성 — PR #311 리뷰용 변경 요약·코어 변경·시험 체크리스트.
+- CI: `7710a4b6a` 기준 Windows, Android 성공.
+
+## 2-1. 2026-11-18 세션에서 한 일
 
 **1단계: 클래식 화면에만 있던 기능을 Simple 화면으로 옮김**
 
