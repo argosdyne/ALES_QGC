@@ -51,17 +51,11 @@ Item {
     // null when the survey waypoints are unknown. A Plan view plan without transect items is unknown too:
     // Plan view shows the mission read back from the vehicle (simple items only) after a vehicle connect
     function surveyWaypointRange() {
-        var planView = globals.planMasterControllerPlanView
-        var flyView = globals.planMasterControllerFlyView
-        if (!planView || !flyView || planView.dirty) {
+        var planItems = _acq ? _acq.uploadedPlanItems() : null
+        if (!planItems) {
             return null
         }
-        var planItems = planView.missionController.visualItems
-        var flyItems = flyView.missionController.visualItems
-        if (!planItems || !flyItems || planItems.count < 2 || flyItems.count < 2 ||
-                planItems.get(planItems.count - 1).lastSequenceNumber !== flyItems.get(flyItems.count - 1).lastSequenceNumber) {
-            return null
-        }
+        var flyItems = _flyMission.visualItems
         var firstSeq = -1
         var lastSeq = -1
         for (var i = 1; i < planItems.count; i++) {
