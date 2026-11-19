@@ -7028,7 +7028,11 @@ Click Ok to start the auto-tuning process.
     <source>Tether</source>
     <translation>테더</translation>
   </message>
-</context>
+  <message>
+      <source>LiDAR</source>
+      <translation>LiDAR</translation>
+    </message>
+  </context>
   <context>
     <name>FlyViewVideo</name>
     <message>
@@ -7546,6 +7550,10 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/preferences/GeneralSettings.qml" line="1119"/>
       <source>%1 Version</source>
       <translation type="unfinished">%1 Version</translation>
+    </message>
+    <message>
+      <source>Enable YellowScan LiDAR</source>
+      <translation>YellowScan LiDAR 사용</translation>
     </message>
   </context>
   <context>
@@ -8104,7 +8112,11 @@ Click Ok to start the auto-tuning process.
     <source>remaining time unavailable</source>
     <translation>잔여 시간 확인 불가</translation>
   </message>
-</context>
+  <message>
+      <source>Stop LiDAR</source>
+      <translation>LiDAR 중지</translation>
+    </message>
+  </context>
   <context>
     <name>GuidedAltitudeSlider</name>
     <message>
@@ -9539,6 +9551,10 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/MainRootWindow.qml" line="520"/>
       <source>Back</source>
       <translation type="unfinished">Back</translation>
+    </message>
+    <message>
+      <source>LiDAR Setup</source>
+      <translation>LiDAR 설정</translation>
     </message>
   </context>
   <context>
@@ -13160,6 +13176,10 @@ Click &apos;Ok&apos; to upload the Plan anyway.</translation>
       <location filename="../src/PlanView/PlanView.qml" line="1213"/>
       <source>Download</source>
       <translation type="unfinished">Download</translation>
+    </message>
+    <message>
+      <source>Vision LiDAR</source>
+      <translation>Vision LiDAR</translation>
     </message>
   </context>
   <context>
@@ -18995,4 +19015,1505 @@ Only enable for the vehicle tethered to this station.</source>
     <translation>SAFE-T 스테이션</translation>
   </message>
 </context>
+  <context>
+    <name>LiDARAcquisition</name>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="86"/>
+      <source>Scanner initializing</source>
+      <translation>스캐너 초기화 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="87"/>
+      <source>System time not set</source>
+      <translation>시스템 시간 미설정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="88"/>
+      <source>Scanner not ready</source>
+      <translation>스캐너 준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="89"/>
+      <source>INS not locked</source>
+      <translation>INS 미고정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="90"/>
+      <source>Scanner error</source>
+      <translation>스캐너 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="91"/>
+      <source>INS error</source>
+      <translation>INS 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="92"/>
+      <source>USB full</source>
+      <translation>USB 가득 참</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="93"/>
+      <source>Camera error</source>
+      <translation>카메라 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="94"/>
+      <source>No USB</source>
+      <translation>USB 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="131"/>
+      <source>LiDAR: Start rejected</source>
+      <translation>LiDAR: 시작 거부됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="189"/>
+      <source>Stop LiDAR acquisition in flight? Remaining survey lines unknown.</source>
+      <translation>비행 중 LiDAR 수집을 중지하시겠습니까? 남은 측량 라인 수를 알 수 없습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="191"/>
+      <source>Stop LiDAR acquisition in flight? %1 of %2 survey lines remaining.</source>
+      <translation>비행 중 LiDAR 수집을 중지하시겠습니까? 측량 라인 %2개 중 %1개가 남았습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAcquisition.qml" line="255"/>
+      <source>LiDAR: Data logging not reported %1 s after Start</source>
+      <translation>LiDAR: 시작 후 %1초 동안 데이터 로깅이 보고되지 않음</translation>
+    </message>
+  </context>
+  <context>
+    <name>LiDARAlerts</name>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="110"/>
+      <source>LiDAR not responding — no status for %1 s.</source>
+      <translation>LiDAR 응답 없음 — %1초 동안 상태 수신 없음.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="111"/>
+      <source>Acquisition state unknown (last known: %1).</source>
+      <translation>수집 상태 알 수 없음 (마지막 상태: %1).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="112"/>
+      <source>Acquisition state unknown.</source>
+      <translation>수집 상태 알 수 없음.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="126"/>
+      <source>USB stick full (≤ %1 GB)</source>
+      <translation>USB 저장 공간 가득 참 (≤ %1 GB)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="128"/>
+      <source>USB stick space low (≤ %1 GB)</source>
+      <translation>USB 저장 공간 부족 (≤ %1 GB)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="128"/>
+      <source>Space low (≤ %1 GB)</source>
+      <translation>공간 부족 (≤ %1 GB)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="132"/>
+      <source>Data dropped (USB too slow)</source>
+      <translation>데이터 손실 (USB 속도 느림)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="135"/>
+      <source>Scanner overheating</source>
+      <translation>스캐너 과열</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="137"/>
+      <source>Scanner temperature warning</source>
+      <translation>스캐너 온도 경고</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="137"/>
+      <source>Scanner temp. warning</source>
+      <translation>스캐너 온도 경고</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="140"/>
+      <source>Computer overheating (≥ %1 °C)</source>
+      <translation>컴퓨터 과열 (≥ %1 °C)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="140"/>
+      <source>Computer ≥ %1 °C</source>
+      <translation>컴퓨터 ≥ %1 °C</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="142"/>
+      <source>Computer temperature &gt; %1 °C</source>
+      <translation>컴퓨터 온도 &gt; %1 °C</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="142"/>
+      <source>Computer &gt; %1 °C</source>
+      <translation>컴퓨터 &gt; %1 °C</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="147"/>
+      <source>Camera connection error</source>
+      <translation>카메라 연결 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="150"/>
+      <source>Camera settings error</source>
+      <translation>카메라 설정 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="153"/>
+      <source>Camera photo error</source>
+      <translation>카메라 촬영 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="184"/>
+      <source>LiDAR: %1.</source>
+      <translation>LiDAR: %1.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="184"/>
+      <source>Recording continues.</source>
+      <translation>기록은 계속됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="197"/>
+      <source>LiDAR critical: %1.</source>
+      <translation>LiDAR 심각: %1.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="197"/>
+      <source>Stop acquisition recommended.</source>
+      <translation>수집 중지를 권장합니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="209"/>
+      <source>(last %1)</source>
+      <translation>(마지막 %1)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="227"/>
+      <source>Not ready</source>
+      <translation>준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="228"/>
+      <source>Ready</source>
+      <translation>준비됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="297"/>
+      <source>REC</source>
+      <translation>기록 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="299"/>
+      <source>IDLE</source>
+      <translation>대기</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARAlerts.qml" line="303"/>
+      <source>acquisition stopped unexpectedly</source>
+      <translation>수집이 예기치 않게 중지됨</translation>
+    </message>
+  </context>
+  <context>
+    <name>LiDARIndicator</name>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="52"/>
+      <source>NO LINK</source>
+      <translation>연결 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="55"/>
+      <source>POWERED OFF</source>
+      <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="58"/>
+      <source>CHECK</source>
+      <translation>확인 필요</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="61"/>
+      <source>READY</source>
+      <translation>준비됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="63"/>
+      <source>REC %1</source>
+      <translation>기록 중 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="64"/>
+      <source>STARTING</source>
+      <translation>시작 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="65"/>
+      <source>STOPPING</source>
+      <translation>중지 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="66"/>
+      <source>NO RESPONSE</source>
+      <translation>응답 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="95"/>
+      <source>USB LOW</source>
+      <translation>USB 부족</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="98"/>
+      <source>USB OK</source>
+      <translation>USB 정상</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="99"/>
+      <source>USB FULL</source>
+      <translation>USB 가득 참</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="100"/>
+      <source>NO USB</source>
+      <translation>USB 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARIndicator.qml" line="101"/>
+      <source>USB --</source>
+      <translation>USB --</translation>
+    </message>
+  </context>
+  <context>
+    <name>LiDARMissionAuto</name>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="104"/>
+      <source>no link</source>
+      <translation>연결 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="105"/>
+      <source>no response</source>
+      <translation>응답 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="106"/>
+      <source>powered off</source>
+      <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="109"/>
+      <source>pre-check not met: %1</source>
+      <translation>사전 점검 미충족: %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="109"/>
+      <source>not ready</source>
+      <translation>준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="121"/>
+      <source>LiDAR: Auto Start skipped at first survey waypoint, %1</source>
+      <translation>LiDAR: 첫 측량 웨이포인트에서 자동 시작 건너뜀, %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="121"/>
+      <source>last Start rejected</source>
+      <translation>마지막 시작 거부됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="148"/>
+      <source>LiDAR: Auto Start / Stop off for this mission, survey waypoints unknown (open the uploaded plan in Plan view)</source>
+      <translation>LiDAR: 이 미션의 자동 시작/중지 꺼짐, 측량 웨이포인트를 알 수 없음 (Plan 화면에서 업로드한 계획을 여십시오)</translation>
+    </message>
+  </context>
+  <context>
+    <name>LiDARPanel</name>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="71"/>
+      <source>UNKNOWN</source>
+      <translation>알 수 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="74"/>
+      <source>REC %1</source>
+      <translation>기록 중 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="75"/>
+      <source>STARTING</source>
+      <translation>시작 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="76"/>
+      <source>STOPPING</source>
+      <translation>중지 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="78"/>
+      <source>IDLE</source>
+      <translation>대기</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="98"/>
+      <source>✕ Start rejected by LiDAR</source>
+      <translation>✕ LiDAR가 시작을 거부함</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="107"/>
+      <source>Check LiDAR power / UART cable</source>
+      <translation>LiDAR 전원 / UART 케이블을 확인하십시오</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="107"/>
+      <source>data stays on USB</source>
+      <translation>데이터는 USB에 보존됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="111"/>
+      <source>Stop recommended</source>
+      <translation>중지 권장</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="114"/>
+      <source>! Data logging not reported by LiDAR</source>
+      <translation>! LiDAR가 데이터 로깅을 보고하지 않음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="118"/>
+      <source>USB full (≤ %1 GB) → critical message, plan to stop</source>
+      <translation>USB 가득 참 (≤ %1 GB) → 심각 메시지, 중지 계획 필요</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="121"/>
+      <source>In flight: Stop → slide to confirm (on ground: immediate)</source>
+      <translation>비행 중: 중지 → 슬라이드하여 확인 (지상: 즉시)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="124"/>
+      <source>Started %1</source>
+      <translation>시작 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="124"/>
+      <source>elapsed time counted by QGC</source>
+      <translation>경과 시간은 QGC에서 계산</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="163"/>
+      <source>NO RESPONSE</source>
+      <translation>응답 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="166"/>
+      <source>POWERED OFF</source>
+      <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="169"/>
+      <source>READY</source>
+      <translation>준비됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="170"/>
+      <source>NOT READY</source>
+      <translation>준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="171"/>
+      <source>● REC</source>
+      <translation>● 기록 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="176"/>
+      <source>NO LINK</source>
+      <translation>연결 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="210"/>
+      <source>Not used</source>
+      <translation>사용 안 함</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="216"/>
+      <source>Disabled</source>
+      <translation>비활성화</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="219"/>
+      <source>Every %1 m</source>
+      <translation>%1 m마다</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="219"/>
+      <source>Every %1 s</source>
+      <translation>%1초마다</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="224"/>
+      <source>No camera set in LiDAR Setup</source>
+      <translation>LiDAR 설정에 카메라가 설정되지 않음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="227"/>
+      <source>Camera settings not read from LiDAR yet</source>
+      <translation>LiDAR에서 카메라 설정을 아직 읽지 않음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="230"/>
+      <source>Enable in LiDAR Setup › Settings</source>
+      <translation>LiDAR 설정 › 설정에서 활성화</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="232"/>
+      <source>Distance trigger</source>
+      <translation>거리 트리거</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="232"/>
+      <source>Time trigger</source>
+      <translation>시간 트리거</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="236"/>
+      <source>start immediately</source>
+      <translation>즉시 시작</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="236"/>
+      <source>start at %1 m</source>
+      <translation>%1 m에서 시작</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="237"/>
+      <source>edit in LiDAR Setup › Settings</source>
+      <translation>LiDAR 설정 › 설정에서 편집</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="262"/>
+      <source>LiDAR</source>
+      <translation>LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="296"/>
+      <source>STATUS</source>
+      <translation>상태</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="296"/>
+      <source>PRE-CHECK</source>
+      <translation>사전 점검</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="296"/>
+      <source>Get Status %1 Hz</source>
+      <translation>상태 조회 %1 Hz</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="328"/>
+      <source>Logging</source>
+      <translation>로깅</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="346"/>
+      <source>Acquisition</source>
+      <translation>수집</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="366"/>
+      <source>Start</source>
+      <translation>시작</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="375"/>
+      <source>Stop (retry)</source>
+      <translation>중지 (재시도)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="375"/>
+      <source>Stop</source>
+      <translation>중지</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="403"/>
+      <source>Camera</source>
+      <translation>카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="445"/>
+      <source>! No status from LiDAR (%1 s)</source>
+      <translation>! LiDAR 상태 수신 없음 (%1초)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="448"/>
+      <source>No status from LiDAR</source>
+      <translation>LiDAR 상태 수신 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="454"/>
+      <source>! 1 warning</source>
+      <translation>! 경고 1건</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="454"/>
+      <source>! %1 warnings</source>
+      <translation>! 경고 %1건</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="457"/>
+      <source>%1 critical</source>
+      <translation>심각 %1건</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="462"/>
+      <source>! 1 pre-check not met</source>
+      <translation>! 사전 점검 1건 미충족</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="462"/>
+      <source>! %1 pre-checks not met</source>
+      <translation>! 사전 점검 %1건 미충족</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="465"/>
+      <source>Internal error</source>
+      <translation>내부 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="467"/>
+      <source>✓ No active alarms</source>
+      <translation>✓ 활성 경보 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="510"/>
+      <source>LiDAR Setup</source>
+      <translation>LiDAR 설정</translation>
+    </message>
+  </context>
+  <context>
+    <name>LidarConnectionPage</name>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="64"/>
+      <source>Connection</source>
+      <translation>연결</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="82"/>
+      <source>Enable YellowScan LiDAR</source>
+      <translation>YellowScan LiDAR 사용</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="87"/>
+      <source>Open LiDAR panel on connect</source>
+      <translation>연결 시 LiDAR 패널 열기</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="99"/>
+      <source>Model</source>
+      <translation>모델</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="107"/>
+      <source>Link</source>
+      <translation>링크</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="115"/>
+      <source>MAVLink component</source>
+      <translation>MAVLink 컴포넌트</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="122"/>
+      <source>Camera</source>
+      <translation>카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="137"/>
+      <source>Test</source>
+      <translation>테스트</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="157"/>
+      <source>OK</source>
+      <translation>정상</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="158"/>
+      <source>FAIL</source>
+      <translation>실패</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="158"/>
+      <source>...</source>
+      <translation>...</translation>
+    </message>
+    <message>
+      <source>LiDAR is on the drone: QGC → MAVLink → Companion Board → UART 115200 → YellowScan. The serial protocol has no model / firmware query, so the model is chosen here; unsupported settings are disabled.</source>
+      <translation>LiDAR는 드론에 장착되어 있습니다: QGC → MAVLink → 컴패니언 보드 → UART 115200 → YellowScan. 시리얼 프로토콜에는 모델 / 펌웨어 조회 기능이 없으므로 여기에서 모델을 선택합니다. 지원되지 않는 설정은 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="191"/>
+      <source>GCS behavior</source>
+      <translation>GCS 동작</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="215"/>
+      <source>Status poll</source>
+      <translation>상태 폴링</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="216"/>
+      <source>1 Hz</source>
+      <translation>1 Hz</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="218"/>
+      <source>No reply / Lost</source>
+      <translation>응답 없음 / 연결 끊김</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="219"/>
+      <source>2 s / 5 s</source>
+      <translation>2초 / 5초</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="221"/>
+      <source>Mission start / stop</source>
+      <translation>미션 시작 / 중지</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="235"/>
+      <source>Options: Manual only · Auto (start at first survey WP, stop at last)</source>
+      <translation>옵션: 수동 전용 · 자동 (첫 측량 WP에서 시작, 마지막에서 중지)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="238"/>
+      <source>Stop in flight</source>
+      <translation>비행 중 중지</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="239"/>
+      <source>Slide to confirm</source>
+      <translation>슬라이드하여 확인</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="247"/>
+      <source>Values apply immediately and are kept after restart (QGC SettingsGroup, no Save button).</source>
+      <translation>값은 즉시 적용되며 재시작 후에도 유지됩니다 (QGC SettingsGroup, 저장 버튼 없음).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarConnectionPage.qml" line="265"/>
+      <source>fixed</source>
+      <translation>고정</translation>
+    </message>
+  </context>
+  <context>
+    <name>LidarDevicePage</name>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="123"/>
+      <source>None</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="126"/>
+      <source>POWERED OFF</source>
+      <translation>전원 꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="126"/>
+      <source>Running</source>
+      <translation>실행 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="126"/>
+      <source>Stopped</source>
+      <translation>중지됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="127"/>
+      <source>Yes</source>
+      <translation>예</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="127"/>
+      <source>No</source>
+      <translation>아니요</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="130"/>
+      <source>Not present</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="131"/>
+      <source>Present</source>
+      <translation>있음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="131"/>
+      <source>full (≤ %1 GB)</source>
+      <translation>가득 참 (≤ %1 GB)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="132"/>
+      <source>low (≤ %1 GB)</source>
+      <translation>부족 (≤ %1 GB)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="133"/>
+      <source>space OK</source>
+      <translation>공간 정상</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="137"/>
+      <source>Overheating (≥ %1 °C)</source>
+      <translation>과열 (≥ %1 °C)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="138"/>
+      <source>Warning (&gt; %1 °C)</source>
+      <translation>경고 (&gt; %1 °C)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="139"/>
+      <source>OK (&lt; %1 °C)</source>
+      <translation>정상 (&lt; %1 °C)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="143"/>
+      <source>Locked</source>
+      <translation>고정됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="143"/>
+      <source>Not locked</source>
+      <translation>미고정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="144"/>
+      <source>DGNSS</source>
+      <translation>DGNSS</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="144"/>
+      <source>no DGNSS</source>
+      <translation>DGNSS 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="145"/>
+      <source>logging</source>
+      <translation>로깅 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="145"/>
+      <source>not logging</source>
+      <translation>로깅 안 함</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="146"/>
+      <source>T04 download</source>
+      <translation>T04 다운로드</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="147"/>
+      <source>error</source>
+      <translation>오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="152"/>
+      <source>Initializing</source>
+      <translation>초기화 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="152"/>
+      <source>Ready</source>
+      <translation>준비됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="152"/>
+      <source>Not ready</source>
+      <translation>준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="153"/>
+      <source>spinning</source>
+      <translation>회전 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="153"/>
+      <source>not spinning</source>
+      <translation>회전 안 함</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="161"/>
+      <source>Not pinged at boot</source>
+      <translation>부팅 시 응답 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="162"/>
+      <source>Connection error</source>
+      <translation>연결 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="163"/>
+      <source>No data</source>
+      <translation>데이터 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="164"/>
+      <source>Command failed</source>
+      <translation>명령 실패</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="165"/>
+      <source>File write error</source>
+      <translation>파일 쓰기 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="166"/>
+      <source>Time not set</source>
+      <translation>시간 미설정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="172"/>
+      <source>Data dropped (USB too slow)</source>
+      <translation>데이터 손실 (USB 속도 느림)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="174"/>
+      <source>No time sync</source>
+      <translation>시간 동기화 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="175"/>
+      <source>Overheating</source>
+      <translation>과열</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="176"/>
+      <source>Temperature warning</source>
+      <translation>온도 경고</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="183"/>
+      <source>Settings error</source>
+      <translation>설정 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="184"/>
+      <source>Photo error</source>
+      <translation>촬영 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="191"/>
+      <source>Above %1 °C</source>
+      <translation>%1 °C 초과</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="227"/>
+      <source>Power off sent — checking for %1 s that Get Status stops…</source>
+      <translation>전원 끄기 전송됨 — %1초 동안 상태 조회 중단 여부 확인 중…</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="228"/>
+      <source>POWERED OFF — restart the LiDAR at the drone (power button).</source>
+      <translation>전원 꺼짐 — 드론에서 LiDAR를 다시 켜십시오 (전원 버튼).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="229"/>
+      <source>No vehicle link.</source>
+      <translation>기체 연결 없음.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="230"/>
+      <source>Disabled while acquiring — stop acquisition first.</source>
+      <translation>수집 중에는 비활성화 — 먼저 수집을 중지하십시오.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="231"/>
+      <source>Disabled while the vehicle is armed.</source>
+      <translation>기체 시동 중에는 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="258"/>
+      <source>LiDAR power off failed</source>
+      <translation>LiDAR 전원 끄기 실패</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="259"/>
+      <source>Power Off reply: %1. </source>
+      <translation>전원 끄기 응답: %1. </translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="260"/>
+      <source>The LiDAR still answers Get Status, so it is still on.</source>
+      <translation>LiDAR가 여전히 상태 조회에 응답하므로 아직 켜져 있습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="349"/>
+      <source>ⓘ Device status from Get Status (%1 Hz).</source>
+      <translation>ⓘ 상태 조회 기반 장치 상태 (%1 Hz).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="350"/>
+      <source>Last status %1</source>
+      <translation>마지막 상태 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="350"/>
+      <source>No status yet</source>
+      <translation>아직 상태 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="366"/>
+      <source>Power</source>
+      <translation>전원</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="375"/>
+      <source>Acquisition</source>
+      <translation>수집</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="377"/>
+      <source>Data logging</source>
+      <translation>데이터 로깅</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="379"/>
+      <source>USB stick</source>
+      <translation>USB 저장장치</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="381"/>
+      <source>Computer temp.</source>
+      <translation>컴퓨터 온도</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="386"/>
+      <source>Power off LiDAR…</source>
+      <translation>LiDAR 전원 끄기…</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="397"/>
+      <source>Model</source>
+      <translation>모델</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="406"/>
+      <source>LiDAR</source>
+      <translation>LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="408"/>
+      <source>Camera</source>
+      <translation>카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="413"/>
+      <source>Chosen in Connection — the serial protocol has no model query, so unsupported items are disabled.</source>
+      <translation>연결에서 선택됨 — 시리얼 프로토콜에 모델 조회 기능이 없으므로 지원되지 않는 항목은 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="426"/>
+      <source>Status (Get Status bits)</source>
+      <translation>상태 (상태 조회 비트)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="435"/>
+      <source>INS</source>
+      <translation>INS</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="437"/>
+      <source>Scanner</source>
+      <translation>스캐너</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="439"/>
+      <source>INS errors</source>
+      <translation>INS 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="441"/>
+      <source>Camera errors</source>
+      <translation>카메라 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="443"/>
+      <source>Scanner errors</source>
+      <translation>스캐너 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="445"/>
+      <source>Computer errors</source>
+      <translation>컴퓨터 오류</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="450"/>
+      <source>Copy status</source>
+      <translation>상태 복사</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="469"/>
+      <source>Power off LiDAR?</source>
+      <translation>LiDAR 전원을 끄시겠습니까?</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="479"/>
+      <source>The LiDAR shuts down and must be restarted at the drone (power button) to record again.</source>
+      <translation>LiDAR가 종료되며, 다시 기록하려면 드론에서 재시작해야 합니다 (전원 버튼).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="484"/>
+      <source>Acquisition is stopped — data on the USB stick is closed safely.</source>
+      <translation>수집이 중지되었습니다 — USB 저장장치의 데이터가 안전하게 닫혔습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="491"/>
+      <source>No reply on success — QGC shows &quot;Powered off&quot; when status stops (%1 s). Disabled while acquiring or armed.</source>
+      <translation>성공 시 응답 없음 — 상태가 멈추면 QGC에 &quot;전원 꺼짐&quot;이 표시됩니다 (%1초). 수집 중이거나 시동 중에는 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="498"/>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarDevicePage.qml" line="502"/>
+      <source>Power off</source>
+      <translation>전원 끄기</translation>
+    </message>
+  </context>
+  <context>
+    <name>LidarSettingsPage</name>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="124"/>
+      <source>High sensitivity</source>
+      <translation>고감도</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="125"/>
+      <source>Pattern</source>
+      <translation>패턴</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="126"/>
+      <source>Enable camera</source>
+      <translation>카메라 사용</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="127"/>
+      <source>Start height</source>
+      <translation>시작 높이</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="128"/>
+      <source>Trigger</source>
+      <translation>트리거</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="129"/>
+      <source>Every</source>
+      <translation>간격</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="140"/>
+      <source>Immediately</source>
+      <translation>즉시</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="140"/>
+      <source>%1 m</source>
+      <translation>%1 m</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="144"/>
+      <source>Distance</source>
+      <translation>거리</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="145"/>
+      <source>Time</source>
+      <translation>시간</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="145"/>
+      <source>%1 s</source>
+      <translation>%1초</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="250"/>
+      <source>ⓘ Stored in the LiDAR. Apply sends Set Parameter for each change, then reads it back (Get Parameter).</source>
+      <translation>ⓘ LiDAR에 저장됩니다. 적용 시 변경 항목마다 파라미터 설정을 전송한 후 다시 읽어옵니다 (파라미터 조회).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="251"/>
+      <source>ⓘ Stored in the LiDAR. Read with Get Parameter.</source>
+      <translation>ⓘ LiDAR에 저장됩니다. 파라미터 조회로 읽습니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="252"/>
+      <source>Last read %1</source>
+      <translation>마지막 읽기 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="252"/>
+      <source>Not read yet</source>
+      <translation>아직 읽지 않음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="268"/>
+      <source>Scanner</source>
+      <translation>스캐너</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="268"/>
+      <source>(Livox AVIA only)</source>
+      <translation>(Livox AVIA 전용)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="290"/>
+      <source>Non-rep.</source>
+      <translation>비반복</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="290"/>
+      <source>Repetitive</source>
+      <translation>반복</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="299"/>
+      <source>Not available on %1 (Hesai XT32M2X) — shown disabled. Enabled for Mapper+ OEM.</source>
+      <translation>%1 (Hesai XT32M2X)에서는 사용할 수 없음 — 비활성화로 표시됩니다. Mapper+ OEM에서 사용 가능.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="304"/>
+      <source>Model</source>
+      <translation>모델</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="313"/>
+      <source>LiDAR</source>
+      <translation>LiDAR</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="315"/>
+      <source>Camera</source>
+      <translation>카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="320"/>
+      <source>Chosen in Connection — the serial protocol has no model query, so unsupported items are disabled.</source>
+      <translation>연결에서 선택됨 — 시리얼 프로토콜에 모델 조회 기능이 없으므로 지원되지 않는 항목은 비활성화됩니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="333"/>
+      <source>Embedded camera</source>
+      <translation>내장 카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="364"/>
+      <source>m</source>
+      <translation>m</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="380"/>
+      <source>Start immediately (−1)</source>
+      <translation>즉시 시작 (−1)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="413"/>
+      <source>s</source>
+      <translation>초</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="429"/>
+      <source>Start height is measured from the acquisition start. &quot;Every&quot; unit follows the trigger (s or m).</source>
+      <translation>시작 높이는 수집 시작 지점부터 측정됩니다. &quot;간격&quot; 단위는 트리거를 따릅니다 (초 또는 m).</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="453"/>
+      <source>Read-only — Set Parameter is not supported by the companion board yet. Values shown are read from the LiDAR.</source>
+      <translation>읽기 전용 — 컴패니언 보드가 아직 파라미터 설정을 지원하지 않습니다. 표시된 값은 LiDAR에서 읽은 값입니다.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="454"/>
+      <source>Read-only while acquisition is running — the LiDAR rejects Set Parameter (0x01). Stop acquisition first.</source>
+      <translation>수집 중에는 읽기 전용 — LiDAR가 파라미터 설정을 거부합니다 (0x01). 먼저 수집을 중지하십시오.</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="464"/>
+      <source>Set failed: %1</source>
+      <translation>설정 실패: %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="475"/>
+      <source>Applying…</source>
+      <translation>적용 중…</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="476"/>
+      <source>1 change</source>
+      <translation>변경 1건</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="476"/>
+      <source>%1 changes</source>
+      <translation>변경 %1건</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="480"/>
+      <source>Cancel</source>
+      <translation>취소</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="486"/>
+      <source>Apply</source>
+      <translation>적용</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="502"/>
+      <source>Current values (read-back)</source>
+      <translation>현재 값 (재조회)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="512"/>
+      <source>On</source>
+      <translation>켜짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="512"/>
+      <source>Off</source>
+      <translation>꺼짐</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="521"/>
+      <source>n/a</source>
+      <translation>해당 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="524"/>
+      <source>Non-repetitive</source>
+      <translation>비반복</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="528"/>
+      <source>Read again</source>
+      <translation>다시 읽기</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="539"/>
+      <source>Last sent: %1</source>
+      <translation>마지막 전송: %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSettingsPage.qml" line="540"/>
+      <source>Last reply: %1</source>
+      <translation>마지막 응답: %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>LidarSetupView</name>
+    <message>
+      <location filename="../custom/src/YS/LidarSetupView.qml" line="29"/>
+      <source>Connection</source>
+      <translation>연결</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSetupView.qml" line="30"/>
+      <source>Settings</source>
+      <translation>설정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LidarSetupView.qml" line="31"/>
+      <source>Device</source>
+      <translation>장치</translation>
+    </message>
+  </context>
+  <context>
+    <name>YSManager</name>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="591"/>
+      <source>No vehicle connected</source>
+      <translation>연결된 기체 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="598"/>
+      <source>Waiting for Get Status reply...</source>
+      <translation>상태 조회 응답 대기 중...</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="613"/>
+      <source>Partial reply (%1 missing)</source>
+      <translation>부분 응답 (%1 누락)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="615"/>
+      <source>No reply from LiDAR (compid %1)</source>
+      <translation>LiDAR 응답 없음 (compid %1)</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="628"/>
+      <source>Get Status OK</source>
+      <translation>상태 조회 정상</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="629"/>
+      <source>INS not locked</source>
+      <translation>INS 미고정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="629"/>
+      <source>INS locked</source>
+      <translation>INS 고정됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="630"/>
+      <source>No USB</source>
+      <translation>USB 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="630"/>
+      <source>USB full</source>
+      <translation>USB 가득 참</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="630"/>
+      <source>USB present</source>
+      <translation>USB 있음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="632"/>
+      <source>Scanner not ready</source>
+      <translation>스캐너 준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="635"/>
+      <source>Error flags set</source>
+      <translation>오류 플래그 설정됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="850"/>
+      <source>INS / GNSS</source>
+      <translation>INS / GNSS</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="851"/>
+      <source>Scanner</source>
+      <translation>스캐너</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="852"/>
+      <source>System time</source>
+      <translation>시스템 시간</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="853"/>
+      <source>USB stick</source>
+      <translation>USB 저장장치</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="854"/>
+      <source>Camera</source>
+      <translation>카메라</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="855"/>
+      <source>Not used</source>
+      <translation>사용 안 함</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="856"/>
+      <source>Temperature</source>
+      <translation>온도</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="861"/>
+      <source>Error %1</source>
+      <translation>오류 %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="863"/>
+      <source>Not locked</source>
+      <translation>미고정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="865"/>
+      <source>Locked</source>
+      <translation>고정됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="873"/>
+      <source>Not ready</source>
+      <translation>준비 안 됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="875"/>
+      <source>Ready</source>
+      <translation>준비됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="879"/>
+      <source>Not set</source>
+      <translation>미설정</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="879"/>
+      <source>Set</source>
+      <translation>설정됨</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="883"/>
+      <source>Not present</source>
+      <translation>없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="885"/>
+      <source>Present</source>
+      <translation>있음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="885"/>
+      <source>full</source>
+      <translation>가득 참</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="887"/>
+      <source>space OK</source>
+      <translation>공간 정상</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="896"/>
+      <source>No error</source>
+      <translation>오류 없음</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="901"/>
+      <source>Overheating</source>
+      <translation>과열</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="903"/>
+      <source>Warning</source>
+      <translation>경고</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/YSManager.cpp" line="905"/>
+      <source>OK</source>
+      <translation>정상</translation>
+    </message>
+  </context>
+  <context>
+    <name>DeviceSettings</name>
+    <message>
+      <source>YellowScan 3D LiDAR</source>
+      <translation>YellowScan 3D LiDAR</translation>
+    </message>
+  </context>
 </TS>
