@@ -165,6 +165,7 @@ private:
     bool _decodeMonitoring(const QByteArray& frame, bool bigEndianStandard);
     void _processBytes(const QByteArray& data);
     void _openTransport();
+    void _abortTcp();
     bool _send(const QByteArray& frame);
     QString _transportError() const;
     static quint16 _u16be(const QByteArray& data, int offset);
@@ -201,6 +202,7 @@ private:
     QTimer _tcpConnectTimer;
     SafeTFrameExtractor _extractor;
     bool _useTcp = true;
+    bool _suppressTcpRetry = false;
     QTimer _controlTimer;
     QTimer _timeoutTimer;
     QTimer _settingsReconnectTimer;

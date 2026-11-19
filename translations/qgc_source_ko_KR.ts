@@ -30081,6 +30081,10 @@ OFF: 착륙 후 기체가 disarm되고 미션이 멈춥니다.</translation>
 <context>
   <name>ElistairStationPanel</name>
   <message>
+    <source>Torque feedback unavailable. Select an absolute level before using +/-.</source>
+    <translation>토크 피드백을 사용할 수 없습니다. +/- 사용 전에 절대 단계를 선택하세요.</translation>
+  </message>
+  <message>
     <source>Set %1 / 10</source>
     <translation>설정 %1 / 10</translation>
   </message>

@@ -2,6 +2,7 @@
 
 #include <QDateTime>
 #include <QSettings>
+#include <QScopedValueRollback>
 #include <QtMath>
 
 #include "QGCApplication.h"
@@ -75,6 +76,7 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     connect(&_udp, &QUdpSocket::readyRead, this, &ElistairStationManager::_readDatagrams);
     connect(&_tcp, &QTcpSocket::readyRead, this, &ElistairStationManager::_readTcp);
     connect(&_tcp, &QTcpSocket::connected, this, [this]() {
+        _tcpRetryTimer.stop();
         _tcpConnectTimer.stop();
         _tcpConnectedMsecs = QDateTime::currentMSecsSinceEpoch();
         qCInfo(SafeTLog) << "SAFE-T TCP connected" << _stationAddress << _stationPort;
@@ -92,15 +94,15 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
         _sendControl();
     });
     connect(&_tcp, &QTcpSocket::disconnected, this, [this]() {
-        if (!_controlTimer.isActive()) return;
+        if (_suppressTcpRetry || !_controlTimer.isActive() || !_useTcp) return;
         qCWarning(SafeTLog) << "SAFE-T TCP disconnected; retrying in 2 s";
         _tcpRetryTimer.start();
     });
     connect(&_tcp, &QAbstractSocket::errorOccurred, this, [this](QAbstractSocket::SocketError) {
-        if (!_controlTimer.isActive() || _tcpRetryTimer.isActive()) return;
+        if (_suppressTcpRetry || !_useTcp || !_controlTimer.isActive() || _tcpRetryTimer.isActive()) return;
         qCWarning(SafeTLog) << "SAFE-T TCP error:" << _tcp.errorString();
         _tcpConnectTimer.stop();
-        _tcp.abort();
+        _abortTcp();
         _tcpRetryTimer.start();
     });
     _tcpRetryTimer.setSingleShot(true);
@@ -109,8 +111,9 @@ ElistairStationManager::ElistairStationManager(QObject* parent)
     _tcpConnectTimer.setSingleShot(true);
     _tcpConnectTimer.setInterval(3000);
     connect(&_tcpConnectTimer, &QTimer::timeout, this, [this]() {
+        if (!_controlTimer.isActive() || !_useTcp || _tcp.state() == QAbstractSocket::ConnectedState) return;
         qCWarning(SafeTLog) << "SAFE-T TCP connect timed out (3 s); retrying in 2 s";
-        _tcp.abort();
+        _abortTcp();
         _tcpRetryTimer.start();
     });
     _timeoutTimer.setInterval(250);
@@ -276,7 +279,7 @@ void ElistairStationManager::disconnectStation()
     emit settingsTransactionChanged();
     _tcpRetryTimer.stop();
     _tcpConnectTimer.stop();
-    _tcp.abort();
+    _abortTcp();
     _udp.close();
     _extractor.clear();
     _updateNoPower(0);
@@ -601,11 +604,18 @@ bool ElistairStationManager::_decodeConfiguration(const QByteArray& frame)
     return true;
 }
 
+void ElistairStationManager::_abortTcp()
+{
+    // Intentional socket closes must not schedule a second reconnect via signals.
+    QScopedValueRollback<bool> suppress(_suppressTcpRetry, true);
+    _tcp.abort();
+}
+
 void ElistairStationManager::_openTransport()
 {
     _tcpRetryTimer.stop();
     _tcpConnectTimer.stop();
-    _tcp.abort();
+    _abortTcp();
     _udp.close();
     _extractor.clear();
     if (_useTcp) {
@@ -628,8 +638,9 @@ void ElistairStationManager::_openTransport()
 void ElistairStationManager::_retryTcp()
 {
     if (!_controlTimer.isActive() || !_useTcp) return;
+    if (_tcp.state() == QAbstractSocket::ConnectedState || _tcp.state() == QAbstractSocket::ConnectingState || _tcp.state() == QAbstractSocket::HostLookupState) return;
     qCInfo(SafeTLog) << "SAFE-T TCP reconnecting" << _stationAddress << _stationPort;
-    _tcp.abort();
+    _abortTcp();
     _tcp.connectToHost(QHostAddress(_stationAddress), quint16(_stationPort));
     _tcpConnectTimer.start();
 }
@@ -742,7 +753,7 @@ void ElistairStationManager::_checkTimeout()
     if (_useTcp && _tcp.state() == QAbstractSocket::ConnectedState
         && now - qMax(_lastMonitoringMsecs, _tcpConnectedMsecs) > kLinkLostTimeoutMsecs) {
         qCWarning(SafeTLog) << "SAFE-T TCP stream silent for" << (now - qMax(_lastMonitoringMsecs, _tcpConnectedMsecs)) << "ms; reconnecting";
-        _tcp.abort();
+        _abortTcp();
         _extractor.clear();
         _tcpRetryTimer.start();
     }

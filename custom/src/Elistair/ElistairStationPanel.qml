@@ -29,13 +29,51 @@ Rectangle {
     readonly property real telemetryOpacity: station && station.linkLost ? 0.48 : 1.0
     readonly property color lostColor: "#68717b"
     readonly property bool inFlight: station && station.powerOffRequiresConfirmation
-    // A UI default is not a station command; only explicit clicks send a setpoint.
+    // A visual reference never sends a command. Legacy frames have no applied torque.
     property int torqueLevel: 0
+    property bool torqueLevelKnown: false
+    property bool torqueReferenceIsApplied: false
+    property bool previousTorqueRemote: false
+    function syncTorqueReference() {
+        if (!root.controlsAvailable || !station.hasMonitoring) {
+            torqueLevelKnown = false
+            torqueReferenceIsApplied = false
+        } else if (station.torqueRemote && station.torqueSetpointAvailable) {
+            torqueLevel = Math.max(0, Math.min(10, Math.round(station.torquePercent / 10)))
+            torqueLevelKnown = true
+            torqueReferenceIsApplied = station.activeFrameVersion === "Extended V1" && station.torquePercent === station.appliedTorquePercent
+        } else if (station.activeFrameVersion === "Extended V1") {
+            torqueLevel = Math.max(0, Math.min(10, Math.round(station.appliedTorquePercent / 10)))
+            torqueLevelKnown = true
+            torqueReferenceIsApplied = true
+        } else {
+            torqueLevelKnown = false
+            torqueReferenceIsApplied = false
+        }
+    }
     function selectTorqueLevel(level) {
         if (!root.controlsAvailable || !station.torqueRemote)
             return
         root.torqueLevel = Math.max(0, Math.min(10, level))
+        root.torqueLevelKnown = true
+        root.torqueReferenceIsApplied = false
         station.setTorquePercent(root.torqueLevel * 10)
+    }
+    onControlsAvailableChanged: syncTorqueReference()
+    Component.onCompleted: {
+        previousTorqueRemote = station && station.torqueRemote
+        syncTorqueReference()
+    }
+    Connections {
+        target: root.station
+        function onControlChanged() {
+            if (root.previousTorqueRemote !== station.torqueRemote) {
+                root.previousTorqueRemote = station.torqueRemote
+                root.syncTorqueReference()
+            } else if (!station.torqueRemote) {
+                root.syncTorqueReference()
+            }
+        }
     }
     readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
     Controls2.Dialog {
@@ -233,7 +271,7 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            QGCLabel { text: qsTr("Set %1 / 10").arg(root.torqueLevel); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
+            QGCLabel { text: qsTr("Set %1 / 10").arg(root.torqueLevelKnown ? (root.torqueReferenceIsApplied ? "≈ " : "") + root.torqueLevel : "—"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel {
                 text: qsTr("applied %1%").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
@@ -250,7 +288,7 @@ Rectangle {
             Rectangle {
                 x: ScreenTools.defaultFontPixelHeight * 0.55; width: parent.width - 2 * x
                 anchors.verticalCenter: parent.verticalCenter; height: 3; color: "#69717b"
-                Rectangle { width: parent.width * root.torqueLevel / 10; height: parent.height; color: root.blue }
+                Rectangle { width: root.torqueLevelKnown ? parent.width * root.torqueLevel / 10 : 0; height: parent.height; color: root.blue }
             }
             Repeater {
                 model: 11
@@ -259,10 +297,10 @@ Rectangle {
                     x: index * (torqueSteps.width - width) / 10
                     Rectangle {
                         anchors.centerIn: parent
-                        width: root.torqueLevel === index ? ScreenTools.defaultFontPixelHeight : ScreenTools.defaultFontPixelHeight * 0.4
+                        width: root.torqueLevelKnown && root.torqueLevel === index ? ScreenTools.defaultFontPixelHeight : ScreenTools.defaultFontPixelHeight * 0.4
                         height: width; radius: width / 2
-                        color: root.torqueLevel === index ? root.backgroundColor : (index < root.torqueLevel ? root.blue : "#69717b")
-                        border.color: root.blue; border.width: root.torqueLevel === index ? 2 : 0
+                        color: root.torqueLevelKnown && root.torqueLevel === index ? root.backgroundColor : (root.torqueLevelKnown && index < root.torqueLevel ? root.blue : "#69717b")
+                        border.color: root.blue; border.width: root.torqueLevelKnown && root.torqueLevel === index ? 2 : 0
                     }
                     MouseArea { anchors.fill: parent; onClicked: root.selectTorqueLevel(index) }
                 }
@@ -277,8 +315,8 @@ Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
                     color: !root.controlsAvailable || !station.torqueRemote ? "#59616b" : "#48525d"
                     border.color: "#69717b"; border.width: 1
-                    QGCLabel { anchors.centerIn: parent; text: modelData === "value" ? root.torqueLevel : modelData; color: root.controlsAvailable && station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
-                    MouseArea { anchors.fill: parent; enabled: modelData !== "value" && root.controlsAvailable && station.torqueRemote; onClicked: root.selectTorqueLevel(root.torqueLevel + (index === 0 ? -1 : 1)) }
+                    QGCLabel { anchors.centerIn: parent; text: modelData === "value" ? (root.torqueLevelKnown ? root.torqueLevel : "—") : modelData; color: root.controlsAvailable && station.torqueRemote && (modelData === "value" || root.torqueLevelKnown) ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
+                    MouseArea { anchors.fill: parent; enabled: modelData !== "value" && root.controlsAvailable && station.torqueRemote && root.torqueLevelKnown; onClicked: root.selectTorqueLevel(root.torqueLevel + (index === 0 ? -1 : 1)) }
                 }
             }
         }
@@ -289,6 +327,12 @@ Rectangle {
             visible: !root.controlsAvailable || !station.torqueRemote
             text: !root.controlsAvailable ? qsTr("Torque locked until the station link is connected.")
                                           : qsTr("Turn on Automatic Torque Control to send torque commands.")
+            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
+        }
+        QGCLabel {
+            Layout.fillWidth: true
+            visible: root.controlsAvailable && station.torqueRemote && !root.torqueLevelKnown
+            text: qsTr("Torque feedback unavailable. Select an absolute level before using +/-.")
             color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
         }
 
