@@ -18293,9 +18293,25 @@ Confirm change?</translation>
     <source>Wi-Fi password</source>
     <translation>Wi-Fi 비밀번호</translation>
   </message>
+    <message>
+        <source>TCP not connected to %1:%2</source>
+        <translation>%1:%2에 TCP로 연결되지 않았습니다</translation>
+    </message>
 </context>
 <context>
   <name>ElistairStationPanel</name>
+  <message>
+    <source>Torque feedback unavailable. Select an absolute level before using +/-.</source>
+    <translation>토크 피드백을 사용할 수 없습니다. +/- 사용 전에 절대 단계를 선택하세요.</translation>
+  </message>
+  <message>
+    <source>Set %1 / 10</source>
+    <translation>설정 %1 / 10</translation>
+  </message>
+  <message>
+    <source>applied %1%</source>
+    <translation>적용 %1%</translation>
+  </message>
   <message>
     <source>Confirm tethered vehicle</source>
     <translation>테더 연결 기체 확인</translation>
@@ -18315,6 +18331,10 @@ Confirm change?</translation>
   <message>
     <source>%1 V - %2 A - Input unavailable</source>
     <translation>%1 V - %2 A - 입력 확인 불가</translation>
+  </message>
+  <message>
+    <source>%1 V - %2 A - Input %3 V AC</source>
+    <translation>%1 V - %2 A - 입력 %3 V AC</translation>
   </message>
   <message>
     <source>Altitude: %1 m</source>
@@ -18456,9 +18476,25 @@ Confirm change?</translation>
     <source>Not detected</source>
     <translation>감지되지 않음</translation>
   </message>
+    <message>
+        <source>SAFE-T #1 - %1:%2 %3 - %4</source>
+        <translation>SAFE-T #1 - %1:%2 %3 - %4</translation>
+    </message>
+    <message>
+        <source>Torque locked until the station link is connected.</source>
+        <translation>스테이션 연결이 될 때까지 토크 제어가 잠깁니다.</translation>
+    </message>
+    <message>
+        <source>Turn on Automatic Torque Control to send torque commands.</source>
+        <translation>토크 명령을 보내려면 자동 토크 제어를 켜세요.</translation>
+    </message>
 </context>
 <context>
   <name>ElistairStationSettings</name>
+  <message>
+    <source>Torque presets are disabled. Use the Tether panel to adjust torque.</source>
+    <translation>토크 프리셋은 비활성화되었습니다. 테더 패널에서 토크를 조절하세요.</translation>
+  </message>
   <message>
     <source>  Last read: </source>
     <translation>  마지막 읽기: </translation>
@@ -18873,6 +18909,22 @@ Only enable for the vehicle tethered to this station.</source>
     <source>OK - %1</source>
     <translation>정상 - %1</translation>
   </message>
+    <message>
+        <source>Enter a valid IPv4 address and port (1–65535).</source>
+        <translation>올바른 IPv4 주소와 포트(1–65535)를 입력하세요.</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>포트</translation>
+    </message>
+    <message>
+        <source>SAFE-T 2.3: Wi-Fi 192.168.4.1 or Ethernet 192.168.1.120 · TCP or UDP · port 7158 or 23232. One station per GCS. On failure, check the network, IP and station power.</source>
+        <translation>SAFE-T 2.3: Wi-Fi 192.168.4.1 또는 이더넷 192.168.1.120 · TCP 또는 UDP · 포트 7158 또는 23232. GCS당 스테이션 1대. 실패 시 네트워크, IP, 스테이션 전원을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Transport</source>
+        <translation>전송 방식</translation>
+    </message>
 </context>
 <context>
   <name>TetherStatusIndicator</name>

@@ -29,6 +29,52 @@ Rectangle {
     readonly property real telemetryOpacity: station && station.linkLost ? 0.48 : 1.0
     readonly property color lostColor: "#68717b"
     readonly property bool inFlight: station && station.powerOffRequiresConfirmation
+    // A visual reference never sends a command. Legacy frames have no applied torque.
+    property int torqueLevel: 0
+    property bool torqueLevelKnown: false
+    property bool torqueReferenceIsApplied: false
+    property bool previousTorqueRemote: false
+    function syncTorqueReference() {
+        if (!root.controlsAvailable || !station.hasMonitoring) {
+            torqueLevelKnown = false
+            torqueReferenceIsApplied = false
+        } else if (station.torqueRemote && station.torqueSetpointAvailable) {
+            torqueLevel = Math.max(0, Math.min(10, Math.round(station.torquePercent / 10)))
+            torqueLevelKnown = true
+            torqueReferenceIsApplied = station.activeFrameVersion === "Extended V1" && station.torquePercent === station.appliedTorquePercent
+        } else if (station.activeFrameVersion === "Extended V1") {
+            torqueLevel = Math.max(0, Math.min(10, Math.round(station.appliedTorquePercent / 10)))
+            torqueLevelKnown = true
+            torqueReferenceIsApplied = true
+        } else {
+            torqueLevelKnown = false
+            torqueReferenceIsApplied = false
+        }
+    }
+    function selectTorqueLevel(level) {
+        if (!root.controlsAvailable || !station.torqueRemote)
+            return
+        root.torqueLevel = Math.max(0, Math.min(10, level))
+        root.torqueLevelKnown = true
+        root.torqueReferenceIsApplied = false
+        station.setTorquePercent(root.torqueLevel * 10)
+    }
+    onControlsAvailableChanged: syncTorqueReference()
+    Component.onCompleted: {
+        previousTorqueRemote = station && station.torqueRemote
+        syncTorqueReference()
+    }
+    Connections {
+        target: root.station
+        function onControlChanged() {
+            if (root.previousTorqueRemote !== station.torqueRemote) {
+                root.previousTorqueRemote = station.torqueRemote
+                root.syncTorqueReference()
+            } else if (!station.torqueRemote) {
+                root.syncTorqueReference()
+            }
+        }
+    }
     readonly property var flightVehicle: QGroundControl.multiVehicleManager.activeVehicle
     Controls2.Dialog {
         id: associateVehicleDialog
@@ -124,7 +170,7 @@ Rectangle {
 
         QGCLabel {
             Layout.fillWidth: true
-            text: qsTr("SAFE-T #1 - %1:%2 - %3").arg(station.stationAddress).arg(station.stationPort).arg(station.frameVersionDetected ? station.activeFrameVersion : qsTr("Not detected"))
+            text: qsTr("SAFE-T #1 - %1:%2 %3 - %4").arg(station.stationAddress).arg(station.stationPort).arg(station.transport).arg(station.frameVersionDetected ? station.activeFrameVersion : qsTr("Not detected"))
             color: mutedText
             font.pointSize: ScreenTools.smallFontPointSize
             elide: Text.ElideRight
@@ -225,47 +271,69 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            QGCLabel { text: qsTr("Torque"); color: mutedText; font.pointSize: ScreenTools.defaultFontPointSize }
+            QGCLabel { text: qsTr("Set %1 / 10").arg(root.torqueLevelKnown ? (root.torqueReferenceIsApplied ? "≈ " : "") + root.torqueLevel : "—"); color: "white"; font.pointSize: ScreenTools.defaultFontPointSize }
             Item { Layout.fillWidth: true }
             QGCLabel {
-                text: qsTr("set %1% - applied %2%").arg(station.torqueSetpointAvailable ? station.torquePercent : "—").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
+                text: qsTr("applied %1%").arg(station.activeFrameVersion === "Extended V1" && station.hasMonitoring ? station.appliedTorquePercent : "—")
                 color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.defaultFontPointSize
             }
         }
 
-        Slider {
-            id: torqueSlider
+        Item {
+            id: torqueSteps
             Layout.fillWidth: true
-            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.15
-            from: 0; to: 100; stepSize: 1
+            Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.2
             enabled: root.controlsAvailable && station.torqueRemote
-            opacity: station.torqueRemote ? 1.0 : 0.55
-            value: station.torquePercent
-            onMoved: station.setTorquePercent(Math.round(value))
-            background: Rectangle {
-                x: torqueSlider.leftPadding; y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: torqueSlider.availableWidth; height: ScreenTools.defaultFontPixelHeight * 0.24; radius: height / 2; color: "#69717b"
-                Rectangle { width: torqueSlider.visualPosition * parent.width; height: parent.height; radius: parent.radius; color: root.blue }
+            opacity: enabled ? 1.0 : 0.55
+            Rectangle {
+                x: ScreenTools.defaultFontPixelHeight * 0.55; width: parent.width - 2 * x
+                anchors.verticalCenter: parent.verticalCenter; height: 3; color: "#69717b"
+                Rectangle { width: root.torqueLevelKnown ? parent.width * root.torqueLevel / 10 : 0; height: parent.height; color: root.blue }
             }
-            handle: Rectangle {
-                x: torqueSlider.leftPadding + torqueSlider.visualPosition * (torqueSlider.availableWidth - width)
-                y: torqueSlider.topPadding + torqueSlider.availableHeight / 2 - height / 2
-                width: ScreenTools.defaultFontPixelHeight * 1.15; height: width; radius: width / 2; color: "#4c5660"; border.color: "white"; border.width: 1
+            Repeater {
+                model: 11
+                delegate: Item {
+                    width: torqueSteps.width / 11; height: torqueSteps.height
+                    x: index * (torqueSteps.width - width) / 10
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: root.torqueLevelKnown && root.torqueLevel === index ? ScreenTools.defaultFontPixelHeight : ScreenTools.defaultFontPixelHeight * 0.4
+                        height: width; radius: width / 2
+                        color: root.torqueLevelKnown && root.torqueLevel === index ? root.backgroundColor : (root.torqueLevelKnown && index < root.torqueLevel ? root.blue : "#69717b")
+                        border.color: root.blue; border.width: root.torqueLevelKnown && root.torqueLevel === index ? 2 : 0
+                    }
+                    MouseArea { anchors.fill: parent; onClicked: root.selectTorqueLevel(index) }
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true; spacing: ScreenTools.defaultFontPixelWidth * 0.7
             Repeater {
-                model: [0, 30, 100]
+                model: ["‹", "value", "›"]
                 delegate: Rectangle {
                     Layout.fillWidth: true; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.7
-                    color: !station.torqueRemote ? "#59616b" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#48525d")
-                    border.color: !station.torqueRemote ? "#6d7681" : (station.torqueSetpointAvailable && station.torquePercent === modelData ? root.blue : "#69717b"); border.width: 1
-                    QGCLabel { anchors.centerIn: parent; text: modelData + " %"; color: station.torqueRemote ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
-                    MouseArea { anchors.fill: parent; enabled: root.controlsAvailable && station.torqueRemote; onClicked: station.setTorquePercent(modelData) }
+                    color: !root.controlsAvailable || !station.torqueRemote ? "#59616b" : "#48525d"
+                    border.color: "#69717b"; border.width: 1
+                    QGCLabel { anchors.centerIn: parent; text: modelData === "value" ? (root.torqueLevelKnown ? root.torqueLevel : "—") : modelData; color: root.controlsAvailable && station.torqueRemote && (modelData === "value" || root.torqueLevelKnown) ? "white" : "#9ca5b5"; font.pointSize: ScreenTools.defaultFontPointSize }
+                    MouseArea { anchors.fill: parent; enabled: modelData !== "value" && root.controlsAvailable && station.torqueRemote && root.torqueLevelKnown; onClicked: root.selectTorqueLevel(root.torqueLevel + (index === 0 ? -1 : 1)) }
                 }
             }
+        }
+        // Torque commands are refused silently otherwise: say why (link not ready, or the
+        // automatic torque authority was released after a link loss / reconnect).
+        QGCLabel {
+            Layout.fillWidth: true
+            visible: !root.controlsAvailable || !station.torqueRemote
+            text: !root.controlsAvailable ? qsTr("Torque locked until the station link is connected.")
+                                          : qsTr("Turn on Automatic Torque Control to send torque commands.")
+            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
+        }
+        QGCLabel {
+            Layout.fillWidth: true
+            visible: root.controlsAvailable && station.torqueRemote && !root.torqueLevelKnown
+            text: qsTr("Torque feedback unavailable. Select an absolute level before using +/-.")
+            color: "#f4b244"; wrapMode: Text.WordWrap; font.pointSize: ScreenTools.smallFontPointSize
         }
 
         }
@@ -302,7 +370,7 @@ Rectangle {
             QGCLabel { text: station.powerWatts.toLocaleString(Qt.locale(), 'f', 0) + " W"; color: station.noPower ? root.danger : "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.largeFontPointSize }
             Rectangle { visible: station.powerOn && !station.noPower; Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 3.2; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.45; radius: height / 2; color: green; QGCLabel { anchors.centerIn: parent; text: qsTr("ON"); color: "white"; font.family: ScreenTools.demiboldFontFamily; font.pointSize: ScreenTools.smallFontPointSize } }
         }
-        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: qsTr("%1 V - %2 A - Input unavailable").arg(station.hasMonitoring ? root.measurement(station.voltage) : "—").arg(station.hasMonitoring ? root.measurement(station.current) : "—"); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
+        QGCLabel { Layout.fillWidth: true; opacity: root.telemetryOpacity; text: station.hasMonitoring && station.powerSourceVolts > 0 ? qsTr("%1 V - %2 A - Input %3 V AC").arg(root.measurement(station.voltage)).arg(root.measurement(station.current)).arg(station.powerSourceVolts) : qsTr("%1 V - %2 A - Input unavailable").arg(station.hasMonitoring ? root.measurement(station.voltage) : "—").arg(station.hasMonitoring ? root.measurement(station.current) : "—"); color: station.noPower ? root.danger : mutedText; font.pointSize: ScreenTools.smallFontPointSize }
         Rectangle { Layout.fillWidth: true; opacity: root.telemetryOpacity; Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 0.5; radius: height / 2; color: "#44505b"; Rectangle { width: parent.width * root.percent(station.powerWatts, 2500); height: parent.height; radius: parent.radius; color: green } }
 
         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: dividerColor }

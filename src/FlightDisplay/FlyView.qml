@@ -100,6 +100,7 @@ Item {
         z:                  _fullItemZorder + 2
         parentToolInsets:   widgetLayer.totalToolInsets
         mapControl:         _mapControl
+        tetherCriticalBannerOffset: tetherCriticalBanner.visible ? tetherCriticalBanner.y + tetherCriticalBanner.height + _toolsMargin : 0
         visible:            _mainWindowIsMap //!QGroundControl.videoManager.fullScreen
     }
 
@@ -231,12 +232,16 @@ Item {
     }
 
     Rectangle {
+        id: tetherCriticalBanner
         readonly property var station: QGroundControl.corePlugin.elistairStationManager
+        readonly property real leftInset: Math.min(parent.width, ScreenTools.defaultFontPixelWidth * 9 + _toolsMargin)
+        readonly property real rightInset: tetherPanelContainer.visible ? tetherPanelContainer.width + 2 * _toolsMargin : _toolsMargin
+        readonly property real availableWidth: Math.max(0, parent.width - leftInset - rightInset)
         visible: station && station.noPower
         anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: _toolsMargin
-        width: Math.min(parent.width * 0.52, ScreenTools.defaultFontPixelWidth * 70)
+        x: leftInset + Math.max(0, (availableWidth - width) / 2)
+        width: Math.min(availableWidth, ScreenTools.defaultFontPixelWidth * 70)
         height: tetherCriticalMessage.implicitHeight + 24
         color: "#d9b300"
         radius: 8
