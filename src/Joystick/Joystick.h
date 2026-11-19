@@ -407,7 +407,8 @@ private slots:
     // APM joystick RTL is a second press, not a switch release. Leave RTL for the
     // flight-mode switch slot (FLTMODE_CH / MODE_CH PWM -> FLTMODEn / MODEn).
     void _handleApmRtlButton();
-    void _exitApmRtlToFlightModeSwitch();
+    // true only when a non-RTL flight-mode change was emitted.
+    bool _exitApmRtlToFlightModeSwitch();
     void _startApmRtlRepeatBeep();
     void _playApmRtlStopBeep();
     void _silenceApmRtlBeep();

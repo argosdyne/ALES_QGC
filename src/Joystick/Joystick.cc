@@ -1228,6 +1228,7 @@ void Joystick::stopPolling(void)
             disconnect(this, &Joystick::gimbalPitchStep,    _activeVehicle->gimbalController(), &GimbalController::gimbalPitchStep);
             disconnect(this, &Joystick::gimbalYawStep,      _activeVehicle->gimbalController(), &GimbalController::gimbalYawStep);
             disconnect(this, &Joystick::gimbalAxisControl,   _activeVehicle->gimbalController(), &GimbalController::gimbalAxisControl);
+            disconnect(this, &Joystick::emergencyStop,      _activeVehicle, &Vehicle::motorEmergencyStop);
             disconnect(this, &Joystick::gripperAction,      _activeVehicle, &Vehicle::setGripperAction);
             disconnect(this, &Joystick::landingGearDeploy,  _activeVehicle, &Vehicle::landingGearDeploy);
             disconnect(this, &Joystick::landingGearRetract, _activeVehicle, &Vehicle::landingGearRetract);
@@ -1492,19 +1493,19 @@ void Joystick::_rcChannelsChanged(int channelCount, int pwmValues[Vehicle::cMaxR
     }
 }
 
-void Joystick::_exitApmRtlToFlightModeSwitch()
+bool Joystick::_exitApmRtlToFlightModeSwitch()
 {
     if (!_activeVehicle || !_activeVehicle->apmFirmware() || !_activeVehicle->firmwarePlugin()) {
-        return;
+        return false;
     }
     const QString rtlMode = _activeVehicle->firmwarePlugin()->rtlFlightMode();
     if (_activeVehicle->flightMode() != rtlMode) {
-        return;
+        return false;
     }
 
     ParameterManager* params = _activeVehicle->parameterManager();
     if (!params) {
-        return;
+        return false;
     }
     const int componentId = FactSystem::defaultComponentId;
     const bool rover = _activeVehicle->rover();
@@ -1518,7 +1519,7 @@ void Joystick::_exitApmRtlToFlightModeSwitch()
     }
     if (channelNumber <= 0) {
         qCWarning(JoystickLog) << "APM RTL exit stays in RTL because" << channelParam << "is disabled";
-        return;
+        return false;
     }
 
     // No receiver sample, or an unused channel, sits at the radio center. 1500 is FLTMODE4.
@@ -1547,16 +1548,23 @@ void Joystick::_exitApmRtlToFlightModeSwitch()
     const QString modeParam = QStringLiteral("%1%2").arg(modePrefix).arg(slot);
     if (!params->parameterExists(componentId, modeParam)) {
         qCWarning(JoystickLog) << "APM RTL exit mode parameter missing" << modeParam;
-        return;
+        return false;
     }
     const int modeNumber = params->getParameter(componentId, modeParam)->rawValue().toInt();
     const QString modeName = _activeVehicle->firmwarePlugin()->flightMode(MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, static_cast<uint32_t>(modeNumber));
     if (modeName.isEmpty() || modeName == QLatin1String("Unknown")) {
         qCWarning(JoystickLog) << "APM RTL exit mode is unknown" << modeParam << modeNumber;
-        return;
+        return false;
+    }
+    if (modeName == rtlMode) {
+        qCWarning(JoystickLog) << "APM RTL exit stays in RTL because" << modeParam << "is also RTL";
+        return false;
     }
     qCDebug(JoystickLog) << "APM joystick RTL exit to" << modeName << modeParam << "pwm" << pwm;
+    // Flag before emit so a same-thread flightModeChanged still sees the joystick exit request.
+    _apmRtlBeepPendingExit = true;
     emit setFlightMode(modeName);
+    return true;
 }
 
 void Joystick::_handleApmRtlButton()
@@ -1569,8 +1577,7 @@ void Joystick::_handleApmRtlButton()
     // whether this button, the GCS, or a failsafe started that RTL.
     if (_activeVehicle->flightMode() == rtlMode) {
         _clearApmRtlBeepPendingEnter();
-        // Stop beep waits for flightModeChanged away from RTL. A rejected exit stays silent.
-        _apmRtlBeepPendingExit = true;
+        // pendingExit is set only when _exitApmRtlToFlightModeSwitch emits a mode change.
         _exitApmRtlToFlightModeSwitch();
         return;
     }
