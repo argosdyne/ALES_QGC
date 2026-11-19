@@ -42,34 +42,6 @@ ApplicationWindow {
 
     property var                _rgPreventViewSwitch:       [ false ]
 
-    // Cross-file flag for the Life Jacket / Searchlight panel in the Fly view
-    property bool               lifeVestPanelVisible:       false
-
-    // Cross-file flag for the SAFE-T tether panel in the Fly view
-    property bool               tetherPanelVisible:         false
-    Connections {
-        target: QGroundControl.corePlugin.elistairStationManager
-        onConnectionSettingsChanged: {
-            if (!target.enabled) mainWindow.tetherPanelVisible = false
-        }
-    }
-
-    // Cross-file flag for the YellowScan LiDAR panel in the Fly view (toolstrip [LiDAR] / toolbar LiDAR indicator)
-    property bool               lidarPanelVisible:          false
-    // LiDAR and Tether panels share the top-right corner: only one is open at a time
-    onLidarPanelVisibleChanged:  if (lidarPanelVisible) tetherPanelVisible = false
-    onTetherPanelVisibleChanged: if (tetherPanelVisible) lidarPanelVisible = false
-    readonly property bool      lidarPanelShown:            lidarPanelVisible && (QGroundControl.corePlugin.settings ? QGroundControl.corePlugin.settings.ysEnable.rawValue : false)
-    Connections {
-        target: QGroundControl.multiVehicleManager
-        onActiveVehicleChanged: {
-            var s = QGroundControl.corePlugin.settings
-            // Auto-open must not close an open Tether panel (only a user open does)
-            if (activeVehicle && s && s.ysEnable.rawValue && s.ysOpenPanelOnConnect.rawValue && !mainWindow.tetherPanelVisible) {
-                mainWindow.lidarPanelVisible = true
-            }
-        }
-    }
 
     readonly property real      _topBottomMargins:          ScreenTools.defaultFontPixelHeight * 0.5
 
