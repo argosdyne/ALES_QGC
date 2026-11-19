@@ -57,6 +57,13 @@ Item {
         return true
     }
 
+    // LiDAR critical / auto Start-Stop messages from the YellowScan watchers (MainRootWindow.showLiDARCriticalMessage):
+    // red banner on the fly screen, queued (Figma S102). Returns true = handled.
+    function showLidarCritical(message) {
+        flyOverlay.pushLidarCritical(message)
+        return true
+    }
+
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
     // (2026-11-17): Advanced mode keeps the Simple screens and adds the Advanced panel in the menu.
     // purpose: advanced (open the S44 panel) | setup | parameters | analyze | settings — all are Simple screens now

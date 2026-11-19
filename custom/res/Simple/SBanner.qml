@@ -12,11 +12,13 @@ Rectangle {
     property string detail:     ""
     property string actionText: ""
     property var    actions:    []      // several choices (S36 obstacle: Go around · Return home · Hold here); the last one is light
+    property string holdText:   ""      // hold-to-run action left of the button (S102: hold to stop the LiDAR)
     signal action()
+    signal held()
     signal actionAt(int index)
 
     width:  SimpleTheme.px(1395)
-    height: SimpleTheme.px(120)
+    height: Math.max(SimpleTheme.px(120), txt.height + SimpleTheme.px(32))     // a long detail wraps to 2 lines
     radius: SimpleTheme.px(20)
     color:  level === "danger" ? SimpleTheme.danger : level === "warn" ? SimpleTheme.warn : SimpleTheme.withAlpha(SimpleTheme.surfaceGlass, 0.97)
     readonly property color _fg: level === "warn" ? SimpleTheme.bgBase : SimpleTheme.textPrimary
@@ -29,11 +31,24 @@ Rectangle {
         name: bn.icon; size: 56; color: bn._fg
     }
     Column {
+        id: txt
         anchors.left: ic.right; anchors.leftMargin: SimpleTheme.px(22)
-        anchors.right: btn.visible ? btn.left : multi.visible ? multi.left : parent.right; anchors.rightMargin: SimpleTheme.px(22)
+        anchors.right: hold.visible ? hold.left : btn.visible ? btn.left : multi.visible ? multi.left : parent.right; anchors.rightMargin: SimpleTheme.px(22)
         anchors.verticalCenter: parent.verticalCenter
         SText { width: parent.width; text: bn.title; size: 32; bold: true; color: bn._fg }
-        SText { width: parent.width; text: bn.detail; size: 24; color: bn._fg; visible: text !== "" }
+        SText { width: parent.width; text: bn.detail; size: 24; color: bn._fg; visible: text !== ""
+                wrapMode: Text.WordWrap; maximumLineCount: 2 }
+    }
+    SHoldButton {
+        id: hold
+        visible: bn.holdText !== ""
+        anchors.right: btn.visible ? btn.left : parent.right; anchors.rightMargin: SimpleTheme.px(btn.visible ? 16 : 20)
+        anchors.verticalCenter: parent.verticalCenter
+        width: implicitWidth
+        designHeight: 80
+        fillColor: SimpleTheme.bgBase
+        text: bn.holdText
+        onActivated: bn.held()
     }
     SButton {
         id: btn

@@ -51,11 +51,17 @@ ApplicationWindow {
     // AQGC Simple UI: Layers › Flight zones (S30 / S15), saved as SimpleShowFlightZones
     property bool               simpleShowFlightZones:      QGroundControl.loadBoolGlobalSetting("SimpleShowFlightZones", true)
     readonly property var       flightZoneManager:          _flightzoneManager
-    // YS LiDAR phase 2 (#318 / #319, merged 2026-11-19): the classic LiDAR panel that loaded the acquisition /
-    // alert / track / mission-auto watchers is removed. FlyViewMap and GuidedActionsController still read these;
-    // null until the features get Simple screens (handoff.md 3 A).
-    readonly property var       lidarAcquisition:           null
-    readonly property var       lidarTrack:                 null
+    // YS LiDAR phase 2 watchers (#318 / #319): always loaded while a YellowScan manager exists, so Start / Stop
+    // ACKs, alerts, the recorded track and the mission auto Start / Stop work with any screen open. The Simple
+    // fly screen shows them (Figma S17, S51, S102, S103, S53). No UI of their own.
+    readonly property var       lidarAcquisition:           lidarAcquisitionLoader.item
+    readonly property var       lidarAlerts:                lidarAlertsLoader.item
+    readonly property var       lidarTrack:                 lidarTrackLoader.item
+    readonly property var       lidarMissionAuto:           lidarMissionAutoLoader.item
+    Loader { id: lidarAcquisitionLoader; active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARAcquisition.qml" }
+    Loader { id: lidarAlertsLoader;      active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARAlerts.qml" }
+    Loader { id: lidarTrackLoader;       active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARTrackRecorder.qml" }
+    Loader { id: lidarMissionAutoLoader; active: !!QGroundControl.corePlugin.ysManager; source: "qrc:/qml/LiDARMissionAuto.qml" }
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables
@@ -340,6 +346,10 @@ ApplicationWindow {
     property var _lidarCriticalQueue: []
 
     function showLiDARCriticalMessage(message) {
+        // Simple UI: red LiDAR banner on the fly screen (Figma S102), queued there
+        if (simpleUILoader.item && simpleUILoader.item.showLidarCritical(message)) {
+            return
+        }
         if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
             if (_lidarCriticalQueue.indexOf(message) === -1) {
                 _lidarCriticalQueue.push(message)

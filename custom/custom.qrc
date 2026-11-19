@@ -66,6 +66,10 @@
     <qresource prefix="/qml">
         <file alias="QGroundControl/FlightDisplay/FlyViewVideo.qml">CustomFlyViewVideo.qml</file>
         <file alias="ARSettings.qml">src/ARLink/ARSettings.qml</file>
+        <file alias="LiDARAcquisition.qml">src/YS/LiDARAcquisition.qml</file>
+        <file alias="LiDARAlerts.qml">src/YS/LiDARAlerts.qml</file>
+        <file alias="LiDARTrackRecorder.qml">src/YS/LiDARTrackRecorder.qml</file>
+        <file alias="LiDARMissionAuto.qml">src/YS/LiDARMissionAuto.qml</file>
     </qresource>
     <qresource prefix="/res">
         <file alias="QGCLogoFull">res/Images/res/argosdyneLogo.png</file>

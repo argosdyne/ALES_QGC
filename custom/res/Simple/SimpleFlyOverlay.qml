@@ -70,6 +70,15 @@ Item {
 
     // S51: LiDAR start refused (shown for 10 s)
     property string lidarRefusal: ""
+    // YellowScan phase 2 watchers (MainRootWindow; #318 / #319): Figma S102 alerts, S103 no response
+    readonly property var _lidarAcq:    typeof mainWindow !== "undefined" ? mainWindow.lidarAcquisition : null
+    readonly property var _lidarAlerts: typeof mainWindow !== "undefined" ? mainWindow.lidarAlerts : null
+    property var lidarCriticalQueue: []
+    function pushLidarCritical(message) {
+        if (lidarCriticalQueue.indexOf(message) !== -1) return
+        var q = lidarCriticalQueue.slice(); q.push(message); lidarCriticalQueue = q
+    }
+    function popLidarCritical() { lidarCriticalQueue = lidarCriticalQueue.slice(1) }
     Timer { id: lidarRefusalTimer; interval: 10000; onTriggered: fly.lidarRefusal = "" }
 
     // Layer rule 1: a critical alert closes confirm sheets; so does a lost link on the ground (nothing can be sent)
@@ -548,6 +557,39 @@ Item {
                 else if (index === 1) fly._st.requestNoPowerAction(true)
                 else fly._st.dismissNoPower()
             }
+        }
+        // S103 LiDAR not responding (5 s without a status reply; 2 s = "Status delayed" on the card). Only once the
+        // LiDAR has answered in this connection: a LiDAR that is not fitted today shows "No response" on its card only.
+        SBanner {
+            readonly property var _a: fly._lidarAlerts
+            visible: !!_a && _a.noResponse && _a.lastStatusTime !== ""
+            level: "danger"; icon: "lidar"
+            title: qsTr("LiDAR not responding — no status for %1 s").arg(_a ? _a.noResponseMs / 1000 : 5)
+            detail: !_a || _a.lastKnownState === "" ? qsTr("Acquisition state unknown. Check the LiDAR power and cable.")
+                  : qsTr("Acquisition state unknown (last known: %1). Check the LiDAR power and cable.")
+                    .arg(_a.lastKnownState === qsTranslate("LiDARAlerts", "REC") ? qsTr("recording") : qsTr("not recording"))
+        }
+        // S102 LiDAR critical / auto Start-Stop messages, one at a time (queued); hold to stop while recording
+        SBanner {
+            visible: fly.lidarCriticalQueue.length > 0
+            level: "danger"; icon: "lidar"
+            title: fly.lidarCriticalQueue.length > 1 ? qsTr("LiDAR — check now (%1 more)").arg(fly.lidarCriticalQueue.length - 1)
+                                                     : qsTr("LiDAR — check now")
+            detail: fly.lidarCriticalQueue.length > 0 ? fly.lidarCriticalQueue[0] : ""
+            holdText: !!fly._lidarAcq && fly._lidarAcq.recording ? qsTr("Hold to stop LiDAR") : ""
+            actionText: qsTr("OK")
+            onHeld: fly._lidarAcq.stop()
+            onAction: fly.popLidarCritical()
+        }
+        // S102 LiDAR warnings (10 s, recording continues)
+        SBanner {
+            readonly property var _a: fly._lidarAlerts
+            visible: !!_a && !_a.noResponse && _a.bannerText !== ""
+            level: "warn"; icon: "lidar"
+            title: qsTr("LiDAR warning")
+            detail: _a ? _a.bannerText : ""
+            actionText: qsTr("OK")
+            onAction: _a.dismissBanner()
         }
         // S51 LiDAR start refused
         SBanner {

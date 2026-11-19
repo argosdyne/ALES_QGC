@@ -8,6 +8,8 @@
  *   Life jacket missionController.deployLifeVest            hold to drop (BirdCom)
  *   Tether      corePlugin.elistairStationManager           power, automatic torque, telemetry
  *   LiDAR       corePlugin.ysManager                        status rows, start, hold to stop
+ *               + mainWindow.lidarAcquisition / lidarAlerts / lidarTrack (phase 2, #318 / #319): reject reason,
+ *               data-logging check, no-response rows, time recorded and survey lines left (Figma S102 / S103)
  * Which cards appear: the same switches the classic panels use (flyViewSettings.enableAudioController,
  * corePlugin.settings.lifeJacketEnable, vehicle.hasGripper, elistairStationManager.enabled, settings.ysEnable).
  ****************************************************************************/
@@ -26,6 +28,9 @@ SPanel {
     readonly property var  _st:     QGroundControl.corePlugin.elistairStationManager
     readonly property var  _ys:     QGroundControl.corePlugin.ysManager
     readonly property var  _mc:     globals.planMasterControllerFlyView ? globals.planMasterControllerFlyView.missionController : null
+    readonly property var  _acq:    mainWindow.lidarAcquisition
+    readonly property var  _alerts: mainWindow.lidarAlerts
+    readonly property var  _track:  mainWindow.lidarTrack
 
     readonly property bool hasAudio:   !!_veh && !!_veh.audioControl && !!_fly.enableAudioController.rawValue
     readonly property bool hasBirdCom: !!_veh && !_veh.px4Firmware && !!_mc && !!_custom.lifeJacketEnable.rawValue
@@ -56,6 +61,8 @@ SPanel {
         return { t: qsTr("Not connected"), l: "off" }
     }
     function lidarStatus() {
+        if (_alerts && _alerts.noResponse) return { t: qsTr("No response"), l: "danger" }
+        if (_alerts && _alerts.delayed)    return { t: qsTr("Status delayed"), l: "warn" }
         switch (_ys.lidarState) {
         case 1: return { t: qsTr("Drone not connected"), l: "off" }
         case 2: return { t: qsTr("No reply"), l: "danger" }
@@ -67,6 +74,19 @@ SPanel {
         case 8: return { t: qsTr("Stopping…"), l: "info" }
         }
         return { t: qsTr("Off"), l: "off" }
+    }
+    // S102: a pre-check row with a critical LiDAR alert is red (rows: 1 scanner, 3 USB stick, 5 temperature)
+    function _lidarRowCritical(index) {
+        if (!_alerts) return false
+        var keys = { 1: ["dataDropped"], 3: ["usbFull"], 5: ["scnOverheat", "intOverheat"] }[index] || []
+        return _alerts.alerts.some(function(a) { return a.critical && keys.indexOf(a.key) !== -1 })
+    }
+    // last known REC while the LiDAR does not answer (S103)
+    readonly property bool _lastKnownRec: !!_alerts && _alerts.noResponse && _alerts.lastKnownState === qsTranslate("LiDARAlerts", "REC")
+    // survey lines of the uploaded mission (remaining / total), refreshed with the recording clock
+    readonly property var _lines: {
+        var tick = _ys ? _ys.recordingSeconds : 0
+        return _acq && _ys && _ys.lidarState === 7 ? _acq.remainingSurveyLines() : null
     }
     function _mmss(s) { s = Math.max(0, Math.floor(s)); var m = Math.floor(s / 60); s = s % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s }
     // first failing pre-check, for S51 ("Not ready — INS not locked")
@@ -199,33 +219,65 @@ SPanel {
             Repeater {
                 model: pp._ys.preChecks || []
                 Item {
-                    visible: modelData.state !== 3
+                    // rowView adds the warning bits YSManager does not decode and the no-response view (grey, last time)
+                    readonly property var _v: pp._alerts ? pp._alerts.rowView(index, modelData) : { state: modelData.state, detail: modelData.detail, dimmed: false }
+                    readonly property bool _rejected: (!!pp._acq && pp._acq.startRejected && pp._acq.rejectRowIndex === index)
+                                                      || (!_v.dimmed && pp._lidarRowCritical(index))
+                    readonly property color _c: _v.dimmed ? SimpleTheme.textTertiary : _rejected ? SimpleTheme.textDanger
+                                              : _v.state === 1 ? SimpleTheme.warn : SimpleTheme.textPrimary
+                    visible: _v.state !== 3 || _v.dimmed
                     width: parent.width; height: visible ? SimpleTheme.px(36) : 0
                     SIcon { id: ci; anchors.verticalCenter: parent.verticalCenter; size: 26
-                            name: modelData.state === 0 ? "check" : modelData.state === 1 ? "warn" : "info"
-                            color: modelData.state === 0 ? SimpleTheme.ok : modelData.state === 1 ? SimpleTheme.warn : SimpleTheme.textTertiary }
+                            name: _v.dimmed ? "info" : _v.state === 0 ? "check" : _v.state === 1 ? "warn" : "info"
+                            color: _v.dimmed ? SimpleTheme.textTertiary : _rejected ? SimpleTheme.textDanger
+                                 : _v.state === 0 ? SimpleTheme.ok : _v.state === 1 ? SimpleTheme.warn : SimpleTheme.textTertiary }
                     SText { anchors.left: ci.right; anchors.leftMargin: SimpleTheme.px(10); anchors.verticalCenter: parent.verticalCenter
                             anchors.right: parent.right
-                            text: modelData.name + (modelData.detail ? " · " + modelData.detail : ""); size: 22
-                            color: modelData.state === 1 ? SimpleTheme.warn : SimpleTheme.textPrimary }
+                            text: modelData.name + (_v.detail ? " · " + _v.detail : ""); size: 22; color: _c }
                 }
+            }
+            // S51 / S102: the LiDAR refused Start (its answer code), or did not report data logging 3 s after Start
+            SText {
+                visible: !!pp._acq && pp._acq.startRejected
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textDanger
+                text: !pp._acq ? "" : pp._acq.rejectCode !== 0
+                      ? qsTr("Start refused by the LiDAR: %1 (%2)").arg(pp._acq.rejectReason).arg(pp._acq.hexCode(pp._acq.rejectCode))
+                      : qsTr("Start refused by the LiDAR: %1").arg(pp._acq.rejectReason)
+            }
+            SText {
+                visible: !!pp._acq && pp._acq.loggingWarning
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.warn
+                text: qsTr("The LiDAR does not report data logging since Start. Check the USB stick.")
             }
             Row {
                 spacing: SimpleTheme.px(12)
                 SButton {
-                    visible: pp._ys.lidarState !== 7 && pp._ys.lidarState !== 8
-                    designHeight: 80; textSize: 26; kind: "primary"; icon: "play"; text: qsTr("Start recording")
+                    visible: pp._ys.lidarState !== 7 && pp._ys.lidarState !== 8 && !pp._lastKnownRec
+                    designHeight: 80; textSize: 26; kind: "primary"; icon: "play"
+                    text: !!pp._acq && pp._acq.startRejected ? qsTr("Start (retry)") : qsTr("Start recording")
                     enabled_: pp._ys.lidarState === 4 || pp._ys.lidarState === 5
                     onClicked: {
-                        if (pp._ys.lidarState === 5) pp._ys.startAcquisition()
-                        else pp.lidarRefused(pp.lidarNotReadyReason())
+                        if (pp._ys.lidarState !== 5) { pp.lidarRefused(pp.lidarNotReadyReason()); return }
+                        if (pp._acq) pp._acq.start(); else pp._ys.startAcquisition()
                     }
                 }
+                // Stop also while the LiDAR does not answer but was recording (S103): the command is still sent
                 SHoldButton {
-                    visible: pp._ys.lidarState === 7
-                    designHeight: 80; text: qsTr("Hold 2 s to stop")
-                    onActivated: pp._ys.stopAcquisition()
+                    visible: pp._ys.lidarState === 7 || pp._lastKnownRec
+                    designHeight: 80
+                    text: pp.vs && pp.vs.flying && pp._lines ? qsTr("Hold 2 s to stop · %1 of %2 lines left").arg(pp._lines.remaining).arg(pp._lines.total)
+                                                             : qsTr("Hold 2 s to stop")
+                    onActivated: { if (pp._acq) pp._acq.stop(); else pp._ys.stopAcquisition() }
                 }
+            }
+            SText {
+                visible: text !== ""
+                width: parent.width; wrapMode: Text.WordWrap; size: 22; color: SimpleTheme.textSecondary
+                text: pp._alerts && pp._alerts.noResponse
+                      ? qsTr("Last status %1. Stop is still sent; the card returns when the LiDAR answers.").arg(pp._alerts.lastStatusTime || "--")
+                      : pp._ys.lidarState !== 7 || !pp._acq || pp._acq.startedTime === "" ? ""
+                      : qsTr("Started %1 · %2 recorded").arg(pp._acq.startedTime).arg(pp._mmss(pp._ys.recordingSeconds))
+                        + (pp._lines ? " · " + qsTr("line %1 of %2").arg(Math.min(pp._lines.total, pp._lines.total - pp._lines.remaining + 1)).arg(pp._lines.total) : "")
             }
         }
     }

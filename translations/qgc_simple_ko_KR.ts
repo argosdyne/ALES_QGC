@@ -635,6 +635,42 @@
         <source>Yes, this drone</source>
         <translation>예, 이 드론입니다</translation>
     </message>
+    <message>
+        <source>LiDAR not responding — no status for %1 s</source>
+        <translation>LiDAR 응답 없음 — %1초째 상태 없음</translation>
+    </message>
+    <message>
+        <source>Acquisition state unknown. Check the LiDAR power and cable.</source>
+        <translation>측정 상태를 알 수 없습니다. LiDAR 전원과 케이블을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Acquisition state unknown (last known: %1). Check the LiDAR power and cable.</source>
+        <translation>측정 상태를 알 수 없습니다(마지막 상태: %1). LiDAR 전원과 케이블을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>recording</source>
+        <translation>기록 중</translation>
+    </message>
+    <message>
+        <source>not recording</source>
+        <translation>기록 안 함</translation>
+    </message>
+    <message>
+        <source>LiDAR — check now (%1 more)</source>
+        <translation>LiDAR — 지금 확인하세요(%1개 더)</translation>
+    </message>
+    <message>
+        <source>LiDAR — check now</source>
+        <translation>LiDAR — 지금 확인하세요</translation>
+    </message>
+    <message>
+        <source>Hold to stop LiDAR</source>
+        <translation>길게 눌러 LiDAR 정지</translation>
+    </message>
+    <message>
+        <source>LiDAR warning</source>
+        <translation>LiDAR 주의</translation>
+    </message>
 </context>
 <context>
     <name>SimpleMenuDrawer</name>
@@ -2827,10 +2863,6 @@
         <translation>유선 비행용</translation>
     </message>
     <message>
-        <source>From the LiDAR panel on the flight screen · automatic start on survey lines: next version</source>
-        <translation>비행 화면의 LiDAR 패널에서 · 측량 라인 자동 시작: 다음 버전</translation>
-    </message>
-    <message>
         <source>From where recording starts</source>
         <translation>기록을 시작하는 높이</translation>
     </message>
@@ -3357,6 +3389,18 @@
     <message>
         <source>Gimbal type, servo outputs and angle ranges: Vehicle setup › Gimbal ›</source>
         <translation>짐벌 종류, 서보 출력, 각도 범위: 기체 설정 › 짐벌 ›</translation>
+    </message>
+    <message>
+        <source>Starts at the first survey line of a mission and stops at the last. Start / Stop on the flight screen still works.</source>
+        <translation>임무의 첫 측량 라인에서 시작하고 마지막 라인에서 정지합니다. 비행 화면의 시작·정지도 그대로 쓸 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>From the LiDAR panel on the flight screen</source>
+        <translation>비행 화면의 LiDAR 패널에서</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>자동</translation>
     </message>
 </context>
 <context>
@@ -4156,6 +4200,46 @@
     <message>
         <source>Hold %1 s to release</source>
         <translation>%1초 눌러 놓기</translation>
+    </message>
+    <message>
+        <source>No response</source>
+        <translation>응답 없음</translation>
+    </message>
+    <message>
+        <source>Status delayed</source>
+        <translation>상태 지연</translation>
+    </message>
+    <message>
+        <source>Start refused by the LiDAR: %1 (%2)</source>
+        <translation>LiDAR가 시작을 거부함: %1 (%2)</translation>
+    </message>
+    <message>
+        <source>Start refused by the LiDAR: %1</source>
+        <translation>LiDAR가 시작을 거부함: %1</translation>
+    </message>
+    <message>
+        <source>The LiDAR does not report data logging since Start. Check the USB stick.</source>
+        <translation>시작 후 LiDAR가 데이터 기록을 보고하지 않습니다. USB 메모리를 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Start (retry)</source>
+        <translation>다시 시작</translation>
+    </message>
+    <message>
+        <source>Hold 2 s to stop · %1 of %2 lines left</source>
+        <translation>2초 눌러 정지 · %2개 중 %1개 라인 남음</translation>
+    </message>
+    <message>
+        <source>Last status %1. Stop is still sent; the card returns when the LiDAR answers.</source>
+        <translation>마지막 상태 %1. 정지 명령은 보낼 수 있고, LiDAR가 응답하면 카드가 돌아옵니다.</translation>
+    </message>
+    <message>
+        <source>Started %1 · %2 recorded</source>
+        <translation>%1 시작 · %2 기록</translation>
+    </message>
+    <message>
+        <source>line %1 of %2</source>
+        <translation>%2개 중 %1번째 라인</translation>
     </message>
 </context>
 <context>

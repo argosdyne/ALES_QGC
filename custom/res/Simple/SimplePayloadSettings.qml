@@ -216,9 +216,21 @@ Column {
                     sub: !pl._ys ? "" : pl._ys.testState === 1 ? qsTr("Testing…") : pl._ys.testMessage !== "" ? pl._ys.testMessage : qsTr("Asks the LiDAR for its status once")
                     SButton { designHeight: 72; textSize: 26; text: qsTr("Test"); enabled_: !!pl._ys && pl._custom.ysEnable.rawValue && pl._ys.testState !== 1; onClicked: if (enabled_) pl._ys.testConnection() }
                 }
+                // ysMissionStartStop (#318 / #319): 0 = manual only, 1 = auto Start at the first / Stop at the last survey
+                // waypoint of the mission (LiDARMissionAuto). Manual Start / Stop on the fly screen always works.
                 CardRow {
-                    title: qsTr("Start recording"); sub: qsTr("From the LiDAR panel on the flight screen · automatic start on survey lines: next version")
-                    SText { text: qsTr("Manual"); size: 28; bold: true }
+                    title: qsTr("Start recording")
+                    sub: pl._custom.ysMissionStartStop.rawValue === 1
+                         ? qsTr("Starts at the first survey line of a mission and stops at the last. Start / Stop on the flight screen still works.")
+                         : qsTr("From the LiDAR panel on the flight screen")
+                    SSegmented {
+                        designWidth: 300
+                        enabled: !ly._recording; opacity: enabled ? 1 : 0.4
+                        model: [qsTr("Manual"), qsTr("Auto")]
+                        currentIndex: pl._custom.ysMissionStartStop.rawValue === 1 ? 1 : 0
+                        onActivated: { pl._custom.ysMissionStartStop.rawValue = index
+                                       currentIndex = Qt.binding(function() { return pl._custom.ysMissionStartStop.rawValue === 1 ? 1 : 0 }) }
+                    }
                 }
             }
             SText { text: qsTr("DEVICE"); size: 24; medium: true; color: SimpleTheme.textTertiary }
