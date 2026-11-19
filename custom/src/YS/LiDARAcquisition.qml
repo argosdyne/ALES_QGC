@@ -141,10 +141,12 @@ Item {
     // Remaining survey lines are an estimate. Needs the uploaded plan still open (not edited) in Plan view, because
     // the Fly View mission from the vehicle has no survey items. The current line is the one holding the
     // transect point nearest the vehicle, with the 2 / 4 points per line split used by YSTransectStyleMapVisuals.
-    function remainingSurveyLines() {
+    // Plan view visual items when Plan view holds the uploaded plan (not edited, same last sequence number as the
+    // vehicle mission), else null. Shared with LiDARMissionAuto.surveyWaypointRange.
+    function uploadedPlanItems() {
         var planView = globals.planMasterControllerPlanView
         var flyView = globals.planMasterControllerFlyView
-        if (!planView || !flyView || planView.dirty || !_activeVehicle) {
+        if (!planView || !flyView || planView.dirty) {
             return null
         }
         var planItems = planView.missionController.visualItems
@@ -153,7 +155,15 @@ Item {
                 planItems.get(planItems.count - 1).lastSequenceNumber !== flyItems.get(flyItems.count - 1).lastSequenceNumber) {
             return null
         }
-        var current = flyView.missionController.currentMissionIndex
+        return planItems
+    }
+
+    function remainingSurveyLines() {
+        var planItems = uploadedPlanItems()
+        if (!planItems || !_activeVehicle) {
+            return null
+        }
+        var current = globals.planMasterControllerFlyView.missionController.currentMissionIndex
         var vehicleCoord = _activeVehicle.coordinate
         var total = 0
         var remaining = 0
