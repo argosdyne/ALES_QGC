@@ -106,6 +106,8 @@ public:
     Q_PROPERTY(int          recordingSeconds        READ recordingSeconds       NOTIFY recordingSecondsChanged)
     Q_PROPERTY(bool         cameraParamsKnown       READ cameraParamsKnown      NOTIFY parameterChanged)
     Q_PROPERTY(int          statusPollIntervalMs    READ statusPollIntervalMs   CONSTANT)
+    /// YS-04: Command status byte of the last rejected Start / Stop (COMMAND_ACK.result_param2), 0 = unknown
+    Q_PROPERTY(int          acqRejectCode           READ acqRejectCode          NOTIFY acqRejectCodeChanged)
 
     bool statusValid(void) const { return _statusValid; }
     bool anyError(void) const { return timeNotSet() || scannerNotReady() || insNotLocked() || noUsb() || usbFull() || _insErr || _scnErr || _intErr || _camErr; }
@@ -154,6 +156,7 @@ public:
     int          recordingSeconds(void) const;
     bool         cameraParamsKnown(void) const;
     int          statusPollIntervalMs(void) const { return kStatusPollIntervalMs; }
+    int          acqRejectCode(void) const { return _acqRejectCode; }
 
     /// Sends one Get Status (YS_STA_00 + YS_STA_01) and reports the result through testState/testMessage
     Q_INVOKABLE void testConnection(void);
@@ -179,6 +182,7 @@ signals:
     void testChanged(void);
     void lidarStateChanged(void);
     void recordingSecondsChanged(void);
+    void acqRejectCodeChanged(void);
 
 private slots:
     void _setActiveVehicle(Vehicle* vehicle);
@@ -298,6 +302,7 @@ private:
     bool          _wasRecording{false};
     int           _lastRecordingSeconds{0};
     bool          _paramReceived[6]{false, false, false, false, false, false};
+    int           _acqRejectCode{0};
 
     // Get Status poll rate required by YS-03 (1 Hz)
     static constexpr int    kStatusPollIntervalMs = 1000;

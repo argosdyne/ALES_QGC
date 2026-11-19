@@ -51,6 +51,11 @@ ApplicationWindow {
     // AQGC Simple UI: Layers › Flight zones (S30 / S15), saved as SimpleShowFlightZones
     property bool               simpleShowFlightZones:      QGroundControl.loadBoolGlobalSetting("SimpleShowFlightZones", true)
     readonly property var       flightZoneManager:          _flightzoneManager
+    // YS LiDAR phase 2 (#318 / #319, merged 2026-11-19): the classic LiDAR panel that loaded the acquisition /
+    // alert / track / mission-auto watchers is removed. FlyViewMap and GuidedActionsController still read these;
+    // null until the features get Simple screens (handoff.md 3 A).
+    readonly property var       lidarAcquisition:           null
+    readonly property var       lidarTrack:                 null
 
     //-------------------------------------------------------------------------
     //-- Global Scope Variables
@@ -330,6 +335,35 @@ ApplicationWindow {
         }
     }
 
+    // YS LiDAR critical messages share the critical popup but are not kept in the vehicle message list,
+    // so instead of being dropped they are queued while the popup is open or the video is fullscreen
+    property var _lidarCriticalQueue: []
+
+    function showLiDARCriticalMessage(message) {
+        if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            if (_lidarCriticalQueue.indexOf(message) === -1) {
+                _lidarCriticalQueue.push(message)
+            }
+        } else {
+            showCriticalVehicleMessage(message)
+        }
+    }
+
+    // indicatorPopup is left open: it may be the message list dropped by the popup just closed
+    function _showNextLiDARCriticalMessage() {
+        if (_lidarCriticalQueue.length === 0 || criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            return
+        }
+        criticalVehicleMessagePopup.criticalVehicleMessage      = _lidarCriticalQueue.shift()
+        criticalVehicleMessagePopup.dropMessageIndicatorOnClose = false
+        criticalVehicleMessagePopup.open()
+    }
+
+    Connections {
+        target:             QGroundControl.videoManager
+        onFullScreenChanged: Qt.callLater(_showNextLiDARCriticalMessage)
+    }
+
     Popup {
         id:                 criticalVehicleMessagePopup
         y:                  ScreenTools.defaultFontPixelHeight
@@ -342,6 +376,9 @@ ApplicationWindow {
 
         property alias  criticalVehicleMessage:        criticalVehicleMessageText.text
         property bool   dropMessageIndicatorOnClose:   false
+
+        // After the click handler has dropped the message indicator, if it had to
+        onClosed: Qt.callLater(_showNextLiDARCriticalMessage)
 
         background: Rectangle {
             anchors.fill:   parent
