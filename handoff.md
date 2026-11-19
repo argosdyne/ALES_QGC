@@ -14,6 +14,7 @@
 | PR | **#311** → `Argos_Stable4.4`, **draft**. 병합하지 않습니다(사용자 지시) |
 | CI | `4e145e35d` 기준 Windows Release, Android 32/64-bit Release **성공**. "Deploy Docs"는 매번 실패하는 기존 문제(옛 upload-artifact v3) |
 | 기반 브랜치 동기화 | 2026-11-18 `Argos_Stable4.4`의 #308–#310, #314, #315를 병합(`c17723f3c`). 충돌은 `PhotoVideoControl.qml` 1개 — 클래식 UI 삭제로 없앤 파일이라 삭제 유지 |
+| #316 (2026-11-19) | SD 카드 없을 때 촬영·녹화 시작 거부(`CodevCameraControl.cc`)만 cherry-pick(`13502145f`). Simple 카메라 레일에 SD 상태 표시(`0d908aa8a`, Figma 99 Components "ui/CameraRail · state: No SD card") |
 
 지켜야 할 것:
 - **`Argos_Stable4.4`에 push 금지, PR #311 병합 금지.**
@@ -63,6 +64,12 @@
 - **D2**: C++가 아직 이름으로 가리키는 클래식 QML 페이지(APM 기체 설정 페이지, 설정·분석 페이지, 미션 항목 편집기, 툴바 표시기)는
   앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다. 지금 할지, 개발자 리뷰 뒤로 미룰지.
   `reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
+
+- **기반 브랜치의 #312, #317, #318 병합** (2026-11-19 확인, 아직 병합 안 함):
+  #312(조이스틱 경고음)는 충돌 없음. #317(Elistair TCP/UDP)과 #318(YellowScan LiDAR 2단계: 수집·경고·자동 임무·궤적 기록)은
+  우리가 지운 클래식 파일(`ElistairStationPanel/Settings.qml`, `LiDARPanel/Indicator.qml`, `LidarConnectionPage.qml`,
+  `FlyViewOverlay.qml`)을 고쳐서 충돌(그 밖에 `custom.qrc`, `FlyView.qml`, `MainRootWindow.qml`).
+  새 기능을 Simple 화면(S16 테더, S42/S52 LiDAR 등)으로 옮길지 먼저 정해야 합니다(Figma 먼저).
 
 **B. 작은 정리 — 2026-11-19 완료**
 1. ~~재부팅 필요 메시지 상자~~ → Simple 토스트(`b918c52e5`, Figma S60/S101 노트). S101·S60은 자체 안내만 표시. 실기·SITL에서 토스트 표시는 아직 화면으로 확인하지 않음.
