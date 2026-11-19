@@ -16,13 +16,14 @@
 | 기반 브랜치 동기화 | 2026-11-18 `Argos_Stable4.4`의 #308–#310, #314, #315를 병합(`c17723f3c`). 충돌은 `PhotoVideoControl.qml` 1개 — 클래식 UI 삭제로 없앤 파일이라 삭제 유지 |
 | #316 (2026-11-19) | SD 카드 없을 때 촬영·녹화 시작 거부(`CodevCameraControl.cc`)만 cherry-pick(`13502145f`). Simple 카메라 레일에 SD 상태 표시(`0d908aa8a`, Figma 99 Components "ui/CameraRail · state: No SD card") |
 | 2026-11-19 병합 | `Argos_Stable4.4`의 #312, #317–#320 병합. 충돌 9개: 지운 클래식 파일(Elistair 패널·설정, LiDAR 패널·표시기·연결 페이지, `FlyViewOverlay.qml`)은 삭제 유지, `custom.qrc`·`FlyView.qml`·`MainRootWindow.qml`은 우리 쪽 유지 |
+| LiDAR 2단계 (2026-11-19) | #318/#319 감시자 4개를 `MainRootWindow`에서 로드, Simple 화면 연결(Figma S102 경고·위험, S103 무응답, S17/S51/S53 노트). SITL + 가짜 LiDAR(`aqgc-build/fakelidar.py`)로 시작 거부, 경고, 위험, 배너에서 정지, 무응답·복구, S53 자동, 임무 자동 시작·정지, 궤적 확인 |
 
 지켜야 할 것:
 - **`Argos_Stable4.4`에 push 금지, PR #311 병합 금지.**
 - push할 때마다 CI(Windows, Android)를 확인하고 PR #311 설명(커밋 표)을 갱신합니다.
 - 커밋은 주제별로 작게, `git -c user.name=Claude -c user.email=noreply@anthropic.com commit` 형식을 써 왔습니다
   (이 PC에 git 사용자 정보가 없음). 메시지 끝에 `Co-Authored-By: Claude ...` 줄.
-- 화면 변경은 **Figma 먼저**(파일 `AQGC-simpler`, key `p7d3GuBZaJNSj8zpBUlaSj`, 페이지 `01 Screens`, 현재 S01–S101), 그다음 코드.
+- 화면 변경은 **Figma 먼저**(파일 `AQGC-simpler`, key `p7d3GuBZaJNSj8zpBUlaSj`, 페이지 `01 Screens`, 현재 S01–S103), 그다음 코드.
 - 새 QML 파일은 `custom/custom.qrc`(prefix `/simple`)와 `custom/res/Simple/qmldir` 두 곳에 등록.
 - 빌드가 실제로 쓰는 qrc는 **`custom/qgroundcontrol.qrc`**(손으로 고친 파일). `custom/updateqrc.py`로 다시 만들지 마세요.
 
@@ -66,13 +67,8 @@
   앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다. 지금 할지, 개발자 리뷰 뒤로 미룰지.
   `reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
 
-- **기반 브랜치 신기능을 Simple 화면으로 옮기기** (2026-11-19 병합, 기능은 아직 앱에서 못 씀):
-  #318 / #319 YellowScan LiDAR 2단계(수집 시작·정지 확인, 경고, 비행 궤적 기록, 임무 첫·마지막 측량점에서 자동 시작·정지)는
-  클래식 LiDAR 패널과 `MainRootWindow` 감시자(Loader)로 동작하던 것이라 병합에서 뺐습니다. 새 QML 4개
-  (`custom/src/YS/LiDARAcquisition|Alerts|TrackRecorder|MissionAuto.qml`)는 저장소에만 있고 qrc에 없습니다.
-  `mainWindow.lidarAcquisition` / `lidarTrack`은 null(FlyViewMap 궤적, GuidedActionsController "Stop LiDAR"가 읽음).
-  #317 Elistair TCP/UDP는 C++(`ElistairStationManager`)만 들어옴: 연결 방식 선택 화면(클래식 설정은 삭제됨)이 Simple S52/S16에 필요.
-  Figma(S42/S52 LiDAR, S16/S52 테더) 먼저.
+- **Elistair TCP/UDP 연결 화면** (#317, 2026-11-19 병합): C++(`ElistairStationManager`)만 들어옴. 연결 방식 선택 화면
+  (클래식 설정은 삭제됨)이 Simple S52/S16에 필요. Figma 먼저.
 
 **B. 작은 정리 — 2026-11-19 완료**
 1. ~~재부팅 필요 메시지 상자~~ → Simple 토스트(`b918c52e5`, Figma S60/S101 노트). S101·S60은 자체 안내만 표시. 실기·SITL에서 토스트 표시는 아직 화면으로 확인하지 않음.
@@ -110,6 +106,7 @@ git clone <원격 URL> ales_qgc        # 또는 기존 클론에서 git fetch &&
 | `add_ts.py` | 한국어 번역 추가: `python add_ts.py translations/qgc_simple_ko_KR.ts <json>` |
 | `tools/reach.py`, `deld1.py`, `xcheck.py`, `missing.py`, `stale*.py` | 클래식 삭제 때 쓴 도구(도달 가능성 분석, 삭제, 교차 확인, 번역 정리) |
 | `tools/cam.py`, `tools/camdef/testcam.xml` | 가짜 MAVLink 카메라(S100 시험). 정의 파일은 Windows에서 `python -m http.server 8765 --bind 127.0.0.1 --directory camdef`로 제공 |
+| `fakelidar.py`, `fakelidar.json` | 가짜 YellowScan LiDAR(WSL, SITL TCP 5762, compid 25). json으로 무응답·USB 부족/가득·과열·시작 거부 전환 |
 
 새 PC에 필요한 것: Visual Studio 2022 Build Tools(C++), Qt 5.15.2 msvc2019_64(aqtinstall), jom, Python 3,
 WSL Ubuntu-22.04 + 회사 ArduPilot 트리(`~/APM4.5`, `./waf configure --board sitl && ./waf copter`) + pymavlink, `gh` CLI(로그인).
