@@ -3,6 +3,7 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QGroundControl 1.0
+import QGroundControl.Vehicle 1.0
 import "."
 
 Rectangle {
@@ -15,6 +16,17 @@ Rectangle {
     readonly property var  _cam:    _mgr && _mgr.cameras.count > 0 ? _mgr.cameras.get(_mgr.currentCamera) : null
     readonly property bool _video:  _cam ? _cam.cameraMode === 1 : false
     readonly property bool _rec:    _cam ? _cam.videoStatus === 1 : false
+    // SD card (bug #9553 / #316, Figma 99 Components "ui/CameraRail · state: No SD card"): same rule as the classic
+    // photo/video control: a camera that reports storage shoots only with a ready card with free space. The camera
+    // control refuses photo / record start without a card, so the rail says why instead of doing nothing.
+    readonly property string _sdProblem: {
+        if (!_cam || _cam.storageStatus === QGCCameraControl.STORAGE_NOT_SUPPORTED) return ""
+        if (_cam.storageStatus === QGCCameraControl.STORAGE_EMPTY)       return qsTr("No SD card")
+        if (_cam.storageStatus === QGCCameraControl.STORAGE_UNFORMATTED) return qsTr("SD card not formatted")
+        if (_cam.storageStatus === QGCCameraControl.STORAGE_READY && _cam.storageFree === 0) return qsTr("SD card full")
+        return ""
+    }
+    readonly property bool _canShoot: _sdProblem === ""
 
     width:  SimpleTheme.px(128)
     height: settingsBtn.y + settingsBtn.height + SimpleTheme.px(20)
@@ -58,6 +70,7 @@ Rectangle {
             width: SimpleTheme.px(104); height: width; radius: width / 2
             color: "transparent"
             border.width: SimpleTheme.px(5); border.color: SimpleTheme.textPrimary
+            opacity: rail._canShoot || rail._rec ? 1 : 0.4      // stopping a recording is always allowed
             Rectangle {
                 anchors.centerIn: parent
                 width: rail._rec ? SimpleTheme.px(40) : SimpleTheme.px(80)
@@ -69,10 +82,27 @@ Rectangle {
                 anchors.fill: parent
                 enabled: !!rail._cam && !rail.blocked
                 onClicked: {
+                    if (rail._rec) { rail._cam.stopVideo(); return }
+                    if (!rail._canShoot) { sdBlink.restart(); return }
                     if (!rail._video) rail._cam.takePhoto()
-                    else if (rail._rec) rail._cam.stopVideo()
                     else rail._cam.startVideo()
                 }
+            }
+        }
+        SText {
+            id: sdLabel
+            anchors.horizontalCenter: parent.horizontalCenter
+            visible: rail._sdProblem !== ""
+            width: SimpleTheme.px(112)
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            text: rail._sdProblem
+            size: 20; medium: true; color: SimpleTheme.warn
+            SequentialAnimation {
+                id: sdBlink
+                loops: 2
+                NumberAnimation { target: sdLabel; property: "opacity"; to: 0.2; duration: 150 }
+                NumberAnimation { target: sdLabel; property: "opacity"; to: 1;   duration: 150 }
             }
         }
         // Gimbal pitch readout

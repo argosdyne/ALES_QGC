@@ -4164,6 +4164,18 @@
         <source>Camera</source>
         <translation>카메라</translation>
     </message>
+    <message>
+        <source>No SD card</source>
+        <translation>SD 카드 없음</translation>
+    </message>
+    <message>
+        <source>SD card not formatted</source>
+        <translation>SD 카드 포맷 필요</translation>
+    </message>
+    <message>
+        <source>SD card full</source>
+        <translation>SD 카드 가득 참</translation>
+    </message>
 </context>
 <context>
     <name>SimpleCameraSheet</name>
