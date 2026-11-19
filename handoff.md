@@ -64,10 +64,11 @@
   앱에서 열 수 없지만 파일은 남아 있습니다. 지우려면 C++ 참조를 끊어야 해서 코어 수정이 커집니다. 지금 할지, 개발자 리뷰 뒤로 미룰지.
   `reach.py --cpp-roots`(4장)로 대상 목록을 다시 뽑을 수 있습니다.
 
-**B. 작은 정리 (바로 할 수 있음)**
-1. 매개변수에 "재부팅 필요" 표시가 있으면 옛 스타일 메시지 상자(QGC `showAppMessage`)가 뜹니다. 짐벌 종류·출력 변경 때 S101 안내와 겹칩니다 → Simple 알림으로 바꾸기.
-2. `mainWindow`에 남은 LiDAR / 테더 / 구명조끼 패널 플래그(클래식 패널 삭제로 쓰이지 않음) 정리.
-3. `CodevCameraVisual.qml`이 회사 카메라가 아닌 MAVLink 카메라에서 TypeError(`x`/`toFixed` of undefined)를 냅니다. 기존 문제.
+**B. 작은 정리 — 2026-11-19 완료**
+1. ~~재부팅 필요 메시지 상자~~ → Simple 토스트(`b918c52e5`, Figma S60/S101 노트). S101·S60은 자체 안내만 표시. 실기·SITL에서 토스트 표시는 아직 화면으로 확인하지 않음.
+2. ~~`mainWindow` 패널 플래그~~ 삭제(`a04d43456`). `ysOpenPanelOnConnect` 설정은 남김(이제 효과 없음).
+3. ~~`CodevCameraVisual.qml` TypeError~~ 수정(`bc7e41c94`): 일반 MAVLink 카메라에서는 Codev 전용 값을 읽지 않음.
+- 남은 메모: Figma "UX notes · S101" 제목이 "S101 페이로드 › Vision LiDAR"로 잘못 붙어 있음(내용은 짐벌). 확인 후 고칠 것.
 
 **C. 실기·장비 시험 (SITL로 못 한 것)**
 - USB 게임패드(S95), Vision LiDAR(S99), RTK 시리얼 데이터, SAFE-T 전원 상실 시 "예, 이 드론입니다"(S50),
