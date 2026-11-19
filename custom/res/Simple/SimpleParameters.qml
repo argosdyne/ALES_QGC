@@ -141,7 +141,9 @@ Rectangle {
                 if (!fact) return
                 var err = fact.validate(String(value), false)
                 if (err !== "") { editError = err; return }
+                SimpleTheme.quietRestart = true        // the note below says it (no restart toast)
                 fact.value = value
+                SimpleTheme.quietRestart = false
                 editError = ""
                 note = fact.vehicleRebootRequired ? qsTr("%1 saved. Restart the drone to use the new value.").arg(fact.name) : qsTr("%1 saved on the drone.").arg(fact.name)
                 rev++

@@ -11,6 +11,12 @@ QtObject {
     // Settings > General > Text size (Large = 1.2)
     property real textScale:    1.0
 
+    // Restart toast (SimpleRoot.showRestartNotice, Figma S60 / S101 notes 2026-11-19) is not shown when the screen
+    // shows its own restart notice: ownRestartHints = pages open that do it for every value they change (count),
+    // quietRestart = set around one change whose screen shows the note itself (the core reports it synchronously).
+    property int  ownRestartHints: 0
+    property bool quietRestart:    false
+
     function px(v)  { return Math.round(v * scale) }
     function fs(v)  { return Math.max(1, Math.round(v * scale * textScale)) }
 

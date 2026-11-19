@@ -211,6 +211,12 @@ ApplicationWindow {
         showMessageDialog(dialogTitle, dialogText)
     }
 
+    // Called by QGCApplication::showRebootNotice: a value that needs a drone / app restart was changed.
+    // The Simple UI shows a short toast (Figma S60 / S101 notes, 2026-11-19); false = show the classic message.
+    function _showRebootNotice(vehicle, name) {
+        return simpleUILoader.item ? simpleUILoader.item.showRestartNotice(vehicle, name) : false
+    }
+
     Component {
         id: simpleMessageDialogComponent
 

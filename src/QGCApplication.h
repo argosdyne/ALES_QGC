@@ -148,6 +148,10 @@ public slots:
     /// one after the other.
     void showRebootAppMessage(const QString& message, const QString& title = QString());
 
+    /// A changed value needs a restart (vehicle = drone restart, else app restart). AQGC Simple UI: the root window
+    /// shows its own short notice (_showRebootNotice); without one, falls back to showRebootAppMessage(fallbackMessage).
+    void showRebootNotice(bool vehicle, const QString& name, const QString& fallbackMessage);
+
 signals:
     /// This is connected to MAVLinkProtocol::checkForLostLogFiles. We signal this to ourselves to call the slot
     /// on the MAVLinkProtocol thread;

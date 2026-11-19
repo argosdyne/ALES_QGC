@@ -45,6 +45,18 @@ Item {
     property string vehicleSetupCategory: "summary"
     function openMenu() { menu.open() }
 
+    // A changed value needs a restart (MainRootWindow._showRebootNotice ← core Fact). Replaces the classic message
+    // box (Figma S60 / S101 notes, 2026-11-19). vehicle: drone restart (name = parameter) / app restart (name = setting).
+    // Returns true = handled (also when the screen shows its own restart notice).
+    function showRestartNotice(vehicle, name) {
+        if (SimpleTheme.quietRestart || SimpleTheme.ownRestartHints > 0) return true
+        restartToast.text = vehicle ? qsTr("%1 saved. Restart the drone to use the new value.").arg(name)
+                                    : qsTr("“%1” changes after the app restarts.").arg(name)
+        restartToast.visible = true
+        restartToastTimer.restart()
+        return true
+    }
+
     // Advanced mode: no PIN (user 2026-11-16), kept over restarts (CustomPlugin.advancedMode). Figma S44 / 02 Flows E
     // (2026-11-17): Advanced mode keeps the Simple screens and adds the Advanced panel in the menu.
     // purpose: advanced (open the S44 panel) | setup | parameters | analyze | settings — all are Simple screens now
@@ -128,6 +140,23 @@ Item {
         id: menu
         anchors.fill: parent
         vs: vs
+    }
+
+    // Restart toast (S36 toast style, on every page)
+    Rectangle {
+        id: restartToast
+        property string text: ""
+        visible: false
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom; anchors.bottomMargin: SimpleTheme.px(24 + 120 + 16 + 104 + 16)
+        width: Math.min(restartToastText.implicitWidth + SimpleTheme.px(56), parent.width - SimpleTheme.px(80))
+        height: SimpleTheme.px(72); radius: height / 2
+        color: SimpleTheme.withAlpha(SimpleTheme.surfaceRaised, 0.97)
+        border.width: SimpleTheme.px(1); border.color: SimpleTheme.line
+        SText { id: restartToastText; anchors.centerIn: parent; width: Math.min(implicitWidth, restartToast.width - SimpleTheme.px(56))
+                elide: Text.ElideRight; text: restartToast.text; size: 26; medium: true }
+        Timer { id: restartToastTimer; interval: 6000; onTriggered: restartToast.visible = false }
+        MouseArea { anchors.fill: parent; onClicked: restartToast.visible = false }
     }
 
     // S57 first-start welcome (language & units) — shown once, replaces the classic first-run prompts

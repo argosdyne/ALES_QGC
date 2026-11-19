@@ -873,6 +873,20 @@ void QGCApplication::showRebootAppMessage(const QString& message, const QString&
     showAppMessage(message, title);
 }
 
+void QGCApplication::showRebootNotice(bool vehicle, const QString& name, const QString& fallbackMessage)
+{
+    // AQGC Simple UI: a short toast instead of the classic message box. Not debounced: a toast does not block.
+    QObject* rootQmlObject = _rootQmlObject();
+    if (rootQmlObject && rootQmlObject->metaObject()->indexOfMethod("_showRebootNotice(QVariant,QVariant)") != -1) {
+        QVariant varReturn;
+        QMetaObject::invokeMethod(rootQmlObject, "_showRebootNotice", Q_RETURN_ARG(QVariant, varReturn), Q_ARG(QVariant, vehicle), Q_ARG(QVariant, name));
+        if (varReturn.toBool()) {
+            return;
+        }
+    }
+    showRebootAppMessage(fallbackMessage);
+}
+
 void QGCApplication::_showDelayedAppMessages(void)
 {
     if (_rootQmlObject()) {

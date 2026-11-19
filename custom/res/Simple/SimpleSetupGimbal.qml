@@ -54,6 +54,9 @@ Flickable {
         rev++
     }
     property bool restartNeeded: false
+    // this page shows its own restart notice: no restart toast while it is open
+    Component.onCompleted:   SimpleTheme.ownRestartHints++
+    Component.onDestruction: SimpleTheme.ownRestartHints--
     Connections { target: gb.p("MNT1_TYPE"); ignoreUnknownSignals: true; function onRawValueChanged() { gb.restartNeeded = true } }
 
     readonly property var pmin: p2("MNT1_PITCH_MIN", "MNT_ANGMIN_TIL")

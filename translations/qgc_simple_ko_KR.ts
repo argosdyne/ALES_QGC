@@ -8690,4 +8690,15 @@
         <translation>완료</translation>
     </message>
 </context>
+<context>
+    <name>SimpleRoot</name>
+    <message>
+        <source>%1 saved. Restart the drone to use the new value.</source>
+        <translation>%1 저장함. 새 값을 쓰려면 드론을 다시 시작하세요.</translation>
+    </message>
+    <message>
+        <source>“%1” changes after the app restarts.</source>
+        <translation>“%1” 설정은 앱을 다시 시작하면 바뀝니다.</translation>
+    </message>
+</context>
 </TS>
