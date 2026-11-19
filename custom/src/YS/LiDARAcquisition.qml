@@ -22,7 +22,8 @@ Item {
     readonly property bool recording:   _ys ? _ys.lidarState === YSManager.StateRecording : false
     readonly property bool flying:      _activeVehicle ? _activeVehicle.flying : false
 
-    // Y-02: last Start rejected by the LiDAR. Start stays disabled until the LiDAR status changes.
+    // Y-02: last Start rejected by the LiDAR. Shown until the pre-checks change or Start is sent again
+    // (Start (retry) in the panel, or mission Auto Start): a READY LiDAR keeps the same pre-check rows.
     property bool   startRejected:      false
     property string rejectTime:         ""
     property int    rejectCode:         0       ///< YellowScan Command status byte, 0 = not sent by Birdcom
@@ -134,7 +135,7 @@ Item {
         } else if (code !== 0) {
             text += " (" + hexCode(code) + ")"
         }
-        mainWindow.showCriticalVehicleMessage(text)
+        mainWindow.showLiDARCriticalMessage(text)
     }
 
     // Remaining survey lines are an estimate. Needs the uploaded plan still open (not edited) in Plan view, because
@@ -252,7 +253,7 @@ Item {
         onTriggered: {
             if (_ys && recording && !(_ys.statusValid && (_ys.genInfo & _genInfoDataLoggingBit))) {
                 loggingWarning = true
-                mainWindow.showCriticalVehicleMessage(qsTr("LiDAR: Data logging not reported %1 s after Start").arg(_dataLoggingTimeoutMs / 1000))
+                mainWindow.showLiDARCriticalMessage(qsTr("LiDAR: Data logging not reported %1 s after Start").arg(_dataLoggingTimeoutMs / 1000))
             }
         }
     }

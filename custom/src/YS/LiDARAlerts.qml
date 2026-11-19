@@ -194,7 +194,7 @@ Item {
     }
 
     function _showCritical(text) {
-        mainWindow.showCriticalVehicleMessage(qsTr("LiDAR critical: %1.").arg(text) + (_recording ? " " + qsTr("Stop acquisition recommended.") : ""))
+        mainWindow.showLiDARCriticalMessage(qsTr("LiDAR critical: %1.").arg(text) + (_recording ? " " + qsTr("Stop acquisition recommended.") : ""))
     }
 
     function dismissBanner() {

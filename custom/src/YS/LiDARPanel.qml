@@ -361,11 +361,12 @@ Rectangle {
                 Layout.fillWidth:   true
                 spacing:            ScreenTools.defaultFontPixelWidth
 
-                // Start only when every pre-check passes (READY); locked while waiting for the ACK
+                // Start only when every pre-check passes (READY); locked while waiting for the ACK.
+                // After a reject the pre-check rows can stay unchanged, so Start (retry) sends Start again.
                 QGCButton {
-                    text:               qsTr("Start")
+                    text:               _startRejected ? qsTr("Start (retry)") : qsTr("Start")
                     Layout.fillWidth:   true
-                    enabled:            !!_acq && _state === YSManager.StateReady && !_startRejected && !_noResponse
+                    enabled:            !!_acq && _state === YSManager.StateReady && !_noResponse
                     primary:            enabled
                     onClicked:          _acq.start()
                 }

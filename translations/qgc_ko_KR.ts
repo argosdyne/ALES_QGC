@@ -19322,6 +19322,26 @@ Only enable for the vehicle tethered to this station.</source>
       <translation>LiDAR: 첫 측량 웨이포인트에서 자동 시작 건너뜀, %1</translation>
     </message>
     <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="131"/>
+      <source>Start waiting for ACK</source>
+      <translation>시작 ACK 대기 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="132"/>
+      <source>Stop waiting for ACK</source>
+      <translation>중지 ACK 대기 중</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="157"/>
+      <source>LiDAR: Auto Stop pending at last survey waypoint, %1</source>
+      <translation>LiDAR: 마지막 측량 웨이포인트에서 자동 중지 대기 중, %1</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="230"/>
+      <source>LiDAR: Auto Stop not sent after landing, %1. Stop acquisition manually</source>
+      <translation>LiDAR: 착륙 후 자동 중지 미전송, %1. 수동으로 수집을 중지하십시오</translation>
+    </message>
+    <message>
       <location filename="../custom/src/YS/LiDARMissionAuto.qml" line="121"/>
       <source>last Start rejected</source>
       <translation>마지막 시작 거부됨</translation>
@@ -19528,6 +19548,11 @@ Only enable for the vehicle tethered to this station.</source>
       <location filename="../custom/src/YS/LiDARPanel.qml" line="366"/>
       <source>Start</source>
       <translation>시작</translation>
+    </message>
+    <message>
+      <location filename="../custom/src/YS/LiDARPanel.qml" line="367"/>
+      <source>Start (retry)</source>
+      <translation>시작 (재시도)</translation>
     </message>
     <message>
       <location filename="../custom/src/YS/LiDARPanel.qml" line="375"/>

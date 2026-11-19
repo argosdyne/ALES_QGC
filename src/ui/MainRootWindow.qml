@@ -878,6 +878,35 @@ ApplicationWindow {
         }
     }
 
+    // YS LiDAR critical messages share the critical popup but are not kept in the vehicle message list,
+    // so instead of being dropped they are queued while the popup is open or the video is fullscreen
+    property var _lidarCriticalQueue: []
+
+    function showLiDARCriticalMessage(message) {
+        if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            if (_lidarCriticalQueue.indexOf(message) === -1) {
+                _lidarCriticalQueue.push(message)
+            }
+        } else {
+            showCriticalVehicleMessage(message)
+        }
+    }
+
+    // indicatorPopup is left open: it may be the message list dropped by the popup just closed
+    function _showNextLiDARCriticalMessage() {
+        if (_lidarCriticalQueue.length === 0 || criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
+            return
+        }
+        criticalVehicleMessagePopup.criticalVehicleMessage      = _lidarCriticalQueue.shift()
+        criticalVehicleMessagePopup.dropMessageIndicatorOnClose = false
+        criticalVehicleMessagePopup.open()
+    }
+
+    Connections {
+        target:             QGroundControl.videoManager
+        onFullScreenChanged: Qt.callLater(_showNextLiDARCriticalMessage)
+    }
+
     Popup {
         id:                 criticalVehicleMessagePopup
         y:                  ScreenTools.defaultFontPixelHeight
@@ -890,6 +919,9 @@ ApplicationWindow {
 
         property alias  criticalVehicleMessage:        criticalVehicleMessageText.text
         property bool   dropMessageIndicatorOnClose:   false
+
+        // After the click handler has dropped the message indicator, if it had to
+        onClosed: Qt.callLater(_showNextLiDARCriticalMessage)
 
         background: Rectangle {
             anchors.fill:   parent
