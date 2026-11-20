@@ -291,6 +291,7 @@ ApplicationWindow {
     MissionResetBanner {
         width:  0
         height: 0
+        noticeInSimpleUI: !!simpleUILoader.item
     }
 
     FlyView {

@@ -19,9 +19,13 @@ import QGroundControl.ScreenTools   1.0
 Item {
     id: bannerRoot
 
+    // AQGC Simple UI: the reboot / mission notice is a banner on the Simple fly screen (SimpleFlyOverlay), not this
+    // classic dialog (Tuleap bug #28564). The mission start failure dialog below is unchanged.
+    property bool   noticeInSimpleUI:   false
+
     property var    _vehicle:           QGroundControl.multiVehicleManager.activeVehicle
     property var    _monitor:           _vehicle ? _vehicle.missionResetMonitor : null
-    property bool   _show:              _monitor ? (_monitor.rebootBannerVisible || _monitor.bannerVisible) : false
+    property bool   _show:              !noticeInSimpleUI && _monitor ? (_monitor.rebootBannerVisible || _monitor.bannerVisible) : false
     property var    _dialog:            null
     property bool   _handlingClose:     false
     property int    _startMode:         _monitor ? _monitor.startFailureMode : 0
