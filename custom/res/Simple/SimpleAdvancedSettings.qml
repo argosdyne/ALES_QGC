@@ -240,7 +240,11 @@ Column {
             SSettingRow { visible: !!adv._adsb.adsbServerConnectEnabled.rawValue; title: qsTr("ADSB server"); sub: qsTr("Address and port")
                           Row { spacing: SimpleTheme.px(10)
                                 STextField { designWidth: 260; text: adv._adsb.adsbServerHostAddress.rawValue; onEdited: adv._adsb.adsbServerHostAddress.rawValue = text }
-                                SFactField { fact: adv._adsb.adsbServerPort; designWidth: 330 } } }
+                                // adsbServerPort is a "string" setting (upstream JSON): a plain port field, not SFactField
+                                // (that showed 30003.000 and stepped by 0.001)
+                                STextField { designWidth: 180; numeric: true; text: String(adv._adsb.adsbServerPort.rawValue)
+                                             error: !(Number(currentText) >= 1 && Number(currentText) <= 65535)
+                                             onEdited: if (Number(text) >= 1 && Number(text) <= 65535) adv._adsb.adsbServerPort.rawValue = String(Number(text)) } } }
             SSettingRow { title: qsTr("RTK base station · USB"); sub: qsTr("Base receiver for RTK correction (survey-in)."); SFactToggle { fact: adv._auto.autoConnectRTKGPS } }
             SSettingRow { visible: !!adv._auto.autoConnectRTKGPS.rawValue; title: qsTr("Survey-in accuracy"); sub: qsTr("The base starts sending when it is this accurate")
                           SFactField { fact: adv._rtk.surveyInAccuracyLimit; designWidth: 380 } }
