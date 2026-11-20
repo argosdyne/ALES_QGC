@@ -341,6 +341,8 @@ Reply to the user in Korean unless they write in English.
   "Connect when the app starts" (autoConnect) and Test; each value is saved by ElistairStationManager at once and
   restarts a running connection, so the connection rows are locked while armed. Advanced mode only: frame version
   (Auto default) and the ground-power action (noPowerFailsafe; Auto land asks first). The classic Station Setup is gone.
+  S16 torque (user 2026-11-20): 0–10 steps of 10 % with ‹ ›, as the classic #317 panel (presets 0/30/100 % removed);
+  the shown step is a reference only (set value, else applied value on Extended V1 "≈"; unknown: ‹ = 0, › = 1).
 - QML (Qt 5.15): a RegExp kept in a `property var` is not a RegExp any more (TypeError on .test): keep it inside a
   function. Do not name a QML function `valueOf` (or other Object.prototype names): calls resolve to the built-in.
 - The NTRIP source writes the caster table to `rtk_data.xml` in the working directory (git-ignored).
